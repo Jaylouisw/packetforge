@@ -40,6 +40,9 @@ lists its own sub-commands (`network`, `range`, `lease`, …).
 | `reload` | answers instead of rebooting: nothing here boots, so it names the saved copy and the way back rather than pretending to restart ([Saving the configuration](#saving-the-configuration)) |
 | `clear counters [<port>] / clear interface counters` | zero the per-port counters (privileged exec) — the two spellings are the same command |
 | `clear ip nat translation [*\|<inside-local>]` | empty the translation table and keep the rules; `*` clears every entry, an inside-local clears that host's. Answers "was already empty" the second time |
+| `show access-lists [<name>]` | the list with its per-line match counters |
+| `show ip access-lists [<name>]` | the same table under the spelling IOS documents - one handler, one table |
+| `show ip traffic` | per-port totals: packets and bytes each way, drops with their reasons. Says plainly that a per-protocol breakdown is not counted |
 | `show ip dhcp server statistics` | pools, automatic and manual bindings, leases given/renewed/expired and failed requests, with a line saying which counters are not kept (per-message DHCPDISCOVER/OFFER/REQUEST counts) |
 | `clear ip dhcp binding * \| <address>` | empty the DHCP binding table, or one entry of it. Reports what it removed and says the client keeps its address until it renews; a bare command is incomplete because clearing everything is destructive |
 | `clear arp [<port>] / clear ip arp` | empty the ARP cache (privileged exec); the next packet re-learns it. `clear arp interface <port>` is a third accepted spelling of the same thing — bare port, `interface <port>` and `clear ip arp` all reach one implementation, and `clear arp <address>` is the fourth form, which refuses by name when that host has no entry. A port clears only the entries `show arp` attributes to that port — an entry behind a switch is attributed to `-` and survives |
@@ -1551,6 +1554,41 @@ interface address is used)
 ```
 
 A configured id still wins, and the neighbour sees it.
+
+### The `show ip` spellings, and a view that says what it does not count
+
+```
+R1#show ip access-lists
+% Invalid show command: ip access-lists
+SW1#show ip dhcp snooping
+% Usage: show ip dhcp binding | show ip dhcp pool
+```
+
+`show ip access-lists [<name>]` is the spelling IOS documents and every lab guide types; it is accepted
+now and prints the same table, counters and all, because it is rewritten to the one form the handler
+reads rather than being a second implementation.
+
+A switch asked about DHCP snooping was pointed at two views of a DHCP **server** — a device a switch
+cannot be — and never at the thing it asked about. It says that snooping is not modelled, what the switch
+does instead (forwards DHCP as an ordinary broadcast, inspecting nothing per port), and which view answers
+the question behind the question (`show mac address-table`).
+
+`show ip traffic` was a typo. What this model counts is per port, so the view prints those totals and is
+checked against them:
+
+```
+Traffic through R1 (per-port totals, all ports):
+  Received     2 packets, 128 bytes
+  Sent         2 packets, 128 bytes
+  Dropped      4 packets
+    acl-deny          4
+
+What is not counted: a per-protocol breakdown (ICMP/TCP/UDP/ARP totals). This model counts
+frames per port, so "show interfaces counters" is the same numbers with the ports kept apart.
+```
+
+An idle device says it is idle rather than printing a table of zeros, and the drop reasons come from the
+same records `show interfaces counters` reads.
 
 ### A DHCP server can be asked what it has counted
 

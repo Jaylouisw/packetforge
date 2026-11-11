@@ -8520,6 +8520,14 @@ class CliSession {
       tokens = split.tokens;
       atMs = split.atMs;
     }
+    // `show ip access-lists [<name>]` is the spelling IOS documents and every lab guide types, and
+    // this console answered `% Invalid show command: ip access-lists` while holding the table.
+    // Rewritten to the one form the handler reads, so there is one table and not two.
+    if (String(tokens[0] || '').toLowerCase() === 'ip' &&
+        (String(tokens[1] || '').toLowerCase() === 'access-lists' ||
+         String(tokens[1] || '').toLowerCase() === 'access-list')) {
+      tokens = ['access-lists'].concat(tokens.slice(2));
+    }
     const what = (tokens[0] || '').toLowerCase();
     const dev = this.device;
     const out = [];
@@ -8799,6 +8807,8 @@ class CliSession {
       }
     } else if (what === 'port-security') {
       out.push.apply(out, this._showPortSecurity(tokens.slice(1)));
+    } else if (what === 'ip' && tokens[1] === 'traffic') {
+      out.push.apply(out, this._showIpTraffic());
     } else if (what === 'access-lists' || what === 'access-list') {
       const aclLib = require('./acl');
       const acls = dev.config.acls || {};
@@ -10221,6 +10231,37 @@ class CliSession {
   // `show ip dhcp server statistics` answers with the counters this model actually keeps, and works
   // before the first lease exists - a server with no bindings still has pools, reservations and a
   // history of zero exchanges, and that is a real answer.
+  // `show ip traffic` in IOS is a protocol breakdown. What this model counts is per port: frames and
+  // bytes each way, and drops with the reason. So the view prints those totals and says plainly that
+  // there is no per-protocol breakdown - a table of zeroed ICMP/TCP/UDP rows would be a claim about a
+  // measurement nobody took. The per-port table answers the same question with more detail.
+  _showIpTraffic() {
+    const dev = this.device;
+    const rows = this.sim ? this.sim.portStats(dev.id) : [];
+    const sum = function (k) {
+      return rows.reduce(function (n, r) { return n + (Number(r[k]) || 0); }, 0);
+    };
+    const out = [];
+    const live = rows.filter(function (r) { return (r.rx || 0) + (r.tx || 0) + (r.drops || 0) > 0; });
+    if (!live.length) {
+      return ['% ' + dev.name + ' has carried no traffic since this lab started',
+        '% Counters are per port - "show interfaces counters" lists them, "show interfaces <port>" one of them'];
+    }
+    out.push('Traffic through ' + dev.name + ' (per-port totals, all ports):');
+    out.push('  Received     ' + sum('rx') + ' packets, ' + sum('rxBytes') + ' bytes');
+    out.push('  Sent         ' + sum('tx') + ' packets, ' + sum('txBytes') + ' bytes');
+    out.push('  Dropped      ' + sum('drops') + ' packets');
+    const byReason = {};
+    for (const r of rows) {
+      for (const k of Object.keys(r.reasons || {})) byReason[k] = (byReason[k] || 0) + r.reasons[k];
+    }
+    for (const k of Object.keys(byReason).sort()) out.push('    ' + pad(k, 18) + byReason[k]);
+    out.push('');
+    out.push('What is not counted: a per-protocol breakdown (ICMP/TCP/UDP/ARP totals). This model counts');
+    out.push('frames per port, so "show interfaces counters" is the same numbers with the ports kept apart.');
+    return out;
+  }
+
   _showDhcpStatistics(pools) {
     const dev = this.device;
     const out = [];
@@ -10331,6 +10372,18 @@ class CliSession {
         out.push('    In use     : ' + bindings.length + (total === null ? '' : ' of ' + total));
       }
       return out;
+    }
+
+    if (what === 'snooping') {
+      // A switch was answered with a usage line naming `show ip dhcp binding` and `show ip dhcp pool`
+      // - two views of a DHCP *server*, on a device that cannot be one. The honest answer is that
+      // snooping is not modelled, what the switch does instead, and which views do exist here.
+      return [
+        '% DHCP snooping is not modelled: a switch here forwards DHCP as an ordinary broadcast, and',
+        '% nothing inspects, filters or rate-limits DHCP messages per port.',
+        '% There is no trust state to show and no binding table to read - "show mac address-table"',
+        '% answers which port a client is on, and "show ip dhcp binding" exists only on a server.'
+      ];
     }
 
     if (what !== 'binding' && what !== 'bindings' && what !== 'lease' && what !== 'leases') {
@@ -12069,7 +12122,8 @@ class CliSession {
       helpLine('show lldp neighbors detail', 'one block per neighbour: chassis, port, TTL, medium'),
       helpLine('show lldp interface [<port>]', 'per-port transmit/receive decision and the neighbour'),
       helpLine('show lldp traffic [<port>]', 'frames sent, received, discarded and refused'),
-      helpLine('show access-lists [<name>]', 'entries, and where they are bound'),
+      helpLine('show access-lists [<name>]', 'entries, where they are bound, and the match counters'),
+      helpLine('show ip access-lists [<name>]', 'the same table under the spelling IOS documents'),
       helpLine('show vrrp [<group>]', 'groups, priorities and current state - one group if named'),
       helpLine('show ip protocols', 'the routing processes running here, and their distances'),
       helpLine('show ip bgp', 'the BGP table: prefixes received, and which row forwards'),
@@ -12090,6 +12144,7 @@ class CliSession {
         'IPv6 addresses per port, and where each came from'),
       helpLine('show ipv6 route [<dest>] [at <ms>|converged]',
         'the IPv6 table, a longest-match lookup, or an instant'),
+      helpLine('show ip traffic', 'per-port totals: packets, bytes and drops with their reasons (no per-protocol split)'),
       helpLine('show ip dhcp binding', 'leases handed out, or the lease held'),
       helpLine('show ip dhcp pool', 'pool summary and addresses in use'),
       helpLine('show ip dhcp server statistics', 'pools, bindings and a count of exchanges, with what is not counted'),
