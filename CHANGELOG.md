@@ -496,6 +496,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **A number is decimal digits, and a word after a port is no longer dropped.** `parseInt` reads `1e3`
+  as `1`, `0x10` as `16` and `12abc` as `12`, so a line could configure a value nobody typed and answer
+  as if it had worked. Measured in one session, before and after `6367b8bb`:
+
+  | typed | before | now |
+  |---|---|---|
+  | `vrrp 1e3 ip 10.0.0.1` | `VRRP group 1 on Gi0/0 owns 10.0.0.1` — a group created from a word that is not 1 | `% Invalid virtual router id: 1e3 (1-255)` |
+  | `vrrp 1 ip 10.0.0.1 priority 0x10` | `VRRP group 1 on Gi0/0 owns 10.0.0.1`, tail silently dropped | `% Invalid priority: 0x10 (1-255)` + `% Nothing was changed` |
+  | `interface Fa0/1 zzz` | block entered, `zzz` dropped | `% Unexpected argument "zzz" - interface <port> takes one port` |
+  | `interface GigabitEthernet 0/1` | — | `% Interface not found: GigabitEthernet 0/1`, quoted in full so the port reads as the wrong part |
+
+  The documented VRRP tail is now read and applied instead of ignored:
+  `vrrp 1 ip 10.0.0.254 priority 150 preempt advertise 2` answers
+  `VRRP group 1 on Gi0/0 owns 10.0.0.254 (priority 150, preempt on, advertise 2 s)`, and the whole tail
+  is judged before the group is created, so a refused line leaves nothing behind. `1.5` remains legal
+  where a dot means something: `router bgp 1.5` answers `BGP enabled, local AS 65541 ("1.5" is asdot for
+  65541)`. One helper, `_decimal`, now decides whether a word is a number. `test/strict-numbers.test.js`
+  holds **60 assertions**. See [docs/CLI.md](docs/CLI.md).
+
 - **`no ospf` takes three shapes, and each removes only what it names.** The handler ignored everything
   after `no ospf`, so an area id that cannot exist, a router id it never had, and one area all answered
   the same way: the whole process went away. Measured in a single session on a router with
