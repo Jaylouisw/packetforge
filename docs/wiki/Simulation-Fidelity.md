@@ -15,14 +15,10 @@ is right.
   configuration (`ipv6 nd ra enable|disable`, `ipv6 nd ra managed|other-config`,
   `ipv6 nd ra lifetime <s>`, `ipv6 nd prefix <prefix>/<len> [valid <s>] [preferred <s>]`,
   `ipv6 nd suppress-ra`) with SLAAC on the hosts. Those are **global** verbs even when typed inside an
-  interface block, and the console says so rather than applying them silently —
-  `note: "ipv6 nd ra enable" is a global command - applied at global scope; you are still in this
-  interface block`. The prefix form wants the keywords: `ipv6 nd prefix 2001:db8::/64 3600 1800` is
-  refused with `% Unexpected "3600": expected [valid <seconds>] [preferred <seconds>]`, while the same
-  line with the intervals left off is accepted and reports what it advertised (`L=1 A=1, valid
-  2592000s, preferred 604800s` — the RFC defaults). A prefix on an interface with no address inside it
-  is never actually sent, and `show ipv6 nd` says so in a line of its own:
-  `% 2001:db8::/64 is configured but no interface has an address inside it, so it is never advertised`.
+  interface block, and the prefix form wants the keywords: `ipv6 nd prefix 2001:db8::/64 3600 1800` is
+  refused (*expected [valid <seconds>] [preferred <seconds>]*) while the same line works with the
+  intervals left off. A prefix on an interface with no address inside it is never actually sent, and
+  `show ipv6 nd` says so in a line of its own.
 - **Services**: DHCP client and server, NAT (static, dynamic pool and PAT — all three translated in
   the data path and visible in `show ip nat translations`; static and PAT rules can be written from the
   console with `ip nat inside source …`, but a pool-based dynamic rule still comes from the topology
