@@ -56,7 +56,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   so `show logging dro` works in a lab where nothing has dropped yet. `show logging types` composes with
   the output filter (`show logging types | include acl` answers the single `acl-deny -` row). One
   behaviour to keep in mind: a bare `show logging d` is not read as the type `drop` — it resolves to the
-  `device` keyword and asks for a name. `test/event-types.test.js` holds **27 assertions**. See
+  `device` keyword and asks for a name. `test/event-types.test.js` holds **37 assertions**. See
   [docs/CLI.md](docs/CLI.md).
 
 - **A reverse lookup, and the way back out of every DNS setting.** `nslookup <name>` resolved forward;
@@ -789,7 +789,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   which a host uses for its way out (`Route added: 10.9.0.0/24 via 10.0.0.9` — labs configure it); the
   verb that refuses there is `ip routing`, which answers `% D1 is not a router: it has no interfaces to
   route between` and then `% A host uses "ip default-gateway <gw>" for the one router it sends everything
-  to`. A new suite, `test/capability-gate.test.js`, holds **166 assertions** and passes. See
+  to`. A new suite, `test/capability-gate.test.js`, holds **153 assertions** and passes. See
   [docs/CLI.md](docs/CLI.md).
 
 - **A `/` between two placeholders is one value, not a choice.** The help grammar reads `/` as "or" —
