@@ -650,10 +650,10 @@ refused link.
 
 ## 6. Worked examples
 
-Both transcripts are real output from
+All three transcripts are real output from
 `new Topology().validateLink(aId, aIface, bId, bIface)` with the catalogue in
 `devices/`. The `devices` are built from the JSON shown, so you can reproduce
-either one.
+any of them.
 
 ### 6.1 Refused: copper into an SFP+ uplink
 
@@ -684,6 +684,10 @@ declares its cage:
 }
 ```
 
+The object also carries four keys this excerpt leaves out — `patchCord: null`,
+`patchCordLossDb: 0`, `polishWeakened: false` and `patchCordOptions: []` — so a reader diffing a live
+result against the block above is looking at a superset, not a mismatch.
+
 The refusal is correct and the fix is a hardware decision, not a config one.
 Either put a 1000BASE-T SFP in the uplink (`"media": ["1000base-t-sfp"]` on the
 spec, or just let the medium be chosen — it is already in the `sfp+` media list),
@@ -711,8 +715,10 @@ ok=false  speedMbps=2488
 [E_POLISH_MISMATCH] SDX 6320 10G Combo PON OLT/pon1 <-> Lab ONT (SC/UPC)/pon:
   SC/APC and SC/UPC take the same SC ferrule but not the same polish
   (APC angled 8 deg vs UPC flat). They are not intermateable - forcing it costs
-  about 3 dB and can chip the endface.
-[W_SPEED_DOWNGRADE] Link ... runs at 2.488G, below the 10G of pon1 and the
+  about 3 dB and can chip the endface. A hybrid patch cord (SMSCSX, sc-upc to
+  sc-apc, 0.3 dB insertion loss) joins these two polishes: declare it on the
+  link (patchCord: "SMSCSX") and the run becomes buildable.
+[W_SPEED_DOWNGRADE] Link ... runs at 2.488G, below the 9.953G of pon1 and the
   2.5G of pon.
 ```
 
@@ -720,9 +726,10 @@ Note the second line: the GPON rate *was* negotiated (2488 Mbps) even though the
 link is impossible. The error blocks; the warning is noise in this context.
 
 The fix is a green-vs-blue patch lead: declare the ONT `"connector": "sc-apc"`,
-or swap the OLT's PON module for an SC/UPC one and declare `sc-upc` on both ends.
-Declaring *one* end differently to silence the error is the bug this check
-exists to catch.
+swap the OLT's PON module for an SC/UPC one and declare `sc-upc` on both ends, or
+declare the hybrid cord the refusal itself now names — `patchCord: "SMSCSX"`, the
+same assembly `patchCordOptions[]` lists and §4.2 documents. Declaring *one* end
+differently to silence the error is the bug this check exists to catch.
 
 ### 6.3 Accepted: a 100G module in a 200G QSFP-DD cage
 
