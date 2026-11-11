@@ -2722,8 +2722,12 @@ class Simulator {
   // sounding reason is the one that lies. So the causes are ranked: a port or wire that cannot carry the frame
   // first, policy (ACL/VLAN/NAT) next, and only then silence.
   _lastDiscard(events) {
+    // The slot `no egress ports` matches both wordings: a refusal by the spanning tree used to be printed as a
+    // VLAN refusal, so the rank was written against that wording and one reason could only ever match one of them.
+    // The priority is unchanged on purpose - where this reason sits was decided when it was always about VLANs, and
+    // naming the tree does not make it a different kind of cause.
     const RANK = ['peer port shut', 'link administratively down',
-      'no ARP reply from', 'no egress ports in VLAN', 'ACL ', 'VLAN not allowed', 'NAT could not translate'];
+      'no ARP reply from', 'no egress ports', 'ACL ', 'VLAN not allowed', 'NAT could not translate'];
     const found = [];
     for (let i = 0; i < (events || []).length; i++) {
       const why = this._discardReason(events[i]);
@@ -3056,17 +3060,29 @@ class Simulator {
     const inLagId = inLag ? inLag.id : null;
 
     // Filter: blocked ports, ports outside this VLAN, and the ingress LAG.
+    //
+    // Every refusal is kept with its port, because when nothing is left the frame's fate has to be explained and
+    // the three refusals are three different answers. It used to be explained as "no egress ports in VLAN <vid>"
+    // whatever had refused, so a frame that died because the only other port was blocked by the spanning tree was
+    // reported as a VLAN problem - on a box where `show spanning-tree` already said "(traffic dropped)" for that
+    // same port, and where the port was in the VLAN all along. The words a counter prints are what an operator
+    // acts on, so they have to name the door that was actually shut.
     const usable = [];
+    const refused = [];
     for (const name of candidates) {
       if (this._isBlocked(dev, name)) {
         this._emit({ type: 'stp-block', dev: dev.id, iface: name, vlan: vid, reason: 'STP blocking' });
+        refused.push({ iface: name, why: 'stp' });
         continue;
       }
       const iface = dev.interfaces.get(name);
       if (!iface) continue;
       const lag = dev.lagFor ? dev.lagFor(name) : null;
-      if (inLagId && lag && lag.id === inLagId) continue;
-      if (vlanLib.classifyEgress(iface.vlan, vid).action === 'drop') continue; // not a member of this VLAN
+      if (inLagId && lag && lag.id === inLagId) { refused.push({ iface: name, why: 'bundle' }); continue; }
+      if (vlanLib.classifyEgress(iface.vlan, vid).action === 'drop') { // not a member of this VLAN
+        refused.push({ iface: name, why: 'vlan' });
+        continue;
+      }
       usable.push(name);
     }
 
@@ -3108,7 +3124,7 @@ class Simulator {
     }
 
     if (!egresses.length) {
-      this._emit({ type: 'drop', reason: 'no egress ports in VLAN ' + vid, dev: dev.id, iface: inIface, vlan: vid });
+      this._emit({ type: 'drop', reason: this._noEgressReason(vid, refused), dev: dev.id, iface: inIface, vlan: vid });
       return;
     }
 
@@ -3123,6 +3139,30 @@ class Simulator {
       const iface = dev.interfaces.get(e);
       this._emitFrame(dev, iface, frame, vid);
     }
+  }
+
+  // Why a frame left this device by no port, in one sentence, built from the refusals that were recorded.
+  //
+  // A port the spanning tree blocks is not a port outside the VLAN, and the two answers send an operator to
+  // different places: the VLAN one has them re-checking membership that was never wrong, while the tree one points
+  // at the port `show spanning-tree` already prints as "blocking (traffic dropped)". So the tree is named first,
+  // ahead of a VLAN refusal, because a refusal by the tree holds however the ports are configured.
+  _noEgressReason(vid, refused) {
+    const list = refused || [];
+    const portsFor = function (why) {
+      return list.filter(function (r) { return r.why === why; }).map(function (r) { return r.iface; });
+    };
+    const stp = portsFor('stp');
+    if (stp.length) {
+      const named = stp.slice(0, 3).join(', ') + (stp.length > 3 ? ' and ' + (stp.length - 3) + ' more' : '');
+      return 'no egress ports: spanning tree blocks ' + named;
+    }
+    if (portsFor('bundle').length && !portsFor('vlan').length) {
+      // The one other port is a member of the port-channel the frame arrived on, so leaving by it would be a
+      // hairpin. That is not a VLAN fact either.
+      return 'no egress ports: the only other port is a member of the ingress port-channel';
+    }
+    return 'no egress ports in VLAN ' + vid;
   }
 
   _forwardL3(dev, frame, inIface) {

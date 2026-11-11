@@ -434,6 +434,51 @@ past any restored `flow-N` so the next flow cannot collide.
 `test/flows-survive-save-load.test.js` pins it, 16 checks: the round trip (same id,
 same state, same hops), no id collision, ghost endpoints reported and dropped, and an
 empty board serializing `flows: []` rather than omitting the key.
+
+### A frame that died named the door that was shut
+
+`_forwardL2()` builds its flood candidates from the ports that can carry a frame, then
+filters them — a port the tree blocks, a port outside the VLAN, a port that is the far
+member of the port-channel the frame arrived on. When nothing was left it emitted **one
+sentence whatever had refused**:
+
+```
+no egress ports in VLAN 1
+```
+
+On a switch whose only other port the spanning tree had blocked, that sentence is false
+twice. The port *is* in VLAN 1, and the same box already answers `show spanning-tree`
+with the truth:
+
+```
+Fa0/1         alternate     blocking   (traffic dropped)      <- show spanning-tree
+Fa0/2 ...     1 drop (no egress ports in VLAN 1)               <- show interfaces, same frame
+```
+
+Two surfaces on one box, disagreeing, and the counter is the one an operator acts on: it
+says VLAN, so the VLAN gets re-checked, and the VLAN was never the problem. It is also
+the sentence `_lastDiscard()` hands to a failed `ping`, so the wrong words reach the
+report as well as the counter.
+
+Each refusal now names itself, because the three are three different answers:
+
+```
+no egress ports: spanning tree blocks Fa0/1
+no egress ports: the only other port is a member of the ingress port-channel
+no egress ports in VLAN 10            (kept: where the port really is outside the VLAN, this was always true)
+```
+
+Where the reason sits in `_lastDiscard()` did not move. Naming the tree does not make it
+a different *kind* of cause — a tree block on a redundant path is not the reason a ping
+failed, so ranking it with the port causes would have been a new lie in place of the old
+one. The rank slot now matches both wordings (`no egress ports`) instead of only the VLAN
+one, so the priority is the same as before the fix.
+
+`test/flood-refusal-reason.test.js` pins it, 24 checks: the blocked port named by both
+surfaces on the same box, the frame counted once rather than once per blocked candidate,
+the payload filing it under the same sentence as the console, a genuine VLAN refusal
+still saying VLAN, the hairpin naming the bundle, and the ranking unchanged.
+
 ### One state read shows both halves of one fact
 
 `GET /api/topologies/:id` carries the board and each device's runtime tables. Two
