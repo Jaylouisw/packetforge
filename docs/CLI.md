@@ -1671,6 +1671,31 @@ generic sentence would be a worse answer, so they are left alone. So is `ip rout
 its way out as a route (`ip route 0.0.0.0 0.0.0.0 <gateway>`), which labs configure and rely on; the verb
 that refuses on a host is `ip routing`.
 
+### A copy that changes nothing does not say it applied lines
+
+`copy startup-config running-config` reported a contradiction beside itself:
+
+```
+R1#copy startup-config running-config
+Copied startup-config into the running configuration on R1: 5 lines applied
+  the running configuration did not change - the saved copy was already in force
+```
+
+The five lines were **read**; none of them changed anything. It says `read` in that case and `applied`
+in the other, so the two halves cannot disagree — and when the copy *does* change something, it names
+the lines rather than printing a count:
+
+```
+R1#copy startup-config running-config
+Copied startup-config into the running configuration on R1: 5 lines applied
+  1 line added, 1 line removed (this is a merge: lines the saved copy does not mention are kept)
+    + hostname R1
+    - no hostname
+```
+
+A count is not a report. (The merge semantics are unchanged: lines the saved copy does not mention are
+kept, and the answer keeps saying so.)
+
 ### A number is decimal digits, and a word after a port is not dropped
 
 `parseInt` reads `1e3` as 1, `0x10` as 16 and `12abc` as 12, so a command could configure a value nobody

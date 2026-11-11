@@ -54,8 +54,11 @@ console.log('\nThe saved copy can be loaded back, and the answer says what chang
   ok(/10\.9\.0\.0/.test(routes), 'the saved route is back');
   ok(/10\.8\.0\.0/.test(routes), 'and the newer route the saved copy never mentioned is kept');
   const again = text(env.s.run('copy startup-config running-config'));
-  ok(/did not change/.test(again), 'running it again changes nothing, and says so');
-  ok(/6 lines applied/.test(again), 'while still reporting what it replayed');
+  ok(/none of them changed anything/.test(again), 'running it again changes nothing, and says so');
+  // The words follow the fact: the lines were *read*, and none of them changed anything. "6 lines
+  // applied" beside "did not change" was the contradiction this wording removes.
+  ok(/6 lines read/.test(again), 'while still reporting how many it replayed');
+  ok(!/lines applied/.test(again), 'and not claiming they were applied');
 }
 
 console.log('\nNothing saved, nothing to load:');

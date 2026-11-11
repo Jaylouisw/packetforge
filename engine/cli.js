@@ -8623,13 +8623,22 @@ class CliSession {
     this.modeBeforeConfig = null;
     const after = this._runningConfigLines(dev).slice(1);
     const d = diffLines(before, after);
-    const head = 'Copied startup-config into the running configuration on ' + name +
-      ': ' + applied + ' line' + (applied === 1 ? '' : 's') + ' applied';
+    const unchanged = !d.added.length && !d.removed.length;
+    // "5 lines applied" next to "the running configuration did not change" reads as a contradiction:
+    // the lines were *read*, and none of them changed anything. Say which is which.
+    const head = 'Copied startup-config into the running configuration on ' + name + ': ' +
+      applied + ' line' + (applied === 1 ? '' : 's') + (unchanged ? ' read' : ' applied');
     const out = [head];
-    if (!d.added.length && !d.removed.length) {
-      out.push('  the running configuration did not change - the saved copy was already in force');
+    if (unchanged) {
+      out.push('  none of them changed anything - the saved copy was already in force');
     } else {
+      // A count is not a report: "1 line added, 1 line removed" says a change happened and nothing about
+      // what it was. The lines are named, and a long diff is capped rather than dumped.
       out.push('  ' + describeDelta(d) + ' (this is a merge: lines the saved copy does not mention are kept)');
+      d.added.slice(0, 6).forEach(function (l) { out.push('    + ' + String(l).trim()); });
+      if (d.added.length > 6) out.push('    + ... and ' + (d.added.length - 6) + ' more');
+      d.removed.slice(0, 6).forEach(function (l) { out.push('    - ' + String(l).trim()); });
+      if (d.removed.length > 6) out.push('    - ... and ' + (d.removed.length - 6) + ' more');
     }
     if (refused.length) {
       out.push('  ' + refused.length + ' saved line' + (refused.length === 1 ? ' was' : 's were') +
