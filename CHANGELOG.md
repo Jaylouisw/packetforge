@@ -553,6 +553,68 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   and `show running-config | include vrrp` carries `no vrrp 1 preempt` afterwards. The rule the VRRP block
   follows: a default is not configuration, and a removal that changes a setting is.
 
+- **A next hop has to be an address that can answer.** `ip route 10.9.0.0 255.255.255.0 127.0.0.1`
+  was accepted, printed `Route added: 10.9.0.0/24 via 127.0.0.1`, appeared in `show ip route` with the
+  `*` that means *installed*, and forwarded nothing — `ping 10.9.0.9` answered
+  `Success rate is 0 percent (0/4)`. `ip helper-address` and `ip default-gateway` accepted the same
+  five classes separately. One classifier now serves all three commands, so the refusal names the class
+  and the command keeps its own tail:
+
+  ```
+  Router-d1(config)#ip route 10.9.0.0 255.255.255.0 224.0.0.5
+  % 224.0.0.5 is a multicast group address (class D), so no neighbour can answer for it
+  % A static route forwards to one next-hop address: a host on a connected subnet
+  % Usage: ip route <network> <mask> <next-hop> [<interface>]
+  Router-d1(config-if)#ip helper-address 127.0.0.1
+  % 127.0.0.1 is a loopback address (this host, always), so nothing can answer a relayed request sent to it
+  % A helper target is one unicast address: the server that will answer
+  Router-d1(config)#ip default-gateway 224.0.0.1
+  % 224.0.0.1 is a multicast group address (class D), so it cannot be a default gateway
+  % A gateway is one unicast host on a directly connected subnet
+  ```
+
+  The five are `0.0.0.0` (zero address), `255.255.255.255` (limited broadcast), `224.0.0.0/4`
+  (multicast), `127.0.0.0/8` (loopback) and `240.0.0.0/4` (reserved). Address **ranges** are refused
+  as the class they belong to rather than as one address per rule, which is why `240.0.0.1` reads
+  "reserved address (class E)" instead of being enumerated.
+
+  A link-local IPv6 next hop is refused for a different reason, and the refusal gives the form that
+  fixes it: `% fe80::1 is a link-local address, so it names a neighbour on one wire and not which
+  wire` / `% Give the route its egress interface: "ipv6 route 2001:db8:9::/64 fe80::1 <port>"`.
+
+  What the classifier is **not** is a reachability check: `ip route 10.9.0.0 255.255.255.0 1.2.3.4`
+  is accepted and written to `show running-config`, because a unicast address is a legitimate next
+  hop even when nothing answers it yet. Reachability is the separate report below.
+
+- **An installed route with a next hop the router cannot reach is reported under the table.** `*` means
+  *installed by administrative distance*, which an operator reads as "the way out", so a static route
+  pointing into a subnet this router has no route to looked live. It is still accepted — a recursive
+  next hop that another route covers is legitimate — but the table now says so:
+
+  ```
+  Router-d1#show ip route
+  Codes: C - connected, S - static
+    *  Prefix         AD  Gateway       Interface
+    *  C 10.0.0.0/24  0   -             Gi0/0
+    *  S 10.8.0.0/24  1   192.168.99.1  -
+
+  % 1 installed route has a next hop this router cannot reach:
+  %   10.8.0.0/24 via 192.168.99.1 - not on a connected subnet, and no route covers it
+  ```
+
+  The distinction is the model's own lookup rule: *not on a connected subnet* **and** *no route covers
+  it*. A next hop that a default route covers is recursive, works, and is not reported.
+
+- **`vlan 1` no longer claims to create anything.** VLAN 1 exists before the first command is typed,
+  is never written to a saved copy and cannot be removed, but the command answered "VLAN 1 created".
+  It now says what is true, and where to go instead:
+
+  ```
+  Switch (L2)-d2(config)#vlan 1
+  VLAN 1 is the default VLAN - every port starts in it and it cannot be created or removed
+  A VLAN you create gets its own id: "vlan 10 name users"
+  ```
+
 - **A DHCP pool's exclusions are removable one at a time.** `no excluded-address` could only clear the
   lot, so dropping one reservation meant deleting every exclusion and retyping them. It now takes
   `[<address> [<address>]]`: naming one removes that one, the bare form still clears everything and says
