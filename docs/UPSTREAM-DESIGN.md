@@ -106,9 +106,17 @@ Four scenarios, one change each, same lab (probe `E_failover_matrix`):
 | `iface.enabled = false` on wan1 | *nothing* | `drop: no usable egress interface`, while a valid second default sits in `config.routes` |
 | ISP A unplugged (no IP) | `wan1` | silence: ARP is never answered, no switch to wan2 |
 
-`_deliver()` (`simulator.js:1595`) checks `iface.enabled` and `iface.peer`; it
-never asks whether the *link* is up. `web/app.js:1613` prints a State field in the
-link inspector that the engine ignores.
+`_deliver()` (`simulator.js:3296`) checks `iface.enabled` (`:3301`) and reads
+`iface.peer` (`:3305`). When this section was written it never asked whether the *link* was up, and
+`web/app.js:1613` printed a State field in the link inspector that the engine ignored — so the
+`Link.state = "down"` row above really did trace identically. **Both halves have since been fixed**
+(`test/link-state.test.js` is the guard), and re-measuring the same two-switch line is the proof: the
+path answers `Success rate is 100 percent (4/4)` while the middle link is up, `0 percent (0/4)` with
+`Request timed out` once it is down, and 100 percent again after it comes back. The refusal is now data
+rather than silence — `sim.setLinkState(<linkId>, 'down')` answers
+`{"ok":true,"changed":true,"state":"down","atMs":0,"reconvergeAtMs":30000,"affects":["d1","d2"]}`, and
+`_deliver()` drops with `reason: 'link down'` at `simulator.js:3309-3313`. Read the matrix above as the
+state of the tree the design was written against, not as a description of this one.
 
 ### 1.2 Asymmetry is already data, and dead
 
@@ -215,12 +223,13 @@ CAGE_SPEEDS.cellular = function (maxMbps) {
 };
 ```
 
-`derivePortHardware()` (`media.js:562`) needs **no** change: the band special-case
-is `if (cage === 'antenna')`, and `cellular` is not `antenna`, so a cellular port
+`derivePortHardware()` (`media.js:875`) needs **no** change: the band special-case
+is `if (cage === 'antenna')` (`:967`), and `cellular` is not `antenna`, so a cellular port
 keeps the media its cage lists. That is the whole reason for a separate cage
 instead of reusing `antenna` (see §10, rejected alternatives).
 
-`inferCage()` (`media.js:479`) gains, next to the subscriber-access lines:
+`inferCage()` (`media.js:767`, running to `:829`) gains, next to the subscriber-access lines (coax at
+`:787`, PON at `:809`):
 
 ```js
 if (type === 'cellular' || type === 'lte' || type === 'nr' || type === '5g' || type === 'wwan') return 'cellular';
@@ -444,7 +453,7 @@ REST (`server/index.js`, next to `/validate-link` at line 350):
 CLI (`engine/cli.js`):
 
 - `ip route DEST MASK GW [IFACE] [DISTANCE]` — one optional numeric token after
-  the interface (`_ipRoute()` at `cli.js:3144`). `% Invalid distance` outside 1..255.
+  the interface (`_ipRoute()` at `cli.js:3261`). `% Invalid distance` outside 1..255.
 
   **Today that fourth word is refused outright**, so the work is replacing a refusal rather than
   widening a parse. Measured on a router with three free ports, for `250`, `1` and `256` alike:
@@ -677,11 +686,11 @@ and its own recount one-liners.
 | 25 | `device.js:584 serialize()` / `:650 hydrate()` | white-list | add the three config keys — **both** |
 | 26 | `simulator.js:1595 _deliver()` | checks `enabled` + `peer` | also `link.isUp()`, emit `link-down` |
 | 27 | `simulator.js:1416 _sendIcmp()`, `:1445 _sendTransport()` | `routeTo()` once | candidate loop + `wan-select` |
-| 28 | `_forwardL3()` at `simulator.js:3487` | `routeTo()` once | candidate loop; **move NAT after the route** or flag it (§8) |
+| 28 | `_forwardL3()` at `simulator.js:3681` (`routeTo()` at `:3699`) | `routeTo()` once | candidate loop; **move NAT after the route** or flag it (§8) |
 | 29 | `simulator.js:2036 pathMtu()`, `:2029 _pickDestIp()`, `:2159 openFlow()` | single route | use `routeTo()` (unchanged) — they want *a* path, not the preferred one |
 | 30 | `simulator.js:104 _emit` / `reset()` | 40-odd event types | 4 new types; `trackState` map in `reset()` |
 | 31 | POST `/links` at `server/index.js:386`, POST `/validate-link` at `:416` | 5 fields | `service`; new `/upstreams`, `/failover-test` |
-| 32 | `cli.js:3144 ip route` | `[iface]` only; a numeric fourth word is refused | `[distance]` |
+| 32 | `cli.js:3261 ip route` | `[iface]` only; a numeric fourth word is refused | `[distance]` |
 | 33 | `cli.js:9063 show ip route` | `Prefix AD Gateway Interface` (AD per source) | per-route metric, WAN column; new `show wan` |
 | 34 | `web/app.js:115-130` palette labels, `:973` inspector open, `:1613` its State row | no service UI | Service block, WAN panel, failover button |
 | 35 | `devices/registry.js:7`, `web/app.js:116` (labels) and `:127` (order) | 10 categories | add `upstream` |
