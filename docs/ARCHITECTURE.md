@@ -492,6 +492,38 @@ Per-device `bytesIn/bytesOut/packetsIn/packetsOut` ride along in
 call. The flow table belongs to the topology and dies with it (`/reset` clears it
 too).
 
+### The same lab replays identically
+
+Nothing in `engine/` reads a clock or rolls a die. Time is the simulator's own
+`step`, identities are derived from names and ports, and a lease, a DNS cache
+entry, an ARP entry or a NAT translation expires at a step count rather than a
+timestamp. That is what makes a failure reproducible: the same document, driven
+through the same sequence of commands, produces the same board - and therefore
+the same payload - every time.
+
+Three modules say so in a comment (`engine/flow.js`, `engine/nat.js`,
+`engine/dhcp.js`) and `test/replay-identical.test.js` enforces it two ways:
+
+- **statically** - no `Math.random(`, `Date.now(`, `new Date(`,
+  `performance.now(`, `crypto.randomUUID(` or `process.hrtime` anywhere in
+  `engine/*.js`, comments and strings excluded (the scanner is itself checked
+  against a source that does contain one, so it cannot quietly stop working);
+- **behaviourally** - the same lab built twice in one process, and again after a
+  real wall-clock second, fingerprints the same (every `show` output plus
+  `serialize()`); the same document driven through two independent servers with
+  the same commands yields a **byte-identical** state payload; and reading one
+  server's board a second later changes nothing, which is what would fail first
+  if a clock-derived field were ever added to `fullState()`.
+
+The fingerprint is also fed three *different* labs and required to tell them
+apart - a different VLAN, a different address, one cable fewer - because a guard
+that hashes nothing agrees with itself forever. And the payload being compared
+has to be one traffic crossed: two empty boards are byte-identical too.
+
+If a new mechanism genuinely needs wall-clock time, it belongs on the server
+side of the socket (a request log, `Last-Modified`), not in engine state: a
+payload that changes when nothing happened is a payload a client cannot use.
+
 ## The UI
 
 `web/` is vanilla JavaScript + SVG with **no build step** — load it and it works.
