@@ -356,14 +356,14 @@ Two consequences worth knowing before you trust the file tree as a record of wha
 
 ### Environment variables
 
-`server/index.js` reads exactly four, and each changes something observable from outside the process:
+`server/index.js` reads exactly three, and each changes something observable from outside the process. The fourth row is here because it looks like a server switch and is not one:
 
 | Variable | Default | What it does |
 | --- | --- | --- |
 | `PORT` | `8000` | the listen port, through `parseInt(…, 10)` — `PORT=8010.9` listens on **8010**, and `PORT=abc` throws before the socket exists |
 | `PF_DATA` | `data/` | relocates the data directory to `<PF_DATA>/topologies/` |
 | `PF_COMMIT` | unset | copied verbatim into `/api/version`'s `commit` field |
-| `PF_NO_OPEN` | — | **read by nothing.** Exported by `scripts/smoke-http.js`, never consulted: the server does not open a browser, so setting it changes nothing |
+| `PF_NO_OPEN` | — | **read by nothing.** Set to `1` in the child environment by `scripts/smoke-http.js` and never consulted: the server does not open a browser, so setting it changes nothing |
 
 Measured on this tree: without `PF_COMMIT`, `GET /api/version` answers
 `{"name":"packetforge","version":"0.1.0","commit":null,"node":"v26.12.1","platform":"win32/x64","devices":1661}`;
@@ -373,11 +373,13 @@ in the repository sets it** — not the `Dockerfile`, not a script, not the npm 
 unless you set it yourself.
 
 A census of `process.env.*` across `engine/`, `server/`, `web/`, `scripts/` and `examples/` finds
-**27** variables read. The other 23 belong to the tooling rather than the server: `PF_REPO`,
-`PF_TOKEN`, `PF_API`, `PF_DEVICES`, `PF_INCOMING`, `PF_WIKI_REPO`, the `PF_FORGEJO_*` and `GH_*`
-families used by the bridge, and the `CF_*`/`PF_HOST`/`PF_OWNER`/`PF_PATH`/`PF_NAME`/`PF_PUBLIC_URL`
-group `scripts/cf-access-bypass.js` needs. Each script's header names the ones it reads; none of
-them affect a running server.
+**27** variables read — the three above plus 24 that belong to the tooling rather than the server:
+`PF_REPO`, `PF_TOKEN`, `PF_API`, `PF_DEVICES`, `PF_INCOMING`, `PF_WIKI_REPO`, `PF_CLONE`, the
+`PF_FORGEJO_*` family alongside a bare `FORGEJO_TOKEN`, `GH_REPO`/`GH_TOKEN`/`PF_GH_TOKEN_FILE`, the
+`CF_*` group, and `PF_HOST`/`PF_OWNER`/`PF_PATH`/`PF_NAME`/`PF_PUBLIC_URL` that
+`scripts/cf-access-bypass.js` needs. `PF_NO_OPEN` is not in that count at all: `scripts/smoke-http.js`
+puts it in a child's environment and nothing reads it. Each script's header names the ones it reads;
+none of them affect a running server.
 
 ### Board lifecycle
 
