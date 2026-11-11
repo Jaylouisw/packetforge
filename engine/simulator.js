@@ -2727,6 +2727,7 @@ class Simulator {
     // The priority is unchanged on purpose - where this reason sits was decided when it was always about VLANs, and
     // naming the tree does not make it a different kind of cause.
     const RANK = ['peer port shut', 'link administratively down',
+      'no interface on the subnet of next hop',
       'no ARP reply from', 'no egress ports', 'ACL ', 'VLAN not allowed', 'NAT could not translate'];
     const found = [];
     for (let i = 0; i < (events || []).length; i++) {
@@ -3185,7 +3186,21 @@ class Simulator {
       return;
     }
     const egress = route.iface ? dev.interfaces.get(route.iface) : dev.egressFor(route.via);
-    if (!egress || !egress.enabled || !egress.ip) {
+    if (!egress) {
+      // Two different failures, and the difference is where the reader has to go: a next hop no interface is on
+      // the subnet of is a routing problem (the route cannot be used at all, which `show ip route` now says on
+      // the same row), while a port that holds the subnet but cannot carry is a port problem. One sentence for
+      // both sent an operator looking for a port that was never the issue (#1439).
+      const holder = route.iface ? null : dev.egressCandidateFor(route.via);
+      this._emit({
+        type: 'drop', dev: dev.id,
+        reason: holder
+          ? 'next hop ' + route.via + ' would leave by ' + holder.name + ', which cannot carry (route to ' + frame.ip.dst + ')'
+          : 'no interface on the subnet of next hop ' + route.via + ' (route to ' + frame.ip.dst + ')'
+      });
+      return;
+    }
+    if (!egress.enabled || !egress.ip) {
       this._emit({ type: 'drop', reason: 'no usable egress interface', dev: dev.id });
       return;
     }

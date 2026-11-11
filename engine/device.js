@@ -920,6 +920,20 @@ class Device {
     return null;
   }
 
+  // The port a next hop would leave by if it could, whether or not it can carry anything.
+  //
+  // `egressFor()` only looks at ports that are up, so a shut port's subnet answers "no interface" - which is a
+  // different story from "no interface at all", and the two send a reader to different places (configure the
+  // routing, or bring the port up). Asked by the route table and by the forwarding path's drop reason (#1439).
+  egressCandidateFor(nextHopIp) {
+    for (const iface of this.interfaces.values()) {
+      if (iface.ip && iface.mask && net.sameSubnet(nextHopIp, iface.ip, iface.mask)) {
+        return iface;
+      }
+    }
+    return null;
+  }
+
   // The administrative distance of a route source, in one place: `show ip route` prints it, its
   // "Gateway of last resort" line sorts by it, and the inspector's table shows it (#1301). Two copies of this
   // would drift the moment a source is added.
@@ -965,8 +979,32 @@ class Device {
         unusable: !!why
       };
     }
-    const egress = row.iface && row.iface !== '-' ? this.interfaces.get(row.iface) : this.egressFor(row.gw);
-    const why = egress ? carry(egress) : '';
+    const explicit = row.iface && row.iface !== '-';
+    const egress = explicit ? this.interfaces.get(row.iface) : this.egressFor(row.gw);
+    // A next hop no interface is on the subnet of means there is nowhere to put the packet, however healthy the
+    // rest of the box is. This used to fall through to "no problem": `egress` was null, `why` stayed empty, and
+    // `S 192.168.50.0/24 [1/0] via 172.16.9.1` read as an installed route on a router holding only 10.0.0.1/24 -
+    // while the data plane answered "no usable egress interface" for the same prefix. One table, two verdicts, and
+    // the printed one said the route was fine (#1439).
+    if (!egress) {
+      // The subnet may still be held by a port that cannot carry - `egressFor()` only looks at ports that are up,
+      // so a shut port reads as "no interface", which is a different story and points at a different fix.
+      const holder = explicit ? null : this.egressCandidateFor(row.gw);
+      if (holder) {
+        const why = carry(holder);
+        return {
+          note: '(next hop ' + row.gw + ' would leave by ' + holder.name + ', which cannot carry' +
+            (why ? ': ' + why.replace(/^\(/, '').replace(/\)$/, '') : '') + ')',
+          unusable: true
+        };
+      }
+      return {
+        note: explicit ? '(gone: ' + row.iface + ' is not a port on this device)'
+          : '(no interface on the subnet of next hop ' + row.gw + ')',
+        unusable: true
+      };
+    }
+    const why = carry(egress);
     return { note: why || '', unusable: !!why };
   }
 

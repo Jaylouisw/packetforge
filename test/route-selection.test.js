@@ -50,8 +50,11 @@ function build() {
   cli(t, r1, ['router bgp 65001', 'neighbor 10.0.12.2 remote-as 65002']);
   // A config session of its own: leaving the BGP sub-mode ends the session, so a route command after it would
   // be typed at the enable prompt and refused (which is exactly how the first draft of this test lost its statics).
-  cli(t, r1, ['ip route 10.0.12.0 255.255.255.0 10.9.9.9',     // shadowed by the connected route
-    'ip route 10.2.2.0 255.255.255.0 10.9.9.8']);              // beats the OSPF and BGP routes for the same prefix
+  // The next hops are on the cabled Gi0/0 subnet, not throwaway addresses: a static route whose next hop is on no
+  // connected subnet cannot carry a packet at all, and `routeNote()` now says so on the row (#1439) - which would
+  // make these rows faults as well as shadows, and this test is about selection, not about routing.
+  cli(t, r1, ['ip route 10.0.12.0 255.255.255.0 10.0.12.9',     // shadowed by the connected route
+    'ip route 10.2.2.0 255.255.255.0 10.0.12.8']);              // beats the OSPF and BGP routes for the same prefix
   cli(t, r2, ['interface ' + p2[0], 'ip address 10.0.12.2 255.255.255.0', 'no shutdown', 'exit',
     'interface ' + p2[1], 'ip address 10.3.3.1 255.255.255.0', 'no shutdown', 'exit',
     'interface ' + p2[2], 'ip address 10.2.2.1 255.255.255.0', 'no shutdown', 'exit',
@@ -113,7 +116,9 @@ console.log('Exactly one row per prefix is installed, and it is the one the look
     unmarked.map(function (r) { return r.displayCode + ' ' + r.dest + ' -> ' + r.shadow; }).join(' ;; '));
   // A shadowed route is not a fault: its port is fine, it simply is not the route chosen. `note` means "this row
   // cannot carry a packet" and drives the fault styling, so it must stay empty here - a healthy candidate printed
-  // as a fault is exactly what `test/routes-agreement.test.js` exists to prevent.
+  // as a fault is exactly what `test/routes-agreement.test.js` exists to prevent. Every next hop in this lab is on
+  // a connected subnet precisely so that "healthy" is true: a row can be shadowed *and* unusable, and then the
+  // note is about its own next hop, never about the route that beat it (`test/route-next-hop-unreachable.test.js`).
   ok(losing.every(function (r) { return r.unusable === false && !r.note; }),
     'and none of them is presented as a fault',
     losing.map(function (r) { return r.displayCode + ' unusable=' + r.unusable + ' note=' + JSON.stringify(r.note); }).join(' ;; '));
@@ -177,7 +182,7 @@ console.log('Longest prefix match is not selection: a longer route is installed 
   cli(t, r1, ['interface ' + p1[0], 'ip address 10.0.12.1 255.255.255.0', 'no shutdown', 'exit',
     'interface ' + p1[1], 'ip address 10.1.1.1 255.255.255.0', 'no shutdown', 'exit']);
   cli(t, r1, ['router bgp 65001', 'neighbor 10.0.12.2 remote-as 65002']);
-  cli(t, r1, ['ip route 10.1.1.128 255.255.255.128 10.9.9.7']);
+  cli(t, r1, ['ip route 10.1.1.128 255.255.255.128 10.0.12.7']);
   cli(t, r2, ['interface ' + p2[0], 'ip address 10.0.12.2 255.255.255.0', 'no shutdown', 'exit']);
   cli(t, r2, ['router bgp 65002', 'neighbor 10.0.12.1 remote-as 65001']);
   const sim = new Simulator(t);
@@ -247,7 +252,7 @@ console.log('Every model in the catalogue marks one route per prefix, and the lo
     if (!ports.length) continue;
     const port = ports[0].name;
     cli(t, d, ['interface ' + port, 'ip address 10.0.12.1 255.255.255.0', 'no shutdown', 'exit',
-      'ip route 10.0.12.0 255.255.255.0 10.9.9.9',
+      'ip route 10.0.12.0 255.255.255.0 10.0.12.9',
       'ip route 192.0.2.0 255.255.255.0 10.0.12.5']);
     const table = d.routesTable(t);
     checked++;
