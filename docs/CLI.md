@@ -1557,6 +1557,39 @@ interface address is used)
 
 A configured id still wins, and the neighbour sees it.
 
+### Every carrier declares the VLAN it names
+
+The access form made its VLAN exist; the other two carriers still did not:
+
+```
+SW1(config-if)#switchport trunk native vlan 99
+Trunk native VLAN 99 on Fa0/8
+SW1#show vlan
+99    VLAN0099  active  Fa0/8(n)
+SW1#show running-config
+  switchport trunk native vlan 99      <- and no `vlan 99` anywhere
+```
+
+A native VLAN carries untagged frames, and an SVI is the device's own address in a VLAN — both make the
+VLAN real to `show vlan`, so both now create it and say so:
+
+```
+Trunk native VLAN 99 on Fa0/8 (VLAN 99 did not exist and was created)
+Vlan42 created - this device's own address in VLAN 42 (VLAN 42 did not exist and was created)
+```
+
+One rule covers all four carriers: an access VLAN, a voice VLAN, a native VLAN and an SVI each declare
+the VLAN they name. The allowed list is the exception, and it is the *right* exception — a filter is not
+a bridge domain, so an allowed VLAN that does not exist is named as such instead of being invented.
+
+The table also stopped printing one VLAN twice. A trunk allowing every VLAN was rendered as a second row
+numbered 1 named `default`, so a switch with one all-trunk had two VLAN 1 rows with different names and
+different ports. The fact that row stood for is now stated below the table:
+
+```
+% Fa0/8 allows every VLAN on its trunk ("switchport trunk allowed vlan all")
+```
+
 ### A VLAN a port names is a VLAN that exists
 
 ```

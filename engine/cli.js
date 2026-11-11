@@ -1565,13 +1565,17 @@ class CliSession {
             ((Array.from(this.device.interfaces.values())[0] || {}).name || 'Gi0/0') + '"'], name: null };
       }
       const existed = this.device.interfaces.has('Vlan' + vid);
+      // An SVI is the device's address in a VLAN, so that VLAN exists the moment the SVI does - the
+      // same rule the access form follows, applied to the other carrier the table reads.
+      const vlanCreated = this._declareVlan(vid);
       const svi = this.device.addSvi(vid);
       this.iface = svi.name;
       this.mode = MODE_IFACE;
       // Only a *new* object says so. Re-entering an SVI is not an event, and a paste that announces
       // every block it enters buries the one line that mattered.
       return {
-        lines: existed ? [] : [svi.name + ' created - this device\'s own address in VLAN ' + vid],
+        lines: existed ? [] : [svi.name + ' created - this device\'s own address in VLAN ' + vid +
+          (vlanCreated ? ' (VLAN ' + vid + ' did not exist and was created)' : '')],
         name: svi.name
       };
     }
@@ -2207,6 +2211,19 @@ class CliSession {
   // `show vlan <id>` cannot disagree about who is in a VLAN. Each entry carries the decoration the
   // table prints: `(t)` for a trunk member, `(n)` for the native VLAN, `(trunk)` for a trunk that
   // allows them all and therefore has no list to name.
+  // A VLAN has one source of truth: the configuration. Any command that names a VLAN something
+  // carries - an access port, a voice VLAN, a trunk native VLAN, an SVI - creates it when it does not
+  // exist, and says so. Without this `show vlan` described a bridge domain the saved configuration
+  // did not contain, so the table and the dump disagreed about what the device had.
+  _declareVlan(id) {
+    const vid = Number(id);
+    if (!(vid >= 1) || vid === 1) return false;      // VLAN 1 always exists and never needs a stanza
+    if (!this.device.config.vlans) this.device.config.vlans = {};
+    if (this.device.config.vlans[vid] !== undefined) return false;
+    this.device.config.vlans[vid] = { name: 'VLAN' + String(vid).padStart(4, '0') };
+    return true;
+  }
+
   _vlanMap(dev) {
     const by = new Map();
     const add = function (id, text) {
@@ -3771,11 +3788,7 @@ class CliSession {
       // port in it, while `show running-config` had no such VLAN - the view inventing a bridge domain
       // the configuration did not contain, and a saved copy that lost it. IOS creates the VLAN here
       // and says so, and the message is the only place an operator learns a VLAN now exists.
-      const created = got.id !== 1 && (this.device.config.vlans || {})[got.id] === undefined;
-      if (created) {
-        if (!this.device.config.vlans) this.device.config.vlans = {};
-        this.device.config.vlans[got.id] = { name: 'VLAN' + String(got.id).padStart(4, '0') };
-      }
+      const created = this._declareVlan(got.id);
       iface.vlan = vlanLib.normalizePortConfig(Object.assign({}, iface.vlan, { mode: 'access', accessVlan: got.id }));
       return ['Access VLAN ' + got.id + ' on ' + iface.name + (created
         ? ' (VLAN ' + got.id + ' did not exist and was created - "no vlan ' + got.id + '" removes it)'
@@ -3786,8 +3799,12 @@ class CliSession {
       if (got.error) return got.error;
       const extra = this._noExtra(tokens, 4, 'switchport trunk native vlan <id>');
       if (extra) return extra;
+      // A native VLAN is a VLAN untagged frames land in: it carries traffic, so it has to exist.
+      // (The allowed list is the one that does not, because a filter is not a bridge domain.)
+      const nativeCreated = this._declareVlan(got.id);
       iface.vlan = vlanLib.normalizePortConfig(Object.assign({}, iface.vlan, { mode: 'trunk', nativeVlan: got.id }));
-      return ['Trunk native VLAN ' + got.id + ' on ' + iface.name];
+      return ['Trunk native VLAN ' + got.id + ' on ' + iface.name + (nativeCreated
+        ? ' (VLAN ' + got.id + ' did not exist and was created)' : '')];
     }
     if (t[0] === 'trunk' && t[1] === 'allowed' && t[2] !== 'vlan') {
       // `switchport trunk allowed` answered "% Unrecognized switchport command: trunk allowed" while
@@ -3833,11 +3850,7 @@ class CliSession {
       }
       // The same creation rule as the access form: a VLAN a port names has to exist in the
       // configuration, or `show vlan` is describing a bridge domain the saved config does not have.
-      const voiceCreated = got.id !== 1 && (this.device.config.vlans || {})[got.id] === undefined;
-      if (voiceCreated) {
-        if (!this.device.config.vlans) this.device.config.vlans = {};
-        this.device.config.vlans[got.id] = { name: 'VLAN' + String(got.id).padStart(4, '0') };
-      }
+      const voiceCreated = this._declareVlan(got.id);
       iface.vlan = vlanLib.normalizePortConfig(Object.assign({}, cur, { voiceVlan: got.id }));
       return ['Voice VLAN ' + got.id + ' on ' + iface.name + ' (tagged; the untagged traffic on ' +
         'this port stays in VLAN ' + untagged + ')' + (voiceCreated
@@ -9053,11 +9066,14 @@ class CliSession {
         }
       }
       const vlanRows = [];
+      // The `all` bucket is not a VLAN: it is a trunk whose allowed list says "every VLAN". It was
+      // rendered as a second row numbered 1 named `default`, so a switch with one all-trunk printed
+      // VLAN 1 twice with different names and different ports - one table, two answers. The fact it
+      // stands for is stated below the table instead.
+      const allTrunks = [];
       for (const id of keys) {
         if (id === 'all') {
-          vlanRows.push([1,
-            (dev.config.vlans && dev.config.vlans[1] && dev.config.vlans[1].name) || 'default',
-            'active', byVlan.get(id).join(', ')]);
+          allTrunks.push.apply(allTrunks, byVlan.get(id) || []);
           continue;
         }
         const name = (dev.config.vlans && dev.config.vlans[id] && dev.config.vlans[id].name) || ('VLAN' + String(id).padStart(4, '0'));
@@ -9074,6 +9090,12 @@ class CliSession {
           '% It can still declare VLAN names for the subinterfaces it routes: "vlan <id> name <name>"']);
       }
       out.push.apply(out, renderTable(['VLAN', 'Name', 'Status', 'Ports'], vlanRows));
+      if (allTrunks.length) {
+        out.push('');
+        out.push('% ' + allTrunks.map(function (l) { return String(l).replace(/\(trunk\)$/, ''); }).join(', ') +
+          (allTrunks.length === 1 ? ' allows' : ' allow') + ' every VLAN on ' +
+          (allTrunks.length === 1 ? 'its trunk' : 'their trunks') + ' ("switchport trunk allowed vlan all")');
+      }
       if (phantom.length) {
         // The rows that were left out are named: `show interfaces trunk` lists these as allowed, and
         // an operator looking for them here needs to know which two commands make it real or take it
