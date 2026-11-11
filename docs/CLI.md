@@ -1629,6 +1629,28 @@ address would be exactly backwards. The three failures stay distinct, and each n
 | `** server can't find 53.0.0.10.in-addr.arpa: NXDOMAIN` | the reverse zone exists, the address is not in it | add the address |
 | "no zone for the reverse space 0.0.10.in-addr.arpa" | nobody serves that space at all | `dns zone 0.0.10.in-addr.arpa` on the server |
 
+### Every device is shown only rows it takes
+
+The `?` page is built per device: a row appears only when that device's capabilities make the verb
+meaningful. So a page is a promise made by *that* device, and the promise is testable - build one device
+from each catalogue category, enter exec, configuration and interface mode, fill every documented row's
+placeholders in, and type it.
+
+6,325 filled rows across 25 categories (routers, switches, firewalls, ONTs, APs, cameras, phones,
+printers, splitters, the cloud, ...) and no device is shown a row its own handlers refuse. The pages are
+honest in this direction.
+
+Two refusals found on the way were the sweep's fault, not the console's, and both are worth recording
+because they are the console being right:
+
+- an **IPv4 address supplied to an IPv6 next-hop slot** is refused as an invalid IPv6 next hop - the
+  slot wants the family its row names, and the sweep had not looked;
+- a **bridge priority of 10** is refused, because a bridge priority must be a multiple of 4096. A VRRP
+  priority of 10 is fine; the two are different settings that share a word.
+
+The suite fills each slot with a value *its own command accepts*, which is how a correct refusal stops
+looking like a defect.
+
 ### A `/` between placeholders is part of the value
 
 The help grammar reads a `/` as "or" - `configure terminal / conf t` documents two spellings - which is

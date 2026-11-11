@@ -71,9 +71,9 @@ const V6 = {
   addr: '2001:db8:9::1', address: '2001:db8:9::1', ip: '2001:db8:9::1', gateway: '2001:db8:9::1',
   dest: '2001:db8:9::/64', dst: '2001:db8:9::2', src: '2001:db8:9::1', net: '2001:db8:9::',
   'next-hop': '2001:db8:9::2', prefix: '2001:db8:9::/64', server: '2001:db8:9::53',
-  'prefix/len': '2001:db8:9::/64', 'addr/len': '2001:db8:9::1/64',
+  'prefix/len': '2001:db8:9::/64', 'addr/len': '2001:db8:9::1/64', v6dst: '2001:db8:9::2',
 };
-const fillRow = function (tokens, isV6) {
+const fillRow = function (tokens, isV6, rowText) {
   const table = isV6 ? Object.assign({}, V4, V6) : V4;
   const out = [];
   for (let i = 0; i < tokens.length; i++) {
@@ -81,6 +81,13 @@ const fillRow = function (tokens, isV6) {
     if (typeof t === 'string') { out.push(t); continue; }
     const key = String(t.placeholder || '').toLowerCase();
     let v = table[key];
+    // A bridge priority is not a VRRP priority: `spanning-tree vlan 10 priority 10` is refused because
+    // the value must be a multiple of 4096, and the refusal is right. The row is filled with a value
+    // its own command accepts, so a correct refusal is not counted as a defect.
+    // A bridge priority is not a VRRP priority: `spanning-tree vlan 10 priority 10` is refused because
+    // the value must be a multiple of 4096, and that refusal is right. The row is filled with a value
+    // its own command accepts, so a correct refusal is not counted as a defect.
+    if ((key === 'priority' || key === 'n') && /spanning-tree[^|]*priority/.test(String(rowText || ''))) v = '4096';
     // A slot named for its own range (`<0-512>`, `<1-2699>`) wants a number in that range, and the
     // low bound is always one.
     if (v === undefined && /^\d+-\d+$/.test(key)) v = key.split('-')[0];
@@ -154,7 +161,8 @@ console.log('\nEvery row, filled in, is a command the console takes:');
       if (!toks.some(function (t) { return typeof t !== 'string'; })) continue;  // keyword-only rows: the other sweep
       const isV6 = toks.some(function (t) { return typeof t === 'string' && /ipv6/i.test(t); }) ||
         /ipv6/i.test(String(f.synopsis || ''));
-      const filled = fillRow(toks, isV6);
+      const filled = fillRow(toks, isV6, (toks.filter(function (t) { return typeof t === 'string'; }).join(' ') + ' ' +
+        String(f.synopsis || '')));
       if (!filled) { unknown.push(toks.filter(function (t) { return typeof t !== 'string'; }).map(function (t) { return t.placeholder; }).join(',') ); continue; }
       const line = filled.join(' ');
       // Not an exemption, ordinary control flow: navigation verbs leave the mode the row was read in,
@@ -171,6 +179,58 @@ console.log('\nEvery row, filled in, is a command the console takes:');
   ok(unknown.length === 0, 'every value slot had a value in the table (' + unknown.length + ' unknown'
     + (unknown.length ? ': ' + unknown.slice(0, 5).join(' ') : '') + ')');
   ok(bad.length === 0, 'no documented row is refused once its values are filled in'
+    + (bad.length ? ': ' + bad.slice(0, 4).join('; ') : ''));
+}
+
+console.log('\nEvery device in the catalogue is shown rows its own handlers take:');
+{
+  // The pages are capability-gated per device, so a page is a promise made by *that* device: a row put
+  // in front of a camera or an AP has to be a command the camera or the AP implements. One device per
+  // catalogue category, every mode, every row filled in.
+  const seen = {};
+  for (const d of catalog) {
+    const kind = d.category || d.kind || '?';
+    if (!seen[kind]) seen[kind] = d;
+  }
+  const kinds = Object.keys(seen).sort();
+  const bad = [];
+  let tried = 0;
+  for (const kind of kinds) {
+    const dev = seen[kind];
+    const topo = new Topology();
+    const d = topo.addDevice(dev); d.name = 'D1';
+    const ports = Array.from(d.interfaces.values()).filter(function (i) { return !/vlan|lo|tunnel|mgmt/i.test(i.name || ''); });
+    const ifn = ports.length ? ports[0].name : 'Fa0/1';
+    const modes = [['exec', []], ['config', ['configure terminal']], ['interface', ['configure terminal', 'interface ' + ifn]]];
+    for (const [label, enter] of modes) {
+      const probe = new CliSession(d, topo, new Simulator(topo));
+      probe.run('enable');
+      enter.forEach(function (l) { probe.run(l); });
+      for (const f of (probe._helpFormRows(probe.mode) || [])) {
+        const toks = f.tokens || [];
+        if (!toks.length || !toks.some(function (t) { return typeof t !== 'string'; })) continue;
+        const isV6 = toks.some(function (t) { return typeof t === 'string' && /ipv6/i.test(t); }) ||
+          /ipv6/i.test(String(f.synopsis || ''));
+        const filled = fillRow(toks, isV6, toks.filter(function (t) { return typeof t === 'string'; }).join(' ') + ' ' + String(f.synopsis || ''));
+        if (!filled) continue;
+        const line = filled.join(' ');
+        // Not an exemption, ordinary control flow: navigation verbs leave the mode the row was read in,
+        // and `do` wraps another command whose arguments are judged where they belong.
+        if (/^(exit|end|do|help|\?)\b/.test(line)) continue;
+        const s = new CliSession(d, topo, new Simulator(topo));
+        s.run('enable');
+        enter.forEach(function (l) { s.run(l); });
+        tried += 1;
+        const answer = text(s.run(line));
+        if (/%\s*(Unrecognized|Invalid)/.test(answer)) {
+          bad.push(kind + ' (' + dev.model + ') [' + label + "]: '" + line + "' -> " + answer.split('\n')[0]);
+        }
+      }
+    }
+  }
+  ok(kinds.length >= 20, 'one device swept per catalogue category (' + kinds.length + ': ' + kinds.slice(0, 8).join(', ') + ', ...)');
+  ok(tried > 3000, 'the sweep ran (' + tried + ' filled rows)');
+  ok(bad.length === 0, 'no device is shown a row its handlers do not take'
     + (bad.length ? ': ' + bad.slice(0, 4).join('; ') : ''));
 }
 
