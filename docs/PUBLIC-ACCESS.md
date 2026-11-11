@@ -15,6 +15,23 @@ Measured from a shell with no cookie and no token:
 | `POST …/api/v1/repos/jaylouisw/packetforge/issues` | `401` |
 | `GET …/jaylouisw/packetforge/settings` | `303` → `/user/login` |
 
+The whole table is five commands, and none of them needs a token. Run them before believing this page:
+
+```bash
+curl -s -o /dev/null -w '%{http_code}\n' https://git.jayw.uk/jaylouisw/packetforge          # 200
+git ls-remote https://git.jayw.uk/jaylouisw/packetforge refs/heads/main                     # the SHA
+curl -s -o /dev/null -w '%{http_code}\n' -X POST \
+  -H 'Content-Type: application/json' -d '{"title":"x"}' \
+  https://git.jayw.uk/api/v1/repos/jaylouisw/packetforge/issues                             # 401
+curl -s -o /dev/null -w '%{http_code}\n' https://git.jayw.uk/jaylouisw/packetforge/settings # 303
+curl -s -o /dev/null -w '%{http_code}\n' https://git.jayw.uk/user/settings                  # 303
+curl -s -o /dev/null -w '%{http_code}\n' https://git.jayw.uk/repo/create                    # 303
+curl -s -o /dev/null -w '%{http_code}\n' https://git.jayw.uk/settings                       # 404, no such route
+```
+
+The `401` on the fourth is the one worth watching: it is the answer that proves the read bypass did not
+open the write path, and it is a refusal, so the unauthenticated `POST` cannot leave an issue behind.
+
 ## How it is arranged
 
 The hostname `git.jayw.uk` sits behind Cloudflare Access, and there is a wildcard Access application
