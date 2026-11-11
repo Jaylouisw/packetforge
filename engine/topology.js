@@ -60,10 +60,34 @@ function cableProblem(link, topo) {
   return null;
 }
 
-// A position is two finite numbers. Anything else is not a position.
+// Where the canvas's world ends, in pixels either side of the origin.
+//
+// A position has to be two finite numbers, and finite was where this stopped - which is not enough (#1421). `1e308`
+// is a finite number and it is not a place: `fitView()` takes the board's width as the largest x minus the smallest,
+// and the difference of two such positions is `Infinity`. Zoom then clamps to its 0.25 floor, `translate()` is handed
+// `-Infinity`, and the board draws nothing - "Fit to view" included. The lab is not lost, but it cannot be seen or
+// dragged back, which for a person is the same thing.
+//
+// The limit is deliberately generous: a person drags devices across a canvas of pixels, and the biggest lab the
+// catalogue can build spans tens of thousands. It exists only so every accepted position keeps the framing
+// arithmetic finite, which is the property `test/layout-positions.test.js` asserts over both doors that set one.
+const WORLD_LIMIT = 1e6;
+
+// A position is two finite numbers inside that world. Anything else is not a position.
 function isPosition(p) {
   return !!p && typeof p === 'object' && !Array.isArray(p) &&
-    typeof p.x === 'number' && isFinite(p.x) && typeof p.y === 'number' && isFinite(p.y);
+    typeof p.x === 'number' && isFinite(p.x) && Math.abs(p.x) <= WORLD_LIMIT &&
+    typeof p.y === 'number' && isFinite(p.y) && Math.abs(p.y) <= WORLD_LIMIT;
+}
+
+// Why something is not a position, in words a person can act on. Kept beside `isPosition()` so the refusal and the
+// rule cannot disagree about what went wrong.
+function positionProblem(p) {
+  if (!p || typeof p !== 'object' || Array.isArray(p)) return 'not { x, y } with two numbers';
+  if (typeof p.x !== 'number' || typeof p.y !== 'number' || !isFinite(p.x) || !isFinite(p.y)) {
+    return 'not { x, y } with two numbers';
+  }
+  return 'outside the canvas - x and y are pixel positions within ' + WORLD_LIMIT + ' of the origin';
 }
 
 function copyLayout(layout) {
@@ -89,7 +113,7 @@ function readLayout(raw, devices) {
     const p = raw[id];
     if (!isPosition(p)) {
       issues.push({ severity: 'error', code: 'E_LAYOUT_BAD_ENTRY',
-        message: 'position for ' + id + ' is not { x, y } with two numbers: ' + JSON.stringify(p) });
+        message: 'position for ' + id + ' is ' + positionProblem(p) + ': ' + JSON.stringify(p) });
       continue;
     }
     if (!devices.has(id)) {
@@ -790,4 +814,4 @@ function restoreAddress(iface) {
   return null;
 }
 
-module.exports = { Topology, expandInterfaces };
+module.exports = { Topology, expandInterfaces, isPosition, positionProblem, WORLD_LIMIT };

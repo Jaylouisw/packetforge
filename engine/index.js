@@ -3,7 +3,7 @@
 const net = require('./net');
 const { Device, Interface, CAPABILITIES } = require('./device');
 const { Link } = require('./link');
-const { Topology, expandInterfaces } = require('./topology');
+const { Topology, expandInterfaces, isPosition, positionProblem, WORLD_LIMIT } = require('./topology');
 const { Simulator } = require('./simulator');
 const { CliSession, runCommands } = require('./cli');
 const media = require('./media');
@@ -52,6 +52,9 @@ module.exports = {
   Link,
   Topology,
   expandInterfaces,
+  isPosition,
+  positionProblem,
+  WORLD_LIMIT,
   Simulator,
   CliSession,
   runCommands,
