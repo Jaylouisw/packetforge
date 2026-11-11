@@ -209,7 +209,7 @@ are worth knowing before you call it:
   because the walker `require()`d `path.join(dir, …)` and a bare relative path was read as a *module
   specifier*, so every file failed and the per-file `catch` turned the whole catalogue into "Broken
   spec" rows. That was fixed in the loader itself: `loadCatalog()` now starts with
-  `dir = path.resolve(dir || __dirname)` (`devices/registry.js:17`), and the measured behaviour today is
+  `dir = path.resolve(dir || __dirname)` (`devices/registry.js:15`), and the measured behaviour today is
 
   | call, from the repository root | result |
   |---|---|

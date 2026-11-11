@@ -6,6 +6,11 @@ A box is ticked only where the code answers for itself — every shipped line na
 and the suite that keeps it honest, so a tick is checkable rather than aspirational, and an
 unticked line that survives here is a real gap.
 
+The line numbers are hints, and they rot: `engine/cli.js` is edited every day, so a number that was
+right last week can land on unrelated code this week. Treat the **symbol** as the citation — `_helperAddress`,
+`_dhcpRelayFor`, the refusal text — and read the number as a place to start looking. Three citations on
+this page had slid by 30 to 120 lines when this note was added; the symbols had not moved at all.
+
 ## Simulation engine
 
 - [x] **TCP/UDP transport** — `engine/flow.js` is a real transport layer, not a probe: the
@@ -18,15 +23,15 @@ unticked line that survives here is a real gap.
       HTTP and TLS remain absent.**
 - [x] **DHCP** (DORA exchange) — `engine/dhcp.js` is in the data path, with pools, ranges,
       exclusions and reservations (`test/dhcp.test.js`, `test/dhcp-in-path.test.js`). **Relay is
-      modelled**: `ip helper-address <addr>` on an interface (`engine/cli.js:2119`, handled by `_helperAddress`) makes a router
+      modelled**: `ip helper-address <addr>` on an interface (`engine/cli.js:2150` calls `_helperAddress()`, defined at `:11620`) makes a router
       forward a client's request with `giaddr` set to that port's address, and the server answers from
       a pool that covers the *relay port's* subnet, not its own (`engine/simulator.js:1134`,
       `_dhcpRelayFor()`); `show ip dhcp binding` on the server then grows a closing line naming each
       relayed lease — `N bindings arrived through a relay: <ip> via giaddr <giaddr>`
-      (`engine/cli.js:11448-11455`) — and `test/dhcp-relay.test.js` (36 assertions) keeps all of it
+      (`engine/cli.js:11559-11560`) — and `test/dhcp-relay.test.js` (36 assertions) keeps all of it
       honest. Still absent: **snooping** (a switch
       forwards DHCP as an ordinary broadcast, and `show ip dhcp snooping` says so rather than
-      pretending — `engine/cli.js:11386-11395`), Option 82's circuit-id/remote-id (only `giaddr` is
+      pretending — `engine/cli.js:11492-11500`), Option 82's circuit-id/remote-id (only `giaddr` is
       carried), and DHCPv6, which appears solely as the reason a router's M flag sends a host there.
 - [x] **DNS** for name resolution — NXDOMAIN / NODATA / SERVFAIL reported as distinct answers
       (`engine/dns.js`, `test/dns.test.js`, `test/dns-wire.test.js`).
