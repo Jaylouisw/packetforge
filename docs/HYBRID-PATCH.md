@@ -312,16 +312,22 @@ GPON class B+ (28 dB), 1:32 split, 12 km span, 4 splices, OLT and ONT mated pair
 
 | Element | dB |
 |---------|----|
-| Fibre, 12 km @ 1490 nm (0.25 dB/km) | 3.00 |
-| Splitter 1:32 | 16.50 |
+| Fibre, 12 km @ 1490 nm (`fibreLossDbPerKm(1490)` is 0.22 dB/km) | 2.64 |
+| Splitter 1:32 (`splitterLossDb()` charges the **max** rung, 17.5) | 17.50 |
 | Splices, 4 × 0.1 | 0.40 |
 | Connector pairs, 2 × 0.3 | 0.60 |
 | Hybrid cord, charged as delta (SMSCSX, 0.3/conn) | 0.00 |
-| **Total** | **20.50** |
+| **Total** | **21.14** |
 
-Charging the cord's 0.3 again gives 20.80 dB — still inside 28 dB, so this
-particular link survives either convention. The 1:64 case (20.5 dB splitter)
-does not have the same slack, which is why the convention has to be written down
+Those are `ponBudget()`'s own answers for the inputs above — `lossDb: 21.14`,
+`headroomDb: 6.86` — and two of them are the engine's rather than a datasheet's: it attenuates
+1490 nm at **0.22 dB/km**, and `splitterLossDb()` returns the **worst-case** rung of the splitter
+table (17.5 dB for 1:32), not its 16.5 dB minimum. Budget against the vendor numbers instead and the
+total looks 0.6 dB kinder than the model will be.
+
+Charging the cord's 0.3 again gives 21.44 dB — still inside 28 dB, so this
+particular link survives either convention. The 1:64 case (21.0 dB splitter, so 24.64 dB and 3.36 dB
+of slack) does not have the same room, which is why the convention has to be written down
 rather than left to whoever reads the datasheet last.
 
 ---
