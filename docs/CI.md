@@ -435,6 +435,21 @@ services, and a job that has to swap makes the whole queue slower.
   That is exactly why a sentence of the form "no suite is red" does not belong in a page: it is a
   reading, and readings go stale between two runs of the same command.
 
+  **A reading also has to say which tree it measured.** Every row in that table was taken on a working
+  tree that was being edited at the time, which is why two runs minutes apart disagree — the second one
+  saw code the first had not. `node scripts/run-tests.js` reads the file system, not `HEAD`, so on a
+  dirty tree it measures the work in progress and says nothing about what is committed. When the
+  question is "is `HEAD` green?", measure `HEAD`:
+
+  ```bash
+  git worktree add --detach /tmp/pf-head HEAD
+  cd /tmp/pf-head && node scripts/run-tests.js
+  ```
+
+  That also keeps the run reproducible by a later reader, since the commit it measured is named rather
+  than implied. Delete the worktree afterwards (`git worktree remove /tmp/pf-head`) — the repository
+  keeps a list, and stale entries accumulate silently.
+
   **How to read the runner's own output**, because two of its habits surprise people:
 
   | What you see | What it means |
