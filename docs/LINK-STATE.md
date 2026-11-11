@@ -212,7 +212,18 @@ and by the WebSocket broadcast, and it adds three keys per link on top of `seria
 | `stateReason` | `Topology.linkState(link).reason` | if not, which end and why |
 
 `serialize()` carries none of the three, because `lineUp` is a fact about the current simulation and a
-saved copy would be read back as one.
+saved copy would be read back as one. Measured, a saved link is exactly
+`id, a, b, type, mediaId, speedMbps, duplex, lengthM, lagId, patchCord, state` — `state` is the file's
+own record of "somebody took this cable down", which is why the *derived* answer needed a different
+name. The payload's top level is `format, version, seq, devices, links, layout` before `fullState`
+touches it.
+
+The links are not the whole of what `fullState()` adds: it also sets `s.runtime`, one entry per device
+holding `macTable`, `arp`, `routes` (`routesTable()`) and `counters` — and a device with no counters yet
+gets zeros rather than a missing key, so a table or a sparkline never has to test for absence. All of it
+is recomputed on **every** payload rather than cached; the comment beside the loop puts the cost at
+about 5 µs per cable (a 211-cable board serialises in 1.24 ms against 0.21 ms without), which is the
+price of not being able to show a verdict about hardware that has since changed.
 
 Two answers that look contradictory and are both right:
 
