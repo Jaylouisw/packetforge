@@ -85,7 +85,12 @@ console.log('The commands the model needs, and their refusals:');
   ok(/Interface not found/.test(noIface), 'a rule against a port that does not exist is refused', noIface.slice(0, 60));
 
   const badStatic = configured(env, ['ip nat inside source static 192.168.10.50 not-an-ip']);
-  ok(/Usage: ip nat inside source static/.test(badStatic), 'a static rule with a bad address gets the usage line');
+  // A word where an address belongs is named as such; the usage line is kept for a wrong *shape* of the command
+  // (missing operand, unexpected keyword) (#1411).
+  ok(/Invalid address "not-an-ip" in a static NAT rule/.test(badStatic),
+    'a static rule with a bad address names the address', badStatic.slice(0, 90));
+  ok(/Usage: ip nat inside source static/.test(configured(env, ['ip nat inside source static 192.168.10.50'])),
+    'and a missing operand still gets the usage line');
   const badProto = configured(env, ['ip nat inside source static 192.168.10.50 203.0.113.5 icmp 8']);
   ok(/needs tcp or udp/.test(badProto), 'a static rule with a protocol that cannot carry a port is refused', badProto.slice(0, 90));
 

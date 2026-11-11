@@ -504,6 +504,46 @@ VLAN nothing carries prints an empty Ports column rather than an invented port.
 
 `show vlan brief` prints the same table; there is no short form that disagrees with the long one.
 
+### An address is an address
+
+Every command that takes an IPv4 address asks one question of it, and the question is whether the octets are in
+range - not whether the text has four dotted groups:
+
+```
+r1(config)#ip name-server 300.1.1.1
+% Invalid name server "300.1.1.1": not an IPv4 address
+r1(config)#ip default-gateway 300.1.1.1
+% Invalid default gateway "300.1.1.1": not an IPv4 address
+r1(config)#ip route 300.1.1.0 255.255.255.0 10.1.1.9
+% Invalid destination "300.1.1.0": not an IPv4 address
+r1(config)#ip route 192.0.2.0 255.255.255.0 300.1.1.9
+% 192.0.2.0/24: "300.1.1.9" is neither a next-hop address nor an interface on ISR 4331 branch router-r1
+r1(config)#ip nat pool NP 300.1.1.1 300.1.1.9 netmask 255.255.255.0
+% Invalid pool address "300.1.1.1": not an IPv4 address
+r1(config-router)#neighbor 300.1.1.1 remote-as 65002
+% Invalid neighbor address "300.1.1.1": not an IPv4 address
+r1(config)#ospf router-id 300.1.1.1
+% Invalid router-id "300.1.1.1": not an IPv4 address
+```
+
+`net.isIp()` used to be a shape check - four groups of one to three digits - so `300.1.1.1` and `10.0.0.999` were
+addresses as far as every caller was concerned, while `ip address`, `vrrp 1 ip` and `ping` refused them because they
+went through `ipToInt()` instead. One predicate now, and it asks the parser: an address that cannot exist is refused
+by every door, with the value quoted back.
+
+Two neighbours of that rule live here too, because they are the same mistake in different clothes:
+
+* **A mask is a mask.** `ip route` "validated" its mask with a call whose result it threw away, and `maskToInt()`
+  turns a non-contiguous mask into an integer rather than refusing it - so `ip route 192.0.2.0 255.0.255.0
+  10.1.1.9` answered `Route added: 192.0.2.0/8`, installing a prefix nobody asked for. It now uses the same
+  contiguity rule and the same sentence as `ip address`: `% Invalid mask: 255.0.255.0 - a netmask is a run of ones
+  then zeros (255.255.255.0, or 24)`.
+* **A route with nowhere to go is not installed.** `ip route <dest> <mask>` with neither a next hop nor an
+  interface used to be accepted as `on-link`, and the table then described it as *"no next hop: ARP for the
+  destination on that segment"* - naming a segment the command never mentioned. It is now
+  `% Incomplete command: ip route 192.0.2.0 255.255.255.0 needs a next hop or an interface`. The interface-only
+  form is still legal and still says what it will take to work.
+
 ### A VLAN id is a number
 
 Wherever a VLAN is named — `vlan <id>`, `no vlan <id>`, `switchport access vlan`, `switchport trunk native vlan`,
