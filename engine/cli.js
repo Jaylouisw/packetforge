@@ -9528,11 +9528,46 @@ class CliSession {
         } else {
           only = resolvePortName(dev, tokens[1]);
         }
+        if (!only && String(tokens[1] || '').toLowerCase() === 'switchport') {
+          // `show interfaces switchport` is the whole switch's L2 state in one answer, and the model
+          // had the per-port block already. Refusing the family form meant a 24-port switch was
+          // twenty-four commands, or a script.
+          if (tokens.length > 3) {
+            return ['% Unexpected argument "' + tokens.slice(3).join(' ') +
+              '" - show interfaces switchport [<port>] takes one port at most',
+              '% Usage: show interfaces switchport [<port>]'];
+          }
+          if (!dev.isL2()) {
+            return ['% ' + dev.name + ' does not switch: its ports are routed, so none of them has a',
+              '% switchport state. A tag on a routed port is a subinterface - "show ip interface brief"'];
+          }
+          const named = tokens[2] === undefined ? null : resolvePortName(dev, tokens[2]);
+          if (tokens[2] !== undefined && !named) {
+            return ['% No interface named ' + tokens[2] + ' on ' + dev.name,
+              '% Try "show ip interface brief" for the ports this device has'];
+          }
+          const phys = Array.from(dev.interfaces.values()).filter(function (i) {
+            return !i.svi && !i.parent;
+          }).filter(function (i) { return !named || i.name === named; })
+            .sort(function (a, b) { return String(a.name).localeCompare(String(b.name)); });
+          if (named && !phys.length) {
+            return ['% ' + named + ' is a logical interface: it has no switchport state',
+              '% Ask for the physical port it belongs to'];
+          }
+          const blocks = [];
+          for (const p of phys) {
+            if (blocks.length) blocks.push('');
+            blocks.push.apply(blocks, this._showPortSwitchport(dev, p));
+          }
+          return out.concat(blocks);
+        }
         if (!only) {
           // A word that looks like an IOS subcommand but is not a port reads as a typo otherwise:
           // `show interfaces counters` answered "No interface named counters", which is true and
           // sends the operator looking for a port by that name.
-          const KNOWN_SUB = ['counters', 'status', 'summary', 'brief', 'description', 'switchport'];
+          // `switchport` is handled above (it is a keyword with its own view); the rest are words
+          // this family does not have, and saying so beats "No interface named counters".
+          const KNOWN_SUB = ['counters', 'status', 'summary', 'brief', 'description'];
           if (KNOWN_SUB.indexOf(String(tokens[1]).toLowerCase()) !== -1) {
             // One sentence for every word of this family, and it names the three tables that do
             // answer - including `show interfaces <port> switchport`, which now exists.
@@ -12223,6 +12258,7 @@ class CliSession {
       helpLine('show interfaces [<port>]', 'per-port detail and counters'),
       helpLine('show interfaces status', 'per-port Name, link state, VLAN, duplex, speed, type'),
       helpLine('show interfaces trunk [<port>]', 'trunk ports: mode, native VLAN, allowed and active VLANs, what the tree forwards'),
+      helpLine('show interfaces switchport [<port>]', 'the L2 state of every port, or one: mode, VLAN, trunking, port security'),
       helpLine('show interfaces <port> switchport', 'one port\'s L2 state: mode, access VLAN or trunking, port security'),
       helpLine('show history', 'the commands typed into this session, last 10'),
       helpLine('show terminal', 'console length and width for this session, and that there is no pager'),

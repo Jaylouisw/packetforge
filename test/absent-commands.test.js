@@ -193,7 +193,9 @@ console.log('\n`show interfaces <port> switchport` is the L2 view, not the count
 console.log('\nThe show interfaces family names the three tables that answer:');
 {
   const env = lab();
-  for (const cmd of ['show interfaces switchport', 'show interfaces counters errors', 'show interfaces summary']) {
+  // `show interfaces switchport` now answers the question (the whole switch's L2 state), so it is
+  // out of this list: the two that remain are the ones with no table to show.
+  for (const cmd of ['show interfaces counters errors', 'show interfaces summary']) {
     const out = env.a.run(cmd);
     noMatch(/No interface named/, out, '"' + cmd + '" is not read as a port name');
     match(/show interfaces status|show interfaces counters/, out,
@@ -205,8 +207,8 @@ console.log('\nThe show interfaces family names the three tables that answer:');
     'the error-counter form says why there are none');
   match(/show interfaces counters/, env.a.run('show interfaces counters errors'),
     'and where the drop totals are');
-  match(/show interfaces <port> switchport/, env.a.run('show interfaces switchport'),
-    'including the view this pass added');
+  match(/^Name: /m, env.a.run('show interfaces switchport'),
+    'and the family form answers with the per-port blocks rather than advice');
   // `show switchport` alone is answered too.
   match(/no "show switchport"/, env.a.run('show switchport'), 'show switchport explains the split');
   match(/show interfaces status/, env.a.run('show switchport interface ' + env.p1),
