@@ -1384,3 +1384,15 @@ canMate(xfpPort, sfpPlusPort)
 The two same-numbered Huawei cards are the clearest illustration of why the cage is a hardware fact
 rather than a label: **X2CA and X2CS are both "2x 10GE"**, and only the last letter tells you whether
 the optic is XFP or SFP+.
+
+Measured on 2026-11-12, and the table is thinner than it looks: the catalogue holds **exactly two XFP ports in the
+whole tree**, `xge1/1` and `xge1/2` on the FiberHome `AN5516-01`, both `speedCaps: [10000]`, alongside that board's
+two modelled GE combo pairs (`ge1/1` + `ge1/1-sfp`). No Huawei port is XFP. The `MA5600T` carries **48 DSL, 4 SFP
+and 2 SFP+** ports — the X2CS row is modelled, the **X2CA row is notes-only**, and so is the HU1A/HU1B row. The
+card facts themselves live in the two specs' `notes` fields (`devices/fiberhome/an5516-01.json`,
+`devices/huawei/ma5600t.json`), which also list a third FiberHome board the table omits: **GU6F, 6xGE**.
+
+The cage is narrow by construction, which is why the refusal matters more than the count: `CAGE_MEDIA.xfp()` returns
+only `['10gbase-sr', '10gbase-lr', '10gbase-er']` (`media.js:548`), `CAGE_SPEEDS.xfp()` returns `[10000]`
+(`media.js:705`), and `CAGE_MATE.xfp` is `['xfp']` — an XFP cage mates with XFP and nothing else, so the engine cannot
+offer an SFP+ module there even by accident.
