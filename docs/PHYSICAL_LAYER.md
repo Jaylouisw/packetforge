@@ -440,7 +440,11 @@ If all three pass, the link is created with the **preferred** medium (fiber/DAC 
 copper SFP; higher speed wins) unless the user picks another valid one.
 
 Example: a 10G SFP+ port cabled to a 1G SFP port negotiates **`1000base-sx` at 1 Gbps** —
-physically correct, because the SFP+ cage accepts a 1G optic.
+physically correct, because the SFP+ cage accepts a 1G optic. That depends on the SFP+ **port** declaring the
+lower rate: **1,597** of the **1,728** SFP+ ports list 1000 in `speedCaps` (1,504 of them `[1000, 10000]`), so
+the example is the ordinary case — while the **130** that declare `[10000]` alone answer
+`E_NO_COMMON_SPEED` against the same 1G SFP port, and a `[1000, 10000]` port really does land on 1000 here
+rather than on a refusal.
 
 `canMate` also refuses for reasons the §4 tables do not carry, because they belong to the **modules**
 rather than to the span:
@@ -463,10 +467,14 @@ any media intersection.
 
 ## 4. Feasibility rules
 
-`engine/validation.js` returns **nine** fields, not the six this page used to list:
-`{ ok, errors[], warnings[], media[], mediaId, speedMbps, patchCord, patchCordLossDb, polishWeakened }`
-— read off the object on 2026-11-12, and the last three are the ones that describe a hybrid lead
-(§ elsewhere on this page). **Errors block the link**; warnings are surfaced but allowed.
+`engine/validation.js` returns **ten** fields, not the six this page used to list:
+`{ ok, errors[], warnings[], media[], mediaId, speedMbps, patchCord, patchCordLossDb, polishWeakened,
+patchCordOptions[] }` — read off the object on 2026-11-12. The `patchCord`/`patchCordLossDb`/`polishWeakened`
+trio is what describes a hybrid lead (§ elsewhere on this page), and `patchCordOptions` is the
+machine-readable "what would fix this": on an SC/UPC ↔ SC/APC pair with no cord it holds one entry,
+`{ patchCord: 'SMSCSX', id: 'patch-cord-hybrid-sc-upc-apc', label: 'SMSCSX (sc-upc → sc-apc)', endA: 'sc-upc',
+endB: 'sc-apc', lossDb: 0.3 }`, and it is empty once that cord is declared. **Errors block the link**;
+warnings are surfaced but allowed.
 
 ### Errors (block)
 
