@@ -2001,8 +2001,10 @@ Two rules come with it:
   `no ipv6 gateway zzzz` had when a refused value cleared every IPv6 route.
 
 **The guard:** every configuration row the device offers, on one device from each of the 25 catalogue
-categories, typed with a junk word appended — a thousand lines, all refused, with the saved
-configuration compared before and after every refusal.
+categories, typed with a junk word appended — 1,620 lines on this tree, all refused, with the saved
+configuration compared before and after every refusal. The guard prints that count
+(`the sweep typed a junk word after every configuration row it could (1620)`), so it tracks the
+catalogue while the two assertions under it — everything refused, nothing changed — do not.
 
 ### A copy that changes nothing does not say it applied lines
 
