@@ -65,8 +65,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   Every row of that table was re-measured on 2026-11-12 on a bare `generic-switch`, and the two shapes are the
   interesting part because they are what a reader would get wrong: with the log empty, `show logging dropp`
   prints the two lines about the vocabulary, then `The log is empty - nothing has run in this lab yet`, and
-  **no** `Closest:` line; after a single failed ping it prints `Types with events so far: drop, ping` and
-  `Closest: drop` instead. `show logging stp` really does answer for `stp-block`, `show logging types |
+  **no** `Closest:` line; after a single failed ping it prints `Types with events so far:` followed by
+  whatever has fired — `drop, ping` on a bare switch, `drop, frame, lldp, ping` on one with a PC cabled to
+  it — and `Closest: drop` instead.
+
+  The second line in each row is state-dependent too, and that is the trap in reading the table above as a
+  single transcript: on an **empty** log a real type answers `% The log is empty: nothing has run in this lab
+  yet` and `% Run something ("ping <addr>", a simulation step) and this fills up`, while `lists all 60 of
+  them, with what has happened` appears only once the log holds something. Both states were measured, so the
+  row is exact for the after-a-ping state it is labelled with. `show logging stp` really does answer for `stp-block`, `show logging types |
   include acl` really is the single `acl-deny             -` row, a bare `show logging d` really is read as
   the `device` keyword, and the header really says 60. One wrinkle worth knowing when reading output: the
   empty-log third line is `% The log is empty: nothing has run in this lab yet` (colon) for a **real** type
