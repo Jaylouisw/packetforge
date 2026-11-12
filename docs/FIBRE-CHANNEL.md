@@ -25,7 +25,11 @@ its payload, and which framing it uses changes the direction of the difference:
 So a "32G" port is 28.05 Gbit/s and a "2G" port is 2.125 Gbit/s. A model that read the name as a
 bit rate would put a 64G port at 64000 Mbps, let it negotiate with a 100G Ethernet port, and be
 wrong in both directions at once. `engine/media.js` carries the real rate in `speedMbps` and the
-class in `fcRate`.
+class in `fcRate` — and **only those two**. The Framing column is reference material, not a modelled
+field: no media entry in the tree carries `encoding`, `framing` or `lineCode` (all eight `*gfc-sw`
+entries have exactly the keys `name, family, connector, speedMbps, maxRangeM, fiber, wavelengthNm,
+fcRate`), so nothing here can be checked against the engine and nothing in the engine changes if a
+vendor switches line coding. Read the column as the reason the rates are what they are, not as data.
 
 ## Cages
 
@@ -159,7 +163,8 @@ node -e 'const r=require("./devices/registry"),m=require("./engine/media");let t
 It prints `304 FC ports on 7 devices {"fc-sfp28":144,"fc-sfpdd":80,"fc-sfp":72,"fc-qsfp28":8}` and then the
 seven arrays, largest group first: 144 × `[8500,14025,28050]`, 56 × `[14025,28050,57800]`, 48 ×
 `[2125,4250,8500,14025]`, 24 × `[8500,14025,28050,57800]`, 20 × `[2125,4250,8500]`, 8 × `[28050,112200]`, 4 ×
-`[8500,10519]`. Every figure in the table below matches, and **no array has a single rung** — the check that
+`[8500,10519]`. Re-run verbatim on 2026-11-12 and it prints that header and those seven lines exactly, in that
+order, so the census is still a recipe rather than a remembered figure. Every figure in the table below matches, and **no array has a single rung** — the check that
 keeps "64G is `[57800]`" from being plausible prose.
 
 | Device | Ports | measured `speedCaps` (Mbps) |
