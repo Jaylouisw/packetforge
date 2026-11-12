@@ -593,6 +593,25 @@ a `stats` object: `Simulator` has no such record today, so the two suppression c
 alongside the rule. Read this section as the shape to build and §11.3 as the assertions that will prove it,
 not as a description of anything a lab can provoke.
 
+Re-checked on 2026-11-12 and still true, with one wrinkle worth knowing before you run the grep yourself:
+`grep -rni communit engine/ server/ web/` prints nothing, and a single command covering the six names this
+section invents —
+
+```bash
+grep -rn 'WELL_KNOWN_COMMUNITIES\|parseCommunity\|formatCommunity\|communityBlocksAdvertisement\|noExportSuppressed\|noAdvertiseSuppressed' engine/ server/ web/ test/ | wc -l   # 0
+grep -rni communit engine/ server/ web/ test/ | wc -l                                                                                                                     # 1
+```
+
+— gives `0` for the symbols and `1` for the word. The one line is `test/optional-args.test.js:89`, a
+placeholder→sample-value map used to fill `<angle-bracket>` names in help synopses, carrying
+`community: '65001:1'` beside `'route-map': 'RM1'`. Neither `<community>` nor `<route-map>` appears in any
+tracked file, so that map holds entries for vocabulary that does not exist yet; do not read it as a partial
+implementation. The same grep against the upstream mirror's `engine/`, `server/` and `web/`
+(`git grep -ni communit forgejo-http/main -- engine/ server/ web/`) also prints nothing, so the design is
+unbuilt on `main` too. The arithmetic in §5.2 checks out independently: `65001*65536 + 100 = 4259905636 =
+0xFDE90064`, and the three well-knowns are `0xFFFFFF01`, `0xFFFFFF02`, `0xFFFFFF03` = 4294967041, 4294967042,
+4294967043.
+
 ---
 
 ## 6. AS-path loop prevention and the advertisement rules
