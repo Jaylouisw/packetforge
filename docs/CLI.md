@@ -70,7 +70,7 @@ lists its own sub-commands (`network`, `range`, `lease`, …).
 | `show access-lists` | ACL entries and where each list is bound ([Access control lists](#access-control-lists)) |
 | `show vrrp [<group>]` | group state after the last election; naming a group narrows the table ([VRRP](#vrrp-first-hop-redundancy)) |
 | `show ip protocols` | the routing processes running here, their areas, peers and distances |
-| `show ip bgp` | the BGP table: prefixes received, next hop, AS path, and which row forwards; `show ip bgp <prefix>` is one entry, with the reason it is or is not installed ([BGP](#bgp)) |
+| `show ip bgp` | the BGP table: prefixes received, next hop, AS path, and which row forwards; `show ip bgp <prefix>` is one entry, with the reason it is or is not installed ([BGP](#bgp)). There is no network-plus-mask form, and a miss hides that: `show ip bgp 10.9.0.0 255.0.0.0` answers `% 10.9.0.0 is not in the BGP table on R1` because a prefix that is not there returns before the second word is read, while `show ip bgp 10.0.0.0 255.255.255.0` — a prefix that *is* there — refuses it with `% "255.255.255.0" is not an argument to "show ip bgp 10.0.0.0"` |
 | `show ip bgp summary` | one row per peer: state, and the reason when it is not Established |
 | `show ip bgp neighbors` | one peer in detail: remote AS, state, hold time, prefixes in, and the reason a session is down. An address after it is accepted rather than refused, though the help row declares no placeholder: `show ip bgp neighbors 10.0.0.2` answers `% No BGP neighbour 10.0.0.2 on R1` / `% Configured: (none)` |
 | `router ospf <process-id>` | start OSPF and enter router mode, where `network … area …` lives ([The two commands](#the-two-commands-every-ospf-lab-starts-with-and-this-console-did-not-have)) |
