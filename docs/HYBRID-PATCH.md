@@ -85,7 +85,8 @@ one short: `patchCord` (singular) is exported beside `patchCords` (`engine/optic
 
 One consequence of that coverage, before anyone plans a run round it: **there is no `lc-apc` port in the
 catalogue.** Measured across all 1,661 specs and 24 cage kinds, the polish cages are `sc-upc` 36, `sc-apc`
-679, `lc-upc` 115 and `lc-apc` **0** — `sc-apc` is the only APC cage in the build. So the four
+679, `lc-upc` 115 and `lc-apc` **0** — `sc-apc` is the only APC cage in the build, and `lc-apc` is one of only
+two cages with no port at all (`docs/CONNECTORS.md` counts the pair as `lc-apc` and `usb` out of 26). So the four
 LC/UPC↔LC/APC parts (SMLCSX, FJ1-LCALCUL-03P, SMLCDX, FCA-LALU-DPS2Z-05) are correct hardware with no
 catalogue pair to sit on, while `hybridCord('lc-upc', 'lc-apc')` still answers `SMLCSX` because it works on
 cage ids rather than on ports. On this catalogue a hybrid cord can only rescue an SC run.

@@ -85,6 +85,26 @@ rated 10G     sfp 2500 · sc-apc 100,1000,1244 · lc-upc 1000,1244 · lc-apc 100
 rated 100G    the same, plus lc-upc/lc-apc 10000,25000 and antenna/wwan 100000
 ```
 
+That block is one command; it compares every cage's `CAGE_SPEEDS` ladder with the `speedMbps` of the media
+that cage can actually carry, at three ratings:
+
+```sh
+node -e "
+const m = require('./engine/media'), S = m.CAGE_SPEEDS, M = m.CAGE_MEDIA, MEDIA = m.MEDIA;
+const speed = id => { const v = (MEDIA[id] || {}).speedMbps; return Array.isArray(v) ? v : (v === undefined ? [] : [v]); };
+for (const rating of [1000, 10000, 100000]) {
+  const row = [];
+  for (const c of Object.keys(m.CAGES)) {
+    if (!S[c] || !M[c]) continue;
+    const carried = new Set([].concat.apply([], (M[c](rating) || []).map(speed)));
+    const missing = (S[c](rating) || []).filter(v => !carried.has(v));
+    if (missing.length) row.push(c + ' ' + missing.join(','));
+  }
+  console.log('rated ' + rating / 1000 + 'G: ' + row.join(' | '));
+}
+"
+```
+
 `1244` is not a typo and does appear in `MEDIA` — as the **upstream** rate, `upstreamMbps: 1244` on
 `gpon-sc-apc`, `gpon-sc-upc`, `gpon-lc-upc` and `gpon-sc-hybrid`, which is why the PON cages list it beside
 2488/9953 downstream. `5000` appears in `MEDIA` only as `5gbase-t` (copper) and `wireless-60` (a radio),
