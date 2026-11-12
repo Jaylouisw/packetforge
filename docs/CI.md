@@ -382,6 +382,22 @@ started above: the **fifth** is a link into the middle of another document, the 
 `file.js:123` citation. So in this section *class* counts to three and *check* counts to six, and a
 sentence about "the third class" is not talking about "the fifth check".
 
+**A `js` label means JavaScript syntax, not a program that runs.** Nothing in CI executes a fence, so
+the label has never been tested — and a census of the pages shows it should not be trusted as a promise.
+Of **678** fenced blocks (504 unlabelled, 54 `bash`, 43 `text`, 32 `js`, 26 `json`, 14 `sh`, 3 `jsonc`,
+1 `yaml`, 1 `console`), **20 of the 32 `js` blocks parse under `node --check` and 12 do not**, and none of
+the 12 is meant to: three are loop-body excerpts that end in `continue` (`CONTRIBUTING.md:565` and
+`:576`, `docs/BGP-POLICY.md:680`), six are data shapes written with a `'permit' | 'deny'` union that is
+TypeScript notation rather than JavaScript (`docs/BGP-POLICY.md:892` and `:1064`,
+`docs/CONNECTORS.md:448` and `:1064`, `docs/PHYSICAL_LAYER.md:536`, `docs/UPSTREAM-DESIGN.md:208`), one
+is a branch list lifted out of a dispatch chain (`docs/BGP-POLICY.md:973`), one a method body without its
+class (`docs/UPSTREAM-DESIGN.md:369`) and one an abbreviated expression
+(`docs/DEVICE_REGISTRY.md:107`). Copy any of those twelve and the first thing you get is a `SyntaxError`.
+
+The twenty that do parse are the ones a reader actually runs, and those are worth keeping honest: if a
+snippet has a `node` on the first line, execute it from the page before committing it, because the page
+is the only place it will ever be tested.
+
 **Every backticked path that looks like a file, must be one.** This catches a module that was renamed
 or deleted while three pages kept citing it:
 
