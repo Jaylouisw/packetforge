@@ -623,6 +623,23 @@ curl -s -o /dev/null -w '%{http_code}\n' $B/api                         # 200, H
 curl -s $B/api/topologies/default/links/l1/extra                         # 404 echoing the path back in full
 ```
 
+The four lines need a server on port 8000. Start one on a throwaway data directory so your own boards are
+untouched:
+
+```sh
+PF_DATA=$(mktemp -d) PORT=8000 node server/index.js &   # on git-bash for Windows this lands under C:\tmp\, see below
+curl -s -o /dev/null -w '%{http_code}\n' localhost:8000/api/version   # 200 means it is up
+```
+
+Re-measured against a server started that way: `404`, then `405 {"error":"use POST"}`, then `200`, then
+`{"error":"unknown endpoint: /api/topologies/default/links/l1/extra"}` — the fourth echoes the path, which is
+the whole point of that trap. Two things about the harness. `l1` need not exist: the 405 is emitted by the
+method check at `server/index.js:450`, which runs before the body is read, before the state is validated and
+long before the link is looked up — so `PUT` answers 405 on a board with no such link while `POST` on the same
+path answers `404 no such link`, which is what makes the second trap reproducible on a fresh install. And
+`mktemp -d` gives an MSYS path under git-bash, which node resolves as a Windows one
+(`require("path").resolve("/tmp/x")` is `C:\tmp\x`), so either accept `C:\tmp\` or pass an explicit Windows path.
+
 Per namespace:
 
 | Call | Answer |
