@@ -568,11 +568,16 @@ example.
 **Whether the cited line says what the sentence claims** does not reduce to a check, and it is worth
 recording why, because the obvious version of it is a trap. Pair each citation with the backticked
 identifier on the same line and demand the identifier appear within a few lines of the number: on this
-tree that test has 49 lines it can pair up unambiguously — one name, one citation — and it flags **19**
-of them. Reading all 19 found **zero** defects. They are multi-clause sentences citing one file for a
-clause that names no symbol, and range citations whose first line is the comment above the definition. A
-grey list that is wrong nineteen times out of nineteen does not get shorter as the tree improves, because
-its false positives are all correct prose.
+tree that test has **53** lines it can pair up unambiguously — exactly one backticked citation and one
+backticked name on the line — and it flags **24** of them at a two-line window. (The count was 49 and 19
+when this paragraph was written; pages have been edited since, which moves both.) Reading them found
+**zero** defects: they are multi-clause sentences citing one file for a clause that names no symbol, and
+range citations whose first line is the comment above the definition. The two that look most like real
+defects are both that first cause — `RULES` beside `engine/optical.js:140` names the enumeration the
+sentence is about while the number points at the `E_OPTICAL_BUDGET` literal, and `validateTopology()`
+beside `engine/vlan.js:387` points at the `E_VLAN_RESERVED` refusal in a file where that function does
+not exist at all. A grey list that is wrong twenty-four times out of twenty-four does not get shorter
+as the tree improves, because its false positives are all correct prose.
 
 Worse, it misses the case the last audit of this page actually found. The two broken citations in
 `SIMULATION.md`'s guard-rails bullet — `maxSteps = 8000` cited at `:156` when it is set at `:181`, and the
