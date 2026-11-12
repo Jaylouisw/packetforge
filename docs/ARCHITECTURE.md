@@ -461,7 +461,8 @@ Two of the board endpoints behave in a way a client author will not guess:
   `/undefined/undefined` means the client sent neither field, not that the server failed to read a body it got. With the right pair
   (`{"vendor":"generic","model":"generic-pc","name":"PC1"}`) the device arrives as **`PC-d1`**: `name` is
   dropped, the label comes from the catalogue and the id from the board, exactly as `name` is dropped on a
-  board. To actually name it you have to *configure* it, and `hostname` only works inside config mode —
+  board — and so is `label`: sending `{"label":"R2-label"}` changes
+  nothing either. To actually name it you have to *configure* it, and `hostname` only works inside config mode —
   `POST …/config/d1` with `{"commands":["configure terminal","hostname PC1"]}` renames it to `PC1`, while
   `{"commands":["hostname PC1"]}` answers `% Unrecognized command: hostname PC1` and renames nothing. The
   config endpoint answers `404` for a device id that is not on the board.
@@ -600,7 +601,7 @@ Per namespace:
 
 | Call | Answer |
 |---|---|
-| `POST …/devices` | `{ device, state }`; `404 { error: 'unknown device model: <vendor>/<model>' }` for an unknown pair, and **`409 { error: 'device id already in use', id, existing }`** when a client-supplied `id` is taken — where `existing` is the colliding device's **label** (`"Switch (L2)"`), not its id, so a client that wants to name the device it collided with has to look the label up by id rather than read it off the error. **`name` and `label` in the request body are ignored** — the device is named `label + '-' + id`, so `name: 'R1'` on a `generic-router` comes back as `Router-r1` and passing `label` changes nothing. A name arrives one of two ways: in a topology document you `/load`, or through `hostname` in config mode — measured: after `enable`, `configure terminal`, `hostname R1`, `end`, `state.devices[].name` is `"R1"` and the prompt is `R1#` |
+| `POST …/devices` | `{ device, state }`; `404 { error: 'unknown device model: <vendor>/<model>' }` for an unknown pair, and **`409 { error: 'device id already in use', id, existing }`** when a client-supplied `id` is taken — where `existing` is the colliding device's **label** (`"Switch (L2)"`), not its id, so a client that wants to name the device it collided with has to look the label up by id rather than read it off the error |
 | `DELETE …/devices/:devId` | `{ ok, state }` — also drops that device's console sessions |
 | `POST …/links` | `201 { link, state }`; **every** refusal is `409` — `E_LINK` for a port already patched, an unknown interface or an unknown device id, `E_SELF_LINK` for both ends on one device — which you only see on two **free** ports, because the in-use check runs first: pointing a self-link at a port that is already patched answers `E_LINK` (`"d3/Gi0/0 is already connected"`), and two free ports on one device answer `E_SELF_LINK` (`"… cannot be cabled to itself (client1 to client2)"`). `E_PORT_IN_USE` is not one of them: that code belongs to `validate-link`, see the measured table below |
 | `DELETE …/links/:linkId` | `topo.disconnect()` — `{ ok, state }` |
