@@ -33,6 +33,17 @@ Every interface has a derived **hardware descriptor** (`engine/media.js`):
 | `poeOut` | Watts this port can *source* (PSE) |
 | `poeIn` | Watts this port *draws* (PD) |
 
+### Which cages the catalogue actually exercises
+
+Twenty-six cages are defined; **twenty-four** carry at least one port in `devices/`, measured by running
+`derivePortHardware()` over every port in the catalogue. The two that carry none are `lc-apc` (every LC
+port in the catalogue is UPC — 51 of them) and `usb` (no spec declares a USB port, so the cage exists for
+the rule table and for a future spec rather than for hardware). Coverage is very uneven, which matters when
+you are judging what a change can break: `rj45` alone is 6,255 ports, `sfp+` 1,260, `antenna` 949, `qsfp28`
+596 and `sfp` 595 — while **`xfp`, `combo` and `qsfp56` are two ports each**, `qsfpdd`, `sfp56` and
+`fc-qsfp28` eight each, and `powerline` twelve. A change that only touches XFP, combo or QSFP56 is exercised
+by two ports in the whole catalogue, so "the suite is green" says less there than it does about RJ45.
+
 ### Derivation
 
 Device specs stay terse (`{ "name": "ether1", "type": "ethernet", "speed": "1G" }`).
