@@ -1249,6 +1249,27 @@ drawing can be read without clicking anything, and a screenshot means something.
 | `powerline` | yellow, dashed 2 4 | the mains as a medium |
 | `wireless` | blue, dashed 5 5 | an association, not a cable |
 
+All nine rows were checked against `web/style.css` and `web/canvas.js` on 2026-11-12, colour values included,
+because "warm brown" is only useful if it is the colour the browser actually paints:
+
+| Class | Custom property | Hex | Stroke |
+|---|---|---|---|
+| `link-copper` | `--c-copper` | `#b98b5e` | 2.5 px |
+| `link-fiber` | `--c-fiber` | `#4db6e2` | 2 px |
+| `link-dac` | `--c-dac` | `#e0a458` | 3.5 px |
+| `link-aoc` | `--c-aoc` | `#58d5c9` | 3 px |
+| `link-pon` | `--c-pon` | `#b48ead` | 2.25 px, `10 3` |
+| `link-coax` | `--c-coax` | `#9aa5b1` | 3 px |
+| `link-dsl` | `--c-dsl` | `#8bc34a` | 2 px, `6 4` |
+| `link-powerline` | `--c-powerline` | `#f0c674` | 2.5 px, `2 4` |
+| `link-wireless` | `--c-wireless` | `#7aa2f7` | `5 5` |
+
+`MEDIUM_RULES` in `web/canvas.js` maps a media id to those nine classes in a fixed order, so the classification is
+decided by the medium's string and not by the link's type, and the line element carries
+`data-medium: family || 'unknown'` (`canvas.js:222`) — note the fallback, an unclassified medium draws neutral and
+says `unknown` rather than guessing a family. `test/canvas-cables.test.js` reports **25 passed, 0 failed** on this
+tree, and it is the suite that fails when a new medium has no rule.
+
 Cables are drawn above the chassis: a run that passes behind a device stays continuous from
 socket to socket instead of being erased for that span. If you add a medium to
 `engine/media.js`, give it a rule in `MEDIUM_RULES` (`web/canvas.js`) and a stroke in
