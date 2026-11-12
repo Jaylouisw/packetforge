@@ -1709,13 +1709,15 @@ Two rules came out of it:
 - **The `no` half is the same capability.** A host was still offered `no ip dhcp pool <name>` - a removal
   for a pool it could never have had - because the filter matched `ip dhcp …` and not `no ip dhcp …`.
 
-The families gated this way are the ones whose *removal* half changed something anyway: `no
-spanning-tree …`, `no router …`, `no ospf …`, `no bgp …`, `no neighbor …`, plus both halves of `ip
-dhcp`. The positive forms already refuse in more specific words - `% SW1 is a layer 2 switch: it cannot
-run BGP`, `% R1 does not bridge - spanning tree runs on switches` - and preempting those with the page's
-generic sentence would be a worse answer, so they are left alone. So is `ip route`: a host here carries
-its way out as a route (`ip route 0.0.0.0 0.0.0.0 <gateway>`), which labs configure and rely on; the verb
-that refuses on a host is `ip routing`.
+dhcp`. The positive forms already refuse in more specific words, and each of those refusals carries a
+second line explaining the shape of the device — `% SW1 is a layer 2 switch: it cannot run BGP` /
+`% BGP needs a device that routes - a router, or a layer 3 switch with "ip routing"`, and `% R1 does not
+bridge - spanning tree runs on switches` / `% Router forwards at L3, where a loop is a routing problem,
+not a bridging one` — and preempting those with the page's generic sentence would be a worse answer, so
+they are left alone. So is `ip route`: a host here carries its way out as a route (`ip route 0.0.0.0
+0.0.0.0 <gateway>`), which labs configure and rely on; the verb that refuses on a host is `ip routing`,
+and it explains itself rather than reciting the rule — `% PC1 is not a router: it has no interfaces to
+route between` / `% A host uses "ip default-gateway <gw>" for the one router it sends everything to`.
 
 ### A view is shown where it can be answered
 
