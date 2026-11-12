@@ -2994,6 +2994,16 @@ class CliSession {
   }
 
   _show(tokens) {
+    // `show port-channel summary` is how most of the world spells the table this console keeps under
+    // `show etherchannel summary` (#1449). Same door, so the two cannot disagree; the target's own argument rules
+    // then apply, which is why `show port-channel 1` gets the sentence about every group being listed.
+    // The spelling the reader typed is remembered so any refusal below names *their* command, not the one it was
+    // rewritten into: being answered about `show etherchannel` after typing `show port-channel` reads as a non sequitur.
+    this._showAliasFrom = null;
+    if (String(tokens[0] || '').toLowerCase() === 'port-channel') {
+      this._showAliasFrom = 'show port-channel';
+      tokens = ['etherchannel'].concat(tokens.slice(1));
+    }
     // A `show ip <view>` spelling is answered by the door that has the view (#1447), before any other branch sees it.
     const redirect = this._showIpRedirect(tokens);
     if (redirect && redirect.rewrite) tokens = redirect.rewrite;
@@ -3344,7 +3354,7 @@ class CliSession {
         const known = { summary: 1, brief: 1, detail: 1, load: 1, port: 1, 'port-channel': 1, protocol: 1 };
         const extra = tokens.slice(1).filter(function (t) { return !known[String(t).toLowerCase()]; });
         if (extra.length) {
-          return showNoTail('show etherchannel', extra, 'every group is listed',
+          return showNoTail(this._showAliasFrom || 'show etherchannel', extra, 'every group is listed',
             'each group is headed by its number');
         }
       }
@@ -3500,9 +3510,15 @@ class CliSession {
           // a command they know from IOS was told a port did not exist, and went looking for a typo in a port name
           // instead of learning the view is not here. A word that is a keyword is reported as one.
           // Note it is checked *after* the port table: a device with a port genuinely called "status" gets its port.
-          const keyword = INTERFACES_VIEW_KEYWORDS[String(wanted).toLowerCase()];
+          // The whole phrase is looked up first, then its first word: `show interfaces counters` was reported as a
+          // view, and `show interfaces counters errors` - the same view with the word a reader adds after it - fell
+          // through to `% No interface counters errors on <box>`, which claims a port is missing and sends the reader
+          // looking for a typo. A phrase that starts with a view word is a question about that view (#1449).
+          const typed = String(wanted).trim();
+          const firstWord = typed.split(/\s+/)[0].toLowerCase();
+          const keyword = INTERFACES_VIEW_KEYWORDS[typed.toLowerCase()] || INTERFACES_VIEW_KEYWORDS[firstWord];
           if (keyword) {
-            return ['% `' + wanted + '` is a view, not a port: this console has no `show interfaces ' + wanted +
+            return ['% `' + typed + '` is a view, not a port: this console has no `show interfaces ' + typed +
               '`. ' + keyword];
           }
           // `show interfaces ?` is how a reader asks what can go here, and `% No interface ? on <box>` is the
