@@ -741,6 +741,43 @@ one of them landing on the symbol or content its row names. The three `registry.
 `devices/registry.js`, not an `engine/` file, which is why a sweep scoped to `engine/ server/ web/` reports them
 missing.
 
+The half of that sweep that needs re-running after any refactor is the cheap half — does the line still exist —
+so it is worth having as a command rather than a date. Today: **89** occurrences of a `file.js:NNN` reference,
+collapsing to **56** distinct file-and-line pairs across **12** files, none missing and none out of range.
+
+```sh
+node -e '
+const fs=require("fs"), cp=require("child_process");
+const page=fs.readFileSync("docs/UPSTREAM-DESIGN.md","utf8");
+const re=/((?:[\w.-]+\/)?[\w.-]+\.js):(\d+)/g;
+const dirs=["engine","server","web","devices","scripts","test"];
+const resolve=ref=>ref.indexOf("/")>=0?ref:dirs.map(d=>d+"/"+ref).filter(p=>fs.existsSync(p))[0];
+let occ=0, pairs=new Set(), m;
+while ((m=re.exec(page))) { occ++; pairs.add(m[1]+":"+m[2]); }
+const srcs=new Map(); let bad=0;
+for (const k of pairs) {
+  const i=k.lastIndexOf(":"), f=resolve(k.slice(0,i)), n=+k.slice(i+1);
+  if (!fs.existsSync(f)) { console.log("UNRESOLVED", k); bad++; continue; }
+  if (!srcs.has(f)) srcs.set(f, cp.execFileSync("git",["show","HEAD:"+f],{maxBuffer:1<<28}).toString().split("\n"));
+  if (n<1 || n>srcs.get(f).length) { console.log("OUT OF RANGE", k); bad++; }
+}
+console.log("occurrences", occ, "| pairs", pairs.size, "| files", srcs.size, "| out of range", bad);'
+```
+
+```
+occurrences 89 | pairs 56 | files 12 | out of range 0
+```
+
+It proves the line exists, not that the line names the symbol — the weaker claim, deliberately, because the
+symbol check costs a judgement per anchor and this one costs a second. Bare `media.js`-style references
+resolve by uniqueness across those six directories, which is how the three `registry.js` citations come out as
+`devices/registry.js` rather than being reported as missing `engine/` files: that is the trap the paragraph
+above describes, reproduced by the check rather than avoided by it. The dated sweep counts occurrences (87
+then), and this one reports both counts because they answer different questions — 89 references to 56 places
+is the same claim appearing twice, once in the table and once in the prose that summarises it. Both numbers
+count this paragraph too, so mentioning a `file.js:NNN` here moves the first and leaves the second alone; the
+draft of this sentence carried one and the check printed 90.
+
 The `HEAD`-versus-worktree question that used to hang over the `cli.js` citations on this page is settled, and worth
 stating with a threshold: the writer's uncommitted `engine/cli.js` work starts at the hunk on line **9,688**, and the
 highest `cli.js` line this page cites is **9,426**, so all three (`:2408`, `:3269`, `:9426`) are identical in both and
