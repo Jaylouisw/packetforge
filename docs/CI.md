@@ -697,14 +697,18 @@ queue that lost its arms gets them back in one tick instead of five at a time.
 
   **None of these readings is a reading of `main`.** They were taken in the working tree, which sits on
   branch `fix/sfp-plus-connectors`, and that branch diverged from `origin/main` at `083e2ba1`
-  (2026-11-08 16:58:44) — at the time of the fourth reading it was **382 ahead and 361 behind**, and
-  now reads **636 ahead and 397 behind** (after a fresh `git fetch`, which moved the behind-side
-  from 361 to 373 — main's tip is `f370b893`, #1450); either way not one of the commits above is an ancestor of
-  `origin/main`. Check any of them before you quote it:
+  (2026-11-08 16:58:44) — at the time of the fourth reading it was **382 ahead and 361 behind**, so not one of
+  the commits above is an ancestor of `main`. Re-measured on 2026-11-12 it reads **638 ahead and 395 behind**
+  against `origin/main`, or **638 / 397** against the clone's other remote for the same repository,
+  `forgejo-http` — because the two were fetched at different moments: `origin/main` is `2961f42e` (06:06, #1492)
+  and `forgejo-http/main` is `8e0d6330` (06:39, #1496), the first an ancestor of the second. The behind-side
+  therefore depends on the ref you name, and this paragraph used to quote it as `f370b893` (#1450) without
+  saying which remote that was. Name the ref, and say when you fetched it. Check any commit before quoting it:
 
   ```bash
   git branch --show-current                              # fix/sfp-plus-connectors, not main
-  git rev-list --left-right --count HEAD...origin/main    # 569  384
+  git rev-list --left-right --count HEAD...origin/main         # 638  395
+  git rev-list --left-right --count HEAD...forgejo-http/main   # 638  397   (later-fetched remote)
   git merge-base --is-ancestor d4319d27 origin/main || echo "not on main"
   ```
 
