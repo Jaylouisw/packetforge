@@ -627,6 +627,43 @@ port and a real port answer exactly as before; `?` and `help` print usage; case 
 the words live in one named table and the console asks it; and the keyword check is after the
 port lookup in the source, so a port named like a keyword still wins.
 
+### A reopened lab announced nothing
+
+```
+sw> show lldp neighbors            save, reopen, ask again
+Neighbour  Local port  Port ID  Mgmt address     Neighbour  Local port  Port ID  Mgmt address
+Router-r1  Fa0/1       Gi0/0    10.0.0.1         (none - no LLDP has been heard on any port)
+PC-p1      Fa0/3       eth0     10.0.0.12
+```
+
+Neighbour rows are not stored state — they are *announced*. The board announces when a cable is plugged
+(`refreshNeighbours()`, the call the UI makes after `addLink`), and a load is that same event: every cable in the
+document is being added right now. `Topology.fromJSON()` marked nothing, so the simulator built on a reopened lab never
+announced, and every port claimed its far end had never been heard from with the cables all in place — which is the
+#1457 symptom (a list that blinded both ends of a cable) arriving by a different road.
+
+Now `Topology.fromJSON()` marks the board it built (`loadedFromDocument`), and the `Simulator` constructor announces
+once for such a board: PoE budgets, LLDP to the far end, router advertisements — the same three things a cable being
+plugged does. A board built in code is untouched and still announces nothing until something asks it to, so nothing
+about a fresh lab changed.
+
+Two things this deliberately does **not** invent:
+
+* **the MAC table is not restored** — an entry is learned from a frame, so a reopened board holds exactly the table a
+  live board holds after the same announcement, and a board that has announced nothing holds none. The test asserts
+  that equality rather than a fixed list;
+* **counters stay a fresh run** — they belong to a run, not to a lab, and the announcement is counted on the wire the
+  way #1457 settled it.
+
+Save → load → save is byte-identical: the announcement touches the run's counters, and the document carries neither the
+announcement nor the neighbours.
+
+`test/neighbours-on-load.test.js` pins it, 20 checks; reverting `engine/` fails 7. Neighbours green: `lldp` 27,
+`show-lldp` 23, `lldp-across-trunk` 32, `flows-survive-save-load` 16, `spec-survives-load` 32,
+`dhcp-leases-survive-save` 32, `state-payload-complete` 16, `examples-generated` 21, `counters-agreement` 32,
+`interface-counters`, `link-state` 69, `stp-port-state` 31, `counter-payload`, `poe` 18, `poe-agreement`,
+`poe-inference`, `config-roundtrip` 46, `pon-splitter` 33.
+
 ### A saved lab forgot who was holding which address
 
 ```

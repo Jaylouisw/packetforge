@@ -841,6 +841,14 @@ addDevice(spec, id) {
         if (state.leases.size) topo.dhcpStates.set(devId, state);
       }
     }
+    // A document is a topology change: every cable in it is being added right now. The board announces its
+    // neighbours when a cable is plugged (#1457), and a reopened lab is that same event - without the mark, every
+    // link read "no LLDP has been heard on any port" until somebody plugged something (#1467).
+    topo.loadedFromDocument = true;
+    // Announced once, by whichever simulator is built on this board first - not by every simulator. The server builds
+    // a fresh simulator per request, so announcing per construction put another LLDP frame on the wire for every read
+    // and made one board publish two different payloads a second apart (#1467).
+    topo.pendingAnnouncement = true;
     return topo;
   }
 }
