@@ -570,8 +570,12 @@ same path — the length edit takes `PATCH` or `POST`, and `…/:linkId/state` t
 which the route's own error message does not admit to (a `PUT`, `GET` or `DELETE` there answers
 `405 {"error":"use POST"}`, measured, while `PATCH` on the same URL reaches the link lookup like `POST`
 does and answers `404 {"error":"no such link","code":"E_NO_LINK"}` for a link that does not exist). Both
-dual-method pairs are listed once in the table, so 25 pairs cost 27 method-path combinations. Three facts this arithmetic hides and the dispatch block makes
-obvious:
+dual-method pairs are listed once in the table, so 25 pairs cost 27 method-path combinations. A third number is
+waiting to trap the next reader: grepping the dispatcher for `method ===` conditions gives **26** in this tree —
+13 `POST`, 7 `GET`, 4 `DELETE`, 1 `PATCH`, plus the `OPTIONS` preflight at `server/index.js:705` that is not a
+route at all. 25, 26 and 27 are each right about their own question; only the table's is the number of pairs.
+
+Three facts this arithmetic hides and the dispatch block makes obvious:
 
 - **The method is not part of the route, so a wrong method is not a `405`.** `PUT /api/version`,
   `POST /api/catalog` and `DELETE /api/version` all answer `404 {"error":"unknown endpoint"}`. The one
