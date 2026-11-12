@@ -240,6 +240,15 @@ node test/hardware-invariants.test.js
 node scripts/audit-port-types.js
 \`\`\`
 
+Those two are the gates that ask questions only a spec can answer — 25 invariants over the catalogue and a
+contradiction sweep ("No port contradicts its declared type."). CI also runs four checks that are cheap to
+run first, and two of them can bite a spec: \`node scripts/check-control-bytes.js\` refuses a stray control
+byte, which is what a copy-paste out of a PDF can leave behind, and \`node scripts/check-canonical-urls.js\` refuses
+a project URL that is not \`https://git.jayw.uk/jaylouisw/packetforge\`, which is easy to paste in from a
+mirror. The other two — \`check-node-surface.js\` and \`syntax-check.js\` — are about JavaScript and
+rarely fire on a JSON-only change. See \`docs/CI.md\` for the full list; green locally is not the same as
+green in CI unless you ran the same set.
+
 4. Open a PR. Say which datasheet you used, and say anything the datasheet does not answer.
 
 ## The rules that keep the catalogue honest
