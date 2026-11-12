@@ -679,10 +679,13 @@ No hard defects.
 The fourth line is the one this page used to leave out, and it is the interesting one: 26 specs name
 transceivers or wavelengths in their description while declaring **no optical cage** at all, so
 `cagesMate()` has nowhere to put the optic the text promises. That is reported, not failed — it is a
-soft finding, which is why the verdict underneath still reads `No hard defects.` The largest are
-`brocade/G720` (57 ports), `dell/DS-6630B` (105) and `hpe/SN3600B` (25), and the tail is dominated by
-GPON ONT sticks (`halny/HL-GSFP`, `leox/LXT-010S-H`, `fs/GPON-ONU-34-20BI`) whose "port" is the fibre
-itself. The audit prints the first fifteen and `... and N more` — today `and 11 more`, so the 26 is the count and
+soft finding, which is why the verdict underneath still reads `No hard defects.` The three it prints first
+are `brocade/G720` (57 ports), `dell/DS-6630B` (105) and `hpe/SN3600B` (25) — **walk order, not size
+order**, which is why 57 precedes 105: the script pushes each finding as it walks the catalogue and sorts
+nothing (`scripts/audit-devices.js:58`, printed at `:69`). Sorted by hand, the biggest is `dell/DS-6630B` at
+**105** ports, then `brocade/G720` 57, `hpe/SN3600B` 25, and the floor is `huawei/MA5671A` at 1 — so if you
+need the ranking, take `--json` and sort `opticalMissing` yourself. The tail is dominated by GPON ONT sticks
+(`halny/HL-GSFP`, `leox/LXT-010S-H`, `fs/GPON-ONU-34-20BI`) whose "port" is the fibre itself. The audit prints the first fifteen and `... and N more` — today `and 11 more`, so the 26 is the count and
 15 are shown; `--json` carries the whole list as `opticalMissing` (and the empty `uncabliable` array beside
 it), which is the form to diff when a spec change is supposed to empty it.
 
