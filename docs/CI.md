@@ -594,7 +594,7 @@ queue that lost its arms gets them back in one tick instead of five at a time.
   |---|---|---|
   | while the `show`-argument work was in flight | 232 suites, **9,980 passed, 62 failed** | 14 |
   | after the help rows caught up | 232 suites, **10,037 passed, 4 failed** | 3 — and one of those is a crash, not four failed assertions: `config-do-show` 1, `link-parts` 2, `ma5801` **0 passed, 1 failed, `(no summary line)`** |
-  | three suites later, the OSPF and cost work landed | **239 suites, 10,200 passed, 3 failed** | 2 — `link-parts` 2 failed assertions (`the UI carries every catalogue part (34 of 58)`, and 24 QSFP-DD/QSFP56 rows the catalogue has and `PART_ROWS` does not) and `ma5801` a `TypeError: Cannot read properties of undefined (reading 'hardware')` crash rather than an assertion |
+  | three suites later, the OSPF and cost work landed | **239 suites, 10,200 passed, 3 failed** | 2 — `link-parts` 2 failed assertions (`the UI carries every catalogue part (34 of 58)`, and 24 multi-rate rows the catalogue has and `PART_ROWS` does not — 3 `QSFP-DD-400G-*`, 2 `QSFP56-200G-*`, 10 `QSFP28-100G-*`, 4 `QSFP-40G-*`, 2 `SFP-25G-*` and 3 `SFP-10G-*`, so the gap is not one family but every rate class above 10G) and `ma5801` a `TypeError: Cannot read properties of undefined (reading 'hardware')` crash rather than an assertion |
 
   The second and third rows are the same two suites red for a different reason each time, which is the
   useful part: `link-parts` fails whenever the catalogue grows past the UI's hard-coded part table, and
@@ -657,7 +657,7 @@ queue that lost its arms gets them back in one tick instead of five at a time.
   **None of these readings is a reading of `main`.** They were taken in the working tree, which sits on
   branch `fix/sfp-plus-connectors`, and that branch diverged from `origin/main` at `083e2ba1`
   (2026-11-08 16:58:44) — at the time of the fourth reading it was **382 ahead and 361 behind**, and
-  now reads **608 ahead and 394 behind** (after a fresh `git fetch`, which moved the behind-side
+  now reads **609 ahead and 394 behind** (after a fresh `git fetch`, which moved the behind-side
   from 361 to 373 — main's tip is `f370b893`, #1450); either way not one of the commits above is an ancestor of
   `origin/main`. Check any of them before you quote it:
 
