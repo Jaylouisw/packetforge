@@ -4261,6 +4261,20 @@ R1(config)#no span?
 The reason comes from the same table that hides the row (`_helpRefusal`), so the page, the completion
 list and the parser's own refusals cannot disagree about *why* a family is absent.
 
+**Ask the question in the mode that would accept the command.** `ip ?` in exec mode answers `% No
+completions for "ip"` on a router whose capabilities include `nat`, because every row under `ip` is a
+config-mode row; the same question inside `configure terminal` lists nine — `access-list`,
+`default-gateway`, `dhcp`, `domain-lookup`, `domain-name`, `name-server`, `nat`, `route`, `routing`. So
+"No completions" is a statement about the mode as much as about the device, and the difference between
+those nine and a host's five (`access-list`, `default-gateway`, `domain-lookup`, `domain-name`,
+`name-server`) is the difference this filter is for.
+
+One of the four that go is worth spelling out: a host's page has no `route` row, yet `ip route 0.0.0.0
+0.0.0.0 10.0.0.1` is **accepted** on the same host, because its way out is a route here. That is the same
+page-hides, parser-accepts split recorded for `nat` in
+[DEVICE_REGISTRY.md](DEVICE_REGISTRY.md#capabilities) — the filter is a help-page filter, not a gate, so a
+verb missing from `?` is not proof the box refuses it.
+
 **What guards it** (`test/help-truthful.test.js`, 33 assertions):
 
 * every row a device is shown is typed back at that device — placeholders instantiated, optional
