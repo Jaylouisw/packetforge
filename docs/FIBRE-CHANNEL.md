@@ -141,6 +141,14 @@ MDS declares are not shared with it. And `speedMbps` is the **negotiated line ra
 
 ## Devices
 
+Seven devices carry **304** Fibre Channel ports between them, in all four `fc-*` cages: `fc-sfp` 72,
+`fc-sfp28` 144, `fc-sfpdd` 80, `fc-qsfp28` 8 (measured with `derivePortHardware()` over `devices/`, which
+also gives the per-port `speedCaps` the table below summarises). No single box spans the ladder, so which
+box you pick decides which rates a lab can test: **2G** exists only on the two 8G-class boxes (MDS 9148S and
+SANbox 5800V), **10G FC** only on the 5800V's four ISLs, **64G** on G720 and MDS 9124V, and **128G** only on
+the DS-6630B's eight ICL ports. A "does FC negotiate down the whole ladder" test needs more than one device
+in the lab.
+
 | Device | Ports |
 |---|---|
 | QLogic 5800V | 20 device ports at 2/4/8G + 4 ISL ports at 10GFC |
