@@ -243,10 +243,21 @@ island is filtered out for being unrelated to the device the command was typed o
 Two of the four formulas are worth reading twice. **VRRP is the only one whose number is not a round figure** —
 `3609.375 ms` at the default priority 100, because the RFC's skew time is a fraction of a second; a
 higher priority shrinks it — measured `3218.75 ms` at priority 200 (3 + 56/256) and a clean `3000 ms`
-at priority 255 (the address owner, whose skew is zero by the RFC). And
+at priority 255 (the address owner, whose skew is zero by the RFC) — and a lower one grows it to the
+widest the term can get: `3996.09375 ms` at priority 1 (3 + 255/256). And
 **OSPF's dead interval does not appear in the formula at all**: `deadSec` is read and validated but
 never reaches the schedule, so an adjacency cannot expire on its own and the readiness number is
 always `hello + exchange + SPF`.
+
+**The DHCP row has no console route.** `dhcpTimers()` fires on `dev.dhcp` or on an interface's `dhcp`, and
+no command sets either: `ip address dhcp` on a `generic-pc` answers `% Unrecognized config command: ip
+address dhcp`, and a lab document with a top-level `devices[].dhcp: true` still converges to
+`% Nothing in this lab runs a control plane that converges over time`. What works is the array form the
+app's own exporter writes — `interfaces: [{ name: 'eth0', dhcp: true }]` — which prints
+`dhcp     PC-pc1  1000 ms  DISCOVER/OFFER/REQUEST/ACK`. So the row is reachable, but only by editing the
+lab file; do not read a missing DHCP row as the model being absent. (The object form
+`interfaces: { eth0: { dhcp: true } }` is not the schema and does not degrade quietly either: it throws
+`(d.interfaces || []).filter is not a function` out of `Topology.fromJSON`.)
 
 **Reproducing the OSPF row.** It needs two speakers, not one — a lone router with `ospf router-id`
 configured and no peer has nothing to converge toward and `converge` says so. Two `generic-router`
