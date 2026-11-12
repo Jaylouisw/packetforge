@@ -328,12 +328,14 @@ rather than to the span:
 | `E_BIDI_MISMATCH` | exactly one end carries a single-strand module — `1000BASE-BX10-U` transmits 1310 nm into the one strand and listens at 1490 nm, so it only ever pairs with the mirrored `-D` half |
 | `E_BIDI_SAME_WAVELENGTH` | both ends carry the **same** half (`-U` against `-U`): two transmitters face each other down the strand and neither receiver hears anything |
 | `E_PROTOCOL_MISMATCH` | an out-of-band console port meets a data port — a console link carries an operator typing at a baud rate, not frames |
-| `E_BAUD_MISMATCH` | shared medium but no shared baud rate. Reachable only *after* test 2 passes: 115200 against 9600 already fails as `E_NO_COMMON_MEDIA`, so this one needs two ports that advertise a common module and different baud |
+| `E_BAUD_MISMATCH` | two console-only ports whose declared rates do not intersect. It is checked **before** the media intersection — the code reads `speedCaps` first and falls back to each medium's `baud` — so 115200 against 9600 answers this code directly, with no `E_NO_COMMON_MEDIA` before it. Unreachable from the catalogue: all 178 console ports advertise all five baud media |
 
 Measured: `-U` ↔ `-D` is `ok: true`; `-U` ↔ `-U` is `E_BIDI_SAME_WAVELENGTH` ("two transmitters face
 each other and neither receiver hears anything"); `-U` ↔ a duplex `1000base-lx` port is
 `E_BIDI_MISMATCH`; console ↔ RJ45 is `E_PROTOCOL_MISMATCH`; console ↔ USB stops earlier at
-`E_CONNECTOR_MISMATCH`; console at 115200 ↔ console at 9600 stops at `E_NO_COMMON_MEDIA`.
+`E_CONNECTOR_MISMATCH` (a real USB port carries `usb-console`, so both ends are console-only and the
+protocol test never fires); console at 115200 ↔ console at 9600 is `E_BAUD_MISMATCH`, checked before
+any media intersection.
 
 ---
 

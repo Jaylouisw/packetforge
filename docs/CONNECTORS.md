@@ -520,10 +520,11 @@ answered true while the reverse answered false, and the same pair got an order-d
 is an external part, not a cable between two devices. A one-sided entry is silent, survives review, and
 is miserable to debug — which is exactly what symmetry checks are for.
 
-With the pair gone, `canMate` on a console port against a USB port answers `E_PROTOCOL_MISMATCH`: the
-console-versus-data check runs before mating is even considered, so the code you get is about protocols
-rather than connectors. No shipped device has a `usb` cage port either — **0** of 1,661 specs — so the
-pair is not reachable from the catalogue at all.
+With the pair gone, a console port against a USB port fails at mating: **`E_CONNECTOR_MISMATCH: Cannot
+mate Console to USB (incompatible connectors)`**, in both argument orders. It does *not* reach the
+protocol check, because a real USB port carries `usb-console` media, whose family is `console` — both ends
+count as console-only, so the "console against a data port" test never fires. No shipped device has a `usb`
+cage port anyway — **0** of 1,661 specs — so the pair is not reachable from the catalogue at all.
 
 `validateConnection` reports `E_CONSOLE_TO_DATA` and suppresses the connector
 verdict when a console port is paired with a data port, so the message the user
@@ -851,8 +852,9 @@ polish-sensitive cage and a backward-compatible cage.
 3. **`CAGE_MATE` — add the cage to *both* sides of every pair.** Symmetry is
    manual. A cage that mates with itself needs its own name in its own list. The
    `usb`/`console` pair is the codebase's own example of getting this wrong:
-   `usb` lists `console`, `console` does not list `usb`, and the verdict now
-   depends on argument order.
+   `usb` listed `console` while `console` did not list `usb`, so the same pair
+   answered differently depending on which end you asked about, and the entry was
+   later reduced to `['usb']`. Section 4.7 has the details.
 4. **`CAGE_MEDIA` — add a function `(maxMbps) => [mediaId]`.** Filter by
    `maxMbps` when the cage has a rate ceiling (see `rj45`, `coax`); return a
    fixed list when it does not (see `sfp`, `powerline`). Never put a bare
@@ -1028,11 +1030,11 @@ Stated so nobody debugs a limitation as a bug:
   port on a 100G link produces no warning if the other port is 100G. Read
   `speedMbps` and `mediaId` instead of inferring rate from the absence of
   warnings.
-- **Verdicts can depend on argument order.** Where `CAGE_MATE` is one-sided (the
-  `usb`/`console` pair), swapping `portA` and `portB` changes the code from
-  `E_CONNECTOR_MISMATCH` to `E_NO_COMMON_MEDIA`. Pass the ports in the order the
-  user drew the cable, and never write a test that assumes the two are
-  interchangeable.
+- **The chosen medium can depend on argument order, even when the verdict does not.** `CAGE_MATE` is
+  symmetric now, so `ok`/refused is the same either way round; what is not symmetric is
+  `preferredMedia`'s tie-break, which keeps whichever candidate came first in the input list when family
+  and speed both tie. `preferredMedia(['1000base-t', '1000base-t-sfp'])` answers `1000base-t` and the
+  reversed list answers `1000base-t-sfp`. Never write a test that assumes the two are interchangeable.
 
 ---
 
