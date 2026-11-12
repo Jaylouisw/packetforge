@@ -321,9 +321,15 @@ if you only count bytes:
 | `{"type":"subscribe","topologyId":"default"}` | **1** frame back, same shape |
 | An HTTP mutation while connected | **1** frame, the broadcast |
 | Three junk frames (`{"type":"bogus"}`, `not json`, `{}`) | **0** frames back in 700 ms — discarded, no error frame |
+| A `ping` frame (opcode `0x9`, payload `hi`) | **1 `pong`** (opcode `0xA`) and nothing else, inside 800 ms — so the server does answer the one control frame it documents, and the payload is the only thing that comes back |
 
 Re-measured with a hand-rolled frame reader that decodes opcodes rather than counting `recv()` calls:
-one text frame (opcode `1`) per event, no control frames, no empty frames. Subscribe first, filter by
+one text frame (opcode `1`) per event, no unsolicited control frames, no empty frames. The whole table was
+re-run against a fresh `PF_DATA` server on this tree — all five upgrade paths, the header-less handshake
+(no HTTP reply at all, socket destroyed), `Sec-WebSocket-Version: 8` still upgrading *and* still delivering
+the 153-byte `{type:'topology', topologyId:'default', state}` frame, `subscribe` echoing one frame of the
+same shape, three junk frames drawing silence, an HTTP `POST …/devices` drawing exactly one broadcast, and
+`POST /api/topologies` drawing **zero** (the socket carries content edits, not board lifecycle). Subscribe first, filter by
 `type`, and never assume the socket is quiet because you have not written anything yet — but also do
 not assume it is noisy.
 
