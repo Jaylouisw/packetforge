@@ -402,6 +402,12 @@ Both counts move whenever a page is edited — the 12 refusals have not changed 
 line reference above had drifted by 1 to 11 lines since the first census, which is the price of citing a
 line instead of quoting the block.
 
+Re-derive it rather than trusting the number: count the lines whose first non-space characters are three
+backticks and halve, because every block contributes one opening and one closing line. That answers **727**
+today; the same count with a column-0 pattern answers **677**, since 50 of these blocks are indented inside
+list items — which is also why a census taken by eye and one taken by grep disagree, and why the numbers above
+are worth re-running rather than quoting.
+
 The twenty that do parse are the ones a reader actually runs, and those are worth keeping honest: if a
 snippet has a `node` on the first line, execute it from the page before committing it, because the page
 is the only place it will ever be tested.
