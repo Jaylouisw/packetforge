@@ -330,11 +330,21 @@ const scripts=new Set(Object.keys(require("./package.json").scripts));
 const docs=["README.md","CONTRIBUTING.md",...fs.readdirSync("docs").filter(f=>f.endsWith(".md")).map(f=>"docs/"+f),...fs.readdirSync("docs/wiki").map(f=>"docs/wiki/"+f)];
 let bad=0;
 for (const d of docs){ fs.readFileSync(d,"utf8").split("\n").forEach((l,i)=>{ let m;
-  const re=/npm run ([a-z0-9:_-]+)/g; while((m=re.exec(l))) if(!scripts.has(m[1])) {console.log(d+":"+(i+1)+" -> npm run "+m[1]); bad++;} }); }
+  const re=/npm run ([a-z0-9:_-]+)/g; while((m=re.exec(l))){ const name=m[1];
+    const after=l.slice(m.index+m[0].length, m.index+m[0].length+1);
+    if (name==="x" || after==="<") continue;          // prose placeholder, not a citation
+    if(!scripts.has(name)){ console.log(d+":"+(i+1)+" -> npm run "+name); bad++; } } }); }
 console.log(bad?bad+" cited npm script(s) do not exist":"every cited npm script exists");'
 ```
 
 It prints `every cited npm script exists` today, against the **54** scripts `package.json` actually defines.
+Without the two `continue` guards it prints **four hits**, and every one is an artefact rather than a
+finding: `npm run x` is this page's own placeholder (three pages quote it — here and twice in
+`SIMULATION.md`), and `npm run test:<area>` in `CONTRIBUTING.md` is a family prefix, which the character
+class happily swallows as the script `test:`. A checker that reports the sentence explaining it is worse
+than useless, so the regex skips a bare `x` and anything followed by `<`. The guard still bites: point a page
+at a script that is not there and it prints the file, the line and the name in its `<file>:<line> -> name`
+form, which is why the two guards above name a shape rather than quote a fake.
 
 Backticked **constants and error codes** are the third class, and the one where a raw existence check
 misleads: `BGP-POLICY.md` and `UPSTREAM-DESIGN.md` are design documents, so they name codes the engine
@@ -647,7 +657,7 @@ queue that lost its arms gets them back in one tick instead of five at a time.
   **None of these readings is a reading of `main`.** They were taken in the working tree, which sits on
   branch `fix/sfp-plus-connectors`, and that branch diverged from `origin/main` at `083e2ba1`
   (2026-11-08 16:58:44) — at the time of the fourth reading it was **382 ahead and 361 behind**, and
-  now reads **587 ahead and 389 behind** (after a fresh `git fetch`, which moved the behind-side
+  now reads **588 ahead and 389 behind** (after a fresh `git fetch`, which moved the behind-side
   from 361 to 373 — main's tip is `f370b893`, #1450); either way not one of the commits above is an ancestor of
   `origin/main`. Check any of them before you quote it:
 
