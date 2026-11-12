@@ -7202,6 +7202,31 @@ unexpectedly refused line tells you where a previous line left you.
 Interface mode printing *two* lines is not a double failure: the interface parser falls through to the
 global-config one, so you see the same word rejected by both.
 
+The table is one command: it takes the first refusal each mode gives, which is the line that names the mode.
+
+```sh
+node -e '
+const {Topology, Simulator, runCommands} = require("./engine");
+const reg = require("./devices/registry");
+const r = reg.loadCatalog().filter(s => !s.error).find(s => /generic-router/i.test(s.model));
+const ask = cmds => { const t = new Topology(); t.addDevice(r, "d1"); return runCommands(t.devices.get("d1"), t, new Simulator(t), cmds).lines.filter(l => /^%/.test(l)); };
+const base = ["enable", "conf t"];
+const modes = [["global", base], ["dhcp", base.concat("ip dhcp pool POOL")], ["interface", base.concat("int Gi0/0")], ["ospf", base.concat("router ospf 1")], ["bgp", base.concat("router bgp 65001")]];
+for (const m of modes) console.log(m[0].padEnd(10), "|", ask(m[1].concat("bogus"))[0]);
+'
+```
+
+```
+global     | % Unrecognized config command: bogus
+dhcp       | % Unrecognized DHCP pool command: bogus
+interface  | % Unrecognized interface command: bogus
+ospf       | % "bogus" is not a router ospf command
+bgp        | % "bogus" is not a router bgp command
+```
+
+Each row builds its own topology, because a mode does not survive the end of a batch — which is the
+next section's subject.
+
 Only the two **router** modes answer with what they do want — `In this mode: …` — and the lists differ
 in length because the modes do: `router ospf` adds a third line saying interface settings (cost,
 passive, area) belong on the interface, `router bgp` has nothing to add beyond its one line.
