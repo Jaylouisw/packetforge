@@ -516,7 +516,7 @@ services, and a job that has to swap makes the whole queue slower.
   **None of these readings is a reading of `main`.** They were taken in the working tree, which sits on
   branch `fix/sfp-plus-connectors`, and that branch diverged from `origin/main` at `083e2ba1`
   (2026-11-08 16:58:44) — at the time of the fourth reading it was **382 ahead and 361 behind**, and
-  now reads **494 ahead and 361 behind**; either way not one of the commits above is an ancestor of
+  now reads **496 ahead and 361 behind**; either way not one of the commits above is an ancestor of
   `origin/main`. Check any of them before you quote it:
 
   ```bash
