@@ -1146,6 +1146,20 @@ labs (two routers cabled port to port; then three L3 switches fanned off the eig
 segment really is shared), and #54 read straight off `flowKeyOf()` at `nat.js:563-568`, which now joins
 `insideLocal` *and* `insideGlobal` into the key. All four answers were the same as below.
 
+Re-run again on 2026-11-12, because "no longer reproduces" is a claim that decays: the two-router lab gave the
+route table quoted below **line for line** (`C 10.0.0.0/30`, `C 10.1.0.0/24`, one `O 10.2.0.0/24` via
+`10.0.0.2`), `show ip ospf` gave `Gi0/0 10 0 active` beside `Gi0/1 10 0 passive`, and the neighbour installed
+`O 10.1.0.0/24` — #42 and #43. The three-router lab over the eight-port `generic-switch` (`portTemplate`
+`Fa0/`, 8 ports) put all three on one segment — both peers `FULL` in `show ip ospf neighbor` — and R3's prefix
+table read **20** for R1's LAN and **110** for R2's with costs 10/100, then **110** and **20** with the costs
+swapped - #44, chosen by interface cost and not by id order. `flowKeyOf()` is at `nat.js:563` and joins
+`[proto, insideLocal, srcPort, dstIp, dstPort, insideGlobal]`, so #54's key has both addresses in it. The two
+transcripts below are excerpts, not full output: `show ip route` also prints its `Codes:` and
+`Prefix / AD / Gateway / Interface` header lines first, which is worth knowing before diffing a run against
+them. And the trap recorded below is real — `ip ospf cost 10` before OSPF is enabled answers
+`% OSPF is not enabled - "ospf router-id <ip>" in config mode turns OSPF on`, exactly the courtesy that
+stopped the first attempt at #44 from becoming a false report.
+
 #54 re-measured on the current tree, because the traffic and VLAN work has since touched both
 `simulator.js` and `cli.js`: two hosts in different subnets behind one
 `ip nat inside source list 1 interface Gi0/2 overload`, one flow each to `203.0.113.9:80`, and
