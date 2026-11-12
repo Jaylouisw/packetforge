@@ -1158,6 +1158,29 @@ node -e "const a=require('./catalogue/optics/transceivers.json');
 node test/link-parts.test.js | grep 'carries every catalogue part'
 ```
 
+Both commands were run on 2026-11-12. The first prints `58 parts {"sfp":8,"sfp+":21,"sfp28":4,"qsfp+":7,"qsfp28":13,"qsfp-dd":3,"qsfp56":2}`; the second prints
+`✗ the UI carries every catalogue part (34 of 58)`, and the suite around it reports `81 passed, 2 failed` — this
+gap is one of the two red assertions on this branch, not a stale note.
+
+Every count in the field table above was re-derived from the JSON rather than read off the page, and all of them
+hold: **58** parts; `connector` `lc` 43, `mpo` 8, `sc-upc` 3, `sc-apc` 1, `rj45` 3; `polish` `upc` 42, `apc` 2,
+`null` 14; **9** BiDi parts; **7** CWDM; `sourceUrl` on **58**; `note` on **57**, with `SFP-10G-LR` the single
+blank; the 43 `lc` parts split **33** `upc` / **10** `null`; and the 14 nulls split **3** copper / **11** optical,
+naming `QSFP-DD-400G-DR4`, `QSFP-DD-400G-FR4`, `QSFP56-200G-FR4`, `SFP-25G-SR`, `SFP-25G-SR-E`, `QSFP28-100G-LR4`,
+`QSFP28-100G-ER4`, `QSFP28-100G-ZR4`, `SFP-10G-SR1`, `SFP-10G-SR-E` and `SFP-10G-iLR`. The two spot examples are
+right too: `SFP-10G-BXU-I` is `wavelengthNm` 1270 with `pairWavelengthNm` 1330, and `CWDM-SFP10G-40L` records
+`cwdmChannel: "1470nm"`.
+
+Rule 1 also still holds, and it is checkable: nothing reads the catalogue's `polish`. Every `polish` in `engine/`
+is `FERRULE` geometry — `polishMismatch()` compares `ferrule(a).polish` for the two **cages** — and the one other
+read is `optical.js:381`, which compares ferrule polishes to decide whether a hybrid cord is needed. The JSON
+field is descriptive in the strongest sense: deleting all 58 values would change no verdict.
+
+One trap for the next audit: `PART_ROWS` in `web/app.js` is an array of pipe-delimited strings
+(`'GLC-SX-MMD|sfp|1000BASE-SX|1000|550|LC/UPC|850'`), not objects, so a grep for `partNumber:` there finds **zero**
+rows and reads as "the UI carries nothing". Splitting on `|` gives **34** unique ids, all of them present in the
+catalogue, with **24** catalogue parts absent — the gap this section describes.
+
 ## 9. Model limits worth knowing
 
 Stated so nobody debugs a limitation as a bug:
