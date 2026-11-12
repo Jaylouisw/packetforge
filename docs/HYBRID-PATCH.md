@@ -83,6 +83,30 @@ same-shape, **3** shape+polish hybrids. The two suites named in the header repor
 `test/hybrid-cord-use.test.js:98,105` — production code never branches on the flag, and the header's export list is
 one short: `patchCord` (singular) is exported beside `patchCords` (`engine/optical.js:403`).
 
+One consequence of that coverage, before anyone plans a run round it: **there is no `lc-apc` port in the
+catalogue.** Measured across all 1,661 specs and 24 cage kinds, the polish cages are `sc-upc` 36, `sc-apc`
+679, `lc-upc` 115 and `lc-apc` **0** — `sc-apc` is the only APC cage in the build. So the four
+LC/UPC↔LC/APC parts (SMLCSX, FJ1-LCALCUL-03P, SMLCDX, FCA-LALU-DPS2Z-05) are correct hardware with no
+catalogue pair to sit on, while `hybridCord('lc-upc', 'lc-apc')` still answers `SMLCSX` because it works on
+cage ids rather than on ports. On this catalogue a hybrid cord can only rescue an SC run.
+
+```sh
+node -e "
+const b = './', { Topology } = require(b + 'engine'), { loadCatalog } = require(b + 'devices/registry');
+const t = new Topology(), n = {};
+for (const s of loadCatalog(b + 'devices')) {
+  let d; try { d = t.addDevice(s) } catch (e) { continue }
+  for (const i of d.interfaces.values()) n[i.cage || '-'] = (n[i.cage || '-'] || 0) + 1;
+}
+console.log(['sc-upc', 'sc-apc', 'lc-upc', 'lc-apc'].map(c => c + ' ' + (n[c] || 0)).join(', '));
+"
+```
+
+```
+sc-upc 36, sc-apc 679, lc-upc 115, lc-apc 0
+```
+
+
 The two suites print those readings themselves — `54 passed, 0 failed` and `64 passed, 0 failed` — and the
 table-to-JSON half of the claim is one command:
 
@@ -209,6 +233,11 @@ number honest.
 | `E_PATCH_CORD_UNKNOWN` | Part number not in the catalogue | No. Unknown hardware is not hardware. |
 | `E_CONNECTOR_MISMATCH` | Different shapes, **with or without a cord** | No. Only `E_POLISH_MISMATCH` is rescuable (the `mate.code === 'E_POLISH_MISMATCH' && cord` branch in `engine/validation.js`); shape is not. |
 | `E_MEDIA_NOT_SUPPORTED` | Cord bridges, but the ports share no bridged medium | No. `commonMediaBridged()` returning empty means the two services were never the same service. |
+
+On this catalogue the last row cannot be reached through a cord: all **24,444** SC/UPC↔SC/APC port pairs
+(36 × 679) share a bridged medium, and the LC case has no ports to try — see the `lc-apc` census in §2. That
+refusal earns its place on a link whose declared medium contradicts its ports, the link
+`test/link-verdict.test.js` builds, rather than on a hybrid cord.
 
 Deliberately **not** refused today, and worth a follow-up decision:
 
