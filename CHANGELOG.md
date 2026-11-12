@@ -300,6 +300,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   because concatenating two adjacent singles into a range would silently widen it when a hole between
   them was meant to stay.
 
+  Both counts were re-measured on 2026-11-12 on a fresh `10.0.0.0/24` pool and are exactly those numbers, and
+  the arithmetic is worth spelling out because neither count follows from the output alone: the `Range` is
+  `10.0.0.1 - 10.0.0.254` (254 addresses), the router's own address is reported separately as
+  `Not leased : 10.0.0.1 (this router)` and is why the baseline is **253**, the eleven addresses `100`-`110`
+  take it to **242**, and the two singles take it to **240**. The line that carries it is
+  `In use     : 0 of 242`.
+
 - **`clear ip dhcp binding [*|<address>]`** — the binding table can be emptied, and says so when there
   is nothing to empty: `% R1 holds no DHCP bindings`. A device that is not a DHCP server refuses with
   its own line rather than reporting an empty table, which would read as "a server that has heard
@@ -1063,9 +1070,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   ```
 
   See [docs/CLI.md](docs/CLI.md).
-, rather than guarding
+
+- **`wired-port-has-media` now asserts that every cabled port has a medium**, rather than guarding
   only the ones that already had one. 84 coax and 24 MCX ports had none, so the picker silently
-  omitted them and no check noticed.
+  omitted them and no check noticed. `test/wired-port-has-media.test.js` still owns the question and
+  prints `36 passed, 0 failed` on this tree - the 84 above is a count of coax ports, not of assertions, which
+  is exactly the kind of thing that gets transposed when a page is repaired.
 
 - **`derivePortHardware` gave any port that declared nothing a flat 1000 Mbps**, so 163 console
   ports advertised a gigabit (then 100 Mbps, from a stray `speed: "100M"` in 128 spec files) on a
