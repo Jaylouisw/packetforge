@@ -156,5 +156,38 @@ console.log('\nThe triage scripts do not depend on the GitHub CLI');
     'and authenticates');
 }
 
+console.log('\nA badge for a workflow that does not exist is caught');
+{
+  // Forgejo draws a workflow badge it cannot find as `failure` in crimson, forever. The README
+  // carried one for codeql.yml - a workflow deleted with the move off GitHub - so the front page
+  // told every visitor the build was broken while the build was green. A link to a file that is not
+  // there is the same defect this checker exists for, so the checker has to be able to catch it.
+  const readmePath = path.join(ROOT, 'README.md');
+  const original = fs.readFileSync(readmePath, 'utf8');
+  // Built by concatenation on purpose: a contiguous literal here would be a real dead badge link
+  // inside this test file, and the checker scans .js too - it would fail the tree it is testing.
+  const wfPath = 'actions/' + 'workflows/' + ('codeql' + '.yml');
+  const planted = original.replace('[![License: MIT]',
+    '[![CodeQL](' + canonical.BASE + '/' + wfPath + '/badge.svg)]\n[![License: MIT]');
+  ok(planted !== original, 'the probe actually changed the README');
+  try {
+    fs.writeFileSync(readmePath, planted);
+    const res = check();
+    const hit = res.problems.filter(p => p.code === 'E_BADGE_NO_WORKFLOW');
+    ok(hit.length === 1, 'the checker reports the dead badge', JSON.stringify(hit.map(h => h.detail)));
+    ok(hit.length === 1 && hit[0].file === 'README.md', 'and names the file to fix');
+    ok(hit.length === 1 && /codeql\.yml/.test(hit[0].detail), 'and names the workflow');
+    ok(res.ok === false, 'so the tree is not called clean with a dead badge in it');
+  } finally {
+    fs.writeFileSync(readmePath, original);
+  }
+  ok(check().ok, 'and the tree is clean again once the probe is removed');
+  ok(fs.readFileSync(readmePath, 'utf8') === original, 'and the README is restored byte for byte');
+  ok(!fs.existsSync(path.join(ROOT, '.forgejo', 'workflows', 'codeql.yml')),
+    'this repository genuinely has no codeql.yml, so the badge pointed at nothing');
+  ok(fs.existsSync(path.join(ROOT, '.forgejo', 'workflows', 'ci.yml')),
+    'and it does have the ci.yml workflow the remaining badge names');
+}
+
 console.log('\n' + passed + ' passed, ' + failed + ' failed');
 process.exit(failed ? 1 : 0);

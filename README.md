@@ -4,7 +4,6 @@
 Cisco Packet Tracer.**
 
 [![CI](https://git.jayw.uk/jaylouisw/packetforge/badges/workflows/ci.yml/badge.svg)](https://git.jayw.uk/jaylouisw/packetforge/actions?workflow=ci.yml)
-[![CodeQL](https://git.jayw.uk/jaylouisw/packetforge/actions/workflows/codeql.yml/badge.svg)](https://git.jayw.uk/jaylouisw/packetforge/actions/workflows/codeql.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 PacketForge lets you drag-and-drop routers, switches, hosts, firewalls, access

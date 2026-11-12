@@ -106,6 +106,40 @@ function check() {
     }
   }
 
+  // 4. A badge is a link that renders its own verdict. Forgejo draws a workflow badge it cannot find
+  //    as `failure` in crimson, forever - so a badge left behind by a deleted workflow is worse than
+  //    no badge: it tells every visitor the project is broken when the build is green. The README
+  //    carried one for codeql.yml, a workflow deleted with the move off GitHub, and it read `failure`
+  //    on the front page for weeks. Every workflow URL has to name a workflow file that exists.
+  const WORKFLOW_URL = /(?:badges|actions)\/workflows\/([A-Za-z0-9._-]+\.ya?ml)/g;
+  for (const file of files) {
+    const rel = path.relative(ROOT, file).split(path.sep).join('/');
+    if (canonical.EXEMPT_FILES.has(rel)) continue;
+    let text;
+    try {
+      text = fs.readFileSync(file, 'utf8');
+    } catch (e) {
+      continue;
+    }
+    if (text.indexOf('/workflows/') === -1) continue;
+    const seen = new Set();
+    let m;
+    WORKFLOW_URL.lastIndex = 0;
+    while ((m = WORKFLOW_URL.exec(text)) !== null) {
+      const wf = m[1];
+      if (seen.has(wf)) continue;
+      seen.add(wf);
+      const here = path.join(ROOT, '.forgejo', 'workflows', wf);
+      const upstream = path.join(ROOT, '.github', 'workflows', wf);
+      if (fs.existsSync(here) || fs.existsSync(upstream)) continue;
+      problems.push({
+        file: rel, line: 0, code: 'E_BADGE_NO_WORKFLOW',
+        detail: 'links workflow ' + wf + ', which is not in .forgejo/workflows/ or .github/workflows/',
+        text: wf
+      });
+    }
+  }
+
   return { ok: problems.length === 0, problems: problems, scanned: files.length };
 }
 
