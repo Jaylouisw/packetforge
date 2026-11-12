@@ -85,6 +85,21 @@ declares it, so the state is unreachable by construction. `test/poe-inference.te
 non-switch categories, with the message "N port(s) source power only because the engine guessed it, on a
 non-switch" — an invariant rather than a hunting licence.
 
+All four rows reproduce on 2026-11-12 (`30`/`true`, `null`/`false`, `15.4`/`true`, `null`/`false`), and the suite
+prints **17 passed, 0 failed**. Two edges the flag has, both measured, and the second one matters because this
+paragraph recommends a search:
+
+| spec port | `poeOut` | `poeOutDeclared` |
+|---|---|---|
+| `poeOut: null` written explicitly | `null` | `false` — indistinguishable from omitting the key |
+| `poeOut: 0` | `0` | **`true`** |
+
+The flag is computed as `(hw.poeOut ?? spec.poeOut) !== null`, not as "the key is present", so an explicit JSON
+`null` reads as silence; and a **zero-watt** declaration counts as declared. `poeOut && !poeOutDeclared` therefore
+skips `poeOut: 0` entirely, because the `0` short-circuits the test — a port that declares it sources nothing is the
+quietest possible wrong number, and the recommended search cannot see it. Search `poeOutDeclared !== true` if the
+goal is "ports with no claim at all"; search `poeOut === 0` for the suspicious declarations.
+
 Exactly one file uses the nested form today — `devices/microchip/pd-9501g-sfp.json`, whose `poe-out`
 port says `"hardware": { "poeOut": 60 }` — and both spellings are read, because the flat `poeOut` was
 the original one:
@@ -115,7 +130,8 @@ node -e "const g=require('fs'),p=require('path');const f=[];(function w(d){for(c
 ```
 
 which prints `62 files state a PSE rate; 55 per-port, 9 on portTemplate (3 of them both), 1 nested in
-hardware.poeOut` on this tree.
+hardware.poeOut` on this tree — re-run verbatim on 2026-11-12 and it prints that line character for character, so
+the census is a recipe rather than a remembered number.
 
 ### Keys the catalogue carries that this table does not gate on
 
