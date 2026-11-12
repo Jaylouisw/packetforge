@@ -29,6 +29,10 @@ Read the exit codes with care: the second command exits **1**, which is grep say
 grep failing. Under this repository's own shell `echo $?` prints `0` even after a failed command, so check the
 outcome with `&&`/`||` — `grep … >/dev/null && echo MATCHED || echo NOMATCH` — rather than reading `$?`.
 
+Line numbers on this page are this revision's, and they move whenever an edit lands above them — an
+`engine/cli.js` citation is the fastest-rotting thing here, so treat the symbol as the claim and the line as
+an aid.
+
 Re-run that way on 2026-11-12 the first command reports **MATCHED** and the second **NOMATCH**, and the three
 hits are still at `engine/flow.js:19`, `:20` and `:29` — all three comments, two stating the absences and the
 third explaining that MSS options "all eat into the same budget". A presence would look different: it would be
@@ -51,7 +55,7 @@ lands, that comment is the first line to go stale and the first one a reader tru
       HTTP and TLS remain absent.**
 - [x] **DHCP** (DORA exchange) — `engine/dhcp.js` is in the data path, with pools, ranges,
       exclusions and reservations (`test/dhcp.test.js`, `test/dhcp-in-path.test.js`). **Relay is
-      modelled**: `ip helper-address <addr>` on an interface (`engine/cli.js:2158` calls `_helperAddress()`, defined at `:11781`) makes a router
+      modelled**: `ip helper-address <addr>` on an interface (`engine/cli.js:2158` calls `_helperAddress()`, defined at `:11773`) makes a router
       forward a client's request with `giaddr` set to that port's address, and the server answers from
       a pool that covers the *relay port's* subnet, not its own (`engine/simulator.js:1152`,
       `_dhcpRelayFor()`); `show ip dhcp binding` on the server then grows a closing line naming each
@@ -59,7 +63,7 @@ lands, that comment is the first line to go stale and the first one a reader tru
       (`engine/cli.js:11720`) — and `test/dhcp-relay.test.js` (36 assertions) keeps all of it
       honest. Still absent: **snooping** (a switch
       forwards DHCP as an ordinary broadcast, and `show ip dhcp snooping` says so rather than
-      pretending — `engine/cli.js:11653-11662`), Option 82's circuit-id/remote-id (only `giaddr` is
+      pretending — four lines, `engine/cli.js:11650-11653`), Option 82's circuit-id/remote-id (only `giaddr` is
       carried), and DHCPv6, which appears solely as the reason a router's M flag sends a host there.
 - [x] **DNS** for name resolution — NXDOMAIN / NODATA / SERVFAIL reported as distinct answers
       (`engine/dns.js`, `test/dns.test.js`, `test/dns-wire.test.js`).
