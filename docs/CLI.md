@@ -4323,6 +4323,22 @@ verb missing from `?` is not proof the box refuses it.
 * the filtered page must be a **subset** of the unfiltered one (`help-coverage`), so the filter can
   hide a row but never invent one.
 
+**What the guard does not cover, measured.** `instantiate()` fills a placeholder alternative from its **first**
+branch only — `<list|all>` is typed as `list` — and drops optional groups, so a row's second branch is never
+exercised. On top of that, 39 of the 250 rows still carry a pipe after that filling, in two shapes: an
+alternative written outside the brackets (`speed <mbps>|auto`, `duplex full|auto`, `switchport mode
+access|trunk`, `ip nat inside|outside`, `permit|deny <entry>`) and a row that documents two commands at once
+(`interface <name> | int <name>`, `dns zone <name> | dns add …`). Both are typed literally, pipe and all, and
+the console reads the pipe as its output filter — `SW(config-if)#speed 1000|auto` answers `% There is no
+"| auto" here - this console filters with include, exclude, begin, section and count`. That is neither
+`Unrecognized` nor `Unknown command`, so the check passes without the branch having run. Every
+right-hand branch of the value alternatives was therefore typed by hand on a Catalyst 9300-48P and a router —
+`speed auto`, `duplex auto`, `switchport mode trunk`, `ip access-list extended`, `switchport trunk allowed vlan
+all`, `spanning-tree vlan 10 root primary` and `root secondary`, `switchport port-security violation protect`,
+`aging type absolute` and `inactivity` on an access port, `channel-group 2 mode passive`, `ip nat inside` and
+`outside`, `ipv6 nd ra disable` — and each answers as advertised. Nothing fails the build if the next one does
+not.
+
 ### BGP had no mode, and the line after it was lost
 
 `router bgp 65001` enabled the process and **stayed in global config**. On a real router it enters
