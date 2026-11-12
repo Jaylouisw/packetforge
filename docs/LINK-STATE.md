@@ -78,7 +78,7 @@ than the string `"down"`. And **`affects` does not survive the trip**: `sim.setL
 so a client has to find the two ends in `state.links[linkId]` instead.
 
 **Two traps in reproducing that.** `/load` answers `404 topology not found` until the id exists, because
-`server/index.js:349` bails on a missing topology before the `/load` branch at `:672` — so the sequence is
+`server/index.js:349` bails on a missing topology before the `/load` branch at `:673` — so the sequence is
 `POST /api/topologies {"id":"b1"}`, then `POST /api/topologies/b1/load`, then
 `POST /api/topologies/b1/links/<id>/state {"state":"down","atMs":10000}`. And the link id is not an index:
 `state.links` is an **array**, so `Object.keys()` gives `"0"`, `"1"`, … and those 404 as well; the first

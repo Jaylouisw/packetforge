@@ -542,6 +542,17 @@ that carry more than one method account for the whole gap:
 | `devices` | 2 | `POST`, `DELETE …/:devId` |
 | the other eleven | 1 each | `catalog`, `version`, `media`, `validate-link`, `link-options`, `config`, `interfaces`, `ping`, `layout`, `load`, `reset` |
 
+**`…/load` is a write, and its three side effects are worth knowing before using it.** It needs the board
+to exist already: the guard at `server/index.js:349` answers `404 {"error":"topology not found"}` before the
+branch at `:673`, so a client creates the id with `POST /api/topologies` and then loads into it. Loading
+*replaces* the board wholesale — `topologies.set(topoId, Topology.fromJSON(body))` — and then drops every
+CLI session belonging to that board id, so a console open on it goes stale and its next command starts a
+fresh session. Measured through `…/config/:devId`: `enable` moves the prompt to `SW1#`, `configure terminal`
+to `SW1(config)#`, and an empty command keeps it there — then one `…/load` puts the same empty command back
+at `SW1>`, with no error to say the session went away. And unlike `POST /api/topologies` and `DELETE /api/topologies/:id`, which broadcast nothing
+(a client must poll `GET /api/topologies` to discover a new board), `…/load` does call `broadcast(topoId)`,
+so a second client sees the content change without being told a board exists.
+
 Counting methods naively gives **27**, not 25: **two** of the four `links` pairs accept either verb on the
 same path — the length edit takes `PATCH` or `POST`, and `…/:linkId/state` takes `PATCH` or `POST` too,
 which the route's own error message does not admit to (a `PUT`, `GET` or `DELETE` there answers
