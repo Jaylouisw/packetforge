@@ -814,7 +814,16 @@ host can halve it. Two flags re-measured in the same session as well: `--list` s
   0 failed` — and again today as `7 suite(s) in 2.8 s — 334 assertions passed, 0 failed`: the same seven
   suites and the same 334 assertions, with a second off the clock. A third reading the same day gives
   `7 suite(s) in 2.4 s — 334 assertions passed, 0 failed`, and `--list` still ends `272 suite(s)`. The same
-  lesson in miniature.
+  lesson in miniature. A sixth full reading on 2026-11-12, same tree, same uncommitted work, printed
+  `272 suite(s) in 174.2 s — 11191 assertions passed, 3 failed` with the same pair red, so the counts have
+  now survived six readings and the spread stays at 174.9 seconds.
+
+  That sixth reading needed `--verbose`. The same command without it, in a non-interactive shell, printed
+  `stdin is not a tty` and exited before any summary — twice — while `--verbose`, which streams each suite's
+  own output through the runner instead of capturing it, ran all 272 to completion. Whatever the mechanism, the
+  rule is the one this section already argues: read the counts off the **end** of the output, and if there is no
+  end of output, add `--verbose` and take the reading again. Never pipe the runner into `head` — it closes the
+  pipe long before the summary line exists, so the run looks like it produced nothing.
 
   Useful flags, all from the header of the script:
   `--filter=bgp`, `--bail`, `--verbose`, `--list`.
