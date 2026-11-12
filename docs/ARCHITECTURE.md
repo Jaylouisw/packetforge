@@ -555,7 +555,8 @@ endpoints take:
 
 | Body | Answer |
 | --- | --- |
-| `{"a":"d1","b":"d2"}` | `200 {ok:true, a:{id,name,model,vendor}, b:{…}, options:[…], refusals:{}}` |
+| `{"a":"d1","b":"d2"}` | `200 {ok:true, a:{id,name,model,vendor}, b:{…}, options:[…], refusals:{}, free:{a,b}}` — **on a board where both devices still have a free port**; see the next row for the normal case in an existing lab |
+| `{"a":"d1","b":"d2"}` with every port already cabled | `200 {ok:false, code:'E_NO_FREE_PORTS', reason:'both devices have no free port to cable (PC-d1: 0 free, PC-d2: 0 free)', options:[], refused:0, refusals:{}, free:{a:0,b:0}}` — measured on `lab2`, whose two PCs have one port each and it is used. `free` is the field that answers *why* the empty option list is empty, and `refused` is a **count** sitting next to `refusals`, an **object**: two fields one letter apart, different types, and only one of them is present on the happy path |
 | `{"a":{"deviceId":"d1","iface":"Fa0/1"}, "b":{"deviceId":"d2","iface":"eth0"}}` | **`200 {ok:false, code:'E_NO_DEVICE', reason:'no device [object Object]'}`** — not a `400`, and the object is stringified into the message |
 | `{"a":"d1"}` | `400 {code:'E_BAD_REQUEST', reason:'expected {a, b} device ids'}` — note the **missing `error` key**, which is the tell this is the shape check and not a refusal |
 | `{"a":"zz","b":"d2"}` | `200 {ok:false, code:'E_NO_DEVICE', reason:'no device zz', options:[], refusals:{}}` — unknown ids are a `200`-level failure too |
