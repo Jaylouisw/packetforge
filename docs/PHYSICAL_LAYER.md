@@ -50,7 +50,14 @@ and every figure in the paragraph above unchanged — `rj45` 9,043, `sfp+` 1,728
 `antenna` 949, `sc-apc` 679, `sfp` 595, `lc-upc` 115, `qsfpdd` 168, `powerline` 12, `fc-qsfp28` and `sfp56` 8
 each, `qsfp56`, `xfp` and `combo` 2 each. `CAGES` itself has 26 entries (`engine/media.js:314`), as does
 `CAGE_MEDIA` and `CAGE_SPEEDS`; only `CAGE_MATE` is short a row, and [CONNECTORS.md](CONNECTORS.md) explains
-which cage that is.
+which cage that is — it is `wwan`, measured.
+
+The census command above was run verbatim on 2026-11-12 and prints **17030 ports** followed by twenty-four cage
+lines, matching every figure in the paragraph: `rj45 9043`, `sfp+ 1728`, `qsfp28 1272`, `sfp28 1074`,
+`antenna 949`, `sc-apc 679`, `sfp 595`, `lc-upc 115`, `qsfpdd 168`, `powerline 12`, `fc-qsfp28 8`, `sfp56 8`,
+`qsfp56 2`, `xfp 2`, `combo 2`. `lc-apc` and `usb` appear in no line, which is the "twenty-four of twenty-six"
+claim. One precision on the citation: the `CAGES` literal opens at `media.js:313` and the page's `:314` is its first
+entry, one line into the object — both readings are the same definition.
 
 Every figure in that paragraph has moved at least once: it read `rj45` 6,255, `sfp+` 1,260, `qsfp28` 596,
 `qsfpdd` eight and 51 LC ports when the catalogue was smaller, and `qsfpdd` is **168** now. Recount before
@@ -69,7 +76,7 @@ Device specs stay terse (`{ "name": "ether1", "type": "ethernet", "speed": "1G" 
 
 | # | Signal | Cage |
 |---|---|---|
-| 1 | name starts `wwan`, `wan5g`, `modem`, `lte`, `nr5g`, `nr`, `5g` — each optionally digit-suffixed, then **end-of-name or one of `. - _ space /`** | `wwan` — a cellular modem is neither copper nor Wi-Fi, and it is checked **before** `type` because specs rewrite these ports as `type: "wireless"`. The separator demand is what splits `nr5g` from `nr5g0`: see below |
+| 1 | name starts `wwan`, `wan5g`, `modem`, `lte`, `nr5g`, `nr`, `5g`, then **end-of-name or one of `. - _ space /`** — but only `wwan`, `modem`, `lte`, `nr` and `5g` accept a digit suffix; **`wan5g` and `nr5g` do not** | `wwan` — a cellular modem is neither copper nor Wi-Fi, and it is checked **before** `type` because specs rewrite these ports as `type: "wireless"`. The separator demand is what splits `nr5g` from `nr5g0`: see below |
 | 2 | `type` is a radio type (`wireless`, `radio`, `wifi`, …) | `antenna` |
 | 3 | `type` is `console` / `usb` / `coax` / `dsl`, `adsl`, `vdsl` / `powerline`, `plc`, `mains` | that family (`console`, `usb`, `coax`, `dsl`, `powerline`) |
 | 4 | name starts `wlan`, `wifi`, `wi-fi`, `radio`, `wwan`, `nr5g`, optionally digit-suffixed | `antenna` — this is where `nr5g0` lands, not rule 1 |
@@ -91,6 +98,13 @@ matches neither list:
 | `nr5g0`, `nr5g1` | `antenna` | 4 — rule 1's separator test fails, so the radio rule claims it (2 claims it earlier still if the spec also says `type: "wireless"`) |
 | `nr0`, `nr5`, `wwan0`, `wwan0.1`, `modem0.1`, `lte-1`, `5g1` | `wwan` | 1 |
 | `nr5gx`, `wan5g0` | `rj45` | 10 — neither rule's suffix test passes, and nothing else matches |
+
+That last row is not a hypothetical: it is the reason rule 1 above no longer says "each optionally digit-suffixed".
+`wan5g` and `nr5g` are written without `\d*` in the alternation (`media.js:782`), so a cellular port named
+`wan5g0` gets past both radio rules and lands on the copper default — a modem modelled as an RJ45 socket, which is
+the kind of classification error the rule table exists to prevent. `wan5g-1` and `nr5g-1` are fine, because the
+separator carries the match. Fourteen spot values were re-run through `inferCage()` on 2026-11-12 and all agree with
+this table, `nr5g0 → antenna` and `wan5g0 → rj45` included.
 
 That is inference, not a catalogue defect: no port in the catalogue is named `nr*` at all, and a spec
 that wants a modem cage can say `connector: "wwan"` and skip the rules entirely. The one port whose name
