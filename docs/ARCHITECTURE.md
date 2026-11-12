@@ -347,6 +347,19 @@ same shape, three junk frames drawing silence, an HTTP `POST …/devices` drawin
 `type`, and never assume the socket is quiet because you have not written anything yet — but also do
 not assume it is noisy.
 
+Re-measured again on 2026-11-12 with a raw `net` socket that masks its own client frames and decodes opcodes and
+payload lengths itself (no library, no `WebSocket` object), against a server started on a scratch `PF_DATA`:
+every one of the five paths answered `101` with exactly one text frame of **153 bytes**; handshake with no
+`Sec-WebSocket-Key` produced **no HTTP status line at all** and the socket closed (the probe resolved with
+`status: null`, zero frames); `Sec-WebSocket-Version: 8` still upgraded and still delivered the same 153-byte
+frame; `subscribe` echoed one 153-byte frame of the same shape; `{"type":"bogus"}`, `not json` and `{}` in a row
+drew **zero** frames; `ping` with payload `hi` drew one `pong` (opcode `0xA`) of **two bytes** carrying `hi` back.
+On the lifecycle question the socket stayed completely quiet through `POST /api/topologies {"id":"b9"}` (**`201`,
+zero frames**) and `DELETE /api/topologies/b9` (**`200`, zero frames**), and spoke exactly once — a **4,461-byte**
+text frame — for `POST /api/topologies/b9/devices`, whose payload names `"topologyId":"b9"`. That is the
+multiplexing hazard in numbers: a client subscribed to `default` receives four kilobytes about somebody else's
+board, complete and ready to draw.
+
 **The socket is not mounted at a path.** The `upgrade` handler runs before any routing, so `GET /`,
 `/ws`, `/deep/path` and even `/api/topologies` all answer `101 Switching Protocols` — measured on
 all four. The bundled UI uses `/`, and a client can use anything; there is no `/ws` to get wrong.
