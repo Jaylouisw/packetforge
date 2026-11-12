@@ -8291,10 +8291,20 @@ a header over an empty table.
 
 **The `(P)` marker is not a health check.** It means the port is a bundle member, and it stays
 there whether the member's cable is up or not: pull one of two members and the table still reads
-`1      static    Fa0/1(P) Fa0/2(P)`, with traffic continuing to cross the remaining link (measured
-`4/4` before and after). Pull both and the bundle carries nothing (`0/4`) while the table looks
-exactly the same. `links` is where a dead member shows up, as `down` on its own row; `show
-etherchannel` answers "what is bundled", never "what is passing".
+`1      LACP active  Fa0/7(P) Fa0/8(P)` while `show interfaces Fa0/8` says `status: down`. Pull both
+and the bundle carries nothing (`0/4`) and the table looks exactly the same. `links` is where a dead
+member shows up, as `down` on its own row; `show etherchannel` answers "what is bundled", never "what
+is passing".
+
+What that means for traffic is narrower than it sounds, and the difference is a stale resolution
+rather than a health check. A member whose cable is down stays **eligible** in the bundle:
+`selectMember()` in `engine/lag.js` filters on the port's administrative enabled flag, not on link
+state, so a frame is hashed across both members and one that lands on the dead one is dropped.
+Measured on a two-member bundle, twice each way: a ping opened while both members are up answers
+`4/4`, and after pulling the member its ARP entry resolved over, the same ping answers `0/4` and stays
+there; `clear arp` on the host re-learns over the surviving member and the next ping is `4/4`. A ping
+opened *after* the pull answers `4/4` first time. The bundle does not rehash around a dead member —
+the entry that pinned it has to be relearned.
 
 ### One vocabulary, translated once
 
