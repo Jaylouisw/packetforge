@@ -45,8 +45,9 @@ an individual is officially representing the community in public spaces.
 ## Enforcement
 
 Instances of abusive, harassing, or otherwise unacceptable behavior may be
-reported to the community leaders responsible for enforcement via the
-[private security/vulnerability channel](SECURITY.md). All complaints will be
+reported to the community leaders responsible for enforcement. There is **no private channel on this
+instance today** — see [SECURITY.md](SECURITY.md), which measures that — so use the public tracker only
+to say that you need to reach a maintainer privately, and put nothing else in it. All complaints will be
 reviewed and investigated promptly and fairly.
 
 ## Attribution
