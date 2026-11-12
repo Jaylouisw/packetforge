@@ -85,6 +85,16 @@ docker run --rm -p 8000:8000 packetforge
 Then open **http://localhost:8000**. Verified from a clean checkout: the build succeeds, the
 container answers `GET /api/version` on Node 20, and the whole catalogue (1,661 models) is inside.
 
+The denial and the file are both checkable without building anything, and were re-checked on 2026-11-12.
+`https://ghcr.io/v2/jaylouisw/packetforge/tags/list` answers **401** anonymously, which is the "no published
+image" claim in one request. `node scripts/check-dockerfile.js` — the same script the CI job runs — opens with
+`Dockerfile static checks (8 instructions)` and passes **nine** checks: a `FROM` exists, the base image is real
+(`node:20-alpine`), it is pinned rather than `:latest` or bare, a `USER` is declared, it is not root, a
+`HEALTHCHECK` exists, a `CMD`/`ENTRYPOINT` exists, every `COPY`/`ADD` source exists (there is one), and the
+entrypoint script is really shipped. It ends with the sentence above, `The image itself was not built here`. The file itself is one `FROM`, copies the
+tree once, sets `PORT=8000`, exposes 8000, drops to `USER node`, and polls `http://127.0.0.1:8000/api/catalog`
+with `wget -qO-` every 30 s (3 s timeout, 5 s start period, 3 retries).
+
 ### If it will not start
 
 The server translates the failures it can recognise into a message you can act on, and prints a
