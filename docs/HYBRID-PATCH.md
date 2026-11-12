@@ -376,6 +376,13 @@ Those are `ponBudget()`'s own answers for the inputs above — `lossDb: 21.14`,
 table (17.5 dB for 1:32), not its 16.5 dB minimum. Budget against the vendor numbers instead and the
 total looks 0.6 dB kinder than the model will be.
 
+The call has to spell the splice count **`splices`**, as in `ponBudget({ lengthM: 12000,
+splitters: ['1:32'], ponClass: 'B+', splices: 4 })`. A plausible variant is not a typo the engine
+refuses: `Number(o.splices) || 0` turns `spliceCount: 4` into zero silently, and the only sign is that
+the answer reads `lossDb: 20.74` where the table says `21.14`, with `breakdown.splices` printing
+`{ count: 0, lossDb: 0 }`. Four splices are 0.4 dB, so a wrong field name looks exactly like a path
+with no fusion splices in it.
+
 Charging the cord's 0.3 again gives 21.44 dB — still inside 28 dB, so this
 particular link survives either convention. The 1:64 case (21.0 dB splitter, so 24.64 dB and 3.36 dB
 of slack) does not have the same room, which is why the convention has to be written down
