@@ -627,6 +627,52 @@ port and a real port answer exactly as before; `?` and `help` print usage; case 
 the words live in one named table and the console asks it; and the keyword check is after the
 port lookup in the source, so a port named like a keyword still wins.
 
+### One cable, two answers about which VLAN a frame is in
+
+Two switches joined by trunks whose native VLANs differ. Every check the board makes passes: the
+medium is right, the speeds match, both ports are up, the distance is fine, `validateTopology()`
+says `ok` with no warnings. And the traffic dies:
+
+```
+s2> show interfaces Fa0/1
+  status: up, protocol: up
+  1 drop (no egress ports in VLAN 10)          <- "no members in VLAN 10" on a box where the real
+                                                  problem is the other end of this cable
+s2> ping 10.9.0.2
+"no ARP reply from 10.9.0.2"                   <- an inference, standing in for the recorded cause
+```
+
+`framesCompatible()` in `engine/vlan.js` has been the rule for *"do these two ports file a frame
+the same way"* since the LAG rules landed, and its only caller was its own test. The two ends of a
+trunk are exactly the pair it describes, so it is asked now — in the two places that can say
+something:
+
+| surface | before | now |
+| --- | --- | --- |
+| cable inspector (`validateTopology`) | no issues | `W_SWITCHPORT_MISMATCH` warning naming both numbers |
+| the drop's reason | `no egress ports in VLAN 10` | `switchport mismatch: native VLAN 1 against native VLAN 10 on a trunk - the untagged frame was filed under VLAN 10 here, but s1 Fa0/1 sent it as VLAN 1, …` |
+| `ping` | `no ARP reply from 10.9.0.2` | the recorded cause, because a mismatch is a fact and a missing reply is a conclusion |
+
+Four decisions worth keeping:
+
+* **A warning, not an error.** A trunk carrying no untagged traffic may legitimately disagree about
+  the native VLAN. The cable is accepted; it says so. Refusing the cable would refuse a lab someone
+  may be building on purpose.
+* **One sentence, written order-independently.** `mismatchReason()` sorts the two numbers, so the
+  cable inspector and the drop cannot describe the same cable with the digits the other way round —
+  which is exactly what the first cut of this did, and what its own test caught.
+* **The mismatch outranks "no ARP reply".** `_lastDiscard()` puts `switchport mismatch` above the ARP
+  inference: a trunk that files frames differently is a recorded drop with one fix, while a missing
+  reply is the conclusion drawn from it.
+* **Only switchport pairs are checked.** A cable between two routed ports has no VLAN opinion and
+  raises nothing.
+
+`test/switchport-mismatch.test.js` pins it, 26 checks: the warning names both native VLANs and stays
+a warning; matching trunks, matching access ports and routed cables raise nothing; access-VLAN,
+trunk-against-access and allowed-list differences are each named (smallest first, so the phrasing is
+canonical); the shared phrase appears verbatim in both the cable warning and the ping; the dropping
+box counts exactly one drop under that sentence and says which end filed the frame under which
+number; and a matching trunk is untouched.
 
 ### One state read shows both halves of one fact
 

@@ -548,6 +548,40 @@ function framesCompatible(cfgA, cfgB) {
   return true;
 }
 
+// Why two switchports cannot carry each other's frames, in one sentence, or null when they can (#1445).
+//
+// `framesCompatible()` answers yes or no, and its only caller has been its own test: it is the rule for "do these two
+// ports file a frame the same way", which is exactly what the two ends of a trunk must do. A reader told "no" needs
+// the reason, and the reason is what belongs in the cable inspector and in the drop a dead frame leaves behind - one
+// sentence, so the two surfaces cannot describe the same misconfiguration differently.
+function mismatchReason(cfgA, cfgB) {
+  const a = normalizePortConfig(cfgA);
+  const b = normalizePortConfig(cfgB);
+  if (framesCompatible(cfgA, cfgB)) return null;
+  // The sentence is written so it reads the same from either end of the cable, and so the same cable cannot be
+  // described two ways depending on which box asked: the smaller number comes first, whatever the caller passed.
+  const pair = function (one, two, what) {
+    const lo = Math.min(Number(one), Number(two));
+    const hi = Math.max(Number(one), Number(two));
+    return what + ' ' + lo + ' against ' + what + ' ' + hi;
+  };
+  if (a.mode !== b.mode) {
+    const label = function (mode) { return mode === 'access' ? 'an access port' : 'a trunk port'; };
+    return 'one end is ' + label(a.mode) + ' and the other is ' + label(b.mode);
+  }
+  if (a.mode === 'access') return pair(a.accessVlan, b.accessVlan, 'access VLAN');
+  if (a.nativeVlan !== b.nativeVlan) return pair(a.nativeVlan, b.nativeVlan, 'native VLAN') + ' on a trunk';
+  const lists = [describeAllowed(a.allowedVlans), describeAllowed(b.allowedVlans)].sort();
+  return 'different allowed VLAN lists (' + lists[0] + ' against ' + lists[1] + ')';
+}
+
+// `all` and a list are both legal; a sentence has to say which without printing `[object Object]`.
+function describeAllowed(allowed) {
+  if (allowed === 'all') return 'all';
+  if (!Array.isArray(allowed)) return String(allowed);
+  return allowed.length ? allowed.join(',') : 'none';
+}
+
 module.exports = {
   VLAN_MIN,
   VLAN_MAX,
@@ -559,5 +593,6 @@ module.exports = {
   switchportSentence,
   classifyIngress,
   validatePortConfig,
-  framesCompatible
+  framesCompatible,
+  mismatchReason
 };
