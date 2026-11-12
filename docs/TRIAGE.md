@@ -24,6 +24,14 @@ about all 24 device requests at once. Measured with it: **24** open, **24 of 24*
 issues endpoint serves pull requests too, from the same number space, so without it an open PR's labels
 land in the same tally.
 
+**And how much of it is work.** Re-measured on 2026-11-12 by fetching the same 24 issues anonymously and
+parsing the three fields the form guarantees — vendor, exact model, datasheet URL — then matching
+vendor and model against `loadCatalog()` (normalised, then a loose prefix pass in both directions):
+**24 open, 24 ready, 0 waiting on a requester, 0 already in the catalogue.** Every open request names a
+manufacturer, an exact model and a URL, and not one of them — not even as a near-miss on a name root —
+is a device the catalogue already models. So the queue is not padded: those 24 are all implementable
+work, which is the number worth knowing before anyone claims the backlog is full of duplicates.
+
 `scripts/sweep-device-requests.js` answers, mechanically, the only question that matters before anyone
 reads the body: **is this already in the catalogue?**
 
