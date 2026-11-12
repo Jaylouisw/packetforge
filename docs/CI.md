@@ -462,6 +462,35 @@ services, and a job that has to swap makes the whole queue slower.
 | `auto-rebase` has run but nothing moved | Every open PR was already up to date, or all rebases conflicted | Check the run log for the per-PR summary line |
 | A check fails only in CI | Node version, or a path that differs on Linux | Run `npm test` on Node 18; check case-sensitivity in file paths |
 
+### Reading an `auto-rebase` run log
+
+The last line of a run is the whole story:
+
+```
+batch=5 rebased=2 current=1 conflicts=1 duplicates=1 armed=3 rearmed=12
+```
+
+Seven counters, and the per-PR lines above it name every pull request that made one move. The vocabulary
+is worth having to hand, because each line is a different diagnosis:
+
+| Line | Means |
+|---|---|
+| `PR #n: rebased onto main` | a real `git rebase` succeeded; the branch was force-pushed with `--force-with-lease` |
+| `PR #n: already contains main` | nothing to do — the head already carries `main` |
+| `PR #n: no diff against main (already merged elsewhere)` | the change is on `main` already; pushing would make an empty commit and block the merge for good |
+| `PR #n: conflict, left for a human` | the rebase was aborted and the branch left untouched. A conflict is a decision about behaviour, so the workflow refuses to guess |
+| `PR #n: push rejected (branch moved underneath us)` | someone pushed while the pass was rebasing; the next tick retries |
+| `PR #n: mergeable still not computed after 120s, leaving it armed-pending` | the poll gave up. Forgejo computes `mergeable` off-thread, and arming early answers **405**, which looks like a refusal and is not |
+| `PR #n: armed for squash merge on green checks`, `already armed` | armed, or already was — **409** is counted as success because it means exactly that |
+| `PR #n: branch <ref> is gone` | the pull request was closed mid-pass |
+
+Two things the counters do not say. `batch` is a **workflow-dispatch input, default 5** — one runner on
+this host, so a tick rebases the oldest five and leaves the rest for the next one. And `rearmed` is
+normally far larger than `armed`, because a force-push **clears** the armed flag on every branch in the
+batch; after the rebase loop the workflow makes a second pass over everything already `mergeable`, so a
+queue that lost its arms gets them back in one tick instead of five at a time.
+
+
 ## Known gaps
 
 - **`main` is verified only when a run survives to completion.** Post-merge runs
@@ -558,13 +587,13 @@ services, and a job that has to swap makes the whole queue slower.
   **None of these readings is a reading of `main`.** They were taken in the working tree, which sits on
   branch `fix/sfp-plus-connectors`, and that branch diverged from `origin/main` at `083e2ba1`
   (2026-11-08 16:58:44) — at the time of the fourth reading it was **382 ahead and 361 behind**, and
-  now reads **529 ahead and 377 behind** (after a fresh `git fetch`, which moved the behind-side
+  now reads **530 ahead and 377 behind** (after a fresh `git fetch`, which moved the behind-side
   from 361 to 373 — main's tip is `f370b893`, #1450); either way not one of the commits above is an ancestor of
   `origin/main`. Check any of them before you quote it:
 
   ```bash
   git branch --show-current                              # fix/sfp-plus-connectors, not main
-  git rev-list --left-right --count HEAD...origin/main    # 529  377
+  git rev-list --left-right --count HEAD...origin/main    # 530  377
   git merge-base --is-ancestor d4319d27 origin/main || echo "not on main"
   ```
 
