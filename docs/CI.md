@@ -61,6 +61,15 @@ locally and nothing at all about what CI runs. Then
   the build would turn that into a real check) and
 `missing-devices.js examples --no-issues` (every model an example names still exists).
 
+**`syntax-check` is a parse, not a lint, over seven directories.** It runs `node --check` once per file
+and reports `Syntax-checked 337 files: all OK` — every `.js` under `engine/`, `server/`, `devices/`,
+`web/`, `scripts/`, `examples/` and `test/`, which is the whole application. `tmp/` is **not** one of the
+seven, so the **109 tracked probe scripts** sitting there are never parsed by it (nor are
+`research/incoming/check-san.js` or the stray file at the `C` + U+F03A path — 111 tracked `.js` files
+outside the scan in total). That is the right trade for throwaway probes, but it means "the tree parses"
+means the application parses: a broken probe stays broken until someone runs it.
+
+
 **What the control-byte guard actually looks at.** `check-control-bytes.js` walks the tree and reads only
 eight extensions — `.js .json .md .yml .yaml .css .html .sh` — skipping `.git`, `node_modules`,
 `.github-cache`, `dist` and `coverage`. Tab, LF and CR pass; anything else below `0x20`, plus `0x7F`, is a
@@ -549,13 +558,13 @@ services, and a job that has to swap makes the whole queue slower.
   **None of these readings is a reading of `main`.** They were taken in the working tree, which sits on
   branch `fix/sfp-plus-connectors`, and that branch diverged from `origin/main` at `083e2ba1`
   (2026-11-08 16:58:44) — at the time of the fourth reading it was **382 ahead and 361 behind**, and
-  now reads **528 ahead and 377 behind** (after a fresh `git fetch`, which moved the behind-side
+  now reads **529 ahead and 377 behind** (after a fresh `git fetch`, which moved the behind-side
   from 361 to 373 — main's tip is `f370b893`, #1450); either way not one of the commits above is an ancestor of
   `origin/main`. Check any of them before you quote it:
 
   ```bash
   git branch --show-current                              # fix/sfp-plus-connectors, not main
-  git rev-list --left-right --count HEAD...origin/main    # 528  377
+  git rev-list --left-right --count HEAD...origin/main    # 529  377
   git merge-base --is-ancestor d4319d27 origin/main || echo "not on main"
   ```
 
