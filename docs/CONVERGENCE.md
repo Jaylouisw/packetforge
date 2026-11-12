@@ -116,6 +116,22 @@ Two more measured details worth having in writing:
   looks like a config that was ignored while a `null` looks like a config that was obeyed. Neither warns,
   and `stpTimers` keeps `maxAgeMs 20000` in the null case because max age is read separately — so the
   result is not even internally consistent.
+
+  Every row of that table was taken again at `1f6441f3`, and they all reproduce, including the two that are
+  easiest to get wrong by quoting from memory (`stpTimers({config:{stpForwardDelaySec:null}})` really does
+  answer `forwardDelaySec 0` with `maxAgeMs 20000` beside it, and the negative-value case really does return
+  the default):
+
+  ```sh
+  node -e 'const c=require("./engine/convergence");const s=x=>console.log(JSON.stringify(x));
+  s(c.stpTimers({}));s(c.stpTimers({config:{stpForwardDelaySec:null}}));
+  s(c.vrrpTimers({}));s(c.vrrpTimers({advertSec:null}));
+  s(c.ospfTimers({config:{ospf:{}}}));s(c.ospfTimers({config:{ospf:{helloSec:null}}}));
+  s(c.dhcpTimers({config:{dhcpExchangeSec:-5}}))'
+  ```
+
+  The dead-constant claim was re-measured the same way rather than trusted: `grep -rn stpHelloSec engine/ test/`
+  answers exactly one hit, `engine/convergence.js:32`, which is the definition. Nothing reads it.
 - **"Lease" means two different numbers, and only one of them is a lifetime.** `dhcpTimers().leaseAtMs`
   is the *exchange* timer multiplied by a thousand — `leaseAtMs = exchangeSec × 1000` from the same
   `dhcpExchangeSec` — so it moves whenever the exchange does and says nothing about how long a client keeps
