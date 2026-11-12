@@ -47,7 +47,10 @@ POST /api/topologies/:topoId/links/:linkId/state
 { "state": "down", "atMs": 10000 }
 ```
 
-The response carries `reconvergeAtMs` and the whole convergence schedule. In the editor, right-click
+The response carries `reconvergeAtMs` (`atMs` plus the STP forwarding budget, so `10000` arrives as
+`40000`) and the whole convergence schedule under the key **`convergence`** — an object
+`{ entries, convergedAtMs, byProcess, fromMs }`, with every entry anchored at `fromMs`, the instant of the
+change. In the editor, right-click
 a cable for **Take link down** / **Bring link up**; a down cable is drawn dashed and red
 (`.link.link-down` in `web/style.css`).
 
@@ -55,6 +58,15 @@ One detail if you are writing a client against it: the handler builds its reply 
 **twice** — the requested string, then the full topology state — and the last key wins. So the
 reply's `state` is the topology, not `"down"`. Read `linkId`, `atMs`, `changed` and `reconvergeAtMs`
 for what the change did, and `state.links[…]` for the result.
+
+Two more things about that payload are only visible if you have measured it. **`convergence.entries` is not
+a lightweight index**: each entry carries the entire serialised device — spec, interfaces and all — so on
+`examples/lab4-vlans-trunk-stp.json` the schedule is 3,837 bytes for 3 entries that need 160 (`d1`, `d2`
+and the `change` pseudo-entry); on `lab3-multi-vendor-campus.json`, 8,699 bytes for 4 entries needing 212.
+That is roughly 24× and 41× the information, and it grows with the size of the box rather than with the
+number of events. And **`affects` does not survive the trip**: `sim.setLinkState()` returns
+`affects: [deviceA, deviceB]`, but the HTTP handler builds its reply field by field and never copies it,
+so a client has to find the two ends in `state.links[linkId]` instead.
 
 ## What a state change actually does
 
