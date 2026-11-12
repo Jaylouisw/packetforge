@@ -116,6 +116,22 @@ a copy, and merging there creates a commit that the next mirror sync will not co
 > contains only `ci.yml` and `auto-rebase.yml`, so today the bridge is a command a human runs. Until
 > that job exists, a GitHub PR stays invisible to this project unless somebody notices it.
 
+Operating it, as measured on this tree. The script takes its configuration from four variables, none of
+which any document names: `PF_FORGEJO_URL` (default `http://127.0.0.1:3000`), `PF_FORGEJO_TOKEN`,
+`PF_FORGEJO_REMOTE` (default `forgejo`) and `PF_FORGEJO_PUSH_URL`. Every mode — `--issues`, `--prs`,
+`--report`, `--all`, and `--dry-run` on top of any of them — **exits 2 with `PF_FORGEJO_TOKEN is required.`**
+when the token is absent; only a bare invocation gets as far as `Nothing to do. Use --issues, --prs,
+--report or --all (add --dry-run first).`, also with status 2. So "run it in dry-run first" is not a way to
+try it without credentials.
+
+Two defaults do not fit this repository, and would surprise anyone following the flags. The URL default
+points at `127.0.0.1:3000`, while this worktree reaches the same Forgejo as **`http://odin:3000`**. And
+`PF_FORGEJO_REMOTE` defaults to a remote name, `forgejo`, that **does not exist here** — the two remotes are
+`origin` (`ssh://forgejo/…`, an alias that resolves only on the maintainer's host) and `forgejo-http`. It
+turns out not to matter: the name is used once, as `PUSH_URL || REMOTE` at the push call, and `PUSH_URL` is
+derived from the URL plus the token, so it is non-empty exactly when the token check has already passed.
+`PF_FORGEJO_REMOTE` is therefore read and never effective; `PF_FORGEJO_PUSH_URL` is the knob that works.
+
 ## 3. Issues: one tracker, not two
 
 Two-way issue sync needs a stateful bot holding an ID map, and it duplicates on every edit, delete
