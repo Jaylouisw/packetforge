@@ -82,6 +82,13 @@ this page had slid by 30 to 120 lines when this note was added; the symbols had 
       the server, and `DELETE` forgets a board in memory without removing its file, so it returns
       on the next restart ([ARCHITECTURE.md](ARCHITECTURE.md)). The browser's import/export is a
       separate path.
+
+      Measured on a throwaway `PF_DATA`, because the two halves disagree in a way worth knowing:
+      `POST /api/topologies` writes **no file** — a board that is created and never edited is gone
+      after a restart (201, then `topologies/` empty, then `{"ids":["default"]}`) — while adding one
+      device writes `topo-<id>.json` immediately, and `DELETE` on that board answers `{"ok":true}`,
+      leaves the file in place, and the same id is back in the list after the next boot. So "the
+      board is saved" is true of an edit, not of a creation, and the deletion only ever unloads.
 - [ ] A **pcap export** of the simulated frames (replay in Wireshark).
 - [ ] Embeddable build (single-file `dist/`) and a hosted demo.
 
