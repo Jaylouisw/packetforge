@@ -574,7 +574,8 @@ hand-editing JSON.
 Two ways to get nothing useful out of it, both worth knowing. Run with no argument and it prints one line —
 `usage: node scripts/apply-research.js <file.json> [--dry-run] [--force]` — but hand it a path that does not
 exist and it throws a raw `ENOENT` stack from `node:fs` instead of repeating the usage line. And `research/incoming/`
-holds **82** files in several shapes: only some are this `{ "poe": …, "ports": … }` document, while e.g.
+holds **88** entries — **82** of them `.json`, plus four markdown audits, one `.js` and one `.py` — and the
+JSON comes in several shapes: only some is this `{ "poe": …, "ports": … }` document, while e.g.
 `aruba.json` is a JSON *array* and applies as nothing at all — `[dry run] Applied 0, recorded unknown 0,
 rejected 0`, a silent zero that reads like success.
 
