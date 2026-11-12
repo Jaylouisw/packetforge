@@ -77,8 +77,10 @@ mirror not. A single-branch check would have called that healthy. What the recip
 this: run today, it reports lag rather than parity, and the check that cannot rot is `gh - forge` being empty.
 
 Read "every branch" as **every branch on the forge**, which is not the same as every branch in your
-clone: the working copy this was measured from carries **974** local heads, **101** of them never pushed
-(measured as the set difference against `git ls-remote --heads forgejo-http`). The mirror compares the two
+clone: the working copy this was measured from carries **983** local heads, **102** of them on no tracking ref
+(983 heads against the 900 `forgejo-http/` branches — that is the count you can take without the forge; the
+exact `ls-remote` set difference can only be smaller, since the forge is at 901 branches and the refs at 900).
+The mirror compares the two
 servers, so a branch that exists only on a developer's disk is invisible to it and no count of your own refs
 will ever match the forge's.
 
@@ -117,9 +119,10 @@ Both URL spellings work: with and without the trailing `.git` return the same co
 `git ls-remote` against `https://github.com/...` needs no credentials either way, which is how the
 numbers above were taken.
 
-**The local remote-tracking refs are not this measurement, and two of them are orphans.** `git branch -r`
-in this clone lists four prefixes — `origin/` **898**, `forgejo-http/` **901**, and two leftovers with no
-remote behind them at all: `gh/` **824** and `fjdev/` **523**. Only two remotes are configured
+**The local remote-tracking refs are not this measurement, and four of the six prefixes are orphans.**
+`git branch -r` in this clone lists **six** prefixes — `origin/` **898** and `forgejo-http/` **901**, plus four
+leftovers with no remote behind them at all: `gh/` **824**, `fjdev/` **523**, a bare `fjmain` and `pr/`
+**1483**, **1484**. Only two remotes are configured
 (`git remote -v` names `origin` and `forgejo-http`; `git config --get remote.gh.url` prints nothing), so
 `git branch -r | grep '^  gh/'` answers **824** for a mirror the recipes above measure at **889**, and no
 `git fetch gh` will ever move it. Read the refs for what this clone last saw and `git ls-remote` for what a
