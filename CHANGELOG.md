@@ -38,6 +38,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   value list is an addition after it, not a replacement. `test/value-hints.test.js` holds **24
   assertions**. See [docs/CLI.md](docs/CLI.md).
 
+  All three were re-run on 2026-11-12 on exactly that lab and the value lines are verbatim: `Devices in
+  this lab: PC1, R1, SW1`, `Ports on this device: Gi0/0, Gi0/1, Gi0/2` (the router's `portTemplate` is
+  `Gi0/`, start 0, count 3) and `VLANs on this device: 1, 10, 30, 44`. Two things the transcript above does
+  not show, both of which will make a hand-run look wrong: the block ends with
+  `Names in angle brackets are values: type one, then ask ? again for what follows it.` and it separates the
+  hint lines with blank lines, so a diff against the excerpt will not match. And the VLAN list only reaches
+  `1, 10, 30, 44` if the three VLANs are created **back to back** — `vlan <id>` does not enter a sub-mode, so
+  `vlan 10` / `exit` / `vlan 30` leaves config mode after the first and the next two answer
+  `% Unrecognized command: vlan 30`.
+
 - **`show logging types` — the event vocabulary, and a refusal that can tell a typo from a quiet type.**
   `show logging <type>` used to answer a word it did not recognise with "either a type that has not
   happened yet or a typo", which is not something an operator can act on. The console knows all 60 type
@@ -51,6 +61,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   | `show logging xyzzy` (a word outside the vocabulary, nothing like it) | the same "can never appear" answer, with **no** `Closest:` line — the hint only appears when some type starts with the same two characters |
   | `show logging stp` (an unambiguous prefix) | resolves to `stp-block` and answers for *that* type — `no event of type "stp-block" has happened here yet` — not for `stp` |
   | `show logging types` | `Event types this console records (60), and how many have happened here:` and a two-column table of all 60, `-` where nothing has happened |
+
+  Every row of that table was re-measured on 2026-11-12 on a bare `generic-switch`, and the two shapes are the
+  interesting part because they are what a reader would get wrong: with the log empty, `show logging dropp`
+  prints the two lines about the vocabulary, then `The log is empty - nothing has run in this lab yet`, and
+  **no** `Closest:` line; after a single failed ping it prints `Types with events so far: drop, ping` and
+  `Closest: drop` instead. `show logging stp` really does answer for `stp-block`, `show logging types |
+  include acl` really is the single `acl-deny             -` row, a bare `show logging d` really is read as
+  the `device` keyword, and the header really says 60. One wrinkle worth knowing when reading output: the
+  empty-log third line is `% The log is empty: nothing has run in this lab yet` (colon) for a **real** type
+  and `% The log is empty - nothing has run in this lab yet` (dash) for an unrecognised word, so the two
+  branches do not print the same sentence punctuation.
 
   Prefix resolution now draws on the whole vocabulary rather than only the types that have already fired,
   so `show logging dro` works in a lab where nothing has dropped yet. `show logging types` composes with
