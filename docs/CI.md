@@ -390,17 +390,19 @@ sentence about "the third class" is not talking about "the fifth check".
 the label has never been tested — and a census of the pages shows it should not be trusted as a promise.
 Counting the **21 pages that carry code** — `docs/*.md`, `README.md`, `CONTRIBUTING.md` and
 `CHANGELOG.md` — there are **727** fenced blocks (536 unlabelled, 62 `bash`, 45 `text`, 35 `js`, 26 `json`,
-18 `sh`, 3 `jsonc`, 1 `yaml`, 1 `console`). **23 of the 35 `js` blocks parse under `node --check` and 12 do
-not**, and none of the 12 is meant to: three are loop-body excerpts that end in `continue`
-(`CONTRIBUTING.md:566` and `:577`, `docs/BGP-POLICY.md:691`), six are data shapes written as a literal with
-a `'permit' | 'deny'` union or the same kind of fragment (`docs/BGP-POLICY.md:903` and `:1075`,
-`docs/CONNECTORS.md:449` and `:1072`, `docs/PHYSICAL_LAYER.md:537`, `docs/UPSTREAM-DESIGN.md:209`), one
-is a branch list lifted out of a dispatch chain (`docs/BGP-POLICY.md:984`), one a method body without its
-class (`docs/UPSTREAM-DESIGN.md:370`) and one an abbreviated expression
-(`docs/DEVICE_REGISTRY.md:108`). Copy any of those twelve and the first thing you get is a `SyntaxError`.
-Both counts move whenever a page is edited — the 12 refusals have not changed in kind or number, but every
-line reference above had drifted by 1 to 11 lines since the first census, which is the price of citing a
-line instead of quoting the block.
+18 `sh`, 3 `jsonc`, 1 `yaml`, 1 `console`). **22 of the 35 `js` blocks parse under `node --check` and 13 do
+not**, and none of the 13 is meant to: three are loop-body excerpts that end in `continue`
+(`CONTRIBUTING.md:565` and `:576`, `docs/BGP-POLICY.md:690`), six are data shapes written as a literal with
+a `'permit' | 'deny'` union or the same kind of fragment (`docs/BGP-POLICY.md:902` and `:1074`,
+`docs/CONNECTORS.md:448` and `:1071`, `docs/PHYSICAL_LAYER.md:536`, `docs/UPSTREAM-DESIGN.md:208`), one
+is a branch list lifted out of a dispatch chain (`docs/BGP-POLICY.md:983`), one a method body without its
+class (`docs/UPSTREAM-DESIGN.md:369`), one a `return` at the top level without the function it returns
+from (`docs/UPSTREAM-DESIGN.md:241`) and one an abbreviated expression
+(`docs/DEVICE_REGISTRY.md:107`). Copy any of those thirteen and the first thing you get is a
+`SyntaxError`. Both counts move whenever a page is edited, and the line references above are a census
+rather than a fixture: all twelve older ones had drifted by exactly one line at this count, in the same
+direction, after a single-line edit near the top of the pages involved — which is the price of citing a
+line instead of quoting the block, and the thirteenth fragment arrived with a page that grew one.
 
 Re-derive it rather than trusting the number: count the lines whose first non-space characters are three
 backticks and halve, because every block contributes one opening and one closing line. That answers **727**
@@ -408,7 +410,7 @@ today; the same count with a column-0 pattern answers **677**, since 50 of these
 list items — which is also why a census taken by eye and one taken by grep disagree, and why the numbers above
 are worth re-running rather than quoting.
 
-The twenty that do parse are the ones a reader actually runs, and those are worth keeping honest: if a
+The twenty-two that do parse are the ones a reader actually runs, and those are worth keeping honest: if a
 snippet has a `node` on the first line, execute it from the page before committing it, because the page
 is the only place it will ever be tested.
 
