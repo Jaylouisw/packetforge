@@ -39,10 +39,15 @@ Forgejo repo → **Settings → Repository → Push mirrors → Add push mirror*
 This copies every branch and tag. What it does *not* copy: issues, PRs, discussions, releases, wiki,
 labels, milestones. Those are not git.
 
-Measured on 2026-11-12, and the "every branch" half holds exactly: **881 heads on the forge, 881 on
-GitHub**, and `refs/heads/main` is `775ffa42` on both. That is worth recording because the branch
-count is not small and it moves — 872 earlier the same day, then 875, now 881, six more in the hours
-between — so a mirror that copied only `main` would look healthy from a single-branch check.
+Measured on 2026-11-12, and the "every branch" half holds exactly: **884 heads on the forge, 884 on
+GitHub**, and `refs/heads/main` is `73718ab4` on both. That is worth recording because the branch
+count is not small and it moves — 872 earlier the same day, then 875, then 881, now 884, twelve more in
+the hours between — so a mirror that copied only `main` would look healthy from a single-branch check.
+
+Read "every branch" as **every branch on the forge**, which is not the same as every branch in your
+clone: the working copy this was measured from carries **968** local heads, 84 of them never pushed.
+The mirror compares the two servers, so a branch that exists only on a developer's disk is invisible to
+it and no count of your own refs will ever match.
 
 The tag half is untested rather than proven: there are **zero tags and zero releases** on either
 side, so "every tag is copied" is vacuously true and nothing has ever exercised the path. Take the
@@ -55,15 +60,16 @@ Verify:
 # `git ls-remote origin` there fails with "Could not resolve hostname forgejo", and piped into `wc -l`
 # that failure reads as a count of 0 — the mirror looking empty rather than unreachable. Use the HTTP
 # remote or the public URL instead; both are reachable from anywhere.
-git ls-remote --heads https://github.com/Jaylouisw/packetforge | wc -l                        # 881 today
+git ls-remote --heads https://github.com/Jaylouisw/packetforge | wc -l                        # 884 today
 git ls-remote --heads http://odin:3000/jaylouisw/packetforge.git | wc -l                     # same count, or the mirror is behind
-git ls-remote https://github.com/Jaylouisw/packetforge refs/heads/main                      # 775ffa42
+git ls-remote https://github.com/Jaylouisw/packetforge refs/heads/main                      # 73718ab4
 git ls-remote http://odin:3000/jaylouisw/packetforge.git refs/heads/main                     # same SHA, or the mirror is behind
 git ls-remote --tags https://github.com/Jaylouisw/packetforge | wc -l                        # 0, so the tag half is untested
 ```
 
-`https://git.jayw.uk/jaylouisw/packetforge` answers identically to `odin:3000` — same 881 heads, same
-`775ffa42` — which is the cheapest check that the public host and the HTTP remote are the same instance.
+`https://git.jayw.uk/jaylouisw/packetforge` answers identically to `odin:3000` — same 884 heads, same
+`73718ab4` — which is the cheapest check that the public host and the HTTP remote are the same instance.
+Both URL spellings work: with and without the trailing `.git` return the same counts and the same SHA.
 
 `origin` is an SSH alias on a developer machine, so the count only works where that alias resolves;
 `git ls-remote` against `https://github.com/...` needs no credentials either way, which is how the
