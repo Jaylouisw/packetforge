@@ -619,6 +619,10 @@ Everything the rules engine can emit, and where it comes from:
 | `E_PATCH_CORD_UNKNOWN` | error | validation | Declared patch cord is not in the catalogue |
 | `E_PATCH_CORD_ENDS` | error | validation | Declared patch cord ends are not the two cages being joined |
 | `E_CONNECTOR_MISMATCH` | error | media `canMate` | Cages cannot physically mate |
+| `E_BIDI_MISMATCH` | error | media `canMate` | Exactly one end is a single-strand (BiDi) optic |
+| `E_BIDI_SAME_WAVELENGTH` | error | media `canMate` | Both ends carry the same half of a BiDi pair — two transmitters into one strand |
+| `E_PROTOCOL_MISMATCH` | error | media `canMate` | Console against a data port, *or* a Fibre Channel port against an Ethernet one |
+| `E_BAUD_MISMATCH` | error | media `canMate` | Two console ports whose baud rates have no value in common |
 | `E_NO_COMMON_MEDIA` | error | media `canMate` | Cages mate but share no medium |
 | `E_NO_COMMON_SPEED` | error | media `canMate` | Shared medium, no common rate |
 | `E_MEDIA_NOT_SUPPORTED` | error | validation | Caller asked for a medium one port lacks |
@@ -633,12 +637,30 @@ Everything the rules engine can emit, and where it comes from:
 | `W_POE_DRAW` | warning | validation | Powered device on a port that supplies no PoE |
 | `W_HYBRID_CORD` | warning | validation | Hybrid UPC/APC cord joining two polishes; legal, costs its IL |
 
-`RULES` in `validation.js` is the declared catalogue, and `validateTopology`
-uses it for severity. Three codes above are emitted but **not** in `RULES`:
-`E_COMBO_OCCUPIED` (it lives in `topology.js`), `E_OPTICAL_BUDGET` and
-`W_OPTICAL_HEADROOM`. Unknown codes are still classified — anything starting
-`W_` is a warning, everything else an error — but if you add a code, add it to
-`RULES` so the UI can document it and the counts stay honest.
+`RULES` in `validation.js` is the declared catalogue and `validateTopology` uses it for severity:
+**20** codes, and every one of them is emitted somewhere. The traffic is one-way outside that list —
+the three connector-path files emit **32** distinct codes between them, so **12** are emitted without a
+`RULES` entry: `E_COMBO_OCCUPIED` and five other link-management codes from `topology.js`
+(`E_NO_DEVICE`, `E_SAME_DEVICE`, `E_NO_FREE_PORTS`, `E_NO_LINK`, `E_BAD_LENGTH`), `E_OPTICAL_BUDGET` and
+`W_OPTICAL_HEADROOM` from `validation.js`, and the four `canMate` codes above — `E_BIDI_MISMATCH`,
+`E_BIDI_SAME_WAVELENGTH`, `E_PROTOCOL_MISMATCH`, `E_BAUD_MISMATCH` — which are decided in `media.js` and
+reach `validation.js` only as a verdict. Unknown codes are still classified — anything starting `W_` is a
+warning, everything else an error — but if you add a code, add it to `RULES` so the UI can document it and
+the counts stay honest.
+
+Four of those codes are hard to reach from the catalogue as it ships, which is worth knowing before you
+go looking for a reproduction. Measured over all 1,661 specs: **178** console ports exist and every one of
+them advertises all five baud media (`console-rs232`, `-57600`, `-38400`, `-19200`, `-9600`), so two
+catalogue console ports always share a rate and `E_BAUD_MISMATCH` needs a port that declares a narrower
+list; there are **0** ports with a `usb` cage at all; and **3,399** ports list a BiDi medium while **0**
+list a single half, so `E_BIDI_SAME_WAVELENGTH` and `E_BIDI_MISMATCH` fire only for a port whose `media:`
+override names the module actually fitted — which is how `test/bidi-media.test.js` builds its fixtures,
+and why a U module against a U module reads `ok` on two catalogue SFP ports whose cage default lists both
+halves.
+
+`E_PROTOCOL_MISMATCH` is the one you will actually meet, and it covers two unrelated pairs: a console port
+against anything that is not a console, and a Fibre Channel port against an Ethernet one. Read its message
+rather than the code.
 
 One behaviour to expect while debugging: **warnings are computed even when a
 link is refused.** An SC/APC to SC/UPC pair returns `E_POLISH_MISMATCH` *and*
