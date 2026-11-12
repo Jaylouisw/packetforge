@@ -149,6 +149,19 @@ SANbox 5800V), **10G FC** only on the 5800V's four ISLs, **64G** on G720 and MDS
 the DS-6630B's eight ICL ports. A "does FC negotiate down the whole ladder" test needs more than one device
 in the lab.
 
+All of it re-derived at `e562833c` — the totals, the cage split and the per-device arrays — because the sentence
+above is a census and censuses rot. One command reproduces the whole thing:
+
+```sh
+node -e 'const r=require("./devices/registry"),m=require("./engine/media");let t=0;const g=new Map(),c={},d=new Set();for(const s of r.loadCatalog()){if(s.error)continue;for(const i of r.effectiveInterfaces(s)){const h=m.derivePortHardware(i,s)||{};if(!String(h.cage||"").startsWith("fc-"))continue;t++;d.add(s.model);c[h.cage]=(c[h.cage]||0)+1;const k=JSON.stringify(h.speedCaps);if(!g.has(k))g.set(k,0);g.set(k,g.get(k)+1)}}console.log(t,"FC ports on",d.size,"devices",JSON.stringify(c));for(const [k,v] of [...g].sort((a,b)=>b[1]-a[1]))console.log(v,k)'
+```
+
+It prints `304 FC ports on 7 devices {"fc-sfp28":144,"fc-sfpdd":80,"fc-sfp":72,"fc-qsfp28":8}` and then the
+seven arrays, largest group first: 144 × `[8500,14025,28050]`, 56 × `[14025,28050,57800]`, 48 ×
+`[2125,4250,8500,14025]`, 24 × `[8500,14025,28050,57800]`, 20 × `[2125,4250,8500]`, 8 × `[28050,112200]`, 4 ×
+`[8500,10519]`. Every figure in the table below matches, and **no array has a single rung** — the check that
+keeps "64G is `[57800]`" from being plausible prose.
+
 | Device | Ports | measured `speedCaps` (Mbps) |
 |---|---|---|
 | QLogic 5800V | 20 device ports at 2/4/8G + 4 ISL ports at 10GFC | 20 × `2125/4250/8500`, 4 × `8500/10519` |
