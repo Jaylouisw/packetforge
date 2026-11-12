@@ -142,8 +142,10 @@ Two more measured details worth having in writing:
   and `stpTimers` keeps `maxAgeMs 20000` in the null case because max age is read separately — so the
   result is not even internally consistent.
 
-  Every row of that table was taken again at `1f6441f3`, and they all reproduce, including the two that are
-  easiest to get wrong by quoting from memory (`stpTimers({config:{stpForwardDelaySec:null}})` really does
+  Every row of that table was taken again at `1f6441f3` — a commit this clone cannot resolve (`git cat-file
+  -t 1f6441f3` answers *Not a valid object name*), so treat the rows below as the claim and the sha as a note
+  of when. They all reproduce at today's head, including the two that are easiest to get wrong by quoting
+  from memory (`stpTimers({config:{stpForwardDelaySec:null}})` really does
   answer `forwardDelaySec 0` with `maxAgeMs 20000` beside it, and the negative-value case really does return
   the default):
 
