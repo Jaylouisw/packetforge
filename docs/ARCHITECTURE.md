@@ -571,9 +571,10 @@ which the route's own error message does not admit to (a `PUT`, `GET` or `DELETE
 `405 {"error":"use POST"}`, measured, while `PATCH` on the same URL reaches the link lookup like `POST`
 does and answers `404 {"error":"no such link","code":"E_NO_LINK"}` for a link that does not exist). Both
 dual-method pairs are listed once in the table, so 25 pairs cost 27 method-path combinations. A third number is
-waiting to trap the next reader: grepping the dispatcher for `method ===` conditions gives **26** in this tree —
-13 `POST`, 7 `GET`, 4 `DELETE`, 1 `PATCH`, plus the `OPTIONS` preflight at `server/index.js:705` that is not a
-route at all. 25, 26 and 27 are each right about their own question; only the table's is the number of pairs.
+waiting to trap the next reader: grepping the dispatcher for `method ===` gives **25 lines** in this tree, and they
+carry **26 conditions** — 13 `POST`, 7 `GET`, 4 `DELETE`, 1 `PATCH`, plus the `OPTIONS` preflight at
+`server/index.js:705` that is not a route at all, with `:479` counted twice because that one line tests
+`PATCH || POST`. 25, 26 and 27 are each right about their own question; only the table's is the number of pairs.
 
 Three facts this arithmetic hides and the dispatch block makes obvious:
 
