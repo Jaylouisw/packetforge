@@ -68,7 +68,20 @@ is 0.50 dB, with Grade B at 0.25 dB on request). 3M publishes a **typical**
 (0.3 dB), FS publishes a flat "≤0.3 dB" family spec, and L-com's SKU pages state
 that the assembly is "100% tested for insertion loss" while the numeric 0.3 dB max
 comes from the sibling assembly datasheets. That distinction matters when you pick
-a part for a budget — see §6.
+a part for a budget — see §6. The JSON keeps that distinction as a field rather than a footnote:
+`insertionLossBasis` is `per-connector-max` on **11** parts, `per-connector-typical` on **one** (the 3M
+`ADAEP-ARYL003`) and `iec-61755-1-grade-c-max` on **one** (the CommScope `OCJ-S1-05MASIA-S2`), so the page's
+"only Siemon, Panduit and Corning publish a numeric max" is a statement about datasheets, not about how the
+catalogue encodes the number — eleven parts end up carrying a max.
+
+Re-derived on 2026-11-12: **13** entries, **8** vendors, `polishBridge` **10** true / **3** false, and all thirteen
+table rows agree with the JSON field for field — part number, vendor, `endA`/`endB`, duplex, `insertionLossDb`,
+`lengthM` (`[1, 2, 3]` for the three FS parts, a single-element array otherwise) and a `sourceUrl` on every one. The
+coverage split above also holds exactly: **5** SC/UPC↔SC/APC simplex, **2** LC/UPC↔LC/APC simplex, **3** duplex
+same-shape, **3** shape+polish hybrids. The two suites named in the header report **54 passed** (`hybrid-cord`) and
+**64 passed** (`hybrid-cord-use`); the second is also the only reader of `polishBridge`, asserting the 10/3 split at
+`test/hybrid-cord-use.test.js:98,105` — production code never branches on the flag, and the header's export list is
+one short: `patchCord` (singular) is exported beside `patchCords` (`engine/optical.js:403`).
 
 ---
 
