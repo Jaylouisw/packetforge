@@ -232,6 +232,10 @@ const MEDIA = {
   '1000base-t-sfp': { name: '1000BASE-T SFP', family: 'copper', connector: 'sfp', speedMbps: 1000, maxRangeM: 100, cable: 'cat5e', poe: false },
 
   // ---- console / serial ----
+  // 1.544 Mbps is a T1 line, the rate a lab actually clocks a serial link at, and the
+  // default when a spec says nothing. The ladder in CAGE_SPEEDS is the fraction-of-a-T1
+  // set a `clock rate` command can pick from.
+  'serial-v35': { name: 'V.35 serial', family: 'serial', connector: 'serial', speedMbps: 1.544, maxRangeM: 15, cable: 'v35' },
   // A console port is not a data path and does not have a "line rate" - it has a baud rate,
   // and the baud rate is the thing that actually goes wrong. 9600 is the default on most
   // network hardware and 115200 is what everyone sets it to; a cable between a 9600 port and a
@@ -366,6 +370,10 @@ const CAGES = {
   coax: { name: 'F-connector', family: 'coax', label: 'F-connector (coax)' },
   dsl: { name: 'RJ11', family: 'dsl', label: 'RJ11 (twisted pair)' },
   powerline: { name: 'Mains', family: 'powerline', label: 'Mains plug' },
+  // A synchronous serial port: the one WAN link type a Packet Tracer lab is most likely to
+  // ask for and this engine had no concept of. V.35 is the smart-serial connector on a
+  // WIC-2T; the cable is a real cable, and one end of it clocks the link.
+  serial: { name: 'V.35', family: 'serial', label: 'Serial (V.35)' },
   console: { name: 'Console', family: 'management', label: 'Console (RS-232)' },
   usb: { name: 'USB', family: 'management', label: 'USB' },
   antenna: { name: 'Antenna', family: 'wireless', label: 'Wireless radio' },
@@ -458,6 +466,9 @@ const CAGE_MATE = {
   coax: ['coax'],
   dsl: ['dsl'],
   powerline: ['powerline'],
+  // A serial port mates with a serial port and nothing else. One end of the cable is the
+  // DCE and clocks the line; which end is a property of the link, not of the socket.
+  serial: ['serial'],
   console: ['console'],
   // A USB port mates with a USB port, not with a console port. A USB-to-serial adapter
   // is an external part, not a cable between two devices, and claiming the pair mated
@@ -500,6 +511,9 @@ function polishMismatch(a, b) {
 const CAGE_MEDIA = {
   // A cellular cage offers the 3GPP generations it is fast enough for, slowest first, and
   // always at least LTE - a modem that names a rate below the LTE floor is still a modem.
+  // A serial port carries one cable and no choice of medium: V.35. The rate is clocked,
+  // not negotiated, so the cage's media list has exactly one entry.
+  serial: function () { return ['serial-v35']; },
   wwan: function (maxMbps) {
     const order = ['lte', 'lte-a', '5g-sub6', '5g-mmwave'];
     const out = order.filter(function (id) { return MEDIA[id].speedMbps <= maxMbps; });
@@ -658,6 +672,13 @@ const CAGE_MEDIA = {
 };
 
 const CAGE_SPEEDS = {
+  // A serial line is clocked, not negotiated: the DCE end supplies the clock and the rate
+  // comes from `clock rate` (64k, 128k ... T1, E1). Nothing autonegotiates it, which is why
+  // this ladder is the set of rates an operator can dial, not a set the hardware discovers.
+  serial: function (maxMbps) {
+    return [0.064, 0.128, 0.256, 0.512, 1.024, 1.544, 2.048, 4, 8]
+      .filter(function (s) { return s <= (maxMbps || 1.544); });
+  },
   // A cellular cage has no rate ladder of its own: the modem's category IS the rate. Falling
   // back to the copper ladder here made every modem "claim a line rate its cage cannot
   // carry" (150 Mbps on a 100 Mbps cage) - the invariant misreading a radio as copper.
@@ -806,11 +827,16 @@ function inferCage(ifaceSpec, maxMbps) {
   if (type === 'coax') return 'coax';
   if (type === 'dsl' || type === 'adsl' || type === 'vdsl') return 'dsl';
   if (type === 'powerline' || type === 'plc' || type === 'mains') return 'powerline';
+  // A synchronous serial port. Checked by type and by name, because plenty of specs write a
+  // WIC-2T port as `Se0/0/0` with no type at all and it would otherwise become RJ45 copper.
+  if (type === 'serial' || type === 'v35' || type === 'smart-serial') return 'serial';
   // A spec that never states a type: the interface name is the last honest signal. A port
   // called wlan0 or radio1 is a radio however the default type reads.
   if (/^(?:wlan|wifi|wi-?fi|radio|wwan|nr5g)\d*(?:$|[.\-_ /])/.test(name)) return 'antenna';
   if (/console|con\d|tty|aux/.test(name)) return 'console';
   if (/usb/.test(name)) return 'usb';
+  // Se0/0/0, Serial0/1, s0/0 - never 'se' inside another word (sense, serial is fine below).
+  if (/^(?:se|s|serial|ser)[- ]?\d/.test(name)) return 'serial';
 
   // A PON port is an SC connector on the outside plant, not RJ45 copper. APC
   // (green, angled 8 degrees) is the norm on OLT and ONT PON ports; a spec that

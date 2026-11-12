@@ -352,7 +352,11 @@ console.log('\nA plain SFP-to-SFP run is still described as it was:');
         // QSFP28 port here is 100G-only). Not a verdict this feature may change, and
         // not a refusal for a connector or medium reason either.
         const codes = codesOf(v);
-        if (!v.ok && codes.indexOf('E_NO_COMMON_SPEED') === -1) {
+        // E_SERIAL_NO_CLOCK is a configuration refusal, not a lost pairing: the two sockets
+        // still share the V.35 medium, nobody has said which end clocks it. The clock is not
+        // a property of the medium, so it cannot belong in a test about medium pairing.
+        if (!v.ok && codes.indexOf('E_NO_COMMON_SPEED') === -1 &&
+            codes.indexOf('E_SERIAL_NO_CLOCK') === -1) {
           flipped.push(cages[i] + ' x ' + cages[j] + ' -> ' + codes);
         } else if (v.ok && BX_IDS.indexOf(v.mediaId) !== -1) {
           renamed.push(cages[i] + ' x ' + cages[j] + ' -> ' + v.mediaId);

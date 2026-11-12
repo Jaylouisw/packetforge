@@ -208,6 +208,11 @@ const EXPECTED_ROWS = [
   ['coax', 'coax', 'accept'],
   ['dsl', 'dsl', 'accept'],
   ['powerline', 'powerline', 'accept'],
+  // A V.35 socket mates with another V.35 socket: the hardware can be cabled. Whether the
+  // link then carries anything is a configuration question - exactly one end has to clock it
+  // (E_SERIAL_NO_CLOCK, handled as a note below) - and refusing the pair here would be
+  // saying two serial ports cannot be joined, which is the whole point of a serial cable.
+  ['serial', 'serial', 'accept'],
   ['console', 'console', 'accept'],
   ['usb', 'usb', 'accept'],
   // USB is not a console port: a USB-to-serial adapter is an external part, not a cable
@@ -266,6 +271,7 @@ const EXPECTED_ROWS = [
   ['dsl', '*', 'refuse'],         // RJ11: narrower than RJ45, keyed differently
   ['powerline', '*', 'refuse'],   // mains pins meet nothing on a network box
   ['console', '*', 'refuse'],     // a console port is not a data port
+  ['serial', '*', 'refuse'],      // a V.35 socket takes a V.35 plug and nothing else
   ['usb', '*', 'refuse'],
   ['antenna', '*', 'refuse'],
   // A cellular modem connects to a base station, not to a patch lead (issue #129). It
@@ -321,6 +327,11 @@ function problemsFor(A, B, want, v) {
     // looking at.
     if (codesOf(v).indexOf('E_NO_COMMON_SPEED') !== -1) {
       NOTES.push(A + ' x ' + B + ': cages mate, but no catalogue port offers a common rate');
+    } else if (codesOf(v).indexOf('E_SERIAL_NO_CLOCK') !== -1) {
+      // Same class as the rate note above: the cable fits, nobody has said who clocks it.
+      // A serial link with no DCE is refused by validateConnection() by design, and the
+      // matrix is asking whether the two sockets can be joined at all.
+      NOTES.push(A + ' x ' + B + ': cages mate, but neither end is clocked yet');
     } else {
       p.push('REFUSED a link the table says is possible (' + codesOf(v) + ')');
     }

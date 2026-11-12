@@ -537,6 +537,10 @@ class Device {
   // opposed to ownsIpOn()'s "will I serve it on this interface". Deliverability is the second question;
   // forwarding has to ask the first one first, or it decrements the TTL of a packet that was addressed
   // to the router itself (#1223).
+  // Does this device hold the address at all, on any interface? This is the stack-ownership
+  // question, as opposed to ownsIpOn()'s "will I serve it on this interface". Deliverability
+  // is the second question; forwarding has to ask the first one first, or it decrements the
+  // TTL of a packet that was addressed to the router itself.
   holdsIp(ip) {
     return this.interfaceWithIp(ip) || null;
   }

@@ -93,8 +93,8 @@ two powered devices and a tight budget, which is the one arrangement where both 
 
 ## 2. Medium catalogue
 
-64 media across eight families (copper, fibre, DAC, coax, DSL, powerline,
-console, wireless), carried by 19 cages — see [CONNECTORS.md](CONNECTORS.md) for
+65 media across nine families (copper, fibre, DAC, coax, DSL, powerline,
+serial, console, wireless), carried by 20 cages — see [CONNECTORS.md](CONNECTORS.md) for
 the cage-by-cage table. Selected highlights:
 
 | Family | Medium | Speed | Connector | Reach |
@@ -108,12 +108,33 @@ the cage-by-cage table. Selected highlights:
 | fiber | `100gbase-sr4` / `-lr4` | 100G | MPO / LC | 100 m – 10 km |
 | DAC | `dac-10g`, `dac-10g-active`, `aoc-10g` | 10G | SFP | 7 / 15 / 20 m |
 | DAC | `dac-40g`, `dac-100g` | 40G / 100G | QSFP | 5 / 3 m |
+| serial | `serial-v35` | 64 kbps – 8 Mbps, clocked | V.35 | 15 m |
 | console | `console-rs232`, `usb-console` | 115.2 kbps | RJ45 / USB | 15 m |
 | wireless | `wireless-2.4`, `wireless-5`, `wireless-60` | radio | antenna | — |
 
 The full list is served at **`GET /api/media`**.
 
 ---
+
+### 2.1 Serial links are clocked, not negotiated
+
+A synchronous serial link is the one medium in the catalogue whose rate nobody agrees on:
+exactly one end of the cable supplies the clock, and that end is the DCE. The engine enforces
+both halves, because both produce a cable that looks connected and carries nothing:
+
+- **neither end clocked** — `E_SERIAL_NO_CLOCK`, raised at cabling time by
+  `validateConnection()`. The refusal names the command that fixes it.
+- **both ends clocked** — `E_SERIAL_TWO_CLOCKS`. Two clock sources on one pair is a fault,
+  not a configuration.
+
+The link's rate is the clock, not the fastest rate the port could reach: clock one end at
+64 kbps and the link is 64 kbps. `clock rate <bps>` is accepted only on a serial port, and
+only for a rate on that port's own ladder — the engine will not let a spec claim a rate the
+hardware could not clock.
+
+`cisco/2811` is the reference device: two onboard 10/100 FastEthernet ports and a WIC-2T in
+the first HWIC slot, giving `Se0/0/0` and `Se0/0/1`. Two of them back to back, one clocked,
+is a working WAN link.
 
 ## 3. Can these two ports be cabled?
 

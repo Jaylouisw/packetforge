@@ -1,0 +1,48 @@
+{
+  "vendor": "cisco",
+  "model": "2811",
+  "label": "Cisco 2811 integrated services router",
+  "category": "router",
+  "description": "The branch router every Packet Tracer lab starts with: two onboard 10/100 FastEthernet ports, an HWIC/WIC slot pair for WAN interfaces, and a console port. Modelled here with a WIC-2T in the first HWIC slot, which is what gives it the two synchronous serial ports this engine used to have no concept of.",
+  "capabilities": [
+    "l3-forward",
+    "cli",
+    "nat",
+    "dhcp-server",
+    "dhcp-client"
+  ],
+  "interfaces": [
+    {
+      "name": "Fa0/0",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "Fa0/1",
+      "type": "ethernet",
+      "speed": "100M"
+    },
+    {
+      "name": "Se0/0/0",
+      "type": "serial",
+      "speed": "1.544M",
+      "connector": "serial"
+    },
+    {
+      "name": "Se0/0/1",
+      "type": "serial",
+      "speed": "1.544M",
+      "connector": "serial"
+    },
+    {
+      "name": "Console",
+      "type": "console"
+    },
+    {
+      "name": "Aux0",
+      "type": "console"
+    }
+  ],
+  "sourceUrl": "https://www.cisco.com/c/en/us/products/collateral/routers/2800-series-integrated-services-routers/product_data_sheet0900aecd801a98cf.html",
+  "notes": "Cisco 2811: two integrated 10/100 FastEthernet ports, four HWIC slots (two of them double-wide), one network-module slot, one AIM slot, console and auxiliary ports. The serial ports are not onboard: they come from a WIC-2T in an HWIC slot, and the two modelled here (Se0/0/0, Se0/0/1) are that card in the first slot. Each serial port is a V.35 socket; a lab cables two of these back to back, and exactly one end of the cable supplies the clock ('clock rate'), which the link validator enforces - two DCE ends or none is refused, because a synchronous serial line nobody clocks carries nothing. The 10/100 ports are 100 Mbps, not 1 Gbps: the 2811 predates GigabitEthernet onboard and a lab that expects 1G here is describing a 2911."
+}

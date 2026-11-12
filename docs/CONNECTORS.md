@@ -61,12 +61,13 @@ console / other.
 | `coax` | F-connector | coax | `coax` only | `moca-11`, `moca-25`, `docsis-30`, `docsis-31` | 175, 1000, and 2500 / 5000 / 10000 gated by rating |
 | `dsl` | RJ11 | dsl | `dsl` only | `adsl2plus`, `vdsl2-17a`, `vdsl2-35b` | 24, 100, and 300 when rated 300M |
 | `powerline` | Mains | powerline | `powerline` only | `homeplug-av`, `homeplug-av2`, `ghn`, `ghn-25` | 200, 1000, 1700, 2500 (fixed) |
+| `serial` | V.35 | serial | `serial` only | `serial-v35` | 64k – 8M, **clocked** by the DCE end |
 | `console` | Console | management | `console` only | `console-rs232` | 0.1152 (115200 baud) |
 | `usb` | USB | management | `usb`, `console` | `usb-console` | 12 |
 | `antenna` | Antenna | wireless | `antenna` only | `wireless-2.4`, `wireless-5`, `wireless-60` — narrowed to exactly one band per port | the port's declared rate |
 | `wwan` | Cellular | wireless | **nothing** | `lte`, `lte-a`, `5g-sub6`, `5g-mmwave` | the modem's own category |
 
-That is **19 cages**. `CAGES` is the authority; if you add one, this table and
+That is **20 cages**. `CAGES` is the authority; if you add one, this table and
 the tests in section 8.3 are what has to change with it.
 
 `wwan` is the odd one out: it mates with nothing at all, including itself. A cellular modem

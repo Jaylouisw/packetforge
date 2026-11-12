@@ -235,7 +235,10 @@ console.log('\nCages and media agree with each other:');
       // in reverse - its rates are asymmetric and fine-grained.
       // A console is legitimately slow: 9600 baud to 115200 is the whole point of the port, so
       // it joins DSL and PON in the "slow is correct" set. That excuses the rate being LOW; it
-      // does not excuse it being wrong, which is why the console skip below is gone.
+      // does not excuse it being wrong, which is why the console skip below is gone. A serial port
+      // is slow on purpose too: a T1 is 1.544 Mbps and that is the number a WAN lab is asking
+      // about, so flagging it would push a contributor to inflate the one figure the spec exists
+      // to state honestly.
       const slowIsCorrect = i.hardware.cage === 'dsl' || i.hardware.cage === 'pon' ||
         i.hardware.cage === 'console' || i.hardware.cage === 'serial';
       // A radio is not a cage. A HughesNet terminal's 25 Mbit/s downlink is the

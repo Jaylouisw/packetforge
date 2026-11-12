@@ -230,6 +230,8 @@ mask it cannot express as a prefix length is shown as `?`, never as a plausible 
 |---------|--------|
 | `ip address <ip> <mask>` | assign an IP (e.g. `192.168.1.1 255.255.255.0`); the mask must be a run of ones then zeros, and may be written as a prefix length (`24`) |
 | `no ip address` | remove the IP |
+| `clock rate <bps>` | (serial only) make this end the DCE and clock the line, e.g. `clock rate 64000`. Refused on a non-serial port, and for a rate the port cannot clock |
+| `no clock rate` | drop the clock, leaving this end as DTE |
 | `ip address dhcp` | make the port a DHCP client; the address it ends up with is the outcome of the exchange, not part of the configuration |
 | `shutdown` / `no shutdown` | administratively disable / enable |
 | `description <text>` | set a description |

@@ -101,6 +101,16 @@ const RULES = [
     description: 'A radio/antenna port cannot be cabled to a wired port.'
   },
   {
+    code: 'E_SERIAL_NO_CLOCK', severity: 'error',
+    description: 'Neither end of a serial link supplies a clock. A synchronous serial line ' +
+      'needs exactly one DCE end; with none, it carries nothing.'
+  },
+  {
+    code: 'E_SERIAL_TWO_CLOCKS', severity: 'error',
+    description: 'Both ends of a serial link supply a clock. A serial cable has one DCE end; ' +
+      'two clock sources is not a configuration, it is a fault.'
+  },
+  {
     code: 'E_CONSOLE_TO_DATA', severity: 'error',
     description: 'A console port can only be cabled to another console or USB console port.'
   },
@@ -677,6 +687,40 @@ function validateConnection(input) {
   }
   if (speed === undefined) speed = null;
   verdict.speedMbps = speed;
+
+  // -- serial clocking ------------------------------------------------------
+  // A synchronous serial link is clocked by exactly one end - the DCE. Neither end clocked
+  // means nothing on the wire, and both ends clocked means two clock sources fighting over
+  // the same pairs. Both are refused here rather than left to produce a link that looks
+  // cabled and never carries a packet.
+  // The rate of the link is the clock, not the faster rate the hardware could reach: a
+  // 64 kbps line is 64 kbps however capable the port is.
+  if (portA.cage === 'serial' && portB.cage === 'serial') {
+    const clockOf = function (iface) {
+      const n = Number(iface && iface.clockRateBps);
+      return isFinite(n) && n > 0 ? n : 0;
+    };
+    const ca = clockOf(ifaceA);
+    const cb = clockOf(ifaceB);
+    if (!ca && !cb) {
+      errors.push({
+        code: 'E_SERIAL_NO_CLOCK',
+        message: 'Neither end of this serial link supplies a clock, so it would carry ' +
+          "nothing. Configure 'clock rate <bps>' on one end - that end is the DCE."
+      });
+    } else if (ca && cb) {
+      errors.push({
+        code: 'E_SERIAL_TWO_CLOCKS',
+        message: 'Both ends of this serial link supply a clock (' + ca + ' bps and ' + cb +
+          " bps). A serial cable has one DCE end; remove 'clock rate' from one side."
+      });
+    } else {
+      const mbps = (ca || cb) / 1e6;
+      const capA = typeof portA.maxSpeedMbps === 'number' ? portA.maxSpeedMbps : Infinity;
+      const capB = typeof portB.maxSpeedMbps === 'number' ? portB.maxSpeedMbps : Infinity;
+      verdict.speedMbps = Math.min(mbps, capA, capB);
+    }
+  }
 
   // -- E_OPTICAL_BUDGET -----------------------------------------------------
   // A PON link is not just a cable. The passive splitter and the fibre both eat

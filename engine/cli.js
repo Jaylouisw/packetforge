@@ -821,6 +821,10 @@ class CliSession {
       out.push.apply(out, this._accessGroup(tokens.slice(2), iface));
     } else if (head === 'encapsulation') {
       out.push.apply(out, this._encap(tokens.slice(1), iface));
+    } else if (head === 'clock') {
+      out.push.apply(out, this._clock(tokens.slice(1), iface));
+    } else if (head === 'no' && tokens[1] === 'clock') {
+      out.push.apply(out, this._clock(['rate', 'none'], iface));
     } else if (head === 'switchport') {
       // Switching a frame is what `l2-forward` means. A router took `switchport mode trunk` and answered
       // "Switchport mode trunk on Gi0", then `show interfaces` printed nothing about it because the printer
@@ -876,6 +880,41 @@ class CliSession {
       else out.push.apply(out, asConfig);
     }
     return out;
+  }
+
+  // ---------- clock rate, on a serial interface ----------
+  // A synchronous serial link is clocked by its DCE end. The rate is one of the rates the
+  // port's own ladder offers, so a 64 kbps line cannot be claimed on hardware whose lowest
+  // rate is T1 - the same "do not invent a capability" rule the rest of the engine follows.
+  _clock(tokens, iface) {
+    const t = tokens.map(function (x) { return String(x).toLowerCase(); });
+    if (t[0] !== 'rate') return ['% Usage: clock rate <bps>'];
+    if (t[1] === 'none') {
+      iface.clockRateBps = null;
+      return ['Clock rate cleared - this end is now DTE'];
+    }
+    if (iface.cage !== 'serial') {
+      return ['% clock rate is only configurable on a serial interface (' + iface.name + ' is ' + (iface.cage || 'unknown') + ')'];
+    }
+    const raw = String(t[1] === undefined ? '' : t[1]);
+    let bps = null;
+    const m = /^(\d+(?:\.\d+)?)([km]?)$/.exec(raw);
+    if (m) {
+      const n = parseFloat(m[1]);
+      bps = m[2] === 'k' ? n * 1e3 : m[2] === 'm' ? n * 1e6 : n;
+    }
+    if (bps === null || !isFinite(bps) || bps <= 0) {
+      return ['% Invalid clock rate: ' + (raw || '(none)') + ' (give bits per second, e.g. 64000)'];
+    }
+    const ladder = (iface.speedCaps || []).filter(function (s) {
+      return s <= (typeof iface.maxSpeedMbps === 'number' ? iface.maxSpeedMbps : Infinity) + 1e-9;
+    });
+    if (!ladder.some(function (s) { return Math.abs(s * 1e6 - bps) < 1e-6; })) {
+      return ['% ' + Math.round(bps) + ' bps is not a rate ' + iface.name + ' can clock. Choose one of: ' +
+        ladder.map(function (s) { return Math.round(s * 1e6); }).join(', ')];
+    }
+    iface.clockRateBps = Math.round(bps);
+    return ['Clock rate set to ' + Math.round(bps) + ' bps on ' + iface.name + ' (this end is DCE)'];
   }
 
   // ---------- 802.1Q encapsulation on a router subinterface ----------
