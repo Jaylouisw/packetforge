@@ -262,10 +262,16 @@ node -e '
 const {loadCatalog}=require("./devices/registry");
 const s=loadCatalog(require("path").resolve("devices"));
 console.log("specs",s.length,"model",s.filter(x=>String(x.model||"").includes("+")).length,
-  "model+label",s.filter(x=>String(x.model||"").includes("+")||String(x.label||"").includes("+")).length);'
+  "model+label",s.filter(x=>String(x.model||"").includes("+")||String(x.label||"").includes("+")).length);
+console.log("plusplus",s.filter(x=>String(x.model||"").includes("++")||String(x.label||"").includes("++")).length);
+const m=new Set(s.map(x=>String(x.model||"")));
+console.log("RB5009UPr+S+IN",m.has("RB5009UPr+S+IN"),"RB5009UPr+S+OUT",m.has("RB5009UPr+S+OUT"));'
 ```
 
-On 2026-11-12 it prints `specs 1661 model 104 model+label 145`.
+On 2026-11-12 it prints three lines, and the last two are the claims above rather than decoration:
+`specs 1661 model 104 model+label 145`, then `plusplus 0` — nothing in the catalogue uses the
+double-`+` branch — then `RB5009UPr+S+IN true RB5009UPr+S+OUT true`, which is the pair the rule exists
+to keep apart.
 
 ## What a close says
 
