@@ -193,7 +193,10 @@ runs just the engine suite, and `npm test` runs **three** things, not one — `a
 check-control-bytes.js && run-tests.js` (`package.json:10`), so the census and the control-byte guard
 run before the first suite and a failure in either stops the runner from starting at all. Expect two
 paragraphs of audit output ahead of the summary and do not read them as noise:
-`No port contradicts its declared type.` and `No control bytes in source.` are the passing lines.
+`No port contradicts its declared type.` and `No control bytes in source.` are the passing lines. The
+second carries on to name what it swept, and the whole line is
+`No control bytes in source. (.js .json .md .yml .yaml .css .html .sh)` — quote it as that rather than
+as the two words.
 [docs/CI.md](CI.md) has the details, including the fact that CI runs `check-control-bytes` a second
 time as its own step. Keep the capability model — new protocol logic goes in `engine/simulator.js`,
 new hardware goes in `devices/*.json`.
