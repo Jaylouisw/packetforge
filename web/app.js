@@ -18,10 +18,32 @@
   // ---------- bug reports ----------
   // The one link a user needs when something is wrong must not depend on them
   // first working out where the repository lives, then which of six templates to
-  // pick, then what to write in it. The report is pre-filled with the half only
-  // the running app knows - build, Node, browser, page, catalogue size - so the
-  // person filing it only has to say what they did and what they saw.
+  // pick, then what to write in it. The report is assembled from the half only
+  // the running app knows - build, Node, browser, page, catalogue size, the
+  // canvas, the errors it caught - and handed to the person filing it.
   const ISSUE_NEW = 'https://git.jayw.uk/jaylouisw/packetforge/issues/new';
+
+  // Which template the link selects, and why the body cannot travel in the URL.
+  //
+  // This repository is a Forgejo with four YAML issue forms and
+  // `blank_issues_enabled: false` in .github/ISSUE_TEMPLATE/config.yml, and those two
+  // facts decide where a prefilled report can go:
+  //
+  //   * `GET /issues/new?title=…&body=…` does not render a form here. Forgejo
+  //     (v11, routers/web/repo/issue.go) redirects to `/issues/new/choose` whenever
+  //     blank issues are disabled and templates exist - and the chooser
+  //     (templates/repo/issue/choose.tmpl) rebuilds its buttons from the template list,
+  //     so neither the title nor the body survives the hop;
+  //   * `?template=bug_report.yml` skips that redirect and renders the form, which
+  //     pre-fills its title from the query (`new_form.tmpl` reads `.TitleQuery`) and
+  //     has no consumer at all for a body - a YAML form's text comes from its own
+  //     fields, so `body=` is discarded without a word.
+  //
+  // So the URL carries the template and the title, and the report travels on the
+  // clipboard into the field the form already has for it. A report that lands in
+  // the wrong place silently is worse than one the reporter has to paste once.
+  const BUG_TEMPLATE = 'bug_report.yml';
+  const BUG_PASTE_FIELD = 'Logs / output';
 
   // ---------- what the app saw go wrong ----------
   //
@@ -214,8 +236,32 @@
   function bugReportUrl(env) {
     const title = (env && env.title) ? env.title : '[Bug]: ';
     return ISSUE_NEW
-      + '?title=' + encodeURIComponent(title)
-      + '&body=' + encodeURIComponent(bugReportBody(env));
+      + '?template=' + BUG_TEMPLATE
+      + '&title=' + encodeURIComponent(title);
+  }
+
+  /**
+   * Put the assembled report on the clipboard, and say whether it landed.
+   *
+   * The forge form cannot take it any other way (see BUG_TEMPLATE above), and a silent failure
+   * here would leave the reporter with an empty form and no idea the app had anything to give
+   * them - so the caller is told, and the console copy exists either way.
+   */
+  function copyReport(text) {
+    try {
+      const nav = (typeof navigator !== 'undefined') ? navigator : null;
+      const clip = nav && nav.clipboard;
+      if (clip && typeof clip.writeText === 'function') {
+        return Promise.resolve(clip.writeText(text)).then(
+          function () { return true; },
+          function () { return false; }
+        );
+      }
+    } catch (e) {
+      /* silent-ok: no clipboard API in this browser; the toast names the console copy instead */
+      return Promise.resolve(false);
+    }
+    return Promise.resolve(false);
   }
 
   async function openBugReport() {
@@ -241,17 +287,29 @@
       /* silent-ok: the failure is written into the bug report itself, as the version field, and the form still opens */
       env.version = 'unknown (GET /api/version failed: ' + e.message + ')';
     }
-    // Built once: the window that is opened and the link that is reported when the
-    // window is blocked must be the same report, not two calls that could differ.
+    // Built once: the report handed to the clipboard, the copy written to the console and the URL
+    // opened in the tab must describe the same moment, not three reads of a canvas that moved.
+    const body = bugReportBody(env);
     const url = bugReportUrl(env);
+    const copied = await copyReport(body);
     let opened = null;
     try { opened = window.open(url, '_blank', 'noopener'); } catch (e) { opened = null; }
+    // Always leave the report somewhere the reporter can reach it: the clipboard can be refused,
+    // the popup can be blocked, and neither may cost them the five minutes it took to reproduce.
+    try {
+      console.warn('PacketForge bug report (' + (opened ? 'form opened' : 'popup blocked') + '): '
+        + url + '\n\nPaste the details below into "' + BUG_PASTE_FIELD + '":\n\n' + body);
+    } catch (e) {
+      /* silent-ok: a console that cannot be written to is the last fallback failing, and the toast still explains */
+    }
     if (!opened) {
-      // A popup blocker turned "report a bug" into nothing at all. Say where the
-      // report went, and actually put it there - the toast used to promise a
-      // console entry that nothing wrote.
-      try { console.warn('PacketForge bug report (popup blocked): ' + url); } catch (e) {}
-      toast('Popup blocked — the finished report is in the browser console as a link');
+      toast('Popup blocked — the finished report is in the browser console as a link and as text');
+    } else if (copied) {
+      toast('Bug report opened — the details are on your clipboard; paste them into “'
+        + BUG_PASTE_FIELD + '”');
+    } else {
+      toast('Bug report opened — the details are in the browser console; paste them into “'
+        + BUG_PASTE_FIELD + '”');
     }
     return url;
   }
@@ -3053,6 +3111,8 @@
     // The report builder is pure, so a test can assert what a report contains
     // without opening a window.
     bugReportBody: bugReportBody,
+    bugPasteField: BUG_PASTE_FIELD,
+    bugTemplate: BUG_TEMPLATE,
     describeTopology: describeTopology,
     specKeys: specKeys,
     bugReportUrl: bugReportUrl,
