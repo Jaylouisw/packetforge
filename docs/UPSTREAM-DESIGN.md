@@ -454,8 +454,8 @@ REST (`server/index.js`, next to `/validate-link` at line 350):
 CLI (`engine/cli.js`):
 
 - `ip route DEST MASK GW [IFACE] [DISTANCE]` — one optional numeric token after
-  the interface (`_ipRoute()` at `cli.js:3269` in `HEAD`; the worktree carries uncommitted CLI work that
-shifts it). `% Invalid distance` outside 1..255.
+  the interface (`_ipRoute()` at `cli.js:3269` — the same line in `HEAD` and in the worktree, see below).
+`% Invalid distance` outside 1..255.
 
   **Today that fourth word is refused outright**, so the work is replacing a refusal rather than
   widening a parse. Measured on a router with three free ports, for `250`, `1` and `256` alike:
@@ -701,6 +701,17 @@ slid when this paragraph was last rewritten — `simulator.js`, `validation.js`,
 put since. Thirty-four match the named symbol inside a ±2-line window; the thirty-fifth (`cli.js:2408 show ip
 route`) matches on content rather than spelling, because the line there renders the `Prefix AD Gateway
 Interface` table rather than containing the words.
+
+Re-swept on 2026-11-12 across the **whole page** rather than just that table: **87** file-and-line citations, every
+one of them landing on the symbol or content its row names. The three `registry.js:7` citations are
+`devices/registry.js`, not an `engine/` file, which is why a sweep scoped to `engine/ server/ web/` reports them
+missing.
+
+The `HEAD`-versus-worktree question that used to hang over the `cli.js` citations on this page is settled, and worth
+stating with a threshold: the writer's uncommitted `engine/cli.js` work starts at the hunk on line **9,688**, and the
+highest `cli.js` line this page cites is **9,426**, so all three (`:2408`, `:3269`, `:9426`) are identical in both and
+the caveat applies to nothing here. Citations past ~9,700 in that file would need the worktree, which is why
+[ROADMAP.md](ROADMAP.md) records the eight-line offset at `_helperAddress`.
 
 The *Today* column's other counts are frozen with it, which is worth saying because two of them have moved
 and a reader should not take them for the current tree: `device.js:157 config` has **18** keys now, not 17 —
