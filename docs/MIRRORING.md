@@ -72,15 +72,17 @@ Verify:
 # `git ls-remote origin` there fails with "Could not resolve hostname forgejo", and piped into `wc -l`
 # that failure reads as a count of 0 — the mirror looking empty rather than unreachable. Use the HTTP
 # remote or the public URL instead; both are reachable from anywhere.
+# Every annotation below is one reading (2026-11-12), not expected output: re-run the commands and
+# compare the two SHAs with each other, which is the check that cannot rot.
 git ls-remote --heads https://github.com/Jaylouisw/packetforge | wc -l                        # 889 today
-git ls-remote --heads http://odin:3000/jaylouisw/packetforge.git | wc -l                     # 892 — so the mirror is behind
+git ls-remote --heads http://odin:3000/jaylouisw/packetforge.git | wc -l                     # 897 — so the mirror is behind
 git ls-remote https://github.com/Jaylouisw/packetforge refs/heads/main                      # 8e0d6330
-git ls-remote http://odin:3000/jaylouisw/packetforge.git refs/heads/main                     # 5bc43ccf — two commits ahead
+git ls-remote http://odin:3000/jaylouisw/packetforge.git refs/heads/main                     # 1b1e1287 — three commits ahead
 git ls-remote --tags https://github.com/Jaylouisw/packetforge | wc -l                        # 0, so the tag half is untested
 ```
 
-`https://git.jayw.uk/jaylouisw/packetforge` answers identically to `odin:3000` — same **892** heads, same
-`5bc43ccf` — which is the cheapest check that the public host and the HTTP remote are the same instance.
+`https://git.jayw.uk/jaylouisw/packetforge` answers identically to `odin:3000` — same **897** heads, same
+`1b1e1287` — which is the cheapest check that the public host and the HTTP remote are the same instance.
 Both URL spellings work: with and without the trailing `.git` return the same counts and the same SHA.
 
 `origin` is an SSH alias on a developer machine, so the count only works where that alias resolves;

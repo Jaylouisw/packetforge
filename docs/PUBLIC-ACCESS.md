@@ -121,9 +121,9 @@ pinned rather than described.
 The anonymous read path is a separate question, and the way to ask it is *equality*, not a remembered SHA:
 `git ls-remote https://git.jayw.uk/jaylouisw/packetforge refs/heads/main` must answer the same commit as
 `git ls-remote http://odin:3000/jaylouisw/packetforge.git refs/heads/main`. On 2026-11-12 both answered
-**`5bc43ccf`**, which is the check passing — the public door and the forge are looking at the same repository. Do
-not quote the value as the fact: it moves with every merge (it was `8e0d6330` a couple of hours earlier, and
-`73718ab4` before that), while the equality is what these seven commands are for.
+**`1b1e1287`**, which is the check passing — the public door and the forge are looking at the same repository. Do
+not quote the value as the fact: it moves with every merge (it was `5bc43ccf`, `8e0d6330` and `73718ab4` earlier
+the same day), while the equality is what these seven commands are for.
 
 The seven probes in the table were re-run in full on 2026-11-12 and every answer is unchanged — `200`, the SHA,
 `401`, `303`, `303`, `303`, `404` — with the interesting one being the fourth: `/jaylouisw/packetforge/settings`
