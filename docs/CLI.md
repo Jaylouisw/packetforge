@@ -8017,9 +8017,12 @@ Ports column holds `-` instead of inventing a bridge domain that contains every 
 ```
 R1#show vlan
 VLAN  Name   Status  Ports
-1     VLAN0001  active  -
-99    users     active  -
+99    users  active  -
 ```
+
+VLAN 1 is not in that table, and that is a difference between the two devices rather than a missing
+default: the `1` row exists where a port sits in it, and a router has no switch ports — a switch table
+starts with `1  VLAN0001  active` and lists the ports.
 
 `show vlan <id>` and `no vlan <id>` read **one** membership walk (`_vlanMap()`), so the ports a
 refusal names are exactly the ports the table lists — see `test/vlan-lifecycle.test.js` (46
@@ -8055,7 +8058,7 @@ full port reset, so a one-VLAN removal wiped the mode, the native VLAN and the a
 SW1(config-if)#switchport mode trunk
 Switchport mode trunk on Fa0/1
 SW1(config-if)#switchport trunk native vlan 99
-Trunk native VLAN 99 on Fa0/1
+Trunk native VLAN 99 on Fa0/1 (VLAN 99 did not exist and was created)
 SW1(config-if)#switchport trunk allowed vlan 10,20,30
 Trunk on Fa0/1 allows VLANs 10,20,30
 SW1(config-if)#no switchport trunk allowed vlan 10
