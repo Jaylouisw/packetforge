@@ -709,6 +709,13 @@ put since. Thirty-four match the named symbol inside a ±2-line window; the thir
 route`) matches on content rather than spelling, because the line there renders the `Prefix AD Gateway
 Interface` table rather than containing the words.
 
+Re-measured once more at `a273af55`, this time by extracting the table’s anchors rather than reading them:
+**35** rows carrying **58** `file:line` anchors (bare `:NNN` continuations resolved against the file named
+earlier in the same cell), every one of them landing on the symbol or the render its row names — none out
+of range, none drifted. The `cli.js` citations still top out at **9,426** against the writer’s uncommitted
+hunks, the first of which opens at **9,688** (`@@ -9688 +9688,4 @@`), so the worktree caveat still applies
+to nothing in this table.
+
 Re-swept on 2026-11-12 across the **whole page** rather than just that table: **87** file-and-line citations, every
 one of them landing on the symbol or content its row names. The three `registry.js:7` citations are
 `devices/registry.js`, not an `engine/` file, which is why a sweep scoped to `engine/ server/ web/` reports them
