@@ -512,6 +512,15 @@ topo.connect(olt.id, 'gpon0/1', sp.id, 'uplink', { lengthM: 2000, patchCord: 'SM
 cord, not one polish), and a `W_HYBRID_CORD` warning. The 0.3 dB is the cord's
 published insertion loss and is added to the PON budget.
 
+Re-run on 2026-11-12 through `Topology.connect()` against **catalogue** ports rather than hand-built
+objects, because a hand-built port hides exactly the fields that decide this: `allied-telesis/AT-MC102XL`
+`scupc1` against `ubiquiti/UF-Instant` `gpon0` throws `E_POLISH_MISMATCH` and its message names the cord
+(*"A hybrid patch cord (SMSCSX, sc-upc to sc-apc, 0.3 dB insertion loss) joins these two polishes: declare it
+on the link …"*), and the same pair with `{ patchCord: 'SMSCSX' }` links, carrying `patchCord: "SMSCSX"` on the
+returned link beside its ten other keys. The speed half of the same section reproduces too: an `sfp` port capped
+`[100, 1000]` mated to an `sfp+` capped `[1000, 10000]` builds a link at `speedMbps: 1000`, so the "1G optic in
+a 10G cage comes up at 1G" example is a measurement rather than an intention.
+
 Two things that deliberately do **not** change:
 
 - An **uncorded** `sc-apc` ↔ `sc-upc` link is still `E_POLISH_MISMATCH`. The
