@@ -473,14 +473,18 @@ that carry more than one method account for the whole gap:
 
 | Namespace | Pairs | Which |
 |---|---|---|
-| `links` | 4 | `POST` a link, `DELETE …/:linkId`, the length edit (`PATCH` **or** `POST`), `…/:linkId/state` |
+| `links` | 4 | `POST` a link, `DELETE …/:linkId`, the length edit (`PATCH` **or** `POST`), `…/:linkId/state` (`PATCH` **or** `POST`) |
 | `flows` | 4 | `GET` the list, `POST` to open one, `GET …/:flowId`, `DELETE …/:flowId` |
 | `topologies` | 4 | `GET` the id list and `POST` to create one; `GET …/:id` and `DELETE …/:id` |
 | `devices` | 2 | `POST`, `DELETE …/:devId` |
 | the other eleven | 1 each | `catalog`, `version`, `media`, `validate-link`, `link-options`, `config`, `interfaces`, `ping`, `layout`, `load`, `reset` |
 
-Counting methods naively gives **26**, not 25: the length edit accepts `PATCH` *or* `POST` on the same
-path, and the table below lists it once. Three facts this arithmetic hides and the dispatch block makes
+Counting methods naively gives **27**, not 25: **two** of the four `links` pairs accept either verb on the
+same path — the length edit takes `PATCH` or `POST`, and `…/:linkId/state` takes `PATCH` or `POST` too,
+which the route's own error message does not admit to (a `PUT`, `GET` or `DELETE` there answers
+`405 {"error":"use POST"}`, measured, while `PATCH` on the same URL reaches the link lookup like `POST`
+does and answers `404 {"error":"no such link","code":"E_NO_LINK"}` for a link that does not exist). Both
+dual-method pairs are listed once in the table, so 25 pairs cost 27 method-path combinations. Three facts this arithmetic hides and the dispatch block makes
 obvious:
 
 - **The method is not part of the route, so a wrong method is not a `405`.** `PUT /api/version`,
