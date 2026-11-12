@@ -461,6 +461,43 @@ grep -rhoE '\]\([A-Za-z0-9_./-]*docs/[A-Za-z0-9_.-]+\.md#[^)]+' docs/*.md docs/w
 The check was proved to bite by pointing one of them at a heading that does not exist — and it bit for
 real when the NAT heading was renamed, which is how the count came to be re-measured.
 
+The sixth class is `file.js:123`, and it splits cleanly into a part a checker can own and a part it
+cannot. **Whether the cited line exists** is mechanical, and cheap enough to run on every pass:
+
+```bash
+node -e '
+const fs=require("fs");
+const docs=["README.md","CONTRIBUTING.md",...fs.readdirSync("docs").filter(f=>f.endsWith(".md")).map(f=>"docs/"+f),...fs.readdirSync("docs/wiki").map(f=>"docs/wiki/"+f)];
+let n=0, bad=0; const files=new Set();
+for (const d of docs) fs.readFileSync(d,"utf8").split("\n").forEach((l,i)=>{
+  const re=/((?:engine|server|scripts|web|test)\/[\w./-]+\.js):(\d+)/g; let m;
+  while((m=re.exec(l))){
+    n++; files.add(m[1]);
+    if(!fs.existsSync(m[1])) { console.log(d+":"+(i+1)+" -> "+m[1]+" does not exist"); bad++; continue; }
+    if(+m[2] > fs.readFileSync(m[1],"utf8").split("\n").length) { console.log(d+":"+(i+1)+" -> "+m[1]+":"+m[2]+" is past the end"); bad++; }
+  }});
+console.log(n+" line citation(s) across "+files.size+" file(s); "+bad+" point at nothing");'
+```
+
+It prints `293 line citation(s) across 37 file(s); 0 point at nothing` on this tree, and it catches the
+one failure that is invisible in prose: a citation left pointing past the end of a file that shrank.
+
+**Whether the cited line says what the sentence claims** does not reduce to a check, and it is worth
+recording why, because the obvious version of it is a trap. Pair each citation with the backticked
+identifier on the same line and demand the identifier appear within a few lines of the number: on this
+tree that test has 49 lines it can pair up unambiguously — one name, one citation — and it flags **19**
+of them. Reading all 19 found **zero** defects. They are multi-clause sentences citing one file for a
+clause that names no symbol, and range citations whose first line is the comment above the definition. A
+grey list that is wrong nineteen times out of nineteen does not get shorter as the tree improves, because
+its false positives are all correct prose.
+
+Worse, it misses the case the last audit of this page actually found. The two broken citations in
+`SIMULATION.md`'s guard-rails bullet — `maxSteps = 8000` cited at `:156` when it is set at `:181`, and the
+runaway guard cited at `:3095` when it is at `:3307` — sat on a line carrying **two** names and **two**
+citations, which is exactly the line a one-name-one-citation rule skips as ambiguous. The tool would have
+stayed quiet on the only two real findings in 293 citations. So: check existence mechanically, read the
+pairing by hand, and expect the hand pass to be the slow one.
+
 The wrapped-row check has one subtlety worth keeping: it only considers lines that belong to a real
 table (a `|` line followed by a separator). Prose is allowed to start with `|` — a sentence that wraps
 just after a pipe inside a code span does exactly that — and flagging it sends you to rewrite a
