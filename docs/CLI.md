@@ -65,13 +65,14 @@ lists its own sub-commands (`network`, `range`, `lease`, …).
 | `show running-config` | the full configuration, including routing protocols — see the note below |
 | `show vlan [<id> \| brief \| summary \| count]` | VLAN table with trunk ports marked `(t)`, one VLAN, or the counts ([VLANs](#vlans)) |
 | `show vlan name <name>` | the same table, narrowed by the name the VLAN was given ([VLANs](#vlans)) |
-| `show spanning-tree [<port>]` | STP state, or "not part of any L2 loop"; one port narrows it |
+| `show spanning-tree [<port> \| summary \| root]`, `show spanning-tree vlan <id> [root]` | STP state, or "not part of any L2 loop"; one port narrows it, `summary` counts the port roles and states, `root` names the root bridge for the whole tree or for one VLAN |
 | `show etherchannel` | LAG groups and member state ([Link aggregation](#link-aggregation)) |
 | `show access-lists` | ACL entries and where each list is bound ([Access control lists](#access-control-lists)) |
 | `show vrrp [<group>]` | group state after the last election; naming a group narrows the table ([VRRP](#vrrp-first-hop-redundancy)) |
 | `show ip protocols` | the routing processes running here, their areas, peers and distances |
 | `show ip bgp` | the BGP table: prefixes received, next hop, AS path, and which row forwards; `show ip bgp <prefix>` is one entry, with the reason it is or is not installed ([BGP](#bgp)) |
 | `show ip bgp summary` | one row per peer: state, and the reason when it is not Established |
+| `show ip bgp neighbors [<address>]` | one peer in detail: remote AS, state, hold time, prefixes in, and the reason a session is down |
 | `router ospf <process-id>` | start OSPF and enter router mode, where `network … area …` lives ([The two commands](#the-two-commands-every-ospf-lab-starts-with-and-this-console-did-not-have)) |
 | `router bgp <as>` | enter `(config-router)#` and configure BGP ([BGP mode](#bgp-had-no-mode-and-the-line-after-it-was-lost)) |
 | `ip routing / no ip routing` | forward between this device's interfaces, or stop ([ip routing](#ip-routing-and-configuration-that-is-not-the-same-when-applied-twice)) |
