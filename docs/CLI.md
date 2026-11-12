@@ -8347,8 +8347,11 @@ no ip name-server                    # clear the list
 
 A record added before any zone exists is refused (`% No zone yet - create one with "dns zone
 <name>"`), and `dns add` attaches it to the zone most recently opened — or the last one created.
-Answers and failures — `dns-nxdomain`, `dns-nodata`, `dns-servfail` — are distinguishable in the
-event log; see [SIMULATION.md §5](SIMULATION.md).
+Answers and failures are distinguishable in the **reply**, not in the event log: `dns-nxdomain` (the name is
+not in the zone), `dns-nodata` (the name exists, the type does not — NOERROR with an empty answer) and
+`dns-servfail` (no device in the lab hosts a zone) arrive as the `reason` on a `ping` or flow reply, built as
+`'dns-' + status` in one place. `show logging` records every one of them under the single type `dns`, with the
+failing name in the detail, so filter on that rather than on the three names; see [SIMULATION.md §5](SIMULATION.md).
 
 **A record's value is the rest of the line, and it is judged by the library that will answer for
 it.** Two things used to be wrong here. The value was one token, so `dns add note TXT hello world`
