@@ -108,9 +108,14 @@ So "dry run" here means *no writes to Cloudflare*, not *no I/O*: it tells you th
 before deciding there is nothing to change.
 
 One implementation detail makes those exit codes observable at all, and it is worth knowing if you edit the script:
-it sets `process.exitCode` and lets the event loop drain rather than calling `process.exit()` (`:230-237`), because
-calling `exit()` while undici's keep-alive socket is still open truncates the output. A rewrite that "simplifies"
-that to `process.exit(1)` would keep the code and lose the line that explains it.
+it sets `process.exitCode` and lets the event loop drain rather than calling `process.exit()` (`:229-238`). The
+reason is stronger than the old sentence here said — truncated output is the mild half. Calling `exit()` while
+undici's keep-alive socket is still open trips a libuv assertion on Windows
+(`Assertion failed: !(handle->flags & UV_HANDLE_CLOSING), file src\win\async.c`) and the crash **swallows the
+exit code**, so a refused run reports success; the script's own comment records exactly that. A rewrite that
+"simplifies" this to `process.exit(1)` would keep the code and lose it on the way out — which is what still
+happens to the two tracker scripts' deliberate `exit 2` ([TRIAGE.md](TRIAGE.md) measures the 401 path ending in
+that abort with a 127 instead).
 
 All three invocation shapes were re-run on 2026-11-12 against the live edge and the transcripts above are exact:
 no flags and `--help` print the four lines ending `Nothing to do.`, `--check` prints the same three and stops,
