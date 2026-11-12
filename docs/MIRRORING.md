@@ -188,6 +188,24 @@ when the token is absent; only a bare invocation gets as far as `Nothing to do. 
 --report or --all (add --dry-run first).`, also with status 2. So "run it in dry-run first" is not a way to
 try it without credentials.
 
+With `PF_FORGEJO_TOKEN` unset, six invocations, six statuses — and the two messages are the only difference:
+
+```sh
+for m in --issues --prs --report --all "--dry-run --issues" ""; do
+  node scripts/gh-bridge.js $m >/dev/null 2>&1 && rc=0 || rc=$?
+  echo "${m:-(bare)} -> rc=$rc"
+done
+```
+
+```
+--issues -> rc=2
+--prs -> rc=2
+--report -> rc=2
+--all -> rc=2
+--dry-run --issues -> rc=2
+(bare) -> rc=2
+```
+
 Two defaults do not fit this repository, and would surprise anyone following the flags. The URL default
 points at `127.0.0.1:3000`, while this worktree reaches the same Forgejo as **`http://odin:3000`**. And
 `PF_FORGEJO_REMOTE` defaults to a remote name, `forgejo`, that **does not exist here** — the two remotes are
@@ -272,14 +290,16 @@ repository if the instance default is private (Settings → Advanced → *This r
 - `scripts/check-canonical-urls.js` — fails the build if any tracked file points at the old GitHub
   repository, or if the README's clone URL and CI badge do not match the canonical base. It found
   three stale links plus two scripts still calling `gh` the first time it ran. Measured on this tree it
-  prints `OK — 2278 files, every project URL points at https://git.jayw.uk/jaylouisw/packetforge` and
+  prints `OK — 2332 files, every project URL points at https://git.jayw.uk/jaylouisw/packetforge` and
   exits `0`. The figure is **not** a file count you can quote: the checker walks the *working tree* for
   seven extensions (`.md .js .json .yml .yaml .html .txt`), skipping `.git`, `node_modules`, `dist`,
   `coverage` and dot-directories other than `.github`/`.forgejo` — which means an untracked probe in
   `tmp/` counts too. It read `2266` this morning, `2268` an hour later, `2269` a few minutes after
-  that and `2278` now, each time because someone added a file. A clone you drop inside the tree counts too: six
-  wiki pages in an untracked directory made it print `2284`, and deleting them made it print `2278` again —
-  one measurement, two answers, nothing added to the repository. Re-run it rather than quoting the number. `test/canonical-urls.test.js` holds **43** assertions — three of which plant a fault
+  that, `2278` when this paragraph was written and `2332` today, each time because someone added a file —
+  the last jump is the wiki pages, now built into `docs/wiki/` and therefore counted. A clone you drop
+  inside the tree counts too: six wiki pages in an untracked directory made it print `2284`, and deleting
+  them made it print `2278` again — one measurement, two answers, nothing added to the repository. Re-run
+  it rather than quoting the number. `test/canonical-urls.test.js` holds **43** assertions — three of which plant a fault
   and require the checker to refuse it: a GitHub URL, a `gh` instruction, and a README that cannot be
   cloned from. That is what makes it a test rather than a pass.
 - `scripts/forgejo-api.js` — the tracker client the triage scripts use instead of `gh`. A missing
