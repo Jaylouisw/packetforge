@@ -7071,10 +7071,13 @@ IOS uses and the reason `sh ip int br` is the most-typed line in networking:
 ```
 R1#sh ip int br
 Interface  IP-Address  OK?  Method  Status  Protocol
-Gi0/0      unassigned  YES  manual  up      up
-Gi0/1      unassigned  YES  manual  up      up
-Gi0/2      unassigned  YES  manual  up      up
+Gi0/0      unassigned  YES  manual  down    down
+Gi0/1      unassigned  YES  manual  down    down
+Gi0/2      unassigned  YES  manual  down    down
 ```
+
+Nothing is cabled on a fresh board, so both status columns read `down`; a port with a cable in it reads
+`up` in both.
 
 Before this existed the console refused it outright — `% Unrecognized command: sh ip int br` — and
 the only abbreviations that worked were `conf t` and `en`, hand-coded as aliases. A hand-written alias
@@ -7098,31 +7101,43 @@ R1#sh nosuchthing
 % Invalid show command: nosuchthing
 ```
 
-**The prefix rule has one exception, and it is inside interface config mode.** There, a bare `show` is
-not parsed by the abbreviation layer at all, so even an unambiguous prefix is refused — and a `sh`
-abbreviation is not recognised as `show` in the first place:
+**The prefix rule changes inside interface config mode**, and its two refusals there are different
+diagnoses: `sh` is a prefix of two commands in that mode, so it is *ambiguous* rather than invalid, and
+the word after `show` has to be spelled in full:
 
 ```
 R1(config-if)#sh vers
-% Unrecognized interface command: sh vers
-% Unrecognized config command: sh vers
+% Ambiguous command: "sh vers"
+% Candidates: shutdown, show
 R1(config-if)#show vers
 % Invalid show command: vers
+R1(config-if)#show
+% Incomplete command.
+% "show" needs a word after it - it takes version, clock, logging, ip, interfaces, history, terminal, arp and 12 more ("show ?" lists them all)
 ```
 
-Put `do` in front and both work exactly as they do at the exec prompt, including the ambiguity list:
+Nothing in the mode is unreachable — `show version` prints the version block and `shut` takes the
+interface down — the rule is only that a word has to stay long enough to identify one command.
+
+Put `do` in front and the exec abbreviation layer answers, including the ambiguity list:
 
 ```
 R1(config-if)#do sh vers
 PacketForge Router (generic generic-router)
 Vendor     : generic
+Model      : generic-router (Router)
+Category   : router
+Capabilities: l3-forward, cli, dhcp-server, nat
+Interfaces : 3
+Simulator  : PacketForge 0.1.0
 R1(config-if)#do sh i
 % Ambiguous command: "do sh i"
 % Candidates: interfaces, ip, ipv6
 ```
 
 So the pattern that pays for itself when a command misbehaves in interface mode is `do show …`, not
-`show …`: without `do`, an ambiguous prefix is reported as *invalid*, which is the wrong diagnosis.
+`show …`: without `do`, a word shortened after `show` is reported as *invalid* and `sh` itself as
+*ambiguous* between `shutdown` and `show`, so neither line names the command you were reaching for.
 
 **`sh int br` is not `show ip interface brief` here.** `int` expands to `interfaces`, which takes a port
 name, so `br` is read as one — and the refusal names the command you meant, which is the useful part:
@@ -7137,10 +7152,31 @@ The abbreviation that works is `sh ip int br`, the one in the example at the top
 
 ### Help is per mode, and modes are sticky
 
-`help` lists what the mode you are in accepts, so the list itself is a claim worth testing: every form
-under `help` was run in the mode it was listed under, in a session of its own — **59 at the exec prompt,
-46 in global config, 27 in interface config, 132 forms as this was written, none refused as unrecognised.**
-The rule holds: documented means typable. Recount rather than trust the three numbers — the exec list gained two forms between two passes on the same evening.
+`help` lists what the mode you are in accepts, so the list itself is a claim worth testing — and the
+count is one command away. Counting the rows each list prints, on a fresh `generic/generic-router` at
+HEAD `45c110b3`, gives **80 at the exec prompt, 64 in global config, 35 in interface config**:
+
+```sh
+node -e '
+const {Topology, Simulator, runCommands} = require("./engine");
+const reg = require("./devices/registry");
+const g = reg.loadCatalog().filter(s => !s.error).find(s => /generic-router/i.test(s.model));
+const fresh = () => { const t = new Topology(); t.addDevice(g, "d1"); return { t, dev: t.devices.get("d1"), sim: new Simulator(t) }; };
+const rows = (c, cmds) => runCommands(c.dev, c.t, c.sim, cmds).lines.filter(l => /^  \S/.test(l)).length;
+const a = fresh(), b = fresh(), c = fresh();
+console.log("exec", rows(a, ["help"]), "| global", rows(b, ["enable", "conf t", "help"]), "| iface", rows(c, ["enable", "conf t", "int Gi0/0", "help"]));
+'
+```
+
+```
+exec 80 | global 64 | iface 35
+```
+
+An earlier pass recorded 59 / 46 / 27 by **running** the listed forms in a session of its own rather than
+counting rows, so the two readings use different rules and are not comparable — 179 rows today is the
+figure this recipe re-takes. What that pass established still holds: documented means typable, and the
+list grows, so recount rather than trust any of these numbers. Run it in a tree with uncommitted engine
+work and the exec figure moves with that work (81 as this was written, against 80 at HEAD).
 
 What does not hold is running the list as a batch. Modes are sticky, and several documented commands
 change the parser for every line after them — `ip dhcp pool <name>` puts you in pool mode, and from
