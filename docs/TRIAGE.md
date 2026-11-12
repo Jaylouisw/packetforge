@@ -147,8 +147,9 @@ The cause is in the call, and this repository already carries the repair in a th
 `request-queue.js:86` and its neighbour's `:200` both call `process.exit(2)` while the tracker's HTTP client
 still holds a keep-alive socket, and that is the shape that trips the libuv assertion on Windows — the exit
 code is lost to the abort. `scripts/cf-access-bypass.js:229-238` sets `process.exitCode` and lets the loop
-drain instead, and says why in a comment worth quoting: calling `exit()` there *"trips a libuv assertion on
-Windows, and the crash swallowed the exit code — a refused run reported success"*. Neither tracker script
+drain instead, and says why in a comment worth quoting — verbatim, hyphen and all, since the file writes
+`-` where this page would set an em dash: calling `exit()` there *"trips a libuv assertion on Windows, and
+the crash swallowed the exit code - a refused run reported success"*. Neither tracker script
 does that: `grep -n 'process.exit' scripts/request-queue.js scripts/sweep-device-requests.js` finds four and
 one, and `exitCode` appears in neither. So the deliberate code is right and the mechanism loses it.
 
@@ -174,6 +175,25 @@ Re-measured that way on 2026-11-12, the pair of scripts differ exactly as descri
 moved: `request-queue.js` exits **2** in both modes with the two reason lines and **no stack**; the sweep script
 exits **1** in both modes, with a raw `Error:` and stack for the missing token and the two setup lines plus
 `error: 401 …` for the bad one.
+
+That comparison does not need the tracker at all — point `PF_API` at a stub that answers 401 and both paths
+become reproducible on any host, on any day:
+
+```sh
+# terminal one: a stub answering every request with the tracker's 401 body
+node -e 'require("http").createServer((q,s)=>{s.writeHead(401,{"content-type":"application/json"});
+  s.end(JSON.stringify({message:"user does not exist [uid: 0, name: ]"}))}).listen(8799)'
+# terminal two: the two scripts against it
+PF_API=http://127.0.0.1:8799 FORGEJO_TOKEN=bogus node scripts/sweep-device-requests.js; echo "sweep rc=$?"
+PF_API=http://127.0.0.1:8799 FORGEJO_TOKEN=bogus node scripts/request-queue.js; echo "queue rc=$?"
+```
+
+Measured that way on this tree: the sweep prints its two setup lines, a blank line and
+`error: 401 {"message":"user does not exist [uid: 0, name: ]"}`, then `sweep rc=1`; `request-queue.js` prints
+`Could not read issues from jaylouisw/packetforge.` and `not authorised to read jaylouisw/packetforge (HTTP 401) -
+check FORGEJO_TOKEN`, then `queue rc=2`. No assertion, no 127 and no `0xC0000409` in either. That is the point of
+the stub: the abort described above is a property of the real client closing over a live keep-alive socket, not of
+the branch, so the code path itself exits cleanly and the flaky code is what the earlier paragraph warned about.
 
 Two flags exist and no others. `--limit` caps how many open issues are fetched and **defaults to
 200** — the queue has not been near that since this page was written, so the flag is only needed
