@@ -1041,10 +1041,45 @@ host can halve it. Two flags re-measured in the same session as well: `--list` s
   Dry run - nothing written or pushed.
   ```
 
-  Six of six "updated" against one genuinely stale page — so on that host `--dry-run` answered "is this
-  host producing CRLF?", not "which page is behind?".
+  Six of six "updated" — so on that host `--dry-run` answered "is this host producing CRLF?", not "which
+  page is behind?". (An earlier reading of this page said "six of six against one genuinely stale page".
+  Re-measured on 2026-11-12, **four** of the six were behind by hundreds of characters — see the method
+  below — so treat the six-of-six line as saying nothing at all about content.)
 
-  **It can do both, and the count tells you which answer you are reading.** Re-run on 2026-11-12 it printed
+  **The only reliable answer is to fetch the pages and compare.** The wiki API serves them anonymously,
+  and two details cost a measurement each: page **titles contain spaces** (`Getting Started`,
+  `Requesting Hardware`, `Simulation Fidelity`) while the files are hyphenated, and the body arrives in
+  `content_base64` — `content` is present and **empty** for every page:
+
+  ```bash
+  node -e 'const a=require("./scripts/forgejo-api");(async()=>{
+    const {API,OWNER,NAME}=a;
+    const list=await (await fetch(API+"/repos/"+OWNER+"/"+NAME+"/wiki/pages")).json();
+    for (const p of list) {
+      const j=await (await fetch(API+"/repos/"+OWNER+"/"+NAME+"/wiki/page/"+encodeURIComponent(p.title))).json();
+      const live=Buffer.from(j.content_base64,"base64").toString("utf8").replace(/\r\n/g,"\n");
+      const local=require("fs").readFileSync("docs/wiki/"+p.title.replace(/ /g,"-")+".md","utf8").replace(/\r\n/g,"\n");
+      console.log((live.trimEnd()===local.trimEnd()?"SAME ":"DIFF ")+p.title, live.length, local.length);
+    }})()'
+  ```
+
+  Measured that way on 2026-11-12, four of six pages were genuinely behind and two were line endings only:
+
+  ```
+  DIFF Contributing          live 1592 local 2374
+  SAME Getting Started       live 1846 local 1846
+  DIFF Home                  live 1886 local 2434
+  DIFF Requesting Hardware   live 2775 local 4467
+  DIFF Simulation Fidelity   live 2956 local 3826
+  SAME _Sidebar              live  357 local  357
+  ```
+
+  Note what that does to the count heuristic: the dry-run had just printed six lines, and the truth was
+  four stale pages. Publishing needs a token (see the `TRIAGE.md` note — the scripts gate on a variable,
+  not on what the endpoint allows), so on a host without one the wiki drifts and only this comparison says
+  by how much.
+
+  **The count heuristic, kept for what it is worth:** Re-run on 2026-11-12 it printed
   **two** lines — `Requesting-Hardware.md` and `Simulation-Fidelity.md` — and those were exactly the two pages
   edited since the live wiki's last publish (`e1c3304`, `2026-11-11T05:55:04+00:00`): one for the
   `grep -rl` overcount sentence, one for the instant/`converged` paragraphs. So the rule is not "never trust
