@@ -904,6 +904,52 @@ rule used to find one — this page's own figure is **141** citations and **33**
 six suites whose counts the prose actually asserts are the ones to re-run; a fresh total is only comparable to
 these three if it is taken with the same extraction, which the page does not pin down.
 
+Pinning it is the fix, so here is a rule stated in one sentence and a command that applies it. A **count claim**
+is a `name.test.js` citation followed within 56 characters by an explicit number: `N passed`, `N assertions`, or
+an arrow pair `A → B` (the B is the claim). Markdown emphasis and backticks are stripped first, `$f.test.js`
+inside a shell loop is skipped, and a suite **agrees** when today's printed count is any number that page
+quotes for it — so a reconciliation row reading `79 → 133 → 126` still agrees at 126, because history is
+allowed to contain the old numbers.
+
+```sh
+node -e '
+const fs=require("fs"), cp=require("child_process");
+const pages=["README.md","CONTRIBUTING.md",
+  ...fs.readdirSync("docs").filter(f=>f.endsWith(".md")).map(f=>"docs/"+f),
+  ...fs.readdirSync("docs/wiki").filter(f=>f.endsWith(".md")).map(f=>"docs/wiki/"+f)];
+const cit=/(?<![\w.$-])([a-z][a-z0-9-]*)\.test\.js/g;
+const claims=new Map();
+for(const p of pages){ const t=fs.readFileSync(p,"utf8").replace(/\*\*|`/g,"");
+  let m; while((m=cit.exec(t))){ const tail=t.slice(m.index+m[0].length, m.index+m[0].length+56);
+    const c=/(\d{1,4})(?:\s*(?:passed|assertions?)\b|\s*(?:\u2192|->)\s*(\d{1,4}))/.exec(tail);
+    if(!c) continue; const n=+(c[2]||c[1]);
+    if(!claims.has(m[1])) claims.set(m[1],new Set()); claims.get(m[1]).add(n); } }
+let agree=0; const drift=[], absent=[];
+for(const [s,set] of [...claims].sort()){ const f="test/"+s+".test.js";
+  if(!fs.existsSync(f)){ absent.push(s); continue; }
+  let out=""; try { out=cp.execFileSync(process.execPath,[f],{encoding:"utf8"}); }
+  catch(e){ out=(e.stdout||"")+""; }
+  const m=/(\d+) passed/.exec(out.split("\n").filter(Boolean).pop()||"");
+  if(!m){ absent.push(s+" (no summary)"); continue; }
+  if(set.has(+m[1])) agree++; else drift.push(s+" "+m[1]); }
+console.log("suites claimed "+claims.size+" | agree "+agree+" | drift "+drift.length+" | absent "+absent.length);
+console.log("drift: "+drift.join(", "));
+console.log("absent: "+absent.join(", "));' 2>/dev/null
+```
+
+```
+suites claimed 138 | agree 120 | drift 16 | absent 2
+drift: acl-remove 29, arg-keyword-abbrev 69, exec-privilege 55, ipv6-console 49, ipv6-interface 64, logging-filter 22, nat-show 33, number-slots 51, optional-args 120, ospf-bgp-detail 39, persistence-load 28, port-addressing 26, refused-where-typed 58, route-installed 48, router-mode-help 47, show-filter 27
+absent: ma5801 (no summary), poe-derived
+```
+
+Read the drift list against this section rather than against the tree: **all sixteen are rows in the
+reconciliation table below**, which is exactly the set the page says to leave alone, so the sweep's positive
+result is that no page *outside* this section quotes a count that has rotted. The two absent entries are the
+known pair — `poe-derived.test.js` never existed and `ma5801.test.js` throws before printing a summary. The
+`2>/dev/null` is not cosmetic: the throwing suite writes a stack trace to stderr and would otherwise bury
+three lines of output.
+
 The 29 suites whose quoted count no longer matches, quoted → today (each measured by running the file):
 
 | Suite | Quoted above | Prints today |
