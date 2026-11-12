@@ -1725,7 +1725,10 @@ SW1#show ip route
 * **A view a device can answer is on its page.** `show ip route` is answered by every device in this
   model — a switch prints its `ip default-gateway` route, a host prints an empty table — so it is not
   gated. It had been hidden behind the layer-3 test, and the reason given for hiding it ("it does not
-  forward between interfaces") described the view rather than the device.
+  forward between interfaces") described the view rather than the device. That route is the whole
+  table until the VLAN has a member port that is **up**: an SVI with an address but no live port in
+  its VLAN has line protocol down, so it contributes no connected route — put a cabled port into
+  VLAN 10 and `*  C 10.0.0.0/24  0  -  Vlan10` appears above the default route.
 * **A view a device cannot have is refused as what the device is.** `show ip bgp` on a switch said
   *"% BGP is not enabled - `router bgp <as>` in config mode turns BGP on"*, advice this device refuses:
 
