@@ -149,6 +149,18 @@ So the `EADDRNOTAVAIL` advice above ("set PORT to a port number only") cannot be
 address into `PORT` — the value is already truncated by the time it is used. If you see a stack trace
 mentioning `ERR_SOCKET_BAD_PORT`, `PORT` is the thing to look at.
 
+All four rows were run on 2026-11-12, because a table like this is only worth having if it is checked. `PORT=8081`
+and `PORT=' 8000'` and `PORT='8081 '` all start and print the port you meant, whitespace on either side being
+ignored. `PORT=1.2.3.4` **starts a working server on port 1** and prints `Local:   http://localhost:1` — it does
+not fail, which is the whole warning: the URL is short enough to look like a typo in the banner rather than a
+truncated address. `PORT=abc` dies before any banner with
+
+```
+RangeError [ERR_SOCKET_BAD_PORT]: options.port should be >= 0 and < 65536. Received type number (NaN).
+```
+
+and exits **1**. The absence of the banner is the tell: every other outcome here prints one.
+
 ### First lab
 
 1. Click a device in the left palette (e.g. *Router*), then click the canvas to place it.
