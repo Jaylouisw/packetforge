@@ -221,7 +221,10 @@ One pass, three attempts per title, each attempt subject to the same guards belo
 3. failing that, nothing — the request stays open.
 
 Every hit is exact after normalisation. There is no edit distance and no similarity score anywhere
-in the file.
+in the file — `grep -in 'levenshtein\|similarity\|editdistance\|hamming\|jaro\|soundex\|fuzzy'`
+finds nothing. The three attempts are the whole-title lookup at `:152` and the trailing-token loop at
+`:157` of `scripts/sweep-device-requests.js`, and the subject is cut out of the title by
+`requestSubject()` at `:95`.
 
 ## What counts as a match
 
@@ -236,13 +239,13 @@ them open: telling someone their hardware is modelled when it is not wastes thei
 `[Device]: Ubiquiti UniFi Cloud Gateway Ultra` matched `roku/Ultra` on the shared word **Ultra**.
 Three Ubiquiti requests were one keystroke from being closed pointing at a streaming stick. A match
 is now rejected unless the vendor in the title, where the title names a known vendor, matches the
-catalogue entry's vendor.
+catalogue entry's vendor — one line, `:142`, inside `acceptable()` at `:138`.
 
 ### A model key needs a digit, or two words
 
 Single generic words identify product *lines*, not products. `Ultra` is not a model; `Wave-Pro` is;
-`AX3` is. The guard is crude and deliberately so — it costs a few missed matches and buys the
-absence of confidently wrong ones.
+`AX3` is — the test is a digit anywhere in the key, or two words (`:146-147`). The guard is crude and
+deliberately so: it costs a few missed matches and buys the absence of confidently wrong ones.
 
 ### Normalisation keeps `+`
 
@@ -251,7 +254,18 @@ Stripping punctuation made `WiFi Mesh 3+` and `WiFi Mesh 3` the same key — and
 everything else becomes a separator, so `RB5009UPr+S+IN` and `RB5009UPr+S+OUT` stay distinct —
 which matters, because the catalogue has both. It is not a theoretical worry: **104 of the 1,661
 models carry a `+`** (145 if you count display labels, which the slug never sees). `++` is folded to `plusplus` ahead of the single-`+` rule; no current model
-uses one, so that branch is defensive rather than exercised.
+uses one, so that branch is defensive rather than exercised. `norm()` is `:66`; recount both figures from
+the specs the loader returns rather than from the display labels the slug never sees:
+
+```sh
+node -e '
+const {loadCatalog}=require("./devices/registry");
+const s=loadCatalog(require("path").resolve("devices"));
+console.log("specs",s.length,"model",s.filter(x=>String(x.model||"").includes("+")).length,
+  "model+label",s.filter(x=>String(x.model||"").includes("+")||String(x.label||"").includes("+")).length);'
+```
+
+On 2026-11-12 it prints `specs 1661 model 104 model+label 145`.
 
 ## What a close says
 
