@@ -85,8 +85,9 @@ first.
   coroutine and no scheduling: a run is a single-threaded loop that ends when the
   queue is empty.
 - Guard rails are loop detectors, not physics: `maxSteps = 8000`
-  (`engine/simulator.js:156`) and a 100 000-iteration runaway guard
-  (`engine/simulator.js:3095`). Exceeding either emits a `limit` event.
+  (set at `engine/simulator.js:181`, checked at `:3306`) and a 100 000-iteration runaway guard
+  (`:3307`). Exceeding either emits a `limit` event — `reason: 'max steps reached'` and
+  `reason: 'runaway loop'` respectively.
 - Before the first packet, every run recomputes the world **once**, in this
   order (`engine/simulator.js:438-452`): spanning tree, PoE, SVI line state,
   LLDP advertisements, router advertisements, VRRP, DHCP, OSPF, BGP. The three
@@ -719,7 +720,7 @@ actually true.
 | "Congestion happens." | Nothing is ever dropped because of load. There are no queues, no buffers, no contention, no tail drop, no AQM. A link at 100 % of its rate behaves exactly like an idle one. | — |
 | "Loss happens." | Nothing is lost except by an explicit rule: VLAN, ACL, STP, PoE, TTL, no route, NAT failure. A cable 10× over its reach still delivers every packet. | — |
 | "There are real timers." | None. No scheduling, no concurrency, no ageing, no expiry. See [§8](#8-time-what-rtt-means-and-what-it-does-not). | `engine/latency.js:32` |
-| "It's a stateful firewall." | ACLs are per-packet, stateless, IPv4-only. The `firewall` capability is inert. | `engine/simulator.js:3052`, `engine/acl.js:342` |
+| "It's a stateful firewall." | ACLs are per-packet, stateless, IPv4-only. The `firewall` capability is inert. | `engine/simulator.js:3052`, `engine/acl.js:342` — and `'firewall'` appears exactly once in `engine/`, at `engine/device.js:94`, where nothing branches on it |
 | "Routes redistribute." | They do not. Connected → OSPF and connected → BGP only; no OSPF→BGP, no BGP→OSPF, no static→anything. | `engine/simulator.js:577-588`, `engine/simulator.js:406-419` |
 | "MPLS / VXLAN / GRE / IPsec / LISP / SRv6." | None of them. `grep -ri "mpls\|vxlan" engine/` returns nothing. | — |
 | "DAI, DHCP snooping, IP Source Guard, RA guard." | None. ARP and ND are trusted completely. | — |
