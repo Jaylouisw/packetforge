@@ -1155,6 +1155,24 @@ installed rather than excluded, so such a row would be indistinguishable from a 
 view re-runs `computeBgp()` on entry (`cli.js:7837-7839`), which is why it is never stale after a
 config change.
 
+The block above is an excerpt, and the lines it leaves out are the ones that answer "why is this row not
+forwarding". `_showBgpTable()` occupies `7832`–`7906` exactly as cited, and besides the four-row table and three
+legend lines it can also print, each on one condition:
+
+- `(no prefix has been received - N neighbour(s) configured, see "show ip bgp summary")`, or, with no peer
+  configured at all, `(no prefix has been received and no neighbour is configured - "neighbor <ip> remote-as <as>")`.
+- Under the legend, `  Nothing has been received from a peer: "show ip bgp summary" says whether one is up.` or
+  `  Nothing has been received: no neighbour is configured ("neighbor <ip> remote-as <as>").` — a second,
+  separately worded line for the same condition, not an accidental duplicate.
+- `  <prefix> is also <connected|static|…> here, which is closer than BGP's distance <ad> - see "show ip route"`,
+  once per received prefix that a non-BGP route beats. That is the line which explains a `*` without making the
+  operator open a second view.
+
+Rows are sorted on the prefix string (`rows.sort` over the network column) and locally originated prefixes are
+merged into that same table as `*>` with next hop `0.0.0.0` instead of being listed apart. All three conditional
+branches are exercised by `test/bgp-table.test.js` — `:80` for the "also connected" note, `:141` for the
+empty-peer line — so they are live output rather than defensive code.
+
 The target — one row per Loc-RIB prefix, `>` best, `*` valid, `r` RIB-failure/unresolvable (the last of
 these needs NH-6 from §7.1 first):
 
