@@ -870,6 +870,18 @@ The 29 suites whose quoted count no longer matches, quoted → today (each measu
 | `test/svi-verbs.test.js` | 62 | **61** |
 | `test/vlan-lifecycle.test.js` | 43 | **46** |
 
+A fourth sweep on 2026-11-12 ran every one of those twenty-nine files individually, and **all twenty-nine print what
+the right-hand column says** — zero drift, which is the first time that column has been checked rather than carried.
+It also means nothing in this set has moved since the third sweep, so the table is currently a snapshot that happens
+to still be true; when a suite next changes, re-run and expect exactly one row to disagree.
+
+Two operational notes from doing it. Three of the twenty-nine are **slow** — `capability-gate.test.js`,
+`completion.test.js` and `placeholder-rows.test.js` need more than twenty seconds each here — so a sweep with a
+short per-file timeout reports them as unreadable rather than as drifted, and the sweep itself will take about six
+minutes rather than the fifteen the paragraph above quotes for the older, wider one. And the counts must be read from
+the suite's own `N passed, M failed` line: `tail -3` on a suite that prints a trailing blank line pushes the tally out
+of view, which is how a run looks like it produced no numbers at all.
+
 The four citations that were stating a *current* fact rather than a measurement — three in
 [`CLI.md`](CLI.md) and one in [`REQUESTING-HARDWARE.md`](REQUESTING-HARDWARE.md) — were corrected when
 the first sweep found them. To recount any of them:
