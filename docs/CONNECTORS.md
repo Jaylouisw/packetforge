@@ -978,3 +978,27 @@ canMate(xfpPort, sfpPlusPort)
 The two same-numbered Huawei cards are the clearest illustration of why the cage is a hardware fact
 rather than a label: **X2CA and X2CS are both "2x 10GE"**, and only the last letter tells you whether
 the optic is XFP or SFP+.
+
+## Every catalogued model is drawn, and a test says so
+
+The faceplate is the view that has to be readable where the canvas is not: on a 48-port switch the drawing is 48
+indistinguishable dots whose labels appear only on selection, so the front panel is the tool an operator reaches for
+when the question is "which socket is this". The catalogue is **2,038 models built from 757 distinct port shapes**,
+every one of which can be dragged onto a board.
+
+`test/faceplate.test.js` checks two devices in detail. `test/faceplate-catalogue.test.js` checks the other axis —
+breadth — and takes about a second for the whole catalogue:
+
+```
+2038 models, 20280 sockets, 757 distinct port shapes
+```
+
+Per model it requires: it renders without throwing, twice-gives-the-same-panel; every port the engine knows about
+appears exactly once; the socket count equals the port count; no socket is drawn without a legible label; and no
+`undefined`, `NaN` or `[object Object]` reaches the markup. Across the catalogue it requires that every distinct port
+shape is covered by at least one rendered model, so a family the sweep silently skipped is a failure rather than a
+gap.
+
+The input is the catalogue itself, not a hand-written list. Dropping every seventh socket from
+`web/faceplate.js` — the shape of an off-by-one in a paging loop — fails three assertions and names the devices and
+the lost ports (`arista/7280R3-48YC8 48 sockets vs 56 ports`, `advantech/ICR-3231 4 sockets vs 5 ports`, …).
