@@ -726,9 +726,12 @@ Three consequences a lab author needs:
    number computed at the end of a run that already happened
    (`engine/latency.js:32-34`). Nothing sleeps, nothing interleaves, and a run
    takes the same wall-clock time whether the path is 1 m or 40 km.
-2. **`hops` is not a duration.** `replies[].hops` is still the queue-step count
-   (`engine/simulator.js:276`); `replies[].rtt` is the computed round trip in
-   milliseconds, with `rttUs` alongside.
+2. **`hops` is not a duration, and not a hop count either.** `replies[].hops` is still the queue-step
+   count (`engine/simulator.js:834` in `ping()`, `:2658` in `ping6()`; the comment above the first one
+   spells that out at `:815-819`); `replies[].rtt` is the computed round trip in
+   milliseconds, with `rttUs` alongside. Measured: a link with no device
+   in between already reports `hops: 4`, and one, two and three switches report 14, 24 and 34 — ten
+   queue steps per device crossing, so no part of the number counts anything a reader would call a hop.
 3. **RTT is a floor, not a prediction.** With queueing excluded, the number is
    what an idle network would deliver. A lab that "proves" a latency SLA is
    proving arithmetic.
