@@ -635,8 +635,14 @@ class CliSession {
       if (cannotRoute) return [cannotRoute];
       let gw = tokens[4] || null;
       let iface = tokens[5] || null;
+      if (dest && !net.isIp(dest)) {
+        // The word was reported as a *missing* argument when the mask was absent too, so a reader was told to add
+        // a mask to a destination that is not an address at all (#1495). The shape of the destination is checked
+        // first, then whether the rest of the line arrived.
+        return ['% Invalid destination "' + dest + '": not an IPv4 address ' +
+          '(the form is `ip route <dest> <mask> <next-hop|interface>`)'];
+      }
       if (!dest || !mask) return ['% Incomplete command: ip route <dest> <mask> <gateway|interface>'];
-      if (!net.isIp(dest)) return ['% Invalid destination "' + dest + '": not an IPv4 address'];
       // The mask was "validated" by a call whose result was thrown away, and `maskToInt()` does not refuse a
       // non-contiguous mask - it turns 255.0.255.0 into an integer and `prefixOf()` then reports 8, so
       // `ip route 192.0.2.0 255.0.255.0 10.1.1.9` answered "Route added: 192.0.2.0/8" and installed a prefix
@@ -830,6 +836,11 @@ class CliSession {
       else if (hadIp && hadDhcp) out.push('IP address ' + hadIp + ' and the DHCP client removed from ' + iface.name);
       else if (hadDhcp) out.push('DHCP client removed from ' + iface.name);
       else out.push('IP address ' + hadIp + ' removed from ' + iface.name);
+    } else if (head === 'shutdown' && tokens.length > 1) {
+      // A word after `shutdown` was ignored and the port went administratively down, so a typo that costs a
+      // link had no witness (#1495).
+      return ['% `shutdown` takes no argument: it closes this port, `no shutdown` opens it' +
+        ' (the word "' + tokens.slice(1).join(' ') + '" was not used)'];
     } else if (head === 'shutdown') {
       iface.enabled = false;
       // A port coming up or going down makes STP, OSPF and VRRP do their timers again. The clock only moved for a
@@ -1664,8 +1675,15 @@ class CliSession {
         (gone.some(function (id) { return !dev.config.lags[id]; }) ? ' (the group had no other members)' : '')];
     }
 
+    // The id was taken as whatever word was typed: `channel-group flurbish` created a group called "flurbish",
+    // put the port in it, and answered "Interface Fa0/2 added to channel group flurbish (mode active)" - a typo
+    // becoming configuration, with a receipt (#1495). The mode was validated and the id was not.
     const id = t[0];
     if (!id) return ['% Usage: channel-group <id> mode active|passive|on'];
+    if (!/^\d+$/.test(id) || Number(id) < 1) {
+      return ['% Invalid channel group id "' + tokens[0] + '": a channel group is identified by a number, ' +
+        '1-4096 (e.g. `channel-group 1 mode active`)'];
+    }
     let typed = 'active';
     const mi = t.indexOf('mode');
     if (mi !== -1 && t[mi + 1]) typed = t[mi + 1];

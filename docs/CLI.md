@@ -1688,3 +1688,46 @@ sw1(config)#do ping 10.0.0.1
 ```
 
 `test/command-answers-the-question.test.js` pins all three: 27 checks, 27 passed. With the old handler: **11 passed / 16 failed**, each naming the neighbour's answer it used to give.
+
+## A word the console does not know is never swallowed
+
+Three handlers answering a neighbouring command's question (#1493) suggested a wider question: **what does each command family do when it is handed a word that does not exist?** Thirty-three families, one nonsense word each, and every answer sorted into three classes:
+
+| class | meaning |
+|---|---|
+| **silent** | nothing objected — and a typo that changes state with no witness is the worst answer there is |
+| **unquoted** | an objection that does not name the word; acceptable only when it names the *capability* the device lacks, or lists the values the command does take |
+| **quoted** | names the word back — the shortest route from a typo to a correction |
+
+The sweep found three, and the first two were silent:
+
+```
+sw1(config-if)#channel-group flurbish
+Interface Fa0/2 added to channel group flurbish (mode active)
+                                                  <- and config.lags = {"flurbish": {...members:["Fa0/2"]}}
+```
+
+The *mode* was validated (`mode flurbish` -> `% Invalid mode: flurbish`) and the **id** was not, so a typo became a channel group named "flurbish" — complete with a receipt. `show etherchannel` then lists a group no other port can ever join.
+
+```
+sw1(config-if)#shutdown flurbish
+Fa0/2 administratively down
+```
+
+The extra word was ignored and the port went down. A typo that costs a link had no witness at all. Both now refuse, quote the word, and change nothing:
+
+```
+% Invalid channel group id "flurbish": a channel group is identified by a number, 1-4096 (e.g. `channel-group 1 mode active`)
+% `shutdown` takes no argument: it closes this port, `no shutdown` opens it (the word "flurbish" was not used)
+```
+
+The third was misleading rather than silent — `ip route flurbish` answered `% Incomplete command: ip route <dest> <mask> <gateway|interface>`, sending the reader to add a mask to something that is not an address. The shape of the destination is now checked before the rest of the line:
+
+```
+Router(config)#ip route flurbish
+% Invalid destination "flurbish": not an IPv4 address (the form is `ip route <dest> <mask> <next-hop|interface>`)
+Router(config)#ip route 10.9.0.0
+% Incomplete command: ip route <dest> <mask> <gateway|interface>
+```
+
+`test/no-command-swallows-a-word.test.js` runs the whole sweep as a guard — 33 families, three classes, and a rule for what an unquoted refusal is allowed to be — so the next command that accepts a word it does not know is caught by measurement rather than by someone noticing. 21 checks; with the old handler, 12 passed / 9 failed.
