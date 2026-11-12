@@ -567,7 +567,15 @@ documented-but-unenforced until something calls the validator.
 `l2`, `l3`, `l3l4`. `hashFrame` is a deterministic hash and `selectMember` maps a
 frame onto a member: it drops disabled members and duplicate names, **sorts the survivors by name
 before hashing** — that sort is what makes the choice order-independent — and returns `null` when
-nothing is eligible.
+nothing is eligible (duplicate names collapse, disabled members are skipped, and a set that is empty or
+all-disabled gives `null`).
+
+Which policy a group uses is a field on the LAG (`config.lags[id].hashPolicy`), not a console command:
+`show etherchannel` prints the group, protocol and members in every form it accepts, so the policy is
+invisible from the keyboard and cannot be set there either. The default depends on how the group was made
+— a `channel-group` typed at the console stores `l2`, a group normalised from topology JSON defaults to
+`l3l4`, and the data path falls back to `l2` when the field is missing — which matters when two labs that
+look identical pick different members. `docs/SIMULATION.md` carries the measured behaviour row.
 
 In the simulator a LAG is **one logical port**:
 
