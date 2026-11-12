@@ -269,7 +269,7 @@ directly):
 
 - Route redistribution in any direction (connected ↔ OSPF ↔ BGP). Each protocol
   originates only its own source of truth: OSPF from configured OSPF
-  interfaces, BGP from connected prefixes (`engine/simulator.js:577-588`).
+  interfaces, BGP from connected prefixes (`engine/simulator.js:2109`).
 - Route-maps, distribute-lists, offset-lists, policy routing, VRF, tunnels.
 - Fragmentation and reassembly, PMTUD, IP options, jumbo frames.
 
@@ -281,22 +281,22 @@ directly):
 
 | Verdict | Behaviour | Where |
 |---|---|---|
-| **Modelled** | Every interface has an EUI-64 link-local address derived from its MAC. | `engine/device.js:468`, `engine/ipv6.js:384-405` |
-| **Modelled** | NS is sent to the solicited-node multicast MAC (`33:33:ff:xx:xx:xx`), not to broadcast. | `engine/simulator.js:677-700` |
-| **Modelled** | NA is returned only by the owner of the target address; receiving an NA fills the cache and flushes the pending queue. | `engine/simulator.js:747-790` |
-| **Modelled** | A packet to an unresolved next hop is queued while the NS goes out, exactly like the ARP path. | `engine/simulator.js:698-742` |
+| **Modelled** | Every interface has an EUI-64 link-local address derived from its MAC (`Device.linkLocal6()`, which is `linkLocalFromMac()` over `eui64FromMac()`). | `engine/device.js:642-643`, `engine/ipv6.js:384-405` |
+| **Modelled** | NS is sent to the solicited-node multicast MAC (`33:33:ff:xx:xx:xx`, built from the low 24 bits of the target), not to broadcast. | helper `engine/simulator.js:2216-2222`, dispatch `:2294-2297` |
+| **Modelled** | NA is returned only by the owner of the target address; receiving one fills the cache and flushes the queue waiting on that address. | `engine/simulator.js:2311-2320` |
+| **Modelled** | A packet to an unresolved next hop is queued in `dev.pending6` while the NS goes out, exactly like the ARP path. | `engine/simulator.js:2256-2259` |
 | **Absent** | Duplicate address detection (DAD) — a host will happily take an address that another host already holds. Unsolicited NA, router/neighbour unreachability detection, ND table ageing. | — |
 
 ### 4.2 SLAAC
 
 | Verdict | Behaviour | Where |
 |---|---|---|
-| **Modelled** | Host sends RS to `ff02::2`; router answers with an RA to `ff02::1`; host splices an EUI-64 identifier onto the advertised prefix. | `Simulator.announceRa()` at `engine/simulator.js:2136`, `deriveAddress()` at `engine/ra.js:353` |
+| **Modelled** | Host sends RS to `ff02::2`; router answers with an RA to `ff02::1`; host splices an EUI-64 identifier onto the advertised prefix. | `Simulator.announceRa()` at `engine/simulator.js:2339`, `deriveAddress()` at `engine/ra.js:353` |
 | **Modelled** | The messages are encoded and decoded as real ICMPv6 octets (RFC 4861 §4.2/§4.6), so a layout mistake cannot hide behind a shared object. | `engine/ra.js:160-260` |
 | **Modelled** | The M (managed) flag makes the host **refuse** to autoconfigure and say why (addresses come from DHCPv6). A manually configured address is never overwritten. | `engine/simulator.js:2509-2543` |
-| **Modelled** | A router advertises a prefix only on a link where it holds an address inside that prefix. | `engine/simulator.js:957-964` |
+| **Modelled** | A router advertises a prefix only on a link where it holds an address inside that prefix — `_prefixOnIface()` is the gate, and it asks `prefixContains6()` of the interface's own addresses. The same question decides what `show ipv6 nd` prints as advertisable. | `_prefixOnIface()` at `engine/simulator.js:2443-2449`, mirrored at `engine/cli.js:13090-13095` |
 | **Approximate** | One global address per interface: the first autonomous prefix wins, the rest are ignored. Real hosts keep one per prefix. | `engine/simulator.js:2530` |
-| **Approximate** | Valid/preferred lifetimes are carried and displayed, never aged. An address never becomes deprecated. | `engine/cli.js:3035-3073` (the `ipv6 nd prefix` parser), displayed by `_showIpv6Nd()` at `engine/cli.js:12331` and printed at `:12359-12363` |
+| **Approximate** | Valid/preferred lifetimes are carried and displayed, never aged. An address never becomes deprecated. | `engine/cli.js:3048-3059` (the `ipv6 nd …` parser), displayed by `_showIpv6Nd()` at `engine/cli.js:13050` and printed as the valid/preferred columns at `:13078-13083` |
 | **Absent** | DHCPv6, DHCPv6-PD, privacy/temporary addresses, stable-privacy IIDs, RDNSS/DNSSL, RA guard. | — |
 
 ### 4.3 Hop limit and forwarding
