@@ -827,6 +827,15 @@ assertions than the page quotes**: `capability-gate.test.js` 166 → **153**, `s
 example of growth, so that file reads 79 → 133 → 126 across three readings. A count is a snapshot in
 both directions, which is the reason the rows keep theirs instead of being rewritten.
 
+A third sweep, taken at `48d61cc9` with a wider net — **213** cited suites that exist on disk, **150** citations
+carrying a count — found **34** disagreeing, across **33** distinct suite-and-count pairs. Every one of them
+reproduces the table below row for row, which is the useful part: the numbers had not moved since the last
+sweep, only the number of citations had grown. Two additions to the shape of the class. There is now a
+disagreement the table should *not* absorb — `test/block-stray-words.test.js` is cited as `15` in row §11.4,
+and 15 is a deliberate `15 passed, 4 failed earlier in the same session` rather than a stale claim; the suite
+prints 19 today. And no disagreeing suite is red: the only two red suites in the tree are `link-parts` (81
+passed, 2 failed) and `ma5801` (which throws), and neither is quoted with a count here — `CI.md` carries both.
+
 The 29 suites whose quoted count no longer matches, quoted → today (each measured by running the file):
 
 | Suite | Quoted above | Prints today |
