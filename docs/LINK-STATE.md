@@ -298,6 +298,21 @@ back to the 1G cost — measured through `runStp()` on a port at each rate: 2.5G
 beside it — 20000 against 2000 — because it is priced as 1G. This page used to print a smooth ladder (40G 400, 25G 800, "100G and faster" 200),
 none of which the engine computes.
 
+**The override is whatever you typed, including `0`.** `portCost()` (`engine/stp.js:71`) reads
+`port.cost` first and accepts any finite value `>= 0`, so the speed table never runs on a port that
+declares a cost — and `0` is a legal cost rather than "unset". Measured through `runStp()` on a bridge
+with a 100G uplink (cost `200`) and a 1G uplink (cost `20000`):
+
+| `cost` on the two ports | `show spanning-tree`-visible result |
+|---|---|
+| neither set | 100G port `forwarding` (200), 1G port `blocking` (20000) — the expected election |
+| 1G port `cost: 0` | the **1G** port becomes the root port and forwards (0), the 100G link blocks (200) |
+| 1G port `cost: 500` | 100G still forwards (200) and the 1G port blocks, but its printed cost is `500`, not 20000 |
+
+So a typo that lands `0` in a cost field does not fall back to the speed-derived number, it silently makes
+that link the preferred path — and nothing warns, because the value is legal. The printed `Cost` column is
+the way to see it: it echoes the override verbatim.
+
 The values it *does* compute are IEEE's long-method costs, so a lab whose rates are in the table agrees
 with a vendor datasheet. Nothing depends on that being standard — the *relative* order is what picks the
 topology — but the order only exists between two rates that are both in the table.
