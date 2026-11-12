@@ -64,6 +64,27 @@ The cage is the authority on what fits and what the port can carry, which is the
 [CONNECTORS.md](CONNECTORS.md); a spec that contradicts its own `connector` is not believed. If the
 cage is wrong, fix `connector`.
 
+**The derived port also records whether it was told or guessed.** `hardware.poeOutDeclared` is a boolean the
+page did not mention until it was measured: `true` when the spec states a rate (flat or nested), or when the
+port's own name says PoE — `media.js:1026-1033` treats a port the datasheet calls "PoE 1" as a declaration,
+because an NVR that documents eight PoE ports is not a device the engine invented watts for. Four probes,
+each run through `derivePortHardware()`:
+
+| spec port | `poeOut` | `poeOutDeclared` |
+|---|---|---|
+| `{name: 'eth0', cage: 'rj45', poeOut: 30}` on a 240 W PSE switch | `30` | `true` |
+| `{name: 'eth0', cage: 'rj45'}` on the same switch | `null` | `false` |
+| `{name: 'PoE 1', cage: 'rj45'}` on a device with no PoE at all | `15.4` | `true` |
+| `{name: 'Gi0/1', cage: 'sfp'}` on the same PSE switch | `null` | `false` |
+
+So on this tree the third row is the only way to get a number the spec never stated, and it arrives marked
+`true` — the declared flag is not "was a figure written down", it is "does the hardware claim this". That
+makes `poeOut && !poeOutDeclared` the shape worth hunting, and the single place that could produce it
+(`media.js:1022`, the only inferred assignment in `engine/`) is followed immediately by the name rule that
+declares it, so the state is unreachable by construction. `test/poe-inference.test.js` asserts it anyway, on
+non-switch categories, with the message "N port(s) source power only because the engine guessed it, on a
+non-switch" — an invariant rather than a hunting licence.
+
 Exactly one file uses the nested form today — `devices/microchip/pd-9501g-sfp.json`, whose `poe-out`
 port says `"hardware": { "poeOut": 60 }` — and both spellings are read, because the flat `poeOut` was
 the original one:
@@ -82,7 +103,11 @@ that use each: **nine** files set `portTemplate.poeOut`, not six — three Pepli
 (`pls-24-h2g-410w`, `pls-48-h2g-740w`, `pls-r-24-h2g-250w`) restate it per-port on 8, 16 and 8 interfaces
 at the same 30 W, so the redundancy is harmless but the file does carry the rate twice — and there is no
 `poe.poeOut` anywhere, so the nested form means `interfaces[].hardware.poeOut` and nothing else. The
-catalogue's other **1,599** files state no rate at all, and the engine infers one from the device class.
+catalogue's other **1,599** files state no rate at all, and the engine may infer one — but not "from the
+device class" alone, which an earlier version of this paragraph said. Measured: inference needs **both** a
+copper-or-combo cage (`media.js:1020`) and a port name that says PoE, because the whole guess hangs off
+`isPoePse(dev, port.name)`. A bare `eth0` on a 240 W PSE switch therefore derives `poeOut: null`, not a
+guessed 15.4 W, and an `sfp` cage is excluded whatever it is called.
 Re-deriving the whole census:
 
 ```bash
