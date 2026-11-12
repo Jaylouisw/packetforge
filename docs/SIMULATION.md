@@ -52,7 +52,7 @@ Two conventions used throughout:
 
 - **A "run"** is one call to `Simulator.ping()`, `openFlow()` or `pingScion()`.
   State that lives on a `Device` survives between runs; state that lives on the
-  `Simulator` does not. `Simulator.reset()` (`engine/simulator.js:141`) rewinds
+  `Simulator` does not. `Simulator.reset()` (`engine/simulator.js:169`) rewinds
   a run, not the network.
 - **A "step"** is one frame handed to one port. It is a hop count, not a
   duration — see [§8](#8-time-what-rtt-means-and-what-it-does-not).
@@ -185,8 +185,8 @@ instant — nothing runs a clock between questions. A table learned in run 1 is 
 
 | Verdict | Behaviour | Where |
 |---|---|---|
-| **Modelled** | A **passive tap** (`category: tap` with no capabilities, or `passive: true`) passes frames between its network ports unchanged and duplicates them to monitor ports. A frame arriving on a monitor port is refused (`tap-inject-refused`) — a tap is not a hub. | `engine/simulator.js:1637-1662`, `engine/device.js:323` |
-| **Modelled** | A **passive splitter** (`category: splitter`) replicates to every other leg, unchanged, in both directions. No learning, no lookup, no VLAN rewrite. | `engine/simulator.js:3505-3543`, `engine/device.js:317` |
+| **Modelled** | A **passive tap** (`category: tap` with no capabilities, or `passive: true`) passes frames between its network ports unchanged and duplicates them to monitor ports. A frame arriving on a monitor port is refused (`tap-inject-refused`) — a tap is not a hub. | `engine/simulator.js:3517-3541`, `engine/device.js:481` (`isPassiveTap()`) |
+| **Modelled** | A **passive splitter** (`category: splitter`) replicates to every other leg, unchanged, in both directions. No learning, no lookup, no VLAN rewrite. | `engine/simulator.js:3543-3552`, `engine/device.js:475` (`isSplitter()`) |
 | **Modelled** | Neither can learn: the MAC-learning step explicitly skips them, so a tap cannot be credited with a table it could not hold. | `engine/simulator.js:3434` |
 | **Approximate** | SFP-based taps (the active/aggregating kind) are treated as passive if the spec says so; there is no aggregation port, no timestamping, no oversubscription. | — |
 
