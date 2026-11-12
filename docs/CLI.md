@@ -9463,16 +9463,16 @@ misses all of them.
 | `W_DUPLEX_MISMATCH` | `validation.js:122` | one end half duplex, the other full |
 | `W_DISTANCE` | `validation.js:118` (catalogue), `:769` (the check), `cli.js:12497` (the transceiver view builds the same warning at `:12551`; `:12607` counts how many links carry it) | **cable length beyond the medium's reach**, not a route metric: a 250 m run of `1000base-t` answers `250 m exceeds the 100 m reach of 1000BASE-T between Router/Gi0/0 and PC/eth0.` and rides alongside `W_COPPER_LONGRUN` (`exceeds the 90 m horizontal-run limit`). A warning, not a refusal, so a lab can hold a link that will never work. There is no administrative-distance warning to confuse it with — a per-route distance is refused outright (`ip route … 250` answers *"The fourth word is an interface, not a distance"*), so a code named `W_DISTANCE` is never about routing |
 
-### The 31 codes no page named — and the 97 only this page does
+### The 31 codes no page named — and the 82 only this page does
 
-Of the 159 distinct quoted `[EW]_` strings in `engine/`, **one** is a bare prefix literal (`'W_'`, used to
-test whether a code starts with the prefix — there is no `'E_'` one) and the other **158 are real codes**;
+Of the 160 distinct quoted `[EW]_` strings in `engine/`, **one** is a bare prefix literal (`'W_'`, used to
+test whether a code starts with the prefix — there is no `'E_'` one) and the other **159 are real codes**;
 of those, **31 were named by no page at all** until this list named them. They are not missing mistakes —
 every one is a parse-level guard whose message reaches you as prose (a malformed line, a
 `% [object Object]`, a topology-validation error drawn in the UI) rather than as a code to grep. The
 concentration is worth knowing, because it tells you where the console is least likely to hand you one.
-At the time the table below was written the count read **17**; it now reads **97**, and both movements
-are the list working. Fourteen of those seventeen were written into the tables further down this
+At the time the table below was written the count read **17**; it peaked at **97** when the appendix
+was at its largest, and it reads **82** on 2026-11-12. Both directions are the list working. Fourteen of those seventeen were written into the tables further down this
 appendix, so a code stops being unnamed the moment its row exists — but the appendix also grew tables for
 DHCP, VRRP, VLAN, LAG and NAT, and each row it added became the only page naming that code. The four
 readings, because they are four different numbers and only one of them is a defect:
@@ -9480,9 +9480,9 @@ readings, because they are four different numbers and only one of them is a defe
 | Reading | Today | What it means |
 |---|---|---|
 | named by **no page at all** | **0** | this paragraph names the last five, so the moment it exists nobody does — the reading eats itself |
-| named by **no page but this one** | **97** | 92 code-specific names plus the five below |
-| of those, **generic names it would be wrong to document** | **5** | `E_ACL`, `E_ADDRESS`, `E_NAT`, `E_TYPE`, `E_UNKNOWN` — one literal raised in several modules (`'E_TYPE'` in `dhcp.js`, `ipv6.js`, `nat.js`, `ra.js` and `simulator.js`), so a page documenting one of them would have to name a module and be wrong about the rest |
-| named **only by this page**, warnings included | **4** | `W_ACCESS_ON_TRUNK`, `W_DUP_VLAN_IN_LIST`, `W_LAG_DISABLED_MEMBER`, `W_VLAN1_AS_NATIVE` — the other seven warnings are named by `PHYSICAL_LAYER.md` |
+| named by **no page but this one** | **82** | 78 code-specific names plus the four below |
+| of those, **generic names it would be wrong to document** | **4** | `E_ACL`, `E_ADDRESS`, `E_NAT`, `E_TYPE` — one literal raised in several modules (`'E_TYPE'` in `dhcp.js`, `ipv6.js`, `nat.js`, `ra.js` and `simulator.js`), so a page documenting one of them would have to name a module and be wrong about the rest. `E_UNKNOWN` used to sit here too, until `CONNECTORS.md` began naming it |
+| named **only by this page**, warnings included | **3** | `W_ACCESS_ON_TRUNK`, `W_DUP_VLAN_IN_LIST`, `W_VLAN1_AS_NATIVE` — the other seven warnings, plus `W_LAG_DISABLED_MEMBER`, are named by `PHYSICAL_LAYER.md` |
 
 The first row is the one that keeps changing, and it is why this paragraph is a moving target: it read
 **5** until the sentence above named them, and it reads **0** now. Measure them by choosing whether this
