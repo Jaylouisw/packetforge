@@ -325,6 +325,14 @@ So a typo that lands `0` in a cost field does not fall back to the speed-derived
 that link the preferred path — and nothing warns, because the value is legal. The printed `Cost` column is
 the way to see it: it echoes the override verbatim.
 
+All three rows were re-measured on 2026-11-12 through `runStp()` and hold exactly — reading the **non-root** bridge,
+`Gi0/1` (100G) is `forwarding/200/root` and `Gi0/2` (1G) `blocking/20000/alternate` with no override; with
+`cost: 0` on the 1G port it flips to `blocking/200/alternate` and `forwarding/0/root`; with `cost: 500` the roles
+are back but the printed cost is `500`. One trap, because it cost two attempts here: **the override has to be on the
+bridge you read.** Cost is a local per-port property, so a probe that writes `cost: 0` onto the *peer's* port and
+then reads the bridge under test gets `20000` and concludes the override was ignored — which is exactly what
+happened before the topology was moved around.
+
 The values it *does* compute are IEEE's long-method costs, so a lab whose rates are in the table agrees
 with a vendor datasheet. Nothing depends on that being standard — the *relative* order is what picks the
 topology — but the order only exists between two rates that are both in the table.
