@@ -128,6 +128,16 @@ is `true`, because a 32G FC SFP28 optic fits the same slot as a 25G Ethernet one
 `CAGE_MATE[a]`, so a pair "mates" when the *first* cage's row names the second. Twenty-five of the
 twenty-six cages have a row (`wwan` has none, so cellular mates with nothing, itself included), and four
 rows are genuinely one-way: `sfp → fc-sfp`, `sfp → fc-sfp28`, `sfp56 → combo` and `qsfpdd → qsfp56`.
+Measured at `7be9ef73` rather than counted by eye — every `CAGE_MATE` entry whose reverse is missing — and it
+returns exactly those four and no others:
+
+```sh
+node -e 'const m=require("./engine/media");const o=[];for(const a of Object.keys(m.CAGE_MATE))for(const b of m.CAGE_MATE[a])if(!(m.CAGE_MATE[b]||[]).includes(a))o.push([a,b]);console.log(JSON.stringify(o))'
+```
+
+so the answer is `[["sfp","fc-sfp"],["sfp","fc-sfp28"],["sfp56","combo"],["qsfpdd","qsfp56"]]`. A fifth one-way
+row would mean a cable that fits one way round and not the other, which reads to an operator as an
+intermittent fault rather than a rule, so this list is worth re-deriving whenever `CAGE_MATE` changes.
 Because `canMate(portA, portB)` is called once, in the order the link was drawn, the *reason* a cable is
 refused can depend on which end you started from — `sfp → fc-sfp` passes the connector gate and is then
 judged on medium and rate (`E_NO_COMMON_MEDIA`), while `fc-sfp → sfp` never gets that far and is reported

@@ -45,6 +45,13 @@ very uneven, which matters when you are judging what a change can break: `rj45` 
 change that only touches XFP, combo or QSFP56 is exercised by two ports in the whole catalogue, so "the
 suite is green" says less there than it does about RJ45.
 
+Re-measured at `7be9ef73` with the command below: **17,030 ports, twenty-four cages carrying at least one,**
+and every figure in the paragraph above unchanged — `rj45` 9,043, `sfp+` 1,728, `qsfp28` 1,272, `sfp28` 1,074,
+`antenna` 949, `sc-apc` 679, `sfp` 595, `lc-upc` 115, `qsfpdd` 168, `powerline` 12, `fc-qsfp28` and `sfp56` 8
+each, `qsfp56`, `xfp` and `combo` 2 each. `CAGES` itself has 26 entries (`engine/media.js:314`), as does
+`CAGE_MEDIA` and `CAGE_SPEEDS`; only `CAGE_MATE` is short a row, and [CONNECTORS.md](CONNECTORS.md) explains
+which cage that is.
+
 Every figure in that paragraph has moved at least once: it read `rj45` 6,255, `sfp+` 1,260, `qsfp28` 596,
 `qsfpdd` eight and 51 LC ports when the catalogue was smaller, and `qsfpdd` is **168** now. Recount before
 quoting:
