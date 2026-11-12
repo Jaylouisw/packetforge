@@ -61,6 +61,11 @@ m.CAGE_SPEEDS['fc-sfp'](120000)   // [2125, 4250, 8500, 10519, 14025]
 m.CAGE_MEDIA['fc-sfp']()          // ['2gfc-sw','2gfc-lw','4gfc-sw', … ,'16gfc-sw','16gfc-lw']
 ```
 
+The `120000` in the first call is decoration, not a filter: `CAGE_SPEEDS['fc-sfp']` answers that same
+five-element ladder for no argument at all, for `100` and for `1000000`. Every FC cage behaves that way —
+`fc-sfp28`, `fc-sfpdd` and `fc-qsfp28` all answer their full ladder at `(1000)` — which is the cap table
+further down, measured one row at a time.
+
 The measured ladders and media, one row per cage:
 
 | Cage | `CAGE_SPEEDS[cage](…)` | `CAGE_MEDIA[cage]()` |
