@@ -627,6 +627,40 @@ port and a real port answer exactly as before; `?` and `help` print usage; case 
 the words live in one named table and the console asks it; and the keyword check is after the
 port lookup in the source, so a port named like a keyword still wins.
 
+### The list that blinded both ends of a cable
+
+```
+s1(config-if)# switchport trunk allowed vlan 10
+s1# show lldp neighbors
+  (none - no LLDP has been heard on any port)
+
+s1# show interfaces Fa0/1
+  peer: s2/Fa0/1                        <- the cable is up and knows its neighbour
+  switchport: trunk · native 1 · allowed 10
+  1 drop (VLAN 1 not allowed on egress) <- a VLAN nobody mentioned
+```
+
+Trimming a trunk to the VLAN it is meant to carry is routine. It emptied both ends' neighbour tables, because the
+announcement went out through the **egress VLAN filter** in `_emitFrame`: the LLDPDU was classified into the port's
+native VLAN, the allowed list did not contain it, and the frame was refused — leaving a drop counter on a healthy port
+that blamed VLAN 1 for something no VLAN had done.
+
+LLDP is a link protocol, not customer traffic. It goes untagged to the nearest-bridge multicast group, and the allowed
+list decides which switched frames the link carries, not whether its two ends may describe themselves to each other.
+`_emitFrame` now recognises a link-scoped frame and sends it untagged **without** consulting the allowed list:
+
+* the exemption is **LLDP only**. A customer frame in VLAN 1 out the same trunk is still refused with the same
+  `VLAN 1 not allowed on egress`, and never reaches the wire — the test asserts both, frame for frame;
+* the announcement is *counted*, so `show interfaces` reports `1 packets output` rather than a drop;
+* nothing else moves: a shut port still announces nothing, a neighbour that is already known is annotated
+  `down: peer shut down` rather than forgotten, access ports in any VLAN still advertise, and a default trunk behaves
+  exactly as before.
+
+The rule this keeps: a counter must name the thing that actually happened. "VLAN 1 not allowed on egress" was a true
+sentence about a frame that should never have been offered to that filter in the first place.
+
+`test/lldp-across-trunk.test.js` pins it, 32 checks; reverting `engine/simulator.js` fails 16.
+
 ### A verb eaten by a join, and the token nobody typed
 
 ```

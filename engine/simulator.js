@@ -2675,7 +2675,13 @@ class Simulator {
       return;
     }
 
-    const egress = vlanLib.classifyEgress(port.vlan, v);
+    // LLDP is a link protocol, not customer traffic. It goes untagged to the nearest-bridge multicast group and a
+    // trunk's allowed-VLAN list does not filter it -- the list decides which switched frames the link carries, not
+    // whether the two ends may describe themselves to each other. Running it through the egress filter emptied both
+    // ends' neighbour tables the moment someone trimmed a trunk's allowed list, while the cable was up and the
+    // protocol was working, and left a drop counter naming a VLAN nobody had mentioned (#1457).
+    const linkScoped = lldp.isLldp(frame);
+    const egress = linkScoped ? { action: 'untagged', vlan: v } : vlanLib.classifyEgress(port.vlan, v);
     if (egress.action === 'drop') {
       this._emit({ type: 'vlan-drop', dev: dev.id, iface: port.name, vlan: v, reason: 'VLAN ' + v + ' not allowed on egress' });
       return;
