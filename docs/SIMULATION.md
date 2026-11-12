@@ -792,6 +792,12 @@ illustrates it:
    correct when written and none of them is checked by anything. Recount; do not read.
 2. **A number that means something else** — an assertion count that grew (`79 → 133`), a line citation
    that now points into an unrelated function, `grep -c` counting a different thing than the prose means.
+   Counts also **shrink**: re-run on this tree, `test/absent-commands.test.js` is `126`, so that row's
+   ladder reads `79 → 133 → 126` and the assumption that a suite only ever gains assertions is wrong too.
+   Re-running every suite number quoted anywhere in the docs is a fifteen-minute sweep — **132** suites
+   named, **25** whose count no longer matches its row, **0** of them failing, and one file
+   (`poe-derived.test.js`) that never existed. Staleness here is age, not breakage, which is why the
+   counts are worth re-running rather than reading.
 3. **A documented form the engine answers differently** — a command that refuses, an argument read as a
    timestamp instead of an id, a two-argument form that silently means "…at t=2 ms".
 4. **A status word that expired** — `Absent` about a command that has since landed, `Approximate` about
