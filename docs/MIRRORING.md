@@ -39,15 +39,21 @@ Forgejo repo → **Settings → Repository → Push mirrors → Add push mirror*
 This copies every branch and tag. What it does *not* copy: issues, PRs, discussions, releases, wiki,
 labels, milestones. Those are not git.
 
-Measured again on 2026-11-12, later the same day, and the honest answer is that the mirror is **behind**:
-**892 heads on the forge, 889 on GitHub**, and `refs/heads/main` is `5bc43ccf` on the forge against `8e0d6330`
-on GitHub. The gap is pure lag, not divergence — `8e0d6330` is an ancestor of `5bc43ccf`, with
-**two commits missing**: `e7d18ce8` *"A short line is not a wrong value (#1498)"* and `5bc43ccf` *"CI: bound what
-the docker job writes to the host's disk (#1500)"* — and the branch shortfall is three, exactly the branches those
-two PRs came from. An earlier reading the same day had the two sides level at 884/884 with `main` at `73718ab4` on
-both, which is why the counts are worth re-taking rather than trusting: the branch count is not small and it moves
-(872, 875, 881, 884, 892 in one day), and a mirror that copied only `main` would look healthy from a single-branch
-check. What the recipe below is *for* is catching exactly this: run today, it reports the lag rather than parity.
+Measured again on 2026-11-12 and the honest answer is that the mirror is **behind, and strictly so**:
+**897 heads on the forge, 889 on GitHub**, `refs/heads/main` is `1b1e1287` on the forge against `8e0d6330` on
+GitHub, and **no branch exists only on GitHub** — the set difference `gh - forge` is empty while `forge - gh` is
+eight branches. That asymmetry, not any particular count, is the invariant worth testing: GitHub should be a
+**prefix** of the forge, every GitHub ref present on the forge and none of them ahead of it, and GitHub's `main` an
+ancestor of the forge's. It is today: `8e0d6330` is an ancestor of `1b1e1287` with **three commits missing** —
+`e7d18ce8` *"A short line is not a wrong value (#1498)"*, `5bc43ccf` *"CI: bound what the docker job writes to the
+host's disk (#1500)"* and `1b1e1287` *"`?` is a keypress in every prompt, and `exit` walks one level at a time
+(#1504)"* — and the eight forge-only branches are exactly where those PRs came from.
+
+Two readings the same day show why the numbers are worth re-taking and why the invariant is not: at the earlier one
+the two sides were level at 884/884 with `main` at `73718ab4` on both, and the branch count climbed 872, 875, 881,
+884, 892, 897 across the day while GitHub stayed at 889 for at least the last two of them — the forge moving and the
+mirror not. A single-branch check would have called that healthy. What the recipe below is *for* is catching exactly
+this: run today, it reports lag rather than parity, and the check that cannot rot is `gh - forge` being empty.
 
 Read "every branch" as **every branch on the forge**, which is not the same as every branch in your
 clone: the working copy this was measured from carries **974** local heads, **101** of them never pushed
