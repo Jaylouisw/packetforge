@@ -570,7 +570,11 @@ same path — the length edit takes `PATCH` or `POST`, and `…/:linkId/state` t
 which the route's own error message does not admit to (a `PUT`, `GET` or `DELETE` there answers
 `405 {"error":"use POST"}`, measured, while `PATCH` on the same URL reaches the link lookup like `POST`
 does and answers `404 {"error":"no such link","code":"E_NO_LINK"}` for a link that does not exist). Both
-dual-method pairs are listed once in the table, so 25 pairs cost 27 method-path combinations. A third number is
+dual-method pairs are listed once in the table, so 25 pairs cost 27 method-path combinations.
+A **pair** here is one method on one path. Group the dispatcher by namespace and method instead and you
+get **22**, because three namespaces answer more than one path — `topologies` (`/api/topologies` and
+`/api/topologies/:id`), `links` (collection, `/:id`, `/:id/state`) and `flows` (collection, `/:flowId`).
+So a grep that stops at the namespace produces a fourth number, and 22 is the one it will produce. A third number is
 waiting to trap the next reader: grepping the dispatcher for `method ===` gives **25 lines** in this tree, and they
 carry **26 conditions** — 13 `POST`, 7 `GET`, 4 `DELETE`, 1 `PATCH`, plus the `OPTIONS` preflight at
 `server/index.js:705` that is not a route at all, with `:479` counted twice because that one line tests
