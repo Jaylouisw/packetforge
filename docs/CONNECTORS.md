@@ -352,6 +352,28 @@ connector question about two radios, or about a console port, would answer the w
 a console port against `rj45` is `E_PROTOCOL_MISMATCH`, `rj45` against a missing port is `E_NO_PORT`, and
 `antenna` against `antenna` is `ok: true` with `media: ["wireless-2.4","wireless-5"]`.
 
+The whole table was re-run against `canMate()` on 2026-11-12, by building hardware the way
+`derivePortHardware()` does — `{ cage, cageName, media: CAGE_MEDIA[cage](maxMbps), speeds: CAGE_SPEEDS[cage](maxMbps) }` —
+and calling the engine directly rather than through a lab:
+
+| Pair (rate caps) | Verdict |
+|---|---|
+| `rj45` ↔ `sfp+`, `sfp`, `sfp28`, `qsfp28` | `E_CONNECTOR_MISMATCH` on all four |
+| `sc-apc` ↔ `sc-upc`, `lc-apc` ↔ `lc-upc` | `E_POLISH_MISMATCH`, message naming both polishes |
+| `lc-upc` ↔ `sc-upc` | `E_CONNECTOR_MISMATCH` — different ferrule, so gate 5 not gate 4 |
+| `sfp28` ↔ `qsfpdd`, `qsfp28` ↔ `sfp+`, `xfp` ↔ `sfp+` | `E_CONNECTOR_MISMATCH` |
+| `antenna` ↔ `rj45`, `antenna` ↔ `wwan` | `E_WIRELESS_TO_WIRED` — `wwan` is a wired port with a radio medium, not a radio |
+| `dsl` ↔ `coax`, `powerline` ↔ `rj45` | `E_CONNECTOR_MISMATCH` |
+| `qsfpdd` ↔ `qsfp28` / `qsfp+` / `qsfp56` | **`ok: true`** — `CAGE_MATE.qsfpdd` is `['qsfpdd','qsfp28','qsfp+','qsfp56']`, exactly as §4.4 quotes |
+| `combo` ↔ `rj45`, `combo` ↔ `sfp` | `ok: true` — `CAGE_MATE.rj45` is `['rj45','combo']`, matching §4.1 |
+| `sfp` ↔ `sfp`, `sfp+` ↔ `sfp28`, `coax` ↔ `coax` | `ok: true`, with six DOCSIS/MoCA media shared in the coax case |
+| `usb` ↔ `usb` | `ok: true`, `media: ["usb-console"]` — a USB console is still a console, so gate 3 lets it through |
+
+One practical trap when writing such a probe: `canMate()` reads **`speedCaps`**, not `speeds`, when it
+negotiates, so a hand-built `{ cage, media, speeds }` throws
+`TypeError: pb.speedCaps is not iterable` at `media.js:1167` instead of returning a code. Set both fields, or take
+the object from `derivePortHardware()`, which always has them.
+
 | Refused pair | Code | Reason |
 |--------------|------|--------|
 | RJ45 into an SFP/SFP+/SFP28/QSFP cage | `E_CONNECTOR_MISMATCH` | Copper plug cannot enter a module cage |
