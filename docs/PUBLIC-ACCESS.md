@@ -118,10 +118,16 @@ each exits **0** while the repository is public, and each took **30.2 s** — so
 guess. `test/cf-access-bypass-auth.test.js` prints **5 passed, 0 failed**, which is the credential mapping
 pinned rather than described.
 
+**`odin` is a tailnet name, not a public one.** On this host it resolves through Tailscale MagicDNS to
+`odin.swallow-minor.ts.net` (`100.64.188.1`), so the second command in that equality only runs from a
+machine on the tailnet. Elsewhere, take the second side from a clone that fetches from the forge —
+`git -C <clone> rev-parse origin/main` — and compare that with the public door; comparing
+`git.jayw.uk` with `git.jayw.uk` is the one substitution that proves nothing.
+
 The anonymous read path is a separate question, and the way to ask it is *equality*, not a remembered SHA:
 `git ls-remote https://git.jayw.uk/jaylouisw/packetforge refs/heads/main` must answer the same commit as
-`git ls-remote http://odin:3000/jaylouisw/packetforge.git refs/heads/main`. On 2026-11-12 both answered
-**`1b1e1287`**, which is the check passing — the public door and the forge are looking at the same repository. Do
+`git ls-remote http://odin:3000/jaylouisw/packetforge.git refs/heads/main`. Re-run on 2026-11-12 both answered
+**`1b1e1287`** — and again in a later pass the same day, unchanged — which is the check passing — the public door and the forge are looking at the same repository. Do
 not quote the value as the fact: it moves with every merge (it was `5bc43ccf`, `8e0d6330` and `73718ab4` earlier
 the same day), while the equality is what these seven commands are for.
 
