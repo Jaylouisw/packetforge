@@ -627,6 +627,48 @@ port and a real port answer exactly as before; `?` and `help` print usage; case 
 the words live in one named table and the console asks it; and the keyword check is after the
 port lookup in the source, so a port named like a keyword still wins.
 
+### The address that was read as a name
+
+```
+p> ping 2001:db8:1::1
+% Could not resolve "2001:db8:1::1": SERVFAIL - no device in this lab hosts a DNS zone, or no listed server answered
+% Nothing was sent. Check the zone on none, or the name servers this device asks.
+```
+
+An IPv6 lab could be addressed, routed, announced - and not pinged. The address check in front of the resolver was
+IPv4-only (`net.ipToInt`), so every literal IPv6 address fell through to the name path and came back as a DNS failure
+about a "name" that is an address. Meanwhile `Simulator.ping6()` has been in the engine all along: it sends ICMPv6 echo
+requests, runs neighbour discovery, and models the same latency as IPv4. The console simply could not reach it.
+
+A literal IPv6 address is an address, not a name. The console now recognises one (`ipv6.parseIpv6`), never offers it to
+the resolver, and prints the report both families share:
+
+```
+p> ping 2001:db8:1::1
+Type escape sequence to abort.
+Sending 4, 100-byte ICMP Echos to 2001:db8:1::1, timeout is 2 seconds:
+!!!!
+Success rate is 100 percent (4/4)
+Reply from 2001:db8:1::1: bytes=100 time=0.103 ms
+```
+
+* **one report, two families.** The marks line, the success rate and the per-reply lines come from a single helper, so
+  `ping 10.0.0.1` and `ping 2001:db8:1::1` cannot drift into two different-looking answers;
+* **the count and the instant mean the same thing.** `ping <v6> 2`, `ping <v6> 0` (refused) and
+  `ping <v6> 2 at 60000` behave exactly as their IPv4 counterparts - including at a mid-convergence instant, where both
+  families give the same answer, and the session is left at the instant it arrived with;
+* **a malformed literal is refused as an address**, with the reason: `% Invalid IPv6 address: 2001:db8:::1 (':' runs
+  longer than '::' are invalid)`. It is never handed to DNS;
+* **nothing IPv4 changed**, name resolution included: `ping nosuchname.lab` still resolves through the lab's servers
+  and still explains SERVFAIL.
+
+`test/ping-ipv6.test.js` pins it, 43 checks; reverting `engine/cli.js` fails 30. The help row for `ping` now says
+"IPv4 or IPv6".
+
+A limitation this does not change, and does not hide: the engine answers nothing for a device's **own** address over
+either family (`ping 10.0.0.10` from that host also times out), so `ping <v6-self>` behaves exactly like its IPv4
+counterpart rather than pretending to be loopback.
+
 ### A reopened lab forgot what its hardware was made of
 
 ```
