@@ -461,6 +461,20 @@ nothing installed because it requires only `engine/`. Between them the five suit
 sweep, the `?` surface, the shortest-prefix rule, the value-bearing rows, and the page — no one of them
 subsumes another, so a green run means all five ran.
 
+One direction none of the five covers: **every verb the dispatcher accepts is a verb the index mentions.**
+`docs-syntax` checks the opposite way round (a command in `CLI.md` that no help row offers), and the four
+derived suites read help rows rather than the parser, so a verb the console accepts and `help` never names
+would be found by nothing here. Measured today by reading the tokens the dispatcher compares against `head`
+out of `engine/cli.js` and requiring each in the `_help()` block: **64 tokens, 55 after dropping the nine
+keypresses** (`?`, `end`, `exit`, `help`, `logout`, `quit`, `conf`, `en`, `int`) **and one absent — `!`**,
+which is not a mechanism at all: `cli.js:519` matches `head === '!'` and returns the output with no actions, so
+it belongs with the keypresses, not in an index an operator reads to find out what the box can do. Everything
+else is named, including `traceroute`/`tracert`, `clock rate` and the DHCP pool sub-mode.
+
+That matters for the merge rather than for this tree: upstream `main` carries `test/help-completeness.test.js`
+for exactly this direction (it found fifteen unlisted verbs there, #1492), and this branch has no such file, so
+the check arrives with the merge rather than being written here.
+
 **The page's own tables are typed by nothing.** The four suites read the *help rows*, and `docs-syntax`
 compares synopses to help forms; none of them types a command **as a page writes it**, in the mode the
 page puts it in. That gap is worth closing by hand occasionally, because it is the reader's view of the
@@ -671,7 +685,7 @@ queue that lost its arms gets them back in one tick instead of five at a time.
   **None of these readings is a reading of `main`.** They were taken in the working tree, which sits on
   branch `fix/sfp-plus-connectors`, and that branch diverged from `origin/main` at `083e2ba1`
   (2026-11-08 16:58:44) — at the time of the fourth reading it was **382 ahead and 361 behind**, and
-  now reads **612 ahead and 394 behind** (after a fresh `git fetch`, which moved the behind-side
+  now reads **613 ahead and 395 behind** (after a fresh `git fetch`, which moved the behind-side
   from 361 to 373 — main's tip is `f370b893`, #1450); either way not one of the commits above is an ancestor of
   `origin/main`. Check any of them before you quote it:
 
