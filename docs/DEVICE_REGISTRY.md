@@ -161,6 +161,17 @@ server/ scripts/` returns nothing: no code parses it, so it documents intent and
 behaviour. Only the `rj45` and `combo` cages carry power at all, so a `poeOut` on a fibre cage is
 ignored rather than honoured.
 
+Three more `poe` sub-keys sit in the catalogue and are **equally unread**, which is worth stating because two of
+them sound load-bearing. `poe.note` appears in **29** files and holds the datasheet sentence the budget came from
+(*"J9780A: 67 W PoE budget across the 8 10/100 PoE+ ports."*); `poe.standard` (**1** file,
+`microchip/pd-9501g-sfp`, `"802.3bt"`) and `poe.psePorts` (**1** file, the same one, `1`) describe the standard and
+the port count of a midspan injector. Measured: `grep -rn 'poe.standard\|poe.psePorts\|poe.note' engine/ web/
+server/ scripts/` returns nothing that reads a spec — the `psePorts` hits in `web/app.js` are a local variable
+counted from the ports that declare `poeOut`. So power comes from the **port keys**, never from these three: a
+spec that says `"psePorts": 1` and nothing on its ports supplies nothing, and `"standard": "802.3bt"` changes no
+budget. The two that *are* read are `poe.budgetW` (`engine/device.js:131`, source `research`) and
+`poe.budgetUnknown` (`:132`, which resolves the budget to `0` and the source to `unknown` rather than guessing).
+
 Because that key overrules the prose, the two can disagree — and four specs once did: on
 `ubiquiti/UISP-FIBER-XG`, `UA-Hub-Door-Mini`, `UA-G2-SK-Pro` and `UA-Hub-Gate`, `eth0` carried
 `"poeOut": true` while the same file's `description` said the unit was *PoE-powered*. The engine
