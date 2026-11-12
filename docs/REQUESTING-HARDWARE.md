@@ -52,6 +52,22 @@ Two things about the form are worth stating because neither is visible from the 
   `wontfix`) have never existed on the forge. One of them is asked for by a shipped template:  
   `.github/ISSUE_TEMPLATE/feature_request.yml` declares `labels: [feature]`, so a feature request is
   filed untagged, while `enhancement.yml` lands with the label it asks for.
+
+  The thirteen split five and eight — the five the forge really has, and the eight it does not — which
+  is worth counting rather than believing, because the file is long enough to hide a sixth:
+
+  ```sh
+  node -e '
+  const t=require("fs").readFileSync(".github/labels.yml","utf8");
+  const n=[...t.matchAll(/^\s*-?\s*name:\s*(.+)$/gm)].map(m=>m[1].trim());
+  const real=["bug","enhancement","device","device-request","needs-datasheet"];
+  console.log("declared",n.length,"| real",n.filter(x=>real.includes(x)).length,
+    "| never on the forge",n.filter(x=>!real.includes(x)).length);'
+  ```
+
+  Run on 2026-11-12 it prints `declared 13 | real 5 | never on the forge 8`. The forge's sixth label is
+  in no configuration file at all: `ensureLabel('from-github', '#1f6feb', 'Opened on the GitHub mirror')`
+  runs at `scripts/gh-bridge.js:182` and again at `:266`, so a fresh mirror creates it on first use.
 - **The link needs an account.** `GET/issues/new?template=device_request.yml` answers **303** to an
   anonymous client, so the form's rendering is not something this repository can verify; a maintainer
   with a session sees it, and the checked-in YAML is the only thing under review here. If you change the
