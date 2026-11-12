@@ -40,7 +40,7 @@ This copies every branch and tag. What it does *not* copy: issues, PRs, discussi
 labels, milestones. Those are not git.
 
 Measured again on 2026-11-12 and the honest answer is that the mirror is **behind, and strictly so**:
-**897 heads on the forge, 889 on GitHub**, `refs/heads/main` is `1b1e1287` on the forge against `8e0d6330` on
+**901 heads on the forge, 889 on GitHub**, `refs/heads/main` is `1b1e1287` on the forge against `8e0d6330` on
 GitHub, and **no branch exists only on GitHub** — the set difference `gh - forge` is empty while `forge - gh` is
 eight branches. That asymmetry, not any particular count, is the invariant worth testing: GitHub should be a
 **prefix** of the forge, every GitHub ref present on the forge and none of them ahead of it, and GitHub's `main` an
@@ -51,7 +51,7 @@ host's disk (#1500)"* and `1b1e1287` *"`?` is a keypress in every prompt, and `e
 
 Two readings the same day show why the numbers are worth re-taking and why the invariant is not: at the earlier one
 the two sides were level at 884/884 with `main` at `73718ab4` on both, and the branch count climbed 872, 875, 881,
-884, 892, 897 across the day while GitHub stayed at 889 for at least the last two of them — the forge moving and the
+884, 892, 897 and 901 across two days while GitHub stayed at 889 for every one of them — the forge moving and the
 mirror not. A single-branch check would have called that healthy. What the recipe below is *for* is catching exactly
 this: run today, it reports lag rather than parity, and the check that cannot rot is `gh - forge` being empty.
 
@@ -75,13 +75,13 @@ Verify:
 # Every annotation below is one reading (2026-11-12), not expected output: re-run the commands and
 # compare the two SHAs with each other, which is the check that cannot rot.
 git ls-remote --heads https://github.com/Jaylouisw/packetforge | wc -l                        # 889 today
-git ls-remote --heads http://odin:3000/jaylouisw/packetforge.git | wc -l                     # 897 — so the mirror is behind
+git ls-remote --heads http://odin:3000/jaylouisw/packetforge.git | wc -l                     # 901 — so the mirror is behind by 12 heads
 git ls-remote https://github.com/Jaylouisw/packetforge refs/heads/main                      # 8e0d6330
 git ls-remote http://odin:3000/jaylouisw/packetforge.git refs/heads/main                     # 1b1e1287 — three commits ahead
 git ls-remote --tags https://github.com/Jaylouisw/packetforge | wc -l                        # 0, so the tag half is untested
 ```
 
-`https://git.jayw.uk/jaylouisw/packetforge` answers identically to `odin:3000` — same **897** heads, same
+`https://git.jayw.uk/jaylouisw/packetforge` answers identically to `odin:3000` — same **901** heads, same
 `1b1e1287` — which is the cheapest check that the public host and the HTTP remote are the same instance.
 Both URL spellings work: with and without the trailing `.git` return the same counts and the same SHA.
 
