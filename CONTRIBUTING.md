@@ -37,7 +37,7 @@ one is the only one of the pair that will carry a tag. Nothing in the repo appli
 fact: `.github/labels.yml` looks like it would, but nothing reads it.
 
 **There are two trackers, and they do not hold the same thing.** Measured today: the GitHub mirror
-carries **787 open issues and 2 open pull requests** (`api.github.com/search/issues` with
+carries **787 open issues and 0 open pull requests** (`api.github.com/search/issues` with
 `repo:Jaylouisw/packetforge is:issue is:open`, so 787 is issues rather than the 789 the repo object
 reports — that number counts pull requests too), while the forge carries **24 open**
 (`x-total-count` on `GET /api/v1/repos/jaylouisw/packetforge/issues?state=open&limit=1`, which reads
@@ -334,7 +334,7 @@ minutes earlier (1,628 → 1,629), so a prose count can be stale before it is me
 
   ```bash
   git branch --show-current                              # fix/sfp-plus-connectors, not main
-  git rev-list --left-right --count HEAD...origin/main    # 609  394   (element 1 = ahead)
+  git rev-list --left-right --count HEAD...origin/main    # 610  394   (element 1 = ahead)
   git diff --diff-filter=A --name-only HEAD origin/main -- docs/   # pages only main has
   ```
 

@@ -152,7 +152,9 @@ Two-way issue sync needs a stateful bot holding an ID map, and it duplicates on 
 and label change. It is not worth the machinery, and half-working it is worse than not doing it.
 
 **Forgejo is the tracker — in intent, and only partly in fact.** Measured on 2026-11-12: this forge
-carries **24 open issues**, the GitHub mirror carries **787 open issues and 2 open pull requests**
+carries **24 open issues**, the GitHub mirror carries **787 open issues and 0 open pull requests** — the
+mirror's PR queue emptied on 2026-11-12 when #1367 and #1220 were both closed **unmerged**, so 714 of its
+pull requests are closed and none is open
 (`api.github.com/search/issues` with `is:issue is:open`). Every issue on file here is labelled and
 swept by `request-queue.js`; nothing on GitHub is. CONTRIBUTING sends contributors to GitHub because
 accounts here are not open to the public, so the queue that grows is the one nobody triages — the top
