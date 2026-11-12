@@ -107,6 +107,18 @@ is sent twice, four seconds apart, plus the request itself.
 So "dry run" here means *no writes to Cloudflare*, not *no I/O*: it tells you the current posture
 before deciding there is nothing to change.
 
+All three invocation shapes were re-run on 2026-11-12 against the live edge and the transcripts above are exact:
+no flags and `--help` print the four lines ending `Nothing to do.`, `--check` prints the same three and stops,
+each exits **0** while the repository is public, and each took **30.2 s** — so the timing estimate is not a
+guess. `test/cf-access-bypass-auth.test.js` prints **5 passed, 0 failed**, which is the credential mapping
+pinned rather than described. The anonymous read path was checked separately the same day and answers `200`
+with `git ls-remote` returning `8e0d6330…`, the same commit `forgejo-http/main` resolves to — the public door
+and the mirror are looking at the same repository.
+
+Exit codes here were read with `spawnSync`, not `$?`, for the reason recorded in
+[TRIAGE.md](TRIAGE.md): in this shell `$?` reports 0 for a failed command too, which would make `--check`'s
+documented `exit 1 if not` impossible to observe.
+
 ## On the Global API Key
 
 It authenticates as the account, so it can reach DNS, R2, billing and every Access application. It
