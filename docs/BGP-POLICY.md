@@ -632,7 +632,9 @@ grep -rni communit engine/ server/ web/ test/ | wc -l                           
 — gives `0` for the symbols and `1` for the word. The one line is `test/optional-args.test.js:89`, a
 placeholder→sample-value map used to fill `<angle-bracket>` names in help synopses, carrying
 `community: '65001:1'` beside `'route-map': 'RM1'`. Neither `<community>` nor `<route-map>` appears in any
-tracked file, so that map holds entries for vocabulary that does not exist yet; do not read it as a partial
+tracked file **other than this page** — `git grep -n '<route-map>' -- ':!docs'` prints nothing, and every
+hit the unqualified grep does have is a line of this paragraph, the recipe included — so that map holds entries for
+vocabulary that does not exist yet; do not read it as a partial
 implementation. The same grep against the upstream mirror's `engine/`, `server/` and `web/`
 (`git grep -ni communit forgejo-http/main -- engine/ server/ web/`) also prints nothing, so the design is
 unbuilt on `main` too. The arithmetic in §5.2 checks out independently: `65001*65536 + 100 = 4259905636 =
