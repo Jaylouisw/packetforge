@@ -198,6 +198,14 @@ Deliberately **not** refused today, and worth a follow-up decision:
   UPC/UPC assembly added to the catalogue later would not be caught. The
   `polishBridge` field gives the loader the information to refuse it properly.
 
+**Nothing in the engine reads `polishBridge` today** — no refusal, no path selection, no display. What
+keeps the field honest is a test rather than a rule: `test/hybrid-cord-use.test.js` asserts that **10** of
+the **13** assemblies are polish bridges and that each really is same-shape/different-polish (checked
+against `ferrule()`), that **3** are shape hybrids and each really is a shape change, and that the two
+catalogue files load together (64 assertions, green on this tree). So it is a data invariant with a guard
+— enough to stop a future entry being mislabelled, not enough to stop one being *used*. The enforcement
+hole in the bullet above is still open, and the test will not close it.
+
 ---
 
 ## 6. Loss budget treatment
