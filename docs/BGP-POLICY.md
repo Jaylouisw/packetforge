@@ -74,7 +74,20 @@ recorded so nobody re-invents it differently later".
 ## 1. What exists today, and the seams this design uses
 
 `engine/bgp.js` is a pure-logic module: no timers, no clocks, no I/O, inputs
-never mutated. `comparePaths()` already walks most of RFC 4271's decision
+never mutated. All three halves of that are checkable rather than asserted, which matters because the
+line numbers below are only stable if the first half stays true:
+
+```bash
+grep -nE 'Date\.|setTimeout|setInterval|Math\.random|require\(.(fs|net|http|dns)' engine/bgp.js   # no output, exit 1
+```
+
+That exit status is grep's ordinary "no match", not a failure — worth saying because a script that does
+`grep … || fail` would read the healthy module as broken.
+
+and the "inputs never mutated" half survives a `Object.freeze()` applied recursively to two paths before
+handing them to `comparePaths()`, `bestPath()`, `asPathLength()`, `pathIsLoopFree()` and `advertise()`:
+nothing throws, and `advertise()` still returns its rewritten copy — a mutation would either throw in
+strict mode or silently write through, and neither happens. `comparePaths()` already walks most of RFC 4271's decision
 process and `advertise()` already models export-side rewriting. The policy layer
 must extend those two functions rather than add a parallel universe.
 
