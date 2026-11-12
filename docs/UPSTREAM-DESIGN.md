@@ -47,6 +47,13 @@ for(const s of loadCatalog(require("path").resolve("devices")))
 console.log("ports",n,"cages",t.size,"wwan",t.get("wwan"),"dsl",t.get("dsl"),"coax",t.get("coax"),"powerline",t.get("powerline"));'
 ```
 
+Run again on 2026-11-12 it prints exactly `ports 17030 cages 24 wwan 141 dsl 437 coax 164 powerline 12`, and
+the cellular row beside it still answers **157** named ports with **123** landing on `wwan` — but the other
+34 are not a rounding error, they are two shapes: **33 ports named `wwan0`** resolve to `antenna` (they sit on
+Wi-Fi access points, where that name is an antenna connector, not a modem) and **one `5GE`** resolves to
+`rj45`. That is the name-first rule doing its job rather than missing: `wwan0` on an AP is not a cellular
+interface, and counting by name alone is what first overstated the family.
+
 | a `pon` port against `cloud/eth0` is refused | true | **true**, though the surface differs: `Topology.connect()` **throws**, prefixed with both endpoints — `UFiber OLT 4/gpon1 <-> UniFi Cloud Gateway Fiber/WAN: Cannot mate SC/APC to RJ45 (incompatible connectors).` — while `validateLink()` returns the same fault as `E_CONNECTOR_MISMATCH` without throwing. Anything that matches on the message must allow for that `<device>/<port> <-> <device>/<port>: ` prefix |
 
 So the medium half of this design has largely landed, and the routing half — one default slot, no policy,
