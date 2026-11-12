@@ -903,8 +903,14 @@ are tellable apart at a glance. There are nine families and the rule list is **f
 | `fiber` | `…base-`, `optics`, `fiber`, `fibre`, `sx`, `lx`, `er`, `sr`, `fr`, `dr`, `lr4`, `cr4`, `base-x` |
 
 **Twenty-eight of the 89 media match none of them** and are drawn with no family class, so they appear in
-the default slate stroke (`.link { stroke: #3c4a63 }`) and have no legend entry. The groups, checked by running the same rules over
+the default slate stroke (`.link { stroke: #3c4a63 }`) and have no legend entry. The groups below are
+checked by running `MEDIUM_RULES` — read back out of `web/canvas.js`, not re-typed — over
 `Object.keys(MEDIA)`:
+
+```
+$ node -e 'const fs=require("fs");const M=require("./engine/media.js").MEDIA;const t=fs.readFileSync("web/canvas.js","utf8");const a=t.indexOf("const MEDIUM_RULES = [")+21;const R=eval(t.slice(a,t.indexOf("];",a)+2));const ids=Object.keys(M);const u=ids.filter(i=>!R.some(r=>r[0].test(i)));console.log(u.length+" of "+ids.length+" match no family")'
+28 of 89 match no family
+```
 
 - all **16 Fibre Channel** media — `2gfc-sw` … `128gfc-lw`. Fibre Channel *is* fibre, but no rule mentions
   `fc` or `gfc`, so these cables are not drawn as fibre and cannot be.
