@@ -390,6 +390,9 @@ Run at `920cccc5` it prints `1000 -> 20000`, `10000 -> 2000`, `40000 -> 500`, `1
 `2500 -> 20000`, `25000 -> 20000`, `50000 -> 20000`, `400000 -> 20000` — the six-key table and the fallback,
 in the order that makes the gap obvious: every rate between the keys is priced as 1G. A port carrying
 `cost: 0` or `cost: 500` reports that number verbatim, which is the override the next section depends on.
+The list tests eight of the table's ten rows; put `10` and `100` in front of it and the same call answers
+`10 -> 2000000` and `100 -> 200000`, so all six keys are covered by one probe and every rate *between*
+them still comes out at 20000.
 
 **The override is whatever you typed, including `0`.** `portCost()` (`engine/stp.js:71`) reads
 `port.cost` first and accepts any finite value `>= 0`, so the speed table never runs on a port that
