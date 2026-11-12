@@ -17,7 +17,7 @@ one of the two exceptions at the 26-open reading, is **closed**, fixed by PR #15
 
 The count is the part that moves, and it has moved a lot: this page has quoted 127, 126 and 121 at
 different times, and the queue is now 24, because closing them is the point. So measure rather than
-remember — two anonymous requests, no token needed for either:
+remember — three anonymous requests, no token needed for any of them:
 
 ```bash
 curl -s "https://git.jayw.uk/api/v1/repos/jaylouisw/packetforge/issues?state=open&limit=1" \
