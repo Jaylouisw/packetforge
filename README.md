@@ -290,9 +290,14 @@ Stated plainly, because a simulator that overstates itself teaches wrong things:
   port unicasts the DISCOVER to a server elsewhere and stamps that port's own address into `giaddr`,
   so the server allocates from the pool covering the **client's** subnet rather than its own wire, and
   both ends report provenance (`Relayed via  : Gi0/0 on R1  (giaddr 10.0.1.1)`,
-  [DHCP relay](docs/CLI.md#dhcp-relay)). What is missing is the switch-side half: snooping is refused
-  by name, Option 82 is never inserted, there is no DHCPv6 client (only the RA `M`/`O` flags are read),
-  a pool cannot be overridden per helper, and the request is not re-broadcast on the server's wire.
+  [DHCP relay](docs/CLI.md#dhcp-relay)). What is missing is the switch-side half, and only its show form answers by name:
+  `show ip dhcp snooping` prints `% DHCP snooping is not modelled: a switch here forwards DHCP as an
+  ordinary broadcast, and nothing inspects, filters or rate-limits DHCP messages per port.` The
+  *config* word gets no such answer — `ip dhcp snooping` is `% Unrecognized config command` on a router
+  and `% SW1 - it is not a DHCP server` on a switch, which is the pools-and-bindings refusal rather than
+  a statement about snooping. Option 82 is never inserted, there is no DHCPv6 client (only the RA `M`/`O`
+  flags are read), a pool cannot be overridden per helper, and the request is not re-broadcast on the
+  server's wire.
 - **HSRP and GLBP.** VRRP is wired (election, virtual MAC, failover); the Cisco and Avaya
   equivalents are not modelled, and neither is BFD or graceful restart.
 - **Timed interleaving.** Control planes have a duration, and pulling a cable re-bases the schedule
