@@ -405,6 +405,12 @@ lists `["default","b3"]` again and `GET …/b3` answers **`200`**, not `404` —
 found"}` only appears between the delete and the restart. A directory listing is therefore a record of edits,
 not of deletes, and `ok: true` never means the bytes are gone.
 
+Read a second time on 2026-11-12 with a board called `b7` on different ports (`8095`, then `8096` after the
+restart), because the sequence above could have been a fact about the id `b3`: it is not. `POST … {"id":"b7"}` → `201`
+with no file; device POST → `b7.json` with the same four envelope keys; `DELETE` → `{ ok: true }`, file present,
+`GET` → `404`; restart → list `["default","b7"]` and `GET …/b7` → `200`. Also confirmed the missing-device error with
+neither field: `404 {"error":"unknown device model: undefined/undefined"}`.
+
 ### Environment variables
 
 `server/index.js` reads exactly three, and each changes something observable from outside the process. The fourth row is here because it looks like a server switch and is not one:
@@ -450,7 +456,9 @@ Two of the board endpoints behave in a way a client author will not guess:
 - **Adding a device wants `vendor` + `model`, ignores `name`, and says neither.** `POST
   /api/topologies/:id/devices` with `{ "kind": "pc", "name": "PC1" }` answers
   `{"error":"unknown device model: undefined/undefined"}` — no 400, no field list, the two words
-  `undefined/undefined` being the missing pair. With the right pair
+  `undefined/undefined` being the missing pair. The message interpolates the pair rather than using fixed text:
+  sending `{"model":"x"}` with no `vendor` answers `unknown device model: undefined/x`, so a log line that ends
+  `/undefined/undefined` means the client sent neither field, not that the server failed to read a body it got. With the right pair
   (`{"vendor":"generic","model":"generic-pc","name":"PC1"}`) the device arrives as **`PC-d1`**: `name` is
   dropped, the label comes from the catalogue and the id from the board, exactly as `name` is dropped on a
   board. To actually name it you have to *configure* it, and `hostname` only works inside config mode —
