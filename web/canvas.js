@@ -114,16 +114,35 @@
   // Classification is by media id, because that is what the link records. Patterns are
   // ordered: the first match wins, so 'dac-10g' is a DAC before it is copper, and a PON
   // drop is PON before it is fibre.
+  // A cable family, from its medium id. Order matters: the first rule that matches wins, so the specific
+  // families sit above the two catch-alls at the bottom.
+  //
+  // This list decides what colour a cable is drawn in, and the legend promises the reader that colour *means*
+  // something, so every medium in the catalogue has to land on a family it actually belongs to. Three did not
+  // (#1489):
+  //
+  //   serial-v35  matched fibre's loose two-letter tokens ("s-er-ial"), so a V.35 pair was drawn in the colour
+  //               of an LC optic and the key had no entry for it;
+  //   100base-tx  matched the fibre catch-all through "base-", so a 100 Mb/s copper patch lead was drawn as
+  //               glass - the one copper rate in the catalogue the copper rule did not spell out;
+  //   ghn, lte, usb-console, 2gfc-sw   matched nothing, so the default cable was drawn: the drawings said
+  //               "a cable" where the key offers ten specific answers.
+  //
+  // `er`, `sx`, `lx` and friends now only match as whole segments, so an id has to name the optic it is rather
+  // than contain two letters by accident, and the copper rule does not depend on a suffix.
   const MEDIUM_RULES = [
-    [/^wireless/, 'wireless'],
+    [/^(wireless|lte|5g[-_]|cellular|wifi)/, 'wireless'],
+    [/^serial/, 'serial'],
+    [/^(console|usb-console|rs-?232)/, 'console'],
     [/^dac/, 'dac'],
     [/^aoc/, 'aoc'],
     [/^(gpon|xgspon|xg-pon|epon|10g-epon|ngpon|pon)/, 'pon'],
     [/^(docsis|moca|coax)/, 'coax'],
     [/^(vdsl|adsl|shdsl|dsl)/, 'dsl'],
-    [/^(homeplug|g\.hn|powerline|mains)/, 'powerline'],
-    [/(base-t$|-t$|cat[0-9]|rj45|1000base-t|10gbase-t)/, 'copper'],
-    [/(base-|optics|fiber|fibre|sx|lx|er|sr|fr|dr|lr4|cr4|base-x)/, 'fiber']
+    [/^(homeplug|g\.?hn|powerline|mains)/, 'powerline'],
+    [/(base-t|^cat[0-9]|rj45)/, 'copper'],
+    [/^(1|2|4|8|10|16|32|64|128)gfc/, 'fiber'],
+    [/(base-|optics|fiber|fibre|(^|-)(sx|lx|er|sr|fr|dr)($|-)|lr4|cr4|base-x)/, 'fiber']
   ];
 
   // An impossible cable - one the engine refuses - must not be drawn as a working one either (#1305).
@@ -1029,6 +1048,8 @@
     getConnecting: function () { return state.connecting; },
     animateEvents: animateEvents,
     socketPoint: socketPoint,
+    // Which colour class a medium id gets - the same answer the drawing uses, for the legend-breadth test (#1489).
+    mediumClass: mediumClass,
     ensureGeoCurrent: ensureGeoCurrent,
     dragPreview: dragPreview,
     refreshCableGeometry: refreshCableGeometry,

@@ -882,7 +882,7 @@
   }
 
   // ---------- cable-colour legend ----------
-  // The canvas draws nine cable families in nine colours (MEDIUM_RULES in canvas.js,
+  // The canvas draws eleven cable families in eleven colours (MEDIUM_RULES in canvas.js,
   // styled by the .link-* rules here) and nothing in the UI said which colour was
   // which, so a copper patch lead and a fibre uplink were only tellable apart if you
   // already knew the answer. The key lives in the palette rather than floating over
@@ -897,7 +897,9 @@
     { id: 'coax', label: 'Coax — DOCSIS / MoCA' },
     { id: 'dsl', label: 'DSL — one twisted pair' },
     { id: 'powerline', label: 'Powerline — G.hn / HomePlug' },
-    { id: 'wireless', label: 'Wireless — over the air' }
+    { id: 'wireless', label: 'Wireless — over the air' },
+    { id: 'serial', label: 'Serial — V.35, clocked by one end' },
+    { id: 'console', label: 'Console — RS-232 management lead' }
   ];
   const LEGEND_KEY = 'pf.cableLegend.collapsed';
 

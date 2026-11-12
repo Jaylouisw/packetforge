@@ -23,6 +23,10 @@
   --c-dsl: #8bc34a;
   --c-powerline: #f0c674;
   --c-wireless: #7aa2f7;
+  /* A clocked V.35 line and a console lead are their own things: the first is the only cable in the
+     catalogue whose rate one end dictates, the second is not a data path at all. */
+  --c-serial: #d98cb3;
+  --c-console: #8b93a7;
   --radius: 8px;
   --mono: ui-monospace, "Cascadia Code", "JetBrains Mono", Consolas, monospace;
 }
@@ -433,6 +437,8 @@ table.iface-table { width: 100%; border-collapse: collapse; font-size: 12px; mar
 .link.link-coax { stroke: var(--c-coax); stroke-width: 3; }
 .link.link-dsl { stroke: var(--c-dsl); stroke-width: 2; stroke-dasharray: 6 4; }
 .link.link-powerline { stroke: var(--c-powerline); stroke-width: 2.5; stroke-dasharray: 2 4; }
+.link.link-serial { stroke: var(--c-serial); stroke-width: 2; stroke-dasharray: 9 2 2 2; }
+.link.link-console { stroke: var(--c-console); stroke-width: 1.6; stroke-dasharray: 1 3; }
 .link.link-wireless:hover { stroke: var(--red); }
 .link.link-wireless.selected { stroke: var(--accent); }
 
@@ -570,6 +576,8 @@ table.iface-table { width: 100%; border-collapse: collapse; font-size: 12px; mar
 .lg-row.link-dsl .lg-chip,
 .lg-row.link-powerline .lg-chip,
 .lg-row.link-wireless .lg-chip { border-top-style: dashed; }
+.lg-row.link-serial .lg-chip { border-top-style: dashed; }
+.lg-row.link-console .lg-chip { border-top-style: dotted; }
 .lg-row.link-copper { --cable: var(--c-copper); }
 .lg-row.link-fiber { --cable: var(--c-fiber); }
 .lg-row.link-dac { --cable: var(--c-dac); }
@@ -579,6 +587,8 @@ table.iface-table { width: 100%; border-collapse: collapse; font-size: 12px; mar
 .lg-row.link-dsl { --cable: var(--c-dsl); }
 .lg-row.link-powerline { --cable: var(--c-powerline); }
 .lg-row.link-wireless { --cable: var(--c-wireless); }
+.lg-row.link-serial { --cable: var(--c-serial); }
+.lg-row.link-console { --cable: var(--c-console); }
 
 /* --- Create-link mode (issue #68) ------------------------------------------------------- */
 /* The list of link types: each one is a choice a person can actually make ("10GBASE-LR"),

@@ -1003,3 +1003,32 @@ gap.
 The input is the catalogue itself, not a hand-written list. Dropping every seventh socket from
 `web/faceplate.js` — the shape of an off-by-one in a paging loop — fails three assertions and names the devices and
 the lost ports (`arista/7280R3-48YC8 48 sockets vs 56 ports`, `advantech/ICR-3231 4 sockets vs 5 ports`, …).
+
+## 11. The cable key must explain every cable the canvas can draw
+
+The canvas paints a cable in the colour of its family, and the palette shows a key so a reader can look the colour up
+(`MEDIUM_RULES` in `web/canvas.js`, `CABLE_FAMILIES` in `web/app.js`, `--c-*` in `web/style.css`). Three families sat
+outside that arrangement, and one was quietly wearing another's colour (#1489):
+
+| medium | family | drawn as | now |
+|---|---|---|---|
+| `serial-v35` | serial | **fiber** — the fibre catch-all matched the two letters `er` inside "s*er*ial" | `serial`, its own colour and key row |
+| `100base-tx` | copper | **fiber** — the copper rule spelled out `base-t$`, and this rate ends in `tx` | `copper` |
+| `ghn`, `ghn-25` | powerline | nothing — the rule wanted `g.hn` with a dot | `powerline` |
+| `lte`, `lte-a`, `5g-sub6`, `5g-mmwave` | wireless | nothing — none starts with "wireless" | `wireless` |
+| `usb-console` | console | nothing | `console` |
+| `10gfc-*`, `2gfc-*` … | fibre-channel | nothing | `fiber` |
+
+A cable drawn in a colour the key does not explain is worse than no key: the reader is given a legend and then shown
+something it cannot answer for. So the classifier is now verified from the catalogue outwards —
+`test/cable-legend-covers-every-medium.test.js` walks all 90 media, in both directions:
+
+* every medium lands on the family it declares (with two documented exceptions where a cable is drawn as the plant it
+  is part of: a GPON/XGS-PON drop is `pon`, an AOC is `aoc` rather than `dac`);
+* no row in the key describes a family no medium can produce, and every row is labelled;
+* every drawn family has both a stroke rule and a swatch rule, the stroke reads its colour from the same
+  `--c-*` variable the swatch does, and no two families share a colour.
+
+Two rules of thumb came out of it, both now enforced by that test rather than by care: a classifier regex may not use a
+two-letter optic token without anchoring it (`(^|-)er($|-)`, not `er`), and a family is not finished until the canvas,
+the key and the stylesheet all know about it.
