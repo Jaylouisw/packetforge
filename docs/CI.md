@@ -40,8 +40,12 @@ leg fails the same job, so "three jobs" and "five checks" are both true and neit
 
 The test job runs, in order: `syntax-check`, `check-control-bytes`, `check-node-surface`
 (the Node 18 floor), `check-canonical-urls`, `npm test` — which is `audit:ports` +
-`check:bytes` + `scripts/run-tests.js`, and the runner discovers every `test/*.test.js` —
-then `examples/build-examples.js` (rebuild and self-verify every example lab — note that it
+`check:bytes` + `scripts/run-tests.js`, and the runner discovers every `test/*.test.js`. Two wrinkles
+worth knowing before you edit any of it: `check-control-bytes` therefore runs **twice** in the job (once
+as its own step, once inside `npm test`), and `npm test` **inlines the two script paths** rather than
+calling the `audit:ports` and `check:bytes` aliases — so re-pointing an alias changes what you run
+locally and nothing at all about what CI runs. Then
+`examples/build-examples.js` (rebuild and self-verify every example lab — note that it
   **rewrites** the four JSON files from the generator and only then pings a host, so a hand-edited
   example passes the job: the files are compared to nothing. `git diff --exit-code examples/` after
   the build would turn that into a real check) and
@@ -376,9 +380,9 @@ it sounds: grouping pushes by branch instead, which is what `github.ref` gives y
 meant that a burst of merges cancelled its own verification and `main` went
 untested. See #1076.
 
-Every job also carries a `timeout-minutes` bound. A hung job on a single runner is
-not a slow job, it is a stopped queue — and indistinguishable from a merely busy
-one.
+Every job also carries a `timeout-minutes` bound — **15** for `test`, **10** each for `smoke` and
+`docker`. A hung job on a single runner is not a slow job, it is a stopped queue — and
+indistinguishable from a merely busy one.
 
 ## Merging
 
@@ -512,12 +516,12 @@ services, and a job that has to swap makes the whole queue slower.
   **None of these readings is a reading of `main`.** They were taken in the working tree, which sits on
   branch `fix/sfp-plus-connectors`, and that branch diverged from `origin/main` at `083e2ba1`
   (2026-11-08 16:58:44) — at the time of the fourth reading it was **382 ahead and 361 behind**, and
-  now reads **493 ahead and 361 behind**; either way not one of the commits above is an ancestor of
+  now reads **494 ahead and 361 behind**; either way not one of the commits above is an ancestor of
   `origin/main`. Check any of them before you quote it:
 
   ```bash
   git branch --show-current                              # fix/sfp-plus-connectors, not main
-  git rev-list --left-right --count HEAD...origin/main    # 493  361
+  git rev-list --left-right --count HEAD...origin/main    # 494  361
   git merge-base --is-ancestor d4319d27 origin/main || echo "not on main"
   ```
 
