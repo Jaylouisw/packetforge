@@ -1711,6 +1711,13 @@ SW1#show ip route
   ```
 
   A router without the process still gets the enablement advice, because there it works.
+* **Except on a host, where that sentence names the wrong class.** `show ip bgp` on a PC answers
+  `% PC-pc1 is a layer 2 switch: no BGP process can run here`, and `show ip ospf` the same with `no OSPF
+  process can run here`: both branches hard-code the switch noun (`engine/cli.js:7743` and `:8193`), while
+  the neighbouring refusal for a device with no routing protocol picks its noun from the device —
+  `It is a host: its own reachability is "ip default-gateway <gw>"` (`:7715`) — and `show vlan` on the same
+  host correctly says `% PC-pc1 is a host: it has no VLANs`. Read the noun in those two refusals as "not a
+  router"; the advice lines around it are right.
 * **The family form and the per-port form give the same answer.** `show interfaces switchport` refused
   a non-switch while `show interfaces eth0 switchport` printed `Access Mode VLAN: 1` and
   `Port Security: Disabled` for a port that switches nothing — the word `switchport` was dropped and
