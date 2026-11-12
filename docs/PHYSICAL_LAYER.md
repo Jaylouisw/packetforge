@@ -396,8 +396,10 @@ any media intersection.
 
 ## 4. Feasibility rules
 
-`engine/validation.js` returns `{ ok, errors[], warnings[], media[], mediaId, speedMbps }`.
-**Errors block the link**; warnings are surfaced but allowed.
+`engine/validation.js` returns **nine** fields, not the six this page used to list:
+`{ ok, errors[], warnings[], media[], mediaId, speedMbps, patchCord, patchCordLossDb, polishWeakened }`
+— read off the object on 2026-11-12, and the last three are the ones that describe a hybrid lead
+(§ elsewhere on this page). **Errors block the link**; warnings are surfaced but allowed.
 
 ### Errors (block)
 
@@ -430,6 +432,21 @@ any media intersection.
 | `W_COPPER_LONGRUN` | Copper run longer than the 90 m horizontal limit |
 | `W_HYBRID_CORD` | A UPC/APC hybrid lead joins two different polishes: legal, but it costs its insertion loss and cannot be swapped for a plain lead |
 | `W_OPTICAL_HEADROOM` | The link passes, but with only a few dB of the PON class budget left |
+
+**Two of those codes are not in `RULES`, and that is worth knowing before you grep for them.** `RULES`
+(`engine/validation.js`) is an **array of 20** `{ code, severity, description }` entries — 14 `E_` and 6
+`W_` — and measured on 2026-11-12 it contains every code in the two tables above **except**
+`E_OPTICAL_BUDGET` and `W_OPTICAL_HEADROOM`. Those two are emitted inline by the PON budget phase at the
+end of `validateLink()` (`engine/validation.js:705` and `:712`, with a second `E_OPTICAL_BUDGET` site in
+`engine/optical.js:140`), so a tool that enumerates `RULES` to decide which codes are legal would reject
+two refusals the engine really produces. The file's own header asks that a renamed code be added to
+`RULES`, which is the rule these two are the exception to.
+
+Both are PON-only: the check runs when both ends are `sc-apc`, `sc-upc`, `lc-upc` or `lc-apc`, budgets
+each direction separately — `E_OPTICAL_BUDGET` names which one failed (`downstream at 1490 nm` or
+`upstream at 1310 nm`) because the upstream wavelength is the lossier — and `W_OPTICAL_HEADROOM` fires
+when the surviving headroom is **under 3 dB**, computed with a declared patch cord's insertion loss
+included and an undeclared one adding nothing.
 
 Try it live: **`POST /api/topologies/:id/validate-link`** returns the verdict plus
 every valid medium, which is what the UI's media picker is built from.
