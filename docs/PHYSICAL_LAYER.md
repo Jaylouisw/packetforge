@@ -56,8 +56,9 @@ The census command above was run verbatim on 2026-11-12 and prints **17030 ports
 lines, matching every figure in the paragraph: `rj45 9043`, `sfp+ 1728`, `qsfp28 1272`, `sfp28 1074`,
 `antenna 949`, `sc-apc 679`, `sfp 595`, `lc-upc 115`, `qsfpdd 168`, `powerline 12`, `fc-qsfp28 8`, `sfp56 8`,
 `qsfp56 2`, `xfp 2`, `combo 2`. `lc-apc` and `usb` appear in no line, which is the "twenty-four of twenty-six"
-claim. One precision on the citation: the `CAGES` literal opens at `media.js:313` and the page's `:314` is its first
-entry, one line into the object — both readings are the same definition.
+claim. One precision on the citation, re-read on 2026-11-12: `:313` is the `// ----` rule above the
+definition, `:314` is the line `const CAGES = {` itself, and `rj45` — the first entry — is `:315`. So the
+number the other pages quote is the object's opening line, not an entry and not the comment.
 
 Every figure in that paragraph has moved at least once: it read `rj45` 6,255, `sfp+` 1,260, `qsfp28` 596,
 `qsfpdd` eight and 51 LC ports when the catalogue was smaller, and `qsfpdd` is **168** now. Recount before
