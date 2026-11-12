@@ -106,8 +106,8 @@ Four scenarios, one change each, same lab (probe `E_failover_matrix`):
 | `iface.enabled = false` on wan1 | *nothing* | `drop: no usable egress interface`, while a valid second default sits in `config.routes` |
 | ISP A unplugged (no IP) | `wan1` | silence: ARP is never answered, no switch to wan2 |
 
-`_deliver()` (`simulator.js:3296`) checks `iface.enabled` (`:3301`) and reads
-`iface.peer` (`:3305`). When this section was written it never asked whether the *link* was up, and
+`_deliver()` (`simulator.js:3314`) checks `iface.enabled` (`:3319`) and reads
+`iface.peer` (`:3323`). When this section was written it never asked whether the *link* was up, and
 `web/app.js:1613` printed a State field in the link inspector that the engine ignored — so the
 `Link.state = "down"` row above really did trace identically. **Both halves have since been fixed**
 (`test/link-state.test.js` is the guard), and re-measuring the same two-switch line is the proof: the
@@ -315,9 +315,9 @@ re-cabling the same line to a different port must not lose it, and one router ma
 hold two lines from the same provider. It also follows the precedent already set
 by `mediaId`/`lengthM`/`patchCord`, all of which describe the connection rather
 than either end. `Topology.connect()` already threads `opts` into `new Link()`
-(`topology.js:220`), so the plumbing is one line in, one line out
+(`topology.js:389`), so the plumbing is one line in, one line out
 (`serialize()` at `link.js:60`, restore at `topology.js:570` in `Topology.fromJSON()`, which rebuilds each
-link through `connect({force: true})` at `:596-605`).
+link through `connect({force: true})` at `:597-602`).
 
 The local identity of a WAN — its name, address, preference — belongs to the
 *router*, and lives in device config (§4.4).
@@ -368,11 +368,11 @@ routeTo(dstIp) {                       // unchanged for all 7 call sites
 
 Two behavioural changes hide in there, both deliberate:
 
-- **`config.routes[i].distance` is honoured** (`device.js:395` currently hard-codes
+- **`config.routes[i].distance` is honoured** (`device.js:571` currently hard-codes
   `ad: 1`). That is what makes a floating static possible:
   `ip route 0.0.0.0 0.0.0.0 198.51.100.1 wan2 200`.
 - **The default gateway becomes a candidate in the list** rather than a
-  `if (!best)` fallback (`device.js:438`). Today a host's default gateway can
+  `if (!best)` fallback (`device.js:606`). Today a host's default gateway can
   never lose to anything; with AD 254 it still loses to nothing, so C4 holds —
   but it can now be *listed*, compared and displayed.
 
@@ -383,7 +383,7 @@ A candidate is **eligible** when all of these hold:
 | Test | Where | Notes |
 |---|---|---|
 | egress interface exists and `enabled` | `device.isInterfaceUsable(name)` (new, `egressFor` neighbour) | today's only check |
-| **the link on that port is up** | `Simulator._linkAt(devId, ifaceName).isUp()` (`simulator.js:223`) | `Link.state === 'up'`; `blocked` (STP) is already separate |
+| **the link on that port is up** | `Simulator._linkAt(devId, ifaceName).isUp()` (`simulator.js:849`, called at `:3328`) | `Link.state === 'up'`; `blocked` (STP) is already separate |
 | if `wan.track` is set: the tracked target has answered within `failAfter` runs | new `Simulator.trackState` | opt-in, like `ip sla` / `track ip route` |
 
 The third is deliberately **not** on by default, because a static default route
@@ -414,7 +414,7 @@ it a re-run of a ping would move a live TCP session to the other ISP.
 
 ### 4.4 What the simulator shows
 
-Four new event types, all additive to the existing schema (`_emit`, `simulator.js:104`):
+Four new event types, all additive to the existing schema (`_emit`, `simulator.js:256`):
 
 ```jsonc
 { "type":"wan-select", "dev":"edge", "dst":"8.8.8.8", "wan":"wan1", "via":"203.0.113.1",
@@ -433,7 +433,7 @@ Four new event types, all additive to the existing schema (`_emit`, `simulator.j
   "flow":"f3" }
 ```
 
-The existing `route` event (`simulator.js:1915`) gains `ad`, `metric`, `wan` and
+The existing `route` event (`simulator.js:3741`) gains `ad`, `metric`, `wan` and
 `candidates` — purely additive, so `web/canvas.js` ignores what it does not know.
 
 **One source of truth.** `Simulator.wanState(devId)` returns the same structure
@@ -471,7 +471,7 @@ shifts it). `% Invalid distance` outside 1..255.
   per-route distance has nowhere to live until the routing table grows a per-row field. Adding
   `[DISTANCE]` therefore touches `device.js` before it touches the parser.
 - `show ip route` gains `[AD/Metric]` and a trailing `WAN` column
-  (`cli.js:9063`, legend at `:9102`, `device.routesTable()` at `device.js:752`).
+  (`cli.js:9426`, legend at `:9412`, `device.routesTable()` at `device.js:752`).
 
   The **AD column is already there** — `show ip route` prints `Prefix  AD  Gateway  Interface` and
   a connected route reads `AD 0` — so what is missing is the per-route metric, the `WAN` column,
@@ -504,7 +504,7 @@ cellular (there is no cable), and a router whose WAN has no default route gets a
 | Field | Where | Shape | Notes |
 |---|---|---|---|
 | `category: "upstream"` | device | string | new value; `registry.js:7` and `web/app.js:116`+`:127` must learn it |
-| `capabilities: [..., "transit"]` | device | string | new token in `device.js:85 CAPABILITIES` |
+| `capabilities: [..., "transit"]` | device | string | new token in `device.js:89 CAPABILITIES` |
 | `"type": "cellular"` | interface | string | replaces the 53 mislabelled `wwan*` ports |
 | `"class": "xgspon"` | interface | string | optional hint for the link picker's default service |
 | `"sim": false` | interface | boolean | optional; a modem with no SIM cannot come up (rule `E_SIM_ABSENT`, §6.2) |
@@ -529,11 +529,11 @@ that state is a bug in the file, not a compatibility promise.
 ### 5.3 `Topology.connect()` options
 
 `{ mediaId, lengthM, duplex, lagId, patchCord }` → add `service`, `force`
-(already accepted). Threaded at `topology.js:217` (verdict), `:236`
-(construction), `:359` (restore), and accepted by `POST /links`
-(`server/index.js:324-332`) and `POST /validate-link` (`:352-356`).
+(already accepted). Threaded at `topology.js:370` (verdict), `:389`
+(construction), `:597-602` (restore), and accepted by `POST /links`
+(`server/index.js:386-410`) and `POST /validate-link` (`:416`).
 
-### 5.4 Device config (`device.js:149-173`)
+### 5.4 Device config (`device.js:157-184`)
 
 ```js
 this.config = {
@@ -576,7 +576,7 @@ service?* and *does this router's set of upstreams make sense?*
 ### 6.1 Link level — new codes in `RULES` (`validation.js:59-142`)
 
 Fired from `validateConnection()` after the physical verdict is settled
-(i.e. after `let mate = canMate(...)` at `validation.js:549`), because a service
+(i.e. after `let mate = canMate(...)` at `validation.js:553`), because a service
 on an impossible cable is not worth judging.
 
 | Code | Severity | Condition | Message shape |
