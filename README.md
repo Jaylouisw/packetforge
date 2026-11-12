@@ -68,7 +68,10 @@ curl -s http://localhost:8000/api/version
 `devices` is the loaded catalogue count, so it also tells you the server found its specs. Of the six
 fields, only `node` and `platform` are yours — `node` is whatever interpreter is running the server
 (the line above was taken on `v26.12.1`), so do not read a mismatch there as a problem; `name`,
-`version`, `commit` and `devices` are the ones that should match this page.
+`version`, `commit` and `devices` are the ones that should match this page. (`commit` is `null` because nothing
+in the repository sets `PF_COMMIT`, the only thing that fills it — re-measured today, this tree answers
+`"commit":null` and `"devices":1661`; see [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the
+with-and-without measurement.)
 
 ### With Docker
 
