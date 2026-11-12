@@ -576,6 +576,15 @@ cord, the rule not being loosened (ordinary fibre is still refused), a cord bein
 rather than a free pass, the cord's insertion loss reaching the optical budget, and the link record
 carrying the part with plain fibre as the default.
 
+**Both helpers take the resolved entry, not a part number** — and a part number does not throw, it
+answers the wrong thing quietly. `cordFits(cord, a, b)` reads `cord.endA`/`cord.endB`
+(`engine/optical.js:391-396`) and `cordLossDb(part)` reads `part.insertionLossDb` (`:353-364`), so a
+string has neither: measured on 2026-11-12, `cordFits(patchCord('FCA-S2SR-SCASCU-02M'), 'sc-upc',
+'sc-apc')` is **`true`** and `cordLossDb()` on the same object is **`0.3`**, while passing the part
+number instead gives **`false`** and **`0`** — a refusal that never happened and a cord that costs
+nothing. Anyone checking a cord by hand should resolve it first:
+`const c = optical.patchCord('FCA-S2SR-SCASCU-02M')`.
+
 ---
 
 ## 8. Open questions for the maintainers
