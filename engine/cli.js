@@ -1472,23 +1472,83 @@ class CliSession {
       return ['Trunk native VLAN ' + id + ' on ' + iface.name + note];
     }
     if (t[0] === 'trunk' && t[1] === 'allowed' && t[2] === 'vlan') {
-      const spec = t.slice(3).join('');
-      if (!spec) return ['% Incomplete command'];
+      const rest = t.slice(3);
       const allowedNote = (iface.vlan && iface.vlan.mode) === 'trunk' ? ''
         : ' (stored; the port is in ' + ((iface.vlan && iface.vlan.mode) || 'access') +
           ' mode - set "switchport mode trunk" to use it)';
-      if (spec === 'all') {
+      // `add` and `remove` are the words IOS puts in front of a list to edit the one already there, and joining the
+      // tokens with no separator ate them: `allowed vlan add 30` became the token `add30` and the console refused a
+      // word nobody had typed (#1455). The verb is read from the token list, and only the list is glued together.
+      const verb = String(rest[0] || '').toLowerCase();
+      const editing = (verb === 'add' || verb === 'remove');
+      const spec = (editing ? rest.slice(1) : rest).join('');
+      if (!spec) {
+        return [editing
+          ? '% Incomplete command: switchport trunk allowed vlan ' + verb + ' <list>'
+          : '% Incomplete command'];
+      }
+      const refuseWord = function () {
+        return ['% Unrecognized "' + String(rest[0]) + '": this console takes a list (10,20), a range (10-20), ' +
+          '"all", "add <list>" or "remove <list>"'];
+      };
+      if (!editing && spec === 'all') {
         iface.vlan = vlanLib.normalizePortConfig(Object.assign({}, iface.vlan, { allowedVlans: 'all' }));
         this.device.flushMacsOnPort(iface.name);
         return ['Trunk on ' + iface.name + ' allows all VLANs' + allowedNote];
       }
       const parsed = vlanLib.parseVlanList(spec);
-      if (!parsed.ok) return ['% ' + (parsed.message || 'invalid VLAN list')];
+      if (!parsed.ok) {
+        // A word where a list belongs is a question about the command, not a VLAN token to complain about.
+        if (/^[a-z]/i.test(String(rest[0]))) return refuseWord();
+        return ['% ' + (parsed.message || 'invalid VLAN list')];
+      }
       const bad = parsed.vlans.filter(function (v) { return v < 1 || v > 4094; });
       if (bad.length) return ['% VLAN out of range: ' + bad[0]];
-      iface.vlan = vlanLib.normalizePortConfig(Object.assign({}, iface.vlan, { allowedVlans: parsed.vlans }));
+      if (!editing) {
+        iface.vlan = vlanLib.normalizePortConfig(Object.assign({}, iface.vlan, { allowedVlans: parsed.vlans }));
+        this.device.flushMacsOnPort(iface.name);
+        return ['Trunk on ' + iface.name + ' allows VLANs ' + parsed.vlans.join(',') + allowedNote];
+      }
+      const cur = iface.vlan ? iface.vlan.allowedVlans : 'all';
+      const curAll = (cur === 'all' || cur === undefined || cur === null || cur === '');
+      const current = curAll ? [] : (Array.isArray(cur) ? cur.slice() : []);
+      if (verb === 'add') {
+        if (curAll) {
+          // Adding to "all" is already true; printing an explicit list of 4,094 ids would be a worse answer than
+          // saying so, and storing one would turn one word into a wall of numbers.
+          return ['Trunk on ' + iface.name + ' already allows all VLANs: "add" changes nothing' + allowedNote];
+        }
+        const added = parsed.vlans.filter(function (v) { return current.indexOf(v) === -1; });
+        const next = current.concat(added).sort(function (a, b) { return a - b; });
+        if (!added.length) {
+          return ['Trunk on ' + iface.name + ' already allows VLANs ' + parsed.vlans.join(',') +
+            ': the list is unchanged (' + next.join(',') + ')' + allowedNote];
+        }
+        iface.vlan = vlanLib.normalizePortConfig(Object.assign({}, iface.vlan, { allowedVlans: next }));
+        this.device.flushMacsOnPort(iface.name);
+        return ['Trunk on ' + iface.name + ' allows VLANs ' + next.join(',') +
+          ' (added ' + added.join(',') + ')' + allowedNote];
+      }
+      if (curAll) {
+        // "all minus 10" is 4,093 ids. A console that stores that has written a line no operator would type and no
+        // diff would survive; naming the list they want says the same thing in a form that fits.
+        return ['% this trunk allows all VLANs: name the list it should allow instead ' +
+          '(switchport trunk allowed vlan <list>)' + allowedNote];
+      }
+      const gone = parsed.vlans.filter(function (v) { return current.indexOf(v) !== -1; });
+      if (!gone.length) {
+        return ['% VLANs ' + parsed.vlans.join(',') + ' are not allowed on ' + iface.name +
+          ': the list is unchanged (' + (current.length ? current.join(',') : 'none') + ')' + allowedNote];
+      }
+      const next = current.filter(function (v) { return gone.indexOf(v) === -1; });
+      if (!next.length) {
+        return ['% that would leave the trunk allowing no VLANs: name what it should carry instead ' +
+          '(switchport trunk allowed vlan <list>) or restore it with "no switchport trunk allowed vlan"'];
+      }
+      iface.vlan = vlanLib.normalizePortConfig(Object.assign({}, iface.vlan, { allowedVlans: next }));
       this.device.flushMacsOnPort(iface.name);
-      return ['Trunk on ' + iface.name + ' allows VLANs ' + parsed.vlans.join(',') + allowedNote];
+      return ['Trunk on ' + iface.name + ' allows VLANs ' + next.join(',') +
+        ' (removed ' + gone.join(',') + ')' + allowedNote];
     }
     return ['% Unrecognized switchport command: ' + t.join(' ')];
   }

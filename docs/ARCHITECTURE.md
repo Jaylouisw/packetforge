@@ -627,6 +627,49 @@ port and a real port answer exactly as before; `?` and `help` print usage; case 
 the words live in one named table and the console asks it; and the keyword check is after the
 port lookup in the source, so a port named like a keyword still wins.
 
+### A verb eaten by a join, and the token nobody typed
+
+```
+s1(config-if)# switchport trunk allowed vlan add 30
+% cannot parse VLAN token "add30"
+```
+
+The branch glued the tokens after `switchport trunk allowed vlan` together with no separator — deliberate, so that
+`10, 20` and `40 - 42` typed with spaces still parsed — and that join also ate the verbs IOS puts in front of a list to
+edit the one already there. The refusal quoted a token nobody had typed, and the only way to add a VLAN was to retype
+the whole list from memory: exactly the mistake `add`/`remove` exist to prevent.
+
+Editing a trunk's allowed list is an existing mechanism with an existing command; `add` and `remove` are that command's
+other two forms. The verb is now read from the **token list** before anything is glued, and only the list is joined:
+
+```
+s1(config-if)# switchport trunk allowed vlan 10,20
+s1(config-if)# switchport trunk allowed vlan add 30
+Trunk on Fa0/1 allows VLANs 10,20,30 (added 30)
+s1(config-if)# switchport trunk allowed vlan remove 10
+Trunk on Fa0/1 allows VLANs 20,30 (removed 10)
+```
+
+Four decisions worth keeping:
+
+* **An edit that changes nothing says so.** `add 10` when 10 is already allowed prints `already allows VLANs 10: the list
+  is unchanged (10,20)`, and `remove 99` when 99 was never allowed is refused with the list it left alone. A silent
+  success on a no-op teaches an operator that the command worked when nothing moved.
+* **Two footguns are refused, not committed.** Removing the last VLAN would leave a trunk carrying nothing, so it is
+  refused with both ways out named; and `remove 10` on a trunk that allows **all** would have to store 4,093 ids — a line
+  no operator would type and no diff would survive — so it points at `switchport trunk allowed vlan <list>` instead.
+  `add 30` on an all-trunk is already true and says so.
+* **A word is named as a word.** `except 20` prints `% Unrecognized "except": this console takes a list (10,20), a range
+  (10-20), "all", "add <list>" or "remove <list>"` — not the glued `except20`. A genuinely malformed numeric list still
+  gets the library's own message.
+* **Everything that worked is untouched.** `10, 20` with spaces, `40 - 42` ranges, `all`, `no switchport trunk allowed
+  vlan`, and the bare command's `% Incomplete command` all behave exactly as before.
+
+After every edit the engine state, `show running-config`, `show interfaces <port>` and `show vlan brief` are compared
+against each other, and the line the config prints is typed back in to prove it is a no-op.
+
+`test/trunk-allowed-add-remove.test.js` pins it, 42 checks.
+
 ### The request that was answered with nothing
 
 A pool of two addresses, three clients asking:
