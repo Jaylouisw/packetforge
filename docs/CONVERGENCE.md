@@ -69,6 +69,16 @@ by setting each key and reading the timer object back:
 | DHCP exchange | `dev.config.dhcpExchangeSec` — flat | `7` → `leaseAtMs 7000` |
 | VRRP advertisement | the **group** object, not the device: `advertSec` (CLI) or `advertCs` (centiseconds) | `advertCs: 200` → `advertSec 2`, `masterDownMs 6609.375` |
 
+The arithmetic, so a reading can be predicted rather than looked up (`engine/convergence.js:58-79`):
+`listenEndMs = forwardDelay × 1000`, `learnEndMs = forwardAtMs = forwardDelay × 2000` — the forward delay
+counted twice, once per state — while `maxAgeMs` only ever lands in `maxAgeMs`; and for OSPF
+`adjacentAtMs = (helloSec + exchangeSec) × 1000`, `routesAtMs = adjacentAtMs + spfDelaySec × 1000`, with
+`deadSec` read and validated but never placed in the schedule. Three readings check the formula against the
+engine: the defaults give `(10 + 1) × 1000 = 11000` and `11000 + 5000 = 16000`; `{helloSec: 2,
+exchangeSec: 3, spfDelaySec: 9}` gives `5000` and `14000`; and `helloSec: null` — which `num()` treats as
+zero rather than as a missing key — gives `(0 + 1) × 1000 = 1000` and `6000`, exactly the rows in the
+garbage table below. Knowing the formula is what makes that last one look wrong instead of merely small.
+
 The trap is the OSPF shape. `dev.config.ospfHelloSec = 2` is **read by nothing** and produces no
 warning — the timers stay at `helloSec 10, deadSec 40, adjacentAtMs 11000, routesAtMs 16000`, which
 looks exactly like a lab that is converging slowly for another reason. The nested
