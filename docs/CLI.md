@@ -345,12 +345,21 @@ R1#show interfaces ether1
 eth1 (ethernet, 1G), MAC 02:00:00:00:00:01
   status: up
   ip: unassigned
-  peer: disconnected
+  MTU 1500 bytes (default), duplex full (default), speed 1G (negotiated)
+  input : 0 packets, 0 bytes
+  output: 0 packets, 0 bytes
+  drops : 0
+  peer: CCR1009-7G-1C-1S+-d2/eth1
 ```
 
 The answer names the port by its **panel** spelling, because that is what is printed on the
 box; the spelling you typed is only how you asked. `show interfaces eth1` prints the same
-four lines, so a spelling can never change the answer — only find it.
+eight lines, character for character, so a spelling can never change the answer — only find it.
+
+Two things about that transcript that an earlier version of this example got wrong, and they are
+what make it a real one: `status: up` only happens on a **cabled** port, and a cabled port always
+names its `peer`, so an `up` port reading `peer: disconnected` is not a state the engine produces.
+Uncabled, the same eight lines carry `status: down` and `peer: disconnected` instead.
 
 Naming a port that does not exist is refused by name rather than ignored:
 
