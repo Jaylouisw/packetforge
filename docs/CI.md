@@ -106,7 +106,11 @@ seven scanned directories hold **336** tracked `.js` files, so the 337 really is
 and `tmp/` really does hold **109** tracked probes that nothing parses. `check-control-bytes.js` prints
 `No control bytes in source. (.js .json .md .yml .yaml .css .html .sh)`, `check-node-surface.js` prints
 `No API newer than Node 18 in 466 source file(s).` (the 466 counts files, not APIs — it is a scan total, not a
-finding), and `check-canonical-urls.js` prints
+finding, and it counts **whatever is on disk**: `walk()` covers the whole tree bar
+`node_modules`/`.git`/`research`/`examples`/`dist`/`coverage` and dot-entries at any depth, so an untracked
+probe in the repository root is inside the total — measured 466 clean and 467 with one `p822a.js` sitting
+there, which is how a "drift" of exactly one usually turns out to be the auditor's own file), and
+`check-canonical-urls.js` prints
 `OK — 2332 files, every project URL points at https://git.jayw.uk/jaylouisw/packetforge`, with
 `test/canonical-urls.test.js` at **43 passed, 0 failed** — which is the 2332 in context: a count that is
 green *and* a count that moves when a file is added, so it is worth re-reading rather than quoting. The job
