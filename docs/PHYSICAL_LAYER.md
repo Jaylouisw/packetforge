@@ -471,8 +471,16 @@ so the refusal names a class the databook may never have said:
 `verdict.ok` false, `mediaOptions` still one — while the same pair at 30,000 m passes with only a
 `W_DISTANCE` warning, because the budget and the reach are separate checks and the reach one is a warning.
 
-Try it live: **`POST /api/topologies/:id/validate-link`** returns the verdict plus
-every valid medium, which is what the UI's media picker is built from.
+Try it live: **`POST /api/topologies/:id/validate-link`** returns the verdict plus every medium the two
+**cages** have in common, which is what the UI's media picker is built from.
+
+That list is a claim about the sockets, not about the rate. It is an intersection of the two cage ladders, so
+it can offer a medium carrying a speed **neither port declares** — an `fc-sfp` pair offers `10gfc-sw` with
+10519 in neither port's `speedCaps`, and naming `16gfc-sw` on a pair where only one end declares 14025 is
+accepted, with the link then reporting `speedMbps` 8500 under a `16gfc-sw` label. Read the picker as *what
+will mate*, and read the cable's own `speedMbps` for what it will run; [FIBRE-CHANNEL.md](FIBRE-CHANNEL.md#two-fc-ports-link-and-negotiate-down)
+has the worked case. The budget check above is a different kind of judgement and worth keeping apart from
+this one: it refuses on **loss**, not on rate, so a PON pair can be offered every medium and still fail.
 
 ### A refusal that tells you what to buy
 
