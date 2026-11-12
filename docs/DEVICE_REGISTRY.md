@@ -335,6 +335,23 @@ of them today, both returning the same string: `engine/cli.js:13288` for the `ip
 device with an empty table, because a rule can arrive from the topology. Which is the difference between
 "nothing consults it" and "nothing *acts* on it": those guards decide whether a command is offered, not
 whether addresses are translated.
+
+An absence claim is worth exactly the sweep behind it, so here is the one that produced this list —
+enumerate the reads, do not search for the six names:
+
+```sh
+grep -rnoE "hasCap\('[a-z0-9-]+'\)|\.capabilities\.includes\('[a-z0-9-]+'\)|caps\.indexOf\('[a-z0-9-]+'\)" engine/ server/ \
+  | sed -E "s/.*\('([a-z0-9-]+)'\)/\1/" | sort | uniq -c | sort -rn
+```
+
+It prints the whole consulted vocabulary — `l3-forward` **9**, `nat` **2**, `dhcp-server` **2**, and
+`poe-pse`, `poe-pd`, `l2-forward`, `host` once each — and none of the six. Widening it to the local
+helper's own form, `has\('[a-z0-9-]+'\)`, raises `nat` to **4** (the two guards above) and `dhcp-server` to
+**3** (adding `engine/cli.js:13305`, which gates the `ip dhcp` family), but the same pattern also matches
+`Map.has('literal')` and drags in `fibre-channel`, `switchport`, `rip`, `eigrp`, `cpu`, `counters`, `errors`
+and `supply`, none of which is a capability — so the wider pattern is usable only if you read what it
+returned.
+
 The features they name work from configuration and port hardware instead:
 
 - DHCP server: `ip dhcp pool` in the running config; client: `ip address dhcp`,
