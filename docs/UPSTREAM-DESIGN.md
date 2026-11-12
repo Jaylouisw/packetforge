@@ -700,7 +700,7 @@ migration is measured from, and rewriting them as `CAGES` grows would erase the 
 work was needed. Today's tree has 26 cages and 89 media; `docs/CONNECTORS.md` carries the live count
 and its own recount one-liners.
 
-**Re-measured at `405c4138`, the whole table at once: all thirty-five anchors still land.** The eleven `media.js`
+**Re-measured at `405c4138`, the whole table at once: all thirty-five anchors still land.** Re-measured again at `18b257b2`: still thirty-five, and one of them was pointing at the wrong renderer — row 33 said `cli.js:2408 show ip route`, which is `_routeFiltered()`, the table you get for a *protocol word*. The plain command renders at `:9426` (legend, installed mark, the ip-routing-disabled line, the mask note), and the destination form at `:2632`. All three print the same five columns, which is why the row read as correct; the anchor now names the one a change to the plain table has to touch. The eleven `media.js`
 ones are where they were (`MEDIA` 54, `CAGES` 314, `CAGE_MATE` 413, `cagesMate()` 455, `CAGE_MEDIA` 486,
 `CAGE_SPEEDS` 642, `inferCage()` 767, `derivePortHardware()` 875, `canMate()` 1230), and the ones that had
 slid when this paragraph was last rewritten — `simulator.js`, `validation.js`, `topology.js`, `link.js`,
@@ -761,7 +761,7 @@ uniformly stale: it is a snapshot, and three of its numbers happen to still be t
 | 30 | `simulator.js:256 _emit` / `:169 reset()` | 40-odd event types | 4 new types; `trackState` map in `reset()` |
 | 31 | POST `/links` at `server/index.js:386`, POST `/validate-link` at `:416` | 5 fields | `service`; new `/upstreams`, `/failover-test` |
 | 32 | `cli.js:3269 ip route` | `[iface]` only; a numeric fourth word is refused | `[distance]` |
-| 33 | `cli.js:2408 show ip route` | `Prefix AD Gateway Interface` (AD per source) | per-route metric, WAN column; new `show wan` |
+| 33 | `cli.js:9426 show ip route` — the plain table; `:2408` is `_routeFiltered` (a protocol word) and `:2632` `_routeLookup` (a destination) | `Prefix AD Gateway Interface` (AD per source) | per-route metric, WAN column; new `show wan` |
 | 34 | `web/app.js:115-130` palette labels, `:973` inspector open, `:1613` its State row | no service UI | Service block, WAN panel, failover button |
 | 35 | `devices/registry.js:7`, `web/app.js:116` (labels) and `:127` (order) | 10 categories | add `upstream` |
 
