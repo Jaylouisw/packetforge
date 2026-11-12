@@ -381,6 +381,17 @@ Two consequences worth knowing before you trust the file tree as a record of wha
   `GET /api/topologies/ghost` answers `200`. Deleting is a forget-in-memory operation, so a board
   removed from the UI reappears on the next boot until the file is deleted by hand.
 
+Both consequences were re-measured on 2026-11-12 against a scratch `PF_DATA`, and the sequence is worth
+spelling out because every step reports success: `POST /api/topologies {"id":"b3"}` answers **`201`** with the
+empty state and `ls $PF_DATA/topologies` is still empty; `GET /api/topologies` lists `["default","b3"]` anyway,
+because the list reads memory; restarting the server drops `b3` and the list is back to `["default"]`. One
+`POST …/devices` with a real `vendor`/`model` then writes `b3.json` (envelope keys `format`, `version`,
+`savedAt`, `topology`), after which a restart lists `["default","b3"]` and `GET …/b3` answers `200`. `DELETE …/b3`
+answers `{ ok: true }` and `GET /api/topologies` drops it to `["default"]`, but the file stays, so the next boot
+lists `["default","b3"]` again and `GET …/b3` answers **`200`**, not `404` — the `404 {"error":"topology not
+found"}` only appears between the delete and the restart. A directory listing is therefore a record of edits,
+not of deletes, and `ok: true` never means the bytes are gone.
+
 ### Environment variables
 
 `server/index.js` reads exactly three, and each changes something observable from outside the process. The fourth row is here because it looks like a server switch and is not one:
