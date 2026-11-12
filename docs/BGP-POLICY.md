@@ -1429,7 +1429,22 @@ and `:439-442` (MED 10 vs 50, then origin outranks MED). The seven-key list is s
 sorted order (`asPath`, `from`, `localPreference`, `med`, `nextHop`, `origin`, `prefix`), so §8's proposed
 `communities` would be the eighth. Suites, all four re-run: `bgp.test.js` **165 passed**,
 `protocol-regression.test.js` **253 passed**, `bgp-wire.test.js` **30 passed**, and `bgp-table.test.js` **32 passed**
-(the suite §10 cites) — every figure unchanged since the first reading.
+(the suite §10 cites) — every figure unchanged since the first reading. Those four figures are cheap enough to
+re-take rather than trust:
+
+```sh
+for f in bgp bgp-wire bgp-table protocol-regression; do printf '%-22s ' "$f"; node test/$f.test.js | tail -1; done
+```
+
+```
+bgp                    165 passed, 0 failed
+bgp-wire               30 passed, 0 failed
+bgp-table              32 passed, 0 failed
+protocol-regression    253 passed, 0 failed
+```
+
+Read the summary off the end of each run, not off a filtered middle: `tail -1` is the line the suite writes last,
+and a filter that matches assertion names will show you the ones that ran rather than the ones that passed.
 
 `test/bgp-wire.test.js` is all-eBGP — zero occurrences of `'ibgp'` — and passes untouched; that is the
 regression gate for "the policy layer did not break plain BGP".
