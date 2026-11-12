@@ -584,13 +584,35 @@ In the simulator a LAG is **one logical port**:
 - A frame that arrived on a member is **never sent back out the same group** —
   that would hairpin the frame and loop.
 
-`validateLag(lag, memberPorts)` is reached from `engine/cli.js:4539`, and it enforces more than the
-obvious three. Errors: an unknown `mode` (`E_LAG_BAD_MODE`), fewer than two members (`E_LAG_TOO_FEW`), a
-port listed twice (`E_LAG_DUPLICATE_MEMBER`), differing member speeds (`E_LAG_SPEED_MISMATCH`, which
-names the rates it found in Mbps), differing duplex (`E_LAG_DUPLEX_MISMATCH`) and a member whose
-`vlanCompatible` is false (`E_LAG_VLAN_MISMATCH`). A member that is administratively down is only a
-**warning** — `W_LAG_DISABLED_MEMBER`, "carries no traffic" — so a LAG with one shut member still
-validates, and `selectMember()` simply never picks that member.
+`validateLag(lag, memberPorts)` takes the group **and** the members' own properties. Errors: an unknown
+`mode` (`E_LAG_BAD_MODE`), fewer than two members (`E_LAG_TOO_FEW`), a port listed twice
+(`E_LAG_DUPLICATE_MEMBER`), differing member speeds (`E_LAG_SPEED_MISMATCH`, which names the rates it
+found in Mbps), differing duplex (`E_LAG_DUPLEX_MISMATCH`) and a member whose `vlanCompatible` is false
+(`E_LAG_VLAN_MISMATCH`). A member that is administratively down is only a **warning** —
+`W_LAG_DISABLED_MEMBER`, "carries no traffic" — so a LAG with one shut member still validates, and
+`selectMember()` simply never picks that member.
+
+**None of those six codes reaches a console user.** Three separate reasons, all measured on a
+`generic-switch`:
+
+- The second argument is optional and `engine/cli.js:4539` does not pass it — `lagLib.validateLag(g)`,
+  one-argument, so `ports` is `[]` and every check that reads a member's speed, duplex, VLAN or admin
+  state has nothing to read. Put `Fa0/1` at `speed 100`, add a 100M and a 1G port to channel group 1 and
+  the console prints the two `Interface … added to channel group 1 (LACP active)` lines and nothing else;
+  the same group validated with port data reports `E_LAG_SPEED_MISMATCH`, *"member speeds differ
+  (100/1000 Mbps); all members must run at the same link speed."* Validated the way the console does it,
+  `errors` is `[]`.
+- `E_LAG_TOO_FEW` is filtered out of the message on purpose, because every bundle is short of members the
+  moment its first port is added.
+- The other two need a malformed group, and the CLI normalises the group before validating it: the mode
+  word comes from the parser (`channel-group 1 mode bogus` → `% Invalid mode: bogus (use
+  active|passive|on)`) and overwrites whatever the group held — a JSON-authored `mode: "bogus"` becomes
+  `lacp-active` on the next port add — while a member already listed is not added twice, so a duplicate
+  is reported as a second `Interface … added` line and `show etherchannel` still lists the port once.
+
+So the branch that would print one of them (`% Warning: …`, first remaining error only, `E_` or not) does
+not fire in any console session; the checks are live for direct library and test calls, which do pass port
+properties (`test/lag.test.js`). Treat the codes as a library contract, not as console output.
 
 ## 7. Spanning tree (802.1D) — enforced in the data path
 
