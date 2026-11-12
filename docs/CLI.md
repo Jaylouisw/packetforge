@@ -8239,10 +8239,26 @@ R1(config-if)#interface Gi0/0.20
 R1(config-if)#encapsulation dot1q 20
 R1(config-if)#ip address 10.20.0.1 255.255.255.0
 
-PC10#ping 10.20.0.20
+PC10(config)#interface eth0
+PC10(config-if)#ip address 10.10.0.10 255.255.255.0
+PC10(config-if)#ip default-gateway 10.10.0.1
+PC20(config)#interface eth0
+PC20(config-if)#ip address 10.20.0.20 255.255.255.0
+PC20(config-if)#ip default-gateway 10.20.0.1
+```
+
+`ip default-gateway` is a global command, and typed inside the interface block it still applies globally —
+the console says so rather than silently scoping it: `note: "ip default-gateway 10.10.0.1" is a global
+command - applied at global scope; you are still in this interface block`.
+
+```
+PC10>ping 10.20.0.20
 Type escape sequence to abort.
 Sending 4, 100-byte ICMP Echos to 10.20.0.20, timeout is 2 seconds:
 !!!!
+Reply from 10.20.0.20: bytes=100 time=0.307 ms
+Reply from 10.20.0.20: bytes=100 time=0.307 ms
+Reply from 10.20.0.20: bytes=100 time=0.307 ms
 Reply from 10.20.0.20: bytes=100 time=0.307 ms
 Success rate is 100 percent (4/4), round-trip min/avg/max = 0.307/0.307/0.307 ms
 ```
