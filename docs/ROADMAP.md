@@ -10,6 +10,9 @@ The line numbers are hints, and they rot: `engine/cli.js` is edited every day, s
 right last week can land on unrelated code this week. Treat the **symbol** as the citation — `_helperAddress`,
 `_dhcpRelayFor`, the refusal text — and read the number as a place to start looking. Three citations on
 this page had slid by 30 to 120 lines when this note was added; the symbols had not moved at all.
+They track the **working tree**, which on this branch carries the writer's pending `engine/cli.js` edit: at
+`_helperAddress` the worktree line is `:11781` and `HEAD`'s is `:11773`, so a citation checked against `git show`
+will disagree by eight lines and neither number is wrong.
 
 ## Simulation engine
 
@@ -23,7 +26,10 @@ grep -rnEi '\btls\b|createServer|https?\.request|net\.Socket' engine/*.js       
 ```
 
 Read the exit codes with care: the second command exits **1**, which is grep saying "no line matched", not
-grep failing. The first exits 0 on three hits — `engine/flow.js:19`, `:20` and `:29` — and all three are
+grep failing. Under this repository's own shell `echo $?` prints `0` even after a failed command, so check the
+outcome with `&&`/`||` — `grep … >/dev/null && echo MATCHED || echo NOMATCH` — rather than reading `$?`. Re-run that
+way on 2026-11-12 the first command reports MATCHED and the second NOMATCH, with the three hits still at
+`engine/flow.js:19`, `:20` and `:29`. The first exits 0 on three hits — `engine/flow.js:19`, `:20` and `:29` — and all three are
 comments, two stating the absences and the third explaining that MSS options "all eat into the same budget".
 A presence would look different: it would be code.
 
@@ -105,9 +111,12 @@ lands, that comment is the first line to go stale and the first one a reader tru
       Measured on a throwaway `PF_DATA`, because the two halves disagree in a way worth knowing:
       `POST /api/topologies` writes **no file** — a board that is created and never edited is gone
       after a restart (201, then `topologies/` empty, then `{"ids":["default"]}`) — while adding one
-      device writes `topo-<id>.json` immediately, and `DELETE` on that board answers `{"ok":true}`,
+      device writes `<id>.json` immediately (`server/index.js:43`), and `DELETE` on that board answers `{"ok":true}`,
       leaves the file in place, and the same id is back in the list after the next boot. So "the
       board is saved" is true of an edit, not of a creation, and the deletion only ever unloads.
+      The `topo-` prefix is not part of the filename: it is the **default id** minted when the POST body omits
+      `id` (`server/index.js:325`, `'topo-' + Date.now().toString(36)`), so a board created as `b3` is `b3.json`
+      while an unnamed one is `topo-<base36>.json`. Sanitising the id is what the path helper at `:43` does.
 - [ ] A **pcap export** of the simulated frames (replay in Wireshark).
 - [ ] Embeddable build (single-file `dist/`) and a hosted demo.
 
