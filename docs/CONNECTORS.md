@@ -841,7 +841,10 @@ with the topology rather than with connectors.
 
 Four of those codes are hard to reach from the catalogue as it ships, which is worth knowing before you
 go looking for a reproduction. Measured over all 1,661 specs: **178** console ports exist and every one of
-them advertises all five baud media (`console-rs232`, `-57600`, `-38400`, `-19200`, `-9600`), so two
+them advertises all five baud media (`console-rs232`, `-57600`, `-38400`, `-19200`, `-9600`) — none of
+which is written in the spec, whose whole port is `{ "name": "serial1", "type": "console" }`: the five
+are the cage's ladder, `CAGE_MEDIA.console()` at `engine/media.js:629-631`, reached because `inferCage`
+maps that `type` to `console` at `:784`. So two
 catalogue console ports always share a rate and `E_BAUD_MISMATCH` needs a port that declares a narrower
 list; there are **0** ports with a `usb` cage at all; and **3,399** ports list a BiDi medium while **0**
 list a single half, so `E_BIDI_SAME_WAVELENGTH` and `E_BIDI_MISMATCH` fire only for a port whose `media:`
