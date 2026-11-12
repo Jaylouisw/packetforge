@@ -101,6 +101,14 @@ Both URL spellings work: with and without the trailing `.git` return the same co
 `git ls-remote` against `https://github.com/...` needs no credentials either way, which is how the
 numbers above were taken.
 
+**The local remote-tracking refs are not this measurement, and two of them are orphans.** `git branch -r`
+in this clone lists four prefixes — `origin/` **898**, `forgejo-http/` **901**, and two leftovers with no
+remote behind them at all: `gh/` **824** and `fjdev/` **523**. Only two remotes are configured
+(`git remote -v` names `origin` and `forgejo-http`; `git config --get remote.gh.url` prints nothing), so
+`git branch -r | grep '^  gh/'` answers **824** for a mirror the recipes above measure at **889**, and no
+`git fetch gh` will ever move it. Read the refs for what this clone last saw and `git ls-remote` for what a
+server has now; a count taken from the first is a statement about a past fetch, not about the mirror.
+
 **Never add the reverse direction.** A GitHub→Forgejo mirror plus a Forgejo→GitHub mirror is a loop;
 whichever syncs second wins, and on a force-push they can ping-pong indefinitely.
 
