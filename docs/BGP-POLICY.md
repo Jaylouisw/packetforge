@@ -1392,11 +1392,15 @@ Named exactly, so the implementer does not have to hunt:
 | `computeBgp()` — AS path and next hop | Derived inline, not via `advertise()` | call `advertise()` — behaviour identical for eBGP, corrected for iBGP (NH-1) |
 | `computeBgp()` advertisement loop | ~~Advertises iBGP→iBGP~~ — **landed** | the §6.3 suppression is the guard at `simulator.js:2146` (`if (adj.type === 'ibgp' && e.session === 'ibgp') continue;`), fixed as #41 *before* this document was written; `test/protocol-regression.test.js` asserts it (`an iBGP-learned route is not re-advertised to another iBGP peer`), so this row is history rather than a pending change |
 
-Re-checked at `f37898d5`: the five named assertions still sit on the quoted lines with the quoted text —
+Re-checked at `f37898d5`, and again at `d53726f6` (2026-11-12) with the same result: the five named assertions still sit
+on the quoted lines with the quoted text —
 `bgp.test.js:340-341` (100 / 150, "local preference is carried per route"), `:344` (20 / 0, "MED is
 carried per route"), `:351-353` (the seven keys, in that sorted order), `:452` (MED 900 eBGP > MED 0 iBGP)
-and `:439-442` (MED 10 vs 50, then origin outranks MED). Suites: `bgp.test.js` 165 passed,
-`protocol-regression.test.js` 253 passed, `bgp-wire.test.js` 30 passed.
+and `:439-442` (MED 10 vs 50, then origin outranks MED). The seven-key list is still seven and still in that
+sorted order (`asPath`, `from`, `localPreference`, `med`, `nextHop`, `origin`, `prefix`), so §8's proposed
+`communities` would be the eighth. Suites, all four re-run: `bgp.test.js` **165 passed**,
+`protocol-regression.test.js` **253 passed**, `bgp-wire.test.js` **30 passed**, and `bgp-table.test.js` **32 passed**
+(the suite §10 cites) — every figure unchanged since the first reading.
 
 `test/bgp-wire.test.js` is all-eBGP — zero occurrences of `'ibgp'` — and passes untouched; that is the
 regression gate for "the policy layer did not break plain BGP".
