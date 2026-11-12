@@ -54,6 +54,13 @@ the class, `Modelled in the CLI` (`ip nat`) at :424 and `Absent in the CLI` (BGP
 :552, so the qualifier on its own is never the verdict. And `Unknown` has **no rows at all**: it is a
 defined answer this page has never had to give, so a grep for one is time you do not get back.
 
+Counted mechanically the arithmetic is: every table row whose header names a Verdict column, less the
+four legend rows at the top — **29 tables, 184 rows**. One row decides whether the split reads right.
+`Absent — important` at `:593` is an `Absent` verdict carrying an emphasis mark, not a qualifier, so a
+count that treats every non-bare cell as a qualifier reports 24 `Absent` and 21 qualifiers instead of
+25 and 20. Read it the second way and the four tags are 105 / 34 / 25 / 0 with 20 rows naming a
+surface — worth knowing before you rebuild the count and conclude the page is off by one.
+
 Every claim carries a `file:line` citation. Citations also name the symbol,
 because line numbers drift as the engine grows — if a number is stale, the
 symbol will still find it.
