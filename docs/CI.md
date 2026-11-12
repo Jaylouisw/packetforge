@@ -77,9 +77,13 @@ locally and nothing at all about what CI runs. Then
 
 **Every command these pages tell you to run was resolved against the tree on 2026-11-12**, because a
 broken one is invisible: the sentence stays grammatical and only the reader's terminal complains.
-`npm run <target>` appears with **51** distinct targets across the docs, and all 51 are `package.json`
-scripts (`npm test` is the 54th name and is run bare); `node <dir>/…js` appears with **31** distinct
-paths, and all 31 exist. What does *not* survive this check is the other kind of citation — a **data**
+`npm run <target>` appears with **52** distinct targets across the docs, and all 52 are `package.json`
+scripts; `npm test` is the 53rd name and is run bare, which leaves `check:bytes` as the one script no page
+invokes by name — `npm test` inlines its path instead. `node <dir>/…js` appears with **32** distinct
+repository paths, and all 32 exist; three other spellings are artefacts to create rather than files to run
+(`md-check.js` and `/some/where/md-check.js`, which this page says is scratch-only, and
+`scratch/optic-rows.js`, which the reader saves from the snippet below). What does *not* survive this
+check is the other kind of citation — a **data**
 path, which no manifest lists: `docs/DEVICE_REGISTRY.md` used to run `apply-research.js` against
 `research/incoming/aruba-poe.json`, a file that is not in the tree, and a reader who copied it got a raw
 `ENOENT` stack from `node:fs` rather than a usage line. Resolve commands by hand as well as paths, and
