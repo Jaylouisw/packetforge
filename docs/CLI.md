@@ -1797,6 +1797,68 @@ Router(config)#vrrp 1 ip 10.0.0.254
 ```
 
 `test/missing-argument-is-not-a-value.test.js` holds all of it: fifteen bare commands, the `hostname` and `description` receipts, the three missing-not-invalid messages, the whitespace sweep, and the leniency that is deliberate. 29 checks; with the old handler, 13 passed / 16 failed.
+## A `no` that names one thing must not remove another
+
+`no` is the only undo a technician has. An undo that refuses is annoying; an undo that removes something *else* is a fault, because the running-config then holds a state nobody asked for and the next `show` disagrees with the intention.
+
+### `no spanning-tree portfast` cleared the bridge priority
+
+The set form of `spanning-tree` was taught to read its verb before its value in #1493. The `no` form never read the word at all:
+
+```js
+} else if (head === 'no' && tokens[1] === 'spanning-tree') {
+  const dev = this.device;
+  if (!dev.config.stpPriority && dev.config.stpPriority !== 0) { /* "No bridge priority set" */ }
+  dev.config.stpPriority = null;      // whatever the third word said
+```
+
+So on a switch with `spanning-tree priority 4096`:
+
+| typed | answered |
+|---|---|
+| `no spanning-tree portfast` | `Bridge priority cleared (was 4096), back to the default 32768` |
+| `no spanning-tree cost` | `Bridge priority cleared (was 4096), back to the default 32768` |
+| `no spanning-tree bpduguard` | `Bridge priority cleared (was 4096), back to the default 32768` |
+| `no spanning-tree flurbish` | `Bridge priority cleared (was 4096), back to the default 32768` |
+
+Four different questions, one answer, and the answer destroyed a setting none of them named. The root election is decided by exactly this number, so the effect is a lab that reconverges to a different root after an operator tried to remove portfast.
+
+The word is now read, and the two forms answer alike — portfast, cost, bpduguard and the rest are named as *not modelled, so there is nothing to remove*, an unknown word is quoted back, and only `no spanning-tree` or `no spanning-tree priority` touch the priority:
+
+```
+sw1(config)#no spanning-tree portfast
+% spanning-tree portfast is not modelled, so there is nothing to remove: this device runs one
+  spanning tree, and its only tunable is `spanning-tree priority <0-61440 in 4096 steps>`
+```
+
+### `help` promised a spelling the parser refuses
+
+The index said `speed auto|forced <mbps>`; `_speed()` has never had a `forced` keyword — it parses `auto` or a rate (`100`, `1000`, `1G`), and its own usage line said `speed auto | <mbps>`.
+
+```
+Router(config-if)#speed forced 100
+% Invalid rate "forced" - give a number of Mbps or auto
+```
+
+A documented spelling the parser refuses is worse than one that is missing, because the help is the first thing trusted. The row now reads `speed auto|<mbps>` with both accepted spellings shown, and the test types all three forms at a port.
+
+### `no ip access-group` answered with a sentence that was not one
+
+```
+% No an access list applied in or out on Gi0/0
+```
+
+Ungrammatical, no subject, and phrased as if the command had removed something. It now uses the shape the sibling refusals already had — `No hostname set`, `No DHCP pool named nope` — so it says which list, or that there is none, and where it looked:
+
+| typed (nothing applied) | answered |
+|---|---|
+| `no ip access-group` | `% No access list applied in or out on Gi0/0` |
+| `no ip access-group 101 in` | `% No access list 101 applied in on Gi0/0` |
+
+Writing it a different way first — `Access list 101 is not applied in on Gi0/0`, which reads fine — failed an existing check in `test/config-undo.test.js`, which had already pinned the house shape for this refusal. The repo's own test caught the deviation, so the new wording follows the neighbours instead of the other way round.
+
+`test/no-command-touches-only-what-it-names.test.js` holds all three: seven checks covering the four destructive `no` forms, the two forms that really do clear the priority, the "nothing set" answer, the help row, the three speed spellings, and both access-group sentences. With the old handler: 3 passed / 4 failed.
+
 ## `?` is a keypress in every prompt, and `exit` walks one level at a time
 
 The console prints the mode in its prompt — `>`, `#`, `(config)#`, `(config-if)#`, `(config-dhcp)#` — and two keys that a technician uses to find their way around only worked in some of them.

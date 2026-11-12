@@ -90,6 +90,47 @@ Then restart the service (`systemctl restart forgejo`, or the container's
 If the instance is up but slow rather than hung, read [`CI.md`](CI.md) instead:
 that is usually the runner queue, not the forge.
 
+## When the volume is full, every retry leaves another half-clone
+
+Measured on 2026-11-12, on an instance whose data volume filled during a normal
+day. The forge never said "disk full" — it said four different things, and only
+one of them mentions the disk at all:
+
+| What you see | What it is |
+|---|---|
+| `git push` → `error: couldn't set 'refs/heads/<branch>'` / `failed to update ref` | git cannot write a loose ref |
+| `POST` a file or a pull request → `500`, body contains `could not write config file /data/gitea/data/tmp/local-repo/…/.git/config: No space left on device` | the server cannot stage a temp clone |
+| `POST /pulls/{n}/merge` → `405 {"message":"Please try again later"}`, and the pull request reads `"mergeable": false` | the same temp clone, failing before mergeability can be computed — the 405 is the *symptom* of a failed clone, not of a merge conflict |
+| A pull request whose `Test (Node …)` jobs never appear; a `workflow_dispatch` creates only the job with no `needs:` | the tasks for dependent jobs were never written |
+
+The detail that makes this expensive: **a merge is computed by cloning.** Forgejo
+writes `pull.git<random>` (and `upload.git<random>` for a push) under
+`/data/gitea/data/tmp/local-repo/`, and when that write fails the directory is
+left behind, partly written. So each retry consumes a little more of the space it
+is waiting for — on a 48 MB repository, a dozen merge attempts is a few hundred
+megabytes of half-clones. **Do not sit in a retry loop against a full volume.**
+One attempt tells you the answer; the tenth only makes the wait longer.
+
+On the host, in this order:
+
+```bash
+df -h /data                          # is it actually full, and how full?
+# What the failed attempts left behind. Safe to delete while the service is stopped:
+du -sh /data/gitea/data/tmp/local-repo/* 2>/dev/null | sort -h | tail -20
+# The image cache the CI docker job writes, on the same volume:
+docker system df
+docker builder prune -f --keep-storage 2GB
+```
+
+Then restart Forgejo — the action queue does not recover by itself: after this
+incident, jobs without `needs:` still ran while every dependent job was never
+created, for another hour.
+
+`#1500` bounds what the CI `docker` job leaves behind from now on. Nothing in the
+repository can clean a volume it does not own — that is a host responsibility, and
+the only thing this page can do is make the four symptoms recognisable as one
+cause.
+
 ## When a restart fixes it for ten minutes and then it happens again
 
 A restart that buys minutes is not a fix, and the second outage is the one that repeats. On this
