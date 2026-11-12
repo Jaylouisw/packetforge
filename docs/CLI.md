@@ -4242,8 +4242,10 @@ PC1(config)#switchport mode access
 
 The page is now filtered by capability, per verb family — switching on `l2-forward`, routing and the
 routing protocols on `l3-forward`, NAT, DHCP server, ACLs, VRRP and IPv6 on their own capability
-tags, and the three exec tables (`clear mac address-table`, `clear ip nat translation`,
-`clear port-security …`) the same way. A router keeps `vlan <id>`, because it routes between VLANs
+tags, and two of the three exec tables (`clear mac address-table` and `clear port-security …`) the
+same way. The third, `clear ip nat translation`, is not filtered at all: a PC, a switch and a router are
+all offered `Next: *, <inside-local>`, and running it on the PC answers `Translation table on PC1 was
+already empty`. A router keeps `vlan <id>`, because it routes between VLANs
 and its running-config round-trips the line, but loses `switchport` and `spanning-tree`; an L3 switch
 keeps the switchport verbs and loses NAT. Row counts are a poor proxy for that: the router's page and an
 L3 switch's are within a row of each other, yet seven rows are the router's alone — `ip nat inside source
@@ -4258,12 +4260,18 @@ whether the word is a typo:
 ```
 R1(config)#no span?
 % Nothing after "no" starts with "span" on R1
-% "no spanning-tree vlan <id>" is a command here, but not on R1: it runs no spanning tree, because it
-  has no bridged domain to protect
+% "no spanning-tree vlan <id> [priority <n> | root primary|secondary]" is a command here, but not on R1: it runs no spanning tree, because it has no bridged domain to protect
 ```
 
 The reason comes from the same table that hides the row (`_helpRefusal`), so the page, the completion
 list and the parser's own refusals cannot disagree about *why* a family is absent.
+
+Run the gated pair and the same cause comes back in a different sentence, because the command names
+the table it cannot touch while the page names the switchport: `clear mac address-table dynamic` on that
+router answers `% R1 does not bridge, so it has no MAC address table` and then `Try "show arp" for the
+addresses it has learned`, while `clear port-security counters` on a host answers `% PC1 does not switch,
+so it has no port security to clear`. So the page and the command agree about *why* a family is absent,
+not about the words — which is the useful version of the promise, since both sentences are true.
 
 **Ask the question in the mode that would accept the command.** `ip ?` in exec mode answers `% No
 completions for "ip"` on a router whose capabilities include `nat`, because every row under `ip` is a
