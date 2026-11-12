@@ -152,7 +152,8 @@ but answering `200` again, because the file it was deleted from is still there. 
       an open question; today a "pack" is a pull request.
 - [x] Unit tests for the simulator's edge cases — **well over a hundred suites**
       (`ls test/*.test.js | wc -l` gives today's number; the count moves with every PR, so run it
-      rather than trusting a figure here) covering loops, ARP, TTL, convergence, link state,
+      rather than trusting a figure here — on 2026-11-12 both it and the runner's `--list` said
+      **272**, so either will do while they agree) covering loops, ARP, TTL, convergence, link state,
       running-config round-trip, OSPF adjacencies and the catalogue invariants (`npm test`).
 - [x] CI — Forgejo Actions on **pull requests to `main` and pushes to `main`**, plus manual dispatch
       (`.forgejo/workflows/ci.yml`, [docs/CI.md](CI.md)). Not "every branch": a push to a feature branch
@@ -161,7 +162,12 @@ but answering `200` again, because the file it was deleted from is still there. 
 
 ## Contributing
 
-Pick any checkbox. The engine is pure JavaScript with no dependencies; `npm test` runs every
-suite through one runner (`scripts/run-tests.js`), and `node test/engine.test.js` runs just the
-engine suite. Keep the capability model — new protocol logic goes in `engine/simulator.js`,
+Pick any checkbox. The engine is pure JavaScript with no dependencies; `node test/engine.test.js`
+runs just the engine suite, and `npm test` runs **three** things, not one — `audit-port-types.js &&
+check-control-bytes.js && run-tests.js` (`package.json:10`), so the census and the control-byte guard
+run before the first suite and a failure in either stops the runner from starting at all. Expect two
+paragraphs of audit output ahead of the summary and do not read them as noise:
+`No port contradicts its declared type.` and `No control bytes in source.` are the passing lines.
+[docs/CI.md](CI.md) has the details, including the fact that CI runs `check-control-bytes` a second
+time as its own step. Keep the capability model — new protocol logic goes in `engine/simulator.js`,
 new hardware goes in `devices/*.json`.
