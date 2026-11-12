@@ -325,15 +325,16 @@ minutes earlier (1,628 → 1,629), so a prose count can be stale before it is me
 - **A count in prose is a claim about one revision.** When you touch a sentence that quotes one, re-run
   the one-liner in the same edit; if you cannot, leave the count out rather than guess it.
 - **And it is a claim about one *branch*.** These numbers were measured in a working tree sitting on
-  `fix/sfp-plus-connectors`, which at the time of the last reading was **637 commits ahead** of `main` and
-  **395 or 397 behind it depending on which remote ref you ask** (the merge base is still `083e2ba1`) — so none
-  of them is a statement about `main`. That second number is not sloppiness: this clone has **two** remotes
-  pointing at the same repository, `origin` (`ssh://forgejo/…`) and `forgejo-http` (`http://odin:3000/…`), and
-  they were last fetched at different moments — `origin/main` is `2961f42e` from 06:06 and `forgejo-http/main`
-  is `8e0d6330` from 06:39, the first an ancestor of the second. Measure against the ref you name, and say
-  which one. The ahead figure moves by exactly **one per commit on this branch**, including the
-  commit that carries this sentence, which is why the prose here sat at **582** for a long stretch while the
-  fence beside it was already in the six-hundreds: treat it as a fingerprint of the reading, not a fact about
+  `fix/sfp-plus-connectors`, which at the last reading was **682 commits ahead** of `main` and **400 behind
+  it** (the merge base is still `083e2ba1`) — so none of them is a statement about `main`. The behind number is
+  not stable either: this clone has **two** remotes pointing at the same repository, `origin`
+  (`ssh://forgejo/…`) and `forgejo-http` (`http://odin:3000/…`), each with its own tracking ref, so either can lag
+  or neither can. At this reading both resolve to **`1b1e1287`** and the two counts are identical — two iterations
+  earlier one was five commits behind the other and read 395 against 400, and a paragraph written then quoted that
+  gap as the permanent state. Measure against the ref you name, say when you fetched it, and do not compare a
+  number here with one you have just measured. The ahead figure moves by exactly **one per commit on this
+  branch**, including the commit that carries this sentence, which is why the prose here sat at **582** and then
+  **637** while the fence beside it kept moving: treat it as a fingerprint of the reading, not a fact about
   the repository. Six documentation pages
   exist on `main` and not here (`BUG_REPORTS.md`, `DEVICE_REQUEST_SWEEP.md`, `DEVICE_SCHEMA.md`,
   `FORGE_TROUBLESHOOTING.md`, `MAINTAINING.md`, `RESOLUTIONS.md`), and `docs/CLI.md` differs by nearly
@@ -341,8 +342,9 @@ minutes earlier (1,628 → 1,629), so a prose count can be stale before it is me
 
   ```bash
   git branch --show-current                              # fix/sfp-plus-connectors, not main
-  git rev-list --left-right --count HEAD...origin/main         # 637  395   (+1 ahead per commit)
-  git rev-list --left-right --count HEAD...forgejo-http/main   # 637  397   the later-fetched remote
+  git fetch origin main && git fetch forgejo-http main        # refresh both refs first
+  git rev-list --left-right --count HEAD...origin/main         # 682  400   (+1 ahead per commit)
+  git rev-list --left-right --count HEAD...forgejo-http/main   # 682  400   identical refs today
   git diff --diff-filter=A --name-only HEAD origin/main -- docs/   # pages only main has
   ```
 
