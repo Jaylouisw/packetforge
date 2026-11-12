@@ -97,11 +97,18 @@ the common one:
       set PORT=8081 && npm start   (cmd.exe)
 
   Nothing has been lost: topologies are saved as they change.
+
+  Report it: https://git.jayw.uk/jaylouisw/packetforge/issues/new?title=%5BBug%5D%3A%20Ser…
 ```
 
-`EACCES` (a port below 1024 as a normal user) and `EADDRNOTAVAIL` get their own short explanations,
-neither marked reportable — they are configuration, not bugs. Anything else is printed as
-`PacketForge failed to start: <the error>` with the advice to paste the whole terminal output.
+That last line is the whole of the reporting path: `server/startup-error.js` builds the link once at
+`REPORT_URL` — a 541-character query string carrying the title `[Bug]: Server will not start` and a
+body with `### What happened` and `### How you started it` — so it is the **same** link whatever went
+wrong, and the only work left for you is pasting the output in. **Two** of the four outcomes print it:
+`EADDRINUSE` above and the unknown-error fallback. `EACCES` (a port below 1024 as a normal user) and
+`EADDRNOTAVAIL` get their own short explanations and no link — both are configuration, not bugs.
+Anything else is printed as `PacketForge failed to start: <the error>` with the advice to paste the
+whole terminal output.
 
 **`PORT` is read with `parseInt`, so it is not validated — and two mistakes are silent or ugly:**
 
@@ -110,7 +117,7 @@ neither marked reportable — they are configuration, not bugs. Anything else is
 | `8081` | starts on 8081, as expected |
 | `8000 ` or ` 8000` | whitespace is tolerated, `parseInt` ignores it |
 | `1.2.3.4` | becomes **`1`** — the server starts on port 1 and the banner says `http://localhost:1`. It does not complain, so set a number, not an address |
-| `abc` | `parseInt` gives `NaN` and `server.listen` throws **before** the error handler exists: you get a raw `RangeError [ERR_SOCKET_BAD_PORT]` stack trace, not the friendly message |
+| `abc` | `parseInt` gives `NaN` and `server.listen` throws **before** the error handler exists: you get a raw `RangeError [ERR_SOCKET_BAD_PORT]` stack trace thrown from `server.listen` at `server/index.js:765`, not the friendly message |
 
 So the `EADDRNOTAVAIL` advice above ("set PORT to a port number only") cannot be reached by typing an
 address into `PORT` — the value is already truncated by the time it is used. If you see a stack trace
