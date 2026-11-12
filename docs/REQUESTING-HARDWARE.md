@@ -7,7 +7,7 @@ main way this project grows**, and they are welcome.
 ## File a request
 
 **Where to file it.** The queue analysed on this page is the forge's. The GitHub mirror carries its own,
-much older one — **787 open issues against these 24**, measured while writing this — and
+much older one — **787 open issues against these 24 device requests**, measured on 2026-11-12 — and
 `scripts/gh-bridge.js --issues` is what moves a GitHub issue across, only when a maintainer runs it.
 Filing on the forge puts the request in the queue this page describes immediately; filing on GitHub
 puts it next to the code you may already have forked. [CONTRIBUTING.md](../CONTRIBUTING.md) has the
@@ -72,17 +72,18 @@ closed side is not. So measure both halves rather than remembering either:
 ```bash
 H='https://git.jayw.uk/api/v1/repos/jaylouisw/packetforge/issues'
 curl -s -D - -o /dev/null "$H?state=closed&limit=1"            | grep -i '^x-total-count'  # 1461, PRs included
-curl -s -D - -o /dev/null "$H?state=closed&type=issues&limit=1" | grep -i '^x-total-count'  # 940 issues on their own
-curl -s -D - -o /dev/null "$H?state=open&type=issues&limit=1"   | grep -i '^x-total-count'  # 24 open
+curl -s -D - -o /dev/null "$H?state=closed&type=issues&limit=1" | grep -i '^x-total-count'  # 947 issues on their own
+curl -s -D - -o /dev/null "$H?state=open&type=issues&limit=1"   | grep -i '^x-total-count'  # 26 open: 24 requests + 2 bugs
 ```
 
 The gap between the first two numbers is the pull requests: Forgejo serves them through the issues
 endpoint from a shared number space, so `type=issues` is what separates a request someone made from a
 change someone proposed. Nothing above is truncated either — paging `state=closed&type=pulls` to an empty
-page returns **521** rows, and the three counts reconcile against the number space: the highest number is
-`#1,486`, 1,485 items are counted (24 + 940 + 521, which is also what `state=all` reports), and walking
-`state=all` fifty at a time to collect every number names the difference exactly — **`#1,223` is absent**,
-deleted, so 1 … 1,486 minus that one is 1,485. That is the check worth repeating rather than the totals:
+page returns **528** rows, and the counts reconcile against the number space exactly as they did before, which is the
+only part worth keeping: the highest number is **`#1503`**, **1,502** items are counted — 26 open issues + 947
+closed issues + 528 closed pull requests + 1 open pull request — and `state=all` also reports **1,502**. So exactly
+one number in 1 … 1,503 is missing, and it is still **`#1,223`**: `GET /issues/1223` answers `404` while `#1502` and
+`#1503` both answer `200`. The totals move every day; the reconciliation is the invariant. That is the check worth repeating rather than the totals:
 the counts say "no page limit", the enumeration says *which* number is missing, and a tracker with a
 deleted item would otherwise look like an off-by-one forever.
 

@@ -1,9 +1,11 @@
 # Triage: hardware requests
 
-Almost every open issue in this repository is a device request — **24 of 25** when this was last measured,
+Almost every open issue in this repository is a device request — **24 of 26** when this was last measured,
 each of those 24 carrying both the `device` and `device-request` labels — and a steady fraction ask for
-hardware that is already modelled. Each one costs a human reading it. The twenty-fifth is **#1501**, an
-unlabelled bug report about `no spanning-tree portfast`, and it is the reason this page says "almost".
+hardware that is already modelled. Each one costs a human reading it. The other two are **#1501**, an unlabelled
+bug report about `no spanning-tree portfast`, and **#1503**, an unlabelled bug report about `?` in prompts, and
+they are the reason this page says "almost". The **24** is the stable half of that fraction: it was 24 at 25 open
+and 24 at 26, forty minutes apart, while the total moved under it. Quote the requests, not the total.
 
 The count is the part that moves, and it has moved a lot: this page has quoted 127, 126 and 121 at
 different times, and the queue is now 24, because closing them is the point. So measure rather than
@@ -20,8 +22,8 @@ curl -s "https://git.jayw.uk/api/v1/repos/jaylouisw/packetforge/issues?state=ope
 
 The third line is the one that measures the label half of the sentence above, which the first two cannot:
 a count of 25 and 25 bracket titles say nothing about labels, and "each carrying both" is a claim about all 24
-device requests at once. Measured with it: **25** open issues, **24** with `device`, **24** with
-`device-request`, **24** titles beginning `[Device]`, and **one** with no labels at all (#1501). The
+device requests at once. Measured with it: **26** open issues, **24** with `device`, **24** with
+`device-request`, **24** titles beginning `[Device]`, and **two** with no labels at all (#1501, #1503). The
 `type=issues` is not decoration: the issues endpoint serves pull requests too, from the same number space, and on
 2026-11-12 the difference was live — `state=open` alone answered **26** against **25** with the filter, the extra
 entry being open PR **#1502**. So the filter is worth having, but it does not make the label tally redundant:
