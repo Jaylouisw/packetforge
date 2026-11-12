@@ -691,17 +691,55 @@ Three routers, `R1` (AS 65001) — `R2` (AS 65001, iBGP) — `R3` (AS 65002):
 R1 ---eBGP--- R3        R1 learns 10.0.3.0/24 with NEXT_HOP 10.0.13.3
  |                       R1 advertises it to R2 over iBGP
 iBGP                    NH-1: the next hop stays 10.0.13.3
- |                       R2 has no route to 10.0.13.3 (it is not on a
-R2                      subnet R2 is attached to) -> NH-6: route unusable
+ |                       R2 is not attached to 10.0.13.0/24 -> no egress port
+R2                      for that next hop -> the route forwards nowhere
 ```
 
-That is not a simulator artifact, it is the reason `next-hop-self` exists: the
-fix is `neighbor 10.0.12.2 next-hop-self` on R1, after which R2 receives
-NEXT_HOP = 10.0.12.1, which it *can* resolve. The assertion table contains both
-halves of this story (NH-5, NH-6) because it is the single most instructive
-behaviour in this document.
+**Measured, and the mechanism is not NH-6.** Building exactly this lab (R1 `65001` with `Gi0/0`
+`10.0.13.1` and `Gi0/1` `10.0.12.1`, R2 `65001` `10.0.12.2`, R3 `65002` `10.0.13.3` plus `10.0.3.3`,
+three sessions up) and reading R2's tables:
+
+```
+R2 bgpRoutes   10.0.3.0/24  nextHop 10.0.13.3  iface null  ad 200  session ibgp
+--- R2 show ip route ---
+  *  B 10.0.3.0/24   200  10.0.13.3  -
+--- R2 show ip bgp ---
+*>  10.0.3.0/24   10.0.13.3  65002
+--- R2 ping 10.0.3.3 ---
+Success rate is 0 percent (0/4)
+```
+
+Three things differ from the story above, and they are worth more than the story:
+
+1. **NH-1 holds exactly.** R2 receives `nextHop 10.0.13.3`, not R1's address — the external next hop is
+   carried unchanged inside the AS.
+2. **The route is installed, not excluded.** NH-6 says a route with an unresolvable next hop MUST be
+   excluded from Phase 2 and removed from Loc-RIB. `computeBgp()` does neither: the install loop
+   (`simulator.js:2187-2201`) drops only `from === 'local'` and a null `nextHop`, then sets
+   `iface` by matching the next hop against the device's *own* subnets — and pushes the route anyway
+   with `iface: null`. So R2's `show ip route` prints `10.0.3.0/24` with a blank interface column and
+   **an installed `*` mark**, and `show ip bgp` marks it `*>` ("a received row that forwards").
+3. **R2 *can* reach 10.0.13.3** — via BGP: it learned `10.0.13.0/24` from the same iBGP session with
+   `iface Gi0/0`, and `routeTo('10.0.13.3')` resolves `{iface: Gi0/0, via: 10.0.12.1}`. What fails is
+   the *recursive* step: `egressFor()` (`device.js:738-745`) matches the next hop against connected
+   subnets only, so the installed route's interface stays null even though the RIB could carry the
+   packet. A real speaker resolves the next hop through the IGP; this one asks connected subnets alone.
+
+The visible symptom is therefore right — `ping 10.0.3.3` from R2 answers `0/4` — but nothing tells the
+operator why: no "next hop unreachable", just silent timeouts, and the route table claims the prefix is
+installed. That is the gap to close: recursive next-hop resolution, or NH-6 exclusion, not both halves of
+a story the code does not tell. `next-hop-self` remains the standard fix as described (it removes the
+problem instead of reporting it), but there is no `next-hop-self` verb in the console yet either — see
+§7.3's note.
 
 ### 7.3 Implementation
+
+**`nextHopFor()` does not exist yet.** `bgp.js` exports `advertise`, `asPathLength`, `bestPath`,
+`comparePaths`, `establishSession`, `nextState`, `normalizePeer`, `pathIsLoopFree`, `sessionType` and
+`validatePeer` — no `nextHopFor`. The rules above are implemented inline in `computeBgp()` at
+`simulator.js:2149-2152` (`adj.type === 'ebgp' ? adj.localIp : (e.nextHop || adj.localIp)`) — NH-1 and
+NH-3 and the local-origination half of NH-4, in one expression with no NH-5 guard and no
+`next-hop-self` verb behind it. Read the block below as the function to extract, not as a citation.
 
 ```js
 // bgp.nextHopFor(route, opts) -> string|null
