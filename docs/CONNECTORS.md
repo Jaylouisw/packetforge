@@ -158,6 +158,33 @@ node -e "const m=require('./engine/media');console.log(m.CAGE_MEDIA['sfp+'](1000
 The Media column above names what matters for a cabling decision; the commands give the computed
 sets, and where they disagree the engine wins.
 
+**Two suites pin this table, and neither is a mirror of the engine.** `test/cable-matrix.test.js` runs a
+75-row cage × cage verdict table against real catalogue hardware — 37 `accept`, 26 `refuse`,
+3 `accept:downshift`, 2 `refuse:polish`, 7 `refuse:protocol`, plus a catch-all `['<cage>', '*', 'refuse']`
+row for 25 of the 26 cages — and drives every one of the **351** unordered cage pairs (this tree: 40 accepted,
+311 refused, 0 verdict divergences, `351 passed`). It is a specification, not a snapshot: when the engine
+disagrees it names the pair and the fix is not "edit `media.js` until it goes green".
+`test/cage-media-resolves.test.js` owns the other half — every id any cage offers, at every rate it might be
+asked about, must resolve to a real `MEDIA` entry, which is how an `100base-fx` that no longer existed was
+caught.
+
+`qsfp56` is the one cage with no catch-all row of its own, so its pairs are decided by the *other* cage's
+wildcard. That still checks the verdict but cannot pin the **reason**, and there is a pair where the reason is
+the whole story:
+
+```
+CAGE_MATE.qsfp+   ['qsfp+', 'qsfp28', 'qsfpdd', 'qsfp56']
+CAGE_MATE.qsfp56  ['qsfp56', 'qsfp28', 'qsfp+']
+commonMedia(QSFP56 port, QSFP+ port)  ['40gbase-sr4', '40gbase-lr4']
+canMate(...)  { ok: false, code: 'E_NO_COMMON_SPEED',
+                message: 'No common speed between QSFP56 and QSFP+ (A: 50000/100000/200000, B: 40000).' }
+```
+
+The cages mate in both directions and two 40G media sit in both lists, and the cable is refused anyway: the
+catalogue's QSFP56 ports train at 50G and above, its QSFP+ ports at 40G, so the shared set is empty. Mating is
+necessary, not sufficient — which is why the `qsfp+` row above lists `qsfp56` under "Mates with" even though no
+lab built from this catalogue can cable that pair.
+
 The XGS-PON media are **gated by rating, like everything else here**, which once read as a
 disagreement: `xgspon-sc-apc`, `xgspon-sc-upc` and `xgspon-lc-upc` seemed to be missing from
 `CAGE_MEDIA` for the `sc-*` and `lc-*` cages. They are not — they appear once the port is rated for
