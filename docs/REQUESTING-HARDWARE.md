@@ -216,10 +216,17 @@ node scripts/missing-devices.js --no-issues  # skip the issue scan entirely
 node scripts/missing-devices.js --strict     # also fail when an open request names a model we lack
 ```
 
-There are four flags plus help (`--stubs`, `--json`, `--no-issues`, `--strict`, `-h`/`--help`), and the
+There are four flags plus long help (`--stubs`, `--json`, `--no-issues`, `--strict`, `--help`), and the
 script validates them: an unknown one prints `Unknown flag: --bogus` with the usage line and exits **2**,
-while `--help` exits **0**. Nothing is silently ignored — unlike `request-queue.js` above, which takes
-`--skeleton` and `--json` and quietly ignores anything else. (This sentence used to say its *only* flag was
+while `--help` exits **0**. The short form is a trap even though the script whitelists it: the flag set is
+built with `argv.filter(a => a.startsWith('--'))` (`scripts/missing-devices.js:299`), so `-h` is never a
+flag — it lands in the path list and the run ends `Cannot scan -h: no such file or directory`, exit **2**.
+That is the same code the unknown-flag guard returns, so a reader who trusts the code alone cannot tell
+"the guard caught it" from "it tried to scan a file called `-h`": the `-h` check at `:302` and its entry in
+the allow-list at `:306` are both dead for that reason. Nothing is silently ignored — unlike
+`request-queue.js` above, which takes `--skeleton` and `--json` and quietly ignores anything else, and whose
+token check runs before any flag handling at all, so even `--help` there prints the two not-configured
+lines and exits **2** with no usage text. (This sentence used to say its *only* flag was
 `--skeleton`; that was the same leftover the section above admits to, and it survived one correction longer.) Two of the five are worth
 understanding before a CI run surprises you:
 
