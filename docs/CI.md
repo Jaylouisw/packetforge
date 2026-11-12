@@ -107,12 +107,15 @@ and `tmp/` really does hold **109** tracked probes that nothing parses. `check-c
 `No control bytes in source. (.js .json .md .yml .yaml .css .html .sh)`, `check-node-surface.js` prints
 `No API newer than Node 18 in 466 source file(s).` (the 466 counts files, not APIs — it is a scan total, not a
 finding), and `check-canonical-urls.js` prints
-`OK — 2278 files, every project URL points at https://git.jayw.uk/jaylouisw/packetforge`, with
-`test/canonical-urls.test.js` at **43 passed, 0 failed** — which is the 2278 in context: a count that is
+`OK — 2332 files, every project URL points at https://git.jayw.uk/jaylouisw/packetforge`, with
+`test/canonical-urls.test.js` at **43 passed, 0 failed** — which is the 2332 in context: a count that is
 green *and* a count that moves when a file is added, so it is worth re-reading rather than quoting. The job
 structure is also as described, read straight out of the workflow rather than remembered: three jobs
-(`test`, `smoke`, `docker`), eleven steps between them, seven of the eleven in `test` — and
-`check-control-bytes` appears as its own step **once**, which is why the twice-per-push remark above needs the
+(`test`, `smoke`, `docker`) and **eleven steps that do work** — seven in `test`, one in `smoke`, three in
+`docker`. Parsing the YAML counts **16** list items instead, because five of them are `checkout` and
+`setup-node` boilerplate (two, two and one); the eleven are what remains, so the two numbers answer
+different questions and neither is a miscount. `check-control-bytes` appears as its own step **once**,
+which is why the twice-per-push remark above needs the
 `npm test` half to be true (it is: `npm test` is `audit:ports && check:bytes && run-tests.js`).
 
 
@@ -815,7 +818,7 @@ queue that lost its arms gets them back in one tick instead of five at a time.
   suites that were red for a long time are green now: `test/spec-vs-description.test.js` **3 passed, 0
   failed** and `test/canonical-urls.test.js` **43 passed, 0 failed**, with `scripts/check-canonical-urls.js`
   printing `OK — 2200 files, every project URL points at https://git.jayw.uk/jaylouisw/packetforge`. That
-  number is the one in this paragraph that moves on its own: **2114 → 2200 → 2278** today, and none of the
+  number is the one in this paragraph that moves on its own: **2114 → 2200 → 2278 → 2332** today, and none of the
   three moves touched a URL, so read it as a snapshot and re-run the script rather than quoting it.
 
   The tree is **not** always green, and it moved twice in one evening while this paragraph was being
