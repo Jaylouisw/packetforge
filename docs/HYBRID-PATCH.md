@@ -206,6 +206,22 @@ catalogue files load together (64 assertions, green on this tree). So it is a da
 — enough to stop a future entry being mislabelled, not enough to stop one being *used*. The enforcement
 hole in the bullet above is still open, and the test will not close it.
 
+Re-measured at `47adf11b`, and both halves hold. The catalogue file has **13** entries, **10** carrying
+`polishBridge` and three that change shape instead — the split the test asserts — and the two suites are green
+on this tree: `test/hybrid-cord-use.test.js` **64 passed**, `test/hybrid-cord.test.js` **54 passed**. The
+absence is still an absence, and it takes one grep to see why the claim is worded "nothing reads it" rather
+than "nothing mentions it":
+
+```sh
+grep -rn 'polishBridge' engine/ web/ server/ scripts/    # exactly one hit: a comment
+grep -rln 'polishBridge' test/ catalogue/                # the test, and the data file
+```
+
+The single engine hit is `engine/optical.js:257`, a comment explaining that older entries predate the field.
+A comment is not a reader — it cannot refuse a cord, select a path or print a label — so the enforcement hole
+is exactly where this section puts it, and the guard that exists is the data-invariant test. The same grep is
+how to notice the day that stops being true.
+
 ---
 
 ## 6. Loss budget treatment
