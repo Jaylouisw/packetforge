@@ -68,6 +68,25 @@ test('no spanning-tree <other thing> leaves the bridge priority alone', () => {
   }
 });
 
+test('the set form and the no form give the same answer to the same concept', () => {
+  // `spanning-tree vlan 10` has its own answer - this model elects once, not per VLAN - and the `no` form called
+  // the same concept an unknown word. Two answers to one question is how the split this file exists for starts up
+  // again: the operator reads "unknown sub-command" and concludes the console has never heard of per-VLAN STP,
+  // which is not what the other door says (#1509).
+  const { run, dev } = lab('generic-switch');
+  run('spanning-tree priority 4096');
+
+  const set = run('spanning-tree vlan 10');
+  assert.match(set, /not one per VLAN|one spanning tree, not one per VLAN/i, 'the set form explains the concept: ' + set);
+
+  const no = run('no spanning-tree vlan 10');
+  assert.match(no, /one spanning tree, not one per VLAN/i, 'and so must the `no` form: ' + no);
+  assert.doesNotMatch(no, /unknown spanning-tree sub-command/i,
+    'a real IOS concept is not an unknown word: ' + no);
+  assert.match(no, /no spanning-tree priority/, 'and it has to name the removal that does exist: ' + no);
+  assert.strictEqual(dev.config.stpPriority, 4096, 'neither answer may touch the bridge priority');
+});
+
 test('no spanning-tree portfast is refused as unmodelled, not as unknown', () => {
   const { run } = lab('generic-switch');
   const modelled = run('no spanning-tree portfast');

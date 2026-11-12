@@ -417,6 +417,14 @@ class CliSession {
       // wiped a bridge priority the operator had set, and `no spanning-tree flurbish` did the same. The set form was
       // fixed in #1493; the `no` form is the same defect pointing the other way, and it is destructive (#1501).
       const verb = (tokens[2] || '').toLowerCase();
+      // `vlan` is the one sub-command that is not an unmodelled word but a *concept this device does not have*: IOS
+      // elects per VLAN, this model elects once. The set form says so in its own words, and the `no` form used to
+      // call the same concept an unknown word - two answers to one question, which is how the split that #1501 fixed
+      // starts again (#1509).
+      if (verb === 'vlan') {
+        return ['% This device runs one spanning tree, not one per VLAN, so there is no per-VLAN priority to ' +
+          'remove: `no spanning-tree priority` clears the single bridge priority'];
+      }
       if (verb && verb !== 'priority') {
         if (STP_UNMODELLED.indexOf(verb) !== -1) {
           return ['% spanning-tree ' + verb + ' is not modelled, so there is nothing to remove: this device runs ' +
