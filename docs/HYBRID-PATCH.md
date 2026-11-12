@@ -83,6 +83,18 @@ same-shape, **3** shape+polish hybrids. The two suites named in the header repor
 `test/hybrid-cord-use.test.js:98,105` — production code never branches on the flag, and the header's export list is
 one short: `patchCord` (singular) is exported beside `patchCords` (`engine/optical.js:403`).
 
+The two suites print those readings themselves — `54 passed, 0 failed` and `64 passed, 0 failed` — and the
+table-to-JSON half of the claim is one command:
+
+```sh
+node -e 'const fs=require("fs"),o=require("./engine/optical"),P=new Map(o.patchCords().map(c=>[c.partNumber,c]));let bad=0,n=0;for(const l of fs.readFileSync("docs/HYBRID-PATCH.md","utf8").split("\n")){const m=/^\|\s*\d+\s*\|\s*([A-Za-z0-9-]+)\s*\|([^|]*)\|([^|]*)\|([^|]*)\|([^|]*)\|([^|]*)\|([^|]*)\|([^|]*)\|/.exec(l);if(!m)continue;const c=P.get(m[1]);if(!c){console.log("missing",m[1]);bad++;continue}n++;const f=[];if(m[2].trim()!==c.vendor)f.push("vendor");if(m[3].trim().toLowerCase().replace("/","-")!==c.endA)f.push("endA");if(m[4].trim().toLowerCase().replace("/","-")!==c.endB)f.push("endB");if(m[5].trim()!==(c.duplex?"2 (duplex)":"1"))f.push("fibres");if(parseFloat(m[6])!==c.insertionLossDb)f.push("IL");if(m[7].trim()!==(c.lengthM||[]).join("/")+" m")f.push("length");if(!/\]\(http/.test(m[8]))f.push("link");if(!c.sourceUrl)f.push("no sourceUrl");if(f.length){console.log(m[1],f.join(","));bad++}}console.log(n+" rows compared, "+bad+" disagreeing")'
+```
+
+It prints `13 rows compared, 0 disagreeing`. Two columns are text, not numbers, and a comparator that
+overlooks that reports false failures in exactly five rows: the IL cell carries its basis (`0.3 max/conn` six
+times, `0.40 max/conn` twice, `0.5 max/conn`, `0.3 typ/conn`, `0.25 max/conn`), so `parseFloat` works and
+`Number` gives `NaN`, and the duplex cell reads `2 (duplex)` against a JSON `duplex: true`.
+
 ---
 
 ## 3. When a hybrid cord is correct
