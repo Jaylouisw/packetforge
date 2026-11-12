@@ -485,10 +485,35 @@ one:
 | Script | What it does | Dry run | Still useful? |
 |---|---|---|---|
 | `apply-port-layouts.js <file> [...]` | applies a researched port layout, limited to `connector`, `cage`, `speed`, `speedCaps`, `notes` — anything else in the record is metadata, not a write | **yes, by default**; `--apply` writes. Exits 2 with a usage line and 1 when it finds problems | yes — the general port-layout tool |
-| `apply-port-fixes.js` | same idea for the `research/incoming/issue9-*.json` shape, rewriting only connector/speed on named ports | **yes, by default**; `--apply` writes. Prints `No issue9-*.json files to apply.` and exits 0 when there is nothing | yes, when research arrives in that shape |
+| `apply-port-fixes.js` | same idea for the `research/incoming/issue9-*.json` shape, rewriting only connector/speed on named ports | **yes, by default**; `--apply` writes. Prints `No issue9-*.json files to apply.` and exits 0 when there is nothing | yes, when research arrives in that shape — but read the caveat below before believing its count |
 | `fix-optics.js` | gives optical uplinks their own ports instead of inheriting the copper `portTemplate` | `--apply` writes | yes, for specs with mixed copper/optical layouts |
 | `fix-optics-claims.js` | one-off repair for issue #9: converts a port named as SFP that was modelled as copper | `--apply` writes | **spent** — kept as a record of the rule it applied |
 | `merge-research.js` | one-shot merge of the swarm-researched homelab gear into the registry | **none** — it writes as it runs | **spent and unsafe to re-run** |
+
+**`apply-port-fixes.js` does not diff, so its headline is the size of the research, not the work left.**
+It assigns `connector`, `speedCaps` and `speed` to the named port and prints a line for every port it
+touched, whether or not the spec already said exactly that. Measured on today's tree: three
+`research/incoming/issue9-*.json` files — `issue9-access.json` and `issue9-adc.json` are bare arrays,
+`issue9-storage.json` wraps a `corrections` key, and both shapes are accepted — print **`13 device(s), 54
+port(s) would change.`** Comparing those 54 against the specs port by port: **45 already hold the
+proposed `connector`, `speedCaps` and `speed` exactly**, so `--apply` would rewrite those files with
+identical bytes. The **9** that are real are worth a human read: `nokia/7302 ISAM` and `nokia/7330 ISAM
+FTTN` `ge1`–`ge3` would widen `sfp` from `[1000]` to `[100, 1000]`, `truenas/R50` `enp1s0f0`/`enp1s0f1`
+would move from `sfp+` `[1000, 10000]` to `qsfp28` `[40000, 100000]` — a different cage, not a wider one —
+and its `oobm` would narrow from `[10, 100, 1000]` to `[1000]`.
+
+Its closing hint, `Fixed (remove from test/known-issues.json once verified):` and thirteen device names,
+is also stale by construction: `test/known-issues.json` holds `opticsWithoutCage: []` — already empty —
+so there is nothing there to remove.
+
+The other two, run today rather than read: `fix-optics.js` reports **`0 device(s) would be rewritten, 4
+skipped`** with the reasons inline (`brocade/G720`, `hpe/SN3600B` and `watchguard/Firebox M290` have "no
+explicit "Nx ... RJ45" claim to size the copper ports"; `mikrotik/CRS812-8DS-2DQ-2DDQ-RM` has "14 ports
+declared vs 2 copper claimed"). `fix-optics-claims.js` reports **`Devices that can be repaired from their
+own description: 0`** and **`Left for a human (60)`** — dominant reason `no port names in description`,
+plus one `cisco/MDS 9124V` where "named ports did not match interfaces". So "spent" is accurate about the
+tool and misleading about the defect class: nothing is repairable by it, and sixty devices still carry
+the shape of problem it was written for.
 
 Running the last two again is not a no-op: `merge-research.js` writes immediately and takes no flags, and
 `fix-optics-claims.js` re-derives its decisions from the current specs rather than a snapshot, so its
