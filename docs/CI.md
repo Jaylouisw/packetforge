@@ -527,13 +527,13 @@ services, and a job that has to swap makes the whole queue slower.
   **None of these readings is a reading of `main`.** They were taken in the working tree, which sits on
   branch `fix/sfp-plus-connectors`, and that branch diverged from `origin/main` at `083e2ba1`
   (2026-11-08 16:58:44) — at the time of the fourth reading it was **382 ahead and 361 behind**, and
-  now reads **520 ahead and 376 behind** (after a fresh `git fetch`, which moved the behind-side
+  now reads **521 ahead and 376 behind** (after a fresh `git fetch`, which moved the behind-side
   from 361 to 373 — main's tip is `f370b893`, #1450); either way not one of the commits above is an ancestor of
   `origin/main`. Check any of them before you quote it:
 
   ```bash
   git branch --show-current                              # fix/sfp-plus-connectors, not main
-  git rev-list --left-right --count HEAD...origin/main    # 520  376
+  git rev-list --left-right --count HEAD...origin/main    # 521  376
   git merge-base --is-ancestor d4319d27 origin/main || echo "not on main"
   ```
 
@@ -603,6 +603,14 @@ services, and a job that has to swap makes the whole queue slower.
   The same two suites and the same 2 + 1. The 272 counts one suite that `git ls-files test` does not:
   `test/value-hints.test.js` is untracked in this tree and runs as `24 passed`. So the tree actually
   asserted 11,191 + 87 = **11,278** assertions, 3 of them red.
+
+  Taken again 29 commits later on the same branch, with the writer's value-hints work still uncommitted:
+  `272 suite(s) in 324.8 s — 11191 assertions passed, 3 failed`, the same two suites, the same 2 + 1.
+  Identical counts, a duration 50 seconds longer — because the duration is wall-clock on a host doing
+  other things. The counts and the failing pair are the comparable part of a reading; the seconds are a
+  property of the machine that took it. Two flags re-measured in the same session as well: `--list` still
+  ends `272 suite(s)`, and `--filter=bgp` still answers `7 suite(s) in 3.8 s — 334 assertions passed,
+  0 failed`.
 
   Useful flags, all from the header of the script:
   `--filter=bgp`, `--bail`, `--verbose`, `--list`.
