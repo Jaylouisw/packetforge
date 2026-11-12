@@ -3174,6 +3174,7 @@ A help-page trap, found because the sweep could not fill in the row: a placehold
 `<prefix>/<len>` parses as **two** placeholders around a literal `/`, so a typed `2001:db8:9::/64`
 never matched the form and the guard refused the documented command. The shape belongs in the synopsis,
 not in the placeholder name: `<prefix>`, documented as *"prefix written address/length"*.
+
 ### A word a command does not take is refused, not dropped
 
 ```

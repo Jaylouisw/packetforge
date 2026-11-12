@@ -680,6 +680,7 @@ result on today's tree is not the result it was written for. Prefer `apply-resea
 
 `scripts/syntax-check.js` is in the same directory and writes nothing — it is what `npm run syntax` runs,
 recursing the tree with `node --check` and no dependencies.
+
 ## Included catalog
 
 **1,661 models across 247 vendors**, one JSON file each, in 25 distinct `category` values
