@@ -31,6 +31,13 @@ what runs — and the anchors table in §1 is the map from the spec to the code 
 > | `E_NO_ROUTE_TO_PEER` / `E_NO_SOURCE_IP` | the peer is unreachable, or there is nothing to source from |
 > | `E_POE` | the box that would open the session was never powered |
 >
+> All eight live in `simulator.js`; `bgp.js` produces none of them. It carries four others, one per FSM
+> step, in `ESTABLISHMENT` (`bgp.js:561-564`) — `E_SESSION_REFUSED`, `E_TCP_REFUSED`, `E_OPEN_REFUSED`,
+> `E_KEEPALIVE_REFUSED` — as the fallback for a probe that refuses without naming a code. Nothing produces
+> these: `computeBgp()`'s probe refuses only at `manual-start` (with `E_POE`) or `tcp-connected` (with the
+> verdict from `_bgpReachable()`, which always carries a code), and no test references them. Treat them as
+> the FSM's per-step defaults, not as codes a lab can provoke.
+>
 > A refused session installs no routes, which is the point: "the config looks right" and
 > "the prefixes moved" are now different statements. `show ip bgp summary` reads the real
 > per-neighbour state.
