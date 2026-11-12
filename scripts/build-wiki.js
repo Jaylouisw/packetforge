@@ -199,9 +199,12 @@ is right.
   inferred from pings — \`flow open <dst> [port <n>] [bytes <n>] [proto tcp|udp] [sport <n>] [at <ms>]\`,
   with \`show flows\` and \`show flows counters\` reading back what the data path did.
   The instant syntax needs care. The help row writes it \`[at <ms>|converged]\`, which means \`at\` followed by
-  either value: \`at converged\` is accepted by every command that advertises it, while a **bare** \`converged\`
-  is accepted only by \`show ip route\` and \`show ipv6 route\` — \`ping\`, \`traceroute\` and \`flow open\` refuse
-  it, and \`traceroute\`'s refusal lists \`converged\` among the values it expects while rejecting it. The command
+  either value. \`at converged\` is accepted by every command that advertises it, and a **bare** \`converged\`
+  is accepted by the state shows — \`show ip route\`, \`show ipv6 route\`, \`show ospf\`, \`show bgp\`, \`show arp\`,
+  \`show vrrp\`, \`show lldp\`, \`show dhcp binding|pool\`, \`show mac address-table\`, \`show spanning-tree\` — where
+  the first line of the answer says which instant it rebuilt for. It is refused by the three commands that take a
+  destination first: \`ping\`, \`traceroute\` and \`flow open\`, and \`traceroute\`'s refusal lists \`converged\`
+  among the values it expects while rejecting it. The command
   is also **exec-only** — typed in configuration mode it answers \`% Unrecognized config command\`, and \`do flow open\`
   is refused too, because \`do\` carries reads only. A refused flow
   names its code, which is the difference between "it did not work" and "here is which rule or
