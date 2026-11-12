@@ -436,7 +436,16 @@ A census of `process.env.*` across `engine/`, `server/`, `web/`, `scripts/` and 
 `CF_*` group, and `PF_HOST`/`PF_OWNER`/`PF_PATH`/`PF_NAME`/`PF_PUBLIC_URL` that
 `scripts/cf-access-bypass.js` needs. `PF_NO_OPEN` is not in that count at all: `scripts/smoke-http.js`
 puts it in a child's environment and nothing reads it. Each script's header names the ones it reads;
-none of them affect a running server.
+none of them affect a running server. The count is one command:
+
+```sh
+node -e 'const fs=require("fs"),p=require("path"),s=new Set(),w=d=>{for(const e of fs.readdirSync(d,{withFileTypes:true})){const q=p.join(d,e.name);if(e.isDirectory()){if(!/node_modules|\.git/.test(e.name))w(q)}else if(e.name.endsWith(".js"))for(const m of fs.readFileSync(q,"utf8").matchAll(/process\.env(?:\.([A-Z0-9_]+)|\["([A-Z0-9_]+)"\])/g))s.add(m[1]||m[2])}};["engine","server","web","scripts","examples"].filter(fs.existsSync).forEach(w);console.log(s.size,[...s].sort().join(","))'
+```
+
+It prints `27` and the sorted names. Widen the walk to the whole tree and it still prints 27, because the
+extra hits under `test/` use the same `CF_*` names — so the figure is a property of the tree, not of the
+five directories it happens to be measured over. `PF_NO_OPEN` never appears in either scope, which is the
+other half of the sentence above.
 
 ### Board lifecycle
 
