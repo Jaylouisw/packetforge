@@ -627,6 +627,50 @@ port and a real port answer exactly as before; `?` and `help` print usage; case 
 the words live in one named table and the console asks it; and the keyword check is after the
 port lookup in the source, so a port named like a keyword still wins.
 
+### The answer that names a port nobody asked about
+
+```
+s1> show interfaces counters errors
+% No interface counters errors on Switch (L2)-s1          <- claims a port is missing
+s1> show interfaces counters
+% `counters` is a view, not a port: …                     <- the *same* question, answered properly
+```
+
+The view-keyword table was keyed on the whole phrase, so `counters` was a view and `counters errors` —
+the same question with the word a reader adds after it — fell through into the port lookup and came
+back as a missing port. The same held for `status detail`, `switchport brief`, `summary detail` and
+every other view word with anything after it. A reader is told to go looking for a typo in a port
+name they never typed.
+
+The phrase is now looked up whole, then by its first word, and quoted back verbatim so the reader
+sees exactly which phrase was not a port. The port table is still consulted **first** (the source
+order is asserted), so a device with a port genuinely called `status` keeps its port.
+
+The other half of the same defect, one word away:
+
+```
+s1> show port-channel summary
+% Invalid show command: port-channel summary
+s1> show etherchannel summary                            <- the same table, other name
+Group  Protocol          Ports
+1      LACP              Fa0/1(P) Fa0/2(P)
+```
+
+`show port-channel` is how most of the world spells this table, and the console knew the word from
+its own `channel-group` line. It is now the same door, not a second table, so the two spellings
+cannot disagree — and a refusal underneath names **the command the reader typed**, not the one it was
+rewritten into: being answered about `show etherchannel` after typing `show port-channel` reads as a
+non sequitur.
+
+`test/show-view-phrase.test.js` pins both, 48 checks: six view words with six different tails are
+each reported as views, never as missing ports, quoting the typed phrase; the bare word and the
+phrase point at the same place; a typo, a near-miss port and a real port all answer exactly as
+before; the port lookup precedes the keyword lookup in the source; `show port-channel`,
+`show port-channel summary` and `show port-channel brief` print *exactly* what their etherchannel
+counterparts print on a lab with a live bundle; an argument is refused by the name the reader typed;
+a device with no bundle gives the same sentence under both names; and all thirteen view words are
+still views.
+
 ### The spellings IOS taught, on a console that has the views under other names
 
 ```
