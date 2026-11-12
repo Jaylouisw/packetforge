@@ -1264,6 +1264,11 @@ class Device {
         // has to carry it. It did not: a lab saved with `speed 100` came back at the hardware rate, and the
         // command had gone from running-config as well, so nothing put it back (#1405).
         if (i.speedMbps) doc.speedMbps = i.speedMbps;
+        // Who clocks a serial line. It is the port's whole side of the contract - the link refuses to exist without
+        // exactly one end claiming it - and it was stored on the interface object and nowhere else, so a saved
+        // serial lab reopened unclocked: the cable became invalid and traffic stopped. Same rule as `speedMbps`
+        // above, and the same failure the save path has produced four times now (#1405, #1459, #1465, #1405).
+        if (i.clockRateBps) doc.clockRateBps = i.clockRateBps;
         if (i.hardware.maxRangeM !== null && i.hardware.maxRangeM !== undefined) doc.maxRangeM = i.hardware.maxRangeM;
         return doc;
       }),
@@ -1359,6 +1364,10 @@ class Device {
           // put it back (#1405). `duplex` sat one line above and was saved all along.
           const forcedMbps = Number(is.speedMbps);
           if (Number.isFinite(forcedMbps) && forcedMbps > 0) iface.speedMbps = forcedMbps;
+          // The other half of a serial link, restored by the same rule: a rate on the port, refused if it is not a
+          // number a port could clock, so a hand-edited document cannot invent one.
+          const clockBps = Number(is.clockRateBps);
+          if (Number.isFinite(clockBps) && clockBps > 0) iface.clockRateBps = Math.round(clockBps);
           if (is.lagId !== undefined) iface.lagId = is.lagId || null;
           if (is.role !== undefined) iface.role = is.role || null;
           if (is.natRole !== undefined) iface.natRole = (is.natRole === 'inside' || is.natRole === 'outside') ? is.natRole : null;

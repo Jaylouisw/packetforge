@@ -1634,3 +1634,40 @@ tested together.
 
 The consolation of this species is that its fix is small: the fact was already computed and already correct. What it
 needs is a surface willing to print it, and a test that notices when it stops.
+
+### The fifth field the save path dropped, and the rate that said zero
+
+Serial WAN links arrived with a rule the engine enforces at cabling time: exactly one end of a V.35 pair supplies the
+clock, and a link with none or with two is refused. The clock itself was stored on the interface object and nowhere
+else — not in the saved document, not in `show running-config` — so the guarantee the engine had just been given came
+apart on the next load:
+
+```
+before saving:  clock 64000   validation clean      ping 100%   link runs at 0.064 Mbps
+the document:   { name, type, speed, ip, mask, ... }   <- no clockRateBps
+after reopen:   clock undefined   E_SERIAL_NO_CLOCK   link invalid, traffic stops
+```
+
+That is the fifth time this exact species has appeared in the save path — `spec` (#1459), DHCP leases (#1465), LLDP
+neighbours (#1467), `speedMbps` and `maxRangeM` (#1405, #1321) — and each time the shape was the same: a per-port or
+per-device fact added to the live object, and the serializer left alone because nothing in the test suite round-tripped
+that particular field. The fix is four lines (`if (i.clockRateBps) doc.clockRateBps = i.clockRateBps;`, the matching
+restore guarded against a document that says `-64000` or `"fast"`, and one line in the config writer), and the test is
+a document round trip rather than an assertion about the field, because it is the round trip that was missing.
+
+The same port also printed two number-shaped falsehoods, and they had one cause. `formatSpeedMbps()` rounded to whole
+megabits:
+
+```
+speed: 2Mb/s (auto), link runs at 0Mb/s, duplex: full      <- a 1.544 Mbps port, a 64 kbps line
+```
+
+`2M` for a T1 and `0M` for a line that answers a ping are worse than no number: a reader who trusts the second one
+concludes the link is dead. Rates under a megabit are now spoken in kilobits — `64K`, `115.2K`, `9.6K` — which is how
+the people who use a serial line say it anyway, and the port block names the clock and the role it implies:
+`link runs at 64Kb/s, DCE, clock rate 64000`.
+
+Both halves are one lesson, which is why they were fixed in one change: **a fact the engine enforces must be a fact
+the save carries and the console shows**, or the guarantee exists only until the page is reloaded. `show interfaces`
+is the view that reads it back, so `test/serial-clock-survives-save.test.js` asserts the reopened block character for
+character, not just the internal field.

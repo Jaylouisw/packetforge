@@ -68,7 +68,7 @@ Four scenarios, one change each, same lab (probe `E_failover_matrix`):
 | `iface.enabled = false` on wan1 | *nothing* | `drop: no usable egress interface`, while a valid second default sits in `config.routes` |
 | ISP A unplugged (no IP) | `wan1` | silence: ARP is never answered, no switch to wan2 |
 
-`_deliver()` (`simulator.js:2839`) checks `iface.enabled` and `iface.peer`; it
+`_deliver()` (`simulator.js:2908`) checks `iface.enabled` and `iface.peer`; it
 never asks whether the *link* is up. `web/app.js:921` prints a State field in the
 link inspector that the engine ignores.
 

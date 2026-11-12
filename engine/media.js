@@ -33,11 +33,18 @@ function parseSpeedMbps(s) {
 }
 
 // Render Mbps back to the short form used in the specs/UI.
+// A rate, in the unit a person would use for it.
+//
+// The old version rounded everything to whole megabits, which made two true statements false: a T1 was printed as
+// "2M" (it is 1.544) and a 64 kbps serial line as "0M" - a rate of zero for a link that was carrying traffic (#1483).
+// Anything under a megabit is spoken in kilobits, which is how a WAN engineer says it anyway.
 function formatSpeedMbps(mbps) {
   if (mbps === null || mbps === undefined) return null;
-  if (mbps >= 1000000) return (mbps / 1000000) + 'T';
-  if (mbps >= 1000) return (mbps / 1000) + 'G';
-  return Math.round(mbps) + 'M';
+  const trim = function (v) { return String(Math.round(v * 1000) / 1000); };
+  if (mbps >= 1000000) return trim(mbps / 1000000) + 'T';
+  if (mbps >= 1000) return trim(mbps / 1000) + 'G';
+  if (mbps >= 1) return trim(mbps) + 'M';
+  return trim(mbps * 1000) + 'K';
 }
 
 // ---------------------------------------------------------------------------

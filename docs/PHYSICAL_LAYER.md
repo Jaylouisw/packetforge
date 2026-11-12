@@ -136,6 +136,21 @@ hardware could not clock.
 the first HWIC slot, giving `Se0/0/0` and `Se0/0/1`. Two of them back to back, one clocked,
 is a working WAN link.
 
+The clock is a fact about the port, so it lives in three places, and it used to live in one:
+
+| where | before | now |
+|---|---|---|
+| the saved document | absent | `clockRateBps`, only on a port that has one |
+| `show running-config` | no line at all | `clock rate 64000` in the interface block |
+| `show interfaces` | `speed: 2Mb/s (auto), link runs at 0Mb/s` | `speed: 1.544Mb/s (auto), link runs at 64Kb/s, DCE, clock rate 64000` |
+
+A saved serial lab reopened unclocked, so its own cable failed validation with
+`E_SERIAL_NO_CLOCK` and traffic stopped: the cable was refusing a link that had been working
+when the file was written. The two rate figures were wrong for the same reason — the
+formatter rounded to whole megabits, which turned a T1 into `2M` and a 64 kbps line into
+`0M`, a rate of zero for a link that answers a ping. Anything under a megabit is now spoken
+in kilobits (`64K`, `115.2K`, `9.6K`), and `115.2K` is what a console port has always been.
+
 ## 3. Can these two ports be cabled?
 
 Three tests, in order (`media.canMate`):

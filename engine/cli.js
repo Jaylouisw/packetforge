@@ -2886,6 +2886,10 @@ class CliSession {
     } else if (negotiated && negotiated !== (forced || rated)) {
       text += ', link runs at ' + fmt(negotiated);
     }
+    // The clock, because on a serial link it *is* the rate the line runs at and nothing else says so: the port's
+    // rated speed is what the hardware could do, and the cable's rate is what the DCE is clocking. Without this an
+    // operator had to remember which end they configured, and `link runs at 0Mb/s` was the only hint (#1483).
+    if (iface.clockRateBps) text += ', DCE, clock rate ' + iface.clockRateBps;
     text += ', duplex: ' + (iface.duplex || 'full');
     return text;
   }
@@ -3957,6 +3961,10 @@ class CliSession {
         // already asserts that nothing configured is left out (#1259).
         if (i.speedMbps) out.push('  speed ' + i.speedMbps);
         if (i.duplex && i.duplex !== 'full') out.push('  duplex ' + i.duplex);
+        // A serial line's DCE claim, in the config where an operator looks for it. `clock rate` was a command that
+        // took effect and left no trace in running-config, so a backup of a WAN lab did not say which end clocks the
+        // line - and restoring it gave an unclocked link the validation refuses (#1483).
+        if (i.clockRateBps) out.push('  clock rate ' + i.clockRateBps);
         if (i.parent) out.push('  encapsulation dot1q ' + i.encapVid);
         // The method is printed, not the outcome. A host that has a lease holds both the `dhcp` flag and the
         // address the lease gave it, and printing the address baked a leased value into the backup: restored
