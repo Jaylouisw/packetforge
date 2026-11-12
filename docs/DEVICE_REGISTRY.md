@@ -325,6 +325,37 @@ shapes:
 The template expands to `Fa0/1 … Fa0/24`. Use `start: 0` for Cisco-style
 zero-based ports (`Gi0/0/0`).
 
+### When two declarations want the same name
+
+The engine builds one list — **every template port first, then every explicit `interfaces`
+entry** — so a template and the explicit block are not alternatives at merge time; they are
+concatenated. That matters because the interface map is keyed by name: a second declaration of
+a name that already exists does not error, it **collapses**, and the device ends up with fewer
+ports than the spec reads like it has. Measured with `new Topology().addDevice(spec)`:
+
+| spec | expanded list | device ports | which one survived |
+|---|---|---|---|
+| `portTemplate` 4 × `rj45`/1G, explicit `eth3` `sfp`/10G | `eth1,eth2,eth3,eth4,eth3` | `eth1..eth4` | the **explicit** `sfp` — `cage sfp`, `maxSpeedMbps 2500` |
+| explicit `eth9` `sfp`, then explicit `eth9` `rj45` | `eth9,eth9` | `eth9` | the **second** declaration — `rj45`, `1000` |
+| `portTemplate` 4 × `rj45`/1G, explicit `eth1` `rj45` | `eth1..eth4,eth1` | `eth1..eth4` | indistinguishable (both `rj45`) |
+
+So the **last** declaration of a duplicated name wins and the earlier one disappears without a
+trace. Two checks exist for it and they do not overlap:
+
+- `scripts/audit-port-types.js` reports `port-name-declared-twice` (severity `high`) on any
+  repeated name in the *expanded* list, so it catches both the explicit-vs-explicit and the
+  template-vs-explicit shape. Note that the rule's own inline comment (`audit-port-types.js:354`,
+  "the first port of this name is the one the device keeps") says the opposite of what the three
+  probes above show — trust the measurement, not the comment.
+- `test/hardware-invariants.test.js`'s `no port is declared twice in a spec` walks
+  `spec.interfaces` names, deliberately, because the interface map cannot see a collapse. That
+  also means it can never fire on the template case: a template name is not in `spec.interfaces`,
+  which is exactly why the audit rule beside it exists.
+
+Adversarial fixtures are the way to check any of this: both shapes are legal JSON, `device.js`
+builds them without complaint, and the result is a device that is quietly short one port — so
+neither the loader nor the invariant beside the audit says a word.
+
 A spec decides what is **drawn**, not every spelling that will be accepted. RouterOS
 silkscreens `SFP+1` and calls it `sfp-sfpplus1`, so both are legal on the command line: the
 `PORT_NAME_RULES` in `engine/iface-name.js` fold the console spelling onto the panel spelling

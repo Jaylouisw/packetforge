@@ -19,11 +19,17 @@ That is enough. You do not need to write JSON.
    port, speed ladder, PoE budget, and anything the box claims that a simulator must respect.
 2. A spec is written as `devices/<vendor>/<model>.json`, and three things check it before it
    can merge. `scripts/audit-port-types.js` runs first inside `npm test` and walks every port
-   with **eleven rules** (`unknown-cage`, `copper-connector-fibre-cage` and
+   with **twelve rules** (`unknown-cage`, `copper-connector-fibre-cage` and
    `fibre-connector-copper-cage`, `ethernet-not-data`, `pon-not-optical-connector`,
    `console-not-console`, `coax-not-coax`, `dsl-not-dsl`, `powerline-not-powerline`,
-   `wireless-not-antenna`, `template-undeclared-hardware`) and refuses to let a red finding
-   reach the test runner at all. Then `test/hardware-invariants.test.js` runs over the whole
+   `wireless-not-antenna`, `template-undeclared-hardware`, and `port-name-declared-twice`)
+   and refuses to let a red finding reach the test runner at all. The last one is the quiet
+   one: the expanded port list puts `portTemplate` ports first and explicit `interfaces`
+   after, and the interface map is keyed by name -- so an explicit port that reuses a name the
+   template already generated leaves a device one port short, with the earlier declaration
+   silently absorbed. Only that rule can see it: the catalogue invariant reads
+   `spec.interfaces`, and a template name is not in there.
+   Then `test/hardware-invariants.test.js` runs over the whole
    catalogue, not a fixture, with **25 assertions** named for the mistake that caused each one
    (`no port is declared twice in a spec`, `every combo pair names its partner symmetrically`,
    `every ethernet port has at least one usable medium`, `no port claims a line rate its cage
