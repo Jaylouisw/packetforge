@@ -702,22 +702,25 @@ queue that lost its arms gets them back in one tick instead of five at a time.
 
   The **ahead** count is a fingerprint, not a fact: it is "commits since `083e2ba1`", so it grows by exactly one
   every time this page is committed. The **behind** count depends on the ref you name *and* on when you fetched it,
-  because this clone has two remotes for the same repository. Both were re-read at the start of iteration #627:
-  **671 ahead**, **395 behind `origin/main`** (`2961f42e`, last fetched 06:06 the same day, #1492) and **400 behind
-  `forgejo-http/main`** — which was `5bc43ccf` (#1500) when the reading began and `1b1e1287` minutes later, upstream
-  having merged again while the paragraph was being written. So do not compare a number on this page with a number
-  you measure; compare the shape.
+  because this clone has two remotes for the same repository — `origin` over ssh and `forgejo-http` over http.
 
-  The shape is: `origin/main` is an **ancestor** of `forgejo-http/main` (checked with
-  `git merge-base --is-ancestor`, not assumed), and its tracking ref is simply older — at that reading it had never
-  seen **five** commits that forge main carried. Name the ref, say when you fetched it, and check any commit before
-  quoting it:
+  The shape is that those two are **two sampling points on one repository**, and either can lag or neither can.
+  Measured three times in two iterations, which is why the number is not worth memorising: at iteration #627
+  `origin/main` was `2961f42e` (last fetched 06:06, #1492) and read **395 behind**, while `forgejo-http/main` moved
+  from `5bc43ccf` (#1500) to `1b1e1287` *within that iteration* and read **400 behind**; at iteration #634 both refs
+  are `1b1e1287` — byte-identical, `git merge-base --is-ancestor` true in **both** directions — and both read
+  **678 ahead / 400 behind**. So the earlier "origin has never seen five of forge's commits" is a fact about a
+  moment, not about the remotes, and a page that quoted it as the invariant went stale in forty minutes.
+
+  Name the ref, say when you fetched it, do not compare a number on this page with one you just measured, and check
+  any commit before quoting it:
 
   ```bash
   git branch --show-current                              # fix/sfp-plus-connectors, not main
   git fetch forgejo-http main                            # moves the ref, not the worktree
-  git rev-list --left-right --count HEAD...origin/main         # 671  395  at iteration #627
-  git rev-list --left-right --count HEAD...forgejo-http/main   # 671  400  five minutes later, same session
+  git fetch origin main
+  git rev-list --left-right --count HEAD...origin/main         # 678  400  at iteration #634
+  git rev-list --left-right --count HEAD...forgejo-http/main   # 678  400  identical refs, same reading
   git merge-base --is-ancestor d4319d27 origin/main || echo "not on main"
   ```
 
