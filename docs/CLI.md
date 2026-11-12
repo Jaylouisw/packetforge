@@ -4507,7 +4507,7 @@ announcing, we simply stopped answering — which is the distinction the per-por
 port id, description, TTL, medium and speed, and whether our own port is passing frames).
 
 **The counters are port state, not a walk of the event log.** `show lldp traffic` reads
-`lldpTxFrames` / `lldpRxframes` / `lldpDiscarded` off the interface, written where a DU is sent or
+`lldpTxFrames` / `lldpRxFrames` / `lldpDiscarded` off the interface, written where a DU is sent or
 heard, so `clear logging` cannot empty them:
 
 ```
