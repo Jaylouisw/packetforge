@@ -710,6 +710,26 @@ citations, and a test each.
 - Both are already correct in `asPathLength()` (`bgp.js:271-286`) and
   `pathIsLoopFree()` (`bgp.js:308-317`).
 
+Re-measured on 2026-11-12 by calling both functions directly (they are exported at `bgp.js:618`), which is
+cheaper than building a lab for arithmetic:
+
+| Path | Local AS | `pathIsLoopFree` | `asPathLength` |
+|---|---|---|---|
+| `[65001, 65002]` | `65001` | **`false`** | 2 |
+| `[[65001, 65002]]` (AS_SET) | `65001` | **`false`** — every member is scanned | **1** — the set counts once |
+| `[[65002, 65003]]` (AS_SET) | `65001` | `true` | 1 |
+| `[{ asns: [65001, 65009] }]` (object segment) | `65001` | **`false`** — `asSegments()` unwraps `asns` | 1 |
+| `['x', 65002]` | `65001` | `true` — an unparseable member can never match | 2 |
+| `[65001]` | `'nonsense'` | **`true`** — an unparseable *local* AS matches nothing | 1 |
+| `['65001']` | `65001` | **`false`** — `parseAs()` normalises the string | 1 |
+| `[4200000000]` | `4200000000` | `false` — 4-octet ASes compare fine | 1 |
+| `null` | `65001` | `true` | 0 |
+
+The two `true` results that look wrong are the ones that matter: a garbage AS anywhere (including in the local
+position) makes the check answer "loop-free", because the alternative — treating unparseable as a match — would
+drop routes for a typo. That is a deliberate fail-open, and it happens *before* `parseAs()`-validated config
+would ever have been accepted.
+
 ### 6.5 L5 — what is explicitly *not* implemented
 
 | Not implemented | Why, and the citation that makes it a choice rather than an omission |
@@ -717,6 +737,16 @@ citations, and a test each.
 | `allowas-in` / accepting our own AS | RFC 4271 §9.1.2: "Operations of a BGP speaker that is configured to accept routes with its own autonomous system number in the AS path are outside the scope of this document." |
 | `enforce-first-as` (drop an eBGP route whose leftmost AS ≠ `remoteAs`) | Not mandated by RFC 4271; it is deployment practice (see RFC 8212 for the "default deny" framing). Recorded here so that if it is added it is added as *policy*, not as a silent session-time check. |
 | Route reflection / confederations | §1; RFC 4456, RFC 5065 are later layers. |
+
+One trap in that last row, found on 2026-11-12: the peer spec has a field for it, and the field does nothing.
+`normalizePeer()` (`bgp.js:197`) returns `routeReflectorClient: !!(src.routeReflectorClient || src.rrClient)` —
+so both spellings are accepted, it is part of the object's stable shape (`bgp.js:180`), and `test/bgp.test.js`
+asserts it twice (`:194` carries it through, `:197` accepts `rrClient` as an alias). **Nothing reads it.**
+`grep -rn 'routeReflectorClient\|rrClient' engine/ server/ web/` returns exactly those two definition lines, and
+the L3 guard in `simulator.js:2146` is unconditional — there is no `&& !adj.routeReflectorClient` anywhere. So
+`routeReflectorClient: true` on a peer is accepted, normalised, unit-tested and completely inert: the route is
+still not relayed. Treat it as a placeholder for the RFC 4456 layer, not a switch, and do not let a test that
+passes convince you reflection works.
 
 ---
 
