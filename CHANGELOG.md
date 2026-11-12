@@ -1263,6 +1263,16 @@ Router-d2#show ip route 172.16.1.0            (a second two-router lab, R1's LAN
 
 ## 0.1.0 - 2026-11-07
 
+*This entry describes the initial commit `562b7b4c` (2026-11-07), and its numbers are that commit's: 91 JSON
+specs across seventeen vendor directories under `devices/` (`git ls-tree --name-only 562b7b4c devices/` lists
+eighteen entries — the seventeen plus `registry.js`), which is a census of the first day rather than of today's
+1,661. Two items on the CI line have since left the tree: `codeql.yml` and `release.yml` existed at that commit
+and `.github/workflows/` was later removed in favour of `.forgejo/workflows/ci.yml`, so the present tense there
+is historical — see [docs/CI.md](docs/CI.md) for what runs now. The registry publish it describes keyed on `v*`
+tags, and this repository has never carried one (`git tag` is empty), so no image was ever pushed from it. The
+version number lives in two places only, this heading and `package.json`, and `[Unreleased]` is the file's only
+link reference.*
+
 ### Added
 
 - Event-driven L2/L3/ARP/ICMP simulation engine: MAC learning, unknown-unicast/broadcast
