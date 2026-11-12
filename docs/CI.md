@@ -77,7 +77,10 @@ locally and nothing at all about what CI runs. Then
 
 **`syntax-check` is a parse, not a lint, over seven directories.** It runs `node --check` once per file
 and reports `Syntax-checked 337 files: all OK` — every `.js` under `engine/`, `server/`, `devices/`,
-`web/`, `scripts/`, `examples/` and `test/`, which is the whole application. `tmp/` is **not** one of the
+`web/`, `scripts/`, `examples/` and `test/`, which is the whole application. That 337 is an **on-disk**
+count, not a `git ls-files` count: 336 of them are tracked and one is not, so a suite you have written
+but not `git add`ed is already being parsed — and the number will disagree with a tracked-file total
+until you commit. `tmp/` is **not** one of the
 seven, so the **109 tracked probe scripts** sitting there are never parsed by it (nor are
 `research/incoming/check-san.js` or the stray file at the `C` + U+F03A path — 111 tracked `.js` files
 outside the scan in total). That is the right trade for throwaway probes, but it means "the tree parses"
@@ -620,13 +623,13 @@ queue that lost its arms gets them back in one tick instead of five at a time.
   **None of these readings is a reading of `main`.** They were taken in the working tree, which sits on
   branch `fix/sfp-plus-connectors`, and that branch diverged from `origin/main` at `083e2ba1`
   (2026-11-08 16:58:44) — at the time of the fourth reading it was **382 ahead and 361 behind**, and
-  now reads **552 ahead and 381 behind** (after a fresh `git fetch`, which moved the behind-side
+  now reads **553 ahead and 381 behind** (after a fresh `git fetch`, which moved the behind-side
   from 361 to 373 — main's tip is `f370b893`, #1450); either way not one of the commits above is an ancestor of
   `origin/main`. Check any of them before you quote it:
 
   ```bash
   git branch --show-current                              # fix/sfp-plus-connectors, not main
-  git rev-list --left-right --count HEAD...origin/main    # 552  381
+  git rev-list --left-right --count HEAD...origin/main    # 553  381
   git merge-base --is-ancestor d4319d27 origin/main || echo "not on main"
   ```
 
