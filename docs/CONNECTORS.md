@@ -51,10 +51,18 @@ makes `CAGE_SPEEDS['sfp28']()` look like a missing row:
 | Shape | Count | Cages | Behaviour |
 |---|---|---|---|
 | fixed list | **13** | `sfp`, `sfp+`, `qsfp+`, `qsfp28`, `qsfp56`, `sfp56`, `xfp`, the four FC cages (`fc-sfp`, `fc-sfp28`, `fc-sfpdd`, `fc-qsfp28`), `console`, `usb` | same answer at any rating — `sfp+` is `[1000, 10000]` |
-| rating-filtered | **12** | `rj45`, `combo`, `sfp28`, `qsfpdd`, `sc-apc`, `sc-upc`, `lc-upc`, `lc-apc`, `coax`, `dsl`, `powerline`, `antenna` | a ladder clamped to the port's rate, so **called with no rate it returns `[]`** — `sfp28(25000)` is `[1000, 10000, 25000]`, `qsfpdd(100000)` is `[40000, 100000]` |
-| echoes the rating | **1** | `wwan` | `[1000]` at 1G, `[400000]` at 400G — it can never name a medium |
+| rating-filtered | **11** | `rj45`, `combo`, `sfp28`, `qsfpdd`, `sc-apc`, `sc-upc`, `lc-upc`, `lc-apc`, `coax`, `dsl`, `powerline` | a ladder clamped to the port's rate, so **called with no rate it returns `[]`** — `sfp28(25000)` is `[1000, 10000, 25000]`, `qsfpdd(100000)` is `[40000, 100000]` |
+| echoes the rating | **2** | `wwan`, `antenna` | `[1000]` at 1G, `[400000]` at 400G — neither can name a medium |
 
 So an empty `CAGE_SPEEDS['sfp28']()` means "you did not tell me the rating", not "this cage has no default".
+
+Two things about that classification cost a probe each, so they are worth writing down beside it. First,
+`antenna` belongs in the echo row, not the filtered one: `engine/media.js:750` is `function (maxMbps) { return
+maxMbps > 0 ? [maxMbps] : []; }`, a rating under another name, exactly like `wwan` at `:646` — the only
+difference being the zero guard (`wwan(0)` is `[0]`, `antenna(0)` is `[]`). Second, `dsl` looks fixed if you
+sample high: it returns `[24,100,300]` at every rating from 300 Mbps up, and only `1:[]`, `24:[24]`,
+`100:[24,100]` show the filter. Classify a ladder by probing **below** its smallest rung, or the
+rating-filtered row reads as the fixed one.
 A port that declares neither `speedCaps` nor a rate label therefore gets no speed classes for those twelve,
 which is the real consequence. `sfp+` is the fixed one this paragraph used to contrast it with, and the contrast
 is between a fixed list and a filtered ladder — not between "has an entry" and "does not".
