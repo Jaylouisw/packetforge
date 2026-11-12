@@ -528,10 +528,9 @@ queue that lost its arms gets them back in one tick instead of five at a time.
 - **Whether any suite is red is a reading, not a fact about the repository — so read it.** The two
   suites that were red for a long time are green now: `test/spec-vs-description.test.js` **3 passed, 0
   failed** and `test/canonical-urls.test.js` **43 passed, 0 failed**, with `scripts/check-canonical-urls.js`
-  printing `OK — 2200 files, every project URL points at https://git.jayw.uk/jaylouisw/packetforge`. That file
-  count is the one number in this paragraph that moves on its own — two device specs and a catalogue
-  edit took it from 2114 to 2200 without touching a URL — so read it as a snapshot and re-run the script
-  rather than quoting it.
+  printing `OK — 2200 files, every project URL points at https://git.jayw.uk/jaylouisw/packetforge`. That
+  number is the one in this paragraph that moves on its own: **2114 → 2200 → 2278** today, and none of the
+  three moves touched a URL, so read it as a snapshot and re-run the script rather than quoting it.
 
   The tree is **not** always green, and it moved twice in one evening while this paragraph was being
   written. Two full runs with `node scripts/run-tests.js`, minutes apart:
@@ -571,11 +570,17 @@ queue that lost its arms gets them back in one tick instead of five at a time.
   keeps a list, and stale entries accumulate silently. Measured on this machine while taking the fifth
   reading, that list had **nine** leftover worktrees in it (`pf-mainsuite`, `pf-combined`, `pf-int`,
   `pf-main-check`, `pf-mergeall`, `pf-rebase-auto`, `pf-ui`, `tmp/pfwork`, and a second `pf-mainsuite`
-  entry) — every one from a past reading or merge attempt. Note that **`git worktree prune` will not
-  clear them**: prune only forgets entries whose directory has *vanished*, and it reported nothing to do
-  here because all nine directories still exist. Each has to be removed by name,
-  `git worktree remove <path>` (or `--force` when it holds uncommitted work), or they keep consuming
-  disk and keep appearing in `git worktree list` output you may be grepping for your own.
+  entry) — every one from a past reading or merge attempt. **`git worktree prune` will clear all nine**, and
+  this page used to say the opposite, on the reasoning that prune only forgets entries whose directory has
+  vanished. That is not prune's rule. Prune forgets an entry whose **gitdir link no longer resolves**, and a
+  directory that still exists does not protect the entry: all nine of these directories are still on disk
+  (`test -d` says yes for every one), yet `git worktree list` marks all nine `prunable` and
+  `git worktree prune --dry-run -v` names every one with the same reason —
+  `gitdir file points to non-existent location`. Their `.git` files still point at the old
+  `/mnt/c/…`-style path from before this checkout moved, so they are directories pretending to be
+  worktrees. So `prune` is the right tool for this wreckage and `git worktree remove <path>` is the wrong
+  one: remove expects a live worktree, and these are not. For a worktree you actually used, remove it by
+  name (`--force` when it holds uncommitted work); for the ones whose directories merely survive, `prune`.
 
   Measured that way on `eeafda5a` — a full run, not a sample:
 
@@ -597,13 +602,13 @@ queue that lost its arms gets them back in one tick instead of five at a time.
   **None of these readings is a reading of `main`.** They were taken in the working tree, which sits on
   branch `fix/sfp-plus-connectors`, and that branch diverged from `origin/main` at `083e2ba1`
   (2026-11-08 16:58:44) — at the time of the fourth reading it was **382 ahead and 361 behind**, and
-  now reads **532 ahead and 378 behind** (after a fresh `git fetch`, which moved the behind-side
+  now reads **533 ahead and 378 behind** (after a fresh `git fetch`, which moved the behind-side
   from 361 to 373 — main's tip is `f370b893`, #1450); either way not one of the commits above is an ancestor of
   `origin/main`. Check any of them before you quote it:
 
   ```bash
   git branch --show-current                              # fix/sfp-plus-connectors, not main
-  git rev-list --left-right --count HEAD...origin/main    # 532  378
+  git rev-list --left-right --count HEAD...origin/main    # 533  378
   git merge-base --is-ancestor d4319d27 origin/main || echo "not on main"
   ```
 
