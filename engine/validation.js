@@ -38,6 +38,8 @@
 // device's interface collection (Map, array or plain object).
 
 const mediaModel = require('./media');
+// One rule for "do these two switchports file a frame the same way", shared with the data plane (#1445).
+const vlanLib = require('./vlan');
 const optical = require('./optical');
 
 const MEDIA = mediaModel.MEDIA;
@@ -138,6 +140,12 @@ const RULES = [
     code: 'W_HYBRID_CORD', severity: 'warning',
     description: 'A hybrid UPC/APC patch cord is joining two different polishes; it is legal ' +
       'but costs its insertion loss and cannot be replaced by a plain lead.'
+  },
+  {
+    code: 'W_SWITCHPORT_MISMATCH', severity: 'warning',
+    description: 'The two ends of this cable classify frames differently (native or access VLAN, ' +
+      'trunk against access, or different allowed lists), so frames one end sends are filed under a ' +
+      'VLAN the other end does not carry.'
   }
 ];
 
@@ -810,6 +818,28 @@ function validateConnection(input) {
         ', below the ' + speedLabel(portA.maxSpeedMbps) + ' of ' + portA.name +
         ' and the ' + speedLabel(portB.maxSpeedMbps) + ' of ' + portB.name + '.'
     });
+  }
+
+  // -- W_SWITCHPORT_MISMATCH ------------------------------------------------
+  //
+  // Two switches joined by trunks that disagree about the native VLAN pass every other check on this cable: the
+  // medium is right, the speed matches, both ports are up, the distance is fine. The traffic then dies silently -
+  // `show interfaces` reports a clean link on both boxes, and the only trace is a counter on one side. `framesCompatible()`
+  // has been the rule for "do these two ports file a frame the same way" since the LAG rules landed, and nothing
+  // outside its own test ever asked it. It is asked here now, and by the data plane when a frame dies of it (#1445).
+  //
+  // A warning, not an error: a trunk between two boxes that carry no untagged traffic at all is legitimately allowed
+  // to disagree about the native VLAN, and refusing the cable would be refusing something the lab may be testing on
+  // purpose. Saying so on the cable is the honest middle.
+  if (ifaceA && ifaceB && ifaceA.vlan && ifaceB.vlan) {
+    const why = vlanLib.mismatchReason(ifaceA.vlan, ifaceB.vlan);
+    if (why) {
+      warnings.push({
+        code: 'W_SWITCHPORT_MISMATCH',
+        message: 'The two ends of this cable file frames differently - ' + why + ' - so frames one end sends ' +
+          'will be filed under a VLAN the other end does not carry on this cable.'
+      });
+    }
   }
 
   // -- W_POE_DRAW -----------------------------------------------------------

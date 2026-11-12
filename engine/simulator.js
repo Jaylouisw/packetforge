@@ -2726,8 +2726,11 @@ class Simulator {
     // VLAN refusal, so the rank was written against that wording and one reason could only ever match one of them.
     // The priority is unchanged on purpose - where this reason sits was decided when it was always about VLANs, and
     // naming the tree does not make it a different kind of cause.
+    // `switchport mismatch` sits above `no ARP reply from` on purpose (#1445): a trunk whose two ends file untagged
+    // frames differently is a recorded drop with one specific fix, while "no ARP reply" is the conclusion drawn from
+    // it. Ranking the conclusion first sent an operator looking for a host that never existed.
     const RANK = ['peer port shut', 'link administratively down',
-      'no interface on the subnet of next hop',
+      'no interface on the subnet of next hop', 'switchport mismatch',
       'no ARP reply from', 'no egress ports', 'ACL ', 'VLAN not allowed', 'NAT could not translate'];
     const found = [];
     for (let i = 0; i < (events || []).length; i++) {
@@ -3125,7 +3128,11 @@ class Simulator {
     }
 
     if (!egresses.length) {
-      this._emit({ type: 'drop', reason: this._noEgressReason(vid, refused), dev: dev.id, iface: inIface, vlan: vid });
+      this._emit({
+        type: 'drop',
+        reason: this._noEgressReason(vid, refused, this._switchportMismatch(dev, frame, inIface)),
+        dev: dev.id, iface: inIface, vlan: vid
+      });
       return;
     }
 
@@ -3148,7 +3155,7 @@ class Simulator {
   // different places: the VLAN one has them re-checking membership that was never wrong, while the tree one points
   // at the port `show spanning-tree` already prints as "blocking (traffic dropped)". So the tree is named first,
   // ahead of a VLAN refusal, because a refusal by the tree holds however the ports are configured.
-  _noEgressReason(vid, refused) {
+  _noEgressReason(vid, refused, mismatch) {
     const list = refused || [];
     const portsFor = function (why) {
       return list.filter(function (r) { return r.why === why; }).map(function (r) { return r.iface; });
@@ -3163,7 +3170,41 @@ class Simulator {
       // hairpin. That is not a VLAN fact either.
       return 'no egress ports: the only other port is a member of the ingress port-channel';
     }
+    // The two ends of this cable file frames differently, which is why this VLAN has no members here (#1445). Named
+    // ahead of the plain VLAN sentence, because "no egress ports in VLAN 10" is true and useless: it sends an operator
+    // to look for VLAN 10 members on a box whose real problem is on the other end of one cable. It keeps the
+    // "no egress ports" prefix so the ranking in `_lastDiscard()` does not move - this is still a frame that died on
+    // the box it had reached.
+    if (mismatch) return mismatch;
     return 'no egress ports in VLAN ' + vid;
+  }
+
+  // The cable's other end files frames differently, and this frame died of it (#1445), or null.
+  //
+  // An untagged frame arriving on a trunk is filed under *this* end's native VLAN. If the far end's native VLAN is a
+  // different number, the sender filed the same frame under a VLAN this box does not use, so it lands in a VLAN with
+  // no members and is dropped. `vlanLib.mismatchReason()` is the same rule the cable inspector warns with, so the
+  // counter and the cable cannot describe one misconfiguration two ways.
+  _switchportMismatch(dev, frame, inIfaceName) {
+    if (!inIfaceName || !frame || frame.wireTagged) return null;
+    const port = dev.interfaces.get(inIfaceName);
+    if (!port || !port.vlan || port.vlan.mode !== 'trunk') return null;
+    const peer = port.peer;
+    if (!peer) return null;
+    const peerDev = this.topo.getDevice(peer.deviceId);
+    const peerPort = peerDev && peerDev.interfaces ? peerDev.interfaces.get(peer.iface) : null;
+    if (!peerPort || !peerPort.vlan) return null;
+    const why = vlanLib.mismatchReason(port.vlan, peerPort.vlan);
+    if (!why) return null;
+    const mine = vlanLib.normalizePortConfig(port.vlan);
+    const theirs = vlanLib.normalizePortConfig(peerPort.vlan);
+    // Said from the box that dropped it, and given its own opening so a failed ping can rank it above the
+    // "no ARP reply" inference: this is a recorded cause with one specific fix, while a missing reply is a
+    // conclusion drawn from it.
+    return 'switchport mismatch: ' + why + ' - the untagged frame was filed under VLAN ' + mine.nativeVlan +
+      ' here, but ' + (peerDev.name || peerDev.id) + ' ' + peer.iface + ' sent it as VLAN ' + theirs.nativeVlan +
+      ', so it landed in a VLAN nothing on this box carries';
+
   }
 
   _forwardL3(dev, frame, inIface) {
