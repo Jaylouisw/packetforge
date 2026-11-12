@@ -627,6 +627,56 @@ port and a real port answer exactly as before; `?` and `help` print usage; case 
 the words live in one named table and the console asks it; and the keyword check is after the
 port lookup in the source, so a port named like a keyword still wins.
 
+### The request that was answered with nothing
+
+A pool of two addresses, three clients asking:
+
+```
+r1> show ip dhcp binding
+IP address      Client identifier / MAC       Pool              Expires in
+10.20.0.10      02:00:00:00:02:00             LAN               -
+10.20.0.11      02:00:00:00:03:00             LAN               -
+2 active binding(s)…
+
+r1> show ip dhcp pool
+  In use:         2 of 2 address(es)
+
+c> show interfaces eth0
+  ip:  unassigned (dhcp)
+```
+
+Three views, each individually true, collectively useless. The binding table listed only the successes, so it looked
+complete. `In use: 2 of 2` is what a pool nobody has asked also says. And `unassigned` is what a host with DHCP
+switched off says. The one fact an operator needs — a client asked and was answered with silence, for a stated reason —
+was in the event log the whole time, because the exchange has recorded every failure since it was written:
+
+```
+{"type":"dhcp","phase":"failed","reason":"pool-exhausted","dev":"r1","pool":"LAN",
+ "detail":"pool LAN has no address left to offer"}
+```
+
+The three views now read that log, so there is exactly one sentence and three places it appears:
+
+| view | before | now |
+| --- | --- | --- |
+| `show ip dhcp binding` (server) | only successes | `1 request(s) refused: pool LAN has no address left to offer (02:…:04:00, step 0)` |
+| — and with no leases at all | `no leases: nothing has asked this server for an address yet` | `no leases: 1 request(s) were refused, none granted` — because "nothing has asked" stops being true the moment something asks |
+| `show ip dhcp pool` (server) | `In use: 2 of 2 address(es)` | plus `Refused: 1 request(s) - pool LAN has no address left to offer` |
+| `show interfaces eth0` (client) | `ip: unassigned (dhcp)` | plus `dhcp: 1 request(s), no address - pool LAN has no address left to offer (from ISR 4331 branch router-r1) (step 0)` |
+
+Two decisions worth keeping:
+
+* **No new state.** Every surface reads the run's own event log, so no counter can disagree with the log and a lab
+  restored from a file cannot lose the fact. It is the same source `dhcpBindings()` and `_lastDiscard()` already use.
+* **The client line names the server.** A client cannot know why a server stayed silent; a lab can. The line says
+  whose sentence it is (`from <server>`) rather than putting the server's private reasoning in the client's mouth.
+
+`test/dhcp-refusal-visible.test.js` pins it, 32 checks: the refused request is counted once and named in all three
+views; all three carry the engine's sentence verbatim, and the log holds exactly one such event; the two clients that
+did get leases have no line to explain; a pool that does not cover the subnet is refused with no lease to hide behind,
+and says so instead of "nothing has asked"; and a lab where everybody got an address keeps every old answer word for
+word, including the server nobody has asked.
+
 ### A reason read on one console described another box
 
 ```
