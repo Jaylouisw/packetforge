@@ -38,6 +38,16 @@ what runs — and the anchors table in §1 is the map from the spec to the code 
 > verdict from `_bgpReachable()`, which always carries a code), and no test references them. Treat them as
 > the FSM's per-step defaults, not as codes a lab can provoke.
 >
+> The arrow chain above is the **walk**, and it is shorter than the vocabulary on purpose: `BGP_STATES`
+> declares six states — `idle`, `connect`, `active`, `opensent`, `openconfirm`, `established` (`bgp.js:35`)
+> — and `FSM` carries a row for all six, but **nothing enters `active`**: no transition returns it, and the
+> four rows in `ESTABLISHMENT` never name it. It is reachable only by asking about it —
+> `nextState('active', 'tcp-connected')` answers `opensent` — so code that starts there skips the connect
+> step instead of failing. The two fallbacks matter for the same reason, and they are not symmetric: an
+> unknown **state** answers `idle` (`nextState('nonsense', 'manual-start')` → `idle`) while an unknown
+> **event** answers the state you passed (`nextState('connect', 'no-such-event')` → `connect`). A typo in
+> the event leaves you where you were; a typo in the state sends you back to the start.
+>
 > A refused session installs no routes, which is the point: "the config looks right" and
 > "the prefixes moved" are now different statements. `show ip bgp summary` reads the real
 > per-neighbour state.
