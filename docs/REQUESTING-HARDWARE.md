@@ -146,8 +146,10 @@ deleted item would otherwise look like an off-by-one forever.
 
 That is **25** values, not the 21 this list used to carry — `splitter`, `tap`, `tablet` and `ap` were
 missing, and they are not hypothetical: measured today the catalogue holds **17 splitters, 18 taps, 10
-tablets and 11 access points**. Those counts move with every device PR, so run the one-liner below
-rather than quoting this line. A request whose hardware is a PON splitter needs the value that exists, not the
+tablets and 11 access points** — re-measured on 2026-11-12 against 1,661 specs and every one of the four was
+still exact, as was the **25** in the sentence before it (`test/hardware-invariants.test.js` printed
+`25 passed, 0 failed`). Those counts move with every device PR, so run the one-liner below rather than quoting
+this line. A request whose hardware is a PON splitter needs the value that exists, not the
 nearest one that used to appear on this list:
 
 ```bash
@@ -212,8 +214,9 @@ node scripts/missing-devices.js --strict     # also fail when an open request na
 
 There are four flags plus help (`--stubs`, `--json`, `--no-issues`, `--strict`, `-h`/`--help`), and the
 script validates them: an unknown one prints `Unknown flag: --bogus` with the usage line and exits **2**,
-while `--help` exits **0**. Nothing is silently ignored — unlike `request-queue.js` above, whose only
-flag is `--skeleton` and whose extra arguments vanish. Two of the five are worth
+while `--help` exits **0**. Nothing is silently ignored — unlike `request-queue.js` above, which takes
+`--skeleton` and `--json` and quietly ignores anything else. (This sentence used to say its *only* flag was
+`--skeleton`; that was the same leftover the section above admits to, and it survived one correction longer.) Two of the five are worth
 understanding before a CI run surprises you:
 
 - **The default run also scans the tracker**, not just the topologies. That needs `FORGEJO_TOKEN`, and
@@ -234,6 +237,17 @@ understanding before a CI run surprises you:
 It exits 1 as soon as a lab references a model that is not in `devices/`, which
 is why CI runs it over `examples/`: a lab cannot merge alongside hardware the
 simulator does not have. Without `--stubs` it writes nothing at all.
+
+All of the above was re-measured on 2026-11-12 rather than assumed, because the whole point of this section is
+that a script's contract drifts silently: `--bogus` printed `Unknown flag: --bogus` plus the usage line and
+exited **2**; `--help` printed the same usage line and exited **0**; a tokenless default run over `examples/`
+printed `Scanning 4 topology file(s), 19 device reference(s).` / `Catalogue: 1661 models (devices)` then the
+`not scanned: FORGEJO_TOKEN is not set …` block quoted above and `CI gate: passed.`, exiting **0**; the
+`--no-issues` run said `issue scan disabled with --no-issues` instead and also exited **0**. Pointing it at a
+scratch copy of `examples/lab1-two-pcs-switch.json` with one model renamed to `probe580-nonexistent-model`
+exited **1** with `MISSING: 1 model(s) in 1 vendor(s)` and the `next:` line — so the gate is the topology scan,
+exactly as claimed. The same run also shows why exit codes here have to be read with `&&`/`||` or `spawnSync`:
+see the exit-code note near the end of the tracker section in [TRIAGE.md](TRIAGE.md).
 
 `--stubs` produces a form, not a device. `category` is `unknown` unless the model
 string names the type outright, `capabilities` is the `["host"]` placeholder and
