@@ -851,7 +851,9 @@ halves.
 
 The 3,399 needs spelling out, because the obvious search finds nothing: **no medium id in the catalogue
 contains "bidi"**. They are `1000base-bx`, `1000base-bx-u` and `1000base-bx-d`, and all 3,399 ports list
-the `-u`/`-d` pair together with **0** listing either half alone. A `grep -ril bidi devices/` answers three
+the `-u`/`-d` pair together with **0** listing either half alone — and, measured the same way, **0** ports
+offer the unsided `1000base-bx` at all, so the pair is the only way this medium reaches a port: 3,399 offer
+`1000base-bx-u` and 3,399 offer `1000base-bx-d`, which is every port in both counts. A `grep -ril bidi devices/` answers three
 files and six occurrences, every one of them prose — a product named `om4501-40gsr4bidi`, two
 "bidirectional" notes and one "bidium" — and no port at all. Count through `derivePortHardware()` and the
 medium ids, never the word.
