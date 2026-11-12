@@ -230,7 +230,28 @@ pull requests are closed and none is open
 swept by `request-queue.js`; nothing on GitHub is. CONTRIBUTING sends contributors to GitHub because
 accounts here are not open to the public, so the queue that grows is the one nobody triages — the top
 table's row used to say "GitHub issues point at it", which was never true and is contradicted by the
-paragraph below explaining that the redirect workflow does not exist. For GitHub:
+paragraph below explaining that the redirect workflow does not exist. The three counts are one command, and
+they need no token — the search endpoint answers anonymously at ten calls a minute:
+
+```sh
+node -e "
+(async () => {
+  for (const s of ['is:issue is:open', 'is:pr is:open', 'is:pr is:closed']) {
+    const r = await fetch('https://api.github.com/search/issues?q=repo:Jaylouisw/packetforge+' + s.replace(/ /g, '+'),
+      { headers: { accept: 'application/vnd.github+json', 'user-agent': 'pf-docs' } });
+    console.log(s.padEnd(18), (await r.json()).total_count);
+  }
+})();
+"
+```
+
+```
+is:issue is:open   787
+is:pr is:open      0
+is:pr is:closed    714
+```
+
+For GitHub:
 
 - Migrate the open issues once (title, body, labels, author, created date). The API can do this;
   Forgejo's `POST /repos/:owner/:repo/issues` preserves the body and labels, and the original author
