@@ -817,9 +817,18 @@ problem instead of reporting it), but there is no `next-hop-self` verb in the co
 
 ### 7.3 Implementation
 
-**`nextHopFor()` does not exist yet.** `bgp.js` exports `advertise`, `asPathLength`, `bestPath`,
-`comparePaths`, `establishSession`, `nextState`, `normalizePeer`, `pathIsLoopFree`, `sessionType` and
-`validatePeer` — no `nextHopFor`. The rules above are implemented inline in `computeBgp()` at
+**`nextHopFor()` does not exist yet.** `bgp.js`'s export block holds **seventeen** names: ten functions —
+`advertise`, `asPathLength`, `bestPath`, `comparePaths`, `establishSession`, `nextState`, `normalizePeer`,
+`pathIsLoopFree`, `sessionType`, `validatePeer` — and seven constants (`BGP_PORT`, `ESTABLISHMENT`, `BGP_STATES`,
+`BGP_EVENTS`, `BGP_ORIGIN`, `DEFAULT_HOLD_TIME`, `DEFAULT_LOCAL_PREF`). Count it yourself with
+`node -e "const b=require('./engine/bgp.js');console.log(Object.keys(b).length, Object.keys(b).filter(n=>typeof b[n]==='function').length)"`
+→ `17 10`. No `nextHopFor` among them: `grep -rn nextHopFor engine/ server/ web/ test/` prints nothing, so the
+name in this section is a proposal. Neither is there a `next-hop-self` verb anywhere —
+`grep -rn 'next-hop-self' engine/ server/ web/ docs/CLI.md` prints nothing either, which matters because NH-4 is
+the documented standard fix and the console cannot express it. The three anchors this section leans on were
+re-checked the same day and all three land exactly: the inline expression is the whole of `simulator.js:2152`
+(`2149`–`2151` are its three comment lines), the install loop is `2187`–`2201` (opening `for (const key of
+Object.keys(s.best))` through the closing brace of that `for`), and `egressFor()` is `device.js:738`–`745`. The rules above are implemented inline in `computeBgp()` at
 `simulator.js:2149-2152` (`adj.type === 'ebgp' ? adj.localIp : (e.nextHop || adj.localIp)`) — NH-1 and
 NH-3 and the local-origination half of NH-4, in one expression with no NH-5 guard and no
 `next-hop-self` verb behind it. Read the block below as the function to extract, not as a citation.
