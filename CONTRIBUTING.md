@@ -25,6 +25,17 @@ GitHub thread. You never need an account on the forge, and the forge never needs
 job in `.forgejo/workflows/` that invokes it, so a GitHub pull request waits until a maintainer runs
 the bridge. If yours has been sitting for a few days, say so on the thread.
 
+**Four issue templates are on offer, and one of them asks for a label that does not exist.**
+`.github/ISSUE_TEMPLATE/` holds `bug_report.yml` (`labels: [bug]`), `device_request.yml`
+(`[device-request, device, enhancement]`), `enhancement.yml` (`[enhancement]`) and
+`feature_request.yml` (`[feature]`). The forge carries six labels — `bug`, `device`,
+`device-request`, `enhancement`, `needs-datasheet`, `from-github` — and **`feature` is not one of
+them**, so a feature request lands unlabelled while everything else lands tagged. Pick the template
+by what you have: *Enhancement* if the thing exists and should work better, *Feature request* if it
+does not exist yet — and if you want the label, or want a filter to find it later, the Enhancement
+one is the only one of the pair that will carry a tag. Nothing in the repo applies labels after the
+fact: `.github/labels.yml` looks like it would, but nothing reads it.
+
 **There are two trackers, and they do not hold the same thing.** Measured today: the GitHub mirror
 carries **787 open issues and 2 open pull requests** (`api.github.com/search/issues` with
 `repo:Jaylouisw/packetforge is:issue is:open`, so 787 is issues rather than the 789 the repo object
@@ -314,7 +325,7 @@ minutes earlier (1,628 → 1,629), so a prose count can be stale before it is me
 - **A count in prose is a claim about one revision.** When you touch a sentence that quotes one, re-run
   the one-liner in the same edit; if you cannot, leave the count out rather than guess it.
 - **And it is a claim about one *branch*.** These numbers were measured in a working tree sitting on
-  `fix/sfp-plus-connectors`, which at the time of the last reading was **548 commits ahead of
+  `fix/sfp-plus-connectors`, which at the time of the last reading was **549 commits ahead of
   `origin/main` and 373 behind it** (the merge base is still `083e2ba1`) — so none of them is a
   statement about `main`. Six documentation pages
   exist on `main` and not here (`BUG_REPORTS.md`, `DEVICE_REQUEST_SWEEP.md`, `DEVICE_SCHEMA.md`,
@@ -323,7 +334,7 @@ minutes earlier (1,628 → 1,629), so a prose count can be stale before it is me
 
   ```bash
   git branch --show-current                              # fix/sfp-plus-connectors, not main
-  git rev-list --left-right --count HEAD...origin/main    # 548  381   (element 1 = ahead)
+  git rev-list --left-right --count HEAD...origin/main    # 549  381   (element 1 = ahead)
   git diff --diff-filter=A --name-only HEAD origin/main -- docs/   # pages only main has
   ```
 

@@ -49,7 +49,9 @@ Two things about the form are worth stating because neither is visible from the 
   named `.github/workflows/labels.yml`, which went with the rest of that directory in #1059, and no
   script, workflow or npm alias in the tree reads it — so eight of its thirteen
   (`feature`, `documentation`, `ci`, `question`, `good first issue`, `help wanted`, `duplicate`,
-  `wontfix`) have never existed on the forge.
+  `wontfix`) have never existed on the forge. One of them is asked for by a shipped template:  
+  `.github/ISSUE_TEMPLATE/feature_request.yml` declares `labels: [feature]`, so a feature request is
+  filed untagged, while `enhancement.yml` lands with the label it asks for.
 - **The link needs an account.** `GET/issues/new?template=device_request.yml` answers **303** to an
   anonymous client, so the form's rendering is not something this repository can verify; a maintainer
   with a session sees it, and the checked-in YAML is the only thing under review here. If you change the
