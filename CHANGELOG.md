@@ -1141,6 +1141,11 @@ on both sides), #44 (three neighbours on one segment, costs flipped) and #54 (`f
 `insideLocal` *and* `insideGlobal`, and two hosts behind one overload pool get `:1024` and `:1025`). Nothing
 here is a claim about today; the entries stay as the record of what was filed.
 
+Re-run once more on this tree, from the console rather than from the code: #42, #43 and #44 rebuilt as live
+labs (two routers cabled port to port; then three L3 switches fanned off the eight-port L2 switch so one
+segment really is shared), and #54 read straight off `flowKeyOf()` at `nat.js:563-568`, which now joins
+`insideLocal` *and* `insideGlobal` into the key. All four answers were the same as below.
+
 #54 re-measured on the current tree, because the traffic and VLAN work has since touched both
 `simulator.js` and `cli.js`: two hosts in different subnets behind one
 `ip nat inside source list 1 interface Gi0/2 overload`, one flow each to `203.0.113.9:80`, and
@@ -1197,7 +1202,11 @@ Router-d2#show ip route 172.16.1.0            (a second two-router lab, R1's LAN
   **No longer reproduces** — built the lab: R1, R2, R3 all FULL neighbours on one segment, R1's segment
   port `ip ospf cost 10` and R2's `100`. R3's route to R1's LAN came out at cost **20** and to R2's LAN at
   **110**; flipping the two costs flipped the routes to **110** and **20**. Each router's own interface
-  cost is used, so nothing is being chosen by router-id order. (The lab also has to enable OSPF before
+  cost is used, so nothing is being chosen by router-id order. The figure is read from the prefix table of
+  `show ip ospf database`, which is the only view that prints a cost - `show ip route <prefix>` answers
+  `Matched 10.1.0.0/24 (OSPF, AD 110)` and stops there, so a check of "the route is fine" cannot be redone
+  from that command alone. Built again the same way it still reads 20 and 110, then 110 and 20 with the
+  costs swapped. (The lab also has to enable OSPF before
   setting interface costs — `ip ospf cost` is refused with *"% OSPF is not enabled"* otherwise, which is
   how the first attempt at this measured a flat 20 everywhere and nearly became a false report.)
 
