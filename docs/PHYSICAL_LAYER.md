@@ -234,10 +234,16 @@ without a port record carrying `poeOut`, the console says so instead of inventin
 
 Two details in that block are worth reading twice, because both have caught people out:
 
-- `Used` is the total to **one decimal, truncated** — not rounded — while the port column keeps the exact
-  figure. One 12.95 W device prints `Used : 12.9 W` over a row saying `12.95 W`; a 7 W and a 12.95 W
-  device together print `Used : 19.9 W`, not `20.0 W`. `Available` subtracts the printed number
-  (`240 − 19.9 = 220.1`), so the last decimal of the budget is arithmetic, not a second measurement.
+- `Used` is the budget minus what is left after each powered port is subtracted, printed through
+  `Math.round(x * 10) / 10`, while the port column keeps the exact figure. Whether the last decimal
+  therefore looks **truncated or rounded is a property of the float residue, not of a rounding rule** —
+  which is worth knowing before you quote one case as the rule. One 12.95 W device on the 240 W budget
+  prints `Used : 12.9 W` over a row saying `12.95 W`, because `240 − 12.95` lands at 12.949999999999989;
+  a 7 W and a 12.95 W device together print `Used : 19.9 W`, not `20.0 W`. The **same** 12.95 W draw
+  against a 20 W budget prints `Used : 13 W`, because that subtraction leaves no residue below the
+  half-way point. `Available` is not the printed `Used` subtracted from the budget either: it is
+  `round1(budget − used)` over the same unrounded figure, so the 20 W case prints `Available : 7.1 W`
+  beside `Used : 13 W` — 20 − 13 is 7, and the console is not doing that sum.
 - A `denied` port means the budget was already spent when `computePoe()` ran — which in a lab you
   built normally **cannot happen**, because cabling an over-budget combination is refused at the
   moment you draw the cable:
