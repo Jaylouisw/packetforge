@@ -107,13 +107,28 @@ is sent twice, four seconds apart, plus the request itself.
 So "dry run" here means *no writes to Cloudflare*, not *no I/O*: it tells you the current posture
 before deciding there is nothing to change.
 
+One implementation detail makes those exit codes observable at all, and it is worth knowing if you edit the script:
+it sets `process.exitCode` and lets the event loop drain rather than calling `process.exit()` (`:230-237`), because
+calling `exit()` while undici's keep-alive socket is still open truncates the output. A rewrite that "simplifies"
+that to `process.exit(1)` would keep the code and lose the line that explains it.
+
 All three invocation shapes were re-run on 2026-11-12 against the live edge and the transcripts above are exact:
 no flags and `--help` print the four lines ending `Nothing to do.`, `--check` prints the same three and stops,
 each exits **0** while the repository is public, and each took **30.2 s** — so the timing estimate is not a
 guess. `test/cf-access-bypass-auth.test.js` prints **5 passed, 0 failed**, which is the credential mapping
-pinned rather than described. The anonymous read path was checked separately the same day and answers `200`
-with `git ls-remote` returning `8e0d6330…`, the same commit `forgejo-http/main` resolves to — the public door
-and the mirror are looking at the same repository.
+pinned rather than described.
+
+The anonymous read path is a separate question, and the way to ask it is *equality*, not a remembered SHA:
+`git ls-remote https://git.jayw.uk/jaylouisw/packetforge refs/heads/main` must answer the same commit as
+`git ls-remote http://odin:3000/jaylouisw/packetforge.git refs/heads/main`. On 2026-11-12 both answered
+**`5bc43ccf`**, which is the check passing — the public door and the forge are looking at the same repository. Do
+not quote the value as the fact: it moves with every merge (it was `8e0d6330` a couple of hours earlier, and
+`73718ab4` before that), while the equality is what these seven commands are for.
+
+The seven probes in the table were re-run in full on 2026-11-12 and every answer is unchanged — `200`, the SHA,
+`401`, `303`, `303`, `303`, `404` — with the interesting one being the fourth: `/jaylouisw/packetforge/settings`
+redirects to `https://git.jayw.uk/user/login`, the target the page names. The `404` on the bare `/settings` is still
+a `404`, so the "settings redirects" shorthand is still only true of the real settings routes.
 
 Exit codes here were read with `spawnSync`, not `$?`, for the reason recorded in
 [TRIAGE.md](TRIAGE.md): in this shell `$?` reports 0 for a failed command too, which would make `--check`'s
