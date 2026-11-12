@@ -686,7 +686,7 @@ addDevice(spec, id) {
     const devices = data.devices || [];
     // Two passes: create devices, then restore config/links.
     for (const d of devices) {
-      const spec = {
+      const spec = Object.assign({}, d.spec || {}, {
         vendor: d.vendor, model: d.model, label: d.label, category: d.category,
         capabilities: d.capabilities,
         interfaces: (d.interfaces || []).filter(function (i) {
@@ -701,7 +701,7 @@ addDevice(spec, id) {
           // Rebuilding a port from less than was saved is how a board stops being the lab it was.
           return Object.assign({}, i);
         })
-      };
+      });
       const dev = Device.hydrate(d.id, spec, d);
       topo.devices.set(d.id, dev);
     }
