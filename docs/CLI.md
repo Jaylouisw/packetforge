@@ -3890,6 +3890,12 @@ SW1#show spanning-tree vlan 99
 % The VLANs here are: 10, 20
 ```
 
+The last line differs on a fresh switch, and the reason is worth knowing: the list starts with `1`. VLAN 1
+cannot be removed while any port is in it — `no vlan 1` answers `% VLAN 1 is carried by Fa0/1, Fa0/2, … -
+it cannot be removed while those ports are in it` — so move every port off it first (`switchport access vlan
+10` in each interface block), let the removal succeed, and `show spanning-tree vlan 99` then prints the
+`10, 20` above. Nothing has been pruned from the transcript; the lab had no port left in VLAN 1.
+
 Without a VLAN, the root header now speaks for every VLAN instead of inventing VLAN 1. `root` and
 `summary` combine with `vlan <id>`, and the capability gate runs **before** the VLAN lookup, because a
 host answering *"No VLAN 10 on PC1 … The VLANs here are: 1"* re-invented the VLAN 1 that every other
