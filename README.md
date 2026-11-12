@@ -302,8 +302,10 @@ Stated plainly, because a simulator that overstates itself teaches wrong things:
   next `ping` simply finds the new answer.
 - **Application protocols.** A transport flow is modelled properly — three-way handshake as three
   packets, MSS from the path MTU, cumulative ACKs, four-way close — but nothing above it: no HTTP
-  request, no TLS handshake, no SSH banner. Flows only exist when the API opens one (`POST /flows`);
-  no packet starts a connection on its own ([docs/ARCHITECTURE.md](docs/ARCHITECTURE.md#transport-flows)).
+  request, no TLS handshake, no SSH banner. Every flow is opened deliberately, from the API
+  (`POST /flows`), the UI, or the console — `flow open <dst> [port <n>] [bytes <n>] [proto tcp|udp]`,
+  read back with `show flows` — and no packet starts a connection on its own
+  ([docs/ARCHITECTURE.md](docs/ARCHITECTURE.md#transport-flows)).
 - **ICMP beyond echo.** Echo request/reply only — no destination-unreachable, no time-exceeded, no
   redirect. A black-holed packet and a TTL expiry therefore both look like silence to `ping`. The
   `traceroute` command exists, but it walks the routing tables to print the path rather than
