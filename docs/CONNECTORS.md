@@ -435,9 +435,13 @@ and calling the engine directly rather than through a lab:
 | `usb` ↔ `usb` | `ok: true`, `media: ["usb-console"]` — a USB console is still a console, so gate 3 lets it through |
 
 One practical trap when writing such a probe: `canMate()` reads **`speedCaps`**, not `speeds`, when it
-negotiates, so a hand-built `{ cage, media, speeds }` throws
-`TypeError: pb.speedCaps is not iterable` at `media.js:1167` instead of returning a code. Set both fields, or take
-the object from `derivePortHardware()`, which always has them.
+negotiates, so a hand-built `{ cage, media, speeds }` throws instead of returning a code — and which line
+you see depends on which side the object occupies. Passed **second**, it is
+`TypeError: pb.speedCaps is not iterable` at `media.js:1167`; passed **first**, it is
+`TypeError: Cannot read properties of undefined (reading 'filter')` at `media.js:1168`, because by then the
+second port's caps have already been turned into a lookup set. Only the far-side message names the missing
+field; the near-side one does not, which is what makes the trap expensive when it bites there. Set both
+fields, or take the object from `derivePortHardware()`, which always has them.
 
 | Refused pair | Code | Reason |
 |--------------|------|--------|
