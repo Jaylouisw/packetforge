@@ -693,6 +693,22 @@ migration is measured from, and rewriting them as `CAGES` grows would erase the 
 work was needed. Today's tree has 26 cages and 89 media; `docs/CONNECTORS.md` carries the live count
 and its own recount one-liners.
 
+**Re-measured at `405c4138`, the whole table at once: all thirty-five anchors still land.** The eleven `media.js`
+ones are where they were (`MEDIA` 54, `CAGES` 314, `CAGE_MATE` 413, `cagesMate()` 455, `CAGE_MEDIA` 486,
+`CAGE_SPEEDS` 642, `inferCage()` 767, `derivePortHardware()` 875, `canMate()` 1230), and the ones that had
+slid when this paragraph was last rewritten — `simulator.js`, `validation.js`, `topology.js`, `link.js`,
+`device.js`, `server/index.js`, `web/app.js`, `devices/registry.js` and the two `cli.js` rows — have stayed
+put since. Thirty-four match the named symbol inside a ±2-line window; the thirty-fifth (`cli.js:2408 show ip
+route`) matches on content rather than spelling, because the line there renders the `Prefix AD Gateway
+Interface` table rather than containing the words.
+
+The *Today* column's other counts are frozen with it, which is worth saying because two of them have moved
+and a reader should not take them for the current tree: `device.js:157 config` has **18** keys now, not 17 —
+`scionAs` (SCION ISD-AS membership) is the addition — and a `Link` owns **12** fields, not 8, because
+`lagId`, `patchCord`, `state` and `stateSinceMs` have landed since. `validation.js:59 RULES` is still
+exactly **20** codes and `device.js:89 CAPABILITIES` still exactly **15** tokens, so the frozen column is not
+uniformly stale: it is a snapshot, and three of its numbers happen to still be true.
+
 | # | Anchor (this tree) | Today | Change |
 |---|---|---|---|
 | 1 | `MEDIA` at `media.js:54` | 64 media, 8 families | ✅ done (#129): `lte`, `lte-a`, `5g-sub6`, `5g-mmwave` |
