@@ -180,6 +180,11 @@ seven arrays, largest group first: 144 × `[8500,14025,28050]`, 56 × `[14025,28
 order, so the census is still a recipe rather than a remembered figure. Every figure in the table below matches, and **no array has a single rung** — the check that
 keeps "64G is `[57800]`" from being plausible prose.
 
+One caution when reading those seven lines: a line is a **cap array, not a device**. The 144 spans three boxes —
+`G610` 24, `SN3600B` 24 and `DS-6630B` 96 — and `DS-6630B` appears twice, because its 96 line ports and its 8 ICL
+ports carry different arrays. Per device the census reads `G610` 24, `G720` 56, `MDS 9124V` 24, `MDS 9148S` 48,
+`DS-6630B` 104, `SN3600B` 24, `5800V` 24 — which is still 304, reached the other way round.
+
 | Device | Ports | measured `speedCaps` (Mbps) |
 |---|---|---|
 | QLogic 5800V | 20 device ports at 2/4/8G + 4 ISL ports at 10GFC | 20 × `2125/4250/8500`, 4 × `8500/10519` |
