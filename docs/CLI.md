@@ -1263,10 +1263,16 @@ R1#show ip ospf neighbor
 Neighbor ID     Pri   State           Address         Interface
 (no adjacencies - no neighbour passed the passive, subnet and area checks)
 % R2 on Gi0/0 is in area 2 and this interface is in area 1 - no adjacency without a matching area
+% R2 on Gi0/0 is in area 2 and this interface is in area 1 - no adjacency without a matching area
 R1#show ip route ospf
 % No OSPF routes in the table
 % Codes present: connected
 ```
+
+That line prints **twice**, and the repetition is the engine's, not the page's: the mismatch walk makes
+two passes over the links, so every mismatched peer is named in each pass. Two mismatched peers come out
+in two complete sets — `RB, RC, RB, RC` — rather than each peer doubled on its own, so read it as one line
+per peer.
 
 A cabled peer that is not a neighbour is the question the table raises, so the table answers it: the
 mismatched link is recorded during the SPF and named afterwards, with both areas. A per-interface
