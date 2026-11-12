@@ -340,7 +340,7 @@ directly):
 | **Modelled** | The M (managed) flag makes the host **refuse** to autoconfigure and say why (addresses come from DHCPv6). A manually configured address is never overwritten. | `engine/simulator.js:2509-2543` |
 | **Modelled** | A router advertises a prefix only on a link where it holds an address inside that prefix — `_prefixOnIface()` is the gate, and it asks `prefixContains6()` of the interface's own addresses. The same question decides what `show ipv6 nd` prints as advertisable. | `_prefixOnIface()` at `engine/simulator.js:2443-2449`, mirrored at `engine/cli.js:13090-13095` |
 | **Approximate** | One global address per interface: the first autonomous prefix wins, the rest are ignored. Real hosts keep one per prefix. | `engine/simulator.js:2530` |
-| **Approximate** | Valid/preferred lifetimes are carried and displayed, never aged. An address never becomes deprecated. | `engine/cli.js:3048-3059` (the `ipv6 nd …` parser), displayed by `_showIpv6Nd()` at `engine/cli.js:13050` and printed as the valid/preferred columns at `:13078-13083` |
+| **Approximate** | Valid/preferred lifetimes are carried and displayed, never aged. An address never becomes deprecated. | `engine/cli.js:3048-3059` (the `ipv6 nd …` parser), displayed by `_showIpv6Nd()` at `engine/cli.js:12956` and printed as the valid/preferred columns at `:13078-13083` |
 | **Absent** | DHCPv6, DHCPv6-PD, privacy/temporary addresses, stable-privacy IIDs, RDNSS/DNSSL, RA guard. | — |
 
 ### 4.3 Hop limit and forwarding
@@ -762,7 +762,7 @@ i.e. configuring them is decoration:
 - `voiceVlan` (`engine/vlan.js:13`).
 - `iface.dhcp` (`engine/cli.js:2041`, was 1921 — 1921 is inside `samePrefix()` now; the four writes are at 2041, 2043, 2154 and 2162).
 - Capabilities `firewall`, `wireless`, `dhcp-server`, `dhcp-client`, and the tokens `vlan`/`lacp`/`stp` (`engine/device.js:89-101`, was 85-98 — `CAPABILITIES` opens at 89 and `stp` is the last of its 15 tokens at 100).
-- RA valid/preferred lifetimes (`_ipv6Nd()` at `engine/cli.js:3051`, printed by `_showIpv6Nd()` at `:13050` as the valid/preferred columns at `:13078-13083`).
+- RA valid/preferred lifetimes (`_ipv6Nd()` at `engine/cli.js:3051`, printed by `_showIpv6Nd()` at `:12956` as the valid/preferred columns at `:12984-12989`).
 
 ---
 
@@ -947,7 +947,7 @@ is `endpoint()` now, so it moved to **34**; `iface.dhcp` was cited at `engine/cl
 `CAPABILITIES` was cited at `engine/device.js:85-98`, and the array opens at **89** with `stp` as its last token
 at `100`, so it moved to `89-101`. Every neighbour in that list was re-read at the same time and was already
 right (`minLinks` `lag.js:55`, LAG `mode` `lag.js:217`, `voiceVlan` `vlan.js:13`, `_ipv6Nd()` `cli.js:3051`,
-`_showIpv6Nd()` `cli.js:13050`), which is the useful contrast: it is not that the page rots uniformly, it is
+`_showIpv6Nd()` `cli.js:12956`), which is the useful contrast: it is not that the page rots uniformly, it is
 that the rows naming a symbol survive and the rows naming only a number do not.
 
 | Document | Says | Reality |

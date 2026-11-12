@@ -459,14 +459,19 @@ any media intersection.
 (`engine/validation.js`) is an **array of 20** `{ code, severity, description }` entries — 14 `E_` and 6
 `W_` — and measured on 2026-11-12 it contains every code in the two tables above **except**
 `E_OPTICAL_BUDGET` and `W_OPTICAL_HEADROOM`. Those two are emitted inline by the PON budget phase at the
-end of `validateLink()` (`engine/validation.js:705` and `:712`, with a second `E_OPTICAL_BUDGET` site in
-`engine/optical.js:140`), so a tool that enumerates `RULES` to decide which codes are legal would reject
+end of `validateConnection()` (`engine/validation.js:705` and `:712`, with a second `E_OPTICAL_BUDGET`
+site in `engine/optical.js:140`), so a tool that enumerates `RULES` to decide which codes are legal would reject
 two refusals the engine really produces. The file's own header asks that a renamed code be added to
 `RULES`, which is the rule these two are the exception to.
 
+The name is worth having exactly, because `validateLink` is not in this file at all: `grep -n 'validateLink'
+engine/validation.js` prints nothing. `Topology.validateLink()` (`engine/topology.js:122`) is the caller; it
+hands the verdict to `V.validateConnection()` (`topology.js:161-162`), and the emitter of both codes is
+`validateConnection()` at `validation.js:399`.
+
 **Every code in `RULES` is actually reachable.** Counted on 2026-11-12: all **20** appear as a quoted
 literal somewhere other than the `RULES` array itself (`:61-138`), which is the definitions. Most are
-emitted once, inside `validateLink()`; **seven** come from a second module as well, which is where a code
+emitted once, inside `validateConnection()`; **seven** come from a second module as well, which is where a code
 can surprise you — `E_NO_PORT` from `Topology.connect()` when a cable names a port that has since gone
 (`topology.js:471`) and from `canMate()` (`media.js:1232`); `E_WIRELESS_TO_WIRED`, `E_CONNECTOR_MISMATCH`,
 `E_POLISH_MISMATCH` and the media/speed pair from `media.js` (`:1236`, `:1277`, `:1268`, `:1331`,
