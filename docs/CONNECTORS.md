@@ -542,10 +542,14 @@ node test/link-parts.test.js | grep 'carries every catalogue part'
 # the UI carries every catalogue part (34 of 58)      <- red, 24 behind, measured
 ```
 
-The 24 that are missing include `QSFP-DD-400G-SR8`, `QSFP-DD-400G-DR4`, `QSFP-DD-400G-FR4` and
-`QSFP56-200G-SR4`. Those optics are perfectly valid in a spec — `cagesMate()` and `canMate()` do not consult
-the picker — so the practical effect is a working lab you cannot build through the UI, which is the kind of
-gap a reader looks for in a page like this one rather than in a red test.
+The 24 that are missing are worth sorting before hunting for one in the picker: **all three** QSFP-DD parts
+(`QSFP-DD-400G-SR8`, `-DR4`, `-FR4`) and **both** QSFP56 (`QSFP56-200G-SR4`, `-FR4`), **ten of the twelve**
+QSFP28, **four of the eight** QSFP and **five of the nineteen** SFP — the last being `SFP-25G-SR`,
+`SFP-25G-SR-E`, `SFP-10G-SR1`, `SFP-10G-SR-E` and `SFP-10G-iLR`. A 400G or 200G module is therefore never
+offered, while no family is uniformly absent: two QSFP28 and four QSFP rows are in the copy, so the picker
+can offer one 100G part and not its sibling. Those optics are perfectly valid in a spec — `cagesMate()` and
+`canMate()` do not consult the picker — so the practical effect is a working lab you cannot build through
+the UI, which is the kind of gap a reader looks for in a page like this one rather than in a red test.
 
 `hybridCord(a, b)` only answers for the same shape with different polishes, and
 only when `catalogue/optics/odn.json` actually contains a cord terminated that
