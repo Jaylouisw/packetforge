@@ -192,8 +192,8 @@ Two more measured details worth having in writing:
 - `masterDownInterval(group, skew)` takes the **skew in seconds** as its second argument, not the
   priority. Passing `100` — the priority — returns `103` seconds, because it dutifully adds
   `3 × 1 s + 100 s`. The defaults are the ones in `engine/convergence.js` — the table is `const C` inside that
-file, and `module.exports` publishes it as **`DEFAULTS: C`**, so `require('.../engine').convergence.DEFAULTS`
-is the object to read and `C` is the name you will see in a stack trace or a `grep`.
+  file, and `module.exports` publishes it as **`DEFAULTS: C`**, so `require('.../engine').convergence.DEFAULTS`
+  is the object to read and `C` is the name you will see in a stack trace or a `grep`.
 
 | Process | Default | Source |
 |---|---|---|

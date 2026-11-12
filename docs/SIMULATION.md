@@ -120,7 +120,7 @@ first.
   `Device`, inside the `Topology`, so it persists across runs — which is what a
   real box does. But nothing ages it: no MAC ageing timer, no ARP timeout, no ND
   reachable-time. DHCP leases *do* age (see [§5.1](#51-dhcp--in-the-data-path-since-1051)), but only when a question is asked at an
-instant — nothing runs a clock between questions. A table learned in run 1 is still there
+  instant — nothing runs a clock between questions. A table learned in run 1 is still there
   in run 1 000 with the same entries (`engine/device.js:489`).
 - The capability list at `engine/device.js:85-98` is partly decorative, and **where each part is
   read differs**. The forwarding path consults only `l2-forward`, `l3-forward` and `host`. `poe-pse`
