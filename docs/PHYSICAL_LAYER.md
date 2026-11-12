@@ -349,13 +349,29 @@ the cage-by-cage table. Selected highlights:
 | DAC | `dac-40g`, `dac-100g` | 40G / 100G | QSFP | 5 / 3 m |
 | console | `console-rs232` | 115.2 kbps | RJ45 | 15 m |
 | console | `usb-console` | 12 Mbps (USB full speed) | USB | 5 m |
-| wireless | `wireless-2.4`, `wireless-5`, `wireless-6`, `wireless-7`, `wireless-60` (a declared band, not a rate) | radio | antenna | — |
+| wireless | `wireless-2.4`, `wireless-5`, `wireless-6`, `wireless-7`, `wireless-60` (the last one from the device's own name, not a rate — see below) | radio | antenna | — |
 
 The full list is served at **`GET /api/media`** (`server/index.js:315`). Reach is `MEDIA[id].maxRangeM`
 — one number per medium, which is why the console pair needs two rows rather than one: `console-rs232`
 reaches 15 m and `usb-console` 5 m, and they do not even share a unit of rate (115.2 kbps against 12 Mbps
 USB full speed). A row that said "15 m, 115.2 kbps" for both was the only place in this table where two
 media with different physics shared a line.
+
+Which of those five a port is offered is decided in `wirelessBands()` (`engine/media.js:861-872`), and the
+obvious reading of `wireless-60` is wrong. Rate picks a generation, one rung at a time: `speed: 600`
+offers `wireless-2.4` alone, `2400` offers `wireless-2.4, wireless-5, wireless-6`, and above 2500 adds
+`wireless-7`. No rate reaches 60 GHz, because it is a different radio rather than a faster one; that id is
+matched from the **device's own words** — `/60\s*ghz|802\.11ad|wigig/i` over `model` and `description`
+(`:870`) — which is the only path that fires today. The catalogue's 60 GHz gear declares its radio as
+`"speed": "1G"`, so `generationBands(1000)` would offer it 2.4 and 5 GHz; the name is what overrides that.
+Counted over the catalogue's **949** antenna ports: `wireless-2.4` 924, `wireless-5` 588, `wireless-6`
+282, `wireless-7` 92, `wireless-60` 25.
+
+The `band` and `bands` keys exist and **no catalogue device sets either** — and they narrow rather than
+widen, which is the trap in them. `{ speed: 5760, band: '6' }` is offered `wireless-6` **only**, i.e.
+802.11ax at 2400 Mbps, while the same port with no band declared is offered 802.11be's four media.
+`bandMediaId('6')` has one answer for both 6 GHz generations (`:845-850`), so naming the band costs the
+port its Wi-Fi 7 row.
 
 ---
 
