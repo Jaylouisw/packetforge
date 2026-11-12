@@ -54,6 +54,26 @@ Wi-Fi access points, where that name is an antenna connector, not a modem) and *
 `rj45`. That is the name-first rule doing its job rather than missing: `wwan0` on an AP is not a cellular
 interface, and counting by name alone is what first overstated the family.
 
+The four figures in that row come from a **prefix, case-insensitive** match — the `wwan*`, `lte*`,
+`5g*`, `nr*` glob of the sentence above is the anchor, and it matters:
+
+```sh
+node -e '
+const {loadCatalog,effectiveInterfaces}=require("./devices/registry");
+const {derivePortHardware}=require("./engine/media");
+const re=/^(wwan|lte|5g|nr)/i; const c={};
+for(const s of loadCatalog(require("path").resolve("devices")))
+  for(const p of effectiveInterfaces(s)||[]){ if(!re.test(String(p.name||""))) continue;
+    const k=String((derivePortHardware(p,s)||{}).cage||"?"); c[k]=(c[k]||0)+1; }
+const n=Object.values(c).reduce((a,b)=>a+b,0);
+console.log("named",n,"wwan",c.wwan,"antenna",c.antenna,"rj45",c.rj45);'
+```
+
+Run on 2026-11-12 it prints `named 157 wwan 123 antenna 33 rj45 1`. Drop the `^` — the obvious
+recipe, `/(wwan|lte|5g|nr)/i` — and the same sweep answers **193, 141, 40, 12**, because it also
+matches the token in the middle of a name. If you came here to report that the row disagrees with
+your count, check the anchor first: the row is right and the unanchored matcher is not.
+
 | a `pon` port against `cloud/eth0` is refused | true | **true**, though the surface differs: `Topology.connect()` **throws**, prefixed with both endpoints — `UFiber OLT 4/gpon1 <-> UniFi Cloud Gateway Fiber/WAN: Cannot mate SC/APC to RJ45 (incompatible connectors).` — while `validateLink()` returns the same fault as `E_CONNECTOR_MISMATCH` without throwing. Anything that matches on the message must allow for that `<device>/<port> <-> <device>/<port>: ` prefix |
 
 So the medium half of this design has largely landed, and the routing half — one default slot, no policy,
