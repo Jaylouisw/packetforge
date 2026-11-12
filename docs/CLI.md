@@ -4245,8 +4245,12 @@ routing protocols on `l3-forward`, NAT, DHCP server, ACLs, VRRP and IPv6 on thei
 tags, and the three exec tables (`clear mac address-table`, `clear ip nat translation`,
 `clear port-security …`) the same way. A router keeps `vlan <id>`, because it routes between VLANs
 and its running-config round-trips the line, but loses `switchport` and `spanning-tree`; an L3 switch
-keeps the switchport verbs and loses NAT. Row counts are a poor proxy for that — a router and an L3
-switch both show 41 rows today, with different contents.
+keeps the switchport verbs and loses NAT. Row counts are a poor proxy for that: the router's page and an
+L3 switch's are within a row of each other, yet seven rows are the router's alone — `ip nat inside source
+static <local> <global>`, `ip nat inside source list <acl> interface <if> overload`, `ip dhcp pool <name>`
+and the `no` half of each — while six are the L3 switch's alone: `switchport <verb>`, `interface vlan <id>`,
+`interface <parent>.<vlan>` and the three `spanning-tree vlan <id> …` rows. Same length, different commands,
+which is why the filter has to be read rather than counted.
 
 A `?` that finds nothing because of that filter says so, instead of leaving the operator to wonder
 whether the word is a typo:
