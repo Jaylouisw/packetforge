@@ -1635,6 +1635,27 @@ address would be exactly backwards. The three failures stay distinct, and each n
 | `** server can't find 53.0.0.10.in-addr.arpa: NXDOMAIN` | the reverse zone exists, the address is not in it | add the address |
 | "no zone for the reverse space 0.0.10.in-addr.arpa" | nobody serves that space at all | `dns zone 0.0.10.in-addr.arpa` on the server |
 
+The last two rows print their own diagnosis, and the no-zone case prints the fix as well:
+
+```
+R1#nslookup 10.0.0.99
+  (as 99.0.0.10.in-addr.arpa - a reverse lookup of 10.0.0.99)
+Server: SRV1
+  ** server can't find 99.0.0.10.in-addr.arpa: NXDOMAIN
+R1#nslookup 10.0.0.53
+  (as 53.0.0.10.in-addr.arpa - a reverse lookup of 10.0.0.53)
+Server: SRV1
+  10.0.0.53 -> host1.lab.example (PTR)
+```
+
+With no reverse zone at all the same query fails earlier and says what to build:
+
+```
+Server: SRV1
+  ** server failure: no zone for the reverse space 0.0.10.in-addr.arpa
+  A reverse lookup needs a zone of its own - "dns zone 0.0.10.in-addr.arpa" on the server, with a PTR record for each address
+```
+
 ### A verb family is refused where the device has no such state
 
 The `?` page is capability-filtered; the parser was not. On a camera, a server and an AP - none of which
