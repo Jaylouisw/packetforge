@@ -4225,7 +4225,17 @@ class CliSession {
       '  ip access-group <acl> in|out               (interface mode)',
       '  no ip access-group [<acl>] [in|out]        (interface mode)',
       '  no hostname | no vlan <id> | no ip dhcp pool <name> | no dns zone <name>',
-      '  ping <ip> [count]',
+      '  scion <isd-as> | no scion        the device SCION ISD-AS, e.g. 1-ff00:0:110  (config mode)',
+      '  network <net> <mask> | range <a> <b> | default-router <gw> | lease <s>' +
+        '  (in a dhcp pool)',
+      '  host <address> <mac> | excluded-address|excluded address <a> [<b>] | dns-server <address...>' +
+        '  (in a dhcp pool)',
+      // Two whole features were reachable and unlisted: `clock rate` (serial links, #1483) and `traceroute`
+      // (#1484). `help` is how an operator finds out what the console can do, so an unlisted verb is a verb only
+      // its author knows about (#1491).
+      '  traceroute|tracert <address|name> [max <n>]   each hop that answers, from its own time-exceeded',
+      '  speed auto|forced <mbps> | duplex half|full | description <text>   (interface mode)',
+      '  clock rate <bps>                       (interface mode, serial only) makes this end the DCE',
       '  converge [at <ms>]                - when each control plane finishes',
       '  link up|down <id> [at <ms>]       - pull or replace a cable, re-converge from there',
       '  links                             - every cable and its state',

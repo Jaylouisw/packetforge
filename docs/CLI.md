@@ -1602,3 +1602,21 @@ naming the form and both devices:
 That example sits in a block rather than in backticks on purpose: **any show form written in backticks on this page
 is a promise, and the test types every one of them**, so breaking examples are written as output rather than as
 commands.
+
+## `help` is an index, and a test reads it out of the parser
+
+`help` is how an operator finds out what the box can do, so a verb the console accepts and the index does not mention is a verb only its author knows about. Two features landed in one day and neither appeared in it (#1491):
+
+| accepted since | command | was in `help`? |
+|---|---|---|
+| #1484 | `traceroute <target> [max <n>]`, alias `tracert` | no |
+| #1483 | `clock rate <bps>` (interface mode, serial only) | no |
+| the DHCP pool feature | `network`, `range`, `default-router`, `lease`, `host`, `excluded-address`, `dns-server` | no — `help` mentioned only `no ip dhcp pool <name>` |
+| the interface feature | `speed`, `duplex`, `description` | no |
+| the SCION feature | `scion <isd-as>` / `no scion` | no |
+
+All of them were documented in `docs/CLI.md` and reachable at the console; the index that a reader in a lab actually types was the one place they were absent.
+
+`test/help-completeness.test.js` now checks the direction that used to be remembered rather than verified: it reads every token the dispatcher compares against `head` out of `engine/cli.js` — the console's whole vocabulary in the console's own spelling — drops the keypresses (`?`, `exit`, `quit`, `logout`, `end`, `help`, and the abbreviations `conf`, `en`, `int`), and requires each remaining verb to be named in the index. With the old index and the new check it reports **15 missing verbs**; with this one, none.
+
+The opposite direction is a hand-written list on purpose: it has to describe modes as well as words (`['clock rate <bps>', 'iface', ROUTER]`), and parsing the index's prose to recover modes would be testing a prose parser. Every row in it is typed at a real device and must be accepted — 98 of them now, including the fourteen added here.

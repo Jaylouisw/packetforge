@@ -58,6 +58,40 @@ function accepted(spec, mode, cmd) {
 }
 
 console.log('');
+console.log('Every verb the parser accepts is a verb the index mentions (derived from the parser, not remembered):');
+{
+  // The forward direction below is a hand-written list because it has to describe *modes* as well as words, and
+  // parsing the help text's prose would test a prose parser. This direction has no such problem: the tokens the
+  // dispatcher compares against `head` are the console's whole vocabulary in the console's own spelling, so they
+  // are read out of `engine/cli.js` and each one must be named in `help`.
+  //
+  // It found four: `traceroute`/`tracert` (a whole feature, #1484, unlisted) and `clock rate` (the other whole
+  // feature, #1483, unlisted), plus `speed`/`duplex`/`description` and the whole DHCP pool sub-mode, which had been
+  // accepted since they were written and were advertised nowhere (#1491).
+  const source = fs.readFileSync(path.join(ROOT, 'engine', 'cli.js'), 'utf8');
+  const helpStart = source.indexOf('  _help() {');
+  const NL = String.fromCharCode(10);
+  const tail = NL + '  }' + NL + '}';
+  const helpEnd = source.indexOf(tail, helpStart) > 0 ? source.indexOf(tail, helpStart) : source.indexOf(NL + '  }', helpStart + 200);
+  const helpText = source.slice(helpStart, helpEnd);
+  ok(helpText.length > 800, 'the index was found in the source (' + helpText.length + ' chars)');
+  const tokens = Array.from(new Set(source.match(/head === '([^']+)'/g).map(function (m) {
+    return m.replace(/^head === '/, '').replace(/'$/, '');
+  }))).sort();
+  ok(tokens.length > 30, 'the dispatcher has a vocabulary to check (' + tokens.length + ' tokens)');
+  // Housekeeping and aliases: every one of these is a keypress, not a mechanism, and none is worth a line in an
+  // index that an operator reads to find out what the box can *do*.
+  const housekeeping = ['?', 'end', 'exit', 'help', 'logout', 'quit', 'conf', 'en', 'int'];
+  const expected = tokens.filter(function (t) { return housekeeping.indexOf(t) === -1; });
+  const named = function (t) { return new RegExp('(^|[^a-z0-9-])' + t + '([^a-z0-9-]|$)', 'i').test(helpText); };
+  const absent = expected.filter(function (t) { return !named(t); });
+  ok(absent.length === 0, 'no accepted verb is missing from the index', absent.join(', '));
+  // And the two that motivated this, named, because a help list is edited by hand and drifts quietly.
+  ok(/traceroute/i.test(helpText) && /tracert/i.test(helpText), 'the traceroute family is indexed, alias included');
+  ok(/clock rate/i.test(helpText), 'and the serial clock');
+}
+
+console.log('');
 console.log('Every command the console advertises is a command the console accepts:');
 {
   // The canonical list of what `help` claims, in the mode each belongs to. Written out rather than parsed out
@@ -155,7 +189,24 @@ console.log('Every command the console advertises is a command the console accep
     ['converge', 'enable', ROUTER],
     ['converge at <ms>', 'enable', ROUTER],
     ['links', 'enable', ROUTER],
-    ['link up <id>', 'enable', ROUTER]
+    ['link up <id>', 'enable', ROUTER],
+    // Two features landed and the index never heard of them (#1491): a serial link's clock and a traceroute.
+    ['traceroute <ip>', 'enable', ROUTER],
+    ['tracert <ip>', 'enable', ROUTER],
+    ['clock rate <bps>', 'iface', ROUTER],
+    ['no clock rate', 'iface', ROUTER],
+    // ...and the settings that had always been accepted and never advertised.
+    ['speed <mbps>', 'iface', ROUTER],
+    ['duplex half', 'iface', ROUTER],
+    ['description <text>', 'iface', ROUTER],
+    // A DHCP pool could be created and its sub-mode was documented nowhere in `help`.
+    ['network <net> <mask>', 'dhcp', ROUTER],
+    ['range <a> <b>', 'dhcp', ROUTER],
+    ['default-router <gw>', 'dhcp', ROUTER],
+    ['lease <s>', 'dhcp', ROUTER],
+    ['host <address> <mac>', 'dhcp', ROUTER],
+    ['excluded-address <a>', 'dhcp', ROUTER],
+    ['dns-server <address>', 'dhcp', ROUTER]
   ];
 
   const values = {
@@ -168,6 +219,14 @@ console.log('Every command the console advertises is a command the console accep
     '<len>': ['64'],
     '<prefix>': ['2001:db8::'],
     '<s>': ['3600'],
+    '<mbps>': ['100'],
+    '<bps>': ['64000'],
+    '<text>': ['uplink to the core'],
+    '<net>': ['10.0.0.0'],
+    '<a>': ['10.0.0.10'],
+    '<b>': ['10.0.0.50'],
+    '<address>': ['10.0.0.1'],
+    '<mac>': ['02:00:00:00:0a:01'],
     '<id>': ['20'],
     '<vlan>': ['20'],
     '<vrid>': ['1'],
