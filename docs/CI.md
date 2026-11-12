@@ -881,12 +881,16 @@ host can halve it. Two flags re-measured in the same session as well: `--list` s
   `272 suite(s) in 174.2 s — 11191 assertions passed, 3 failed` with the same pair red, so the counts have
   now survived six readings and the spread stays at 174.9 seconds.
 
-  That sixth reading needed `--verbose`. The same command without it, in a non-interactive shell, printed
-  `stdin is not a tty` and exited before any summary — twice — while `--verbose`, which streams each suite's
-  own output through the runner instead of capturing it, ran all 272 to completion. Whatever the mechanism, the
-  rule is the one this section already argues: read the counts off the **end** of the output, and if there is no
-  end of output, add `--verbose` and take the reading again. Never pipe the runner into `head` — it closes the
-  pipe long before the summary line exists, so the run looks like it produced nothing.
+  A seventh reading on the same day printed `272 suite(s) in 169.7 s — 11191 assertions passed, 3 failed`,
+  same pair red, **without** `--verbose` — which corrects the attribution this paragraph used to make. The
+  `stdin is not a tty` failure is not about the flag: it reproduces when the run is **backgrounded with its
+  output redirected**, and it reproduced today with `--verbose` on (a 26-byte log containing that one line and
+  `EXIT:1`, no summary), while the identical command in the foreground finished all 272 — flag or no flag. The
+  message does not come from this repository either: `grep -rn 'stdin is not a tty' --include='*.js' .` finds
+  nothing outside the docs that quote it, so it belongs to whatever supervises the job. Two rules follow, and
+  the second is the one that costs an afternoon: run the suite in the **foreground** if you want the summary,
+  and read the counts off the **end** of the output rather than the start. Never pipe the runner into `head` —
+  it closes the pipe long before the summary line exists, so the run looks like it produced nothing.
 
   Useful flags, all from the header of the script:
   `--filter=bgp`, `--bail`, `--verbose`, `--list`.
