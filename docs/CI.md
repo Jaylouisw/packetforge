@@ -952,6 +952,42 @@ host can halve it. Two flags re-measured in the same session as well: `--list` s
     `catalogue/optics/transceivers.json` does not reach the UI until somebody edits that array by hand.
     (These notes used to blame `web/link-parts.js`. That file is **not in the tree**; the table lives in
     `app.js` now, which is why grepping the old name finds nothing.)
+
+    **Count it the way the suite does, not with a regex.** The obvious `PART_ROWS = [...]` match returns
+    **25** rows because the array carries comment lines whose prose contains quoted strings; the assertion
+    counts the parsed table, which is exposed at runtime as `pf.opticParts`. Boot `app.js` in a `vm`
+    context (that is what the suite's `boot()` helper is for) and read it. Save the snippet below as
+    `scratch/optic-rows.js` and run `node scratch/optic-rows.js` from the repository root — note the shape it
+    reads: `catalogue/optics/transceivers.json` is a bare JSON **array** of 58 parts, not an
+    object with a `parts` key, so `.parts.map(…)` is `undefined` and throws.
+
+    ```js
+const fs = require("fs"), vm = require("vm");
+const APP = fs.readFileSync("web/app.js", "utf8");
+const noop = () => {};
+const el = { style: {}, classList: { add: noop, remove: noop }, appendChild: noop,
+  addEventListener: noop, setAttribute: noop, querySelector: () => null, querySelectorAll: () => [], getContext: () => null };
+const document = { createElement: () => Object.assign({}, el), createElementNS: () => Object.assign({}, el),
+  getElementById: () => Object.assign({}, el), querySelector: () => Object.assign({}, el), querySelectorAll: () => [],
+  addEventListener: noop, body: Object.assign({}, el) };
+const ctx = { console, setTimeout, clearTimeout, setInterval, JSON, Promise, Object, Array, Number, String, Math, Date, Set,
+  isFinite, parseFloat, localStorage: { getItem: () => null, setItem: noop }, location: { protocol: "http:", host: "x" },
+  fetch: () => Promise.resolve({ ok: true, json: () => Promise.resolve({}) }), document, window: {}, PFCanvas: { on: {} } };
+ctx.window.PFCanvas = ctx.PFCanvas; ctx.globalThis = ctx;
+vm.createContext(ctx); vm.runInContext(APP, ctx, { filename: "app.js" });
+const rows = ctx.window.__pf.opticParts;
+const cat = JSON.parse(fs.readFileSync("catalogue/optics/transceivers.json", "utf8")).map((p) => p.partNumber);
+console.log(rows.length, "rows of", cat.length, "parts | all in catalogue:",
+  rows.every((r) => cat.includes(r.partNumber)), "| distinct:", new Set(rows.map((r) => r.partNumber)).size);
+    ```
+
+    Measured on 2026-11-12: `34 rows of 58 parts | all in catalogue: true | distinct: 34` — so the "34 of 58"
+    in the assertion is exactly what it says, 34 distinct real parts against 58, and the gap is 24 parts rather
+    than a table padded with rows for parts the catalogue does not contain.
+
+    Measured on 2026-11-12: `34 rows of 58 parts | all in catalogue: true | distinct: 34` — so the
+    "34 of 58" in the assertion is exactly what it says, 34 distinct real parts against 58, and the gap is
+    24 parts rather than a table padded with rows for parts that do not exist.
   - `test/ma5801.test.js` — **crashes rather than failing**: `TypeError: Cannot read properties of undefined
     (reading 'hardware')` at line 96, because the suite asks for `gpon1/1` and the GP16's PON ports are now named
     `pon1 … pon20` (`new Topology().addDevice(spec).interfaces.has('gpon1/1')` is false). A rename in the catalogue
