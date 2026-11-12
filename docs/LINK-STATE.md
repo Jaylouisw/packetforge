@@ -200,6 +200,12 @@ change   (change)  10000 ms  the link state changed
 Fully converged at 10000 ms. (re-based at the link change at 10000 ms)
 ```
 
+Both blocks come from `examples/lab2-router-two-subnets.json`, link **`l4`** between `PC-d1` and
+`Router-d3`, so they can be reproduced line for line: `link down l4 at 10000` answers `Link l4
+(PC-d1:eth0 <-> Router-d3:Gi0/0) is now down.` / `Network converges again at 40000 ms.`, and `converge 20000`
+then prints only the `change` row and `Fully converged at 10000 ms. (re-based at the link change at 10000 ms)`,
+re-read on 2026-11-12.
+
 Nothing is wrong with the *model* — with no bridge there is no spanning tree, so the second answer is
 the correct one and the ping at 11 s still fails because the cable is down. It is the one-line
 summary that over-promises, and that is a bug in the seam, not a fidelity gap. Trust `converge`.
@@ -212,7 +218,10 @@ A lab saved with a cable down comes back with it down:
 { "id": "l5", "a": {...}, "b": {...}, "state": "down", "stateSinceMs": 10000 }
 ```
 
-and the topology records `"lastChangeAtMs": 10000`. Links that never changed carry no `stateSinceMs`
+and the topology records `"lastChangeAtMs": 10000`. Read back from the live object rather than the JSON
+(2026-11-12, `lab2`: `topology.links` is a **Map** keyed by link id) the changed link is `state: 'down'`,
+`stateSinceMs: 10000` and `topology.lastChangeAtMs` is `10000` — the two numbers the file shows are the two
+the model holds. Links that never changed carry no `stateSinceMs`
 at all — a field on every cable would be noise in every diff and every regenerated example, and the
 examples-idempotent test would fail on it, which is how that was caught.
 
