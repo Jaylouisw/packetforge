@@ -167,7 +167,8 @@ deleted item would otherwise look like an off-by-one forever.
   Be precise about what *unknown* buys, because it is weaker than it sounds. It is recorded as
   `poe: { "budgetUnknown": true }`, which resolves to **0 W** (`engine/device.js:132`), and the budget
   rule refuses to police a device whose budget is not greater than zero — `pseDraw()` returns `null`
-  before it counts a single watt (`engine/validation.js:340`). So the check is off for that device,
+  before it counts a single watt (`engine/validation.js:341` — the guard is the line after the budget
+  read, which is why `:340` is the wrong place to look). So the check is off for that device,
   yes, but it is off for **every** zero-budget PSE, not only the explicitly-unknown ones: a switch
   whose figure was simply never declared is just as unpoliced, and the two are only distinguishable
   in `show power inline`, which prints the resolved budget **and its source**. One device in the
@@ -194,8 +195,10 @@ node -e "const{loadCatalog}=require('./devices/registry');const c=loadCatalog(re
 ```
 
 Most categories map to a palette bucket in the UI (`router`, `switch`, `l3-switch`, `firewall`, …), but
-not all of them do: the palette collapses 25 `category` values into 24 buckets, so a spec's category is
-a fact about the device first and a colour second.
+not all of them do: `CAT_ORDER` in `web/app.js` lists **24** buckets against the catalogue's 25 categories,
+and the one with no bucket is **`ap`** — so the 11 access-point specs are not missing a colour, they are
+unreachable from the palette's type filter (`$('#pf-type')` is built by iterating `CAT_ORDER`) and can only be
+found by searching. A spec's category is a fact about the device first and a colour second.
 
 Anything that is internet-connected and networked is in scope: phones, laptops,
 servers, printers, cameras, recorders, powerline and MoCA adapters, cable modems,
