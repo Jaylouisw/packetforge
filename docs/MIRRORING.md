@@ -42,12 +42,15 @@ labels, milestones. Those are not git.
 Measured again on 2026-11-12 and the honest answer is that the mirror is **behind, and strictly so**:
 **901 heads on the forge, 889 on GitHub**, `refs/heads/main` is `1b1e1287` on the forge against `8e0d6330` on
 GitHub, and **no branch exists only on GitHub** — the set difference `gh - forge` is empty while `forge - gh` is
-eight branches. That asymmetry, not any particular count, is the invariant worth testing: GitHub should be a
+**twelve** branches. That asymmetry, not any particular count, is the invariant worth testing: GitHub should be a
 **prefix** of the forge, every GitHub ref present on the forge and none of them ahead of it, and GitHub's `main` an
 ancestor of the forge's. It is today: `8e0d6330` is an ancestor of `1b1e1287` with **three commits missing** —
 `e7d18ce8` *"A short line is not a wrong value (#1498)"*, `5bc43ccf` *"CI: bound what the docker job writes to the
 host's disk (#1500)"* and `1b1e1287` *"`?` is a keypress in every prompt, and `exit` walks one level at a time
-(#1504)"* — and the eight forge-only branches are exactly where those PRs came from.
+(#1504)"* — and the forge-only branches are where those PRs came from. Named, on this reading they are
+`ci/bound-the-build-cache`, `fix/board-id`, `fix/help-key-every-prompt`, `fix/no-form-names-v2`,
+`fix/no-form-names-what-it-removes`, `fix/short-line`, `fix/stated-range` and `land-all` … `land-all-v5` — twelve
+in all, which is exactly the 901 − 889 gap, so the count and the set tell the same story rather than two of them.
 
 Two readings the same day show why the numbers are worth re-taking and why the invariant is not: at the earlier one
 the two sides were level at 884/884 with `main` at `73718ab4` on both, and the branch count climbed 872, 875, 881,
