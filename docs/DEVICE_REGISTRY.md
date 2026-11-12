@@ -528,8 +528,8 @@ write anything it cannot check. It is the only supported path to those fields, a
 `poe.budgetUnknown` escape hatch above is for.
 
 ```bash
-node scripts/apply-research.js research/incoming/aruba-poe.json --dry-run
-node scripts/apply-research.js research/incoming/aruba-poe.json
+node scripts/apply-research.js research/incoming/poe-aruba-final.json --dry-run
+node scripts/apply-research.js research/incoming/poe-aruba-final.json
 ```
 
 The input is a JSON document with a `poe` array and/or a `ports` array:
@@ -555,6 +555,28 @@ REJECTED acme/ACME-NOPE: no matching device spec
 REJECTED acme/ACME-SW24: device has 4 ports (template + explicit, combo counted once) but research says 24 rj45 + 4 sfp = 28
 REJECTED acme/ACME-SW24: sfpType "rj45" is not a known cage
 ```
+
+Run against a file that is actually in the tree, the dry run is chatty about what changes and quiet about
+what does not — measured at 2026-11-12 on `research/incoming/poe-aruba-final.json`:
+
+```
+[dry run] Applied 11, recorded unknown 1, rejected 0
+  + aruba/2930F 48G PoE+ 4SFP+  370 W (was 370)
+  ...
+  ~ ubiquiti/ES-24-500W  budget NOT FOUND (recorded as unknown)
+```
+
+`(was 370)` means the researched figure already equals the stored one — a re-run is a no-op replay, not a
+correction. The `~` line is the `poe.budgetUnknown` escape hatch being written from a *research file* that
+says the budget could not be found, which is how a device acquires `budgetUnknown: true` without anyone
+hand-editing JSON.
+
+Two ways to get nothing useful out of it, both worth knowing. Run with no argument and it prints one line —
+`usage: node scripts/apply-research.js <file.json> [--dry-run] [--force]` — but hand it a path that does not
+exist and it throws a raw `ENOENT` stack from `node:fs` instead of repeating the usage line. And `research/incoming/`
+holds **82** files in several shapes: only some are this `{ "poe": …, "ports": … }` document, while e.g.
+`aruba.json` is a JSON *array* and applies as nothing at all — `[dry run] Applied 0, recorded unknown 0,
+rejected 0`, a silent zero that reads like success.
 
 - **A `sourceUrl` is mandatory.** An unverifiable claim is rejected rather than written. The
   catalogue is not uniformly there yet: **46** devices carry a numeric `poe.budgetW` and **4** of them
