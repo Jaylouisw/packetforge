@@ -2159,9 +2159,11 @@ forwarding was now off.
   device that can never be a NAT interface. Typing it anyway still gets the answer.
 
 **The guard, both ways.** The catalogue sweep in `capability-gate.test.js` now asks two questions of the
-same 10,000 rows: a row the page *hides* must be refused by the parser (2,906 rows, 0 accepted), and a
+same ten thousand rows: a row the page *hides* must be refused by the parser (2,941 rows, 0 accepted), and a
 configuration row the page *shows* must not come back in the vocabulary of a capability the device lacks
-(3,564 rows, 0 broken promises). Exec views are exempt from the second question on purpose: `show vlan`
+(3,574 rows, 0 broken promises). Both counts move with the catalogue rather than with the guard — they read
+2,906 and 3,564 when this paragraph was written — and they do not add up to the ten thousand, which was a
+round figure for the whole sweep rather than a sum of these two. Exec views are exempt from the second question on purpose: `show vlan`
 on a router is offered and answered with a sentence explaining what the device keeps, and there an
 explanation *is* the answer.
 
@@ -2214,7 +2216,8 @@ refuses the line, the parser must refuse it too. On `c15a8547` the sweep refused
 suite read **150 passed, 1 failed** - the one failure being the IPv6 routing family on l2-only devices
 (`switch`, `ont`: `ipv6 route 2001:db8:9::/64 …` and `no ipv6 unicast-routing` are answered although the
 oracle refuses them), which is exactly the shape of defect the sweep exists to catch. The sweep runs in
-about six seconds, and a family that accepts on an incapable device now fails the suite instead of
+about six seconds on that commit — **20 s** on this tree, which is why SIMULATION.md counts this suite among
+the three slow ones — and a family that accepts on an incapable device now fails the suite instead of
 shipping.
 
 ### Every device is shown only rows it takes
