@@ -157,6 +157,12 @@ services, and a job that has to swap makes the whole queue slower.
   job that cannot pass here — three wasted jobs out of eight, on a queue that is the
   bottleneck. Rebasing removes them. That is the cheapest single thing you can do
   for the queue's health.
+- **Only badge a workflow this repository still has.** `.forgejo/workflows/` holds
+  `ci.yml`, `auto-rebase.yml`, `pr-rebase.yml`, `closed-audit.yml` and `wiki-sync.yml`;
+  `codeql.yml` was deleted with the move off GitHub. Forgejo renders a badge for a
+  workflow it cannot find as `failure` forever — it is not a red build, it is a link
+  to a file that is not there. The README carried one until #1470, which made the
+  project look broken on the page every visitor lands on first.
 
 ## Reporting a problem with CI itself
 
