@@ -163,6 +163,12 @@ deliberate and one gap is not:
 `docs/wiki/*.md` **is** tracked: the wiki pages are generated but committed, which is why changing a fact
 means regenerating them (see below).
 
+`tmp/` is tracked too, and that is the part the table row cannot say in one cell: **112 files** under it
+are in the repository — 109 probe scripts and 3 saved messages — last curated by a commit called
+`3145931c tmp: drop probe scripts`. So "there is no `tmp/` rule" means a new probe shows up as untracked,
+not that everything in the directory is untracked; a `git status` that lists `tmp/p148a.js` as `??` is
+sitting next to 112 siblings that are `git ls-files` hits.
+
 ### Running one area instead of everything
 
 `npm test` is three things in sequence — `scripts/audit-port-types.js`, `scripts/check-control-bytes.js`
@@ -293,7 +299,7 @@ minutes earlier (1,628 → 1,629), so a prose count can be stale before it is me
 - **A count in prose is a claim about one revision.** When you touch a sentence that quotes one, re-run
   the one-liner in the same edit; if you cannot, leave the count out rather than guess it.
 - **And it is a claim about one *branch*.** These numbers were measured in a working tree sitting on
-  `fix/sfp-plus-connectors`, which at the time of the last reading was **524 commits ahead of
+  `fix/sfp-plus-connectors`, which at the time of the last reading was **525 commits ahead of
   `origin/main` and 373 behind it** (the merge base is still `083e2ba1`) — so none of them is a
   statement about `main`. Six documentation pages
   exist on `main` and not here (`BUG_REPORTS.md`, `DEVICE_REQUEST_SWEEP.md`, `DEVICE_SCHEMA.md`,
@@ -302,7 +308,7 @@ minutes earlier (1,628 → 1,629), so a prose count can be stale before it is me
 
   ```bash
   git branch --show-current                              # fix/sfp-plus-connectors, not main
-  git rev-list --left-right --count HEAD...origin/main    # 524  376   (element 1 = ahead)
+  git rev-list --left-right --count HEAD...origin/main    # 525  377   (element 1 = ahead)
   git diff --diff-filter=A --name-only HEAD origin/main -- docs/   # pages only main has
   ```
 

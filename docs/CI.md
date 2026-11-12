@@ -527,13 +527,13 @@ services, and a job that has to swap makes the whole queue slower.
   **None of these readings is a reading of `main`.** They were taken in the working tree, which sits on
   branch `fix/sfp-plus-connectors`, and that branch diverged from `origin/main` at `083e2ba1`
   (2026-11-08 16:58:44) — at the time of the fourth reading it was **382 ahead and 361 behind**, and
-  now reads **524 ahead and 376 behind** (after a fresh `git fetch`, which moved the behind-side
+  now reads **525 ahead and 377 behind** (after a fresh `git fetch`, which moved the behind-side
   from 361 to 373 — main's tip is `f370b893`, #1450); either way not one of the commits above is an ancestor of
   `origin/main`. Check any of them before you quote it:
 
   ```bash
   git branch --show-current                              # fix/sfp-plus-connectors, not main
-  git rev-list --left-right --count HEAD...origin/main    # 524  376
+  git rev-list --left-right --count HEAD...origin/main    # 525  377
   git merge-base --is-ancestor d4319d27 origin/main || echo "not on main"
   ```
 
@@ -747,11 +747,20 @@ services, and a job that has to swap makes the whole queue slower.
   catalogue did. And the reason it sits there is the next paragraph — a publish from a machine with no
   tty hangs on `could not read Username`, so the fix is a manual run, not something to leave to habit.
 
-  **`--dry-run` reporting every page as "updated" is not staleness — it is `core.autocrlf`.**
-  `publish-wiki.js` compares the clone's files to `docs/wiki/` as raw strings; on Windows with
-  `core.autocrlf=true` the checkout is CRLF while the repo stores LF, so every page differs on every
-  run, forever. Comparing after normalising line endings, or running the check on Linux (where CI
-  runs), is what makes it a signal.
+  **`--dry-run` reporting every page as "updated" is not staleness — it is line endings.**
+  `publish-wiki.js` compares the clone's files to `docs/wiki/` as raw strings, and on a Windows host
+  with `core.autocrlf=true` the two sides are not the same bytes even when they are the same text.
+
+  **The half that is easy to miss is that this repository is the side that is pinned.**
+  `.gitattributes` here declares `* text=auto` and `*.md text eol=lf`, so `docs/wiki/*.md` sits in the
+  worktree as LF — measured on `Home.md`: **34 LF, 0 CRLF**. The wiki repository has no `.gitattributes`
+  at all (`git -C <clone> ls-files .gitattributes` prints nothing), so the identical bytes check out
+  there as CRLF: cloned from a bare repo seeded with this repository's own copy, the same file reads
+  **34 CRLF, 0 LF**, and git warns `LF will be replaced by CRLF the next time Git touches it`. Two
+  repositories, two attribute regimes, one string compare that can never succeed. So "turn autocrlf
+  off" is the wrong repair — that would rewrite this entire checkout. The three repairs that work:
+  normalise line endings before comparing, run the check on Linux (where CI runs), or give the wiki
+  repository the same `.gitattributes`.
 
   **"Already in sync" now has an answer, and on a CRLF host it cannot be reached.** The script grew an
   explicit branch for it — `if (!changed.length && !removed.length)` prints `Wiki is already up to date
