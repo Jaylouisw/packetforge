@@ -859,6 +859,10 @@ and 15 is a deliberate `15 passed, 4 failed earlier in the same session` rather 
 prints 19 today. And no disagreeing suite is red: the only two red suites in the tree are `link-parts` (81
 passed, 2 failed) and `ma5801` (which throws), and neither is quoted with a count here — `CI.md` carries both.
 
+Re-run at `60a43576`, **260** commits after that sweep, every one of the 29 still prints exactly the number in
+the table — so what is recorded here is drift that has stopped, not drift still moving, and the rows work as a
+baseline: a disagreement found tomorrow is a suite that changed, not a reading that was wrong.
+
 The 29 suites whose quoted count no longer matches, quoted → today (each measured by running the file):
 
 | Suite | Quoted above | Prints today |
