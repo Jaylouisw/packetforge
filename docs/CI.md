@@ -623,13 +623,13 @@ queue that lost its arms gets them back in one tick instead of five at a time.
   **None of these readings is a reading of `main`.** They were taken in the working tree, which sits on
   branch `fix/sfp-plus-connectors`, and that branch diverged from `origin/main` at `083e2ba1`
   (2026-11-08 16:58:44) — at the time of the fourth reading it was **382 ahead and 361 behind**, and
-  now reads **554 ahead and 381 behind** (after a fresh `git fetch`, which moved the behind-side
+  now reads **555 ahead and 382 behind** (after a fresh `git fetch`, which moved the behind-side
   from 361 to 373 — main's tip is `f370b893`, #1450); either way not one of the commits above is an ancestor of
   `origin/main`. Check any of them before you quote it:
 
   ```bash
   git branch --show-current                              # fix/sfp-plus-connectors, not main
-  git rev-list --left-right --count HEAD...origin/main    # 554  381
+  git rev-list --left-right --count HEAD...origin/main    # 555  382
   git merge-base --is-ancestor d4319d27 origin/main || echo "not on main"
   ```
 
@@ -721,6 +721,7 @@ queue that lost its arms gets them back in one tick instead of five at a time.
   | `node scripts/run-tests.js --nosuchflag --list` | still lists, silently — the unknown flag is dropped |
   | `node scripts/run-tests.js --filet=bgp --list` | still lists: a **mistyped `--filter`** is dropped too |
   | `node scripts/run-tests.js --filter` (no value) | no error; the filter is empty, so the **whole** suite runs |
+  | `node scripts/run-tests.js --filter bgp` (space, not `=`) | the same: re-measured today it was still running past **180 s** when a filtered run takes about four, so the space form is the bare form with a stray argument |
 
   So a typo does not fail loudly: it quietly turns a filtered run into the full one — and a bare
   `--filter` does the same. If a supposedly filtered run keeps going for minutes instead of finishing
