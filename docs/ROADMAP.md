@@ -10,9 +10,11 @@ The line numbers are hints, and they rot: `engine/cli.js` is edited every day, s
 right last week can land on unrelated code this week. Treat the **symbol** as the citation — `_helperAddress`,
 `_dhcpRelayFor`, the refusal text — and read the number as a place to start looking. Three citations on
 this page had slid by 30 to 120 lines when this note was added; the symbols had not moved at all.
-They track the **working tree**, which on this branch carries the writer's pending `engine/cli.js` edit: at
-`_helperAddress` the worktree line is `:11781` and `HEAD`'s is `:11773`, so a citation checked against `git show`
-will disagree by eight lines and neither number is wrong.
+They are **`HEAD`'s** numbers, not the working tree's: this branch carries the writer's pending
+`engine/cli.js` edit, and its first hunk sits above every citation here, so each of them reads **eight** lines
+lower on disk — `_helperAddress` is `:11773` at `HEAD` and `:11781` in the worktree, the snooping refusal
+`:11650-11653` against `:11658-11661`, the relay closing block `:11711-11713` against `:11719-11721`. Read a
+number against `git show HEAD:engine/cli.js`, and grep the symbol in whatever tree you have open.
 
 ## Simulation engine
 
@@ -63,7 +65,7 @@ lands, that comment is the first line to go stale and the first one a reader tru
       a pool that covers the *relay port's* subnet, not its own (`engine/simulator.js:1152`,
       `_dhcpRelayFor()`); `show ip dhcp binding` on the server then grows a closing line naming each
       relayed lease — `N bindings arrived through a relay: <ip> via giaddr <giaddr>`
-      (`engine/cli.js:11712`) — and `test/dhcp-relay.test.js` (36 assertions) keeps all of it
+      (`engine/cli.js:11711-11713`) — and `test/dhcp-relay.test.js` (36 assertions) keeps all of it
       honest. Still absent: **snooping** (a switch
       forwards DHCP as an ordinary broadcast, and `show ip dhcp snooping` says so rather than
       pretending — four lines, `engine/cli.js:11650-11653`), Option 82's circuit-id/remote-id (only `giaddr` is
