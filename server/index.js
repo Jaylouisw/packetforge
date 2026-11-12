@@ -58,6 +58,33 @@ function safeDecode(s) {
   try { return decodeURIComponent(s); } catch (e) { return s; }
 }
 
+// A board id arrives in a JSON body, which is not a URL: nothing about it is a string and nothing about it is
+// bounded. Three separate failures came from that one gap (#1506):
+//
+//   * `{"id": 123}` was accepted and became a Map key of the *number* 123, while GET and DELETE build their key
+//     from a URL segment, which is always a string - so the board existed, `123.json` was written, and every
+//     request for it by the name it was created with answered 404;
+//   * `{"id": {"a": 1}}` was worse: the key was an object, `GET /api/topologies` returned it inside `ids`, and the
+//     file was called `_object_Object_-c1d44ff0.json`;
+//   * a 400-character id was accepted, and every save after that failed with `ENOENT ... <name>.json.tmp` because
+//     the file name is longer than the filesystem allows - a board the API acknowledged and the disk never held.
+//
+// The rule is the one the rest of this file already follows: a name is a name, so a thing that is not one is a
+// 400 that says which rule it broke, not a happy answer followed by silence.
+const BOARD_ID_MAX = 128;
+function boardIdProblem(id) {
+  if (typeof id !== 'string') {
+    return 'a board name has to be a string, got ' + (Array.isArray(id) ? 'array' : typeof id);
+  }
+  if (!id.trim()) return 'a board name cannot be empty';
+  if (id.length > BOARD_ID_MAX) {
+    return 'a board name is limited to ' + BOARD_ID_MAX + ' characters, got ' + id.length;
+  }
+  if (/[\u0000-\u001f\u007f]/.test(id)) return 'a board name cannot contain control characters';
+  if (id === '.' || id === '..') return 'a board name cannot be ' + JSON.stringify(id);
+  return null;
+}
+
 function topologyFile(id) {
   const raw = String(id);
   const safe = raw.replace(/[^A-Za-z0-9._-]/g, '_');
@@ -710,10 +737,22 @@ async function handleApi(req, res, urlPath) {
 
     // topologies collection
     if (parts[1] === 'topologies' && parts.length === 2) {
-      if (method === 'GET') return sendJSON(res, 200, { ids: Array.from(topologies.keys()) });
+      // A list of names is a list of strings. A key that is not one could only come from a client that sent a
+      // non-string id before this was checked, and putting `123` in a list of names is how the confusion spreads.
+      if (method === 'GET') {
+        return sendJSON(res, 200, {
+          ids: Array.from(topologies.keys()).filter(function (k) { return typeof k === 'string'; })
+        });
+      }
       if (method === 'POST') {
         const body = await readBody(req);
-        const id = body.id || ('topo-' + Date.now().toString(36));
+        // `{}`, `{"id":""}`, `{"id":null}` and no body at all all mean "make me one" - that is how the client asks
+        // for a generated name, and it is the behaviour that has always been there. Anything else is a name the
+        // caller chose, and a name the caller chose has to be a name (#1506).
+        const wantsGenerated = body.id === undefined || body.id === null || body.id === '';
+        const problem = wantsGenerated ? null : boardIdProblem(body.id);
+        if (problem) return sendJSON(res, 400, { error: problem, field: 'id' });
+        const id = wantsGenerated ? ('topo-' + Date.now().toString(36)) : body.id;
         if (!topologies.has(id)) {
           topologies.set(id, new Topology());
           // A board that was created and acknowledged is a thing the operator made. It used to live only in memory

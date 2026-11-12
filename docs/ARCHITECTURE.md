@@ -112,7 +112,21 @@ database, no dependency. Five rules, each of which a bug taught:
 * **a file that is not a board is left alone, and said so.** `Topology.fromJSON()` is tolerant on purpose (it reads
   old files), but tolerance must not turn a corrupted save into an **empty board**: the operator would open the app
   and their lab would be gone, with nothing to read. The envelope is checked before anything is adopted, and the log
-  line names the file.
+  line names the file;
+* **a name is checked where it enters, not where it is used.** The id arrives in a JSON body, which is not a URL:
+  nothing about it is a string and nothing about it is bounded. Three boards were created that the disk or the URL
+  could not honour (#1506):
+
+  | sent | answered | what happened next |
+  |---|---|---|
+  | `{"id": 123}` | `201` | the map key was the *number* `123`; every later request builds its key from a URL segment, which is a string, so the board answered `404` to the name it was created with — and `123.json` was written |
+  | `{"id": {"a": 1}}` | `201` | an object as a key, handed back inside `GET /api/topologies`'s `ids`, written to `_object_Object_-c1d44ff0.json` |
+  | `{"id": "b"×400}` | `201` | every save failed with `ENOENT … <name>.json.tmp`, because the file name is longer than the filesystem allows — acknowledged by the API, never held by the disk |
+
+  So a name the caller chose is a string, at most 128 characters, without control characters, and not a bare `.` or
+  `..`; anything else is a `400` that says which rule it broke. An absent, `null` or empty id still means "make me
+  one", because that is how the client asks for a generated name. `test/board-id-is-a-name.test.js` asserts the rule
+  and then checks that an accepted name is not merely reachable but **on disk and still there after a restart**.
 
 A board's name is a name, so the path segment is percent-decoded before it is looked up — otherwise a board called
 `a b` can be created and then never reached again.
