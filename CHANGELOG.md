@@ -148,9 +148,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   ```
 
   A **failure** is recorded as a failure rather than dropped, which is the half that matters when a lab
-  cannot reach its name server — the name is listed with `unresolved failed now`, the count pluralises
-  (`% 1 name did not resolve` / `% 2 names did not resolve`), and the answer says where the reason is:
-  *"the reason is in `show logging` (the resolver event) and the zone is on the server that answered"*.
+  cannot reach its name server — the name is listed with `unresolved failed now` and then repeated
+  under the table with its own reason, one line per failed name:
+  `% nosuch.lab.example did not resolve - no server hosts a zone for it`. There is no separate tally; a
+  second failed name adds a row and a line. The last line says where the full record is:
+  *"The full record of each lookup is in `show logging` (type dns)"*.
   Two limits worth knowing before the fingers try them: there are **no static host entries** —
   `ip host coredb 192.168.1.20` answers `% Unrecognized config command` — and the view exists on every
   device, so a switch with nothing configured prints the same empty state instead of refusing. See

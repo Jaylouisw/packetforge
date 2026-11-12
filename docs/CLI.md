@@ -2485,9 +2485,15 @@ Host               Address    Type     Age
 host1.lab.example  10.0.0.53  dynamic  now
 nosuch.lab.example unresolved failed   now
 
-% 1 name did not resolve - the reason is in
-% "show logging" (the resolver event) and the zone is on the server that answered
+% nosuch.lab.example did not resolve - NXDOMAIN from SRV1
+% The full record of each lookup is in "show logging" (type dns)
 ```
+
+There is one `%` line per failed name — the count is how many of those lines there are, not a tally
+on its own — and the row above has already said the lookup happened and did not answer, so the line
+carries the reason instead: `no server hosts a zone for it` when nobody claims the zone, `NXDOMAIN from
+<server>` when one does and says the name is not there, `NODATA` when the name is there without an
+address.
 
 With nothing resolved yet it says so and names the command that would fill the table, rather than
 printing an empty header. A disabled lookup is stated with the command that turns it back on, and a
