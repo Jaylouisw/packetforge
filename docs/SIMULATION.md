@@ -882,6 +882,28 @@ Re-run at `60a43576`, **260** commits after that sweep, every one of the 29 stil
 the table — so what is recorded here is drift that has stopped, not drift still moving, and the rows work as a
 baseline: a disagreement found tomorrow is a suite that changed, not a reading that was wrong.
 
+Re-read once more at `02d474d8`, 96 commits on: the six figures in the paragraph above are unchanged, which
+is the check that matters because those are the ones that had moved before.
+
+```sh
+for f in capability-gate svi-verbs absent-commands completion ipv6-route show-at; do printf '%-18s ' $f; node test/$f.test.js | tail -1; done
+```
+
+```
+capability-gate    153 passed, 0 failed
+svi-verbs          61 passed, 0 failed
+absent-commands    126 passed, 0 failed
+completion         52 passed, 0 failed
+ipv6-route         53 passed, 0 failed
+show-at            43 passed, 0 failed
+```
+
+That is a floor rather than a full sweep: the three sweeps above count citations, and the count depends on the
+rule used to find one — this page's own figure is **141** citations and **33** disagreeing pairs, a looser
+`<name>.test.js … <number>` match over the same files finds **265** and cannot reproduce that total. So the
+six suites whose counts the prose actually asserts are the ones to re-run; a fresh total is only comparable to
+these three if it is taken with the same extraction, which the page does not pin down.
+
 The 29 suites whose quoted count no longer matches, quoted → today (each measured by running the file):
 
 | Suite | Quoted above | Prints today |
