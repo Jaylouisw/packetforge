@@ -264,6 +264,24 @@ rather than one 20G port.
    | `[28050, 112200]` | 8 | DS-6630B — 128G on a box described as 32G |
    | `[8500, 10519]` | 4 | SANbox 5800V — 8G and 10G FC on an 8G box |
 
+   Reproduce the whole table — seven sets, 304 ports — in one command:
+
+   ```bash
+   node -e "const{loadCatalog}=require('./devices/registry');const g={};
+     for(const s of loadCatalog('./devices'))for(const i of (s.interfaces||[])){
+       if(!/^fc-/.test(i.connector||''))continue;
+       const k=JSON.stringify(i.speedCaps||[]);g[k]=g[k]||{p:0,d:{}};g[k].p++;
+       g[k].d[s.model]=(g[k].d[s.model]||0)+1;}
+     for(const[k,v]of Object.entries(g).sort((a,b)=>b[1].p-a[1].p))
+       console.log(k.padEnd(30),String(v.p).padStart(4),' ',Object.entries(v.d).map(([m,n])=>m+' ('+n+')').join(', '));
+     console.log('total FC ports:',Object.values(g).reduce((a,b)=>a+b.p,0));"
+   ```
+
+   It prints the sets in descending port count and ends `total FC ports: 304`. Two readings to
+   keep: it prints each device's **model**, so the pair above spelled `SANbox 5800V` comes back as
+   `5800V`; and a set printed as `[57800]` would be the example the next paragraph says cannot
+   exist — its absence from that output is the evidence, not this sentence.
+
    Note what is **not** in that table: no port declares `[57800]` on its own. A 64G-only port would,
    but every 57800 today sits inside a multispeed set, so an example written as "64G is `[57800]`" is
    describing a port that does not exist here. The last two rows are the ones to look at twice before
