@@ -58,8 +58,43 @@ const INTERFACES_VIEW_KEYWORDS = {
   errdisable: 'A port that cannot carry a frame says why in `show interfaces <port>` and in `show interfaces`.',
   flowcontrol: 'Flow control is not simulated: there is no negotiation to report.',
   history: 'Counters are a running total, not a history: `show interfaces <port>` prints the totals since the run began.',
-  stats: '`show interfaces <port>` prints the totals since the run began.'
+  stats: '`show interfaces <port>` prints the totals since the run began.',
+  brief: '`show ip interface brief` is the one-line-per-port view: address, method, status and protocol.'
 };
+
+// `show ip <view>` spellings (#1447).
+//
+// An operator's fingers say `show ip arp`, `show ip interface`, `show ip access-lists`, `show ip vrrp` - the spellings
+// IOS has taught for thirty years - and every one of them answered `% Invalid show command: ip arp` on a console that
+// has the view under another name. `show ip arp` and `show arp` print the same rows from the same table, so the
+// spelling should reach it rather than be refused: an alias, not a second implementation.
+//
+// Where no identical view exists, the refusal names the command that does answer the question, because "invalid" tells
+// an operator nothing except that they guessed the wrong word.
+const SHOW_IP_ALIASES = {
+  arp: 'arp',
+  'access-lists': 'access-lists',
+  vrrp: 'vrrp'
+};
+
+// `show ip interface` alone means the per-port detail; `show ip interface brief` is a view of its own and must keep its
+// own door, so this alias only answers when nothing follows it.
+const SHOW_IP_BARE_ALIASES = { interface: 'interfaces' };
+
+const SHOW_IP_POINTERS = {
+  protocols: 'the protocols this box runs are in `show ip ospf`, `show ip bgp summary` and `show ip route`.',
+  traffic: 'per-port counters are in `show interfaces <port>`; this console keeps no device-wide IP traffic tally.'
+};
+
+// What `show ip` can be followed by, in the console's own words. Built from the tables above so a new alias cannot be
+// added without appearing here.
+function showIpUsage() {
+  const aliased = Object.keys(SHOW_IP_ALIASES).concat(Object.keys(SHOW_IP_BARE_ALIASES)).sort();
+  const pointed = Object.keys(SHOW_IP_POINTERS).sort();
+  return ['% `show ip` needs a view. This console has: route, interface brief, ospf, bgp, nat, dhcp, dns - and ' +
+    aliased.join(', ') + ', each of which reaches the `show` command of the same name.',
+    '  No equivalent here: ' + pointed.join(', ') + '. Type `help` for the full command list.'];
+}
 
 class CliSession {
   constructor(device, topology, simulator) {
@@ -2937,7 +2972,32 @@ class CliSession {
     if (cfg.bgp && typeof sim.computeBgp === 'function') sim.computeBgp();
   }
 
+  // The alias/pointer decision for `show ip <view>` (#1447), or null to let the existing doors answer.
+  //
+  // Only the two-token form is rewritten: `show ip interface brief`, `show ip ospf neighbor`, `show ip bgp summary`,
+  // `show ip nat translations`, `show ip dhcp binding`, `show ip route <prefix>` and every other longer form already
+  // has its own door and keeps it. `show ip arp <address>` is aliased with its argument, so the answer a reader gets is
+  // the one `show arp <address>` gives - which is the useful refusal that says the whole cache is listed.
+  // Returns `{ rewrite: [...tokens] }` to hand the question to the door that has the view, `{ lines: [...] }` to answer
+  // it here, or null to let the existing branches see the tokens untouched.
+  _showIpRedirect(tokens) {
+    if (String(tokens[0] || '').toLowerCase() !== 'ip') return null;
+    const rest = tokens.slice(1);
+    const sub = String(rest[0] || '').toLowerCase();
+    if (!sub || sub === '?') return { lines: showIpUsage() };
+    if (SHOW_IP_ALIASES[sub]) return { rewrite: [SHOW_IP_ALIASES[sub]].concat(rest.slice(1)) };
+    if (rest.length === 1 && SHOW_IP_BARE_ALIASES[sub]) return { rewrite: [SHOW_IP_BARE_ALIASES[sub]] };
+    if (rest.length === 1 && SHOW_IP_POINTERS[sub]) {
+      return { lines: ['% `show ip ' + sub + '` is not a view here: ' + SHOW_IP_POINTERS[sub]] };
+    }
+    return null;
+  }
+
   _show(tokens) {
+    // A `show ip <view>` spelling is answered by the door that has the view (#1447), before any other branch sees it.
+    const redirect = this._showIpRedirect(tokens);
+    if (redirect && redirect.rewrite) tokens = redirect.rewrite;
+    else if (redirect) return redirect.lines;
     const what = (tokens[0] || '').toLowerCase();
     const dev = this.device;
     this._refreshControlPlane();

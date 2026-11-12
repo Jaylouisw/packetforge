@@ -627,6 +627,52 @@ port and a real port answer exactly as before; `?` and `help` print usage; case 
 the words live in one named table and the console asks it; and the keyword check is after the
 port lookup in the source, so a port named like a keyword still wins.
 
+### The spellings IOS taught, on a console that has the views under other names
+
+```
+s1> show ip arp
+% Invalid show command: ip arp
+s1> show arp                                     <- the view was here the whole time
+Protocol  Address          Age (min)  Hardware Addr     Interface
+Internet  10.7.0.2         -          02:00:00:00:02:00 eth0
+```
+
+Thirty years of IOS put `show ip arp`, `show ip interface`, `show ip access-lists` and `show ip vrrp` in operators'
+fingers, and every one of them was refused on a console that has each view under another name. `show ip` alone and
+`show ip ?` were refused too, so there was no way to find out from the console what `show ip` can be followed by.
+
+The console answers them now, and the way it does is the point:
+
+| spelling | what happens |
+| --- | --- |
+| `show ip arp`, `show ip access-lists`, `show ip vrrp` | **rewritten** to `show arp`, `show access-lists`, `show vrrp` — same door, so the two spellings cannot drift apart |
+| `show ip interface` (bare) | rewritten to `show interfaces` |
+| `show ip interface brief` | **not** rewritten: it is a view of its own and keeps its own door |
+| `show ip arp <address>` | rewritten with its argument, so the reader gets the useful refusal that says the whole cache is listed |
+| `show ip protocols`, `show ip traffic` | no equivalent here, so the refusal names the commands that do answer the question |
+| `show ip`, `show ip ?` | the list of what `show ip` can be followed by, ending at `help` |
+| `show ip route <prefix>`, `show ip ospf neighbor`, `show ip nat translations`, `show ip dhcp binding`, `show ip bgp summary` | untouched: longer forms already have their own doors |
+
+Three decisions worth keeping:
+
+* **An alias, not a second implementation.** `show ip arp` and `show arp` print the same rows because they are the same
+  code, so one cannot be fixed without the other. A parallel implementation would drift within a week.
+* **Only the bare form is rewritten.** The obvious way to write this — map `interface` to `interfaces` wherever it
+  appears — swallows `show ip interface brief` into `show interfaces brief`, which is not a view at all. The alias is
+  keyed on arity for that reason, and the test reverts the guard to prove it.
+* **A refusal names a command.** "Invalid" is the one thing a reader already knows. Where no equivalent exists the
+  sentence names the commands that answer the question, and the test executes every one of them.
+
+`show interfaces brief` had the same problem from the other side and joins the view-keyword table: `% \`brief\` is a
+view, not a port: … \`show ip interface brief\` is the one-line-per-port view`.
+
+`test/show-ip-spellings.test.js` pins it, 70 checks: every alias prints *exactly* what its target prints (compared
+row for row, on a switch and on a router, with a resolved ARP row so an empty answer cannot pass); arguments are carried
+through; `show ip interface brief` still differs from `show ip interface`; the six longer forms keep their own doors;
+each pointer refusal is parsed for the commands it names and those commands are run; `show ip` and `show ip ?` list every
+word the tables hold, and every word they promise is a command; `show interfaces brief` is a view that names a command
+that answers; the redirect is checked to run before the first branch of `_show`; and `show arp` itself is unchanged.
+
 ### One cable, two answers about which VLAN a frame is in
 
 Two switches joined by trunks whose native VLANs differ. Every check the board makes passes: the
