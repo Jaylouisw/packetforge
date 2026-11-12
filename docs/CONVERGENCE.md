@@ -106,6 +106,15 @@ Two more measured details worth having in writing:
   **`advertCs`** (`{advertSec: 3, advertCs: 200}` → `2`), while `convergence.vrrpTimers()` prefers
   **`advertSec`** (same input → `advertSec 3`, `masterDownMs 9609.375`). Set one field or the other; if
   you set both, the readiness number a lab shows and the interval its advertisements use will differ.
+
+  The blast radius is worth naming, because one of the two is display-only. `vrrpTimers()` has exactly one
+  caller — `buildSchedule()` at `engine/convergence.js:182`, which turns it into a readiness entry whose
+  basis reads `3 x advertise 3 s + skew` — while `advertInterval()` is what `masterDownInterval()`
+  computes from at `engine/vrrp.js:294`, i.e. the number the running protocol obeys. So on
+  `{advertSec: 3, advertCs: 200}` the same group is **ready at 9609.375 ms** in the schedule and
+  **master-down after 6609.375 ms** to the protocol (`3 × 2 + 0.609375`, measured 2026-11-12). A lab that
+  sets both fields is not merely inconsistent on paper; it shows one convergence time and behaves on
+  another, and only the schedule is wrong.
 - **A key set to `null` means zero, not "use the default".** Every timer in this module goes through
   `num(v, dflt)` (`engine/convergence.js:46`), which is `Number(v)` accepted whenever it is finite and
   `>= 0` — and `Number(null)` is `0`. So a config that carries an explicit `null` (a JSON round-trip of an
