@@ -726,12 +726,12 @@ actually true.
 And a short list of things that exist on the model but are **never read** —
 i.e. configuring them is decoration:
 
-- `Link.state` (`engine/link.js:41`) — `'up' | 'down' | 'blocked'` is serialised and never consulted; only `iface.enabled`, STP blocking and PoE gate a frame.
+- `Link.state` (`engine/link.js:34`, was 41 — 41 is `endpoint()` now) — `'up' | 'down' | 'blocked'` is serialised and never consulted; only `iface.enabled`, STP blocking and PoE gate a frame.
 - `minLinks` on a LAG (`engine/lag.js:55`).
 - LAG `mode` (`engine/lag.js:217`) — validated, then ignored.
 - `voiceVlan` (`engine/vlan.js:13`).
-- `iface.dhcp` (`engine/cli.js:1921`).
-- Capabilities `firewall`, `wireless`, `dhcp-server`, `dhcp-client`, and the tokens `vlan`/`lacp`/`stp` (`engine/device.js:85-98`).
+- `iface.dhcp` (`engine/cli.js:2041`, was 1921 — 1921 is inside `samePrefix()` now; the four writes are at 2041, 2043, 2154 and 2162).
+- Capabilities `firewall`, `wireless`, `dhcp-server`, `dhcp-client`, and the tokens `vlan`/`lacp`/`stp` (`engine/device.js:89-101`, was 85-98 — `CAPABILITIES` opens at 89 and `stp` is the last of its 15 tokens at 100).
 - RA valid/preferred lifetimes (`_ipv6Nd()` at `engine/cli.js:3051`, printed by `_showIpv6Nd()` at `:13050` as the valid/preferred columns at `:13078-13083`).
 
 ---
@@ -890,6 +890,19 @@ the line that actually contains the identifier or the `code:` string, and where 
 (`Device.routeTo()` 366 → **541**, `Simulator.reset()` 106 → **141**, `hybridCord()` 324 → **377**,
 `Device.egressFor()` 524 → **726**) the citation moved with it. Prefer the symbol over the number: a line
 number cannot be checked by reading, and a grep for the symbol can.
+
+Re-swept at `4aa4ced8`, and the advice above turns out to be the thing that makes the sweep repeatable. The wide
+net still counts **276** `file.js:NNN` citations across 15 documents, but only **30** of them can be checked by
+machine, because a citation is only testable when the sentence names a symbol *next to* the number — the other
+246 are bare line numbers with nothing to grep for. Of those 30, **27** still landed and **3** had drifted, all
+in the list of settings that are configured and never read: `Link.state` was cited at `engine/link.js:41`, which
+is `endpoint()` now, so it moved to **34**; `iface.dhcp` was cited at `engine/cli.js:1921`, which is inside
+`samePrefix()`, so it moved to **2041** where the four writes actually are (2041, 2043, 2154, 2162);
+`CAPABILITIES` was cited at `engine/device.js:85-98`, and the array opens at **89** with `stp` as its last token
+at `100`, so it moved to `89-101`. Every neighbour in that list was re-read at the same time and was already
+right (`minLinks` `lag.js:55`, LAG `mode` `lag.js:217`, `voiceVlan` `vlan.js:13`, `_ipv6Nd()` `cli.js:3051`,
+`_showIpv6Nd()` `cli.js:13050`), which is the useful contrast: it is not that the page rots uniformly, it is
+that the rows naming a symbol survive and the rows naming only a number do not.
 
 | Document | Says | Reality |
 |---|---|---|
