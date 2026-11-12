@@ -325,10 +325,15 @@ the cage-by-cage table. Selected highlights:
 | fiber | `100gbase-sr4` / `-lr4` | 100G | MPO / LC | 100 m – 10 km |
 | DAC | `dac-10g`, `dac-10g-active`, `aoc-10g` | 10G | SFP | 7 / 15 / 20 m |
 | DAC | `dac-40g`, `dac-100g` | 40G / 100G | QSFP | 5 / 3 m |
-| console | `console-rs232`, `usb-console` | 115.2 kbps | RJ45 / USB | 15 m |
+| console | `console-rs232` | 115.2 kbps | RJ45 | 15 m |
+| console | `usb-console` | 12 Mbps (USB full speed) | USB | 5 m |
 | wireless | `wireless-2.4`, `wireless-5`, `wireless-6`, `wireless-7`, `wireless-60` (a declared band, not a rate) | radio | antenna | — |
 
-The full list is served at **`GET /api/media`**.
+The full list is served at **`GET /api/media`** (`server/index.js:315`). Reach is `MEDIA[id].maxRangeM`
+— one number per medium, which is why the console pair needs two rows rather than one: `console-rs232`
+reaches 15 m and `usb-console` 5 m, and they do not even share a unit of rate (115.2 kbps against 12 Mbps
+USB full speed). A row that said "15 m, 115.2 kbps" for both was the only place in this table where two
+media with different physics shared a line.
 
 ---
 
