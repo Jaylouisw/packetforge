@@ -111,6 +111,22 @@ console.log("usb takes a console cage?", m.cagesMate("usb", "console"));'
 A fibre-channel cage in a copper list is not a typo in the other direction either: `cagesMate('sfp', 'fc-sfp28')`
 is `true`, because a 32G FC SFP28 optic fits the same slot as a 25G Ethernet one.
 
+**Read that table as A's view, not as a symmetric relation.** `cagesMate(a, b)` consults only
+`CAGE_MATE[a]`, so a pair "mates" when the *first* cage's row names the second. Twenty-five of the
+twenty-six cages have a row (`wwan` has none, so cellular mates with nothing, itself included), and four
+rows are genuinely one-way: `sfp → fc-sfp`, `sfp → fc-sfp28`, `sfp56 → combo` and `qsfpdd → qsfp56`.
+Because `canMate(portA, portB)` is called once, in the order the link was drawn, the *reason* a cable is
+refused can depend on which end you started from — `sfp → fc-sfp` passes the connector gate and is then
+judged on medium and rate (`E_NO_COMMON_MEDIA`), while `fc-sfp → sfp` never gets that far and is reported
+as `E_CONNECTOR_MISMATCH`, which reads like the connectors do not fit at all. When a pair surprises you,
+ask in both orders:
+
+```bash
+node -e 'const m=require("./engine/media");
+for (const [a,b] of [["sfp","fc-sfp"],["fc-sfp","sfp"],["sfp56","combo"],["combo","sfp56"]])
+  console.log(a, "->", b, m.cagesMate(a,b));'
+```
+
 ### Checking this table against the engine
 
 There is no audit script for cages and media. Both catalogues are **functions of the port's rated
