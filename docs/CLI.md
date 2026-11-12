@@ -372,7 +372,41 @@ R1#show interfaces bogus9
 That distinction matters: `show interfaces <port>` used to accept the argument and then
 print **every** port on the box, which looks like an answer and is not one. Ambiguity is
 refused too — if two ports fold onto the same key, the resolver declines to guess rather
-than picking one.
+than picking one, and says `% No interface named …` exactly as it does for a port that does
+not exist at all.
+
+No catalogue device can reach that refusal: across all 1,661 specs, not one carries two
+spellings that fold onto one key, so it guards future hardware rather than anything you can
+type today. Make the collision yourself and it fires — and note that the two real spellings
+still answer, because exact-spelling and case-only matching run ahead of the fold, so only a
+third spelling is refused:
+
+```sh
+node -e '
+const {Topology, Simulator, runCommands} = require("./engine");
+const reg = require("./devices/registry");
+const spec = reg.loadCatalog().filter(s => !s.error).find(s => (s.interfaces || []).some(i => i.name === "sfp+1"));
+const t = new Topology(); t.addDevice(spec, "d1");
+const dev = t.devices.get("d1"), sim = new Simulator(t);
+const ask = n => runCommands(dev, t, sim, ["show interfaces " + n]).lines[1];
+console.log("device    :", spec.vendor + "/" + spec.model);
+console.log("one port  :", ask("sfp-sfpplus1"));
+const src = dev.interfaces.get("sfp+1");
+dev.interfaces.set("sfpplus1", Object.assign({}, src, {name: "sfpplus1"}));
+console.log("collision :", ask("sfp-sfpplus1"));
+console.log("exact     :", ask("sfpplus1"));
+'
+```
+
+```
+device    : netgear/MS510TX
+one port  : sfp+1 (ethernet, 10G), MAC 02:00:00:00:00:09
+collision : % No interface named sfp-sfpplus1 on Netgear MS510TX-d1
+exact     : sfpplus1 (ethernet, 10G), MAC 02:00:00:00:00:09
+```
+
+The first line names whichever spec the catalogue returns first with an `sfp+1` — `netgear/MS510TX`
+today — so the refusal quotes that device's label.
 
 ## IPv6 commands
 
