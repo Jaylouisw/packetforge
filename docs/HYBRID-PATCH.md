@@ -604,6 +604,32 @@ number instead gives **`false`** and **`0`** — a refusal that never happened a
 nothing. Anyone checking a cord by hand should resolve it first:
 `const c = optical.patchCord('FCA-S2SR-SCASCU-02M')`.
 
+Both paragraphs above are one command. From the repo root:
+
+```sh
+node -e "
+const o = require('./engine/optical'), P = o.patchCords();
+const t = P.filter(p => p.polishBridge === true), f = P.filter(p => p.polishBridge === false);
+const can = new Set(P.map(p => (o.hybridCord(p.endA, p.endB) || {}).model).filter(Boolean));
+const c = o.patchCord('FCA-S2SR-SCASCU-02M');
+console.log(P.length + ' parts, ' + t.length + ' bridges / ' + f.length + ' non-bridges');
+console.log(can.size + ' reachable: ' + [...can].map(m => m.split(' ')[1]).join(', '));
+console.log('resolved ' + o.cordFits(c, 'sc-upc', 'sc-apc') + '/' + o.cordLossDb(c) +
+            ', raw string ' + o.cordFits('FCA-S2SR-SCASCU-02M', 'sc-upc', 'sc-apc') + '/' +
+            o.cordLossDb('FCA-S2SR-SCASCU-02M'));
+"
+```
+
+```
+13 parts, 10 bridges / 3 non-bridges
+2 reachable: SMSCSX, SMLCSX
+resolved true/0.3, raw string false/0
+```
+
+The fifteen raw records behind those thirteen are two in `odn.json` and thirteen in
+`hybrid-patch-cords.json`; counting every record in both files instead gives sixteen and thirteen, because
+`odn.json` also carries the splitters, which are not patch cords and never merge with one.
+
 ---
 
 ## 8. Open questions for the maintainers
