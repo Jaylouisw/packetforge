@@ -749,10 +749,16 @@ async function handleApi(req, res, urlPath) {
         // `{}`, `{"id":""}`, `{"id":null}` and no body at all all mean "make me one" - that is how the client asks
         // for a generated name, and it is the behaviour that has always been there. Anything else is a name the
         // caller chose, and a name the caller chose has to be a name (#1506).
-        const wantsGenerated = body.id === undefined || body.id === null || body.id === '';
-        const problem = wantsGenerated ? null : boardIdProblem(body.id);
+        // `readBody()` resolves `{}` for an empty body and otherwise whatever `JSON.parse` returned, which can be
+        // `null`, a number, a string or an array. `body.id` on `null` is a TypeError, and the answer to a body that is
+        // literally `null` was `400 {"error":"Cannot read properties of null (reading 'id')"}` - the runtime's own
+        // words, which is the one thing a response in this server is not allowed to contain (#1506). A body that is
+        // not an object has no `id`, so it means the same thing an empty body means: make me one.
+        const asked = (body && typeof body === 'object' && !Array.isArray(body)) ? body.id : undefined;
+        const wantsGenerated = asked === undefined || asked === null || asked === '';
+        const problem = wantsGenerated ? null : boardIdProblem(asked);
         if (problem) return sendJSON(res, 400, { error: problem, field: 'id' });
-        const id = wantsGenerated ? ('topo-' + Date.now().toString(36)) : body.id;
+        const id = wantsGenerated ? ('topo-' + Date.now().toString(36)) : asked;
         if (!topologies.has(id)) {
           topologies.set(id, new Topology());
           // A board that was created and acknowledged is a thing the operator made. It used to live only in memory

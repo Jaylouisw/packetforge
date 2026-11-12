@@ -65,6 +65,30 @@ function request(method, urlPath, body) {
   });
 }
 
+// A body that is not an object: `readBody()` hands back whatever `JSON.parse` returned, so `null` is a real
+// request a client can make, and `body.id` on it was a TypeError answered as
+// `400 {"error":"Cannot read properties of null (reading 'id')"}` (#1506).
+function requestRaw(method, urlPath, raw) {
+  return new Promise(function (resolve, reject) {
+    const payload = Buffer.from(raw);
+    const req = http.request({
+      host: '127.0.0.1', port: PORT, path: urlPath, method: method,
+      headers: { 'Content-Type': 'application/json', 'Content-Length': payload.length }
+    }, function (res) {
+      let data = '';
+      res.on('data', function (c) { data += c; });
+      res.on('end', function () {
+        let parsed = data;
+        try { parsed = JSON.parse(data); } catch (e) { /* keep the raw text */ }
+        resolve({ status: res.statusCode, body: parsed, text: data });
+      });
+    });
+    req.on('error', reject);
+    req.write(payload);
+    req.end();
+  });
+}
+
 function startServer(dataDir) {
   const child = spawn(process.execPath, [path.join(ROOT, 'server', 'index.js')], {
     env: Object.assign({}, process.env, { PORT: String(PORT), PF_DATA: dataDir }),
@@ -168,6 +192,17 @@ function ids(body) {
       '  and every file name fits what the filesystem allows', files.filter(function (f) { return Buffer.byteLength(f) >= 255; }).join(','));
     ok(!files.some(function (f) { return /passwd|^true\.json$|^123\.json$/.test(f); }),
       '  and no refused name was written', files.join(','));
+
+    // --- a body that parses but is not an object --------------------------------
+    const RUNTIME_WORDS = /Cannot read propert|is not a function|is not iterable|of null \(reading|\[object Object\]/;
+    for (const [what, raw] of [['null', 'null'], ['a number', '123'], ['a string', '"hello"'], ['an array', '[]'],
+      ['true', 'true']]) {
+      const r = await requestRaw('POST', '/api/topologies', raw);
+      ok(!RUNTIME_WORDS.test(r.text), 'a body that is ' + what + ' does not answer in the runtime\'s words',
+        r.text.slice(0, 90));
+      ok(r.status === 201 && typeof r.body.id === 'string' && r.body.id.length > 0,
+        '  and it means "make me one", like an empty body does', 'status ' + r.status + ' ' + r.text.slice(0, 80));
+    }
 
     // --- the same names after a restart -----------------------------------------
     await stop(srv.child);
