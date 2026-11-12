@@ -627,6 +627,49 @@ port and a real port answer exactly as before; `?` and `help` print usage; case 
 the words live in one named table and the console asks it; and the keyword check is after the
 port lookup in the source, so a port named like a keyword still wins.
 
+### A config that claimed lines nobody typed
+
+```
+p> show running-config
+! PacketForge running-config
+hostname PC-p
+ipv6 gateway fe80::ff:fe00:100                            <- arrived in a router advertisement
+interface eth0
+  ipv6 address 2001:db8:1::ff:fe00:200/64                  <- formed by the host from that advertisement
+  ipv6 address autoconfig                                  <- the only line anyone typed
+exit
+```
+
+`show running-config` answers "what did I configure". It printed three IPv6 facts, one of which was configuration. The
+address formed by SLAAC is stored where a typed address is stored (`config.ip6[name]`, tagged `autoconfig: true`), and
+the default gateway learned from an advertisement is stored in `config.gateway6`. Both were printed as if typed, so a
+port that had *asked* for autoconfiguration also claimed a pinned address — and a config copied from it would have
+handed another host this one's EUI-64 address as a static address.
+
+In the other direction, `show interfaces` said nothing about IPv6 at all: the address a host had just been pinged on was
+readable only in `show ipv6 nd`, and the **link-local** every RS and NS is sent from — derived from the MAC, so absent
+from every config by construction — was readable nowhere.
+
+The rule is one sentence: **the config reports what was configured; the views report what is true.**
+
+* `show running-config` prints `ipv6 address <addr>/<prefix>` only when the address was typed, and `ipv6 gateway` only
+  when the gateway was typed. A learned address is still described by the `ipv6 address autoconfig` line that produced
+  it; a learned gateway is described by `show ipv6 nd`;
+* `show interfaces` reports the address the port holds — `ipv6: 2001:db8:1::10/64`, or
+  `ipv6: 2001:db8:1::ff:fe00:200/64 (autoconfig)` for a formed one, or
+  `ipv6: autoconfig, no address yet (waiting for a router advertisement)` for the failure mode — followed by the
+  link-local. A port with no IPv6 prints no line, so every IPv4 lab prints exactly what it printed before;
+* `show ipv6 nd` names the default gateway's provenance: `(learned from a router advertisement)` or `(configured)`;
+* **configuration outranks a dynamic protocol.** A gateway somebody typed is no longer replaced by the next
+  advertisement — otherwise `ipv6 gateway` was a knob that silently un-set itself. Typing one takes ownership back
+  (`gateway6Learned = false`), and the flag travels in the saved document, so a reopened lab does not start printing a
+  learned gateway as configuration.
+
+`test/ipv6-provenance.test.js` pins it, 33 checks; reverting `engine/` fails 16. Neighbours green: `ipv6` 235,
+`ipv6-slaac` 165, `ipv6-wire` 33, `ping-ipv6` 43, `config-roundtrip` 46, `config-completeness` 56,
+`state-payload-complete` 16, `examples-generated` 21, `flows-survive-save-load` 16, `show-interfaces-port` 38,
+`show-interfaces-view-keywords` 71, `spec-survives-load` 32.
+
 ### The address that was read as a name
 
 ```

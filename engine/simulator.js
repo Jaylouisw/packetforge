@@ -2006,8 +2006,14 @@ class Simulator {
     // Router lifetime 0 means "do not use me as a default router" - a router
     // being drained says exactly that, and honouring it is the difference
     // between a graceful shutdown and a black hole.
-    if (ra.routerLifetime > 0 && router) {
+    // Configuration outranks a dynamic protocol: a gateway somebody typed is not replaced by the next
+    // advertisement, which would make `ipv6 gateway` a knob that silently un-sets itself.
+    const gatewayIsTyped = !!dev.config.gateway6 && !dev.config.gateway6Learned;
+    if (ra.routerLifetime > 0 && router && !gatewayIsTyped) {
       dev.config.gateway6 = router;
+      // Learned, not typed. `show running-config` is "what you configured", and this line was not configured by
+      // anyone - it arrived in a router advertisement and will change when the advertisement changes (#1463).
+      dev.config.gateway6Learned = true;
       // fe80:: is on-link on every interface, so a link-local next hop only
       // means something together with the port it was heard on. Without this
       // the default route exists but has no egress to send by.
