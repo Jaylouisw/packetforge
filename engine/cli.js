@@ -2277,6 +2277,34 @@ class CliSession {
   // been handed out, to whom, or when they come back (#1373). The bindings come from the engine's own table
   // through `Simulator.dhcpBindings()`, and the pool view is the pool the server actually answers from
   // (`normalizePool()` + `validatePool()`), not a re-reading of the config text.
+  // The DHCP exchanges that never became a lease, read from the run's own event log (#1453).
+  //
+  // The engine has recorded every failed exchange since the exchange was written - `phase: 'failed'` with a reason
+  // (`no-server`, `no-pool`, `pool-exhausted`, `nak`) and a sentence saying what went wrong - and nothing could read
+  // it. So an operator whose host had no address had three views that all said nothing: `show ip dhcp binding` listed
+  // only the successes, `show ip dhcp pool` counted only the successes, and the host's own `show interfaces` said
+  // `ip: unassigned`. A silent no is the worst answer, and the reason was sitting in the log the whole time.
+  _dhcpFailures() {
+    const dev = this.device;
+    const out = { asServer: [], asClient: [] };
+    const events = (this.sim && Array.isArray(this.sim.events)) ? this.sim.events : [];
+    for (const e of events) {
+      if (!e || e.type !== 'dhcp' || e.phase !== 'failed') continue;
+      if (e.server && e.server === dev.id) out.asServer.push(e);
+      if (e.client && e.client === dev.id) out.asClient.push(e);
+    }
+    return out;
+  }
+
+  // One sentence for one failed exchange. Read on the server it is the engine's own words (the server is the box the
+  // reader is at, and every detail sentence is already about its pools); read on the client it names the server that
+  // stayed silent, because that is the fact the client's console cannot otherwise show.
+  _dhcpFailureText(ev, asServer) {
+    const detail = ev.detail || 'no offer came back';
+    if (asServer) return detail;
+    return detail + (ev.server ? ' (from ' + (ev.serverName || ev.server) + ')' : '');
+  }
+
   _showDhcp(args) {
     const dev = this.device;
     const out = [];
@@ -2319,9 +2347,19 @@ class CliSession {
         }
         rows = matched;
       }
+      const failed = this._dhcpFailures().asServer;
       out.push(pad('IP address', 16) + pad('Client identifier / MAC', 30) + pad('Pool', 18) + 'Expires in');
       if (!rows.length) {
-        out.push('% no leases: nothing has asked this server for an address yet');
+        // "nothing has asked" is only true when nothing asked. A request that was answered with silence is a
+        // different fact, and it is the one an operator needs (#1453).
+        out.push(failed.length
+          ? '% no leases: ' + failed.length + ' request(s) were refused, none granted'
+          : '% no leases: nothing has asked this server for an address yet');
+        if (failed.length) {
+          const last = failed[failed.length - 1];
+          out.push('  ' + this._dhcpFailureText(last, true) + ' (' + (last.mac || 'unknown client') +
+            (Number.isFinite(last.step) ? ', step ' + last.step : '') + ')');
+        }
         return out;
       }
       let lapsed = 0;
@@ -2338,6 +2376,11 @@ class CliSession {
       out.push('');
       out.push(active + ' active binding(s)' + (lapsed ? ', ' + lapsed + ' lapsed' : '') +
         '; the lease clock runs from the instant the lease was granted');
+      if (failed.length) {
+        const last = failed[failed.length - 1];
+        out.push(failed.length + ' request(s) refused: ' + this._dhcpFailureText(last, true) +
+          ' (' + (last.mac || 'unknown client') + (Number.isFinite(last.step) ? ', step ' + last.step : '') + ')');
+      }
       return out;
     }
 
@@ -2390,6 +2433,16 @@ class CliSession {
           if (mine.length) {
             out.push('                  ' + mine.map(function (r) { return r.ip + ' (' + r.mac + ')'; }).join(', '));
           }
+        }
+        // Requests this pool turned away, with the sentence the engine recorded for the last one (#1453): a pool at
+        // 2 of 2 addresses and a pool nobody has asked are both "full" on the In use line, and only one of them has
+        // clients standing in the dark.
+        const refusedHere = (this._dhcpFailures().asServer || []).filter(function (e) {
+          return e.pool === p.name;
+        });
+        if (refusedHere.length) {
+          out.push('  Refused:        ' + refusedHere.length + ' request(s) - ' + (refusedHere[refusedHere.length - 1].detail ||
+            'no address left to offer'));
         }
         out.push('');
       }
@@ -3572,6 +3625,16 @@ class CliSession {
           ', protocol: ' + link.protocol +
           (i.description ? ', desc: ' + i.description : ''));
         out.push('  ip: ' + (i.ip ? i.ip + '/' + net.prefixOf(i.mask) : 'unassigned') + (i.dhcp ? ' (dhcp)' : ''));
+        // A host that asked for an address and got nothing is `unassigned` too, and that is the one case where the
+        // word hides the answer: the exchange failed for a stated reason, and the reason was recorded (#1453).
+        if (i.dhcp && !i.ip) {
+          const mine = this._dhcpFailures().asClient.filter(function (e) { return e.iface === i.name; });
+          if (mine.length) {
+            const last = mine[mine.length - 1];
+            out.push('  dhcp: ' + mine.length + ' request(s), no address - ' + this._dhcpFailureText(last) +
+              (Number.isFinite(last.step) ? ' (step ' + last.step + ')' : ''));
+          }
+        }
         out.push('  peer: ' + (i.peer ? i.peer.deviceId + '/' + i.peer.iface : 'disconnected'));
         // The rate the link actually runs at, and whether anybody forced it. A forced 100 on a 1G port is
         // the answer to "why is this link slow", so it belongs in the block you read to ask (#1259).
