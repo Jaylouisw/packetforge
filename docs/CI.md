@@ -186,6 +186,16 @@ const fs = require('fs');
 
 const files = process.argv.slice(2);
 
+// GFM makes the leading and trailing pipe optional, so counting `split('|').length - 2` reports a
+// row that simply has no closing pipe as one cell short. Normalise both ends instead: that was a
+// false positive against a nineteen-row table whose last row ends `(61 assertions)` with no `|`.
+function cells(line) {
+  const parts = line.replace(/\r$/, '').split(/(?<!\\)\|/);
+  if (parts.length && parts[0].trim() === '') parts.shift();
+  if (parts.length && parts[parts.length - 1].trim() === '') parts.pop();
+  return parts.length;
+}
+
 // 1. every table row has the same number of cells as its header.
 //    A `|` inside a backticked command adds a column silently; escape it as \|.
 let shape = 0;
@@ -196,9 +206,9 @@ for (const f of process.argv.slice(2)) {
     // ':'..'|', which excludes '-' — and then this test matches no separator line at all,
     // so check 1 silently never runs. Keep the hyphen first.
     if (!L[i].startsWith('|') || !/^\|[-:\s|]+\|$/.test((L[i + 1] || '').trim())) continue;
-    const n = L[i].split(/(?<!\\)\|/).length - 2;
+    const n = cells(L[i]);
     for (let k = i + 1; k < L.length && L[k].startsWith('|'); k++) {
-      const m = L[k].split(/(?<!\\)\|/).length - 2;
+      const m = cells(L[k]);
       if (m !== n) { console.log(f + ':' + (k + 1) + ' has ' + m + ' cells, header has ' + n); shape++; }
     }
   }
@@ -220,9 +230,14 @@ for (const f of files) {
 //    and printing them keeps that difference deliberate rather than accidental.
 let ghosts = 0;
 const onDisk = new Set(fs.readdirSync('test').filter(f => f.endsWith('.test.js')));
+const seenGhost = new Set();
 for (const f of files) {
   const t = fs.readFileSync(f, 'utf8');
   for (const m of t.matchAll(/test\/([\w.-]+\.test\.js)/g)) {
+    // One line per page-and-name pair, not per mention: a §11 row that names a ghost suite three
+    // times is one citation to weigh, and counting mentions made this number drift with prose edits.
+    if (seenGhost.has(f + ' ' + m[1])) continue;
+    seenGhost.add(f + ' ' + m[1]);
     if (!onDisk.has(m[1])) { console.log(f + ' cites test/' + m[1] + ' (not on disk)'); ghosts++; }
   }
 }
@@ -249,7 +264,7 @@ for (const f of files) {
     }
     const next = L[i + 1];
     if (next === undefined) break;
-    if (next.trim() === '' || next.startsWith('|') || next.startsWith('```')) continue;
+    if (next.trim() === '' || next.startsWith('|') || next.startsWith('\`\`\`')) continue;
     console.log(f + ':' + (i + 2) + ' breaks a table row (a table must be followed by a blank line)');
     broken++;
   }
@@ -289,9 +304,24 @@ console.log(shape || anchors || ghosts || broken || cross
 ```
 
 ```bash
-node md-check.js docs/*.md README.md CONTRIBUTING.md CHANGELOG.md
-# tables and anchors clean
+node md-check.js docs/*.md docs/wiki/*.md README.md CONTRIBUTING.md CHANGELOG.md
+# 0 shape problem(s), 0 broken anchor(s), 11 cited-but-absent suite(s), 0 broken table(s), 0 cross-file anchor(s)
 ```
+
+Three repairs were needed before the sample above would run at all, and each one had been hiding behind
+the next:
+
+- **A raw triple backtick inside the fence closed it.** `next.startsWith('```')` is legitimate JavaScript
+  — check 4 needs it to skip a fenced line — but markdown ends the code block at that line, so the
+  published script stopped mid-string and the rest of it rendered as prose. It now reads
+  `next.startsWith('\`\`\`')`, which is the same three characters to JavaScript and invisible to the
+  fence parser. Any page that publishes code *about* markdown has this trap.
+- **The citation pass counted mentions, not citations.** It printed **16** lines over **11** page-and-name
+  pairs, because a §11 row can name the same ghost suite three times. Deduplicating per page and name
+  gives the **11** this page quotes, which is also the number the prose always described.
+- **The shape pass assumed both pipes.** `split('|').length - 2` reports a row with no closing pipe as one
+  cell short; GFM makes that pipe optional, so the check flagged a legitimate table and would flag every
+  table in a page written without trailing pipes. `cells()` now normalises both ends.
 
 **`md-check.js` is not in this repository, and that sentence is a lie on a fresh clone.** The script above is
 published in full but it lives **outside** the tree — it was written as a scratch tool while these pages were
