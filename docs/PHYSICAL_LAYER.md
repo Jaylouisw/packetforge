@@ -458,7 +458,11 @@ Both are PON-only: the check runs when both ends are `sc-apc`, `sc-upc`, `lc-upc
 each direction separately — `E_OPTICAL_BUDGET` names which one failed (`downstream at 1490 nm` or
 `upstream at 1310 nm`) because the upstream wavelength is the lossier — and `W_OPTICAL_HEADROOM` fires
 when the surviving headroom is **under 3 dB**, computed with a declared patch cord's insertion loss
-included and an undeclared one adding nothing.
+included and an undeclared one adding nothing. Two details of that check are easy to get backwards: the
+warning sits in the `else` of the budget test (`engine/validation.js:708-716`), so a link that already
+fails reports `E_OPTICAL_BUDGET` and **no** headroom warning, and the figure compared against 3 dB is the
+**smaller of the two directions** (`Math.min(down.headroomDb, up.headroomDb)`), not the downstream one —
+which is why a 20 km link at 1310 nm warns on 2.7 dB while the same link at 1490 nm has 5.3 dB to spare.
 
 Try it live: **`POST /api/topologies/:id/validate-link`** returns the verdict plus
 every valid medium, which is what the UI's media picker is built from.
