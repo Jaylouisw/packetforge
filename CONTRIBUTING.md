@@ -186,7 +186,7 @@ node -e 'const s=require("./package.json").scripts;
 const f=new Set([].concat(...Object.entries(s).filter(([k])=>k.startsWith("test:")).map(([,v])=>v.match(/test\/[A-Za-z0-9_.-]+\.js/g)||[])));
 const all=require("fs").readdirSync("test").filter(n=>n.endsWith(".test.js"));
 console.log(f.size+" of "+all.length+" suites sit behind a test: shortcut");'
-# 46 of 267 suites sit behind a test: shortcut  (267 counts the working copy; use git ls-files for the tracked figure)
+# 46 of 272 suites sit behind a test: shortcut  (272 counts the working copy - 271 tracked plus the untracked test/value-hints.test.js; use git ls-files for the tracked figure)
 ```
 
 | script | runs |
@@ -261,7 +261,7 @@ node -e "const m=require('./engine/media.js');console.log(Object.keys(m.MEDIA).l
 # 25 distinct device categories
 node -e "const{loadCatalog}=require('./devices/registry');console.log(new Set(loadCatalog(require('path').resolve('devices')).filter(d=>!d.error).map(d=>d.category)).size,'categories')"
 
-# 147 error codes, plus 12 lines of `W_` (eleven warnings and the bare prefix)
+# 148 error codes, plus 12 lines of `W_` (eleven warnings and the bare prefix)
 grep -ho "'E_[A-Z0-9_]*'" engine/*.js | sort -u | wc -l
 grep -oh "'W_[A-Z0-9_]*'" engine/*.js | sort -u | wc -l
 
@@ -279,7 +279,7 @@ minutes earlier (1,628 → 1,629), so a prose count can be stale before it is me
 - **A count in prose is a claim about one revision.** When you touch a sentence that quotes one, re-run
   the one-liner in the same edit; if you cannot, leave the count out rather than guess it.
 - **And it is a claim about one *branch*.** These numbers were measured in a working tree sitting on
-  `fix/sfp-plus-connectors`, which at the time of the last reading was **514 commits ahead of
+  `fix/sfp-plus-connectors`, which at the time of the last reading was **515 commits ahead of
   `origin/main` and 373 behind it** (the merge base is still `083e2ba1`) — so none of them is a
   statement about `main`. Six documentation pages
   exist on `main` and not here (`BUG_REPORTS.md`, `DEVICE_REQUEST_SWEEP.md`, `DEVICE_SCHEMA.md`,
@@ -288,7 +288,7 @@ minutes earlier (1,628 → 1,629), so a prose count can be stale before it is me
 
   ```bash
   git branch --show-current                              # fix/sfp-plus-connectors, not main
-  git rev-list --left-right --count HEAD...origin/main    # 514  373   (element 1 = ahead)
+  git rev-list --left-right --count HEAD...origin/main    # 515  373   (element 1 = ahead)
   git diff --diff-filter=A --name-only HEAD origin/main -- docs/   # pages only main has
   ```
 
