@@ -32,6 +32,23 @@ worth. Two of them carry most of the weight:
 If you already have the JSON, skip the form and open a PR — see
 [DEVICE_REGISTRY.md](DEVICE_REGISTRY.md).
 
+Both counts in that paragraph are countable from the checked-in YAML, which is the only part of the form
+this repository can verify:
+
+```sh
+node -e '
+const t=require("fs").readFileSync(".github/ISSUE_TEMPLATE/device_request.yml","utf8");
+const types=[...t.matchAll(/^  - type: (\w+)$/gm)].map(m=>m[1]);
+const fields=types.filter(x=>x!=="markdown"&&x!=="checkboxes").length;
+const cat=t.slice(t.indexOf("id: category"), t.indexOf("- type: textarea"));
+console.log("fields", fields, "| categories", (cat.match(/^        - /gm)||[]).length,
+  "| checklist", types.includes("checkboxes"), "| types", types.join(","));'
+```
+
+```
+fields 8 | categories 22 | checklist true | types markdown,input,input,dropdown,textarea,input,input,input,textarea,checkboxes
+```
+
 ### What the form does, measured
 
 Two things about the form are worth stating because neither is visible from the page:
