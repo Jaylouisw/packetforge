@@ -627,10 +627,24 @@ properties (`test/lag.test.js`). Treat the codes as a library contract, not as c
 
 `engine/stp.js` — `runStp({bridges})` performs a deterministic root election and
 returns per-port roles (`root` / `designated` / `alternate`) and states
-(`forwarding` / `blocking`), plus the list of blocked ports.
+(`forwarding` / `blocking`), plus the list of blocked ports. The shape is worth having exactly, because
+`root` is not a bridge key:
+
+```
+{ root:    { priority, mac },                 // the winner, named by priority and MAC - not by key
+  ports:   { <bridgeKey>: { <portName>: { role, state, cost } } },
+  blocked: [ … ] }
+```
+
+Same input gives byte-identical JSON on a second call. Bridges are indexed by `key` and the **first**
+definition of a duplicated key wins, so a later duplicate is ignored rather than merged or refused. Empty
+input is not an error: it answers `{ root: { priority: 32768, mac: null }, ports: {}, blocked: [] }` — a
+root object whose `mac` is `null`, which a caller must not dereference.
 
 `Simulator.computeStp()` builds the bridge graph from the live topology (including
-LAG collapsing) and is run before every ping. Blocked ports **drop both ingress and
+LAG collapsing) and is run before every ping — `ping()` at `engine/simulator.js:758` and `ping6()` at
+`:2623`, each after `reset()` — as well as from `refreshControlPlanes()` (`:479`) and, on any cable
+change, `recomputeStp()` (`:688`). Blocked ports **drop both ingress and
 egress traffic** (`stp-block` events), which is what turns a physical loop into a
 working topology instead of a broadcast storm.
 
