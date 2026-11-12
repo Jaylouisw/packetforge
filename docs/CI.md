@@ -556,8 +556,14 @@ for (const d of docs) fs.readFileSync(d,"utf8").split("\n").forEach((l,i)=>{
 console.log(n+" line citation(s) across "+files.size+" file(s); "+bad+" point at nothing");'
 ```
 
-It prints `293 line citation(s) across 37 file(s); 0 point at nothing` on this tree, and it catches the
-one failure that is invisible in prose: a citation left pointing past the end of a file that shrank.
+It prints `312 line citation(s) across 38 file(s); 1 point at nothing` on this tree, and it catches the
+one failure that is invisible in prose: a citation left pointing past the end of a file that shrank. The
+single reported line is this page's own illustration: the invented `engine/foo.js` cited further down, at
+a line that does not exist, is there to show what the sweep catches, so a reading of 1 here is the
+demonstration working rather than a defect. The citation count is not a property of the checker: it was
+**293** when this paragraph was written and is **312** now, because pages keep being edited. What should
+stay at zero is the number of *real* misses, and only a reading of the paths can tell those from the
+example.
 
 **Whether the cited line says what the sentence claims** does not reduce to a check, and it is worth
 recording why, because the obvious version of it is a trap. Pair each citation with the backticked
