@@ -139,6 +139,30 @@ A survey of all 1,661 files finds **sixteen** top-level keys the schema table ab
 because a contributor copying an existing spec will meet them, and because **whether any code reads a
 key decides whether it can change behaviour**. Measured with `grep -rn "\.<key>" engine/ web/ server/`:
 
+The whole survey, in one command:
+
+```bash
+node -e "const fs=require('fs'),path=require('path');
+  const g=p=>fs.readdirSync(p,{withFileTypes:true}).flatMap(e=>e.isDirectory()?g(path.join(p,e.name)):[path.join(p,e.name)]);
+  const keys={};let n=0;
+  for(const f of g('devices').filter(f=>f.endsWith('.json'))){
+    let d;try{d=JSON.parse(fs.readFileSync(f,'utf8'));}catch(e){continue;}
+    if(!d||typeof d!=='object'||Array.isArray(d))continue;n++;
+    for(const k of Object.keys(d))keys[k]=(keys[k]||0)+1;}
+  const table=['vendor','model','label','category','capabilities','interfaces','portTemplate',
+    'description','sourceUrl','notes','poeBudget','passive','role','technology','icon','color'];
+  const out=Object.keys(keys).filter(k=>!table.includes(k)).sort();
+  console.log(n+' files, '+Object.keys(keys).length+' top-level keys, '+table.length+' in the schema table, '+out.length+' outside it');
+  for(const k of out)console.log('  '+k.padEnd(24)+String(keys[k]).padStart(3));"
+```
+
+It prints `1661 files, 33 top-level keys, 16 in the schema table, 17 outside it`, then the seventeen with
+the number of files carrying each - `insertionLossDb` 13, `formFactor` 7, `splitRatio` 11, `comboPorts` 15,
+`source` 20, `poe` 47, and the rest at 1 to 12. Seventeen against the sixteen claimed above is not a
+contradiction: `poe` is one of the seventeen and the schema table's `poeBudget` row documents it, which is
+what leaves sixteen. The `dualRole` row further down is a **port**-level key, so this listing never sees it
+- it is nested in `interfaces[]` and appears in three files, which is the count that row quotes.
+
 | Key | Files | Read by | Effect |
 |---|---|---|---|
 | `insertionLossDb` | 13 | `engine/optical.js` | **real** — the loss a passive part adds to a PON budget |
