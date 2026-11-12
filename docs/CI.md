@@ -293,6 +293,22 @@ node md-check.js docs/*.md README.md CONTRIBUTING.md CHANGELOG.md
 # tables and anchors clean
 ```
 
+**`md-check.js` is not in this repository, and that sentence is a lie on a fresh clone.** The script above is
+published in full but it lives **outside** the tree — it was written as a scratch tool while these pages were
+being audited — so `node md-check.js …` from the repository root answers
+`Error: Cannot find module '…/md-check.js'`. Save the block above as `md-check.js` wherever you keep scratch
+files and run it from there; the paths it takes are relative to your shell, not to the script:
+
+```bash
+node /some/where/md-check.js docs/*.md docs/wiki/*.md README.md CONTRIBUTING.md CHANGELOG.md
+# 0 shape problem(s), 0 broken anchor(s), 11 cited-but-absent suite(s), 0 broken table(s), 0 cross-file anchor(s)
+```
+
+That is today's line (2026-11-12), and it is the reason the comment above is unreliable rather than wrong: with
+**eleven** absent-suite citations the checker prints the long form, never `tables and anchors clean`, and the
+number moves whenever a page gains or loses a citation. Read the first two fields as the pass/fail and the
+third as a list you then have to look at.
+
 The shape check matters more than it sounds: a `|` inside a backticked command —
 `` `show flows [<id> | counters]` `` — silently adds a column, and the table still *renders*, just with
 a cell pushed off the end. Escape it as `\|` inside the cell. The anchor check catches a link to a
