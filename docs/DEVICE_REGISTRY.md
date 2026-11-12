@@ -555,6 +555,38 @@ itself. The audit prints the first fifteen and `... and N more`; `--json` carrie
 `opticalMissing` (and the empty `uncabliable` array beside it), which is the form to diff when a spec
 change is supposed to empty it.
 
+
+`audit-port-types.js` is the other half of that pair, and it is the one `npm test` runs **first**. On this
+tree it prints:
+
+```
+Port type / connector audit
+  models:  1661 across 247 vendors
+  ports:   17030  (5148 of them expanded from a portTemplate in 213 specs)
+  offending devices: 0
+  offending ports:   0  (high 0, medium 0, low 0)
+
+Template ports whose connector nothing declares: 3108 port(s) in 140 spec(s)
+    - arista/720XP-48Y6  48/48 template ports (e.g. Ethernet1 -> rj45)
+    ...
+    ... and 125 more (see --json summary.undeclaredTemplateHardware)
+
+No port contradicts its declared type.
+```
+
+The hard finding is the `offending` pair — a port whose declared `connector` or `type` contradicts the
+cage it resolves to, which is the mistake that makes `cagesMate()` accept a part no datasheet allows.
+Zero is the number to keep. The soft finding is the block under it, and it is not small: **3,108 of the
+5,148 template-expanded ports, in 140 of the 213 specs that use a template**, declare no `connector`, no
+`cage` and no `speedCaps`, so their cage comes from `derivePortHardware()` inferring it out of the port
+name and rate. Nothing in the spec can contradict that inference — `arista/720XP-48Y6` and
+`cisco/C9300-48P` both resolve their 48 template ports to `rj45`, which happens to be right, but the claim
+is the audit's and not the datasheet's. Put a `connector` on the template when you touch one. `--json`
+carries `summary.undeclaredTemplateHardware` as **`{ specs: 140, ports: 3108, models: [ … 140 names ] }`**
+— counts and the spec names, not per-port detail — which is the shape to diff when a template change is
+meant to shrink it.
+
+
 The catalogue spans routers, switches, L3 switches, firewalls, taps, hosts, servers, wireless
 APs, PTP radios, OLTs, ONTs, splitters, modems, powerline/MoCA adapters, NAS, desktops, laptops,
 phones, tablets, printers, cameras, NVRs, IoT and cloud. Vendor coverage runs from Cisco, Juniper,
