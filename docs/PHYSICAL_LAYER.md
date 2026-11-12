@@ -373,6 +373,28 @@ matched from the **device's own words** — `/60\s*ghz|802\.11ad|wigig/i` over `
 Counted over the catalogue's **949** antenna ports: `wireless-2.4` 924, `wireless-5` 588, `wireless-6`
 282, `wireless-7` 92, `wireless-60` 25.
 
+```sh
+node -e "
+const b = './', { Topology } = require(b + 'engine'), { loadCatalog } = require(b + 'devices/registry');
+const t = new Topology(), n = {};
+let ports = 0;
+for (const s of loadCatalog(b + 'devices')) {
+  let d; try { d = t.addDevice(s) } catch (e) { continue }
+  for (const i of d.interfaces.values()) {
+    if ((i.cage || '') !== 'antenna') continue;
+    ports++;
+    for (const id of ((i.hardware || {}).media || [])) n[id] = (n[id] || 0) + 1;
+  }
+}
+console.log(ports + ' antenna ports', JSON.stringify(n));
+"
+```
+
+```
+949 antenna ports {"wireless-2.4":924,"wireless-5":588,"wireless-6":282,"wireless-7":92,"wireless-60":25}
+```
+
+
 The `band` and `bands` keys exist and **no catalogue device sets either** — and they narrow rather than
 widen, which is the trap in them. `{ speed: 5760, band: '6' }` is offered `wireless-6` **only**, i.e.
 802.11ax at 2400 Mbps, while the same port with no band declared is offered 802.11be's four media.
