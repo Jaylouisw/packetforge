@@ -547,9 +547,19 @@ before every transmission, so:
 - **MAC tables are per VLAN** (`Device.macTableFor(vid)`), because VLANs are separate
   broadcast domains. VLAN 1 keeps the flat legacy table.
 - **Flooding is scoped to the VLAN**: a broadcast never crosses a VLAN boundary.
-- **Trunks tag real frames** — inspect the event log and you will see 802.1Q-tagged
-  frames on trunk links and untagged frames on access ports.
-- Frames that a port's VLAN rules reject are dropped with a `vlan-drop` event.
+- **Trunks tag real frames**, and each `frame` event carries three fields that say so: `vid` (the VLAN
+  the frame belongs to), `wireTagged` and `wireVid` (what is actually on the wire). Measured across one
+  trunk between two switches, VLAN 10 on the host ports: every frame on `SWA:Fa0/1 -> SWB:Fa0/1` with
+  `vid: 10` reports `wireTagged: true, wireVid: 10`, the untagged LLDP riding the same link reports `vid:
+  1, wireTagged: false`, and both access ports report `vid: 10, wireTagged: false`. What you will **not**
+  see is any of that on the console: `show logging frame` renders every frame as `from SWA, to SWB`, so
+  the tagging is a property of the event object rather than of the printed table.
+- Frames a port's VLAN rules reject are dropped with a **`vlan-drop`** event, and that is a narrower case
+  than it sounds. A cross-VLAN ping that simply has nowhere to go produces a plain **`drop`** —
+  `% … no egress ports in VLAN 20` — because no port on the switch is in that VLAN at all. `vlan-drop` is
+  for a port that is considered and then refuses: with a trunk allowed-list of `10`, the untagged LLDP in
+  VLAN 1 is dropped as `VLAN 1 not allowed on egress, on Fa0/1, vlan 1`, while the VLAN 20 user traffic on
+  the same switch still leaves as `no egress ports in VLAN 20`.
 
 VLANs 1–4094 are assignable, and anything outside the range is refused by number —
 `% VLAN 4095 is outside 1-4094`, `% VLAN 0 is outside 1-4094`. The IEEE 802.1Q **reserved block
