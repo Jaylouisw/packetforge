@@ -142,11 +142,24 @@ rather than needing a special case. Measured over three pairs:
 | `MDS 9148S` 16G ↔ `G720` 64G | `16g` only | `16gfc-sw` | **14025** |
 | `G610` 32G ↔ `G720` 64G | `32g`, `16g` | `32gfc-sw` | **28050** |
 
-Two things to read off that table. The offer list narrows to what both ports can actually reach, which is
-why a 16G↔64G pair offers only `16g`: the 64G port's `speedCaps` begin at 14025, so the slower rungs the
-MDS declares are not shared with it. And `speedMbps` is the **negotiated line rate, not the medium's name**:
-16G FC runs at 14.025 Gbit/s and 32G at 28.05, so a link whose `mediaId` says `16gfc-sw` still reports
-`14025`. Reading the medium id as the rate is off by ~12% on every FC rung.
+Two things to read off that table, and one trap underneath it. The offer list is the intersection of the two
+**cage ladders**, not of the two `speedCaps` arrays: an `fc-sfp` socket's ladder is `2/4/8/10/16G` and an
+`fc-sfpdd` socket's is `16/32/64G`, they share only 16G, and that is why the 16G↔64G pair offers `16g`. The
+giveaway is the first row, which offers `10g` although **neither** port lists 10519 in its `speedCaps` — the
+ladder decides what appears, the caps do not. Same intersection from the other side: `MDS 9148S` (`fc-sfp`)
+against `DS-6630B` (`fc-sfp28`, ladder `8/16/32G`) offers exactly `8g` and `16g`.
+
+And `speedMbps` is the **negotiated line rate, not the medium's name**: 16G FC runs at 14.025 Gbit/s and 32G
+at 28.05, so a link whose `mediaId` says `16gfc-sw` still reports `14025`. Reading the medium id as the rate
+is off by ~12% on every FC rung.
+
+The trap is that the offer list and the negotiated rate answer different questions and can disagree by 2×.
+`QLogic 5800V`'s ordinary ports declare `[2125,4250,8500]` (only its four ISLs add 10519) and `MDS 9148S`
+declares `[2125,4250,8500,14025]`; both are `fc-sfp`, so the offer is the whole ladder. Cabled with no
+medium named, the pair picks `8gfc-sw` at 8500. Naming `16gfc-sw` explicitly is **accepted** — the link then
+reports `mediaId 16gfc-sw` with `speedMbps` **8500**, because the 5800V port never declared 14025. Only a
+medium outside the offer list is refused (`64gfc-sw` fails with 'is not supported by both'). So the medium
+names the connector and the optics; the two ports decide the rate.
 
 Rebuilt all three rows from the catalogue on 2026-11-12 rather than believing the table: a `Topology` with
 `MDS 9148S` ×2, `G720` and `G610`, cabled port-to-port, gives `mediaId 16gfc-sw` with `speedMbps 14025`
