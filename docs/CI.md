@@ -511,9 +511,19 @@ queue that lost its arms gets them back in one tick instead of five at a time.
   bottleneck. Rebasing removes them. That is the cheapest single thing you can do
   for the queue's health. The scale is worth knowing: `main` no longer carries
   `.github/workflows/` at all (it holds `.github/` templates, labels and dependabot
-  config only), the remote advertises **835** heads — `git ls-remote --heads origin | wc -l` —
-  and a sample of twelve spread evenly through that list found **ten** still carrying
-  `.github/workflows/ci.yml`. So this is not a handful of forgotten branches; most of
+  config only), the remote advertises **872** heads and a sample of twelve spread evenly through that
+  list found **nine** still carrying `.github/workflows/ci.yml`. So this is not a handful of forgotten
+  branches; most of the queue is running workflows that cannot pass.
+
+  Two things to know before reproducing those numbers. The count is `git ls-remote --heads <remote> |
+  wc -l`, and `<remote>` matters: this checkout's `origin` is `ssh://forgejo/…`, an SSH host alias that
+  resolves on the machine holding the key and **not** in a sandbox where the alias is absent — there it
+  answers `ssh: Could not resolve hostname forgejo` and the count comes out `0`, which reads like an
+  empty remote rather than a broken alias. The same repository is also configured as `forgejo-http`
+  (`http://odin:3000/jaylouisw/packetforge`), and that is the remote these readings came from. Ask a
+  branch whether it still carries the file with the API instead of cloning 872 of them:
+  `http://odin:3000/api/v1/repos/jaylouisw/packetforge/contents/.github/workflows/ci.yml?ref=<branch>`
+  answers **200** or **404** — twelve requests instead of twelve checkouts.
   the queue is running workflows that cannot pass.
 - **Whether any suite is red is a reading, not a fact about the repository — so read it.** The two
   suites that were red for a long time are green now: `test/spec-vs-description.test.js` **3 passed, 0
@@ -587,13 +597,13 @@ queue that lost its arms gets them back in one tick instead of five at a time.
   **None of these readings is a reading of `main`.** They were taken in the working tree, which sits on
   branch `fix/sfp-plus-connectors`, and that branch diverged from `origin/main` at `083e2ba1`
   (2026-11-08 16:58:44) — at the time of the fourth reading it was **382 ahead and 361 behind**, and
-  now reads **531 ahead and 377 behind** (after a fresh `git fetch`, which moved the behind-side
+  now reads **532 ahead and 378 behind** (after a fresh `git fetch`, which moved the behind-side
   from 361 to 373 — main's tip is `f370b893`, #1450); either way not one of the commits above is an ancestor of
   `origin/main`. Check any of them before you quote it:
 
   ```bash
   git branch --show-current                              # fix/sfp-plus-connectors, not main
-  git rev-list --left-right --count HEAD...origin/main    # 531  377
+  git rev-list --left-right --count HEAD...origin/main    # 532  378
   git merge-base --is-ancestor d4319d27 origin/main || echo "not on main"
   ```
 
