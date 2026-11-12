@@ -303,13 +303,14 @@ class and prove it fails on a deliberately broken table before trusting a green 
 The fifth check is the one the list had been missing: same-file `#anchor` links were covered, but
 a link into the middle of a different document (`OTHER.md#anchor`) was not, and that is the shape
 that breaks on every heading rename. It resolves the target relative to the linking file and demands the
-heading exist there. **Three** such links exist today — `README.md` into `CLI.md` twice (the NAT section
-and link aggregation) and into `ARCHITECTURE.md` once (transport flows) — and all three resolve. The
-number is not stable and does not need to be: count them with
+heading exist there. **Five** such links exist today, all in `README.md` — into `CLI.md` three times (the
+NAT section, link aggregation and DHCP relay), into `ARCHITECTURE.md` once (transport flows) and into
+`CI.md` once (known gaps) — and all five resolve. It was three when this paragraph was written, which is
+the point of the next sentence: the number is not stable and does not need to be. Count them with
 
 ```bash
 grep -rhoE '\]\([A-Za-z0-9_./-]*docs/[A-Za-z0-9_.-]+\.md#[^)]+' docs/*.md docs/wiki/*.md README.md CONTRIBUTING.md CHANGELOG.md | wc -l
-# 3, on the tree this was measured against
+# 5, on the tree this was measured against
 ```
 
 The check was proved to bite by pointing one of them at a heading that does not exist — and it bit for
@@ -526,13 +527,13 @@ services, and a job that has to swap makes the whole queue slower.
   **None of these readings is a reading of `main`.** They were taken in the working tree, which sits on
   branch `fix/sfp-plus-connectors`, and that branch diverged from `origin/main` at `083e2ba1`
   (2026-11-08 16:58:44) — at the time of the fourth reading it was **382 ahead and 361 behind**, and
-  now reads **515 ahead and 373 behind** (after a fresh `git fetch`, which moved the behind-side
+  now reads **516 ahead and 373 behind** (after a fresh `git fetch`, which moved the behind-side
   from 361 to 373 — main's tip is `f370b893`, #1450); either way not one of the commits above is an ancestor of
   `origin/main`. Check any of them before you quote it:
 
   ```bash
   git branch --show-current                              # fix/sfp-plus-connectors, not main
-  git rev-list --left-right --count HEAD...origin/main    # 515  373
+  git rev-list --left-right --count HEAD...origin/main    # 516  373
   git merge-base --is-ancestor d4319d27 origin/main || echo "not on main"
   ```
 
