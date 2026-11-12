@@ -4585,7 +4585,11 @@ One table (`_absentShow`) holds the whole family: CDP → LLDP, inventory → `s
 → this one console, cpu → the per-port counters, NTP → the fact that time here is an *instant* you ask
 about, and `show switchport` → the three tables that split a port's L2 state between them. Every
 pointer in those sentences is a command the test runs, because a refusal that recommends something
-absent is the defect this whole series is about.
+absent is the defect this whole series is about. Swept all 27 of them against `lab2`'s router and
+`lab4`'s switch: not one comes back `% Invalid show command`, which is the property that matters.
+What still differs is the reason — `show ip ospf` on a switch answers `% SW1 is a layer 2 switch: no OSPF
+process can run here` and on a router `% OSPF is not enabled - "ospf router-id <ip>" in config mode turns
+OSPF on` — so a pointer is a command that exists, not a promise that the feature behind it does.
 
 `show history` was the one of these that deserved to exist rather than be explained: the console keeps
 the lines typed into it, bounded at 200, and prints the last 10 the way IOS does. Asking for the
