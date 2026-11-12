@@ -325,7 +325,7 @@ minutes earlier (1,628 → 1,629), so a prose count can be stale before it is me
 - **A count in prose is a claim about one revision.** When you touch a sentence that quotes one, re-run
   the one-liner in the same edit; if you cannot, leave the count out rather than guess it.
 - **And it is a claim about one *branch*.** These numbers were measured in a working tree sitting on
-  `fix/sfp-plus-connectors`, which at the time of the last reading was **553 commits ahead of
+  `fix/sfp-plus-connectors`, which at the time of the last reading was **554 commits ahead of
   `origin/main` and 373 behind it** (the merge base is still `083e2ba1`) — so none of them is a
   statement about `main`. Six documentation pages
   exist on `main` and not here (`BUG_REPORTS.md`, `DEVICE_REQUEST_SWEEP.md`, `DEVICE_SCHEMA.md`,
@@ -334,7 +334,7 @@ minutes earlier (1,628 → 1,629), so a prose count can be stale before it is me
 
   ```bash
   git branch --show-current                              # fix/sfp-plus-connectors, not main
-  git rev-list --left-right --count HEAD...origin/main    # 553  381   (element 1 = ahead)
+  git rev-list --left-right --count HEAD...origin/main    # 554  381   (element 1 = ahead)
   git diff --diff-filter=A --name-only HEAD origin/main -- docs/   # pages only main has
   ```
 
@@ -508,6 +508,21 @@ Use a plain imperative subject line, e.g.:
 - `Add PTP radio category`
 
 No trailing period, no scope prefixes.
+
+## The changelog is not enforced
+
+`CHANGELOG.md` follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and is where a
+user-facing change is announced: a new command, a behaviour fix, a device. **Nothing makes you write
+it.** No CI step reads the file, no test asserts an entry exists, and no script in `scripts/` names it
+except the link checker, which only cares that its links resolve. This guide did not mention the
+changelog at all until it was measured, which is most of why it drifts.
+
+Drift, measured on 2026-11-12: the newest PR reference in this branch's changelog is **#1369**, the
+newest in `main`'s is **#1069** — the entries live here, on the branch, not on the default branch —
+and the **eight most recent merges have no entry in either**: #1452, #1454, #1456, #1458, #1460,
+#1462, #1464, #1466. So "all notable changes are documented" is currently an intention. If your pull
+request changes what a user sees, add a line under `## Unreleased` in the merge that lands it; that is
+the only mechanism there is.
 
 ## Review process
 
