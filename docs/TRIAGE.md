@@ -21,7 +21,7 @@ remember — two anonymous requests, no token needed for either:
 
 ```bash
 curl -s "https://git.jayw.uk/api/v1/repos/jaylouisw/packetforge/issues?state=open&limit=1" \
-  -D - -o /dev/null | grep -i '^x-total-count'          # x-total-count: 25
+  -D - -o /dev/null | grep -i '^x-total-count'          # x-total-count: 32
 curl -s "https://git.jayw.uk/api/v1/repos/jaylouisw/packetforge/issues?state=open&limit=50" \
   | grep -o '"title":"\[[^]]*\]' | sort | uniq -c      # 24 "title":"[Device] - one line, nothing else
 curl -s "https://git.jayw.uk/api/v1/repos/jaylouisw/packetforge/issues?state=open&type=issues&limit=50" \
@@ -29,14 +29,16 @@ curl -s "https://git.jayw.uk/api/v1/repos/jaylouisw/packetforge/issues?state=ope
 ```
 
 The third line is the one that measures the label half of the sentence above, which the first two cannot:
-a count of 25 and 25 bracket titles say nothing about labels, and "each carrying both" is a claim about all 24
-device requests at once. Measured with it: **26** open issues, **24** with `device`, **24** with
-`device-request`, **24** titles beginning `[Device]`, and **four** with no labels at all (#1501, #1505, #1506,
-#1507). The
+a count of 32 and 24 bracket titles say nothing about labels, and "each carrying both" is a claim about all 24
+device requests at once. Measured on 2026-11-12 with it: **32** open issues, **24** with `device`, **24** with
+`device-request`, **24** titles beginning `[Device]`, and **eight** with no labels at all (#1501 and #1505 through
+#1511). The
 `type=issues` is not decoration: the issues endpoint serves pull requests too, from the same number space, and on
-2026-11-12 the difference was live — `state=open` alone answered **26** against **25** with the filter, the extra
+2026-11-12 the difference was live — `state=open` alone answered **33** against **32** with the filter, the extra
 entry being open PR **#1502**. So the filter is worth having, but it does not make the label tally redundant:
-the twenty-fifth issue is a real issue and only the third line tells you it is not a device request.
+those eight unlabelled issues are real issues, and only the third line separates 24 requests from 8 bugs. Of the
+numbers this paragraph quotes, only the 24 has held still: it was 24 when the count above read 25 and it is 24 now
+that it reads 32, so the request half is the stable figure and the total is the one to re-measure.
 
 **And how much of it is work.** Re-measured on 2026-11-12 by fetching the same 24 device requests anonymously
 and parsing the three fields the form guarantees — vendor, exact model, datasheet URL — then matching
@@ -166,12 +168,12 @@ is 50 and not 200: the loop stops when a page comes back short (`batch.length < 
 page size *above* the server's cap would end the scan after one page and report a quiet fraction of
 the queue. The cap and the constant have to agree, and today they agree *exactly* — measured:
 `limit=51` returns **50** items, `limit=50` returns 50 — so `LIMIT_PER_PAGE = 50` sits on the cap with
-no headroom. The open queue cannot show this any more, because 24 issues fit inside every candidate cap;
+no headroom. The open queue cannot show this any more, because 32 issues fit inside every candidate cap;
 measure it against the archive instead, which does not:
 
 ```console
 $ curl -s -D - -o /dev/null 'http://odin:3000/api/v1/repos/jaylouisw/packetforge/issues?state=all&type=issues&limit=51&page=1' \
-    | grep -iE '^(x-total-count|link):'    # X-Total-Count: 960, Link: …limit=51&page=2… rel="next"
+    | grep -iE '^(x-total-count|link):'    # X-Total-Count: 980, Link: …limit=51&page=2… rel="next"
 $ curl -s 'http://odin:3000/api/v1/repos/jaylouisw/packetforge/issues?state=all&type=issues&limit=51&page=1' \
     | grep -o '"number":' | wc -l         # 50
 ```
@@ -182,8 +184,8 @@ the body is capped at 50, so the header is not the place to learn the cap; the c
 every URL in `Link` is rewritten to the server's **canonical host**, `https://git.jayw.uk/…`, even though
 the request went to `odin:3000`, so a client that follows a `rel="next"` link stops talking to the host it
 started with. Re-measured on 2026-11-12 against `odin:3000`. On `state=open` each of `limit=50`, `51` and
-`200` returns 24 — the queue is smaller than any cap this page could test, which is why the reading above
-needed the 960-odd archived issues to exist at all. If the server's cap ever drops below 50, the sweep keeps working and quietly scans one
+`200` returns 32 — the queue is smaller than any cap this page could test, which is why the reading above
+needed the 980-odd archived issues to exist at all. If the server's cap ever drops below 50, the sweep keeps working and quietly scans one
 page; if it rises, nothing changes. That asymmetry is the reason this paragraph exists. `--close` is a
 budget, not a switch: `--close 0` (the default) reports, and the report itself prints at most 40
 matches before saying "... and N more".
