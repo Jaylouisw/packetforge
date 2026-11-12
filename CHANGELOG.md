@@ -773,10 +773,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `no ip nat inside` is no longer offered where `ip nat inside` never was.
 
   **The guard now asks both questions of the same catalogue sweep** — a row the page hides must be
-  refused (2,906 rows, 0 accepted) and a configuration row the page shows must not speak in a capability
-  the device lacks (3,564 rows, 0 broken promises) — with exec views exempt on purpose, because `show
+  refused (0 accepted) and a configuration row the page shows must not speak in a capability
+  the device lacks (0 broken promises) — with exec views exempt on purpose, because `show
   vlan` on a router is offered and answered with a sentence explaining what the device keeps. The suite
-  reads **153 passed, 0 failed**. See [docs/CLI.md](docs/CLI.md).
+  reads **153 passed, 0 failed**, and prints the two counts it swept: **2,941** rows refused and **3,574**
+  typed on 2026-11-12, against 2,906 and 3,564 when this was written. Both climb with the catalogue, so run
+  it rather than quoting them — the two figures that carry the guarantee are the zeros. See
+  [docs/CLI.md](docs/CLI.md).
 
 - **The interface block asks the capability question too, and a NAT role needs a device that translates.**
   The previous pass wired the gate into the configuration dispatcher only, so the same families still
