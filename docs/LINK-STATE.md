@@ -298,6 +298,18 @@ back to the 1G cost — measured through `runStp()` on a port at each rate: 2.5G
 beside it — 20000 against 2000 — because it is priced as 1G. This page used to print a smooth ladder (40G 400, 25G 800, "100G and faster" 200),
 none of which the engine computes.
 
+The fallback is measurable without a lab, since `runStp()` prices a port from `speedMbps` when the port
+states one. Give two bridges a link at each rate and read the surviving port's `cost`:
+
+```sh
+node -e 'const {runStp}=require("./engine/stp");const t=s=>{const p={name:"Fa0/1",speedMbps:s,to:{bridge:"b2",port:"Fa0/1"}};const r=runStp({bridges:[{key:"b1",priority:32768,mac:"02:00:00:00:01:00",ports:[p]},{key:"b2",priority:32768,mac:"02:00:00:00:02:00",ports:[{name:"Fa0/1",speedMbps:s,to:{bridge:"b1",port:"Fa0/1"}}]}]});return r.ports.b1["Fa0/1"].cost};for(const s of [1000,10000,40000,100000,2500,25000,50000,400000])console.log(s,"->",t(s))'
+```
+
+Run at `920cccc5` it prints `1000 -> 20000`, `10000 -> 2000`, `40000 -> 500`, `100000 -> 200`, then
+`2500 -> 20000`, `25000 -> 20000`, `50000 -> 20000`, `400000 -> 20000` — the six-key table and the fallback,
+in the order that makes the gap obvious: every rate between the keys is priced as 1G. A port carrying
+`cost: 0` or `cost: 500` reports that number verbatim, which is the override the next section depends on.
+
 **The override is whatever you typed, including `0`.** `portCost()` (`engine/stp.js:71`) reads
 `port.cost` first and accepts any finite value `>= 0`, so the speed table never runs on a port that
 declares a cost — and `0` is a legal cost rather than "unset". Measured through `runStp()` on a bridge
