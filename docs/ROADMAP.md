@@ -60,7 +60,7 @@ lands, that comment is the first line to go stale and the first one a reader tru
       a pool that covers the *relay port's* subnet, not its own (`engine/simulator.js:1152`,
       `_dhcpRelayFor()`); `show ip dhcp binding` on the server then grows a closing line naming each
       relayed lease — `N bindings arrived through a relay: <ip> via giaddr <giaddr>`
-      (`engine/cli.js:11720`) — and `test/dhcp-relay.test.js` (36 assertions) keeps all of it
+      (`engine/cli.js:11712`) — and `test/dhcp-relay.test.js` (36 assertions) keeps all of it
       honest. Still absent: **snooping** (a switch
       forwards DHCP as an ordinary broadcast, and `show ip dhcp snooping` says so rather than
       pretending — four lines, `engine/cli.js:11650-11653`), Option 82's circuit-id/remote-id (only `giaddr` is
@@ -136,7 +136,7 @@ lands, that comment is the first line to go stale and the first one a reader tru
       after a restart (201, then `topologies/` empty, then `{"ids":["default"]}`) — while adding one
       device writes `<id>.json` immediately (`server/index.js:43`), and `DELETE` on that board answers `{"ok":true}`,
       leaves the file in place, and the same id is back in the list after the next boot — not merely listed,
-but answering `200` again, because the file it was deleted from is still there. So "the
+      but answering `200` again, because the file it was deleted from is still there. So "the
       board is saved" is true of an edit, not of a creation, and the deletion only ever unloads.
       The `topo-` prefix is not part of the filename: it is the **default id** minted when the POST body omits
       `id` (`server/index.js:325`, `'topo-' + Date.now().toString(36)`), so a board created as `b3` is `b3.json`
