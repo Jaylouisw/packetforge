@@ -548,6 +548,22 @@ consequences: a lab can hold NAT state for conversations that never opened, and 
 counter moves on. A second host through the same pool gets `203.0.113.1:1025`, while **repeating the
 same 5-tuple** reuses `:1024` — three refused attempts from one host left exactly one translation.
 
+To rebuild it: a board with `r1` (`generic-router`), two inside hosts and one outside host, `192.168.1.0/24`
+on `Gi0/0` as `ip nat inside`, `203.0.113.0/24` on `Gi0/1` as `ip nat outside`, and
+
+```
+access-list 1 permit 192.168.1.0 0.0.0.255
+ip nat inside source list 1 interface Gi0/1 overload
+```
+
+then `POST …/flows {proto:'tcp', src:'<inside>', dst:'<outside>', dstPort:80}` where nothing listens. Measured
+on that build: `192.168.1.20` got `203.0.113.1:1024`, `192.168.1.21` got `203.0.113.1:1025`, and a **second**
+refusal from `192.168.1.20` reused `:1024`, so three attempts over two inside hosts left **two** rows.
+One trap in building it: `ip route` and `ip default-gateway` are **config-mode** commands on hosts too — at
+`PC-pc1>ip default-gateway 192.168.1.1` the answer is `% Unrecognized command` (both are handled in the
+`configure terminal` branch of `engine/cli.js`, alongside `ip route`), so an inside PC needs
+`configure terminal` first, or the flow answers `400 {code:'E_NO_ROUTE', reason:'no route to 203.0.113.9'}`.
+
 
 **`link-options` takes device ids, and a port-shaped body fails at `200`.** The overlay in the UI asks
 about a device pair and gets the pairing back, which is why the input is not the shape the other cable
