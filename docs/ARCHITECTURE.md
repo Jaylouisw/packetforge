@@ -519,6 +519,18 @@ obvious:
   **UI, `200` with HTML**, while `GET /api/` returns `404 unknown endpoint`. A health check pointed at
   `/api` is checking the wrong thing and passing.
 
+Every clause above was re-run against a live server on 2026-11-12 (started with `PORT=8079` and `PF_DATA`
+pointing at a scratch directory, so the probes could not touch `data/topologies/`) and all of them hold:
+`GET /api/version` `200`, `PUT /api/version` and `POST /api/catalog` both `404 {"error":"unknown endpoint"}`,
+`GET /api` `200` with the HTML shell, `GET /api/` `404`, `…/links/l1/extra`
+`404 {"error":"unknown endpoint: /api/topologies/default/links/l1/extra"}`, `/api/nope` the bare `404`, and
+`PUT …/links/l1/state` the only `405 {"error":"use POST"}`. One ordering fact the paragraph implies but does not
+state, and it decides which answer you get: the state is read from the **body** and validated **before** the
+link is looked up, so `PATCH`/`POST …/links/l1/state` with `{"state":"down"}` answers
+`404 {"error":"no such link","code":"E_NO_LINK"}`, while the same request with no body — or with
+`?state=down` in the query, which is not read — answers `422 {"error":"state must be up or down","code":"E_BAD_STATE"}`
+and never reaches the lookup. A client that gets `422` there has not learned whether the link exists.
+
 Four of those traps in one paste, against a server on the default port and the default board — each line
 is the answer measured on this tree, so a run that differs is a change in behaviour rather than a typo:
 
