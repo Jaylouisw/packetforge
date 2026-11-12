@@ -343,7 +343,9 @@ re-run against a fresh `PF_DATA` server on this tree — all five upgrade paths,
 (no HTTP reply at all, socket destroyed), `Sec-WebSocket-Version: 8` still upgrading *and* still delivering
 the 153-byte `{type:'topology', topologyId:'default', state}` frame, `subscribe` echoing one frame of the
 same shape, three junk frames drawing silence, an HTTP `POST …/devices` drawing exactly one broadcast, and
-`POST /api/topologies` drawing **zero** (the socket carries content edits, not board lifecycle). Subscribe first, filter by
+`POST /api/topologies` drawing **zero** (the socket carries content edits, not board lifecycle: creating a board,
+re-creating one that already exists, and `DELETE …/topologies/:id` are all silent — `201`/`201`/`200` with no
+frame — while `POST …/load` answers `200` and broadcasts one). Subscribe first, filter by
 `type`, and never assume the socket is quiet because you have not written anything yet — but also do
 not assume it is noisy.
 
