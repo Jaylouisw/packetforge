@@ -587,13 +587,13 @@ queue that lost its arms gets them back in one tick instead of five at a time.
   **None of these readings is a reading of `main`.** They were taken in the working tree, which sits on
   branch `fix/sfp-plus-connectors`, and that branch diverged from `origin/main` at `083e2ba1`
   (2026-11-08 16:58:44) — at the time of the fourth reading it was **382 ahead and 361 behind**, and
-  now reads **530 ahead and 377 behind** (after a fresh `git fetch`, which moved the behind-side
+  now reads **531 ahead and 377 behind** (after a fresh `git fetch`, which moved the behind-side
   from 361 to 373 — main's tip is `f370b893`, #1450); either way not one of the commits above is an ancestor of
   `origin/main`. Check any of them before you quote it:
 
   ```bash
   git branch --show-current                              # fix/sfp-plus-connectors, not main
-  git rev-list --left-right --count HEAD...origin/main    # 530  377
+  git rev-list --left-right --count HEAD...origin/main    # 531  377
   git merge-base --is-ancestor d4319d27 origin/main || echo "not on main"
   ```
 
@@ -698,14 +698,20 @@ queue that lost its arms gets them back in one tick instead of five at a time.
   them was the fix the bullet originally recommended:
 
   - `test/spec-vs-description.test.js` — the four Ubiquiti specs still carry `"poeOut": true` on `eth0`,
-    and the fix was on the **prose side**: their descriptions now read *"1x PoE++ passthrough"* rather
-    than *"PoE-in"*, so the port key and the description agree instead of contradicting. The rule the
-    test enforces is unchanged — a device described as PoE-powered must not source power — and a real
-    passthrough is still tracked by name in its exemption list rather than by muting the rule.
-  - `test/canonical-urls.test.js` — `DO-NOT-USE.md` was **exempted**, not deleted:
-    `scripts/check-canonical-urls.js` consults `canonical.EXEMPT_FILES` and skips it, on the reasoning
-    that a quarantined file whose entire purpose is to record the stale URL is not a violation. The two
-    assertions that depended on a clean tree followed the exemption.
+    and the fix was on the **prose side**: commit `c8b39db1` added the missing port to their
+    descriptions. Three read *"(1x PoE++ passthrough)"* — `ua-g2-sk-pro`, `ua-hub-door-mini`,
+    `ua-hub-gate` — and the fourth, `uisp-fiber-xg`, reads *"(1x PoE passthrough)"*, so a grep for the
+    `++` spelling finds three of the four and not a discrepancy. The rule the test enforces is unchanged
+    — a device described as PoE-powered must not source power — and a real passthrough is still tracked
+    by name in its allowance list rather than by muting the rule.
+  - `test/canonical-urls.test.js` — **not** an exemption, and this bullet used to say it was.
+    `EXEMPT_FILES` is `new Set(['CHANGELOG.md'])`, one entry, and a test asserts exactly that; the other
+    reasoned exceptions live in `canonical.ALLOW`, five of them (`docs/MIRRORING.md`,
+    `test/canonical-urls.test.js`, `docs/PUBLIC-ACCESS.md`, `scripts/gh-bridge.js`, `CONTRIBUTING.md`),
+    each with its reason. `DO-NOT-USE.md` is in neither list and does not need to be: it has never
+    contained the old URL — not in the version committed in `8e7b843d`, not in the rewrite `c8b39db1`
+    gave it — so nothing was ever skipped on its behalf. What that commit did was make the notice send
+    readers to the mirror, which is the fix the guard wanted in the first place.
 
 - **A red suite can exist in a working copy without existing in the repository — and it can go green while
   you watch.** While `test/block-stray-words.test.js` was being written it was **untracked**
