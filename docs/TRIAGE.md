@@ -1,11 +1,16 @@
 # Triage: hardware requests
 
-Almost every open issue in this repository is a device request — **24 of 26** when this was last measured,
+Almost every open issue in this repository is a device request — **24 of 29** when this was last measured,
 each of those 24 carrying both the `device` and `device-request` labels — and a steady fraction ask for
-hardware that is already modelled. Each one costs a human reading it. The other two are **#1501**, an unlabelled
-bug report about `no spanning-tree portfast`, and **#1503**, an unlabelled bug report about `?` in prompts, and
-they are the reason this page says "almost". The **24** is the stable half of that fraction: it was 24 at 25 open
-and 24 at 26, forty minutes apart, while the total moved under it. Quote the requests, not the total.
+hardware that is already modelled. Each one costs a human reading it. The remaining four carry no labels at all
+and none of them is a device request: **#1501** (`no spanning-tree portfast` cleared the bridge priority),
+**#1505** (a refusal's stated range is not the range the check applies), **#1506** (a board can be created with a
+name that cannot be reached, listed or saved) and **#1507** (the Forgejo volume is full because one repository is
+46 GB), and they are the reason this page says "almost". The **24** is the stable half of that fraction: it was 24
+at 25 open, 24 at 26, and 24 at 29 — three readings across one day — while the total moved under it every time.
+Quote the requests, not the total. Note also what the total is now made of: #1503, the `?`-in-prompts bug that was
+one of the two exceptions at the 26-open reading, is **closed**, fixed by PR #1504 which is what moved `main` to
+`1b1e1287`. The bug list is not a set that only grows; it turns over, which is the other reason to date a reading.
 
 The count is the part that moves, and it has moved a lot: this page has quoted 127, 126 and 121 at
 different times, and the queue is now 24, because closing them is the point. So measure rather than
@@ -23,7 +28,8 @@ curl -s "https://git.jayw.uk/api/v1/repos/jaylouisw/packetforge/issues?state=ope
 The third line is the one that measures the label half of the sentence above, which the first two cannot:
 a count of 25 and 25 bracket titles say nothing about labels, and "each carrying both" is a claim about all 24
 device requests at once. Measured with it: **26** open issues, **24** with `device`, **24** with
-`device-request`, **24** titles beginning `[Device]`, and **two** with no labels at all (#1501, #1503). The
+`device-request`, **24** titles beginning `[Device]`, and **four** with no labels at all (#1501, #1505, #1506,
+#1507). The
 `type=issues` is not decoration: the issues endpoint serves pull requests too, from the same number space, and on
 2026-11-12 the difference was live — `state=open` alone answered **26** against **25** with the filter, the extra
 entry being open PR **#1502**. So the filter is worth having, but it does not make the label tally redundant:
@@ -32,7 +38,7 @@ the twenty-fifth issue is a real issue and only the third line tells you it is n
 **And how much of it is work.** Re-measured on 2026-11-12 by fetching the same 24 device requests anonymously
 and parsing the three fields the form guarantees — vendor, exact model, datasheet URL — then matching
 vendor and model against `loadCatalog()` (normalised, then a loose prefix pass in both directions):
-**24 of the 25 open issues are device requests, all 24 ready, 0 waiting on a requester, 0 already in the
+**24 of the 28 open issues are device requests, all 24 ready, 0 waiting on a requester, 0 already in the
 catalogue.** Every open request names a
 manufacturer, an exact model and a URL, and not one of them — not even as a near-miss on a name root —
 is a device the catalogue already models. So the queue is not padded: those 24 are all implementable
@@ -44,8 +50,8 @@ reads the body: **is this already in the catalogue?**
 The exception this page used to name — because a page that says "every" invites a reader to stop
 checking — was **#1335** ("The console over HTTP has its own counters…"), which carried **no labels at
 all** and was not a device request. It is closed, and for a while the queue held no unlabelled issue, so this
-paragraph briefly called the exception history. **It is back**: #1501, filed 2026-11-12, carries no labels and
-is not a device request, so the queue is 24 requests and one bug. That is the normal state of a live tracker
+paragraph briefly called the exception history. **It is back, and it is no longer one bug**: #1501, #1505, #1506
+and #1507 all carry no labels and none is a device request, so the queue is 24 requests and four bugs. That is the normal state of a live tracker
 rather than a regression — which is why the count at the top of this page is written as a fraction. Keep the rule
 it taught: the sweep below finds a
 device request by its **title prefix**, never by its labels, which is why an unlabelled one would still
@@ -96,7 +102,7 @@ and exit **127**; four runs on this host today produced neither, so treat the *s
 timing-dependent. Either way do not read a 127 or a 401 as an empty queue. Point `PF_API` at another
 instance if you are sweeping one.
 
-The script's own header still says the repository "has ~830 open issues"; it has **25 open issues, 24 of them
+The script's own header still says the repository "has ~830 open issues"; it has **28 open issues, 24 of them
 device requests** (measured against the tracker: `x-total-count` on the `limit=1` request above, which is the
 number this page should be re-measured rather than re-quoted — it has fallen from 127 to 25 while this page sat
 here, and it moved from 24 to 25 during the writing of this very paragraph).
