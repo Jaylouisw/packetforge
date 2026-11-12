@@ -33,15 +33,21 @@ emits an event so the UI can replay the packet path.
 Thirty-two files, one job each. Every one is pure except `optical.js`, which lazily reads part
 numbers out of `catalogue/optics/` — and even `flow.js` and `nat.js` describe themselves as taking
 caller-supplied logical ticks rather than `Date.now()`, so the same lab replays identically. That is
-why the suites can drive these modules directly. The purpose in each row is the file's own header
-line, so it can be checked against the source rather than trusted — with four honest exceptions, found
-by comparing every row to `head -5 engine/<file>.js`: `convergence.js` opens its header at the 802.1D
-defaults, `segment.js` at the broadcast-domain tagging rule, `scion.js` with the acronym before the
-purpose on the next line, and `nat.js`, whose row lists the three translation flavours from the body of
-its header (`static` / `dynamic` / `pat`, `nat.js:4-8`) instead of repeating its first line. Those four
-rows paraphrase the header's intent; the other twenty-eight are the header line itself, sometimes with a
-gloss after an em dash (`index.js` is the clearest: the header is `public engine API.` and the row adds
-*re-exports the lot*).
+why the suites can drive these modules directly. The purpose in each row is drawn from the file's own
+header, so it can be checked against the source rather than trusted — but "the header line" is only
+literally true of some rows. Comparing every row to the header's first content line (`head -5 engine/<file>.js`,
+case and a trailing full stop ignored) splits the thirty-two three ways: **eight** rows *are* that line
+(`link.js`, `media.js`, `optical.js`, `validation.js`, `ipv6.js`, `latency.js`, `dhcp.js`, `dns.js`),
+**five** extend it — `index.js` adds *re-exports the lot* to `public engine API.`, `simulator.js` names
+the forwarding path, `device.js` lists `routeTo()` and `CAPABILITIES`, `iface-name.js` the console
+spellings, `flow.js` the TCP state — and **nineteen** are rewrites. Most of those differ by a word:
+`topology.js` drops an article, `vlan.js` drops "VLAN", `stp.js`/`vrrp.js`/`ospf.js` say "as a" where the
+header says "computed as", `lag.js` drops a parenthetical, and `lldp.js`/`portsecurity.js` drop the
+protocol name the header leads with. Five do not start from the first line at all: `convergence.js` and
+`segment.js` open with a JSDoc banner rather than a `file.js -- …` line, `scion.js` puts the acronym
+before the purpose, `nat.js` lists its three translation flavours from the body of its header
+(`static` / `dynamic` / `pat`, `nat.js:4-8`), and `table.js` is titled "the one console table renderer"
+where the header says only "The one table renderer".
 
 | Module | Job |
 |---|---|
