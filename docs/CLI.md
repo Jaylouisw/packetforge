@@ -9235,9 +9235,9 @@ grep -oh "'E_[A-Z0-9_]*'" engine/*.js | sort -u | wc -l     # 148
 grep -oh "'W_[A-Z0-9_]*'" engine/*.js | sort -u | wc -l     # 12 (eleven warnings + the 'W_' prefix)
 ```
 
-Of those 148, **54** appear as rows in the tables below — DHCP 17, VRRP 9, VLAN 10, LAG 6, NAT 12, distinct across the five sections, counted from every `E_` string in a table cell (the first cell holds 49; the other five sit in a later column of their row) — and **125** distinct `E_` codes appear anywhere
-in this document (**122** distinct `E_` codes, 123 distinct `E_…` tokens once the bare `E_` this
-sentence needs is counted). That second number is the least stable figure on the page, and only partly
+Of those 148, **54** appear as rows in the tables below — DHCP 17, VRRP 9, VLAN 10, LAG 6, NAT 12, distinct across the five sections, counted from every `E_` string in a table cell (all 54 sit in the first cell; none appears in a later
+column) — and **122** distinct `E_` codes appear anywhere in this document, 123 distinct `E_…`
+tokens once the bare `E_` this sentence needs is counted. That second number is the least stable figure on the page, and only partly
 because the engine grows: every code this page *documents* also joins the count, so the code inventory
 further down added fifteen by itself. It has read 70, then 103, then 117, then 121, then 125, then
 **122** — each revision of the tables above moved it, and so did a change of pattern:
