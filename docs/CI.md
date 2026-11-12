@@ -100,7 +100,7 @@ appeared.
 ```bash
 npm test              # every suite — but read the note below, it is three commands
 npm run syntax        # syntax-check across every JS file
-npm run smoke         # starts the server, exercises every route, shuts down
+npm run smoke         # spawns the server, drives the routes a client needs first, shuts down
 docker build -t pf .  # exactly what the Docker job does
 npm run audit:ports   # per-port type audit
 ```
@@ -109,7 +109,11 @@ npm run audit:ports   # per-port type audit
 `listen(0)`, spawns the server with `PORT` set to it and `PF_DATA` pointed at a temporary directory,
 and kills it at the end — your `data/topologies/` is never touched. On this tree it prints **18** `ok`
 lines and ends `HTTP smoke passed (all checks clean)`; the count grows whenever a route is added, so
-read it as a snapshot rather than a contract.
+read it as a snapshot rather than a contract — and read it as **eighteen**, not "every route": that phrase
+used to sit in the command block above and contradicted this page's own row, which lists the ten board-scoped
+routes the smoke never calls. Measured while checking: the scratch directory is `os.tmpdir()/packetforge-smoke-<pid>`,
+`shutdown()` deletes it on the success path **and** on the start-failure path, and a run today left none behind —
+but nothing handles a signal, so a `Ctrl-C` mid-run leaves one directory for you to remove.
 
 **`npm test` is not one thing.** The script is
 `node scripts/audit-port-types.js && node scripts/check-control-bytes.js && node scripts/run-tests.js`,
@@ -605,13 +609,13 @@ queue that lost its arms gets them back in one tick instead of five at a time.
   **None of these readings is a reading of `main`.** They were taken in the working tree, which sits on
   branch `fix/sfp-plus-connectors`, and that branch diverged from `origin/main` at `083e2ba1`
   (2026-11-08 16:58:44) — at the time of the fourth reading it was **382 ahead and 361 behind**, and
-  now reads **541 ahead and 380 behind** (after a fresh `git fetch`, which moved the behind-side
+  now reads **542 ahead and 380 behind** (after a fresh `git fetch`, which moved the behind-side
   from 361 to 373 — main's tip is `f370b893`, #1450); either way not one of the commits above is an ancestor of
   `origin/main`. Check any of them before you quote it:
 
   ```bash
   git branch --show-current                              # fix/sfp-plus-connectors, not main
-  git rev-list --left-right --count HEAD...origin/main    # 541  380
+  git rev-list --left-right --count HEAD...origin/main    # 542  380
   git merge-base --is-ancestor d4319d27 origin/main || echo "not on main"
   ```
 
