@@ -247,7 +247,15 @@ printed `Scanning 4 topology file(s), 19 device reference(s).` / `Catalogue: 166
 `--no-issues` run said `issue scan disabled with --no-issues` instead and also exited **0**. Pointing it at a
 scratch copy of `examples/lab1-two-pcs-switch.json` with one model renamed to `probe580-nonexistent-model`
 exited **1** with `MISSING: 1 model(s) in 1 vendor(s)` and the `next:` line — so the gate is the topology scan,
-exactly as claimed. The same run also shows why exit codes here have to be read with `&&`/`||` or `spawnSync`:
+exactly as claimed. One thing the block above cannot show because both lines land in the same terminal: which **stream** they
+use. Measured with `spawnSync`, `--bogus` writes `Unknown flag: --bogus` and the usage line to **stderr**
+and exits **2**, while `--help` writes the usage line to **stdout** and exits **0** — so
+`node scripts/missing-devices.js --bogus 2>/dev/null` prints nothing at all, and a script that greps its
+own stdout for a usage line will miss the error case entirely. Re-measuring it also re-demonstrated the
+warning below: `node scripts/missing-devices.js --bogus; echo rc=$?` answered `rc=0` in this shell for a
+command that really exits 2.
+
+The same run also shows why exit codes here have to be read with `&&`/`||` or `spawnSync`:
 see the exit-code note near the end of the tracker section in [TRIAGE.md](TRIAGE.md).
 
 `--stubs` produces a form, not a device. `category` is `unknown` unless the model
