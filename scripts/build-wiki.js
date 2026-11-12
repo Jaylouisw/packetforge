@@ -41,9 +41,16 @@ media, speed negotiation, ferrule polish, optical budget, cable length. A cable 
 exist is refused with a reason, not silently allowed.
 
 **"What happens then?"** ARP, IPv4/IPv6 (including SLAAC), ICMP, VLANs, LAG, STP, LLDP, port
-security, DHCP, NAT, ACLs, VRRP, OSPF, BGP, DNS and SCION in the data path, with per-hop latency --
+security, DHCP, NAT, ACLs, VRRP, OSPF, BGP and DNS in the data path, with per-hop latency --
 and transport flows, which let you aim a specific TCP or UDP flow at a destination and read back
 which rule or missing route stopped it.
+
+SCION is the exception in that list, and it is worth knowing before you build a lab around it:
+what is modelled is the **path**, not the traffic. \`pingScion()\` computes beacons, composes
+UP/CORE/DOWN segments and picks a winner by hop count or latency, and it emits \`scion-path\` /
+\`scion-hop\` events — but it puts **no frames on the wire** and never consults the routing table,
+so it answers "is there a beaconed path, and which one wins" rather than "does a packet traverse
+it". [Simulation-Fidelity](Simulation-Fidelity) carries the citation for that.
 
 If the documentation ever disagrees with the code, [Simulation-Fidelity](Simulation-Fidelity)
 is the one that is right.
