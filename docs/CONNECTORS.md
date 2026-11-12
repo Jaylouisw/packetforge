@@ -1130,8 +1130,11 @@ each direction is its own medium:
 
 A CMTS return-path port asks for its own rate (200 Mbps on a 3.0 chassis, 1 Gbps on a 3.1 one), so
 without an upstream entry it shares no rate with any medium and gets an *empty* media list — a port
-that exists, draws on the faceplate and cannot be cabled to anything. That is what the five CCAP
-chassis in `devices/` were doing.
+that exists, draws on the faceplate and cannot be cabled to anything. That is what five cable-access
+chassis in `devices/` were doing: Casa `C100G` and `C3200`, Cisco `cBR-8`, CommScope `E6000` and the
+Harmonic `CableOS Reef RPS`. Three of them call themselves CCAP in their own descriptions; `C3200` is
+a CMTS chassis and CableOS is a virtualised one, so treat "CCAP" as the family rather than the count.
+All **164** DOCSIS ports measured across **32** devices are upstream-capable today, so the fix holds.
 
 An **MCX** connector (CMTS RF modules, small-cell gear) resolves to the coax cage: the shapes
 differ, and every real install reaches the plant through an MCX-to-F jumper, which is the adapter
@@ -1148,7 +1151,7 @@ cards are still built with XFP:
 | FiberHome HU2A | 2 x 10GE **XFP** + 2 x GE SFP/electrical combo |
 | FiberHome HU1A / HU1B | 4GE + 1 x 10GE |
 | Huawei H801X2CA | 2 x 10GE **XFP** |
-| Huawei H801X2CS / H802X2CS | 2 x 10GE **SFP+** (SyncE on X2CS) |
+| Huawei H801X2CS / H802X2CS | 2 x 10GE **SFP+** — the `H802X2CS` is the SyncE variant of the same board |
 
 Modelling HU2A's 10G ports as SFP+ would let a lab cable a module that physically will not seat, so
 the engine refuses it:
