@@ -1422,11 +1422,13 @@ console.log(rows.length, "rows of", cat.length, "parts | all in catalogue:",
   **2**, and both are prefixed in prose — `test/poe-derived.test.js` in the paragraph on the two checks
   disagreeing above, and `test/help-completeness.test.js` in the merge paragraph below. So the arithmetic is
   2 + 2 + 5 + 2 = **11**, and the sixth name is `help-completeness`: not one of the five this table lists,
-  because it is a suite that exists upstream rather than a proposal. Count bare filenames too and the same
-  four pages carry **14** file-name pairs across **19** lines — a bigger number under the same facts, which
-  is why the paragraph below says the two checks disagree rather than that one of them is wrong. Recount
-  rather than trust these figures: they move whenever a §11 row is rewritten, and this one has read 15
-  before it read 10, with the same names throughout that history.
+  because it is a suite that exists upstream rather than a proposal. Count every `.test.js` mention of those
+  six names rather than only the prefixed ones, deduped per page and name: `grep -oE '(bgp-policy(-wire)?|poe-derived|upstream-(baseline|service)|help-completeness)\.test\.js'` over the same four pages — and
+  they carry **15** page-and-name pairs across **34** mentions, **17** of them in this page, which names all
+  six while explaining them. A bigger number under the same facts, which is why the paragraph below says the
+  two checks disagree rather than that one of them is wrong. Recount rather than trust these figures: they move
+  whenever a §11 row is rewritten, and the prefixed count has read 15 before it read 10, then 11, with the
+  same names throughout that history.
 
   Five of the six have never existed: `git log --all --format=%h -- test/<name>` returns nothing for
   `bgp-policy`, `bgp-policy-wire`, `poe-derived`, `upstream-baseline` and `upstream-service`, and the
