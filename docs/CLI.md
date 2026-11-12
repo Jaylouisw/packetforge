@@ -6851,19 +6851,29 @@ R1#show logging frame                 (fresh lab, before anything ran)
 **The type is matched like every other keyword here: an unambiguous prefix is accepted, an ambiguous one
 is refused with the candidates.** `show logging fra` is `show logging frame`, and the header counts what
 was filtered as well as what is there — `Event log (24 frame events, from 67 in the lab)` — while a
-prefix shared by two seen types lists them:
+prefix shared by several types lists every one of them, fired or not:
 
 ```
 R1#show logging f
-% Ambiguous event type "f": forward, frame
-% Types with events so far: arp-cache, arp-reply, arp-request, forward, frame, icmp-echo,
-%   icmp-received, icmp-reply, lldp, ping, switch
+% Ambiguous event type "f": flow-close, flow-data, flow-open, flow-refused, flow-reset, forward, frame
+% "show logging types" lists them all
 ```
 
+That list is the **vocabulary**, not the log: `flow-*` had not happened in that lab and is still
+offered, which is what makes the answer worth printing — the code builds its pool from the seen types
+plus every type that can still happen. Prefix resolution draws on the same set, so `show logging fra`
+resolves in a lab where no frame has ever been filtered.
+
+**On an empty log the ambiguity check does not run at all.** `show logging ic` in a fresh lab answers
+`% The log is empty: nothing has run in this lab, so there is nothing of any type` — the unfiltered
+sentence, with no mention of `icmp-*` or `icmp6-*` — so an ambiguous prefix and no filter are
+indistinguishable until something has run. A prefix that matches exactly one type still resolves there
+(`show logging fra` is `frame`), and a word that matches none is still refused as a typo.
+
 `show logging all` is the whole log — `all` means no filter, since the bare command already does that,
-and it is not a type. Note the prefix rules apply to *seen* types only, so `show logging pat` in a lab
-where NAT has not run reports "has not happened here" even though `pat` is a real type in the
-[vocabulary above](#event-log).
+and it is not a type. There is no `pat` type either: the NAT ones are `nat-drop`, `nat-inbound` and
+`nat-outbound`, so `show logging pat` answers `% "pat" is not a type this console records, so no event of
+it can ever appear` rather than reporting a quiet type.
 
 ## Abbreviations
 
