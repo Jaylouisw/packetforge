@@ -138,7 +138,10 @@ That is enough. You do not need to write JSON.
    \`sourceUrl\` and 20 more carry the older \`source\` spelling, so 1,333 point at a datasheet
    somewhere; the remaining 328 are tracked as missing rather than refused. Those three numbers
    move as the catalogue grows, so re-count rather than quote -- \`grep -rl\` counts files, not keys, and
-   overcounts by 24 on this tree, because a few specs mention the key in a note:
+   overcounts by 24 on this tree, because a few specs mention the key in a note. Measure that overcount
+   against the 1,313 key count, not the 1,333: listing the files under devices that mention the key prints
+   1,337, and 1,337 - 1,313 is the 24 quoted here. Comparing the grep total with 1,333 instead makes a
+   correct claim look wrong by twenty, which is how it reads the first time:
 
    \`\`\`bash
    node -e "const l=require('./devices/registry').loadCatalog(require('path').resolve('devices')).filter(d=>!d.error);const u=l.filter(d=>d.sourceUrl).length,o=l.filter(d=>!d.sourceUrl&&d.source).length;console.log(l.length,'specs,',u,'sourceUrl,',o,'source,',l.length-u-o,'neither')"
