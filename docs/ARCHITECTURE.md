@@ -184,7 +184,7 @@ cannot be true (`state must be up or down`).
 **With one exception, and it is the one a client polls.** An unknown device id is `404` on the calls
 that act **on** a device — measured against a live server: `POST …/config/nope` →
 `404 { error: 'device not found' }`, `POST …/ping` with an unknown `src` →
-`404 { error: 'source device not found' }`, `POST …/interfaces/nope/Fa0/1` → `404 device not found` —
+`404 { error: 'source device not found' }`, `POST …/interfaces/nope/eth0` → `404 device not found` —
 but `DELETE …/devices/nope` answers **`200`** with `{ ok: true, state }` and the state unchanged,
 because deletion is defined as idempotent here (deleting the same id twice returns the same `200`, and
 the second call learns nothing). Deleting on a board id that does not exist *is* a `404`
@@ -639,8 +639,15 @@ as a whole.** Measured against a live board with two PCs:
 | `{"ip":"","mask":""}` | `200`, address cleared |
 | `{"role":"wan"}` on a fixed-role port | `400 {"error":"eth0 cannot be wan; it has no configurable role"}` |
 
-Two more things this endpoint does **not** do:
+Three more things this endpoint does **not** do:
 
+- **It cannot address a port whose name contains a slash**, which is every Cisco switch and router
+  (`Fa0/1`, `Gi0/0`, and `Gi1/1/1` on a stack). The handler splits the URL on `/` and never decodes, so
+  `…/interfaces/sw1/Fa0/1` is seven segments and answers `404 { error: 'unknown endpoint: …' }`, while
+  `…/interfaces/sw1/Fa0%2F1` reaches the handler with the literal text `Fa0%2F1` and answers
+  `404 { error: 'interface not found' }` — the percent-encoding advice this page used to give does not
+  work. Measured both ways, plus `%252F`. Ports without a slash (`eth0`, `ether1`, `wan`, `lan1`) are
+  fine, so the workaround is the console: `POST …/config/:devId` with `interface Gi0/0` then the command.
 - **It is IPv4 only.** There is no `ip6` key; a v6 address is set through the console
   (`ipv6 address …`), not here.
 - **It does not check for an address already on the board.** Two PCs on the same board were both given
