@@ -1091,7 +1091,14 @@ canMate(baud9600, baud115200)
 
 A multi-baud console (the ladder in `speedCaps` or `baud: [9600, 115200]`) negotiates **down** to
 the highest rate both ends share, so a 9600-only terminal links to a 115200 switch at 9600 rather
-than pretending to run at 115200.
+than pretending to run at 115200. Measured: a `baud: 9600` port against the five-rate default answers
+`ok` at `0.0096` Mbps.
+
+That only works if the narrow end says its rate in `speedCaps`. A port whose spec lists the medium but
+no rate — `"media": ["console-rs232-9600"]` with no `baud` — derives an **empty** cap list, and the pair
+then fails with `E_NO_COMMON_SPEED`, not a baud error: the message reads
+`No common speed between Console and Console (A: , B: 0.1152/0.0096)` and the empty side is the tell.
+A `baud` value, scalar or array, is what puts the rate in the caps; the medium alone does not.
 
 A console port cabled to a data port refuses with `E_PROTOCOL_MISMATCH`: the connectors may be
 different shapes, but the more useful explanation is that a console carries an operator typing
