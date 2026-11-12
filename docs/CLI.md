@@ -7263,28 +7263,33 @@ interface Gi0/0
   no vrrp <vrid>                      # remove the group
 ```
 
-`show vrrp` reports the state after the last election:
+`show vrrp` reports the current election: a cabled peer settles it when the group is configured, with
+no run needed.
 
 ```
 R1#show vrrp
-Interface     Group  Pri  State      Master      Virtual IP      Virtual MAC
-Gi0/0         10     150  Master     R1          10.0.0.254      00:00:5e:00:01:0a
+Interface  Group  Pri  State   Master  Virtual IP  Virtual MAC
+Gi0/0      10     150  Master  R1      10.0.0.254  00:00:5e:00:01:0a
 ```
 
-Before any run has happened there is nothing to report and the table says so instead of inventing a
-master: the state reads `Backup`, the virtual MAC is `-`, and a line under the table adds
-`(no group holds its address yet - run a simulation)`. A configured group is not a resolved one.
+A router with **no** VRRP peer never becomes master, run or no run: the state stays `Backup`, the
+`Master` cell is `-`, and a line under the table says
+
+```
+(no router holds the virtual address yet - the group has not converged)
+```
+
+(with no simulator attached the sentence is `(no simulation is attached, so no group has held its
+address)`).
 
 Two things about that table cost time if you read them the obvious way, both measured on a pair of
-routers sharing group 1:
+routers sharing group 10 at priorities 150 and 100:
 
-- **The `Master` column is this device's own name**, on every row, master or not. The peer is never
-  named, so a backup row reads `Backup  R1` and looks self-contradictory. `State` is the answer;
-  `Master` is a label.
-- **`(no group holds its address yet …)` also appears on a healthy backup.** The line is keyed on
-  whether *this* device won, not on whether the group is up, so the router that lost still prints it
-  long after the election — the address is held, by the other box. Read it as "nothing here holds
-  it", and check the peer's console for the `Master` row.
+- **The `Master` column names whoever holds the group, so a backup row carries the peer's name.** R2's
+  console reads `Gi0/0      10     100  Backup  R1      10.0.0.254  -`: `State` says what this box is
+  doing, `Master` says where the address lives, and only the winner's row shows a virtual MAC.
+- **The "nobody holds it" line is about the group, not about this device.** A healthy backup prints no
+  extra line at all — the sentence appears only when no device in the lab holds the address.
 
 With equal priorities (both default 100) the **higher interface address** wins: on a
 `10.0.12.1`/`10.0.12.2` pair, `10.0.12.2` becomes master and the virtual MAC `00:00:5e:00:01:01`
