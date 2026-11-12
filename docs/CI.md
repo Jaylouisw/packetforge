@@ -657,7 +657,7 @@ queue that lost its arms gets them back in one tick instead of five at a time.
   **None of these readings is a reading of `main`.** They were taken in the working tree, which sits on
   branch `fix/sfp-plus-connectors`, and that branch diverged from `origin/main` at `083e2ba1`
   (2026-11-08 16:58:44) — at the time of the fourth reading it was **382 ahead and 361 behind**, and
-  now reads **595 ahead and 390 behind** (after a fresh `git fetch`, which moved the behind-side
+  now reads **596 ahead and 390 behind** (after a fresh `git fetch`, which moved the behind-side
   from 361 to 373 — main's tip is `f370b893`, #1450); either way not one of the commits above is an ancestor of
   `origin/main`. Check any of them before you quote it:
 
@@ -992,15 +992,26 @@ queue that lost its arms gets them back in one tick instead of five at a time.
 - **The "cited-but-absent suite" count is a warning, and it should not be zero.** The
   local markdown checker (`md-check`, the script reproduced [above](#running-the-same-checks-locally) —
   it lives outside the repository by design) resolves every `test/*.test.js` a page names against
-  the directory and prints 15 misses on this tree, over **five distinct names**. All 15 are legitimate,
-  and the count is stable because the pages are stable:
+  the directory and prints **10** misses on this tree, over **five distinct names**. All ten are
+  legitimate:
 
   | Where | Count | Why it is legitimate |
   |---|---|---|
   | `docs/BGP-POLICY.md` | 2 | `bgp-policy.test.js`, `bgp-policy-wire.test.js` — the page is a **design**, and these are the suites it proposes ("New file:") |
-  | `docs/UPSTREAM-DESIGN.md` | 3 | `upstream-baseline.test.js` ×2, `upstream-service.test.js` — phase-0 and phase-2 gates, not yet written |
-  | `docs/SIMULATION.md` | 9 | the iteration log **narrating** those same names: the §11 rows that record how the ghost-citation problem was found, and ones recording passes that "fixed" it — plus three for `poe-derived.test.js`, the file nobody ever wrote |
-  | `docs/CI.md` | 1 | this page, two paragraphs below, narrating the `poe-derived.test.js` incident — the page that explains the count is itself part of it |
+  | `docs/UPSTREAM-DESIGN.md` | 2 | `upstream-baseline.test.js`, `upstream-service.test.js` — phase-0 and phase-2 gates, not yet written |
+  | `docs/SIMULATION.md` | 5 | the iteration log **narrating** those same names: the §11 rows that record how the ghost-citation problem was found, and ones recording passes that "fixed" it — plus `poe-derived.test.js`, the file nobody ever wrote |
+  | `docs/CI.md` | 1 | this page narrating the `poe-derived.test.js` incident — the page that explains the count is itself part of it |
+
+  **The rule the checker actually applies: one line per distinct missing name per file, and only when the
+  name is written with the directory prefix in front of it.** That second half is why `docs/CI.md`
+  contributes exactly one even though this section names all five: the table above writes them bare, and
+  the regex wants the prefix. Writing the prefix into this very sentence is itself one more citation —
+  measured, it took this page from one to two and the total from ten to eleven. Count bare filenames too
+  and the same four pages carry
+  **14** file-name pairs across **19** lines — a bigger number under the same facts, which is why the
+  paragraph below says the two checks disagree rather than that one of them is wrong. Recount rather than
+  trust these figures: they move whenever a §11 row is rewritten, and this one has read 15 before it read
+  10, with five distinct names throughout.
 
   None of the five names has ever existed: `git log --all --format=%h -- test/<name>` returns nothing for
   `bgp-policy`, `bgp-policy-wire`, `poe-derived`, `upstream-baseline` and `upstream-service`. That is the
