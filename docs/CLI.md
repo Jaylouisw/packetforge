@@ -8402,7 +8402,7 @@ answer `Access list 101 removed`, which discarded every other line while looking
 
 ```
 R1(config)#no access-list 101 permit tcp any host 10.0.1.6 eq 80
-Access list 101: removed "permit tcp any host 10.0.1.6 eq www" (2 left)
+Access list 101: removed "permit tcp any host 10.0.1.6 eq 80" (2 left)
 R1(config)#no access-list 101 permit ip any any
 % Access list 101 has no entry "permit ip any any"
 % Entries: 1) permit tcp any host 10.0.1.5 eq 80  2) deny ip any any
@@ -8410,7 +8410,9 @@ R1(config)#no access-list 101 permit ip any any
 
 An entry is matched by what it **means**, not how it was typed: `eq 80` and `eq www` both parse to
 port 80, and `host 10.0.1.6` and `10.0.1.6 0.0.0.0` are the same address, so either spelling
-removes the entry the table shows. An entry that is not there is refused and the list is printed,
+removes the entry the table shows. The echo then reports the entry the way it was **written**, not in
+a canonical form — type `eq 80` and it says `eq 80`, type `eq www` and it says `eq www` — so what comes
+back is what the list holds, while the match is by meaning. An entry that is not there is refused and the list is printed,
 because an entry you cannot find is usually an entry you misremembered. Removing the last entry
 deletes the list and says so — `the list is now empty and was deleted` — rather than leaving an
 empty list behind.
@@ -8423,8 +8425,8 @@ arguments it clears both directions, and it says what it removed
 ```
 R1#show access-lists
 Extended IP access list 101
-  1 permit tcp any any eq 80
-  2 deny ip any any
+   10 permit tcp any any eq 80
+   20 deny ip any any
     applied IN on Gi0/0
 ```
 
