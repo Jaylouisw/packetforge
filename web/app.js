@@ -2553,12 +2553,20 @@
     if (!log) return;
     const rows = events.map(function (e) {
       const cls = e.type === 'frame' ? 'frame'
-        : (e.type === 'drop' || e.type === 'vlan-drop' || e.type === 'stp-block' || e.type === 'acl-deny') ? 'drop'
+        : (e.type === 'drop' || e.type === 'vlan-drop' || e.type === 'stp-block' || e.type === 'acl-deny' ||
+           e.type === 'arp-conflict' || e.type === 'nat-drop' || e.type === 'flow-refused' ||
+           e.type === 'tap-inject-refused') ? 'drop'
         : (e.type === 'lag') ? 'lag' : '';
       return '<div class="ev ' + cls + '">' + String(e.step).padStart(3, '0') + ' ' + describeEvent(e) + '</div>';
     });
     log.innerHTML = rows.join('\n');
     log.scrollTop = log.scrollHeight;
+  }
+
+  // A flow event names the two ends and nothing else, so the shape is spelled once instead of five times.
+  function flowEnds(e) {
+    const at = function (host, port) { return String(host || '?') + (port == null ? '' : ':' + port); };
+    return at(e.src, e.srcPort) + ' → ' + at(e.dst, e.dstPort);
   }
 
   function describeEvent(e) {
@@ -2567,6 +2575,8 @@
       case 'arp-request': return 'ARP who-has ' + e.targetIp;
       case 'arp-reply': return 'ARP reply ' + e.targetIp + ' = ' + e.mac;
       case 'arp-cache': return e.dev + ' cached ' + e.ip + ' → ' + e.mac;
+      case 'arp-conflict': return 'ARP CONFLICT ' + (e.dev || '') + '/' + (e.iface || '') + '  ' +
+        (e.ip || '?') + ' answered by ' + ((e.macs || []).join(' and ') || '?');
       case 'frame': {
         const f = e.frame || {};
         const tag = f.wireTagged ? '  [802.1Q vlan ' + f.wireVid + ']' : '';
@@ -2625,6 +2635,58 @@
         ? ' → ' + (e.address || '?') + ' (from ' + (e.server || '?') + ')'
         : ' NXDOMAIN' + (e.server ? ' (from ' + e.server + ')' : ''));
       case 'limit': return 'simulation limit: ' + e.reason;
+      // The rest of the types the engine emits, one sentence each. A row reading just "flow-refused" or "vrrp"
+      // names a mechanism instead of saying what happened, in the one panel whose job is to explain the packet -
+      // so every emitted type gets a line here, and test/event-legend.test.js enumerates them from engine/ so a
+      // new event cannot arrive without one (#1475).
+      case 'garp': return 'GARP ' + (e.devName || e.dev || '') + '/' + (e.iface || '') + '  ' +
+        (e.ip || '?') + ' is-at ' + (e.mac || '?') + (e.vrid == null ? '' : '  (vrrp ' + e.vrid + ')');
+      case 'vrrp': return 'VRRP ' + (e.vrid == null ? '?' : e.vrid) + ' master ' +
+        (e.masterName || e.master || '?') + '/' + (e.iface || '') + '  [' + ((e.ips || []).join(', ')) + ']' +
+        (e.priority == null ? '' : '  priority ' + e.priority) +
+        (e.backups && e.backups.length ? '  backups ' + e.backups.join(', ') : '') +
+        (e.reason ? '  — ' + e.reason : '');
+      case 'lldp': return 'LLDP ' + (e.dev || '') + '/' + (e.iface || '') + '  neighbour ' +
+        (e.neighbour || '?') + ' on ' + (e.neighbourPort || '?');
+      case 'forward': return 'FORWARD ' + (e.dev || '') + ' out ' + (e.iface || '') + '  next hop ' +
+        (e.nextHop || '?') + ' at ' + (e.mac || '?') + '  (' + (e.via || 'cached') + ')';
+      case 'split': return 'SPLIT ' + (e.dev || '') + '/' + (e.iface || '') + '  fan-out to ' +
+        (e.legs == null ? '?' : e.legs) + ' segment(s)' + (e.vlan ? '  vlan ' + e.vlan : '');
+      case 'tap': return 'TAP ' + (e.dev || '') + '/' + (e.iface || '') + '  ' +
+        (e.through == null ? '?' : e.through) + ' live + ' +
+        (e.monitors == null ? '?' : e.monitors) + ' monitor copy(ies)' + (e.vlan ? '  vlan ' + e.vlan : '');
+      case 'tap-inject-refused': return 'TAP INJECT REFUSED ' + (e.dev || '') + '/' + (e.iface || '') +
+        (e.vlan ? '  vlan ' + e.vlan : '') + '  — ' + (e.reason || 'a monitor copy is not re-injected');
+      case 'flow-open': return 'FLOW ' + (e.flow == null ? '?' : e.flow) + ' ' +
+        String(e.proto || '').toUpperCase() + ' ' + flowEnds(e) + '  ' + (e.phase || 'open') +
+        (e.flags ? '  [' + e.flags + ']' : '') + (e.bytes == null ? '' : '  ' + e.bytes + ' B');
+      case 'flow-data': return 'FLOW ' + (e.flow == null ? '?' : e.flow) + ' ' +
+        String(e.proto || '').toUpperCase() + ' ' + flowEnds(e) + '  ' + (e.dir || 'out') + ' ' +
+        (e.bytes == null ? '?' : e.bytes) + ' B' +
+        (e.segment == null ? '' : '  segment ' + e.segment + '/' + (e.of == null ? '?' : e.of));
+      case 'flow-close': return 'FLOW ' + (e.flow == null ? '?' : e.flow) + ' ' +
+        String(e.proto || '').toUpperCase() + ' ' + flowEnds(e) + '  ' + (e.phase || 'closed') +
+        (e.flags ? '  [' + e.flags + ']' : '') + (e.reason ? '  — ' + e.reason : '');
+      // A reset is TCP by definition and the emit carries no proto field, so the legend does not read one.
+      case 'flow-reset': return 'FLOW RESET ' + (e.dev || '') + '  TCP ' + flowEnds(e) +
+        (e.flags ? '  [' + e.flags + ']' : '') + (e.reason ? '  — ' + e.reason : '');
+      case 'flow-refused': return 'FLOW REFUSED ' + (e.src ? e.src + ':' : '') +
+        (e.srcPort == null ? '' : e.srcPort) + ' → ' + (e.dst ? e.dst + ':' : '') +
+        (e.dstPort == null ? '' : e.dstPort) + '  ' + (e.code || '') +
+        (e.reason ? ' — ' + e.reason : '');
+      case 'bgp-session': return 'BGP ' + (e.dev || '') + (e.peerIp ? ' → ' + e.peerIp : '') +
+        '  ' + (e.state || 'down') + (e.established === false ? ' (never established)' : '') +
+        (e.code ? '  ' + e.code : '') + (e.reason ? ' — ' + e.reason : '');
+      case 'nat-outbound': return 'NAT ' + (e.dev || '') + ' out  ' + String(e.proto || '').toUpperCase() +
+        ' ' + (e.insideLocal || '?') + ':' + (e.localPort == null ? '?' : e.localPort) + ' → ' +
+        (e.insideGlobal || '?') + ':' + (e.globalPort == null ? '?' : e.globalPort) +
+        '  to ' + (e.dst || '?') + (e.dstPort == null ? '' : ':' + e.dstPort);
+      case 'nat-inbound': return 'NAT ' + (e.dev || '') + ' in  ' + String(e.proto || '').toUpperCase() +
+        ' ' + (e.insideGlobal || '?') + ':' + (e.globalPort == null ? '?' : e.globalPort) + ' → ' +
+        (e.insideLocal || '?') + ':' + (e.localPort == null ? '?' : e.localPort) +
+        '  from ' + (e.src || '?') + (e.srcPort == null ? '' : ':' + e.srcPort);
+      case 'nat-drop': return 'NAT DROP ' + (e.dev || '') + '  ' + (e.src || '?') + ' → ' +
+        (e.dst || '?') + '  ' + (e.code || '') + (e.reason ? ' — ' + e.reason : '');
       default: return e.type;
     }
   }
@@ -3071,6 +3133,9 @@
     pingTargetProblem: pingTargetProblem,
     pingCountProblem: pingCountProblem,
     pingConvergenceSentence: pingConvergenceSentence,
+    // The packet-log legend, exposed for the tests (issue #1475): the engine's event types are enumerated from
+    // engine/ by the test, and a stub DOM cannot read a closure.
+    describeEvent: describeEvent,
     pingResultHtml: pingResultHtml,
     lengthChoicesFor: lengthChoicesFor,
     connectWS: connectWS,

@@ -836,6 +836,36 @@ telling the truth about data it already had — so it is left for a decision, no
 `arp-ageing` 31, `runtime-agreement` 10, `show-argument-refusal` 77, `show-ip-spellings` 70, `dhcp-bindings` 51,
 `lldp` 27, `vrrp` 94, `ping-ipv6` 43.
 
+### The log named a mechanism instead of saying what happened
+
+The event log is the panel whose job is to explain what happened to a frame. It renders every simulation event
+through one switch, and any type that switch did not know fell through to `default: return e.type` — so the row read
+`flow-refused`, or `vrrp`, or `tap`. Not an error, not a blank: a row that names a mechanism instead of saying what
+happened, in the one place a learner goes to find out.
+
+Seventeen of the fifty-four event types the engine emits were in that state, including one added the day before the
+gap was found. The cause is structural, not clerical: nothing connected the engine's event vocabulary to the legend,
+so a new `_emit({ type: … })` was silently a new bare token in the log.
+
+What holds it now:
+
+* **every emitted type has a sentence**, with the numbers and addresses the event actually carries — a flow names
+  both ends and its number, a VRRP election names the winner and the priority, a NAT refusal names the translation
+  that failed;
+* **a case may only read fields its event carries.** A sentence written against a remembered payload prints
+  `undefined` in the panel meant to explain things, so the test reads each emit site's field list from the engine's
+  own source and compares it with what the legend case touches. It found one while being written (`flow-reset` read
+  `e.proto`, which that event does not carry — a reset is TCP by definition);
+* **failures are coloured as failures.** A duplicate address, a NAT drop, a refused tap injection and a refused flow
+  join the existing drop class rather than passing as ordinary chatter;
+* **`test/event-legend.test.js` enumerates the vocabulary from `engine/`**, not from a hand-written list: every
+  `_emit({ type: … })` and `events.push({ type: … })` must have a case, no case may outlive the event it describes,
+  no type may be described twice, and every real emit-site payload must render as a sentence. 18 checks; reverting
+  `web/app.js` fails 10 and names all seventeen.
+
+The general rule, worth stating once: **a view may not display a token it cannot explain.** If the engine can emit
+it, the panel says what it means — and the connection between the two is a test, not a habit.
+
 ### A reopened lab forgot what its hardware was made of
 
 ```

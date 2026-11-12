@@ -2970,7 +2970,8 @@ class Simulator {
       const isMonitor = function (p) { return /^mon(itor)?/i.test(nameOf(p)); };
       const arrivedOn = nameOf(inIface);
       if (isMonitor(arrivedOn)) {
-        this._emit({ type: 'tap-inject-refused', dev: dev.id, iface: arrivedOn, vlan: vid });
+        this._emit({ type: 'tap-inject-refused', dev: dev.id, iface: arrivedOn, vlan: vid,
+          reason: 'a frame heard on a monitor port is a copy, and injecting it back would put a copy of the copy on the wire' });
         return;
       }
       let passed = 0, copied = 0;
