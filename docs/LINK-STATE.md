@@ -465,8 +465,15 @@ same tree prints either `SW2#show spanning-tree` or `Switch (L2)-d2>show spannin
 
 - **No physical-layer diagnosis.** A cable is up or down; it is never *degraded*. There is no CRC
   error rate, no intermittent fault, no flapping (a link cannot go down and up on its own over time).
-- **No autonegotiation on recovery.** A link that comes back is at the speed it had; there is no
-  renegotiation, no duplex mismatch, no error-disabled port waiting for `shutdown`/`no shutdown`.
+- **No autonegotiation on recovery.** A link that comes back is at the speed it had; nothing is
+  renegotiated, so a marginal link returns exactly as marginal as it left. Two things the wording
+  here used to call missing are not: a duplex mismatch is a *configuration* fault the validator
+  raises as `W_DUPLEX_MISMATCH`, not something a link negotiates; and an err-disabled port does
+  exist, just never from a link event. It comes from port security — `switchport port-security
+  violation shutdown` err-disables the port (`Port Status : Secure-shutdown`), the summary counts it
+  (`1 err-disabled by a violation: Fa0/1 - "shutdown" then "no shutdown" recovers`), and the way back
+  is `no shutdown`, which runs `recover()` (`engine/portsecurity.js:150-159`, called from
+  `engine/cli.js:2173`).
 - **No interface-level failure distinct from the cable.** `shutdown` on an interface and pulling the
   cable are modelled differently and both work, but a port that fails its own self-test does not
   exist.
