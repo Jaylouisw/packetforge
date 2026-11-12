@@ -15,14 +15,20 @@ in a commit message.
 `computeStp()` at `engine/simulator.js:864`. Treat the symbol as the citation and the number as a hint
 from the moment it was written: this page has been corrected twice for citations that had slid onto
 unrelated code, once onto another file entirely. When a number stops matching, do not delete the claim —
-re-find the symbol. Note the pattern a class method needs — `function computeStp` matches nothing:
+re-find the symbol. Note the pattern a class method needs — `function computeStp` matches nothing — and note that the
+un-anchored version now matches **two** methods:
 
 ```bash
-grep -n "computeStp() {" engine/simulator.js      # 827 today
+grep -n "computeStp() {" engine/simulator.js      # 705 recomputeStp() { and 864 computeStp() {
+grep -n "^  computeStp() {" engine/simulator.js    # 864 — the method, once
 ```
 
-That number read 823 while the sentence above was being written, and the engine grew by four lines
-between the two measurements — which is the whole argument for citing the symbol. If the number moves,
+The first pattern is a substring match, so when `recomputeStp()` landed above it the recipe started
+answering twice and the number beside it stopped naming anything: on 2026-11-12 it prints `705:
+recomputeStp() {` and `864: computeStp() {`, and a reader looking for "the" number has to know which
+line is which. Anchoring the two-space indent makes the answer single again. The number itself read 823
+while the sentence above was being written, and 827 when the comment was written, and 864 now — which is
+the whole argument for citing the symbol. If the number moves,
 fix it and say in the row what it had been: a silent repoint throws away the only information the error
 carried.
 
