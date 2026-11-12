@@ -488,6 +488,16 @@ That matters for the merge rather than for this tree: upstream `main` carries `t
 for exactly this direction (it found fifteen unlisted verbs there, #1492), and this branch has no such file, so
 the check arrives with the merge rather than being written here.
 
+**Suite counts are not comparable across the merge line, and it is not close.** Measured against `1b1e1287`, which
+both remotes now resolve to: upstream `main` tracks **248** files matching `test/*.test.js`, this branch tracks
+**271**, and only **109** names appear on both sides — **162** exist only here, **139** only upstream. So
+`git diff --name-status HEAD forgejo-http/main -- test/` reports `139 A, 162 D, 25 M`, which reads as though the merge
+deletes most of the suite and does not: upstream's files are named differently for the same areas (`arp-ageing`,
+`api-errors`, `address-rule` have no counterpart here under those names, while `abbrev`, `bgp-counts` and
+`bgp-router-mode` have none there). Nothing in this page survives that comparison as a claim about `main`, which is
+why every count here is explicitly a count of this branch: the post-merge total is not 248, not 271, and not their
+sum.
+
 **The page's own tables are typed by nothing.** The four suites read the *help rows*, and `docs-syntax`
 compares synopses to help forms; none of them types a command **as a page writes it**, in the mode the
 page puts it in. That gap is worth closing by hand occasionally, because it is the reader's view of the
