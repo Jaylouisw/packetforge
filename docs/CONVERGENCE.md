@@ -69,6 +69,12 @@ by setting each key and reading the timer object back:
 | DHCP exchange | `dev.config.dhcpExchangeSec` — flat | `7` → `leaseAtMs 7000` |
 | VRRP advertisement | the **group** object, not the device: `advertSec` (CLI) or `advertCs` (centiseconds) | `advertCs: 200` → `advertSec 2`, `masterDownMs 6609.375` |
 
+The trap is that the **wrong shape is not an error**. Nested `config.stp.forwardDelaySec` leaves STP at
+`listenEndMs 15000` / `learnEndMs 30000`; flat `config.helloSec` leaves OSPF at `adjacentAtMs 11000` /
+`routesAtMs 16000`; nested `config.dhcp.exchangeSec` leaves DHCP at `leaseAtMs 1000`. Each is exactly
+the number you get by not setting the key, so an override in the wrong shape reads as a working default
+rather than as a rejected setting — measured against each row above.
+
 The arithmetic, so a reading can be predicted rather than looked up (`engine/convergence.js:58-79`):
 `listenEndMs = forwardDelay × 1000`, `learnEndMs = forwardAtMs = forwardDelay × 2000` — the forward delay
 counted twice, once per state — while `maxAgeMs` only ever lands in `maxAgeMs`; and for OSPF
