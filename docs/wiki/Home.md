@@ -17,7 +17,8 @@ mean if it did.
 
 The catalogue holds **1,661 device models from 247 vendors**, from ONTs and OLTs to PTP radios,
 switches, servers, printers, cameras and phones. It is JSON: one file per model, no code
-changes to add one.
+changes to add one. `node scripts/audit-devices.js` prints that count on its first line, so the
+number is a command rather than a memory.
 
 ## The two questions the project answers
 
