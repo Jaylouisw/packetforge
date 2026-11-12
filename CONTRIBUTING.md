@@ -189,6 +189,20 @@ console.log(f.size+" of "+all.length+" suites sit behind a test: shortcut");'
 # 46 of 272 suites sit behind a test: shortcut  (272 counts the working copy - 271 tracked plus the untracked test/value-hints.test.js; use git ls-files for the tracked figure)
 ```
 
+**One tracked path will not match the filter you expect.** `git ls-files` wraps any name holding a byte
+it does not trust in double quotes and prints that byte as an octal escape, so a path that starts with an
+ordinary letter can still arrive looking like `"C\357\200\272/Users/…"` and slip past both `grep '^C'`
+and a `startswith('C')` check — both of which were tried before this paragraph was written. This
+repository carries exactly one such file: a scratch probe swept in by a `git add` in `50ac599e`, 83 lines
+and 4,145 bytes, whose path begins `C` followed by U+F03A (`EF 80 BA`) instead of `C:`. On Windows it
+materialises as a directory at the repository root named `C` plus that character, which makes the cleanup
+trap sharp — `rm -rf C:*` deletes a *tracked* file, and the only warning is
+`D "C\357\200\272/Users/…"` in `git status`. Putting it back needs the real bytes: the visually
+identical fullwidth colon (U+FF1A, `EF BC 9A`) does not match, and the pathspec answers
+`did not match any file(s) known to git`. `git reset -- <path>` followed by `git checkout -- <path>`
+with the exact string restores it. Count files with `git ls-files -z` split on NUL when the number
+matters; the quoted form is fine for reading, not for matching.
+
 | script | runs |
 |---|---|
 | `npm run test:engine` | `test/engine.test.js` |
@@ -279,7 +293,7 @@ minutes earlier (1,628 → 1,629), so a prose count can be stale before it is me
 - **A count in prose is a claim about one revision.** When you touch a sentence that quotes one, re-run
   the one-liner in the same edit; if you cannot, leave the count out rather than guess it.
 - **And it is a claim about one *branch*.** These numbers were measured in a working tree sitting on
-  `fix/sfp-plus-connectors`, which at the time of the last reading was **523 commits ahead of
+  `fix/sfp-plus-connectors`, which at the time of the last reading was **524 commits ahead of
   `origin/main` and 373 behind it** (the merge base is still `083e2ba1`) — so none of them is a
   statement about `main`. Six documentation pages
   exist on `main` and not here (`BUG_REPORTS.md`, `DEVICE_REQUEST_SWEEP.md`, `DEVICE_SCHEMA.md`,
@@ -288,7 +302,7 @@ minutes earlier (1,628 → 1,629), so a prose count can be stale before it is me
 
   ```bash
   git branch --show-current                              # fix/sfp-plus-connectors, not main
-  git rev-list --left-right --count HEAD...origin/main    # 523  376   (element 1 = ahead)
+  git rev-list --left-right --count HEAD...origin/main    # 524  376   (element 1 = ahead)
   git diff --diff-filter=A --name-only HEAD origin/main -- docs/   # pages only main has
   ```
 
