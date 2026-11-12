@@ -556,15 +556,35 @@ commit as the config key, and let `test/topology-roundtrip.test.js` prove it.
 ### 5.5 CLI grammar additions
 
 ```
-ip route DEST MASK GW [IFACE] [DISTANCE]        cli.js:267
+ip route DEST MASK GW [IFACE]                   shipped — _ipRoute() at cli.js:3269, config mode only
+ip route DEST MASK GW [IFACE] [DISTANCE]        refused by design, with a message (see below)
 ip wan <iface> provider <name>                  new  (sets config.wans entry)
 ip wan <iface> distance <1-255>
 ip wan <iface> session <static|dhcp|pppoe|ipoe>
 ip wan <iface> track <target-ip> [fail-after <n>]
 no ip wan <iface> [track]
 show wan summary | show wan detail <iface>
-show ip route                                   gains AD/metric
+show ip route                                   AD column already ships; metric is the missing half
 ```
+
+Measured on a router in this tree, not inferred from the block above. The three-word form is shipped and
+needs `configure terminal` — typed at the exec prompt it answers `% Unrecognized command`, which reads like a
+missing command rather than a wrong mode. The four-word form with a distance is **refused**, and the refusal
+is the interesting part because IOS accepts the same line and treats the fourth word as an AD:
+
+```
+R1(config)#ip route 10.99.0.0 255.255.255.0 1.1.1.1 250
+% "250" is not an interface on R1
+% The fourth word is an interface, not a distance - this model has no per-route administrative distance
+  (AD is per source: connected 0, static 1, OSPF 110, eBGP 20)
+% Interfaces: eth0, eth1, serial1, serial2, wwan0
+R1(config)#ip route 10.98.0.0 255.255.255.0 1.1.1.1
+Route added: 10.98.0.0/24 via 1.1.1.1
+```
+
+So the `[DISTANCE]` work order is not "unimplemented", it is "deliberately absent, with a message pointing at
+row 21". And `show ip route` already prints an AD column — the static row above reports `AD 1` at
+`cli.js:9426`/`:2408` — so of the two fields this row asks for, only the metric is still missing.
 
 ---
 
