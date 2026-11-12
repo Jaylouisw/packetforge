@@ -443,7 +443,21 @@ notice a command documented in `CLI.md` that no help row offers. Today it reads 
 four modes and 173 command synopses from `CLI.md`** — and that 312 is a *HEAD* reading: run from a
 detached checkout of `33406561` it prints 312 / 4 modes / 173, while the same test in the working tree
 prints **313**, because the value-hints work uncommitted there adds a help form. A number from this
-suite is only comparable with another number from the same tree. Between them the five suites cover the keyword
+suite is only comparable with another number from the same tree.
+
+Both of those readings were taken again to check the claim, and both reproduce exactly (`312` at the
+detached commit, `313` in the tree, `173` synopses and `4` modes in both). The way to take the detached
+half is a worktree, and it must live **outside** the repository — a checkout nested in the tree is walked by
+`check-canonical-urls` and moves that figure, which is the same trap as an untracked probe:
+
+```sh
+git worktree add --detach ../pf-head 33406561      # ~17 s, no node_modules needed
+cd ../pf-head && node test/docs-syntax.test.js     # Read 312 help forms from 4 modes and 173 command synopses
+cd - && git worktree remove --force ../pf-head
+```
+
+The 48%…49%… progress lines `git worktree add` prints are just the 2,846-file checkout; the suite itself needs
+nothing installed because it requires only `engine/`. Between them the five suites cover the keyword
 sweep, the `?` surface, the shortest-prefix rule, the value-bearing rows, and the page — no one of them
 subsumes another, so a green run means all five ran.
 
@@ -657,7 +671,7 @@ queue that lost its arms gets them back in one tick instead of five at a time.
   **None of these readings is a reading of `main`.** They were taken in the working tree, which sits on
   branch `fix/sfp-plus-connectors`, and that branch diverged from `origin/main` at `083e2ba1`
   (2026-11-08 16:58:44) — at the time of the fourth reading it was **382 ahead and 361 behind**, and
-  now reads **611 ahead and 394 behind** (after a fresh `git fetch`, which moved the behind-side
+  now reads **612 ahead and 394 behind** (after a fresh `git fetch`, which moved the behind-side
   from 361 to 373 — main's tip is `f370b893`, #1450); either way not one of the commits above is an ancestor of
   `origin/main`. Check any of them before you quote it:
 
