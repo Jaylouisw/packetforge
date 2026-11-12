@@ -2076,12 +2076,16 @@ SW1(config)#interface GigabitEthernet 0/1
 % Interface not found: GigabitEthernet 0/1    <- quoted in full, not just the type word
 ```
 
-`interface GigabitEthernet 0/0` in two words is one port name and resolves; a two-word name that does
+A two-word port name is one name and resolves where that port exists — `interface GigabitEthernet 0/0`
+on the router (`Gi0/0`), `interface GigabitEthernet 1/0/1` on a Catalyst — and a two-word name that does
 not exist is quoted as typed, because *"Interface not found: GigabitEthernet"* reads as if the word
-were wrong rather than the port.
+were wrong rather than the port. The switch in the fence has no `GigabitEthernet` port at all, so the
+same two words are refused on it: `% Interface not found: GigabitEthernet 0/0`.
 
 **The guard:** every numeric placeholder in every row, filled with `1e3`, `0x10`, `12abc`, `1.5` and
-`+5` on a router, a switch and a PC — 200+ typed, none accepted except the asdot form.
+`+5` on a router, a switch and a PC — 490 typed on this tree, none accepted except the asdot form. The
+suite prints the count (`the sweep typed numeric slots with non-numbers (490)`), so it moves with the
+rows; the assertion that matters is the one under it.
 
 ### `no ospf` takes three shapes, and each removes one thing
 
