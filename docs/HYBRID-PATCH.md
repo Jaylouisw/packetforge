@@ -359,6 +359,26 @@ rather than three opinions:
 | `patchCordLossDb: 0.3, connectorPairs: 0` — convention 2's arithmetic | `8.12` | `19.88` | `pairs 0, 0 dB` | `0.3` |
 | `connectorPairs: 1` (sanity: one pair is 0.3 dB) | `8.12` | `19.88` | `pairs 1, 0.3 dB` | `0` |
 
+Five calls reproduce the table; `node` will take them all from the repo root:
+
+```sh
+node -e "
+const o = require('./engine/optical');
+const b = { lengthM: 1000, splitters: ['1:4'], ponClass: 'B+' };
+for (const [k, x] of [['none', {}], ['0.3', { patchCordLossDb: 0.3 }], ['0.1', { patchCordLossDb: 0.1 }],
+                      ['0.3 pairs 0', { patchCordLossDb: 0.3, connectorPairs: 0 }],
+                      ['pairs 1', { connectorPairs: 1 }]]) {
+  const r = o.ponBudget(Object.assign({}, b, x));
+  console.log(k + ': ' + r.lossDb + ' dB, headroom ' + r.headroomDb + ', ' +
+              JSON.stringify(r.breakdown.connectors) + ', cord ' + r.breakdown.patchCord.lossDb);
+}
+"
+```
+
+The claim in convention 2 that the field is data and not behaviour has a one-line test —
+`git grep -n insertionLossBasis -- engine` answers a single hit, the comment at `engine/optical.js:257`
+explaining that the older entries predate the field. The catalogue carries it on all thirteen parts.
+
 Whatever the choice, it should be one of these on purpose, and it should be the
 same in the docs, the tests and the UI.
 
