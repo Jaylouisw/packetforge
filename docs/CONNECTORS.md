@@ -45,10 +45,19 @@ the UI groups them as copper / combo / fibre / console / other.
 
 **The Speeds column is what media in that cage can carry — not `CAGE_SPEEDS`.** The engine's
 `CAGE_SPEEDS` map is only the fallback for a port that declares neither `speedCaps` nor a rate
-label, and several cages have no entry on purpose (`sfp28` and `qsfpdd` among them): a port there
-should say what it trains at rather than inherit a number. An empty `CAGE_SPEEDS` entry is
-therefore not a bug and not a contradiction of this table — `sfp+` does supply a default
-(`[1000, 10000]`), `sfp28` does not.
+label. Every cage has an entry, but the entries are three different shapes, and the difference is what
+makes `CAGE_SPEEDS['sfp28']()` look like a missing row:
+
+| Shape | Count | Cages | Behaviour |
+|---|---|---|---|
+| fixed list | **13** | `sfp`, `sfp+`, `qsfp+`, `qsfp28`, `qsfp56`, `sfp56`, `xfp`, the four FC cages (`fc-sfp`, `fc-sfp28`, `fc-sfpdd`, `fc-qsfp28`), `console`, `usb` | same answer at any rating — `sfp+` is `[1000, 10000]` |
+| rating-filtered | **12** | `rj45`, `combo`, `sfp28`, `qsfpdd`, `sc-apc`, `sc-upc`, `lc-upc`, `lc-apc`, `coax`, `dsl`, `powerline`, `antenna` | a ladder clamped to the port's rate, so **called with no rate it returns `[]`** — `sfp28(25000)` is `[1000, 10000, 25000]`, `qsfpdd(100000)` is `[40000, 100000]` |
+| echoes the rating | **1** | `wwan` | `[1000]` at 1G, `[400000]` at 400G — it can never name a medium |
+
+So an empty `CAGE_SPEEDS['sfp28']()` means "you did not tell me the rating", not "this cage has no default".
+A port that declares neither `speedCaps` nor a rate label therefore gets no speed classes for those twelve,
+which is the real consequence. `sfp+` is the fixed one this paragraph used to contrast it with, and the contrast
+is between a fixed list and a filtered ladder — not between "has an entry" and "does not".
 
 It is **not two** `CAGE_SPEEDS` classes that name a rate no medium in that cage carries — it is eight cages'
 worth, and they are why this table's Speeds column is derived from the media instead. Comparing
