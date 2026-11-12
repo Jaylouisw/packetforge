@@ -81,8 +81,12 @@ node scripts/cf-access-bypass.js --apply    # creates it, then re-checks the edg
 node scripts/cf-access-bypass.js --check    # only asks the edge: is it public? exit 1 if not
 ```
 
-The script verifies the only thing that matters — an anonymous request returning `200` — twice, four
-seconds apart, because an Access change is not instant at every edge location.
+The script verifies the only thing that matters — an anonymous request returning `200`. How many times it
+asks depends on the shape you run: `--check` and the no-flag run probe **once** (`main()`, `:137`), while
+the retry lives in the `--apply` path, which asks again four seconds later — `setTimeout(r, 4000)` at
+`:216` — when the first answer still says intercepted, because an Access change is not instant at every
+edge location. So "twice, four seconds apart" is a property of applying a change, not of reading the
+current posture.
 
 Two things about invoking it are worth knowing before you do. It reads **only** `--apply` and
 `--check` (`argv.indexOf(...) !== -1`), so **`--help` is not a flag**: it is ignored, and the script
@@ -101,8 +105,16 @@ Nothing to do.
 `--check` is the same probe and stops one block earlier — no `Nothing to do.` line, because that sentence
 belongs to the path that would otherwise apply a change. Measured both ways on this tree, and `--help`
 prints the identical verdict to the no-flag run, which is the point made above: an unrecognised flag is
-not a help screen, it is an invocation of the live check. Budget about **30 seconds** per run — the probe
-is sent twice, four seconds apart, plus the request itself.
+not a help screen, it is an invocation of the live check. Budget about **30 seconds** for a run against a
+reachable edge — that is one probe's latency through Cloudflare, not two probes: the second one only
+happens under `--apply`.
+
+Against an edge this host cannot reach, the read-only shapes do not fail and do not answer: with both
+`git.jayw.uk` and `odin` timing out, `--check` was still running at **120 s** with **nothing** on stdout or
+stderr when it was killed. There is no `AbortSignal`, no timeout and no retry bound anywhere in the
+script — `checkPublic()`'s `catch` handles a rejected `fetch` (`:115-129`), but a connection that hangs
+never rejects — so the timeout has to come from you (`timeout 120 node scripts/cf-access-bypass.js
+--check`). A silent run is a network fact, not a verdict.
 
 So "dry run" here means *no writes to Cloudflare*, not *no I/O*: it tells you the current posture
 before deciding there is nothing to change.
@@ -115,12 +127,14 @@ undici's keep-alive socket is still open trips a libuv assertion on Windows
 exit code**, so a refused run reports success; the script's own comment records exactly that. A rewrite that
 "simplifies" this to `process.exit(1)` would keep the code and lose it on the way out — which is what still
 happens to the two tracker scripts' deliberate `exit 2` ([TRIAGE.md](TRIAGE.md) measures the 401 path ending in
-that abort with a 127 instead).
+that abort with a 127 instead). Re-read on this tree: `process.exitCode` at `:234` and `:237`, no
+`process.exit(` anywhere in the file.
 
 All three invocation shapes were re-run on 2026-11-12 against the live edge and the transcripts above are exact:
 no flags and `--help` print the four lines ending `Nothing to do.`, `--check` prints the same three and stops,
 each exits **0** while the repository is public, and each took **30.2 s** — so the timing estimate is not a
-guess. `test/cf-access-bypass-auth.test.js` prints **5 passed, 0 failed**, which is the credential mapping
+guess. `test/cf-access-bypass-auth.test.js` prints **5 passed, 0 failed** — re-run on this tree and it does,
+which is the credential mapping
 pinned rather than described.
 
 **`odin` is a tailnet name, not a public one.** On this host it resolves through Tailscale MagicDNS to
