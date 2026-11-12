@@ -521,6 +521,14 @@ returned link beside its ten other keys. The speed example the wiki's getting-st
 `[100, 1000]` mated to an `sfp+` capped `[1000, 10000]` builds a link at `speedMbps: 1000`, so the "1G optic in
 a 10G cage comes up at 1G" example is a measurement rather than an intention.
 
+The five fields above were read straight off `validateConnection()` on that pair: `ok: true`,
+`polishWeakened: true`, `patchCord: 'SMSCSX'`, `patchCordLossDb: 0.3`, media `gpon-sc-hybrid`, warning
+`W_HYBRID_CORD`, errors empty — and, uncorded, `ok: false` with `E_POLISH_MISMATCH` and nothing else. One field
+the list does not mention is worth knowing before treating the cord as a repair for a mistyped link: **`speedMbps`
+comes back `null`**, and the link built from it carries `speedMbps: null` too, because these two catalogue ports
+advertise `[100]` and `[1244, 2488]` — no shared class. So "the run becomes buildable" is exactly true: buildable,
+not matched. A hybrid cord fixes the polish, and it does not give the span a rate.
+
 Two things that deliberately do **not** change:
 
 - An **uncorded** `sc-apc` ↔ `sc-upc` link is still `E_POLISH_MISMATCH`. The
