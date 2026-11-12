@@ -226,19 +226,33 @@ instant — nothing runs a clock between questions. A table learned in run 1 is 
 
 ### 3.3 Routing and administrative distance
 
-**Modelled** — `Device.routeTo()` (`engine/device.js:541`), in this order:
+**Modelled** — `Device.routeTo()` (`engine/device.js:545`) considers five sources:
 
-1. Connected subnets (AD 0).
-2. Static routes from `ip route` (AD 1).
-3. BGP-learned routes (eBGP 20, iBGP 200) — `engine/device.js:401-418`.
-4. OSPF-learned routes (AD 110) — `engine/device.js:420-435`.
-5. `ip default-gateway` (AD 254) — only when nothing else matched.
+1. Connected subnets (AD 0) — `:551-558`.
+2. Static routes from `ip route` (AD 1) — `:560-574`.
+3. BGP-learned routes — `:576-589`. The distance comes from the route's own `ad`, and when that field
+   is absent it defaults to **iBGP's 200**, not eBGP's 20 — so a route that arrived over an eBGP
+   session but never carried an `ad` is scored as an iBGP one.
+4. OSPF-learned routes (AD 110) — `:591-603`.
+5. `ip default-gateway` (AD 254) — `:605-614`, only when nothing else matched.
 
-Longest prefix always wins; equal-length prefixes are broken by lower
-administrative distance. That ordering is the documented Cisco one, and it is
-enforced by a single comparator (`better(prefix, ad)` at `engine/device.js:369`)
-rather than by the order the loops run in — so a `/24` static really does lose to
-a `/25` connected route regardless of list order.
+**That list is not a precedence order.** Longest prefix wins, equal-length prefixes are broken by
+the lower administrative distance, and both tests live in one comparator —
+`Device.betterRoute(candidate, best)` at `engine/device.js:534-541`, fed by one table,
+`ADMIN_DISTANCE` at `:524-526`: `connected 0, static 1, ebgp 20, ospf 110, ibgp 200, default 254`
+(an `undefined` distance scores as 255). So step 3 does **not** outrank step 4: for one prefix an
+iBGP route (200) loses to an OSPF route (110), while an eBGP route (20) wins.
+
+Measured on a device built for the question (`routeTo()` on a one-port router, routes injected
+directly):
+
+| Setup | `routeTo()` answers |
+|---|---|
+| static `10.9.9.0/24` **and** connected `10.9.9.0/25`, either order | `type: connected, prefix: 25, ad: 0` — length beats distance |
+| eBGP `10.5.5.0/24` (ad 20) beside OSPF `10.5.5.0/24` (110) | `type: bgp, ad: 20` |
+| iBGP `10.6.6.0/24` (ad 200) beside OSPF `10.6.6.0/24` (110) | `type: ospf, ad: 110` |
+| a BGP route with no `ad` field | `ad: 200` |
+| `ip default-gateway` with nothing else matching `8.8.8.8` | `type: default, prefix: 0, ad: 254` |
 
 **Approximate**
 
@@ -247,7 +261,7 @@ a `/25` connected route regardless of list order.
   only if you configure both a default gateway and a `0.0.0.0/0` static route
   with a higher AD than 254.
 - No route recursion: a next hop must resolve on a directly connected subnet
-  (`Device.egressFor`, `engine/device.js:726`), so a static route pointing at a
+  (`Device.egressFor`, `engine/device.js:738`), so a static route pointing at a
   next hop that is itself only reachable via another route will drop.
 - No ECMP. One best route, one egress port.
 
