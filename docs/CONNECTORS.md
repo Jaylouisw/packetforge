@@ -741,6 +741,20 @@ reach `validation.js` only as a verdict. Unknown codes are still classified — 
 warning, everything else an error — but if you add a code, add it to `RULES` so the UI can document it and
 the counts stay honest.
 
+Those two counts were re-derived on 2026-11-12 and need one caveat to reproduce. `RULES` holds **20** entries —
+`node -e "console.log(require('./engine/validation.js').RULES.length)"` — and every one of them is emitted in those
+files. The other two numbers depend on how you count a fallback: scrape every quoted `E_`/`W_` literal out of
+`validation.js`, `media.js` and `topology.js` and you get **34** distinct codes with **14** outside `RULES`, not
+32 and 12, because two of them are defaults rather than rules — `E_UNKNOWN` at `topology.js:248` (the code used
+when a verdict comes back with no errors at all) and `E_LINK` at `topology.js:373` (used when a refusal carries no
+error). Both are reachable only if something upstream returns an empty error list, which is not supposed to
+happen; neither is a rule you can provoke. Exclude those two literals and the page's 32/12 is exact.
+
+The table above is `RULES` plus seven of the twelve: six `canMate`/`validation` codes and `W_OPTICAL_HEADROOM`.
+The five it leaves out are the link-management codes from `topology.js` (`E_NO_DEVICE`, `E_SAME_DEVICE`,
+`E_NO_FREE_PORTS`, `E_NO_LINK`, `E_BAD_LENGTH`), which belong to `E_COMBO_OCCUPIED`'s family and are documented
+with the topology rather than with connectors.
+
 Four of those codes are hard to reach from the catalogue as it ships, which is worth knowing before you
 go looking for a reproduction. Measured over all 1,661 specs: **178** console ports exist and every one of
 them advertises all five baud media (`console-rs232`, `-57600`, `-38400`, `-19200`, `-9600`), so two
