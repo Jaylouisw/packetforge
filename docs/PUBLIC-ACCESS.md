@@ -98,6 +98,12 @@ Anonymous access to https://git.jayw.uk/jaylouisw/packetforge
 Nothing to do.
 ```
 
+`--check` is the same probe and stops one block earlier — no `Nothing to do.` line, because that sentence
+belongs to the path that would otherwise apply a change. Measured both ways on this tree, and `--help`
+prints the identical verdict to the no-flag run, which is the point made above: an unrecognised flag is
+not a help screen, it is an invocation of the live check. Budget about **30 seconds** per run — the probe
+is sent twice, four seconds apart, plus the request itself.
+
 So "dry run" here means *no writes to Cloudflare*, not *no I/O*: it tells you the current posture
 before deciding there is nothing to change.
 
