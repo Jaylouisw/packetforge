@@ -86,6 +86,19 @@ seven, so the **109 tracked probe scripts** sitting there are never parsed by it
 outside the scan in total). That is the right trade for throwaway probes, but it means "the tree parses"
 means the application parses: a broken probe stays broken until someone runs it.
 
+Every number in that paragraph, and the two guards' own output, were re-read on 2026-11-12 and all still hold:
+`syntax-check` prints `Syntax-checked 337 files: all OK`; `git ls-files` counts **2,846** tracked files; the
+seven scanned directories hold **336** tracked `.js` files, so the 337 really is that plus one untracked file;
+and `tmp/` really does hold **109** tracked probes that nothing parses. `check-control-bytes.js` prints
+`No control bytes in source. (.js .json .md .yml .yaml .css .html .sh)` and `check-canonical-urls.js` prints
+`OK — 2278 files, every project URL points at https://git.jayw.uk/jaylouisw/packetforge`, with
+`test/canonical-urls.test.js` at **43 passed, 0 failed** — which is the 2278 in context: a count that is
+green *and* a count that moves when a file is added, so it is worth re-reading rather than quoting. The job
+structure is also as described, read straight out of the workflow rather than remembered: three jobs
+(`test`, `smoke`, `docker`), eleven steps between them, seven of the eleven in `test` — and
+`check-control-bytes` appears as its own step **once**, which is why the twice-per-push remark above needs the
+`npm test` half to be true (it is: `npm test` is `audit:ports && check:bytes && run-tests.js`).
+
 
 **What the control-byte guard actually looks at.** `check-control-bytes.js` walks the tree and reads only
 eight extensions — `.js .json .md .yml .yaml .css .html .sh` — skipping `.git`, `node_modules`,
@@ -685,7 +698,7 @@ queue that lost its arms gets them back in one tick instead of five at a time.
   **None of these readings is a reading of `main`.** They were taken in the working tree, which sits on
   branch `fix/sfp-plus-connectors`, and that branch diverged from `origin/main` at `083e2ba1`
   (2026-11-08 16:58:44) — at the time of the fourth reading it was **382 ahead and 361 behind**, and
-  now reads **633 ahead and 397 behind** (after a fresh `git fetch`, which moved the behind-side
+  now reads **634 ahead and 397 behind** (after a fresh `git fetch`, which moved the behind-side
   from 361 to 373 — main's tip is `f370b893`, #1450); either way not one of the commits above is an ancestor of
   `origin/main`. Check any of them before you quote it:
 
