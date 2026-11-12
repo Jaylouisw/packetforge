@@ -129,7 +129,8 @@ the common one:
 ```
 
 That last line is the whole of the reporting path: `server/startup-error.js` builds the link once at
-`REPORT_URL` — a 541-character query string carrying the title `[Bug]: Server will not start` and a
+`REPORT_URL` — a 541-character **URL** (488 of those characters are the query string) carrying the title `[Bug]: Server will
+not start` and a
 body with `### What happened` and `### How you started it` — so it is the **same** link whatever went
 wrong, and the only work left for you is pasting the output in. **Two** of the four outcomes print it:
 `EADDRINUSE` above and the unknown-error fallback. `EACCES` (a port below 1024 as a normal user) and
