@@ -791,7 +791,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **The interface block asks the capability question too, and a NAT role needs a device that translates.**
   The previous pass wired the gate into the configuration dispatcher only, so the same families still
   answered inside an interface block, and `ip nat inside` was granted on a box that rewrites nothing.
-  Measured before and after `c15a8547`, on `advantech/ICR-3231` (a host, port `eth0`) and
+  Measured before and after `c15a8547`, on `advantech/ICR-3231` (port `eth0`) and
   `arista/7050SX3` (`l2-forward`, `l3-forward`, `cli` — it translates nothing, port `Et1`):
 
   ```
@@ -805,9 +805,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
                                  % does not translate addresses at all)
   ```
 
-  A host gets its own wording, because it fails the routing test first: `ip nat inside` answers
-  `% PC1 does not route - NAT rewrites addresses between two routed interfaces, and this device has
-  none`. The refusals that were correct statements without a marker now carry `%`, so a transcript
+  A host gets its own wording, because it fails the routing test first: `ip nat inside` on `generic-pc`
+  answers `% PC-PC1 does not route - NAT rewrites addresses between two routed interfaces, and this
+  device has none`. Note which device is which, because the catalogue decides it and this entry called
+  `ICR-3231` a host: it is filed as a **router** with `l3-forward` and `nat`, so on 2026-11-12 it
+  *accepts* the role — `Interface eth0 is NAT inside`, then `(no port is outside yet - translation waits
+  for one)` — and only a real host refuses it. The `no spanning-tree cost` line above still holds on
+  `ICR-3231` (`% … - it runs no spanning tree, because it has no bridged domain to protect`), because
+  the capability that governs spanning tree is not the one that governs NAT: one device can fail the
+  first question and pass the second.
+
+  The refusals that were correct statements without a marker now carry `%`, so a transcript
   cannot read a refusal as success.
 
   **The guard for the family.** `test/capability-gate.test.js` now sweeps one device from each of the 25
