@@ -2025,11 +2025,16 @@ R1#copy startup-config running-config
 Copied startup-config into the running configuration on R1: 5 lines applied
   1 line added, 1 line removed (this is a merge: lines the saved copy does not mention are kept)
     + hostname R1
-    - no hostname
+    - hostname Router-r1
 ```
 
-A count is not a report. (The merge semantics are unchanged: lines the saved copy does not mention are
-kept, and the answer keeps saying so.)
+A count is not a report. The removed line is the default hostname, not a `no hostname` line, because
+`show running-config` on this model always carries one: `no hostname` puts the model's default name
+back rather than deleting the line, and says so — `Hostname cleared: this device is called Router-r1
+again (the default name for this model)`, then `"show running-config" now reads "hostname
+Router-r1", the default for this device`. A merge onto a device whose name was cleared therefore
+shows a replacement, not a deletion. (The merge semantics are unchanged: lines the saved copy does
+not mention are kept, and the answer keeps saying so.)
 
 ### A number is decimal digits, and a word after a port is not dropped
 
