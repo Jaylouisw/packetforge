@@ -824,6 +824,14 @@ Three consequences worth knowing:
 - **The rebuild announces LLDP and RA**, because a question about what was *heard* needs something
   to have spoken. Those frames are real state, so `show mac address-table at 0` shows the entries
   they created.
+  The announcement is made when the LLDP view is **asked**, not when the lab is loaded, so order
+  matters on a lab nobody has queried yet: on `examples/lab4-vlans-trunk-stp.json`, `show mac
+  address-table` as the first command on SW1 is header-only, and the same command after `show lldp
+  neighbors` carries the entry that query created — `02:00:00:00:02:00` on `Fa0/1` in VLAN 10.
+  Asking the *router's* LLDP view instead leaves the switch's table empty, so it is per-device. This
+  is the one surviving exception to the rule at the top of this page — the same question gives the
+  same answer regardless of what you typed before it — and it is the one the data-path rule already
+  predicts: nothing has spoken until something asks.
 - **A protocol with no timer answers the same at both instants.** BGP establishes immediately in
   this model, so `show ip bgp summary at 0` and `show ip bgp summary at converged` agree. The label
   reports the question; identical answers are the honest reply to it.
