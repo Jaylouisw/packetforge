@@ -610,9 +610,14 @@ so that the dry-run endpoint and a real connection attempt behave identically.
 `validation.validateConnection()` call, and a contributor adding cable rules
 should remember that one code lives outside the rules engine.
 
-Two traps: exclusion only works when **both** halves carry `comboWith`, and a
-device with combo ports has *more interfaces than physical ports* — that is
-correct, not a miscount.
+Two traps. **Exclusion is checked on the half you cable, not on the pair**, so the order decides whether it
+bites: the check reads `comboWith` off the incoming port and asks whether *that* sibling is in use. Cloning
+`ISR 4331` and stripping one pointer splits the outcomes four ways — both halves intact: `rj45` then `sfp`
+refused; only the `sfp` half carrying it: `rj45` then `sfp` refused, but **`sfp` then `rj45` accepted, two
+cables in one cage**; only the `rj45` half carrying it: `sfp` then `rj45` refused. So "both halves carry
+`comboWith`" is the rule to write specs by, but it is not the test the engine runs — one pointer on the
+incoming half is enough, and the hole opens when the *second* cable goes into the half without one. And a
+device with combo ports has *more interfaces than physical ports* — that is correct, not a miscount.
 
 ### 4.6 An antenna port is not cablable
 
