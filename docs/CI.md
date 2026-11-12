@@ -925,7 +925,10 @@ host can halve it. Two flags re-measured in the same session as well: `--list` s
   now survived six readings and the spread stays at 174.9 seconds.
 
   A seventh reading on the same day printed `272 suite(s) in 169.7 s — 11191 assertions passed, 3 failed`,
-  same pair red, **without** `--verbose` — which corrects the attribution this paragraph used to make. The
+  same pair red, **without** `--verbose` — which corrects the attribution this paragraph used to make. An
+  eighth was taken by accident (a positional path the runner dropped, in the table below): `272 suite(s) in
+  159.2 s — 11191 assertions passed, 3 failed`, same pair red. Eight readings, one set of counts, a spread
+  from 149.9 s to 324.8 s. The
   `stdin is not a tty` failure is not about the flag: it reproduces when the run is **backgrounded with its
   output redirected**, and it reproduced today with `--verbose` on (a 26-byte log containing that one line and
   `EXIT:1`, no summary), while the identical command in the foreground finished all 272 — flag or no flag. The
@@ -949,6 +952,7 @@ host can halve it. Two flags re-measured in the same session as well: `--list` s
   | `node scripts/run-tests.js --filet=bgp --list` | still lists: a **mistyped `--filter`** is dropped too |
   | `node scripts/run-tests.js --filter` (no value) | no error; the filter is empty, so the **whole** suite runs |
   | `node scripts/run-tests.js --filter bgp` (space, not `=`) | the same: re-measured today it was still running past **180 s** when a filtered run takes about four, so the space form is the bare form with a stray argument |
+  | `node scripts/run-tests.js test/link-parts.test.js` | also the **whole** suite: `argv` reads only `--filter=`, so a bare path is dropped like an unknown flag. Measured today it finished all **272 suite(s) in 159.2 s**, where `--filter=link-parts` answers in seconds |
 
   So a typo does not fail loudly: it quietly turns a filtered run into the full one — and a bare
   `--filter` does the same. If a supposedly filtered run keeps going for minutes instead of finishing
