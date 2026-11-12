@@ -77,7 +77,11 @@ lands, that comment is the first line to go stale and the first one a reader tru
 - [x] **Spanning Tree (802.1D)** with Listening/Learning timing in the convergence schedule
       (`engine/stp.js`, `test/stp.test.js`). RSTP fast convergence is not modelled.
 - [x] **OSPF** adjacency + SPF, hello/SPF hold accounted for (`engine/ospf.js`,
-      `test/ospf.test.js`, `test/ospf-wire.test.js`). **RIP** is still absent.
+      `test/ospf.test.js`, `test/ospf-wire.test.js`). **RIP** is still absent, and the absence answers
+      rather than guessing: `show ip rip` refuses with `% This model runs OSPF and BGP; EIGRP and RIP are
+      not modelled` plus three hint lines naming `router ospf`, `router bgp` and `show ip route`
+      (`engine/cli.js:4903-4904`), while the config-side spellings — `ip rip`, `router rip`, `ip eigrp 1` —
+      are merely `% Unrecognized config command: …`, which tells a reader less.
 - [x] **NAT** — all three types (each translated in the
       data path: a dynamic rule hands out a pool address and a PAT rule rewrites the port
       (`engine/nat.js`, `test/nat.test.js`). The three spellings are `NAT_TYPES` — an object of three
@@ -106,11 +110,15 @@ lands, that comment is the first line to go stale and the first one a reader tru
       `Interface Gi0/0 is NAT inside` plus `(no port is outside yet - translation waits for one)`, which
       is the second half of the warning being honest.
 - [x] **ACLs** — extended ACLs in the data path (`engine/acl.js`, `test/acl.test.js`,
-      `test/acl-data.test.js`). The `firewall` capability itself is still inert; ACLs are what
-      actually filters.
+      `test/acl-data.test.js`). The `firewall` capability itself is still inert — nothing in `engine/`
+      reads it as a capability, only the vocabulary list at `engine/device.js:94` and one comment at
+      `engine/simulator.js:3512`; ACLs are what actually filters.
 - [ ] **Wireless** 802.11 association state machine. The RF medium, band ceiling and
       association rate are modelled at the physical layer (`engine/media.js`), but the
-      capability named `wireless` still does nothing.
+      capability named `wireless` still does nothing — no `engine/*.js` file reads it as a capability
+      (the word appears only in the vocabulary list at `engine/device.js:94`, as the media family on the
+      five `wireless-*` ids, and in comments), and the console has no `show wireless`: the command answers
+      `% Invalid show command: wireless` rather than pretending.
 
 ## UI / UX
 
