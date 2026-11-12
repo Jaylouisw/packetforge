@@ -100,8 +100,10 @@ The bridge does **not** close anything. It reads closed Forgejo PRs to find merg
 left for a human, because a bot closing PRs on a read-only mirror is a policy decision rather than a
 sync step.
 
-What the GitHub contributor sees: they open a PR the way they always do, a bot replies within a few
-minutes with a link to where the discussion is, and their commits are already there.
+What the GitHub contributor sees: they open a PR the way they always do, and once a maintainer runs
+`--prs` a bot replies **on that run** with a link to where the discussion is — not within a few
+minutes, which is what this paragraph claimed while the status note further down explains that
+nothing schedules the bridge. Their commits are there from that moment, not before.
 
 What they cannot do: press "Merge" on GitHub. That button is meaningless on a mirror — the mirror is
 a copy, and merging there creates a commit that the next mirror sync will not contain.
