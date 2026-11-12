@@ -49,8 +49,10 @@ ancestor of the forge's. It is today: `8e0d6330` is an ancestor of `1b1e1287` wi
 host's disk (#1500)"* and `1b1e1287` *"`?` is a keypress in every prompt, and `exit` walks one level at a time
 (#1504)"* — and the forge-only branches are where those PRs came from. Named, on this reading they are
 `ci/bound-the-build-cache`, `fix/board-id`, `fix/help-key-every-prompt`, `fix/no-form-names-v2`,
-`fix/no-form-names-what-it-removes`, `fix/short-line`, `fix/stated-range` and `land-all` … `land-all-v5` — twelve
-in all, which is exactly the 901 − 889 gap, so the count and the set tell the same story rather than two of them.
+`fix/no-form-names-what-it-removes`, `fix/short-line`, `fix/stated-range`, and `land-all` together with its four
+retries `land-all-v2`, `land-all-v3`, `land-all-v4` and `land-all-v5` — twelve in all, which is exactly the
+901 − 889 gap, so the count and the set tell the same story rather than two of them. Re-taken on 2026-11-12:
+same twelve names, `main` still `1b1e1287` against `8e0d6330`.
 
 Two readings the same day show why the numbers are worth re-taking and why the invariant is not: at the earlier one
 the two sides were level at 884/884 with `main` at `73718ab4` on both, and the branch count climbed 872, 875, 881,
