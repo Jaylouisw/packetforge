@@ -300,6 +300,13 @@ matters; the quoted form is fine for reading, not for matching.
 | `npm run test:pon-connectors` | `test/pon-connectors.test.js` |
 | `npm run test:ui-dom` | `test/ui-dom-contract.test.js` |
 
+Forty-three shortcuts cover **forty-six** suites, which is the whole gap between this table's row count
+and the `46 of 272` above. One row does all the bundling: `test:ipv6-wire` is a chain — `node
+test/ipv6-wire.test.js && node test/ui-render.test.js && node test/scion-wire.test.js && node
+test/poe.test.js` — so the four suites it runs are not four rows, and a failure in `ui-render` arrives
+wearing the name `test:ipv6-wire`. Every other row names exactly the one file it runs, which is worth
+checking rather than assuming: the table, the scripts and the files line up one-for-one otherwise.
+
 Two more worth knowing, both unrelated to tests:
 
 - `npm run start` and `npm run dev` are **the same command** — `node server/index.js`. There is no
