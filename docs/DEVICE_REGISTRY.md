@@ -302,13 +302,16 @@ Fifteen, as enumerated in `engine/device.js` (`CAPABILITIES`):
 `host`, `l2-forward`, `l3-forward`, `cli`, `dhcp-server`, `dhcp-client`, `nat`, `firewall`,
 `wireless`, `http-server`, `poe-pse`, `poe-pd`, `vlan`, `lacp`, `stp`.
 
-**Three gate forwarding, six more are read, and six are pure labels.** The reads:
+**Three gate forwarding, six more are read, and six are pure labels.** Counted out, because the table
+below is grouped by *reader* rather than by capability and one row covers three names: forwarding is
+`host`, `l2-forward`, `l3-forward`; the other six read are `poe-pse`, `poe-pd`, `cli`, `dhcp-server`,
+`http-server`, `nat`; the six that are labels only are the ones named a few paragraphs down. The reads:
 
 | Capabilities | Read by | Effect |
 |---|---|---|
 | `host`, `l2-forward`, `l3-forward` | `Device.isHost()`, `isL2()`, `isL3()` | forwarding: terminate, bridge (MAC learning, VLAN tagging, STP), route |
 | `poe-pse`, `poe-pd` | `isPoePse()` / `isPoePd()` in `engine/media.js` | whether the device is treated as sourcing / drawing power when ports are derived |
-| `cli`, `dhcp-server`, `http-server` | `SERVICE_PORTS` in `engine/flow.js` | which ports a transport flow can terminate on — SSH/Telnet 22/23, DHCP 67, HTTP/HTTPS 80/443 |
+| `cli`, `dhcp-server`, `http-server` | `SERVICE_PORTS` (`engine/flow.js:82`, read at `:312`) | which ports a transport flow can terminate on — SSH/Telnet 22/23, DHCP 67, HTTP/HTTPS 80/443 |
 | `dhcp-server` *(again)* | `device.hasCap('dhcp-server')` in the `clear ip dhcp binding` handler and in the binding view | the refusal text — `% PC1 is not a DHCP server - it holds no bindings to clear`, and `% PC1 is not a DHCP server (no pools) and holds no DHCP lease` |
 | `nat` | `has('nat')` in `_helpRefusal()`, which builds the `?` page (`engine/cli.js`) | it hides the `nat` verbs from completion and explains why. On a PC (caps `host`, `cli`, `dhcp-client`) `ip ?` lists no `nat` at all, and `ip nat ?` answers: `% No completions for "ip nat" on PC-d1` / `"ip nat inside source static <local> <global>" is a command here, but not on PC-d1: it does not translate addresses`. On a router (caps `l3-forward`, `cli`, `dhcp-server`, `nat`) the same page says `Completions for "ip nat" (1):` and `Next: inside` |
 
