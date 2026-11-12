@@ -807,14 +807,57 @@ illustrates it:
    sentences and only the second one belongs in a fidelity claim.
 
 **About the assertion counts in these rows.** A count here is what the suite printed *when the row was
-written*, not a promise about today — suites grow, and most of these rows are history. Do not quote one
-forward as current. Measured today: of **83** suite-plus-count citations across `docs/`, `README.md`,
-`CONTRIBUTING.md` and `docs/wiki/`, **21 disagreed with a run**, always in the same direction (the suite
-had gained assertions: `absent-commands.test.js` 79 → **133**, `completion.test.js` 34 → **52**,
-`ipv6-route.test.js` 45 → **53**, `show-at.test.js` 37 and 42 → **43**, and fifteen smaller drifts of one
-to five). The four that were stating a *current* fact rather than a measurement — three in
-[`CLI.md`](CLI.md) and one in [`REQUESTING-HARDWARE.md`](REQUESTING-HARDWARE.md) — were corrected. To
-recount any of them:
+written*, not a promise about today — suites change, and most of these rows are history. Do not quote one
+forward as current.
+
+The first sweep of this class found **83** suite-plus-count citations across `docs/`, `README.md`,
+`CONTRIBUTING.md` and `docs/wiki/`, **21** of which disagreed with a run, every one of them because the
+suite had **grown** (`absent-commands.test.js` 79 → **133**, `completion.test.js` 34 → **52**,
+`ipv6-route.test.js` 45 → **53**, `show-at.test.js` 37 and 42 → **43**, and fifteen drifts of one to
+five). Re-measured on the same scope: **141** citations, **33** disagreeing, across **32** distinct
+suite-and-count pairs — and the "always growing" reading is now false. **Three suites print fewer
+assertions than the page quotes**: `capability-gate.test.js` 166 → **153**, `svi-verbs.test.js`
+62 → **61**, and `absent-commands.test.js` **133 → 126** — the very suite the first sweep used as its
+example of growth, so that file reads 79 → 133 → 126 across three readings. A count is a snapshot in
+both directions, which is the reason the rows keep theirs instead of being rewritten.
+
+The 29 suites whose quoted count no longer matches, quoted → today (each measured by running the file):
+
+| Suite | Quoted above | Prints today |
+|---|---|---|
+| `test/absent-commands.test.js` | 79/133 | **126** |
+| `test/acl-remove.test.js` | 26 | **29** |
+| `test/arg-keyword-abbrev.test.js` | 62 | **69** |
+| `test/bgp-table.test.js` | 25 | **32** |
+| `test/capability-gate.test.js` | 98/166 | **153** |
+| `test/completion.test.js` | 34 | **52** |
+| `test/exec-privilege.test.js` | 54 | **55** |
+| `test/help-truthful.test.js` | 32 | **33** |
+| `test/ipv6-console.test.js` | 48 | **49** |
+| `test/ipv6-interface.test.js` | 61 | **64** |
+| `test/ipv6-route.test.js` | 45 | **53** |
+| `test/logging-filter.test.js` | 19 | **22** |
+| `test/nat-show.test.js` | 27 | **33** |
+| `test/number-slots.test.js` | 47 | **51** |
+| `test/optional-args.test.js` | 108 | **120** |
+| `test/ospf-bgp-detail.test.js` | 37 | **39** |
+| `test/persistence-load.test.js` | 27 | **28** |
+| `test/placeholder-rows.test.js` | 11 | **14** |
+| `test/port-addressing.test.js` | 24 | **26** |
+| `test/port-args.test.js` | 83 | **85** |
+| `test/refused-where-typed.test.js` | 56 | **58** |
+| `test/route-installed.test.js` | 45 | **48** |
+| `test/router-mode-help.test.js` | 45 | **47** |
+| `test/show-at.test.js` | 37/42 | **43** |
+| `test/show-filter.test.js` | 25 | **27** |
+| `test/show-hosts.test.js` | 20 | **29** |
+| `test/svi-lifecycle.test.js` | 26 | **35** |
+| `test/svi-verbs.test.js` | 62 | **61** |
+| `test/vlan-lifecycle.test.js` | 43 | **46** |
+
+The four citations that were stating a *current* fact rather than a measurement — three in
+[`CLI.md`](CLI.md) and one in [`REQUESTING-HARDWARE.md`](REQUESTING-HARDWARE.md) — were corrected when
+the first sweep found them. To recount any of them:
 
 ```sh
 node test/show-at.test.js | tail -1      # prints "43 passed, 0 failed"
