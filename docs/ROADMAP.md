@@ -13,6 +13,25 @@ this page had slid by 30 to 120 lines when this note was added; the symbols had 
 
 ## Simulation engine
 
+The absences on this page are checkable the same way the presences are, and they are the claims most
+likely to rot — an absence needs re-measuring, because the day someone adds a congestion window the
+paragraph that says there is none becomes a lie with no failing test behind it. Today, re-measured:
+
+```sh
+grep -nEi 'cwnd|congestion|sack|time_wait|timewait|window ?scale' engine/flow.js   # 3 hits, all comments
+grep -rnEi '\btls\b|createServer|https?\.request|net\.Socket' engine/*.js        # no hits, exit 1
+```
+
+Read the exit codes with care: the second command exits **1**, which is grep saying "no line matched", not
+grep failing. The first exits 0 on three hits — `engine/flow.js:19`, `:20` and `:29` — and all three are
+comments, two stating the absences and the third explaining that MSS options "all eat into the same budget".
+A presence would look different: it would be code.
+
+So "no congestion window, no retransmission timer, no SACK, no TIME_WAIT, no window scaling, no ICMP
+port-unreachable" and "sockets, HTTP and TLS remain absent" are still true, and the first line of evidence is
+the module's own comment (`engine/flow.js:19-20`), which is the cheapest thing to keep honest: if a feature
+lands, that comment is the first line to go stale and the first one a reader trusts.
+
 - [x] **TCP/UDP transport** — `engine/flow.js` is a real transport layer, not a probe: the
       three-way handshake as three frames, an MSS derived from the path MTU, segmented data with
       cumulative ACKs, a four-way close, RST, and UDP datagrams with ephemeral ports
@@ -31,7 +50,7 @@ this page had slid by 30 to 120 lines when this note was added; the symbols had 
       (`engine/cli.js:11720`) — and `test/dhcp-relay.test.js` (36 assertions) keeps all of it
       honest. Still absent: **snooping** (a switch
       forwards DHCP as an ordinary broadcast, and `show ip dhcp snooping` says so rather than
-      pretending — `engine/cli.js:11653-11658`), Option 82's circuit-id/remote-id (only `giaddr` is
+      pretending — `engine/cli.js:11653-11662`), Option 82's circuit-id/remote-id (only `giaddr` is
       carried), and DHCPv6, which appears solely as the reason a router's M flag sends a host there.
 - [x] **DNS** for name resolution — NXDOMAIN / NODATA / SERVFAIL reported as distinct answers
       (`engine/dns.js`, `test/dns.test.js`, `test/dns-wire.test.js`).
