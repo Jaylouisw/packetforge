@@ -635,7 +635,7 @@ touching the real tree.
 
 ### The other catalogue scripts — and which ones are spent
 
-`scripts/` holds five more tools that write device JSON. They are not interchangeable, and two of them
+`scripts/` holds six more tools that write device JSON. They are not interchangeable, and two of them
 were one-off repairs for a specific issue, which is the thing a reader most needs to know before running
 one:
 
@@ -645,6 +645,7 @@ one:
 | `apply-port-fixes.js` | same idea for the `research/incoming/issue9-*.json` shape, rewriting only connector/speed on named ports | **yes, by default**; `--apply` writes. Prints `No issue9-*.json files to apply.` and exits 0 when there is nothing | yes, when research arrives in that shape — but read the caveat below before believing its count |
 | `fix-optics.js` | gives optical uplinks their own ports instead of inheriting the copper `portTemplate` | `--apply` writes | yes, for specs with mixed copper/optical layouts |
 | `fix-optics-claims.js` | one-off repair for issue #9: converts a port named as SFP that was modelled as copper | `--apply` writes | **spent** — kept as a record of the rule it applied |
+| `import-devices.js <file> [...]` | validates swarm-researched specs and merges them into `devices/<vendor>/<model>.json`, refusing a duplicate by punctuation-stripped model key | `--apply` / `--write` (dry by default) | yes — it is the way a researched spec reaches the catalogue, and its usage is spelled out in [REQUESTING-HARDWARE.md](REQUESTING-HARDWARE.md) |
 | `merge-research.js` | one-shot merge of the swarm-researched homelab gear into the registry | **none** — it writes as it runs | **spent and unsafe to re-run** |
 
 **`apply-port-fixes.js` does not diff, so its headline is the size of the research, not the work left.**
