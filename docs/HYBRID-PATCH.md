@@ -232,6 +232,20 @@ counts the same two interfaces twice. It is only 0.3 dB, but on a 1:64 budget
 that is the difference between headroom and a red link — and it is the kind of
 number an engineer notices.
 
+"That is the difference between headroom and a red link" is true for a **band**, not for every link, and the
+band is worth writing down because it tells you which labs can see the bug at all. Measured on a 1:64 branch
+of class B+ (`ponBudget()` returns `ok` or the `E_OPTICAL_BUDGET` code, so the boundary is exact):
+
+| patch cord declared | longest fibre that still passes |
+|---|---|
+| none (0 dB) | **29,090 m** |
+| 0.3 dB | **27,727 m** |
+
+The splitter alone takes 21 of the 28 dB, and the only remaining variable is fibre at 0.22 dB/km, so 0.3 dB
+buys **1,363 m** of reach — 0.3 ÷ 0.22, to the metre. A 12 km branch does not care whether the cord is
+counted; a branch between roughly 27.7 and 29.1 km is exactly the one where the double count decides the
+verdict. Build the demonstration there, or the test proves nothing.
+
 The engine is explicit about it rather than hiding it in a total — `ponBudget()` returns the whole
 breakdown, so the double count is visible in the object before it is visible in the field:
 
