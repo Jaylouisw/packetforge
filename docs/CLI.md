@@ -129,12 +129,14 @@ Codes: C - connected, S - static, O - OSPF, B - BGP
      O 10.0.99.0/24  110  10.0.12.2  Gi0/0
      B 10.0.12.0/24  20   10.0.12.2  Gi0/0
   *  B 10.0.99.0/24  20   10.0.12.2  Gi0/0
-R1#show ip bgp
+R1#show ip bgp summary
 BGP router identifier 1.1.1.1, local AS number 65001
+
 Neighbor   V  AS     State        Reason
 10.0.12.2  4  65002  Established  eBGP
+
 1 of 1 neighbour(s) established
-2 prefix(es) received, 2 installed
+2 prefix(es) received, 1 installed - the rest lose on distance (see "show ip bgp" and "show ip route")
 R1#show vrrp
 Interface  Group  Pri  State   Master  Virtual IP  Virtual MAC
 Gi0/0      10     120  Master  R1      10.0.1.254  00:00:5e:00:01:0a
@@ -8436,23 +8438,29 @@ answered with `% Usage: router bgp <as> | bgp router-id <ip> | neighbor <ip> rem
 one. `test/running-config.test.js` now pins both spellings, the removal form, and the paste of the
 dump, in a session where BGP is enabled — the only place the difference is visible.
 
-`show ip bgp` derives the sessions before it answers, so a configured peer is not reported as
-"unknown":
+`show ip bgp summary` derives the sessions before it answers, so a configured peer is not reported
+as "unknown":
 
 ```
-R1#show ip bgp
+R1#show ip bgp summary
 BGP router identifier 1.1.1.1, local AS number 65001
 
 Neighbor   V  AS     State        Reason
 10.0.12.2  4  65002  Established  eBGP
 
 1 of 1 neighbour(s) established
-2 prefix(es) received, 2 installed
+2 prefix(es) received, 1 installed - the rest lose on distance (see "show ip bgp" and "show ip route")
 ```
 
 The `Reason` column is where a session that did *not* come up says why (wrong AS, no route to the
-peer); an established one names the relationship instead. The counts at the bottom reconcile with the
-rows above them, and `2 prefix(es) installed` is the number of `B` rows `show ip route` carries.
+peer); an established one names the relationship instead. The two numbers at the bottom are not the
+same question: **received** is what the peer sent, **installed** is how many `B` rows `show ip route`
+marks with `*`, and they differ wherever a closer route wins — on a single link, always the prefix you
+share with the peer. The three views are three commands: `show ip bgp summary` for the neighbour table
+above, `show ip bgp` for the route table it fed (`Network  Next Hop  Path`), and `show ip bgp neighbors`
+for one peer's detail — remote AS, state, hold time, prefixes in. This section showed the neighbour
+table under plain `show ip bgp`, and the older count read `2 prefix(es) installed` above a route table
+with one installed `B` row.
 
 Learned routes appear in `show ip route` as `B`. Policy (local-pref, MED, communities, route-maps)
 is designed in [BGP-POLICY.md](BGP-POLICY.md) but only the decision-order subset in

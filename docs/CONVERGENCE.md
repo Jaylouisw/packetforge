@@ -284,23 +284,32 @@ side effects. The simulator decides what to do with the answer.
 
 The table above is the whole list. BGP is missing from it because `computeBgp()` runs
 synchronously — there is no ConnectRetry, no hold timer, no session that sits in `Active` for a
-while. Two routers configured as eBGP peers are `Established` **at t=0**:
+while. Two routers configured as eBGP peers are `Established` **at t=0**, and this is the first command
+of a fresh session — no `ping`, no `at` question, no run:
 
 ```
-R1#ping 10.0.12.2 at 0
-R1#show ip bgp
+R1#show ip bgp summary
+BGP router identifier 10.0.12.1, local AS number 65001
+
 Neighbor   V  AS     State        Reason
 10.0.12.2  4  65002  Established  eBGP
+
 1 of 1 neighbour(s) established
+1 prefix(es) received, 0 installed - the rest lose on distance (see "show ip bgp" and "show ip route")
 ```
 
-BGP *converges* in no time, and it no longer needs a run either: `show ip bgp` derives the sessions
-before it answers, so the same table appears with or without the `at 0` above. (Until recently a
-plain show said `(no neighbours have been evaluated yet - run a simulation)` and only a `ping` or an
-`at` question filled it in.) The tell is `converge` in a lab whose only protocol is BGP: `% Nothing in
-this lab runs a control plane that converges over time`. If a lab mixes BGP with
-OSPF or STP, the other process sets the finish time and BGP's routes are there from the first
-instant. A real BGP session's 30 s ConnectRetry and 180 s hold time are not modelled, so do not
+BGP *converges* in no time, and it no longer needs a run either: the neighbour table derives the sessions
+before it answers, so it appears with or without a `ping` first. (Until recently a plain show said
+`(no neighbours have been evaluated yet - run a simulation)` and only a `ping` or an `at` question filled
+it in.) Which command answers which question matters here, because two of the three views are easy to
+swap: `show ip bgp` on its own prints the **route** table (`Network  Next Hop  Path`), `show ip bgp
+summary` prints the neighbour table above, and `show ip bgp neighbors` prints the per-peer detail —
+remote AS, state, hold time, prefixes in. `show ip bgp` has not printed the neighbour table since the
+route table took that name, and this page showed it there until the fence above was re-run. The tell is
+`converge` in a lab whose only protocol is BGP: `% Nothing in this lab runs a control plane that
+converges over time`. If a lab mixes BGP with OSPF or STP, the other process sets the finish time and
+BGP's routes are there from the first instant. A real BGP session's 30 s ConnectRetry and 180 s hold
+time are not modelled — the `Hold time  180 s` in the per-peer view is carried, not counted — so do not
 read this page's numbers as covering them.
 
 ## What this does not model
