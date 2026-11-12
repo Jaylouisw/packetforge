@@ -3620,8 +3620,11 @@ class CliSession {
       // header over a hard-coded '-' on every row, on the grounds that the simulator had steps and not minutes -
       // which stopped being true when convergence gave the model an instant in milliseconds (#1397).
       const nowMs = (this.sim && Number.isFinite(this.sim.runAtMs)) ? this.sim.runAtMs : null;
+      // The device's own rows, kept: the table below is formatted from them, and a contested address is a
+      // property of the row rather than of the four strings it prints as.
+      const deviceRows = dev.arpRows(this.topo, nowMs);
       const rows = [];
-      for (const r of dev.arpRows(this.topo, nowMs)) {
+      for (const r of deviceRows) {
         const ip = r.ip, mac = r.mac;
         // The reason travels with the status here too: "down" alone sends you looking for a cable
         // when the cable is fine and the far port is shut (#1253).
@@ -3634,6 +3637,19 @@ class CliSession {
       rows.sort(function (a, b) { return String(a[0]).localeCompare(String(b[0]), undefined, { numeric: true }); });
       for (const r of rows) {
         out.push(pad('Internet', 10) + pad(r[0], 17) + pad(r[2], 11) + pad(r[1], 18) + r[3]);
+      }
+      // An address two boxes answer for is the one row this table must not print like all the others: the binding
+      // shown is simply the reply that arrived last, so traffic to it goes wherever that reply pointed - which is
+      // what makes the same ping pass and fail with nothing changed (#1473). Nothing here invents a conflict: it
+      // is only reported when two different hardware addresses really did answer on the same port.
+      for (const r of deviceRows) {
+        const clash = r.conflict;
+        if (!clash || !clash.macs || clash.macs.length < 2) continue;
+        out.push('');
+        out.push(r.ip + ' is claimed by ' + clash.macs.length + ' hardware addresses on ' +
+          (clash.port || 'this segment') + ': ' + clash.macs.join(', '));
+        out.push('  this row shows the one that answered last; traffic to ' + r.ip +
+          ' goes to whichever answers next');
       }
     } else if (what === 'mac' && tokens[1] === 'address-table') {
       // Rows are the rows at the instant this session is asking about: a dynamic entry that has been silent for
