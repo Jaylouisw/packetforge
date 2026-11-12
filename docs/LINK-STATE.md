@@ -452,6 +452,14 @@ Fa0/1  root        forwarding  20000
 Second, the port that loses prints the arithmetic that decided against it —
 `Fa0/1 is alternate: SW1 reaches the root for 0, this bridge for 40000` — rather than just going quiet.
 
+The transcripts above print `SW2#` for a reason a probe has to reproduce deliberately. `prompt()`
+reads `config.hostname || device.hostname || device.name` (`engine/cli.js:368`), and `device.hostname`
+is never empty — a freshly built `generic-switch` already carries `Switch (L2)-d1` — so the third
+fallback never fires: naming a device in code (`dev.name = 'SW2'`) changes nothing on screen, and
+`hostname SW2` in config mode is what renames the prompt. Mode is per session as well, so `enable` and
+the `show` have to arrive in the same batch or the prompt comes back as `SW2>`. Between the two, the
+same tree prints either `SW2#show spanning-tree` or `Switch (L2)-d2>show spanning-tree`.
+
 
 ## What this does not model
 
