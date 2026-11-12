@@ -678,6 +678,33 @@ is link-only. `1000base-bx` exists only because a U module met a D module and no
 so an ordinary SFP pair is described as `1000base-lx` (`['1000base-bx','1000base-lx']` → `1000base-lx`)
 while the asymmetric pair still gets `1000base-bx` (`['1000base-bx']` → `1000base-bx`).
 
+Every example in that description was re-run against `preferredMedia()` on 2026-11-12, and all of them hold:
+
+| Call | Answer |
+|---|---|
+| `preferredMedia(['1000base-t','1000base-t-sfp'])` | `1000base-t` — same family, same speed, so input order wins |
+| `preferredMedia(['1000base-t-sfp','1000base-t'])` | `1000base-t-sfp` — the same pair, reversed |
+| `preferredMedia(['1000base-t','10gbase-t'], 1000)` | `1000base-t` — step 1 drops the 10G medium |
+| `preferredMedia(['1000base-t','10gbase-t'], 10000)` | `10gbase-t` — and step 3 prefers it once nothing is dropped |
+| `preferredMedia(['1000base-bx','1000base-lx'])` | `1000base-lx` — the `linkOnly` demotion |
+| `preferredMedia(['1000base-bx'])` | `1000base-bx` — demoted only when something else is left |
+| `preferredMedia(['10gbase-sr','1000base-t'])` | `10gbase-sr` — fiber 3 over copper 1 |
+| `preferredMedia(['dac-10g','10gbase-sr'])` / `(['dac-10g','1000base-t'])` | `10gbase-sr` / `dac-10g` — dac 2 sits between fiber and copper |
+| `preferredMedia([],…)` and `preferredMedia(null,…)` | `null` |
+
+The pair step 1 exists for is the SC/UPC cage, and it is worth seeing because the two media are both fibre:
+`CAGE_MEDIA['sc-upc']()` is `["gpon-sc-upc","100base-fx"]`, and `preferredMedia` of that answers **`100base-fx`** at
+100 Mbps and **`gpon-sc-upc`** at 2488 — a 100M link described by a 2.5G PON medium was the bug the filter was
+added for.
+
+The rank map is `{ fiber: 3, dac: 2, copper: 1, console: 1, wireless: 1 }` and `rankOf` falls back to `|| 0` for any
+family it does not name — which today means **`fibre-channel`, `coax`, `dsl` and `powerline` rank 0**, below
+copper. `preferredMedia(['2gfc-sw','1000base-t'])` really does answer `1000base-t`, and
+`['docsis-30','1000base-t']` answers `1000base-t` too. Neither list is reachable from a real link, because an FC
+or coax cage only mates its own kind, so the medium is still named correctly in practice — but the asymmetry is
+why a "tidy-up" of that map can change labels without any test going red. There are **89** media across **9**
+families (`copper`, `fiber`, `fibre-channel`, `coax`, `dsl`, `powerline`, `dac`, `console`, `wireless`).
+
 `negotiateSpeed` takes the maximum shared `speedCaps` entry.
 
 **`speedMbps` from `canMate`/`negotiateSpeed` is the port ceiling, not the cable's
