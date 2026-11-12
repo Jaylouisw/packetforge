@@ -161,8 +161,10 @@ printed `C` rows only until something else happened to run OSPF.
 
 Two consequences worth knowing:
 
-- `show ip bgp` no longer answers `0 of 0 neighbour(s)` for a configured neighbour. It says `1 of 1
-  neighbour(s) established`, because it evaluated the session before answering.
+- `show ip bgp summary` no longer answers `0 of 0 neighbour(s)` for a configured neighbour. It says
+  `1 of 1 neighbour(s) established`, because it evaluated the session before answering. The tally is
+  the summary's, not plain `show ip bgp`'s — that command prints the route table, and has carried no
+  neighbour count since the two views were split.
 - A *bridge* is still a bridge: `show lldp neighbors` on the router shows the switch because LLDP
   frames are delivered, and the switch's MAC table already holds `DYNAMIC` rows even though nobody
   pinged — LLDP announcements alone are enough to populate the data path.
