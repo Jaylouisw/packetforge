@@ -318,9 +318,15 @@ Each of these is a tracked issue rather than a surprise.
 
 All eighteen documents in [docs/](docs/), in the order you are likely to want them.
 
-Five of those topics are also mirrored to the [Forgejo wiki](https://git.jayw.uk/jaylouisw/packetforge/wiki).
-The page sources live in [docs/wiki/](docs/wiki/) so a wiki edit goes through review like any other
-documentation change: `npm run wiki:build` regenerates them, `npm run wiki:publish` pushes them.
+Five pages also live in the [Forgejo wiki](https://git.jayw.uk/jaylouisw/packetforge/wiki): Home,
+Getting started, Requesting hardware, Simulation fidelity and Contributing. They are **not** copies of
+anything above — every one is authored inside a template in `scripts/build-wiki.js`, which reads no file
+in the repository at all, so editing `docs/SIMULATION.md` does not move Simulation-Fidelity and the two can
+disagree until someone edits the template. Two of the five cover the same ground as a page in `docs/`
+(Requesting hardware, and Simulation fidelity against SIMULATION.md); the other three have no `docs/`
+counterpart, Home being an index that exists only here. The generated pages are committed under
+[docs/wiki/](docs/wiki/), so a wiki edit goes through review like any other documentation change:
+`npm run wiki:build` regenerates them and `npm run wiki:publish` pushes them.
 
 **Start here**
 
