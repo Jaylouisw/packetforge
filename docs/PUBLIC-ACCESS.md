@@ -127,8 +127,25 @@ undici's keep-alive socket is still open trips a libuv assertion on Windows
 exit code**, so a refused run reports success; the script's own comment records exactly that. A rewrite that
 "simplifies" this to `process.exit(1)` would keep the code and lose it on the way out — which is what still
 happens to the two tracker scripts' deliberate `exit 2` ([TRIAGE.md](TRIAGE.md) measures the 401 path ending in
-that abort with a 127 instead). Re-read on this tree: `process.exitCode` at `:234` and `:237`, no
-`process.exit(` anywhere in the file.
+that abort with a 127 instead). Re-read on this tree: `process.exitCode` at `:234` and `:237`, and
+`process.exit(` exactly **once** — the comment at `:230` telling you not to call it. Grep the call, not the
+word: `grep -n 'process\.exit('` returns that comment, so "no `process.exit(` anywhere" is false as a grep
+even though it is true of the code.
+
+Three of this page's claims need no route to the edge, which matters when the edge is down:
+
+```sh
+node test/cf-access-bypass-auth.test.js | tail -1                                              # the credential mapping
+grep -n "argv.indexOf('--apply')\|argv.indexOf('--check')" scripts/cf-access-bypass.js         # the only two flags
+grep -n 'process\.exit(' scripts/cf-access-bypass.js                                           # one hit, a comment
+```
+
+```
+5 passed, 0 failed
+133:  const apply = argv.indexOf('--apply') !== -1;
+134:  const checkOnly = argv.indexOf('--check') !== -1;
+230:  // exitCode, not process.exit(): calling exit() while undici's keep-alive socket is still open
+```
 
 All three invocation shapes were re-run on 2026-11-12 against the live edge and the transcripts above are exact:
 no flags and `--help` print the four lines ending `Nothing to do.`, `--check` prints the same three and stops,
