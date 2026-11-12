@@ -335,8 +335,16 @@ Honestly, and by design:
 - **Real-time interleaving.** Nothing runs a clock during a run. A question is answered *as of* an
   instant, computed from the timers. Two processes that would overlap in reality are each either
   finished or not.
-- **Timer jitter and retransmission.** A hello is heard, not lost. There is no dead-interval expiry,
-  no 3-missed-hellos neighbour teardown, no exponential backoff.
+- **Timer jitter and retransmission.** A hello is heard, not lost, so nothing gets the chance to
+  time out. The dead interval exists as a value and does nothing else: `ospfTimers({})` reports
+  `deadSec: 40` (`engine/convergence.js:75`), `validateRouter()` refuses a `deadSec` below
+  `helloSec` (`engine/ospf.js:138-146` — `hello 10, dead 5` answers `deadSec (5) must be at least
+  helloSec (10)`, and `5`/`5` is accepted), and no neighbour is ever declared dead on it. It is not
+  in the schedule either: `routesAtMs` is `(hello + exchange + spf) × 1000`, so OSPF routes land at
+  **16000 ms** whether the dead interval is 40 s or ten times that — the reader takes a device, so
+  `ospfTimers({config:{ospf:{deadSec:400}}})` still answers `routesAtMs: 16000` with `deadSec: 400`.
+  No 3-missed-hellos teardown, no exponential backoff.
+
 - **STP port roles changing over time.** Roles come from the steady-state computation; only the
   transitional Listening/Learning state is timed.
 - **Several changes inside one window.** `markChange()` keeps the *latest* change instant, so a lab
