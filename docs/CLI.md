@@ -35,6 +35,7 @@ Modes and their prompts:
 | `show vrrp` | the group, its state (`Master`/`Backup`/`Init` with the reason), and the master the election chose |
 | `show running-config` | full configuration |
 | `ping <ip> [count]` | ICMP echo from this device |
+| `traceroute <ip>` (`tracert`) | TTL-limited probes, one hop at a time; each router that expires a probe answers with ICMP time exceeded, the destination with an echo reply |
 | `exit` / `logout` | leave the session |
 
 ## A command with words it cannot use refuses them

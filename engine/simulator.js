@@ -191,6 +191,7 @@ class Simulator {
     // question is asked at is a property of the question, not of the run - ping() calls reset()
     // first, so resetting it here would silently make every run "converged" again.
     this.icmpReplies = [];    // {dst, id, seq, step}
+    this.icmpErrors = [];     // {dst, from, errorType, code, seq, step}
     this.icmp6Replies = [];   // {dst, id, seq, step}  (ICMPv6 echo replies)
     this.scion = null;        // last computed SCION beaconing state
     this._icmpId = 0x1000;
@@ -685,6 +686,71 @@ class Simulator {
       // `null` means no particular instant (the lab is settled), which is a different statement from t=0.
       runAtMs: Number.isFinite(this.runAtMs) ? this.runAtMs : null
     };
+  }
+
+  // Traceroute: the same echo frame, aimed at one hop at a time.
+  //
+  // Each probe carries a TTL of n, so the nth router on the path expires it and answers
+  // with ICMP time-exceeded - which only exists because _forwardL3 now sends it. The probe
+  // that reaches the destination comes back as an ordinary echo reply. A probe that produces
+  // neither is reported as '*', the way the real command prints a silent hop.
+  //
+  // No per-hop latency: timing a frame is done for echo request/reply pairs by
+  // _roundTripFor, and an ICMP error is a different kind of frame. Hops are reported with
+  // their address and the device that sent the error, which is what a lab is asking about.
+  traceroute(srcId, dstIp, opts) {
+    opts = opts || {};
+    const maxHops = Math.min(Math.max(parseInt(opts.maxHops, 10) || 30, 1), 64);
+    this.reset();
+    this.computeStp();
+    this.computePoe();
+    this.announceLldp();
+    this.announceRa();
+    this.computeOspf();
+    this.computeBgp();
+
+    const src = this.topo.getDevice(srcId);
+    if (!src) throw new Error('Unknown device: ' + srcId);
+    const target = String(dstIp);
+    const id = this._icmpId++;
+    const hops = [];
+    let reached = false;
+
+    for (let ttl = 1; ttl <= maxHops; ttl++) {
+      const evStart = this.events.length;
+      const errStart = this.icmpErrors.length;
+      this._emit({ type: 'traceroute-probe', src: srcId, dst: target, ttl: ttl });
+      this._sendIcmp(src, target, { type: net.ICMP_ECHO_REQUEST, code: 0, id: id, seq: ttl }, ttl);
+      this._run();
+
+      const replied = this.icmpReplies.filter(function (r) {
+        return r.dst === srcId && r.id === id && r.seq === ttl;
+      })[0];
+      if (replied) {
+        hops.push({ ttl: ttl, address: target, dev: null, reached: true, reason: 'echo-reply' });
+        reached = true;
+        break;
+      }
+      const errors = this.icmpErrors.slice(errStart).filter(function (e) {
+        return e.dst === srcId && e.seq === ttl;
+      });
+      const err = errors[0];
+      if (err) {
+        hops.push({
+          ttl: ttl, address: err.from, dev: null, reached: false,
+          reason: err.errorType === net.ICMP_TIME_EXCEEDED ? 'time-exceeded' : 'unreachable',
+          errorType: err.errorType, code: err.code
+        });
+        if (err.errorType === net.ICMP_DEST_UNREACH) break;
+        continue;
+      }
+      // Nothing came back: a silent hop, or the very first router had no route at all.
+      hops.push({ ttl: ttl, address: null, dev: null, reached: false, reason: 'no-reply' });
+      const sent = this.events.slice(evStart).some(function (e) { return e.type === 'forward'; });
+      if (!sent) break;
+    }
+
+    return { events: this.events, hops: hops, step: this.step, success: reached, target: target };
   }
 
   // ---------------------------------------------------------------------
@@ -2582,7 +2648,7 @@ class Simulator {
   // L3 origination
   // ---------------------------------------------------------------------
 
-  _sendIcmp(src, dstIp, icmp) {
+  _sendIcmp(src, dstIp, icmp, ttlOpt) {
     const route = src.routeTo(dstIp);
     if (!route) {
       this._emit({ type: 'drop', reason: 'no route to ' + dstIp, dev: src.id, summary: 'No route to ' + dstIp });
@@ -2597,7 +2663,10 @@ class Simulator {
       this._emit({ type: 'drop', reason: 'no source IP on ' + egress.name, dev: src.id });
       return;
     }
-    const ip = { src: egress.ip, dst: dstIp, ttl: 64, proto: 1, id: icmp.id };
+    // A traceroute probe is an echo request with a deliberately small TTL, so the hop that
+    // decrements it to zero is the hop that answers. Default 64, the same as before.
+    const ttl = (ttlOpt === undefined || ttlOpt === null) ? 64 : ttlOpt;
+    const ip = { src: egress.ip, dst: dstIp, ttl: ttl, proto: 1, id: icmp.id };
     const nextHopIp = route.via;
     this._sendL3(src, egress, nextHopIp, ip, icmp);
   }
@@ -3294,12 +3363,17 @@ class Simulator {
     // reads the destination - so moving it here changes nothing else.
     frame.ip.ttl -= 1;
     if (frame.ip.ttl <= 0) {
+      // A router that discards a packet for TTL exhaustion must say so: that reply is the
+      // entire mechanism a traceroute works on. Dropping it silently made every hop but the
+      // last look like a black hole.
       this._emit({ type: 'drop', reason: 'TTL expired', dev: dev.id });
+      this._icmpErrorTo(dev, inIface, frame, net.ICMP_TIME_EXCEEDED, 0);
       return;
     }
     const route = dev.routeTo(frame.ip.dst);
     if (!route) {
       this._emit({ type: 'drop', reason: 'no route to ' + frame.ip.dst, dev: dev.id });
+      this._icmpErrorTo(dev, inIface, frame, net.ICMP_DEST_UNREACH, 0);
       return;
     }
     const egress = route.iface ? dev.interfaces.get(route.iface) : dev.egressFor(route.via);
@@ -3345,6 +3419,39 @@ class Simulator {
       }
     }
     dev.learnArp(ip, mac, inIface, this._nowMs());
+  }
+
+  // Send an ICMP error back to the source of a packet we could not forward.
+  //   type 3  destination unreachable (code 0: no route)
+  //   type 11 time exceeded (code 0: TTL reached zero in transit)
+  // An ICMP error is never sent about an ICMP error - that is how a routing loop turns into
+  // a packet storm - and never to a broadcast or multicast source.
+  _icmpErrorTo(dev, inIface, frame, type, code) {
+    if (!frame || !frame.ip) return false;
+    const srcIp = frame.ip.src;
+    if (!srcIp) return false;
+    if (net.isBroadcastMac(frame.srcMac)) return false;
+    if (frame.icmp && (frame.icmp.type === net.ICMP_DEST_UNREACH ||
+        frame.icmp.type === net.ICMP_TIME_EXCEEDED)) return false;
+
+    const ingress = dev.resolveIface(inIface) || dev.interfaces.get(inIface);
+    if (!ingress || !ingress.ip || ingress.enabled === false) return false;
+
+    const out = dev.routeTo(srcIp);
+    if (!out) return false;
+    const egress = out.iface ? dev.interfaces.get(out.iface) : dev.egressFor(out.via);
+    if (!egress || !egress.ip || egress.enabled === false) return false;
+
+    const ip = { src: ingress.ip, dst: srcIp, ttl: 64, proto: 1, id: this._icmpId++ };
+    const icmp = { type: type, code: code, id: ip.id, seq: (frame.icmp && frame.icmp.seq) || 0 };
+    this._emit({
+      type: 'icmp-error', dev: dev.id, iface: egress.name, to: srcIp, from: ingress.ip,
+      errorType: type, code: code,
+      reason: type === net.ICMP_TIME_EXCEEDED ? 'time-exceeded' : 'destination-unreachable',
+      aboutDst: frame.ip.dst, aboutSeq: icmp.seq
+    });
+    this._sendL3(dev, egress, out.via, ip, icmp, portPvid(egress), {});
+    return true;
   }
 
   _handleArp(dev, frame, inIface) {
@@ -3422,6 +3529,16 @@ class Simulator {
     } else if (icmp.type === net.ICMP_ECHO_REPLY) {
       this.icmpReplies.push({ dst: dev.id, id: icmp.id, seq: icmp.seq, step: this.step });
       this._emit({ type: 'icmp-received', dev: dev.id, from: frame.ip.src, seq: icmp.seq, vlan: vid });
+    } else if (icmp.type === net.ICMP_TIME_EXCEEDED || icmp.type === net.ICMP_DEST_UNREACH) {
+      // An error coming back is information, not a dropped packet: it names the hop.
+      this.icmpErrors.push({
+        dst: dev.id, from: frame.ip.src, step: this.step,
+        errorType: icmp.type, code: icmp.code, seq: icmp.seq
+      });
+      this._emit({
+        type: icmp.type === net.ICMP_TIME_EXCEEDED ? 'icmp-time-exceeded' : 'icmp-unreachable',
+        dev: dev.id, from: frame.ip.src, code: icmp.code, seq: icmp.seq, vlan: vid
+      });
     }
   }
 

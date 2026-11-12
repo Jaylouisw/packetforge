@@ -2618,6 +2618,14 @@
       case 'icmp-reply': return e.dev + ' sending echo-reply to ' + e.to;
       case 'icmp-received': return e.dev + ' got echo-reply from ' + e.from;
       case 'drop': return 'DROP (' + (e.reason || '') + ')';
+      // The two events ICMP errors brought with them (#1484): a router saying a packet could not go on, and a
+      // traceroute probe aimed at one hop. Both used to fall through to their bare type name in the log.
+      case 'icmp-error': {
+        const what = e.reason === 'time-exceeded' ? 'TTL expired' : 'unreachable';
+        return 'ICMP ' + what + ' ' + (e.dev || '?') + '/' + (e.iface || '?') + '  ' +
+          (e.from || '?') + ' → ' + (e.to || '?') + '  about ' + (e.aboutDst || '?');
+      }
+      case 'traceroute-probe': return 'PROBE TTL ' + (e.ttl == null ? '?' : e.ttl) + '  → ' + (e.dst || '?');
       case 'acl-deny': return 'ACL ' + (e.acl == null ? '?' : e.acl) + ' DENY ' + e.dir + ' on ' +
         (e.dev || '') + '/' + (e.iface || '') +
         (e.src ? '  ' + e.src + ' → ' + e.dst : '');

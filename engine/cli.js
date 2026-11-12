@@ -149,6 +149,8 @@ class CliSession {
           out.push.apply(out, this._link(tokens.slice(1)));
         } else if (head === 'links') {
           out.push.apply(out, this._links());
+        } else if (head === 'traceroute' || head === 'tracert') {
+          out.push.apply(out, this._traceroute(tokens.slice(1)));
         } else if (head === 'exit' || head === 'logout' || head === 'quit') {
           // stays in exec
         } else if (head === 'help' || head === '?') {
@@ -2319,6 +2321,25 @@ class CliSession {
   _endpointName(end) {
     const dev = this.topo.getDevice(end.deviceId);
     return (dev ? dev.name : end.deviceId) + ':' + end.iface;
+  }
+
+  _traceroute(tokens) {
+    const out = [];
+    const ip = tokens[0];
+    if (!ip || !net.isIp(ip)) return ['% Invalid traceroute target: ' + (ip || '(none)')];
+    if (!this.sim) return ['% Simulator not attached'];
+    out.push('Type escape sequence to abort.');
+    out.push('Tracing the route to ' + ip);
+    const res = this.sim.traceroute(this.device.id, ip);
+    for (const hop of res.hops) {
+      const addr = hop.address || '*';
+      if (hop.reached) out.push(' ' + hop.ttl + '  ' + addr + '  destination reached');
+      else if (hop.reason === 'time-exceeded') out.push(' ' + hop.ttl + '  ' + addr);
+      else if (hop.reason === 'unreachable') out.push(' ' + hop.ttl + '  ' + addr + '  !H  host unreachable');
+      else out.push(' ' + hop.ttl + '  *  no reply');
+    }
+    if (!res.success) out.push('% destination not reached after ' + res.hops.length + ' hops');
+    return out;
   }
 
   // ---------- show ----------

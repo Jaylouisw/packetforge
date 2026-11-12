@@ -191,9 +191,11 @@ Two different questions, and the forwarding path has to ask the first one first:
 | Verdict | Behaviour | Where |
 |---|---|---|
 | **Modelled** | Echo request → echo reply, with sequence numbers, per-reply success and a computed round trip. | `engine/simulator.js:2031-2090` |
-| **Modelled** | TTL starts at 64, decrements per router, and expiring TTL drops the packet with an event. | `engine/simulator.js:1979-1983` |
-| **Absent** | **Every other ICMP type.** There is no destination-unreachable, no time-exceeded, no redirect, no parameter-problem. A black-holed packet and a TTL-expired packet both look like silence to `ping`; only the event log tells you which. | `engine/net.js:81-82` |
-| **Absent** | `traceroute`. Nothing in the engine is designed for it, and without time-exceeded there is nothing to build it on. | — |
+| **Modelled** | TTL starts at 64, decrements per router, and an expiry sends **ICMP type 11 (time exceeded, code 0)** back to the sender from the router's address on the ingress side. | `engine/simulator.js` `_forwardL3`, `_icmpErrorTo` |
+| **Modelled** | A router with no route to the destination sends **ICMP type 3 (destination unreachable, code 0)** instead of dropping silently. | `engine/simulator.js` `_icmpErrorTo` |
+| **Modelled** | An ICMP error is never sent about an ICMP error, and never to a broadcast source — the guard that stops a routing loop becoming a packet storm. | `engine/simulator.js` `_icmpErrorTo` |
+| **Modelled** | `traceroute <ip>` from the CLI, and `Simulator.traceroute()`: TTL-1, TTL-2, … probes; each hop that expires one answers, the destination answers with an echo reply, and a silent hop prints `*`. A destination-unreachable stops the trace with a refusal rather than a timeout, as a real one does. | `engine/cli.js` `_traceroute`, `engine/simulator.js` `traceroute` |
+| **Absent** | **Redirect, parameter-problem, source-quench, timestamp**, and ICMP fragmentation-needed for path-MTU discovery. Still absent: per-hop latency in `traceroute` (hop RTT is computed only for echo request/reply pairs, and an error is a different frame), so hops are reported by address and reason, not by milliseconds. | `engine/net.js` |
 
 ### 3.4 Routing and administrative distance
 

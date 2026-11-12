@@ -129,6 +129,10 @@ const ETH_IPV4 = 'ipv4';
 const ETH_IPV6 = 'ipv6';
 const ETH_ND = 'nd';          // ICMPv6 neighbour solicitation / advertisement
 const ICMP_ECHO_REQUEST = 8;
+// Error types. Until these existed the engine dropped an expired packet silently, so a
+// traceroute could only ever show timeouts: the hop that killed the packet never said so.
+const ICMP_DEST_UNREACH = 3;
+const ICMP_TIME_EXCEEDED = 11;
 const ICMP_ECHO_REPLY = 0;
 
 module.exports = {
@@ -137,5 +141,6 @@ module.exports = {
   networkOf, broadcastOf,
   sameSubnet, ipInSubnet, isIp,
   macToInt, intToMac, isBroadcastMac, isMulticastMac, normalizeMac,
-  ETH_ARP, ETH_IPV4, ETH_IPV6, ETH_ND, ICMP_ECHO_REQUEST, ICMP_ECHO_REPLY
+  ETH_ARP, ETH_IPV4, ETH_IPV6, ETH_ND, ICMP_ECHO_REQUEST, ICMP_ECHO_REPLY,
+  ICMP_DEST_UNREACH, ICMP_TIME_EXCEEDED
 };
