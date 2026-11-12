@@ -68,6 +68,62 @@ test('no spanning-tree <other thing> leaves the bridge priority alone', () => {
   }
 });
 
+test('no channel-group <id> removes that group, not the one the port is really in', () => {
+  // The id was thrown away by the dispatcher: `no channel-group 9999` was answered as `no channel-group`, so a
+  // technician who mistyped a bundle id removed the port from the bundle it was actually carrying traffic on
+  // (#1510). A `no` that names a thing has to be a statement about that thing.
+  const { run, dev } = lab('generic-switch');
+  run('interface Fa0/1');
+  run('channel-group 2 mode active');
+  const before = JSON.stringify(dev.config.lags);
+
+  const wrong = run('no channel-group 9999');
+  assert.match(wrong, /Invalid channel group id/i, 'an id outside 1-4096 is refused, not acted on: ' + wrong);
+  assert.strictEqual(JSON.stringify(dev.config.lags), before, 'and nothing changed');
+
+  const other = run('no channel-group 5');
+  assert.match(other, /not in channel group 5/i, 'a group the port is not in is named back: ' + other);
+  assert.match(other, /it is in group 2/i, 'and so is the group it *is* in: ' + other);
+  assert.strictEqual(JSON.stringify(dev.config.lags), before, 'still nothing changed');
+
+  const right = run('no channel-group 2');
+  assert.match(right, /removed from channel group 2/i, 'the named group is the one that goes: ' + right);
+  assert.deepStrictEqual(Object.keys(dev.config.lags), [], 'and it is gone');
+  assert.strictEqual(dev.interfaces.get('Fa0/1').lag, undefined, 'the port is out of the bundle');
+});
+
+test('the bundle table is ordered like a list of numbers', () => {
+  const { run } = lab('generic-switch');
+  // One port per bundle: a second `channel-group` on the same port is a move, not a second membership.
+  const groups = [[100, 'Fa0/1'], [2, 'Fa0/2'], [10, 'Fa0/3']];
+  for (const [id, port] of groups) {
+    run('interface ' + port);
+    run('channel-group ' + id + ' mode active');
+  }
+  const table = run('show etherchannel summary');
+  const order = (table.match(/^(\d+)\s+LACP/gm) || []).map(function (line) {
+    return Number(line.trim().split(/\s+/)[0]);
+  });
+  assert.deepStrictEqual(order, [2, 10, 100],
+    'a technician reads the table as a list of bundle ids, not as sorted strings: ' + order.join(','));
+});
+
+test('a port is in exactly one bundle, so a second channel-group moves it', () => {
+  // The engine used to add the port to the new group and leave it in the old one, so one cable appeared as a member
+  // of every bundle it had ever been put in and `show etherchannel summary` listed it three times (#1510).
+  const { run, dev } = lab('generic-switch');
+  run('interface Fa0/1');
+  run('channel-group 2 mode active');
+  const moved = run('channel-group 10 mode active');
+  assert.match(moved, /moved from channel group 2 to 10/i, 'the move has to be said out loud: ' + moved);
+  assert.deepStrictEqual(Object.keys(dev.config.lags), ['10'], 'only the new bundle holds the port');
+  assert.deepStrictEqual(dev.config.lags['10'].members, ['Fa0/1'], 'and it is in it once');
+
+  const table = run('show etherchannel summary');
+  const occurrences = (table.match(/Fa0\/1\(/g) || []).length;
+  assert.strictEqual(occurrences, 1, 'one port appears in one bundle, not in every bundle it ever joined: ' + table);
+});
+
 test('the set form and the no form give the same answer to the same concept', () => {
   // `spanning-tree vlan 10` has its own answer - this model elects once, not per VLAN - and the `no` form called
   // the same concept an unknown word. Two answers to one question is how the split this file exists for starts up

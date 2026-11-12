@@ -940,7 +940,10 @@ class CliSession {
       if (cannotBundle) return [cannotBundle];
       out.push.apply(out, this._channelGroup(tokens.slice(1), iface));
     } else if (head === 'no' && tokens[1] === 'channel-group') {
-      out.push.apply(out, this._channelGroup(['remove'], iface));
+      // The word after `channel-group` used to be thrown away here, so `no channel-group 9999` was answered as
+      // `no channel-group` and removed the port from whatever bundle it was really in - the destructive kind of
+      // "a `no` that names one thing must not remove another" (#1510).
+      out.push.apply(out, this._channelGroup(['remove'].concat(tokens.slice(2)), iface));
     } else if (head === 'speed') {
       out.push.apply(out, this._speed(tokens.slice(1), iface));
     } else if (head === 'no' && tokens[1] === 'speed') {
@@ -1718,6 +1721,21 @@ class CliSession {
       const was = Object.keys(dev.config.lags).filter(function (id) {
         return (dev.config.lags[id].members || []).indexOf(iface.name) !== -1;
       });
+      // A named group is a statement about that group, and it was being ignored: `no channel-group 9999` removed
+      // the port from the group it was really in, which is a `no` that names one thing removing another - and a
+      // destructive one, because the port leaves a bundle it was carrying (#1510). The bare form keeps its old
+      // meaning, "whatever it is in", because that is what a technician types when they do not remember.
+      if (t[1] !== undefined) {
+        const channelId = Number(t[1]);
+        if (!/^\d+$/.test(t[1]) || !(channelId >= 1) || channelId > 4096) {
+          return ['% Invalid channel group id "' + tokens[1] + '": a channel group is identified by a number, ' +
+            '1-4096 (e.g. `no channel-group 1`)'];
+        }
+        if (was.indexOf(String(channelId)) === -1) {
+          return ['% ' + iface.name + ' is not in channel group ' + channelId +
+            (was.length ? ': it is in group ' + was.join(', ') : ': it is not in any channel group')];
+        }
+      }
       if (!was.length) return ['% ' + iface.name + ' is not in a channel group'];
       const gone = [];
       for (const id of was) {
@@ -1754,6 +1772,22 @@ class CliSession {
     const existing = dev.config.lags[id];
     const g = existing || { mode: mode, hashPolicy: 'l2', members: [] };
     const out = [];
+    // A port is in exactly one bundle, so `channel-group 10` on a port already in group 2 is a **move**, which is
+    // what it is on IOS. It used to add the port to the second group as well, so one cable appeared as a member of
+    // every bundle it had ever been put in and `show etherchannel summary` listed it three times - a state no
+    // switch can be in, invented by a command that had already been typed correctly (#1510).
+    const elsewhere = Object.keys(dev.config.lags).filter(function (other) {
+      return String(other) !== String(id) &&
+        (dev.config.lags[other].members || []).indexOf(iface.name) !== -1;
+    });
+    for (const other of elsewhere) {
+      const l = dev.config.lags[other];
+      l.members = (l.members || []).filter(function (m) { return m !== iface.name; });
+      if (!l.members.length) delete dev.config.lags[other];
+    }
+    if (elsewhere.length) {
+      out.push('Interface ' + iface.name + ' moved from channel group ' + elsewhere.join(', ') + ' to ' + id);
+    }
     if (existing && existing.mode && existing.mode !== mode) {
       // A group is one object: its mode belongs to every member. Changing it from one port silently rewrote
       // what the other ports were configured with, and `show running-config` quietly reprinted them all with
@@ -3723,7 +3757,10 @@ class CliSession {
         }
       }
       const lags = dev.config.lags || {};
-      const ids = Object.keys(lags).sort();
+      // Bundle ids are numbers, so the table is ordered like one: plain `.sort()` on the keys gave `10, 100, 2`,
+      // because keys are strings. `show access-lists` already sorts with a numeric comparator; this is the same
+      // rule for the same reason (#1510).
+      const ids = Object.keys(lags).sort(function (a, b) { return Number(a) - Number(b); });
       if (!ids.length) {
         out.push('% No link aggregation groups configured');
       } else {
