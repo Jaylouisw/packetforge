@@ -323,7 +323,7 @@ models that are not in it (a file it cannot parse is left untouched and reported
 belongs to `missing-devices.js`, which validates its flags. `import-devices.js`
 accepts `--all`, `--apply`, `--write`, `--upgrade` and `--json` and **ignores
 anything else silently** — measured, `node scripts/import-devices.js --stubs` prints
-`Scanned 49 file(s), 670 spec(s)` / `Would add: 0  duplicates: 670` and exits **0**,
+`Scanned 49 file(s), 670 spec(s)` / `Would add: 0  duplicates: 670  rejected: 0` and exits **0**,
 i.e. it performs a normal import and writes no skeleton at all.
 
 To close the loop on a merged request, reference the issue in the commit
