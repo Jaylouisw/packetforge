@@ -222,6 +222,23 @@ instant — nothing runs a clock between questions. A table learned in run 1 is 
 | **Limited** | **An echo is answered only for an address owned by the interface it arrived on.** `_handleLocalIp()` asks `dev.ownsIpOn(ingress, dst)` and drops anything else with the event reason `echo for unknown local IP`. Measured on a two-port router (`10.0.12.2/24` on `Gi0/0`, `10.9.9.1/24` on `Gi0/1`, both cabled): a host on the far subnet pings `10.9.9.1` → 4/4; a router across the link pings the same address → 0/4, **even though `show ip route` carries the route and `show ip interface brief` says `up up`**; a *host behind* that router is reached 4/4, because routed traffic never enters this path. The same rule explains why a device cannot ping its own non-ingress address — the echo leaves the wire and nothing answers. Bridge-group members are the exception: an address on one `lan` port answers an echo arriving on another. | `engine/simulator.js` `_handleLocalIp()` |
 | **Absent** | **Every other ICMP type.** There is no destination-unreachable, no time-exceeded, no redirect, no parameter-problem. A black-holed packet and a TTL-expired packet both look like silence to `ping`; only the event log tells you which. The `traceroute` command does not change this: it walks the routing tables and prints the path, it does not send TTL-limited probes. | `_traceroute()` at `engine/cli.js:7436` — this row cited `engine/net.js:81-82`, which is hex conversion, then `cli.js:6593` (which is `show vrrp`), then `cli.js:7150`, which is DNS answer selection |
 | **Modelled** | `traceroute <dst> [at <ms>]` (and `tracert`) walks `routeTo()` hop by hop and prints each hop's address, device and cumulative one-way delay. TTL expiry is not involved: it reports the path the routing tables select, not a sequence of ICMP time-exceeded replies. `at <ms>` rebuilds the control planes at that instant first, so a trace before convergence stops at the hop with no route yet and names the process and its ready time. | `engine/simulator.js` `tracePath()`, `engine/cli.js` `_traceroute()` |
+**Both kinds of silence measured, on one box.** Two different failures, identical console output — four
+`Request timed out` lines and `Success rate is 0 percent (0/4)` — told apart only by the event log:
+
+```
+$ ping 10.0.12.9                 # in-subnet, nobody answers ARP
+  5  2     ping         -   src d1, dst 10.0.12.9, seq 0
+  6  2     arp-request  R1  on Gi0/0, vlan 1
+$ ping 10.0.3.1                  # no route at all
+  5  2     ping   -   src d1, dst 10.0.3.1, seq 0
+  6  2     drop   R1  no route to 10.0.3.1
+```
+
+That is the cost of having no destination-unreachable: the reply that would have said `Network
+unreachable` is the one this engine does not send. And a TTL expiry cannot be provoked from the console
+at all — `ping` has no `ttl` option (`% Incomplete command: ping <dst> [count <n>] [at <ms>|converged]`),
+so the row above measured it by handing `_forwardL3()` a frame with `ttl: 1`, not by typing a command.
+
 | **Modelled — one refresh, three doors** | `ping`, `traceroute` and `openFlow` (`flow open`) all rebuild the same control planes before answering: STP, PoE, LLDP/RAs, **VRRP**, **DHCP**, OSPF, BGP. `openFlow()` was missing VRRP and DHCP, which made a flow to a virtual IP fail with "no response" on a fresh simulator while a ping to the same address succeeded — the election had never run, so nobody owned the VIP. VRRP state is sticky, so the bug only showed when the flow came first. `test/flow-vip.test.js` pins the agreement, and every case in it starts from a fresh `Simulator` for exactly that reason. | `engine/simulator.js` `openFlow()`, `tracePath()`, `ping()` |
 
 ### 3.3 Routing and administrative distance
