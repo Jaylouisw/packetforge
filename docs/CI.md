@@ -341,9 +341,33 @@ misleads: `BGP-POLICY.md` and `UPSTREAM-DESIGN.md` are design documents, so they
 does not raise yet (`W_SINGLE_HOMED`, `E_NAT_EGRESS_MISMATCH`, `MED_MAX`, `WELL_KNOWN_COMMUNITIES`)
 deliberately, in a column headed *this design changes it to*. Grep for each one, and treat an absence as
 a finding **only** on a page that describes what the engine does today — `CLI.md`, `LINK-STATE.md`,
-`DEVICE_REGISTRY.md`, `PHYSICAL_LAYER.md`. The same sweep over this tree finds every such code present in `engine/`
-except one: `LINK-STATE.md` mentions `E_CONVERGING` to say a reader will *not* find it here — the sentence
-is about an absence, which is the one place a bare existence check cannot tell diligence from drift.
+`DEVICE_REGISTRY.md`, `PHYSICAL_LAYER.md`. Run over the whole tree the sweep answers **169** distinct `E_`/`W_` codes in `engine/`, `server/`, `web/`
+and `scripts/`, **28** distinct codes cited that no source file raises, and **33** page-and-code lines —
+the difference because `E_CONVERGING` is named on three pages and the design codes on two. Every absence
+is accounted for: **26** are `UPSTREAM-DESIGN.md`'s "this design changes it to" column (16 `E_`, 10 `W_`),
+**1** is `E_PATCH_CORD_NOT_A_BRIDGE` in `HYBRID-PATCH.md` as a proposed check on `polishBridge`, and **1**
+is `E_CONVERGING`, which `LINK-STATE.md` mentions in order to say a reader will *not* find it here — the
+sentence is about an absence, which is the one place a bare existence check cannot tell diligence from
+drift. So the sweep's answer is not "zero", it is "zero on the pages that describe today":
+
+```bash
+node -e '
+const fs = require("fs"), path = require("path");
+function walk(d, o = []) {
+  for (const e of fs.readdirSync(d, { withFileTypes: true }))
+    if (e.isDirectory()) walk(path.join(d, e.name), o);
+    else if (e.name.endsWith(".js")) o.push(path.join(d, e.name));
+  return o;
+}
+const CODE = /\b[EW]_[A-Z0-9]+(?:_[A-Z0-9]+)*\b/g;
+const src = ["engine","server","web","scripts"].flatMap(d => walk(d))
+  .map(f => fs.readFileSync(f, "utf8")).join("\n");
+const have = new Set(src.match(CODE) || []);
+for (const doc of fs.readdirSync("docs").filter(f => f.endsWith(".md")))
+  for (const c of new Set(fs.readFileSync(path.join("docs", doc), "utf8").match(CODE) || []))
+    if (!have.has(c)) console.log(doc, c);'
+```
+
 
 And a warning about the first check, because it cost this page a full pass of false confidence: as
 originally written the separator test was `/^\|[\s:-|]+\|$/`, whose character class `[:\-|]` is the
@@ -623,13 +647,13 @@ queue that lost its arms gets them back in one tick instead of five at a time.
   **None of these readings is a reading of `main`.** They were taken in the working tree, which sits on
   branch `fix/sfp-plus-connectors`, and that branch diverged from `origin/main` at `083e2ba1`
   (2026-11-08 16:58:44) — at the time of the fourth reading it was **382 ahead and 361 behind**, and
-  now reads **567 ahead and 384 behind** (after a fresh `git fetch`, which moved the behind-side
+  now reads **568 ahead and 384 behind** (after a fresh `git fetch`, which moved the behind-side
   from 361 to 373 — main's tip is `f370b893`, #1450); either way not one of the commits above is an ancestor of
   `origin/main`. Check any of them before you quote it:
 
   ```bash
   git branch --show-current                              # fix/sfp-plus-connectors, not main
-  git rev-list --left-right --count HEAD...origin/main    # 567  384
+  git rev-list --left-right --count HEAD...origin/main    # 568  384
   git merge-base --is-ancestor d4319d27 origin/main || echo "not on main"
   ```
 
