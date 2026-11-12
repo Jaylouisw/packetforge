@@ -152,10 +152,14 @@ Windows, and the crash swallowed the exit code — a refused run reported succes
 does that: `grep -n 'process.exit' scripts/request-queue.js scripts/sweep-device-requests.js` finds four and
 one, and `exitCode` appears in neither. So the deliberate code is right and the mechanism loses it.
 
-**How to read those exit codes, because the obvious way lies.** In this shell `$?` reports **0 even when the
-command failed** — `false; echo $?` prints `0`, and so does `node -e 'process.exit(3)'; echo $?` — while `&&`
-and `||` still see the real status (`node -e 'process.exit(3)' && echo zero || echo nonzero` prints `nonzero`).
-So an exit code has to be read one of two ways, or a correct page will get "corrected":
+**How to read those exit codes.** `&&` and `||` see the real status — `node -e 'process.exit(3)' && echo zero ||
+echo nonzero` prints `nonzero` — and that is the form to use, because `$?` is easy to lose two ways. A **pipeline**
+reports the status of its *last* command, so `grep … | wc -l` answers 0 however the grep went. And an earlier shell
+wrapper on this project answered 0 outright, which is where this warning came from — but re-measured in the current
+one it does not: `false; echo $?` prints `1`, `node -e 'process.exit(3)'; echo $?` prints `3`, `sh -c 'false;
+echo $?'` prints `1`. So the pipeline half is a property of shells and holds; the outright-zero half was a property
+of one wrapper and no longer does.
+So read the status with `&&`/`||` and not with `$?`, or a correct page will get "corrected":
 
 ```sh
 FORGEJO_TOKEN= node scripts/request-queue.js >/dev/null 2>&1 && echo zero || echo nonzero   # nonzero

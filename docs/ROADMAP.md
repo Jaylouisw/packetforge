@@ -26,8 +26,11 @@ grep -rnEi '\btls\b|createServer|https?\.request|net\.Socket' engine/*.js       
 ```
 
 Read the exit codes with care: the second command exits **1**, which is grep saying "no line matched", not
-grep failing. Under this repository's own shell `echo $?` prints `0` even after a failed command, so check the
-outcome with `&&`/`||` — `grep … >/dev/null && echo MATCHED || echo NOMATCH` — rather than reading `$?`.
+grep failing. Check that with `&&`/`||` — `grep … >/dev/null && echo MATCHED || echo NOMATCH` — rather than
+reading `$?`, which is easy to lose: a `grep` piped on into `wc -l` reports the `wc`'s status, a 0 however the
+grep went. (This page used to say `$?` answers 0 outright in this shell; a plain bash here prints the real code
+— `false; echo $?` gives `1` — so that half is gone, while the pipeline half is a property of shells and
+holds.)
 
 Line numbers on this page are this revision's, and they move whenever an edit lands above them — an
 `engine/cli.js` citation is the fastest-rotting thing here, so treat the symbol as the claim and the line as
@@ -36,9 +39,9 @@ an aid.
 Re-run that way on 2026-11-12 the first command reports **MATCHED** and the second **NOMATCH**, and the three
 hits are still at `engine/flow.js:19`, `:20` and `:29` — all three comments, two stating the absences and the
 third explaining that MSS options "all eat into the same budget". A presence would look different: it would be
-code. The same run shows why the advice matters: appending `; echo rc=$?` to that second grep prints `rc=0` for a
-command that matched nothing, while the `&&`/`||` form beside it prints NOMATCH — same command, two answers, and
-only one of them is about the repository.
+code. The same run shows why the advice matters: piping that second grep into `wc -l` prints `0` for a command that
+matched nothing, while the `&&`/`||` form beside it prints NOMATCH — same command, two answers, and only one of
+them is about the repository.
 
 So "no congestion window, no retransmission timer, no SACK, no TIME_WAIT, no window scaling, no ICMP
 port-unreachable" and "sockets, HTTP and TLS remain absent" are still true, and the first line of evidence is
