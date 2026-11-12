@@ -2158,6 +2158,11 @@ class CliSession {
     if (converging) {
       out.push('% ' + converging + (res.runAtMs === null ? '' : ' at t=' + res.runAtMs + ' ms'));
     }
+    // And why an echo never came back, in the engine's words rather than "Request timed out" alone. The reason has
+    // been recorded for every lost echo since the exchange was written; the console printed the timeout and threw
+    // the reason away, which is the worst possible answer to "what went wrong" (#1485).
+    const lost = require('./simulator').pingLossSentence(res.replies);
+    if (lost) out.push('% ' + lost);
     return out;
     } finally {
       // Whatever the ping did or failed to do, the session is left at the instant it arrived with.
@@ -2825,25 +2830,10 @@ class CliSession {
     return text;
   }
 
-  // "3 drops (no route to 10.0.0.99 x2, link down x1)" - reasons longest-first, then a count of whatever
-  // did not fit, so a port with forty distinct reasons cannot turn one block into a wall.
+  // "3 drops (no route to 10.0.0.99 x2, link down x1)" - one phrasing, in engine/simulator.js `dropsSentence()`,
+  // because a ping now says the same thing about the same fact and two copies drift (#1417, #1485).
   _dropSummary(drops, limit) {
-    if (!drops || !drops.total) return '';
-    const max = limit || 3;
-    const pairs = Object.keys(drops.byReason || {})
-      .map(function (why) { return [why, drops.byReason[why]]; })
-      .sort(function (a, b) { return (b[1] - a[1]) || a[0].localeCompare(b[0]); });
-    // A reason is prose and some of it has brackets of its own - `ACL 101 denied (in)` - which printed inside the
-    // summary's own brackets produced `2 drops (ACL 101 denied (in) x2)`: the list closes early for any reader who
-    // parses it, and nests for the one who does not. A reason that brings its own brackets is quoted instead, so
-    // the bracketed list stays one level deep whether it is read by a person or split by a script (#1417).
-    const shown = pairs.slice(0, max).map(function (p) {
-      const why = /[()"]/.test(p[0]) ? '"' + p[0].replace(/"/g, "'") + '"' : p[0];
-      return why + (p[1] > 1 ? ' x' + p[1] : '');
-    });
-    const rest = pairs.length - shown.length;
-    return drops.total + (drops.total === 1 ? ' drop' : ' drops') +
-      (shown.length ? ' (' + shown.join(', ') + (rest > 0 ? ', and ' + rest + ' more reason' + (rest === 1 ? '' : 's') : '') + ')' : '');
+    return require('./simulator').dropsSentence(drops, limit);
   }
 
   // "Is this port still somewhere a frame can go, and if not why" - the sentence both tables append to a

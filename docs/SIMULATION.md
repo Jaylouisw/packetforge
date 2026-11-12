@@ -45,7 +45,7 @@ first.
 **Modelled**
 
 - A frame is a plain object (`{dstMac, srcMac, etherType, ip, icmp, arp, l4, flow}`),
-  built by `ethFrame()` at `engine/simulator.js:78`.
+  built by `ethFrame()` at `engine/simulator.js:119`.
 - Transmissions go on a FIFO array and `_run()` drains it synchronously, one
   `step++` per delivery (`engine/simulator.js:1718`). There is no timer, no
   coroutine and no scheduling: a run is a single-threaded loop that ends when the
@@ -550,7 +550,7 @@ actually true.
 | Assumption | Reality | Where |
 |---|---|---|
 | "It's a TCP/IP stack." | There is a tiny TCP model — three-way handshake, MSS from path MTU, cumulative ACKs, four-way close — and nothing else: no congestion window, no retransmission timer, no SACK, no TIME_WAIT, no window scaling, no ICMP port-unreachable for stray UDP. | `engine/flow.js:19-24`, `engine/simulator.js:2249` |
-| "Traffic starts connections." | Only an explicit API call does. `openFlow()` is invoked by the server on `POST /flows`; no packet ever triggers a connection on its own. | `engine/simulator.js:3551` |
+| "Traffic starts connections." | Only an explicit API call does. `openFlow()` is invoked by the server on `POST /flows`; no packet ever triggers a connection on its own. | `engine/simulator.js:3592` |
 | "Services respond." | A capability only registers **listeners** — `http-server` means "ports 80 and 443 answer SYN" (`engine/flow.js:77-85`). There is no HTTP request, no TLS handshake, no SSH banner, no FTP, no SMTP. A closed port answers RST, which is the whole application layer. | `engine/simulator.js:2546-2560` |
 | "Congestion happens." | Nothing is ever dropped because of load. There are no queues, no buffers, no contention, no tail drop, no AQM. A link at 100 % of its rate behaves exactly like an idle one. | — |
 | "Loss happens." | Nothing is lost except by an explicit rule: VLAN, ACL, STP, PoE, TTL, no route, NAT failure. A cable 10× over its reach still delivers every packet. | — |

@@ -655,6 +655,60 @@ if it were live. A device with no zones says it is not a DNS server, and names t
 A resolver list is optional, and the report says what happens without one: a lookup asks *any* server in the lab,
 which is what `Simulator.resolveName()` does for a small lab.
 
+### Why an echo never came back
+
+A ping that fails used to say one thing and know another. The exchange records a reason for every lost echo — the
+earliest cause, ranked since #1431 — and the console printed the timeout and discarded it:
+
+```
+r1> ping 10.0.0.99 1
+Type escape sequence to abort.
+Sending 1, 100-byte ICMP Echos to 10.0.0.99, timeout is 2 seconds:
+.
+Success rate is 0 percent (0/1)
+Request timed out (seq 0)          <- everything the console said
+replies: [{ reason: "no ARP reply from 10.0.0.99" }]     <- everything it knew
+```
+
+That is the most-used command in the lab answering *something went wrong* to the question *what went wrong*. So the
+report now closes with one line, in the engine's own words:
+
+```
+r1> ping 10.0.0.99 1
+Type escape sequence to abort.
+Sending 1, 100-byte ICMP Echos to 10.0.0.99, timeout is 2 seconds:
+.
+Success rate is 0 percent (0/1)
+Request timed out (seq 0)
+% Echoes lost: 1 drop (no ARP reply from 10.0.0.99)
+```
+
+Four echoes are one statement about the path, not four; the count lives in the sentence:
+
+```
+r1> ping 10.0.0.10 4
+!!!!
+Success rate is 0 percent (0/4)
+Request timed out (seq 0)
+Request timed out (seq 1)
+Request timed out (seq 2)
+Request timed out (seq 3)
+% Echoes lost: 4 drops (peer port shut (R1 Gi0/0/0) x4)
+```
+
+The phrasing is the one the port counters already used — `3 drops (no route to 10.0.0.99 x2, link down)`, longest
+reason first, `xN` for a repeat, reasons past the third counted rather than hidden — and it lives in one function,
+`Simulator`'s `dropsSentence()`, which `show interfaces` and `ping` both call. A reason that brings its own brackets
+is quoted (`"ACL 101 denied (in)"`), so the list stays one level deep for a reader and does not end early for a
+parser.
+
+Two silences are deliberate. A path that is **still converging** is not loss and keeps its own sentence (`% Still
+converging: stp on s1 (ready at 30000 ms)`), never both. And a failure with **no recorded reason** prints nothing
+extra: the timeout line already said what happened, and inventing a cause for it would be worse than the gap.
+
+The browser's Simulate dialog draws the same sentence from the same rule, mirrored and checked case for case, so a
+percentage and its explanation cannot drift apart on one surface and agree on the other.
+
 ### Reading DHCP
 
 DHCP has been modelled end to end since it was: pools, ranges, exclusions, reservations, lease times, renewals

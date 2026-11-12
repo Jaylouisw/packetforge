@@ -48,6 +48,47 @@ function pingConvergenceSentence(replies) {
   return 'Still converging' + (who.length ? ': ' + who.join(', ') : '') +
     (ready !== null ? ' (ready at ' + ready + ' ms)' : '');
 }
+
+// "N drops (reasons)" — the phrasing `show interfaces` already used for a port's losses, lifted into one place so a
+// ping can use the same words for the same fact (#1485).
+//
+// Reasons are prose and some carry brackets of their own (`ACL 101 denied (in)`), which printed inside the summary's
+// own brackets close the list early for a parser and nest for a reader. A reason that brings its own brackets is
+// quoted instead, so the bracketed list stays one level deep either way (#1417).
+function dropsSentence(drops, limit) {
+  if (!drops || !drops.total) return '';
+  const max = limit || 3;
+  const pairs = Object.keys(drops.byReason || {})
+    .map(function (why) { return [why, drops.byReason[why]]; })
+    .sort(function (a, b) { return (b[1] - a[1]) || a[0].localeCompare(b[0]); });
+  const shown = pairs.slice(0, max).map(function (p) {
+    const why = /[()"]/.test(p[0]) ? '"' + p[0].replace(/"/g, "'") + '"' : p[0];
+    return why + (p[1] > 1 ? ' x' + p[1] : '');
+  });
+  const rest = pairs.length - shown.length;
+  return drops.total + (drops.total === 1 ? ' drop' : ' drops') +
+    (shown.length ? ' (' + shown.join(', ') + (rest > 0 ? ', and ' + rest + ' more reason' + (rest === 1 ? '' : 's') : '') + ')' : '');
+}
+
+// Why an echo never came back, in the engine's own words.
+//
+// The exchange has recorded a reason for every lost echo since it was written - `no route to 10.0.0.1`, `link down`,
+// `ACL 101 denied (in)`, `STP blocking` - and the console printed `Request timed out (seq 0)` and threw it away, so
+// the most-used command in the lab answered "something went wrong" to the question "what went wrong". A converging
+// path is not loss and is not counted here; it has its own sentence (#1383).
+function pingLossSentence(replies) {
+  const byReason = {};
+  let total = 0;
+  for (const r of (replies || [])) {
+    if (!r || r.success) continue;
+    const why = (typeof r.reason === 'string') ? r.reason.trim() : '';
+    if (!why || why === 'converging') continue;
+    total++;
+    byReason[why] = (byReason[why] || 0) + 1;
+  }
+  if (!total) return null;
+  return 'Echoes lost: ' + dropsSentence({ total: total, byReason: byReason });
+}
 const vrrpLib = require('./vrrp');
 const segmentLib = require('./segment');
 const mediaModel = require('./media');
@@ -4143,4 +4184,4 @@ class Simulator {
 }
 
 module.exports = { Simulator, ethFrame, arpRequest, arpReply, portPvid, speedToCost,
-  pingConvergenceSentence, PING_COUNT_DEFAULT, PING_COUNT_MAX };
+  pingConvergenceSentence, pingLossSentence, dropsSentence, PING_COUNT_DEFAULT, PING_COUNT_MAX };

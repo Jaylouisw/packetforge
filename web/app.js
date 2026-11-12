@@ -2488,6 +2488,31 @@
       (ready !== null ? ' (ready at ' + ready + ' ms)' : '');
   }
 
+  // The console's twin: why an echo never came back, in the engine's words. Mirrored from
+  // engine/simulator.js `pingLossSentence()` and checked against it case by case, because the dialog drew
+  // "Success rate 0%" and nothing else for a packet the engine had already explained (#1485).
+  function pingLossSentence(replies) {
+    const byReason = {};
+    let total = 0;
+    (replies || []).forEach(function (r) {
+      if (!r || r.success) return;
+      const why = (typeof r.reason === 'string') ? r.reason.trim() : '';
+      if (!why || why === 'converging') return;
+      total++;
+      byReason[why] = (byReason[why] || 0) + 1;
+    });
+    if (!total) return null;
+    const pairs = Object.keys(byReason).map(function (w) { return [w, byReason[w]]; })
+      .sort(function (a, b) { return (b[1] - a[1]) || a[0].localeCompare(b[0]); });
+    const shown = pairs.slice(0, 3).map(function (p) {
+      const why = /[()"]/.test(p[0]) ? '"' + p[0].replace(/"/g, "'") + '"' : p[0];
+      return why + (p[1] > 1 ? ' x' + p[1] : '');
+    });
+    const rest = pairs.length - shown.length;
+    return 'Echoes lost: ' + total + (total === 1 ? ' drop' : ' drops') +
+      (shown.length ? ' (' + shown.join(', ') + (rest > 0 ? ', and ' + rest + ' more reason' + (rest === 1 ? '' : 's') : '') + ')' : '');
+  }
+
   // What the Simulate dialog says about one ping answer. Pure, so test/ping-convergence.test.js can ask it the
   // awkward cases directly instead of driving a form (#1383): a converging path gets a sentence and no percentage,
   // a name that did not resolve is not 0% loss, and a plain answer gets a rate.
@@ -2510,11 +2535,14 @@
         (r.runAtMs === null || r.runAtMs === undefined ? '' : ' at t=' + esc(String(r.runAtMs)) + ' ms') +
         '</div>'
       : '';
+    // A percentage says how many echoes were lost; only the engine can say why. It already does, per echo.
+    const loss = pingLossSentence(replies);
+    const lossLine = loss ? '<div class="hint fail">' + esc(loss) + '</div>' : '';
     if (!replies.length) return resolvedLine + '<span class="fail">No echoes were sent</span>' + convergenceLine;
     if (ok === 0 && converging) return resolvedLine + convergenceLine;
     const rate = '<span class="' + (ok === sentCount ? 'ok' : 'fail') + '">Success rate ' +
       Math.round(ok / sentCount * 100) + '% (' + ok + '/' + sentCount + ')</span>';
-    return resolvedLine + rate + convergenceLine;
+    return resolvedLine + rate + convergenceLine + lossLine;
   }
 
   async function runPing() {
@@ -3133,6 +3161,7 @@
     pingTargetProblem: pingTargetProblem,
     pingCountProblem: pingCountProblem,
     pingConvergenceSentence: pingConvergenceSentence,
+    pingLossSentence: pingLossSentence,
     // The packet-log legend, exposed for the tests (issue #1475): the engine's event types are enumerated from
     // engine/ by the test, and a stub DOM cannot read a closure.
     describeEvent: describeEvent,

@@ -1582,3 +1582,55 @@ The seams are deliberate. To add a new **protocol** (e.g. DHCP or TCP), extend
 the simulator's `_tryProcessL3`/`_handleLocalIp` and add a CLI command. To add a
 new **device**, drop a JSON file in `devices/`. To add a new **UI panel**, touch
 `web/`. Each layer changes independently.
+
+### The command that knew why and said "timed out"
+
+`ping` is the first command anyone types in a lab, and it is the one that most often fails — an address not yet set, a
+cable not yet made, a VLAN not yet allowed. `Simulator.ping()` has recorded a reason for every lost echo since #1431
+ranked the causes by earliness, so the answer carried `no route to 10.0.0.99`, `no ARP reply from 10.91.0.10`,
+`peer port shut (R1 Gi0/0/0)`, `ACL 101 denied (in)`. The console printed one line per echo and dropped the reason:
+
+```
+Type escape sequence to abort.
+Sending 1, 100-byte ICMP Echos to 10.91.0.99, timeout is 2 seconds:
+.
+Success rate is 0 percent (0/1)
+Request timed out (seq 0)                        <- the whole answer
+```
+
+The mechanism and the view disagreed about what the answer was, and the view won because it is the one a person reads.
+This is the third instance of one species on this project: the packet log printed `flow-close` where it could have
+said which flow ended (#1475), `show ip arp` printed one confident row where two boxes had answered (#1473), and now
+`ping` printed a timeout where it could have said why. In each case nothing was *missing* from the model — the loss
+was in the translation layer, and it degraded silently, because a plausible sentence hides a missing one.
+
+**The fix is a sentence, and it had to be the right sentence.** `pingLossSentence()` in
+`engine/simulator.js` counts the lost echoes by the reason the engine already recorded and hands them to
+`dropsSentence()` — the phrasing `show interfaces` has used for port losses since #1417, lifted out of `cli.js` and
+into the engine so both callers reach one function rather than two copies:
+
+```
+% Echoes lost: 4 drops (peer port shut (R1 Gi0/0/0) x4)
+```
+
+Longest reason first, `xN` for repeats, reasons past the third counted rather than hidden, and a reason that carries
+its own brackets (`ACL 101 denied (in)`) quoted — because a reason printed inside the summary's brackets either nests
+for a reader or closes the list early for a parser, which is the bug #1417 fixed one layer up.
+
+Three deliberate silences, each of which is a rule rather than an omission:
+
+* **converging is not loss** — a path that is still settling gets `% Still converging: stp on s1 (ready at 30000 ms)`
+  and never a loss line, or a zero percent, that says packets were lost when none were sent (#1383);
+* **no reason, no sentence** — a failure the engine could not attribute prints nothing beyond the timeout line.
+  Inventing a cause to look complete is the defect, not the fix;
+* **one line per command, not per echo** — four failed echoes are one statement about the path, so the count lives in
+  the sentence instead of being repeated four times.
+
+The browser's Simulate dialog computes the same sentence with a mirror of the rule, and
+`test/ping-loss-reason.test.js` asks both surfaces the same ten cases — including a bracketed reason, five distinct
+reasons, a success mixed with a loss, a converging path and a reasonless failure — and fails if the strings differ by
+one character. A percentage says how much was lost; only the engine can say why, so the two are drawn together and
+tested together.
+
+The consolation of this species is that its fix is small: the fact was already computed and already correct. What it
+needs is a surface willing to print it, and a test that notices when it stops.
