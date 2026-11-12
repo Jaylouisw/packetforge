@@ -158,6 +158,7 @@ deliberate and one gap is not:
 | `node_modules/`, `npm-debug.log*` | yes | there are no dependencies, but a stray install should not be committed |
 | `/data/` | yes | boards saved by the server are **the user's work**, not the project's — a lab built from someone's own hardware must not land in the repository |
 | `*.log`, `*.pid`, `.tmp-*`, `*.swp`, `.DS_Store`, `Thumbs.db`, `.idea/`, `.vscode/` | yes | runtime and editor debris |
+| `.staged/` | **no** — and it is **tracked** | 589 JSON specs swept into an unrelated commit (`8e7b843d`). Nothing reads it: `grep -rn '\.staged' --include=*.js` finds no code and `loadCatalog()` is only ever pointed at `devices/`. Measured against `devices/`: 417 identical, 38 different, and 134 naming models the catalogue does not have — see `DO-NOT-USE.md` |
 | `tmp/` | **no** | there is no `tmp/` rule, so a probe script you leave behind shows up as untracked. Delete it before you commit — `git status --porcelain` is the checker, since nothing else looks |
 
 `docs/wiki/*.md` **is** tracked: the wiki pages are generated but committed, which is why changing a fact
@@ -299,7 +300,7 @@ minutes earlier (1,628 → 1,629), so a prose count can be stale before it is me
 - **A count in prose is a claim about one revision.** When you touch a sentence that quotes one, re-run
   the one-liner in the same edit; if you cannot, leave the count out rather than guess it.
 - **And it is a claim about one *branch*.** These numbers were measured in a working tree sitting on
-  `fix/sfp-plus-connectors`, which at the time of the last reading was **533 commits ahead of
+  `fix/sfp-plus-connectors`, which at the time of the last reading was **534 commits ahead of
   `origin/main` and 373 behind it** (the merge base is still `083e2ba1`) — so none of them is a
   statement about `main`. Six documentation pages
   exist on `main` and not here (`BUG_REPORTS.md`, `DEVICE_REQUEST_SWEEP.md`, `DEVICE_SCHEMA.md`,
@@ -308,7 +309,7 @@ minutes earlier (1,628 → 1,629), so a prose count can be stale before it is me
 
   ```bash
   git branch --show-current                              # fix/sfp-plus-connectors, not main
-  git rev-list --left-right --count HEAD...origin/main    # 533  378   (element 1 = ahead)
+  git rev-list --left-right --count HEAD...origin/main    # 534  378   (element 1 = ahead)
   git diff --diff-filter=A --name-only HEAD origin/main -- docs/   # pages only main has
   ```
 
