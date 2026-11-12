@@ -527,13 +527,13 @@ services, and a job that has to swap makes the whole queue slower.
   **None of these readings is a reading of `main`.** They were taken in the working tree, which sits on
   branch `fix/sfp-plus-connectors`, and that branch diverged from `origin/main` at `083e2ba1`
   (2026-11-08 16:58:44) — at the time of the fourth reading it was **382 ahead and 361 behind**, and
-  now reads **521 ahead and 376 behind** (after a fresh `git fetch`, which moved the behind-side
+  now reads **522 ahead and 376 behind** (after a fresh `git fetch`, which moved the behind-side
   from 361 to 373 — main's tip is `f370b893`, #1450); either way not one of the commits above is an ancestor of
   `origin/main`. Check any of them before you quote it:
 
   ```bash
   git branch --show-current                              # fix/sfp-plus-connectors, not main
-  git rev-list --left-right --count HEAD...origin/main    # 521  376
+  git rev-list --left-right --count HEAD...origin/main    # 522  376
   git merge-base --is-ancestor d4319d27 origin/main || echo "not on main"
   ```
 
@@ -753,20 +753,28 @@ services, and a job that has to swap makes the whole queue slower.
   run, forever. Comparing after normalising line endings, or running the check on Linux (where CI
   runs), is what makes it a signal.
 
-  **When the wiki is already in sync, the script crashes instead of saying so.** Measured twice in
-  one sitting: with nothing to publish, `node scripts/publish-wiki.js` copies the pages, runs
-  `git add`, then dies on
-  `Error: Command failed: git -c user.name=… commit --quiet -m Publish wiki from docs/wiki` with a
-  raw `child_process` stack trace. The cause is `core.autocrlf=true` again — the copy writes LF into a
-  CRLF checkout, `git add` normalises it straight back, and the commit finds nothing staged. So a
-  stack trace naming `git … commit` means **nothing to publish**, not a broken credential; a genuine
-  auth failure names `git clone` or `git push` instead. Read the command in the error before chasing
-  the wrong problem.
+  **"Already in sync" now has an answer, and on a CRLF host it cannot be reached.** The script grew an
+  explicit branch for it — `if (!changed.length && !removed.length)` prints `Wiki is already up to date
+  (N pages).` and exits **0** — but the comparison feeding that branch is a raw string compare of the
+  clone's file against `docs/wiki/`, so with `core.autocrlf=true` every page always differs and the
+  branch never fires. Re-measured against a **local bare repo seeded from `docs/wiki/` itself**
+  (`git init --bare`, copy the six files in, push, `PF_WIKI_REPO=file:///…`) — the same bytes, so a
+  correct compare would find nothing to do: all six pages still reported `updated`, and the run then
+  died on `Error: Command failed: git -c user.name=… commit --quiet -m Publish wiki from docs/wiki`
+  with a raw `child_process` stack trace, because `git add` normalised the LF copy straight back into
+  the CRLF checkout and found nothing staged. So a stack trace naming `git … commit` still means
+  **nothing to publish**, not a broken credential; a genuine auth failure names `git clone` or
+  `git push` instead. Read the command in the error before chasing the wrong problem.
 
-  **A failed run leaves its temp clone behind.** The script builds in
-  `%TEMP%\packetforge-wiki-<pid>` (five of them accumulated here before anyone looked), so a publish
-  that dies — auth prompt, nothing to commit — also litters. `ls -d $TEMP/packetforge-wiki-*` and
-  remove them when the numbers stop changing.
+  **Which runs leak their temp clone is not which runs fail.** The script builds in
+  `%TEMP%\packetforge-wiki-<pid>` and now removes it in a `finally`, so a run that **throws** — the
+  commit crash above — cleans up after itself (measured: no new directory). What it cannot clean up is
+  a run that leaves through `process.exit(0)` inside the `try`, because that ends the process without
+  unwinding: **`--dry-run` leaks one every time.** Measured: `packetforge-wiki-7716` left behind with a
+  full clone inside it (`.git` plus the six pages), while the crashing run left nothing. Eight such
+  directories were already sitting in `%TEMP%` before this measurement started — that count is the
+  honest answer to "how often does the dry run leak", and the fix is to delete them by hand:
+  `ls -d $TEMP/packetforge-wiki-*`.
 
   **The default HTTPS clone URL cannot authenticate in a non-interactive run.** The first real
   publish attempt died with `could not read Username for 'https://git.jayw.uk'` (no tty to prompt on);
