@@ -130,6 +130,24 @@ Two more measured details worth having in writing:
   s(c.dhcpTimers({config:{dhcpExchangeSec:-5}}))'
   ```
 
+  The same table was taken a third time on 2026-11-12 and again every row reproduces, so this is not a note
+  that was true once. Two further shapes are worth adding because they are the ones a reader would mis-quote:
+
+  | call | result |
+  |---|---|
+  | `vrrpTimers({ advertCs: 200 })` | `advertSec 2`, `masterDownMs 6609.375` |
+  | `vrrpTimers({ advertCs: 250 })` | `advertSec 2.5`, `masterDownMs 8109.375` — the sub-second dial the page promises |
+  | `vrrpTimers({ advertSec: 3, advertCs: 200 })` | `advertSec 3`, `masterDownMs 9609.375` — while `vrrp.advertInterval()` on the same object answers **2** |
+  | `ospfTimers({ config: { ospf: { helloSec: 2, exchangeSec: 3, spfDelaySec: 9 } } })` | `adjacentAtMs 5000`, `routesAtMs 14000` |
+  | `ospfTimers({ config: { ospfHelloSec: 2 } })` | unchanged — `helloSec 10`, `adjacentAtMs 11000`, `routesAtMs 16000`, with no warning |
+
+  The other paragraphs on this page rest on four literals, and each has a home: `num()` at
+  `engine/convergence.js:46` (`Number.isFinite(n) && n >= 0`, which is why `null` becomes `0` and `-5` does not),
+  the `E_ADVERT_RANGE` message built with `String(group.advertCs)` at `engine/vrrp.js:192` (hence `got 2.5` for the
+  string `'2.5'`), `'% Nothing in this lab runs a control plane that converges over time'` at `cli.js:7539`,
+  `'% Still converging at t=' …` at `cli.js:7341`, `'Network converges again at '` at `cli.js:7619`, and the
+  `ospf hello` refusal `'% Usage: ospf router-id <ip> | ospf area <id>'` at `cli.js:3998`.
+
   The dead-constant claim was re-measured the same way rather than trusted: `grep -rn stpHelloSec engine/ test/`
   answers exactly one hit, `engine/convergence.js:32`, which is the definition. Nothing reads it.
 - **"Lease" means two different numbers, and only one of them is a lifetime.** `dhcpTimers().leaseAtMs`
