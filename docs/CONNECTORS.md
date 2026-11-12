@@ -517,7 +517,7 @@ objects, because a hand-built port hides exactly the fields that decide this: `a
 `scupc1` against `ubiquiti/UF-Instant` `gpon0` throws `E_POLISH_MISMATCH` and its message names the cord
 (*"A hybrid patch cord (SMSCSX, sc-upc to sc-apc, 0.3 dB insertion loss) joins these two polishes: declare it
 on the link …"*), and the same pair with `{ patchCord: 'SMSCSX' }` links, carrying `patchCord: "SMSCSX"` on the
-returned link beside its ten other keys. The speed half of the same section reproduces too: an `sfp` port capped
+returned link beside its ten other keys. The speed example the wiki's getting-started page offers reproduces too: an `sfp` port capped
 `[100, 1000]` mated to an `sfp+` capped `[1000, 10000]` builds a link at `speedMbps: 1000`, so the "1G optic in
 a 10G cage comes up at 1G" example is a measurement rather than an intention.
 
@@ -528,7 +528,13 @@ Two things that deliberately do **not** change:
 - A cord whose ends are not the two cages in front of you is refused with
   `E_PATCH_CORD_ENDS`, and an unknown part number with `E_PATCH_CORD_UNKNOWN`.
   The cord is not a permission flag; it is a specific assembly with two specific
-  endfaces, and putting one on two UPC ports is the wrong part.
+  endfaces, and putting one on two UPC ports is the wrong part. Measured on the
+  `sc-upc` ↔ `sc-apc` pair above: `SMLCSX` (terminated `lc-upc` to `lc-apc`) is refused —
+  *"SMLCSX is terminated lc-upc to lc-apc and cannot join SC/UPC (sc-upc) to SC/APC (sc-apc)"* —
+  while `FCA-S2SR-SCASCU-02M`, the same two polishes terminated in the **opposite order**
+  (`sc-apc` to `sc-upc`), is accepted. So the ends are compared as a **set**, not a sequence:
+  a cord is not directional, and a page that described the check as "the two ends must match the
+  two ports in that order" would be wrong about a part that ships in the catalogue.
 
 Absent `patchCord` means ordinary cable, which is what every saved topology
 written before this existed records.
