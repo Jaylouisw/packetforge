@@ -708,7 +708,11 @@ Port type / connector audit
   offending ports:   0  (high 0, medium 0, low 0)
 
 Template ports whose connector nothing declares: 3108 port(s) in 140 spec(s)
+  The template names no connector/cage and no speedCaps, so each cage below is inferred from the
+  port name and rate. Nothing can contradict a datasheet here, because the spec states nothing.
     - arista/720XP-48Y6  48/48 template ports (e.g. Ethernet1 -> rj45)
+    - arista/7280SR2-48YC6  48/48 template ports (e.g. Ethernet1 -> sfp28)
+    - aruba/CX 6000 48G 4SFP  48/48 template ports (e.g. 1/1/1 -> rj45)
     ...
     ... and 125 more (see --json summary.undeclaredTemplateHardware)
 
