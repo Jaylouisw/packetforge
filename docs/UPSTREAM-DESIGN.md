@@ -316,7 +316,8 @@ hold two lines from the same provider. It also follows the precedent already set
 by `mediaId`/`lengthM`/`patchCord`, all of which describe the connection rather
 than either end. `Topology.connect()` already threads `opts` into `new Link()`
 (`topology.js:220`), so the plumbing is one line in, one line out
-(`serialize()` at `link.js:56`, restore at `topology.js:343`).
+(`serialize()` at `link.js:60`, restore at `topology.js:570` in `Topology.fromJSON()`, which rebuilds each
+link through `connect({force: true})` at `:596-605`).
 
 The local identity of a WAN — its name, address, preference — belongs to the
 *router*, and lives in device config (§4.4).
@@ -453,7 +454,8 @@ REST (`server/index.js`, next to `/validate-link` at line 350):
 CLI (`engine/cli.js`):
 
 - `ip route DEST MASK GW [IFACE] [DISTANCE]` — one optional numeric token after
-  the interface (`_ipRoute()` at `cli.js:3261`). `% Invalid distance` outside 1..255.
+  the interface (`_ipRoute()` at `cli.js:3269` in `HEAD`; the worktree carries uncommitted CLI work that
+shifts it). `% Invalid distance` outside 1..255.
 
   **Today that fourth word is refused outright**, so the work is replacing a refusal rather than
   widening a parse. Measured on a router with three free ports, for `250`, `1` and `256` alike:
@@ -514,7 +516,7 @@ Nothing above is **required**, so all 878 existing specs load unchanged (C5).
 
 | Field | Type | Default | Serialized |
 |---|---|---|---|
-| `service` | object \| null | `null` | yes — `serialize()` at `link.js:56` |
+| `service` | object \| null | `null` | yes — `serialize()` at `link.js:60` |
 | `state` | `'up' \| 'down' \| 'blocked'` | `'up'` | yes (already) — **now means something** |
 
 `state` becomes authoritative in the data path, which is a behaviour change:
@@ -923,7 +925,7 @@ will not fail over.
    for UI grouping and dual-role cages (`test/port-roles.test.js` must keep
    passing untouched).
 3. **Is `service` editable after `connect()`?** Recommendation: yes, via a
-   generalised `setLinkLength()` (`topology.js:241` → `patchLink`), because
+   generalised `setLinkLength()` (`topology.js:415` → `patchLink`), because
    "I bought a faster line" is the most common change a lab needs.
 4. **Where does `E_NAT_EGRESS_MISMATCH` live before NAT is egress-aware?** It can
    only be a *prediction* while `_forwardL3` translates before routing.
