@@ -7728,7 +7728,7 @@ VLAN  Name   Status  Ports
 ```
 
 `show vlan <id>` and `no vlan <id>` read **one** membership walk (`_vlanMap()`), so the ports a
-refusal names are exactly the ports the table lists — see `test/vlan-lifecycle.test.js` (44
+refusal names are exactly the ports the table lists — see `test/vlan-lifecycle.test.js` (46
 assertions), which also proves the domain is real by pinging across it and then separating the hosts
 by moving one port.
 
