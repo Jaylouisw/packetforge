@@ -149,14 +149,21 @@ SANbox 5800V), **10G FC** only on the 5800V's four ISLs, **64G** on G720 and MDS
 the DS-6630B's eight ICL ports. A "does FC negotiate down the whole ladder" test needs more than one device
 in the lab.
 
-| Device | Ports |
-|---|---|
-| QLogic 5800V | 20 device ports at 2/4/8G + 4 ISL ports at 10GFC |
-| Brocade G610, HPE SN3600B | 24 × 32G |
-| Brocade G720 | 56 × 64G |
-| Cisco MDS 9124V | 24 × multispeed 8/16/32/64G |
-| Cisco MDS 9148S | 48 × multispeed 2/4/8/16G |
-| Dell Connectrix DS-6630B | 96 × 32G + 8 × 128GFC |
+| Device | Ports | measured `speedCaps` (Mbps) |
+|---|---|---|
+| QLogic 5800V | 20 device ports at 2/4/8G + 4 ISL ports at 10GFC | 20 × `2125/4250/8500`, 4 × `8500/10519` |
+| Brocade G610, HPE SN3600B | 24 × 32G | 24 × `8500/14025/28050` (per model) |
+| Brocade G720 | 56 × 64G | 56 × `14025/28050/57800` |
+| Cisco MDS 9124V | 24 × multispeed 8/16/32/64G | 24 × `8500/14025/28050/57800` |
+| Cisco MDS 9148S | 48 × multispeed 2/4/8/16G | 48 × `2125/4250/8500/14025` |
+| Dell Connectrix DS-6630B | 96 × 32G + 8 × 128GFC | 96 × `8500/14025/28050`, 8 × `28050/112200` |
+
+The third column is the literal array each port carries, which is what makes drift visible: a device that
+gains a rung, or a marketing rate that disagrees with its ladder, shows up here as a changed string rather
+than as prose that still reads plausibly. Seven devices hold seven distinct arrays (the two 24 ×
+`8500/14025/28050` boxes share one), and the cage per device is fixed — G610/SN3600B/DS-6630B in
+`fc-sfp28` (DS-6630B's eight 128G ports in `fc-qsfp28`), G720 and MDS 9124V in `fc-sfpdd`, MDS 9148S and
+the 5800V in `fc-sfp`.
 
 The 5800V's 20G ISL figure is two 10GFC ports bonded, which this model expresses as two links
 rather than one 20G port.
