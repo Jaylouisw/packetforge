@@ -1407,13 +1407,20 @@ regression gate for "the policy layer did not break plain BGP".
 
 | Topic | RFC | Why it waits |
 |---|---|---|
-| Route reflection | RFC 4456 | needs `routeReflectorClient` (already reserved in `normalizePeer`) plus ORIGINATOR_ID/CLUSTER_LIST, i.e. two more attribute types and a cluster-list tiebreak |
-| Confederations | RFC 5065 | would make `no-export-subconfed` distinct from `no-export`; the attribute is parsed now so the data model does not have to change later |
-| Large communities | RFC 8092 | 12-octet values; the parser deliberately rejects 4-octet-AS forms of the 32-bit attribute instead of guessing |
-| `match ip address <acl>` | — | natural next step; `engine/acl.js` already provides `parseEntry`/`aclKind`, and route maps were placed in `dev.config.routeMaps` (not under `bgp`) so OSPF policy can share them |
+| Route reflection | RFC 4456 | needs `routeReflectorClient` (reserved in `normalizePeer` but read by nothing — §6.5) plus ORIGINATOR_ID/CLUSTER_LIST, i.e. two more attribute types and a cluster-list tiebreak |
+| Confederations | RFC 5065 | would make `no-export-subconfed` distinct from `no-export`; §5.2 specifies parsing it from the start so the data model does not have to change later — nothing parses it today (§5.4) |
+| Large communities | RFC 8092 | 12-octet values; §5.2 specifies that the parser rejects 4-octet-AS forms of the 32-bit attribute rather than guessing — there is no parser to check that against yet (§5.4) |
+| `match ip address <acl>` | — | natural next step; `engine/acl.js` already provides `parseEntry`/`aclKind` (both exported — check with `node -e "console.log(Object.keys(require('./engine/acl.js')).includes('parseEntry'), Object.keys(require('./engine/acl.js')).includes('aclKind'))"` — it prints `true true`), and §8.1 puts route maps in `dev.config.routeMaps` rather than under `bgp` so OSPF policy can share them — no such store exists yet (§8) |
 | `enforce-first-as` | practice, not RFC 4271 | see §6.5 |
 | `allowas-in` | — | RFC 4271 §9.1.2 declares it out of scope |
-| Damping, `minimum-route-age`, timers | RFC 2439 | needs a clock; `bgp.js` has none |
+| Damping, `minimum-route-age`, timers | RFC 2439 | needs a clock; `bgp.js` has none — `grep -n 'Date\|setTimeout' engine/bgp.js` prints nothing |
+
+Three of these rows used to be phrased in the present tense about code that does not exist — "the attribute is
+parsed now", "the parser deliberately rejects", "route maps were placed in `dev.config.routeMaps`". All three are
+now marked as what they are: the specified design, with the section that would make them true if it were built.
+The two claims that *are* true today were re-checked on 2026-11-12: `engine/acl.js` exports both `parseEntry` and
+`aclKind`, and `bgp.js` contains no clock (`grep -n 'Date\|setTimeout\|performance.now' engine/bgp.js` → nothing),
+which is why damping is a later layer rather than an omission.
 
 ---
 
