@@ -60,6 +60,11 @@
     mpo: { label: 'MPO', family: 'fibre' },
     console: { label: 'Console', family: 'console' },
     usb: { label: 'USB', family: 'console' },
+    // A V.35/RS-232 synchronous serial port is a *data* port, and the specs name it: the 2811 declares
+    // `connector: "serial"` on Se0/0/0 and Se0/0/1. Without this entry the label fell through to the unknown
+    // placeholder, so the faceplate of the router every lab starts with read "Console · Connector unknown · 2
+    // ports" over a WIC-2T (#1511).
+    serial: { label: 'Serial', family: 'serial' },
     coax: { label: 'Coax', family: 'other' },
     dsl: { label: 'DSL', family: 'other' },
     powerline: { label: 'Powerline', family: 'other' },
@@ -67,12 +72,15 @@
     unknown: { label: 'Connector unknown', family: 'other' }
   };
 
-  var FAMILY_ORDER = ['copper', 'combo', 'fibre', 'console', 'other'];
+  // Serial sits after console: it is a WAN port, not a management one, and it belongs with the specialist
+  // connectors at the end of the chassis rather than between the copper sockets (#1511).
+  var FAMILY_ORDER = ['copper', 'combo', 'fibre', 'console', 'serial', 'other'];
   var FAMILY_LABEL = {
     copper: 'Copper',
     combo: 'Combo',
     fibre: 'Fibre',
     console: 'Console',
+    serial: 'Serial',
     other: 'Other'
   };
   var FAMILY_RANK = {};
@@ -82,7 +90,7 @@
   // a 48-port is four, which is how the silkscreen looks and still fits a 340px
   // inspector. These are ceilings, not promises: plan() lowers the count when the
   // labels need the room (see Geometry below).
-  var COLUMNS = { copper: 12, combo: 6, fibre: 8, console: 2, other: 8 };
+  var COLUMNS = { copper: 12, combo: 6, fibre: 8, console: 2, serial: 4, other: 8 };
 
   // ---------------------------------------------------------------------------
   // Geometry — how much room a label actually gets
@@ -130,15 +138,19 @@
   function familyOf(cage, iface) {
     var known = CAGE_INFO[cage];
     if (known) return known.family;
-    // Some CPEs declare a console port with no connector; type is the fallback.
-    if (iface && (iface.type === 'console' || iface.type === 'serial')) return 'console';
+    // Some CPEs declare a console port with no connector at all; type is then the only word we have.
+    // Serial is not console - listing the two in one condition is what drew a WIC-2T's data ports as management
+    // ports, so the fallback now follows the type it is given rather than the nearest family (#1511).
+    if (iface && iface.type === 'console') return 'console';
+    if (iface && iface.type === 'serial') return 'serial';
     return 'other';
   }
 
   function resolveCage(iface) {
     var cage = iface.cage || iface.connector || null;
     if (cage) return String(cage).toLowerCase();
-    if (iface.type === 'console' || iface.type === 'serial') return 'console';
+    if (iface.type === 'console') return 'console';
+    if (iface.type === 'serial') return 'serial';
     return 'unknown';
   }
 
@@ -147,11 +159,21 @@
   // ---------------------------------------------------------------------------
   function fmtRate(mbps) {
     if (typeof mbps !== 'number' || !isFinite(mbps) || mbps <= 0) return '';
+    if (mbps >= 1000000) return trim3(mbps / 1000000) + 'T';
     if (mbps >= 1000) {
       var g = mbps / 1000;
       return (g % 1 === 0 ? g : g.toFixed(1)) + 'G';
     }
-    return mbps + 'M';
+    // Below a megabit this used to print "0.064M" and "0.0096M", so a serial line the console calls `64K` and a
+    // console line the operator calls 9600 baud both read as fractional megabits on the faceplate: two spellings
+    // of one speed, one of them unreadable. `engine/media.js` already has the rule (`formatSpeedMbps`); this is
+    // the same ladder, so the faceplate and `show interfaces` agree (#1511).
+    if (mbps >= 1) return trim3(mbps) + 'M';
+    return trim3(mbps * 1000) + 'K';
+  }
+
+  function trim3(v) {
+    return String(Math.round(v * 1000) / 1000);
   }
 
   function esc(s) {
@@ -755,6 +777,11 @@
     cageInfo: cageInfo,
     familyOf: familyOf,
     fmtRate: fmtRate,
+    // The resolver and the family fallback are the two places a port's words are decided, so they are named
+    // here: a faceplate that draws every connector in the catalogue correctly is worth being able to assert
+    // without a DOM (#1511).
+    resolveCage: resolveCage,
+    familyOf: familyOf,
     portsOf: portsOf,
     escape: esc,
     COLUMNS: COLUMNS,
