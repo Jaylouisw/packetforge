@@ -75,9 +75,22 @@ poeOut: hw.poeOut !== undefined ? hw.poeOut : (spec.poeOut !== undefined ? spec.
 
 `engine/cli.js` accepts either when it decides whether a port can source power, so a contributor may
 use whichever the surrounding file already uses; prefer the flat key in a new spec, because it is the
-form every example in this page shows and the one **55 of the 62** files that state a port PoE rate use
-— the other seven split into six that set it on `portTemplate` instead of per-port and the one nested file named above. The catalogue's other **1,599** files state no rate at
-all, and the engine infers one from the device class.
+form every example in this page shows and the one **55 of the 62** files that state a port PoE rate use.
+The other seven split into six that set it on `portTemplate` and never per-port, and the one nested file
+named above. Two refinements that only show up when you count all three spellings rather than the files
+that use each: **nine** files set `portTemplate.poeOut`, not six — three Peplink PLS boxes
+(`pls-24-h2g-410w`, `pls-48-h2g-740w`, `pls-r-24-h2g-250w`) restate it per-port on 8, 16 and 8 interfaces
+at the same 30 W, so the redundancy is harmless but the file does carry the rate twice — and there is no
+`poe.poeOut` anywhere, so the nested form means `interfaces[].hardware.poeOut` and nothing else. The
+catalogue's other **1,599** files state no rate at all, and the engine infers one from the device class.
+Re-deriving the whole census:
+
+```bash
+node -e "const g=require('fs'),p=require('path');const f=[];(function w(d){for(const e of g.readdirSync(d,{withFileTypes:true})){const q=p.join(d,e.name);if(e.isDirectory())w(q);else if(q.endsWith('.json'))f.push(q)}})('devices');let any=0,per=0,tmpl=0,nest=0,both=0;for(const q of f){const d=JSON.parse(g.readFileSync(q,'utf8'));const i=d.interfaces||[];const t=[].concat(d.portTemplate||[]);const a=i.some(x=>x.poeOut!==undefined),b=t.some(x=>x&&x.poeOut!==undefined),c=i.some(x=>x.hardware&&x.hardware.poeOut!==undefined);if(a||b||c)any++;if(a)per++;if(b)tmpl++;if(c)nest++;if(a&&b)both++}console.log(any+' files state a PSE rate; '+per+' per-port, '+tmpl+' on portTemplate ('+both+' of them both), '+nest+' nested in hardware.poeOut')"
+```
+
+which prints `62 files state a PSE rate; 55 per-port, 9 on portTemplate (3 of them both), 1 nested in
+hardware.poeOut` on this tree.
 
 ### Keys the catalogue carries that this table does not gate on
 
