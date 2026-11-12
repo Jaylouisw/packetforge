@@ -855,12 +855,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
                              now: % D1 - it is not a DHCP server
   ```
 
-  Every `%` line in that transcript is the **tail** of what the console prints, not the whole line: the
-  message is prefixed with the device's model and the label it was given in the lab, so the first one
-  actually reads `% APC Network Management Card 3 (UPS NMC)-D1 - it runs no spanning tree, because it has
-  no bridged domain to protect`. Rename the device and only the prefix moves. Eight transcripts in this
-  file quote the tail alone, so a diff against a live run will show a longer line on the left — that is
-  the convention, not a stale transcript.
+  In that transcript `D1` is the device's **name** — the string the lab gives it — so every `%` line is
+  verbatim as quoted. The long form appears only when a device was built without a name: `Device` falls back
+  to `label + '-' + id` (`engine/device.js:114`), and the same refusal then reads `% APC Network Management
+  Card 3 (UPS NMC)-D1 - it is not a DHCP server`. Both were measured on 2026-11-12; only the part before
+  ` - ` moves, and the sentence after it is what to diff.
 
   A pool on a DHCP **client** and a bridge priority on a box with no bridge were the two that answered
   confidently; a silent success on a removal that removes nothing is the one answer a refusal must not
