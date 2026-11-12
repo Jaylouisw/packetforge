@@ -1415,7 +1415,28 @@ Re-counted on 2026-11-12 through `derivePortHardware()` rather than by grepping 
 **32** devices, every one of them offering an upstream medium — `docsis-30-us` on all 164, `docsis-31-us` on 132,
 alongside `docsis-30` 132, `docsis-31` 14, `moca-11` 164 and `moca-25` 20. The six rates above are the media's own
 `speedMbps` values, and the reach is set per medium too: **300 m** for all four DOCSIS entries, **100 m** for both
-MoCA ones. Of the five cable-access chassis named above, exactly **three** say CCAP in their own description —
+MoCA ones.
+
+Reproduce the count without trusting this paragraph:
+
+```bash
+node -e "const{loadCatalog}=require('./devices/registry'),media=require('./engine/media');
+  const n={},devs=new Set();let ports=0;
+  for(const s of loadCatalog())for(const i of (s.interfaces||[])){
+    const hw=media.derivePortHardware(i,s);if(!hw)continue;
+    const list=(hw.media||[]);if(!(hw.cage==='coax'||list.some(m=>/^(docsis|moca)/.test(m))))continue;
+    ports++;devs.add(s.vendor+'/'+s.model);for(const m of list)n[m]=(n[m]||0)+1;}
+  const r=m=>m+' '+media.MEDIA[m].maxRangeM+' m';
+  console.log(ports+' coax ports on '+devs.size+' devices '+JSON.stringify(n));
+  console.log(['docsis-30','docsis-31-us','moca-11','moca-25'].map(r).join(', '));"
+```
+
+It prints `164 coax ports on 32 devices {"moca-11":164,"docsis-30":132,"docsis-30-us":164,"docsis-31-us":132,"moca-25":20,"docsis-31":14}`
+and then `docsis-30 300 m, docsis-31-us 300 m, moca-11 100 m, moca-25 100 m`. The first line is also why this
+section exists: grepping the JSON for `docsis` matches the **description** and returns no port at all, so a text
+search reports zero — the media list is derived, and only `derivePortHardware()` knows it.
+
+Of the five cable-access chassis named above, exactly **three** say CCAP in their own description —
 Casa `C100G`, Cisco `cBR-8` and CommScope `E6000` — while `C3200` and the Harmonic `CableOS Reef RPS` do not, which
 is why "CCAP" reads as the family and not as the count.
 
