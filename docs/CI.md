@@ -512,12 +512,12 @@ services, and a job that has to swap makes the whole queue slower.
   **None of these readings is a reading of `main`.** They were taken in the working tree, which sits on
   branch `fix/sfp-plus-connectors`, and that branch diverged from `origin/main` at `083e2ba1`
   (2026-11-08 16:58:44) — at the time of the fourth reading it was **382 ahead and 361 behind**, and
-  now reads **491 ahead and 361 behind**; either way not one of the commits above is an ancestor of
+  now reads **492 ahead and 361 behind**; either way not one of the commits above is an ancestor of
   `origin/main`. Check any of them before you quote it:
 
   ```bash
   git branch --show-current                              # fix/sfp-plus-connectors, not main
-  git rev-list --left-right --count HEAD...origin/main    # 491  361
+  git rev-list --left-right --count HEAD...origin/main    # 492  361
   git merge-base --is-ancestor d4319d27 origin/main || echo "not on main"
   ```
 
@@ -564,7 +564,29 @@ services, and a job that has to swap makes the whole queue slower.
   describes the run that finished.
 
   The `Note:` block sits *after* the failure exit, so on a red run you will never see it: a crashed suite
-  shows up as `(no summary line)` instead. Useful flags, all from the header of the script:
+  shows up as `(no summary line)` instead. **Three suites that pass are invisible to the total as well.**
+  `test/bug-report.test.js`, `test/palette-empty.test.js` and `test/startup-error.test.js` end with
+  `40 bug-report checks passed.`, `22 palette-empty checks passed.` and `25 startup-error checks passed.`
+  — a different sentence from the convention — so `tally()` reads `passed: 0` for each and flags them
+  `(no summary line)` on their own lines. They exit 0, so they are not red, but their **87 assertions
+  never reach the headline**, and on any run that has a failure the `Note:` block naming them is never
+  printed. A headline is therefore a floor, not a count of the assertions in the tree.
+
+  The last full reading, taken with this runner on this branch (`0c9bdaef` plus the uncommitted
+  value-hints work), agrees with the table above and is the arithmetic worth checking against it:
+
+  ```
+  272 suite(s) in 274.1 s — 11191 assertions passed, 3 failed
+  Failed:
+    ✗ test/link-parts.test.js
+    ✗ test/ma5801.test.js
+  ```
+
+  The same two suites and the same 2 + 1. The 272 counts one suite that `git ls-files test` does not:
+  `test/value-hints.test.js` is untracked in this tree and runs as `24 passed`. So the tree actually
+  asserted 11,191 + 87 = **11,278** assertions, 3 of them red.
+
+  Useful flags, all from the header of the script:
   `--filter=bgp`, `--bail`, `--verbose`, `--list`.
 
   **The runner ignores flags it does not know, and that is the expensive kind of silence.** Measured
