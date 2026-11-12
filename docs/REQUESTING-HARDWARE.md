@@ -71,19 +71,19 @@ closed side is not. So measure both halves rather than remembering either:
 
 ```bash
 H='https://git.jayw.uk/api/v1/repos/jaylouisw/packetforge/issues'
-curl -s -D - -o /dev/null "$H?state=closed&limit=1"            | grep -i '^x-total-count'  # 1461, PRs included
-curl -s -D - -o /dev/null "$H?state=closed&type=issues&limit=1" | grep -i '^x-total-count'  # 947 issues on their own
-curl -s -D - -o /dev/null "$H?state=open&type=issues&limit=1"   | grep -i '^x-total-count'  # 28 open: 24 requests + 4 bugs
+curl -s -D - -o /dev/null "$H?state=closed&limit=1"            | grep -i '^x-total-count'  # 1477, PRs included
+curl -s -D - -o /dev/null "$H?state=closed&type=issues&limit=1" | grep -i '^x-total-count'  # 948 issues on their own
+curl -s -D - -o /dev/null "$H?state=open&type=issues&limit=1"   | grep -i '^x-total-count'  # 32 open: 24 requests + 8 bugs
 ```
 
 The gap between the first two numbers is the pull requests: Forgejo serves them through the issues
 endpoint from a shared number space, so `type=issues` is what separates a request someone made from a
 change someone proposed. Nothing above is truncated either — paging `state=closed&type=pulls` to an empty
-page returns **528** rows, and the counts reconcile against the number space exactly as they did before, which is the
-only part worth keeping: the highest number is **`#1507`**, **1,506** items are counted — 28 open issues + 948
-closed issues + 529 closed pull requests + 1 open pull request — and `state=all` also reports **1,506**. So exactly
-one number in 1 … 1,507 is missing, and it is still **`#1,223`**: `GET /issues/1223` answers `404` while `#1502`,
-`#1505`, `#1506` and `#1507` all answer `200`. The totals move every day; the reconciliation is the invariant. That is the check worth repeating rather than the totals:
+page returns **529** rows, and the counts reconcile against the number space exactly as they did before, which is the
+only part worth keeping: the highest number is **`#1511`**, **1,510** items are counted — 32 open issues + 948
+closed issues + 529 closed pull requests + 1 open pull request — and `state=all` also reports **1,510**. So exactly
+one number in 1 … 1,511 is missing, and it is still **`#1,223`**: `GET /issues/1223` answers `404` while `#1502`
+and every bug from `#1505` to `#1511` answers `200`. The totals move every day; the reconciliation is the invariant. That is the check worth repeating rather than the totals:
 the counts say "no page limit", the enumeration says *which* number is missing, and a tracker with a
 deleted item would otherwise look like an off-by-one forever.
 
