@@ -36,7 +36,17 @@ leg fails the same job, so "three jobs" and "five checks" are both true and neit
 | `Test (Node 20)` | Nothing Node 18 and 22 together cannot — kept for the middle of the support window |
 | `Test (Node 22)` | Behaviour that regressed on the newest runtime |
 | `Server smoke test` | A server that boots but cannot serve. `scripts/smoke-http.js` runs **18 checks** against a real server on a free port: the UI shell, `/api/catalog`, `/api/media`, `/api/version` (twice — once that it answers, once that its device count agrees with `/api/catalog`), then topology create → place two devices → `validate-link` for a legal pair and an impossible medium → a refused cable → a legal cable → self-cabling refused → double-cabling refused → the topology read back → delete. **Not** "every route", and **not** the WebSocket upgrade: `/api/config`, `/api/interfaces`, `/api/ping`, `/api/flows`, `/api/layout`, `/api/load`, `/api/reset`, `/api/link-options` and `…/links/:id/state` are outside it, and no automated check drives the upgrade handshake at all |
-| `Docker build` | Two things, in order. First `scripts/check-dockerfile.js` — static checks that a build would have caught early: the base image is **pinned**, the container does **not run as root**, there is a `HEALTHCHECK`, **every `COPY` source exists in the repo**, and there is a command to run. Then a **real `docker build` only where the job has a daemon**: the step installs the CLI and builds if `docker info` succeeds, otherwise it prints that the build was skipped and why. A green Docker job on a daemon-less runner therefore means "the Dockerfile is well-formed", not "the image builds". |
+| `Docker build` | Two things, in order. First `scripts/check-dockerfile.js` — **nine** static checks over the file's 8 instructions — the list is under this table, and four of them are easy to miss: it also insists on a syntactically real base image, a declared `USER`, an entrypoint script that actually exists on disk, and it does not build anything. Then a **real `docker build` only where the job has a daemon**: the step installs the CLI and builds if `docker info` succeeds, otherwise it prints that the build was skipped and why. A green Docker job on a daemon-less runner therefore means "the Dockerfile is well-formed", not "the image builds". |
+
+**The nine Dockerfile checks, since the row cannot hold them.** `check-dockerfile.js` reads the file,
+counts its **8 instructions** and asserts, in order: it has a `FROM`; that base image is a real name
+(`node:20-alpine`); it is **pinned** — no `:latest`, no bare `node`; it **declares a `USER`**; that user
+is **not root**, which is a separate assertion because `USER root` satisfies the first and fails the
+second; it declares a `HEALTHCHECK`; it has a `CMD` or `ENTRYPOINT`; every `COPY`/`ADD` source exists in
+the repository (`COPY . .` is one such instruction); and, when the command names a `.js` file, that file
+is really shipped — `CMD ["node", "server/index.js"]` is checked against `server/index.js` on disk. It
+closes with a sentence no other guard prints: `The image itself was not built here`.
+
 
 The test job runs, in order: `syntax-check`, `check-control-bytes`, `check-node-surface`
 (the Node 18 floor), `check-canonical-urls`, `npm test` — which is `audit:ports` +
@@ -539,13 +549,13 @@ services, and a job that has to swap makes the whole queue slower.
   **None of these readings is a reading of `main`.** They were taken in the working tree, which sits on
   branch `fix/sfp-plus-connectors`, and that branch diverged from `origin/main` at `083e2ba1`
   (2026-11-08 16:58:44) — at the time of the fourth reading it was **382 ahead and 361 behind**, and
-  now reads **527 ahead and 377 behind** (after a fresh `git fetch`, which moved the behind-side
+  now reads **528 ahead and 377 behind** (after a fresh `git fetch`, which moved the behind-side
   from 361 to 373 — main's tip is `f370b893`, #1450); either way not one of the commits above is an ancestor of
   `origin/main`. Check any of them before you quote it:
 
   ```bash
   git branch --show-current                              # fix/sfp-plus-connectors, not main
-  git rev-list --left-right --count HEAD...origin/main    # 527  377
+  git rev-list --left-right --count HEAD...origin/main    # 528  377
   git merge-base --is-ancestor d4319d27 origin/main || echo "not on main"
   ```
 
