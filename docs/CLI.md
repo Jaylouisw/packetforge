@@ -1655,11 +1655,11 @@ D1(config)#ip route 10.9.0.0 255.255.255.0 10.0.0.9
 % D1 - it does not forward between interfaces, so it has no routes or adjacencies
 ```
 
-Every `%` line in this page is quoted **from the label onward**. The console prefixes the message with the
-device's model and the label it was given, so the first line above actually reads `% APC Network Management
-Card 3 (UPS NMC)-D1 - it runs no spanning tree, because it has no bridged domain to protect`; label the
-device something else and only the prefix moves. Both `%` transcripts here are trimmed that way, and so is
-the `PC1` line further down — a diff against a live run shows a longer line on the left, not a stale page.
+`D1` is the device's **name** — the string the lab gives it — and every `%` line here starts with it, so the
+transcript is verbatim on a lab that names the device `D1`. Build the device from a catalogue spec instead
+and there is no name to use: `Device` falls back to `label + '-' + id` (`engine/device.js:114`), and the
+same refusal reads `% APC Network Management Card 3 (UPS NMC)-D1 - it is not a DHCP server`. Only the part
+before ` - ` changes; the sentence after it is what to diff.
 
 Two rules came out of it:
 

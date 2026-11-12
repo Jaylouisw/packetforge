@@ -38,12 +38,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   value list is an addition after it, not a replacement. `test/value-hints.test.js` holds **24
   assertions**. See [docs/CLI.md](docs/CLI.md).
 
-  All three were re-run on 2026-11-12 on exactly that lab. Two of the value lines are verbatim —
-  `Ports on this device: Gi0/0, Gi0/1, Gi0/2` (the router's `portTemplate` is `Gi0/`, start 0, count 3) and
-  `VLANs on this device: 1, 10, 30, 44` — and the device list is not, because a device name renders as
-  `<model>-<label>`: the console prints `Devices in this lab: PC-PC1, Router-R1, Switch (L2)-SW1` where the
-  excerpt above says `PC1, R1, SW1`. Ports and VLAN ids carry no such prefix, so only that one line moves.
-  Three things the transcript above does
+  All three were re-run on 2026-11-12 on exactly that lab and the value lines are verbatim: `Devices in
+  this lab: PC1, R1, SW1`, `Ports on this device: Gi0/0, Gi0/1, Gi0/2` (the router's `portTemplate` is
+  `Gi0/`, start 0, count 3) and `VLANs on this device: 1, 10, 30, 44`. A device is listed by its **name** —
+  the string the lab gives it — so a hand-built device will not match: `Device` falls back to
+  `label + '-' + id` when no name is supplied (`engine/device.js:114`), which turns the same line into
+  `Devices in this lab: PC-PC1, Router-R1, Switch (L2)-SW1`. Build the lab from a file, or set the names,
+  before diffing. Three things the transcript above does
   not show, all of which will make a hand-run look wrong: the block ends with
   `Names in angle brackets are values: type one, then ask ? again for what follows it.` and it separates the
   hint lines with blank lines, so a diff against the excerpt will not match. And the VLAN list only reaches
