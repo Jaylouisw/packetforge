@@ -91,6 +91,17 @@ halves. Measured against `scripts/forgejo-api.js`, which the sweep imports:
 So the read-only sweep works from anywhere, and so does closing: set the token and go. Without one the
 script says *"the tracker is not readable without it (this is not the same as \"no open requests\")"*
 and exits **1** before parsing anything — the public API answers anonymous reads, but a write does not.
+
+**Neither script will use that anonymous read, though, and the distinction is easy to blur.** Both demand a
+token before they ask anything, even for the read-only scan: with no `FORGEJO_TOKEN` and no `PF_TOKEN` in
+the environment, `sweep-device-requests.js` throws and exits **1** and `request-queue.js` prints its reason
+and exits **2** — measured on 2026-11-12 on a host with neither variable set, while at the same moment
+`fetch()` against the same public endpoint with **no** `Authorization` header returned
+`x-total-count: 32` for open issues, 948 closed issues, 529 closed pull requests and 1,510 for `state=all`.
+That is why the `curl` recipes on this page and in
+[`REQUESTING-HARDWARE.md`](REQUESTING-HARDWARE.md) work with no credentials at all and the scripts do not:
+the scripts gate on a variable, not on what the endpoint allows. Read the queue anonymously with `curl`,
+or set the variable — but do not conclude from an exit code that the tracker was unreachable.
 Measured, and worth knowing before you wire it into a script that reads exit codes: the failure is an
 uncaught `Error:` with a stack trace rather than a tidy message, so the difference between "not
 configured" and "found nothing" is the non-zero code and the word `Error:`, nothing else.
