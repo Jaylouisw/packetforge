@@ -514,8 +514,31 @@ warnings are surfaced but allowed.
 `E_OPTICAL_BUDGET` and `W_OPTICAL_HEADROOM`. Those two are emitted inline by the PON budget phase at the
 end of `validateConnection()` (`engine/validation.js:705` and `:712`, with a second `E_OPTICAL_BUDGET`
 site in `engine/optical.js:140`), so a tool that enumerates `RULES` to decide which codes are legal would reject
-two refusals the engine really produces. The file's own header asks that a renamed code be added to
-`RULES`, which is the rule these two are the exception to.
+two refusals the engine really produces. The catalogue's own header is what those two falsify: `RULES` is
+introduced as "Every code this module can emit, with its severity" (`engine/validation.js:55`), and the file
+keeps it as the authority `validateTopology()` counts from — so a code emitted further down the same file is
+a code the authority does not know about.
+
+That relationship is one command, and it is the check a tool would run:
+
+```sh
+node -e "
+const V = require('./engine/validation');
+const doc = { E: ['E_NO_PORT','E_SELF_LINK','E_PORT_IN_USE','E_CONNECTOR_MISMATCH','E_NO_COMMON_MEDIA','E_NO_COMMON_SPEED','E_WIRELESS_TO_WIRED','E_CONSOLE_TO_DATA','E_MEDIA_NOT_SUPPORTED','E_POE_BUDGET','E_LAG_SPEED_MISMATCH','E_POLISH_MISMATCH','E_PATCH_CORD_UNKNOWN','E_PATCH_CORD_ENDS','E_OPTICAL_BUDGET'],
+              W: ['W_DISTANCE','W_DUPLEX_MISMATCH','W_SPEED_DOWNGRADE','W_POE_DRAW','W_COPPER_LONGRUN','W_HYBRID_CORD','W_OPTICAL_HEADROOM'] };
+const codes = new Set(V.RULES.map(r => r.code));
+console.log(V.RULES.length + ' RULES (' + V.RULES.filter(r => r.severity === 'error').length + ' error / ' +
+            V.RULES.filter(r => r.severity === 'warning').length + ' warning)');
+console.log('in the tables, absent from RULES: ' + doc.E.concat(doc.W).filter(c => !codes.has(c)).join(', '));
+console.log('in RULES, absent from the tables: ' + (V.RULES.map(r => r.code).filter(c => !doc.E.includes(c) && !doc.W.includes(c)).join(', ') || 'none'));
+"
+```
+
+```
+20 RULES (14 error / 6 warning)
+in the tables, absent from RULES: E_OPTICAL_BUDGET, W_OPTICAL_HEADROOM
+in RULES, absent from the tables: none
+```
 
 The name is worth having exactly, because `validateLink` is not in this file at all: `grep -n 'validateLink'
 engine/validation.js` prints nothing. `Topology.validateLink()` (`engine/topology.js:122`) is the caller; it
