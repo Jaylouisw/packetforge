@@ -104,7 +104,10 @@ lands, that comment is the first line to go stale and the first one a reader tru
 
 - [ ] Multi-select, copy/paste, alignment snapping, undo/redo.
 - [ ] Curve / orthogonal link routing and link labels (IP subnets on hover).
-- [ ] Per-interface tooltips with live ARP/MAC tables.
+- [ ] Per-interface tooltips with live ARP/MAC tables. The tooltip half exists — every port chip carries a
+      `title` naming its role, its cable peer, its LLDP neighbour or the chip it shares, and why
+      (`web/app.js:1357-1424`) — but the live half does not: ARP and MAC rows are rendered in the event log
+      (`web/app.js:1776-1782`), never on the port they belong to.
 - [ ] Saved/exported PNG snapshot of the topology.
 - [ ] Multi-tab topologies and a topology picker.
 - [ ] Theme light/dark toggle and accessibility polish.
