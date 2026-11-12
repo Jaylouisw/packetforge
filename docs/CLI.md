@@ -6916,10 +6916,12 @@ No events: the log is empty - nothing has run yet in this lab
 Send a packet (`ping <dst>`) or run `converge`, then ask again.
 ```
 
-A fresh lab answers identically, and the type-filtered form has its own variant
-(`% The log is empty: nothing has run in this lab, so there is nothing of any type`). So: if you did not
-clear it yourself, an empty log means nothing has run — and if you did, `show history` will still show
-the `clear logging` line in your session, which is the only surviving record.
+A fresh lab answers identically, and the type-filtered form has **two** variants rather than one: a word
+that resolves to a single type keeps its own "has not happened" line and follows it with `% The log is
+empty: nothing has run in this lab yet`, while an ambiguous prefix answers `% The log is empty: nothing
+has run in this lab, so there is nothing of any type` and names no types at all. So: if you did not clear
+it yourself, an empty log means nothing has run — and if you did, `show history` will still show the
+`clear logging` line in your session, which is the only surviving record.
 
 `show logging` is lab-wide, like `links` and `show flows`: the event stream is the simulator's, so any
 console sees the same timeline.
@@ -6930,7 +6932,8 @@ in a fresh lab that is not the diagnosis:
 
 ```
 R1#show logging frame                 (fresh lab, before anything ran)
-% The log is empty: nothing has run in this lab, so there is nothing of any type
+% No event of type "frame" has happened here yet - it is a type this console records
+% The log is empty: nothing has run in this lab yet
 % Run something ("ping <addr>", a simulation step) and this fills up
 ```
 
