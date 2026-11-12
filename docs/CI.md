@@ -1033,7 +1033,9 @@ host can halve it. Two flags re-measured in the same session as well: `--list` s
   synopsis in `docs/CLI.md`'s master command table against the help rows the device prints. Two rows
   added while updating that page said more than their help rows declare (`show spanning-tree vlan <id>
   [root]`, `show ip bgp neighbors [<address>]`), so **a documentation edit turned the suite red** and the
-  corrected rows turned it green again, with no test file touched. The counts did not move; the tree did.
+  corrected rows turned it green again, with no test file touched. The counts did not move; the tree did. An eleventh, taken 2026-11-12 at `c748bab0` in the
+  foreground, printed `272 suite(s) in 172.9 s — 11191 assertions passed, 3 failed` with the same pair red,
+  so three of that day's readings agree on every count and differ only on the clock.
   Treat that as a property of this repository rather than an anecdote: the docs are inside the test
   surface, and `node test/docs-syntax.test.js` is the two-second way to check an edit to that table.
   The
@@ -1043,7 +1045,7 @@ host can halve it. Two flags re-measured in the same session as well: `--list` s
   redirect is the part that decides, not the background: the ninth reading above was taken by a harness that
   promoted the command to a background process and piped it into `grep`, and it finished all 272 with the
   summary intact (`272 suite(s) in 165.9 s — 11191 assertions passed, 3 failed`, same pair red). So backgrounding
-  on its own does not lose the summary; **sending it to a file** does, and a live pipe keeps it.
+  on its own does not lose the summary; **sending it to a file** does, and a live pipe keeps it. That
   message does not come from this repository either: `grep -rn 'stdin is not a tty' --include='*.js' .` finds
   nothing outside the docs that quote it, so it belongs to whatever supervises the job. Two rules follow, and
   the second is the one that costs an afternoon: run the suite in the **foreground** if you want the summary,
