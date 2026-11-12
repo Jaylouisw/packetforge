@@ -160,12 +160,15 @@ Two more measured details worth having in writing:
   | `ospfTimers({ config: { ospf: { helloSec: 2, exchangeSec: 3, spfDelaySec: 9 } } })` | `adjacentAtMs 5000`, `routesAtMs 14000` |
   | `ospfTimers({ config: { ospfHelloSec: 2 } })` | unchanged — `helloSec 10`, `adjacentAtMs 11000`, `routesAtMs 16000`, with no warning |
 
-  The other paragraphs on this page rest on four literals, and each has a home: `num()` at
+  The other paragraphs on this page rest on **six** literals, and each has a home: `num()` at
   `engine/convergence.js:46` (`Number.isFinite(n) && n >= 0`, which is why `null` becomes `0` and `-5` does not),
   the `E_ADVERT_RANGE` message built with `String(group.advertCs)` at `engine/vrrp.js:192` (hence `got 2.5` for the
   string `'2.5'`), `'% Nothing in this lab runs a control plane that converges over time'` at `cli.js:7539`,
   `'% Still converging at t=' …` at `cli.js:7341`, `'Network converges again at '` at `cli.js:7619`, and the
-  `ospf hello` refusal `'% Usage: ospf router-id <ip> | ospf area <id>'` at `cli.js:3998`.
+  `ospf hello` refusal `'% Usage: ospf router-id <ip> | ospf area <id>'` at `cli.js:3998`. All six were
+  re-read on 2026-11-12 and each lands on the line named — worth doing, because the sentence said *four*
+  while listing six, and a count that disagrees with its own list is the kind of thing a reader stops
+  trusting the whole paragraph over.
 
   The dead-constant claim was re-measured the same way rather than trusted: `grep -rn stpHelloSec engine/ test/`
   answers exactly one hit, `engine/convergence.js:32`, which is the definition. Nothing reads it.
