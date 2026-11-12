@@ -119,7 +119,7 @@ filter doing its job — those cages supply exactly one Ethernet optic per ratin
 | `powerline` | Mains | powerline | `powerline` only | `homeplug-av`, `homeplug-av2`, `ghn`, `ghn-25` | 200, 1000, 1700, 2500 (fixed) |
 | `console` | Console | management | `console` only | `console-rs232` (115200) plus the fixed-baud variants `console-rs232-9600`, `-19200`, `-38400`, `-57600` | 0.0096, 0.0192, 0.0384, 0.0576, 0.1152 (9600 – 115200 baud) |
 | `usb` | USB | management | `usb` | `usb-console` | 12 |
-| `antenna` | Antenna | wireless | `antenna` only | `wireless-2.4`, `wireless-5`, `wireless-6`, `wireless-7` by the port's generation, from `wireless-2.4` alone at 600 Mbps up to all four above 2500; `wireless-60` only when the port declares `band: "60"` (see 4.6) | the port's declared rate |
+| `antenna` | Antenna | wireless | `antenna` only | `wireless-2.4`, `wireless-5`, `wireless-6`, `wireless-7` by the port's generation, from `wireless-2.4` alone at 600 Mbps up to all four above 2500; `wireless-60` from a declared `band: "60"` or — the path the catalogue uses — from a model or description naming 60 GHz, 802.11ad or wigig, which replaces the ladder (see 4.6) | the port's declared rate |
 | `wwan` | Cellular | wireless | **nothing** | `lte`, `lte-a`, `5g-sub6`, `5g-mmwave` | the modem's own category |
 
 That is **26 cages**. `CAGES` is the authority; if you add one, this table and
@@ -648,9 +648,19 @@ uses, so it is a list, not one band:
 | above | 802.11be | `wireless-2.4`, `wireless-5`, `wireless-6`, `wireless-7` |
 
 **By a declared band**, which narrows the port to exactly one medium and beats the ladder:
-`band: "2.4"`, `"5"`, `"6"` or `"60"` gives `wireless-2.4`, `-5`, `-6` or `-60`. This is the only
-way to reach `wireless-60` — a 60 GHz radio is a *band*, not a fast 5 GHz, and the rating ladder
-used to hand a Wi-Fi 7 phone a millimetre-wave medium for exactly that reason.
+`band: "2.4"`, `"5"`, `"6"` or `"60"` gives `wireless-2.4`, `-5`, `-6` or `-60` (`bandMediaId` at
+`engine/media.js:847`, applied at `:864-865`, where a `bands` array wins over a bare `band`). A 60 GHz
+radio is a *band*, not a fast 5 GHz, and the rating ladder used to hand a Wi-Fi 7 phone a
+millimetre-wave medium for exactly that reason.
+
+**By the device's own name** — and this is the path that actually fires, so a declared band is not the
+only way in. `engine/media.js:870` matches `/60\s*ghz|802\.11ad|wigig/i` against the model and
+description and returns `['wireless-60']` *instead of* the ladder. Measured on four synthetic specs,
+all at a 5760 Mbps rating: a model of `MetroLinq 60 GHz` with no `band` gives `['wireless-60']`, a
+description of `wigig backhaul` gives `['wireless-60']`, `band: '60'` gives `['wireless-60']`, and an
+explicit `bands: ['2.4','5']` gives `['wireless-2.4','wireless-5']` — the narrowing case. No catalogue
+device declares `band` or `bands` at all, so every one of the 25 antenna ports listing `wireless-60`
+got it by name.
 
 `speedCaps` for a radio is `[maxMbps]`, i.e. exactly the declared rate. So a radio pinned to 5 GHz
 against a 600 Mbps 2.4 GHz radio mates — both are simply "Antenna" — and then fails with
