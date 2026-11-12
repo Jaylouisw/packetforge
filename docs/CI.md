@@ -657,7 +657,7 @@ queue that lost its arms gets them back in one tick instead of five at a time.
   **None of these readings is a reading of `main`.** They were taken in the working tree, which sits on
   branch `fix/sfp-plus-connectors`, and that branch diverged from `origin/main` at `083e2ba1`
   (2026-11-08 16:58:44) — at the time of the fourth reading it was **382 ahead and 361 behind**, and
-  now reads **592 ahead and 390 behind** (after a fresh `git fetch`, which moved the behind-side
+  now reads **593 ahead and 390 behind** (after a fresh `git fetch`, which moved the behind-side
   from 361 to 373 — main's tip is `f370b893`, #1450); either way not one of the commits above is an ancestor of
   `origin/main`. Check any of them before you quote it:
 
@@ -884,7 +884,7 @@ queue that lost its arms gets them back in one tick instead of five at a time.
 
   **It has drifted again, and this time the drift is the count corrections.** Re-measured the same
   way on a later tree: three of the six pages differ from the live wiki, and all three differ because
-  a fact inside them moved —
+  a fact inside them moved — (that reading is history now; see the fresh measurement below the table)
 
   | Page | Live wiki still says | `docs/wiki/` now says |
   |---|---|---|
@@ -897,9 +897,38 @@ queue that lost its arms gets them back in one tick instead of five at a time.
   catalogue did. And the reason it sits there is the next paragraph — a publish from a machine with no
   tty hangs on `could not read Username`, so the fix is a manual run, not something to leave to habit.
 
+  **Re-measured today: the wiki is one page behind, and the two rows above are published.** Cloning
+  `https://git.jayw.uk/jaylouisw/packetforge.wiki.git` anonymously (it is public; the credentials are
+  needed for the *push*, not the clone) and comparing with `\r\n` stripped gives **five of six pages
+  byte-identical**; the wiki repo's head is `e1c3304`, published `2026-11-11T05:55:04+00:00`. The single
+  stale page is `Requesting-Hardware.md` — the live copy is 2,775 bytes against 4,157 in `docs/wiki/`,
+  because that page now names the audit's **twelfth** rule and explains the template-collision case.
+  So the drift has changed character: it used to be the catalogue moving under prose, and this time it
+  is documentation correcting documentation. `Home.md` and `Simulation-Fidelity.md` went from stale to
+  live in between, which is the honest reading of a hand-published wiki — the table above is a
+  snapshot, and the only measurement that counts is the clone-and-diff you run yourself.
+
   **`--dry-run` reporting every page as "updated" is not staleness — it is line endings.**
   `publish-wiki.js` compares the clone's files to `docs/wiki/` as raw strings, and on a Windows host
   with `core.autocrlf=true` the two sides are not the same bytes even when they are the same text.
+  Measured again on today's tree, where five of six pages are content-identical:
+
+  ```
+  $ PF_WIKI_REPO=https://git.jayw.uk/jaylouisw/packetforge.wiki.git \
+      node scripts/publish-wiki.js --dry-run
+  Would publish:
+    updated Contributing.md
+    updated Getting-Started.md
+    updated Home.md
+    updated Requesting-Hardware.md
+    updated Simulation-Fidelity.md
+    updated _Sidebar.md
+  Dry run - nothing written or pushed.
+  ```
+
+  Six of six "updated" against one genuinely stale page — so `--dry-run` answers "is this host
+  producing CRLF?", never "which page is behind?". It also exits `0` and takes under a second
+  (anonymous clone, no push), which is why the failure people actually hit is at the push step.
 
   **The half that is easy to miss is that this repository is the side that is pinned.**
   `.gitattributes` here declares `* text=auto` and `*.md text eol=lf`, so `docs/wiki/*.md` sits in the
