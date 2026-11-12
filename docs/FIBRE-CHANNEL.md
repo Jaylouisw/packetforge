@@ -80,6 +80,28 @@ The media are named `2gfc-sw`, `8gfc-lw`, `128gfc-sw` — *not* `fc-2g` or `fc-8
 number: `8gfc-sw` is `8500`, `16gfc-sw` is `14025`, `32gfc-sw` is `28050`, `64gfc-sw` is `57800`,
 `128gfc-sw` is `112200`.
 
+The four media lists are not all in the same order, which is worth knowing before you diff one of them
+against a ladder and conclude a row is wrong: `fc-sfp` runs **ascending** (`2gfc` → `16gfc`), while
+`fc-sfp28`, `fc-sfpdd` and `fc-qsfp28` run **descending**, highest rate first. The speeds agree in both
+directions, and one command prints every row of both tables above:
+
+```sh
+node -e '
+const m=require("./engine/media");
+const j=JSON.stringify;
+for(const c of ["fc-sfp","fc-sfp28","fc-sfpdd","fc-qsfp28"]){
+  const sp=m.CAGE_MEDIA[c]().map(id=>(m.MEDIA[id]||{}).speedMbps);
+  console.log(c.padEnd(10), j(m.CAGE_SPEEDS[c](1000)), "media", sp.join(","));
+}
+for(const c of ["rj45","wwan","combo","sfp"]) console.log(c.padEnd(10), j(m.CAGE_SPEEDS[c](1000)));'
+```
+
+Run on 2026-11-12 it prints, one line per cage (the padding in the cage column is the script's): the
+ladder `[2125,4250,8500,10519,14025]` for `fc-sfp` against media speeds
+`2125,2125,4250,4250,8500,8500,10519,10519,14025,14025`, the three descending ladders beside their own
+media, and then `[10,100,1000]`, `[1000]`, `[10,100,1000]`, `[1000,2500]` for `rj45`, `wwan`, `combo` and
+`sfp` — every row of the cap table, with the FC ladders unchanged by the `1000`.
+
 **The `maxMbps` argument is not honoured by the optical or FC ladders.** Measured, capping at 1000:
 
 | Cage | `(1000)` returns | Honours the cap? |
