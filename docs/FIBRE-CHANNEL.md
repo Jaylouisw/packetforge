@@ -241,10 +241,15 @@ rather than one 20G port.
 
 ## What is not modelled
 
-- **Fabric services.** No FLOGI/PLOGI, no name server, no zoning, no FC-IP. A lab can cable a SAN
-  but not configure one; the simulator's data path is Ethernet/IP.
+- **Fabric services.** No FLOGI/PLOGI, no fabric name server, no zoning, no FC-IP. A lab can cable a SAN
+  but not configure one; the simulator's data path is Ethernet/IP. `git grep -in 'flogi\|plogi\|fcip\|zoning' -- engine/ server/ web/ test/`
+  returns nothing, and the `name-server` the CLI does have is DNS: `ip name-server 8.8.8.8` at
+  `engine/cli.js:1524`, which validates every word after the keyword as an IP address. Reading a "no name
+  server" claim as contradicted by that command is the mistake this note is here to stop.
 - **Optic part numbers.** `catalogue/optics/transceivers.json` has not been extended with FC
-  transceivers, so an FC link is described by its rate class (SW/LW) rather than a vendor part.
+  transceivers, so an FC link is described by its rate class (SW/LW) rather than a vendor part. No entry
+  in that file names an FC rung — the only `fibre` strings in it are `note` prose about MPO lane counts
+  and OM3/OM4 reach, which is why a plain `grep fibre` there returns six lines and none of them is a part.
 - **Credit-based flow control and BB credits.** An FC link's real carrying capacity depends on
   buffer-to-buffer credits, which the simulator does not count.
 
