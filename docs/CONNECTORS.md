@@ -1209,6 +1209,22 @@ Stated so nobody debugs a limitation as a bug:
   and speed both tie. `preferredMedia(['1000base-t', '1000base-t-sfp'])` answers `1000base-t` and the
   reversed list answers `1000base-t-sfp`. Never write a test that assumes the two are interchangeable.
 
+Each of those was re-checked on 2026-11-12, and one of them is looser than it reads:
+
+| Claim | Measured |
+|---|---|
+| MPO has no cage | `FERRULE` has six entries including `mpo`; `CAGES` and `CAGE_MEDIA` have no `mpo` key |
+| DAC length is a medium property | `maxRangeM` on the six DAC media: `dac-1g` 3 m, `dac-10g` 7 m, `dac-10g-active` 15 m, `dac-25g` 5 m, `dac-40g` 5 m, `dac-100g` 3 m |
+| `console` is 0.1152 Mbps | `MEDIA['console-rs232'].speedMbps` is `0.1152` |
+| `lc-upc` and `lc-apc` share media | identical lists at 400G — `["gpon-lc-upc","xgspon-lc-upc","100gbase-lr4"]` both — while `sc-apc` is `["gpon-sc-apc","xgspon-sc-apc"]` |
+| An unknown connector is reported, not guessed | `derivePortHardware({ cage: 'wat' })` returns `family: "unknown"`, `media: []`, `speedCaps: []`, and refusal against `rj45` is `E_CONNECTOR_MISMATCH` |
+| `W_SPEED_DOWNGRADE` needs both ports faster | the guard is `speed < portA.maxSpeedMbps && speed < portB.maxSpeedMbps` at `validation.js:804-806` |
+
+The loose one is the unknown cage: "no rates" is true of `speedCaps` (empty) but not of `maxSpeedMbps`, which comes
+back as **1000** — a default, not a measurement. So a bogus cage refuses everything by connector while still
+reporting a 1G ceiling, and anything that reads `maxSpeedMbps` without reading `family` will treat an unknown cage
+as a 1G port.
+
 ---
 
 See also: [docs/PHYSICAL_LAYER.md](PHYSICAL_LAYER.md) for the medium catalogue and
