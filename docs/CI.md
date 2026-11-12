@@ -1315,6 +1315,25 @@ console.log(rows.length, "rows of", cat.length, "parts | all in catalogue:",
   `docs/SIMULATION.md` §11 as a defect rather than deleted quietly. If a real suite is
   renamed, rename the citation; if a page is proposing a suite, leave the name alone.
 
+- **A symbol beside a line number answers a different question from a line that exists.** The
+  mechanical sweep checks that `engine/foo.js:123` is inside the file; it cannot check that the
+  sentence's *symbol* is what sits there. Pairing the two — a backticked name within a few characters
+  of a backticked `file.js:NNN` — gives **174 pairs** across `docs/`, `README.md`, `CONTRIBUTING.md` and
+  `CHANGELOG.md`. Of those, 42 fail a ±2-line window and 22 still fail at ±30, and every one of the 22
+  is explained by one of three causes rather than by a defect:
+
+  | Cause | Example | Why the pairing misses |
+  |---|---|---|
+  | a **call site**, cited deliberately | `buildSchedule()` at `engine/convergence.js:182` | 182 is the call to `vrrpTimers()`; `buildSchedule` is defined at `:147`, 35 lines above the window |
+  | the sentence quotes a **wrong citation as the defect** | `E_NO_COMMON_SPEED` at `media.js:709` | that is one of the §11 rows recording the old error; the emit is at `:1338`, so the page is right and the citation is *evidence* |
+  | the sentence names **two symbols** and the regex picked the wrong one | `eui64FromMac` beside `device.js:642` | the function lives in `engine/ipv6.js:384`; the line belongs to the other half of the sentence |
+
+  That is why this is a triage recipe rather than a gate, and it is the same wall the pairing heuristic
+  hit when it was tried as a check: a program would have to know which of the three a sentence means.
+  What it is good for is finding the citations that point at **plausible but wrong** code — the
+  `show ip route` anchor that named `_routeFiltered()` instead of the plain table was found this way,
+  and no existence check would have flagged it, because the line exists and prints the same columns.
+
 ## Reporting a problem with CI itself
 
 Open an issue with the workflow run URL, and include:
