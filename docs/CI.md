@@ -1013,8 +1013,16 @@ host can halve it. Two flags re-measured in the same session as well: `--list` s
   Dry run - nothing written or pushed.
   ```
 
-  Six of six "updated" against one genuinely stale page — so `--dry-run` answers "is this host
-  producing CRLF?", never "which page is behind?". It also exits `0` and takes under a second
+  Six of six "updated" against one genuinely stale page — so on that host `--dry-run` answered "is this
+  host producing CRLF?", not "which page is behind?".
+
+  **It can do both, and the count tells you which answer you are reading.** Re-run on 2026-11-12 it printed
+  **two** lines — `Requesting-Hardware.md` and `Simulation-Fidelity.md` — and those were exactly the two pages
+  edited since the live wiki's last publish (`e1c3304`, `2026-11-11T05:55:04+00:00`): one for the
+  `grep -rl` overcount sentence, one for the instant/`converged` paragraphs. So the rule is not "never trust
+  it", it is: **six of six means line endings, a subset means staleness.** Six is the CRLF artefact because it
+  is every file; any smaller list is a comparison that actually compared. Read the list and ignore the exit
+  code, which is `0` in both cases. It also exits `0` and takes under a second
   (anonymous clone, no push), which is why the failure people actually hit is at the push step.
 
   **The half that is easy to miss is that this repository is the side that is pinned.**
