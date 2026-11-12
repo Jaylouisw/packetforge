@@ -131,6 +131,16 @@ Sending 4, 100-byte ICMP Echos to 10.0.0.11, timeout is 2 seconds:  (at t=11000 
 Success rate is 0 percent (0/4)
 ```
 
+Re-run on 2026-11-12 against a lab that ships with the repository — `examples/lab4-vlans-trunk-stp.json`, whose
+`l6`/`l7` are the redundant pair — every line above reproduces character for character: `link down l6 at 10000`
+answers `Link l6 (SW1:Fa0/8 <-> SW2:Fa0/8) is now down.` then `Network converges again at 40000 ms.`, the ping at
+`at 11000` prints `....` and **four** identical `% Still converging at t=11000 ms: … (ready at 40000 ms)` lines and
+`Success rate is 0 percent (0/4)`, the same question at `at 41000` is `!!!!` with `100 percent (4/4)`, `converge
+20000` prints the `change (change) 10000 ms the link state changed` row above the two per-switch `stp` rows and ends
+`Fully converged at 40000 ms. (re-based at the link change at 10000 ms)`, and `flow open … at 11000` refuses exactly
+as the block below shows. Nothing in this section is hand-written, and it can be re-derived on any machine from a
+JSON file in the tree.
+
 One line per lost echo, each naming the processes that are not done and when they will be. The same
 question asked at 41 s is `!!!!` and `Success rate is 100 percent (4/4)`, because the tree has
 finished and the redundant link is forwarding.
