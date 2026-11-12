@@ -9216,27 +9216,36 @@ grep -oh "'W_[A-Z0-9_]*'" engine/*.js | sort -u | wc -l     # 12 (eleven warning
 ```
 
 Of those 148, **54** appear as rows in the tables below — DHCP 17, VRRP 9, VLAN 10, LAG 6, NAT 12, distinct across the five sections, counted from every `E_` string in a table cell (the first cell holds 49; the other five sit in a later column of their row) — and **125** distinct `E_` codes appear anywhere
-in this document (126 distinct `E_…` tokens once the bare `E_` this sentence needs is counted; the
-greedy `E_[A-Z0-9_]*` match folds prefix fragments like `E_DHCP_` into the longer codes that follow them). That second number is the least stable figure on the page, and only partly because the
-engine grows: every code this page *documents* also joins the count, so the code inventory further down
-added fifteen by itself. It has read 70, then 103, then 117, then 121, then 125 — each revision of the tables above moved it,
-and recounting is one line:
+in this document (**122** distinct `E_` codes, 123 distinct `E_…` tokens once the bare `E_` this
+sentence needs is counted). That second number is the least stable figure on the page, and only partly
+because the engine grows: every code this page *documents* also joins the count, so the code inventory
+further down added fifteen by itself. It has read 70, then 103, then 117, then 121, then 125, then
+**122** — each revision of the tables above moved it, and so did a change of pattern:
 
 ```bash
-grep -o '\bE_[A-Z0-9_]*\b' docs/CLI.md | sort -u | wc -l    # 126 tokens, of which 125 are real codes (the 126th is the bare `E_` ruler)
+grep -o '\bE_[A-Z0-9_]*\b' docs/CLI.md | sort -u | wc -l    # 123 tokens, of which 122 are real codes (the 123rd is the bare `E_` ruler)
 ```
 
-**117, not 116, and the difference is this fence.** The pattern contains the two characters it is
-looking for, so the command counts its own `E_` as a token. The page holds 116 codes and one copy of the
-pattern; subtract the pattern when you want the inventory, or accept 117 as "116 plus the ruler". Both
-figures fell by one the day a retired voice warning — a code no engine emits any more — was replaced in the
-VLAN table by the three voice refusals that do fire (`E_VOICE_VLAN_ACCESS`, `E_VOICE_VLAN_NATIVE`,
-`E_VOICE_NOT_ALLOWED`, all three already named by the per-module table): removing a code nothing raises
-shrinks the inventory, adding three that already appear elsewhere does not. The retired name is deliberately
-not written here, because this paragraph is inside the thing it counts — naming it would put it straight back
-in and move the number to 118. The rest are reachable only through `validateTopology()`, the API, or a surface that
-prints prose instead of the code, which is what the next table is about — so a code missing from the
-tables is not necessarily a code that cannot happen, it is a code you cannot see from this console.
+**Why the last move was down, when every earlier one was up.** The 125 reading came from an
+*unanchored* `grep -o 'E_[A-Z0-9_]*'`, which also lifts the tail of any longer identifier that happens
+to contain the sequence — and this page carries three: the `W_` warning about a load close to the PSE
+limit, which ends in `_DRAW`, and two constants that end in `_DROP_TYPES` and `_KEYWORDS`. Each
+contributes one phantom code, so the unanchored pattern reads **126** tokens and the anchored one
+**123** on the same text. Write the pattern down beside the number, or the number means nothing: counts
+taken with different patterns are not comparable.
+
+**123, not 122, and the difference is this fence.** The pattern contains the two characters it is
+looking for, so the command counts its own `E_` as a token. The page holds 122 codes and one copy of the
+pattern; subtract the pattern when you want the inventory, or accept 123 as "122 plus the ruler". The
+figure once fell for a second reason worth knowing: a retired voice warning — a code no engine emits any
+more — was replaced in the VLAN table by the three voice refusals that do fire (`E_VOICE_VLAN_ACCESS`,
+`E_VOICE_VLAN_NATIVE`, `E_VOICE_NOT_ALLOWED`, all three already named by the per-module table): removing
+a code nothing raises shrinks the inventory, adding three that already appear elsewhere does not. The
+retired name is deliberately not written here, because this paragraph is inside the thing it counts —
+naming it would put it straight back in. The codes beyond the 54 table rows are reachable only through
+`validateTopology()`, the API, or a surface that prints prose instead of the code, which is what the next
+table is about — so a code missing from the tables is not necessarily a code that cannot happen, it is a
+code you cannot see from this console.
 
 Count them rather than trusting the numbers, and count **tokens**, not substrings: looking for each
 engine code with `in` finds `E_PORT` inside `E_PORT_PROTOCOL` and inflates the figure by a couple.
