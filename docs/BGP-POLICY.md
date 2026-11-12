@@ -1233,7 +1233,28 @@ set community 65001:100 additive
 
 Style follows `test/bgp.test.js` (`ok(cond, msg)`, one behaviour per line) and
 `test/bgp-wire.test.js` (real topology, `runCommands()`, then assert on
-`dev.bgpRoutes` / `routeTo()`). New file: `test/bgp-policy.test.js` (unit) and
+`dev.bgpRoutes` / `routeTo()`).
+
+**What is already here to build on, checked on 2026-11-12** — because half of the IDs below read as if their
+helpers exist. Exported and usable today: `comparePaths` (**arity 2**), `bestPath` (**arity 1**, takes the
+candidate array), `advertise` (arity 2), `pathIsLoopFree` (arity 2), `asPathLength` (arity 1). Derive the arities
+the same way rather than trusting this line:
+
+```bash
+node -e "const b=require('./engine/bgp.js');for (const n of ['comparePaths','bestPath','advertise','pathIsLoopFree','asPathLength']) console.log(n, b[n].length)"
+```
+
+Two consequences for the tables. `MAX_ROUNDS = 12` is real (`simulator.js:2133`), so LOOP-A5 is asserting about
+live code. But `bestPath()` does not rank on `comparePaths()` alone: it sorts with `compareForBest()`
+(`bgp.js:469`), which breaks ties on router id and then on prefix — so any ID here that says "`bestPath` returns
+object X" is really asserting through a three-stage chain, and two paths that compare `0` are not interchangeable.
+
+Not present, so each ID that names one is asking for new code, not a test: `ingressPath`, `parseCommunity`,
+`formatCommunity`, `normalizeCommunities`, `medEliminate`, `nextHopFor`, every counter (`stats.deniedIn`,
+`deniedOut`, `loopDropped`, `noExportSuppressed`, `noAdvertiseSuppressed`), and any `opts.alwaysCompareMed` —
+`comparePaths` takes exactly two parameters and has no options argument, so MED-A3's `{alwaysCompareMed:true}` is
+a signature change, not a call you can write today. `grep -rn 'ingressPath\|parseCommunity\|medEliminate\|nextHopFor\|alwaysCompareMed' engine/ test/`
+returns nothing. New file: `test/bgp-policy.test.js` (unit) and
 `test/bgp-policy-wire.test.js` (topology). Wire it into `package.json`'s `test`
 and `test:bgp-policy` scripts.
 
