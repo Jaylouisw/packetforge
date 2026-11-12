@@ -90,7 +90,9 @@ Every number in that paragraph, and the two guards' own output, were re-read on 
 `syntax-check` prints `Syntax-checked 337 files: all OK`; `git ls-files` counts **2,846** tracked files; the
 seven scanned directories hold **336** tracked `.js` files, so the 337 really is that plus one untracked file;
 and `tmp/` really does hold **109** tracked probes that nothing parses. `check-control-bytes.js` prints
-`No control bytes in source. (.js .json .md .yml .yaml .css .html .sh)` and `check-canonical-urls.js` prints
+`No control bytes in source. (.js .json .md .yml .yaml .css .html .sh)`, `check-node-surface.js` prints
+`No API newer than Node 18 in 466 source file(s).` (the 466 counts files, not APIs — it is a scan total, not a
+finding), and `check-canonical-urls.js` prints
 `OK — 2278 files, every project URL points at https://git.jayw.uk/jaylouisw/packetforge`, with
 `test/canonical-urls.test.js` at **43 passed, 0 failed** — which is the 2278 in context: a count that is
 green *and* a count that moves when a file is added, so it is worth re-reading rather than quoting. The job
@@ -457,7 +459,11 @@ these four are the ones above, and the other ten are `abbrev-ambiguity` (6), `ar
 family**, all green on this tree. A help change that reddens one of the ten is still a help regression,
 even though the 134 below did not move.
 
-**134 assertions, and they fail in different directions.** The first two are behavioural: they type lines
+**134 assertions, and they fail in different directions.** All fourteen were re-run individually on
+2026-11-12 and every count above reproduces — 47, 52, 21, 14 and 6, 69, 26, 5, 20, 33, 27, 13, 30, 47 —
+for **410** across the family and **134** in the first four, the same two totals the prose derives. So the
+table is a reading that currently holds, not an inheritance; when a help change lands, expect exactly one
+number to move and re-derive both sums rather than one. The first two are behavioural: they type lines
 and assert on answers. The last two are *derived* — they read the help rows and type what those rows
 promise — so they can go red with no behaviour change at all, which is exactly what a doc row edit
 produces. That is the mechanical reason a `cli.js` help change and a `CLI.md` edit belong in one commit:
