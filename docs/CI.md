@@ -493,8 +493,8 @@ console.log(bad?bad+" cited npm script(s) do not exist":"every cited npm script 
 
 It prints `every cited npm script exists` today, against the **54** scripts `package.json` actually defines.
 Without the two `continue` guards it prints **four hits**, and every one is an artefact rather than a
-finding: `npm run x` is this page's own placeholder (three pages quote it — here and twice in
-`SIMULATION.md`), and `npm run test:<area>` in `CONTRIBUTING.md` is a family prefix, which the character
+finding: `npm run x` is this page's own placeholder (four occurrences across two pages — twice here and
+twice in `SIMULATION.md`), and `npm run test:<area>` in `CONTRIBUTING.md` is a family prefix, which the character
 class happily swallows as the script `test:`. A checker that reports the sentence explaining it is worse
 than useless, so the regex skips a bare `x` and anything followed by `<`. The guard still bites: point a page
 at a script that is not there and it prints the file, the line and the name in its `<file>:<line> -> name`
