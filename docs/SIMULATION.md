@@ -559,7 +559,7 @@ built on the old behaviour would look wrong today: [#42, #43, #44](#10-fixed-def
 | **Approximate** | MED is compared unconditionally. Real BGP compares MED only between paths from the same neighbour AS. Declared in the module header. | `engine/bgp.js:18-19` |
 | **Approximate** | The FSM exists (`idle→connect→active→opensent→openconfirm→established`) but is never fed: hold/keepalive timers are validated and carried, never expire, and no session ever drops. | `engine/bgp.js:14-21`, `engine/bgp.js:220-266` |
 | **Approximate** | Next hop is rewritten to the advertising router's address on every advertisement, which is right for eBGP and wrong for an iBGP relay — see defect #41. | `engine/simulator.js:2152` — `nextHop = adj.type === 'ebgp' ? adj.localIp : (e.nextHop \|\| adj.localIp)` |
-| **Absent** | Route reflectors, confederations, peer groups/templates, AFI/SAFI negotiation, IPv6 unicast, communities, route-maps, prefix-lists, `next-hop-self`, dampening, graceful restart. | — |
+| **Absent** | Route reflectors, confederations, peer groups/templates, AFI/SAFI negotiation, IPv6 unicast, communities, route-maps, prefix-lists, `next-hop-self`, dampening, graceful restart. | —, except for one piece of vocabulary that is in place and reads as support until you follow it: `normalizePeer()` carries `routeReflectorClient` (`engine/bgp.js:197`, with `rrClient` as an alias) and `test/bgp.test.js:194-198` pins it, but no advertisement path consults it, so a grep for "reflector" finds a field and not a behaviour. |
 | **Absent in the CLI** | `router bgp`, `neighbor … remote-as`, `router-id` only. | `engine/cli.js:1372` |
 
 `docs/BGP-POLICY.md` is a **design document**, not a description of the code:
