@@ -901,6 +901,15 @@ queue that lost its arms gets them back in one tick instead of five at a time.
   failure. The honest total is therefore **11,288** (11,191 + 87 + 10), 3 of them red; a crashed suite
   costs you its pass count as well as its verdict.
 
+  **What a clean checkout reports, measured rather than inferred.** The same command run in a
+  `git worktree add --detach` at `20c68845`, outside the repository so the canonical-URL sweep cannot
+  walk it, prints `271 suite(s) in 297.2 s — 11167 assertions passed, 3 failed`, the same two suites.
+  The gap is the arithmetic above seen from the other side: 11,191 − 11,167 = **24**, exactly the
+  untracked value-hints suite, which is what makes it the only difference between the two trees rather
+  than merely a likely one. So the headline a reader gets depends on the tree: 271 / 11,167 at `HEAD`,
+  272 / 11,191 with the writer's work in place. The floor of 11,288 is reachable from neither, because it
+  is a corrected total rather than a printed one.
+
   Taken again 29 commits later on the same branch, with the writer's value-hints work still uncommitted:
   `272 suite(s) in 324.8 s — 11191 assertions passed, 3 failed`, the same two suites, the same 2 + 1.
   Identical counts, a duration 50 seconds longer — because the duration is wall-clock on a host doing
