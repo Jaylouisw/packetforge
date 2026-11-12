@@ -85,6 +85,16 @@ should be re-measured rather than re-quoted — it has fallen from 127 to 24 whi
 Nothing reads that comment, and `--limit 200` still covers the whole queue, as the default does — but do
 not quote the header as if it were a count.
 
+**Which script the last three paragraphs are about.** All of them are `scripts/sweep-device-requests.js`.
+Its neighbour `scripts/request-queue.js` — the queue described in
+[`REQUESTING-HARDWARE.md`](REQUESTING-HARDWARE.md) — fails differently, and confusing the two is easy
+because both read the same tracker through the same module: it prints `Could not read issues from
+jaylouisw/packetforge.` and one reason line (`FORGEJO_TOKEN is not set - the tracker is not readable
+without it (this is not the same as "no open requests")`, or `not authorised to read jaylouisw/packetforge
+(HTTP 401) - check FORGEJO_TOKEN`), then exits **2**, deliberately — the comment above the call reads
+*"Exit 2, not 0: 'could not look' must never be reported as 'nothing to do'".* No setup lines and no stack
+trace in either branch. Measured: both failure modes exit 2, with `bogus` and with no variable at all.
+
 Two flags exist and no others. `--limit` caps how many open issues are fetched and **defaults to
 200** — the queue has not been near that since this page was written, so the flag is only needed
 once it grows past it (`--limit 900` scans a large backlog in one pass). Note that the API caps

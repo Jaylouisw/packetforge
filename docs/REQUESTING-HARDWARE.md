@@ -37,29 +37,29 @@ Two things about the form are worth stating because neither is visible from the 
 
 Closed issues in this tracker carry no labels at all (measured: a sample of 50 of the closed ones has
 **none** — 50 fetched, 0 labelled), so label counts describe the *open* queue only — which is the queue
-the sweep reads. The closed count is a moving figure and quoting it is a losing game: it read `1,421`
-items with pull requests included and `921` issues on their own when this paragraph was last measured,
-against `1,413` and `917` a reading earlier, then `1,411` and `916`, `1,409` and `915`, `1,407` and `914`,
-`1,405` and `913`, `1,403` and `912`, `1,399` and `910`, `1,397` and `909`, and `1,395` and `908` before
-those. Both halves climb together every time — the gap ran 487, 488, 489, 491, 494, 496, then 500 — so the
-drift is merged work arriving, not one side pulling ahead; the last step is eight items and four issues
-because four requests and four pull requests closed between measurements. The open queue has not moved at
+the sweep reads. The closed count is a moving figure and quoting it is a losing game: it read `1,429`
+items with pull requests included and `925` issues on their own when this paragraph was last measured,
+against `1,421` and `921` a reading earlier, then `1,413` and `917`, `1,411` and `916`, `1,409` and `915`,
+`1,407` and `914`, `1,405` and `913`, `1,403` and `912`, `1,399` and `910`, `1,397` and `909`, and `1,395`
+and `908` before those. Both halves climb together every time — the gap ran 487, 488, 489, 491, 494, 496,
+500, then 504 — so the drift is merged work arriving, not one side pulling ahead; the last two steps are
+eight items and four issues each because four requests and four pull requests closed between measurements. The open queue has not moved at
 all in that time: every reading of it has said **24**, which is why it is quoted as a number and the
 closed side is not. So measure both halves rather than remembering either:
 
 ```bash
 H='https://git.jayw.uk/api/v1/repos/jaylouisw/packetforge/issues'
-curl -s -D - -o /dev/null "$H?state=closed&limit=1"            | grep -i '^x-total-count'  # 1421, PRs included
-curl -s -D - -o /dev/null "$H?state=closed&type=issues&limit=1" | grep -i '^x-total-count'  # 921 issues on their own
+curl -s -D - -o /dev/null "$H?state=closed&limit=1"            | grep -i '^x-total-count'  # 1429, PRs included
+curl -s -D - -o /dev/null "$H?state=closed&type=issues&limit=1" | grep -i '^x-total-count'  # 925 issues on their own
 curl -s -D - -o /dev/null "$H?state=open&type=issues&limit=1"   | grep -i '^x-total-count'  # 24 open
 ```
 
 The gap between the first two numbers is the pull requests: Forgejo serves them through the issues
 endpoint from a shared number space, so `type=issues` is what separates a request someone made from a
 change someone proposed. Nothing above is truncated either — paging `state=closed&type=pulls` to an empty
-page returns **500** rows, and the three counts reconcile against the number space: the newest item is
-`#1,446` and 1,445 items are counted (24 + 921 + 500), so the tally is one whole tracker with a single
-number unaccounted for rather than a page limit dressed up as a total.
+page returns **504** rows, and the three counts reconcile against the number space: the newest item is
+`#1,454` and 1,453 items are counted (24 + 925 + 504, which is also what `state=all` reports), so the tally
+is one whole tracker with a single number unaccounted for rather than a page limit dressed up as a total.
 
 ## What happens next
 
