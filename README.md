@@ -151,7 +151,12 @@ echo/reply travel across the link with a live animation and event log.
 
 ## Example labs
 
-Four labs ship as JSON, and each one is checked by a ping when it is built:
+Four labs ship as JSON, and each one is checked by a ping when it is built — **one** ping,
+`Simulator.ping(src, dst, {count: 1})`, against one named address per lab: lab1 from the first device
+in the file to `192.168.1.20`, lab2 the same way to `10.0.2.20`, lab3 from `PC1` to `10.0.0.30`, and
+lab4 from `PC1` to `192.168.10.20` — the one pair lab4 can reach, which is how it passes while
+shipping the broken path described below. The check reports rather than enforces: the script prints
+`ping OK` or `PING FAILED` and exits 0 regardless (see `docs/CI.md`).
 
 | File | In it | What it is for |
 |---|---|---|

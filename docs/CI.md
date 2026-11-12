@@ -58,7 +58,10 @@ locally and nothing at all about what CI runs. Then
 `examples/build-examples.js` (rebuild and self-verify every example lab — note that it
   **rewrites** the four JSON files from the generator and only then pings a host, so a hand-edited
   example passes the job: the files are compared to nothing. `git diff --exit-code examples/` after
-  the build would turn that into a real check) and
+  the build would turn that into a real check. The ping half is no guard either: the script prints
+  `verify <file>: ping OK` or `verify <file>: PING FAILED` and **returns 0 either way** — there is no
+  `process.exit` and no `throw` anywhere in the file — so a lab that genuinely cannot be pinged still
+  leaves the step green, with the failure visible only to whoever reads the log) and
 `missing-devices.js examples --no-issues` (every model an example names still exists).
 
 **`syntax-check` is a parse, not a lint, over seven directories.** It runs `node --check` once per file
@@ -602,13 +605,13 @@ queue that lost its arms gets them back in one tick instead of five at a time.
   **None of these readings is a reading of `main`.** They were taken in the working tree, which sits on
   branch `fix/sfp-plus-connectors`, and that branch diverged from `origin/main` at `083e2ba1`
   (2026-11-08 16:58:44) — at the time of the fourth reading it was **382 ahead and 361 behind**, and
-  now reads **536 ahead and 379 behind** (after a fresh `git fetch`, which moved the behind-side
+  now reads **537 ahead and 379 behind** (after a fresh `git fetch`, which moved the behind-side
   from 361 to 373 — main's tip is `f370b893`, #1450); either way not one of the commits above is an ancestor of
   `origin/main`. Check any of them before you quote it:
 
   ```bash
   git branch --show-current                              # fix/sfp-plus-connectors, not main
-  git rev-list --left-right --count HEAD...origin/main    # 536  379
+  git rev-list --left-right --count HEAD...origin/main    # 537  379
   git merge-base --is-ancestor d4319d27 origin/main || echo "not on main"
   ```
 
