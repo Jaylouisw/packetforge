@@ -463,6 +463,13 @@ warning sits in the `else` of the budget test (`engine/validation.js:708-716`), 
 fails reports `E_OPTICAL_BUDGET` and **no** headroom warning, and the figure compared against 3 dB is the
 **smaller of the two directions** (`Math.min(down.headroomDb, up.headroomDb)`), not the downstream one —
 which is why a 20 km link at 1310 nm warns on 2.7 dB while the same link at 1490 nm has 5.3 dB to spare.
+The class the budget is measured against is the device's (`spec.ponClass`), and when neither end declares
+one the check **falls back to B+** — 28 dB — instead of refusing to judge (`engine/validation.js:693-694`),
+so the refusal names a class the databook may never have said:
+`% upstream at 1310 nm Path loss 28.6 dB exceeds the B+ budget`. That is what
+`POST /api/topologies/<id>/validate-link` answers for two ADTRAN 411 ONTs (`pon` to `pon`) at 80,000 m —
+`verdict.ok` false, `mediaOptions` still one — while the same pair at 30,000 m passes with only a
+`W_DISTANCE` warning, because the budget and the reach are separate checks and the reach one is a warning.
 
 Try it live: **`POST /api/topologies/:id/validate-link`** returns the verdict plus
 every valid medium, which is what the UI's media picker is built from.
