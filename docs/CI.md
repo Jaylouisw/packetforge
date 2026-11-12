@@ -345,9 +345,12 @@ table must be followed by a blank line — including the one above.
 ### What the pages claim about the code
 
 `md-check` reads the *prose as prose* — tables, links, suite names. It cannot see the other thing a
-documentation page does: name a file, a script or a constant in backticks as though it exists. Two
-one-liners cover the two classes that go stale silently, and both were run on this tree to write the
-numbers below.
+documentation page does: name a file, a script or a constant in backticks as though it exists. **Three**
+classes go stale silently — a path, an `npm run` script, a constant or error code — and each of the three
+has a one-liner below, written from a run on this tree. Two further checks continue the numbered list that
+started above: the **fifth** is a link into the middle of another document, the **sixth** is a
+`file.js:123` citation. So in this section *class* counts to three and *check* counts to six, and a
+sentence about "the third class" is not talking about "the fifth check".
 
 **Every backticked path that looks like a file, must be one.** This catches a module that was renamed
 or deleted while three pages kept citing it:
@@ -374,8 +377,11 @@ design suites (`upstream-baseline.test.js` ×3, `bgp-policy.test.js` ×2, `bgp-p
 (`SIMULATION.md` three times, this page twice). By page: `SIMULATION.md` 10, `CI.md` 3,
 `UPSTREAM-DESIGN.md` 3, `BGP-POLICY.md` 2. Those per-file counts do not match the suite-check block
 above — `upstream-baseline.test.js` is 3 here and 4 there — because the two checks count different
-things: `md-check` counts **rows**, and this one counts **citations**, so a single row naming four files
-is one row and four citations. Neither number is wrong; quoting one against the other is. So the
+things: `md-check` prints one line per **page-and-name pair**, and this one counts **citations**, so a
+single row naming four files is one row and four citations, and a page that names the same absent suite on
+four lines still contributes one pair. That is why the block above reads `SIMULATION.md 5` while the same
+page holds nine citations of those names: five distinct names, nine mentions. Neither number is wrong;
+quoting one against the other is. So the
 number grows whenever history grows, which is why this paragraph carries the breakdown and not just a
 count. Anything that does not fall into one of those three groups is a renamed file and a broken page.
 
