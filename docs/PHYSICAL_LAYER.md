@@ -134,6 +134,29 @@ port's max rate in Mbps — not `spec.speed`. `speed` only feeds the "is this op
 `inferCage({ name: 'et-0/0/0', speed: '100G' })` answers `sfp`, and the same call with `100000` answers
 `qsfp28`. Pass the rate or the port gets the slowest optical cage that matches its name.
 
+Both trap tables and that ladder are one command, which fails loudly if any of them changes:
+
+```sh
+node -e "
+const m = require('./engine/media');
+const want = { nr5g: 'wwan', 'nr5g.1': 'wwan', 'nr5g-1': 'wwan', 'nr5g_1': 'wwan',
+  nr5g0: 'antenna', nr5g1: 'antenna', nr0: 'wwan', nr5: 'wwan', wwan0: 'wwan',
+  'wwan0.1': 'wwan', 'modem0.1': 'wwan', 'lte-1': 'wwan', '5g1': 'wwan',
+  nr5gx: 'rj45', wan5g0: 'rj45', 'lc/upc1': 'lc-upc', lcupc1: 'lc-upc',
+  'sc/apc1': 'sc-apc', scapc1: 'sc-apc', 'lc-upc1': 'rj45', 'sc-upc1': 'rj45',
+  'lc-apc1': 'rj45', 'sc-apc1': 'rj45' };
+const bad = Object.keys(want).filter(n => m.inferCage({ name: n }) !== want[n]);
+console.log(Object.keys(want).length + ' names, ' + bad.length + ' disagreeing' + (bad.length ? ': ' + bad.join(', ') : ''));
+console.log('speed \"100G\" alone -> ' + m.inferCage({ name: 'et-0/0/0', speed: '100G' }) +
+            ', with 100000 Mbps -> ' + m.inferCage({ name: 'et-0/0/0' }, 100000));
+"
+```
+
+```
+23 names, 0 disagreeing
+speed "100G" alone -> sfp, with 100000 Mbps -> qsfp28
+```
+
 And the `speed` half of that test is a **string** test, unit included. Measured on a port named `port7`,
 which matches no name pattern:
 
