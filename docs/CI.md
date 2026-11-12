@@ -1322,29 +1322,33 @@ console.log(rows.length, "rows of", cat.length, "parts | all in catalogue:",
 - **The "cited-but-absent suite" count is a warning, and it should not be zero.** The
   local markdown checker (`md-check`, the script reproduced [above](#running-the-same-checks-locally) —
   it lives outside the repository by design) resolves every `test/*.test.js` a page names against
-  the directory and prints **10** misses on this tree, over **five distinct names**. All ten are
-  legitimate:
+  the directory and prints **11** misses on this tree, over **six distinct names**. All eleven are
+  legitimate, and the count read ten over five names for most of this page's life — the eleventh is
+  `help-completeness`, an upstream suite this tree does not carry, which only entered the sweep when the
+  merge paragraph below named it with its prefix:
 
   | Where | Count | Why it is legitimate |
   |---|---|---|
   | `docs/BGP-POLICY.md` | 2 | `bgp-policy.test.js`, `bgp-policy-wire.test.js` — the page is a **design**, and these are the suites it proposes ("New file:") |
   | `docs/UPSTREAM-DESIGN.md` | 2 | `upstream-baseline.test.js`, `upstream-service.test.js` — phase-0 and phase-2 gates, not yet written |
   | `docs/SIMULATION.md` | 5 | the iteration log **narrating** those same names: the §11 rows that record how the ghost-citation problem was found, and ones recording passes that "fixed" it — plus `poe-derived.test.js`, the file nobody ever wrote |
-  | `docs/CI.md` | 1 | this page narrating the `poe-derived.test.js` incident — the page that explains the count is itself part of it |
+  | `docs/CI.md` | 2 | this page narrating the `poe-derived.test.js` incident — the page that explains the count is itself part of it — plus one mention of `help-completeness.test.js`, which is a suite on the upstream `main` and not in this tree (see the merge paragraph below) |
 
   **The rule the checker actually applies: one line per distinct missing name per file, and only when the
-  name is written with the directory prefix in front of it.** That second half is why `docs/CI.md`
-  contributes exactly one even though this section names all five: the table above writes them bare, and
-  the regex wants the prefix. Writing the prefix into this very sentence is itself one more citation —
-  measured, it took this page from one to two and the total from ten to eleven. Count bare filenames too
-  and the same four pages carry
-  **14** file-name pairs across **19** lines — a bigger number under the same facts, which is why the
-  paragraph below says the two checks disagree rather than that one of them is wrong. Recount rather than
-  trust these figures: they move whenever a §11 row is rewritten, and this one has read 15 before it read
-  10, with five distinct names throughout.
+  name is written with the directory prefix in front of it.** That second half is why the table above is
+  not a list of citations: it writes every name bare, and the regex wants the prefix. This page contributes
+  **2**, and both are prefixed in prose — `test/poe-derived.test.js` in the paragraph on the two checks
+  disagreeing above, and `test/help-completeness.test.js` in the merge paragraph below. So the arithmetic is
+  2 + 2 + 5 + 2 = **11**, and the sixth name is `help-completeness`: not one of the five this table lists,
+  because it is a suite that exists upstream rather than a proposal. Count bare filenames too and the same
+  four pages carry **14** file-name pairs across **19** lines — a bigger number under the same facts, which
+  is why the paragraph below says the two checks disagree rather than that one of them is wrong. Recount
+  rather than trust these figures: they move whenever a §11 row is rewritten, and this one has read 15
+  before it read 10, with the same names throughout that history.
 
-  None of the five names has ever existed: `git log --all --format=%h -- test/<name>` returns nothing for
-  `bgp-policy`, `bgp-policy-wire`, `poe-derived`, `upstream-baseline` and `upstream-service`. That is the
+  Five of the six have never existed: `git log --all --format=%h -- test/<name>` returns nothing for
+  `bgp-policy`, `bgp-policy-wire`, `poe-derived`, `upstream-baseline` and `upstream-service`, and the
+  sixth, `help-completeness`, is a file on upstream `main` this branch does not carry. That is the
   distinction worth keeping — a citation of a suite that was **renamed** is a broken link to fix, while a
   citation of a suite that was **proposed** is a promise, and only the design pages are allowed to make one.
 
