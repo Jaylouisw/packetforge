@@ -210,7 +210,7 @@ shipping the broken path described below. The check reports rather than enforces
 |---|---|---|
 | `lab1-two-pcs-switch.json` | 2 PCs, 1 switch (3 devices, 2 cables) | the smallest thing that works — `192.168.1.10` ↔ `192.168.1.20` through a switch, so you can see MAC learning and flooding without configuring anything |
 | `lab2-router-two-subnets.json` | 2 PCs, 1 router (2 subnets: `10.0.1.0/24`, `10.0.2.0/24`) | routed traffic: `10.0.1.10` reaches `10.0.2.20` via `Gi0/0`/`Gi0/1`, and route lookup, ARP and the TTL are all visible in the timeline |
-| `lab3-multi-vendor-campus.json` | 8 devices from 4 vendors — cloud, Cisco `ISR4321`, MikroTik `CRS326-24G`, Huawei `S5735-L24T4S`, Ubiquiti `EdgeSwitch-16`, 2 PCs, 1 server (7 cables) | a campus edge with a WAN: a static default route on `EDGE` toward `198.51.100.1`, and `10.0.0.0/24` behind it |
+| `lab3-multi-vendor-campus.json` | 8 devices from 4 vendors — cloud, Cisco `ISR4321`, MikroTik `CRS326-24G`, Huawei `S5735-L24T4S`, Ubiquiti `EdgeSwitch-16`, 2 PCs, 1 server (7 cables; **5** `vendor` values if you count `generic`, which is what the cloud, the two PCs and the server carry — the four are the named hardware vendors) | a campus edge with a WAN: a static default route on `EDGE` toward `198.51.100.1`, and `10.0.0.0/24` behind it |
 | `lab4-vlans-trunk-stp.json` | 2 switches, 3 PCs (5 cables, including a second link between the switches) | VLANs 10 and 20 over a trunk with a deliberate loop, so STP has to block one port before anything passes |
 
 **`lab4` is the one lab where something does not ping, and it is worth knowing which.** The loop is
