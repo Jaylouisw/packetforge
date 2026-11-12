@@ -385,8 +385,9 @@ GPON class B+ (28 dB), 1:32 split, 12 km span, 4 splices, OLT and ONT mated pair
 Those are `ponBudget()`'s own answers for the inputs above — `lossDb: 21.14`,
 `headroomDb: 6.86` — and two of them are the engine's rather than a datasheet's: it attenuates
 1490 nm at **0.22 dB/km**, and `splitterLossDb()` returns the **worst-case** rung of the splitter
-table (17.5 dB for 1:32), not its 16.5 dB minimum. Budget against the vendor numbers instead and the
-total looks 0.6 dB kinder than the model will be.
+table (17.5 dB for 1:32), not its 16.5 dB minimum. Budget against those two best cases instead — the
+splitter at 16.5 and Grade B connectors at 0.25 dB a pair rather than 0.3 — and the same path comes out at
+**20.04 dB**, **1.10 dB** kinder than the model, on a budget whose entire headroom is 6.86 dB.
 
 The call has to spell the splice count **`splices`**, as in `ponBudget({ lengthM: 12000,
 splitters: ['1:32'], ponClass: 'B+', splices: 4 })`. A plausible variant is not a typo the engine
