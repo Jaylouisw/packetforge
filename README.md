@@ -314,7 +314,7 @@ packetforge/
 ├── engine/          # pure-JS simulation engine (zero deps) — 32 modules: a file per protocol,
 │                    #   plus the models (device, link, topology), the helpers and the CLI
 │   ├── simulator.js #   event-driven L2/L3/ARP/ICMP engine
-│   ├── cli.js       #   vendor-agnostic management console (~13,000 lines: every verb)
+│   ├── cli.js       #   vendor-agnostic management console (~13,700 lines at HEAD: every verb)
 │   ├── topology.js  #   Topology container + (de)serialization
 │   ├── net.js       #   IPv4 / MAC / subnet helpers; device.js and link.js are the models
 │   ├── validation.js#   the refusal engine behind every cable, VLAN and transceiver check
