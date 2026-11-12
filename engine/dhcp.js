@@ -471,6 +471,45 @@ function createLeaseState() {
   return { leases: new Map(), byIp: new Map() };
 }
 
+// A lease state is topology state, so the document carries it - and it is two Maps, which JSON cannot write. The
+// encoder writes what a lease is (the address, who holds it, which pool, when it lapses); the decoder rebuilds both
+// maps from that one list, so a document can never restore a MAC map and an address map that disagree (#1465).
+function leaseStateToJSON(state) {
+  const s = stateOf(state);
+  const leases = [];
+  for (const mac of Array.from(s.leases.keys())) {
+    const l = s.leases.get(mac);
+    if (!l || !l.ip) continue;
+    leases.push({
+      mac: mac, ip: l.ip,
+      pool: l.pool === undefined ? null : l.pool,
+      leaseSec: l.leaseSec === undefined ? null : l.leaseSec,
+      expiresStep: l.expiresStep === undefined ? null : l.expiresStep
+    });
+  }
+  return { leases: leases };
+}
+
+function leaseStateFromJSON(rec) {
+  const state = createLeaseState();
+  const list = rec && Array.isArray(rec.leases) ? rec.leases : [];
+  for (const raw of list) {
+    if (!raw || !raw.mac || !raw.ip) continue;
+    const lease = {
+      ip: raw.ip,
+      expiresStep: Number.isFinite(Number(raw.expiresStep)) ? Number(raw.expiresStep) : null,
+      pool: raw.pool === undefined ? null : raw.pool,
+      leaseSec: Number.isFinite(Number(raw.leaseSec)) ? Number(raw.leaseSec) : null
+    };
+    // One address, one holder: a document that names the same address twice keeps the first and drops the rest,
+    // which is the rule the running server applies too.
+    if (state.byIp.has(raw.ip)) continue;
+    state.leases.set(raw.mac, lease);
+    state.byIp.set(raw.ip, raw.mac);
+  }
+  return state;
+}
+
 // Never trust the caller's state object; rebuild it if it is not the shape we
 // expect (a simulator restart, a fresh device, a hand-written test fixture).
 function stateOf(state) {
@@ -793,6 +832,8 @@ module.exports = {
   ipInPool,
   nextFreeIp,
   createLeaseState,
+  leaseStateToJSON,
+  leaseStateFromJSON,
   handleDiscover,
   handleRequest,
   releaseLease,

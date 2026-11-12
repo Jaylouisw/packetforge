@@ -64,7 +64,10 @@ ask(L, ['a', 'b', 'c']);
   ok(/^1 request\(s\) refused:/.test(refused), 'the count is one', refused);
   ok(/pool LAN has no address left to offer/.test(refused), 'with the engine\u2019s own sentence for the reason', refused);
   ok(/02:00:00:00:04:00/.test(refused), 'and the client that was turned away', refused);
-  ok(/2 active binding\(s\)/.test(bindings.join('\n')), 'the count of live leases is unchanged', bindings.join(' | '));
+    // The count is what this check is about, not the wording: this lab sets no clock, so the summary counts
+  // bindings rather than lease states (#1465) - the same two leases, described honestly.
+  const summary = lineWith(bindings, /binding\(s\)/);
+  ok(/^2 (active )?binding\(s\)/.test(summary), 'the count of live leases is unchanged', summary);
 }
 
 console.log('');

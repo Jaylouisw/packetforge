@@ -2484,6 +2484,10 @@ class CliSession {
         }
         return out;
       }
+      // A lease's state is a fact about time, and the engine only states it when it is asked at an instant. Without
+      // one, `leaseTable` returns rows with no `state` at all - and this summary used to call every one of them
+      // "active", a claim about time the engine had explicitly declined to make (#1465).
+      const clocked = rows.every(function (r) { return r.state !== undefined; });
       let lapsed = 0;
       for (const r of rows) {
         const pool = r.pool ? poolByName(r.pool) : null;
@@ -2492,12 +2496,18 @@ class CliSession {
         if (isExpired) lapsed++;
         out.push(pad(r.ip, 16) + pad(r.mac + (reserved ? ' (reserved)' : ''), 30) +
           pad(r.pool || '-', 18) +
-          (isExpired ? 'lapsed (address free)' : human(r.remainingSec)));
+          (isExpired ? 'lapsed (address free)'
+            : (r.state === undefined ? 'no clock' : human(r.remainingSec))));
       }
-      const active = rows.length - lapsed;
       out.push('');
-      out.push(active + ' active binding(s)' + (lapsed ? ', ' + lapsed + ' lapsed' : '') +
-        '; the lease clock runs from the instant the lease was granted');
+      if (clocked) {
+        const active = rows.length - lapsed;
+        out.push(active + ' active binding(s)' + (lapsed ? ', ' + lapsed + ' lapsed' : '') +
+          '; the lease clock runs from the instant the lease was granted');
+      } else {
+        out.push(rows.length + ' binding(s); no clock is set, so none is lapsed or active yet - ' +
+          'the expiry is counted from the instant each lease was granted');
+      }
       if (failed.length) {
         const last = failed[failed.length - 1];
         out.push(failed.length + ' request(s) refused: ' + this._dhcpFailureText(last, true) +
