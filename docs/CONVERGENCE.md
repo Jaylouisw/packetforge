@@ -360,9 +360,14 @@ Network converges again at 40000 ms.
 ```
 
 Ten seconds plus the two forward delays, because a switch that has to bring a new port into
-forwarding walks it through Listening and Learning just as it does at boot. Ask inside that window
-and the answer is `reason: 'converging'`, naming the processes that are not done; ask after it and
-the alternate path is carrying traffic.
+forwarding walks it through Listening and Learning just as it does at boot. Those are the **default**
+delays, not the switches': the line is computed from `stpTimers({})` with an empty config
+(`engine/simulator.js:694`), so a lab whose switches set `stpForwardDelaySec: 4` still gets
+`Network converges again at 40000 ms.` from `link down` while `converge` reports `Fully converged at
+18000 ms.` — the one place the two answers disagree, written up in
+[LINK-STATE.md](LINK-STATE.md#one-rough-edge-the-figure-link-down-quotes-is-always-the-stp-one).
+Ask inside the window and the answer is `reason: 'converging'`, naming the processes that are not done;
+ask after it and the alternate path is carrying traffic.
 
 `getConvergence()` reports `fromMs` — the instant the schedule is based at — and includes the change
 itself as an entry, so nothing in the schedule claims to be ready before the event that caused it.
