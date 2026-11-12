@@ -1797,3 +1797,30 @@ Router(config)#vrrp 1 ip 10.0.0.254
 ```
 
 `test/missing-argument-is-not-a-value.test.js` holds all of it: fifteen bare commands, the `hostname` and `description` receipts, the three missing-not-invalid messages, the whitespace sweep, and the leniency that is deliberate. 29 checks; with the old handler, 13 passed / 16 failed.
+## `?` is a keypress in every prompt, and `exit` walks one level at a time
+
+The console prints the mode in its prompt — `>`, `#`, `(config)#`, `(config-if)#`, `(config-dhcp)#` — and two keys that a technician uses to find their way around only worked in some of them.
+
+`?` printed the whole index at `>` and `#`, and was a **syntax error** in the other three:
+
+```
+Router(config)#?
+% Unrecognized config command: ?
+Router(config-if)#?
+% Unrecognized interface command: ?
+```
+
+The one key that means "I do not know what I can type here" was reported as though the key itself were a typo. The index already labels each row with the mode it belongs to (`(config mode)`, `(interface mode)`, `(in a dhcp pool)`), so the same list is the right answer in every prompt; `help` says the same thing, since the two have always been one command.
+
+`exit` was worse in a quieter way. At `#` it did nothing at all:
+
+```
+Router#exit
+Router#                   <- and again, and again
+```
+
+Exec and privileged EXEC share one dispatcher, and only `exit` at `>` was handled (as a no-op, because there is no login to leave). One level up from `#` is `>`, which this console always has underneath, so the ladder is now continuous — `(config-if)#` → `(config)#` → `#` → `>` — and each step is one `exit`.
+
+What did **not** change: a word the console does not know is still reported in every mode (`% Unrecognized config command: flurbish`), because the fix is the two help keys and the one level, not a general amnesty.
+
+`test/help-key-works-in-every-prompt.test.js` holds it: nine checks over all five prompts (the index from `?` and from `help`, the prompt unchanged afterwards, a command still working after asking for help), plus the full `exit` ladder and the unknown-word reports. With the old handler: 4 passed / 5 failed.

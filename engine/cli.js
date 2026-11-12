@@ -152,7 +152,10 @@ class CliSession {
         } else if (head === 'traceroute' || head === 'tracert') {
           out.push.apply(out, this._traceroute(tokens.slice(1)));
         } else if (head === 'exit' || head === 'logout' || head === 'quit') {
-          // stays in exec
+          // `exit` at `>` stays at `>` - there is no login to leave. At `#` it used to do nothing at all,
+          // so the prompt kept its `#` and typing it again did not help: one level up from privileged EXEC
+          // is user EXEC, which is the mode this console always has underneath (#1503).
+          if (this.mode === MODE_ENABLE) this.mode = MODE_EXEC;
         } else if (head === 'help' || head === '?') {
           out.push.apply(out, this._help());
         } else {
@@ -271,6 +274,11 @@ class CliSession {
   _configMode(tokens) {
     const out = [];
     const head = tokens[0].toLowerCase();
+    // `?` and `help` are the console's index. They answered at `>` and `#`, and in the three modes that
+    // print a mode in the prompt they were a syntax error - so the one key pressed when unsure said
+    // "Unrecognized config command: ?" and implied the key itself was the mistake (#1503). The index
+    // already labels each row with the mode it belongs in, so the same list is the right answer here.
+    if (head === 'help' || head === '?') return this._help();
     if (head === 'ip' && tokens[1] && tokens[1].toLowerCase() === 'nat' &&
         tokens[2] && /^(inside|outside)$/i.test(String(tokens[2])) && tokens[3] === undefined) {
       // The keyword belongs to a port, not to the box. Saying so beats printing the pool/rule usage, which does
@@ -748,6 +756,7 @@ class CliSession {
     const out = [];
     const iface = this.device.interfaces.get(this.iface);
     const head = tokens[0].toLowerCase();
+    if (head === 'help' || head === '?') return this._help();
 
     // IOS treats a new `interface <name>` line inside interface mode as a mode switch, not as an
     // error. Configs copied out before #1230 rely on exactly this, because they have no `exit`
@@ -1976,6 +1985,7 @@ class CliSession {
     const out = [];
     const dhcpLib = require('./dhcp');
     const head = tokens[0].toLowerCase();
+    if (head === 'help' || head === '?') return this._help();
     const pools = (this.device.config && this.device.config.dhcpPools) || [];
     const pool = pools.filter(function (p) {
       return p.name === this.pool;
