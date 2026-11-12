@@ -480,12 +480,17 @@ deliberately, in a column headed *this design changes it to*. Grep for each one,
 a finding **only** on a page that describes what the engine does today — `CLI.md`, `LINK-STATE.md`,
 `DEVICE_REGISTRY.md`, `PHYSICAL_LAYER.md`. Run over the whole tree the sweep answers **169** distinct `E_`/`W_` codes in `engine/`, `server/`, `web/`
 and `scripts/`, **28** distinct codes cited that no source file raises, and **33** page-and-code lines —
-the difference because `E_CONVERGING` is named on three pages and the design codes on two. Every absence
-is accounted for: **26** are `UPSTREAM-DESIGN.md`'s "this design changes it to" column (16 `E_`, 10 `W_`),
-**1** is `E_PATCH_CORD_NOT_A_BRIDGE` in `HYBRID-PATCH.md` as a proposed check on `polishBridge`, and **1**
-is `E_CONVERGING`, which `LINK-STATE.md` mentions in order to say a reader will *not* find it here — the
-sentence is about an absence, which is the one place a bare existence check cannot tell diligence from
-drift. So the sweep's answer is not "zero", it is "zero on the pages that describe today":
+the difference because a code can be named on more than one page. The 33 pairs break down as **26** in
+`UPSTREAM-DESIGN.md` (16 `E_`, 10 `W_`), **4** here, **1** in `LINK-STATE.md`, **1** in `SIMULATION.md`
+and **1** in `HYBRID-PATCH.md`. Every absence is accounted for: the 26 are that page's "this design
+changes it to" column, **1** is `E_PATCH_CORD_NOT_A_BRIDGE` in `HYBRID-PATCH.md` as a proposed check on
+`polishBridge`, and **1** is `E_CONVERGING`, which `LINK-STATE.md` mentions in order to say a reader will
+*not* find it here — the sentence is about an absence, which is the one place a bare existence check
+cannot tell diligence from drift. The remaining pairs are the accounting itself: **this page** quotes
+`W_SINGLE_HOMED`, `E_NAT_EGRESS_MISMATCH`, `E_PATCH_CORD_NOT_A_BRIDGE` and `E_CONVERGING` while
+explaining the sweep, and `SIMULATION.md` names `E_CONVERGING` twice in its own reconciliation rows — the
+same self-reference the citation sweep hits with its invented `engine/foo.js`. A sweep that counts the
+page documenting it will never read zero, which is why the number to watch is the list, not the total. So the sweep's answer is not "zero", it is "zero on the pages that describe today":
 
 ```bash
 node -e '
