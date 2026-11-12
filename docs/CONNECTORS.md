@@ -59,6 +59,12 @@ A port that declares neither `speedCaps` nor a rate label therefore gets no spee
 which is the real consequence. `sfp+` is the fixed one this paragraph used to contrast it with, and the contrast
 is between a fixed list and a filtered ladder — not between "has an entry" and "does not".
 
+Two ratings are not enough to reproduce that split, which matters before anyone re-derives it. `dsl`
+answers `[24,100,300]` at 1G and at 400G alike and reads as fixed; what makes it filtered is the bottom of
+its ladder — `dsl(1)` is `[]`, `dsl(24)` is `[24]`, `dsl(100)` is `[24,100]`. Probe below the smallest rung
+or a clamped ladder files itself under fixed. `sfp28` has the same shape one rung up: `[1000]` at 1G,
+`[1000,10000]` at 10G.
+
 It is **not two** `CAGE_SPEEDS` classes that name a rate no medium in that cage carries — it is eight cages'
 worth, and they are why this table's Speeds column is derived from the media instead. Comparing
 `CAGE_SPEEDS[cage](rating)` against the `speedMbps` of every id in `CAGE_MEDIA[cage](rating)`, at three
@@ -194,7 +200,9 @@ sets, and where they disagree the engine wins.
 3 `accept:downshift`, 2 `refuse:polish`, 7 `refuse:protocol`, plus a catch-all `['<cage>', '*', 'refuse']`
 row for 25 of the 26 cages — and drives every one of the **351** unordered cage pairs (this tree: 40 accepted,
 311 refused, 0 verdict divergences, `351 passed`). It is a specification, not a snapshot: when the engine
-disagrees it names the pair and the fix is not "edit `media.js` until it goes green".
+disagrees it names the pair and the fix is not "edit `media.js` until it goes green". The figures above are
+the suite's own — `node test/cable-matrix.test.js` prints `accepted by engine   : 40`, `refused by engine    :
+311` and `351 passed, 0 failed`, so the sentence can be checked without being trusted.
 `test/cage-media-resolves.test.js` owns the other half — every id any cage offers, at every rate it might be
 asked about, must resolve to a real `MEDIA` entry, which is how an `100base-fx` that no longer existed was
 caught.
