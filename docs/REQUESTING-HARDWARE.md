@@ -370,3 +370,9 @@ Some devices carry hardware facts that need a datasheet read to settle. Those li
 in `test/known-issues.json` against a Forgejo issue. The invariant fails on any new
 offender *and* fails if a listed device is fixed but not removed, so the list can
 only shrink.
+
+Today the file holds one list, `opticsWithoutCage`, and it is **empty** — that is the state it is meant
+to reach, not a missing fixture. You can tell from the run: `node test/hardware-invariants.test.js`
+prints `25 passed, 0 failed` and no `N known gap(s) tracked in issue #9` line, which appears whenever a
+device is still on the list. Deleting an entry to make the build pass is exactly the dishonesty the
+file's own comment warns about, which is why the second assertion exists.
