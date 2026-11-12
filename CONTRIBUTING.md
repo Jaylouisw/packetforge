@@ -195,6 +195,16 @@ are in the repository — 109 probe scripts and 3 saved messages — last curate
 not that everything in the directory is untracked; a `git status` that lists `tmp/p148a.js` as `??` is
 sitting next to 112 siblings that are `git ls-files` hits.
 
+`.staged/` has the same shape of problem, so here is how the three numbers in its row are produced rather than
+asserted, and how to re-derive them: take every path from `git ls-files .staged` (589 today), match it to
+`devices/**` **by basename** — the vendor directory is part of the key, so `aruba/2530-48.json` is compared with
+any `devices/*/2530-48.json` — then read both files as bytes. Equal is *identical*, unequal is *different*, and no
+basename anywhere under `devices/` is *not in the catalogue*. Run on 2026-11-12 that returns **417 / 38 / 134** for
+589, exactly the row's numbers, which is the point: the census is reproducible, not a remembered reading. The
+pointer in that row, `DO-NOT-USE.md`, sits at the **repository root** and not inside `.staged/` — it is tracked,
+and `check-canonical-urls.js` exempts it through `EXEMPT_FILES` because a file whose job is to record a stale URL
+is not a URL violation (see `docs/CI.md`).
+
 ### Running one area instead of everything
 
 `npm test` is three things in sequence — `scripts/audit-port-types.js`, `scripts/check-control-bytes.js`
