@@ -27,11 +27,14 @@ grep -rnEi '\btls\b|createServer|https?\.request|net\.Socket' engine/*.js       
 
 Read the exit codes with care: the second command exits **1**, which is grep saying "no line matched", not
 grep failing. Under this repository's own shell `echo $?` prints `0` even after a failed command, so check the
-outcome with `&&`/`||` — `grep … >/dev/null && echo MATCHED || echo NOMATCH` — rather than reading `$?`. Re-run that
-way on 2026-11-12 the first command reports MATCHED and the second NOMATCH, with the three hits still at
-`engine/flow.js:19`, `:20` and `:29`. The first exits 0 on three hits — `engine/flow.js:19`, `:20` and `:29` — and all three are
-comments, two stating the absences and the third explaining that MSS options "all eat into the same budget".
-A presence would look different: it would be code.
+outcome with `&&`/`||` — `grep … >/dev/null && echo MATCHED || echo NOMATCH` — rather than reading `$?`.
+
+Re-run that way on 2026-11-12 the first command reports **MATCHED** and the second **NOMATCH**, and the three
+hits are still at `engine/flow.js:19`, `:20` and `:29` — all three comments, two stating the absences and the
+third explaining that MSS options "all eat into the same budget". A presence would look different: it would be
+code. The same run shows why the advice matters: appending `; echo rc=$?` to that second grep prints `rc=0` for a
+command that matched nothing, while the `&&`/`||` form beside it prints NOMATCH — same command, two answers, and
+only one of them is about the repository.
 
 So "no congestion window, no retransmission timer, no SACK, no TIME_WAIT, no window scaling, no ICMP
 port-unreachable" and "sockets, HTTP and TLS remain absent" are still true, and the first line of evidence is
