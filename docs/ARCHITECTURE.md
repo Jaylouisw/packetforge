@@ -470,6 +470,17 @@ Two of the board endpoints behave in a way a client author will not guess:
   rejected for its shape**. Measured: `{"lines":["show version"]}` answers
   `400 { error: 'CliSession.run expects a string, got undefined' }`, which names the engine's internal
   call rather than the mistake the client made. If you get that message, your key is not `commands`.
+- **Driving the console from Node has a constructor order, and getting it wrong looks like engine bugs.**
+  It is `new CliSession(deviceObject, topology, simulator)` — the device first, then the board, then the
+  simulator. `new CliSession(topology, deviceId)` does not throw; it runs, then answers with the device name
+  missing and a `TypeError` for every handler that reaches into config. Measured on a `generic-router`/`generic-pc`
+  lab: with the right order `show dns` prints `DNS zones on R1:`, `show ipv6 nd` prints
+  `IPv6 router advertisements on R1:` and `show access-lists` prints `% No access lists configured`; with
+  `(topology, id)` the same three print `% Error: Cannot read properties of undefined (reading 'dnsZones')`,
+  `(reading 'ra')` and `(reading 'acls')`, and `show lldp neighbors` reports `LLDP is disabled on undefined`.
+  So when a probe reports `TypeError`s from inside the console, suspect the argument order before filing the
+  defect — four of the ten commands in the README's CLI row "fail" that way. Also note `run()` returns
+  `{ output, actions }`: read `.output` for the lines, since the returned object stringifies as `[object Object]`.
 - **A `200` from the config endpoint means the request ran, not that the device accepted it.** The
   session starts in exec mode, so a bare `interface Gi0/0` is not a command there, and the refusal
   arrives inside a `200`. Measured on a fresh board:
