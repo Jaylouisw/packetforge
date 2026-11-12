@@ -1731,3 +1731,69 @@ Router(config)#ip route 10.9.0.0
 ```
 
 `test/no-command-swallows-a-word.test.js` runs the whole sweep as a guard — 33 families, three classes, and a rule for what an unquoted refusal is allowed to be — so the next command that accepts a word it does not know is caught by measurement rather than by someone noticing. 21 checks; with the old handler, 12 passed / 9 failed.
+
+## A short line is not a wrong value
+
+Fifteen commands were asked what they do with **no argument at all**. Two answered by doing something, and three answered a question nobody had asked (#1497).
+
+### `hostname` with no name erased the name
+
+```
+Router(config)#hostname core-router
+Router(config)#hostname
+Router(config)#
+```
+
+No output, and `config.hostname` became `null`. `hostname` is the command that sets the name, so the one place to look for what it did is the surfaces that render it — and a bare line silently unset them. It now refuses, and says the name is unchanged:
+
+```
+Router(config)#hostname
+% Incomplete command: hostname <name> (the name is unchanged)
+```
+
+### `description` with no text cleared it and reported success
+
+```
+Router(config-if)#description uplink to the core
+Description set
+Router(config-if)#description
+Description set              <- and the description is now gone
+```
+
+A change the receipt did not name. Now a bare `description` is refused — clearing is `no description`, which says what it removed:
+
+```
+Router(config-if)#description
+% Incomplete command: description <text> (use `no description` to clear it)
+Router(config-if)#description uplink to the core
+Description set: uplink to the core
+Router(config-if)#no description
+Description removed: uplink to the core
+Router(config-if)#no description
+Gi0/0/0 had no description
+```
+
+### A missing value was reported as an invalid one
+
+Same shape as `ip route flurbish` in #1495 — the *empty string* was validated as a value:
+
+| typed | used to answer | now |
+|---|---|---|
+| `ip name-server` | `% Invalid name server "": not an IPv4 address` | `% Incomplete command: ip name-server <address>` |
+| `ipv6 address` | `% Invalid IPv6 address ""` | `% Incomplete command: ipv6 address <address>/<prefix> (or `ipv6 address autoconfig`)` |
+| `vrrp 1 ip` | `% Invalid address: (none)` | `% Incomplete command: vrrp <vrid> ip <address>` |
+
+A genuinely bad value is still quoted back (`Invalid name server "flurbish"`), so the two problems now read differently.
+
+## Two things measured and left alone
+
+**Whitespace is already robust.** A lab is pasted, not typed, so every command in the sweep was also run with double spaces, a tab, a leading space, a trailing space and a mix: **108 variant runs, 0 differences** in either the answer or the resulting config. That property is pinned by a test rather than assumed.
+
+**A global command at an interface prompt is applied in global config** — deliberately, so that a pasted running-config block works without `exit` lines between blocks (#1230). It is leniency by design; what it costs is that the answer does not say where the configuration landed. The reverse is refused by name, and where the console knows better it says so:
+
+```
+Router(config)#vrrp 1 ip 10.0.0.254
+% vrrp is configured per interface: enter an interface first, e.g. interface Gi0/0
+```
+
+`test/missing-argument-is-not-a-value.test.js` holds all of it: fifteen bare commands, the `hostname` and `description` receipts, the three missing-not-invalid messages, the whitespace sweep, and the leniency that is deliberate. 29 checks; with the old handler, 13 passed / 16 failed.

@@ -336,8 +336,11 @@ class CliSession {
       // "core switch 1" to "core", which is what the UI's hostname field appeared to do
       // (issue #19) - the box was fine, the parser was eating the rest of the line.
       const name = tokens.slice(1).join(' ').trim();
+      // `hostname` with nothing after it used to clear the name to null and print nothing at all: a destructive
+      // command with no receipt, and the one way to find out was to look at a surface that shows the name (#1497).
+      if (!name) return ['% Incomplete command: hostname <name> (the name is unchanged)'];
       if (!this.device.config.hostname) this.device.nameBeforeHostname = this.device.name;
-      this.device.config.hostname = name || null;
+      this.device.config.hostname = name;
       // device.name is what the UI renders: the canvas label, the inspector header, the
       // status bar. Setting only config.hostname left a device that reported
       // "hostname THE BIFROST" while every surface still said "THE" (issue #21). Both are
@@ -612,8 +615,12 @@ class CliSession {
       out.push.apply(out, this._dns(tokens.slice(1)));
     } else if (head === 'ip' && tokens[1] === 'name-server') {
       const ip = tokens[2];
-      if (!net.isIp(ip || '')) {
-        out.push('% Invalid name server "' + (ip || '') + '": not an IPv4 address');
+      // A missing address was reported as an invalid one - `Invalid name server "": not an IPv4 address` - so a
+      // half-typed line read as a bad value rather than a short line (#1497).
+      if (!ip) {
+        out.push('% Incomplete command: ip name-server <address>');
+      } else if (!net.isIp(ip)) {
+        out.push('% Invalid name server "' + ip + '": not an IPv4 address');
       } else {
         if (!this.device.config.dnsServers) this.device.config.dnsServers = [];
         if (this.device.config.dnsServers.indexOf(ip) === -1) this.device.config.dnsServers.push(ip);
@@ -909,10 +916,22 @@ class CliSession {
     } else if (head === 'no' && tokens[1] === 'duplex') {
       out.push.apply(out, this._duplex(['auto'], iface));
     } else if (head === 'description') {
+      // `description` with nothing after it set the port's description to the empty string and answered
+      // "Description set" - a change it did not name, clearing whatever was there (#1497). Clearing a description
+      // is `no description`, which says what it removed.
+      if (tokens.length < 2) {
+        return ['% Incomplete command: description <text> (use `no description` to clear it)'];
+      }
       iface.description = tokens.slice(1).join(' ');
-      out.push('Description set');
+      out.push('Description set: ' + iface.description);
     } else if (head === 'no' && tokens[1] === 'description') {
+      // The same rule from the other side: a removal says what it removed, and does not pretend to have removed
+      // something that was not there.
+      const hadDescription = iface.description;
       iface.description = '';
+      out.push(hadDescription
+        ? 'Description removed: ' + hadDescription
+        : iface.name + ' had no description');
     } else if (head === 'exit') {
       this.mode = MODE_CONFIG;
     } else if (head === 'end') {
@@ -1000,6 +1019,8 @@ class CliSession {
         ' (no address until a router advertisement arrives)'];
     }
 
+    // A bare `ipv6 address` was reported as an invalid address rather than a missing one (#1497).
+    if (!spec.trim()) return ['% Incomplete command: ipv6 address <address>/<prefix> (or `ipv6 address autoconfig`)'];
     const parts = spec.split('/');
     const parsed = v6.parseIpv6(parts[0]);
     if (!parsed.valid) return ['% Invalid IPv6 address "' + parts[0] + '"'];
@@ -1825,7 +1846,9 @@ class CliSession {
     const what = (tokens[2] || '').toLowerCase();
     if (what === 'ip') {
       const ip = tokens[3];
-      if (!ip || !net.isIp(ip)) return ['% Invalid address: ' + (tokens[3] || '(none)')];
+      // `vrrp 1 ip` with no address is a short line, not a bad address (#1497).
+      if (!ip) return ['% Incomplete command: vrrp <vrid> ip <address>'];
+      if (!net.isIp(ip)) return ['% Invalid address "' + ip + '": not an IPv4 address'];
       // A virtual gateway is only a gateway for hosts on its own wire. Cisco refuses the line
       // ("% 10.0.0.254 is not in the subnet of Gi0/0"), and without this check the election happily
       // makes the router master of a group whose address belongs to a network it cannot reach - the
