@@ -685,7 +685,7 @@ queue that lost its arms gets them back in one tick instead of five at a time.
   **None of these readings is a reading of `main`.** They were taken in the working tree, which sits on
   branch `fix/sfp-plus-connectors`, and that branch diverged from `origin/main` at `083e2ba1`
   (2026-11-08 16:58:44) — at the time of the fourth reading it was **382 ahead and 361 behind**, and
-  now reads **630 ahead and 397 behind** (after a fresh `git fetch`, which moved the behind-side
+  now reads **631 ahead and 397 behind** (after a fresh `git fetch`, which moved the behind-side
   from 361 to 373 — main's tip is `f370b893`, #1450); either way not one of the commits above is an ancestor of
   `origin/main`. Check any of them before you quote it:
 
@@ -777,12 +777,18 @@ queue that lost its arms gets them back in one tick instead of five at a time.
   that the seconds are not a property of the tests. The counts and the failing pair are the comparable
   part of a reading; the seconds belong to the machine that took it. A fourth reading, taken at `38690d6a`
 with the same uncommitted work, finished in **187.3 s** — same 272 suites, same 11,191, same two red suites —
-which widens the spread on one tree to **137 seconds** without moving a single count. If you are comparing two
+which widens the spread on one tree to **137 seconds** without moving a single count. A fifth reading, on the
+same tree and still carrying the same uncommitted work, came in at **149.9 s** — 272 suites, 11,191 passed, the
+same two red suites — so the spread on one tree is now **174.9 seconds**, and the low end has halved against the
+slowest reading. That is the point being made, taken to its conclusion: after five readings the only part of the
+line worth comparing is the counts. If you are comparing two
 readings, compare the counts, the suite total and the failing pair; treat the clock as noise, because a fresh
 host can halve it. Two flags re-measured in the same session as well: `--list` still
   ends `272 suite(s)`, and `--filter=bgp` still answers `7 suite(s) in 3.8 s — 334 assertions passed,
   0 failed` — and again today as `7 suite(s) in 2.8 s — 334 assertions passed, 0 failed`: the same seven
-  suites and the same 334 assertions, with a second off the clock. The same lesson in miniature.
+  suites and the same 334 assertions, with a second off the clock. A third reading the same day gives
+  `7 suite(s) in 2.4 s — 334 assertions passed, 0 failed`, and `--list` still ends `272 suite(s)`. The same
+  lesson in miniature.
 
   Useful flags, all from the header of the script:
   `--filter=bgp`, `--bail`, `--verbose`, `--list`.
