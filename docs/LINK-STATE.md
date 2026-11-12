@@ -64,7 +64,16 @@ a lightweight index**: each entry carries the entire serialised device — spec,
 `examples/lab4-vlans-trunk-stp.json` the schedule is 3,837 bytes for 3 entries that need 160 (`d1`, `d2`
 and the `change` pseudo-entry); on `lab3-multi-vendor-campus.json`, 8,699 bytes for 4 entries needing 212.
 That is roughly 24× and 41× the information, and it grows with the size of the box rather than with the
-number of events. And **`affects` does not survive the trip**: `sim.setLinkState()` returns
+number of events.
+
+Re-measured over HTTP on 2026-11-12, loading each lab with `…/load` and taking its first link down with
+`{"state":"down","atMs":10000}`: **3,747** bytes for lab4's 3 entries and **8,609** for lab3's 4 — both exactly
+**90 bytes lighter** than the reading above, which is the shape of the thing being described. The count is a
+measurement of the *serialised devices*, not of the schedule: it moves when a spec gains a field, and it does not
+move when a lab gains an event. Per entry it is **1,249** bytes on lab4 against **2,152** on lab3, so the cost
+tracks how big the boxes are rather than how much happened to them. Same run confirmed the other two claims:
+`reconvergeAtMs` came back `40000` for `atMs: 10000` on both labs, and the reply's `state` is the topology rather
+than the string `"down"`. And **`affects` does not survive the trip**: `sim.setLinkState()` returns
 `affects: [deviceA, deviceB]`, but the HTTP handler builds its reply field by field and never copies it,
 so a client has to find the two ends in `state.links[linkId]` instead.
 
