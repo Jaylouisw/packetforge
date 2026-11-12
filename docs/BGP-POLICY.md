@@ -105,7 +105,7 @@ first path in each row wins, and each row isolates one step:
 |---|---|---|
 | weight beats local preference | `weight 100 / LP 50` vs `weight 0 / LP 200` | `-1` |
 | local preference beats AS-path length | `LP 200 / AS [1,2,3]` vs `LP 100 / AS [1]` | `-1` |
-| locally originated beats any AS path | `AS [] / igp` vs `AS [65001]` | `-1` |
+| locally originated beats any AS path | `local: true` vs not, **both `AS []`** | `-1` — isolating; `AS []` vs `AS [65001]` also answers `-1`, but that is the row below |
 | shorter AS path wins | `AS [1]` vs `AS [1,2]` | `-1` |
 | lower origin wins (`igp` < `egp` < `incomplete`) | `igp` vs `incomplete` | `-1` |
 | lower MED wins | `med 10` vs `med 20` | `-1` |
@@ -118,6 +118,16 @@ The whole table is one `node -e` away, which is how it was taken: nine `-1`s and
 `21a109e7` and unchanged. `comparePaths()` reads exactly the eight fields the rows vary — `weight`,
 `localPreference`, `isLocalPath()`, `asPath` length, `origin`, `med`, `pathRank()` and `routerId` — and the
 MED row still compares across neighbouring ASes, so the defect row 7 records is still real.
+
+One row needed its evidence repaired, because it was the only one whose pair was confounded. `AS []` against
+`AS [65001]` answers `-1` whether or not either path is marked local — an empty AS path is also the
+*shortest* one — so that pair proves step 4 as much as step 3. The isolating pair holds the AS paths equal
+and lets the flag alone decide: `comparePaths({asPath: [], local: true}, {asPath: []})` is `-1`, and the
+same construction with `asPath: [1]` on both sides is `-1` too. `isLocalPath()` accepts five spellings —
+`local: true`, `originated: true`, `locallyOriginated: true`, `from: 'local'` (trimmed, case-insensitive)
+and `nextHop: '0.0.0.0'` — so a received path that somehow carries a zero next hop is treated as locally
+originated, which is worth knowing before debugging one. Two local paths fall through to AS-path length,
+as they should.
 
 ```sh
 node -e 'const {comparePaths}=require("./engine/bgp");const b={weight:0,localPreference:100,asPath:[],origin:"igp",med:0,type:"ebgp",routerId:"10.0.0.1"};const P=o=>Object.assign({},b,o);
