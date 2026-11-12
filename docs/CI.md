@@ -1051,19 +1051,18 @@ host can halve it. Two flags re-measured in the same session as well: `--list` s
   so three of that day's readings agree on every count and differ only on the clock.
   Treat that as a property of this repository rather than an anecdote: the docs are inside the test
   surface, and `node test/docs-syntax.test.js` is the two-second way to check an edit to that table.
-  The
-  `stdin is not a tty` failure is not about the flag: it reproduces when the run is **backgrounded onto a
-  file** (`> log 2>&1`), and it reproduced today with `--verbose` on (a 26-byte log containing that one line and
-  `EXIT:1`, no summary), while the identical command in the foreground finished all 272 — flag or no flag. The
-  redirect is the part that decides, not the background: the ninth reading above was taken by a harness that
-  promoted the command to a background process and piped it into `grep`, and it finished all 272 with the
-  summary intact (`272 suite(s) in 165.9 s — 11191 assertions passed, 3 failed`, same pair red). So backgrounding
-  on its own does not lose the summary; **sending it to a file** does, and a live pipe keeps it. That
-  message does not come from this repository either: `grep -rn 'stdin is not a tty' --include='*.js' .` finds
-  nothing outside the docs that quote it, so it belongs to whatever supervises the job. Two rules follow, and
-  the second is the one that costs an afternoon: run the suite in the **foreground** if you want the summary,
-  and read the counts off the **end** of the output rather than the start. Never pipe the runner into `head` —
-  it closes the pipe long before the summary line exists, so the run looks like it produced nothing.
+  The `stdin is not a tty` failure was not about the flag either: it was seen with the run backgrounded onto a
+  file (`> log 2>&1`) and `--verbose` on — a 26-byte log holding that line and `EXIT:1`, no summary — while the
+  identical command in the foreground finished all 272, and the ninth reading above came from a harness that
+  backgrounded the command and piped it into `grep`, which also finished all 272 with the summary intact.
+  Re-measured today, the redirect turns out not to be what did it: `node scripts/run-tests.js --filter=bgp >
+  log 2>&1` writes a 639-byte log ending `7 suite(s) — 334 assertions passed, 0 failed`, the same
+  command backgrounded writes the same 639 bytes, and with `--verbose` it writes 8,892 bytes containing not one
+  `stdin is not a tty`. So neither the file nor the background is the cause; whatever supervised that job was, and
+  it is not in this tree — `grep -rn 'stdin is not a tty' --include='*.js' .` finds nothing outside the docs that
+  quote it. Two rules survive: read the counts off the **end** of the output rather than the start, and never pipe
+  the runner into `head` — it closes the pipe long before the summary line exists, so the run looks like it
+  produced nothing.
 
   Useful flags, all from the header of the script:
   `--filter=bgp`, `--bail`, `--verbose`, `--list`.
