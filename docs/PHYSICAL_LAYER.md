@@ -166,7 +166,13 @@ Power inline on SW1:
 The **Admin** column is the operator's decision (`power inline auto|never`) and the **Status** column is
 the outcome — a port nobody has refused, a port refused by policy, and a port refused for budget are
 three different words (`on`, `off (administratively)`, `denied (budget exhausted)`). A port with no cable
-is not listed at all, so a table shorter than the port count is normal.
+is not listed at all, so a table shorter than the port count is normal — with one exception worth knowing
+before you conclude the console ignored you: if a port is set to `power inline never` **and** nothing is
+powered anywhere on the switch, it is listed with the device column as `-` and status `off
+(administratively)`, because the table is built from powered devices and the one state an operator has
+just configured would otherwise be the one the show could not display. Put a powered device on any other
+port and that row disappears again: the table returns to listing only ports with a device on them
+(`engine/cli.js:12659-12673` for the empty case, `:12686-12693` for the populated one).
 
 From the powered device's side the same decision reads:
 
