@@ -3747,7 +3747,12 @@ Routing Process "ospf 1" with ID 1.1.1.1
 
 All three states are distinguishable, which is the point: *not running*, *running under another id*
 (naming it), and *this one*. `ospf router-id <ip>` in config mode is the other way in — it enables the
-process and sets the id in one line. Two smaller artefacts of the same path, both reproducible:
+process and sets the id in one line — but it does **not** set the key the filter reads, so that path
+refuses a process it is reporting: measured on a router given `ospf router-id 1.1.1.1` and nothing
+else, `show ip ospf` prints `Routing Process "ospf 1" with ID 1.1.1.1` while `show ip ospf 1` answers
+`% No OSPF process 1 on RA` / `% The process here is "ospf 1"`, and `show ip ospf 0` says the same
+thing with a `0` in it. `router ospf 1` is the way in the filter matches. Two smaller artefacts of the
+same path, both reproducible:
 `show ip ospf process 1` prints an unrelated `OSPF at t=1 ms` line and *then* refuses the word `process` — `% show ip ospf takes neighbor, database, interface or a process id, not "process"` — and any unknown
 word is echoed back as `not "process"`.
 
