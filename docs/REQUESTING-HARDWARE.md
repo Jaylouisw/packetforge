@@ -15,15 +15,19 @@ numbers and the reasoning.
 
 [**Open a hardware request →**](https://git.jayw.uk/jaylouisw/packetforge/issues/new?template=device_request.yml)
 
-The form asks for five things. Two of them actually matter:
+The form has **eight fields plus a pre-submit checklist**, and the table below says what each one is
+worth. Two of them carry most of the weight:
 
 | Field | Why it matters |
 |---|---|
-| **Datasheet or product page URL** | The whole entry is built from it. Without one we cannot verify port counts, and we will not guess. |
-| **Ports and interfaces** | This decides whether the simulated device behaves like the real one. A switch with 4 SFP+ uplinks modelled as 24 copper ports will *refuse* a fibre link the real hardware accepts. |
-| Vendor + exact model | Needs to match the datasheet, not a family name. |
-| Category | Sets which behaviours apply (routing, PoE, wireless…). |
-| PoE budget | Only if it sources power. Lets a switch's budget actually be tested. |
+| **Datasheet or product page URL** | The whole entry is built from it. Without one we cannot verify port counts, and we will not guess. Required. |
+| **Ports and interfaces** | This decides whether the simulated device behaves like the real one. A switch with 4 SFP+ uplinks modelled as 24 copper ports will *refuse* a fibre link the real hardware accepts. Required. |
+| Vendor + exact model | Needs to match the datasheet, not a family name. Both required. |
+| Category | Sets which behaviours apply (routing, PoE, wireless…). Required, and it is a 22-option dropdown — `Other / not sure` is a real option rather than a failure. |
+| PoE budget | Only if it sources power. Lets a switch's budget actually be tested. Optional. |
+| What you want to model with it | Optional, and it decides scope: a full L2/L3 box or only its physical ports. |
+| Capabilities | Optional — routing, switching, PoE, wireless, NAT, DHCP; most are inferred from the category. |
+| Before submitting | Two required acknowledgements: the model is not already in the catalogue or the tracker, and the port list came from a datasheet rather than memory. |
 
 If you already have the JSON, skip the form and open a PR — see
 [DEVICE_REGISTRY.md](DEVICE_REGISTRY.md).
