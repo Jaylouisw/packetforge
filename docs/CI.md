@@ -313,22 +313,28 @@ The shape check matters more than it sounds: a `|` inside a backticked command �
 `` `show flows [<id> | counters]` `` — silently adds a column, and the table still *renders*, just with
 a cell pushed off the end. Escape it as `\|` inside the cell. The anchor check catches a link to a
 heading that was renamed, which is the usual casualty of rewording a section title. The suite check
-catches a document citing a `test/*.test.js` that does not exist — and it reports **fifteen** today, not
-five: five distinct absent names, cited across ten pages-and-rows —
+catches a document citing a `test/*.test.js` that does not exist — and re-measured on 2026-11-12 it reports
+**eleven**, across **six** distinct absent names: two citations each for `bgp-policy`, `bgp-policy-wire`,
+`poe-derived`, `upstream-baseline` and `upstream-service`, and one for `help-completeness`. By page:
 
 ```
-4  upstream-baseline       3  bgp-policy
-4  poe-derived            2  bgp-policy-wire
-                          2  upstream-service
+5  SIMULATION.md          2  CI.md
+2  BGP-POLICY.md          2  UPSTREAM-DESIGN.md
 ```
 
 (each name without its `test/` prefix and `.test.js` suffix, so that this paragraph does not count itself
-— spell them out in full here and the check below reports five more than the number beside it)"
+— spell them out in full here and the check below reports six more than the number beside it)
 
-Four of those names are suites a design page proposes (`BGP-POLICY.md` two, `UPSTREAM-DESIGN.md` two);
-the fifth, `poe-derived`, has never existed in `git log --all` and is named only by §11 rows whose
-subject *is* that absence (written without its prefix and suffix here, for the same reason as the block
-above). That is why the check prints rather than fails — a design page naming a
+That total was **fifteen** when this paragraph was written, which is the honest history of a number that
+counts citations rather than files: editing a row to say less about a proposal removes citations, and this
+page's own audits do that. Recount before quoting it.
+
+What each of the six is matters more than the total. Two are suites a design page proposes
+(`BGP-POLICY.md`); two more are the same idea on `UPSTREAM-DESIGN.md`; `poe-derived` has never existed in
+`git log --all` and is named only by §11 rows whose subject *is* that absence; and `help-completeness` is
+an **upstream-only** file — the merge brings it, this branch has no such suite, which is said in full
+twenty lines up. All six are written without prefix and suffix here, for the same reason as the block
+above. That is why the check prints rather than fails — a design page naming a
 file it wants written is legitimate — and the only way to keep the distinction honest is to look at the
 list: recount with `node md-check.js … | grep 'cites test/'` before quoting a number from this paragraph,
 because this one has been wrong in three successive directions for exactly that reason. The fourth check is the one this page learned the hard way:
