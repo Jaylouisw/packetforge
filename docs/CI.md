@@ -1104,6 +1104,16 @@ console.log(rows.length, "rows of", cat.length, "parts | all in catalogue:",
   Re-measured on 2026-11-12, **four** of the six were behind by hundreds of characters — see the method
   below — so treat the six-of-six line as saying nothing at all about content.)
 
+  **The build itself is the cheapest guard, and it is deterministic.** `node scripts/build-wiki.js` rewrites all
+  six pages from the inline templates and prints `wrote 6 wiki pages to docs/wiki/`; run it on a tree where the
+  pages already match their templates and `git status docs/wiki` stays **clean**. If it produces a diff, somebody
+  edited a page instead of the template — and since the build always overwrites, that edit is already gone. Measured
+  on 2026-11-12: exit `0`, six pages, no changes. The wiki pages' own commands were swept the same day as the docs'
+  (four fences, three runnable): `node test/hardware-invariants.test.js` answers **25 passed, 0 failed** and the
+  catalogue one-liner on `Requesting-Hardware` prints `1661 specs, 1313 sourceUrl, 20 source, 328 neither` —
+  character for character what the page says it prints. Its fourth fence is a `git clone` of the repository, which
+  needs nothing said about it.
+
   **The only reliable answer is to fetch the pages and compare.** The wiki API serves them anonymously,
   and two details cost a measurement each: page **titles contain spaces** (`Getting Started`,
   `Requesting Hardware`, `Simulation Fidelity`) while the files are hyphenated, and the body arrives in
