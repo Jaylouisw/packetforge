@@ -20,14 +20,20 @@ and they all run the same simulation engine and the same command set.
   decrement and ICMP echo/reply — with a replayable event stream.
 - **Modern web UI.** Dark theme, pan/zoom canvas, drag-to-move, click-a-port-to-cable, right-click-a-cable-to-pull-it,
   per-device console, live packet animation, WebSocket multi-client sync.
-- **Physically accurate.** 89 media types across nine families (Ethernet, Fibre Channel,
-  GPON, DOCSIS, DSL, powerline, DAC, console, wireless) and 26 connector cages — of which **24
+- **Physically accurate.** 89 media types across nine `family` values — `fiber` 31,
+  `fibre-channel` 16, `wireless` 9, `copper` 7, `dac` 7, `coax` 6, `console` 6, `powerline` 4,
+  `dsl` 3 — and 26 connector cages — of which **24
   carry a port** on this tree (`lc-apc` and `usb` have none, so a sweep that counts the cage each
   port derives prints 24; both numbers are right, they answer different questions); per-port speed
   capabilities and PoE budgets. Impossible cables are
   *refused*, not drawn — an SC/APC patch lead will not go into an SC/UPC socket.
   See [docs/PHYSICAL_LAYER.md](docs/PHYSICAL_LAYER.md) and
   [docs/CONNECTORS.md](docs/CONNECTORS.md).
+
+  The nine are the strings the catalogue actually stores, so they are what to grep for: there is no
+  `ethernet`, `gpon` or `docsis` family. GPON and XGS-PON media (eight of them) live under `fiber`,
+  and the DOCSIS/MoCA media (six) under `coax` — which is also why a coaxial CMTS port and an F-type
+  patch lead agree about what they carry.
 - **Any hardware.** Add a new model in ~10 lines of JSON. See
   [docs/DEVICE_REGISTRY.md](docs/DEVICE_REGISTRY.md).
 
