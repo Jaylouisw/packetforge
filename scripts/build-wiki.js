@@ -114,9 +114,19 @@ That is enough. You do not need to write JSON.
 
 1. The request is checked against the vendor's documentation: port counts, connector per
    port, speed ladder, PoE budget, and anything the box claims that a simulator must respect.
-2. A spec is written as \`devices/<vendor>/<model>.json\`. Tests check it: every port must
-   resolve to a cage, no port may claim a line rate its cage cannot carry, and a device may
-   not describe two identical ports differently.
+2. A spec is written as \`devices/<vendor>/<model>.json\`, and three things check it before it
+   can merge. \`scripts/audit-port-types.js\` runs first inside \`npm test\` and walks every port
+   with **eleven rules** (\`unknown-cage\`, \`copper-connector-fibre-cage\` and
+   \`fibre-connector-copper-cage\`, \`ethernet-not-data\`, \`pon-not-optical-connector\`,
+   \`console-not-console\`, \`coax-not-coax\`, \`dsl-not-dsl\`, \`powerline-not-powerline\`,
+   \`wireless-not-antenna\`, \`template-undeclared-hardware\`) and refuses to let a red finding
+   reach the test runner at all. Then \`test/hardware-invariants.test.js\` runs over the whole
+   catalogue, not a fixture, with **25 assertions** named for the mistake that caused each one
+   (\`no port is declared twice in a spec\`, \`every combo pair names its partner symmetrically\`,
+   \`every ethernet port has at least one usable medium\`, \`no port claims a line rate its cage
+   cannot carry\`, \`no optical cage accepts a copper medium\`, \`no device has zero interfaces\`).
+   \`test/spec-vs-description.test.js\` reads the prose against the ports and fails on a device
+   that promises ports or PoE it does not have.
 3. The spec records the datasheet URL it was built from, so a later reader can check the claim
    rather than trust it. It is **recommended, not enforced**: 1,313 of the 1,661 specs carry a
    \`sourceUrl\` and 20 more carry the older \`source\` spelling, so 1,333 point at a datasheet
