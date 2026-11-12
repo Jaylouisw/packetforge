@@ -313,6 +313,16 @@ answers `ip nat ?` with "not on PC-d1", and then **accepts** `ip nat inside sour
 with `NAT rule added on PC-d1: static 10.0.0.5 -> 203.0.113.5`. The capability decides what the help page
 offers, not what the parser takes — so reading a capability is not the same as gating on it.
 
+Re-measured on a `generic-pc` at 2026-11-12, because this is the paragraph a reader is most likely to trust without
+testing. `ip nat ?` answers `% No completions for "ip nat" on PC1` and then explains itself in one line —
+`"ip nat inside source static <local> <global>" is a command here, but not on PC1: it does not translate addresses` —
+so the refusal names the verb it is hiding. The parser then takes the verb: `ip nat inside source static 10.0.0.5
+203.0.113.5` answers `NAT rule added on PC1: static 10.0.0.5 -> 203.0.113.5`, with the reminder that a rule needs one
+`inside` and one `outside` port before it will match anything, and `show ip nat translations` reads back
+`(none yet - 1 rule configured, but no traffic has been translated)`. One shape worth knowing beyond the paragraph: the
+bare role command `ip nat inside` is *not* accepted on its own — it is answered as `% Incomplete command` naming the two
+`inside source …` forms, so the role is only reachable through a rule (or through the topology JSON).
+
 `firewall`, `wireless`, `dhcp-client`, `vlan`, `lacp` and `stp` are **not read anywhere** — `nat` was in this
 list until a sweep of every capability read found `has('nat')` guards in `_helpRefusal()`. There are **two**
 of them today, both returning the same string: `engine/cli.js:13288` for the `ip nat …` positive forms and
