@@ -25,6 +25,19 @@ GitHub thread. You never need an account on the forge, and the forge never needs
 job in `.forgejo/workflows/` that invokes it, so a GitHub pull request waits until a maintainer runs
 the bridge. If yours has been sitting for a few days, say so on the thread.
 
+**There are two trackers, and they do not hold the same thing.** Measured today: the GitHub mirror
+carries **787 open issues and 2 open pull requests** (`api.github.com/search/issues` with
+`repo:Jaylouisw/packetforge is:issue is:open`, so 787 is issues rather than the 789 the repo object
+reports — that number counts pull requests too), while the forge carries **24 open**
+(`x-total-count` on `GET /api/v1/repos/jaylouisw/packetforge/issues?state=open&limit=1`, which reads
+without a token). The 787 are the old queue, not a live one: `scripts/request-queue.js` and
+`scripts/sweep-device-requests.js` read the **forge** through `scripts/forgejo-api.js`, the label
+rules in [docs/REQUESTING-HARDWARE.md](docs/REQUESTING-HARDWARE.md) are counted there, and
+`gh-bridge.js` moves issues across only when a maintainer runs it with `--issues`. So a device
+request filed on GitHub is not invisible, but it is not in the queue either — it joins it when the
+bridge runs. If you want it triaged now, file it on the forge; if you want it next to the code
+history you already forked, GitHub works and the bridge will carry it.
+
 The direction of travel is **forge → GitHub for code, GitHub → forge for contributions**. The mirror
 pushes automatically on every commit; the bridge pulls contributions in. Neither side is a fork of
 the other in spirit: the forge is the workshop, GitHub is the shopfront.
@@ -300,7 +313,7 @@ minutes earlier (1,628 → 1,629), so a prose count can be stale before it is me
 - **A count in prose is a claim about one revision.** When you touch a sentence that quotes one, re-run
   the one-liner in the same edit; if you cannot, leave the count out rather than guess it.
 - **And it is a claim about one *branch*.** These numbers were measured in a working tree sitting on
-  `fix/sfp-plus-connectors`, which at the time of the last reading was **543 commits ahead of
+  `fix/sfp-plus-connectors`, which at the time of the last reading was **544 commits ahead of
   `origin/main` and 373 behind it** (the merge base is still `083e2ba1`) — so none of them is a
   statement about `main`. Six documentation pages
   exist on `main` and not here (`BUG_REPORTS.md`, `DEVICE_REQUEST_SWEEP.md`, `DEVICE_SCHEMA.md`,
@@ -309,7 +322,7 @@ minutes earlier (1,628 → 1,629), so a prose count can be stale before it is me
 
   ```bash
   git branch --show-current                              # fix/sfp-plus-connectors, not main
-  git rev-list --left-right --count HEAD...origin/main    # 543  380   (element 1 = ahead)
+  git rev-list --left-right --count HEAD...origin/main    # 544  380   (element 1 = ahead)
   git diff --diff-filter=A --name-only HEAD origin/main -- docs/   # pages only main has
   ```
 

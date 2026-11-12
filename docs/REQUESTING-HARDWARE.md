@@ -6,6 +6,13 @@ main way this project grows**, and they are welcome.
 
 ## File a request
 
+**Where to file it.** The queue analysed on this page is the forge's. The GitHub mirror carries its own,
+much older one — **787 open issues against these 24**, measured while writing this — and
+`scripts/gh-bridge.js --issues` is what moves a GitHub issue across, only when a maintainer runs it.
+Filing on the forge puts the request in the queue this page describes immediately; filing on GitHub
+puts it next to the code you may already have forked. [CONTRIBUTING.md](../CONTRIBUTING.md) has the
+numbers and the reasoning.
+
 [**Open a hardware request →**](https://git.jayw.uk/jaylouisw/packetforge/issues/new?template=device_request.yml)
 
 The form asks for five things. Two of them actually matter:
