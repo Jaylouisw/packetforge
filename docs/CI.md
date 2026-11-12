@@ -153,6 +153,11 @@ test job) enforces the rule against every workflow file: a step that runs
 and to report `docker system df`. Prose in a comment does not count — the checker strips
 full-line comments first, so documenting the rule cannot trip it.
 
+Bounding the job stops the *next* fill; it cannot reclaim what is already gone, and a
+full volume takes the forge down in four ways that look unrelated. Those four, and what
+to run on the host, are in
+[`FORGE_TROUBLESHOOTING.md`](FORGE_TROUBLESHOOTING.md#when-the-volume-is-full-every-retry-leaves-another-half-clone).
+
 ## Troubleshooting
 
 | Symptom | Cause | What to do |
