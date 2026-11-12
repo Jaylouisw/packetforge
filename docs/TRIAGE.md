@@ -1,8 +1,9 @@
 # Triage: hardware requests
 
-Every open issue in this repository is a device request — **24 of 24** when this was last measured,
-each carrying both the `device` and `device-request` labels — and a steady fraction ask for hardware
-that is already modelled. Each one costs a human reading it.
+Almost every open issue in this repository is a device request — **24 of 25** when this was last measured,
+each of those 24 carrying both the `device` and `device-request` labels — and a steady fraction ask for
+hardware that is already modelled. Each one costs a human reading it. The twenty-fifth is **#1501**, an
+unlabelled bug report about `no spanning-tree portfast`, and it is the reason this page says "almost".
 
 The count is the part that moves, and it has moved a lot: this page has quoted 127, 126 and 121 at
 different times, and the queue is now 24, because closing them is the point. So measure rather than
@@ -10,7 +11,7 @@ remember — two anonymous requests, no token needed for either:
 
 ```bash
 curl -s "https://git.jayw.uk/api/v1/repos/jaylouisw/packetforge/issues?state=open&limit=1" \
-  -D - -o /dev/null | grep -i '^x-total-count'          # x-total-count: 24
+  -D - -o /dev/null | grep -i '^x-total-count'          # x-total-count: 25
 curl -s "https://git.jayw.uk/api/v1/repos/jaylouisw/packetforge/issues?state=open&limit=50" \
   | grep -o '"title":"\[[^]]*\]' | sort | uniq -c      # 24 "title":"[Device] - one line, nothing else
 curl -s "https://git.jayw.uk/api/v1/repos/jaylouisw/packetforge/issues?state=open&type=issues&limit=50" \
@@ -18,16 +19,19 @@ curl -s "https://git.jayw.uk/api/v1/repos/jaylouisw/packetforge/issues?state=ope
 ```
 
 The third line is the one that measures the label half of the sentence above, which the first two cannot:
-a count of 24 and 24 `[Device]` titles say nothing about labels, and "each carrying both" is a claim
-about all 24 device requests at once. Measured with it: **24** open, **24 of 24** with `device`, **24 of 24** with
-`device-request`, **24 of 24** titles beginning `[Device]`. The `type=issues` is not decoration: the
-issues endpoint serves pull requests too, from the same number space, so without it an open PR's labels
-land in the same tally.
+a count of 25 and 25 bracket titles say nothing about labels, and "each carrying both" is a claim about all 24
+device requests at once. Measured with it: **25** open issues, **24** with `device`, **24** with
+`device-request`, **24** titles beginning `[Device]`, and **one** with no labels at all (#1501). The
+`type=issues` is not decoration: the issues endpoint serves pull requests too, from the same number space, and on
+2026-11-12 the difference was live — `state=open` alone answered **26** against **25** with the filter, the extra
+entry being open PR **#1502**. So the filter is worth having, but it does not make the label tally redundant:
+the twenty-fifth issue is a real issue and only the third line tells you it is not a device request.
 
-**And how much of it is work.** Re-measured on 2026-11-12 by fetching the same 24 issues anonymously and
-parsing the three fields the form guarantees — vendor, exact model, datasheet URL — then matching
+**And how much of it is work.** Re-measured on 2026-11-12 by fetching the same 24 device requests anonymously
+and parsing the three fields the form guarantees — vendor, exact model, datasheet URL — then matching
 vendor and model against `loadCatalog()` (normalised, then a loose prefix pass in both directions):
-**24 open, 24 ready, 0 waiting on a requester, 0 already in the catalogue.** Every open request names a
+**24 of the 25 open issues are device requests, all 24 ready, 0 waiting on a requester, 0 already in the
+catalogue.** Every open request names a
 manufacturer, an exact model and a URL, and not one of them — not even as a near-miss on a name root —
 is a device the catalogue already models. So the queue is not padded: those 24 are all implementable
 work, which is the number worth knowing before anyone claims the backlog is full of duplicates.
@@ -37,8 +41,11 @@ reads the body: **is this already in the catalogue?**
 
 The exception this page used to name — because a page that says "every" invites a reader to stop
 checking — was **#1335** ("The console over HTTP has its own counters…"), which carried **no labels at
-all** and was not a device request. It is closed now, and the current queue holds no unlabelled issue,
-so the exception is history rather than a live example. Keep the rule it taught: the sweep below finds a
+all** and was not a device request. It is closed, and for a while the queue held no unlabelled issue, so this
+paragraph briefly called the exception history. **It is back**: #1501, filed 2026-11-12, carries no labels and
+is not a device request, so the queue is 24 requests and one bug. That is the normal state of a live tracker
+rather than a regression — which is why the count at the top of this page is written as a fraction. Keep the rule
+it taught: the sweep below finds a
 device request by its **title prefix**, never by its labels, which is why an unlabelled one would still
 be found. The script does not care either way, and that is the more useful fact —
 it counts a device request by the **title prefix** (`[device]` / `[hardware]`, case-insensitive),
@@ -87,9 +94,10 @@ and exit **127**; four runs on this host today produced neither, so treat the *s
 timing-dependent. Either way do not read a 127 or a 401 as an empty queue. Point `PF_API` at another
 instance if you are sweeping one.
 
-The script's own header still says the repository "has ~830 open issues"; it has **24** (measured
-against the tracker: `x-total-count` on the `limit=1` request above, which is the number this page
-should be re-measured rather than re-quoted — it has fallen from 127 to 24 while this page sat here).
+The script's own header still says the repository "has ~830 open issues"; it has **25 open issues, 24 of them
+device requests** (measured against the tracker: `x-total-count` on the `limit=1` request above, which is the
+number this page should be re-measured rather than re-quoted — it has fallen from 127 to 25 while this page sat
+here, and it moved from 24 to 25 during the writing of this very paragraph).
 Nothing reads that comment, and `--limit 200` still covers the whole queue, as the default does — but do
 not quote the header as if it were a count.
 
