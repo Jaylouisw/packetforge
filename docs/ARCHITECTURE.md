@@ -627,6 +627,45 @@ port and a real port answer exactly as before; `?` and `help` print usage; case 
 the words live in one named table and the console asks it; and the keyword check is after the
 port lookup in the source, so a port named like a keyword still wins.
 
+### A saved lab forgot who was holding which address
+
+```
+save a lab where two hosts hold DHCP leases, reopen it
+
+p> nothing. `show ip dhcp binding` on the server:
+   % no leases: nothing has asked this server for an address yet
+```
+
+The leases live on the topology (`topo.dhcpStates`, aliased by the simulator) — which is exactly the state the
+document is meant to carry. `Topology.serialize()` wrote the **flows** for that reason (#1435) and never wrote the
+**leases**, so a server that had answered two hosts re-opened claiming nobody had ever asked, and handed the same
+addresses out again as if they were new.
+
+The same shape of mistake sat in the view. A lease's state is a fact about time, and `dhcp.leaseTable()` only states it
+when it is asked at an instant; without one, rows carry no `state` at all. The summary then subtracted the lapsed count
+from the total and called the remainder *active* — a claim about time the engine had explicitly declined to make:
+
+```
+10.0.0.100  02:00:00:00:02:00  LAN  -
+2 active binding(s); the lease clock runs from the instant the lease was granted
+```
+
+Now:
+
+* **the document carries the leases**, under `dhcp: { <deviceId>: { leases: [...] } }`, written only when a device
+  holds one — so a board without a DHCP server produces byte-identical documents and the checked-in examples are
+  untouched. The codec lives in `engine/dhcp.js` (`leaseStateToJSON` / `leaseStateFromJSON`), because that module owns
+  the lease state's shape: two Maps that JSON cannot write become one list of leases, and come back as two Maps rebuilt
+  from that one list, so a document can never restore a MAC map and an address map that disagree. An entry naming a
+  device that is not on the board is skipped, and one address keeps one holder — the rule the running server applies;
+* **without a clock the view states no lease state**: the column reads `no clock` and the summary counts bindings, not
+  states — `2 binding(s); no clock is set, so none is lapsed or active yet - the expiry is counted from the instant each
+  lease was granted`. With a clock the same rows read `60s` and `lapsed (address free)` again, exactly as before.
+
+`test/dhcp-leases-survive-save.test.js` pins it, 32 checks; reverting `engine/` fails 12. Neighbours green: `dhcp` 134,
+`dhcp-bindings` 51, `dhcp-pool-undo` 51, `state-payload-complete` 16, `flows-survive-save-load` 16,
+`spec-survives-load` 32, `examples-generated` 21.
+
 ### A config that claimed lines nobody typed
 
 ```

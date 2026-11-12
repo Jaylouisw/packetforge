@@ -5,6 +5,8 @@ const { Link } = require('./link');
 const media = require('./media');
 const ifaceName = require('./iface-name');
 const net = require('./net');
+// The lease state's one JSON shape lives with the module that owns the lease state (#1465).
+const dhcpLib = require('./dhcp');
 
 // Expand a device spec's interfaces into a flat list.
 //
@@ -666,6 +668,21 @@ addDevice(spec, id) {
         ? Array.from(this.flowState.flows.values()).map(function (f) { return Object.assign({}, f); })
         : []
     };
+    // The DHCP leases this board is holding, for the same reason as the flows above: a saved lab used to reopen
+    // having forgotten every lease, so `show ip dhcp binding` answered "nothing has asked this server for an
+    // address yet" about a server that had answered two hours earlier (#1465). Written only when a device holds
+    // one, so a board without a DHCP server produces exactly the document it produced before.
+    const dhcp = {};
+    let leaseHolders = 0;
+    if (this.dhcpStates && typeof this.dhcpStates.forEach === 'function') {
+      this.dhcpStates.forEach(function (state, devId) {
+        const rec = dhcpLib.leaseStateToJSON(state);
+        if (!rec.leases.length) return;
+        dhcp[devId] = rec;
+        leaseHolders++;
+      });
+    }
+    if (leaseHolders) out.dhcp = dhcp;
     // `lastChangeAtMs` is deliberately NOT written. It is an instant in a run, and a run ends: a board reopened
     // tomorrow inherited an instant from a session that no longer exists and built its convergence schedule from it
     // (#1331). What survives is the thing that happened - a cable is down, and since when - and the clock is
@@ -813,6 +830,15 @@ addDevice(spec, id) {
       if (/^flow-\d+$/.test(rec.id)) {
         const n = Number(rec.id.slice(5));
         if (Number.isFinite(n)) topo.flowState.seq = Math.max(topo.flowState.seq, n);
+      }
+    }
+    // Leases, on the same terms: a device the document names must exist on the board, and an entry that cannot be
+    // read is skipped rather than allowed to poison the rest.
+    if (data.dhcp && typeof data.dhcp === 'object') {
+      for (const devId of Object.keys(data.dhcp)) {
+        if (!topo.devices.has(devId)) continue;
+        const state = dhcpLib.leaseStateFromJSON(data.dhcp[devId]);
+        if (state.leases.size) topo.dhcpStates.set(devId, state);
       }
     }
     return topo;
