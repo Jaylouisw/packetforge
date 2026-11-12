@@ -851,6 +851,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
                              now: % D1 - it is not a DHCP server
   ```
 
+  Every `%` line in that transcript is the **tail** of what the console prints, not the whole line: the
+  message is prefixed with the device's model and the label it was given in the lab, so the first one
+  actually reads `% APC Network Management Card 3 (UPS NMC)-D1 - it runs no spanning tree, because it has
+  no bridged domain to protect`. Rename the device and only the prefix moves. Eight transcripts in this
+  file quote the tail alone, so a diff against a live run will show a longer line on the left — that is
+  the convention, not a stale transcript.
+
   A pool on a DHCP **client** and a bridge priority on a box with no bridge were the two that answered
   confidently; a silent success on a removal that removes nothing is the one answer a refusal must not
   give. Two rules came out of it: **the capability is answered before the syntax question** — `no router
