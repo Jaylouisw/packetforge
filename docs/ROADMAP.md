@@ -128,11 +128,20 @@ lands, that comment is the first line to go stale and the first one a reader tru
       `POST /api/topologies` writes **no file** — a board that is created and never edited is gone
       after a restart (201, then `topologies/` empty, then `{"ids":["default"]}`) — while adding one
       device writes `<id>.json` immediately (`server/index.js:43`), and `DELETE` on that board answers `{"ok":true}`,
-      leaves the file in place, and the same id is back in the list after the next boot. So "the
+      leaves the file in place, and the same id is back in the list after the next boot — not merely listed,
+but answering `200` again, because the file it was deleted from is still there. So "the
       board is saved" is true of an edit, not of a creation, and the deletion only ever unloads.
       The `topo-` prefix is not part of the filename: it is the **default id** minted when the POST body omits
       `id` (`server/index.js:325`, `'topo-' + Date.now().toString(36)`), so a board created as `b3` is `b3.json`
       while an unnamed one is `topo-<base36>.json`. Sanitising the id is what the path helper at `:43` does.
+
+      Re-measured end to end on 2026-11-12 with two servers on one `PF_DATA`, every step as described: the
+      `topologies/` directory does not exist after `POST /api/topologies` (it is created by the first
+      edit, not by the server), `POST …/devices` writes `b692.json`, `DELETE` answers `{"ok":true}` and
+      the file stays, `GET` immediately afterwards is `404 {"error":"topology not found"}` while
+      `GET /api/topologies` lists only `["default"]`, and a **second** server on the same directory lists
+      `["default","b692"]` and serves that board `200`. So the 404 is true of the process and false of the
+      disk, which is the whole reason the next boot can undo the delete.
 - [ ] A **pcap export** of the simulated frames (replay in Wireshark).
 - [ ] Embeddable build (single-file `dist/`) and a hosted demo.
 
