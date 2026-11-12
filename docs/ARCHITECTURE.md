@@ -514,7 +514,7 @@ Per namespace:
 
 | Call | Answer |
 |---|---|
-| `POST …/devices` | `{ device, state }`; `404` for an unknown `vendor`/`model`, **`409`** when a client-supplied `id` is already taken (with the existing device named, so the UI can say which) |
+| `POST …/devices` | `{ device, state }`; `404 { error: 'unknown device model: <vendor>/<model>' }` for an unknown pair, and **`409 { error: 'device id already in use', id, existing }`** when a client-supplied `id` is taken — where `existing` is the colliding device's **label** (`"Switch (L2)"`), not its id, so a client that wants to name the device it collided with has to look the label up by id rather than read it off the error |
 | `DELETE …/devices/:devId` | `{ ok, state }` — also drops that device's console sessions |
 | `POST …/links` | `201 { link, state }`; **every** refusal is `409` — `E_LINK` for a port already patched, an unknown interface or an unknown device id, `E_SELF_LINK` for both ends on one device. `E_PORT_IN_USE` is not one of them: that code belongs to `validate-link`, see the measured table below |
 | `DELETE …/links/:linkId` | `topo.disconnect()` — `{ ok, state }` |
