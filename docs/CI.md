@@ -512,12 +512,12 @@ services, and a job that has to swap makes the whole queue slower.
   **None of these readings is a reading of `main`.** They were taken in the working tree, which sits on
   branch `fix/sfp-plus-connectors`, and that branch diverged from `origin/main` at `083e2ba1`
   (2026-11-08 16:58:44) — at the time of the fourth reading it was **382 ahead and 361 behind**, and
-  now reads **492 ahead and 361 behind**; either way not one of the commits above is an ancestor of
+  now reads **493 ahead and 361 behind**; either way not one of the commits above is an ancestor of
   `origin/main`. Check any of them before you quote it:
 
   ```bash
   git branch --show-current                              # fix/sfp-plus-connectors, not main
-  git rev-list --left-right --count HEAD...origin/main    # 492  361
+  git rev-list --left-right --count HEAD...origin/main    # 493  361
   git merge-base --is-ancestor d4319d27 origin/main || echo "not on main"
   ```
 
@@ -543,8 +543,10 @@ services, and a job that has to swap makes the whole queue slower.
   at `test/ma5801.test.js:96` for `interfaces.get('gpon1/1')`, so the suite indexes a port name the box
   no longer exposes — the catalogue names the PON ports `pon1` … `pon16` (`devices/huawei/ma5801-gp16.json`),
   which is the whole difference between the suite and the spec. The suite is not broken from its first
-  line: it prints **10** ✓ lines across two groups and dies in the third, which is why it reads in the
-  transcript as a suite that was working until it wasn't. Two failures, one message each, and neither is about documentation — which is what
+  line: section 1 prints **10** ✓ lines, section 2 prints its heading and then dies on its very first
+  assertion, so the transcript reads as a suite that was working until it wasn't. It has six sections and
+  never reaches the last four (`3.` to `6.`), which is why one crash costs one failure rather than the
+  assertions those sections would have contributed. Two failures, one message each, and neither is about documentation — which is what
   a "the tree is red" claim should look like when it is honest about which suites and why.
 
   **How to read the runner's own output**, because two of its habits surprise people:
