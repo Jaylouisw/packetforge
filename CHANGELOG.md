@@ -421,7 +421,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   RJ45" with real link types and multihoming.
 
 - **235 assertions over the control plane** (BGP, OSPF, VRRP, DHCP, NAT, DNS), five of which
-  document defects as `DOCUMENTS BUG` and reference the issues that will flip them.
+  document defects as `DOCUMENTS BUG` and reference the issues that will flip them. Those were the
+  numbers in `a3905789` (#52); the same file now reports **253 assertions** and **one** surviving
+  `DOCUMENTS BUG` marker, because #41/#42/#43/#44/#54 and #240/#241 flipped four of the five. The
+  entry keeps the original count as the record of that work and the current one as what the file
+  says today — `node test/protocol-regression.test.js` is the measurement.
 
 - **Cables are drawn as what they are made of.** Every medium was one grey 2 px line and
   wireless-versus-not was the only distinction the canvas had. Colour now carries the family
