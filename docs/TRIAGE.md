@@ -143,6 +143,15 @@ so the deliberate `process.exit(2)` never runs on the 401 path, because the proc
 Read **2** as "not configured" and any other non-zero code as "could not look", which is the one thing the
 script's own comment insists on and the crash still delivers.
 
+The cause is in the call, and this repository already carries the repair in a third script. On the 401 path
+`request-queue.js:86` and its neighbour's `:200` both call `process.exit(2)` while the tracker's HTTP client
+still holds a keep-alive socket, and that is the shape that trips the libuv assertion on Windows — the exit
+code is lost to the abort. `scripts/cf-access-bypass.js:229-238` sets `process.exitCode` and lets the loop
+drain instead, and says why in a comment worth quoting: calling `exit()` there *"trips a libuv assertion on
+Windows, and the crash swallowed the exit code — a refused run reported success"*. Neither tracker script
+does that: `grep -n 'process.exit' scripts/request-queue.js scripts/sweep-device-requests.js` finds four and
+one, and `exitCode` appears in neither. So the deliberate code is right and the mechanism loses it.
+
 **How to read those exit codes, because the obvious way lies.** In this shell `$?` reports **0 even when the
 command failed** — `false; echo $?` prints `0`, and so does `node -e 'process.exit(3)'; echo $?` — while `&&`
 and `||` still see the real status (`node -e 'process.exit(3)' && echo zero || echo nonzero` prints `nonzero`).
