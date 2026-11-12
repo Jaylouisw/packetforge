@@ -9364,10 +9364,10 @@ than literal and inflates the answer to 58. The raw count includes the `'W_'` pr
 reads 32 where the real figure is 31:
 
 ```sh
-grep -oh "'[EW]_[A-Z0-9_]*'" engine/*.js | sort -u | wc -l          # 159 quoted, 1 of them a prefix literal
+grep -oh "'[EW]_[A-Z0-9_]*'" engine/*.js | sort -u | wc -l          # 160 quoted, 1 of them a prefix literal
 grep -oh "'[EW]_[A-Z0-9_]*'" engine/*.js | sort -u | tr -d "'" \
   | grep -v '^[EW]_$' \
-  | while read c; do grep -q "$c" docs/*.md || echo "$c"; done | wc -l   # 17 today: this table names 14 of the 31
+  | while read c; do grep -q "$c" docs/*.md || echo "$c"; done | wc -l   # 0 today - this file names every one of them; it printed 17 before the table above existed
 ```
 `grep -oh "'E_[A-Z0-9_]*'" engine/*.js | sort -u | wc -l` is the 148;
 `grep -o 'E_[A-Z0-9_]*' docs/CLI.md | sort -u | wc -l` is the 88;
