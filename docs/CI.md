@@ -623,13 +623,13 @@ queue that lost its arms gets them back in one tick instead of five at a time.
   **None of these readings is a reading of `main`.** They were taken in the working tree, which sits on
   branch `fix/sfp-plus-connectors`, and that branch diverged from `origin/main` at `083e2ba1`
   (2026-11-08 16:58:44) — at the time of the fourth reading it was **382 ahead and 361 behind**, and
-  now reads **558 ahead and 382 behind** (after a fresh `git fetch`, which moved the behind-side
+  now reads **559 ahead and 383 behind** (after a fresh `git fetch`, which moved the behind-side
   from 361 to 373 — main's tip is `f370b893`, #1450); either way not one of the commits above is an ancestor of
   `origin/main`. Check any of them before you quote it:
 
   ```bash
   git branch --show-current                              # fix/sfp-plus-connectors, not main
-  git rev-list --left-right --count HEAD...origin/main    # 558  382
+  git rev-list --left-right --count HEAD...origin/main    # 559  383
   git merge-base --is-ancestor d4319d27 origin/main || echo "not on main"
   ```
 
@@ -785,8 +785,12 @@ queue that lost its arms gets them back in one tick instead of five at a time.
   The two failures that are actually the tree's:
 
   - `test/link-parts.test.js` — **the UI carries every catalogue part (34 of 58)**, and the two assertions that fail
-    name what is missing: `QSFP-DD-400G-SR8`, `QSFP-DD-400G-DR4`, `QSFP-DD-400G-FR4`, `QSFP56-200G-SR4`,
-    `QSFP56-200G-FR4`, `QSFP28-100G-SR4`, `QSFP28-100G-BIDI`, `QSFP28-100G-eBIDI` and the rest of the QSFP family.
+    name what is missing. All **24** of them, and not all of them are the 400G modules the name of the suite
+    suggests: **19 are QSFP** (3 QSFP-DD: `-400G-SR8`, `-DR4`, `-FR4`; 2 QSFP56: `-200G-SR4`, `-FR4`; 10 QSFP28:
+    `-100G-SR4`, `-BIDI`, `-eBIDI`, `-CWDM4`, `-CWDM4-Lite`, `-DR`, `-FR1`, `-LR4`, `-ER4`, `-ZR4`; 4 QSFP-40G:
+    `iSR4`, `eSR4`, `LX4-MM`, `LR4-Lite`) and **5 are SFP** — `SFP-25G-SR`, `SFP-25G-SR-E`, `SFP-10G-SR1`,
+    `SFP-10G-SR-E`, `SFP-10G-iLR`. The SFP half is the surprising part: these are the 10G and 25G optics a reader
+    would assume were covered first, and the page used to call the whole gap "the rest of the QSFP family".
     the table behind that is `PART_ROWS` in `web/app.js` — a pipe-delimited list of
     `part|form|media|speed|reach|polish|nm` rows — and nothing regenerates it, so a part added to
     `catalogue/optics/transceivers.json` does not reach the UI until somebody edits that array by hand.
