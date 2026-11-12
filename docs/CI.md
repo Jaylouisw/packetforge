@@ -510,6 +510,15 @@ grep -rhoE '\]\([A-Za-z0-9_./-]*docs/[A-Za-z0-9_.-]+\.md#[^)]+' docs/*.md docs/w
 # 5, on the tree this was measured against
 ```
 
+That pattern requires a `docs/` prefix, so it counts one spelling rather than one kind of link, and
+there are six more of the same shape written relative to the file they live in: `ARCHITECTURE.md` into
+`DEVICE_REGISTRY.md` (the `#capabilities` heading) and into `../README.md` (the `#if-it-will-not-start`
+one that climbs out of the directory), `CI.md` into `REQUESTING-HARDWARE.md`
+(`#what-the-form-does-measured`), `CLI.md` into `SIMULATION.md` (`#33-routing-and-administrative-distance`),
+`PHYSICAL_LAYER.md` into `DEVICE_REGISTRY.md` (`#correcting-an-existing-spec-with-researched-facts`) and
+`SIMULATION.md` into `CLI.md` (`#dhcp-server`). All six resolve, which is why the check below reports
+nothing broken while the recipe above prints 5 — the number belongs to the pattern, not to the tree.
+
 The check was proved to bite by pointing one of them at a heading that does not exist — and it bit for
 real when the NAT heading was renamed, which is how the count came to be re-measured.
 
