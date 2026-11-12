@@ -1727,7 +1727,11 @@ class CliSession {
     // becoming configuration, with a receipt (#1495). The mode was validated and the id was not.
     const id = t[0];
     if (!id) return ['% Usage: channel-group <id> mode active|passive|on'];
-    if (!/^\d+$/.test(id) || Number(id) < 1) {
+    // The sentence below has printed `1-4096` since #1495 and the condition only ever applied the lower bound:
+    // every id above 4096 was accepted and became a group, so `channel-group 4097` created configuration the
+    // refusal said could not exist. A stated range has to be the range the check applies (#1505).
+    const channelId = Number(id);
+    if (!/^\d+$/.test(id) || !(channelId >= 1) || channelId > 4096) {
       return ['% Invalid channel group id "' + tokens[0] + '": a channel group is identified by a number, ' +
         '1-4096 (e.g. `channel-group 1 mode active`)'];
     }

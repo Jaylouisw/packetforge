@@ -1886,3 +1886,39 @@ Exec and privileged EXEC share one dispatcher, and only `exit` at `>` was handle
 What did **not** change: a word the console does not know is still reported in every mode (`% Unrecognized config command: flurbish`), because the fix is the two help keys and the one level, not a general amnesty.
 
 `test/help-key-works-in-every-prompt.test.js` holds it: nine checks over all five prompts (the index from `?` and from `help`, the prompt unchanged afterwards, a command still working after asking for help), plus the full `exit` ladder and the unknown-word reports. With the old handler: 4 passed / 5 failed.
+## A stated range is the range the check applies
+
+`channel-group 4097` was accepted:
+
+```
+sw1(config-if)#channel-group 4097 mode active
+Interface Fa0/1 added to channel group 4097 (mode active)
+```
+
+and the refusal for a *bad* id in the same handler said the range was `1-4096`:
+
+```
+sw1(config-if)#channel-group flurbish mode active
+% Invalid channel group id "flurbish": a channel group is identified by a number, 1-4096
+```
+
+The condition was `!/^\d+$/.test(id) || Number(id) < 1` — a lower bound only. #1495 fixed the "word became configuration" half of this and left the ceiling unapplied, so a typo one digit too far created a bundle the console's own message says cannot exist, and every view that lists bundles printed it.
+
+`test/stated-range-is-the-enforced-range.test.js` now probes **four points** at every range the console prints — below, low, high, above — and requires refusal, acceptance, acceptance, refusal:
+
+| setting | range | probed |
+|---|---|---|
+| `vlan <id>` | 1-4094 | 0, 1, 4094, 4095 |
+| `channel-group <id>` | 1-4096 | 0, 1, 4096, 4097 |
+| `vrrp <vrid>` | 1-255 | 0, 1, 255, 256 |
+| `vrrp <vrid> priority` | 1-255 | 0, 1, 255, 256 |
+| `spanning-tree priority` | 0-61440 | -1, 0, 61440, 61441 |
+| `ipv6 nd ra lifetime` | 0-65535 | -1, 0, 65535, 65536 |
+| `ip ospf cost` | 1-65535 | 0, 1, 65535, 65536 |
+| `ping <count>` | 1-50 | 0, 1, 50, 51 |
+
+Two more checks make the failure visible where it happened rather than only at the boundary: a refused bundle id leaves **no** group in `dev.config.lags`, nothing in `show etherchannel summary`, and no `lag` on the port; and both edges (1 and 4096) still work, so the ceiling was raised into existence rather than narrowed into uselessness.
+
+Ten checks; with the old handler **8 passed / 2 failed**, both naming `4097`.
+
+The general rule this pins: a refusal that prints a range is a promise about the parser. If the number is worth printing, it is worth reading once and applying twice.
