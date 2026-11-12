@@ -117,6 +117,42 @@ beat one, but by roughly 1.6× rather than 2×, and the load average roughly dou
 Watch memory rather than CPU if you raise it again — the host is shared with other
 services, and a job that has to swap makes the whole queue slower.
 
+## The disk the jobs share
+
+The runner is not a container on a stranger's machine: it is on the forge host, and the
+`docker` job builds against the **host daemon** through the mounted
+`/var/run/docker.sock`. Its layers, its intermediate images and its build cache
+therefore live on the same volume as Forgejo's database and repositories.
+
+On 2026-11-12 that volume filled. The forge did not report "disk full" — it reported
+three things that look unrelated to each other:
+
+| What you see | What it actually is |
+|---|---|
+| `git push` → `error: couldn't set 'refs/heads/<branch>'` / `failed to update ref` | git cannot write a loose ref |
+| API file write → `500` with `could not write config file .../local-repo/upload.git.../config: No space left on device` | the server cannot stage your commit |
+| A pull request whose `Test (Node …)` jobs never appear at all | the task rows for jobs with `needs:` were never created, so the checks it is armed against cannot exist |
+
+The third one is the expensive one: the pull request looks armed and healthy, and
+nothing will ever run. A push does not fix it either — two force-pushes produced no
+run, while a `workflow_dispatch` on the same branch created only the job that has no
+`needs:`.
+
+So the `docker` job now leaves the volume as it found it: it removes the image it built,
+drops dangling images older than a day, bounds the builder cache with
+`--keep-storage 2GB` (falling back to a plain prune on docker 20.10, which has no such
+flag), and prints `docker system df` both **before** and **after** the build so a
+growing disk reads as a trend in a log instead of being discovered by a rejected push.
+The cleanup step carries `if: always()`, because the failure case — a build that dies
+half way — is the one that leaves the most behind, and a cleanup written without it
+would be skipped exactly then.
+
+`scripts/check-ci-disk-hygiene.js` (also `npm run check:ci-disk`, and a step in the
+test job) enforces the rule against every workflow file: a step that runs
+`docker build` obliges the same job to prune, in a step that carries `if: always()`,
+and to report `docker system df`. Prose in a comment does not count — the checker strips
+full-line comments first, so documenting the rule cannot trip it.
+
 ## Troubleshooting
 
 | Symptom | Cause | What to do |

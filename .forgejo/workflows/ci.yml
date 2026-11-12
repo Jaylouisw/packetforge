@@ -113,6 +113,12 @@ jobs:
         # SECURITY.md sent reports to a GitHub advisory page. Nothing failed, because a stale URL
         # looks like every other string in the repo.
         run: node scripts/check-canonical-urls.js
+      - name: Every job that builds an image bounds what it writes
+        # See the `docker` job below: it builds against the host daemon, on the same volume
+        # Forgejo stores its data on. When that volume filled up, the forge did not say "disk
+        # full" - it refused pushes with `couldn't set 'refs/heads/...'` and stopped creating the
+        # jobs that carry `needs:`, so pull requests sat armed against checks that did not exist.
+        run: node scripts/check-ci-disk-hygiene.js
       - name: Full test suite
         run: npm test
       - name: Build & verify example labs
@@ -156,6 +162,12 @@ jobs:
         run: node scripts/check-dockerfile.js
       - name: Install Docker CLI
         run: apt-get update && apt-get install -y docker.io
+      - name: What the host's disk looks like before this job
+        # Printed before the build as well as after it, so a growing volume reads as a trend in the
+        # log rather than as a single number someone has to remember.
+        run: |
+          df -h / || true
+          docker system df 2>/dev/null || true
       - name: Build image (only where a docker daemon is available)
         run: |
           if command -v docker >/dev/null 2>&1 && docker info >/dev/null 2>&1; then
@@ -166,3 +178,27 @@ jobs:
             echo "The Dockerfile passed the static checks above."
             echo "The image build is verified on runners that provide a daemon."
           fi
+      # This build runs against the HOST daemon through the mounted socket, so its layers, its
+      # intermediate images and its build cache live on the same volume as Forgejo's own data.
+      # Nothing consumes `packetforge:ci` - it exists to prove the Dockerfile builds - and nothing
+      # removed it, so every code push left a little more behind, forever.
+      #
+      # `if: always()` because the failure case is the expensive one: a build that dies half way
+      # through leaves the most behind, and that is exactly when a cleanup step written without it
+      # would be skipped. `--keep-storage` bounds the cache instead of dropping it, so the next
+      # build still gets a warm start; docker 20.10 has no `--keep-storage`, hence the fallback.
+      - name: Bound what the build left behind
+        if: always()
+        run: |
+          if ! command -v docker >/dev/null 2>&1 || ! docker info >/dev/null 2>&1; then
+            echo "No docker daemon here - nothing was written to the host, so nothing to reclaim."
+            exit 0
+          fi
+          docker image rm -f packetforge:ci >/dev/null 2>&1 || true
+          docker image prune -f --filter "until=24h" >/dev/null 2>&1 || true
+          docker builder prune -f --keep-storage 2GB >/dev/null 2>&1 \
+            || docker builder prune -f >/dev/null 2>&1 \
+            || true
+          echo "--- what this job left on the host ---"
+          docker system df || true
+          df -h / || true
