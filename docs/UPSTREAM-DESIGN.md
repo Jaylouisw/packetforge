@@ -644,7 +644,21 @@ deviation from this design: the cage is `wwan` and it mates with nothing. See ro
 **Reading the Anchor and Today columns.** They answer different questions and are maintained
 differently. *Anchor* names the symbol and the line it sits on **in this tree** — `CAGES` is at
 `media.js:314` today, not at 157, because `MEDIA` above it grew by four wireless entries and pushed
-everything down. Recount any of it in one line:
+everything down. The header used to say "at `d399dff`", which contradicted that sentence and was never
+true of this column: re-measured row by row on the current tree, the eleven `media.js` anchors are still
+exactly where this page put them (`MEDIA` 54, `CAGES` 314, `CAGE_MATE` 413, `cagesMate()` 455,
+`CAGE_MEDIA` 486 with `wwan` 489 / coax 609 / dsl 617 / powerline 622, `CAGE_SPEEDS` 642, `inferCage()`
+767, `derivePortHardware()` 875, `canMate()` 1230), while every anchor outside that file had slid
+— `simulator.js` by as much as 1,900 lines, `validation.js`, `topology.js`, `link.js`, `device.js` and
+the two `cli.js` rows by between 4 and 2,000 — so the column was a mixture of today and of the tree the
+page was written on. The numbers below are the measured ones.
+
+One anchor moved under its own row's meaning: row 21's static loop no longer hard-codes `ad: 1`. It
+scores `Device.ADMIN_DISTANCE.static` at `device.js:571`, so the *Today* column's "`ad: 1` hard-coded"
+is history — but the numeric-distance override the Change column asks for (`numOr(r.distance, 1)`) is
+still absent, which is why the row stays a work order rather than a tick.
+
+Recount any of it in one line:
 
 ```sh
 grep -n "^const CAGES\|^const CAGE_MATE\|^const CAGE_MEDIA\|^const CAGE_SPEEDS" engine/media.js
@@ -657,7 +671,7 @@ migration is measured from, and rewriting them as `CAGES` grows would erase the 
 work was needed. Today's tree has 26 cages and 89 media; `docs/CONNECTORS.md` carries the live count
 and its own recount one-liners.
 
-| # | Anchor (at `d399dff`) | Today | Change |
+| # | Anchor (this tree) | Today | Change |
 |---|---|---|---|
 | 1 | `MEDIA` at `media.js:54` | 64 media, 8 families | ✅ done (#129): `lte`, `lte-a`, `5g-sub6`, `5g-mmwave` |
 | 2 | `CAGES` at `media.js:314` | 19 cages | ✅ done (#129): added as **`wwan`**, not `cellular` — the name says what the port is, not what technology happens to use it |
@@ -668,30 +682,30 @@ and its own recount one-liners.
 | 7 | `derivePortHardware()` at `media.js:875` | `cage==='antenna'` band special-case | **no change** — verify cellular is not caught |
 | 8 | `canMate()` at `media.js:1230`, `cagesMate()` at `:455` | 3-test ladder | **no change** — service checks live in validation |
 | 9 | `validation.js:59 RULES` | 20 codes | +12 (§6.1); `SEVERITY_BY_CODE` at `:144` follows automatically |
-| 10 | `validation.js:549 let mate = canMate(...)` | physical verdict only | insert service checks after this block, before medium selection at `:588` |
-| 11 | `validation.js:833 validateTopology()` | takes a flat/nested issue list | **no change** — pass a second array |
-| 12 | `validation.js:852` exports, `engine/index.js:11,31` | `{ validateConnection, validateTopology, RULES }` | add `validateUpstreams`, `SERVICE_TECHNOLOGY` table |
-| 13 | `link.js:8 constructor` / `:56 serialize()` | 8 fields | add `service` |
-| 14 | `topology.js:98 validateLink()` | passes mediaId/lengthM/patchCord | pass `service` |
-| 15 | `topology.js:194 connect()` / `:236 new Link()` | 7 opts | thread `service` |
-| 16 | `topology.js:319 serialize()` / `:331 fromJSON()` / `:359` | link fields | carry `service` |
-| 17 | `topology.js:257 setLinkLength()` | only length is editable | generalise to `patchLink(id, {lengthM, service})` |
-| 18 | `device.js:85 CAPABILITIES` | 15 tokens | add `'transit'` |
-| 19 | `device.js:149 config` | 17 keys | add `wans`, `multipath`, `ecmpHash` |
-| 20 | `routeTo()` at `device.js:541` | one route, `better()` closure | add `routeCandidates()`, keep `routeTo()` as wrapper |
-| 21 | `device.js:386-399` static loop | `ad: 1` hard-coded | `ad: numOr(r.distance, 1)`, `metric: numOr(r.metric, 0)` |
-| 22 | `device.js:438` default gateway | `if (!best)` fallback, ad 254 | becomes a candidate in the list |
-| 23 | `device.js:524 egressFor()` | first interface in subnet | keep; add `isInterfaceUsable()` for liveness |
-| 24 | `device.js:534 routesTable()` | no AD/metric | add `ad`, `metric`, `wan` columns |
-| 25 | `device.js:584 serialize()` / `:650 hydrate()` | white-list | add the three config keys — **both** |
-| 26 | `simulator.js:1595 _deliver()` | checks `enabled` + `peer` | also `link.isUp()`, emit `link-down` |
-| 27 | `simulator.js:1416 _sendIcmp()`, `:1445 _sendTransport()` | `routeTo()` once | candidate loop + `wan-select` |
-| 28 | `_forwardL3()` at `simulator.js:3681` (`routeTo()` at `:3699`) | `routeTo()` once | candidate loop; **move NAT after the route** or flag it (§8) |
-| 29 | `simulator.js:2036 pathMtu()`, `:2029 _pickDestIp()`, `:2159 openFlow()` | single route | use `routeTo()` (unchanged) — they want *a* path, not the preferred one |
-| 30 | `simulator.js:104 _emit` / `reset()` | 40-odd event types | 4 new types; `trackState` map in `reset()` |
+| 10 | `validation.js:553 let mate = canMate(...)` | physical verdict only | insert service checks after this block, before medium selection at `:588` |
+| 11 | `validation.js:885 validateTopology()` | takes a flat/nested issue list | **no change** — pass a second array |
+| 12 | `validation.js:904` exports, `engine/index.js:11,28` | `{ validateConnection, validateTopology, RULES }` | add `validateUpstreams`, `SERVICE_TECHNOLOGY` table |
+| 13 | `link.js:9 constructor` / `:60 serialize()` | 8 fields | add `service` |
+| 14 | `topology.js:122 validateLink()` | passes mediaId/lengthM/patchCord | pass `service` |
+| 15 | `topology.js:347 connect()` / `:389 new Link()` | 7 opts | thread `service` |
+| 16 | `topology.js:554 serialize()` / `:570 fromJSON()` / `:599` the link restore | link fields | carry `service` |
+| 17 | `topology.js:415 setLinkLength()` | only length is editable | generalise to `patchLink(id, {lengthM, service})` |
+| 18 | `device.js:89 CAPABILITIES` | 15 tokens | add `'transit'` |
+| 19 | `device.js:157 config` | 17 keys | add `wans`, `multipath`, `ecmpHash` |
+| 20 | `routeTo()` at `device.js:545` | one route, `better()` closure | add `routeCandidates()`, keep `routeTo()` as wrapper |
+| 21 | `device.js:560-574` static loop | `ad: 1` hard-coded | `ad: numOr(r.distance, 1)`, `metric: numOr(r.metric, 0)` |
+| 22 | `device.js:606-612` default gateway | `if (!best)` fallback, ad 254 | becomes a candidate in the list |
+| 23 | `device.js:738 egressFor()` | first interface in subnet | keep; add `isInterfaceUsable()` for liveness |
+| 24 | `device.js:752 routesTable()` | no AD/metric | add `ad`, `metric`, `wan` columns |
+| 25 | `device.js:817 serialize()` / `:907 hydrate()` | white-list | add the three config keys — **both** |
+| 26 | `simulator.js:3314 _deliver()` | checks `enabled` + `peer` | also `link.isUp()`, emit `link-down` |
+| 27 | `simulator.js:3080 _sendIcmp()`, `:3142 _sendTransport()` | `routeTo()` once | candidate loop + `wan-select` |
+| 28 | `_forwardL3()` at `simulator.js:3699` (`routeTo()` at `:3717`) | `routeTo()` once | candidate loop; **move NAT after the route** or flag it (§8) |
+| 29 | `simulator.js:3920 pathMtu()`, `:3909 _pickDestIp()`, `:4081 openFlow()` | single route | use `routeTo()` (unchanged) — they want *a* path, not the preferred one |
+| 30 | `simulator.js:256 _emit` / `:169 reset()` | 40-odd event types | 4 new types; `trackState` map in `reset()` |
 | 31 | POST `/links` at `server/index.js:386`, POST `/validate-link` at `:416` | 5 fields | `service`; new `/upstreams`, `/failover-test` |
-| 32 | `cli.js:3261 ip route` | `[iface]` only; a numeric fourth word is refused | `[distance]` |
-| 33 | `cli.js:9063 show ip route` | `Prefix AD Gateway Interface` (AD per source) | per-route metric, WAN column; new `show wan` |
+| 32 | `cli.js:3269 ip route` | `[iface]` only; a numeric fourth word is refused | `[distance]` |
+| 33 | `cli.js:2408 show ip route` | `Prefix AD Gateway Interface` (AD per source) | per-route metric, WAN column; new `show wan` |
 | 34 | `web/app.js:115-130` palette labels, `:973` inspector open, `:1613` its State row | no service UI | Service block, WAN panel, failover button |
 | 35 | `devices/registry.js:7`, `web/app.js:116` (labels) and `:127` (order) | 10 categories | add `upstream` |
 
