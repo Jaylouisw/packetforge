@@ -1005,11 +1005,15 @@ host can halve it. Two flags re-measured in the same session as well: `--list` s
   A seventh reading on the same day printed `272 suite(s) in 169.7 s — 11191 assertions passed, 3 failed`,
   same pair red, **without** `--verbose` — which corrects the attribution this paragraph used to make. An
   eighth was taken by accident (a positional path the runner dropped, in the table below): `272 suite(s) in
-  159.2 s — 11191 assertions passed, 3 failed`, same pair red. Eight readings, one set of counts, a spread
+  159.2 s — 11191 assertions passed, 3 failed`, same pair red. Nine readings, one set of counts, a spread
   from 149.9 s to 324.8 s. The
-  `stdin is not a tty` failure is not about the flag: it reproduces when the run is **backgrounded with its
-  output redirected**, and it reproduced today with `--verbose` on (a 26-byte log containing that one line and
+  `stdin is not a tty` failure is not about the flag: it reproduces when the run is **backgrounded onto a
+  file** (`> log 2>&1`), and it reproduced today with `--verbose` on (a 26-byte log containing that one line and
   `EXIT:1`, no summary), while the identical command in the foreground finished all 272 — flag or no flag. The
+  redirect is the part that decides, not the background: the ninth reading above was taken by a harness that
+  promoted the command to a background process and piped it into `grep`, and it finished all 272 with the
+  summary intact (`272 suite(s) in 165.9 s — 11191 assertions passed, 3 failed`, same pair red). So backgrounding
+  on its own does not lose the summary; **sending it to a file** does, and a live pipe keeps it.
   message does not come from this repository either: `grep -rn 'stdin is not a tty' --include='*.js' .` finds
   nothing outside the docs that quote it, so it belongs to whatever supervises the job. Two rules follow, and
   the second is the one that costs an afternoon: run the suite in the **foreground** if you want the summary,
