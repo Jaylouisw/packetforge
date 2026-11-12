@@ -76,7 +76,13 @@ Verify:
 # The forge side, on a host where `origin` (ssh://forgejo) resolves. It does NOT resolve in a sandbox:
 # `git ls-remote origin` there fails with "Could not resolve hostname forgejo", and piped into `wc -l`
 # that failure reads as a count of 0 — the mirror looking empty rather than unreachable. Use the HTTP
-# remote or the public URL instead; both are reachable from anywhere.
+# remote or the public URL instead.
+# Unreachable has three shapes and only one of them says so: a refusal (git exits 128 with "Could not
+# read from remote repository"), a name that does not resolve, and a **hang**. Measured on 2026-11-12,
+# `http://odin:3000/...` and `https://git.jayw.uk/...` both returned zero lines, zero bytes of stderr
+# and exit **124** under `timeout 70`, while GitHub answered 889 heads in 73 KB in the same minute.
+# Piped into `wc -l` all three read 0, so check the exit status before believing a zero - and note the
+# GitHub half is the one a machine with no route to the forge can still measure.
 # Every annotation below is one reading (2026-11-12), not expected output: re-run the commands and
 # compare the two SHAs with each other, which is the check that cannot rot.
 git ls-remote --heads https://github.com/Jaylouisw/packetforge | wc -l                        # 889 today
@@ -86,8 +92,9 @@ git ls-remote http://odin:3000/jaylouisw/packetforge.git refs/heads/main        
 git ls-remote --tags https://github.com/Jaylouisw/packetforge | wc -l                        # 0, so the tag half is untested
 ```
 
-`https://git.jayw.uk/jaylouisw/packetforge` answers identically to `odin:3000` — same **901** heads, same
-`1b1e1287` — which is the cheapest check that the public host and the HTTP remote are the same instance.
+`https://git.jayw.uk/jaylouisw/packetforge` answers identically to `odin:3000` when the forge is reachable
+— same **901** heads, same `1b1e1287`, measured on 2026-11-12 — which is the cheapest check that the
+public host and the HTTP remote are the same instance.
 Both URL spellings work: with and without the trailing `.git` return the same counts and the same SHA.
 
 `origin` is an SSH alias on a developer machine, so the count only works where that alias resolves;
