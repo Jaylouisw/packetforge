@@ -444,12 +444,15 @@ two refusals the engine really produces. The file's own header asks that a renam
 
 **Every code in `RULES` is actually reachable.** Counted on 2026-11-12: all **20** appear as a quoted
 literal somewhere other than the `RULES` array itself (`:61-138`), which is the definitions. Most are
-emitted once, inside `validateLink()`; five come from a second module as well, which is where a code can
-surprise you — `E_NO_PORT` from `Topology.connect()` when a cable names a port that has since gone
-(`topology.js:471`) and from `canMate()` (`media.js:1232`), `E_WIRELESS_TO_WIRED` and
-`E_CONNECTOR_MISMATCH` and the media/speed pair from `media.js` (`:1236`, `:1277`, `:1331`, `:1338`), and
-`E_LAG_SPEED_MISMATCH` from the LAG validator (`lag.js:258`) as well as from the link check. So a refusal
-whose code you do not recognise may not have come from `validation.js` at all.
+emitted once, inside `validateLink()`; **seven** come from a second module as well, which is where a code
+can surprise you — `E_NO_PORT` from `Topology.connect()` when a cable names a port that has since gone
+(`topology.js:471`) and from `canMate()` (`media.js:1232`); `E_WIRELESS_TO_WIRED`, `E_CONNECTOR_MISMATCH`,
+`E_POLISH_MISMATCH` and the media/speed pair from `media.js` (`:1236`, `:1277`, `:1268`, `:1331`,
+`:1338`) — the polish refusal is one branch past the check that *permits* a hybrid lead, which is why it
+sits in the same block; and `E_LAG_SPEED_MISMATCH` from the LAG validator (`lag.js:258`) as well as from
+the link check. So a refusal whose code you do not recognise may not have come from `validation.js` at
+all. The count is what moves: the sentence said five when the list had six and one code was missing from
+it, and the list is the thing to re-derive.
 
 Both are PON-only: the check runs when both ends are `sc-apc`, `sc-upc`, `lc-upc` or `lc-apc`, budgets
 each direction separately — `E_OPTICAL_BUDGET` names which one failed (`downstream at 1490 nm` or
