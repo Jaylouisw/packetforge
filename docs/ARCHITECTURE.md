@@ -584,6 +584,50 @@ publishes no tree at all, the four facts keep their own verdicts, `undefined` st
 and the canvas and the inspector both route through the shared rule (checked statically, so
 neither can quietly go back to asking `enabled` on its own).
 
+### "No such port" was the answer to a question about a view
+
+Twelve words that are views under `show interfaces` in IOS — `switchport`, `trunk`, `status`,
+`description`, `counters`, `summary`, `capabilities`, `transceiver`, `errdisable`,
+`flowcontrol`, `history`, `stats` — all answered the same thing:
+
+```
+s1> show interfaces switchport
+% No interface switchport on Switch (L2)-s1
+```
+
+That is the sentence a mistyped port name gets, and it is the wrong lesson: the port is fine,
+the **view** is not here. An operator who typed a command they know from IOS was told a socket
+did not exist, so the next thing they check is the port name — which was never wrong. Worst of
+all, `show interfaces ?` — how a reader asks what may go in that position — answered
+`% No interface ? on Switch (L2)-s1`.
+
+A word that is a keyword is now reported as one, and the refusal points at the command that
+does answer the question:
+
+```
+s1> show interfaces switchport
+% `switchport` is a view, not a port: this console has no `show interfaces switchport`.
+  A port's own switchport line is in `show interfaces <port>`; VLAN membership is in `show vlan brief`.
+```
+
+Three rules the fix keeps:
+
+* **The port table is asked first.** A device with a port genuinely called `status` still prints
+  that port; the keyword table is consulted only after the name resolves to nothing.
+* **Every command the advice names is run by the test.** Advice that does not run is another way
+  of wasting the reader's time, so `show vlan brief`, `show version` and `show lldp neighbors`
+  are executed and required to answer, not merely mentioned.
+* **A near-miss on a real port is still a missing port.** `show interfaces Fa0/9x` keeps the
+  `% No interface …` sentence: only the twelve view words take the new path, and `?`/`help` get
+  a usage line instead of an error.
+
+`test/show-interfaces-view-keywords.test.js` pins it, 71 checks: for each of the twelve words the
+answer names it as a view, never as a missing port; the offered commands are executed; a bogus
+port and a real port answer exactly as before; `?` and `help` print usage; case does not matter;
+the words live in one named table and the console asks it; and the keyword check is after the
+port lookup in the source, so a port named like a keyword still wins.
+
+
 ### One state read shows both halves of one fact
 
 `GET /api/topologies/:id` carries the board and each device's runtime tables. Two

@@ -40,6 +40,27 @@ function showNoTail(cmd, tail, whole, instead) {
     (instead ? ' - ' + instead : '')];
 }
 
+// The words that are views under `show interfaces` in IOS, and the answer this console can give instead (#1443).
+//
+// Every one of these used to answer `% No interface <word> on <box>` - the same sentence a mistyped port name gets -
+// so an operator who typed a command they know from IOS was told a socket did not exist. That is the wrong lesson to
+// teach: the port is fine, the view is not here, and the answer should point at the command that does answer the
+// question. Each entry says where to go; none of them invent a view this console does not have.
+const INTERFACES_VIEW_KEYWORDS = {
+  switchport: 'A port\'s own switchport line is in `show interfaces <port>`; VLAN membership is in `show vlan brief`.',
+  trunk: '`show vlan brief` names each VLAN\'s ports, and `show interfaces <port>` prints the port\'s trunk settings.',
+  status: '`show interfaces` prints every port\'s status and protocol, one block each.',
+  description: '`show interfaces <port>` prints the port\'s description when one is set.',
+  counters: '`show interfaces <port>` prints that port\'s packet and byte counters; `show interfaces` prints them for every port.',
+  summary: '`show interfaces` is the summary: one block per port with status, address and counters.',
+  capabilities: 'What a box can do is in `show version` and in its catalogue entry; a port\'s own facts are in `show interfaces <port>`.',
+  transceiver: 'The cage and its optics are in `show interfaces <port>` and in the port\'s catalogue entry.',
+  errdisable: 'A port that cannot carry a frame says why in `show interfaces <port>` and in `show interfaces`.',
+  flowcontrol: 'Flow control is not simulated: there is no negotiation to report.',
+  history: 'Counters are a running total, not a history: `show interfaces <port>` prints the totals since the run began.',
+  stats: '`show interfaces <port>` prints the totals since the run began.'
+};
+
 class CliSession {
   constructor(device, topology, simulator) {
     this.device = device;
@@ -3413,6 +3434,24 @@ class CliSession {
         const name = ifaceName.resolvePortName(dev, wanted);
         const one = name ? dev.interfaces.get(name) : null;
         if (!one) {
+          // A real IOS view this console does not implement is not a misspelt port (#1443). `show interfaces
+          // switchport`, `show interfaces status`, `show interfaces counters` and ten more answered
+          // `% No interface switchport on <box>`, which is the same sentence a typo gets - so an operator who typed
+          // a command they know from IOS was told a port did not exist, and went looking for a typo in a port name
+          // instead of learning the view is not here. A word that is a keyword is reported as one.
+          // Note it is checked *after* the port table: a device with a port genuinely called "status" gets its port.
+          const keyword = INTERFACES_VIEW_KEYWORDS[String(wanted).toLowerCase()];
+          if (keyword) {
+            return ['% `' + wanted + '` is a view, not a port: this console has no `show interfaces ' + wanted +
+              '`. ' + keyword];
+          }
+          // `show interfaces ?` is how a reader asks what can go here, and `% No interface ? on <box>` is the
+          // worst possible answer to that question.
+          if (String(wanted).trim() === '?' || /^help$/i.test(String(wanted).trim())) {
+            return ['% Usage: `show interfaces` lists every port; `show interfaces <port>` prints one. ' +
+              'There is no keyword form here - `help` lists the commands this console has, ' +
+              '`show vlan` prints VLAN membership and `show lldp neighbors` prints what is plugged in.'];
+          }
           // Ambiguity is refused rather than guessed, exactly as `interface` refuses it: the panel is the
           // only authority on which socket a spelling means.
           const ambiguous = portKey(wanted) !== null && [...dev.interfaces.keys()]
