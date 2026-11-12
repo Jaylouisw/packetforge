@@ -659,7 +659,7 @@ included), the route is **not** eligible for Phase 2 and never reaches the RIB.
 > attribute), and checking that the autonomous system number of the local system
 > does not appear in the AS path."
 
-`pathIsLoopFree()` (`bgp.js:304-317`) already implements this correctly,
+`pathIsLoopFree()` (`bgp.js:308-317`, doc comment at `:304-307`) already implements this correctly,
 including AS_SET members and the "unparseable AS can never match" case. Reuse
 it; do not rewrite it. The check runs **after** the inbound route-map (policy
 cannot clear an AS_PATH in this grammar) and **before** the route enters
