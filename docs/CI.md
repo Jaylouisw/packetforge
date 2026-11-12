@@ -128,7 +128,16 @@ eight extensions — `.js .json .md .yml .yaml .css .html .sh` — skipping `.gi
 `.github-cache`, `dist` and `coverage`. Tab, LF and CR pass; anything else below `0x20`, plus `0x7F`, is a
 finding. That leaves **11 of the 2,846 tracked files outside the scan**: six with no extension
 (`.dockerignore`, `.editorconfig`, `.gitattributes`, `.gitignore`, `Dockerfile`, `LICENSE`), four `.txt`
-(three in `tmp/`, one research cache) and `research/incoming/build_devices_docsis.py`. Proved on a fixture
+(three in `tmp/`, one research cache) and `research/incoming/build_devices_docsis.py`.
+
+Do not count those with a `git ls-files | grep -vE '\\.(js|json|md|yml|yaml|css|html|sh)$'` recipe: it
+returns **12**, not 11, and the extra line is a false positive worth knowing about. One tracked path in
+this tree begins with a stray `C` followed by U+F03A, and the file at the end of it is `verify-slaac.js` —
+inside the scan, because the guard tests `path.extname`, but *quoted by git* in `ls-files` output, so the
+recipe's `$` anchor stops matching at the closing quote. The guard's own walk has no such problem: it
+recurses on `readdirSync` with only its skip list excluded, so it visits that directory and reads the file.
+
+Proved on a fixture
 rather than assumed: the same `0x08` planted in ten files was caught in `.js`, `.json`, `.md` and `.yml`,
 and **missed** in `.txt`, `.py`, `.bat`, `.svg`, `Dockerfile` and a dotfile with no extension. It takes no
 flags either — `--check` and `--bogus` both run the normal job and exit 0 — which is the ignored-flag
