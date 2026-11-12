@@ -75,7 +75,15 @@ fields, only `node` and `platform` are yours — `node` is whatever interpreter 
 There is **no published image**: nothing in this repository pushes one, and an anonymous
 `docker pull ghcr.io/jaylouisw/packetforge` is denied. Build it yourself — the Dockerfile is one
 stage on `node:20-alpine`, runs as the unprivileged `node` user, and carries a `HEALTHCHECK` that
-polls `/api/catalog`:
+polls `/api/catalog` (`FROM` at `Dockerfile:4`, `USER node` at `:17`, the check at `:19`). The "denied" is
+checkable without Docker — one line, no auth:
+
+```bash
+curl -s -o /dev/null -w '%{http_code}\n' https://ghcr.io/v2/jaylouisw/packetforge/manifests/latest   # 401
+```
+
+A **401** with `{"errors":[{"code":"UNAUTHORIZED","message":"authentication required"}]}` is GHCR's answer
+for a package that is private or absent, either of which means an anonymous pull cannot work:
 
 ```bash
 docker build -t packetforge .
