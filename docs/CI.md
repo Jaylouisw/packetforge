@@ -1005,8 +1005,17 @@ host can halve it. Two flags re-measured in the same session as well: `--list` s
   A seventh reading on the same day printed `272 suite(s) in 169.7 s — 11191 assertions passed, 3 failed`,
   same pair red, **without** `--verbose` — which corrects the attribution this paragraph used to make. An
   eighth was taken by accident (a positional path the runner dropped, in the table below): `272 suite(s) in
-  159.2 s — 11191 assertions passed, 3 failed`, same pair red. Nine readings, one set of counts, a spread
-  from 149.9 s to 324.8 s. The
+  159.2 s — 11191 assertions passed, 3 failed`, same pair red. Ten readings, one set of counts, a spread
+  from 149.9 s to 324.8 s. A tenth, taken 2026-11-12 at `f3058fd3`, printed `272 suite(s) in 174.7 s —
+  11191 assertions passed, 3 failed` — but the run before it, at the same suite total, read **11,189
+  passed, 5 failed** because a fourth suite went red: `test/docs-syntax.test.js`, which checks every
+  synopsis in `docs/CLI.md`'s master command table against the help rows the device prints. Two rows
+  added while updating that page said more than their help rows declare (`show spanning-tree vlan <id>
+  [root]`, `show ip bgp neighbors [<address>]`), so **a documentation edit turned the suite red** and the
+  corrected rows turned it green again, with no test file touched. The counts did not move; the tree did.
+  Treat that as a property of this repository rather than an anecdote: the docs are inside the test
+  surface, and `node test/docs-syntax.test.js` is the two-second way to check an edit to that table.
+  The
   `stdin is not a tty` failure is not about the flag: it reproduces when the run is **backgrounded onto a
   file** (`> log 2>&1`), and it reproduced today with `--verbose` on (a 26-byte log containing that one line and
   `EXIT:1`, no summary), while the identical command in the foreground finished all 272 — flag or no flag. The
