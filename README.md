@@ -437,6 +437,21 @@ packetforge/
 
 See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the full design.
 
+Several numbers in that tree are file counts rather than statements about the design, and they drift
+whenever someone adds a module, a guard or a probe. They are cheap to re-take:
+
+```sh
+ls -1 engine/*.js | wc -l                                # 32 modules
+ls -1 scripts/*.js | wc -l                               # 25 guards and tools
+ls -1 tmp/*.js | wc -l; git ls-files tmp/*.js | wc -l     # 129 on disk, 109 tracked
+ls -1 tmp/*.log | wc -l                                  # 99 logs
+find .staged -name '*.json' | wc -l                      # 589 staged specs
+```
+
+The `.staged` split — 417 byte-identical to their namesake, 38 different, 134 with no namesake at all —
+needs a hash comparison rather than a count; [CONTRIBUTING.md](CONTRIBUTING.md) re-derives all three
+from `git ls-files .staged`, and nothing in `engine/`, `server/` or `web/` reads that directory at all.
+
 ---
 
 ## Tests
