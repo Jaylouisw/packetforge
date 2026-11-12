@@ -409,6 +409,14 @@ connector question about two radios, or about a console port, would answer the w
 a console port against `rj45` is `E_PROTOCOL_MISMATCH`, `rj45` against a missing port is `E_NO_PORT`, and
 `antenna` against `antenna` is `ok: true` with `media: ["wireless-2.4","wireless-5"]`.
 
+The order is observable rather than implied, which takes pairs where two gates would both apply. An
+`antenna` port against a console port answers `E_WIRELESS_TO_WIRED`, not the `E_PROTOCOL_MISMATCH` the
+console rule would give — gate 2 speaking before gate 3. A console port against an SFP28 answers
+`E_PROTOCOL_MISMATCH`, not the `E_CONNECTOR_MISMATCH` that `cagesMate()` would give — gate 3 before gate 5.
+And gate 6 is reachable **inside one cage**: two `antenna` ports on different bands, a 60 GHz radio against
+a 2.4/5 GHz one, pass gate 2 and land on `E_NO_COMMON_MEDIA` with `No shared medium between Antenna and
+Antenna.` — the same-code answer for a pair whose cages mate and whose polishes match.
+
 The whole table was re-run against `canMate()` on 2026-11-12, by building hardware the way
 `derivePortHardware()` does — `{ cage, cageName, media: CAGE_MEDIA[cage](maxMbps), speeds: CAGE_SPEEDS[cage](maxMbps) }` —
 and calling the engine directly rather than through a lab:
