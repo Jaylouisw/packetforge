@@ -245,11 +245,15 @@ The most useful contribution is a **device spec**, and it does not require touch
 \`\`\`bash
 node test/hardware-invariants.test.js
 node scripts/audit-port-types.js
+node scripts/syntax-check.js
+node scripts/check-control-bytes.js
+node scripts/check-node-surface.js
+node scripts/check-canonical-urls.js
 \`\`\`
 
 Those two are the gates that ask questions only a spec can answer — 25 invariants over the catalogue and a
-contradiction sweep ("No port contradicts its declared type."). CI also runs four checks that are cheap to
-run first, and two of them can bite a spec: \`node scripts/check-control-bytes.js\` refuses a stray control
+contradiction sweep ("No port contradicts its declared type."). The last four are the cheap checks CI runs
+first, and two of them can bite a spec: \`node scripts/check-control-bytes.js\` refuses a stray control
 byte, which is what a copy-paste out of a PDF can leave behind, and \`node scripts/check-canonical-urls.js\` refuses
 a project URL that is not \`https://git.jayw.uk/jaylouisw/packetforge\`, which is easy to paste in from a
 mirror. The other two — \`check-node-surface.js\` and \`syntax-check.js\` — are about JavaScript and
