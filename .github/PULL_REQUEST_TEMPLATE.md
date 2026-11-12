@@ -14,6 +14,6 @@
 
 - [ ] Tests pass (`npm test`)
 - [ ] Syntax check passes (`npm run syntax`)
-- [ ] Example labs build (`npm run examples`)
+- [ ] Example labs build (`npm run examples` — it prints `PING FAILED` yet still exits 0, so read the output)
 - [ ] Device specs match the manufacturer's datasheet (if adding hardware)
 - [ ] No personal identifiers, hostnames, IPs, or credentials added
