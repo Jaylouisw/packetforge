@@ -80,6 +80,19 @@ lands, that comment is the first line to go stale and the first one a reader tru
       rule still comes from the topology JSON. The console reads the result two ways:
       `show ip nat translations` (the entries the data path wrote) and `show ip nat statistics`
       (`rules 1 (pat 1)`, `translations`, `dynamic entries`, `hits`).
+
+      Two orderings the page owes a copy-paster, both measured on `examples/lab2-router-two-subnets.json`
+      on 2026-11-12. **The ACL has to exist first**: `ip nat inside source list 10 interface Gi0/0
+      overload` on a router with no list 10 answers `% Access list 10 does not exist - the NAT list says
+      which addresses are translated, so it has to be built first` and `% Configured lists: (none)`, so
+      `access-list 10 permit 10.0.1.0 0.0.0.255` comes before the rule; the rule then installs
+      (`NAT rule added on Router-d3: pat list 10 -> Gi0/0 (10.0.1.1) overload`) with a warning that it
+      needs one interface inside and one outside or it will match nothing. **And the roles are set in
+      interface context, not global config**: bare `ip nat inside` at `(config)#` is
+      `% Incomplete command` naming the two `inside source …` forms, and `ip nat outside` is refused as
+      `not "outside"` — but `interface Gi0/0` then `ip nat inside` answers
+      `Interface Gi0/0 is NAT inside` plus `(no port is outside yet - translation waits for one)`, which
+      is the second half of the warning being honest.
 - [x] **ACLs** — extended ACLs in the data path (`engine/acl.js`, `test/acl.test.js`,
       `test/acl-data.test.js`). The `firewall` capability itself is still inert; ACLs are what
       actually filters.
