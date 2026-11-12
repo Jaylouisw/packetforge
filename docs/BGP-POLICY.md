@@ -547,11 +547,17 @@ function communityBlocksAdvertisement(p, adjType) {
 }
 ```
 
-`advertise()` calls it too, so the function is safe to use as the single
-reference implementation (a test asserts `advertise()` returns nothing for a
-`no-advertise` route). The blocked route is *not* withdrawn from Loc-RIB and is
-*not* counted as a policy deny — it is a protocol-level suppression, counted
-separately (`stats.noExportSuppressed`, `stats.noAdvertiseSuppressed`).
+`advertise()` is to call it too, so the function is safe to use as the single reference implementation
+(a test asserts `advertise()` returns nothing for a `no-advertise` route). The blocked route is *not*
+withdrawn from Loc-RIB and is *not* counted as a policy deny — it is a protocol-level suppression, counted
+separately, in `stats.noExportSuppressed` and `stats.noAdvertiseSuppressed`.
+
+**None of that exists yet, and the counters have nowhere to live.** `grep -rni communit engine/ server/
+web/` returns **nothing** — there is no `communities` field on a path, no `parseCommunity()`, no
+`formatCommunity()`, no `WELL_KNOWN_COMMUNITIES`, and `advertise()` never reads the attribute. Nor is there
+a `stats` object: `Simulator` has no such record today, so the two suppression counters have to be invented
+alongside the rule. Read this section as the shape to build and §11.3 as the assertions that will prove it,
+not as a description of anything a lab can provoke.
 
 ---
 
