@@ -88,7 +88,7 @@ radio where its modem should be.
 
 ### 1.1 The routing table has one default slot
 
-`Device.routeTo()` (`device.js:541`) returns **one** route object. Two
+`Device.routeTo()` (`device.js:545`) returns **one** route object. Two
 `ip route 0.0.0.0 0.0.0.0 <gw>` lines are both stored, and the second is never
 consulted:
 
@@ -115,7 +115,7 @@ path answers `Success rate is 100 percent (4/4)` while the middle link is up, `0
 `Request timed out` once it is down, and 100 percent again after it comes back. The refusal is now data
 rather than silence — `sim.setLinkState(<linkId>, 'down')` answers
 `{"ok":true,"changed":true,"state":"down","atMs":0,"reconvergeAtMs":30000,"affects":["d1","d2"]}`, and
-`_deliver()` drops with `reason: 'link down'` at `simulator.js:3309-3313`. Read the matrix above as the
+`_deliver()` drops with `reason: 'link down'` at `simulator.js:3329`. Read the matrix above as the
 state of the tree the design was written against, not as a description of this one.
 
 ### 1.2 Asymmetry is already data, and dead
@@ -544,8 +544,8 @@ this.config = {
 this.config.routes[i] = { dest, mask, gw, iface, distance, metric };
 ```
 
-**The trap:** `Device.serialize()` (`device.js:584-602`) and `Device.hydrate()`
-(`:650-669`) are **white-lists**. A config key that is not named in both places
+**The trap:** `Device.serialize()` (`device.js:817-904`) and `Device.hydrate()`
+(`:907-973`) are **white-lists**. A config key that is not named in both places
 is silently dropped on save/reload — which would make `wans` and `multipath`
 vanish on the first browser refresh, and the failure looks like "the UI forgot my
 setting" rather than "the serializer forgot a field". Add both lines in the same
