@@ -119,8 +119,17 @@ is one whole tracker with a single number unaccounted for rather than a page lim
   changes between variants, and it is the thing we cannot guess.
 - If a device genuinely publishes no figure for something — a PoE budget, for
   instance — it is recorded as *unknown* rather than filled with a plausible
-  number. An unknown budget switches enforcement off for that device. A fabricated
-  one silently blocks devices that should work.
+  number. A fabricated one silently blocks devices that should work.
+
+  Be precise about what *unknown* buys, because it is weaker than it sounds. It is recorded as
+  `poe: { "budgetUnknown": true }`, which resolves to **0 W** (`engine/device.js:132`), and the budget
+  rule refuses to police a device whose budget is not greater than zero — `pseDraw()` returns `null`
+  before it counts a single watt (`engine/validation.js:340`). So the check is off for that device,
+  yes, but it is off for **every** zero-budget PSE, not only the explicitly-unknown ones: a switch
+  whose figure was simply never declared is just as unpoliced, and the two are only distinguishable
+  in `show power inline`, which prints the resolved budget **and its source**. One device in the
+  catalogue takes the explicit route today; [PHYSICAL_LAYER.md](PHYSICAL_LAYER.md) has the resolution
+  order and what each source means.
 
 ## Categories
 
