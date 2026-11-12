@@ -1,11 +1,22 @@
 # PacketForge label catalogue.
 #
-# Single source of truth for issue/PR labels. Synced to the repository by
-# .github/workflows/labels.yml whenever this file changes. Colours are hex
-# without the leading '#'.
+# NOTHING SYNCS THIS FILE. It used to say a workflow at .github/workflows/labels.yml
+# pushed it to the repository whenever it changed; that directory was deleted in #1059
+# and .forgejo/workflows/ holds only ci.yml and auto-rebase.yml, so no workflow, script
+# or npm alias in this tree reads this file. It is a wish list, not a source of truth.
 #
-# The issue templates reference these by name (labels: [...]), so a label added
-# here must exist before the template is submitted -- the sync workflow creates it.
+# Measured 2026-11-12: the forge carries six labels -- bug, device, device-request,
+# enhancement, needs-datasheet, and from-github. Eight declared below have never
+# existed there (feature, documentation, ci, question, good first issue, help wanted,
+# duplicate, wontfix), and the one label the bridge actually needs, from-github, is not
+# declared here at all: gh-bridge.js creates it itself with ensureLabel('from-github',
+# '#1f6feb', 'Opened on the GitHub mirror') on both the issue and PR paths.
+#
+# The issue templates reference labels by name (labels: [...]). Only device-request and
+# device answer today (24 open issues carry both); enhancement exists but is applied to
+# nothing. Read docs/REQUESTING-HARDWARE.md before writing a label filter.
+#
+# Colours are hex without the leading '#'.
 
 - name: bug
   color: d73a4a

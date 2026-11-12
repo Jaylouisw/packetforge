@@ -41,6 +41,15 @@ Two things about the form are worth stating because neither is visible from the 
   **none** carries `enhancement`, so a query filtered on that label finds nothing while the template says
   it will be there. No page depends on it — the triage sweep finds requests by *title prefix*
   (`[Device]`), never by label — but do not write a filter that assumes it.
+
+  The forge carries **six** labels in total — `bug`, `device`, `device-request`, `enhancement`,
+  `needs-datasheet`, and `from-github`, the last one created by `gh-bridge.js` itself
+  (`ensureLabel('from-github', '#1f6feb', 'Opened on the GitHub mirror')`) rather than by any
+  configuration file. `.github/labels.yml` declares thirteen, but **nothing syncs it**: its header
+  named `.github/workflows/labels.yml`, which went with the rest of that directory in #1059, and no
+  script, workflow or npm alias in the tree reads it — so eight of its thirteen
+  (`feature`, `documentation`, `ci`, `question`, `good first issue`, `help wanted`, `duplicate`,
+  `wontfix`) have never existed on the forge.
 - **The link needs an account.** `GET/issues/new?template=device_request.yml` answers **303** to an
   anonymous client, so the form's rendering is not something this repository can verify; a maintainer
   with a session sees it, and the checked-in YAML is the only thing under review here. If you change the
