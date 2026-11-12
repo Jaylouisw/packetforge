@@ -1005,7 +1005,8 @@ advertise, nextHopFor, ingressPath, applyRouteMap
 ### 9.6 Observability
 
 `computeBgp()` already emits one `{type:'bgp'}` event per established session
-(`Simulator.computeBgp()`, where the policy counters are read). Add, on `device.bgpPolicyStats`:
+(`Simulator.computeBgp()` — though there are no policy counters to read there today; see §5.4).
+Add, on `device.bgpPolicyStats`:
 
 ```
 { deniedIn, deniedOut, localPrefIgnored, noExportSuppressed,
@@ -1020,8 +1021,37 @@ never disappear silently — that is the whole point of a policy layer.
 
 ## 10. `show` output
 
-`show ip bgp` (one row per Loc-RIB prefix; `>` marks the selected path, `*`
-marks a valid candidate, `r` marks a RIB-failure/unresolvable path):
+**What it prints today does not look like the block below, on purpose.** `_showBgpTable()`
+(`cli.js:7832-7906`) emits only the columns this model holds — `Network`, `Next Hop`, `Path` — and only
+two codes, `*>` and `*`. Its own comment gives the reason: IOS prints Metric, LocPrf, Weight and Origin
+there, and this engine holds none of them, so `0  100  0  ?` on every row would be four invented figures.
+Read from the three-router lab of §7.2:
+
+```
+R2>show ip bgp
+BGP router identifier 2.2.2.2, local AS number 65001
+
+    Network       Next Hop   Path
+*   10.0.12.0/24  10.0.12.1  -
+*>  10.0.12.0/24  0.0.0.0    -
+*>  10.0.13.0/24  10.0.12.1  -
+*>  10.0.3.0/24   10.0.13.3  65002
+
+  *> a received row that forwards, or a prefix this router announces (next hop 0.0.0.0)
+  *  a received row that a closer route beats - see "show ip route"
+  MED, local preference, weight and origin are fixed defaults here - nothing in this
+  console changes them - so they are not shown; every figure above came from the peer.
+```
+
+Three things to carry into the target below: the header line is `BGP router identifier …, local AS
+number …` rather than IOS's `table version`, there is no Status/Origin legend, and **`r` has no
+producer** — nothing marks a RIB failure, because §7.2 measured that an unresolvable next hop is
+installed rather than excluded, so such a row would be indistinguishable from a working one. The
+view re-runs `computeBgp()` on entry (`cli.js:7837-7839`), which is why it is never stale after a
+config change.
+
+The target — one row per Loc-RIB prefix, `>` best, `*` valid, `r` RIB-failure/unresolvable (the last of
+these needs NH-6 from §7.1 first):
 
 ```
 BGP table version is 4, local router ID is 1.1.1.1
