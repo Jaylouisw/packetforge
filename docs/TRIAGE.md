@@ -112,11 +112,14 @@ A **bad** token is a third case, and it fails with a non-zero code but no parsea
 `PF_TOKEN=bogus` (or a real variable with a revoked token) first prints the two setup lines —
 `catalogue: 1661 models, 1659 distinct normalised model names` and `scanning up to N open issues`, so it
 announces a scan it never completes — and then
-`error: 401 {"message":"user does not exist [uid: 0, name: ]", …}`, exiting **1**. An earlier reading of
-this page recorded a Node assertion instead (`Assertion failed: !(handle->flags & UV_HANDLE_CLOSING)`)
-and exit **127**; four runs on this host today produced neither, so treat the *shape* as the stable fact
-— non-zero exit, `error: 401` on stderr, nothing scanned — and the exact code as host- and
-timing-dependent. Either way do not read a 127 or a 401 as an empty queue. Point `PF_API` at another
+`error: 401 {"message":"user does not exist [uid: 0, name: ]", …}`, and then it can end two ways.
+Re-measured on 2026-11-12, twice and with two harnesses, it printed that 401 line and then died on a Node
+assertion — `Assertion failed: !(handle->flags & UV_HANDLE_CLOSING), file src\win\async.c, line 76` —
+which bare bash reports as **127** and a `spawnSync` harness as **3221226505** (`0xC0000409`); the earlier
+reading of this page had the same 401 line ending in a clean exit **1**. Treat the *shape* as the stable
+fact — non-zero exit, `error: 401` on stderr, nothing scanned — and the exact code as host- and
+timing-dependent. **A 127 here is the Windows abort, not "command not found"**, and no reading of any of
+these codes is an empty queue. Point `PF_API` at another
 instance if you are sweeping one.
 
 The script's own header still says the repository "has ~830 open issues"; it has **32 open issues, 24 of them
@@ -134,7 +137,11 @@ jaylouisw/packetforge.` and one reason line (`FORGEJO_TOKEN is not set - the tra
 without it (this is not the same as "no open requests")`, or `not authorised to read jaylouisw/packetforge
 (HTTP 401) - check FORGEJO_TOKEN`), then exits **2**, deliberately — the comment above the call reads
 *"Exit 2, not 0: 'could not look' must never be reported as 'nothing to do'".* No setup lines and no stack
-trace in either branch. Measured: both failure modes exit 2, with `bogus` and with no variable at all.
+trace in either branch. Measured with no variable at all: exit **2**, as intended. Measured with
+`FORGEJO_TOKEN=bogus`: the same two lines, then the assertion above and the same 127 / 3221226505 abort —
+so the deliberate `process.exit(2)` never runs on the 401 path, because the process dies on its way out.
+Read **2** as "not configured" and any other non-zero code as "could not look", which is the one thing the
+script's own comment insists on and the crash still delivers.
 
 **How to read those exit codes, because the obvious way lies.** In this shell `$?` reports **0 even when the
 command failed** — `false; echo $?` prints `0`, and so does `node -e 'process.exit(3)'; echo $?` — while `&&`
