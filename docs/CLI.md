@@ -2128,7 +2128,7 @@ NAT translations on PC1:             <- an empty table, which reads as "nothing 
   falls. The sweep below reports the switch case; it is a defect, not a decision. The NAT *views* and
   the clear are the opposite case on purpose: they answer on every device, so an empty table plus the
   command that writes a rule is the honest answer.
-- **A refusal carries the `%` marker.** `% eth0 is NAT inside, not outside` and the sentence above were
+- **A refusal carries the `%` marker.** `% Interface Gi0/0 is NAT inside, not outside` and the sentence above were
   correct statements with no marker, so anything grepping a transcript for failure read them as success.
 
 **The guard for the whole family of defects.** The suite now sweeps the catalogue: for one device in
@@ -9387,8 +9387,8 @@ grep -oh "'[EW]_[A-Z0-9_]*'" engine/*.js | sort -u | tr -d "'" \
 | Surface | How the refusal reads |
 |---|---|
 | `flow open` / `openFlow()` | `% flow refused (E_NO_ROUTE): …` — always a code |
-| DHCP pool (`exit` from `ip dhcp pool`) | `% E_DHCP_GATEWAY_OUTSIDE: DHCP pool p1: gateway 10.9.9.9 is outside 10.1.1.0/24.` — the code, the pool, then the reason |
-| VLAN, trunk, LAG, VRRP (config mode) | **prose only**, at the keystroke: `% accessVlan 1004 is reserved by IEEE 802.1Q (1002-1005)`, `% Invalid virtual router id: 300 (1-255)`, `% Invalid mode: bogus (use active\|passive\|on)` |
+| DHCP pool (`exit` from `ip dhcp pool`) | **prose only, and no code**: `% DHCP pool p1: default router 10.9.9.9 is outside 10.1.1.0/24.`, then `% Pool p1 discarded - a pool is kept only once it is valid` and the line that says how to fix it. `E_DHCP_GATEWAY_OUTSIDE` (`engine/dhcp.js:401`) never reaches the console |
+| VLAN, trunk, LAG, VRRP (config mode) | **prose only**, at the keystroke: `% "1004" is not a VLAN id, a list (10,20) or a range (10-20)` for a reserved id in a trunk list, `% Invalid virtual router id: 300 (1-255)`, `% Invalid mode: bogus (use active\|passive\|on)`. Two things this row used to get wrong: the console **accepts** `switchport access vlan 1004` and `switchport trunk native vlan 1004`, so the reserved-VLAN sentence `accessVlan 1004 is reserved by IEEE 802.1Q (1002-1005)` is a `validateTopology()` message (`engine/vlan.js:387`) that no keystroke prints — and a trunk list refuses 1004 with a *parse* message, not the reserved one |
 | `access-list` | `% [object Object]` — the error object is stringified, so the reason is lost entirely (see [Access control lists](#access-control-lists)) |
 | NAT | static and PAT are written from the console and answer in **prose** — `% eth0 has no address - "overload" translates onto that address…`, `% Access list 10 does not exist - the NAT list says which addresses are translated…`, and a pool is refused outright with `% This model translates inside source addresses ("ip nat inside source …"), not "pool"`. A dynamic pool rule still lives in the topology JSON, and its codes arrive through `validateTopology()` |
 | `validateTopology()` / the validator | `{ code, message }` objects with a severity, which is where the tables below are transcribed from |
