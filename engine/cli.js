@@ -2075,7 +2075,20 @@ class CliSession {
     const strictIp = function (x) {
       try { net.ipToInt(x); return true; } catch (e) { return false; }
     };
-    const namedTarget = !strictIp(target);
+    // A literal IPv6 address is an address, not a name (#1461). The IPv4 test above cannot see one, so
+    // `ping 2001:db8:1::1` went to the resolver and came back as a DNS failure about a "name" that is an address -
+    // while the engine has had an IPv6 echo path (`Simulator.ping6`) that this console could not reach at all.
+    const ipv6Lib = require('./ipv6');
+    let literal6 = null;
+    if (target.indexOf(':') !== -1) {
+      const parsed6 = ipv6Lib.parseIpv6(target);
+      if (!parsed6.valid) {
+        const why = parsed6.error && parsed6.error.message ? parsed6.error.message : 'not an IPv6 address';
+        return ['% Invalid IPv6 address: ' + target + ' (' + why + ')'];
+      }
+      literal6 = parsed6;
+    }
+    const namedTarget = !strictIp(target) && !literal6;
     // Digits and dots that are not an address are a typo, not a hostname: resolving 10.0.0.999 as a name would
     // answer NXDOMAIN and send the operator looking in the wrong place.
     if (namedTarget && /^[0-9.]+$/.test(target)) {
@@ -2094,6 +2107,15 @@ class CliSession {
     try {
     out.push('Type escape sequence to abort.');
     let shownTarget = target;
+    // ICMPv6 echo, when the target is a literal IPv6 address. The report is the same report - same marks line, same
+    // success rate, same per-reply lines - because an operator reading a ping should not have to learn two shapes.
+    if (literal6) {
+      const shown6 = ipv6Lib.formatIpv6(literal6.groups) || target;
+      out.push('Sending ' + count + ', 100-byte ICMP Echos to ' + shown6 + ', timeout is 2 seconds:' +
+        (atMs !== null ? '  (at t=' + atMs + ' ms)' : ''));
+      const res6 = this.sim.ping6(this.device.id, shown6, { count: count });
+      return this._pingReplyLines(out, shown6, count, res6.replies || []);
+    }
     if (namedTarget) {
       // Resolve first, the way a box prints it: Translating "server.lab"...domain server (10.0.0.53) [OK]
       const probe = this.sim.resolveName ? this.sim.resolveName(this.device, target) : null;
@@ -2123,11 +2145,27 @@ class CliSession {
     out.push('Sending ' + count + ', 100-byte ICMP Echos to ' + shownTarget + ', timeout is 2 seconds:' +
       (atMs !== null ? '  (at t=' + atMs + ' ms)' : ''));
     const res = this.sim.ping(this.device.id, namedTarget ? target : ip, { count: count });
-    const marks = res.replies.map(function (r) { return r.success ? '!' : '.'; }).join('');
-    out.push(marks);
-    const ok = res.replies.filter(function (r) { return r.success; }).length;
+    this._pingReplyLines(out, shownTarget, count, res.replies);
+    // "Still converging" is a statement about the path, so it is printed once, with the instant the answer was
+    // given at - which is the answer's own, not the one the operator typed (#1383).
+    const converging = require('./simulator').pingConvergenceSentence(res.replies);
+    if (converging) {
+      out.push('% ' + converging + (res.runAtMs === null ? '' : ' at t=' + res.runAtMs + ' ms'));
+    }
+    return out;
+    } finally {
+      // Whatever the ping did or failed to do, the session is left at the instant it arrived with.
+      this.sim.runAtMs = priorRunAtMs;
+    }
+  }
+
+  // The report a ping prints, whichever address family answered: the marks line, the success rate, one line per
+  // reply. Shared so `ping 10.0.0.1` and `ping 2001:db8:1::1` cannot drift into two different-looking answers.
+  _pingReplyLines(out, shownTarget, count, replies) {
+    out.push(replies.map(function (r) { return r.success ? '!' : '.'; }).join(''));
+    const ok = replies.filter(function (r) { return r.success; }).length;
     out.push('Success rate is ' + Math.round((ok / count) * 100) + ' percent (' + ok + '/' + count + ')');
-    for (const r of res.replies) {
+    for (const r of replies) {
       if (r.success) {
         const t = (r.rtt === null || r.rtt === undefined)
           ? (r.hops + ' hops')
@@ -2140,17 +2178,7 @@ class CliSession {
         out.push('Request timed out (seq ' + r.seq + ')');
       }
     }
-    // "Still converging" is a statement about the path, so it is printed once, with the instant the answer was
-    // given at - which is the answer's own, not the one the operator typed (#1383).
-    const converging = require('./simulator').pingConvergenceSentence(res.replies);
-    if (converging) {
-      out.push('% ' + converging + (res.runAtMs === null ? '' : ' at t=' + res.runAtMs + ' ms'));
-    }
     return out;
-    } finally {
-      // Whatever the ping did or failed to do, the session is left at the instant it arrived with.
-      this.sim.runAtMs = priorRunAtMs;
-    }
   }
 
   // ---------- converge ----------
@@ -4085,7 +4113,7 @@ class CliSession {
       '  show ip ospf [neighbour | interface] [<port>]  the process, its adjacencies and what each port costs',
       '  show ip dhcp [binding | pool] [<address|mac|name>]  who holds which address, and pool utilisation',
       '  show ip dns [zone [<name>]]                   the zones this device answers for, and its resolvers',
-      '  ping <address|name> [<count 1-50>] [at <ms>]   a name is resolved through the lab\'s DNS servers',
+      '  ping <address|name> [<count 1-50>] [at <ms>]   IPv4 or IPv6; a name is resolved through the lab\'s DNS servers',
       '  router bgp <as> | neighbor <ip> remote-as <as>         (config mode)',
       '  show ip bgp [summary]              neighbours, their state, and the prefixes installed'
     ];
