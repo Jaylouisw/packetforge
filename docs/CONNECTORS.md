@@ -1345,10 +1345,20 @@ chassis in `devices/` were doing: Casa `C100G` and `C3200`, Cisco `cBR-8`, CommS
 Harmonic `CableOS Reef RPS`. Three of them call themselves CCAP in their own descriptions; `C3200` is
 a CMTS chassis and CableOS is a virtualised one, so treat "CCAP" as the family rather than the count.
 All **164** DOCSIS ports measured across **32** devices are upstream-capable today, so the fix holds.
+Re-counted on 2026-11-12 through `derivePortHardware()` rather than by grepping the JSON: **164** coax ports on
+**32** devices, every one of them offering an upstream medium — `docsis-30-us` on all 164, `docsis-31-us` on 132,
+alongside `docsis-30` 132, `docsis-31` 14, `moca-11` 164 and `moca-25` 20. The six rates above are the media's own
+`speedMbps` values, and the reach is set per medium too: **300 m** for all four DOCSIS entries, **100 m** for both
+MoCA ones. Of the five cable-access chassis named above, exactly **three** say CCAP in their own description —
+Casa `C100G`, Cisco `cBR-8` and CommScope `E6000` — while `C3200` and the Harmonic `CableOS Reef RPS` do not, which
+is why "CCAP" reads as the family and not as the count.
 
 An **MCX** connector (CMTS RF modules, small-cell gear) resolves to the coax cage: the shapes
 differ, and every real install reaches the plant through an MCX-to-F jumper, which is the adapter
-the model assumes rather than making two dozen ports uncablable.
+the model assumes rather than making forty ports uncablable. `CAGE_ALIAS.mcx` is `'coax'`
+(`media.js:392`), and all forty such ports on this tree are the CommScope `E6000`, whose
+`interfaces` carry `"type": "coax"` *and* `"connector": "mcx"` — a census that tests one field and stops
+sees ordinary coax and misses them.
 
 ## XFP is not SFP+
 
