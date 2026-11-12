@@ -720,8 +720,22 @@ PC-d2>show spanning-tree                     # a device that does not bridge
 1. Add an entry to `MEDIA` in `engine/media.js` (family, connector, speed, reach).
 2. Add it to the relevant `CAGE_MEDIA` entry so ports expose it.
 3. Add a test to `test/validation.test.js` covering the new compatibility case.
+4. If the medium belongs to a family the drawing does not know, add it to the UI too — see below.
 
-No other code changes are required — the UI and API read the catalogue dynamically.
+The API needs nothing: `server/index.js` reads `MEDIA` at request time, so `/api/…` answers about the new
+medium as soon as it exists. **The UI is not dynamic**, though, and "no other code changes are required"
+was too strong:
+
+- `web/canvas.js` holds `MEDIUM_RULES`, a hand-written list of nine regular expressions mapping a media id
+  to a colour family, and `web/app.js` holds `CABLE_FAMILIES`, the same nine ids with legend labels —
+  measured, both nine, same set. `web/style.css` styles `.link-<family>` and the matching
+  `.lg-row.link-<family>` swatch.
+- A medium that matches no rule still works — it draws in the default slate `stroke: #3c4a63` with
+  `data-medium="unknown"` — but it gets no colour and no legend row, which is already true of 28 of the 89
+  media. Adding a *new* family means editing all three files; adding an id to an existing family means
+  editing the one regex list (and, if the id should be listed, nothing else).
+
+So the honest version is: nothing breaks, and nothing shows either.
 
 ## Protocol families
 
