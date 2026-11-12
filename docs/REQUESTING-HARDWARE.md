@@ -78,7 +78,10 @@ curl -s -D - -o /dev/null "$H?state=open&type=issues&limit=1"   | grep -i '^x-to
 
 The gap between the first two numbers is the pull requests: Forgejo serves them through the issues
 endpoint from a shared number space, so `type=issues` is what separates a request someone made from a
-change someone proposed. Nothing above is truncated either — paging `state=closed&type=pulls` to an empty
+change someone proposed. **Leave the filter off and the open count is one too high** — measured on
+2026-11-12, `state=open` answers **33** where `state=open&type=issues` answers **32**, because the
+difference is the single open pull request. That is the mistake this page made easy to repeat: 33 and 32
+are both "right" for the question each one asks, and only one of them is the open *queue*. Nothing above is truncated either — paging `state=closed&type=pulls` to an empty
 page returns **529** rows, and the counts reconcile against the number space exactly as they did before, which is the
 only part worth keeping: the highest number is **`#1511`**, **1,510** items are counted — 32 open issues + 948
 closed issues + 529 closed pull requests + 1 open pull request — and `state=all` also reports **1,510**. So exactly

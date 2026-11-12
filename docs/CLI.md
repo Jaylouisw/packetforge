@@ -6593,7 +6593,7 @@ Recount any of it in one line, because the vocabulary grows with the model:
 ```sh
 grep -oh "type: '[a-z0-9-]*'" engine/*.js | sort -u | wc -l     # 80 types
 grep -oh "type: '[a-z0-9-]*'" engine/*.js | wc -l               # 149 emit sites
-grep -c "type: 'drop'" engine/simulator.js                      # 28 bare-drop sites
+grep -c "type: 'drop'" engine/simulator.js                      # 29 bare-drop sites (29 lines, 29 occurrences - grep -c counts lines here)
 ```
 
 Every one of those names is a working filter argument — measured by passing 36 of them (at least one
