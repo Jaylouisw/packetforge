@@ -43,6 +43,17 @@ carried.
 | **Absent** | There is no code path. Configuring it usually succeeds and then does nothing. |
 | **Unknown** | The code does not answer the question. Said out loud instead of guessed. |
 
+Two things about that vocabulary are worth measuring rather than assuming, because the Verdict column is
+wider than the four tags. Of the **184** verdict rows on this page, **164** carry one of the four —
+`Modelled` **105**, `Approximate` **34**, `Absent` **25**, `Unknown` **0** — and the remaining **20** carry a
+qualifier that names *where* the behaviour lives instead: `Wired`, `In the CLI`, `In the tree`, `In the
+segment walk`, `Enforced`, `Flushed`, `Re-based`, `In the drawing`, `Visible`, `Readable`, `Failover`,
+`Limited`, `Broadcast domain`, `In the timeline`, `Virtual MAC on the wire`, `Gratuitous ARP on takeover`.
+Read the qualifier as the surface and the row as the class it implies — two rows share a surface and split
+the class, `Modelled in the CLI` (`ip nat`) at :424 and `Absent in the CLI` (BGP's configuration verbs) at
+:552, so the qualifier on its own is never the verdict. And `Unknown` has **no rows at all**: it is a
+defined answer this page has never had to give, so a grep for one is time you do not get back.
+
 Every claim carries a `file:line` citation. Citations also name the symbol,
 because line numbers drift as the engine grows — if a number is stale, the
 symbol will still find it.
