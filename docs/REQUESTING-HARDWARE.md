@@ -261,9 +261,11 @@ exactly as claimed. One thing the block above cannot show because both lines lan
 use. Measured with `spawnSync`, `--bogus` writes `Unknown flag: --bogus` and the usage line to **stderr**
 and exits **2**, while `--help` writes the usage line to **stdout** and exits **0** — so
 `node scripts/missing-devices.js --bogus 2>/dev/null` prints nothing at all, and a script that greps its
-own stdout for a usage line will miss the error case entirely. Re-measuring it also re-demonstrated the
-warning below: `node scripts/missing-devices.js --bogus; echo rc=$?` answered `rc=0` in this shell for a
-command that really exits 2.
+own stdout for a usage line will miss the error case entirely. Re-measuring it also raised the warning
+below: `node scripts/missing-devices.js --bogus; echo rc=$?` once answered `rc=0` here for a command that
+really exits 2 — a wrapper's answer, not the shell's, and re-measured today the same line prints **`rc=2`**. The
+advice does not depend on which of those is true: a pipeline answers for its *last* command, and a supervisor can
+answer for anything, so read the status with `&&`/`||` or `spawnSync`.
 
 The same run also shows why exit codes here have to be read with `&&`/`||` or `spawnSync`:
 see the exit-code note near the end of the tracker section in [TRIAGE.md](TRIAGE.md).

@@ -142,8 +142,10 @@ redirects to `https://git.jayw.uk/user/login`, the target the page names. The `4
 a `404`, so the "settings redirects" shorthand is still only true of the real settings routes.
 
 Exit codes here were read with `spawnSync`, not `$?`, for the reason recorded in
-[TRIAGE.md](TRIAGE.md): in this shell `$?` reports 0 for a failed command too, which would make `--check`'s
-documented `exit 1 if not` impossible to observe.
+[TRIAGE.md](TRIAGE.md) — a wrapper in front of a job can answer 0 for a failure, which would make `--check`'s
+documented `exit 1 if not` impossible to observe. That page's stronger form of the claim no longer reproduces
+in a plain bash here (`false; echo $?` prints `1`), but `spawnSync` is still the read these numbers came from,
+and still the one to use.
 
 ## On the Global API Key
 
