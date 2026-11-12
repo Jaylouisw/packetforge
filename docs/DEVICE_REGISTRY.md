@@ -410,6 +410,29 @@ moved to `role` rather than dropped (`import-devices.js:145-160`), which is the 
 repo that validates a capability string at all — nothing in the engine rejects an unknown one, so a
 spec can carry any word here and the simulator will ignore it.
 
+The nineteen and the seven are one command, since a census table is the kind of thing that goes stale
+quietly:
+
+```sh
+node -e '
+const reg = require("./devices/registry");
+const c = {};
+for (const s of reg.loadCatalog()) if (!s.error) for (const k of (s.capabilities || [])) c[k] = (c[k] || 0) + 1;
+const rows = Object.entries(c).sort((a, b) => b[1] - a[1]);
+console.log(rows.length + " distinct tokens");
+console.log(rows.map(([k, v]) => k + " " + v).join(", "));'
+```
+
+```
+19 distinct tokens
+http-server 1160, cli 1134, dhcp-client 861, l3-forward 849, l2-forward 751, dhcp-server 662, wireless 655, nat 622, firewall 596, host 490, passive-poe 258, 802.3at 143, 802.3af 143, poe-pd 140, poe-pse 110, 802.3bt 25, bridge 18, poe-injector 10, vpn-ipsec 7
+```
+
+Read the tail rather than the head: the seven in the table above are the seven that are not in the
+engine's vocabulary, and `vlan`/`lacp`/`stp` are absent from this listing entirely because no spec
+sets them — nineteen on disk against fifteen in `CAPABILITIES` is the whole claim, and the missing
+three are the visible half of it.
+
 All fifteen are still worth setting: the device panel shows them as chips (`web/app.js`), several
 suites assert them on specific models, and a reviewer reads them as the spec's intent. Useful
 shapes:
