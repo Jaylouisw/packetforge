@@ -106,8 +106,12 @@ trace in either branch. Measured: both failure modes exit 2, with `bogus` and wi
 Two flags exist and no others. `--limit` caps how many open issues are fetched and **defaults to
 200** — the queue has not been near that since this page was written, so the flag is only needed
 once it grows past it (`--limit 900` scans a large backlog in one pass). Note that the API caps
-a page at **50** regardless: the script paginates, so `--limit 200` is four requests, not one, and the
-`limit=1` count above is the only request whose size you can predict. That is why `LIMIT_PER_PAGE`
+a page at **50** regardless: the script paginates, so `--limit 200` is *at most* four requests, not one,
+and the `limit=1` count above is the only request whose size you can predict. Read that "at most"
+literally: with today's 24 open issues the first page comes back short of 50, the loop breaks on it
+(`scripts/sweep-device-requests.js:119`, `if (batch.length < LIMIT_PER_PAGE) break;`) and the scan is
+**one** request however large `--limit` is. The four-request case is what a backlog of 200+ would cost,
+not what this queue costs today. That is why `LIMIT_PER_PAGE`
 is 50 and not 200: the loop stops when a page comes back short (`batch.length < LIMIT_PER_PAGE`), so a
 page size *above* the server's cap would end the scan after one page and report a quiet fraction of
 the queue. The cap and the constant have to agree, and today they agree *exactly* — measured:
