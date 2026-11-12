@@ -579,10 +579,19 @@ look identical pick different members. `docs/SIMULATION.md` carries the measured
 
 In the simulator a LAG is **one logical port**:
 
-- Spanning tree sees a single edge, so it does **not** block member links.
-- Exactly one member carries each frame (a `lag` event records which).
-- A frame that arrived on a member is **never sent back out the same group** —
-  that would hairpin the frame and loop.
+- Spanning tree sees a single edge, so it does **not** block member links. Measured on two switches
+  joined by a 2-member bundle *and* a redundant single link: `show spanning-tree` lists `lag-1` at cost
+  10000 and puts the redundant `Fa0/3` in `alternate blocking (traffic dropped)` on the far side, leaving
+  both bundle members forwarding.
+- Exactly one member carries each frame: egress members are collapsed per group and one is picked
+  (`engine/simulator.js:3663-3681`). The `lag` event object does record which — `{type: "lag", dev:
+  "SWA", lag: "1", members: ["Fa0/1","Fa0/2"], picked: "Fa0/1", vlan: 1}` — but two caveats sit between
+  that object and a reader: the event is emitted only when the group has **more than one** usable member,
+  so a bundle down to a single live port forwards silently; and `show logging lag` renders it as
+  `vlan 1`, so the console never names the member and offers no option to (`--json` and `count` are both
+  `% Unknown option` / `% Unexpected argument`).
+- A frame that arrived on a member is **never sent back out the same group** — `if (inLagId && lag &&
+  lag.id === inLagId) continue;` at `engine/simulator.js:3659`, which is what stops a hairpin looping.
 
 `validateLag(lag, memberPorts)` takes the group **and** the members' own properties. Errors: an unknown
 `mode` (`E_LAG_BAD_MODE`), fewer than two members (`E_LAG_TOO_FEW`), a port listed twice
