@@ -175,6 +175,14 @@ class Simulator {
     // reset() rewinds a run, not the connection table: a ping must not tear down
     // somebody's TCP session.
     if (!this.flowState) this.flowState = flowLib.createFlowState();
+    // A topology that came out of a document is being wired up right now, so the board announces the way it does when
+    // a cable is plugged: PoE budgets, LLDP to the far end, and the router advertisements. A reopened lab used to say
+    // nobody had been heard on any port while every cable was in place, until the first ping or the next cable (#1467).
+    // Once per board, not once per simulator: the flag is spent by the first simulator built on a loaded document.
+    if (this.topo && this.topo.pendingAnnouncement) {
+      this.topo.pendingAnnouncement = false;
+      this.refreshNeighbours();
+    }
   }
 
   _emit(ev) {
