@@ -5143,7 +5143,9 @@ against the rows so a summary cannot drift from the table above it.
 The state vocabulary follows IOS: a **physical** port with no cable is `down/down` in `show ip
 interface brief` and `notconnect` in `show interfaces status`, while a **logical** interface is
 `up/down` (`Vlan30  up  down`) because it is not shut and its line protocol is what is waiting —
-`show ip interface` names the reason (`Line state: no port is cabled`) in both cases.
+`show ip interface` names the reason, and the wording differs because the missing thing does: a
+physical port with no cable says `Line state: no cable attached`, a shut one says `Line state:
+administratively down`, and the logical SVI says `Line state: no port is cabled`.
 
 ### A keyword is not a port name
 
