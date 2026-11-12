@@ -7963,28 +7963,52 @@ VLAN in its allowed list goes on without it, so the removal prunes the list and 
 
 ```
 SW1(config)#interface Fa0/8
-SW1(config)#switchport mode trunk
+SW1(config-if)#switchport mode trunk
 Switchport mode trunk on Fa0/8
-SW1(config)#switchport trunk native vlan 30
+SW1(config-if)#switchport trunk native vlan 30
 Trunk native VLAN 30 on Fa0/8
-SW1(config)#exit
+SW1(config-if)#exit
 SW1(config)#no vlan 30
 % VLAN 30 is carried by Fa0/8 (native) - it cannot be removed while those ports are in it
 % Move them first, e.g. "switchport access vlan <other>" in each interface block
 ```
 
 ```
-SW1(config)#switchport trunk allowed vlan 10,30
+SW1(config-if)#switchport trunk allowed vlan 10,30
 Trunk on Fa0/8 allows VLANs 10,30
-SW1(config)#exit
+SW1(config-if)#exit
+SW1(config)#vlan 10
+VLAN 10 created (name: VLAN0010)
+SW1(config)#vlan 30
+VLAN 30 created (name: VLAN0030)
 SW1(config)#no vlan 30
 VLAN 30 removed (was named VLAN0030)
   Fa0/8: VLAN 30 removed from the allowed list
+SW1(config)#exit
 SW1#show vlan
 VLAN  Name      Status  Ports
 1     VLAN0001  active  Fa0/1, Fa0/2, Fa0/3, Fa0/4, Fa0/5, Fa0/6, Fa0/7
 10    VLAN0010  active  Fa0/8(t)
 ```
+
+VLAN 10 is in that table because the block above **declared** it — an allowed list does not create a
+VLAN. Where it is allowed but never declared, `show vlan` says so instead of listing it:
+
+```
+SW1(config-if)#switchport trunk allowed vlan 10
+Trunk on Fa0/8 allows VLANs 10
+SW1(config-if)#exit
+SW1#show vlan
+VLAN  Name      Status  Ports
+1     VLAN0001  active  Fa0/1, Fa0/2, Fa0/3, Fa0/4, Fa0/5, Fa0/6, Fa0/7
+
+% 10 is allowed on a trunk but not configured, so it is not a VLAN on this device:
+%   vlan <id>                               creates it
+%   switchport trunk allowed vlan remove <id>  drops it from the allowed list
+```
+
+The prompts in those two blocks are `(config-if)#`, not `(config)#`: `switchport` is an interface-mode
+command, and the console names the mode it is judging each line in.
 
 A device that does not bridge — a router — may still **declare** a VLAN (its `show running-config`
 carries the line and `interface Vlan99` sits in it), but it has no port membership to report, so the
