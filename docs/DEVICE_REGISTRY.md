@@ -118,7 +118,7 @@ that use each: **nine** files set `portTemplate.poeOut`, not six — three Pepli
 (`pls-24-h2g-410w`, `pls-48-h2g-740w`, `pls-r-24-h2g-250w`) restate it per-port on 8, 16 and 8 interfaces
 at the same 30 W, so the redundancy is harmless but the file does carry the rate twice — and there is no
 `poe.poeOut` anywhere, so the nested form means `interfaces[].hardware.poeOut` and nothing else. The
-catalogue's other **1,599** files state no rate at all, and the engine may infer one — but not "from the
+catalogue's other **1,563** files state no rate anywhere, and the engine may infer one — but not "from the
 device class" alone, which an earlier version of this paragraph said. Measured: inference needs **both** a
 copper-or-combo cage (`media.js:1020`) and a port name that says PoE, because the whole guess hangs off
 `isPoePse(dev, port.name)`. A bare `eth0` on a 240 W PSE switch therefore derives `poeOut: null`, not a
@@ -597,7 +597,11 @@ hand-editing JSON.
 
 Two ways to get nothing useful out of it, both worth knowing. Run with no argument and it prints one line —
 `usage: node scripts/apply-research.js <file.json> [--dry-run] [--force]` — but hand it a path that does not
-exist and it throws a raw `ENOENT` stack from `node:fs` instead of repeating the usage line. And `research/incoming/`
+exist and it throws a raw `ENOENT` stack from `node:fs` instead of repeating the usage line. The 98 that do state one
+split two ways worth knowing, because a count of `poe.budgetW` alone undercounts the catalogue by half again:
+**47** carry a top-level `poe.budgetW` (46 numeric, plus `ubiquiti/es-24-500w.json`'s deliberate `null` with
+`budgetUnknown: true`), and **51** state a rate only per port, in `interfaces[].hardware.poeOut`, which the engine
+reads through the `poeOut` getter at `engine/device.js:76`. And `research/incoming/`
 holds **88** entries — **82** of them `.json`, plus four markdown audits, one `.js` and one `.py` — and the
 JSON comes in several shapes: only some is this `{ "poe": …, "ports": … }` document, while e.g.
 `aruba.json` is a JSON *array* and applies as nothing at all — `[dry run] Applied 0, recorded unknown 0,
