@@ -75,6 +75,41 @@ The trap is that the **wrong shape is not an error**. Nested `config.stp.forward
 the number you get by not setting the key, so an override in the wrong shape reads as a working default
 rather than as a rejected setting — measured against each row above.
 
+All eleven readings in one go, so the table does not have to be trusted:
+
+```sh
+node -e '
+const cv = require("./engine/convergence.js"), mk = o => ({ config: o });
+const p = (l, t) => console.log(l.padEnd(16), Object.entries(t).map(([k, v]) => k + " " + v).join("  "));
+p("stp default", cv.stpTimers(mk({})));
+p("stp 4/11", cv.stpTimers(mk({ stpForwardDelaySec: 4, stpMaxAgeSec: 11 })));
+p("stp nested", cv.stpTimers(mk({ stp: { forwardDelaySec: 4, maxAgeSec: 11 } })));
+p("ospf default", cv.ospfTimers(mk({})));
+p("ospf 2/3/9", cv.ospfTimers(mk({ ospf: { helloSec: 2, exchangeSec: 3, spfDelaySec: 9 } })));
+p("ospf hello:null", cv.ospfTimers(mk({ ospf: { helloSec: null } })));
+p("ospf flat", cv.ospfTimers(mk({ helloSec: 2 })));
+p("dhcp default", cv.dhcpTimers(mk({})));
+p("dhcp 7", cv.dhcpTimers(mk({ dhcpExchangeSec: 7 })));
+p("dhcp nested", cv.dhcpTimers(mk({ dhcp: { exchangeSec: 7 } })));'
+```
+
+```
+stp default      forwardDelaySec 15  listenEndMs 15000  learnEndMs 30000  forwardAtMs 30000  maxAgeMs 20000
+stp 4/11         forwardDelaySec 4  listenEndMs 4000  learnEndMs 8000  forwardAtMs 8000  maxAgeMs 11000
+stp nested       forwardDelaySec 15  listenEndMs 15000  learnEndMs 30000  forwardAtMs 30000  maxAgeMs 20000
+ospf default     helloSec 10  deadSec 40  adjacentAtMs 11000  routesAtMs 16000
+ospf 2/3/9       helloSec 2  deadSec 40  adjacentAtMs 5000  routesAtMs 14000
+ospf hello:null  helloSec 0  deadSec 40  adjacentAtMs 1000  routesAtMs 6000
+ospf flat        helloSec 10  deadSec 40  adjacentAtMs 11000  routesAtMs 16000
+dhcp default     exchangeSec 1  leaseAtMs 1000
+dhcp 7           exchangeSec 7  leaseAtMs 7000
+dhcp nested      exchangeSec 1  leaseAtMs 1000
+```
+
+The pairs are the point: rows 1 and 3 are identical, and so are 4 and 7, and 8 and 10. A wrong-shape key
+does not produce an error or a warning — it produces the default, which is why the reading has to be
+compared against the *unset* reading rather than looked at on its own.
+
 The arithmetic, so a reading can be predicted rather than looked up (`engine/convergence.js:58-79`):
 `listenEndMs = forwardDelay × 1000`, `learnEndMs = forwardAtMs = forwardDelay × 2000` — the forward delay
 counted twice, once per state — while `maxAgeMs` only ever lands in `maxAgeMs`; and for OSPF
