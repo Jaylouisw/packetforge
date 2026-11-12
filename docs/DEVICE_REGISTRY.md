@@ -589,9 +589,16 @@ transceivers or wavelengths in their description while declaring **no optical ca
 soft finding, which is why the verdict underneath still reads `No hard defects.` The largest are
 `brocade/G720` (57 ports), `dell/DS-6630B` (105) and `hpe/SN3600B` (25), and the tail is dominated by
 GPON ONT sticks (`halny/HL-GSFP`, `leox/LXT-010S-H`, `fs/GPON-ONU-34-20BI`) whose "port" is the fibre
-itself. The audit prints the first fifteen and `... and N more`; `--json` carries the whole list as
-`opticalMissing` (and the empty `uncabliable` array beside it), which is the form to diff when a spec
-change is supposed to empty it.
+itself. The audit prints the first fifteen and `... and N more` — today `and 11 more`, so the 26 is the count and
+15 are shown; `--json` carries the whole list as `opticalMissing` (and the empty `uncabliable` array beside
+it), which is the form to diff when a spec change is supposed to empty it.
+
+The verdict underneath is arithmetic, and it is worth knowing which number it is counting:
+`bad = uncabliable.length + expandFailed.length`, so `No hard defects.` means **both** are empty and the
+process exits `0`; anything in either prints as `<n> hard defect(s)` and exits `1`. `opticalMissing` is not
+in that sum — which is why 26 soft findings still read as a pass. A third block, `Failed to expand: <n>`,
+prints only when a spec throws while its interfaces are being built, so it is absent from the transcript
+above because it is empty today; `expandFailed` in `--json` is its list, and it is a hard defect.
 
 
 `audit-port-types.js` is the other half of that pair, and it is the one `npm test` runs **first**. On this
@@ -623,6 +630,15 @@ is the audit's and not the datasheet's. Put a `connector` on the template when y
 carries `summary.undeclaredTemplateHardware` as **`{ specs: 140, ports: 3108, models: [ … 140 names ] }`**
 — counts and the spec names, not per-port detail — which is the shape to diff when a template change is
 meant to shrink it.
+
+There is a **second** soft block of the same kind, and the transcript above does not show it because it is
+empty on this tree: `Template ports at 10G+ presented as RJ45 copper on a box that describes itself as SFP:
+<n> port(s) in <m> spec(s)`, printed only when the count is non-zero, with the offending models capped at
+fifteen and `... and N more (see --json summary.fibreDeclaredAsCopper)`. Measured today:
+`{ specs: 0, ports: 0, models: [] }`. It is the FortiGate 80F/600E/200G shape (#60) — a spec whose own text
+says SFP, a template that declares no connector, and a 10G rate the optical list does not cover, so the
+fibre ports are modelled as copper sockets that would take a patch lead. Add a `connector` to the template
+and this stays at zero; the diff to watch is that pair of numbers, not the absent line.
 
 
 The catalogue spans routers, switches, L3 switches, firewalls, taps, hosts, servers, wireless
