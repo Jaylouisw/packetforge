@@ -315,7 +315,36 @@ Two answers that look contradictory and are both right:
 
 The fault does not go unnamed: `_portNotCarryingReason()` reads the link's own answer and says
 `the far port Fa0/1 on SW1 is administratively down`, which is what `show lldp neighbors` and
-`show interfaces transceiver` print. The inspector renders four states rather than one: `up`,
+`show interfaces transceiver` print.
+
+Both of those need a row to hang the note on, and that is what the sentence above leaves out. The
+transceiver note rides the caged port's own row; the LLDP note rides a neighbour that was actually
+heard, so a port with no entry answers `(none - no LLDP has been heard on any port)` and quotes
+nothing at all. Make the entry first — two SFP routers, an address each, one ping — then shut the far
+end and ask both questions:
+
+```bash
+node -e "const{Topology,Simulator,runCommands}=require('./engine'),{loadCatalog}=require('./devices/registry');
+  const cat=loadCatalog('./devices'),sp=m=>cat.find(x=>String(x.model)===m);
+  const t=new Topology(),a=t.addDevice(sp('ASR 1001-X')),b=t.addDevice(sp('ASR 1001-X'));
+  a.name='A1';b.name='B1';const l=t.connect(a.id,'Gi0/0/0',b.id,'Gi0/0/0');const sim=new Simulator(t);
+  const cli=(d,c)=>runCommands(d,t,sim,c).lines;
+  for(const d of [a,b])cli(d,['enable','configure terminal','lldp run','exit']);
+  cli(a,['enable','configure terminal','interface Gi0/0/0','ip address 10.9.0.1 255.255.255.0','exit']);
+  cli(b,['enable','configure terminal','interface Gi0/0/0','ip address 10.9.0.2 255.255.255.0','exit']);
+  cli(a,['ping 10.9.0.2']);cli(a,['show lldp neighbors']);
+  b.interfaces.get('Gi0/0/0').enabled=false;sim.computePortState();
+  for(const c of ['show interfaces transceiver','show lldp neighbors'])
+    for(const line of cli(a,[c]))if(/far port/.test(line))console.log(c+': '+line.trim());"
+```
+
+It prints `show interfaces transceiver: Gi0/0/0: the far port Gi0/0/0 on B1 is administratively down`
+and `show lldp neighbors: Gi0/0/0: B1 was heard here, but the far port Gi0/0/0 on B1 is administratively
+down` — the same sentence twice, the second carrying the observation that makes it worth printing.
+Neither answer names the end at fault on its own; that name comes from the link's reader, which is the
+value of asking the link rather than the socket.
+
+The inspector renders four states rather than one: `up`,
 `down - <reason>`, a separate `Cable` row when the cable itself was taken down (so "down" cannot be
 misread as the cable's doing), and `not checked in this session` for a payload that predates the
 field — never `up` by default, which is what the row used to claim.
