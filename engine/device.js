@@ -1160,6 +1160,9 @@ class Device {
         routes6: JSON.parse(JSON.stringify(this.config.routes6 || [])),
         gateway6: this.config.gateway6 || null,
         gateway6Iface: this.config.gateway6Iface || null,
+        // Provenance travels with the value: a reopened lab whose gateway came from an advertisement must not start
+        // printing it as a configured line (#1463).
+        gateway6Learned: this.config.gateway6Learned ? true : undefined,
         ra: this.config.ra ? JSON.parse(JSON.stringify(this.config.ra)) : null,
         scionAs: this.config.scionAs || null
       },
@@ -1286,6 +1289,7 @@ class Device {
         d.config.routes6 = JSON.parse(JSON.stringify(state.config.routes6 || []));
         d.config.gateway6 = state.config.gateway6 || null;
         d.config.gateway6Iface = state.config.gateway6Iface || null;
+        d.config.gateway6Learned = state.config.gateway6Learned ? true : false;
         d.config.ra = state.config.ra ? JSON.parse(JSON.stringify(state.config.ra)) : null;
         d.config.scionAs = state.config.scionAs || null;
         d.config.stpPriority = (state.config.stpPriority === 0 || state.config.stpPriority)

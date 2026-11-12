@@ -547,13 +547,19 @@ class CliSession {
     } else if (head === 'ipv6' && tokens[1] === 'gateway') {
       const v6 = require('./ipv6');
       if (!v6.validateAddress6(tokens[2]).ok) out.push('% Invalid IPv6 gateway "' + (tokens[2] || '') + '"');
-      else { this.device.config.gateway6 = tokens[2]; out.push('IPv6 default gateway ' + tokens[2]); }
+      else {
+        this.device.config.gateway6 = tokens[2];
+        // Typed now, so the config owns it and `show running-config` may print it again.
+        this.device.config.gateway6Learned = false;
+        out.push('IPv6 default gateway ' + tokens[2]);
+      }
     } else if (head === 'ipv6' && tokens[1] === 'nd') {
       out.push.apply(out, this._ipv6Nd(tokens.slice(2)));
     } else if (head === 'no' && tokens[1] === 'ipv6' && tokens[2] === 'nd') {
       out.push.apply(out, this._ipv6Nd(['no'].concat(tokens.slice(3))));
     } else if (head === 'no' && tokens[1] === 'ipv6') {
       this.device.config.gateway6 = null;
+      this.device.config.gateway6Learned = false;
       this.device.config.routes6 = [];
       out.push('IPv6 routes cleared');
     } else if (head === 'router' && tokens[1] === 'bgp') {
@@ -2159,6 +2165,34 @@ class CliSession {
     }
   }
 
+  // What this port holds in the other address family: the address (typed or learned, marked), and the link-local
+  // that neighbour discovery actually uses. Null when the port has no IPv6 at all, so an IPv4 lab prints exactly
+  // what it printed before.
+  _ipv6AddressLine(i) {
+    const dev = this.device;
+    const entry = dev.config && dev.config.ip6 ? dev.config.ip6[i.name] : null;
+    const asked = !!(entry && entry.addr) || !!i.autoconfig;
+    if (!asked) return null;
+    const parts = [];
+    if (entry && entry.addr) {
+      // Marked, because a learned address and a typed one look identical in this block otherwise - and the
+      // difference is the difference between "follow the router" and "stay put". Which router said so is
+      // `show ipv6 nd`'s answer, not this line's.
+      parts.push(entry.addr + '/' + entry.prefix + (entry.autoconfig ? ' (autoconfig)' : ''));
+    } else if (i.autoconfig) {
+      // The failure mode of SLAAC, said where the address would be rather than left as `unassigned`.
+      parts.push('autoconfig, no address yet (waiting for a router advertisement)');
+    }
+    let linkLocal = null;
+    try {
+      linkLocal = require('./ipv6').linkLocalFromMac(i.mac);
+    } catch (e) {
+      linkLocal = null;
+    }
+    if (linkLocal) parts.push('link-local ' + linkLocal);
+    return 'ipv6: ' + parts.join(', ');
+  }
+
   // The report a ping prints, whichever address family answered: the marks line, the success rate, one line per
   // reply. Shared so `ping 10.0.0.1` and `ping 2001:db8:1::1` cannot drift into two different-looking answers.
   _pingReplyLines(out, shownTarget, count, replies) {
@@ -3713,6 +3747,12 @@ class CliSession {
           ', protocol: ' + link.protocol +
           (i.description ? ', desc: ' + i.description : ''));
         out.push('  ip: ' + (i.ip ? i.ip + '/' + net.prefixOf(i.mask) : 'unassigned') + (i.dhcp ? ' (dhcp)' : ''));
+        // The other address family, which this block said nothing about: an IPv6 address lived in config.ip6 and
+        // was readable only in `show running-config` - and a SLAAC address not even there, since nobody typed it.
+        // The link-local is printed with it because it is the address neighbour discovery and every RS/NS uses, and
+        // it is derived from the MAC, so no view could ever have shown it (#1463).
+        const v6line = this._ipv6AddressLine(i);
+        if (v6line) out.push('  ' + v6line);
         // A host that asked for an address and got nothing is `unassigned` too, and that is the one case where the
         // word hides the answer: the exchange failed for a stated reason, and the reason was recorded (#1453).
         if (i.dhcp && !i.ip) {
@@ -3797,7 +3837,9 @@ class CliSession {
       if (dev.config.scionAs) out.push('scion ' + dev.config.scionAs);
       // IPv6 is the same hole in the other address family: `ipv6 address`, `ipv6 route` and `ipv6 gateway`
       // were all accepted, stored in config.ip6/routes6/gateway6, and printed nowhere.
-      if (dev.config.gateway6) out.push('ipv6 gateway ' + dev.config.gateway6);
+      // Not when a router advertisement put it there: nobody typed this line, and it is not configuration that a
+      // reader could copy to another device without pinning a gateway that should keep following its router.
+      if (dev.config.gateway6 && !dev.config.gateway6Learned) out.push('ipv6 gateway ' + dev.config.gateway6);
       for (const r6 of (dev.config.routes6 || [])) {
         if (r6 && r6.dest) out.push('ipv6 route ' + r6.dest + '/' + r6.prefix + ' ' + r6.nextHop);
       }
@@ -3870,8 +3912,11 @@ class CliSession {
         }
         // An IPv6 address lives in config.ip6, not on the interface object, so a printer that walked the
         // interfaces could not have found it even in principle.
+        // A SLAAC address is stored in the same place as a typed one, so this block used to print an address no
+        // command produced, directly under the `ipv6 address autoconfig` line that did produce it. The config keeps
+        // the request; the address is operational state (`show interfaces` reports it).
         const v6a = dev.config.ip6 && dev.config.ip6[i.name];
-        if (v6a && v6a.addr) out.push('  ipv6 address ' + v6a.addr + '/' + v6a.prefix);
+        if (v6a && v6a.addr && !v6a.autoconfig) out.push('  ipv6 address ' + v6a.addr + '/' + v6a.prefix);
         if (i.autoconfig) out.push('  ipv6 address autoconfig');
         // Per-interface OSPF overrides - the same hole one level down: `ip ospf cost`, `ip ospf area` and
         // `ip ospf passive` were stored on the interface and printed nowhere.
@@ -4059,7 +4104,8 @@ class CliSession {
     out.push('  Autoconfig  : ' + (waiting.length ? waiting.join(', ') : 'none'));
     if (dev.config.gateway6) {
       out.push('  Default gw  : ' + dev.config.gateway6 +
-        (dev.config.gateway6Iface ? ' via ' + dev.config.gateway6Iface : ''));
+        (dev.config.gateway6Iface ? ' via ' + dev.config.gateway6Iface : '') +
+        (dev.config.gateway6Learned ? '  (learned from a router advertisement)' : '  (configured)'));
     }
     return out;
   }
