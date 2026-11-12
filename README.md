@@ -113,6 +113,26 @@ body with `### What happened` and `### How you started it` — so it is the **sa
 wrong, and the only work left for you is pasting the output in. **Two** of the four outcomes print it:
 `EADDRINUSE` above and the unknown-error fallback. `EACCES` (a port below 1024 as a normal user) and
 `EADDRNOTAVAIL` get their own short explanations and no link — both are configuration, not bugs.
+
+All of that was re-measured on 2026-11-12, and the four outcomes are cheaper to check than they look: they are
+branches of one exported function, so calling it with each code settles the question without needing a
+privileged port or a machine with a missing address —
+
+```bash
+node -e 'const m=require("./server/startup-error");
+const show=e=>{const t=m.formatStartupError(e,8000);return Array.isArray(t)?t.join("\n"):String(t);};
+for(const c of ["EADDRINUSE","EACCES","EADDRNOTAVAIL","EWTFOO"]){
+  const t=show(Object.assign(new Error(c),{code:c}));
+  console.log(c,/Report it:/.test(t)?"link":"no link","|",t.split("\n").filter(Boolean)[0].trim());}'
+```
+
+which prints `EADDRINUSE link`, `EACCES no link`, `EADDRNOTAVAIL no link`, `EWTFOO link` — two of four, as
+claimed — and the two quiet ones say `Not allowed to listen on port 8000.` and `This machine has no address
+that can listen on port 8000.` `REPORT_URL` is **541** characters, which was also measured rather than copied.
+A real `node server/index.js` on a free port prints its banner (`Local: http://localhost:8000`,
+`Devices: 1661 models across 247 vendors`, `WebSocket sync: ws://localhost:8000 (live multi-client)`), answers
+the `/api/version` line above verbatim, and answers `200` over the LAN address as well; starting a second copy
+while the first runs exits **1** with the transcript quoted here.
 Anything else is printed as `PacketForge failed to start: <the error>` with the advice to paste the
 whole terminal output.
 
