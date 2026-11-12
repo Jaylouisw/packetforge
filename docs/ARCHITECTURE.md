@@ -788,6 +788,54 @@ A limitation this does not change, and does not hide: the engine answers nothing
 either family (`ping 10.0.0.10` from that host also times out), so `ping <v6-self>` behaves exactly like its IPv4
 counterpart rather than pretending to be loopback.
 
+### The address two boxes answered for
+
+```
+two hosts in one VLAN, both configured 10.0.0.10
+
+r1> ping 10.0.0.10 4
+!!!!
+Success rate is 100 percent (4/4)
+
+r1> show ip arp
+Protocol  Address          Age (min)  Hardware Addr     Interface
+Internet  10.0.0.10        -          02:00:00:00:03:00 Gi0/0/1
+```
+
+Nothing in that output is a lie and nothing in it is the whole truth. Two boxes hold the address; the table shows one
+of them, with the confidence of a row that has no competitor. The next ping may go to the other, because the binding
+is whatever reply arrived last — which is why this reads as "the lab is flaky" rather than "the lab has a duplicate
+address", and why it survives a save, a reload and a fresh run.
+
+The ARP table is keyed by address alone, so `Device.learnArp()` overwrote the first answer with the second and the
+fact went nowhere. The router is the only place both answers exist, so that is where it is written down:
+
+* **`Device.noteArpConflict()`** records an address answered by a second hardware address, keeping both MACs and the
+  port they were heard on. It records nothing when the answer comes from the same MAC (a neighbour refreshing its
+  entry is the ordinary case) and nothing when the second answer arrives on a *different* port — two subnets may
+  legitimately reuse an address, and inventing a conflict out of that would be its own defect;
+* **the binding itself is unchanged.** The table still holds the most recent answer, because that is what the engine
+  acts on. The note is added beside it, never instead of it;
+* **`show ip arp` says it in a sentence**, under the table it contradicts:
+
+  ```
+  10.0.0.10 is claimed by 2 hardware addresses on Gi0/0/1: 02:00:00:00:02:00, 02:00:00:00:03:00
+    this row shows the one that answered last; traffic to 10.0.0.10 goes to whichever answers next
+  ```
+
+  The second line is the part an operator cannot infer from the first: a contested address is not a curiosity, it is
+  traffic that moves;
+* **the clash travels with the row** (`arpRows()` carries `conflict`), so a panel reading the same data cannot
+  present the address as settled, and an `arp-conflict` event goes on the wire for the packet view.
+
+Deliberately not done: the two hosts themselves stay quiet. A real stack detects a duplicate address from the other
+box's ARP claim and logs it (`%IP-4-DUPADDR`), and modelling that is a new protocol behaviour rather than a view
+telling the truth about data it already had — so it is left for a decision, not smuggled in here.
+
+`test/arp-conflict.test.js` pins it, 26 checks; reverting `engine/` fails 10. Neighbours green: `show-arp` 28,
+`arp-ageing` 31, `runtime-agreement` 10, `show-argument-refusal` 77, `show-ip-spellings` 70, `dhcp-bindings` 51,
+`lldp` 27, `vrrp` 94, `ping-ipv6` 43.
+
 ### A reopened lab forgot what its hardware was made of
 
 ```

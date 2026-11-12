@@ -650,10 +650,41 @@ class Device {
       // has no age, and inventing one would be worse than saying nothing (#1397).
       const at = this.arpSeenAt ? this.arpSeenAt.get(ip) : undefined;
       const age = (Number.isFinite(at) && Number.isFinite(nowMs)) ? Math.max(0, Math.floor((nowMs - at) / 60000)) : null;
-      rows.push({ ip: ip, mac: mac, port: port, age: age, note: note });
+      // A contested address travels with its row rather than in a second command: the table is where an operator
+      // reads "who holds 10.0.0.10", and a single binding there is the claim this flag contradicts (#1473).
+      const clash = this.arpConflictFor(ip);
+      rows.push({ ip: ip, mac: mac, port: port, age: age, note: note, conflict: clash });
     }
     rows.sort(function (a, b) { return String(a.ip).localeCompare(String(b.ip)); });
     return rows;
+  }
+
+  // Record that a second hardware address answered for an address already in the table, on the same port.
+  //
+  // The table is keyed by address alone, so the second reply simply overwrote the first and nothing downstream
+  // could tell: pings to that address then pass or fail depending on which box answered last, with no
+  // configuration change and no error anywhere (#1473). This is the only place both answers exist, so the fact
+  // is written down here. A reply heard on a *different* port is a different segment - two subnets may
+  // legitimately reuse an address - so that is not a clash and records nothing.
+  noteArpConflict(ip, mac, portName) {
+    if (!ip || !mac) return null;
+    const held = this.arp ? this.arp.get(ip) : null;
+    if (!held || held === mac) return null;
+    const priorPort = (this.arpPorts && this.arpPorts.get(ip)) || null;
+    let port = portName === undefined || portName === null ? priorPort : String(portName);
+    if (priorPort && port && priorPort !== port) return null;
+    if (!this.arpConflicts) this.arpConflicts = new Map();
+    const rec = this.arpConflicts.get(ip) || { macs: [], port: port || priorPort || null };
+    if (rec.macs.indexOf(held) === -1) rec.macs.push(held);
+    if (rec.macs.indexOf(mac) === -1) rec.macs.push(mac);
+    if (!rec.port) rec.port = port || priorPort || null;
+    this.arpConflicts.set(ip, rec);
+    return rec;
+  }
+
+  arpConflictFor(ip) {
+    if (!this.arpConflicts) return null;
+    return this.arpConflicts.get(ip) || null;
   }
 
   // `show lldp`, as data: a neighbour is not "here" because it was once heard.

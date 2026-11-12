@@ -3289,6 +3289,22 @@ class Simulator {
       { l4: frame.l4 || null, flow: frame.flow || null });
   }
 
+  // Learn a neighbour, and notice when a second box answers for an address we already hold.
+  //
+  // The ARP table is keyed by address, so without this the second reply silently replaced the first and every
+  // packet after it went to whichever box answered last - the same ping passing and failing with nothing
+  // changed (#1473). Same port means the same segment, which is what makes it a clash rather than two subnets
+  // that happen to reuse an address.
+  _learnArp(dev, ip, mac, inIface, vid) {
+    if (typeof dev.noteArpConflict === 'function' && ip && mac) {
+      const rec = dev.noteArpConflict(ip, mac, inIface);
+      if (rec) {
+        this._emit({ type: 'arp-conflict', dev: dev.id, iface: inIface, ip: ip, macs: rec.macs.slice(), vlan: vid });
+      }
+    }
+    dev.learnArp(ip, mac, inIface, this._nowMs());
+  }
+
   _handleArp(dev, frame, inIface) {
     const arp = frame.arp;
     const vid = frame.vid || 1;
@@ -3297,7 +3313,7 @@ class Simulator {
       // RFC 826: a station updates its table from any ARP it receives, not only from replies.
       // This is what makes a gratuitous ARP work - it is a request, and the whole point is that
       // the hosts who did not ask for it still believe it.
-      if (arp.senderIp && arp.senderMac) dev.learnArp(arp.senderIp, arp.senderMac, inIface, this._nowMs());
+      if (arp.senderIp && arp.senderMac) this._learnArp(dev, arp.senderIp, arp.senderMac, inIface, vid);
       const owner = dev.ownsIpOn(inIf, arp.targetIp);
       if (owner) {
         // Reply out of the port that asked: inside a bridge group every port reaches
@@ -3309,7 +3325,7 @@ class Simulator {
         // reply out the raw trunk port would strip it.
         const sameGroup = owner.bridgeGroup && inIf && inIf.bridgeGroup === owner.bridgeGroup;
         const replyIface = sameGroup ? inIf : owner;
-        if (arp.senderIp) dev.learnArp(arp.senderIp, arp.senderMac, inIface, this._nowMs());
+        if (arp.senderIp) this._learnArp(dev, arp.senderIp, arp.senderMac, inIface, vid);
         // A virtual address is answered with the group's virtual MAC, not the box's own: that is
         // what lets a host keep its cache entry when mastership moves to the other router.
         // The address being defended is the one that was asked for. owner.ip is the interface's own
@@ -3324,7 +3340,7 @@ class Simulator {
       }
       // else: ignore (not for us)
     } else if (arp.op === 'reply') {
-      dev.learnArp(arp.senderIp, arp.senderMac, inIface, this._nowMs());
+      this._learnArp(dev, arp.senderIp, arp.senderMac, inIface, vid);
       this._emit({ type: 'arp-cache', dev: dev.id, ip: arp.senderIp, mac: arp.senderMac, vlan: vid });
       this._flushPending(dev, arp.senderIp, arp.senderMac, vid);
     }
