@@ -1655,6 +1655,12 @@ D1(config)#ip route 10.9.0.0 255.255.255.0 10.0.0.9
 % D1 - it does not forward between interfaces, so it has no routes or adjacencies
 ```
 
+Every `%` line in this page is quoted **from the label onward**. The console prefixes the message with the
+device's model and the label it was given, so the first line above actually reads `% APC Network Management
+Card 3 (UPS NMC)-D1 - it runs no spanning tree, because it has no bridged domain to protect`; label the
+device something else and only the prefix moves. Both `%` transcripts here are trimmed that way, and so is
+the `PC1` line further down — a diff against a live run shows a longer line on the left, not a stale page.
+
 Two rules came out of it:
 
 - **Capability before syntax.** `no router ospf 1` on a host is two questions at once - it cannot run
