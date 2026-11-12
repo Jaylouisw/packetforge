@@ -177,8 +177,11 @@ npm run audit:ports   # per-port type audit
 ```
 
 `npm run smoke` is safe to run with a lab open: `scripts/smoke-http.js` picks a free port with
-`listen(0)`, spawns the server with `PORT` set to it and `PF_DATA` pointed at a temporary directory,
-and kills it at the end — your `data/topologies/` is never touched. On this tree it prints **18** `ok`
+`listen(0)` inside `freePort()` (`:26`), spawns the server with `PORT` set to it, `PF_DATA` pointed at
+a temporary directory and a third variable, `PF_NO_OPEN=1`, that **nothing reads** —
+[ARCHITECTURE.md](ARCHITECTURE.md#environment-variables) lists it as read by nothing, and the server
+opens no browser with or without it — then kills the child, so your `data/topologies/` is never
+touched. On this tree it prints **18** `ok`
 lines and ends `HTTP smoke passed (all checks clean)`; the count grows whenever a route is added, so
 read it as a snapshot rather than a contract — and read it as **eighteen**, not "every route": that phrase
 used to sit in the command block above and contradicted this page's own row, which lists the ten board-scoped
