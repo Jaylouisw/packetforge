@@ -533,7 +533,7 @@ layer exists in `engine/bgp.js` today.
 | Verdict | Behaviour | Where |
 |---|---|---|
 | **Modelled** | Authoritative zones with A, AAAA, CNAME, MX, NS, PTR, SOA, TXT, SRV; relative/absolute name rules; CNAME chains to depth 8; NXDOMAIN distinguished from empty-NOERROR. | `engine/dns.js:47-50`, `engine/dns.js:342` |
-| **Modelled** | `ping <hostname>` and `openFlow()` resolve through the lab's DNS servers before a packet is sent. The failure is named for what actually happened: `dns-nxdomain` (the name is not in the zone), `dns-nodata` (the name exists, the type does not — NOERROR with an empty answer), `dns-servfail` (no device in the lab hosts a zone). | `engine/simulator.js:137`, `engine/simulator.js:228-260` |
+| **Modelled** | `ping <hostname>` and `openFlow()` resolve through the lab's DNS servers before a packet is sent. The failure is named for what actually happened: `dns-nxdomain` (the name is not in the zone), `dns-nodata` (the name exists, the type does not — NOERROR with an empty answer), `dns-servfail` (no device in the lab hosts a zone). The reason is built as `'dns-' + status` in one place, so a new outcome cannot be reported with a borrowed name. | `resolveName()` at `engine/simulator.js:287`, the three-failure split at `:330-380`, the reason at `:795` |
 | **Approximate** | Server selection is a shortcut: the client's configured `dnsServers`, or — when it lists none — **any** device in the lab that hosts a matching zone. There is no recursive walk from root to TLD, no delegation, no forwarder. | `engine/simulator.js:282-290` |
 | **Absent** | Recursion to a real resolver, DNSSEC, zone transfers, EDNS(0), negative caching, DNS over TCP. A resolver is only a listener on port 53 for flow purposes (`engine/flow.js:316`). | — |
 
@@ -661,7 +661,7 @@ anything about 802.11.
 | **Modelled** | serialisation = `bits / line rate`, with the frame measured from destination MAC to FCS, plus 4 bytes per VLAN tag. | `engine/latency.js:165`, `engine/latency.js:186-194` |
 | **Approximate** | A per-hop store-and-forward term of **50 µs** is charged on every crossing but the last. This is a single constant for every device in the model — switch, router, firewall — and is labelled as an approximation in the source, not derived from hardware. | `engine/latency.js:86-98`, `engine/latency.js:174` |
 | **Modelled** | Round trip = forward + reverse, each summed over its own legs; both directions are charged, because the frame is serialised at every port twice. | `engine/latency.js:296-318`, `engine/simulator.js:204` |
-| **Modelled** | An unstated length costs 0 m and reports `lengthKnown: false`; an unstated rate costs 0 s. The model refuses to invent a distance. | `engine/latency.js:100-106`, `engine/latency.js:132-136`, `engine/simulator.js:279` |
+| **Modelled** | An unstated length costs 0 m and reports `lengthKnown: false`; an unstated rate costs 0 s. The model refuses to invent a distance. | `engine/latency.js:100-106` (`DEFAULT_LENGTH_M = 0`), `engine/latency.js:132-136` (`isKnownRate`), surfaced as `lengthKnown` at `engine/simulator.js:837` and `:2661` |
 | **Absent** | Queueing delay, jitter, host ICMP processing, NIC interrupts, kernel wakeups, ARP resolution time, optical dispersion and FEC. All four are named as deliberately excluded at `engine/latency.js:22-31`. | — |
 
 Three consequences a lab author needs:
@@ -715,7 +715,7 @@ i.e. configuring them is decoration:
 - `voiceVlan` (`engine/vlan.js:13`).
 - `iface.dhcp` (`engine/cli.js:1921`).
 - Capabilities `firewall`, `wireless`, `dhcp-server`, `dhcp-client`, and the tokens `vlan`/`lacp`/`stp` (`engine/device.js:85-98`).
-- RA valid/preferred lifetimes (`engine/cli.js:3035-3073`, printed by `_showIpv6Nd()` at `:12331`).
+- RA valid/preferred lifetimes (`_ipv6Nd()` at `engine/cli.js:3051`, printed by `_showIpv6Nd()` at `:13050` as the valid/preferred columns at `:13078-13083`).
 
 ---
 
