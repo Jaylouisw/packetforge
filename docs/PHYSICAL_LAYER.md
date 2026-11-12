@@ -320,6 +320,21 @@ copper SFP; higher speed wins) unless the user picks another valid one.
 Example: a 10G SFP+ port cabled to a 1G SFP port negotiates **`1000base-sx` at 1 Gbps** —
 physically correct, because the SFP+ cage accepts a 1G optic.
 
+`canMate` also refuses for reasons the §4 tables do not carry, because they belong to the **modules**
+rather than to the span:
+
+| Code | Fires when |
+|------|------------|
+| `E_BIDI_MISMATCH` | exactly one end carries a single-strand module — `1000BASE-BX10-U` transmits 1310 nm into the one strand and listens at 1490 nm, so it only ever pairs with the mirrored `-D` half |
+| `E_BIDI_SAME_WAVELENGTH` | both ends carry the **same** half (`-U` against `-U`): two transmitters face each other down the strand and neither receiver hears anything |
+| `E_PROTOCOL_MISMATCH` | an out-of-band console port meets a data port — a console link carries an operator typing at a baud rate, not frames |
+| `E_BAUD_MISMATCH` | shared medium but no shared baud rate. Reachable only *after* test 2 passes: 115200 against 9600 already fails as `E_NO_COMMON_MEDIA`, so this one needs two ports that advertise a common module and different baud |
+
+Measured: `-U` ↔ `-D` is `ok: true`; `-U` ↔ `-U` is `E_BIDI_SAME_WAVELENGTH` ("two transmitters face
+each other and neither receiver hears anything"); `-U` ↔ a duplex `1000base-lx` port is
+`E_BIDI_MISMATCH`; console ↔ RJ45 is `E_PROTOCOL_MISMATCH`; console ↔ USB stops earlier at
+`E_CONNECTOR_MISMATCH`; console at 115200 ↔ console at 9600 stops at `E_NO_COMMON_MEDIA`.
+
 ---
 
 ## 4. Feasibility rules
