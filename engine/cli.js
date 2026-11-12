@@ -295,9 +295,26 @@ class CliSession {
         // applying it to everything.
         return ['% This device runs one spanning tree, not one per VLAN: use `spanning-tree priority <0-61440>`'];
       }
+      // Read the verb before the value. This handler used to take tokens[2] as the priority no matter what
+      // tokens[1] said, so every other spanning-tree sub-command was answered as if it were `priority`:
+      // `spanning-tree portfast` came back "Usage: spanning-tree priority <0-61440>" and `spanning-tree cost 19`
+      // came back "19 is not a valid bridge priority", which is an answer to a question nobody asked (#1493).
+      const verb = (tokens[1] || '').toLowerCase();
+      const MODELLED_ELSEWHERE = ['portfast', 'edge', 'bpduguard', 'bpdufilter', 'cost', 'guard', 'link-type',
+        'mode', 'mst', 'loopguard', 'root', 'backbonefast', 'uplinkfast'];
+      if (verb && verb !== 'priority') {
+        if (MODELLED_ELSEWHERE.indexOf(verb) !== -1) {
+          return ['% spanning-tree ' + verb + ' is not modelled: this device runs one spanning tree, and its only ' +
+            'tunable is `spanning-tree priority <0-61440 in 4096 steps>`'];
+        }
+        return ['% Unknown spanning-tree sub-command "' + tokens[1] + '": the only form is ' +
+          '`spanning-tree priority <0-61440 in 4096 steps>`'];
+      }
       const value = tokens[2];
-      if (!value || !/^\d+$/.test(value)) {
-        return ['% Usage: spanning-tree priority <0-61440 in 4096 steps>'];
+      if (!value) return ['% Usage: spanning-tree priority <0-61440 in 4096 steps>'];
+      if (!/^\d+$/.test(value)) {
+        return ['% "' + value + '" is not a bridge priority: `spanning-tree priority` takes a number, ' +
+          '0-61440 in steps of 4096'];
       }
       const p = Number(value);
       const stpLib = require('./stp');
@@ -333,7 +350,15 @@ class CliSession {
       const chk = require('./vlan').validatePortConfig({ accessVlan: id });
       if (!chk.ok) return [this._vlanRefusal(chk, 'VLAN id')];
       if (!this.device.config.vlans) this.device.config.vlans = {};
-      const name = tokens.slice(2).join(' ') || ('VLAN' + String(id).padStart(4, '0'));
+      // `name` is a keyword in IOS's vlan sub-mode, not part of the name. Taken literally it stored the VLAN as
+      // "name lab", which is a VLAN called "name lab" on every screen that lists names (#1493).
+      const rest = tokens.slice(2);
+      const usedKeyword = !!rest.length && rest[0].toLowerCase() === 'name';
+      const text = (usedKeyword ? rest.slice(1) : rest).join(' ').trim();
+      if (usedKeyword && !text) {
+        return ['% Incomplete command: name the VLAN with `vlan ' + id + ' name <text>`'];
+      }
+      const name = text || ('VLAN' + String(id).padStart(4, '0'));
       this.device.config.vlans[id] = { name: name };
       out.push('VLAN ' + id + ' created (name: ' + name + ')');
     } else if (head === 'no' && tokens[1] === 'ip' && tokens[2] && tokens[2].toLowerCase() === 'nat' &&
@@ -683,8 +708,22 @@ class CliSession {
     } else if (head === 'show') {
       out.push.apply(out, this._show(tokens.slice(1)));
     } else if (head === 'do') {
-      // allow running exec commands from config mode: 'do show ...'
-      out.push.apply(out, this._show(tokens.slice(1)));
+      // `do` runs an EXEC command from config mode. This passed `tokens.slice(1)` to `_show()`, which expects the
+      // words *after* `show` - so every `do show ...` in every config session answered
+      // `% Invalid show command: show vlan`, echoing the command it had just failed to run (#1493).
+      const inner = tokens.slice(1);
+      if (inner.length && String(inner[0]).toLowerCase() === 'show') {
+        out.push.apply(out, this._show(inner.slice(1)));
+      } else {
+        out.push('% `do` runs a show command from config mode here: `do show <command>` ' +
+          '(for anything else, leave config mode with `end`)');
+      }
+    } else if (head === 'name') {
+      // There is no vlan sub-mode in this model: a VLAN is named on the line that creates it. Typing IOS's
+      // sub-mode (`vlan 20`, `name lab`) therefore meets a bare "Unrecognized config command" that says nothing
+      // about where the word does belong (#1493).
+      out.push('% There is no vlan sub-mode here: name the VLAN on its own line, `vlan <id> name <text>`' +
+        ' (e.g. `vlan 20 name lab`)');
     } else {
       out.push('% Unrecognized config command: ' + tokens.join(' '));
     }

@@ -102,7 +102,11 @@ console.log('A priority the standard cannot express is refused, not rounded:');
   ok(/range is 0 to 61440/.test(high), 'a value above the range is refused with the range', high.slice(0, 90));
 
   const notNumber = run(env, 's3', ['enable', 'configure terminal', 'spanning-tree priority high']);
-  ok(/Usage: spanning-tree priority/.test(notNumber), 'a word instead of a number gets the usage line');
+  // It used to print the bare usage line. Naming the word is the difference between "something is wrong here"
+  // and "this word is the problem" - and it keeps `priority high` distinguishable from `spanning-tree portfast`,
+  // which is now answered about portfast (#1493).
+  ok(/"high" is not a bridge priority/.test(notNumber), 'a word instead of a number is quoted back as the problem', notNumber.slice(0, 110));
+  ok(/takes a number/.test(notNumber), 'and the refusal says what the command does take');
   ok(env.t.getDevice('s3').config.stpPriority === null, 'and still nothing is stored');
 
   // IOS spells this per VLAN. One spanning tree means one priority, so a VLAN id must not be accepted and

@@ -111,7 +111,7 @@ takes back.
 |---|---|
 | hostname | `hostname <name>` |
 | interfaces | `interface <name>` block: description, `speed`, `duplex`, `ip address`, switchport VLAN/trunk, `channel-group`, `ip access-group`, `shutdown`, `vrrp <vrid> …` |
-| VLAN table | `vlan <id> <name>` |
+| VLAN table | `vlan <id> [name] <text>` |
 | DHCP pools | `ip dhcp pool <name>` block: network, range, default-router, dns-server, excluded-address, lease, `host <addr> <mac>` |
 | DNS zones | `dns zone <apex>` followed by `dns add <name> <type> <value>` |
 | ACLs | `access-list <id> <rule>` |
@@ -514,7 +514,7 @@ appears under a VLAN if and only if a frame in that VLAN could leave by it:
   chase a native-VLAN mismatch that the table was previously hiding;
 * a trunk with `allowedVlan all` appears in every row.
 
-A VLAN exists in this table if it is configured with `vlan <id> [name]`, or if a port uses it. A configured
+A VLAN exists in this table if it is configured with `vlan <id> [name] [<text>]`, or if a port uses it. A configured
 VLAN nothing carries prints an empty Ports column rather than an invented port.
 
 `show vlan brief` prints the same table; there is no short form that disagrees with the long one.
@@ -1620,3 +1620,71 @@ All of them were documented in `docs/CLI.md` and reachable at the console; the i
 `test/help-completeness.test.js` now checks the direction that used to be remembered rather than verified: it reads every token the dispatcher compares against `head` out of `engine/cli.js` — the console's whole vocabulary in the console's own spelling — drops the keypresses (`?`, `exit`, `quit`, `logout`, `end`, `help`, and the abbreviations `conf`, `en`, `int`), and requires each remaining verb to be named in the index. With the old index and the new check it reports **15 missing verbs**; with this one, none.
 
 The opposite direction is a hand-written list on purpose: it has to describe modes as well as words (`['clock rate <bps>', 'iface', ROUTER]`), and parsing the index's prose to recover modes would be testing a prose parser. Every row in it is typed at a real device and must be accepted — 98 of them now, including the fourteen added here.
+
+## Three commands that answered a question nobody asked
+
+Each of these replied in the voice of a neighbouring command, and each answer looked plausible enough to believe (#1493).
+
+### `spanning-tree portfast` was answered as `spanning-tree priority`
+
+The handler took `tokens[2]` as a bridge priority without reading `tokens[1]`, so:
+
+```
+sw1(config-if)#spanning-tree portfast
+% Usage: spanning-tree priority <0-61440 in 4096 steps>
+sw1(config-if)#spanning-tree cost 19
+% 19 is not a valid bridge priority: it must be a multiple of 4096 ...
+```
+
+`portfast` is the most-typed command in a switching lab and the console answered a question about priorities; `cost 19` was worse, because 19 is a number, so the reply reads like a verdict on the number instead of on the word. It now reads the verb first:
+
+```
+sw1(config-if)#spanning-tree portfast
+% spanning-tree portfast is not modelled: this device runs one spanning tree, and its only tunable is
+  `spanning-tree priority <0-61440 in 4096 steps>`
+sw1(config-if)#spanning-tree portfst
+% Unknown spanning-tree sub-command "portfst": the only form is `spanning-tree priority <0-61440 in 4096 steps>`
+```
+
+A misspelling is now `Unknown`, a real IOS sub-command this model does not implement is `not modelled`, and the two no longer read identically.
+
+### `vlan 20 name lab` created a VLAN called "name lab"
+
+`name` is a keyword in IOS's vlan sub-mode, not part of the name. The engine joined every word after the id:
+
+```
+sw1(config)#vlan 20 name lab
+VLAN 20 created (name: name lab)      <- and every screen that lists names showed it
+```
+
+Now the keyword is read as a keyword, so `vlan 20 name lab`, `vlan 20 lab` and `vlan 20` mean what they say (`lab`, `lab`, `VLAN0020`); a two-word name still survives whole; `vlan 40 name-lab` is not eaten because the word only counts in front; and `vlan 20 name` with no text is refused as incomplete without writing anything.
+
+There is no vlan sub-mode in this model, so IOS's two-line form meets a hint instead of a bare refusal:
+
+```
+sw1(config)#vlan 20
+VLAN 20 created (name: VLAN0020)
+sw1(config)#name lab
+% There is no vlan sub-mode here: name the VLAN on its own line, `vlan <id> name <text>` (e.g. `vlan 20 name lab`)
+```
+
+### `do show vlan` rejected the command it was given
+
+`do` passed `tokens.slice(1)` — still starting with `show` — into the `show` dispatcher, which expects the words *after* `show`:
+
+```
+sw1(config)#do show vlan
+% Invalid show command: show vlan
+```
+
+Every `do show …` in every configuration session failed that way, echoing the command it had just failed to run. It now works, and `do` on anything else says what it does instead of pretending:
+
+```
+sw1(config)#do show ip interface brief
+Interface              IP-Address      OK? Method Status                Protocol
+Fa0/1                 unassigned      YES  manual  down                  down
+sw1(config)#do ping 10.0.0.1
+% `do` runs a show command from config mode here: `do show <command>` (for anything else, leave config mode with `end`)
+```
+
+`test/command-answers-the-question.test.js` pins all three: 27 checks, 27 passed. With the old handler: **11 passed / 16 failed**, each naming the neighbour's answer it used to give.
