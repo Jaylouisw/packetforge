@@ -143,6 +143,14 @@ MDS declares are not shared with it. And `speedMbps` is the **negotiated line ra
 16G FC runs at 14.025 Gbit/s and 32G at 28.05, so a link whose `mediaId` says `16gfc-sw` still reports
 `14025`. Reading the medium id as the rate is off by ~12% on every FC rung.
 
+Rebuilt all three rows from the catalogue on 2026-11-12 rather than believing the table: a `Topology` with
+`MDS 9148S` ×2, `G720` and `G610`, cabled port-to-port, gives `mediaId 16gfc-sw` with `speedMbps 14025`
+for 16G↔16G, the same `16gfc-sw`/`14025` for 16G↔64G, and `32gfc-sw`/`28050` for 32G↔64G — every
+value in the bold column as printed. The field is `mediaId`; `mediumId` and `media` do not exist on a link
+object, so a probe that guesses either gets `undefined` and can look like a refusal that never happened.
+The offered lists come from the FC media family, which is **16** ids — eight rungs from `2g` to `128g`,
+each in `-sw` and `-lw` — inside the 89 media the engine carries overall.
+
 ## Devices
 
 Seven devices carry **304** Fibre Channel ports between them, in all four `fc-*` cages: `fc-sfp` 72,
