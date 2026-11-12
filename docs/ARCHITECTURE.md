@@ -627,6 +627,49 @@ port and a real port answer exactly as before; `?` and `help` print usage; case 
 the words live in one named table and the console asks it; and the keyword check is after the
 port lookup in the source, so a port named like a keyword still wins.
 
+### A reason read on one console described another box
+
+```
+a> show ip route
+Gateway of last resort is 10.1.1.1 to network 0.0.0.0
+S*  0.0.0.0        /0  [254/0] via 10.1.1.1
+
+a> ping 10.9.9.9
+no route to 10.9.9.9                    <- printed on the host that HAS a route
+```
+
+The host sent to its gateway, the gateway had no route, and the gateway recorded the drop itself:
+
+```
+{"type":"drop","reason":"no route to 10.9.9.9","dev":"r1"}
+```
+
+`ping` handed the reader the drop's own words, and a reason is read on the console of whoever asked. So
+the sentence was a claim about `a` — sitting three lines under `a`'s own default route. The event knew
+who dropped it all along; the sentence did not.
+
+A reason now names the box that recorded it **when that box is not the one the reader is at**:
+
+| where the reader is | reason |
+| --- | --- |
+| `a`, whose gateway dropped it | `no route to 10.9.9.9 (dropped by r1)` |
+| `a`, which itself has no route | `no route to 10.9.9.9` — no suffix: this *is* a statement about `a` |
+| `r1`'s own counters | `device-wide 1 drop (no route to 10.9.9.9)` — a box does not name itself |
+| `a`, whose frame a far switch refused | `switchport mismatch: … (dropped by s2)` |
+
+The same words come out of both doors that report a dead path — `ping` and the flow open
+(`E_NO_ROUTE`) — because both read their answer from the same event log and now pass it through the
+same `_sayWhoDropped()`. Silent about a remote drop is not a neutral choice: it is a claim about the
+local device, and it was false.
+
+The suffix never moves the ranking of causes: with both a shut port at the source and an unreachable
+gateway, the local shut port still wins and the gateway is not blamed for a frame that never left.
+
+`test/reason-names-the-box.test.js` pins it, 18 checks: the host prints a default route and is still
+not blamed; the gateway names itself nowhere in its own counters; a source with no route gets a bare
+reason; a far switch is named exactly once; the flow door uses the same sentence; a successful run
+invents no reason; and the ranking is unchanged.
+
 ### The answer that names a port nobody asked about
 
 ```

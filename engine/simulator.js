@@ -609,7 +609,7 @@ class Simulator {
       // The slice starts at the `ping` event, but the run may have emitted discards *before* it (a protocol
       // announcement from an earlier step, a shut port noticed on the way in). Those belong to this run too, so
       // the whole event log is searched, not just the slice (#1431).
-      const lost = got ? null : this._lastDiscard(this.events);
+      const lost = got ? null : this._lastDiscard(this.events, srcId);
       replies.push({
         seq: seq,
         success: !!got,
@@ -2721,7 +2721,7 @@ class Simulator {
   // along, the frame never went anywhere, and the sweep's reason blamed silence for it. The later, more specific
   // sounding reason is the one that lies. So the causes are ranked: a port or wire that cannot carry the frame
   // first, policy (ACL/VLAN/NAT) next, and only then silence.
-  _lastDiscard(events) {
+  _lastDiscard(events, fromId) {
     // The slot `no egress ports` matches both wordings: a refusal by the spanning tree used to be printed as a
     // VLAN refusal, so the rank was written against that wording and one reason could only ever match one of them.
     // The priority is unchanged on purpose - where this reason sits was decided when it was always about VLANs, and
@@ -2735,14 +2735,28 @@ class Simulator {
     const found = [];
     for (let i = 0; i < (events || []).length; i++) {
       const why = this._discardReason(events[i]);
-      if (why) found.push(String(why));
+      if (why) found.push({ why: String(why), ev: events[i] });
     }
     if (!found.length) return null;
+    let pick = null;
     for (const pat of RANK) {
-      const hit = found.filter(function (w) { return w.indexOf(pat) === 0 || w.indexOf(pat) !== -1; })[0];
-      if (hit) return hit;
+      pick = found.filter(function (f) { return f.why.indexOf(pat) !== -1; })[0];
+      if (pick) break;
     }
-    return found[0];
+    if (!pick) pick = found[0];
+    // A reason is read on the console of whoever asked, and the box that recorded it may be somebody else entirely: a
+    // host with a default gateway sends to that gateway, the gateway has no route and drops the frame, and the host's
+    // `ping` reported plain `no route to 10.9.9.9` - which reads as a statement about the host, whose `show ip route`
+    // shows `S* 0.0.0.0/0` three lines above it. The event knew which box dropped it all along (#1451).
+    return this._sayWhoDropped(pick.why, pick.ev, fromId);
+  }
+
+  // `reason` plus the box that recorded it, when that box is not the one the reader is standing at. Silence about a
+  // remote drop is a claim about the local device.
+  _sayWhoDropped(reason, ev, fromId) {
+    const who = ev && ev.dev;
+    if (!who || !fromId || who === fromId) return reason;
+    return reason + ' (dropped by ' + who + ')';
   }
 
   // Every pending packet whose next hop never answered, reported once with the address it asked for.
@@ -3452,7 +3466,11 @@ class Simulator {
     const noRoute = evs.filter(function (e) {
       return e.type === 'drop' && /^no route to /.test(String(e.reason || ''));
     })[0];
-    if (noRoute) return { code: 'E_NO_ROUTE', reason: noRoute.reason };
+    // Same sentence ping gives, and the same honesty about who said it: the box that had no route is named when it is
+    // not the box the reader is standing at (#1451).
+    if (noRoute) {
+      return { code: 'E_NO_ROUTE', reason: this._sayWhoDropped(noRoute.reason, noRoute, rec && rec.srcDevice) };
+    }
     const poe = evs.filter(function (e) { return e.type === 'poe-deny'; })[0];
     if (poe) return { code: 'E_POE', reason: poe.reason || 'no PoE power available' };
     const vlan = evs.filter(function (e) { return e.type === 'vlan-drop'; })[0];
