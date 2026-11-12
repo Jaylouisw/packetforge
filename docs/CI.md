@@ -23,6 +23,17 @@ could never pass. **The `.github/` directory itself is still there** and still d
 `.github` and finds eight files has not found a contradiction, and a stale pull request whose head
 predates #1059 still carries a `workflows/` directory that this runner cannot satisfy.
 
+Two of those eight files are now inert, and the page should say so before a reader trusts them.
+`dependabot.yml` still declares two ecosystems. `github-actions` has no target: it scans
+`.github/workflows/`, which does not exist — the pipeline this project actually runs lives in
+`.forgejo/workflows/`, which Dependabot does not read, and it is a GitHub service besides. `npm` has
+no target either: `package.json` carries **no `dependencies` and no `devDependencies`**, there is no
+lockfile of any kind, and `node_modules/` is not part of the tree — a zero-dependency project by
+design, so there is nothing to bump. Whether the mirror has Dependabot enabled at all is not visible
+without authentication, and if it ever did open a bump, `scripts/gh-bridge.js --prs` is the route back.
+`labels.yml` is inert for the same kind of reason, and different in detail — see
+[REQUESTING-HARDWARE.md](REQUESTING-HARDWARE.md#what-the-form-does-measured).
+
 ## What a pull request goes through
 
 **Three jobs, five check runs** — all required before a merge. The count is worth stating precisely
@@ -609,13 +620,13 @@ queue that lost its arms gets them back in one tick instead of five at a time.
   **None of these readings is a reading of `main`.** They were taken in the working tree, which sits on
   branch `fix/sfp-plus-connectors`, and that branch diverged from `origin/main` at `083e2ba1`
   (2026-11-08 16:58:44) — at the time of the fourth reading it was **382 ahead and 361 behind**, and
-  now reads **547 ahead and 380 behind** (after a fresh `git fetch`, which moved the behind-side
+  now reads **548 ahead and 381 behind** (after a fresh `git fetch`, which moved the behind-side
   from 361 to 373 — main's tip is `f370b893`, #1450); either way not one of the commits above is an ancestor of
   `origin/main`. Check any of them before you quote it:
 
   ```bash
   git branch --show-current                              # fix/sfp-plus-connectors, not main
-  git rev-list --left-right --count HEAD...origin/main    # 547  380
+  git rev-list --left-right --count HEAD...origin/main    # 548  381
   git merge-base --is-ancestor d4319d27 origin/main || echo "not on main"
   ```
 
