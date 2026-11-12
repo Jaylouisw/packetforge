@@ -24,10 +24,12 @@
       <!-- An anchor, not a button: this is the one control that must still work when the
            JavaScript that would have upgraded it is exactly what broke. app.js fills in the
            build, browser and page on click; without app.js the link below still opens a
-           usable report form. -->
+           usable report form. The link selects the bug form itself, because the repository
+           has YAML issue forms and blank issues disabled - Forgejo would otherwise answer
+           with a template chooser that discards the title and any text in the URL. -->
       <a id="btn-bug" class="btn btn-quiet" target="_blank" rel="noopener"
-         href="https://git.jayw.uk/jaylouisw/packetforge/issues/new?title=%5BBug%5D%3A%20&body=%23%23%23%20What%20happened%0A%0A%0A%23%23%23%20Steps%20to%20reproduce%0A%0A1.%20%0A2.%20%0A%0A%23%23%23%20Environment%0A%0A%3C%21--%20PacketForge%20version%2C%20browser%20and%20operating%20system.%20If%20the%20page%20did%20not%0Aload%20at%20all%2C%20say%20what%20you%20saw%20instead%20of%20the%20app.%20--%3E%0A"
-         title="Report a bug — opens a pre-filled issue; your build, browser, the devices and links on the canvas, and any errors the app caught are added automatically while it is running"
+         href="https://git.jayw.uk/jaylouisw/packetforge/issues/new?template=bug_report.yml&title=%5BBug%5D%3A%20"
+         title="Report a bug — opens the issue form; while the app is running your build, browser, the devices and links on the canvas, and any errors it caught are copied to your clipboard"
          aria-label="Report a bug">Report a bug</a>
     </div>
   </header>

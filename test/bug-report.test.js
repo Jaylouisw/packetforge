@@ -102,12 +102,41 @@ ok(body.indexOf('Firefox/121.0') !== -1, 'records the browser');
 ok(body.indexOf('1042 models') !== -1, 'records the catalogue size');
 
 const url = pf.bugReportUrl(env);
-ok(url.indexOf('?title=') !== -1 && url.indexOf('&body=') !== -1, 'the form is pre-filled via title and body parameters');
-ok(url.indexOf(' ') === -1, 'the prefilled URL is fully encoded (no raw spaces)');
-ok(decodeURIComponent(url.split('&body=')[1]).indexOf('Firefox/121.0') !== -1,
-  'the encoded body decodes back to the report text');
-ok(decodeURIComponent(url.split('?title=')[1].split('&')[0]) === env.title,
+// The URL carries the template and the title, and nothing else. Forgejo redirects a plain
+// /issues/new to the template chooser (blank issues disabled + templates present), and a YAML
+// form has no consumer for a body parameter - so a URL carrying one would look pre-filled and
+// deliver nothing. The assertions below pin the delivery that does work, and the block after them
+// pins the reason, so this cannot quietly become wrong.
+ok(url.indexOf('?template=bug_report.yml') !== -1, 'the link selects the bug form, skipping the chooser');
+ok(url.indexOf('&title=') !== -1, 'and carries the title');
+ok(url.indexOf('body=') === -1, 'and carries no body parameter, which the form would discard');
+ok(url.indexOf(' ') === -1, 'the URL is fully encoded (no raw spaces)');
+ok(decodeURIComponent(url.split('&title=')[1]) === env.title,
   'the encoded title decodes back to the title');
+
+// The report still exists - it just travels by clipboard into the field the form has for it.
+ok(body.indexOf('Firefox/121.0') !== -1, 'the assembled report is unchanged by the URL change');
+ok(pf.bugPasteField === 'Logs / output',
+  'the report names the form field it belongs in, so the instruction can be exact', pf.bugPasteField);
+
+// Why the body cannot ride in the URL, read from this repository rather than remembered: if the
+// template is renamed, blank issues are enabled, or the fields change, this block fails and the
+// app's delivery path has to be revisited with it.
+console.log('\nThe URL rule follows from the repository\'s own issue configuration:');
+{
+  const cfgPath = path.join(__dirname, '..', '.github', 'ISSUE_TEMPLATE', 'config.yml');
+  const cfg = fs.readFileSync(cfgPath, 'utf8');
+  ok(/blank_issues_enabled:\s*false/.test(cfg),
+    'blank issues are disabled, so /issues/new answers with the template chooser');
+  const tplPath = path.join(__dirname, '..', '.github', 'ISSUE_TEMPLATE', 'bug_report.yml');
+  const tpl = fs.readFileSync(tplPath, 'utf8');
+  ok(/^\s*body:/m.test(tpl), 'bug_report.yml is a YAML form, whose fields come from the form');
+  ok(/id:\s*logs/.test(tpl), 'the form has a logs field for the report to be pasted into');
+  ok(/type:\s*textarea[\s\S]{0,200}id:\s*logs/.test(tpl) || /id:\s*logs[\s\S]{0,200}type:\s*textarea/.test(tpl),
+    'and that field is a textarea, not a one-line input');
+  ok(pf.bugReportUrl({}).indexOf('template=' + 'bug_report.yml') !== -1,
+    'the app names the same template the repository ships');
+}
 
 // --- the idiotproof part: missing information never becomes "undefined" ----
 console.log('\nMissing information degrades to "unknown", never to "undefined":');
@@ -115,7 +144,8 @@ const bare = pf.bugReportBody({});
 ok(bare.indexOf('undefined') === -1, 'an empty environment produces no "undefined"');
 ok(bare.indexOf('null') === -1, 'an empty environment produces no "null"');
 ok((bare.match(/unknown/g) || []).length >= 4, 'unset fields are spelled out as unknown');
-ok(pf.bugReportUrl({}).indexOf('body=') !== -1, 'a report can still be opened with no environment at all');
+ok(pf.bugReportUrl({}).indexOf('template=' + 'bug_report.yml') !== -1,
+  'a report can still be opened with no environment at all');
 
 // --- one click, and it is reachable ---------------------------------------
 console.log('\nThe control is in the app, in the top bar, with a name:');
@@ -136,15 +166,12 @@ ok(appjs.indexOf("$('#btn-bug')") !== -1, 'app.js binds a click handler to it');
 console.log('\nReporting still works when the script does not:');
 const href = (btnTag.match(/href="([^"]+)"/) || [])[1] || '';
 ok(href.length > 0, 'the control is an anchor with a static href, not a script-only button');
-ok(/^https:\/\/git\.jayw\.uk\/jaylouisw\/packetforge\/issues\/new\?title=/.test(href),
-  'the static href opens the new-issue form directly');
+ok(/^https:\/\/git\.jayw\.uk\/jaylouisw\/packetforge\/issues\/new\?template=bug_report\.yml/.test(href),
+  'the static href opens the bug form itself, past the chooser that would drop the title');
+ok(/&title=/.test(href), 'with the title already set');
+ok(href.indexOf('body=') === -1, 'and without a body parameter the form would discard');
 ok(btnTag.indexOf('target="_blank"') !== -1, 'it opens in a new tab, leaving the app open');
 ok(/rel="noopener"/.test(btnTag), 'and it does not hand the issue tracker window.opener');
-const staticBody = decodeURIComponent((href.split('&body=')[1] || ''));
-ok(staticBody.indexOf('### What happened') !== -1, 'the static form still asks what happened');
-ok(staticBody.indexOf('### Steps to reproduce') !== -1, 'and still asks for reproduction steps');
-ok(staticBody.indexOf('undefined') === -1 && staticBody.indexOf('null') === -1,
-  'the static form contains no undefined or null');
 ok(/<button[^>]*id="btn-bug"/.test(html) === false, 'it is not a <button>, which would be inert without app.js');
 ok(/preventDefault/.test(appjs), 'the handler takes over from the anchor rather than firing twice');
 
@@ -186,16 +213,41 @@ function finish() {
   const warned = [];
   const blocked = makeCtx(null, warned);
   const ret = await blocked.window.__pf.openBugReport();
-  ok(typeof ret === 'string' && ret.indexOf('/issues/new?title=') !== -1,
-    'the handler returns the prefilled issue URL even when the window is blocked');
+  ok(typeof ret === 'string' && ret.indexOf('/issues/new?template=') !== -1,
+    'the handler returns the form URL even when the window is blocked');
   ok(warned.length > 0, 'the URL is actually written somewhere the user can copy it');
   ok(warned.join(' ').indexOf('/issues/new') !== -1, 'what is logged is the report link, not a promise of one');
   ok(warned.join(' ').indexOf('undefined') === -1, 'the logged link contains no undefined fields');
+  ok(warned.join(' ').indexOf('Paste the details below into "Logs / output"') !== -1,
+    'and the body is logged with it, under the field name the form uses');
 
   const opened = [];
   const allowed = makeCtx({}, opened);
   const ret2 = await allowed.window.__pf.openBugReport();
   ok(ret2.indexOf('/issues/new') !== -1, 'the same handler returns the URL when the window does open');
+
+  // The delivery that replaced the dead body parameter: the clipboard. A browser without it, or
+  // one that refuses the write, must still leave the report reachable - that is the console copy
+  // asserted above, and the toast tells the reporter which of the two they got.
+  console.log('\nThe report reaches the form by clipboard, which is the only route it has:');
+  const pasted = [];
+  const withClip = makeCtx({}, []);
+  withClip.navigator.clipboard = { writeText: function (t) { pasted.push(t); return Promise.resolve(); } };
+  const ret3 = await withClip.window.__pf.openBugReport();
+  ok(pasted.length === 1, 'the report is written to the clipboard once');
+  ok(pasted[0].indexOf('### Where it happened') !== -1, 'the clipboard holds the whole report, not a link');
+  ok(pasted[0].indexOf('### What was on screen') !== -1, 'including the canvas digest');
+  ok(ret3.indexOf('body=') === -1, 'while the URL stays free of the parameter the form ignores');
+
+  const refused = makeCtx({}, []);
+  const refusedWarned = [];
+  refused.console = { warn: function (s) { refusedWarned.push(String(s)); }, log: function () {}, error: function () {} };
+  refused.navigator.clipboard = { writeText: function () { return Promise.reject(new Error('denied')); } };
+  const ret4 = await refused.window.__pf.openBugReport();
+  ok(typeof ret4 === 'string' && ret4.indexOf('/issues/new') !== -1,
+    'a refused clipboard still opens the form');
+  ok(refusedWarned.join(' ').indexOf('### Where it happened') !== -1,
+    'and the report itself is in the console rather than only a link to a form with nothing in it');
 
   // The part the reporter cannot know: what the app was doing when it broke. The browser
   // hands this over for free and it is discarded unless something is listening, which is why

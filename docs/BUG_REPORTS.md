@@ -5,7 +5,7 @@ to report a bug in it.** One click, one sentence about what you did, one about w
 
 ## The button
 
-Top right, "Report a bug". It is a plain link, not a button, with the issue form pre-filled in its
+Top right, "Report a bug". It is a plain link, not a button, with the issue form selected in its
 `href` — so it works even when the app itself failed to load. That matters: the most valuable
 reports arrive when the thing is broken, which is exactly when a JavaScript-driven button would
 be dead.
@@ -20,6 +20,32 @@ When the app is running it adds the parts you cannot reasonably be asked to find
 | Page | `location.href` | the app has tabs; the tab is often the bug |
 | Catalogue size | the loaded catalogue | "no devices in the palette" means something different at 0 models than at 1,947 |
 | Devices and links on the canvas | the current topology | see below - "my link won't come up" is unanswerable without it |
+
+## Where the report goes, and why it is on your clipboard
+
+The app opens the bug form and puts the report on your clipboard. That is not a style choice; it
+is what this tracker's configuration allows, and the reasoning is worth keeping because a change to
+either side silently breaks the delivery:
+
+- `.github/ISSUE_TEMPLATE/config.yml` sets `blank_issues_enabled: false` and the repository ships
+  YAML issue forms. With those two together, Forgejo answers `GET /issues/new?title=…&body=…` with
+  a redirect to `/issues/new/choose` — the template chooser — and the chooser rebuilds its buttons
+  from the template list, so the title and the body are both dropped before you see a form
+  (`routers/web/repo/issue.go`, and `templates/repo/issue/choose.tmpl` in Forgejo v11).
+- Adding `?template=bug_report.yml` skips that redirect and renders the form, whose title it
+  pre-fills from the query (`new_form.tmpl` reads `.TitleQuery`). It has no consumer for a body: a
+  YAML form's text comes from its own fields, so a `body=` parameter is discarded without a word.
+
+So the link carries the template and the title, and the report travels on the clipboard into the
+form's **Logs / output** field. The toast names that field, because an instruction you have to
+guess is the same as no instruction. If the clipboard is unavailable or refused, the report is
+written to the browser console instead — in full, not as a link — and the toast says so.
+
+`test/bug-report.test.js` pins all of this from the repository's own configuration rather than from
+memory: it asserts that blank issues are still disabled, that `bug_report.yml` is still a YAML form
+with a `logs` textarea, and that the URL the app builds carries no `body=` parameter. Change any of
+those and the test tells you the delivery path needs revisiting, which is the only warning anyone
+would otherwise get.
 
 ### What was on screen
 
@@ -79,9 +105,10 @@ message describes.
 
 ## When the popup blocker eats it
 
-Some browsers block the new tab. The app then writes the finished report link to the browser
-console (`console.warn`) **before** telling you it did, and the toast says where it went. The link
-in the console is the same URL the tab would have opened — not a promise of one.
+Some browsers block the new tab. The app then writes the finished report — the whole text, and the
+form URL — to the browser console (`console.warn`) **before** telling you it did, and the toast says
+where it went. The link in the console is the same URL the tab would have opened, and the text
+below it is the same report the clipboard would have held; neither is a promise of the other.
 
 ## When the server will not start
 
