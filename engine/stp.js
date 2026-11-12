@@ -277,8 +277,21 @@ function runStp(input) {
   };
 }
 
+// The words for one port's spanning-tree state, in one place (#1441).
+//
+// `show spanning-tree` printed `blocking   (traffic dropped)` for a port the tree had shut, and the board painted
+// the same port green: `portState()` in the faceplate - the single rule the canvas, the panel and the inspector all
+// ask - knew about shut ports, unplugged sockets, link-down cables and a shut peer, and nothing about the tree. So
+// the one view an operator looks at when a link will not pass traffic said the port was fine, and the console said
+// the frame was dropped. The sentence is written here so both surfacing paths print the same words.
+function stpPortText(state) {
+  if (state === 'blocking') return 'blocking (traffic dropped)';
+  return String(state);
+}
+
 module.exports = {
   STP_DEFAULT_PRIORITY,
   validateBridgePriority,
+  stpPortText,
   runStp
 };

@@ -418,8 +418,12 @@
         const pif = ref.dev.interfaces.find(function (i) { return i && i.name === ref.iface; });
         if (pif) peerEnabled = pif.enabled !== false;
       }
+      // The tree's verdict for this port, from the state payload (#1441). `stpVerdict` answers `undefined` when
+      // the payload says nothing about the box, so an unknown tree is not read as a forwarding one.
+      const stpFacts = (typeof lib.stpVerdict === 'function')
+        ? lib.stpVerdict(lib.stpOf(state.topology || state, d.id), portName) : undefined;
       const facts = { enabled: iface.enabled, cabled: !!connected, peerEnabled: peerEnabled,
-        linkDown: linkDownOf(portName) };
+        linkDown: linkDownOf(portName), blocked: stpFacts ? stpFacts.blocked : undefined };
       const verdict = lib.portState(facts);
       // The sentence comes from the same place as the verdict, so the canvas cannot phrase it
       // differently from the panel.

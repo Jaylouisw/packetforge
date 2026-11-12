@@ -236,6 +236,16 @@
    "down (no cable)", because that is the honest answer to "why does this link not work". */
 .fp-notconnect .fp-port-name { color: var(--muted, #8b94a7); }
 
+/* A port the spanning tree blocks is patched, up, and carrying nothing - and it is not a fault, because a
+   redundant lab blocks ports by design. So it gets its own colour instead of the red of a shut port: the amber
+   the panel already uses for "look at this", which leaves red for real alarms (#1441). */
+.fp-blocked .fp-led {
+  background: var(--amber, #f5b942);
+  box-shadow: 0 0 3px rgba(245, 185, 66, 0.5);
+}
+.fp-blocked { border-color: rgba(245, 185, 66, 0.4); }
+.fp-blocked .fp-port-name { color: var(--amber, #f5b942); }
+
 /* PoE: a powered socket gets the amber "P" chip, the same amber as the fibre tint
    so the panel does not grow a second colour vocabulary. */
 .fp-port-flag {

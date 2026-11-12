@@ -12,6 +12,7 @@ const { Topology, Simulator, CliSession, flow, isPosition, positionProblem, WORL
 const { loadCatalog, groupByCategory } = require('../devices/registry');
 const { validateTopology } = require('../engine/validation');
 const media = require('../engine/media');
+const stpLib = require('../engine/stp');
 const { WebSocketServer } = require('./ws');
 const { formatStartupError } = require('./startup-error');
 const { createRequestCache } = require('./requests');
@@ -291,6 +292,10 @@ function documentShapeProblem(doc) {
 function fullState(topo) {
   const s = topo.serialize();
   const runtime = {};
+  // One simulator for the whole read: the per-device tables and the tree are two questions about the same board,
+  // and building a simulator per device was a per-request cost that grew with the lab (#1441).
+  const sim = simForFlows(topo);
+  const stp = stpRows(topo, sim);
   for (const d of topo.devices.values()) {
     runtime[d.id] = {
       macTable: macTableObject(d.macTable),
@@ -304,6 +309,10 @@ function fullState(topo) {
       arpRows: d.arpRows(topo),
       lldp: d.lldpRows(topo),
       routes: d.routesTable(topo),
+      // What the tree decided about each of this device's ports, and the sentence `show spanning-tree` prints for
+      // it (#1441). A port the tree blocks cannot carry a frame, and the board painted it green while the console
+      // said "blocking (traffic dropped)": the engine knew, and did not publish it.
+      stp: stp ? (stp[d.id] || (d.isL2 && d.isL2() ? {} : null)) : null,
       // Throughput, so a table or a sparkline can be drawn without a second call. The engine's own snapshot: the
       // same shape whether or not the device has carried anything, and a copy, so editing what you were given does
       // not edit the tally (#1329). `counted` separates "nothing has crossed this device" from "zero shown here".
@@ -312,7 +321,7 @@ function fullState(topo) {
       // topology but was never in the state payload, so a client reading the board could see a client holding an
       // address and not see the server's side of the same lease - the two halves of one fact, only one published.
       dhcpLeases: d.config && Array.isArray(d.config.dhcpPools) && d.config.dhcpPools.length
-        ? simForFlows(topo).dhcpBindings(d.id)
+        ? sim.dhcpBindings(d.id)
         : []
     };
   }
@@ -329,6 +338,49 @@ function fullState(topo) {
   // same thing about the board it carries (#1306) - a lab that lost a cable says which one and why (#1323).
   s.loadIssues = (topo.loadIssues || []).slice();
   return s;
+}
+
+// What spanning tree decided about each bridge's ports, keyed by device then by physical port, in the shape both the
+// console and the board read (#1441).
+//
+// The engine already knew: `show spanning-tree` printed `Fa0/1  alternate  blocking  (traffic dropped)` for a port
+// whose frames were being dropped, and `portState()` in the faceplate - the one rule the canvas, the panel and the
+// inspector all ask - only knew about shut ports, unplugged sockets, link-down cables and a shut peer. So the board
+// painted a blocked port green while the console said the traffic was dropped, and a customer reading the screen had
+// no way to see the loop their own cabling had made.
+//
+// The tree is recomputed here rather than trusted from whatever ran last: `dev.stp` is written by whichever
+// Simulator computed it, and a value left behind by a request at a different instant described a network that no
+// longer exists (the same reason `show spanning-tree` recomputes, #1335).
+function stpRows(topo, sim) {
+  let any = false;
+  try {
+    if (typeof sim.recomputeStp === 'function') sim.recomputeStp();
+  } catch (e) {
+    // A half-built board can legitimately fail to span. Say "not measured" by publishing nothing rather than
+    // failing the whole state read - every other table in it is still worth reading.
+    return null;
+  }
+  const rows = {};
+  for (const d of topo.devices.values()) {
+    if (typeof d.isL2 === 'function' && !d.isL2()) continue;
+    if (!d.stp || !d.stp.states) continue;
+    const ports = {};
+    for (const name of Object.keys(d.stp.states).sort()) {
+      const state = d.stp.states[name];
+      ports[name] = {
+        state: state,
+        role: (d.stp.roles && d.stp.roles[name]) || null,
+        // The tree blocks every physical member of a logical port it shuts, and the members are the ports the board
+        // draws, so this is the fact to publish rather than the logical name.
+        blocked: !!(d.stp.blocked && d.stp.blocked.has(name)),
+        text: stpLib.stpPortText(state)
+      };
+      any = true;
+    }
+    rows[d.id] = ports;
+  }
+  return any ? rows : null;
 }
 
 // One verdict per cable, in the shape the UI reads: `{ok, errorCount, warningCount, byLink, issues}`.

@@ -524,6 +524,65 @@ as ARP silence, not as a routing problem), the shut-port and missing-port shapes
 ranking — an unreachable next hop now outranks silence and outranks a policy denial on a
 device the packet never reached, because the frame never left this box.
 
+### A blocked port was painted green
+
+Three switches cabled in a triangle, and the tree must shut one port to keep the loop out.
+The console said so plainly:
+
+```
+s1> show spanning-tree
+Port          Role          State
+Fa0/1         root          forwarding
+Fa0/2         alternate     blocking   (traffic dropped)
+```
+
+The board drew `Fa0/2` exactly like `Fa0/1`: green, patched, healthy. The one rule all
+three views ask — `portState()` in `web/faceplate.js` — knew about a shut port, an unplugged
+socket, a link-down cable and a shut peer, and nothing about the tree. The state payload did
+not carry the tree either, so no view *could* have known. An operator watching the canvas
+while traffic died had one screen saying the port was fine and another saying the frames were
+being thrown away.
+
+The tree is now published, per bridge and per physical port, from the same computation the
+console reads:
+
+```json
+"runtime": { "s1": { "stp": {
+  "Fa0/1": { "state": "forwarding", "role": "root",       "blocked": false, "text": "forwarding" },
+  "Fa0/2": { "state": "blocking",   "role": "alternate",  "blocked": true,  "text": "blocking (traffic dropped)" }
+} } }
+```
+
+and `portState()` takes it as one more fact, in the same shape as the others:
+
+| facts | verdict | text |
+| --- | --- | --- |
+| `enabled: false` | `down` | administratively down |
+| `cabled: false` | `notconnect` | down (no cable) |
+| `blocked: true` | `blocked` | blocking (traffic dropped) |
+| `blocked: undefined` | `cabled` | up |
+
+Three decisions worth keeping:
+
+* **`blocked` is its own state, not `down`.** A redundant lab blocks ports by design; painting
+  22 ports red on a healthy triangle would report a working tree as a broken board — the same
+  trap `notconnect` avoids for empty sockets. It gets amber, which is the panel's "look here"
+  colour, and red stays for real alarms.
+* **Order matters and is asserted.** A shut port is reported shut even when the tree also
+  blocks it; an unplugged socket is reported unplugged. Each fact keeps its own sentence.
+* **An unknown tree is not a forwarding tree.** `stpVerdict()` answers `undefined` for a box or
+  port the payload never mentioned, and `portState()` treats `undefined` as "nothing to say".
+  A view given an older payload stays exactly as it was rather than inventing a verdict.
+
+A port whose frames the tree drops could also be a **member of a bundle** the tree shut, so
+the payload marks every physical member the tree blocked, not the logical port name — the
+members are what the board draws.
+
+`test/stp-port-state.test.js` pins it, 31 checks: the payload names the one blocked port in a
+triangle and its role, the console row and the payload sentence match word for word, a router
+publishes no tree at all, the four facts keep their own verdicts, `undefined` stays unchanged,
+and the canvas and the inspector both route through the shared rule (checked statically, so
+neither can quietly go back to asking `enabled` on its own).
 
 ### One state read shows both halves of one fact
 

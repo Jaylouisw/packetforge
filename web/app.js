@@ -1482,8 +1482,12 @@
       const pi = Array.isArray(plist) ? plist.find(function (i) { return i.name === other.iface; }) : plist[other.iface];
       if (pi) peerEnabled = pi.enabled !== false;
     }
+    // The tree's verdict for this port, from the same payload the panel and the canvas read (#1441). A port that is
+    // patched, up and blocked carries nothing, and the inspector footer used to call it healthy.
+    const stpFacts = (typeof lib.stpVerdict === 'function' && topo)
+      ? lib.stpVerdict(lib.stpOf(topo, dev.id), ifaceName) : undefined;
     const facts = { enabled: iface.enabled, cabled: !!link, peerEnabled: peerEnabled,
-      linkDown: !!(link && link.state === 'down') };
+      linkDown: !!(link && link.state === 'down'), blocked: stpFacts ? stpFacts.blocked : undefined };
     const verdict = lib.portState(facts);
     verdict.text = lib.portStateText(facts);
     return verdict;

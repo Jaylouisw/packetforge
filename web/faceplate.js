@@ -486,6 +486,17 @@
     if (f.peerEnabled === false) {
       return { state: 'down', status: 'down', reason: 'peer shut down' };
     }
+    // A port the spanning tree blocks is plugged in, up, and unable to carry a frame - and it is not a fault. Two
+    // things follow from that, and both are the reason this is its own state rather than `down`:
+    //
+    //   * the status must say what actually happens to traffic, in the words `show spanning-tree` already uses
+    //     ("blocking (traffic dropped)"), because a healthy-looking port that drops everything is the exact lie
+    //     this function was written to stop (#1238, #1441);
+    //   * it must not be painted as a fault. A redundant lab blocks ports by design, and 22 red ports on a triangle
+    //     would report a healthy tree as a broken board - the same mistake `notconnect` avoids for empty sockets.
+    if (f.blocked === true) {
+      return { state: 'blocked', status: 'blocking', reason: 'traffic dropped' };
+    }
     return { state: f.cabled === true ? 'cabled' : 'up', status: 'up', reason: null };
   }
 
@@ -500,8 +511,35 @@
   }
 
   // ---------------------------------------------------------------------------
-  // The port cell
+  // The state payload's per-device runtime, whichever shape the caller holds: the panel passes the topology
+  // document, the canvas passes `state.topology`. `runtime` rides on the serialized board, so both reach it.
+  function runtimeOf(ctx) {
+    if (!ctx) return null;
+    if (ctx.runtime) return ctx.runtime;
+    var topo = ctx.topology || null;
+    return (topo && topo.runtime) || null;
+  }
+
+  // What the tree decided about one device's ports, from the payload (#1441). `null` means the payload said nothing
+  // about this box - an older server, or a device that is not a bridge - and a view that is told nothing must not
+  // answer "forwarding".
+  function stpOf(ctx, deviceId) {
+    var rt = runtimeOf(ctx);
+    var row = (rt && deviceId) ? rt[deviceId] : null;
+    return (row && row.stp) || null;
+  }
+
+  // One port's tree verdict, in the shape `portState()` takes. Facts are passed in rather than looked up, the same
+  // rule the rest of this file follows: an unknown tree is not a forwarding tree, so it is `undefined`, not false.
+  function stpVerdict(stpForDevice, port) {
+    if (!stpForDevice || !port) return undefined;
+    var row = stpForDevice[port];
+    if (!row) return undefined;
+    return { blocked: row.blocked === true, text: row.text || null };
+  }
+
   // ---------------------------------------------------------------------------
+  // The port cell
   function cell(device, iface, group, ctx, opts) {
     var cage = resolveCage(iface);
     var info = cageInfo(cage);
@@ -528,10 +566,18 @@
       enabled: iface.enabled,
       cabled: hasCable,
       peerEnabled: peerIf ? peerIf.enabled !== false : undefined,
-      linkDown: linkDownOf(device, name, ctx)
+      linkDown: linkDownOf(device, name, ctx),
+      // The tree's verdict, from the payload (#1441). Undefined when the view was given no state: a rule that
+      // invented "forwarding" for a box it knew nothing about would be the same lie in a new place.
+      blocked: (function () {
+        var v = stpVerdict(stpOf(ctx, device.id), name);
+        return v ? v.blocked : undefined;
+      })()
     };
     var linkState = portState(linkFacts);
-    var cabled = linkState.state === 'cabled';
+    // A blocked port is cabled - it is a working cable on a port the tree has shut - so the PoE and peer parts of
+    // the cell must still see it as patched, or a blocked uplink would lose its power draw and its peer label.
+    var cabled = linkState.state === 'cabled' || linkState.state === 'blocked';
     var state = linkState.state;
     var rate = rateOf(iface);
 
@@ -553,6 +599,9 @@
     // port is known to have no cable, say what that means: down (no cable).
     if (linkState.reason === 'no cable') title.push(portStateText(linkFacts));
     else title.push(plugged ? 'cabled to ' + plugged : 'not cabled');
+    // A patched, up port that the tree blocks carries nothing: the tooltip has to say so, in the console's words,
+    // or the one view an operator checks when traffic stops reports the socket as fine (#1441).
+    if (linkState.state === 'blocked') title.push(portStateText(linkFacts));
     if (lldp && lldp.systemName) {
       title.push('LLDP ' + lldp.systemName + (lldp.portId ? ':' + lldp.portId : ''));
     }
@@ -719,7 +768,12 @@
     // The one rule about whether a port can carry a frame, and why not (#1238). Exported because the
     // canvas tooltip and the inspector footer describe the same socket and must not disagree.
     portState: portState,
-    portStateText: portStateText
+    portStateText: portStateText,
+    // The tree's verdict for one port, and the two readers that find it in a state payload (#1441). Exported so the
+    // canvas and the inspector ask the same place the panel does instead of each writing its own lookup.
+    runtimeOf: runtimeOf,
+    stpOf: stpOf,
+    stpVerdict: stpVerdict
   };
 
   root.PFFaceplate = api;
