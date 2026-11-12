@@ -338,6 +338,13 @@ four were run on this tree to write these numbers; all four are green.
 | `test/shortest-abbrev.test.js` | 21 | every documented row, in **seven** modes, shortened to its *shortest unique* prefix, is not answered with a typo — an ambiguity passes only when the refusal names two or more candidates that exist on that page |
 | `test/placeholder-rows.test.js` | 14 | every documented row **with a value in it**, in **eight** modes, filled in from a table of values, is a command the console takes |
 
+**Four suites are not the whole surface.** `test/` carries **fourteen** suites that exercise help output;
+these four are the ones above, and the other ten are `abbrev-ambiguity` (6), `arg-keyword-abbrev` (69),
+`help-coverage` (26), `help-forms` (5), `help-placeholders` (20), `help-truthful` (33), `keyword-abbrev`
+(27), `no-placeholders` (13), `pipe-help` (30) and `router-mode-help` (47) — **410 assertions across the
+family**, all green on this tree. A help change that reddens one of the ten is still a help regression,
+even though the 134 below did not move.
+
 **134 assertions, and they fail in different directions.** The first two are behavioural: they type lines
 and assert on answers. The last two are *derived* — they read the help rows and type what those rows
 promise — so they can go red with no behaviour change at all, which is exactly what a doc row edit
@@ -346,7 +353,10 @@ the derived suites do not read the page, and the page is not checked by anything
 
 The one that *does* read the page is `docs-syntax`, and it is the only member of the set that would
 notice a command documented in `CLI.md` that no help row offers. Today it reads **312 help forms across
-four modes and 173 command synopses from `CLI.md`**. Between them the five suites cover the keyword
+four modes and 173 command synopses from `CLI.md`** — and that 312 is a *HEAD* reading: run from a
+detached checkout of `33406561` it prints 312 / 4 modes / 173, while the same test in the working tree
+prints **313**, because the value-hints work uncommitted there adds a help form. A number from this
+suite is only comparable with another number from the same tree. Between them the five suites cover the keyword
 sweep, the `?` surface, the shortest-prefix rule, the value-bearing rows, and the page — no one of them
 subsumes another, so a green run means all five ran.
 
@@ -516,13 +526,13 @@ services, and a job that has to swap makes the whole queue slower.
   **None of these readings is a reading of `main`.** They were taken in the working tree, which sits on
   branch `fix/sfp-plus-connectors`, and that branch diverged from `origin/main` at `083e2ba1`
   (2026-11-08 16:58:44) — at the time of the fourth reading it was **382 ahead and 361 behind**, and
-  now reads **510 ahead and 373 behind** (after a fresh `git fetch`, which moved the behind-side
+  now reads **511 ahead and 373 behind** (after a fresh `git fetch`, which moved the behind-side
   from 361 to 373 — main's tip is `f370b893`, #1450); either way not one of the commits above is an ancestor of
   `origin/main`. Check any of them before you quote it:
 
   ```bash
   git branch --show-current                              # fix/sfp-plus-connectors, not main
-  git rev-list --left-right --count HEAD...origin/main    # 510  373
+  git rev-list --left-right --count HEAD...origin/main    # 511  373
   git merge-base --is-ancestor d4319d27 origin/main || echo "not on main"
   ```
 
