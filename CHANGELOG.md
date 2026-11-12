@@ -178,7 +178,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   the setting changes nothing anybody can see — there is no pager to pause, so every line a view prints is
   printed — rather than pretending a page break exists; an out-of-range number is refused with the range and
   a word after the number is refused rather than dropped. A `#` line is still a command here (there is no
-  `#` comment), but the refusal names the mark that works: `!`. See [docs/CLI.md](docs/CLI.md).
+  `#` comment), but the refusal names the mark that works: `!` — **in exec mode only**. Measured on one
+  switch, the same line in the two modes:
+
+  ```
+  SW1#         # x   ->  % Unrecognized command: # x
+                         % A comment line starts with "!" - a line beginning with "#" is read as a command
+  SW1(config)# # x   ->  % Unrecognized config command: # x
+  ```
+
+  `! x` is accepted silently in config mode. So a pasted configuration that uses `#` comments is refused
+  without the hint that would fix it, because the config-mode parser has no equivalent sentence. See
+  [docs/CLI.md](docs/CLI.md).
 
 - **`ip nat inside source static …` and `… list <acl> interface <if> overload` are commands now.**
   The rules had a data path — `engine/nat.js` translates static, dynamic and PAT, and the translations
