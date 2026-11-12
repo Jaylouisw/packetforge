@@ -940,6 +940,19 @@ Refusals are config-time CLI errors, not silent drops:
 | `match community <c> exact` | true only if the route's set is exactly the listed set |
 | `match community` with no operand | CLI error: `% Incomplete command` (matches existing style: `% Incomplete command` in `_configMode()`) |
 
+**None of §8 exists yet**, and the greps that prove it are worth recording because one of them has a
+false positive. On 2026-11-12: `grep -rn 'routeMaps\|routeMap' engine/ server/ web/ test/` prints nothing;
+`route-map` matches exactly one line, `test/optional-args.test.js:89` — the same dead
+placeholder→sample-value entry already explained in §5.4, not an implementation. The two refusal messages are
+also absent (`grep -rn 'set weight is local\|only valid in an outbound' engine/ server/ web/` → nothing), as are
+the counters (`deniedIn`, `deniedOut`) and even the match verb (`match community` → nothing). So every table in
+this section is a specification with no code behind it, `dev.config.routeMaps` included.
+
+`docs/CLI.md` already tells a reader this, and the two pages agree: "Policy (local-pref, MED, communities,
+route-maps) is designed in [BGP-POLICY.md](BGP-POLICY.md) but only the decision-order subset in `engine/bgp.js`
+is live." That subset is the part measured in §1 — the comparator reading LP, MED and weight on paths that
+already exist — not a policy engine that can set them.
+
 Prefix-list / as-path-list / `match ip address` are out of scope for this
 layer. `match ip address <acl>` is the obvious next addition because
 `engine/acl.js` already exists — recorded in §12 so the shape stays compatible.
