@@ -1475,3 +1475,32 @@ community-attribute document; neither specifies next-hop behaviour. Next hop is
 specified in RFC 4271 §5.1.3 and §9.1.2.1, which is what §7 cites. RFC 1997 has
 no numbered sections, so it is cited by heading name rather than by a number
 that does not exist.
+
+**Every quoted phrase in this page was checked verbatim against the published texts on 2026-11-12**, because a
+quotation mark is a claim. Fourteen phrases across RFC 4271 and RFC 1997; all fourteen appear in the source
+documents after whitespace normalisation, and each one sits in the section this page cites for it:
+
+| Quoted phrase (leading words) | Actually in | Cited as |
+|---|---|---|
+| "higher degree of preference MUST be preferred" | RFC 4271 §5.1.5 | §2.1, LP-A1 |
+| "MUST NOT include this attribute in UPDATE messages it sends to external peers, except in the case of BGP Confederations" | §5.1.5 | LP-4 |
+| "computes the degree of preference based on preconfigured policy information" | §9.1.1 | §2.1 |
+| "All other factors being equal, the exit point with the lower metric SHOULD be preferred" | §5.1.4 | §3.1 |
+| "The MULTI_EXIT_DISC attribute received from a neighboring AS MUST NOT be propagated to other neighboring ASes" | §5.1.4 | MED-6 |
+| "If received over EBGP, the MULTI_EXIT_DISC attribute MAY be propagated over IBGP" | §5.1.4 | MED-7 |
+| "MUST implement a mechanism (based on local configuration) that allows the MULTI_EXIT_DISC attribute to be removed" | §5.1.4 | MED-8 |
+| "If the AS_PATH attribute of a BGP route contains an AS loop…" | §9.1.2 | §6.1 |
+| "AS loop detection is done by scanning the full AS path" | §9.1.2 | §6.1 |
+| "SHALL NOT re-distribute the routing information contained in that UPDATE message to other internal peers" | §9.2 | §6.3 |
+| "SHOULD use the IP address of the interface" (eBGP next hop) | §5.1.3 | NH-3 |
+| "MUST NOT be advertised outside a BGP confederation boundary" | RFC 1997, NO_EXPORT | §5.3 |
+| "MUST NOT be advertised to other BGP peers" | RFC 1997, NO_ADVERTISE | §5.3 |
+
+One detail of §9.1.2.2(c) that the paraphrase in §3.1 compresses and the RFC spells out: it defines
+`neighborAS()` as a function of the **AS_PATH**, and its pseudo-code has `MED(n)` return the lowest possible value
+— **0** — when the attribute is absent. So "absent = 0" in MED-2 is the RFC's own pseudo-code and not an
+implementation shortcut, which is why MED-A4 (`med:0` vs `med:undefined` → `0`) is asserting RFC behaviour and
+not a local convention.
+
+Reproducing this in this sandbox needs `ietf.org`, not `rfc-editor.org`: a `curl` to the latter returns HTTP `200`
+with **0 bytes**, and `www.ietf.org/rfc/rfc4271.txt` returns the full **222,702** bytes (RFC 1997 is 8,275).
