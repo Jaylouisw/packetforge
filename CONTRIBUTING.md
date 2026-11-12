@@ -72,7 +72,9 @@ the other in spirit: the forge is the workshop, GitHub is the shopfront.
   it clones `packetforge.wiki.git` and pushes. Two things to know before you try it:
 
   - **On Windows the dry run always claims every page is out of date.** The script compares the
-    clone to `docs/wiki/` as raw strings, and with `core.autocrlf=true` the checkout is CRLF while
+    clone to `docs/wiki/` as raw strings (`scripts/publish-wiki.js:70-73` is the whole comparison: two
+    `readFileSync(..., 'utf8')` calls and a `===`, with no line-ending normalisation), and with
+    `core.autocrlf=true` — true in this clone — the checkout is CRLF while
     the repository stores LF. Check after normalising line endings, or from Linux — and do not read
     the six `updated` lines as six stale pages. Measured on this host: the dry run said all six, while
     the normalised comparison said **three**, with the wiki commit then standing at `e09ef1e`:
@@ -83,6 +85,13 @@ the other in spirit: the forge is the workshop, GitHub is the shopfront.
     | `Requesting-Hardware.md` | 2,216 | 2,775 |
     | `Simulation-Fidelity.md` | 1,658 | 2,956 |
     | `Contributing.md`, `Getting-Started.md`, `_Sidebar.md` | — | in sync |
+
+    The published column is a snapshot — it is what the wiki held at `e09ef1e` — and so is the right-hand one,
+    which has moved since the pages were rebuilt: today `Home.md` is 2,434 characters, `Requesting-Hardware.md`
+    4,467, `Simulation-Fidelity.md` 3,826, `Contributing.md` 2,402, `Getting-Started.md` 1,846 and `_Sidebar.md`
+    357. So do not try to re-derive the three-from-six split from this table; the repository side alone has grown
+    enough that the comparison will name more pages than it did. The invariant is the one worth carrying: the dry
+    run over-reports on Windows, and the normalised comparison is the answer.
 
     The comparison that answers the question, because the script will not:
 
