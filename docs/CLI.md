@@ -2287,6 +2287,24 @@ SW1(config-if)#sw p
 % Unrecognized interface command: sw p
 ```
 
+Two specifics about that message belong beside it, because each costs a transcript if you assume
+otherwise. An unknown line typed at the **interface** prompt answers **two** lines today — the interface
+one and the same text again with the global scope named — while the same line at the global prompt
+answers one:
+
+```
+SW1(config)#bogus word
+% Unrecognized config command: bogus word
+
+SW1(config-if)#bogus word
+% Unrecognized interface command: bogus word
+% Unrecognized config command: bogus word
+```
+
+So a transcript that shows a single line from inside interface mode is describing this page's history
+rather than the console's present, and a parser that treats the first line as the whole refusal will
+silently drop the second.
+
 Three causes, all of them now closed:
 
 - **The global-config veto was too broad.** It exists so `router ospf 1` typed inside router mode is not
