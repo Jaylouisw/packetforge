@@ -244,6 +244,20 @@ port it never resolved.
 
 ### Response headers and methods
 
+**First confirm which server is answering.** Every status below is a property of *a* build, and a stale
+instance left listening on the port you picked answers just as happily as the one you started — while
+describing a different tree. The check is one field of `/api/version`: it reports `devices`, the size of the
+catalogue the server loaded, which is **1,661** for this tree. Anything else means you are talking to
+somebody else's process (this host had one on `:8123` reporting `2038`, from a tree two thousand commits
+away, and a whole table of readings taken against it was wrong in a way that looked like documentation rot).
+`netstat -ano | grep ':PORT '` names the PID that owns the port, so you can compare it with the one you
+spawned:
+
+```sh
+PORT=8971 node server/index.js &          # pick a port nothing is using
+curl -s http://127.0.0.1:8971/api/version  # {"name":"packetforge", …, "devices":1661}
+```
+
 Measured with a raw socket against a live server, because none of this is visible from the UI:
 
 | Request | Status | Headers that matter |
