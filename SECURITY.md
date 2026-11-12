@@ -55,6 +55,10 @@ considerations are:
   That is dual-stack, so IPv4 reaches it too; treat it as `0.0.0.0` when you write a firewall rule, but
   do not expect to see that literal address. Keep the port on a network you trust.
 - Topologies are **unauthenticated** — there is no login, no token and no per-board permission on any
-  of the API's routes. They are also **not** memory-only: the server writes `topo-<id>.json` under
-  `PF_DATA` (default `data/`), so a reachable port is a write primitive against the operator's disk as
-  well as a read primitive against their lab. Do not expose the server directly to the internet.
+  of the API's routes. They are also **not** memory-only: each edited board is written to
+  `$PF_DATA/topologies/<id>.json` (default `data/topologies/`), one file per board, wrapped as
+  `{format, version, savedAt, topology}` — measured on a scratch `PF_DATA`: `POST /api/topologies`
+  writes nothing, the first device add creates `topologies/b3.json`, and a board `DELETE`d through the
+  API comes back on the next boot because the file is still there. So a reachable port is a write
+  primitive against the operator's disk as well as a read primitive against their lab. Do not expose the
+  server directly to the internet.
