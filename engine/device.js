@@ -115,6 +115,35 @@ const CAPABILITIES = [
   'stp'           // participates in spanning tree
 ];
 
+// The physical facts a device was built from, minus the ones the document already states at the top level.
+//
+// They are not decoration. The optical budget reads `splitRatio` and `ponClass`, `isPassive()` reads `passive`, and
+// the passive layer reads `insertionLossDb`. A device rebuilt from a hand-picked handful of keys came back looking
+// like a plain box: a 1:32 splitter loaded as if it split nothing, so the budget rule for a 60 km run went quiet
+// instead of refusing it (#1459).
+const SPEC_FACTS_KEPT_ELSEWHERE = {
+  // Stated at the top level of the document already.
+  vendor: true, model: true, label: true, category: true, capabilities: true, color: true, icon: true,
+  // Saved port by port, or the template the ports were expanded from - which is the ports.
+  interfaces: true, portTemplate: true,
+  // Catalogue prose and search aids: not facts about this lab.
+  description: true, notes: true, sourceUrl: true, aliases: true,
+  // Where the port split came from, as prose about our confidence in a datasheet.
+  portSplitNote: true
+};
+
+function specFacts(spec) {
+  const out = {};
+  if (!spec) return out;
+  for (const key of Object.keys(spec)) {
+    if (SPEC_FACTS_KEPT_ELSEWHERE[key]) continue;
+    const value = spec[key];
+    if (value === undefined || value === null) continue;
+    out[key] = (typeof value === 'object') ? JSON.parse(JSON.stringify(value)) : value;
+  }
+  return out;
+}
+
 class Device {
   constructor(id, spec) {
     this.id = id;
@@ -1226,6 +1255,10 @@ class Device {
     if (this.config.nat && ((this.config.nat.rules || []).length || Object.keys(this.config.nat.pools || {}).length)) {
       out.config.nat = JSON.parse(JSON.stringify(this.config.nat));
     }
+    // The spec facts the rules read, and only when there are any: a plain PC has none, and a board should not grow
+    // an empty object on every device for it (#1459).
+    const facts = specFacts(this.spec);
+    if (Object.keys(facts).length) out.spec = facts;
     return out;
   }
 

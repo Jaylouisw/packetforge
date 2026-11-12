@@ -627,6 +627,46 @@ port and a real port answer exactly as before; `?` and `help` print usage; case 
 the words live in one named table and the console asks it; and the keyword check is after the
 port lookup in the source, so a port named like a keyword still wins.
 
+### A reopened lab forgot what its hardware was made of
+
+```
+s1# (the run drawn on the board)
+% OLT/gpon0/1 <-> PON Splitter 1:32/uplink: downstream at 1490 nm Path loss 31.3 dB
+  exceeds the B+ budget of 28 dB by 3.3 dB. splitting costs 17.5 dB, fibre costs 13.2 dB
+
+save, reopen, sweep the board
+-> no errors, no warnings about the budget: the cable is simply there
+```
+
+A document states a device's identity, its ports and its configuration. `Topology.fromJSON` rebuilt the device
+**spec** - the physical facts it was built from - from a hand-picked handful of keys (vendor, model, label, category,
+capabilities, interfaces), and dropped everything else. Two rules died with it:
+
+* the optical budget reads `spec.splitRatio` and `spec.ponClass`. A 1:32 splitter came back splitting nothing, so the
+  path lost its 17.5 dB and a 60 km run the console refuses to draw sat in a reopened lab as a clean board;
+* `isPassiveTap()` reads `spec.passive`. A passive tap came back as a box that learns MAC addresses, because the file
+  no longer said what it was.
+
+The fix is one rule: **a document states the spec facts the rules read.** `Device.serialize()` writes the spec minus
+the keys the document already carries elsewhere (`interfaces` is saved port by port; `description`, `notes` and
+`sourceUrl` are catalogue prose that does not belong in a lab), and `fromJSON` merges that record underneath the
+document's own identity and ports. Documents written before this rule still open: they simply have no ratio to read.
+
+After the change the same 60 km document reports
+
+```
+E_OPTICAL_BUDGET  OLT/gpon0/1 <-> Passive optical splitter 1:32/uplink: downstream at 1490 nm
+                  Path loss 31.3 dB exceeds the B+ budget of 28 dB by 3.3 dB. splitting costs 17.5 dB,
+                  fibre costs 13.2 dB
+```
+
+- the identical sentence the connect door refuses with, because it is the same check reading the same facts;
+- and a *new* 60 km run drawn on the reopened board is refused again - the door was only ever open because the ratio
+  had been forgotten.
+
+`test/spec-survives-load.test.js` pins it, 32 checks; reverting `engine/device.js` and `engine/topology.js` fails 14.
+A board's file is the lab, so it has to carry what the lab is made of.
+
 ### The list that blinded both ends of a cable
 
 ```
