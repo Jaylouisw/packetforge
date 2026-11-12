@@ -537,9 +537,16 @@ what it would do.
 { mode: 'access' | 'trunk', accessVlan: 10, nativeVlan: 1, allowedVlans: 'all' | [10, 20] }
 ```
 
-- **Access**: egress untagged on `accessVlan`; ingress accepts untagged, drops tagged.
-- **Trunk**: egress untagged for `nativeVlan`, tagged for every other allowed VLAN;
-  ingress maps untagged → `nativeVlan`, tagged → VID when allowed, else drops.
+- **Access**: egress untagged on `accessVlan`; ingress accepts untagged, drops tagged with the reason
+  token `tagged-frame-on-access` — a trunk carrying VLAN 20 into an access port on VLAN 10 renders as
+  `vlan-drop  SWB   tagged-frame-on-access, on Fa0/1, vlan 20` in `show logging vlan-drop`. Note the
+  console prints the token, not prose, where the egress side prints a sentence.
+- **Trunk**: egress untagged for `nativeVlan`, tagged for every other allowed VLAN; ingress maps untagged
+  → `nativeVlan`, tagged → VID when allowed, else drops. Measured with `nativeVlan 10` on both ends and a
+  VLAN 10 host either side: the only shape the trunk emits for that traffic is `vid: 10, wireTagged:
+  false, wireVid: null`, and a VLAN 20 host's traffic on the same trunk is `vid: 20, wireTagged: true,
+  wireVid: 20`. Both are readable back from the port — `show interfaces switchport` prints
+  `Trunking Native Mode VLAN: 10` and `Trunking VLANs Enabled: 10,20`.
 
 The simulator calls `classifyIngress` on every received frame and `classifyEgress`
 before every transmission, so:
@@ -562,7 +569,7 @@ before every transmission, so:
   the same switch still leaves as `no egress ports in VLAN 20`.
 
 VLANs 1–4094 are assignable, and anything outside the range is refused by number —
-`% VLAN 4095 is outside 1-4094`, `% VLAN 0 is outside 1-4094`. The IEEE 802.1Q **reserved block
+`% VLAN 4095 is outside 1-4094`, `% VLAN 0 is outside 1-4094` (and `% VLAN 4096 is outside 1-4094`), while a value that is not a number at all is refused a step earlier as `% VLAN id must be a number, not "abc"` — so round and non-numeric ids fail with different messages. The IEEE 802.1Q **reserved block
 1002–1005 is not enforced anywhere in the running simulator.** `engine/vlan.js` names it
 (`VLAN_RESERVED_MIN`/`VLAN_RESERVED_MAX`, `isReservedVlan()`) and `validatePortConfig()` would report
 `E_VLAN_RESERVED` for it, but nothing in `engine/`, `server/` or `web/` calls that function — only the
