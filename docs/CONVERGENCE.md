@@ -96,6 +96,37 @@ Two more measured details worth having in writing:
   **`advertCs`** (`{advertSec: 3, advertCs: 200}` → `2`), while `convergence.vrrpTimers()` prefers
   **`advertSec`** (same input → `advertSec 3`, `masterDownMs 9609.375`). Set one field or the other; if
   you set both, the readiness number a lab shows and the interval its advertisements use will differ.
+- **A key set to `null` means zero, not "use the default".** Every timer in this module goes through
+  `num(v, dflt)` (`engine/convergence.js:46`), which is `Number(v)` accepted whenever it is finite and
+  `>= 0` — and `Number(null)` is `0`. So a config that carries an explicit `null` (a JSON round-trip of an
+  unset field, a `delete` that wrote the key back empty) does not fall back, it produces the smallest
+  possible schedule. Measured:
+
+  | call | result |
+  |---|---|
+  | `stpTimers({})` | `forwardDelaySec 15`, `forwardAtMs 30000` |
+  | `stpTimers({ config: { stpForwardDelaySec: null } })` | `forwardDelaySec 0`, **`forwardAtMs 0`** — the port forwards instantly, which is the exact behaviour this module was written to stop |
+  | `vrrpTimers({})` | `advertSec 1`, `masterDownMs 3609.375` |
+  | `vrrpTimers({ advertSec: null })` | `advertSec 0`, `masterDownMs 609.375` |
+  | `ospfTimers({ config: { ospf: {} } })` | `adjacentAtMs 11000`, `routesAtMs 16000` |
+  | `ospfTimers({ config: { ospf: { helloSec: null } } })` | `helloSec 0`, `adjacentAtMs 1000`, `routesAtMs 6000` |
+
+  A **negative** value goes the other way and is just as silent: `-5` fails the `>= 0` test and the default
+  comes back (`dhcpTimers({ config: { dhcpExchangeSec: -5 } })` → `exchangeSec 1`), so a stray minus sign
+  looks like a config that was ignored while a `null` looks like a config that was obeyed. Neither warns,
+  and `stpTimers` keeps `maxAgeMs 20000` in the null case because max age is read separately — so the
+  result is not even internally consistent.
+- **"Lease" means two different numbers, and only one of them is a lifetime.** `dhcpTimers().leaseAtMs`
+  is the *exchange* timer multiplied by a thousand — `leaseAtMs = exchangeSec × 1000` from the same
+  `dhcpExchangeSec` — so it moves whenever the exchange does and says nothing about how long a client keeps
+  the address. The real lifetime is the pool's `leaseSec`, default **86400**
+  (`engine/dhcp.js:37`), spent when the lease is recorded:
+  `expiresStep = step + max(1, floor(leaseSec)) × STEP_SECONDS` (`engine/dhcp.js:508`).
+  `validatePool()` refuses a non-positive value rather than reading it as a zero-length lease —
+  `E_DHCP_BAD_LEASE: 'DHCP pool lan1: leaseSec "0" must be a positive number of seconds.'`, measured, and
+  asserted at `test/dhcp.test.js:194` — while an **absent** key validates cleanly and normalises to 86400.
+  A lab that shortens the convergence schedule and a lab that shortens the lease are tuning two unrelated
+  numbers.
 - `masterDownInterval(group, skew)` takes the **skew in seconds** as its second argument, not the
   priority. Passing `100` — the priority — returns `103` seconds, because it dutifully adds
   `3 × 1 s + 100 s`. The defaults are the ones in `engine/convergence.js` — the table is `const C` inside that
