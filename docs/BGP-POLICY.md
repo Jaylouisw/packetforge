@@ -129,6 +129,13 @@ and `nextHop: '0.0.0.0'` — so a received path that somehow carries a zero next
 originated, which is worth knowing before debugging one. Two local paths fall through to AS-path length,
 as they should.
 
+`isLocalPath()` is module-private: the export block at `bgp.js:601-615` lists `comparePaths`, `bestPath`,
+`validatePeer` and the state machine, not this, so the five spellings cannot be called directly — they are
+observable through the comparator, which is how they were checked. Each spelling, set on an otherwise
+identical path whose AS path is also `[]`, makes that path win (`-1`), and three near-misses stay `0`:
+`local: false`, `from: 'remote'`, `nextHop: '10.0.0.9'`. So the rule is exact rather than fuzzy — a field
+has to carry one of the five shapes, and being present is not enough.
+
 ```sh
 node -e 'const {comparePaths}=require("./engine/bgp");const b={weight:0,localPreference:100,asPath:[],origin:"igp",med:0,type:"ebgp",routerId:"10.0.0.1"};const P=o=>Object.assign({},b,o);
 const rows=[["weight/LP",P({weight:100,localPreference:50}),P({weight:0,localPreference:200})],["LP/ASlen",P({localPreference:200,asPath:[1,2,3]}),P({localPreference:100,asPath:[1]})],["local",P({asPath:[]}),P({asPath:[65001]})],["ASlen",P({asPath:[1]}),P({asPath:[1,2]})],["origin",P({origin:"igp"}),P({origin:"incomplete"})],["MED",P({med:10}),P({med:20})],["MED across AS",P({asPath:[65002],med:10}),P({asPath:[65003],med:20})],["eBGP",P({type:"ebgp"}),P({type:"ibgp"})],["routerId",P({routerId:"10.0.0.1"}),P({routerId:"10.0.0.2"})],["identical",P({}),P({})]];
