@@ -45,7 +45,7 @@ first.
 **Modelled**
 
 - A frame is a plain object (`{dstMac, srcMac, etherType, ip, icmp, arp, l4, flow}`),
-  built by `ethFrame()` at `engine/simulator.js:31`.
+  built by `ethFrame()` at `engine/simulator.js:78`.
 - Transmissions go on a FIFO array and `_run()` drains it synchronously, one
   `step++` per delivery (`engine/simulator.js:1718`). There is no timer, no
   coroutine and no scheduling: a run is a single-threaded loop that ends when the
@@ -197,7 +197,7 @@ Two different questions, and the forwarding path has to ask the first one first:
 
 ### 3.4 Routing and administrative distance
 
-**Modelled** — `Device.routeTo()` (`engine/device.js:366-443`), in this order:
+**Modelled** — `Device.routeTo()` (`engine/device.js:816`), in this order:
 
 1. Connected subnets (AD 0).
 2. Static routes from `ip route` (AD 1).
@@ -408,7 +408,7 @@ layer exists in `engine/bgp.js` today.
 | **Modelled** | ISD-AS identifiers, core-AS rule (hex id ending `:0`), UP/CORE/DOWN path segments, beaconing from core ASes over real adjacencies, path composition enforced by allowed shapes, selection by hop count or by latency. | `engine/scion.js:777`, `engine/scion.js:563`, `engine/scion.js:654` |
 | **Modelled** | Deterministic: no clocks, no randomness, every list sorted, so the same topology always selects the same path. | `engine/scion.js:24-28` |
 | **Approximate** | Path latency is the sum of per-segment `latencyMs`, defaulting to **1 ms per hop** when a segment states nothing. It is not measured from the links. | `engine/scion.js:55`, `engine/scion.js:415`, `engine/scion.js:534` |
-| **Absent — important** | `pingScion()` walks the AS list and emits `scion-hop` events; **it does not put IP frames on the wire**, does not consult the routing table, and does not model the SCION header on real hardware. It answers "is there a beaconed path, and which one wins", not "does a packet traverse it". | `engine/simulator.js:1392-1471`, `engine/scion.js:5-18` |
+| **Absent — important** | `pingScion()` walks the AS list and emits `scion-hop` events; **it does not put IP frames on the wire**, does not consult the routing table, and does not model the SCION header on real hardware. It answers "is there a beaconed path, and which one wins", not "does a packet traverse it". | `engine/simulator.js:2407`, `engine/scion.js:5-18` |
 | **Absent** | Trust roots and certificates, DRKey, beacon service/store persistence, path revocation, peering vs. provider/customer policy, hidden paths. | — |
 
 ### 5.9 LLDP
@@ -550,7 +550,7 @@ actually true.
 | Assumption | Reality | Where |
 |---|---|---|
 | "It's a TCP/IP stack." | There is a tiny TCP model — three-way handshake, MSS from path MTU, cumulative ACKs, four-way close — and nothing else: no congestion window, no retransmission timer, no SACK, no TIME_WAIT, no window scaling, no ICMP port-unreachable for stray UDP. | `engine/flow.js:19-24`, `engine/simulator.js:2249` |
-| "Traffic starts connections." | Only an explicit API call does. `openFlow()` is invoked by the server on `POST /flows`; no packet ever triggers a connection on its own. | `engine/simulator.js:2249` |
+| "Traffic starts connections." | Only an explicit API call does. `openFlow()` is invoked by the server on `POST /flows`; no packet ever triggers a connection on its own. | `engine/simulator.js:3551` |
 | "Services respond." | A capability only registers **listeners** — `http-server` means "ports 80 and 443 answer SYN" (`engine/flow.js:77-85`). There is no HTTP request, no TLS handshake, no SSH banner, no FTP, no SMTP. A closed port answers RST, which is the whole application layer. | `engine/simulator.js:2546-2560` |
 | "Congestion happens." | Nothing is ever dropped because of load. There are no queues, no buffers, no contention, no tail drop, no AQM. A link at 100 % of its rate behaves exactly like an idle one. | — |
 | "Loss happens." | Nothing is lost except by an explicit rule: VLAN, ACL, STP, PoE, TTL, no route, NAT failure. A cable 10× over its reach still delivers every packet. | — |

@@ -129,3 +129,31 @@ attached. None of these three is a reason to close a request: see [RESOLUTIONS.m
 
 The spec vocabulary itself - every field, every accepted value, and the invariant a description has
 to survive - is in [DEVICE_SCHEMA.md](DEVICE_SCHEMA.md).
+
+## Line citations in the docs rot, and `npm run check:citations` finds the worst of them
+
+The docs cite the implementation constantly — "`_emitFrame` sets `wireTagged`/`wireVid` … `engine/simulator.js:1666-1680`".
+A citation is a claim a reader can check, and it rots silently: a feature lands above the function, everything moves
+down, and the number stays. The reader follows it into an unrelated subsystem and learns that the prose cannot be
+trusted either.
+
+Measured on `ed62d76c`: of 348 citations, 150 name a symbol, and **28 of those pointed more than 40 lines from the
+code they named** — most by hundreds, a few by nearly a thousand, because whole mechanisms had landed above them.
+Those 28 were repaired to the line where the named function is actually defined.
+
+**When you move a function the docs cite, run:**
+
+```
+npm run check:citations          # list suspects, exit 0
+npm run check:citations -- --strict   # exit 1 on a judged suspect, for a scripted check
+```
+
+It judges a citation only when the sentence names exactly one function (written as a call, `routeTo()`), gives exactly
+one citation, and that function has exactly one definition in the cited file; a citation may sit up to 40 lines away.
+Everything else it lists as unjudged — currently 15 of 348 are judged, which is the honest coverage of a mechanical
+rule.
+
+**It is a diagnostic, not a CI gate**, and its own output shows why: today's single suspect is
+`docs/BGP-POLICY.md:1090` citing `test/bgp.test.js:452`, which is a *test body*, while the sentence mentions
+`mkPath()` — a helper defined 400 lines above. A rule that flagged that would be wrong, and a rule narrow enough to be
+right judges almost nothing. Judging the rest needs a reader, so the tool narrows the search and a human decides.

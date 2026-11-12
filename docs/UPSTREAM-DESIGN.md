@@ -50,7 +50,7 @@ radio where its modem should be.
 
 ### 1.1 The routing table has one default slot
 
-`Device.routeTo()` (`device.js:366`) returns **one** route object. Two
+`Device.routeTo()` (`device.js:816`) returns **one** route object. Two
 `ip route 0.0.0.0 0.0.0.0 <gw>` lines are both stored, and the second is never
 consulted:
 
@@ -68,7 +68,7 @@ Four scenarios, one change each, same lab (probe `E_failover_matrix`):
 | `iface.enabled = false` on wan1 | *nothing* | `drop: no usable egress interface`, while a valid second default sits in `config.routes` |
 | ISP A unplugged (no IP) | `wan1` | silence: ARP is never answered, no switch to wan2 |
 
-`_deliver()` (`simulator.js:1595`) checks `iface.enabled` and `iface.peer`; it
+`_deliver()` (`simulator.js:2798`) checks `iface.enabled` and `iface.peer`; it
 never asks whether the *link* is up. `web/app.js:921` prints a State field in the
 link inspector that the engine ignores.
 
@@ -167,12 +167,12 @@ CAGE_SPEEDS.cellular = function (maxMbps) {
 };
 ```
 
-`derivePortHardware()` (`media.js:562`) needs **no** change: the band special-case
+`derivePortHardware()` (`media.js:894`) needs **no** change: the band special-case
 is `if (cage === 'antenna')`, and `cellular` is not `antenna`, so a cellular port
 keeps the media its cage lists. That is the whole reason for a separate cage
 instead of reusing `antenna` (see §10, rejected alternatives).
 
-`inferCage()` (`media.js:479`) gains, next to the subscriber-access lines:
+`inferCage()` (`media.js:786`) gains, next to the subscriber-access lines:
 
 ```js
 if (type === 'cellular' || type === 'lte' || type === 'nr' || type === '5g' || type === 'wwan') return 'cellular';
@@ -356,7 +356,7 @@ it a re-run of a ping would move a live TCP session to the other ISP.
 
 ### 4.4 What the simulator shows
 
-Four new event types, all additive to the existing schema (`_emit`, `simulator.js:104`):
+Four new event types, all additive to the existing schema (`_emit`, `simulator.js:188`):
 
 ```jsonc
 { "type":"wan-select", "dev":"edge", "dst":"8.8.8.8", "wan":"wan1", "via":"203.0.113.1",
@@ -398,7 +398,7 @@ CLI (`engine/cli.js`):
 - `ip route DEST MASK GW [IFACE] [DISTANCE]` — one optional numeric token after
   the interface (`cli.js:267-272`). `% Invalid distance` outside 1..255.
 - `show ip route` gains `[AD/Metric]` and a trailing `WAN` column
-  (`cli.js:899-902`, `device.routesTable()` at `device.js:534`).
+  (`cli.js:899-902`, `device.routesTable()` at `device.js:1073`).
 - `show wan summary` — the table a human actually wants:
 
 ```
@@ -570,33 +570,33 @@ deviation from this design: the cage is `wwan` and it mates with nothing. See ro
 |---|---|---|---|
 | 1 | `media.js:54 MEDIA` | 64 media, 8 families | ✅ done (#129): `lte`, `lte-a`, `5g-sub6`, `5g-mmwave` |
 | 2 | `media.js:157 CAGES` | 19 cages | ✅ done (#129): added as **`wwan`**, not `cellular` — the name says what the port is, not what technology happens to use it |
-| 3 | `media.js:208 CAGE_MATE` | `antenna:['antenna']` | ✅ done **differently**: `wwan` mates with **nothing**, including itself. Two 5G modems in a lab are two subscribers to a network neither contains, not a cable between them — `['cellular','cellular']` would have let a lab draw that link |
-| 4 | `media.js:270 CAGE_MEDIA`, `:353,358,372` | coax/dsl/powerline/antenna fns | ✅ done (#129): the `wwan` fn offers the generations the rate can reach, and always at least `lte` |
-| 5 | `media.js:375 CAGE_SPEEDS`, `:448,455,467` | per-cage speed fns | ✅ done (#129): `[maxMbps]` — the modem's category **is** the rate |
-| 6 | `media.js:479 inferCage()` | no cellular branch | ✅ done (#129): name-first (`wwan*`, `wan5g`, `lte*`, `nr5g`, `modem*`), checked **before** the wireless-type rule that was claiming these ports for Wi-Fi |
-| 7 | `media.js:562 derivePortHardware()` | `cage==='antenna'` band special-case | **no change** — verify cellular is not caught |
-| 8 | `media.js:744 canMate()` | 3-test ladder | **no change** — service checks live in validation |
-| 9 | `validation.js:59 RULES` | 20 codes | +12 (§6.1); `SEVERITY_BY_CODE` at `:144` follows automatically |
+| 3 | `media.js:423 CAGE_MATE` | `antenna:['antenna']` | ✅ done **differently**: `wwan` mates with **nothing**, including itself. Two 5G modems in a lab are two subscribers to a network neither contains, not a cable between them — `['cellular','cellular']` would have let a lab draw that link |
+| 4 | `media.js:500 CAGE_MEDIA`, `:353,358,372` | coax/dsl/powerline/antenna fns | ✅ done (#129): the `wwan` fn offers the generations the rate can reach, and always at least `lte` |
+| 5 | `media.js:660 CAGE_SPEEDS`, `:448,455,467` | per-cage speed fns | ✅ done (#129): `[maxMbps]` — the modem's category **is** the rate |
+| 6 | `media.js:786 inferCage()` | no cellular branch | ✅ done (#129): name-first (`wwan*`, `wan5g`, `lte*`, `nr5g`, `modem*`), checked **before** the wireless-type rule that was claiming these ports for Wi-Fi |
+| 7 | `media.js:894 derivePortHardware()` | `cage==='antenna'` band special-case | **no change** — verify cellular is not caught |
+| 8 | `media.js:1256 canMate()` | 3-test ladder | **no change** — service checks live in validation |
+| 9 | `validation.js:152 RULES` | 20 codes | +12 (§6.1); `SEVERITY_BY_CODE` at `:144` follows automatically |
 | 10 | `validation.js:549 let mate = canMate(...)` | physical verdict only | insert service checks after this block, before medium selection at `:588` |
 | 11 | `validation.js:833 validateTopology()` | takes a flat/nested issue list | **no change** — pass a second array |
 | 12 | `validation.js:852` exports, `engine/index.js:11,31` | `{ validateConnection, validateTopology, RULES }` | add `validateUpstreams`, `SERVICE_TECHNOLOGY` table |
 | 13 | `link.js:8 constructor` / `:56 serialize()` | 8 fields | add `service` |
-| 14 | `topology.js:98 validateLink()` | passes mediaId/lengthM/patchCord | pass `service` |
+| 14 | `topology.js:245 validateLink()` | passes mediaId/lengthM/patchCord | pass `service` |
 | 15 | `topology.js:194 connect()` / `:236 new Link()` | 7 opts | thread `service` |
 | 16 | `topology.js:319 serialize()` / `:331 fromJSON()` / `:359` | link fields | carry `service` |
-| 17 | `topology.js:257 setLinkLength()` | only length is editable | generalise to `patchLink(id, {lengthM, service})` |
+| 17 | `topology.js:592 setLinkLength()` | only length is editable | generalise to `patchLink(id, {lengthM, service})` |
 | 18 | `device.js:85 CAPABILITIES` | 15 tokens | add `'transit'` |
 | 19 | `device.js:149 config` | 17 keys | add `wans`, `multipath`, `ecmpHash` |
-| 20 | `device.js:366 routeTo()` | one route, `better()` closure | add `routeCandidates()`, keep `routeTo()` as wrapper |
+| 20 | `device.js:816 routeTo()` | one route, `better()` closure | add `routeCandidates()`, keep `routeTo()` as wrapper |
 | 21 | `device.js:386-399` static loop | `ad: 1` hard-coded | `ad: numOr(r.distance, 1)`, `metric: numOr(r.metric, 0)` |
 | 22 | `device.js:438` default gateway | `if (!best)` fallback, ad 254 | becomes a candidate in the list |
-| 23 | `device.js:524 egressFor()` | first interface in subnet | keep; add `isInterfaceUsable()` for liveness |
-| 24 | `device.js:534 routesTable()` | no AD/metric | add `ad`, `metric`, `wan` columns |
+| 23 | `device.js:974 egressFor()` | first interface in subnet | keep; add `isInterfaceUsable()` for liveness |
+| 24 | `device.js:1073 routesTable()` | no AD/metric | add `ad`, `metric`, `wan` columns |
 | 25 | `device.js:584 serialize()` / `:650 hydrate()` | white-list | add the three config keys — **both** |
 | 26 | `simulator.js:1595 _deliver()` | checks `enabled` + `peer` | also `link.isUp()`, emit `link-down` |
 | 27 | `simulator.js:1416 _sendIcmp()`, `:1445 _sendTransport()` | `routeTo()` once | candidate loop + `wan-select` |
 | 28 | `simulator.js:1894 _forwardL3()` | `routeTo()` once | candidate loop; **move NAT after the route** or flag it (§8) |
-| 29 | `simulator.js:2036 pathMtu()`, `:2029 _pickDestIp()`, `:2159 openFlow()` | single route | use `routeTo()` (unchanged) — they want *a* path, not the preferred one |
+| 29 | `simulator.js:3445 pathMtu()`, `:2029 _pickDestIp()`, `:2159 openFlow()` | single route | use `routeTo()` (unchanged) — they want *a* path, not the preferred one |
 | 30 | `simulator.js:104 _emit` / `reset()` | 40-odd event types | 4 new types; `trackState` map in `reset()` |
 | 31 | `server/index.js:319` POST `/links`, `:350` `/validate-link` | 5 fields | `service`; new `/upstreams`, `/failover-test` |
 | 32 | `cli.js:267 ip route` | `[iface]` only | `[distance]` |
@@ -818,7 +818,7 @@ will not fail over.
    for UI grouping and dual-role cages (`test/port-roles.test.js` must keep
    passing untouched).
 3. **Is `service` editable after `connect()`?** Recommendation: yes, via a
-   generalised `setLinkLength()` (`topology.js:241` → `patchLink`), because
+   generalised `setLinkLength()` (`topology.js:592` → `patchLink`), because
    "I bought a faster line" is the most common change a lab needs.
 4. **Where does `E_NAT_EGRESS_MISMATCH` live before NAT is egress-aware?** It can
    only be a *prediction* while `_forwardL3` translates before routing.

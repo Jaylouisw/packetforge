@@ -50,6 +50,7 @@
     "test:port-roles": "node test/port-roles.test.js",
     "test:canvas": "node test/canvas-ports.test.js",
     "check:bytes": "node scripts/check-control-bytes.js",
+  "check:citations": "node scripts/check-doc-citations.js",
     "audit:ports": "node scripts/audit-port-types.js",
     "test:qsfpdd": "node test/qsfpdd.test.js",
     "test:roundtrip": "node test/topology-roundtrip.test.js",
