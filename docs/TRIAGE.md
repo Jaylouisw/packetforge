@@ -103,6 +103,25 @@ without it (this is not the same as "no open requests")`, or `not authorised to 
 *"Exit 2, not 0: 'could not look' must never be reported as 'nothing to do'".* No setup lines and no stack
 trace in either branch. Measured: both failure modes exit 2, with `bogus` and with no variable at all.
 
+**How to read those exit codes, because the obvious way lies.** In this shell `$?` reports **0 even when the
+command failed** — `false; echo $?` prints `0`, and so does `node -e 'process.exit(3)'; echo $?` — while `&&`
+and `||` still see the real status (`node -e 'process.exit(3)' && echo zero || echo nonzero` prints `nonzero`).
+So an exit code has to be read one of two ways, or a correct page will get "corrected":
+
+```sh
+FORGEJO_TOKEN= node scripts/request-queue.js >/dev/null 2>&1 && echo zero || echo nonzero   # nonzero
+# ... and note the `(0)` a `$?` would print in that second branch is the broken value, not the script's
+node -e 'const{spawnSync}=require("child_process");for(const v of [null,"bogus"]){const e=Object.assign({},process.env);
+  if(v===null)delete e.FORGEJO_TOKEN; else e.FORGEJO_TOKEN=v;
+  const r=spawnSync(process.execPath,["scripts/request-queue.js"],{env:e,encoding:"utf8"});
+  console.log(v===null?"no token":"bogus","status",r.status,"stack",/    at /.test(r.stdout+r.stderr));}'
+```
+
+Re-measured that way on 2026-11-12, the pair of scripts differ exactly as described above and nothing else has
+moved: `request-queue.js` exits **2** in both modes with the two reason lines and **no stack**; the sweep script
+exits **1** in both modes, with a raw `Error:` and stack for the missing token and the two setup lines plus
+`error: 401 …` for the bad one.
+
 Two flags exist and no others. `--limit` caps how many open issues are fetched and **defaults to
 200** — the queue has not been near that since this page was written, so the flag is only needed
 once it grows past it (`--limit 900` scans a large backlog in one pass). Note that the API caps
