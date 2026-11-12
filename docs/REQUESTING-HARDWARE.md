@@ -251,8 +251,7 @@ understanding before a CI run surprises you:
 
   ```
   Open device-request issues:
-    not scanned: FORGEJO_TOKEN is not set - the tracker is not readable without it (this is not the
-    same as "no open requests") -- the topology scan above is unaffected.
+    not scanned: FORGEJO_TOKEN is not set - the tracker is not readable without it (this is not the same as "no open requests") -- the topology scan above is unaffected.
   CI gate: passed.
   ```
 
@@ -270,7 +269,11 @@ that a script's contract drifts silently: `--bogus` printed `Unknown flag: --bog
 exited **2**; `--help` printed the same usage line and exited **0**; a tokenless default run over `examples/`
 printed `Scanning 4 topology file(s), 19 device reference(s).` / `Catalogue: 1661 models (devices)` then the
 `not scanned: FORGEJO_TOKEN is not set …` block quoted above and `CI gate: passed.`, exiting **0**; the
-`--no-issues` run said `issue scan disabled with --no-issues` instead and also exited **0**. Pointing it at a
+`--no-issues` run said `issue scan disabled with --no-issues` instead and also exited **0** — in full,
+`not scanned: issue scan disabled with --no-issues -- the topology scan above is unaffected.`, which is
+the same `not scanned:` prefix with a different reason rather than a second sentence. The `not scanned:`
+line in the block above is **one** line of output, not the two this page's width makes it look like;
+it is quoted unwrapped for that reason. Pointing it at a
 scratch copy of `examples/lab1-two-pcs-switch.json` with one model renamed to `probe580-nonexistent-model`
 exited **1** with `MISSING: 1 model(s) in 1 vendor(s)` and the `next:` line — so the gate is the topology scan,
 exactly as claimed. One thing the block above cannot show because both lines land in the same terminal: which **stream** they
