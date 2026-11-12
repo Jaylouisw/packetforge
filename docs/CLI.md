@@ -8177,14 +8177,30 @@ says so again. A list is accepted as ids and ranges (`10,20,30-32` is echoed bac
 omitted it would be answering a narrower question than it appears to. `show vlan brief` is accepted as
 a synonym; it prints the same table, because there is only one table.
 
+Here `vlan 10 LAB` and `vlan 20 SERVERS` are declared, Fa0/1 is a trunk with native 10, allowed 10,20
+and voice 20, and Fa0/2 is an access port in VLAN 10 — one port in three relationships to two VLANs,
+which is why the markers earn their keep:
+
 ```
-SW1#show vlan
+SW1(config)#show vlan
 VLAN  Name      Status  Ports
 1     VLAN0001  active  Fa0/3, Fa0/4, Fa0/5, Fa0/6, Fa0/7, Fa0/8
-10    VLAN0010  active  Fa0/2(t)
-20    VLAN0020  active  Fa0/1, Fa0/2(t)
-30    VLAN0030  active  Fa0/2(t)
+10    LAB       active  Fa0/1(n), Fa0/2
+20    SERVERS   active  Fa0/1(t), Fa0/1(v)
 ```
+
+A trunk's native VLAN is marked `(n)` only when the trunk actually carries it. Leave it out of the
+allowed list and the same table prints the row with no port at all:
+
+```
+99    VLAN0099  active  (no ports)
+```
+
+The port does still have a native VLAN of 99, and the classifier keeps sending untagged frames there:
+`classifyIngress()` accepts an untagged frame into 99 while dropping a *tagged* 99 as
+`vlan-not-allowed`. So that row describes the allowed list rather than the classifier — read it as
+"this trunk does not carry 99 tagged", and take the native number from
+`show interfaces <port> switchport`.
 
 ### Router subinterfaces (one-armed routing)
 
