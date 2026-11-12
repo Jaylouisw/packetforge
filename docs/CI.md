@@ -512,12 +512,12 @@ services, and a job that has to swap makes the whole queue slower.
   **None of these readings is a reading of `main`.** They were taken in the working tree, which sits on
   branch `fix/sfp-plus-connectors`, and that branch diverged from `origin/main` at `083e2ba1`
   (2026-11-08 16:58:44) — at the time of the fourth reading it was **382 ahead and 361 behind**, and
-  now reads **490 ahead and 361 behind**; either way not one of the commits above is an ancestor of
+  now reads **491 ahead and 361 behind**; either way not one of the commits above is an ancestor of
   `origin/main`. Check any of them before you quote it:
 
   ```bash
   git branch --show-current                              # fix/sfp-plus-connectors, not main
-  git rev-list --left-right --count HEAD...origin/main    # 490  361
+  git rev-list --left-right --count HEAD...origin/main    # 491  361
   git merge-base --is-ancestor d4319d27 origin/main || echo "not on main"
   ```
 
@@ -726,8 +726,11 @@ services, and a job that has to swap makes the whole queue slower.
   because the wiki repository exists and SSH keys are configured. That also settles an older claim in
   `CONTRIBUTING.md`: the wiki repository is created ahead of time here, not lazily by the first web-UI
   save.
-- **Nothing checks that a `#anchor` inside a link resolves.** There are 32 intra-repository anchor
-  links across the README and `docs/`, and two of them were broken the first time anyone counted:
+- **Nothing checks that a `#anchor` inside a link resolves.** There are **81 in-page `#fragment`
+  links** across `docs/` and the README (69 of them in `docs/CLI.md` alone, one per command family),
+  plus **10 cross-file `file.md#fragment` links** — `README.md` carries 5 of those and every one of
+  them names a page and a heading that must both still exist. Two were broken the first time anyone
+  counted:
   `#51-dhcp--absent-from-the-data-path` pointed at a heading that had been rewritten to say DHCP is
   *in* the data path, and `#10-known-open-defects` pointed at a section now titled "Fixed defects,
   kept visible". Renaming a heading breaks every link to it and no job notices. The check is three
