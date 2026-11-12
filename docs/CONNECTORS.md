@@ -1273,6 +1273,32 @@ naming `QSFP-DD-400G-DR4`, `QSFP-DD-400G-FR4`, `QSFP56-200G-FR4`, `SFP-25G-SR`, 
 right too: `SFP-10G-BXU-I` is `wavelengthNm` 1270 with `pairWavelengthNm` 1330, and `CWDM-SFP10G-40L` records
 `cwdmChannel: "1470nm"`.
 
+The census behind that paragraph is one command:
+
+```bash
+node -e "
+const a = require('./catalogue/optics/transceivers.json');
+const tally = k => a.reduce((m, p) => { const v = p[k] === null ? 'null' : p[k]; m[v] = (m[v] || 0) + 1; return m; }, {});
+const lc = a.filter(p => p.connector === 'lc');
+const np = a.filter(p => p.polish === null);
+console.log('connector', JSON.stringify(tally('connector')));
+console.log('polish', JSON.stringify(tally('polish')));
+console.log('biDi', a.filter(p => p.biDi === true).length, '| cwdm', a.filter(p => p.cwdmChannel).length,
+            '| sourceUrl', a.filter(p => p.sourceUrl).length, '| note', a.filter(p => p.note).length);
+console.log('lc', lc.length, 'upc', lc.filter(p => p.polish === 'upc').length, 'null', lc.filter(p => p.polish === null).length);
+console.log('null polish', np.length, 'copper', np.filter(p => p.fiber === 'copper').length,
+            'optical', np.filter(p => p.fiber !== 'copper').length);
+"
+```
+
+```
+connector {"lc":43,"rj45":3,"mpo":8,"sc-upc":3,"sc-apc":1}
+polish {"upc":42,"null":14,"apc":2}
+biDi 9 | cwdm 7 | sourceUrl 58 | note 57
+lc 43 upc 33 null 10
+null polish 14 copper 3 optical 11
+```
+
 Rule 1 also still holds, and it is checkable: nothing reads the catalogue's `polish`. Every `polish` in `engine/`
 is `FERRULE` geometry — `polishMismatch()` compares `ferrule(a).polish` for the two **cages** — and the one other
 read is `optical.js:381`, which compares ferrule polishes to decide whether a hybrid cord is needed. The JSON
