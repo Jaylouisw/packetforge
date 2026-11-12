@@ -112,7 +112,24 @@ is 50 and not 200: the loop stops when a page comes back short (`batch.length < 
 page size *above* the server's cap would end the scan after one page and report a quiet fraction of
 the queue. The cap and the constant have to agree, and today they agree *exactly* — measured:
 `limit=51` returns **50** items, `limit=50` returns 50 — so `LIMIT_PER_PAGE = 50` sits on the cap with
-no headroom. If the server's cap ever drops below 50, the sweep keeps working and quietly scans one
+no headroom. The open queue cannot show this any more, because 24 issues fit inside every candidate cap;
+measure it against the archive instead, which does not:
+
+```console
+$ curl -s -D - -o /dev/null 'http://odin:3000/api/v1/repos/jaylouisw/packetforge/issues?state=all&type=issues&limit=51&page=1' \
+    | grep -iE '^(x-total-count|link):'    # X-Total-Count: 960, Link: …limit=51&page=2… rel="next"
+$ curl -s 'http://odin:3000/api/v1/repos/jaylouisw/packetforge/issues?state=all&type=issues&limit=51&page=1' \
+    | grep -o '"number":' | wc -l         # 50
+```
+
+Two things about that response are worth copying down, because both mislead a first reading. The
+`Link` header **echoes the limit you asked for** — `limit=51&page=2`, and `page=20` for `rel="last"` — while
+the body is capped at 50, so the header is not the place to learn the cap; the count in the body is. And
+every URL in `Link` is rewritten to the server's **canonical host**, `https://git.jayw.uk/…`, even though
+the request went to `odin:3000`, so a client that follows a `rel="next"` link stops talking to the host it
+started with. Re-measured on 2026-11-12 against `odin:3000`. On `state=open` each of `limit=50`, `51` and
+`200` returns 24 — the queue is smaller than any cap this page could test, which is why the reading above
+needed the 960-odd archived issues to exist at all. If the server's cap ever drops below 50, the sweep keeps working and quietly scans one
 page; if it rises, nothing changes. That asymmetry is the reason this paragraph exists. `--close` is a
 budget, not a switch: `--close 0` (the default) reports, and the report itself prints at most 40
 matches before saying "... and N more".
