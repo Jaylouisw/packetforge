@@ -711,6 +711,15 @@ anything about 802.11.
 | **Modelled** | An unstated length costs 0 m and reports `lengthKnown: false`; an unstated rate costs 0 s. The model refuses to invent a distance. | `engine/latency.js:100-106` (`DEFAULT_LENGTH_M = 0`), `engine/latency.js:132-136` (`isKnownRate`), surfaced as `lengthKnown` at `engine/simulator.js:837` and `:2661` |
 | **Absent** | Queueing delay, jitter, host ICMP processing, NIC interrupts, kernel wakeups, ARP resolution time, optical dispersion and FEC. All four are named as deliberately excluded at `engine/latency.js:22-31`. | — |
 
+Three worked numbers make the table checkable. Put a 100-byte echo across a 1 Gbps copper link and
+read the `time=` the console prints: 1 m direct answers **0.002 ms**, the same link at 40 km answers
+**0.406 ms**, and 1 m through one switch answers **0.103 ms**. Each is the arithmetic rather than a
+fudge factor: the 100 bytes the reply line reports are 800 bits, which at 1 Gbps is 0.8 µs of
+serialisation each way; 1 m at 0.66c is 5.05 ns each way; 40 km is 202 µs each way, so
+2 × 202 + 1.6 = 405.7 µs; and the switched case adds the 50 µs store-and-forward in **each**
+direction, so 2 × 51.6 = 103.2 µs — which is why one switch in the path costs 100 µs of round trip
+rather than 50.
+
 Three consequences a lab author needs:
 
 1. **There are no timers anywhere in the engine.** `grep -n "setTimeout\|setInterval\|Date.now" engine/*.js` finds only comments. The delay is a
