@@ -332,8 +332,8 @@ bare role command `ip nat inside` is *not* accepted on its own — it is answere
 
 `firewall`, `wireless`, `dhcp-client`, `vlan`, `lacp` and `stp` are **not read anywhere** — `nat` was in this
 list until a sweep of every capability read found `has('nat')` guards in `_helpRefusal()`. There are **two**
-of them today, both returning the same string: `engine/cli.js:13288` for the `ip nat …` positive forms and
-`:13298` for the `no ip nat inside|outside|source` removals. The NAT *views* — `show ip nat translations`,
+of them today, both returning the same string: `engine/cli.js:13194` for the `ip nat …` positive forms and
+`:13204` for the `no ip nat inside|outside|source` removals. The NAT *views* — `show ip nat translations`,
 `show ip nat statistics`, `clear ip nat translation` — are deliberately **not** gated and answer on every
 device with an empty table, because a rule can arrive from the topology. Which is the difference between
 "nothing consults it" and "nothing *acts* on it": those guards decide whether a command is offered, not
@@ -350,7 +350,7 @@ grep -rnoE "hasCap\('[a-z0-9-]+'\)|\.capabilities\.includes\('[a-z0-9-]+'\)|caps
 It prints the whole consulted vocabulary — `l3-forward` **9**, `nat` **2**, `dhcp-server` **2**, and
 `poe-pse`, `poe-pd`, `l2-forward`, `host` once each — and none of the six. Widening it to the local
 helper's own form, `has\('[a-z0-9-]+'\)`, raises `nat` to **4** (the two guards above) and `dhcp-server` to
-**3** (adding `engine/cli.js:13305`, which gates the `ip dhcp` family), but the same pattern also matches
+**3** (adding `engine/cli.js:13211`, which gates the `ip dhcp` family), but the same pattern also matches
 `Map.has('literal')` and drags in `fibre-channel`, `switchport`, `rip`, `eigrp`, `cpu`, `counters`, `errors`
 and `supply`, none of which is a capability — so the wider pattern is usable only if you read what it
 returned.
