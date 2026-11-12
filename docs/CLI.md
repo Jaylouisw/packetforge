@@ -8095,7 +8095,7 @@ port untagged, or a VLAN the trunk does not carry:
 
 ```
 SW1(config-if)#switchport voice vlan 20
-Voice VLAN 20 on Fa0/1 (tagged; the untagged traffic on this port stays in VLAN 1)
+Voice VLAN 20 on Fa0/1 (tagged; the untagged traffic on this port stays in VLAN 1) - VLAN 20 did not exist and was created
 SW1(config-if)#switchport voice vlan 1
 % VLAN 1 is the VLAN that leaves Fa0/1 untagged (the access VLAN)
 % Tagged voice traffic must land in a different VLAN - move the data VLAN first: "switchport access vlan <other>", or choose another voice VLAN
@@ -8107,7 +8107,7 @@ SW1(config-if)#switchport voice vlan 20
 % VLAN 20 is not in the allowed list on Fa0/1 (it allows 10,30)
 % A voice VLAN the trunk drops is not a voice VLAN: "switchport trunk allowed vlan 10,20,30"
 SW1(config-if)#switchport trunk native vlan 99
-Trunk native VLAN 99 on Fa0/1
+Trunk native VLAN 99 on Fa0/1 (VLAN 99 did not exist and was created)
 SW1(config-if)#switchport trunk allowed vlan 10,20,30
 Trunk on Fa0/1 allows VLANs 10,20,30
 SW1(config-if)#switchport voice vlan 20
@@ -8128,6 +8128,8 @@ Name: Fa0/1
   Trunking VLANs Enabled: 10,20,30
   Administrative private-vlan: none
   Voice VLAN: 20 (tagged)
+  Port Security: Disabled
+  Description: -
 ```
 
 `show running-config` prints the line (before the mode, because it is a parameter and not a mode),
