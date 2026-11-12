@@ -50,11 +50,24 @@ should say what it trains at rather than inherit a number. An empty `CAGE_SPEEDS
 therefore not a bug and not a contradiction of this table — `sfp+` does supply a default
 (`[1000, 10000]`), `sfp28` does not.
 
-Two `CAGE_SPEEDS` entries name a class **no medium in that cage carries**, and this table therefore
-leaves them out: `1244` in the four PON cages, and `5000` in `coax`. `grep` for the rate across
-`MEDIA` and 1244 matches nothing at all; 5000 matches `5gbase-t` (copper) and `wireless-60` (a radio),
-neither of which is a coax run. They are fallback caps for a port that declares no rate, so a port can
-report a cap its cage cannot fill — the Speeds column above is the class the cage can actually carry.
+It is **not two** `CAGE_SPEEDS` classes that name a rate no medium in that cage carries — it is eight cages'
+worth, and they are why this table's Speeds column is derived from the media instead. Comparing
+`CAGE_SPEEDS[cage](rating)` against the `speedMbps` of every id in `CAGE_MEDIA[cage](rating)`, at three
+ratings:
+
+```
+rated 1G      sfp 2500 · sc-apc 100,1000 · wwan 1000
+rated 10G     sfp 2500 · sc-apc 100,1000,1244 · lc-upc 1000,1244 · lc-apc 1000,1244
+              sc-upc 1244 · coax 5000 · antenna 10000 · wwan 10000
+rated 100G    the same, plus lc-upc/lc-apc 10000,25000 and antenna/wwan 100000
+```
+
+`1244` is not a typo and does appear in `MEDIA` — as the **upstream** rate, `upstreamMbps: 1244` on
+`gpon-sc-apc`, `gpon-sc-upc`, `gpon-lc-upc` and `gpon-sc-hybrid`, which is why the PON cages list it beside
+2488/9953 downstream. `5000` appears in `MEDIA` only as `5gbase-t` (copper) and `wireless-60` (a radio),
+neither of which is a coax run. `antenna` and `wwan` are a third case: their `CAGE_SPEEDS` echoes the port's
+own rating rather than naming a medium, so it can never be filled by one. The `lc-*` gaps are the rating
+filter doing its job — those cages supply exactly one Ethernet optic per rating and list all four.
 
 
 | Cage | Name | Family | Mates with | Media it can carry | Speed classes (Mbps) |
