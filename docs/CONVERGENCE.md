@@ -286,7 +286,10 @@ one is a surprise:
 - **`hello` is not a console command.** `ospf hello 5` answers `% Usage: ospf router-id <ip> | ospf
   area <id>`, so the two rows only separate if the topology JSON gives a device `ospf.helloSec`, which
   is what `convergence.ospfTimers()` reads (`num(ospf.helloSec, C.ospfHelloSec)`). Write the number into
-  a lab file, not at the prompt.
+  a lab file, not at the prompt. Measured, since the file is the only way in: `ospf.helloSec: 5` prints
+  `11000 ms  hello 5 s + exchange, then SPF hold` and `3` prints `9000 ms`, while leaving the key out
+  prints the 10 s default — and the Basis column carries the number it read, so a file that silently fell
+  back to the default is visible in the answer rather than hidden in a plausible total.
 
 `engine/convergence.js` is pure: it reads configuration and returns times. No clock, no state, no
 side effects. The simulator decides what to do with the answer.
