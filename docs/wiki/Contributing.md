@@ -42,8 +42,8 @@ green in CI unless you ran the same set.
 behaviour rather than implementation. Before opening a PR:
 
 ```bash
-npm test        # every suite
-npm run smoke   # the HTTP API end to end
+npm test        # two guards, then every suite
+npm run smoke   # 18 checks, the HTTP API end to end
 ```
 
 If the change makes a documented limitation untrue, update `docs/SIMULATION.md` in the same
