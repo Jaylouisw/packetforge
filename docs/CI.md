@@ -118,9 +118,21 @@ in `docs/ARCHITECTURE.md` and was measured by hand with an RFC 6455 client, but 
 handshake would be found by a human or by using the UI, not by a red check run.
 
 The three jobs carry 7 + 1 + 3 steps between them (measured by counting `- name:` under each job in
-`ci.yml`): the test job seven, the smoke job one, the Docker job three — the last of which is the static
-`Dockerfile` check, the CLI install that may fail harmlessly, and the build that runs only if a daemon
-appeared.
+`ci.yml`): the test job seven, the smoke job one, the Docker job three — the static `Dockerfile` check, the
+CLI install, and the build.
+
+**Of those three, only the build fails harmlessly.** The install is a hard step —
+`apt-get update && apt-get install -y docker.io`, with **no `continue-on-error`**, and `git log -S
+'continue-on-error' -- .forgejo/workflows/ci.yml` finds no commit that ever added one — so an apt failure
+takes the Docker job red. The *build* is the guarded one: it asks `command -v docker` and `docker info`, builds
+only if both answer, and otherwise prints the reason it did not ("No docker daemon in this job image…") and
+passes. The order matters for reading a red mark: `Dockerfile static checks` failing means the file is wrong,
+`Install Docker CLI` failing means the runner could not reach a package mirror, and neither is the image
+failing to build.
+
+Re-counted on 2026-11-12: three jobs, eleven named steps, `7 + 1 + 3`, and the `test` job's
+`matrix.node: [18, 20, 22]` with `fail-fast: false` — five check runs from three jobs, exactly as the top of
+this page says.
 
 ### Running the same checks locally
 
