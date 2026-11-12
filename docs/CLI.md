@@ -6924,6 +6924,14 @@ offered, which is what makes the answer worth printing — the code builds its p
 plus every type that can still happen. Prefix resolution draws on the same set, so `show logging fra`
 resolves in a lab where no frame has ever been filtered.
 
+**A type with no events is answered before the rest of the line is read.** `show logging frame ping` in a lab
+where no frame has flowed prints the "has not happened here yet" answer and never looks at `ping`; swap them —
+`show logging ping frame` — and the same line is refused with `% Unexpected argument "frame"`, because `ping`
+did happen, so the loop runs to the end and the second bare word has nowhere to go. The early exit swallows the
+keywords too: `show logging frame last 1` answers identically because the window is never read, and
+`show logging frame bogusjunk` never complains about the junk. So the "has not happened" line means the type
+named is right; it does not mean the rest of the command was valid.
+
 **On an empty log the ambiguity check does not run at all.** `show logging ic` in a fresh lab answers
 `% The log is empty: nothing has run in this lab, so there is nothing of any type` — the unfiltered
 sentence, with no mention of `icmp-*` or `icmp6-*` — so an ambiguous prefix and no filter are
