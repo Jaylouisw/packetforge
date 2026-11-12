@@ -197,11 +197,18 @@ different and wrong diagnosis.
 
 ### One rough edge: the figure `link down` quotes is always the STP one
 
-`link down` answers with `reconvergeAtMs`, and the simulator computes that as **the change instant
-plus two forward delays regardless of whether the topology contains a bridge**. In a lab with
-switches that is right and `converge` agrees. In a **router-only** lab it is not: the CLI promises
-40 s, then `converge` reports the network was already converged at the change instant, and nothing
-was ever listening or learning.
+`link down` answers with `reconvergeAtMs`, and the simulator computes that as **the change instant plus two
+forward delays taken from an empty config** — `convergenceLib.stpTimers({})` at `engine/simulator.js:694`, so
+the figure is always `atMs + 30 000` and nothing on the board is consulted. In a lab with switches at the
+default 15 s that is right and `converge` agrees. In a **router-only** lab it is not: the CLI promises 40 s,
+then `converge` reports the network was already converged at the change instant, and nothing was ever
+listening or learning.
+
+The same seam opens whenever a switch declares its own forward delay, because the figure does not read it.
+Give both `lab4` switches `stpForwardDelaySec: 4` and `link down l6 at 10000` still answers
+`Network converges again at 40000 ms.`, while `converge 20000` prints `stp      SW1       18000 ms  listening +
+learning (4 s forward-delay each)`, the same for `SW2`, and `Fully converged at 18000 ms.` — a 22 s
+disagreement in a lab that has bridges, not one that lacks them.
 
 Measured, lab2 (router + two PCs, no switches):
 
