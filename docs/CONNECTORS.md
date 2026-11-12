@@ -133,6 +133,18 @@ console.log("usb takes a console cage?", m.cagesMate("usb", "console"));'
 A fibre-channel cage in a copper list is not a typo in the other direction either: `cagesMate('sfp', 'fc-sfp28')`
 is `true`, because a 32G FC SFP28 optic fits the same slot as a 25G Ethernet one.
 
+Both columns were re-derived on 2026-11-12 rather than spot-checked. All **26** rows were compared **set for
+set** against `CAGE_MATE` — zero mismatches, so the seven-row repair above has held — and every medium named in a
+row was checked against what `CAGE_MEDIA[cage](rating)` actually offers across nine ratings from 100 Mbps to
+400 Gbps: **no row names a medium its cage cannot carry**.
+
+Two rows look wrong to a naive checker and are not. `combo` describes its media as "the six copper media plus all
+eight of …" instead of listing ids, and the `console` row gives the fixed-baud variants in shorthand — `-19200`,
+`-38400`, `-57600` after `console-rs232` — so a script that extracts backticked identifiers reports nine unnamed
+media on the `combo` row and three on the `console` row. Expanded, the console cage offers exactly five media
+(`console-rs232` at 115200 plus the four fixed bauds) and `usb` exactly one (`usb-console`). Read the shorthand as
+the list, not as an omission.
+
 **Read that table as A's view, not as a symmetric relation.** `cagesMate(a, b)` consults only
 `CAGE_MATE[a]`, so a pair "mates" when the *first* cage's row names the second. Twenty-five of the
 twenty-six cages have a row (`wwan` has none, so cellular mates with nothing, itself included), and four
