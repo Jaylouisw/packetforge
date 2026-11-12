@@ -39,12 +39,27 @@ Forgejo repo → **Settings → Repository → Push mirrors → Add push mirror*
 This copies every branch and tag. What it does *not* copy: issues, PRs, discussions, releases, wiki,
 labels, milestones. Those are not git.
 
+Measured on 2026-11-12, and the "every branch" half holds exactly: **875 heads on the forge, 875 on
+GitHub**, and `refs/heads/main` is `b28c9b5d` on both. That is worth recording because the branch
+count is not small and it moves — 872 a day earlier, three more since — so a mirror that copied only
+`main` would look healthy from a single-branch check.
+
+The tag half is untested rather than proven: there are **zero tags and zero releases** on either
+side, so "every tag is copied" is vacuously true and nothing has ever exercised the path. Take the
+release sentence in §4 (*"the mirror's tags are enough"*) as a plan rather than a description.
+
 Verify:
 
 ```bash
+git ls-remote --heads https://github.com/Jaylouisw/packetforge | wc -l    # 875 today
+git ls-remote --heads origin | wc -l                                      # same count, or the mirror is behind
 git ls-remote https://github.com/Jaylouisw/packetforge refs/heads/main
 git ls-remote origin refs/heads/main        # same SHA, or the mirror is behind
 ```
+
+`origin` is an SSH alias on a developer machine, so the count only works where that alias resolves;
+`git ls-remote` against `https://github.com/...` needs no credentials either way, which is how the
+numbers above were taken.
 
 **Never add the reverse direction.** A GitHub→Forgejo mirror plus a Forgejo→GitHub mirror is a loop;
 whichever syncs second wins, and on a force-push they can ping-pong indefinitely.
