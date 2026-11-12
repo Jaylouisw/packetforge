@@ -1521,3 +1521,27 @@ link state <linkId>                # what it is now, and since when
 `at <ms>` is when the change happens, in milliseconds since power-on, so a script can say "the
 uplink fails at 10 s" and then ask what the network looks like at 11 s. The command prints when the
 network converges again. See [LINK-STATE.md](LINK-STATE.md).
+
+## Every `show` form on this page is typed by a test
+
+A row here is a promise an operator relies on before they ever open the app. `test/docs-show-commands.test.js`
+reads this file, splits the alternatives (`show vlan [brief] | spanning-tree`), fills the placeholders with real
+values from a real lab, and types each form at a router and a switch — 46 forms, 92 commands — and fails on the three
+answers that mean the documentation and the parser disagree: `% Invalid show command`, `% Unrecognized …`, or a throw.
+
+A *legitimate* refusal is not a failure, and the distinction is the whole point: a switch has no `show ip ospf` and
+says so in a sentence (`% This device is not a DHCP server (no "ip dhcp pool" configured)`), which means this page is
+right and the box is the wrong one to ask. Fifty-six of the ninety-two answers are refusals of that kind today, and
+none of them complains about the command itself.
+
+The check is real in the direction that matters: rename `show spanning-tree` to one letter off and the suite fails,
+naming the form and both devices:
+
+```
+[r1] show spanning-trees -> % Invalid show command: spanning-trees
+[sw] show spanning-trees -> % Invalid show command: spanning-trees
+```
+
+That example sits in a block rather than in backticks on purpose: **any show form written in backticks on this page
+is a promise, and the test types every one of them**, so breaking examples are written as output rather than as
+commands.
