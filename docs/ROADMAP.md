@@ -165,7 +165,10 @@ lands, that comment is the first line to go stale and the first one a reader tru
 - [x] Unit tests for the simulator's edge cases — **well over a hundred suites**
       (`ls test/*.test.js | wc -l` gives today's number; the count moves with every PR, so run it
       rather than trusting a figure here — on 2026-11-12 both it and the runner's `--list` said
-      **272**, so either will do while they agree) covering loops, ARP, TTL, convergence, link state,
+      **272**. Name the runner's path when you run it: `node scripts/run-tests.js --list`, because the
+      runner is in `scripts/` and `test/run-tests.js` does not exist — the same mistake the sibling
+      suite invites, since `node test/engine.test.js` *is* the right shape for an individual suite)
+      covering loops, ARP, TTL, convergence, link state,
       running-config round-trip, OSPF adjacencies and the catalogue invariants (`npm test`).
 - [x] CI — Forgejo Actions on **pull requests to `main` and pushes to `main`**, plus manual dispatch
       (`.forgejo/workflows/ci.yml`, [docs/CI.md](CI.md)). Not "every branch": a push to a feature branch
