@@ -784,6 +784,25 @@ carries `summary.undeclaredTemplateHardware` as **`{ specs: 140, ports: 3108, mo
 — counts and the spec names, not per-port detail — which is the shape to diff when a template change is
 meant to shrink it.
 
+The parenthesised count in the transcript — 5,148 of 17,030, from 213 specs — is checkable two ways and
+they agree: sum the template counts directly, or take the difference between the ports
+`effectiveInterfaces()` returns and the ones a spec declares explicitly. `total - declared === template`
+is the identity that has to hold if the expansion is clean, so it is the line to look at after a spec
+change rather than the total on its own:
+
+```sh
+node -e '
+const {loadCatalog,effectiveInterfaces}=require("./devices/registry");
+const cat=loadCatalog(require("path").resolve("devices"));
+let total=0,declared=0,tpl=0,specs=0;
+for(const s of cat){ const e=effectiveInterfaces(s)||[]; total+=e.length; declared+=(s.interfaces||[]).length;
+  const t=s.portTemplate; const n=t?(Array.isArray(t.ports)?t.ports.length:(t.count||0)):0;
+  if(n>0){specs++;tpl+=n;} }
+console.log("ports",total,"declared",declared,"template",tpl,"in",specs,"specs","identity",total-declared===tpl);'
+```
+
+Run on 2026-11-12 it prints `ports 17030 declared 11882 template 5148 in 213 specs identity true`.
+
 There is a **second** soft block of the same kind, and the transcript above does not show it because it is
 empty on this tree: `Template ports at 10G+ presented as RJ45 copper on a box that describes itself as SFP:
 <n> port(s) in <m> spec(s)`, printed only when the count is non-zero, with the offending models capped at
