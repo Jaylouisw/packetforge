@@ -1858,7 +1858,7 @@ disagree about how many VLANs exist:
 ```
 SW1#show vlan summary
 VLAN summary on SW1:
-  Existing VLANs          : 3
+  Existing VLANs          : 2
   Declared                : 2 (10, 20)
   Carried by a port       : 2
   SVIs                    : 0
@@ -1870,6 +1870,12 @@ Three states are counted separately because they need different fixes: **declare
 created by a carrier that names it), **carried by a port**, and **allowed on a trunk only** — a filter,
 not a bridge domain. That last number is the one that would otherwise be invisible: `show interfaces
 trunk` lists VLAN 40 as allowed while it is not a VLAN on the device at all.
+
+`Existing VLANs` counts the union of declared, carried and SVI-backed VLANs, and nothing else — which is
+why this switch reads **2** and not 3. VLAN 1 is only a VLAN while a port is in it: a fresh switch
+shows `1`, and once every port has moved to VLAN 10 or 20 it is gone, and `vlan 1` does not bring it
+back. A trunk's allowed list adds none either, by design, so the numbers reconcile as 2 existing =
+2 declared = 2 carried.
 
 `count` is not an IOS word, so it is answered rather than refused — and it says which spelling IOS
 uses. A word after `summary` is refused.
