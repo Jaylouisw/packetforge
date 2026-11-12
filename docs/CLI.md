@@ -2110,7 +2110,14 @@ OSPF disabled (it was in area 10, with 2 interfaces in it)
 Three things follow from the rules the other removals already use:
 
 - **A value that cannot work is refused for what it is**, before anything is asked about the process.
-- **A removal removes what it names** — the area, or the id, not the process.
+- **A removal removes what it names** — the area, or the id, not the process — except in the one case
+  where the process goes with the id, because the id was the only thing enabling it. `ospf router-id <ip>`
+  is itself the enable verb, so on a router started that way instead of with `router ospf <pid>`, the
+  removal reports `Router-id 1.1.1.1 removed - OSPF derives one from the highest interface address now`
+  and the next `show ip ospf` reports `% OSPF is not enabled - "ospf router-id <ip>" in config mode turns
+  OSPF on`. Start it with `router ospf 1` first and the same removal leaves the process up on a derived
+  id: `Routing Process "ospf 1" with ID 10.0.0.1 (derived: no router-id is configured, so the highest
+  interface address is used)`. The confirmation describes that second case either way.
 - **A dotted-quad area is the form the RFC prints**, and `no ospf area 0.0.0.1` removes area 1 the way
   the display names it. The page row now shows the argument as optional, because it is.
 
