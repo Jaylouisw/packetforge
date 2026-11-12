@@ -1113,13 +1113,11 @@ console.log(rows.length, "rows of", cat.length, "parts | all in catalogue:",
     in the assertion is exactly what it says, 34 distinct real parts against 58, and the gap is 24 parts rather
     than a table padded with rows for parts the catalogue does not contain.
 
-    Measured on 2026-11-12: `34 rows of 58 parts | all in catalogue: true | distinct: 34` — so the
-    "34 of 58" in the assertion is exactly what it says, 34 distinct real parts against 58, and the gap is
-    24 parts rather than a table padded with rows for parts that do not exist.
   - `test/ma5801.test.js` — **crashes rather than failing**: `TypeError: Cannot read properties of undefined
     (reading 'hardware')` at line 96, because the suite asks for `gpon1/1` and the GP16's PON ports are now named
-    `pon1 … pon20` (`new Topology().addDevice(spec).interfaces.has('gpon1/1')` is false). A rename in the catalogue
-    left the test addressing the old names.
+    `pon1` … `pon16` — the spec has **20** interfaces in total, the last four being `uplink1` … `uplink4`, so the
+    port names stop at 16 while the interface count reads 20 (`new Topology().addDevice(spec).interfaces.has('gpon1/1')`
+    is false). A rename in the catalogue left the test addressing the old names.
 
   Both are tests-vs-catalogue drift, which is the failure mode this project's own suite is worst at catching,
   because the test *is* the thing that is wrong.
