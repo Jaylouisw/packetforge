@@ -431,8 +431,8 @@ document.
 
 ### 4.4 QSFP-DD taking QSFP28 and QSFP+ modules
 
-`CAGE_MATE.qsfpdd` includes `qsfp28` and `qsfp+`, and `CAGE_MEDIA.qsfpdd`
-includes the 100G and 40G optics. That is by design: a QSFP-DD cage is
+`CAGE_MATE.qsfpdd` is `['qsfpdd', 'qsfp28', 'qsfp+', 'qsfp56']`, and `CAGE_MEDIA.qsfpdd`
+includes the 100G and 40G optics — plus the 200G and 400G ones, and `dac-100g`. That is by design: a QSFP-DD cage is
 backward-compatible with older modules, and refusing the pair would make a 400G
 port unable to accept the 100G optic most labs actually own.
 
@@ -505,21 +505,25 @@ against a 600 Mbps 2.4 GHz radio mates — both are simply "Antenna" — and the
 
 ### 4.7 Console and USB
 
-`console` mates only `console`. `CAGE_MATE.usb` lists both `usb` and `console`,
-but the table is read one-way, so the pair is not actually usable:
+`console` mates only `console`, and `usb` mates only `usb` — there is no usb-to-console
+path in the table at all:
 
 ```text
-cagesMate('usb', 'console')      -> true
+cagesMate('usb', 'console')      -> false
 cagesMate('console', 'usb')      -> false
 ```
 
-and even in the permitted direction there is no shared medium (`console-rs232`
-versus `usb-console`), so `canMate` ends at `E_NO_COMMON_MEDIA` or
-`E_CONNECTOR_MISMATCH` depending on which port is passed first. **Treat a USB
-console port as connectable only to another USB console port.** This is the
-cleanest example in the codebase of why step 3 of the new-connector checklist
-(symmetry) exists: a one-sided entry is silent, survives review, and produces an
-order-dependent verdict that is miserable to debug.
+This paragraph used to read the other way round, and the history is the argument for step 3 of the
+new-connector checklist. `CAGE_MATE.usb` was `['usb', 'console']`, so `cagesMate('usb', 'console')`
+answered true while the reverse answered false, and the same pair got an order-dependent verdict from
+`canMate`. The entry was reduced to `['usb']`, and `media.js` says why in place: a USB-to-serial adapter
+is an external part, not a cable between two devices. A one-sided entry is silent, survives review, and
+is miserable to debug — which is exactly what symmetry checks are for.
+
+With the pair gone, `canMate` on a console port against a USB port answers `E_PROTOCOL_MISMATCH`: the
+console-versus-data check runs before mating is even considered, so the code you get is about protocols
+rather than connectors. No shipped device has a `usb` cage port either — **0** of 1,661 specs — so the
+pair is not reachable from the catalogue at all.
 
 `validateConnection` reports `E_CONSOLE_TO_DATA` and suppresses the connector
 verdict when a console port is paired with a data port, so the message the user
