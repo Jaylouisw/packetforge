@@ -754,6 +754,11 @@ as a whole.** Measured against a live board with two PCs:
 | `{"ip":"","mask":""}` | `200`, address cleared |
 | `{"role":"wan"}` on a fixed-role port | `400 {"error":"eth0 cannot be wan; it has no configurable role"}` |
 
+Every row above was re-run against a live board in this tree, and the answer carries one shape trap of its
+own: the `device` in the response lists its ports under **`interfaces`**, while the same device inside `state`
+lists them under **`ports`**. Both are the same objects — `{"name":"eth0","enabled":true,"description":""}`
+— so a client that reads the response once, remembers the key, and reads `state` next finds nothing there.
+
 Three more things this endpoint does **not** do:
 
 - **It cannot address a port whose name contains a slash**, which is every Cisco switch and router
