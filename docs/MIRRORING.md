@@ -54,6 +54,22 @@ retries `land-all-v2`, `land-all-v3`, `land-all-v4` and `land-all-v5` — twelve
 901 − 889 gap, so the count and the set tell the same story rather than two of them. Re-taken on 2026-11-12:
 same twelve names, `main` still `1b1e1287` against `8e0d6330`.
 
+The set difference is the check, so here it is as a command rather than an adjective — and note that both
+sides have to be `ls-remote`, because the local shortcut does not survive contact:
+
+```bash
+gh() { git ls-remote --heads https://github.com/jaylouisw/packetforge | cut -f2 | sed 's|refs/heads/||' | sort; }
+fj() { git ls-remote --heads http://odin:3000/jaylouisw/packetforge.git | cut -f2 | sed 's|refs/heads/||' | sort; }
+comm -23 <(gh) <(fj) | wc -l    # heads only on GitHub - must be 0, or the mirror has something the forge lacks
+comm -13 <(gh) <(fj) | wc -l    # heads only on the forge - the mirror's debt, twelve on the reading above
+```
+
+Substituting `git for-each-ref refs/remotes/forgejo-http` for the second call is the mistake to avoid: that is a
+**snapshot** from whenever you last fetched, and on this clone it reads 900 branches against the forge's 901,
+with `land-all-v5` the name it does not have. It agrees with the prose by accident only if you also count the
+remote's own pseudo-ref — `refs/remotes/forgejo-http/HEAD`, which shortens to the remote's name — and
+`for-each-ref` lists that while `ls-remote --heads` does not.
+
 Two readings the same day show why the numbers are worth re-taking and why the invariant is not: at the earlier one
 the two sides were level at 884/884 with `main` at `73718ab4` on both, and the branch count climbed 872, 875, 881,
 884, 892, 897 and 901 across two days while GitHub stayed at 889 for every one of them — the forge moving and the
