@@ -75,6 +75,16 @@ locally and nothing at all about what CI runs. Then
   leaves the step green, with the failure visible only to whoever reads the log) and
 `missing-devices.js examples --no-issues` (every model an example names still exists).
 
+**Every command these pages tell you to run was resolved against the tree on 2026-11-12**, because a
+broken one is invisible: the sentence stays grammatical and only the reader's terminal complains.
+`npm run <target>` appears with **51** distinct targets across the docs, and all 51 are `package.json`
+scripts (`npm test` is the 54th name and is run bare); `node <dir>/…js` appears with **31** distinct
+paths, and all 31 exist. What does *not* survive this check is the other kind of citation — a **data**
+path, which no manifest lists: `docs/DEVICE_REGISTRY.md` used to run `apply-research.js` against
+`research/incoming/aruba-poe.json`, a file that is not in the tree, and a reader who copied it got a raw
+`ENOENT` stack from `node:fs` rather than a usage line. Resolve commands by hand as well as paths, and
+prefer an example file you have actually run.
+
 **`syntax-check` is a parse, not a lint, over seven directories.** It runs `node --check` once per file
 and reports `Syntax-checked 337 files: all OK` — every `.js` under `engine/`, `server/`, `devices/`,
 `web/`, `scripts/`, `examples/` and `test/`, which is the whole application. That 337 is an **on-disk**
