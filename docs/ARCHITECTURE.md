@@ -670,6 +670,14 @@ code wears two statuses. Measured on a live link:
 | `{}` | `200`, a no-op |
 | `PATCH …/links/nosuch` | **`422 {error:'No such link: nosuch.', code:'E_NO_LINK', state:{…}}`**, while `POST …/links/nosuch/state` answers **`404`** with the same `E_NO_LINK` |
 
+Re-read on a live server at 2026-11-12, that last row is worth quoting in full, because the two answers wear the
+**same code and different messages**: `PATCH` names the id it could not find — `{"error":"No such link: nosuch.",
+"code":"E_NO_LINK","state":{…}}` — while `POST …/links/nosuch/state` answers `404 {"error":"no such link",
+"code":"E_NO_LINK"}` with no id and no `state`. A client that switches on `code` is fine; one that echoes `error`
+to a user gets a sentence with the id in it on one path and without it on the other. The same run re-confirmed the
+`409` two paragraphs up, including the detail that `existing` is the colliding device's **label** rather than its
+id: adding a second `pc1` answered `{"error":"device id already in use","id":"pc1","existing":"PC"}`.
+
 `POST|PATCH …/links/:id/state` is small and strict: `{"state":"up"}` or `{"state":"down"}` answers
 `200 {ok:true, linkId, state}`, and **anything else** — `{"state":"sideways"}`, `{"up":false}`, an empty
 body — answers `422 {error:'state must be up or down', code:'E_BAD_STATE'}`. `DELETE …/links/:id`
