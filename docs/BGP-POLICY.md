@@ -114,6 +114,27 @@ first path in each row wins, and each row isolates one step:
 | lower router ID last | `10.0.0.1` vs `10.0.0.2` | `-1` |
 | two identical paths | all defaults | `0` — deterministic, not arbitrary |
 
+The whole table is one `node -e` away, which is how it was taken: nine `-1`s and one `0`, re-measured at
+`21a109e7` and unchanged. `comparePaths()` reads exactly the eight fields the rows vary — `weight`,
+`localPreference`, `isLocalPath()`, `asPath` length, `origin`, `med`, `pathRank()` and `routerId` — and the
+MED row still compares across neighbouring ASes, so the defect row 7 records is still real.
+
+```sh
+node -e 'const {comparePaths}=require("./engine/bgp");const b={weight:0,localPreference:100,asPath:[],origin:"igp",med:0,type:"ebgp",routerId:"10.0.0.1"};const P=o=>Object.assign({},b,o);
+const rows=[["weight/LP",P({weight:100,localPreference:50}),P({weight:0,localPreference:200})],["LP/ASlen",P({localPreference:200,asPath:[1,2,3]}),P({localPreference:100,asPath:[1]})],["local",P({asPath:[]}),P({asPath:[65001]})],["ASlen",P({asPath:[1]}),P({asPath:[1,2]})],["origin",P({origin:"igp"}),P({origin:"incomplete"})],["MED",P({med:10}),P({med:20})],["MED across AS",P({asPath:[65002],med:10}),P({asPath:[65003],med:20})],["eBGP",P({type:"ebgp"}),P({type:"ibgp"})],["routerId",P({routerId:"10.0.0.1"}),P({routerId:"10.0.0.2"})],["identical",P({}),P({})]];
+for(const [n,a,c] of rows)console.log(comparePaths(a,c),n)'
+```
+
+And the three values that make steps 1, 2 and 6 unfireable in a lab were read out of the two places that build
+paths, rather than taken on trust: `simulator.js:2116` writes `localPreference: bgpLib.DEFAULT_LOCAL_PREF,
+med: 0, weight: 0` on the originated path, and `simulator.js:2158` writes `weight: 0` on the received one.
+Nothing else in `engine/` assigns `weight` at all — a grep for `.weight =` and `weight:` over the directory
+returns those two lines — while a received path takes `localPreference` and `med` from the advertisement it
+arrived in (`simulator.js:2157`) and `advertise()` fills the default when the route has none
+(`bgp.js:535`, `med: num(route.med, DEFAULT_MED)`). That is the whole argument for those three rows: the value
+is uniform because there is one place that writes it, not because labs happen to be uniform. The suite counts at the end of
+§11 (`bgp` 165, `protocol-regression` 253, `bgp-wire` 30) also still hold exactly.
+
 **Three of those steps cannot fire in a live lab today.** They are real in `comparePaths()`, and the rows
 above prove it — but every path a running simulator builds carries the same value for each of them, so the
 comparison returns `0` and the walk moves on:
