@@ -647,7 +647,7 @@ queue that lost its arms gets them back in one tick instead of five at a time.
   **None of these readings is a reading of `main`.** They were taken in the working tree, which sits on
   branch `fix/sfp-plus-connectors`, and that branch diverged from `origin/main` at `083e2ba1`
   (2026-11-08 16:58:44) — at the time of the fourth reading it was **382 ahead and 361 behind**, and
-  now reads **586 ahead and 389 behind** (after a fresh `git fetch`, which moved the behind-side
+  now reads **587 ahead and 389 behind** (after a fresh `git fetch`, which moved the behind-side
   from 361 to 373 — main's tip is `f370b893`, #1450); either way not one of the commits above is an ancestor of
   `origin/main`. Check any of them before you quote it:
 
@@ -723,6 +723,13 @@ queue that lost its arms gets them back in one tick instead of five at a time.
   The same two suites and the same 2 + 1. The 272 counts one suite that `git ls-files test` does not:
   `test/value-hints.test.js` is untracked in this tree and runs as `24 passed`. So the tree actually
   asserted 11,191 + 87 = **11,278** assertions, 3 of them red.
+
+  That is still not the whole floor, and `ma5801` is why. A suite that crashes has no summary line, so
+  `tally()` reads `passed: 0` for it — the assertions it had already printed are not merely unreported,
+  they are discarded. Measured today: `node test/ma5801.test.js` prints **ten `✓` lines and zero `✗`**,
+  then throws at `:96`, so ten green assertions vanish from the headline while the suite is counted as one
+  failure. The honest total is therefore **11,288** (11,191 + 87 + 10), 3 of them red; a crashed suite
+  costs you its pass count as well as its verdict.
 
   Taken again 29 commits later on the same branch, with the writer's value-hints work still uncommitted:
   `272 suite(s) in 324.8 s — 11191 assertions passed, 3 failed`, the same two suites, the same 2 + 1.
