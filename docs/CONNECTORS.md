@@ -836,6 +836,13 @@ override names the module actually fitted — which is how `test/bidi-media.test
 and why a U module against a U module reads `ok` on two catalogue SFP ports whose cage default lists both
 halves.
 
+The 3,399 needs spelling out, because the obvious search finds nothing: **no medium id in the catalogue
+contains "bidi"**. They are `1000base-bx`, `1000base-bx-u` and `1000base-bx-d`, and all 3,399 ports list
+the `-u`/`-d` pair together with **0** listing either half alone. A `grep -ril bidi devices/` answers three
+files and six occurrences, every one of them prose — a product named `om4501-40gsr4bidi`, two
+"bidirectional" notes and one "bidium" — and no port at all. Count through `derivePortHardware()` and the
+medium ids, never the word.
+
 `E_PROTOCOL_MISMATCH` is the one you will actually meet, and it covers two unrelated pairs: a console port
 against anything that is not a console, and a Fibre Channel port against an Ethernet one. Read its message
 rather than the code.
