@@ -84,16 +84,19 @@ lands, that comment is the first line to go stale and the first one a reader tru
       constants, `{ STATIC: 'static', DYNAMIC: 'dynamic', PAT: 'pat' }`, at `engine/nat.js:37-41` — with the
       array `TYPES` at `:43`; there is no `NAT_TYPES` list to grep for. Static and PAT rules are configurable from the console —
       `ip nat inside source static <local> <global>` and `ip nat inside source list <acl> interface <if>
-      overload` — and **pool-based dynamic rules are not**: `ip nat pool …` is refused with
-      `% This model translates inside source addresses ("ip nat inside source …"), not "pool"`, so a dynamic
+      overload` — and **pool-based dynamic rules are not**: `ip nat pool …` is refused in two lines —
+      `% This model translates inside source addresses ("ip nat inside source …"),` then `% not "pool"` —
+      and `ip nat outside` gets the same first line with `% not "outside"`, so a dynamic
       rule still comes from the topology JSON. The console reads the result two ways:
       `show ip nat translations` (the entries the data path wrote) and `show ip nat statistics`
       (`rules 1 (pat 1)`, `translations`, `dynamic entries`, `hits`).
 
       Two orderings the page owes a copy-paster, both measured on `examples/lab2-router-two-subnets.json`
       on 2026-11-12. **The ACL has to exist first**: `ip nat inside source list 10 interface Gi0/0
-      overload` on a router with no list 10 answers `% Access list 10 does not exist - the NAT list says
-      which addresses are translated, so it has to be built first` and `% Configured lists: (none)`, so
+      overload` on a router with no list 10 refuses in **three** `%` lines, and the first message is
+      wrapped mid-sentence — `% Access list 10 does not exist - the NAT list says which addresses` then
+      `% are translated, so it has to be built first`, then `% Configured lists: (none)` — so match the
+      words rather than a single-line string, and
       `access-list 10 permit 10.0.1.0 0.0.0.255` comes before the rule; the rule then installs
       (`NAT rule added on Router-d3: pat list 10 -> Gi0/0 (10.0.1.1) overload`) with a warning that it
       needs one interface inside and one outside or it will match nothing. **And the roles are set in
