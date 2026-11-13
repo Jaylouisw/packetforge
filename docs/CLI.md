@@ -9952,8 +9952,10 @@ The table below is the report that matters:
 | `vlan.js` | 3 | `E_VOICE_NOT_ALLOWED`, `E_VOICE_VLAN_ACCESS`, `E_VOICE_VLAN_NATIVE` |
 | `media.js` | 2 | `E_BIDI_MISMATCH`, `E_BIDI_SAME_WAVELENGTH` — the same two as `optical.js`: one code, raised in two modules, so the rows above sum to more than 31 |
 
-**The seventeen that are still unnamed**, measured on the current tree, by the file that raises them —
-these are *not* the thirty-one above, which this table named and so removed from the count:
+**The seventeen that were still unnamed when that list was written**, by the file that raised them —
+these are *not* the thirty-one above, which the table named and so removed from the count. This is a
+snapshot, not today's reading: the appendix has since grown the DHCP, VRRP, VLAN, LAG and NAT tables, and
+each of those rows became the only page naming its code, so the same measurement reads **82** now.
 
 | File | Still unnamed |
 |---|---|
@@ -9964,8 +9966,27 @@ these are *not* the thirty-one above, which this table named and so removed from
 | `optical.js` | 1 — `E_UNKNOWN_SPLITTER` |
 
 Every one of them is a parse guard, and `ipv6.js` holding ten of seventeen is the whole story of that
-file: an IPv6 address is parsed by a dozen small refusals that never reach the console as codes. Recount
-with two lines rather than trusting this table —
+file: an IPv6 address is parsed by a dozen small refusals that never reach the console as codes.
+
+Measured today, by the file that raises the code, the 82 split like this — the column sums to 85 because
+three codes are raised in two modules each (`E_ADDRESS` in `acl.js` and `ipv6.js`, `E_PROTOCOL` in
+`acl.js` and `nat.js`, `E_TYPE` in `ipv6.js` and `ra.js`). No other module appears: the rest of
+`engine/` raises only codes that some other page already names:
+
+| File | Unnamed by any other page |
+|---|---|
+| `ipv6.js` | 16 |
+| `dhcp.js` | 13 |
+| `nat.js` | 12 |
+| `dns.js` | 9 |
+| `vrrp.js` | 8 |
+| `acl.js` | 7 |
+| `vlan.js` | 7 |
+| `ra.js` | 6 |
+| `simulator.js` | 4 |
+| `optical.js` | 3 |
+
+Recount with two lines rather than trusting any of these tables —
 
 ```bash
 grep -ohE "'[EW]_[A-Z0-9_]+'" engine/*.js | tr -d "'" | sort -u > /tmp/codes.txt
