@@ -9302,7 +9302,11 @@ Reply from 10.10.0.1: bytes=100 time=0.002 ms
 Success rate is 100 percent (2/2), round-trip min/avg/max = 0.002/0.002/0.002 ms
 
 SW1#ping 10.10.0.10 count 1
-Success rate is 100 percent (1/1)
+Type escape sequence to abort.
+Sending 1, 100-byte ICMP Echos to 10.10.0.10, timeout is 2 seconds:
+!
+Reply from 10.10.0.10: bytes=100 time=0.002 ms
+Success rate is 100 percent (1/1), round-trip min/avg/max = 0.002/0.002/0.002 ms
 ```
 
 Four rules make it behave like a management address rather than a decorative field:
@@ -9315,6 +9319,7 @@ Four rules make it behave like a management address rather than a decorative fie
     status: up
     ip: 10.10.0.1/24
     vlan: 10 (access)
+    line protocol: up
   ```
   A logical port has no socket, so `show interfaces` reports the VLAN it holds the address in rather
   than a `peer` that can never be plugged in.
@@ -9332,7 +9337,7 @@ Four rules make it behave like a management address rather than a decorative fie
 SW1#show vlan
 VLAN  Name      Status  Ports
 1     VLAN0001  active  1/1/1, 1/1/2, 1/1/4, …
-10    mgmt      active  1/1/3, Vlan10
+10    mgmt      active  1/1/3, Vlan10 (SVI)
 
 SW1#show ip route
 Codes: C - connected, S - static
@@ -9358,6 +9363,10 @@ Interface  IP-Address    OK?  Method  Status  Protocol
 Vlan10     10.10.0.1/24  YES  manual  up      down
 
 SW1#ping 10.10.0.10 count 1
+Type escape sequence to abort.
+Sending 1, 100-byte ICMP Echos to 10.10.0.10, timeout is 2 seconds:
+.
+Request timed out (seq 0)
 Success rate is 0 percent (0/1)
 
 SW1#show ip route
