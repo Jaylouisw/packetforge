@@ -460,7 +460,9 @@ neither field: `404 {"error":"unknown device model: undefined/undefined"}`.
 
 Measured on this tree: without `PF_COMMIT`, `GET /api/version` answers
 `{"name":"packetforge","version":"0.1.0","commit":null,"node":"v26.12.1","platform":"win32/x64","devices":1661}`;
-with `PF_COMMIT=abc123` the same call answers `"commit":"abc123"` and nothing else moves. **Nothing
+with `PF_COMMIT=abc123` the same call answers `"commit":"abc123"` and nothing else moves. Only `commit` and
+`devices` are facts about the tree — `node` and `platform` are the machine's, so they will not match yours
+(this one runs `v24.11.0` on the same `win32/x64`). **Nothing
 in the repository sets it** — not the `Dockerfile`, not a script, not the npm scripts — so the
 `commit` field the API table documents is `null` on every stock install and inside the container
 unless you set it yourself.
@@ -497,6 +499,28 @@ Two of the board endpoints behave in a way a client author will not guess:
 | `GET /api/topologies/:id` | the board state, or `404 { error: 'topology not found' }` |
 | `DELETE /api/topologies/:id` | `{ ok: true }` — **always**, even for an id that never existed |
 | `GET /api/version`, `GET /api/media` | build info (`name`, `version`, `commit`, `node`, `platform`, `devices`) and the raw media/cage catalogues |
+
+The two catalogue routes disagree about what a "list" is, which is the sort of thing a client discovers at
+runtime. `GET /api/catalog` answers `{ specs, categories }` — `specs` is an **array** of 1,661 and
+`categories` an **object** of 25 keyed by category name. `GET /api/media` answers `{ media, cages }` and
+*both* are objects (89 and 26) keyed by id. So `.map()` works on one endpoint and throws on the next:
+
+```bash
+PD=$(mktemp -d); PF_DATA="$PD" PORT=8196 node server/index.js >/dev/null 2>&1 &
+sleep 1
+for p in /api/catalog /api/media; do
+  printf '%-14s ' "$p"
+  curl -s "localhost:8196$p" | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{const j=JSON.parse(s);console.log(Object.entries(j).map(([k,v])=>k+"="+(Array.isArray(v)?"array "+v.length:"object "+Object.keys(v).length)).join("  "))})'
+done
+kill %1
+```
+
+Measured:
+
+```
+/api/catalog   specs=array 1661  categories=object 25
+/api/media     media=object 89  cages=object 26
+```
 
 - **Adding a device wants `vendor` + `model`, ignores `name`, and says neither.** `POST
   /api/topologies/:id/devices` with `{ "kind": "pc", "name": "PC1" }` answers
