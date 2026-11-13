@@ -9673,7 +9673,9 @@ Translating "www.lab.example"...domain server (DNS)
 Type escape sequence to abort.
 Sending 2, 100-byte ICMP Echos to 10.0.2.10, timeout is 2 seconds:
 !!
-Success rate is 100 percent (2/2)
+Reply from 10.0.2.10: bytes=100 time=0.002 ms
+Reply from 10.0.2.10: bytes=100 time=0.002 ms
+Success rate is 100 percent (2/2), round-trip min/avg/max = 0.002/0.002/0.002 ms
 ```
 
 The translation line is printed only when a name was given, and it names the server that
@@ -9699,33 +9701,73 @@ accuse a server of refusing a domain it never served. And something that is only
 was meant to be an address, so a malformed one is called malformed rather than looked up as a
 hostname.
 
-**That type argument only applies to the device's own zones.** It is dropped on the lab-fallback
-path, so a client asking a neighbour's server always gets the A question answered:
+**A client asking a neighbour's server gets the type it asked for.** The typed question survives the
+fallback path, and the two answers differ by what is wrong — a type the name does not carry, versus a
+name the zone does not own:
 
 ```
 PC1#nslookup www.lab.example AAAA
 Server: DNS
-  www.lab.example -> 10.0.2.10
+  www.lab.example exists but has no AAAA record (NODATA)
 
 PC1#nslookup lab.example MX
 Server: DNS
-  lab.example exists but has no A record (NODATA)
+  ** server can't find lab.example: NXDOMAIN
 ```
 
-The first answer is the `A` value under a bare `->` line with no type shown, so it looks like a
-`AAAA` that happens to equal the IPv4 address. The second is worse to read: `lab.example` was asked
-about as `MX` and answered as though you had asked for `A`. Both are correct for the question the
-engine actually posed — run the same two commands **on the server** to see the typed answers above.
+`NODATA` is the first: the name resolves and the type does not. `NXDOMAIN` is the second, and it reads
+oddly — `lab.example` is the zone the record lives in, so the server owns the name it is denying. It is
+not an artefact of the fallback path: ask the server itself and it denies the same name (below). Ask
+the same two questions **on the server** and the answer is typed and prefixed with what it was asked,
+which is the only way to see the query name as well as the verdict:
+
+```
+DNS#nslookup www.lab.example AAAA
+Server: DNS (authoritative for lab.example)
+Query: www.lab.example. AAAA -> NOERROR (authoritative)
+  no AAAA records for www.lab.example. (empty NOERROR)
+
+DNS#nslookup lab.example MX
+Server: DNS (authoritative for lab.example)
+Query: lab.example. MX -> NXDOMAIN (authoritative)
+  ** server can't find lab.example.: NXDOMAIN
+```
 
 Reverse lookups are the other rough edge, and there is no workaround: the record is stored and
-displayed but **no lookup path resolves it**. `dns add 10.0.2.10 PTR www.lab.example` is accepted
+displayed but **no query resolves it**. `dns add 10.0.2.10 PTR www.lab.example` is accepted
 (`Added 10.0.2.10 PTR www.lab.example to lab.example`), `show dns` lists it under its zone, and then
-`nslookup 10.0.2.10 PTR` on that same server still answers `** server can't find 10.0.2.10:
-NXDOMAIN` — from the lab path, not authoritatively. Building the reverse zone by hand does not fix
-it either: with `dns zone 2.0.10.in-addr.arpa` created and the PTR inside it, the query for
-`10.0.2.10` is not rewritten to the reverse name, so the same NXDOMAIN comes back. Treat `PTR` as a
-record you can store and read in the table, not one you can query; forward lookups (`A`, `AAAA`,
-`CNAME`, `MX`, `NS`, `TXT`, `SRV`) are the ones that answer.
+`nslookup 10.0.2.10 PTR` answers a note about the name it is about to ask:
+
+```
+PC1#nslookup 10.0.2.10 PTR
+  (as 10.2.0.10.in-addr.arpa - a reverse lookup of 10.0.2.10)
+Server: DNS
+  ** server failure: no zone for the reverse space 2.0.10.in-addr.arpa
+  A reverse lookup needs a zone of its own - "dns zone 2.0.10.in-addr.arpa" on the server, with a PTR record for each address
+```
+
+That is a *server failure*, not a denial — nothing was authoritative for the reverse space, which is a
+different answer from `NXDOMAIN` and points at the fix. Follow it and you hit the real defect: the
+query **is** rewritten to a reverse name, and the rewrite reverses the address wrongly — it asks for
+`10.2.0.10.in-addr.arpa` where the zone hint says `2.0.10.in-addr.arpa`. Build that zone by hand and
+put the PTR in it, and the record is still unreachable, because the question names a zone that does not
+exist:
+
+```
+DNS(config)#dns zone 2.0.10.in-addr.arpa
+DNS zone 2.0.10.in-addr.arpa ready
+DNS(config)#dns add 10.0.2.10 PTR www.lab.example
+Added 10.0.2.10 PTR www.lab.example to 2.0.10.in-addr.arpa
+
+DNS#nslookup 10.0.2.10 PTR
+  (as 10.2.0.10.in-addr.arpa - a reverse lookup of 10.0.2.10)
+Server: DNS (authoritative for 2.0.10.in-addr.arpa)
+Query: 10.2.0.10.in-addr.arpa. PTR -> NXDOMAIN (authoritative)
+  ** server can't find 10.2.0.10.in-addr.arpa.: NXDOMAIN
+```
+
+So treat `PTR` as a record you can store and read in the table, not one you can query; forward lookups
+(`A`, `AAAA`, `CNAME`, `MX`, `NS`, `TXT`, `SRV`) are the ones that answer.
 
 ## SCION
 
