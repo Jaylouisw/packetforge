@@ -8604,9 +8604,35 @@ NAT statistics on R1:
   hits                  6
 ```
 
-Three states are worth telling apart, and the output names which one you are in: no rules at all
-(`(none - no NAT rules; NAT is configured from the topology)`), rules but no traffic yet
-(`(none yet - 1 rule configured, but no traffic has been translated)`), and a table with rows.
+Four states are worth telling apart, and each view names its own. `show ip nat translations` with no
+rule configured at all sends you to the command that writes one:
+
+```
+R1#show ip nat translations
+NAT translations on R1:
+  (none - no translations yet. A rule comes from "ip nat inside source …",
+   and an entry appears here the first time a packet is translated)
+```
+
+The same view with a rule and no traffic through it:
+
+```
+R1#show ip nat translations
+NAT translations on R1:
+  (none yet - 1 rule configured, but no traffic has been translated)
+```
+
+`show ip nat statistics` answers in counters rather than a sentence, so *configured and idle* is the
+zeroed block above, and a router with no rule prints where rules come from instead:
+
+```
+R1#show ip nat statistics
+NAT statistics on R1:
+  (no rules - add one with "ip nat inside source static <local> <global>"
+   or "ip nat inside source list <acl> interface <outside-port> overload")
+```
+
+`show ip nat <anything else>` refuses by name and lists the two views that exist.
 
 ## OSPF
 
