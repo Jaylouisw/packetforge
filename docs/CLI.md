@@ -9029,10 +9029,20 @@ spelling, because that is what is printed on the box:
 ```
 MT1#show interfaces sfp-sfpplus1
 SFP+1 (ethernet, 10G), MAC 02:00:00:00:00:08
-  status: up
+  status: down
   ip: unassigned
+  MTU 1500 bytes (default), duplex full (default), speed 10G (negotiated)
+  input : 0 packets, 0 bytes
+  output: 0 packets, 0 bytes
+  drops : 0
   peer: disconnected
 ```
+
+Typed either way — `sfp-sfpplus1` or `SFP+1` — that is the answer, all eight lines of it, on a port with
+nothing plugged in; the same command with a cable in it reads `status: up` and names the peer (see
+[Port names](#port-names)). What the spelling buys you here is only the lookup: `show ipv6 interface
+sfp-sfpplus1` answers with the same `SFP+1` rows, and a name that is not a port at all (`sfp1`) is
+refused rather than folded onto this one.
 
 That equality is not cosmetic. In the version this section replaces, `show interfaces sfp-sfpplus1` and
 `show interfaces transceiver sfp-sfpplus1` both worked while `show ipv6 interface sfp-sfpplus1` refused
