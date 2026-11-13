@@ -1262,7 +1262,12 @@ node test/link-parts.test.js | grep 'carries every catalogue part'
 
 Both commands were run on 2026-11-12. The first prints `58 parts {"sfp":8,"sfp+":21,"sfp28":4,"qsfp+":7,"qsfp28":13,"qsfp-dd":3,"qsfp56":2}`; the second prints
 `✗ the UI carries every catalogue part (34 of 58)`, and the suite around it reports `81 passed, 2 failed` — this
-gap is one of the two red assertions on this branch, not a stale note.
+gap is one of the two red assertions on this branch, not a stale note. The other red is the same gap from the
+field side, and it takes the recipe above with a different pattern:
+`node test/link-parts.test.js | grep 'every field matches'` prints `✗ and every field matches the catalogue file`
+followed by a list of exactly **24** model names. 58 − 34 is 24, so the pair is one finding reported twice — the
+picker is short the same 24 parts, first by name and then field by field — not two independent defects, and
+filling in `PART_ROWS` should turn both green at once.
 
 Every count in the field table above was re-derived from the JSON rather than read off the page, and all of them
 hold: **58** parts; `connector` `lc` 43, `mpo` 8, `sc-upc` 3, `sc-apc` 1, `rj45` 3; `polish` `upc` 42, `apc` 2,
