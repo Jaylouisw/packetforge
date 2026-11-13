@@ -10028,7 +10028,7 @@ all; ``grep -c '^| `E_' docs/CLI.md`` is the 49 rows that open with a code.
 | DHCP pool (`exit` from `ip dhcp pool`) | **prose only, and no code**: `% DHCP pool p1: default router 10.9.9.9 is outside 10.1.1.0/24.`, then `% Pool p1 discarded - a pool is kept only once it is valid` and the line that says how to fix it. `E_DHCP_GATEWAY_OUTSIDE` (`engine/dhcp.js:401`) never reaches the console |
 | VLAN, trunk, LAG, VRRP (config mode) | **prose only**, at the keystroke: `% "1004" is not a VLAN id, a list (10,20) or a range (10-20)` — with `% Usage: switchport trunk allowed vlan <list\|all> [add\|remove <list>]` under it — for a reserved id in a trunk list, `% Invalid virtual router id: 300 (1-255)`, `% Invalid mode: bogus (use active\|passive\|on)`. Two things this row used to get wrong: the console **accepts** `switchport access vlan 1004` — creating VLAN 1004 on the way through, `Access VLAN 1004 on Fa0/2 (VLAN 1004 did not exist and was created …)` — and `switchport trunk native vlan 1004`, so the reserved-VLAN sentence `accessVlan 1004 is reserved by IEEE 802.1Q (1002-1005)` is a `validateTopology()` message (`engine/vlan.js:387`) that no keystroke prints — and a trunk list refuses 1004 with a *parse* message, not the reserved one |
 | `access-list` | malformed lines are refused in the parser's own words; a **bare sequence number** in `no access-list <n> <seq>` still prints `% [object Object]` and removes nothing (see [Access control lists](#access-control-lists)) |
-| NAT | static and PAT are written from the console and answer in **prose** — `% eth0 has no address - "overload" translates onto that address…`, `% Access list 10 does not exist - the NAT list says which addresses are translated…`, and a pool is refused outright with `% This model translates inside source addresses ("ip nat inside source …"), not "pool"`. A dynamic pool rule still lives in the topology JSON, and its codes arrive through `validateTopology()` |
+| NAT | static and PAT are written from the console and answer in **prose** — `% eth0 has no address - "overload" translates onto that address…`, `% Access list 10 does not exist - the NAT list says which addresses are translated, so it has to be built first` (with `% Configured lists: (none)` under it, or the lists that do exist), and a pool is refused outright with `% This model translates inside source addresses ("ip nat inside source …"), not "pool"`. A dynamic pool rule still lives in the topology JSON, and its codes arrive through `validateTopology()` |
 | `validateTopology()` / the validator | `{ code, message }` objects with a severity, which is where the tables below are transcribed from |
 
 So a code in these tables is not a promise that the console will print it. The tables are still worth
@@ -10115,5 +10115,9 @@ IPv6, DNS, SCION, BGP — is reachable with `grep -rn "E_" engine/*.js`.
 `flow open` and `openFlow()` answer with the **runtime** codes instead, and they are the same
 `E_NO_ROUTE` / `E_ACL_DENY` / `E_STP` / `E_UNREACHABLE` the console prints — plus `E_PROTO` (not tcp
 or udp), `E_NO_ADDRESS` (the destination device has none), `E_IFACE_DOWN`, `E_NO_SOURCE_IP`,
-`E_FLOW_TOO_LARGE` (more segments than a run allows) and `E_NO_ROUTE_TO_PEER` (BGP could not reach
-its neighbour). See [Flows](#flows).
+`E_FLOW_TOO_LARGE` (more segments than a run allows), `E_NO_ROUTE_TO_PEER` (BGP could not reach
+its neighbour) and `E_UNRESOLVED_NEXT_HOP`, which is what a static route whose next hop has no way of
+its own answers with: keep the route but shut the port it leaves by, and `show ip route` prints the
+route with `-` in the Interface column plus the warning that it has a next hop this router cannot reach,
+while `flow open` on it refuses `% flow refused (E_UNRESOLVED_NEXT_HOP): next hop 10.0.2.2 is not on any
+connected subnet` instead of inventing a route failure. See [Flows](#flows) and [Static routes and the gateway of last resort](#static-routes-and-the-gateway-of-last-resort).
