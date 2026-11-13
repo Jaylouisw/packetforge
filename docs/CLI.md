@@ -8539,7 +8539,7 @@ Fields, as `engine/nat.js` reads them:
 | `type` | `static` (one-to-one, both directions), `dynamic` (first free address from a pool), `pat` (many inside locals on one global address, told apart by source port) |
 | `insideLocal` | an address, a prefix (`10.0.0.0/24`), a range (`x-y`) or `any` |
 | `insideGlobal` | the translated address (a pool spec for `dynamic`) |
-| `protocol` | `tcp`, `udp`, `icmp`, `any` or a number — but read the note below before writing an `icmp` rule: no ICMP packet ever reaches the NAT stage in this engine |
+| `protocol` | `tcp`, `udp`, `icmp`, `any` or a number — `icmp` included: an echo is translated like a flow, and it takes a port pair of its own (see the note below) |
 | `port` | pins the translated port — this is what port forwarding is; `null` forwards every port |
 | `acl` | an address allow-list, or an ACL name the ACL stage has already applied. A token that is not an address is **ignored**, not treated as deny-all |
 
@@ -8552,12 +8552,23 @@ Two things worth knowing: PAT allocates the translated source port from **1024 u
 not preserve the original; and a packet the table cannot translate is dropped with a `nat-drop`
 event carrying a code and message, rather than passing untranslated.
 
-A third, and the one that costs people an afternoon: **ICMP is never translated.** The NAT stage
-only sees frames that carry a transport header, and an echo request has none, so a `ping` across a
-NAT box is handed to the routing table as if NAT were not configured. Measured: with the PAT rule
-above, `ping 203.0.113.9` from `192.168.1.10` succeeds 4/4, `show ip nat translations` stays empty,
-and nothing appears in the event log — not even a drop. Use a flow to test NAT (`ping` will happily
-prove the opposite of what you meant), then read the table.
+A third thing, because it used to be the trap and is now just a fact about the table: **ICMP is
+translated.** The NAT stage keys a translation on the transport header where there is one and on the
+echo identifier where there is not, so a `ping` across a NAT box lands in `show ip nat translations`
+and takes a port pair of its own. Measured with the PAT rule above in a two-router lab, `ping
+198.51.100.7` from `10.0.0.9` answering 4/4:
+
+```
+R1>show ip nat translations
+NAT translations on R1:
+Pro   Inside global      Inside local   Outside local      Outside global     Type
+icmp  198.51.100.1:1024  10.0.0.9:4096  198.51.100.7:4096  198.51.100.7:4096  pat
+```
+
+The echo identifier appears in both port columns, and the global port comes off the same upward
+counter as TCP and UDP: a `flow open 198.51.100.7 port 443` opened afterwards takes **1025**, even
+when the connection is refused. So a `ping` is enough to see NAT work, and a flow is what shows the
+port pair for a real connection.
 
 ### Reading what the data path did
 
