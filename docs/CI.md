@@ -447,7 +447,7 @@ Counting the **21 pages that carry code** — `docs/*.md`, `README.md`, `CONTRIB
 26 `json`, 3 `jsonc`, 1 `yaml`, 1 `console`), and that total includes the census block below and the block
 quoting its output, because a page that counts fences is made of fences. **23 of the 35 `js` blocks parse under `node --check` and
 12 do not**, and none of the 12 is meant to: three are loop-body excerpts that end in `continue`
-(`CONTRIBUTING.md:581` and `:592`, `docs/BGP-POLICY.md:709`), six are data shapes written as a literal —
+(`CONTRIBUTING.md:582` and `:593`, `docs/BGP-POLICY.md:709`), six are data shapes written as a literal —
 a `'permit' | 'deny'` union, a map of cage definitions, a `device.config` fragment — (`docs/BGP-POLICY.md:921`
 and `:1093`, `docs/CONNECTORS.md:496` and `:1143`, `docs/PHYSICAL_LAYER.md:661`,
 `docs/UPSTREAM-DESIGN.md:228`), one is a branch list lifted out of a dispatch chain
@@ -523,8 +523,8 @@ js: 35 blocks, 23 parse, 12 do not:
   docs/PHYSICAL_LAYER.md:661
   docs/UPSTREAM-DESIGN.md:228
   docs/UPSTREAM-DESIGN.md:389
-  CONTRIBUTING.md:581
-  CONTRIBUTING.md:592
+  CONTRIBUTING.md:582
+  CONTRIBUTING.md:593
 ```
 
 A count that includes the thing doing the counting has to say so, and this one does: run the block after
@@ -936,14 +936,11 @@ queue that lost its arms gets them back in one tick instead of five at a time.
   `http://odin:3000/api/v1/repos/jaylouisw/packetforge/contents/.github/workflows/ci.yml?ref=<branch>`
   answers **200** or **404** — twelve requests instead of twelve checkouts.
 
-  That sample works against GitHub as well, which is reachable when the forge is not: list the heads with
-  `git ls-remote --heads https://github.com/jaylouisw/packetforge`, take twelve spread evenly through the
-  sorted names, and ask
-  `https://api.github.com/repos/jaylouisw/packetforge/contents/.github/workflows/ci.yml?ref=<branch>` for
-  each — unauthenticated, so twelve calls are well inside the hourly limit. On today's **889** heads, nine
-  of the twelve answer **200**, and the three that answer **404** are the newest names in the list
-  (`feat/ubnt-amplifi-pbe`, `fix/port-roundtrip`, `work89b`), which is the rebase the paragraph above is
-  asking for already done on the branches people still push to.
+  When the forge is unreachable — as it is from a sandbox without the `forgejo` alias, and from this host
+  today — take the same sample against the mirror instead: [MIRRORING.md](MIRRORING.md) §4 carries the URLs
+  and records the reading (nine of twelve of today's **889** heads still carry the file, and the three that
+  do not are the newest names in the list). This page names no GitHub host on purpose; the canonical-URL
+  guard forbids it here.
 
 - **Whether any suite is red is a reading, not a fact about the repository — so read it.** The two
   suites that were red for a long time are green now: `test/spec-vs-description.test.js` **3 passed, 0

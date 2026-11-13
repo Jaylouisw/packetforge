@@ -268,6 +268,15 @@ disable new ones (Settings → Features → uncheck Issues). Blunter, but it can
 
 ## 4. CI and CD: Forgejo only
 
+The mirror is the reachable half when the forge is not, so it is also where a reading about stale branches
+has to be taken. List its heads with `git ls-remote --heads https://github.com/jaylouisw/packetforge`, take
+twelve spread evenly through the sorted names, and ask the contents API for
+`/contents/.github/workflows/ci.yml?ref=<branch>` on each: **200** means the branch still carries the file,
+**404** means it was rebased past #1059. Measured on today's **889** heads, **nine of twelve answer 200**
+and three answer 404 — and the three are the newest names in the list (`feat/ubnt-amplifi-pbe`,
+`fix/port-roundtrip`, `work89b`), which is the rebase already done on the branches people still push to.
+Unauthenticated requests are enough for a sample that size.
+
 `.github/workflows/` **no longer exists** — it was deleted in #1059. While it was there, its jobs
 were gated with `if: github.server_url == 'https://github.com'`, which meant they also ran on
 Forgejo, where they failed every time with `docker: command not found` because the runner has no
