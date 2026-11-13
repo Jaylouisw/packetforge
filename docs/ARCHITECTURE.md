@@ -552,6 +552,19 @@ Counted from the dispatch block in `server/index.js` rather than by eye, because
 the namespace list suggests. **25 callable method-path pairs over 15 namespaces**, and the three blocks
 that carry more than one method account for the whole gap:
 
+Both halves of that count come straight out of the file:
+
+```bash
+git show HEAD:server/index.js | grep -c "parts\[3\] === '"                                 # 15 blocks
+git show HEAD:server/index.js | grep -o "parts\[3\] === '[a-z0-9-]*'" | sort -u | wc -l     # 11 namespaces
+```
+
+and the arithmetic closes. The **eighteen** are those eleven namespaces' pairs: `devices` 2, `links` 4,
+`flows` 4, and the eight single-pair namespaces 1 each. Add the four `topologies` board routes and the
+three catalogue routes (`catalog`, `version`, `media`) and you have the **25**, which is why the table
+below says *over 15 namespaces* rather than over the eleven; count the second verb on the two `links`
+pairs and you have the **27** a naive method count returns.
+
 | Namespace | Pairs | Which |
 |---|---|---|
 | `links` | 4 | `POST` a link, `DELETE …/:linkId`, the length edit (`PATCH` **or** `POST`), `…/:linkId/state` (`PATCH` **or** `POST`) |
