@@ -8412,10 +8412,10 @@ An entry is matched by what it **means**, not how it was typed: `eq 80` and `eq 
 port 80, and `host 10.0.1.6` and `10.0.1.6 0.0.0.0` are the same address, so either spelling
 removes the entry the table shows. The echo then reports the entry the way it was **written**, not in
 a canonical form — type `eq 80` and it says `eq 80`, type `eq www` and it says `eq www` — so what comes
-back is what the list holds, while the match is by meaning. An entry that is not there is refused and the list is printed,
-because an entry you cannot find is usually an entry you misremembered. Removing the last entry
-deletes the list and says so — `the list is now empty and was deleted` — rather than leaving an
-empty list behind.
+back is what the list holds, while the match is by meaning. An entry that is not there is refused and
+the list is printed, because an entry you cannot find is usually an entry you misremembered. Removing
+the last entry deletes the list and says so — `the list is now empty and was deleted` — rather than
+leaving an empty list behind.
 
 `no ip access-group [<acl>] [in|out]` unbinds a list from the interface: with a number and/or
 direction it clears only the matching bindings (and refuses a number that is not bound), with no
