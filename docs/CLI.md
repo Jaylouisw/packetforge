@@ -8784,9 +8784,22 @@ Neighbor   V  AS     State        Reason
 2 prefix(es) received, 1 installed - the rest lose on distance (see "show ip bgp" and "show ip route")
 ```
 
-The `Reason` column is where a session that did *not* come up says why (wrong AS, no route to the
-peer); an established one names the relationship instead. The two numbers at the bottom are not the
-same question: **received** is what the peer sent, **installed** is how many `B` rows `show ip route`
+The `Reason` column is where a session that did *not* come up says why; an established one names the
+relationship instead. Measured, the words it uses are specific enough to act on:
+
+| what is wrong | `State` | `Reason` |
+|---|---|---|
+| the peer is in another AS | `Idle` | `remote-as 65099 but R2 is AS65002` |
+| the peer has no neighbour pointing back | `Idle` | `R2 has no neighbour 10.0.12.1` |
+| the peer's port is administratively down | `Idle` | `Gi0/0 is down on R2` |
+| the peer address is off every connected subnet | `Idle` | `neighbour 10.0.99.2 is not on a connected subnet of R1` |
+| the peer is cabled to nothing | `Idle` | `not yet evaluated` |
+
+The last row is the hole: a peer that is simply unreachable is the one failure that gets a phrase
+instead of a reason, so a dark link reads as `not yet evaluated` and you have to check `links`
+yourself. Every other row in that table names the fault and the device it is on.
+
+The two numbers at the bottom are not the same question: **received** is what the peer sent, **installed** is how many `B` rows `show ip route`
 marks with `*`, and they differ wherever a closer route wins — on a single link, always the prefix you
 share with the peer. The three views are three commands: `show ip bgp summary` for the neighbour table
 above, `show ip bgp` for the route table it fed (`Network  Next Hop  Path`), and `show ip bgp neighbors`
