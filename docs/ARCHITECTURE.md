@@ -788,10 +788,14 @@ as a whole.** Measured against a live board with two PCs:
 | `{"ip":"","mask":""}` | `200`, address cleared |
 | `{"role":"wan"}` on a fixed-role port | `400 {"error":"eth0 cannot be wan; it has no configurable role"}` |
 
-Every row above was re-run against a live board in this tree, and the answer carries one shape trap of its
-own: the `device` in the response lists its ports under **`interfaces`**, while the same device inside `state`
-lists them under **`ports`**. Both are the same objects — `{"name":"eth0","enabled":true,"description":""}`
-— so a client that reads the response once, remembers the key, and reads `state` next finds nothing there.
+Every row above was re-run against a live board in this tree, and they all answer exactly as printed — the
+`mask`-only row leaves both `ip` and `mask` at `10.0.0.1/255.255.255.0`, `{"enabled":"false"}` leaves
+`enabled: true` (a boolean), and `{"description":42}` stores the number `42`. One thing this paragraph used
+to claim does **not** hold: it said the response's `device` lists its ports under **`interfaces`** while the
+same device inside `state` lists them under **`ports`**, and measured on the same server both are
+`interfaces` — `state.devices[0]`, the `device` in the POST answer, and every device from
+`GET /api/topologies/default` carry the same key set, and no response in `server/index.js` writes a `ports`
+array at all. So there is no remapping to do: read `interfaces` wherever the device appears.
 
 Three more things this endpoint does **not** do:
 
