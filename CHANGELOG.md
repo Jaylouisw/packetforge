@@ -1135,6 +1135,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   115.2 kbps cage. The rate now falls back to the cage's own ladder, and `speedCaps` no longer
   widens a 9600-baud port to the whole five-rate ladder.
 
+  Worth knowing before reading that as a description of the catalogue: measured on this tree, all
+  **178** console ports declare neither `baud`, `speed` nor `speedCaps`, so `speedCaps` for every one
+  of them *is* the five-rate ladder — `[0.0096, 0.0192, 0.0384, 0.0576, 0.1152]`, one distinct shape
+  across all 178 — and no console port emits a rate of its own at all. The narrowing guard
+  (`hw.speedCaps || declared caps || the cage ladder`, `engine/media.js:996-998`) is real, but nothing
+  the catalogue ships can reach it: it takes a hand-written spec. And only one of the three ways of
+  declaring a rate actually narrows anything — run through `derivePortHardware` on a `console`
+  interface, `baud: 9600` gives `[0.0096]`, while `speed: "9600"` gives the whole ladder back and
+  `speedCaps: [9600]` is taken in **Mbps** and gives `[9600]`, which is the unit trap the comment at
+  `media.js:887` warns about.
+
 - **Console ports were exempt from the cage-rate invariant**, which is how those 163 ports stayed
   green. The exemption is gone; "slow is correct" (DSL, PON, console) still excuses a low rate, and
   the overreach check now runs on console ports like any other.
