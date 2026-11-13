@@ -1036,6 +1036,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   Router-d1(config)#ip default-gateway 224.0.0.1
   % 224.0.0.1 is a multicast group address (class D), so it cannot be a default gateway
   % A gateway is one unicast host on a directly connected subnet
+  % Usage: ip default-gateway <address>
   ```
 
   The five are `0.0.0.0` (zero address), `255.255.255.255` (limited broadcast), `224.0.0.0/4`
@@ -1118,7 +1119,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   %   switchport trunk allowed vlan remove <id>  drops it from the allowed list
   ```
 
-  See [docs/CLI.md](docs/CLI.md).
+  The line names every VLAN in that state and pluralises to match, so a trunk allowing one undeclared
+  VLAN reads the block above and a trunk allowing two reads `% 10, 77 are allowed on a trunk but not
+  configured, so they are not a VLAN on this device:` over the same two fix lines. See
+  [docs/CLI.md](docs/CLI.md).
 
 - **`wired-port-has-media` now asserts that every cabled port has a medium**, rather than guarding
   only the ones that already had one. 84 coax and 24 MCX ports had none, so the picker silently
