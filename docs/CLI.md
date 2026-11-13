@@ -8711,12 +8711,21 @@ BGP is the opposite, which is worth knowing before blaming the tool: a session i
 configured neighbour address and rides the data path, so two eBGP routers on either side of a switch
 do reach `Established  eBGP` ([BGP](#bgp)).
 
-`state` is `FULL` when OSPF had converged **at the instant the simulator is sitting on**, and `INIT`
-before that — which is worth spelling out because the instant is sticky and only one command moves
-it. A `ping … at 500` leaves the simulator at t=500, so every later `show ip ospf neighbor` reports
-`INIT` (and `show ip ospf` counts it: `Neighbors: 1 (0 FULL)`), and a plain `ping` or a bare
-`converge` afterward does **not** clear it — `converge <ms>` is a question, not a time machine.
-`ping … at converged` is what goes back, after which the same table reads `FULL`.
+The table is answered **at the instant the simulator is sitting on**, and that instant is sticky —
+only one command moves it. There is no intermediate state to report, which the page used to get wrong:
+`engine/ospf.js` carries no neighbour state machine, so a session is either `FULL` or absent, and before
+OSPF has converged the table prints the no-adjacency line with `Neighbors: 0 (0 FULL)` — never `INIT`,
+and never `1 (0 FULL)`. Measured on `R1 -- SW1 -- R2` with a host behind R2, pinging across and reading
+the table at that instant:
+
+| `ping … at` | ping | `show ip ospf` | `show ip ospf neighbor` |
+|---|---|---|---|
+| `500` … `29000` | 0/4 | `Neighbors: 0 (0 FULL)` | `(no adjacencies - no neighbour passed …)` |
+| `30000`, `converged` | 4/4 | `Neighbors: 1 (1 FULL)` | `2.2.2.2  1  FULL  10.0.0.2  Gi0/0` |
+
+A plain `ping` afterwards or a bare `converge` does **not** move the instant back — `converge` prints
+`Fully converged at 30000 ms.` and the neighbour is still missing, because it is a question and not a
+time machine. `ping … at converged` is what goes back, after which the same table reads `FULL`.
 
 Only the word `neighbor` (or `neighbors`) changes the output. Any other second word —
 `show ip ospf interface`, `show ip ospf database` — prints the **process summary above**, because
