@@ -1313,8 +1313,11 @@ eighteen entries — the seventeen plus `registry.js`), which is a census of the
 and `.github/workflows/` was later removed in favour of `.forgejo/workflows/ci.yml`, so the present tense there
 is historical — see [docs/CI.md](docs/CI.md) for what runs now. The registry publish it describes keyed on `v*`
 tags, and this repository has never carried one (`git tag` is empty), so no image was ever pushed from it. The
-version number lives in two places only, this heading and `package.json`, and `[Unreleased]` is the file's only
-link reference.*
+version number lives in three places, not two — this heading, `package.json`, and a literal inside the
+console: `show version` ends `Simulator  : PacketForge 0.1.0` because `engine/cli.js:9314` pushes that
+string rather than reading the manifest, so a bump has to be typed there as well or the CLI and the API
+will disagree about what is running (`server/index.js:304-307` does read `package.json`); `[Unreleased]` is
+the file's only link reference.*
 
 ### Added
 
