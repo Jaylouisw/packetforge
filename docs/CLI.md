@@ -8736,15 +8736,21 @@ summary whatever you asked for.
 The summary's `State` column is the one place `ip ospf passive` becomes visible, as `passive` beside the
 interface. Two things about it are worth knowing before you trust it:
 
-- **`ip ospf passive` is silently dropped if the OSPF process does not exist yet.** Typed into an
-  interface before `router ospf <id>` has been configured, it echoes `OSPF passive on eth1` like any
-  other accepted command, writes nothing to `show running-config`, and leaves the adjacency up — the
-  interface's state still reads `active`. Configure the process first, then the interface override.
+- **`ip ospf passive` is refused, not queued, when the OSPF process does not exist yet.** Typed into
+  an interface first it answers `% OSPF is not enabled - "ospf router-id <ip>" in config mode turns
+  OSPF on` — the same refusal `ip ospf area` gives — and nothing lands in `show running-config`. Either
+  command creates the process: `ospf router-id 1.1.1.1` answers `OSPF enabled, router-id 1.1.1.1 area
+  0`, and `router ospf 1` answers `OSPF process 1 enabled, entering router configuration mode`.
+  Configure the process first, then the interface override. (This bullet used to describe the command
+  as accepted and silently dropped, which it no longer is.)
 - Once it *is* applied, the effect is real and the state word says so: the adjacency goes away
   (`show ip ospf neighbor` → `(no adjacencies - no neighbour passed the passive, subnet and area
   checks)` on **both** ends), `show running-config` carries `ip ospf passive` in the interface block,
   and the interface's own network is still advertised — which is what a passive interface means: no
-  adjacency, stub network still in the router LSA.
+  adjacency, stub network still in the router LSA. Measured on the stub side: with `10.0.2.1/24`
+  passive on one router, the peer still carries `O 10.0.2.0/24  110  10.0.0.1` in `show ip route`,
+  while the peer's own view of *its* port still reads `active` — passive is local configuration, and
+  only the end that sets it shows the word.
 
 ## BGP
 
