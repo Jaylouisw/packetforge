@@ -9772,11 +9772,26 @@ So treat `PTR` as a record you can store and read in the table, not one you can 
 ## SCION
 
 ```
-scion 1-ff00:0:110     # join an ISD-AS; a core AS is labelled as such
-no scion               # leave
+R1(config)#scion 1-ff00:0:110     # join an ISD-AS; a core AS is labelled as such
+SCION 1-ff00:0:110
+R1(config)#no scion               # leave
+SCION membership removed
 ```
 
-The ISD-AS is validated on entry (an unparseable string is refused with the expected shape).
+The ISD-AS is validated on entry, with the expected shape named in the refusal:
+
+```
+R1(config)#scion bogus
+% Invalid SCION ISD-AS "bogus" (expected e.g. 1-ff00:0:110)
+```
+
+A device that never joined answers both show commands by naming the command that would make it an AS,
+which is the difference between "not configured" and "configured with no paths":
+
+```
+R1#show scion
+% This device is not a SCION AS - "scion <isd-as>" in config mode makes this device an AS
+```
 
 Inspect membership and paths:
 
