@@ -761,6 +761,17 @@ Measured on a fresh board:
   (`Switch (L2)/Fa0/1 is already connected to d2/eth0.`), while `POST /links` answers
   `409 { code: 'E_LINK', error: 'd1/Fa0/1 is already connected' }`. If you want the diagnostics, call
   `validate-link` **first**; the connect call will not pass them back.
+- **The re-validation hint only relaxes a port that is already patched, and it does not tie the call to
+  the pair it names.** `validate-link` accepts the pair being re-checked so an existing cable can be
+  checked again — changing its length, say — instead of being refused as `E_PORT_IN_USE`. Measured
+  through `Topology.validateLink()` on `d1/Gi0/0 ↔ d2/Gi0/0`: with no hint, `E_PORT_IN_USE` twice; with
+  `revalidate: { a: { iface: 'Gi0/0', deviceId: 'd2' }, b: { iface: 'Gi0/0', deviceId: 'd1' } }`, `ok`;
+  with the same shape naming `d3` as A's peer, or `Gi0/1` as the peer interface, `E_PORT_IN_USE` again —
+  so the named peer really is compared, device and interface. What is *not* checked is that the two
+  ports in the call are that pair: `d1/Gi0/0 → d3/Gi0/0`, with `Gi0/0` free on `d3`, answers `ok` under
+  any of those hints, because the only port carrying a link is the one the hint describes. A names-only
+  hint (`{ iface: 'Gi0/0' }` with no `deviceId`) also passes the same-pair case, which is the comparison
+  `engine/validation.js:472-484` says it avoids; supply the device ids and the strict form is what runs.
 
 **`POST …/interfaces/:devId/:iface` is a footgun in four small ways, and nothing validates the board
 as a whole.** Measured against a live board with two PCs:
