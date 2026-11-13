@@ -883,6 +883,33 @@ failed (`state: 'reset'`) or `null` when nothing was ever opened. An unknown dev
 but carries no `code` at all — `{ error: 'Unknown source device: ghost' }` — so a client that switches
 on `code` treats it as an unclassified failure.
 
+The request is `{"srcDevice": "<id>", "dstIp": "<address>", "dstPort": <n>}` — `src` and `dst` are
+accepted aliases for the two device ids, and `proto`, `srcPort` and `bytes` are optional
+(`server/index.js:606-614`). Console vocabulary does **not** work here: a body written from the
+page below, `{"sourceId": …, "destination": …, "port": …}`, is not rejected as malformed at all — every
+field arrives `undefined`, and the answer is `400 {"error":"Unknown source device: undefined"}`, which
+reads like a board problem rather than a body problem. Measured both ways against a live server:
+
+```bash
+PD=$(mktemp -d); PF_DATA="$PD" PORT=8183 node server/index.js >/dev/null 2>&1 &
+sleep 1
+curl -s -XPOST localhost:8183/api/topologies/default/devices -H 'content-type: application/json' \
+  -d '{"vendor":"generic","model":"generic-pc","label":"pc1"}' >/dev/null
+FLOW='let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{const i=s.lastIndexOf("\n");const j=JSON.parse(s.slice(0,i));console.log(s.slice(i+1).trim(),j.code,JSON.stringify(Object.keys(j).sort()))})'
+echo "right body: $(curl -s -w '\n%{http_code}' -XPOST localhost:8183/api/topologies/default/flows \
+  -H 'content-type: application/json' -d '{"srcDevice":"d1","dstIp":"192.0.2.9","dstPort":80}' | node -e "$FLOW")"
+echo "wrong body: $(curl -s -XPOST localhost:8183/api/topologies/default/flows -H 'content-type: application/json' \
+  -d '{"sourceId":"d1","destination":"192.0.2.9","port":80}')"
+kill %1
+```
+
+Measured:
+
+```
+right body: 400 E_NO_ROUTE ["code","error","events","flow","reason","step"]
+wrong body: {"error":"Unknown source device: undefined"}
+```
+
 **The link body is nested, and getting it wrong reports the wrong thing.** `POST …/links` wants
 `{ a: { deviceId, iface }, b: { deviceId, iface }, mediaId?, lengthM?, duplex?, lagId?, patchCord?,
 type? }`. Send the flat `{ a: 'srv', b: 'pc' }` a client author reaches for first and the server
