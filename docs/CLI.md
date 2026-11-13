@@ -8962,8 +8962,10 @@ Vlan  Mac Address        Type     Ports
 
 SW1#show spanning-tree 1/1/3
 Spanning tree enabled protocol ieee
-Port   Role        State
-1/1/3  designated  forwarding
+  Root bridge: priority 32768, 02:00:00:00:00:00 (SW1)
+  This bridge: SW1 priority 32768, 02:00:00:00:00:00   (this bridge is the root)
+Port   Role        State       Cost
+1/1/3  designated  forwarding  20000
 
 SW1#show ip interface brief 1/1/3
 Interface 1/1/3 on SW1:
@@ -8988,7 +8990,7 @@ Vlan  Mac Address  Type  Ports
 
 SW1#show arp 1/1/3
 ARP entries on 1/1/3 at SW1:
-Protocol  Address  Age (min)  Hardware Addr  Interface
+Protocol  Address  Age (min)  Hardware Addr  Interface  Type
   (none - no cached address resolves to this port)
 ```
 
@@ -9003,16 +9005,21 @@ SW1#show mac address-table interface 1/1/3     ← same answer as `show mac addr
 ```
 
 **Two ports is a question it will not guess at**, and an unknown name is refused with the port quoted
-and the list named:
+and the list named. The refusal comes in two shapes and which one you get depends on the command:
+`show interfaces`, `show lldp neighbors`, `show ip interface brief` and `show interfaces counters` say
+`% No interface named <port> on <device>` and then point at `show ip interface brief`; `show mac
+address-table`, `show arp` and `show spanning-tree` say `% <command> takes a port, or <its other
+words> - not "<port>"` and name the same place to look. Both quote what you typed, so neither leaves
+you wondering which word was wrong.
 
 ```
 SW1#show arp 1/1/3 1/1/5
-% show arp takes one port, not "1/1/3 1/1/5"
-% Try "show ip interface brief" for the ports this device has
+% show arp takes one port or one address, not "1/1/3 1/1/5"
+% e.g. "show ip arp Gi0/0" or "show ip arp 10.0.0.1"
 
 SW1#show spanning-tree 1/1/99
-% No interface named 1/1/99 on SW1
-% Try "show ip interface brief" for the ports this device has
+% show spanning-tree takes a port, or summary / root - not "1/1/99"
+% The ports this device has are in "show ip interface brief"
 ```
 
 **Spellings resolve through one resolver.** A MikroTik silkscreens `SFP+1` and RouterOS calls it
@@ -9037,14 +9044,22 @@ rows), not an answering rule: name a port and you get that port.
 that name:
 
 ```
-SW1#show interfaces counters
-% "show interfaces counters" is not a command here
-% Per-port counters and status are in "show interfaces <port>"
-% The list of ports is in "show ip interface brief"
+SW1#show interfaces brief
+% "show interfaces brief" is not a command here
+% A port's L2 state is split across three tables:
+%   show interfaces status             connected/notconnect, VLAN, duplex, speed, type
+%   show interfaces <port>             counters, MTU, speed, duplex, drops, peer
+%   show interfaces <port> switchport  mode, access VLAN or trunking, port security
+% No per-port error counters are kept: a frame is dropped by name (mtu, acl, port-security)
+% and each drop is an event, so "show interfaces counters" totals them per port
 ```
 
-Before, that answered `% No interface named counters`, which is true and sends the operator looking for
-a port called `counters`.
+`brief` is the word to reach for here because it is the habit IOS trains and this model does not
+implement; `counters`, the older example in this spot, is a **real command** now and prints a row per
+port. The last two lines of that refusal are about error counters, which is a different question —
+`show interfaces counters errors` answers them with the same two sentences, so a `brief` question ends
+with a paragraph that does not belong to it. This section used to claim `show interfaces counters` was
+refused, which the rest of this page already contradicted.
 
 All of this is swept by `test/port-args.test.js` (85 assertions): every command is asked about a port it
 has and a port it does not, in two different labs, and the assertion is written against the *defect*
