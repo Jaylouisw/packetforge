@@ -9554,8 +9554,9 @@ named list, not a guess about English:
 | `poe-budget` | **no** | the PSE deciding who gets funded — no frame exists at that moment |
 | `drop` with no port | **no** | it died before an egress was chosen (`no route`, `TTL expired`); no port can honestly own it, and `show logging` is where it is read |
 
-The rule is literally a set membership in the engine — `FRAME_DROP_TYPES` holds those six names and
-nothing else — so the table above cannot drift away from the code without the code changing. Three of
+The rule is literally a set membership in the engine — `FRAME_DROP_TYPES` at
+`engine/simulator.js:97` holds those six names and nothing else — so the table above cannot drift away
+from the code without the code changing. Three of
 the rows, measured on labs built to hit them:
 
 ```text
@@ -9568,8 +9569,15 @@ SW1#show logging
 | lab | event | drops charged |
 | --- | --- | --- |
 | trunk allows VLAN 10 only, switch still advertises LLDP in VLAN 1 | `vlan-drop` | **1 on the trunk** (`Fa0/1`: 1 in, 0 out, 1 dropped) — by event #1, before any ping was sent |
-| two access ports in different VLANs, one ping across them | `drop` | **4 on the ingress port**, 0 on the other — one per echo |
+| one access port in VLAN 10 and a ping to an unused address in that same VLAN | `drop` | **4 on the ingress port** (`Fa0/1`: 5 in, 1 out, 4 dropped) — one per echo, each logged `no egress ports in VLAN 10, on Fa0/1, vlan 10` |
 | a ping to a destination the router cannot reach | `drop` with no port | **0 on every port** — the frame died before an egress existed |
+
+The frame has to be **sent** before anything can be charged for it, and that is where a lab built the
+obvious way goes wrong: two access ports in different VLANs and a ping from one to the other charges
+nothing at all when the two hosts are on different subnets and the sender has no gateway — the PC
+declines before transmitting, and both ports sit at the LLDP advertisement (`1 in, 1 out, 0 dropped`).
+Put the target in the ingress VLAN instead, so the frame is handed to the switch with nowhere to go, and
+the same ping charges four.
 
 Two things fall out of that. The VLAN case a reader will actually build ("no egress ports in VLAN *n*")
 reports as a plain **`drop`** with the port named, not as `vlan-drop`; `vlan-drop` is the narrower
