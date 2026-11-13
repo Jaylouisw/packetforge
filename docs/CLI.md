@@ -9253,16 +9253,23 @@ Three rules hold the shape together:
 
 - **The keyword is optional.** `show running-config Gi0/0` and `show running-config interface Gi0/0`
   are the same question, because both spellings are typed in practice.
-- **`interface` with no port is refused as truncated** (`% show running-config needs a port after
-  "interface"`), not answered with the whole configuration. That distinction is the whole point: the
+- **`interface` with no port is refused as truncated**, not answered with the whole configuration.
+  It answers `% show running-config needs a port after "interface"` and then points at
+  `show ip interface brief`. That distinction is the whole point: the
   command used to drop its argument on the floor, so `show running-config bogus` printed everything and
   a typo read as success.
 - **A filtered dump is still a dump.** The heading is a `!` comment, so a filtered block pastes onto a
   bare device and configures that port and nothing else.
 
-What the filter does **not** do is match text: a port named inside a description (`description see Gi0/0
-for the core`) or inside a static route (`ip route 10.9.9.0 255.255.255.0 Gi0/0`) is not part of
-Gi0/0's block. Only an `interface` line starts a block.
+What the filter does **not** do is match text. Put `description see Gi0/0 for the core` on Gi0/1 and
+ask for Gi0/0: the answer is Gi0/0's two lines and no mention of the sentence that names it. Only an
+`interface` line starts a block.
+
+A static route cannot supply a second example of the same thing, because this model refuses the
+interface-only form outright. It answers three lines: that Gi0/0 is an interface and not a next hop,
+that you should name the neighbour's address instead, and that IOS accepts the form on point-to-point
+links where it would forward nothing. No configuration on this engine therefore carries a route whose
+text names a port.
 
 ## Switch management address — an SVI
 
