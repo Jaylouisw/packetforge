@@ -8679,6 +8679,18 @@ Neighbor ID  Pri  State  Address   Interface
 (no adjacencies - no neighbour passed the passive, subnet and area checks)
 ```
 
+The area check is the one that names names. That generic line is what a passive port and a subnet
+mismatch produce; an area mismatch prints the peer, the port and both areas instead:
+
+```
+R1#show ip ospf neighbor
+% R2 on Gi0/0 is in area 1 and this interface is in area 0 - no adjacency without a matching area
+```
+
+Measured on the same `R1 -- SW1 -- R2` lab with `ospf area 1` on R2: no adjacency, and the interface
+still reads `active` in `show ip ospf` with `Neighbors: 0 (0 FULL)` — the port is in the process and
+simply has no peer, which is the distinction the two lines let you make.
+
 **An adjacency does *not* need a direct cable.** This paragraph used to say the opposite — that
 routers sharing a subnet through a switch "never peer", because a switch between them breaks the link
 in two — and that is wrong on this tree. Measured with `R1 -- SW1 -- R2` as the only path between
