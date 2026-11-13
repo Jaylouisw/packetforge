@@ -9615,8 +9615,13 @@ R1#show interfaces Gi0/0
   drops : 2  (2 acl-deny)
 ```
 
-Note `output: 1 packet` — the echo that got through and its reply. The two denied echoes never left, so
-no output counter was charged for them. **Clearing is explicit**, which is the only way a cumulative
+Read those three lines against each other and they say something narrower than they look. `332` is
+`64 + 2 × 134`: one LLDP advertisement and **two** echoes, and `drops : 2` accounts for both of them —
+so nothing got through, and `output: 1 packet, 64 bytes` is the LLDP advertisement rather than a reply.
+A permitted echo would have put a 134-byte reply on the output side and made the byte count larger
+still. The counter that makes the point is the pair: the frames arrived (`input`), nothing left
+(`output` stays at the link's own traffic), and the difference is charged to `acl-deny` rather than
+disappearing. **Clearing is explicit**, which is the only way a cumulative
 number becomes useful:
 
 ```
