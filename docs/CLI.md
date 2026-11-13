@@ -9108,12 +9108,14 @@ hostname EDGE
 
 Measured, and the second half is the part people get wrong: with `description LATER` added to a port the
 saved copy does not mention at all, a merge leaves it in place and says so rather than reporting a
-silent success —
+silent success. The wording tracks the outcome — `N lines applied` when the merge changed something,
+`N lines read` with `none of them changed anything` when it did not — so the line is worth reading
+rather than skimming:
 
 ```text
 R1#copy startup-config running-config
-Copied startup-config into the running configuration on R1: 5 lines applied
-  the running configuration did not change - the saved copy was already in force
+Copied startup-config into the running configuration on R1: 5 lines read
+  none of them changed anything - the saved copy was already in force
 ```
 
 `reload` is answered rather than obeyed, and the answer changes with the lab. On a device with nothing
