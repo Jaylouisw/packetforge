@@ -1168,14 +1168,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   Both ends of a broadcast link must now share the subnet **and** the mask, which
   is the check that makes a misconfigured router a misconfigured router instead of
   a silently-working one. `test/protocol-regression.test.js` proves the refusal,
-  and proves a matching subnet still forms the adjacency (#240).
+  and proves a matching subnet still forms the adjacency (#240). The console names the check in the
+  empty table rather than leaving an operator to guess: two routers cabled port to port, `10.0.0.1/30`
+  against `10.0.0.9/30`, give `(no adjacencies - no neighbour passed the passive, subnet and area
+  checks)`, and the same subnet with masks `/24` against `/25` gives the same line; matching `/24` on
+  both gives `2.2.2.2  1  FULL  10.0.0.2  Gi0/0`.
 
 - **DNS reported three different failures as NXDOMAIN.** A name with no `A` record
   (NODATA), a name the zone does not hold (NXDOMAIN), and a lab with no DNS server
   configured at all (SERVFAIL) all came back as "no such domain". They are now
   distinguished — NODATA is NOERROR with an empty answer — and a failed ping says
   `dns-nodata`, `dns-nxdomain` or `dns-servfail` instead of always
-  `dns-nxdomain` (#241).
+  `dns-nxdomain` (#241). That token is the *recorded reason* on the reply, assembled at
+  `engine/simulator.js:795` from the resolver's status, so a `git grep dns-nodata` finds nothing and
+  that is the pattern working rather than the claim failing. What the console prints is the status in
+  words, and all three were measured on one lab: a name holding a TXT record and no A record answers
+  `% Unknown host txtonly.lab.example: the name exists at D1 but has no A record`, a name no zone holds
+  answers `% Unknown host nope.lab.example: NXDOMAIN from D1`, and a lab whose only resolver serves an
+  unrelated zone answers `% Unknown host www.lab.example: no DNS server in this lab hosts a zone for
+  it` — three different sentences where there used to be one.
 
 - **`docs/SIMULATION.md` listed five defects as open that were already fixed**
   (#41, #42, #43, #44, #54). The section now records what each one used to do and
