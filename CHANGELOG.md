@@ -16,22 +16,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
   ```
   R1#show logging device ?
-    Completions for "show logging device" (1):
-      why something happened - drops, forwards, protocol events
-      Next: <name>
-      Devices in this lab: PC1, R1, SW1
+  Completions for "show logging device" (1):
+    why something happened - drops, forwards, protocol events
+
+    Next: <name>
+
+    Devices in this lab: PC1, R1, SW1
+
+  Names in angle brackets are values: type one, then ask ? again for what follows it.
 
   R1#show interfaces counters ?
-    Completions for "show interfaces counters" (1, and this form ends here):
-      one row per port: packets, bytes, drops
-      Next: <port>
-      Ports on this device: Gi0/0, Gi0/1, Gi0/2
+  Completions for "show interfaces counters" (1, and this form ends here):
+    one row per port: packets, bytes, drops
+
+    Next: <port>
+
+    Ports on this device: Gi0/0, Gi0/1, Gi0/2
+
+  Names in angle brackets are values: type one, then ask ? again for what follows it.
 
   SW1(config)#no vlan ?
-    Completions for "no vlan" (1):
-      remove a VLAN no port is still in
-      Next: <id>
-      VLANs on this device: 1, 10, 30, 44
+  Completions for "no vlan" (1):
+    remove a VLAN no port is still in
+
+    Next: <id>
+
+    VLANs on this device: 1, 10, 30, 44
+
+  Names in angle brackets are values: type one, then ask ? again for what follows it.
   ```
 
   The slot line (`Next: <name>`) is unchanged, so existing scripts that parse it still work — the
