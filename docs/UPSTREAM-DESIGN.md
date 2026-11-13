@@ -791,10 +791,11 @@ landed since, `connect()` reads **ten** `opts.*` names at `:347` rather than the
 `POST …/links` branch reads **nine** body keys rather than the 5 fields of row 31 — `a`, `b` and seven
 options (`mediaId`, `lengthM`, `duplex`, `lagId`, `patchCord`, `type`, `force`). `validation.js:59 RULES` is
 still exactly **20** codes and `device.js:89 CAPABILITIES` still exactly **15** tokens, so the frozen column
-is not uniformly stale: it is a snapshot, and two of its numbers happen to still be true. The other two the
-snapshot gets wrong — 19 cages and 64 media — are covered above, beside the live counts.
+is not uniformly stale: it is a snapshot, and **three** of its numbers happen to still be true — those two and
+the **10** categories of row 35. The other two it gets wrong — 19 cages and 64 media — are covered above,
+beside the live counts.
 
-Those eight readings are one command, which is the only way a snapshot stays checkable:
+Those nine readings are one command, which is the only way a snapshot stays checkable:
 
 ```bash
 node -e '
@@ -812,7 +813,8 @@ const topo = src("engine/topology.js");
 const connect = topo.slice(topo.indexOf("  connect(aId"), topo.indexOf("  setLinkLength("));
 console.log("connect opts:", new Set(connect.match(/opts\.\w+/g)).size);
 const srv = src("server/index.js"), k = srv.indexOf("parts[3] === \u0027links\u0027 && parts.length === 4");
-console.log("POST /links body keys:", new Set(srv.slice(k, srv.indexOf("parts[3] === \u0027validate-link\u0027", k)).match(/body\.\w+/g)).size);'
+console.log("POST /links body keys:", new Set(srv.slice(k, srv.indexOf("parts[3] === \u0027validate-link\u0027", k)).match(/body\.\w+/g)).size);
+console.log("CATEGORY_ORDER:", src("devices/registry.js").match(/CATEGORY_ORDER = \[([\s\S]*?)\]/)[1].split(",").length);'
 ```
 
 Measured:
@@ -826,6 +828,7 @@ RULES: 20
 CAPABILITIES: 15
 connect opts: 10
 POST /links body keys: 9
+CATEGORY_ORDER: 10
 ```
 
 | # | Anchor (this tree) | Today | Change |
