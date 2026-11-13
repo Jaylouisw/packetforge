@@ -10002,13 +10002,15 @@ going wrong — it is the measurement working, and it is why the number in this 
 `ipv6.js` that raises ten of them is still a file whose refusals arrive as prose, and the fact that a page
 now quotes the strings does not put them in front of an operator.
 
-The other **27** are named somewhere in `docs/`, though not always in this file — `CONNECTORS.md` and
+The other **77** are named somewhere in `docs/`, though not always in this file — `CONNECTORS.md` and
 `PHYSICAL_LAYER.md` carry the optical and validation codes, `ARCHITECTURE.md` the API ones.
 
 Recount both ways; the second number is the one that says whether this table is still true. Note it
 counts **quoted** strings only — matching bare tokens instead finds codes that are assembled rather
-than literal and inflates the answer to 58. The raw count includes the `'W_'` prefix, which is why it
-reads 32 where the real figure is 31:
+than literal and inflates the answer to **191** for the `E_` family alone, **202** with both families
+matched, because every reference to a code in a comment or a comparison counts too. The 32-against-31 pair this
+paragraph used to quote was the unnamed set at the time it was written; on the whole engine the quoted
+reading is 160, and one of those is the `'W_'` prefix rather than a code, so the real figure is 159:
 
 ```sh
 grep -oh "'[EW]_[A-Z0-9_]*'" engine/*.js | sort -u | wc -l          # 160 quoted, 1 of them a prefix literal
@@ -10017,8 +10019,8 @@ grep -oh "'[EW]_[A-Z0-9_]*'" engine/*.js | sort -u | tr -d "'" \
   | while read c; do grep -q "$c" docs/*.md || echo "$c"; done | wc -l   # 0 today - this file names every one of them; it printed 17 before the table above existed
 ```
 `grep -oh "'E_[A-Z0-9_]*'" engine/*.js | sort -u | wc -l` is the 148;
-`grep -o 'E_[A-Z0-9_]*' docs/CLI.md | sort -u | wc -l` is the 88;
-``grep -c '^| `E_' docs/CLI.md`` is the 47.
+`grep -o 'E_[A-Z0-9_]*' docs/CLI.md | sort -u | wc -l` is the 127 — the unanchored reading, phantoms and
+all; ``grep -c '^| `E_' docs/CLI.md`` is the 49 rows that open with a code.
 
 | Surface | How the refusal reads |
 |---|---|
