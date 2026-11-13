@@ -9823,27 +9823,34 @@ grep -oh "'W_[A-Z0-9_]*'" engine/*.js | sort -u | wc -l     # 12 (eleven warning
 ```
 
 Of those 148, **54** appear as rows in the tables below — DHCP 17, VRRP 9, VLAN 10, LAG 6, NAT 12, distinct across the five sections, counted from every `E_` string in a table cell (all 54 sit in the first cell; none appears in a later
-column) — and **122** distinct `E_` codes appear anywhere in this document, 123 distinct `E_…`
-tokens once the bare `E_` this sentence needs is counted. That second number is the least stable figure on the page, and only partly
+column) — and **121** distinct `E_` codes appear anywhere in this document, 123 distinct `E_…`
+tokens once the two spellings that are not codes are counted. That second number is the least stable figure on the page, and only partly
 because the engine grows: every code this page *documents* also joins the count, so the code inventory
 further down added fifteen by itself. It has read 70, then 103, then 117, then 121, then 125, then
-**122** — each revision of the tables above moved it, and so did a change of pattern:
+122, and now **121** — each revision of the tables above moved it, and so did a change of pattern:
 
 ```bash
-grep -o '\bE_[A-Z0-9_]*\b' docs/CLI.md | sort -u | wc -l    # 123 tokens, of which 122 are real codes (the 123rd is the bare `E_` ruler)
+grep -o '\bE_[A-Z0-9_]*\b' docs/CLI.md | sort -u | wc -l    # 123 tokens: 121 codes, the bare `E_` ruler, and the `E_DHCP_*` wildcard
 ```
+
+The two extra tokens are the ones this paragraph needs to talk about itself. The bare `E_` is the ruler
+standing beside the measurement. The other is `E_DHCP_` — a wildcard written with an asterisk in the
+DHCP prose, which the pattern stops at, so a family named as a glob reads as a member. Subtract both
+when you want the inventory: **121** codes, and one of the numbers in this appendix is smaller than the
+last time it was written down for that reason alone.
 
 **Why the last move was down, when every earlier one was up.** The 125 reading came from an
 *unanchored* `grep -o 'E_[A-Z0-9_]*'`, which also lifts the tail of any longer identifier that happens
-to contain the sequence — and this page carries three: the `W_` warning about a load close to the PSE
-limit, which ends in `_DRAW`, and two constants that end in `_DROP_TYPES` and `_KEYWORDS`. Each
-contributes one phantom code, so the unanchored pattern reads **126** tokens and the anchored one
-**123** on the same text. Write the pattern down beside the number, or the number means nothing: counts
+to contain the sequence — and this page carries four: the `W_` warning about a load close to the PSE
+limit, which ends in `_DRAW`; two constants that end in `_DROP_TYPES` and `_KEYWORDS`; and a filename,
+`DEVICE_REGISTRY.md`, whose tail the unanchored pattern lifts as a fourth. Each contributes one phantom
+code, so the unanchored pattern reads **127** tokens and the anchored one **123** on the same text. Write the pattern down beside the number, or the number means nothing: counts
 taken with different patterns are not comparable.
 
-**123, not 122, and the difference is this fence.** The pattern contains the two characters it is
-looking for, so the command counts its own `E_` as a token. The page holds 122 codes and one copy of the
-pattern; subtract the pattern when you want the inventory, or accept 123 as "122 plus the ruler". The
+**123, not 121, and the difference is this fence.** The pattern contains the two characters it is
+looking for, so the command counts its own `E_` as a token, and the `E_DHCP_` wildcard counts as
+another. The page holds 121 codes, one copy of the pattern, and one glob; subtract the last two when you
+want the inventory, or accept 123 as "121 codes plus the ruler and the wildcard". The
 figure once fell for a second reason worth knowing: a retired voice warning — a code no engine emits any
 more — was replaced in the VLAN table by the three voice refusals that do fire (`E_VOICE_VLAN_ACCESS`,
 `E_VOICE_VLAN_NATIVE`, `E_VOICE_NOT_ALLOWED`, all three already named by the per-module table): removing
