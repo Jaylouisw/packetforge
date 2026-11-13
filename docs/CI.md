@@ -138,6 +138,33 @@ finding. That leaves **11 of the 2,846 tracked files outside the scan**: six wit
 (`.dockerignore`, `.editorconfig`, `.gitattributes`, `.gitignore`, `Dockerfile`, `LICENSE`), four `.txt`
 (three in `tmp/`, one research cache) and `research/incoming/build_devices_docsis.py`.
 
+Count them the way the guard does: skip the five directories by **first path segment** rather than by
+prefix — so `.gitignore` and everything under `.github/` stay in scope — then drop the eight extensions.
+
+```bash
+git ls-files -z | while IFS= read -r -d '' f; do
+  case "${f%%/*}" in .git | node_modules | .github-cache | dist | coverage) continue ;; esac
+  case "$f" in *.js | *.json | *.md | *.yml | *.yaml | *.css | *.html | *.sh) continue ;; esac
+  echo "$f"
+done | sort
+```
+
+Measured — eleven lines, and they are the eleven named above:
+
+```
+.dockerignore
+.editorconfig
+.gitattributes
+.gitignore
+Dockerfile
+LICENSE
+research/incoming/.cache/r650.txt
+research/incoming/build_devices_docsis.py
+tmp/msg48.txt
+tmp/msg49.txt
+tmp/msg50.txt
+```
+
 Do not count those with a `git ls-files | grep -vE '\\.(js|json|md|yml|yaml|css|html|sh)$'` recipe: it
 returns **12**, not 11, and the extra line is a false positive worth knowing about. One tracked path in
 this tree begins with a stray `C` followed by U+F03A, and the file at the end of it is `verify-slaac.js` —
@@ -416,8 +443,9 @@ sentence about "the third class" is not talking about "the fifth check".
 **A `js` label means JavaScript syntax, not a program that runs.** Nothing in CI executes a fence, so
 the label has never been tested — and a census of the pages shows it should not be trusted as a promise.
 Counting the **21 pages that carry code** — `docs/*.md`, `README.md`, `CONTRIBUTING.md` and
-`CHANGELOG.md` — there are **808** fenced blocks (574 unlabelled, 74 `bash`, 49 `sh`, 45 `text`, 35 `js`,
-26 `json`, 3 `jsonc`, 1 `yaml`, 1 `console`). **23 of the 35 `js` blocks parse under `node --check` and
+`CHANGELOG.md` — there are **812** fenced blocks (576 unlabelled, 76 `bash`, 49 `sh`, 45 `text`, 35 `js`,
+26 `json`, 3 `jsonc`, 1 `yaml`, 1 `console`), and that total includes the census block below and the block
+quoting its output, because a page that counts fences is made of fences. **23 of the 35 `js` blocks parse under `node --check` and
 12 do not**, and none of the 12 is meant to: three are loop-body excerpts that end in `continue`
 (`CONTRIBUTING.md:581` and `:592`, `docs/BGP-POLICY.md:709`), six are data shapes written as a literal —
 a `'permit' | 'deny'` union, a map of cage definitions, a `device.config` fragment — (`docs/BGP-POLICY.md:921`
@@ -429,8 +457,8 @@ get is a `SyntaxError`.
 
 Those figures are a fingerprint of a reading, not a fact about the tree, and this paragraph has now watched
 them move twice. It said **727** blocks and **22/13** on the `js` split when it was written; a later run took
-it to 808 and 23/12 without a single page changing a claim, because a run of edits to
-`docs/ARCHITECTURE.md` added a block to back each one. The line references drift with the totals, one line
+it to 812 and 23/12 without a single page changing a claim, because a run of edits to
+`docs/ARCHITECTURE.md` added a block to back each one, and this section then added four of its own. The line references drift with the totals, one line
 per edit near the top of a page.
 
 Re-derive all of it rather than trusting the numbers. This reads the committed pages rather than the working
@@ -479,11 +507,11 @@ EOF
 ```
 
 Measured — and note the trap in reading it, because **two of the fences it counts are this one and the
-output block below it**:
+output block below it**, which is why the number in this quote is the same one the paragraph above gives:
 
 ```
-21 pages, 810 fenced blocks (575 unlabelled, 75 `bash`, 49 `sh`, 45 `text`, 35 `js`, 26 `json`, 3 `jsonc`, 1 `yaml`, 1 `console`)
-column 0: 758, indented: 52
+21 pages, 812 fenced blocks (576 unlabelled, 76 `bash`, 49 `sh`, 45 `text`, 35 `js`, 26 `json`, 3 `jsonc`, 1 `yaml`, 1 `console`)
+column 0: 760, indented: 52
 js: 35 blocks, 23 parse, 12 do not:
   docs/BGP-POLICY.md:709
   docs/BGP-POLICY.md:921
@@ -499,17 +527,13 @@ js: 35 blocks, 23 parse, 12 do not:
   CONTRIBUTING.md:592
 ```
 
-The paragraph above says 808, 74 `bash` and 756 at column 0 because it describes the pages **without** these
-two blocks; the run prints two more at the total and at column 0 and one more `bash` and unlabelled, for the
-same reason. A count that
-includes the thing doing the counting has to say so, which is the other half of why these numbers are worth
-re-running rather than quoting: a later edit will move them and the reader will not know which side of the
+A count that includes the thing doing the counting has to say so, and this one does: run the block after
+deleting it and its output and the same tree answers 810. That is the other half of why these numbers are
+worth re-running rather than quoting — a later edit moves them, and only the recipe says which side of the
 self-reference the difference came from.
 
-The 52 indented blocks are the reason a census taken by the column-0 pattern answers **756** where the total
-answers **808** (or 758 and 810 with the two blocks above): they sit inside list items, and both numbers are
-right
-about their own question.
+The 52 indented blocks are the reason a census taken by the column-0 pattern answers **760** where the total
+answers **812**: they sit inside list items, and both numbers are right about their own question.
 
 The twenty-three that do parse are the ones a reader actually runs, and those are worth keeping honest: if a
 snippet has a `node` on the first line, execute it from the page before committing it, because the page
