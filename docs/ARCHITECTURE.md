@@ -205,10 +205,10 @@ The table below was taken from a live server, one request per row:
 | `400` | *(none)* | the body is not JSON | `{ error: 'invalid JSON body' }` |
 | `400` | `E_BAD_REQUEST` | `POST …/link-options` without both device ids — **not** `POST …/links` | `{ code, reason: 'expected {a, b} device ids' }`, and note there is no `error` key at all |
 | `404` | *(none)* | unknown endpoint, unknown device model | `{ error: 'unknown endpoint' }` |
-| `404` | `E_NO_LINK` | `POST\|PATCH …/links/:id/state` for a link that does not exist | `{ error: 'no such link', code: 'E_NO_LINK' }`. **Not the only status for this code**: `PATCH …/links/:id` answers the same code as a `422` (see below) |
+| `404` | `E_NO_LINK` | `POST\|PATCH …/links/:id/state` for a link that does not exist | `{ error: 'no such link', code: 'E_NO_LINK' }`. **Not the only status for this code**: `PATCH …/links/:id` answers the same code as a `422`, with different words — `{ error: 'No such link: nope.', code: 'E_NO_LINK', state }` — so a client matching on the message sees two spellings of one condition |
 | `405` | *(none)* | any method but `POST`/`PATCH` on `…/links/:id/state` — the only 405 in the dispatcher | `{ error: 'use POST' }` |
 | `422` | `E_BAD_STATE` | a link state that is not `up` or `down` | `{ error: 'state must be up or down', code }` |
-| `422` | `E_BAD_LENGTH` | `PATCH …/links/:id` with a length that is not a positive number | `{ error: 'A cable length must be a positive number of metres.', code }` |
+| `422` | `E_BAD_LENGTH` | `PATCH …/links/:id` with a length that is not a positive number | `{ error: 'A cable length must be a positive number of metres.', code }` — and, unlike its neighbours, the body carries the whole **`state`** as well, so a client can redraw the board from a refusal. `0` is refused the same way; `3` answers `200` |
 | `409` | the engine's code, `E_LINK` as fallback | a refused cable | `{ error, code, issues: [{ code, message }, …] }` |
 | `409` | *(none)* | a device id that is already in use | `{ error: 'device id already in use', id, existing }` |
 
