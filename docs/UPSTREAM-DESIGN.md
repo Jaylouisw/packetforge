@@ -737,9 +737,9 @@ hunks, the first of which opens at **9,688** (`@@ -9688 +9688,4 @@`), so the wor
 to nothing in this table.
 
 Re-swept on 2026-11-12 across the **whole page** rather than just that table: **87** file-and-line citations, every
-one of them landing on the symbol or content its row names. The three `registry.js:7` citations are
-`devices/registry.js`, not an `engine/` file, which is why a sweep scoped to `engine/ server/ web/` reports them
-missing.
+one of them landing on the symbol or content its row names. The two `registry.js:7` citations — one in the table, one in this
+sentence — are `devices/registry.js`, not an `engine/` file, which is why a sweep scoped to
+`engine/ server/ web/` reports them missing.
 
 The half of that sweep that needs re-running after any refactor is the cheap half — does the line still exist —
 so it is worth having as a command rather than a date. Today: **89** occurrences of a `file.js:NNN` reference,
@@ -770,7 +770,7 @@ occurrences 89 | pairs 56 | files 12 | out of range 0
 
 It proves the line exists, not that the line names the symbol — the weaker claim, deliberately, because the
 symbol check costs a judgement per anchor and this one costs a second. Bare `media.js`-style references
-resolve by uniqueness across those six directories, which is how the three `registry.js` citations come out as
+resolve by uniqueness across those six directories, which is how the `registry.js` citations come out as
 `devices/registry.js` rather than being reported as missing `engine/` files: that is the trap the paragraph
 above describes, reproduced by the check rather than avoided by it. The dated sweep counts occurrences (87
 then), and this one reports both counts because they answer different questions — 89 references to 56 places
