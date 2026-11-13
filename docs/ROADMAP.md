@@ -6,15 +6,23 @@ A box is ticked only where the code answers for itself — every shipped line na
 and the suite that keeps it honest, so a tick is checkable rather than aspirational, and an
 unticked line that survives here is a real gap.
 
-The line numbers are hints, and they rot: `engine/cli.js` is edited every day, so a number that was
-right last week can land on unrelated code this week. Treat the **symbol** as the citation — `_helperAddress`,
-`_dhcpRelayFor`, the refusal text — and read the number as a place to start looking. Three citations on
-this page had slid by 30 to 120 lines when this note was added; the symbols had not moved at all.
-They are **`HEAD`'s** numbers, not the working tree's: this branch carries the writer's pending
-`engine/cli.js` edit, and its first hunk sits above every citation here, so each of them reads **eight** lines
-lower on disk — `_helperAddress` is `:11773` at `HEAD` and `:11781` in the worktree, the snooping refusal
-`:11650-11653` against `:11658-11661`, the relay closing block `:11711-11713` against `:11719-11721`. Read a
-number against `git show HEAD:engine/cli.js`, and grep the symbol in whatever tree you have open.
+The line numbers are hints, and they rot: `engine/cli.js` is edited every day, so a number that was right
+last week can land on unrelated code this week. Treat the **symbol** as the citation — `_helperAddress`,
+`_dhcpRelayFor`, the refusal text — and read the number as a place to start looking. They are not all in
+one file — `_dhcpRelayFor` is in `engine/simulator.js` while the other two are `engine/cli.js` — so grep
+for the name rather than opening the file the number suggests. Three citations on this page had slid by 30
+to 120 lines when this note was added; the symbols had not moved at all. They are **`HEAD`'s** numbers,
+not the working tree's: this branch carries the writer's pending `engine/cli.js` edit, and its first hunk
+sits above every citation here, so each of them reads **eight** lines lower on disk — `_helperAddress` is
+`:11773` at `HEAD` and `:11781` in the worktree, the snooping refusal `:11650-11653` against
+`:11658-11661`, the relay closing block `:11711-11713` against `:11719-11721`. Read a number against
+`git show HEAD:engine/cli.js`, and grep the symbol in whatever tree you have open.
+
+The eight is the net of one hunk, and it is cheaper to compute than to trust:
+`git diff HEAD -- engine/cli.js | grep -m1 '^@@'` prints the first hunk header, and the difference
+between the two line counts in it is the displacement for every citation below that point — 18 − 10 =
+**8** today, from a hunk at `:9685` that sits above all of them. If the writer's edit changes that hunk,
+this paragraph and the numbers in it move together; the symbols do not.
 
 ## Simulation engine
 
