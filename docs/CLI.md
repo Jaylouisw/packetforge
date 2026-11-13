@@ -8871,6 +8871,8 @@ DNS zones on R1:
     mail.lab.example  MX    10 mail.lab.example
     br.lab.example    A     10.0.0.5
   Name servers: none (queries go to any server in the lab)
+  Lookup      : enabled
+  Domain name : none (an unqualified name is asked as typed)
 
 R1#ping www.lab.example count 1
 Translating "www.lab.example"...domain server (R1 (authoritative for lab.example))
@@ -8885,6 +8887,9 @@ whose value is not an address, the lookup refuses rather than passing it on:
 % The A record for www.broken.test is "abc", which is not an address - fix the record on R1
 ```
 
+The table ends with two settings lines — `Lookup      : enabled` and `Domain name : none (an unqualified
+name is asked as typed)` — which a `show dns` transcript that stops at `Name servers` is missing.
+
 Show the table, and resolve a name:
 
 ```
@@ -8895,6 +8900,8 @@ DNS zones on R1:
     www.lab.example   A     10.0.2.10
     mail.lab.example  A     10.0.2.25
   Name servers: none (queries go to any server in the lab)
+  Lookup      : enabled
+  Domain name : none (an unqualified name is asked as typed)
 
 R1#nslookup www.lab.example
 Server: R1 (authoritative for lab.example)
