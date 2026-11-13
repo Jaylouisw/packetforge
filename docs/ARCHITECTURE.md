@@ -917,6 +917,15 @@ answers `409 { error: 'Unknown device: undefined', code: 'E_LINK', issues: [] }`
 like "these ports will not mate" when the truth is that it never parsed a device id at all. A real
 mating refusal arrives the same way (409 with `code` and `issues`), so read the message, not the code.
 
+There is a seventh accepted field, **`force`**, and it changes what the endpoint is: `"force": true`
+skips the validation verdict entirely (`engine/topology.js:371`) *and* the combo-cage check (`:146`), so a
+cable the validator refuses is created anyway and answered `201`. Measured on one board: a console port
+to an Ethernet port answers `409 { error: 'Console port … cannot be cabled to the data port …', code:
+'E_CONSOLE_TO_DATA', issues: [{ … }] }`, and the same body with `"force": true` answers `201` with the
+link in `state.links` — while `validate-link` on that pair keeps saying no. It does **not** override the
+already-connected guard: a second cable to an occupied port answers
+`409 { error: 'd1/eth0 is already connected', code: 'E_LINK', issues: [] }` with or without `force`.
+
 There is deliberately **no `GET …/links`**: the cable list rides in `state.links` of every reply
 that carries `state`, so listing them separately would go stale the moment it was cached. Anything
 else under a known board id answers `404 { error: 'unknown endpoint: <path>' }`, which is
