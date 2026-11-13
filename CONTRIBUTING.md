@@ -351,8 +351,9 @@ minutes earlier (1,628 → 1,629), so a prose count can be stale before it is me
 - **A count in prose is a claim about one revision.** When you touch a sentence that quotes one, re-run
   the one-liner in the same edit; if you cannot, leave the count out rather than guess it.
 - **And it is a claim about one *branch*.** These numbers were measured in a working tree sitting on
-  `fix/sfp-plus-connectors`, which at the last reading was **682 commits ahead** of `main` and **400 behind
-  it** (the merge base is still `083e2ba1`) — so none of them is a statement about `main`. The behind number is
+  `fix/sfp-plus-connectors`, which is **1045 commits ahead** of `main` and **400 behind it** as of the commit
+  that last touched this sentence (the merge base is still `083e2ba1`) — so none of them is a statement about
+  `main`, and the ahead figure is one larger for every commit after that one. The behind number is
   not stable either: this clone has **two** remotes pointing at the same repository, `origin`
   (`ssh://forgejo/…`) and `forgejo-http` (`http://odin:3000/…`), each with its own tracking ref, so either can lag
   or neither can. At this reading both resolve to **`1b1e1287`** and the two counts are identical — two iterations
@@ -369,8 +370,8 @@ minutes earlier (1,628 → 1,629), so a prose count can be stale before it is me
   ```bash
   git branch --show-current                              # fix/sfp-plus-connectors, not main
   git fetch origin main && git fetch forgejo-http main        # refresh both refs first
-  git rev-list --left-right --count HEAD...origin/main         # 682  400   (+1 ahead per commit)
-  git rev-list --left-right --count HEAD...forgejo-http/main   # 682  400   identical refs today
+  git rev-list --left-right --count HEAD...origin/main         # <ahead> <behind> - ahead is +1 per commit
+  git rev-list --left-right --count HEAD...forgejo-http/main   # the same pair, while both refs are one commit
   git diff --diff-filter=A --name-only HEAD origin/main -- docs/   # pages only main has
   ```
 
