@@ -416,28 +416,99 @@ sentence about "the third class" is not talking about "the fifth check".
 **A `js` label means JavaScript syntax, not a program that runs.** Nothing in CI executes a fence, so
 the label has never been tested — and a census of the pages shows it should not be trusted as a promise.
 Counting the **21 pages that carry code** — `docs/*.md`, `README.md`, `CONTRIBUTING.md` and
-`CHANGELOG.md` — there are **727** fenced blocks (536 unlabelled, 62 `bash`, 45 `text`, 35 `js`, 26 `json`,
-18 `sh`, 3 `jsonc`, 1 `yaml`, 1 `console`). **22 of the 35 `js` blocks parse under `node --check` and 13 do
-not**, and none of the 13 is meant to: three are loop-body excerpts that end in `continue`
-(`CONTRIBUTING.md:565` and `:576`, `docs/BGP-POLICY.md:690`), six are data shapes written as a literal with
-a `'permit' | 'deny'` union or the same kind of fragment (`docs/BGP-POLICY.md:902` and `:1074`,
-`docs/CONNECTORS.md:448` and `:1071`, `docs/PHYSICAL_LAYER.md:536`, `docs/UPSTREAM-DESIGN.md:208`), one
-is a branch list lifted out of a dispatch chain (`docs/BGP-POLICY.md:983`), one a method body without its
-class (`docs/UPSTREAM-DESIGN.md:369`), one a `return` at the top level without the function it returns
-from (`docs/UPSTREAM-DESIGN.md:241`) and one an abbreviated expression
-(`docs/DEVICE_REGISTRY.md:107`). Copy any of those thirteen and the first thing you get is a
-`SyntaxError`. Both counts move whenever a page is edited, and the line references above are a census
-rather than a fixture: all twelve older ones had drifted by exactly one line at this count, in the same
-direction, after a single-line edit near the top of the pages involved — which is the price of citing a
-line instead of quoting the block, and the thirteenth fragment arrived with a page that grew one.
+`CHANGELOG.md` — there are **808** fenced blocks (574 unlabelled, 74 `bash`, 49 `sh`, 45 `text`, 35 `js`,
+26 `json`, 3 `jsonc`, 1 `yaml`, 1 `console`). **23 of the 35 `js` blocks parse under `node --check` and
+12 do not**, and none of the 12 is meant to: three are loop-body excerpts that end in `continue`
+(`CONTRIBUTING.md:581` and `:592`, `docs/BGP-POLICY.md:709`), six are data shapes written as a literal —
+a `'permit' | 'deny'` union, a map of cage definitions, a `device.config` fragment — (`docs/BGP-POLICY.md:921`
+and `:1093`, `docs/CONNECTORS.md:496` and `:1143`, `docs/PHYSICAL_LAYER.md:661`,
+`docs/UPSTREAM-DESIGN.md:228`), one is a branch list lifted out of a dispatch chain
+(`docs/BGP-POLICY.md:1002`), one a method body without its class (`docs/UPSTREAM-DESIGN.md:389`) and one an
+abbreviated expression (`docs/DEVICE_REGISTRY.md:107`). Copy any of those twelve and the first thing you
+get is a `SyntaxError`.
 
-Re-derive it rather than trusting the number: count the lines whose first non-space characters are three
-backticks and halve, because every block contributes one opening and one closing line. That answers **727**
-today; the same count with a column-0 pattern answers **677**, since 50 of these blocks are indented inside
-list items — which is also why a census taken by eye and one taken by grep disagree, and why the numbers above
-are worth re-running rather than quoting.
+Those figures are a fingerprint of a reading, not a fact about the tree, and this paragraph has now watched
+them move twice. It said **727** blocks and **22/13** on the `js` split when it was written; a later run took
+it to 808 and 23/12 without a single page changing a claim, because a run of edits to
+`docs/ARCHITECTURE.md` added a block to back each one. The line references drift with the totals, one line
+per edit near the top of a page.
 
-The twenty-two that do parse are the ones a reader actually runs, and those are worth keeping honest: if a
+Re-derive all of it rather than trusting the numbers. This reads the committed pages rather than the working
+tree, so an uncommitted edit does not move the answer:
+
+```bash
+node - <<'EOF'
+const { execSync } = require('child_process');
+const fs = require('fs'), os = require('os'), path = require('path');
+const git = (c) => execSync(c, { encoding: 'utf8' });
+const pages = git('git ls-tree --name-only HEAD docs/').split('\n').filter((p) => p.endsWith('.md'))
+  .concat(['README.md', 'CONTRIBUTING.md', 'CHANGELOG.md']);
+const lab = {}, js = [];
+let total = 0, col0 = 0;
+for (const p of pages) {
+  const lines = git('git show HEAD:' + p).split('\n');
+  let inside = false;
+  for (let i = 0; i < lines.length; i++) {
+    const s = lines[i].trimStart();
+    if (!s.startsWith('```')) continue;
+    if (inside) { inside = false; continue; }
+    inside = true; total++;
+    const label = s.slice(3).trim();
+    lab[label] = (lab[label] || 0) + 1;
+    if (lines[i].startsWith('```')) col0++;
+    if (label !== 'js') continue;
+    const body = [];
+    for (let j = i + 1; j < lines.length && !lines[j].trimStart().startsWith('```'); j++) body.push(lines[j]);
+    js.push({ where: p + ':' + (i + 1), body: body.join('\n') });
+  }
+}
+const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'fence-'));
+const bad = js.filter((b, n) => {
+  const f = path.join(dir, 'b' + n + '.js');
+  fs.writeFileSync(f, b.body + '\n');
+  try { execSync('node --check ' + JSON.stringify(f), { stdio: 'pipe' }); return false; }
+  catch (e) { return true; }
+});
+const labels = Object.entries(lab).sort((a, b) => b[1] - a[1])
+  .map(([k, v]) => v + ' ' + (k ? '`' + k + '`' : 'unlabelled')).join(', ');
+console.log(pages.length + ' pages, ' + total + ' fenced blocks (' + labels + ')');
+console.log('column 0: ' + col0 + ', indented: ' + (total - col0));
+console.log('js: ' + js.length + ' blocks, ' + (js.length - bad.length) + ' parse, ' + bad.length + ' do not:');
+for (const b of bad) console.log('  ' + b.where);
+EOF
+```
+
+Measured — and note the trap in reading it, because **this block is itself one of the fences it counts**:
+
+```
+21 pages, 809 fenced blocks (574 unlabelled, 75 `bash`, 49 `sh`, 45 `text`, 35 `js`, 26 `json`, 3 `jsonc`, 1 `yaml`, 1 `console`)
+column 0: 757, indented: 52
+js: 35 blocks, 23 parse, 12 do not:
+  docs/BGP-POLICY.md:709
+  docs/BGP-POLICY.md:921
+  docs/BGP-POLICY.md:1002
+  docs/BGP-POLICY.md:1093
+  docs/CONNECTORS.md:496
+  docs/CONNECTORS.md:1143
+  docs/DEVICE_REGISTRY.md:107
+  docs/PHYSICAL_LAYER.md:661
+  docs/UPSTREAM-DESIGN.md:228
+  docs/UPSTREAM-DESIGN.md:389
+  CONTRIBUTING.md:581
+  CONTRIBUTING.md:592
+```
+
+The paragraph above says 808 and 74 `bash` because it is describing the pages **without** this census block;
+the run prints one more of each, and 757 at column 0 rather than 756, for the same reason. A count that
+includes the thing doing the counting has to say so, which is the other half of why these numbers are worth
+re-running rather than quoting: a later edit will move them and the reader will not know which side of the
+self-reference the difference came from.
+
+The 52 indented blocks are the reason a census taken by the column-0 pattern answers **756** where the total
+answers **808** (or 757 and 809 with this block): they sit inside list items, and both numbers are right
+about their own question.
+
+The twenty-three that do parse are the ones a reader actually runs, and those are worth keeping honest: if a
 snippet has a `node` on the first line, execute it from the page before committing it, because the page
 is the only place it will ever be tested.
 
