@@ -784,12 +784,41 @@ highest `cli.js` line this page cites is **9,426**, so all three (`:2408`, `:326
 the caveat applies to nothing here. Citations past ~9,700 in that file would need the worktree, which is why
 [ROADMAP.md](ROADMAP.md) records the eight-line offset at `_helperAddress`.
 
-The *Today* column's other counts are frozen with it, which is worth saying because two of them have moved
-and a reader should not take them for the current tree: `device.js:157 config` has **18** keys now, not 17 —
-`scionAs` (SCION ISD-AS membership) is the addition — and a `Link` owns **12** fields, not 8, because
-`lagId`, `patchCord`, `state` and `stateSinceMs` have landed since. `validation.js:59 RULES` is still
-exactly **20** codes and `device.js:89 CAPABILITIES` still exactly **15** tokens, so the frozen column is not
-uniformly stale: it is a snapshot, and three of its numbers happen to still be true.
+The *Today* column's other counts are frozen with it, which is worth saying because **four** of them have
+moved and a reader should not take them for the current tree: `device.js:157 config` has **18** keys now, not
+17 — `scionAs` (SCION ISD-AS membership) is the addition — a `Link` owns **12** fields, not 8, because
+`lagId`, `patchCord`, `state` and `stateSinceMs` have landed since, `MEDIA` at `media.js:54` carries **89**
+media across **9** families rather than the 64 and 8 of the first row, and `CAGES` at `media.js:314` holds
+**26** cages rather than the 19 of the second. `validation.js:59 RULES` is still exactly **20** codes and
+`device.js:89 CAPABILITIES` still exactly **15** tokens, so the frozen column is not uniformly stale: it is a
+snapshot, and two of its numbers happen to still be true.
+
+Those six readings are one command, which is the only way a snapshot stays checkable:
+
+```bash
+node -e '
+const cp = require("child_process");
+const src = (f) => cp.execFileSync("git", ["show", "HEAD:" + f], { maxBuffer: 1 << 28 }).toString();
+const m = require("./engine/media.js"), v = require("./engine/validation.js"), d = require("./engine/device.js");
+const cfg = /this\.config = \{([\s\S]*?)\n    \};/.exec(src("engine/device.js"))[1];
+console.log("config keys:", (cfg.match(/^\s{6}\w+\s*:/gm) || []).length);
+console.log("Link fields:", new Set(src("engine/link.js").match(/this\.\w+\s*=/g)).size);
+console.log("MEDIA:", Object.keys(m.MEDIA).length, "families:", new Set(Object.values(m.MEDIA).map((x) => x.family)).size);
+console.log("CAGES:", Object.keys(m.CAGES).length);
+console.log("RULES:", v.RULES.length);
+console.log("CAPABILITIES:", d.CAPABILITIES.length);'
+```
+
+Measured:
+
+```
+config keys: 18
+Link fields: 12
+MEDIA: 89 families: 9
+CAGES: 26
+RULES: 20
+CAPABILITIES: 15
+```
 
 | # | Anchor (this tree) | Today | Change |
 |---|---|---|---|
