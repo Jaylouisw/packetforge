@@ -742,7 +742,7 @@ sentence — are `devices/registry.js`, not an `engine/` file, which is why a sw
 `engine/ server/ web/` reports them missing.
 
 The half of that sweep that needs re-running after any refactor is the cheap half — does the line still exist —
-so it is worth having as a command rather than a date. Today: **91** occurrences of a `file.js:NNN` reference,
+so it is worth having as a command rather than a date. Today: **89** occurrences of a `file.js:NNN` reference,
 collapsing to **56** distinct file-and-line pairs across **12** files, none missing and none out of range.
 
 ```sh
@@ -765,7 +765,7 @@ console.log("occurrences", occ, "| pairs", pairs.size, "| files", srcs.size, "| 
 ```
 
 ```
-occurrences 91 | pairs 56 | files 12 | out of range 0
+occurrences 89 | pairs 56 | files 12 | out of range 0
 ```
 
 It proves the line exists, not that the line names the symbol — the weaker claim, deliberately, because the
@@ -773,7 +773,7 @@ symbol check costs a judgement per anchor and this one costs a second. Bare `med
 resolve by uniqueness across those six directories, which is how the `registry.js` citations come out as
 `devices/registry.js` rather than being reported as missing `engine/` files: that is the trap the paragraph
 above describes, reproduced by the check rather than avoided by it. The dated sweep counts occurrences (87
-then), and this one reports both counts because they answer different questions — 91 references to 56 places
+then), and this one reports both counts because they answer different questions — 89 references to 56 places
 is the same claim appearing twice, once in the table and once in the prose that summarises it. Both numbers
 count this paragraph too, so mentioning a `file.js:NNN` here moves the first and leaves the second alone; the
 draft of this sentence carried one and the check printed 90.
@@ -784,16 +784,17 @@ highest `cli.js` line this page cites is **9,426**, so all three (`:2408`, `:326
 the caveat applies to nothing here. Citations past ~9,700 in that file would need the worktree, which is why
 [ROADMAP.md](ROADMAP.md) records the eight-line offset at `_helperAddress`.
 
-The *Today* column's other counts are frozen with it, which is worth saying because **four** of them have
-moved and a reader should not take them for the current tree: `device.js:157 config` has **18** keys now, not
-17 — `scionAs` (SCION ISD-AS membership) is the addition — a `Link` owns **12** fields, not 8, because
-`lagId`, `patchCord`, `state` and `stateSinceMs` have landed since, `MEDIA` at `media.js:54` carries **89**
-media across **9** families rather than the 64 and 8 of the first row, and `CAGES` at `media.js:314` holds
-**26** cages rather than the 19 of the second. `validation.js:59 RULES` is still exactly **20** codes and
-`device.js:89 CAPABILITIES` still exactly **15** tokens, so the frozen column is not uniformly stale: it is a
-snapshot, and two of its numbers happen to still be true.
+The *Today* column's other counts are frozen with it, and more of them have moved than this paragraph used
+to name: `device.js:157 config` has **18** keys now, not 17 — `scionAs` (SCION ISD-AS membership) is the
+addition — a `Link` owns **12** fields, not 8, because `lagId`, `patchCord`, `state` and `stateSinceMs` have
+landed since, `connect()` reads **ten** `opts.*` names at `:347` rather than the 7 of row 15, and the
+`POST …/links` branch reads **nine** body keys rather than the 5 fields of row 31 — `a`, `b` and seven
+options (`mediaId`, `lengthM`, `duplex`, `lagId`, `patchCord`, `type`, `force`). `validation.js:59 RULES` is
+still exactly **20** codes and `device.js:89 CAPABILITIES` still exactly **15** tokens, so the frozen column
+is not uniformly stale: it is a snapshot, and two of its numbers happen to still be true. The other two the
+snapshot gets wrong — 19 cages and 64 media — are covered above, beside the live counts.
 
-Those six readings are one command, which is the only way a snapshot stays checkable:
+Those eight readings are one command, which is the only way a snapshot stays checkable:
 
 ```bash
 node -e '
@@ -806,7 +807,12 @@ console.log("Link fields:", new Set(src("engine/link.js").match(/this\.\w+\s*=/g
 console.log("MEDIA:", Object.keys(m.MEDIA).length, "families:", new Set(Object.values(m.MEDIA).map((x) => x.family)).size);
 console.log("CAGES:", Object.keys(m.CAGES).length);
 console.log("RULES:", v.RULES.length);
-console.log("CAPABILITIES:", d.CAPABILITIES.length);'
+console.log("CAPABILITIES:", d.CAPABILITIES.length);
+const topo = src("engine/topology.js");
+const connect = topo.slice(topo.indexOf("  connect(aId"), topo.indexOf("  setLinkLength("));
+console.log("connect opts:", new Set(connect.match(/opts\.\w+/g)).size);
+const srv = src("server/index.js"), k = srv.indexOf("parts[3] === \u0027links\u0027 && parts.length === 4");
+console.log("POST /links body keys:", new Set(srv.slice(k, srv.indexOf("parts[3] === \u0027validate-link\u0027", k)).match(/body\.\w+/g)).size);'
 ```
 
 Measured:
@@ -818,6 +824,8 @@ MEDIA: 89 families: 9
 CAGES: 26
 RULES: 20
 CAPABILITIES: 15
+connect opts: 10
+POST /links body keys: 9
 ```
 
 | # | Anchor (this tree) | Today | Change |
