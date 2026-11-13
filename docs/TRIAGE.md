@@ -240,11 +240,16 @@ One pass, three attempts per title, each attempt subject to the same guards belo
    Router" is filler;
 3. failing that, nothing — the request stays open.
 
-Every hit is exact after normalisation. There is no edit distance and no similarity score anywhere
-in the file — `grep -in 'levenshtein\|similarity\|editdistance\|hamming\|jaro\|soundex\|fuzzy'`
-finds nothing. The three attempts are the whole-title lookup at `:152` and the trailing-token loop at
-`:157` of `scripts/sweep-device-requests.js`, and the subject is cut out of the title by
-`requestSubject()` at `:95`.
+Every hit is exact after normalisation. There is no edit distance and no similarity score anywhere in
+the code that does the matching, and the search proves it by exiting **1** rather than by printing
+nothing:
+`grep -rn 'levenshtein\|similarity\|editdistance\|hamming\|jaro\|soundex\|fuzzy' scripts/ devices/`
+— give it both paths, because the matching lives in `scripts/sweep-device-requests.js` and the indexes
+it consults in `devices/registry.js`; a bare `grep -in` with no path waits on stdin and looks like a
+clean result. Exit **1** is "no match"; **2** means the paths were wrong, which is the failure this
+recipe cannot tell you apart from the first by silence alone. The three attempts are the whole-title
+lookup at `:152` and the trailing-token loop at `:157` of `scripts/sweep-device-requests.js`, and the
+subject is cut out of the title by `requestSubject()` at `:95`.
 
 ## What counts as a match
 
