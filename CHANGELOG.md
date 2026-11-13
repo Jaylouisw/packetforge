@@ -941,8 +941,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   empty-string artifact, `% Invalid show command: (empty)`; it is now the IOS answer with the words that
   can follow, counted from the same page `show ?` reads — `% Incomplete command.` and
   `% "show" needs a word after it - it takes version, clock, logging, ip, interfaces, history,
-  terminal, arp and 12 more` (8 named, 20 in total). And one help row offered a word that is not a
-  word: `no switchport mode | no switchport access vlan | no switchport trunk ...` was whole commands
+  terminal, arp and 12 more ("show ?" lists them all)` (8 named, 20 in total). And one help row offered
+  a word that is not a word: `no switchport mode | no switchport access vlan | no switchport trunk ...`
+  was whole commands
   separated by `|` with a literal `...` where the trunk forms go, so the page completed to something
   untypeable. It is five rows now, one per removal, and the VRRP and numbered-list rows got the same
   treatment.
@@ -950,9 +951,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   The proof is `test/shortest-abbrev.test.js`: every documented row in seven modes is abbreviated to its
   shortest unique prefix and typed, and the answer must not be `% Unrecognized`, `% Invalid` or
   `% Incomplete` — an ambiguity passes only when the refusal names two or more candidates that exist on
-  that page. Measured on this tree: `sw p` answers `Port security enabled on Fa0/1`, `l r` answers
-  `LLDP receive on Fa0/1 is already on`, and `router-i 1.1.1.1` inside `router ospf 1` still sets the
-  router id rather than being read as a global command — the veto still does its job, it just no longer
+  that page. Measured on this tree, in `(config-if)#` on a switch — the mode is part of the
+  reproduction, because at the exec prompt `sw p` is `% Unrecognized command: sw p` and `l r` is
+  `% Invalid input: link r - expected up, down or state`, neither of which is the point being made:
+  `sw p` answers `Port security enabled on Fa0/1` and then two lines describing the defaults it just
+  applied (`Maximum 1 secure address, violation mode shutdown (IOS defaults)` and the line about the
+  first source to arrive being learned), `l r` answers `LLDP receive on Fa0/1 is already on - the port
+  is listening` in full, and `router-i 1.1.1.1` inside `router ospf 1` still sets the router id
+  rather than being read as a global command — the veto still does its job, it just no longer
   does it to abbreviations. See [docs/CLI.md](docs/CLI.md).
 
 - **A `no` that names a part no longer removes the whole thing.** `no vrrp 1 ip 10.0.0.99` deleted the
