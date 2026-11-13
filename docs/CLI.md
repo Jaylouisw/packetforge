@@ -9457,6 +9457,7 @@ R1#show interfaces Gi0/0
 Gi0/0 (ethernet, 1G), MAC 02:00:00:00:00:00
   status: up
   ip: 10.0.1.1/24
+  MTU 1500 bytes (default), duplex full (default), speed 1G (negotiated)
   input : 5 packets, 530 bytes
   output: 5 packets, 530 bytes
   drops : 0
@@ -9490,19 +9491,42 @@ its router — the first command, then a second one, so the difference between t
 
 ```text
 PC1>ping 10.0.1.1 count 3
-!!!            Success rate is 100 percent (3/3)
+Type escape sequence to abort.
+Sending 3, 100-byte ICMP Echos to 10.0.1.1, timeout is 2 seconds:
+!!!
+Reply from 10.0.1.1: bytes=100 time=0.002 ms
+Reply from 10.0.1.1: bytes=100 time=0.002 ms
+Reply from 10.0.1.1: bytes=100 time=0.002 ms
+Success rate is 100 percent (3/3), round-trip min/avg/max = 0.002/0.002/0.002 ms
 
 PC1>show interfaces counters
+Interface counters on PC1:
 Port  Rx packets  Rx bytes  Tx packets  Tx bytes  Drops
 eth0  5           530       5           530       0
 
+1 port counted: 5 in, 5 out, 0 dropped
+
 PC1>ping 10.0.1.1 count 4
-!!!!           Success rate is 100 percent (4/4)
+Type escape sequence to abort.
+Sending 4, 100-byte ICMP Echos to 10.0.1.1, timeout is 2 seconds:
+!!!!
+Reply from 10.0.1.1: bytes=100 time=0.002 ms
+Reply from 10.0.1.1: bytes=100 time=0.002 ms
+Reply from 10.0.1.1: bytes=100 time=0.002 ms
+Reply from 10.0.1.1: bytes=100 time=0.002 ms
+Success rate is 100 percent (4/4), round-trip min/avg/max = 0.002/0.002/0.002 ms
 
 PC1>show interfaces counters
+Interface counters on PC1:
 Port  Rx packets  Rx bytes  Tx packets  Tx bytes  Drops
 eth0  10          1130      10          1130      0
+
+1 port counted: 10 in, 10 out, 0 dropped
 ```
+
+If you are reading those two steps for the arithmetic and not for the shape: the `!!!` punctuation and
+the `Success rate` line are two separate lines on this console, and each counters answer is preceded by
+its own heading and followed by a counted-ports summary.
 
 The first step is the documented sum: LLDP 64 + ARP 64 + 3 × 134 = **530**. The second step is
 `1130 − 530 = 600`, which is LLDP 64 + 4 × 134 and **no ARP term at all** — the entry learned by the
