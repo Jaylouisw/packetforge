@@ -742,7 +742,7 @@ sentence — are `devices/registry.js`, not an `engine/` file, which is why a sw
 `engine/ server/ web/` reports them missing.
 
 The half of that sweep that needs re-running after any refactor is the cheap half — does the line still exist —
-so it is worth having as a command rather than a date. Today: **89** occurrences of a `file.js:NNN` reference,
+so it is worth having as a command rather than a date. Today: **91** occurrences of a `file.js:NNN` reference,
 collapsing to **56** distinct file-and-line pairs across **12** files, none missing and none out of range.
 
 ```sh
@@ -765,7 +765,7 @@ console.log("occurrences", occ, "| pairs", pairs.size, "| files", srcs.size, "| 
 ```
 
 ```
-occurrences 89 | pairs 56 | files 12 | out of range 0
+occurrences 91 | pairs 56 | files 12 | out of range 0
 ```
 
 It proves the line exists, not that the line names the symbol — the weaker claim, deliberately, because the
@@ -773,7 +773,7 @@ symbol check costs a judgement per anchor and this one costs a second. Bare `med
 resolve by uniqueness across those six directories, which is how the `registry.js` citations come out as
 `devices/registry.js` rather than being reported as missing `engine/` files: that is the trap the paragraph
 above describes, reproduced by the check rather than avoided by it. The dated sweep counts occurrences (87
-then), and this one reports both counts because they answer different questions — 89 references to 56 places
+then), and this one reports both counts because they answer different questions — 91 references to 56 places
 is the same claim appearing twice, once in the table and once in the prose that summarises it. Both numbers
 count this paragraph too, so mentioning a `file.js:NNN` here moves the first and leaves the second alone; the
 draft of this sentence carried one and the check printed 90.
@@ -827,7 +827,7 @@ CAPABILITIES: 15
 | 3 | `CAGE_MATE` at `media.js:413` | `antenna:['antenna']` | ✅ done **differently**: `wwan` mates with **nothing**, including itself. Two 5G modems in a lab are two subscribers to a network neither contains, not a cable between them — `['cellular','cellular']` would have let a lab draw that link |
 | 4 | `CAGE_MEDIA` at `media.js:486`, coax `:609` / dsl `:617` / powerline `:622` / wwan `:489` | coax/dsl/powerline/antenna fns | ✅ done (#129): the `wwan` fn offers the generations the rate can reach, and always at least `lte` |
 | 5 | `CAGE_SPEEDS` at `media.js:642` | per-cage speed fns | ✅ done (#129): `[maxMbps]` — the modem's category **is** the rate |
-| 6 | `inferCage()` at `media.js:767` | no cellular branch | ✅ done (#129): name-first (`wwan*`, `wan5g`, `lte*`, `nr5g`, `modem*`), checked **before** the wireless-type rule that was claiming these ports for Wi-Fi |
+| 6 | `inferCage()` at `media.js:767` | no cellular branch | ✅ done (#129): name-first — the test at `:782` is `/^(?:wwan\d*\|wan5g\|modem\d*\|lte\d*\|nr5g\|nr\d*\|5g\d*)(?:$\|[.\-_ /])/`, checked **before** the wireless-type rule that was claiming these ports for Wi-Fi. Digits are allowed after every token but `wan5g`, and a token only counts at the end of the name or before `. - _ /` or a space — which is why `wwan0`, `lte0`, `nr5g-1` and `5g-sub6` are `wwan` while `wan5g0`, `wan5g1` and `5gmmwave0` fall through to copper, and `nr5g0` is claimed by the radio rule below and becomes an `antenna` |
 | 7 | `derivePortHardware()` at `media.js:875` | `cage==='antenna'` band special-case | **no change** — verify cellular is not caught |
 | 8 | `canMate()` at `media.js:1230`, `cagesMate()` at `:455` | 3-test ladder | **no change** — service checks live in validation |
 | 9 | `validation.js:59 RULES` | 20 codes | +12 (§6.1); `SEVERITY_BY_CODE` at `:144` follows automatically |
