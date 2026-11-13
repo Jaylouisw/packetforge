@@ -808,16 +808,23 @@ if one reappears, it names a live defect.
 
 ### One live defect, unasserted
 
-**A rejected `access-list` line answers `% [object Object]`.** `acl.js` returns the failure as an
-object (`{ ok: false, code: 'E_ACTION', message: … }`) and the CLI's error path concatenates it into
-a string instead of reading `.message`. Measured on four different mistakes — `permitx` as the
-action, `bogus` as the protocol, `eq 99999` as a port, and `no access-list 101 99` for a sequence
-number that does not exist — every one prints the same `[object Object]`, and in each case the list
-is left untouched, so nothing is corrupted and nothing is explained. The parser itself is well covered — `test/acl.test.js`
-asserts `E_ACTION` three times, at three levels (the raw parser, `validateAcl()`, and the round trip) —
-but **nothing asserts what the console prints**, so a stringified object passed every suite. That
-gap in coverage, rather than a gap in the parser, is why it survived. It is recorded in `docs/CLI.md`
-next to the syntax so a reader is not left thinking they mistyped a path into the tool.
+**A sequence number typed into `no access-list` answers `% [object Object]`.** `acl.js` returns the
+failure as an object (`{ code: 'E_ACTION', message: 'expected "permit" or "deny", got "10"' }`) and
+this one error path
+concatenates it into a string instead of reading `.message`. The three entry mistakes this page used
+to list alongside it — `permitx` as the action, `bogus` as the protocol, `eq 99999` as a port — now
+print the parser's own sentence: `% access-list 101: expected "permit" or "deny", got "permitx"`,
+`% access-list 101: unknown protocol "bogus" (use ip, tcp, udp or icmp)`,
+`% access-list 101: bad port value "99999"`. What remains is the numbered-list form with a sequence
+where an entry belongs: `no access-list 101 10` parses `10` as an entry, fails, and loses the reason
+while leaving the list untouched — the entry you asked to delete is still there. The working route is
+the edit mode, which does read `.message`: `ip access-list extended BLOCK` then `no 10` prints
+`Removed entry 10 (permit tcp any any eq 80) from BLOCK`, and `no 99` answers
+`% No entry 99 in access list BLOCK` with the sequences that do exist. The parser itself is well
+covered — `test/acl.test.js` asserts `E_ACTION` three times, at three levels (the raw parser,
+`validateAcl()`, and the round trip) — but **nothing asserts what the console prints on this path**,
+so a stringified object passed every suite. It is recorded in `docs/CLI.md` next to the syntax so a
+reader is not left thinking they mistyped a path into the tool.
 ---
 
 ## 11. Where the other docs overstate the code

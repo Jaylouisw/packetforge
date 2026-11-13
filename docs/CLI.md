@@ -8455,15 +8455,46 @@ Two details in the refusal line: the device is shown by its **id** (`on d1`), no
 the hint after it is a hint — `try … ping` on a flow that was denied as ICMP would send you to a
 command that cannot confirm anything.
 
-**A malformed `access-list` line answers `% [object Object]`.** Measured on three different mistakes
-— a bad action (`permitx`), an unknown protocol (`bogus`) and an out-of-range port (`eq 99999`) —
-the console prints the parser's error object instead of its message, and `no access-list 101 99`
-(a sequence number that does not exist) does the same. The list is left untouched, so nothing is
-corrupted, but the reason is swallowed: you cannot tell a typo in the action from one in the port
-by reading the console. Until that is fixed, the reliable check is `show access-lists` to see what
-actually landed, and the codes the parser does produce (`E_ACTION`, `E_PROTOCOL`, `E_PORT`) are the
-ones in the [refusal-code appendix](#refusal-codes-the-ones-you-will-actually-meet). This is a live
-defect, not a documentation gap, and it is listed in `docs/SIMULATION.md` §10.
+**A malformed `access-list` line names its reason; a bare sequence number does not.** Three mistakes
+are refused with the parser's own sentence, one after the other, and the list is left untouched:
+
+```
+R1(config)#access-list 101 permitx tcp any any eq 80
+% access-list 101: expected "permit" or "deny", got "permitx"
+R1(config)#access-list 101 permit bogus any any
+% access-list 101: unknown protocol "bogus" (use ip, tcp, udp or icmp)
+R1(config)#access-list 101 permit tcp any any eq 99999
+% access-list 101: bad port value "99999"
+```
+
+The form that still answers `% [object Object]` is a numbered list with a sequence number where an
+entry belongs, and it is the worse case because nothing is removed either — the list keeps the entry
+you asked to delete:
+
+```
+R1(config)#no access-list 101 10
+% [object Object]
+```
+
+`_noAccessList()` parses everything after the number as an **entry**, so a bare `10` reaches the
+parser as an ACL line, fails, and the handler concatenates the error object instead of reading its
+`.message` — one line in `engine/cli.js`, and the difference from the three above. Removing by
+sequence number is what the edit mode is for, and there it works because that path does read the
+message:
+
+```
+R1(config)#ip access-list extended BLOCK
+R1(config-ext-nacl)#no 10
+Removed entry 10 (permit tcp any any eq 80) from BLOCK
+R1(config-ext-nacl)#no 99
+% No entry 99 in access list BLOCK
+% Entries: 20
+```
+
+The three messages above are `E_ACTION`, `E_PROTOCOL` and `E_PORT`; the rest of that file's codes are
+in the [refusal-code appendix](#refusal-codes-the-ones-you-will-actually-meet). The lost reason here is
+`E_ACTION` — `expected "permit" or "deny", got "10"`, which is exactly what the add path would print. The `% [object Object]` line is
+a live defect, not a documentation gap, and it is listed in `docs/SIMULATION.md` §10.
 
 ## NAT — static and PAT from the console, a pool from the topology
 
@@ -9683,7 +9714,7 @@ The table below is the report that matters:
 | File | Undocumented | Which |
 |---|---|---|
 | `ipv6.js` | 7 | `E_CHARS`, `E_HEX`, `E_MULTICAST`, `E_PREFIX_FORMAT`, `E_TOO_MANY_GROUPS`, `E_TRIPLE_COLON`, `E_WHITESPACE` — address-syntax guards |
-| `acl.js` | 4 | `E_ACL_NUMBER`, `E_KIND`, `E_NO_ENTRIES`, `E_SEQUENCE` — the per-entry guards behind the `% [object Object]` in [the appendix above](#refusal-codes-the-ones-you-will-actually-meet) |
+| `acl.js` | 4 | `E_ACL_NUMBER`, `E_KIND`, `E_NO_ENTRIES`, `E_SEQUENCE` — the per-entry guards, which the `access-list` command and the `ip access-list` edit mode now quote as prose; `E_SEQUENCE` is the one still swallowed as `% [object Object]` when a bare sequence number is typed into `no access-list` (see [Access control lists](#access-control-lists)) |
 | `bgp.js` | 4 | `E_KEEPALIVE_REFUSED`, `E_OPEN_REFUSED`, `E_SESSION_REFUSED`, `E_TCP_REFUSED` — session refusals the CLI reports as prose |
 | `dns.js` | 4 | `E_DNS_BAD_TTL`, `E_DNS_BAD_TYPE`, `E_DNS_MISSING_ZONE_NAME`, `E_DNS_MX_NO_PRIORITY` |
 | `optical.js` | 4 | `E_BIDI_MISMATCH`, `E_BIDI_SAME_WAVELENGTH`, `E_UNKNOWN_PART`, `E_UNKNOWN_PON_CLASS` |
@@ -9744,7 +9775,7 @@ grep -oh "'[EW]_[A-Z0-9_]*'" engine/*.js | sort -u | tr -d "'" \
 | `flow open` / `openFlow()` | `% flow refused (E_NO_ROUTE): …` — always a code |
 | DHCP pool (`exit` from `ip dhcp pool`) | **prose only, and no code**: `% DHCP pool p1: default router 10.9.9.9 is outside 10.1.1.0/24.`, then `% Pool p1 discarded - a pool is kept only once it is valid` and the line that says how to fix it. `E_DHCP_GATEWAY_OUTSIDE` (`engine/dhcp.js:401`) never reaches the console |
 | VLAN, trunk, LAG, VRRP (config mode) | **prose only**, at the keystroke: `% "1004" is not a VLAN id, a list (10,20) or a range (10-20)` for a reserved id in a trunk list, `% Invalid virtual router id: 300 (1-255)`, `% Invalid mode: bogus (use active\|passive\|on)`. Two things this row used to get wrong: the console **accepts** `switchport access vlan 1004` and `switchport trunk native vlan 1004`, so the reserved-VLAN sentence `accessVlan 1004 is reserved by IEEE 802.1Q (1002-1005)` is a `validateTopology()` message (`engine/vlan.js:387`) that no keystroke prints — and a trunk list refuses 1004 with a *parse* message, not the reserved one |
-| `access-list` | `% [object Object]` — the error object is stringified, so the reason is lost entirely (see [Access control lists](#access-control-lists)) |
+| `access-list` | malformed lines are refused in the parser's own words; a **bare sequence number** in `no access-list <n> <seq>` still prints `% [object Object]` and removes nothing (see [Access control lists](#access-control-lists)) |
 | NAT | static and PAT are written from the console and answer in **prose** — `% eth0 has no address - "overload" translates onto that address…`, `% Access list 10 does not exist - the NAT list says which addresses are translated…`, and a pool is refused outright with `% This model translates inside source addresses ("ip nat inside source …"), not "pool"`. A dynamic pool rule still lives in the topology JSON, and its codes arrive through `validateTopology()` |
 | `validateTopology()` / the validator | `{ code, message }` objects with a severity, which is where the tables below are transcribed from |
 
