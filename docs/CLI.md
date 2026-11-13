@@ -8493,8 +8493,9 @@ R1(config-ext-nacl)#no 99
 
 The three messages above are `E_ACTION`, `E_PROTOCOL` and `E_PORT`; the rest of that file's codes are
 in the [refusal-code appendix](#refusal-codes-the-ones-you-will-actually-meet). The lost reason here is
-`E_ACTION` — `expected "permit" or "deny", got "10"`, which is exactly what the add path would print. The `% [object Object]` line is
-a live defect, not a documentation gap, and it is listed in `docs/SIMULATION.md` §10.
+`E_ACTION` — `expected "permit" or "deny", got "10"`, which is exactly what the add path would print.
+The `% [object Object]` line is a live defect, not a documentation gap, and it is listed in
+`docs/SIMULATION.md` §10.
 
 ## NAT — static and PAT from the console, a pool from the topology
 
@@ -9714,7 +9715,7 @@ The table below is the report that matters:
 | File | Undocumented | Which |
 |---|---|---|
 | `ipv6.js` | 7 | `E_CHARS`, `E_HEX`, `E_MULTICAST`, `E_PREFIX_FORMAT`, `E_TOO_MANY_GROUPS`, `E_TRIPLE_COLON`, `E_WHITESPACE` — address-syntax guards |
-| `acl.js` | 4 | `E_ACL_NUMBER`, `E_KIND`, `E_NO_ENTRIES`, `E_SEQUENCE` — the per-entry guards, which the `access-list` command and the `ip access-list` edit mode now quote as prose; `E_SEQUENCE` is the one still swallowed as `% [object Object]` when a bare sequence number is typed into `no access-list` (see [Access control lists](#access-control-lists)) |
+| `acl.js` | 4 | `E_ACL_NUMBER`, `E_KIND`, `E_NO_ENTRIES`, `E_SEQUENCE` — the per-entry guards, which the `access-list` command and the `ip access-list` edit mode now quote as prose; a bare sequence number typed into `no access-list` still loses its reason as `% [object Object]` (the parse yields `E_ACTION`, see [Access control lists](#access-control-lists)) |
 | `bgp.js` | 4 | `E_KEEPALIVE_REFUSED`, `E_OPEN_REFUSED`, `E_SESSION_REFUSED`, `E_TCP_REFUSED` — session refusals the CLI reports as prose |
 | `dns.js` | 4 | `E_DNS_BAD_TTL`, `E_DNS_BAD_TYPE`, `E_DNS_MISSING_ZONE_NAME`, `E_DNS_MX_NO_PRIORITY` |
 | `optical.js` | 4 | `E_BIDI_MISMATCH`, `E_BIDI_SAME_WAVELENGTH`, `E_UNKNOWN_PART`, `E_UNKNOWN_PON_CLASS` |
