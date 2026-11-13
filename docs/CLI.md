@@ -8718,7 +8718,7 @@ OSPF has converged the table prints the no-adjacency line with `Neighbors: 0 (0 
 and never `1 (0 FULL)`. Measured on `R1 -- SW1 -- R2` with a host behind R2, pinging across and reading
 the table at that instant:
 
-| `ping … at` | ping | `show ip ospf` | `show ip ospf neighbor` |
+| ping given | ping | `show ip ospf` | `show ip ospf neighbor` |
 |---|---|---|---|
 | `500` … `29000` | 0/4 | `Neighbors: 0 (0 FULL)` | `(no adjacencies - no neighbour passed …)` |
 | `30000`, `converged` | 4/4 | `Neighbors: 1 (1 FULL)` | `2.2.2.2  1  FULL  10.0.0.2  Gi0/0` |
