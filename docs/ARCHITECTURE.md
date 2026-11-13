@@ -835,6 +835,32 @@ check every `vendor`/`model` against `GET /api/catalog` first. If you want a pay
 generate it from the engine the way `examples/build-examples.js` builds its four labs, rather than
 hand-writing JSON.
 
+The wipe is visible in three places at once, and the on-disk copy has a shape of its own — the devices
+sit under **`topology`** in `data/topologies/<id>.json`, beside `format`, `version` and `savedAt`, so a
+reader who greps that file for a top-level `devices` array finds nothing whether the board is full or
+empty. Run this from the repository root; it starts a server on a throwaway `PF_DATA`, fills it, calls
+`/load` with `{}`, and reads all three:
+
+```bash
+PD=$(mktemp -d); PF_DATA="$PD" PORT=8179 node server/index.js >/dev/null 2>&1 &
+sleep 1
+curl -s -XPOST localhost:8179/api/topologies/default/devices -H 'content-type: application/json' \
+  -d '{"vendor":"generic","model":"generic-pc","label":"pc1"}' >/dev/null
+echo "before: $(curl -s localhost:8179/api/topologies/default | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>console.log(JSON.parse(s).devices.length+" device(s)"))')"
+curl -s -XPOST localhost:8179/api/topologies/default/load -H 'content-type: application/json' -d '{}' >/dev/null
+echo "after:  $(curl -s localhost:8179/api/topologies/default | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>console.log(JSON.parse(s).devices.length+" device(s)"))')"
+echo "on disk: $(node -e 'const d=require(process.argv[1]);console.log(d.topology.devices.length+" device(s), keys: "+Object.keys(d).join("/"))' "$PD/topologies/default.json")"
+kill %1
+```
+
+Measured:
+
+```
+before: 1 device(s)
+after:  0 device(s)
+on disk: 0 device(s), keys: format/version/savedAt/topology
+```
+
 > **The 25th category has no filter.** `/api/catalog` groups all **25** `category` values, but the type filter in
 > the palette is built from `CAT_ORDER` in `web/app.js`, which lists **24** — `ap` is the one missing, and it is not
 > an empty category: 11 models carry it (`fs/AP-N506`, `fs/AP-N506H`, `fs/AP-N516`, `fs/AP-N716`, …). Those devices are
