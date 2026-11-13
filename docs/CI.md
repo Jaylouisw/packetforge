@@ -922,8 +922,8 @@ queue that lost its arms gets them back in one tick instead of five at a time.
   bottleneck. Rebasing removes them. That is the cheapest single thing you can do
   for the queue's health. The scale is worth knowing: `main` no longer carries
   `.github/workflows/` at all (it holds `.github/` templates, labels and dependabot
-  config only), the remote advertises **872** heads and a sample of twelve spread evenly through that
-  list found **nine** still carrying `.github/workflows/ci.yml`. So this is not a handful of forgotten
+  config only), the remote advertised **872** heads at that reading and a sample of twelve spread evenly
+  through that list found **nine** still carrying `.github/workflows/ci.yml`. So this is not a handful of forgotten
   branches; most of the queue is running workflows that cannot pass.
 
   Two things to know before reproducing those numbers. The count is `git ls-remote --heads <remote> |
@@ -935,11 +935,20 @@ queue that lost its arms gets them back in one tick instead of five at a time.
   branch whether it still carries the file with the API instead of cloning 872 of them:
   `http://odin:3000/api/v1/repos/jaylouisw/packetforge/contents/.github/workflows/ci.yml?ref=<branch>`
   answers **200** or **404** — twelve requests instead of twelve checkouts.
-  the queue is running workflows that cannot pass.
+
+  That sample works against GitHub as well, which is reachable when the forge is not: list the heads with
+  `git ls-remote --heads https://github.com/jaylouisw/packetforge`, take twelve spread evenly through the
+  sorted names, and ask
+  `https://api.github.com/repos/jaylouisw/packetforge/contents/.github/workflows/ci.yml?ref=<branch>` for
+  each — unauthenticated, so twelve calls are well inside the hourly limit. On today's **889** heads, nine
+  of the twelve answer **200**, and the three that answer **404** are the newest names in the list
+  (`feat/ubnt-amplifi-pbe`, `fix/port-roundtrip`, `work89b`), which is the rebase the paragraph above is
+  asking for already done on the branches people still push to.
+
 - **Whether any suite is red is a reading, not a fact about the repository — so read it.** The two
   suites that were red for a long time are green now: `test/spec-vs-description.test.js` **3 passed, 0
   failed** and `test/canonical-urls.test.js` **43 passed, 0 failed**, with `scripts/check-canonical-urls.js`
-  printing `OK — 2200 files, every project URL points at https://git.jayw.uk/jaylouisw/packetforge`. That
+  printing `OK — 2332 files, every project URL points at https://git.jayw.uk/jaylouisw/packetforge`. That
   number is the one in this paragraph that moves on its own: **2114 → 2200 → 2278 → 2332** today, and none of the
   three moves touched a URL, so read it as a snapshot and re-run the script rather than quoting it.
 
