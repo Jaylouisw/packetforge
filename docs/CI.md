@@ -478,11 +478,12 @@ for (const b of bad) console.log('  ' + b.where);
 EOF
 ```
 
-Measured — and note the trap in reading it, because **this block is itself one of the fences it counts**:
+Measured — and note the trap in reading it, because **two of the fences it counts are this one and the
+output block below it**:
 
 ```
-21 pages, 809 fenced blocks (574 unlabelled, 75 `bash`, 49 `sh`, 45 `text`, 35 `js`, 26 `json`, 3 `jsonc`, 1 `yaml`, 1 `console`)
-column 0: 757, indented: 52
+21 pages, 810 fenced blocks (575 unlabelled, 75 `bash`, 49 `sh`, 45 `text`, 35 `js`, 26 `json`, 3 `jsonc`, 1 `yaml`, 1 `console`)
+column 0: 758, indented: 52
 js: 35 blocks, 23 parse, 12 do not:
   docs/BGP-POLICY.md:709
   docs/BGP-POLICY.md:921
@@ -498,14 +499,16 @@ js: 35 blocks, 23 parse, 12 do not:
   CONTRIBUTING.md:592
 ```
 
-The paragraph above says 808 and 74 `bash` because it is describing the pages **without** this census block;
-the run prints one more of each, and 757 at column 0 rather than 756, for the same reason. A count that
+The paragraph above says 808, 74 `bash` and 756 at column 0 because it describes the pages **without** these
+two blocks; the run prints two more at the total and at column 0 and one more `bash` and unlabelled, for the
+same reason. A count that
 includes the thing doing the counting has to say so, which is the other half of why these numbers are worth
 re-running rather than quoting: a later edit will move them and the reader will not know which side of the
 self-reference the difference came from.
 
 The 52 indented blocks are the reason a census taken by the column-0 pattern answers **756** where the total
-answers **808** (or 757 and 809 with this block): they sit inside list items, and both numbers are right
+answers **808** (or 758 and 810 with the two blocks above): they sit inside list items, and both numbers are
+right
 about their own question.
 
 The twenty-three that do parse are the ones a reader actually runs, and those are worth keeping honest: if a
