@@ -343,6 +343,34 @@ if you only count bytes:
 | Three junk frames (`{"type":"bogus"}`, `not json`, `{}`) | **0** frames back in 700 ms — discarded, no error frame |
 | A `ping` frame (opcode `0x9`, payload `hi`) | **1 `pong`** (opcode `0xA`) and nothing else, inside 800 ms — so the server does answer the one control frame it documents, and the payload is the only thing that comes back |
 
+Three of those rows need no frame reader at all — `curl` is enough, because the interesting part happens
+in the handshake:
+
+```bash
+PD=$(mktemp -d); PF_DATA="$PD" PORT=8192 node server/index.js >/dev/null 2>&1 &
+sleep 1
+up () { curl -s -i --max-time 2 -H 'Upgrade: websocket' -H 'Connection: Upgrade' "$@" \
+  "http://127.0.0.1:8192/deep/path" | head -1 | tr -d '\r'; }
+KEY='Sec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ=='
+echo "any path:    $(up -H "$KEY" -H 'Sec-WebSocket-Version: 13')"
+echo "no key:      $(up -H 'Sec-WebSocket-Version: 13' | wc -c | tr -d ' ') byte(s)"
+echo "version 8:   $(up -H "$KEY" -H 'Sec-WebSocket-Version: 8')"
+kill %1
+```
+
+Measured:
+
+```
+any path:    HTTP/1.1 101 Switching Protocols
+no key:      0 byte(s)
+version 8:   HTTP/1.1 101 Switching Protocols
+```
+
+`head -1` is doing real work in that function: after the `101` the server sends its first frame
+immediately, so an unfiltered `curl` drops binary on your terminal. The frame-count rows need a real
+client — `curl` stops at the handshake — which is why those are quoted as counts, each with the window
+it was measured in.
+
 Re-measured with a hand-rolled frame reader that decodes opcodes rather than counting `recv()` calls:
 one text frame (opcode `1`) per event, no unsolicited control frames, no empty frames. The whole table was
 re-run against a fresh `PF_DATA` server on this tree — all five upgrade paths, the header-less handshake
