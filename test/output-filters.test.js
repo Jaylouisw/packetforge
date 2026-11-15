@@ -130,5 +130,70 @@ console.log('\nA placeholder is completed from the device:');
   void routed;
 }
 
+console.log('\nA `?` against a pipe filter is a question, not filter text:');
+{
+  // `| inc?` was read as a filter whose text was the help character ("nothing in this answer matches
+  // "| inc?""), `| c?` applied count and printed "7 lines", and `| e?` printed the unfiltered view -
+  // each of them answering a question nobody asked.
+  const env = lab();
+  const s = env.sr;
+  const inc = text(s.run('show version | inc?'));
+  ok(/Filters for "show version"/.test(inc), 'show version | inc? answers with the filters');
+  ok(/include <text>/.test(inc), '  narrowing to include');
+  ok(/takes the text to look for/.test(inc), '  and saying include takes text');
+  ok(!/nothing in this answer matches/.test(inc), '  not by filtering on the help character');
+  const i = text(s.run('show version | i?'));
+  ok(/include <text>/.test(i) && !/exclude|begin|section|count/.test(i), '| i? narrows to include alone');
+  const c = text(s.run('show version | c?'));
+  ok(/count/.test(c) && /takes no text/.test(c), '| c? answers about count');
+  ok(!/^7 lines$/m.test(c), '  and does not run count');
+  const e = text(s.run('show version | e?'));
+  ok(/exclude <text>/.test(e), '| e? answers about exclude');
+  ok(/PacketForge Router/.test(e) === false, '  and does not print the unfiltered view');
+  const s2 = text(s.run('show version | s?'));
+  ok(/section <text>/.test(s2), '| s? answers about section');
+  // A chain answers about the filter being typed, and names what is already applied.
+  const chain = text(s.run('show version | include version | co?'));
+  ok(/after \| include version/.test(chain), 'a chained ? names the filters already applied');
+  ok(/count/.test(chain), '  and answers about the one being typed');
+  // A prefix that matches nothing says so, and lists the five.
+  const none = text(s.run('show version | zz?'));
+  ok(/No filter starts with "zz"/.test(none), 'a filter prefix that matches nothing is named');
+  ok(/include, exclude, begin, section, count/.test(none), '  with the five that exist');
+  // The plain trailing-space form still lists everything.
+  const all = text(s.run('show version | include ?'));
+  ok(/include <text>/.test(all) && /count/.test(all), '| include ? still lists all five');
+  // And a real filter still filters.
+  ok(/^7 lines$/m.test(text(s.run('show version | count'))), 'a typed filter still runs');
+}
+
+console.log('\n`do` is an exec escape from every block, and the page says so:');
+{
+  // `do show version` runs in every configuration block, but two pages did not name it: `do ?` in
+  // interface mode and in a DHCP pool answered "No completions for \"do\"" while completing one mode
+  // up. A word the parser takes everywhere is a word the page owes everywhere.
+  const blocks = [
+    ['config mode', ['configure terminal']],
+    ['interface block', ['configure terminal', 'interface Gi0/0']],
+    ['OSPF block', ['configure terminal', 'router ospf 1']],
+    ['BGP block', ['configure terminal', 'router bgp 65001']],
+    ['DHCP pool', ['configure terminal', 'ip dhcp pool LAN']],
+    ['standard ACL block', ['configure terminal', 'ip access-list standard 10']],
+    ['extended ACL block', ['configure terminal', 'ip access-list extended 101']]
+  ];
+  for (const [name, steps] of blocks) {
+    const t2 = new Topology();
+    const d2 = t2.addDevice(find('generic-router')); d2.name = 'R1';
+    const s2 = new CliSession(d2, t2, new Simulator(t2)); s2.run('enable');
+    for (const step of steps) s2.run(step);
+    const q = text(s2.run('do ?'));
+    ok(/Next: show/.test(q), name + ': do ? completes to show');
+    ok(/PacketForge Router/.test(text(s2.run('do show version'))), name + ': and do show version answers');
+    // The page it printed has to contain the word, or the help page and the completion disagree.
+    const page = text(s2.run('?'));
+    ok(/do show/.test(page), name + ': and the page names do show');
+  }
+}
+
 console.log('\n' + passed + ' passed, ' + failed + ' failed');
 process.exit(failed ? 1 : 0);

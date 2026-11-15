@@ -421,8 +421,16 @@ class CliSession {
       if (lines.some(function (l) { return /^\s*%/.test(l); })) {
         return { output: lines, actions: (inner && inner.actions) || [] };
       }
-      // A `?` anywhere in the filter text is the help character, not the string to look for.
-      if (pipes.some(function (p) { return /(^|\s)\?(\s|$)/.test(p); })) {
+      // A `?` in a filter is the help character, not the string to look for - and the test has to
+      // cover the *verb* position, not just "a `?` surrounded by spaces": `| inc?` and `| i?` were
+      // read as filters whose text was the help character ("nothing in this answer matches \"| i?\"")
+      // and `| c?` applied count and printed "7 lines", answering a question nobody asked. A `?`
+      // attached to the filter word is the same question as `| include ?`.
+      if (pipes.some(function (p) {
+        const seg = String(p);
+        const verbWord = seg.trim().split(/\s+/)[0] || '';
+        return verbWord.indexOf('?') !== -1 || /(^|\s)\?(\s|$)$/.test(seg.trim());
+      })) {
         return { output: this._pipeHelp(main, pipes), actions: [] };
       }
       let shown = lines;
@@ -12326,11 +12334,42 @@ class CliSession {
     // `show running-config | include ?` asked what the filter's argument is. The ? was read as the
     // text to look for, so the answer was "nothing in this answer matches \"| include ?\"" - a
     // filter applied to the help character, which tells the operator nothing about either.
-    const out = ['Filters for "' + String(main).trim() + '":'];
-    out.push.apply(out, this._pipeLegend());
+    //
+    // A `?` against a partly typed filter word is the same question, narrowed: `| inc?` lists what
+    // starts with `inc`, and `| include version | co?` answers about the second filter while naming
+    // the first, because a chain is what the operator is building.
     const asked = pipes[pipes.length - 1] || '';
-    const verb = String(asked).trim().split(/\s+/)[0].toLowerCase();
-    const name = PIPE_FILTERS.filter(function (w) { return w === verb || w.indexOf(verb) === 0; })[0];
+    const verbWord = String(asked).trim().split(/\s+/)[0].toLowerCase();
+    const typed = verbWord.replace(/\?/g, '');
+    const asking = verbWord.indexOf('?') !== -1;
+    const before = pipes.slice(0, -1).filter(function (p) { return String(p).trim(); });
+    const out = [];
+    out.push('Filters for "' + String(main).trim() + '"'
+      + (before.length ? ' (after | ' + before.join(' | ') + ')' : '') + ':');
+    if (asking) {
+      const fits = PIPE_FILTERS.filter(function (w) { return w.indexOf(typed) === 0; });
+      if (!fits.length) {
+        out.push('  % No filter starts with "' + typed + '" - this console has: ' +
+          PIPE_FILTERS.join(', '));
+        return out;
+      }
+      const legend = this._pipeLegend().filter(function (l) {
+        const m = /^\s*\|\s*(\w+)/.exec(l);
+        return m ? fits.indexOf(m[1]) !== -1 : false;
+      });
+      out.push.apply(out, legend.length ? legend : this._pipeLegend());
+      const name = fits.length === 1 ? fits[0] : null;
+      if (name === 'count') out.push('', '  | count takes no text - it counts the lines the view printed.');
+      else if (name) {
+        out.push('', '  | ' + name + ' takes the text to look for, e.g. ' + main.trim() +
+          ' | ' + name + ' vlan');
+      } else {
+        out.push('', '  ' + fits.length + ' filters start with "' + typed + '" - keep typing, or ask again');
+      }
+      return out;
+    }
+    out.push.apply(out, this._pipeLegend());
+    const name = PIPE_FILTERS.filter(function (w) { return w === verbWord || w.indexOf(verbWord) === 0; })[0];
     if (name === 'count') out.push('', '  | count takes no text - it counts the lines the view printed.');
     else if (name) {
       out.push('', '  | ' + name + ' takes the text to look for, e.g. ' + main.trim() + ' | ' + name + ' vlan');
@@ -13593,7 +13632,9 @@ class CliSession {
       helpLine('no description', 'clear the description'),
       helpLine('no shutdown', 'bring the port back up'),
       helpLine('interface <name>', 'switch to another port, stay in config-if'),
-      helpLine('show <what>', 'any exec show, from here too'),
+      // `do show` and `show` are the same thing in a block, and both work here - the page named only
+      // `show`, so `do ?` answered "No completions" in this mode while it completed one mode up.
+      helpLine('show <what> | do show <what>', 'any exec show, from here too'),
       // Not a row: `<any config-mode command>` is a value where a verb goes, so the page offered a
       // placeholder as if it were a command and nothing could complete or abbreviate it. The fact it
       // stood for is stated once, below the rows, where a reader looking for a verb never trips on it.
@@ -13651,6 +13692,10 @@ class CliSession {
       helpLine('no default-router|dns-server|range|lease',
         'clear one setting in this pool'),
       helpLine('no pool', 'delete this pool'),
+      // The pool page had no exec escape at all, though `do show …` runs from it like any other block.
+      // Only `do`, not a bare `show`: this block refuses `show version` by name, so the page must not
+      // promise it - the row says the one spelling the parser takes here.
+      helpLine('do show <what>', 'any exec view, without leaving this pool'),
       helpLine('help / ?', 'this list'),
       helpLine('exit / end', 'back to config mode')
     ]);

@@ -1812,6 +1812,50 @@ The gate also read the wrong word. The test was "does the row contain `bgp` anyw
 The suite sweeps one device from each catalogue category: every `show` row its page **hides** is typed,
 and must be refused — a hidden row that answers is a view an operator will never find.
 
+### A `?` against a pipe filter is a question
+
+The pipe is filtered output, and the help character was read as the text to look for:
+
+```
+R1#show version | inc?
+(nothing in this answer matches "| inc?" - the command printed 7 lines)
+R1#show version | c?
+7 lines                      <- count ran, answering nothing
+R1#show version | e?
+PacketForge Router ...       <- exclude with no text: the view, unfiltered
+```
+
+Three different wrong answers to one question, because the test for "is there a help character
+here" only matched a `?` with spaces on both sides (`| include ?`) and not one attached to the filter
+word. Now the `?` is a question wherever it sits in the filter, and a partly typed filter narrows the
+list:
+
+```
+R1#show version | inc?
+Filters for "show version":
+  | include <text>   keep the lines containing <text>
+
+  | include takes the text to look for, e.g. show version | include vlan
+
+R1#show version | include version | co?
+Filters for "show version" (after | include version):
+  | count            one line: how many lines the view printed
+
+  | count takes no text - it counts the lines the view printed.
+```
+
+A chain names the filters already applied, because a chain is what the operator is building; a prefix
+that matches nothing says so and lists the five; `| include ?` still lists all five.
+
+### `do` is an exec escape from every block, and the page says so
+
+`do show version` runs in every configuration block — and `do ?` completed in config mode, the OSPF and
+BGP blocks and both ACL blocks, but answered *"No completions for \"do\""* in **interface mode** and in
+a **DHCP pool**. The interface page named `show` and not `do`; the pool page named neither, though a
+bare `show version` is refused there by name and `do show version` is not. Each page names the spelling
+its own parser takes, and the suite checks every block: the word completes, the command runs, and the
+page it prints contains the word.
+
 ### A `?` under a value slot names the values the device has
 
 A slot the console could complete from the device printed only its own name:
