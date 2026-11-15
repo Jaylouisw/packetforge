@@ -1812,6 +1812,47 @@ The gate also read the wrong word. The test was "does the row contain `bgp` anyw
 The suite sweeps one device from each catalogue category: every `show` row its page **hides** is typed,
 and must be refused — a hidden row that answers is a view an operator will never find.
 
+### A `?` under a value slot names the values the device has
+
+A slot the console could complete from the device printed only its own name:
+
+```
+R1#show logging device ?
+  Next: <name>
+Names in angle brackets are values: type one, then ask ? again for what follows it.
+```
+
+while the lab held R1, SW1 and PC1. Now the values are listed, named by what they are:
+
+```
+R1#show logging device ?
+  Next: <name>
+
+  Devices in this lab: PC1, R1, SW1
+
+R1#show interfaces counters ?
+  Next: <port>
+
+  Ports on this device: Gi0/0, Gi0/1, Gi0/2
+
+SW1(config)#no vlan ?
+  Next: <id>
+
+  VLANs on this device: 1, 10, 30, 44
+```
+
+The kinds covered: devices in the lab, ports, SVIs, VLAN ids, DHCP pools, access lists, and the event
+types `show logging <type>` takes. One place (`_valueKind`) decides what kind of value a slot takes, so
+the attached form (`show vlan 3?`) and the detached form (`show vlan ?`) answer the same question the
+same way; the word before the slot settles the kind — `interface vlan <id>` is answered with the SVIs
+the device has, every other `… vlan <id>` with the VLAN ids it carries. A slot whose values the device
+does not hold lists nothing: an invented value is worse than the slot's name.
+
+Also on this page: `show vlan id <id>` was accepted by the parser but absent from `?` (the page only
+showed `show vlan <id>`), so the spelling IOS documents answered while `?` called it a typo. The row
+is shown now, and a non-numeric word there is refused as the word it is rather than as a stopped
+command.
+
 ### `show logging types` — the vocabulary behind a drop reason
 
 `show logging <type>` answered a word it did not recognise with a shrug:

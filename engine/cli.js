@@ -9685,8 +9685,16 @@ class CliSession {
           }
         } else if (String(rest[i] || '').toLowerCase() === 'id') {
           const value = rest[i + 1];
-          if (!/^\d+$/.test(String(value === undefined ? '' : value))) {
+          // A missing value and a word that is not a number are different mistakes with different
+          // fixes, and both answered "Incomplete command" - so `show vlan id aa` read as "you stopped
+          // typing" when the word itself was wrong.
+          if (value === undefined) {
             return out.concat(['% Incomplete command: show vlan id <id>',
+              '% Try "show vlan" for every VLAN this device carries']);
+          }
+          if (!/^\d+$/.test(String(value))) {
+            return out.concat(['% "' + value + '" is not a VLAN id (1-4094)',
+              '% Usage: show vlan id <id>',
               '% Try "show vlan" for every VLAN this device carries']);
           }
           wantVlan = Number(value);
@@ -12017,6 +12025,11 @@ class CliSession {
       // line is the answer.
       out.push('  Next: ' + labels.join(', '));
       if (labels.some(function (l) { return l[0] === '<'; })) {
+        const hints = this._valueHintLines(survivors, words.length);
+        if (hints.length) {
+          out.push('');
+          out.push.apply(out, hints);
+        }
         out.push('');
         out.push('Names in angle brackets are values: type one, then ask ? again for what follows it.');
       }
@@ -12026,6 +12039,11 @@ class CliSession {
       return [label, seen.get(label) || ''];
     }), 2));
     if (labels.some(function (l) { return l[0] === '<'; })) {
+      const hints = this._valueHintLines(survivors, words.length);
+      if (hints.length) {
+        out.push('');
+        out.push.apply(out, hints);
+      }
       out.push('');
       out.push('Names in angle brackets are values: type one, then ask ? again for what follows it.');
     }
@@ -12128,38 +12146,114 @@ class CliSession {
   // The values a device can put in a value slot, for the one slot whose values this console knows:
   // an interface name. `interface Gi?` lists the ports that start with Gi; any other placeholder
   // (`<dest>`, `<mac>`, `<id>`) is answered as before, because there is no list to read.
-  _valueCompletions(rows, at, partial) {
-    const portish = function (row) {
-      const tok = row.tokens[at];
-      return tok && typeof tok === 'object' && /^(name|port|interface|iface)$/i.test(String(tok.placeholder || ''));
+  // What kind of value a slot takes, decided by the slot's own name and by the word before it. One
+  // place, because the attached form (`Fa0/?`) and the detached form (`show interfaces ?`) must agree
+  // about what a slot means - they are the same question asked two ways.
+  _valueKind(rows, at) {
+    const tokOf = function (row) {
+      const t = row.tokens[at];
+      return t && typeof t === 'object' ? String(t.placeholder || '') : '';
     };
-    // `interface vlan <id>` takes a VLAN id, and the values it can take are the SVIs this device has.
-    const vlanish = function (row) {
-      const tok = row.tokens[at];
-      return tok && typeof tok === 'object' && /^id$/i.test(String(tok.placeholder || '')) &&
-        String(row.tokens[at - 1] || '').toLowerCase() === 'vlan';
+    const prevOf = function (row) { return String(row.tokens[at - 1] || '').toLowerCase(); };
+    const any = function (test) {
+      return (rows || []).some(function (r) { return test(tokOf(r), prevOf(r)); });
     };
-    if ((rows || []).some(vlanish)) {
-      const want = String(partial || '').toLowerCase();
-      const out = [];
-      for (const name of (this.device && this.device.interfaces ? this.device.interfaces.keys() : [])) {
-        const m = /^[Vv]lan(\d+)$/.exec(name);
-        if (!m) continue;
-        const value = m[1];
-        if (want && (value.indexOf(want) !== 0 && name.toLowerCase().indexOf(want) !== 0)) continue;
-        out.push(value);
-      }
-      if (out.length) return Array.from(new Set(out)).sort(function (a, b) { return a - b; });
-    }
-    if (!(rows || []).some(portish)) return [];
-    const dev = this.device;
-    if (!dev || !dev.interfaces) return [];
+    // `interface vlan <id>` is answered with the SVIs the device already has; every other `… vlan <id>`
+    // (`show spanning-tree vlan <id>`, `show vlan <id>`, `no vlan <id>`) is answered with the VLAN ids
+    // the device actually carries. One word, two kinds of value - the verb settles it.
+    const ifaceVlan = any(function (ph, prev) { return /^id$/i.test(ph) && prev === 'vlan'; }) &&
+      (rows || []).every(function (r) { return String(r.tokens[0] || '').toLowerCase() === 'interface'; });
+    if (ifaceVlan) return 'svi';
+    if (any(function (ph, prev) { return /^id$/i.test(ph) && prev === 'vlan'; })) return 'vlanid';
+    // `show logging device <name>` takes a device, and `name` is otherwise a port slot - the word
+    // before the slot is what settles it.
+    if (any(function (ph, prev) { return /^(name|id)$/i.test(ph) && prev === 'device'; })) return 'device';
+    if (any(function (ph, prev) { return /^name$/i.test(ph) && prev === 'pool'; })) return 'pool';
+    if (any(function (ph, prev) { return /^name$/i.test(ph) && /^access-lists?$/.test(prev); })) return 'acl';
+    if (any(function (ph, prev) { return /^type$/i.test(ph) && prev === 'logging'; })) return 'type';
+    if (any(function (ph, prev) { return /^id$/i.test(ph) && /^(vlan|spanning-tree)$/.test(prev); })) return 'vlanid';
+    if (any(function (ph) { return /^(name|port|interface|iface)$/i.test(ph); })) return 'port';
+    return null;
+  }
+
+  // The values this device has for a kind of slot. A console that answers "nothing starts with G" for
+  // a device holding three Gigabit ports has not looked; these are the answers it can look up.
+  _valuesFor(kind, partial) {
+    const dev = this.device || {};
     const want = String(partial || '').toLowerCase();
+    const take = function (list, cap) {
+      const out = [];
+      for (const v of list) {
+        const s = String(v);
+        if (want && s.toLowerCase().indexOf(want) !== 0) continue;
+        out.push(s);
+        if (out.length >= cap) break;
+      }
+      return out;
+    };
+    if (kind === 'svi' || kind === 'vlanid') {
+      const ids = new Set();
+      for (const name of (dev.interfaces ? dev.interfaces.keys() : [])) {
+        const m = /^[Vv]lan(\d+)$/.exec(name);
+        if (m) ids.add(Number(m[1]));
+      }
+      if (kind === 'vlanid') {
+        for (const id of Object.keys((dev.config && dev.config.vlans) || {})) ids.add(Number(id));
+        ids.add(1);
+      }
+      const out = Array.from(ids).filter(function (n) { return n > 0; }).sort(function (a, b) { return a - b; });
+      return take(out, 24);
+    }
+    if (kind === 'device') {
+      const names = this.topo && this.topo.devices ? Array.from(this.topo.devices.values()) : [];
+      return take(names.map(function (d) { return d.name || d.id; }).sort(), 24);
+    }
+    if (kind === 'pool') {
+      const pools = (dev.config && dev.config.dhcpPools) || [];
+      return take(pools.map(function (p) { return p.name; }).sort(), 24);
+    }
+    if (kind === 'acl') {
+      return take(Object.keys((dev.config && dev.config.acls) || {}).sort(), 24);
+    }
+    if (kind === 'type') {
+      return take(Array.from(require('./simulator').EVENT_TYPES || []).sort(), 12);
+    }
+    if (kind === 'port') {
+      return take(dev.interfaces ? Array.from(dev.interfaces.keys()) : [], 24);
+    }
+    return [];
+  }
+
+  _valueCompletions(rows, at, partial) {
+    const kind = this._valueKind(rows, at);
+    return kind ? this._valuesFor(kind, partial) : [];
+  }
+
+  // The line a value slot's `?` deserves: the values, named by what they are. `show logging device ?`
+  // printed `Next: <name>` while the lab held three devices - the slot's name is not an answer a
+  // console with a view of the topology can give.
+  _valueHintLines(rows, at) {
+    const kinds = new Map();
+    for (const row of rows || []) {
+      const t = row.tokens[at];
+      if (!t || typeof t !== 'object') continue;
+      const single = { tokens: row.tokens };
+      const kind = this._valueKind([single], at);
+      if (kind && !kinds.has(kind)) kinds.set(kind, []);
+      if (kind) kinds.get(kind).push(single);
+    }
+    const LABEL = {
+      svi: 'SVIs on this device', vlanid: 'VLANs on this device', device: 'Devices in this lab',
+      pool: 'DHCP pools on this device', acl: 'Access lists on this device',
+      type: 'Event types this console records', port: 'Ports on this device'
+    };
     const out = [];
-    for (const name of dev.interfaces.keys()) {
-      if (want && String(name).toLowerCase().indexOf(want) !== 0) continue;
-      out.push(name);
-      if (out.length >= 24) break;
+    for (const kind of kinds.keys()) {
+      const values = this._valuesFor(kind, '');
+      if (!values.length) continue;
+      const head = values.slice(0, 8).join(', ');
+      const more = values.length > 8 ? ', ... (' + values.length + ' in all)' : '';
+      out.push('  ' + (LABEL[kind] || 'Values') + ': ' + head + more);
     }
     return out;
   }
@@ -13591,6 +13685,9 @@ class CliSession {
       helpLine('show mac address-table [interface <port>|vlan <id>|address <mac>|dynamic|static|count]',
         'addresses learned per port and VLAN, a filter, or the totals'),
       helpLine('show vlan [<id>|brief|summary|count]', 'VLANs and their members, one VLAN by id, or the counts'),
+      // The parser has taken `show vlan id <id>` since the `id` spelling was added (it is the form IOS
+      // documents), and the page never showed it: typing it worked and `?` said it was a typo.
+      helpLine('show vlan id <id>', 'one VLAN by id, in the spelling IOS documents'),
       helpLine('show vlan name <name>', 'the same table, narrowed by the name the VLAN was given'),
       helpLine('show spanning-tree vlan <id> [root|summary]',
         'the same tree, asked for by VLAN - one tree covers every VLAN here, and it says so'),
