@@ -442,8 +442,8 @@ layer exists in `engine/bgp.js` today.
 | Verdict | Behaviour | Where |
 |---|---|---|
 | **Modelled** | Wired links run at the highest **common** rate, then clamped to what the chosen medium can carry. | `engine/media.js:736-741`, `engine/validation.js:610-619` |
-| **Modelled** | A 10G SFP+ cabled to a 1G SFP negotiates 1000BASE-X at 1 Gbps — correct, because the cage accepts a 1G optic. | `engine/media.js:211-219` |
-| **Modelled** | `W_SPEED_DOWNGRADE` warns when the link runs below **both** ports' maximum. | `engine/validation.js:751-761` |
+| **Modelled** | A 10G SFP+ cabled to a 1G SFP negotiates 1000BASE-X at 1 Gbps — correct, because the cage accepts a 1G optic — and warns `W_SPEED_DOWNGRADE`, because the 10G end gave 1000BASE-X's rate away. A link that means it declares `speedExemptMbps: 1000` and the warning goes. | `engine/media.js:211-219`, `engine/validation.js:860-903` |
+| **Modelled** | `W_SPEED_DOWNGRADE` warns when the link runs below **either** port's maximum, naming the end that gave something up; a link that declares that exact rate (`speedExemptMbps`) is silent. | `engine/validation.js:860-903` |
 | **Modelled** | `E_NO_COMMON_SPEED` blocks a pair with no shared rate. | `engine/validation.js:126` |
 | **Approximate** | A radio association deliberately does **not** require an exact match: the client takes the best rate both sides and the band can sustain. | `engine/media.js:709-734` |
 | **Absent** | Autonegotiation as a process (no FLP bursts, no parallel detection), forced speed/duplex from the CLI (`speed`/`duplex` are not commands), half-duplex collisions, duplex mismatch as anything but a warning. | `engine/validation.js:743-749` |

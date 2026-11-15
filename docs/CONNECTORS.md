@@ -136,6 +136,40 @@ why catalogue uplinks declare `speedCaps` explicitly:
 If the datasheet says the port is 10G only, say so with `speedCaps: [10000]`;
 `CAGE_SPEEDS` will not do it for you.
 
+#### What counts as a speed downgrade
+
+`speed` above is what the cable will carry. `maxSpeedMbps` is what each socket
+could carry on its own, and the two are allowed to differ — that is the whole of
+§4.4 and it is not a bug. A link whose negotiated rate is below the maximum of
+**either** end has given something up, and `W_SPEED_DOWNGRADE` says so:
+
+| the pair | negotiates | verdict |
+|---|---|---|
+| 10G RJ45 ↔ 1G RJ45 | 1000 | **warns**, naming the 1G end that limits it |
+| 10G SFP+ ↔ 10G SFP+, a 1G module between them | 1000 | **warns**, naming both ends |
+| 1G RJ45 ↔ 1G RJ45 | 1000 | silent — 1000 is not below anything |
+
+The first row is the common one in a real rack (a new 10G switch cabled to an old
+1G box) and until #1523 it emitted nothing at all, because the rule required
+*both* ends to be faster than the link.
+
+Some 1G links are deliberate, and they are indistinguishable from the first row
+by inspection: a 1G optic sitting in a 10G cage, and a 1G device cabled to a 10G
+port on purpose. A link therefore *declares* the rate it is meant to run at, and
+the warning stays quiet for exactly that rate:
+
+```js
+topo.connect(sw.id, 'te1', old.id, 'gi1', { speedExemptMbps: 1000 });
+```
+
+The declaration is per link, and it is a **rate rather than a flag**:
+`speedExemptMbps` travels on the link record (and in the saved document, only
+when set), it covers nothing on the next cable, and it stops covering this one
+the moment the link negotiates anything else — a cable declared at 1000 that
+later falls to 100 Mbps warns again. Anything that is not a positive number is
+not a declaration, so a typo leaves the warning in place rather than silencing
+it. Setting the wrong rate is how you get the warning back, which is the point.
+
 ---
 
 ## 3. Where cage inference comes from
@@ -318,9 +352,14 @@ port unable to accept the 100G optic most labs actually own.
 The consequence is that **the link runs at the module's rate, not the cage's
 maximum**. A 200G `qsfpdd` port against a 100G `qsfp28` port negotiates the
 highest common rate, picks `100gbase-sr4`, and reports `speedMbps: 100000`. It
-does **not** raise `W_SPEED_DOWNGRADE`, because that warning fires only when the
-rate is below the maximum of *both* ports and here one of them is a 100G port.
-Do not read "no warning" as "ran at full speed" — read `speedMbps`.
+also raises `W_SPEED_DOWNGRADE`, because the rate is below the 200G that the
+`qsfpdd` port could reach on its own: the link gave something up, and saying so
+is the rule (#1523). If the 100G module is the plan rather than a stopgap, the
+cable declares it — `speedExemptMbps: 100000` — and the warning goes away.
+
+Read `speedMbps` and `mediaId` for what the link *is*; read the warnings for
+what it gave up. Neither is the other: a 1G-to-1G link runs at 1G and warns
+about nothing, and an exempted 100G link runs at 100G having declared it.
 
 The other direction is not automatic: `qsfpdd` does **not** mate with `sfp28`,
 and `qsfp28` does **not** mate with `sfp+`. A 100G uplink cabled to a 25G uplink
@@ -489,7 +528,7 @@ Everything the rules engine can emit, and where it comes from:
 | `W_DISTANCE` | warning | validation | Length exceeds the medium's reach |
 | `W_COPPER_LONGRUN` | warning | validation | Copper past the 90 m horizontal limit |
 | `W_DUPLEX_MISMATCH` | warning | validation | Ends disagree on duplex (set with `duplex half` / `duplex full`) |
-| `W_SPEED_DOWNGRADE` | warning | validation | Link below the maximum of *both* ports |
+| `W_SPEED_DOWNGRADE` | warning | validation | Link below the maximum of *either* port, unless the link declares that rate (`speedExemptMbps`) |
 | `W_POE_DRAW` | warning | validation | Powered device on a port that supplies no PoE |
 | `W_HYBRID_CORD` | warning | validation | Hybrid UPC/APC cord joining two polishes; legal, costs its IL |
 
@@ -684,6 +723,9 @@ Neither spec names its cage; both are inferred from the rate.
 > validateLink(sdx6330, 'qsfpdd1/1', a7050cx3, 'Ethernet1')
 
 ok=true  mediaId=100gbase-sr4  speedMbps=100000
+[W_SPEED_DOWNGRADE] Link SDX 6330 Combo PON OLT/qsfpdd1/1 <-> Arista
+  7050CX3-32S/Ethernet1 runs at 100G, below the 200G of qsfpdd1/1:
+  Ethernet1 tops out at 100G.
 ```
 
 What happened, step by step:
@@ -693,6 +735,9 @@ What happened, step by step:
 3. Shared media: the 100G and 40G optics, both in each cage's list.
 4. `preferredMedia` ranked fibre over DAC and picked the fastest — `100gbase-sr4`.
 5. `negotiateSpeed` took the highest shared caps entry, `100000`.
+6. The 200G end gave 100G away, so `W_SPEED_DOWNGRADE` names it. That is the
+   warning doing its job on a legal, deliberate link: the cable is fine, the rate
+   is a decision. Declare it (`speedExemptMbps: 100000`) and the warning goes.
 
 To force the 40G path instead, pass `mediaId`:
 
@@ -851,10 +896,12 @@ Stated so nobody debugs a limitation as a bug:
 - **An unrecognised connector is reported as unknown, not guessed.** No media, no
   rates, no mates, `family: 'unknown'` — a refusal you can act on instead of a
   copper port that refuses every lead. Add the cage to `CAGES` if it is real.
-- **`W_SPEED_DOWNGRADE` needs both ports to be faster than the link.** A 400G
-  port on a 100G link produces no warning if the other port is 100G. Read
-  `speedMbps` and `mediaId` instead of inferring rate from the absence of
-  warnings.
+- **`W_SPEED_DOWNGRADE` needs one port to be faster than the link, not both.** A
+  400G port cabled to a 100G port runs at 100G and warns, naming the 100G end as
+  the limit. A 100G-to-100G link at 100G does not, because nothing was given up.
+  A deliberate slow span (a 1G optic in a 10G cage) declares
+  `speedExemptMbps: <rate>` on the link and is silent; read `speedMbps` and
+  `mediaId` for the rate, and the warnings for what the link cost.
 - **Verdicts can depend on argument order.** Where `CAGE_MATE` is one-sided (the
   `usb`/`console` pair), swapping `portA` and `portB` changes the code from
   `E_CONNECTOR_MISMATCH` to `E_NO_COMMON_MEDIA`. Pass the ports in the order the

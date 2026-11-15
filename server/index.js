@@ -816,6 +816,9 @@ async function handleApi(req, res, urlPath) {
             duplex: body.duplex,
             lagId: body.lagId,
             patchCord: body.patchCord,
+            // The rate this cable is declared to run at, if the client declares one. Like `patchCord` it is
+            // part of how the cable is made, and it travels with the link record from then on.
+            speedExemptMbps: body.speedExemptMbps,
             force: !!body.force,
             type: body.type
           });
@@ -841,7 +844,10 @@ async function handleApi(req, res, urlPath) {
       const verdict = topo.validateLink(body.a.deviceId, body.a.iface, body.b.deviceId, body.b.iface, {
         mediaId: body.mediaId,
         lengthM: body.lengthM,
-        patchCord: body.patchCord
+        patchCord: body.patchCord,
+        // The dry run has to be able to ask the same question the real cabling will: "does this link still
+        // warn when I tell it the rate is deliberate?"
+        speedExemptMbps: body.speedExemptMbps
       });
       const options = topo.mediaOptions(body.a.deviceId, body.a.iface, body.b.deviceId, body.b.iface);
       return sendJSON(res, 200, { verdict: verdict, mediaOptions: options });

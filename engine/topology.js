@@ -313,6 +313,9 @@ addDevice(spec, id) {
         mediaId: opts.mediaId,
         lengthM: opts.lengthM,
         patchCord: opts.patchCord,
+        // The rate this cable is deliberately meant to run at, if the caller declares one. Passed straight
+        // through: the exemption is a property of the link, and validateLink is how the link is described.
+        speedExemptMbps: opts.speedExemptMbps,
         duplexA: ai && ai.duplex,
         duplexB: bi && bi.duplex
       });
@@ -347,6 +350,9 @@ addDevice(spec, id) {
     if (!link) return null;
     const verdict = this.validateLink(devId, ifaceName, iface.peer.deviceId, iface.peer.iface, {
       mediaId: link.mediaId, lengthM: link.lengthM,
+      // The cable keeps the rate it was declared to run at. A forced rate re-negotiates the link, and
+      // dropping the declaration here would bring back the warning the cable declares away.
+      speedExemptMbps: link.speedExemptMbps,
       revalidate: this.revalidateFor(link.id, devId)
     });
     link.lastVerdict = verdict;
@@ -518,7 +524,7 @@ addDevice(spec, id) {
 
   // Connect two interfaces. Validates the physical layer first and throws a
   // descriptive error (with .code and .issues) when the cabling is impossible.
-  // `opts` may carry { mediaId, lengthM, duplex, lagId, force, patchCord }.
+  // `opts` may carry { mediaId, lengthM, duplex, lagId, force, patchCord, speedExemptMbps }.
   // patchCord is a catalogue part number (a hybrid UPC/APC lead); omitted or null
   // means ordinary cable.
   connect(aId, aIface, bId, bIface, opts) {
@@ -575,7 +581,8 @@ addDevice(spec, id) {
       duplex: opts.duplex || 'full',
       lengthM: (opts.lengthM === undefined) ? null : opts.lengthM,
       lagId: opts.lagId || null,
-      patchCord: opts.patchCord || verdict.patchCord || null
+      patchCord: opts.patchCord || verdict.patchCord || null,
+      speedExemptMbps: opts.speedExemptMbps
     });
     ai.peer = { deviceId: bId, iface: bIface };
     bi.peer = { deviceId: aId, iface: aIface };
@@ -608,6 +615,9 @@ addDevice(spec, id) {
     const verdict = this.validateLink(link.a.deviceId, link.a.iface, link.b.deviceId, link.b.iface, {
       mediaId: link.mediaId,
       lengthM: length,
+      // Same reason as renegotiate(): the declaration belongs to the cable, and re-checking the cable
+      // must not quietly drop it.
+      speedExemptMbps: link.speedExemptMbps,
       // This pair is already cabled to each other. Say so, or the port-in-use check
       // refuses to look at a cable that plainly exists.
       revalidate: this.revalidateFor(link.id)
@@ -759,6 +769,9 @@ addDevice(spec, id) {
           // Absent in every topology saved before hybrid cords existed, which is
           // exactly what "ordinary fibre" means, so old files load unchanged.
           patchCord: l.patchCord,
+          // Absent in every topology saved before this field existed, which is exactly what "no declared
+          // rate" means, so old files load unchanged.
+          speedExemptMbps: l.speedExemptMbps,
           state: l.state || 'up',
           stateSinceMs: l.stateSinceMs
         });

@@ -25,7 +25,11 @@
 //
 // Caller input (all optional except the two ports):
 //   { portA, portB, devA, devB, ifaceA, ifaceB, mediaId, lengthM,
-//     duplexA, duplexB, patchCord }
+//     duplexA, duplexB, patchCord, speedExemptMbps }
+//
+// speedExemptMbps is the one line rate this link is *meant* to run at, in Mbps. It
+// suppresses W_SPEED_DOWNGRADE for that exact rate and nothing else; see the rule
+// itself for why it is a rate rather than a flag.
 //
 // patchCord is a catalogue part number (or catalogue id) from
 // catalogue/optics/odn.json. Omitting it means ordinary cable, which is what
@@ -136,7 +140,8 @@ const RULES = [
   },
   {
     code: 'W_SPEED_DOWNGRADE', severity: 'warning',
-    description: 'The link runs below the maximum speed of both ports.'
+    description: 'The link runs below the maximum speed of at least one of its ports, and the link does ' +
+      'not declare that rate as the one it is meant to run at (speedExemptMbps).'
   },
   {
     code: 'W_POE_DRAW', severity: 'warning',
@@ -853,15 +858,48 @@ function validateConnection(input) {
   }
 
   // -- W_SPEED_DOWNGRADE ----------------------------------------------------
-  if (speed !== null &&
-      portA.maxSpeedMbps !== null && portB.maxSpeedMbps !== null &&
-      speed < portA.maxSpeedMbps && speed < portB.maxSpeedMbps) {
-    warnings.push({
-      code: 'W_SPEED_DOWNGRADE',
-      message: 'Link ' + lblA + ' <-> ' + lblB + ' runs at ' + speedLabel(speed) +
-        ', below the ' + speedLabel(portA.maxSpeedMbps) + ' of ' + portA.name +
-        ' and the ' + speedLabel(portB.maxSpeedMbps) + ' of ' + portB.name + '.'
-    });
+  //
+  // A link that negotiates below the capability of either end has given something up, and the common shape of
+  // that in a real rack is one fast port meeting one slow one: a 10G RJ45 socket cabled to a 1G switch runs at
+  // 1G, which is the fastest that pair can do and is still a downgrade of the 10G end. This rule used to need
+  // BOTH ends to be faster than the link, so it fired on the rarer case (two 10G ports with a 1G module between
+  // them) and said nothing at all about the common one (#1523).
+  //
+  // The exemption is per link and it is a RATE, not a flag: `speedExemptMbps` names the one line rate this link
+  // is deliberately meant to run at. That is the honest model of the two cases that are not defects - a 1G optic
+  // sitting in a 10G cage on purpose, and a 1G device cabled to a 10G port on purpose - and it stops covering
+  // the link the moment the link negotiates something else, which a `true` would not: a flag would go on
+  // silencing a cable that later fell to 100 Mbps.
+  const exemptMbps = numOrNull(inp.speedExemptMbps);
+  const exempt = exemptMbps !== null && exemptMbps > 0 && speed !== null && exemptMbps === speed;
+  if (speed !== null && !exempt) {
+    const capA = portA.maxSpeedMbps;
+    const capB = portB.maxSpeedMbps;
+    const belowA = capA !== null && capA !== undefined && speed < capA;
+    const belowB = capB !== null && capB !== undefined && speed < capB;
+    if (belowA && belowB) {
+      warnings.push({
+        code: 'W_SPEED_DOWNGRADE',
+        message: 'Link ' + lblA + ' <-> ' + lblB + ' runs at ' + speedLabel(speed) +
+          ', below the ' + speedLabel(capA) + ' of ' + portA.name +
+          ' and the ' + speedLabel(capB) + ' of ' + portB.name + '.'
+      });
+    } else if (belowA || belowB) {
+      // Only one end gave something up, so the other end is what the pair is limited by. Naming it is the point
+      // of the warning: it tells a reader whether the slow side is a deliberate 1G peer or a mis-fitted module.
+      const fastPort = belowA ? portA : portB;
+      const slowPort = belowA ? portB : portA;
+      const slowCap = slowPort.maxSpeedMbps;
+      const limit = (slowCap === null || slowCap === undefined)
+        ? slowPort.name + ' declares no maximum rate.'
+        : slowPort.name + ' tops out at ' + speedLabel(slowCap) + '.';
+      warnings.push({
+        code: 'W_SPEED_DOWNGRADE',
+        message: 'Link ' + lblA + ' <-> ' + lblB + ' runs at ' + speedLabel(speed) +
+          ', below the ' + speedLabel(fastPort.maxSpeedMbps) + ' of ' + fastPort.name +
+          ': ' + limit
+      });
+    }
   }
 
   // -- W_SWITCHPORT_MISMATCH ------------------------------------------------
@@ -978,6 +1016,10 @@ function validateTopology(linkIssueList) {
           mediaId: link.mediaId,
           lengthM: link.lengthM,
           patchCord: link.patchCord,
+          // The cable's own declaration of the rate it is meant to run at, for the same reason as every other
+          // field above: this is what the server puts in every state payload, and a whole-lab answer that
+          // warned about a link the per-cable answer deliberately does not is two answers to one question.
+          speedExemptMbps: link.speedExemptMbps,
           // Name the cable so its own ports are not refused for being in use.
           revalidate: linkId
         });

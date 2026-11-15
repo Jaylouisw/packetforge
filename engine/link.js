@@ -31,6 +31,17 @@ class Link {
     // topology that predates this field loads as plain cable, and a link that
     // never mentions a cord is not charged one.
     this.patchCord = o.patchCord || null;
+    // The one line rate this link is deliberately meant to run at, in Mbps, or null.
+    //
+    // It is the link's own statement about itself, carried like `lengthM` and `patchCord`, because the
+    // exemption from W_SPEED_DOWNGRADE belongs to one cable and not to the network: a 1G optic in a 10G cage
+    // is deliberate on that span and says nothing about the next one. A rate rather than a flag, so the
+    // declaration stops covering the link as soon as the link runs at something else. Anything that is not a
+    // positive finite number is not a declaration, which is the same test `engine/validation.js` applies when
+    // it decides whether the warning is suppressed - the record and the rule must not disagree.
+    const exempt = (o.speedExemptMbps === undefined || o.speedExemptMbps === null || o.speedExemptMbps === '')
+      ? null : Number(o.speedExemptMbps);
+    this.speedExemptMbps = (exempt !== null && isFinite(exempt) && exempt > 0) ? exempt : null;
     this.state = o.state || 'up';         // 'up' | 'down' | 'blocked' (STP)
     // When this state last changed. A cable that was pulled at t=10 s is still pulled at t=41 s,
     // and every later question has to know when it happened to say whether the network has
@@ -77,6 +88,9 @@ class Link {
       patchCord: this.patchCord,
       state: this.state
     };
+    // Only for a link that declares one: an ordinary link has no declared rate and does not need a field,
+    // and adding one to every saved lab would be noise in every diff.
+    if (this.speedExemptMbps !== null) out.speedExemptMbps = this.speedExemptMbps;
     // Only for a cable that is not up: an up link at t=0 is the default and does not need a field,
     // and adding one to every saved lab would be noise in every diff.
     if (this.state !== 'up' || this.stateSinceMs) out.stateSinceMs = this.stateSinceMs;
