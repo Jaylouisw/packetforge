@@ -161,7 +161,37 @@ jobs:
       - name: Dockerfile static checks
         run: node scripts/check-dockerfile.js
       - name: Install Docker CLI
-        run: apt-get update && apt-get install -y docker.io
+        # This step needs one binary that can talk to the host's socket, and
+        # `apt-get install docker.io` was buying a container runtime to get it:
+        # 78.4 MB across ~40 packages, including systemd, apparmor, dbus and
+        # runc that are never used (measured in run 2794, task 6148: apt
+        # 20:16:02-20:16:28, 26 of the job's 53 seconds). The static tarball is
+        # the same client with no runtime attached, a tenth of the unpacking,
+        # and no dependency on a distro mirror that can stall inside the job's
+        # 10-minute budget.
+        #
+        # Pinned rather than floating: a CI gate that changes what it downloads
+        # from the internet between runs is not a gate. If the download is
+        # unavailable the plain package is installed exactly as before, so a
+        # blocked mirror costs the old 26 seconds rather than the build check;
+        # if neither path yields a binary the step fails loudly instead of
+        # letting the build fall back to "no daemon" and claim a pass.
+        env:
+          DOCKER_CLI_VERSION: 24.0.7
+        run: |
+          if command -v docker >/dev/null 2>&1; then
+            echo "docker CLI already present: $(docker --version 2>/dev/null || echo 'unknown version')"
+            exit 0
+          fi
+          curl -fsSL --retry 2 --retry-delay 2 --max-time 60             -o /tmp/docker-cli.tgz             "https://download.docker.com/linux/static/stable/x86_64/docker-${DOCKER_CLI_VERSION}.tgz"             && tar -xzf /tmp/docker-cli.tgz -C /usr/local/bin --strip-components=1 docker/docker             && echo "static docker CLI unpacked into /usr/local/bin" || true
+          if ! command -v docker >/dev/null 2>&1; then
+            echo "static download unavailable - falling back to the distro package"
+            export DEBIAN_FRONTEND=noninteractive
+            apt-get -o Acquire::Retries=1 -o Acquire::http::Timeout=20 update -qq
+            apt-get install -y -qq docker.io
+          fi
+          command -v docker || { echo "::error title=Docker CLI::no docker binary and no fallback package - the image build below would be skipped silently"; exit 1; }
+          docker --version
       - name: What the host's disk looks like before this job
         # Printed before the build as well as after it, so a growing volume reads as a trend in the
         # log rather than as a single number someone has to remember.
