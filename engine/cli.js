@@ -9308,6 +9308,22 @@ class CliSession {
   _ignoredArgRefusal(tokens, answer) {
     if (!tokens || tokens.length < 2 || !answer || !answer.length) return null;
     if (/^%/.test(String(answer[0]))) return null;      // the handler judged the words itself
+    // A trailing instant is not an ignored argument: `at <ms>` and `converged` change what the view
+    // evaluates. Leaving them in made `show ip bgp summary at 50` look like a summary with two words
+    // dropped - the answers are identical at the level this guard compares, because the instant is
+    // applied above it.
+    // ...and only for a view that can actually be asked at an instant. `show version converged` is a
+    // word this command does not take, and stripping it here would answer the version as though the
+    // word had not been typed - the defect this guard exists to catch.
+    if (this._instantCapable(tokens)) {
+      const tail = String(tokens[tokens.length - 1] || '').toLowerCase();
+      const before = String(tokens[tokens.length - 2] || '').toLowerCase();
+      if (tail === 'converged') tokens = tokens.slice(0, -1);
+      else if (before === 'at' && /^\d+$/.test(tail)) tokens = tokens.slice(0, -2);
+      // `at converged` is two words for the same argument: the `at` goes with it.
+      if (String(tokens[tokens.length - 1] || '').toLowerCase() === 'at') tokens = tokens.slice(0, -1);
+    }
+    if (tokens.length < 2) return null;
     let forms;
     try { forms = this._helpFormRowsAll(MODE_ENABLE); } catch (e) { return null; }
     if (!Array.isArray(forms) || !forms.length) return null;
@@ -9349,7 +9365,27 @@ class CliSession {
     return null;
   }
 
+  // A view asked at an instant: the header ("BGP at t=50 ms, control planes rebuilt for this answer")
+  // is only true if there is an answer behind it. On a switch that cannot run BGP the console printed
+  // the header first and the refusal under it - a claim of a rebuilt answer for a question the device
+  // cannot answer. The header is held here and discarded when the view refuses.
   _show(tokens) {
+    this._pendingInstantHeader = null;
+    const res = this._showBody(tokens);
+    const header = this._pendingInstantHeader;
+    this._pendingInstantHeader = null;
+    if (!header) return res;
+    // A refusal is never dressed as an answer. What counts is a refusal about the *device* (it cannot
+    // run the thing, or cannot be asked at an instant): a view that answers "there is no state yet" is
+    // still an answer, and keeps the label that says which instant it was taken at.
+    const lines = res || [];
+    const allPercent = lines.length && lines.every(function (l) { return /^\s*%/.test(l); });
+    const capability = /is a layer 2 switch|does not (switch|bridge|route|take an instant)|not modelled|is a host|no (BGP|OSPF) process|is not an argument to/;
+    if (allPercent && lines.some(function (l) { return capability.test(l); })) return res;
+    return [header].concat(res);
+  }
+
+  _showBody(tokens) {
     // The answer, then a check that the words were actually used: see _ignoredArgRefusal.
     const answer = this._showInner(tokens);
     return this._ignoredArgRefusal(tokens, answer) || answer;
@@ -9419,7 +9455,9 @@ class CliSession {
       // have spoken, and a question about routes does not care.
       this.sim.refreshControlPlanes({ atMs: atMs, lldp: true, ra: true });
       const label = this._instantLabelFor(tokens);
-      out.push(label + ' at ' + instantLabel(atMs) + ' (control planes rebuilt for this answer)');
+      // Held, not printed: `_show` puts it on top only when the view has an answer to put under it.
+      this._pendingInstantHeader = label + ' at ' + instantLabel(atMs) +
+        ' (control planes rebuilt for this answer)';
     }
     if (what === 'version' || what === 'ver') {
       out.push(this._banner());
@@ -13924,6 +13962,13 @@ class CliSession {
       helpLine('show ip route [<dest>|connected|static|ospf|bgp|summary] [at <ms>|converged]',
         'the table, a lookup, a protocol filter, or an instant'),
       helpLine('show arp [<port>|<address>]', 'IP-to-MAC cache, or one address (show ip arp too)'),
+      // The instant keyword was implemented on these views and documented on the route, ping and IPv6
+      // ones only: `show arp at 50` answered "ARP at t=50 ms" while `show arp ?` never offered `at`,
+      // so the one feature that makes this a *simulation* could not be found from the view it applies
+      // to. A view that answers at an instant is a view that says so.
+      helpLine('show arp at <ms> | show arp converged', 'the cache at an instant, or once the control planes settle'),
+      helpLine('show mac address-table at <ms> | show mac address-table converged',
+        'the table at an instant, or once the addresses have been learned'),
       helpLine('show mac address-table [interface <port>|vlan <id>|address <mac>|dynamic|static|count]',
         'addresses learned per port and VLAN, a filter, or the totals'),
       helpLine('show vlan [<id>|brief|summary|count]', 'VLANs and their members, one VLAN by id, or the counts'),
@@ -13933,6 +13978,8 @@ class CliSession {
       helpLine('show vlan name <name>', 'the same table, narrowed by the name the VLAN was given'),
       helpLine('show spanning-tree vlan <id> [root|summary]',
         'the same tree, asked for by VLAN - one tree covers every VLAN here, and it says so'),
+      helpLine('show spanning-tree at <ms> | show spanning-tree converged',
+        'the tree at an instant, or once it has settled'),
       helpLine('show spanning-tree [<port>|summary|root]',
         'root bridge, port roles and states; or the counts, or the path to the root'),
       helpLine('show etherchannel [summary]', 'LAGs and their members'),
@@ -13941,15 +13988,25 @@ class CliSession {
       helpLine('show lldp neighbors detail', 'one block per neighbour: chassis, port, TTL, medium'),
       helpLine('show lldp interface [<port>]', 'per-port transmit/receive decision and the neighbour'),
       helpLine('show lldp traffic [<port>]', 'frames sent, received, discarded and refused'),
+      helpLine('show lldp at <ms> | show lldp converged', 'LLDP state at an instant'),
+      helpLine('show lldp neighbors at <ms> | show lldp neighbors converged', 'neighbours at an instant'),
+      helpLine('show lldp interface at <ms> | show lldp interface converged', 'per-port LLDP at an instant'),
+      helpLine('show lldp traffic at <ms> | show lldp traffic converged', 'the counters at an instant'),
       helpLine('show access-lists [<name>]', 'entries, where they are bound, and the match counters'),
       helpLine('show ip access-lists [<name>]', 'the same table under the spelling IOS documents'),
       helpLine('show vrrp [<group>]', 'groups, priorities and current state - one group if named'),
+      helpLine('show vrrp at <ms> | show vrrp converged', 'the groups at an instant, or after the election settles'),
       helpLine('show ip protocols', 'the routing processes running here, and their distances'),
       helpLine('show ip bgp', 'the BGP table: prefixes received, and which row forwards'),
       helpLine('show ip bgp <prefix>', 'one prefix in the table, and why it is or is not installed'),
       helpLine('show ip bgp summary', 'peers and installed prefixes'),
       helpLine('show ip bgp neighbors [<addr>]', 'one peer in detail, with the reason it is down'),
+      helpLine('show ip bgp at <ms> | show ip bgp converged', 'the BGP table at an instant'),
+      helpLine('show ip bgp neighbors at <ms> | show ip bgp neighbors converged', 'the peers at an instant'),
       helpLine('show ip ospf [<process-id>]', 'the process, its interfaces, areas and adjacencies'),
+      helpLine('show ip ospf at <ms> | show ip ospf converged', 'the process at an instant'),
+      helpLine('show ip ospf neighbor at <ms> | show ip ospf neighbor converged', 'the adjacencies at an instant'),
+      helpLine('show ip ospf database at <ms> | show ip ospf database converged', 'the database at an instant'),
       helpLine('show ip ospf neighbor', 'adjacencies, and why one failed to form'),
       helpLine('show ip ospf database', 'the links the SPF ran on, and the prefixes it produced'),
       helpLine('show flows [<id> | counters]', 'conversations in this lab, and per-device counters'),

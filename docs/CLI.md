@@ -1823,6 +1823,37 @@ The gate also read the wrong word. The test was "does the row contain `bgp` anyw
 The suite sweeps one device from each catalogue category: every `show` row its page **hides** is typed,
 and must be refused — a hidden row that answers is a view an operator will never find.
 
+### A view that answers at an instant says so
+
+`at <ms>` and `converged` are the feature that makes this a simulation rather than a static diagram:
+ask the lab a question at a time, or once the control planes have settled. They were implemented and
+documented on the route, ping and IPv6 views — and nowhere else:
+
+```
+R1#show arp at 50
+ARP at t=50 ms (control planes rebuilt for this answer)
+R1#show arp ?
+  Next       Meaning
+  <address>  IP-to-MAC cache, or one address
+  <port>     IP-to-MAC cache, or one address      <- no `at`, no `converged`
+```
+
+Nine families took the keyword and never mentioned it: `show arp`, `show spanning-tree`,
+`show mac address-table`, `show lldp` (and its four children), `show vrrp`, `show ip bgp` (and its
+children), `show ip ospf` (and its children). Each offers `at` and `converged` now, so the question
+"what did this look like 50 ms in" can be found from the view it is asked of.
+
+A table of *state* still refuses it, and that refusal is its answer — `show interfaces at 50` and
+`show vlan at 50` are not control-plane questions, and they say so rather than inventing a time.
+
+The header that opens an instant answer (*"BGP at t=50 ms (control planes rebuilt for this answer)"*)
+is a claim that the control planes were rebuilt **to answer this question**, so it now appears only
+when there is an answer under it. On a switch, `show ip bgp at 50` printed the header and then refused —
+a rebuilt answer to a question the device cannot be asked.
+
+The suite asks every argument-less view in the page for an instant, and requires any view that answers
+to offer the keyword.
+
 ### A `no` line always answers
 
 Silence is the one reply that cannot be told apart from "ignored", and two places used it:
