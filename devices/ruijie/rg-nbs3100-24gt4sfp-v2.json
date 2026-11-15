@@ -1,0 +1,70 @@
+{
+  "vendor": "ruijie",
+  "model": "RG-NBS3100-24GT4SFP-V2",
+  "label": "Ruijie Reyee RG-NBS3100-24GT4SFP-V2",
+  "category": "switch",
+  "description": "Ruijie Reyee RG-NBS3100-24GT4SFP-V2 - 28-port Layer 2 cloud-managed switch: 24x 10/100/1000BASE-T RJ45 and 4x 1GE SFP uplinks, no PoE. 56 Gbps switching capacity, 41.66 Mpps, fanless, 21 W maximum consumption, 1U 165 mm deep.",
+  "capabilities": [
+    "l2-forward",
+    "http-server",
+    "vlan",
+    "lacp",
+    "stp",
+    "dhcp-client"
+  ],
+  "portTemplate": {
+    "prefix": "ge",
+    "start": 1,
+    "count": 24,
+    "type": "ethernet",
+    "speed": "1G",
+    "connector": "rj45"
+  },
+  "interfaces": [
+    {
+      "name": "sfp1",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
+    },
+    {
+      "name": "sfp2",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
+    },
+    {
+      "name": "sfp3",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
+    },
+    {
+      "name": "sfp4",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
+    }
+  ],
+  "icon": "switch",
+  "color": "#0284c7",
+  "fabric": {
+    "capacityMbps": 56000,
+    "kind": "switching capacity",
+    "note": "Datasheet 'Switching capacity' 56 Gbps."
+  },
+  "sourceUrl": "https://eo-sgp-cos.ruijie.com/Document/pdf/2025/12/9/RG-NBS3100-24GT4SFP-V2_Datasheet_Official_2025-12-09.pdf",
+  "notes": "Datasheet: 'Total number of RJ45 ports 24', 'Number of 1GE SFP ports 4', 'Number of 1GE combo ports No'. 'Fanless design', 'Maximum power consumption 21 W', 'Maximum input current 0.6 A', 440 x 165 x 44 mm, 1.88 kg - a shallow non-PoE rack box. Management is web/cloud only: the datasheet lists SSH 'No', with HTTP/HTTPS login, eWeb, SNMPv1/v2c/v3 and Ruijie Cloud / Reyee App. Layer 2 only - 'IPv4 static route No', 'DHCP server No'; 4094 VLANs, 8000 MAC address entries, 9216-byte jumbo frames. Port names ge1..ge24 / sfp1..sfp4 are the catalogue's naming convention for a web-managed access switch; the datasheet states port counts (24 RJ45, 4 optical), not names."
+}

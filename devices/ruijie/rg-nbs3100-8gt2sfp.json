@@ -1,0 +1,52 @@
+{
+  "vendor": "ruijie",
+  "model": "RG-NBS3100-8GT2SFP",
+  "label": "Ruijie Reyee RG-NBS3100-8GT2SFP",
+  "category": "switch",
+  "description": "Ruijie Reyee RG-NBS3100-8GT2SFP - 10-port Layer 2 cloud-managed switch: 8x 10/100/1000BASE-T RJ45 and 2x 1GE SFP uplinks, with no PoE at all. 20 Gbps switching capacity, 14.88 Mpps, fanless, external 12 V DC adapter, 8 W maximum consumption, 260 mm wide desktop case.",
+  "capabilities": [
+    "l2-forward",
+    "http-server",
+    "vlan",
+    "lacp",
+    "stp",
+    "dhcp-client"
+  ],
+  "portTemplate": {
+    "prefix": "ge",
+    "start": 1,
+    "count": 8,
+    "type": "ethernet",
+    "speed": "1G",
+    "connector": "rj45"
+  },
+  "interfaces": [
+    {
+      "name": "sfp1",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
+    },
+    {
+      "name": "sfp2",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
+    }
+  ],
+  "icon": "switch",
+  "color": "#0284c7",
+  "fabric": {
+    "capacityMbps": 20000,
+    "kind": "switching capacity",
+    "note": "Datasheet 'Switching capacity' 20 Gbps."
+  },
+  "sourceUrl": "https://eo-sgp-cos.ruijie.com/Document/pdf/2025/12/9/RG-NBS3100-8GT2SFP_Datasheet_Official_2025-12-09.pdf",
+  "notes": "Datasheet: 'Total number of RJ45 ports 8', 'Number of 1GE SFP ports 2', 'Number of 1GE combo ports No' - the uplinks are dedicated cages, not dual-personality ports. No PoE section at all; 'Power supply DC power adapter' (12 V DC, 1.0 A), 'Maximum power consumption 8 W', 'Fanless design', 260 x 120 x 43.6 mm, 1.2 kg. Management is web/cloud only: the datasheet lists SSH 'No', with HTTP/HTTPS login, eWeb, SNMPv1/v2c/v3 and Ruijie Cloud / Reyee App. Layer 2 only - 'IPv4 static route No', 'DHCP server No'; 4094 VLANs, 8000 MAC address entries, 9216-byte jumbo frames. Port names ge1..ge8 / sfp1..sfp2 are the catalogue's naming convention for a web-managed access switch; the datasheet states port counts (8 RJ45, 2 optical), not names."
+}

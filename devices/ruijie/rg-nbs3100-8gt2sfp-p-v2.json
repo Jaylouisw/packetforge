@@ -1,0 +1,62 @@
+{
+  "vendor": "ruijie",
+  "model": "RG-NBS3100-8GT2SFP-P-V2",
+  "label": "Ruijie Reyee RG-NBS3100-8GT2SFP-P-V2",
+  "category": "switch",
+  "description": "Ruijie Reyee RG-NBS3100-8GT2SFP-P-V2 - 10-port Layer 2 cloud-managed PoE switch: 8x 10/100/1000BASE-T RJ45 all PoE/PoE+ (IEEE 802.3af/at, 125 W budget) and 2x 1GE SFP uplinks. 20 Gbps switching capacity, 14.88 Mpps, fanless, 11 W with no PoE load and 145 W at a full 125 W PoE load.",
+  "capabilities": [
+    "l2-forward",
+    "http-server",
+    "vlan",
+    "lacp",
+    "stp",
+    "dhcp-client",
+    "poe-pse",
+    "802.3af",
+    "802.3at"
+  ],
+  "portTemplate": {
+    "prefix": "ge",
+    "start": 1,
+    "count": 8,
+    "type": "ethernet",
+    "speed": "1G",
+    "connector": "rj45",
+    "poeOut": true,
+    "poeOutClass": "PoE+"
+  },
+  "interfaces": [
+    {
+      "name": "sfp1",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
+    },
+    {
+      "name": "sfp2",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
+    }
+  ],
+  "icon": "switch",
+  "color": "#0284c7",
+  "poe": {
+    "budgetW": 125,
+    "sourceUrl": "https://eo-sgp-cos.ruijie.com/Document/pdf/2025/12/9/RG-NBS3100-8GT2SFP-P-V2_Datasheet_Official_2025-12-09.pdf",
+    "note": "Datasheet: 'PoE Out standard - PoE/PoE+ (IEEE 802.3af/at)', 'PoE budget - 125 W'."
+  },
+  "fabric": {
+    "capacityMbps": 20000,
+    "kind": "switching capacity",
+    "note": "Datasheet 'Switching capacity' 20 Gbps."
+  },
+  "sourceUrl": "https://eo-sgp-cos.ruijie.com/Document/pdf/2025/12/9/RG-NBS3100-8GT2SFP-P-V2_Datasheet_Official_2025-12-09.pdf",
+  "notes": "Datasheet: 'Number of PoE Out ports 8' - every copper port sources power, there is no non-PoE access port to park a non-powered device on for free. 'Number of PoE/PoE+/PoE++ Out ports No', so no 802.3bt. 'Maximum power consumption 11 W (with no PoE load) / 145 W (with full PoE load)' against a 125 W budget. 'Fanless design', 300 x 205 x 44 mm, 1.80 kg. Management is web/cloud only: the datasheet lists SSH 'No', with HTTP/HTTPS login, eWeb, SNMPv1/v2c/v3 and Ruijie Cloud / Reyee App. Layer 2 only - 'IPv4 static route No', 'DHCP server No'; 4094 VLANs, 8000 MAC address entries, 9216-byte jumbo frames. Port names ge1..ge8 / sfp1..sfp2 are the catalogue's naming convention for a web-managed access switch; the datasheet states port counts (8 RJ45, 2 optical), not names."
+}
