@@ -680,6 +680,18 @@ configuration cannot work at all; **warning** when it works but the lab will
 mislead. `W_WAN_NO_SERVICE` being a warning is what keeps every existing lab
 silent-and-valid.
 
+None of those **26** codes exists in the tree yet, and that is the difference between a work order and a
+wish list — it is checkable, and here is the check. It lifts the code names out of the two tables above,
+then reports every one that no `.js` file mentions:
+
+```sh
+grep -oh '| `[EW]_[A-Z0-9_]*`' docs/UPSTREAM-DESIGN.md | tr -d '|` ' | sort -u \
+  | while read -r c; do git grep -q "$c" -- '*.js' || echo "$c"; done | wc -l
+```
+
+**26** today, which is all of them. A smaller number means part of this design has landed, and the row that
+owns the code wants its tick and a line number that points at the new check.
+
 ---
 
 ## 7. Code anchors
