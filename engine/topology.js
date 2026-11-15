@@ -1,7 +1,7 @@
 'use strict';
 // topology.js -- a container of devices + links, with (de)serialization.
 const { Device } = require('./device');
-const { Link } = require('./link');
+const { Link, labelProblem, normaliseLabel } = require('./link');
 const media = require('./media');
 const ifaceName = require('./iface-name');
 const net = require('./net');
@@ -51,6 +51,15 @@ function cableProblem(link, topo) {
   }
   if (a.deviceId === b.deviceId && a.iface === b.iface) {
     return { code: 'E_LINK_SELF_LOOP', message: called + 'joins ' + a.deviceId + '/' + a.iface + ' to itself' };
+  }
+  // A label is part of the cable, so a document that states one the Link cannot hold is explained the same way a
+  // state nobody defines is - rather than the cable being restored with the note silently gone (#1513).
+  const labelBad = labelProblem(link.label);
+  if (labelBad) {
+    // `E_LINK_BAD_LABEL`, the way a state nobody defines is `E_LINK_BAD_STATE` here while the live door answers
+    // `E_BAD_STATE`: this code names the cable the loader could not keep, the other names the argument that was refused.
+    return { code: 'E_LINK_BAD_LABEL', message: called + 'label ' + JSON.stringify(link.label) +
+      ' is not a label: ' + labelBad.message };
   }
   if (link.state !== undefined && LINK_STATES.indexOf(link.state) === -1) {
     return { code: 'E_LINK_BAD_STATE', message: called + 'state ' + JSON.stringify(link.state) +
@@ -562,6 +571,16 @@ addDevice(spec, id) {
       throw err;
     }
 
+    // A label that is not text is refused here rather than by the Link, so the caller gets a code and the rule
+    // the way every other impossible cable is reported (#1513).
+    const labelBad = labelProblem(opts.label);
+    if (labelBad) {
+      const err = new Error(labelBad.message);
+      err.code = labelBad.code;
+      err.issues = [labelBad];
+      throw err;
+    }
+
     const mediaId = opts.mediaId || verdict.mediaId || null;
     // A link may carry its own id, so restoring a topology keeps the cable ids the
     // saved file used. Without this every save/load cycle renumbered the links, which
@@ -585,7 +604,8 @@ addDevice(spec, id) {
       duplex: opts.duplex || 'full',
       lengthM: (opts.lengthM === undefined) ? null : opts.lengthM,
       lagId: opts.lagId || null,
-      patchCord: opts.patchCord || verdict.patchCord || null
+      patchCord: opts.patchCord || verdict.patchCord || null,
+      label: opts.label
     });
     ai.peer = { deviceId: bId, iface: bIface };
     bi.peer = { deviceId: aId, iface: aIface };
@@ -625,6 +645,23 @@ addDevice(spec, id) {
     if (!verdict.ok) return { ok: false, errors: verdict.errors, warnings: verdict.warnings || [] };
     link.lengthM = length;
     return { ok: true, link: link, warnings: verdict.warnings || [], errors: [] };
+  }
+
+  // Write (or clear) the annotation on a cable, after the fact.
+  //
+  // The same door as `setLinkLength`, for the same reason: a cable's note is discovered later than the cabling job -
+  // "via keystone 2", "USB Ethernet adapter", "DOWN - host decommissioned" - and until now there was no way to
+  // record one at all. `null` or '' clears it. A value that is not text is refused with a code rather than stored
+  // and then dropped by the serialiser (#1513).
+  setLinkLabel(linkId, label) {
+    const link = this.links.get(linkId);
+    if (!link) {
+      return { ok: false, errors: [{ code: 'E_NO_LINK', message: 'No such link: ' + linkId + '.' }], warnings: [] };
+    }
+    const bad = labelProblem(label);
+    if (bad) return { ok: false, errors: [bad], warnings: [] };
+    link.label = normaliseLabel(label);
+    return { ok: true, link: link, warnings: [], errors: [] };
   }
 
   disconnect(linkId) {
@@ -772,6 +809,9 @@ addDevice(spec, id) {
           // Absent in every topology saved before hybrid cords existed, which is
           // exactly what "ordinary fibre" means, so old files load unchanged.
           patchCord: l.patchCord,
+          // The annotation on the cable. A document written before this field existed has no `label`, which is
+          // "this cable has none" and loads unchanged (#1513).
+          label: l.label,
           state: l.state || 'up',
           stateSinceMs: l.stateSinceMs
         });

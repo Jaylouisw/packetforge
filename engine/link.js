@@ -5,6 +5,46 @@
 // was chosen, the negotiated line rate, duplex and the operational state.
 // L2 configuration (VLANs) lives on the Interface, not here.
 
+// What a cable label can be, in one place.
+//
+// A label is the annotation a person writes on a cable: "via 0-LR-FP1 keystone 2", "USB Ethernet adapter", "DOWN -
+// host decommissioned". It is text or it is nothing (null/undefined/'' all mean "this cable has no label").
+//
+// It was not a field of the Link at all. Setting one on the live cable worked - JavaScript lets you write any
+// property - and read back, so it looked as though the annotation had been recorded; `serialize()` then wrote the
+// link without it, and the whole cabling record was gone the moment the board was saved (#1513). The failure mode
+// that costs a user their notes is not "the field is missing", it is "the field accepts a value and keeps it
+// nowhere", so the value is either a string that is saved or it is refused where it is set.
+//
+// The rule lives here so the constructor, `connect()`, the API door and the document loader cannot disagree about
+// what a label is.
+function describeValue(v) {
+  if (v === null) return 'null';
+  if (Array.isArray(v)) return 'an array';
+  if (typeof v === 'number') return 'the number ' + v;
+  if (typeof v === 'boolean') return v ? 'true' : 'false';
+  if (typeof v === 'object') return 'an object';
+  return 'a ' + typeof v;
+}
+
+// null when `label` is a usable label (including "no label"), or { code, message } saying why it is not.
+function labelProblem(label) {
+  if (label === undefined || label === null) return null;
+  if (typeof label !== 'string') {
+    return {
+      code: 'E_BAD_LABEL',
+      message: 'a cable label is text you write on the cable (a string), not ' + describeValue(label) + '.'
+    };
+  }
+  return null;
+}
+
+// The stored form: text, or null for "no label". An empty label is no label - a save must not grow a `label: ""`
+// that draws a blank caption and means nothing.
+function normaliseLabel(label) {
+  return (typeof label === 'string' && label !== '') ? label : null;
+}
+
 class Link {
   constructor(id, aDeviceId, aIface, bDeviceId, bIface, opts) {
     this.id = id;
@@ -31,6 +71,15 @@ class Link {
     // topology that predates this field loads as plain cable, and a link that
     // never mentions a cord is not charged one.
     this.patchCord = o.patchCord || null;
+    // The annotation written on this cable, if any. A field of the link, restored from the document, so a note such
+    // as "via 0-LR-FP1 keystone 2" is part of the lab rather than part of the session that typed it (#1513).
+    const labelBad = labelProblem(o.label);
+    if (labelBad) {
+      const err = new Error(labelBad.message);
+      err.code = labelBad.code;
+      throw err;
+    }
+    this.label = normaliseLabel(o.label);
     this.state = o.state || 'up';         // 'up' | 'down' | 'blocked' (STP)
     // When this state last changed. A cable that was pulled at t=10 s is still pulled at t=41 s,
     // and every later question has to know when it happened to say whether the network has
@@ -77,6 +126,9 @@ class Link {
       patchCord: this.patchCord,
       state: this.state
     };
+    // Written only when a cable has one, for the same reason `stateSinceMs` is: an unlabelled cable is the default,
+    // and adding `label: null` to every cable of every saved lab would be noise in every document and every diff.
+    if (this.label) out.label = this.label;
     // Only for a cable that is not up: an up link at t=0 is the default and does not need a field,
     // and adding one to every saved lab would be noise in every diff.
     if (this.state !== 'up' || this.stateSinceMs) out.stateSinceMs = this.stateSinceMs;
@@ -84,4 +136,4 @@ class Link {
   }
 }
 
-module.exports = { Link };
+module.exports = { Link, labelProblem, normaliseLabel };

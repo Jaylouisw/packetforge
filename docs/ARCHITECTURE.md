@@ -279,8 +279,14 @@ zero as missing — the one place on the canvas a box is most likely to be dragg
 ### A cable is restored or explained
 
 Every option `connect()` accepts survives a save and reload (`mediaId`, `speedMbps`, `duplex`, `lengthM`,
-`lagId`, `patchCord`, `state`, `stateSinceMs`, and the legacy `type` string), and `serialize()` hands out **copies**
-of the endpoint records — writing to the document you were given must not adjust the board.
+`lagId`, `patchCord`, `state`, `stateSinceMs`, `label`, and the legacy `type` string), and `serialize()` hands out
+**copies** of the endpoint records — writing to the document you were given must not adjust the board.
+
+`label` is the annotation written on a cable ("via 0-LR-FP1 keystone 2", "USB Ethernet adapter", "DOWN — host
+decommissioned"). It is text or nothing: `null`, `''` and an absent field all mean "no label", and an unlabelled
+cable writes no `label` key at all, so a lab saved before the field existed reopens unchanged. A value that is not a
+string is refused where it is set — `E_BAD_LABEL` from `connect()` / `PATCH /links/:id`, `E_LINK_BAD_LABEL` from the
+loader — because a property the live `Link` accepts and `serialize()` drops is a note the user believes is saved.
 
 A cable that cannot be restored is not skipped in silence. `fromJSON()` records one entry per cable in
 `loadIssues`, which every state payload carries next to `verdicts`:
@@ -289,6 +295,7 @@ A cable that cannot be restored is not skipped in silence. `fromJSON()` records 
 |---|---|
 | two cables share an id (links are kept in a map, so the second used to replace the first) | `E_LINK_DUPLICATE_ID` |
 | a `state` that is not `up` / `down` / `blocked` | `E_LINK_BAD_STATE` |
+| a `label` that is not a string | `E_LINK_BAD_LABEL` |
 | a port cabled to itself | `E_LINK_SELF_LOOP` |
 | an end naming a device or port the document does not contain | `E_LINK_ENDPOINT_MISSING` |
 | a cable the engine refuses (a port already connected, a cage already occupied) | `E_LINK_NOT_RESTORED`, with the engine's own sentence |

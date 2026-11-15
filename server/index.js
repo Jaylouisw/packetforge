@@ -816,6 +816,9 @@ async function handleApi(req, res, urlPath) {
             duplex: body.duplex,
             lagId: body.lagId,
             patchCord: body.patchCord,
+            // The annotation on the cable, if the caller has one to give: "via 0-LR-FP1 keystone 2". Part of the
+            // cable, so it is in the document this response returns and in every later save (#1513).
+            label: body.label,
             force: !!body.force,
             type: body.type
           });
@@ -915,16 +918,36 @@ async function handleApi(req, res, urlPath) {
       }
       if (method === 'PATCH' || method === 'POST') {
         const body = await readBody(req);
-        const result = topo.setLinkLength(parts[4], body.lengthM);
+        // A label is a thing you set on a cable after the fact, like its length, and it was invisible here: a PATCH
+        // carrying one answered 200 and changed nothing, which is the failure this door exists to avoid (#1513).
+        // It is applied only when the request states one, so a length-only PATCH keeps its old meaning; length goes
+        // first, so a refused length does not leave a label already written.
+        let result;
+        if (body.lengthM !== undefined || body.label === undefined) {
+          result = topo.setLinkLength(parts[4], body.lengthM);
+        } else {
+          const existing = topo.links.get(parts[4]);
+          result = existing
+            ? { ok: true, link: existing, warnings: [], errors: [] }
+            : { ok: false, errors: [{ code: 'E_NO_LINK', message: 'No such link: ' + parts[4] + '.' }], warnings: [] };
+        }
         if (!result.ok) {
           return sendJSON(res, 422, { error: (result.errors[0] || {}).message, code: (result.errors[0] || {}).code, state: fullState(topo) });
+        }
+        const warnings = result.warnings || [];
+        if (body.label !== undefined) {
+          const labelled = topo.setLinkLabel(parts[4], body.label);
+          if (!labelled.ok) {
+            return sendJSON(res, 422, { error: (labelled.errors[0] || {}).message, code: (labelled.errors[0] || {}).code, state: fullState(topo) });
+          }
+          result = labelled;
         }
         broadcast(topoId);
         const link = result.link;
         return sendJSON(res, 200, {
           ok: true,
-          link: { id: link.id, mediaId: link.mediaId, lengthM: link.lengthM },
-          warnings: result.warnings,
+          link: { id: link.id, mediaId: link.mediaId, lengthM: link.lengthM, label: link.label },
+          warnings: warnings,
           state: fullState(topo)
         });
       }

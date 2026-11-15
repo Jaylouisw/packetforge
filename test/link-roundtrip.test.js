@@ -155,6 +155,59 @@ console.log('The document you are given is yours to change:');
 }
 
 console.log('');
+console.log('A label on a cable is a field of the cable, not a property of the session (#1513):');
+{
+  // A cable annotation - "via 0-LR-FP1 keystone 2", "USB Ethernet adapter", "DOWN - host decommissioned" -
+  // used to be accepted by the live Link and dropped by serialize(), so the whole cabling record was gone the
+  // moment the board was saved. A property that reads back but is not in the document is the worst of both
+  // worlds: it looks like it worked.
+  const at = 'via 0-LR-FP1 keystone 2';
+  const t = twoDevices();
+  const link = Array.from(t.links.values())[0];
+  link.label = at;
+  const back = Topology.fromJSON(doc(t)).links.get(link.id);
+  ok(back && back.label === at, 'a label set on the cable survives a save and reload',
+    back && JSON.stringify(back.label));
+  ok(doc(t).links[0].label === at, 'and it is in the document the API hands out', JSON.stringify(doc(t).links[0]));
+
+  // The same through the door a caller actually uses: connect().
+  const t2 = new Topology();
+  t2.addDevice(SW, 'd1');
+  t2.addDevice(SW, 'd2');
+  const made = t2.connect('d1', '1/1/1', 'd2', '1/1/1', { mediaId: '1000base-t', speedMbps: 1000, label: at });
+  ok(made.label === at, 'connect() takes a label', JSON.stringify(made && made.label));
+  ok(Topology.fromJSON(doc(t2)).links.get(made.id).label === at, 'and that one survives too');
+
+  // A cable nobody labelled carries no label key, exactly as before: a saved lab that predates this field must
+  // not grow a line of noise in every diff.
+  const plain = doc(twoDevices());
+  ok(!Object.prototype.hasOwnProperty.call(plain.links[0], 'label'), 'an unlabelled cable writes no label key',
+    JSON.stringify(Object.keys(plain.links[0])));
+
+  // And the failure mode this issue is about: a value that is not a label at all must be refused where it is
+  // set, not accepted here and dropped by the serialiser.
+  let threw = null;
+  try {
+    const t3 = new Topology();
+    t3.addDevice(SW, 'd1');
+    t3.addDevice(SW, 'd2');
+    t3.connect('d1', '1/1/1', 'd2', '1/1/1', { mediaId: '1000base-t', speedMbps: 1000, label: { note: at } });
+  } catch (e) { threw = e; }
+  ok(!!threw && threw.code === 'E_BAD_LABEL', 'a label that is not a string is refused, with a code',
+    threw && (threw.code + ': ' + threw.message));
+  ok(!!threw && /label/i.test(threw.message) && /string/i.test(threw.message),
+    'and the refusal says what a label has to be', threw && threw.message);
+
+  // A document stating one is explained rather than adopted, like every other un-restorable cable fact.
+  const bad = doc(twoDevices());
+  bad.links[0].label = 42;
+  const t4 = Topology.fromJSON(bad);
+  const badLabel = (t4.loadIssues || []).filter(function (i) { return i.code === 'E_LINK_BAD_LABEL'; })[0];
+  ok(!!badLabel, 'a document with a numeric label is explained', JSON.stringify((t4.loadIssues || []).map(function (i) { return i.code; })));
+  ok(t4.links.size === 1, 'and that cable is not adopted with the label silently gone', String(t4.links.size));
+}
+
+console.log('');
 console.log('Over HTTP, a load says which cables it could not keep:');
 {
   const dataDir = fs.mkdtempSync(path.join(os.tmpdir(), 'pf-link-'));
@@ -211,6 +264,39 @@ console.log('Over HTTP, a load says which cables it could not keep:');
       loadedBad.body.state.loadIssues[0].code === 'E_LINK_BAD_STATE',
       'and a cable in a state nobody defines is reported the same way',
       JSON.stringify(loadedBad.body && loadedBad.body.state.loadIssues));
+
+    // A label given to the API is on the cable it made, in the answer and in the document every surface reads
+    // (#1513). Before this, the label was accepted by the live Link and gone from the save.
+    const cab = await request('POST', '/api/topologies/default/links', {
+      a: { deviceId: 'd1', iface: '1/1/3' }, b: { deviceId: 'd2', iface: '1/1/3' },
+      mediaId: '1000base-t', label: 'via keystone 2'
+    });
+    ok(cab.status === 201 && cab.body.link && cab.body.link.label === 'via keystone 2',
+      'a label given with a cable comes back on the cable',
+      cab.status + ' ' + JSON.stringify(cab.body && cab.body.link));
+    const reread = await request('GET', '/api/topologies/default');
+    ok((reread.body.links || []).filter(function (l) { return l.label === 'via keystone 2'; }).length === 1,
+      'and is in the state payload', JSON.stringify((reread.body.links || []).map(function (l) { return l.label; })));
+
+    // A cable that is already there can be named afterwards, and a PATCH that carries only a label must not take
+    // the length away with it.
+    const linkId = cab.body.link.id;
+    const patched = await request('PATCH', '/api/topologies/default/links/' + linkId, { lengthM: 12 });
+    ok(patched.status === 200 && patched.body.link.lengthM === 12, 'a length still sets a length', String(patched.status));
+    const named = await request('PATCH', '/api/topologies/default/links/' + linkId, { label: 'USB Ethernet adapter' });
+    ok(named.status === 200 && named.body.link.label === 'USB Ethernet adapter' && named.body.link.lengthM === 12,
+      'a label-only PATCH names the cable and leaves its length alone',
+      JSON.stringify(named.body && named.body.link));
+    const cleared = await request('PATCH', '/api/topologies/default/links/' + linkId, { label: null });
+    ok(cleared.status === 200 && cleared.body.link.label === null, 'and null clears it',
+      JSON.stringify(cleared.body && cleared.body.link));
+    const refused = await request('POST', '/api/topologies/default/links', {
+      a: { deviceId: 'd1', iface: '1/1/5' }, b: { deviceId: 'd2', iface: '1/1/5' },
+      mediaId: '1000base-t', label: 42
+    });
+    ok(refused.status === 409 && refused.body.code === 'E_BAD_LABEL',
+      'a label that is not text is refused, not accepted and dropped',
+      refused.status + ' ' + JSON.stringify(refused.body && refused.body.code));
   } finally {
     try { child.kill('SIGKILL'); } catch (e) {}
     try { fs.rmSync(dataDir, { recursive: true, force: true }); } catch (e) {}
