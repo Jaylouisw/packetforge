@@ -78,6 +78,14 @@ jobs:
   rebase:
     name: Rebase open PRs and arm auto-merge
     runs-on: ubuntu-latest
+    # This job had no bound of its own. It rebases and force-pushes pull-request branches,
+    # runs on a schedule, and every network call in it was a bare `curl` or `git` - so a
+    # host that stops answering does not make it fail, it makes it hold a runner until
+    # something else kills it. pr-rebase.yml lost 847 s of a two-runner host that way in
+    # run 2890 (task 6299); this job had the same shape and no ceiling at all. Fifteen
+    # minutes is a batch of five rebases plus a settle poll each, with room for the
+    # calls below to time out one at a time and still finish.
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
         with:
@@ -110,6 +118,22 @@ jobs:
           set -u
           api="${GITHUB_API_URL:-http://10.0.10.20:3000/api/v1}"
           repo="$GITHUB_REPOSITORY"
+          # Every call below is bounded. See the note in pr-rebase.yml: an unresponsive peer
+          # costs a bare `curl` 21.03 s here and 130 s on a Linux runner, this job makes up
+          # to twelve paginated calls before it rebases anything, and there was nothing
+          # stopping any of them from waiting forever.
+          http() {
+            curl -sS --connect-timeout 5 --max-time 20 --retry 2 --retry-delay 1 --retry-connrefused "$@"
+          }
+
+          bounded() {
+            bounded_seconds="$1"; shift
+            if command -v timeout >/dev/null 2>&1; then timeout "$bounded_seconds" "$@"; else "$@"; fi
+          }
+
+          export GIT_TERMINAL_PROMPT=0
+          export GIT_HTTP_LOW_SPEED_LIMIT=1000
+          export GIT_HTTP_LOW_SPEED_TIME=30
 
           if [ -z "${TOKEN:-}" ]; then
             echo "::warning title=Auto-rebase::no token available - set the FORGEJO_TOKEN repository secret to a token with write access. Nothing was rebased."
@@ -134,7 +158,7 @@ jobs:
           rest=${url#*://}
           git remote set-url origin "${scheme}://git:${TOKEN}@${rest}"
 
-          git fetch -q --prune origin '+refs/heads/*:refs/remotes/origin/*'
+          bounded 180 git fetch -q --prune origin '+refs/heads/*:refs/remotes/origin/*'
 
           # This instance caps a page at 50 whatever `limit` asks for, so one request
           # sees 50 pull requests no matter what. With 188 open, `limit=500` quietly
@@ -142,7 +166,7 @@ jobs:
           # same small window and newer pull requests were never reached at all.
           fetch_pages() {
             for page in 1 2 3 4 5 6 7 8 9 10 11 12; do
-              body=$(curl -sS -H "Authorization: token $TOKEN" \
+              body=$(http -H "Authorization: token $TOKEN" \
                 "$api/repos/$repo/pulls?state=open&limit=50&page=$page") || return 1
               printf '%s\n' "$body"
               got=$(printf '%s' "$body" | node -e 'let d="";process.stdin.on("data",c=>d+=c).on("end",()=>{let a=[];try{a=JSON.parse(d)}catch(e){}process.stdout.write(String(a.length))})')
@@ -180,7 +204,7 @@ jobs:
           while read -r n ref; do
             [ -z "${n:-}" ] && continue
 
-            if ! git fetch -q origin "+refs/heads/$ref:refs/remotes/origin/$ref"; then
+            if ! bounded 60 git fetch -q origin "+refs/heads/$ref:refs/remotes/origin/$ref"; then
               echo "PR #$n: branch $ref is gone"; continue
             fi
 
@@ -208,7 +232,7 @@ jobs:
               continue
             fi
 
-            if ! git push -q --force-with-lease origin "HEAD:refs/heads/$ref"; then
+            if ! bounded 180 git push -q --force-with-lease origin "HEAD:refs/heads/$ref"; then
               echo "PR #$n: push rejected (branch moved underneath us)"; continue
             fi
 
@@ -216,7 +240,7 @@ jobs:
             # reading the 405 that means "not yet known" as a refusal.
             waited=0; ok=0
             while [ "$waited" -lt "$settle" ]; do
-              state=$(curl -sS -H "Authorization: token $TOKEN" "$api/repos/$repo/pulls/$n" \
+              state=$(http -H "Authorization: token $TOKEN" "$api/repos/$repo/pulls/$n" \
                 | node -e 'let d="";process.stdin.on("data",c=>d+=c).on("end",()=>{try{process.stdout.write(String(JSON.parse(d).mergeable))}catch(e){process.stdout.write("false")}})')
               [ "$state" = "true" ] && { ok=1; break; }
               sleep 10; waited=$((waited+10))
@@ -227,7 +251,7 @@ jobs:
               continue
             fi
 
-            code=$(curl -sS -o /dev/null -w '%{http_code}' -X POST \
+            code=$(http -o /dev/null -w '%{http_code}' -X POST \
               -H "Authorization: token $TOKEN" -H 'Content-Type: application/json' \
               -d '{"Do":"squash","merge_when_checks_succeed":true}' \
               "$api/repos/$repo/pulls/$n/merge")
@@ -265,7 +289,7 @@ jobs:
               });')
 
           for n in $armable; do
-            code=$(curl -sS -o /dev/null -w "%{http_code}" -X POST \
+            code=$(http -o /dev/null -w "%{http_code}" -X POST \
               -H "Authorization: token $TOKEN" -H "Content-Type: application/json" \
               -d '{"Do":"squash","merge_when_checks_succeed":true}' \
               "$api/repos/$repo/pulls/$n/merge")

@@ -117,6 +117,43 @@ jobs:
 
           auth() { printf 'Authorization: token %s' "$TOKEN"; }
 
+          # Everything below talks to a host that stalls rather than refuses, and every
+          # call to it is bounded here for that reason.
+          #
+          # The measurement: task 6299 (run 2890, pull request #1549) took 847 s against a
+          # 22 s median for this job, spent its entire 10-minute budget, came back `failure`
+          # on a pull request whose branch was never touched, and left no comment - the
+          # `if: failure()` reporter two steps down never ran, because a timeout kill skips
+          # the steps after it. It also held one of this host's two runner slots for
+          # fourteen minutes while #1549's own checks sat pending throughout.
+          #
+          # The mechanism, measured rather than guessed: an unresponsive peer costs a bare
+          # `curl` 21.03 s before it gives up on this host (curl -sS to 10.255.255.1:
+          # "Failed to connect ... after 21029 ms"), and 130 s on a Linux runner with the
+          # default SYN retry count. The mergeable poll below spent that call up to twelve
+          # times with a 10 s sleep between them - 12 x (21 + 10) = 372 s of waiting before
+          # it had done anything - with the checkout and both git calls unbounded on top.
+          #
+          # So: 20 s per call, five seconds to connect, and retries only where the
+          # connection was refused. A stalled API now costs this job a line in the log after
+          # 20 s instead of a red X after ten minutes.
+          http() {
+            curl -sS --connect-timeout 5 --max-time 20 --retry 2 --retry-delay 1 --retry-connrefused "$@"
+          }
+
+          # `timeout` is coreutils and is in every runner image this job has used; if it is
+          # ever missing, run the command unbounded rather than fail the job over a wrapper.
+          bounded() {
+            bounded_seconds="$1"; shift
+            if command -v timeout >/dev/null 2>&1; then timeout "$bounded_seconds" "$@"; else "$@"; fi
+          }
+
+          # The same bound for git, whose own default is to wait forever: give up when the
+          # transfer drops below 1 KB/s for 30 s, and never prompt for credentials.
+          export GIT_TERMINAL_PROMPT=0
+          export GIT_HTTP_LOW_SPEED_LIMIT=1000
+          export GIT_HTTP_LOW_SPEED_TIME=30
+
           git config user.name  'packetforge-bot'
           git config user.email 'packetforge-bot@users.noreply.git.jayw.uk'
 
@@ -127,7 +164,7 @@ jobs:
           git remote set-url origin "http://packetforge-bot:${TOKEN}@${host}/${repo}.git"
           git remote set-url --push origin "http://packetforge-bot:${TOKEN}@${host}/${repo}.git"
 
-          if ! git fetch --no-tags origin '+refs/heads/main:refs/remotes/origin/main'; then
+          if ! bounded 120 git fetch --no-tags origin '+refs/heads/main:refs/remotes/origin/main'; then
             warn "#${number}: could not fetch main, so nothing was rebased and the branch is untouched. A runner or network problem, not a problem with the change."
             exit 0
           fi
@@ -141,7 +178,7 @@ jobs:
               # landed while this job was running is never overwritten.
               host="${server#http://}"; host="${host#https://}"
               git remote set-url origin "http://packetforge-bot:${TOKEN}@${host}/${repo}.git"
-              if git push \
+              if bounded 180 git push \
                    --force-with-lease="refs/heads/${head_ref}:${head_sha}" \
                    origin "HEAD:refs/heads/${head_ref}"; then
                 echo "rebased and pushed #${number}"
@@ -160,7 +197,7 @@ jobs:
               # own changes.
               base=$(git merge-base HEAD refs/remotes/origin/main || echo '')
               files=$(git diff --name-only "$base" HEAD | head -20 | tr '\n' ' ')
-              curl -sS -X POST -H "$(auth)" -H 'Content-Type: application/json' \
+              http -X POST -H "$(auth)" -H 'Content-Type: application/json' \
                 "$api/repos/$repo/issues/$number/comments" \
                 -d "$(printf '{"body":"This branch conflicts with `main`, so it was not rebased:\\n\\n```\\n%s\\n```\\n\\nA conflict is a decision about behaviour rather than a mechanical fix, so this is left for a human. Rebasing by hand and force-pushing will let the automation pick it up again."}' "$files")" >/dev/null
               echo "conflict on #${number} - reported, not touched"
@@ -171,23 +208,33 @@ jobs:
           # Arming: Forgejo computes `mergeable` asynchronously, so arming in the same
           # breath as the push answers 405 "Please try again later" - which reads like
           # a refusal and is only "not computed yet". Poll until it settles.
-          i=0
-          while [ "$i" -lt 12 ]; do
-            state=$(curl -sS -H "$(auth)" "$api/repos/$repo/pulls/$number" \
+          # Against the wall clock, not against a count. Twelve iterations is only a bound
+          # if the call inside each one is bounded too, and that is the assumption run 2890
+          # broke.
+          deadline=$((SECONDS + 120))
+          while [ "$SECONDS" -lt "$deadline" ]; do
+            state=$(http -H "$(auth)" "$api/repos/$repo/pulls/$number" \
               | tr ',' '\n' | grep -m1 '"mergeable"' | cut -d: -f2 | tr -d ' ' || true)
             if [ "$state" = "true" ]; then
-              code=$(curl -sS -o /dev/null -w '%{http_code}' -X POST -H "$(auth)" \
+              code=$(http -o /dev/null -w '%{http_code}' -X POST -H "$(auth)" \
                 -H 'Content-Type: application/json' \
                 "$api/repos/$repo/pulls/$number/merge" \
                 -d '{"Do":"squash","merge_when_checks_succeed":true}')
-              echo "#${number}: armed (HTTP ${code})"
+              # 409 is "already armed", which is the outcome asked for either way.
+              case "$code" in
+                200|201|409) echo "#${number}: armed (HTTP ${code})" ;;
+                *)           echo "#${number}: arm refused (HTTP ${code}) - the scheduled pass retries" ;;
+              esac
               exit 0
             fi
-            i=$((i + 1))
-            sleep 10
+            sleep 5
           done
 
-          echo "#${number}: mergeable did not settle in 120s - not armed this time"
+          # Not a failure, and deliberately not a `::warning::` either: the branch is
+          # untouched, the scheduled pass in auto-rebase.yml arms whatever this one missed,
+          # and a yellow annotation on a healthy pull request is how people learn to ignore
+          # annotations.
+          echo "#${number}: mergeable did not settle within 120s - not armed this time"
 
       # Logs for a failed run on this instance sit behind a login, which makes a red
       # check unreadable: the person who filed the pull request sees ✗ and nothing else.
@@ -213,6 +260,6 @@ jobs:
                 + "Nothing was pushed, so the branch is exactly as you wrote it."
             }));
           ' "$note")
-          curl -sS -o /dev/null -w 'comment: HTTP %{http_code}\n' -X POST \
+          http -o /dev/null -w 'comment: HTTP %{http_code}\n' -X POST \
             -H "Authorization: token ${TOKEN:-}" -H 'Content-Type: application/json' \
             "${api}/repos/${repo}/issues/${number}/comments" -d "$body"
