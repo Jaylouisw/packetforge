@@ -1,0 +1,92 @@
+{
+  "vendor": "edgecore",
+  "model": "AS4610-30T",
+  "label": "AS4610-30T 1G open switch",
+  "category": "switch",
+  "description": "Edgecore AS4610-30T 1RU bare-metal L3 switch: 24x 10/100/1000BASE-T RJ-45, 4x 1/10G SFP+ uplinks, 1x 1G RJ-45 management port and a serial console, plus 2x 20G QSFP+ stacking ports that are not modelled as data ports. 104 Gbps switching capacity, 156 Mpps, 76.1 W maximum system power. ONIE only - no NOS in the box. End of life 30 June 2025.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli",
+    "vlan",
+    "lacp",
+    "stp"
+  ],
+  "portTemplate": {
+    "prefix": "Ethernet",
+    "start": 1,
+    "count": 24,
+    "type": "ethernet",
+    "speed": "1G",
+    "connector": "rj45",
+    "speedCaps": [
+      10,
+      100,
+      1000
+    ]
+  },
+  "interfaces": [
+    {
+      "name": "Ethernet25",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "Ethernet26",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "Ethernet27",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "Ethernet28",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "console",
+      "type": "console"
+    },
+    {
+      "name": "mgmt0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
+    }
+  ],
+  "sourceUrl": "https://www.edge-core.com/product/as4610-30t/",
+  "fabric": {
+    "capacityMbps": 104000,
+    "kind": "switching fabric",
+    "note": "Series datasheet figure of 104 Gbps, the full-duplex aggregate of the port rates (24 x 1G + 4 x 10G + 2 x 20G). Forwarding rate 156 Mpps in the series table; some revisions of the model datasheet print 95 Mpps in the performance section, so only the capacity is recorded here."
+  },
+  "notes": "Port count from the vendor datasheet: 24x 10/100/1000BASE-T RJ-45, 4x SFP+ (10G or 1G), 2x 20G QSFP+ stacking.Broadcom BCM56340 Helix4 with a dual-core ARM Cortex-A9 at 1 GHz, 2 GB DDR3 SDRAM with ECC, 8 MB SPI flash, 4 MB shared packet buffer, 96 K MAC addresses, 4 K VLANs, 12 KB jumbo frames, two redundant hot-swappable AC PSUs (100-240 VAC), 1RU 44 x 35 x 4.4 cm. Ships as bare metal with ONIE, no NOS installed. The two QSFP+ stacking cages are described but not declared as interfaces: 20G is not a line rate the importer accepts, and calling them 40G QSFP+ or 10G would state a rate no datasheet gives. Console is the RJ-45 serial console, or a micro-USB serial console on the airflow variant that carries one instead; the front panel also has a USB-A (or micro-USB) storage port, which is not a network interface and is not modelled. Stacking needs a NOS that implements it. End of life effective 30 June 2025 per the EOL notice the product page links to (https://www.edge-core.com/eol-notice/2025-june-eol-notice-as4610-series/); the hardware is still in the field, so the spec stays. Sources: product page https://www.edge-core.com/product/as4610-30t/ and the AS4610 series datasheet https://www.edge-core.com/wp-content/uploads/2023/08/AS4610-54T-R09.pdf."
+}
