@@ -8,8 +8,8 @@ pulled a cable and a lab where a cable was never installed.
 # from any device's CLI, because a cable is not owned by a box
 R1#links
 Link   Endpoints                                                  State
-l5     SW1:Fa0/1 <-> SW2:Fa0/1                                     up
-l6     SW1:Fa0/2 <-> PC1:eth0                                      up
+l5     SW1:Fa0/1 <-> SW2:Fa0/1                                    up
+l6     SW1:Fa0/2 <-> PC1:eth0                                     up
 
 R1#link down l5 at 10000
 Link l5 (SW1:Fa0/1 <-> SW2:Fa0/1) is now down.
@@ -17,9 +17,11 @@ Network converges again at 40000 ms.
 
 R1#link state l5
 Link l5  SW1:Fa0/1 <-> SW2:Fa0/1
-  state: down since 10000 ms
+  state: down, changed at 10000 ms
 
 R1#link up l5
+Link l5 (SW1:Fa0/1 <-> SW2:Fa0/1) is now up.
+Network converges again at 30000 ms.
 ```
 
 Over HTTP, for the UI:
