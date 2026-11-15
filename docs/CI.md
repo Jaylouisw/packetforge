@@ -443,7 +443,7 @@ sentence about "the third class" is not talking about "the fifth check".
 **A `js` label means JavaScript syntax, not a program that runs.** Nothing in CI executes a fence, so
 the label has never been tested — and a census of the pages shows it should not be trusted as a promise.
 Counting the **21 pages that carry code** — `docs/*.md`, `README.md`, `CONTRIBUTING.md` and
-`CHANGELOG.md` — there are **814** fenced blocks (577 unlabelled, 77 `bash`, 49 `sh`, 45 `text`, 35 `js`,
+`CHANGELOG.md` — there are **815** fenced blocks (577 unlabelled, 77 `bash`, 50 `sh`, 45 `text`, 35 `js`,
 26 `json`, 3 `jsonc`, 1 `yaml`, 1 `console`), and that total includes the census block below and the block
 quoting its output, because a page that counts fences is made of fences. **23 of the 35 `js` blocks parse under `node --check` and
 12 do not**, and none of the 12 is meant to: three are loop-body excerpts that end in `continue`
@@ -457,7 +457,7 @@ get is a `SyntaxError`.
 
 Those figures are a fingerprint of a reading, not a fact about the tree, and this paragraph has now watched
 them move twice. It said **727** blocks and **22/13** on the `js` split when it was written; a later run took
-it to 814 and 23/12 without a single page changing a claim, because a run of edits to
+it to 815 and 23/12 without a single page changing a claim, because a run of edits to
 `docs/ARCHITECTURE.md` added a block to back each one, and this section then added four of its own. The line references drift with the totals, one line
 per edit near the top of a page.
 
@@ -510,8 +510,8 @@ Measured — and note the trap in reading it, because **two of the fences it cou
 output block below it**, which is why the number in this quote is the same one the paragraph above gives:
 
 ```
-21 pages, 814 fenced blocks (577 unlabelled, 77 `bash`, 49 `sh`, 45 `text`, 35 `js`, 26 `json`, 3 `jsonc`, 1 `yaml`, 1 `console`)
-column 0: 762, indented: 52
+21 pages, 815 fenced blocks (577 unlabelled, 77 `bash`, 50 `sh`, 45 `text`, 35 `js`, 26 `json`, 3 `jsonc`, 1 `yaml`, 1 `console`)
+column 0: 763, indented: 52
 js: 35 blocks, 23 parse, 12 do not:
   docs/BGP-POLICY.md:709
   docs/BGP-POLICY.md:921
@@ -532,8 +532,8 @@ deleting it and its output and the same tree answers 812. That is the other half
 worth re-running rather than quoting — a later edit moves them, and only the recipe says which side of the
 self-reference the difference came from.
 
-The 52 indented blocks are the reason a census taken by the column-0 pattern answers **762** where the total
-answers **814**: they sit inside list items, and both numbers are right about their own question.
+The 52 indented blocks are the reason a census taken by the column-0 pattern answers **763** where the total
+answers **815**: they sit inside list items, and both numbers are right about their own question.
 
 The twenty-three that do parse are the ones a reader actually runs, and those are worth keeping honest: if a
 snippet has a `node` on the first line, execute it from the page before committing it, because the page
