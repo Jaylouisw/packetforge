@@ -276,11 +276,17 @@ and by the WebSocket broadcast, and it adds three keys per link on top of `seria
 | `stateReason` | `Topology.linkState(link).reason` | if not, which end and why |
 
 `serialize()` carries none of the three, because `lineUp` is a fact about the current simulation and a
-saved copy would be read back as one. Measured, a saved link is exactly
+saved copy would be read back as one. Measured, a saved link is
 `id, a, b, type, mediaId, speedMbps, duplex, lengthM, lagId, patchCord, state` — `state` is the file's
 own record of "somebody took this cable down", which is why the *derived* answer needed a different
-name. The payload's top level is `format, version, seq, devices, links, layout` before `fullState`
-touches it.
+name. That is eleven keys, and a twelfth rides along whenever the link is not `up` or has ever been down:
+`serialize()` writes `stateSinceMs` under `state !== 'up' || stateSinceMs` (`link.js:76`), and `fromJSON()`
+reads it back as `0` when the key is absent, which is how a cable that was taken down survives a save and
+reload still knowing when. The 55 links in the saved topologies under `data/topologies/` split **53 / 2**
+that way today, and `grep -c stateSinceMs data/topologies/*.json | grep -v ':0$'` names the two files that
+carry it (`b1.json`, `b2.json`, one link each) — so read the list above as the shape of a link nobody has
+touched, not as an invariant. The payload's top level is `format, version, seq, devices, links, layout`
+before `fullState` touches it.
 
 The links are not the whole of what `fullState()` adds: it also sets `s.runtime`, one entry per device
 holding `macTable`, `arp`, `routes` (`routesTable()`) and `counters` — and a device with no counters yet
