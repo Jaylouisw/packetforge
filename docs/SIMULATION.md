@@ -627,9 +627,16 @@ so the next reader does not have to rediscover them.
 | `docs/ARCHITECTURE.md:61-69` | Routing order: connected, static, default gateway | Right, and incomplete: BGP (20/200) and OSPF (110) sit between static and the default gateway (`engine/device.js:364-443`). |
 | `docs/ARCHITECTURE.md:94-111` | Flow API and counters | Accurate. |
 | `docs/CLI.md:50` | `ip address dhcp` — "(reserved)" | Correct, and worth believing: the flag is set and nothing reads it. |
-| `docs/CLI.md` (whole) | Documents `show`, `interface`, `ip address`, `ip route`, `ping`, IPv6 ND | It does not document the commands that exist for `access-list`, `ip access-group`, `switchport`, `channel-group`, `router bgp`/`neighbor`, `ospf`, `dns`, `scion`. The CLI reference is behind the CLI. |
 | `docs/ROADMAP.md:7-19` | Lists VLANs, STP, OSPF/RIP, NAT, ACLs, wireless, DNS as unchecked TODOs | All of those except RIP, DHCP-in-the-data-path and wireless association are implemented. A stale roadmap reads as a promise; here it reads as a warning that happens to be wrong in both directions. |
 | `docs/BGP-POLICY.md` | A full policy design — local-pref, MED, communities, route-maps | A design document. Only the decision-order subset in `engine/bgp.js` exists. |
+
+One row has left this table since it was written. It said `docs/CLI.md` documented `show`, `interface`,
+`ip address`, `ip route`, `ping` and IPv6 ND, and none of the commands behind `access-list`, `ip access-group`,
+`switchport`, `channel-group`, `router bgp`/`neighbor`, `ospf`, `dns` or `scion` — that the CLI reference was
+behind the CLI. All nine families are in the reference now (`docs/CLI.md:113-122` gives the printed form of
+each), and the gap is no longer invisible: `test/help-completeness.test.js` fails when a mechanism it enumerates
+is missing from `help` or from `docs/CLI.md` (eighteen mechanisms today), and `test/docs-show-commands.test.js`
+types every `show` form the page prints.
 
 ---
 
