@@ -1,0 +1,59 @@
+{
+  "vendor": "fortinet",
+  "model": "FortiSwitch 108F-FPOE",
+  "label": "FortiSwitch 108F-FPOE 8-port desktop PoE switch (130 W)",
+  "category": "switch",
+  "description": "Fortinet FortiSwitch 108F-FPOE fanless desktop Layer 2 PoE switch: 8x GE RJ45 all 802.3af/at PSE (130 W budget), 2x 1G SFP, 20 Gbps switching capacity, 30 Mpps.",
+  "capabilities": [
+    "l2-forward",
+    "cli",
+    "http-server",
+    "vlan",
+    "lacp",
+    "stp",
+    "poe-pse",
+    "802.3af",
+    "802.3at"
+  ],
+  "icon": "switch",
+  "color": "#ef4444",
+  "portTemplate": {
+    "prefix": "port",
+    "start": 1,
+    "count": 8,
+    "type": "ethernet",
+    "speed": "1G",
+    "connector": "rj45",
+    "poeOut": 30
+  },
+  "interfaces": [
+    {
+      "name": "port9",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G"
+    },
+    {
+      "name": "port10",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G"
+    },
+    {
+      "name": "console",
+      "type": "console"
+    }
+  ],
+  "poe": {
+    "budgetW": 130,
+    "sourceUrl": "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/pdf/fortiswitch-secure-access-series.pdf",
+    "note": "8 PoE ports, 130 W total (datasheet). 130 W covers eight Class 3 (802.3af, 15.4 W) devices at 123.2 W but only four Class 4 (802.3at, 30 W) devices at 120 W: 8 x 30 W = 240 W is not available, so the 30 W per-port ceiling is a port capability, not a promise to all eight at once. Internal AC supply, 100-240 V, 1.4 A max, 139.2 W consumption fully loaded."
+  },
+  "fabric": {
+    "capacityMbps": 20000,
+    "kind": "switching fabric",
+    "note": "Datasheet switching capacity 20 Gbps duplex with 30 Mpps: 2 x 10 Gbit/s, the line rate of eight 1G RJ45 ports plus two 1G SFP cages."
+  },
+  "sourceUrl": "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/pdf/fortiswitch-secure-access-series.pdf",
+  "notes": "Datasheet: 8x GE RJ45 and 2x GE SFP; 8 (802.3af/at) PoE ports, 130 W budget; 20 Gbps switching capacity, 30 Mpps, 8 K MAC, 4 us latency, 4 K VLANs, 512 KB packet buffer, 256 MB DDR3, 32 MB flash, >10 years MTBF. 44 x 209 x 250 mm, 1.84 kg, fanless, desktop or 19-inch bracket. All eight copper ports are PSE ports; the two SFP cages are not. The PoE MAX LED reads 130 W on the front panel (108F QuickStart Guide). FortiLink ports 7-10. Console is the RJ-45 serial port, FortiSwitchOS default 115200 8-N-1 (https://docs.fortinet.com/document/fortiswitch/7.6.5/enterprise-data-center-switching-with-evpn-vxlan-deployment-guide/313313/deployment-procedures), console default IP 192.168.1.99. Layer 2 only - routing is the FortiGate's job over FortiLink. The FS-108F-POE was left out of this batch: the datasheet table says 8 PoE ports while Fortinet's own switch page says 4, and no vendor document settles which of its eight ports source power."
+}

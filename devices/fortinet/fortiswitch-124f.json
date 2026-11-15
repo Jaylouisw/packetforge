@@ -1,0 +1,79 @@
+{
+  "vendor": "fortinet",
+  "model": "FortiSwitch 124F",
+  "label": "FortiSwitch 124F 24-port rack switch, 4x 10G SFP+",
+  "category": "switch",
+  "description": "Fortinet FortiSwitch 124F fanless 1 RU Layer 2 switch: 24x GE RJ45, 4x 1/10G SFP+ uplinks, 128 Gbps switching capacity, 190 Mpps. No PoE.",
+  "capabilities": [
+    "l2-forward",
+    "cli",
+    "http-server",
+    "vlan",
+    "lacp",
+    "stp"
+  ],
+  "icon": "switch",
+  "color": "#ef4444",
+  "portTemplate": {
+    "prefix": "port",
+    "start": 1,
+    "count": 24,
+    "type": "ethernet",
+    "speed": "1G",
+    "connector": "rj45",
+    "poeOut": 0
+  },
+  "interfaces": [
+    {
+      "name": "port25",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "port26",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "port27",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "port28",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "console",
+      "type": "console"
+    }
+  ],
+  "fabric": {
+    "capacityMbps": 128000,
+    "kind": "switching fabric",
+    "note": "Datasheet switching capacity 128 Gbps duplex with 190 Mpps: 24x 1G plus 4x 10G is 64 Gbit/s of line rate, doubled to 128 Gbps full duplex."
+  },
+  "sourceUrl": "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/pdf/fortiswitch-secure-access-series.pdf",
+  "notes": "Datasheet: 24x GE RJ45 and 4x 10GE SFP+; 0 PoE ports, 0 W budget; 128 Gbps switching capacity, 190 Mpps, 32 K MAC, <1 us latency, 4 K VLANs, 2 MB packet buffer, 512 MB DDR3, 64 MB flash, ACL 640, 32 spanning-tree instances, >10 years MTBF. 44 x 230 x 330 mm, 2.03 kg, 24.8 W average / 26.3 W maximum, fanless, side-to-back airflow. Ports 1-24 are RJ45, 25-28 are the SFP+ cages; the cages take 1G SFP optics too, and FortiLink runs on ports 21-28, i.e. the last four copper ports plus the four cages (124F QuickStart Guide). No dedicated management port. Console is the front RJ-45 serial port at 115200 8-N-1 by default (https://docs.fortinet.com/document/fortiswitch/7.6.5/enterprise-data-center-switching-with-evpn-vxlan-deployment-guide/313313/deployment-procedures), console IP 192.168.1.99. Layer 2 only: routing is done by the FortiGate over FortiLink, so no l3-forward. The 230 mm depth is the non-PoE chassis; the PoE variants are 260 mm."
+}

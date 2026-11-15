@@ -1,0 +1,879 @@
+[
+  {
+    "vendor": "fortinet",
+    "model": "FortiSwitch 108F",
+    "label": "FortiSwitch 108F 8-port desktop switch (PoE PD on port 8)",
+    "category": "switch",
+    "description": "Fortinet FortiSwitch 108F fanless desktop Layer 2 switch: 8x GE RJ45 (port 8 also accepts 802.3af/at PoE as a power input), 2x 1G SFP, 20 Gbps switching capacity, 30 Mpps. No PoE output.",
+    "capabilities": [
+      "l2-forward",
+      "cli",
+      "http-server",
+      "vlan",
+      "lacp",
+      "stp",
+      "poe-pd"
+    ],
+    "icon": "switch",
+    "color": "#ef4444",
+    "portTemplate": {
+      "prefix": "port",
+      "start": 1,
+      "count": 7,
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "rj45",
+      "poeOut": 0
+    },
+    "interfaces": [
+      {
+        "name": "port8",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": 0,
+        "poeIn": 12.95
+      },
+      {
+        "name": "port9",
+        "type": "ethernet",
+        "connector": "sfp",
+        "speed": "1G"
+      },
+      {
+        "name": "port10",
+        "type": "ethernet",
+        "connector": "sfp",
+        "speed": "1G"
+      },
+      {
+        "name": "console",
+        "type": "console"
+      }
+    ],
+    "fabric": {
+      "capacityMbps": 20000,
+      "kind": "switching fabric",
+      "note": "Datasheet switching capacity 20 Gbps duplex with 30 Mpps: 2 x 10 Gbit/s, the line rate of eight 1G RJ45 ports plus two 1G SFP cages."
+    },
+    "sourceUrl": "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/pdf/fortiswitch-secure-access-series.pdf",
+    "notes": "Datasheet: 7x GE RJ45, 1x GE/POE-PD RJ45 and 2x GE SFP; 0 PoE ports and 0 W PoE budget; 20 Gbps switching capacity, 30 Mpps, 8 K MAC, 4 us latency, 4 K VLANs, 512 KB packet buffer, 256 MB DDR3, 32 MB flash, ACL 640, 32 spanning-tree instances, >10 years MTBF. Ports 1-8 are the RJ45 front panel and 9-10 the SFP cages (108F QuickStart Guide). Port 8 is a PoE PD input, 802.3af/at compliant: the box is powered either from the supplied 12 V DC / 1 A adapter or over the LAN from an upstream PSE, which is modelled as the 12.95 W 802.3af draw on port8 - this switch is a powered device, not a PSE. 30 x 120 x 180 mm, 0.62 kg, 6.2 W, fanless, desktop (19-inch bracket optional). Console is the rear RJ-45 (USB-to-RJ45 cable in the box); FortiSwitchOS default 115200 8-N-1 - not the 9600 a FortiGate uses (https://docs.fortinet.com/document/fortiswitch/7.6.5/enterprise-data-center-switching-with-evpn-vxlan-deployment-guide/313313/deployment-procedures; `config system console` baudrate default 115200 in https://docs.fortinet.com/document/fortiswitch/8.0.0/fortiswitchos-cli-reference/500379/config-system) - console port default 192.168.1.99 (QuickStart Guide). FortiLink ports 7-10. Layer 2 only: inter-VLAN routing, policy routing and L3 services are performed by the FortiGate over FortiLink, so no l3-forward is declared. Datasheet ordering text says dual powered while the specification table says 0 PoE ports; the table is right - dual power is DC adapter or PoE PD input. Every copper port declares poeOut 0 rather than staying silent: this model's own label mentions PoE, and the engine promotes every copper port of a PoE-capable switch to a PSE when the port says nothing about power."
+  },
+  {
+    "vendor": "fortinet",
+    "model": "FortiSwitch 108F-FPOE",
+    "label": "FortiSwitch 108F-FPOE 8-port desktop PoE switch (130 W)",
+    "category": "switch",
+    "description": "Fortinet FortiSwitch 108F-FPOE fanless desktop Layer 2 PoE switch: 8x GE RJ45 all 802.3af/at PSE (130 W budget), 2x 1G SFP, 20 Gbps switching capacity, 30 Mpps.",
+    "capabilities": [
+      "l2-forward",
+      "cli",
+      "http-server",
+      "vlan",
+      "lacp",
+      "stp",
+      "poe-pse",
+      "802.3af",
+      "802.3at"
+    ],
+    "icon": "switch",
+    "color": "#ef4444",
+    "portTemplate": {
+      "prefix": "port",
+      "start": 1,
+      "count": 8,
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "rj45",
+      "poeOut": 30
+    },
+    "interfaces": [
+      {
+        "name": "port9",
+        "type": "ethernet",
+        "connector": "sfp",
+        "speed": "1G"
+      },
+      {
+        "name": "port10",
+        "type": "ethernet",
+        "connector": "sfp",
+        "speed": "1G"
+      },
+      {
+        "name": "console",
+        "type": "console"
+      }
+    ],
+    "poe": {
+      "budgetW": 130,
+      "sourceUrl": "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/pdf/fortiswitch-secure-access-series.pdf",
+      "note": "8 PoE ports, 130 W total (datasheet). 130 W covers eight Class 3 (802.3af, 15.4 W) devices at 123.2 W but only four Class 4 (802.3at, 30 W) devices at 120 W: 8 x 30 W = 240 W is not available, so the 30 W per-port ceiling is a port capability, not a promise to all eight at once. Internal AC supply, 100-240 V, 1.4 A max, 139.2 W consumption fully loaded."
+    },
+    "fabric": {
+      "capacityMbps": 20000,
+      "kind": "switching fabric",
+      "note": "Datasheet switching capacity 20 Gbps duplex with 30 Mpps: 2 x 10 Gbit/s, the line rate of eight 1G RJ45 ports plus two 1G SFP cages."
+    },
+    "sourceUrl": "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/pdf/fortiswitch-secure-access-series.pdf",
+    "notes": "Datasheet: 8x GE RJ45 and 2x GE SFP; 8 (802.3af/at) PoE ports, 130 W budget; 20 Gbps switching capacity, 30 Mpps, 8 K MAC, 4 us latency, 4 K VLANs, 512 KB packet buffer, 256 MB DDR3, 32 MB flash, >10 years MTBF. 44 x 209 x 250 mm, 1.84 kg, fanless, desktop or 19-inch bracket. All eight copper ports are PSE ports; the two SFP cages are not. The PoE MAX LED reads 130 W on the front panel (108F QuickStart Guide). FortiLink ports 7-10. Console is the RJ-45 serial port, FortiSwitchOS default 115200 8-N-1 (https://docs.fortinet.com/document/fortiswitch/7.6.5/enterprise-data-center-switching-with-evpn-vxlan-deployment-guide/313313/deployment-procedures), console default IP 192.168.1.99. Layer 2 only - routing is the FortiGate's job over FortiLink. The FS-108F-POE was left out of this batch: the datasheet table says 8 PoE ports while Fortinet's own switch page says 4, and no vendor document settles which of its eight ports source power."
+  },
+  {
+    "vendor": "fortinet",
+    "model": "FortiSwitch 124F",
+    "label": "FortiSwitch 124F 24-port rack switch, 4x 10G SFP+",
+    "category": "switch",
+    "description": "Fortinet FortiSwitch 124F fanless 1 RU Layer 2 switch: 24x GE RJ45, 4x 1/10G SFP+ uplinks, 128 Gbps switching capacity, 190 Mpps. No PoE.",
+    "capabilities": [
+      "l2-forward",
+      "cli",
+      "http-server",
+      "vlan",
+      "lacp",
+      "stp"
+    ],
+    "icon": "switch",
+    "color": "#ef4444",
+    "portTemplate": {
+      "prefix": "port",
+      "start": 1,
+      "count": 24,
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "rj45",
+      "poeOut": 0
+    },
+    "interfaces": [
+      {
+        "name": "port25",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "port26",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "port27",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "port28",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "console",
+        "type": "console"
+      }
+    ],
+    "fabric": {
+      "capacityMbps": 128000,
+      "kind": "switching fabric",
+      "note": "Datasheet switching capacity 128 Gbps duplex with 190 Mpps: 24x 1G plus 4x 10G is 64 Gbit/s of line rate, doubled to 128 Gbps full duplex."
+    },
+    "sourceUrl": "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/pdf/fortiswitch-secure-access-series.pdf",
+    "notes": "Datasheet: 24x GE RJ45 and 4x 10GE SFP+; 0 PoE ports, 0 W budget; 128 Gbps switching capacity, 190 Mpps, 32 K MAC, <1 us latency, 4 K VLANs, 2 MB packet buffer, 512 MB DDR3, 64 MB flash, ACL 640, 32 spanning-tree instances, >10 years MTBF. 44 x 230 x 330 mm, 2.03 kg, 24.8 W average / 26.3 W maximum, fanless, side-to-back airflow. Ports 1-24 are RJ45, 25-28 are the SFP+ cages; the cages take 1G SFP optics too, and FortiLink runs on ports 21-28, i.e. the last four copper ports plus the four cages (124F QuickStart Guide). No dedicated management port. Console is the front RJ-45 serial port at 115200 8-N-1 by default (https://docs.fortinet.com/document/fortiswitch/7.6.5/enterprise-data-center-switching-with-evpn-vxlan-deployment-guide/313313/deployment-procedures), console IP 192.168.1.99. Layer 2 only: routing is done by the FortiGate over FortiLink, so no l3-forward. The 230 mm depth is the non-PoE chassis; the PoE variants are 260 mm."
+  },
+  {
+    "vendor": "fortinet",
+    "model": "FortiSwitch 124F-POE",
+    "label": "FortiSwitch 124F-POE 24-port switch, 12 PoE+ ports, 185 W",
+    "category": "switch",
+    "description": "Fortinet FortiSwitch 124F-POE 1 RU Layer 2 PoE+ switch: 24x GE RJ45 of which 12 (ports 1-12) are 802.3af/at PSE against a 185 W budget, 4x 1/10G SFP+ uplinks, 128 Gbps switching capacity.",
+    "capabilities": [
+      "l2-forward",
+      "cli",
+      "http-server",
+      "vlan",
+      "lacp",
+      "stp",
+      "poe-pse",
+      "802.3af",
+      "802.3at"
+    ],
+    "icon": "switch",
+    "color": "#ef4444",
+    "portTemplate": {
+      "prefix": "port",
+      "start": 1,
+      "count": 12,
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "rj45",
+      "poeOut": 30
+    },
+    "interfaces": [
+      {
+        "name": "port13",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": 0
+      },
+      {
+        "name": "port14",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": 0
+      },
+      {
+        "name": "port15",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": 0
+      },
+      {
+        "name": "port16",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": 0
+      },
+      {
+        "name": "port17",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": 0
+      },
+      {
+        "name": "port18",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": 0
+      },
+      {
+        "name": "port19",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": 0
+      },
+      {
+        "name": "port20",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": 0
+      },
+      {
+        "name": "port21",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": 0
+      },
+      {
+        "name": "port22",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": 0
+      },
+      {
+        "name": "port23",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": 0
+      },
+      {
+        "name": "port24",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": 0
+      },
+      {
+        "name": "port25",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "port26",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "port27",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "port28",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "console",
+        "type": "console"
+      }
+    ],
+    "poe": {
+      "budgetW": 185,
+      "sourceUrl": "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/pdf/fortiswitch-secure-access-series.pdf",
+      "note": "12 PoE ports (ports 1-12), 185 W total. 185 W is exactly 12 x 15.4 W, so the budget powers twelve Class 3 (802.3af) devices at full rate and only six Class 4 (802.3at, 30 W) devices - the 12 x 30 W = 360 W sum of the port ceilings is not available. Internal AC supply, 235.9 W average / 237.4 W maximum consumption."
+    },
+    "fabric": {
+      "capacityMbps": 128000,
+      "kind": "switching fabric",
+      "note": "Datasheet switching capacity 128 Gbps duplex with 190 Mpps: 24x 1G plus 4x 10G is 64 Gbit/s of line rate, doubled to 128 Gbps full duplex."
+    },
+    "sourceUrl": "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/pdf/fortiswitch-secure-access-series.pdf",
+    "notes": "Datasheet: 24x GE RJ45 and 4x 10GE SFP+; 12 (802.3af/at) PoE ports, 185 W budget; 128 Gbps switching capacity, 190 Mpps, 32 K MAC, <1 us latency, 4 K VLANs, 2 MB packet buffer, 512 MB DDR3, 64 MB flash, ACL 640, 32 spanning-tree instances. 44 x 260 x 330 mm, 3.56 kg, side-to-back airflow. PoE is on ports 1-12 only - the front panel labels PoE Ports 1 to 12 with a PoE MAX LED of 185 W, so ports 13-24 are plain GE and are modelled unpowered (124F QuickStart Guide). FortiLink ports 21-28; SFP+ cages 25-28. Console RJ-45 at 115200 8-N-1 by default (https://docs.fortinet.com/document/fortiswitch/7.6.5/enterprise-data-center-switching-with-evpn-vxlan-deployment-guide/313313/deployment-procedures), console IP 192.168.1.99. Layer 2 only - the FortiGate routes over FortiLink. Half the front panel is PoE and half is not, which is the easy thing to get wrong on this model: ports 13-24 state poeOut 0 explicitly because the engine otherwise promotes every copper port of a PoE-capable switch to a PSE."
+  },
+  {
+    "vendor": "fortinet",
+    "model": "FortiSwitch 124F-FPOE",
+    "label": "FortiSwitch 124F-FPOE 24-port switch, 24 PoE+ ports, 370 W",
+    "category": "switch",
+    "description": "Fortinet FortiSwitch 124F-FPOE 1 RU Layer 2 PoE+ switch: 24x GE RJ45 all 802.3af/at PSE (370 W budget), 4x 1/10G SFP+ uplinks, 128 Gbps switching capacity, 190 Mpps.",
+    "capabilities": [
+      "l2-forward",
+      "cli",
+      "http-server",
+      "vlan",
+      "lacp",
+      "stp",
+      "poe-pse",
+      "802.3af",
+      "802.3at"
+    ],
+    "icon": "switch",
+    "color": "#ef4444",
+    "portTemplate": {
+      "prefix": "port",
+      "start": 1,
+      "count": 24,
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "rj45",
+      "poeOut": 30
+    },
+    "interfaces": [
+      {
+        "name": "port25",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "port26",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "port27",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "port28",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "console",
+        "type": "console"
+      }
+    ],
+    "poe": {
+      "budgetW": 370,
+      "sourceUrl": "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/pdf/fortiswitch-secure-access-series.pdf",
+      "note": "24 PoE ports, 370 W total. 370 W is 24 x 15.4 W (369.6 W): every port can run a Class 3 (802.3af) device, twelve can run a Class 4 (802.3at, 30 W) device, and 24 x 30 W = 720 W is not available. Internal AC supply, 449.8 W average / 451.3 W maximum consumption fully loaded."
+    },
+    "fabric": {
+      "capacityMbps": 128000,
+      "kind": "switching fabric",
+      "note": "Datasheet switching capacity 128 Gbps duplex with 190 Mpps: 24x 1G plus 4x 10G is 64 Gbit/s of line rate, doubled to 128 Gbps full duplex."
+    },
+    "sourceUrl": "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/pdf/fortiswitch-secure-access-series.pdf",
+    "notes": "Datasheet: 24x GE RJ45 and 4x 10GE SFP+; 24 (802.3af/at) PoE ports, 370 W budget; 128 Gbps switching capacity, 190 Mpps, 32 K MAC, <1 us latency, 4 K VLANs, 2 MB packet buffer, 512 MB DDR3, 64 MB flash, ACL 640, 32 spanning-tree instances. 44 x 260 x 330 mm, 3.82 kg, side-to-back airflow, smart fan. Every copper port is a PSE port; the four SFP+ cages are not. FortiLink ports 21-28; SFP+ cages 25-28 (124F QuickStart Guide). Console RJ-45 at 115200 8-N-1 by default (https://docs.fortinet.com/document/fortiswitch/7.6.5/enterprise-data-center-switching-with-evpn-vxlan-deployment-guide/313313/deployment-procedures), console IP 192.168.1.99. Layer 2 only - routing is the FortiGate's over FortiLink. Same 370 W as the 148F-POE spread over half as many ports, so this is the box that can feed 24 PoE+ devices at once."
+  },
+  {
+    "vendor": "fortinet",
+    "model": "FortiSwitch 148F",
+    "label": "FortiSwitch 148F 48-port rack switch, 4x 10G SFP+",
+    "category": "switch",
+    "description": "Fortinet FortiSwitch 148F 1 RU Layer 2 switch: 48x GE RJ45, 4x 1/10G SFP+ uplinks, 176 Gbps switching capacity, 260 Mpps. No PoE.",
+    "capabilities": [
+      "l2-forward",
+      "cli",
+      "http-server",
+      "vlan",
+      "lacp",
+      "stp"
+    ],
+    "icon": "switch",
+    "color": "#ef4444",
+    "portTemplate": {
+      "prefix": "port",
+      "start": 1,
+      "count": 48,
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "rj45",
+      "poeOut": 0
+    },
+    "interfaces": [
+      {
+        "name": "port49",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "port50",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "port51",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "port52",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "console",
+        "type": "console"
+      }
+    ],
+    "fabric": {
+      "capacityMbps": 176000,
+      "kind": "switching fabric",
+      "note": "Datasheet switching capacity 176 Gbps duplex with 260 Mpps: 48x 1G plus 4x 10G is 88 Gbit/s of line rate, doubled to 176 Gbps full duplex."
+    },
+    "sourceUrl": "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/pdf/fortiswitch-secure-access-series.pdf",
+    "notes": "Datasheet: 48x GE RJ45 and 4x 10GE SFP+; 0 PoE ports, 0 W budget; 176 Gbps switching capacity, 260 Mpps, 32 K MAC, <1 us latency, 4 K VLANs, 2 MB packet buffer, 512 MB DDR3, 64 MB flash, >10 years MTBF. 44 x 260 x 440 mm, 3.46 kg, 55.8 W average / 57 W maximum. Ports 1-48 are RJ45 and 49-52 the SFP+ cages; FortiLink runs on ports 45-52, the last four copper ports plus the four cages, and the cages also take 1G SFP optics (148F QuickStart Guide). No dedicated management port; rear PSU 100-240 V AC, 1.5 A max. Console is the RJ-45 serial port at 115200 8-N-1 by default (https://docs.fortinet.com/document/fortiswitch/7.6.5/enterprise-data-center-switching-with-evpn-vxlan-deployment-guide/313313/deployment-procedures), console IP 192.168.1.99. Layer 2 only - the FortiGate routes over FortiLink, so no l3-forward."
+  },
+  {
+    "vendor": "fortinet",
+    "model": "FortiSwitch 148F-POE",
+    "label": "FortiSwitch 148F-POE 48-port switch, 24 PoE+ ports, 370 W",
+    "category": "switch",
+    "description": "Fortinet FortiSwitch 148F-POE 1 RU Layer 2 PoE+ switch: 48x GE RJ45 of which 24 (ports 1-24) are 802.3af/at PSE against a 370 W budget, 4x 1/10G SFP+ uplinks, 176 Gbps switching capacity.",
+    "capabilities": [
+      "l2-forward",
+      "cli",
+      "http-server",
+      "vlan",
+      "lacp",
+      "stp",
+      "poe-pse",
+      "802.3af",
+      "802.3at"
+    ],
+    "icon": "switch",
+    "color": "#ef4444",
+    "portTemplate": {
+      "prefix": "port",
+      "start": 1,
+      "count": 24,
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "rj45",
+      "poeOut": 30
+    },
+    "interfaces": [
+      {
+        "name": "port25",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": 0
+      },
+      {
+        "name": "port26",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": 0
+      },
+      {
+        "name": "port27",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": 0
+      },
+      {
+        "name": "port28",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": 0
+      },
+      {
+        "name": "port29",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": 0
+      },
+      {
+        "name": "port30",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": 0
+      },
+      {
+        "name": "port31",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": 0
+      },
+      {
+        "name": "port32",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": 0
+      },
+      {
+        "name": "port33",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": 0
+      },
+      {
+        "name": "port34",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": 0
+      },
+      {
+        "name": "port35",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": 0
+      },
+      {
+        "name": "port36",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": 0
+      },
+      {
+        "name": "port37",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": 0
+      },
+      {
+        "name": "port38",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": 0
+      },
+      {
+        "name": "port39",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": 0
+      },
+      {
+        "name": "port40",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": 0
+      },
+      {
+        "name": "port41",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": 0
+      },
+      {
+        "name": "port42",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": 0
+      },
+      {
+        "name": "port43",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": 0
+      },
+      {
+        "name": "port44",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": 0
+      },
+      {
+        "name": "port45",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": 0
+      },
+      {
+        "name": "port46",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": 0
+      },
+      {
+        "name": "port47",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": 0
+      },
+      {
+        "name": "port48",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "poeOut": 0
+      },
+      {
+        "name": "port49",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "port50",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "port51",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "port52",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "console",
+        "type": "console"
+      }
+    ],
+    "poe": {
+      "budgetW": 370,
+      "sourceUrl": "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/pdf/fortiswitch-secure-access-series.pdf",
+      "note": "24 PoE ports (ports 1-24), 370 W total. 370 W is 24 x 15.4 W, so all 24 PoE ports can power a Class 3 (802.3af) device but only twelve can power a Class 4 (802.3at, 30 W) device: 24 x 30 W = 720 W is not available. Internal AC supply, 100-240 V, 7 A max, 474.8 W average / 476.3 W maximum consumption."
+    },
+    "fabric": {
+      "capacityMbps": 176000,
+      "kind": "switching fabric",
+      "note": "Datasheet switching capacity 176 Gbps duplex with 260 Mpps: 48x 1G plus 4x 10G is 88 Gbit/s of line rate, doubled to 176 Gbps full duplex."
+    },
+    "sourceUrl": "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/pdf/fortiswitch-secure-access-series.pdf",
+    "notes": "Datasheet: 48x GE RJ45 and 4x 10GE SFP+; 24 (802.3af/at) PoE ports, 370 W budget; 176 Gbps switching capacity, 260 Mpps, 32 K MAC, <1 us latency, 4 K VLANs, 2 MB packet buffer, 512 MB DDR3, 64 MB flash, >10 years MTBF. 44 x 310 x 440 mm, 4.68 kg, side-to-back airflow. PoE is on ports 1-24 only - the front panel labels PoE Ports 1 to 24 with a PoE MAX LED of 370 W, so ports 25-48 are plain GE and are modelled unpowered (148F QuickStart Guide). FortiLink ports 45-52; SFP+ cages 49-52. Console RJ-45 at 115200 8-N-1 by default (https://docs.fortinet.com/document/fortiswitch/7.6.5/enterprise-data-center-switching-with-evpn-vxlan-deployment-guide/313313/deployment-procedures), console IP 192.168.1.99. Layer 2 only - the FortiGate routes over FortiLink. Same 370 W budget as the 124F-FPOE, but here it is spread over 24 PoE ports out of 48, not every port: ports 25-48 state poeOut 0 explicitly, because a PoE-capable switch gets every copper port promoted to a PSE by the engine when a port says nothing."
+  },
+  {
+    "vendor": "fortinet",
+    "model": "FortiSwitch 148F-FPOE",
+    "label": "FortiSwitch 148F-FPOE 48-port switch, 48 PoE+ ports, 740 W",
+    "category": "switch",
+    "description": "Fortinet FortiSwitch 148F-FPOE 1 RU Layer 2 PoE+ switch: 48x GE RJ45 all 802.3af/at PSE (740 W budget), 4x 1/10G SFP+ uplinks, 176 Gbps switching capacity, 260 Mpps.",
+    "capabilities": [
+      "l2-forward",
+      "cli",
+      "http-server",
+      "vlan",
+      "lacp",
+      "stp",
+      "poe-pse",
+      "802.3af",
+      "802.3at"
+    ],
+    "icon": "switch",
+    "color": "#ef4444",
+    "portTemplate": {
+      "prefix": "port",
+      "start": 1,
+      "count": 48,
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "rj45",
+      "poeOut": 30
+    },
+    "interfaces": [
+      {
+        "name": "port49",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "port50",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "port51",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "port52",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "console",
+        "type": "console"
+      }
+    ],
+    "poe": {
+      "budgetW": 740,
+      "sourceUrl": "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/pdf/fortiswitch-secure-access-series.pdf",
+      "note": "48 PoE ports, 740 W total. 740 W is 48 x 15.4 W (739.2 W): every port can run a Class 3 (802.3af) device, 24 can run a Class 4 (802.3at, 30 W) device, and 48 x 30 W = 1440 W is not available. Internal AC supply, 100-240 V, 893.5 W average / 895.7 W maximum consumption fully loaded - close to a 10 A circuit at 230 V."
+    },
+    "fabric": {
+      "capacityMbps": 176000,
+      "kind": "switching fabric",
+      "note": "Datasheet switching capacity 176 Gbps duplex with 260 Mpps: 48x 1G plus 4x 10G is 88 Gbit/s of line rate, doubled to 176 Gbps full duplex."
+    },
+    "sourceUrl": "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/pdf/fortiswitch-secure-access-series.pdf",
+    "notes": "Datasheet: 48x GE RJ45 and 4x 10GE SFP+; 48 (802.3af/at) PoE ports, 740 W budget; 176 Gbps switching capacity, 260 Mpps, 32 K MAC, <1 us latency, 4 K VLANs, 2 MB packet buffer, 512 MB DDR3, 64 MB flash, >10 years MTBF. 44 x 310 x 440 mm, 4.68 kg - the same chassis and weight as the 148F-POE, which differs only in how many ports are wired for power. Every copper port is a PSE port; the four SFP+ cages are not. FortiLink ports 45-52; SFP+ cages 49-52 (148F QuickStart Guide). Console RJ-45 at 115200 8-N-1 by default (https://docs.fortinet.com/document/fortiswitch/7.6.5/enterprise-data-center-switching-with-evpn-vxlan-deployment-guide/313313/deployment-procedures), console IP 192.168.1.99. Layer 2 only - the FortiGate routes over FortiLink. PoE ceilings across this family are all af-multiples: 185 = 12 x 15.4, 370 = 24 x 15.4, 740 = 48 x 15.4, which is why the 30 W per-port ceiling is only available on a fraction of the ports at once."
+  }
+]

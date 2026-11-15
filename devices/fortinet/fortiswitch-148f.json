@@ -1,0 +1,79 @@
+{
+  "vendor": "fortinet",
+  "model": "FortiSwitch 148F",
+  "label": "FortiSwitch 148F 48-port rack switch, 4x 10G SFP+",
+  "category": "switch",
+  "description": "Fortinet FortiSwitch 148F 1 RU Layer 2 switch: 48x GE RJ45, 4x 1/10G SFP+ uplinks, 176 Gbps switching capacity, 260 Mpps. No PoE.",
+  "capabilities": [
+    "l2-forward",
+    "cli",
+    "http-server",
+    "vlan",
+    "lacp",
+    "stp"
+  ],
+  "icon": "switch",
+  "color": "#ef4444",
+  "portTemplate": {
+    "prefix": "port",
+    "start": 1,
+    "count": 48,
+    "type": "ethernet",
+    "speed": "1G",
+    "connector": "rj45",
+    "poeOut": 0
+  },
+  "interfaces": [
+    {
+      "name": "port49",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "port50",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "port51",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "port52",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "console",
+      "type": "console"
+    }
+  ],
+  "fabric": {
+    "capacityMbps": 176000,
+    "kind": "switching fabric",
+    "note": "Datasheet switching capacity 176 Gbps duplex with 260 Mpps: 48x 1G plus 4x 10G is 88 Gbit/s of line rate, doubled to 176 Gbps full duplex."
+  },
+  "sourceUrl": "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/pdf/fortiswitch-secure-access-series.pdf",
+  "notes": "Datasheet: 48x GE RJ45 and 4x 10GE SFP+; 0 PoE ports, 0 W budget; 176 Gbps switching capacity, 260 Mpps, 32 K MAC, <1 us latency, 4 K VLANs, 2 MB packet buffer, 512 MB DDR3, 64 MB flash, >10 years MTBF. 44 x 260 x 440 mm, 3.46 kg, 55.8 W average / 57 W maximum. Ports 1-48 are RJ45 and 49-52 the SFP+ cages; FortiLink runs on ports 45-52, the last four copper ports plus the four cages, and the cages also take 1G SFP optics (148F QuickStart Guide). No dedicated management port; rear PSU 100-240 V AC, 1.5 A max. Console is the RJ-45 serial port at 115200 8-N-1 by default (https://docs.fortinet.com/document/fortiswitch/7.6.5/enterprise-data-center-switching-with-evpn-vxlan-deployment-guide/313313/deployment-procedures), console IP 192.168.1.99. Layer 2 only - the FortiGate routes over FortiLink, so no l3-forward."
+}

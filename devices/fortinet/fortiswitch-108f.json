@@ -1,0 +1,60 @@
+{
+  "vendor": "fortinet",
+  "model": "FortiSwitch 108F",
+  "label": "FortiSwitch 108F 8-port desktop switch (PoE PD on port 8)",
+  "category": "switch",
+  "description": "Fortinet FortiSwitch 108F fanless desktop Layer 2 switch: 8x GE RJ45 (port 8 also accepts 802.3af/at PoE as a power input), 2x 1G SFP, 20 Gbps switching capacity, 30 Mpps. No PoE output.",
+  "capabilities": [
+    "l2-forward",
+    "cli",
+    "http-server",
+    "vlan",
+    "lacp",
+    "stp",
+    "poe-pd"
+  ],
+  "icon": "switch",
+  "color": "#ef4444",
+  "portTemplate": {
+    "prefix": "port",
+    "start": 1,
+    "count": 7,
+    "type": "ethernet",
+    "speed": "1G",
+    "connector": "rj45",
+    "poeOut": 0
+  },
+  "interfaces": [
+    {
+      "name": "port8",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": 0,
+      "poeIn": 12.95
+    },
+    {
+      "name": "port9",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G"
+    },
+    {
+      "name": "port10",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G"
+    },
+    {
+      "name": "console",
+      "type": "console"
+    }
+  ],
+  "fabric": {
+    "capacityMbps": 20000,
+    "kind": "switching fabric",
+    "note": "Datasheet switching capacity 20 Gbps duplex with 30 Mpps: 2 x 10 Gbit/s, the line rate of eight 1G RJ45 ports plus two 1G SFP cages."
+  },
+  "sourceUrl": "https://www.fortinet.com/content/dam/fortinet/assets/data-sheets/pdf/fortiswitch-secure-access-series.pdf",
+  "notes": "Datasheet: 7x GE RJ45, 1x GE/POE-PD RJ45 and 2x GE SFP; 0 PoE ports and 0 W PoE budget; 20 Gbps switching capacity, 30 Mpps, 8 K MAC, 4 us latency, 4 K VLANs, 512 KB packet buffer, 256 MB DDR3, 32 MB flash, ACL 640, 32 spanning-tree instances, >10 years MTBF. Ports 1-8 are the RJ45 front panel and 9-10 the SFP cages (108F QuickStart Guide). Port 8 is a PoE PD input, 802.3af/at compliant: the box is powered either from the supplied 12 V DC / 1 A adapter or over the LAN from an upstream PSE, which is modelled as the 12.95 W 802.3af draw on port8 - this switch is a powered device, not a PSE. 30 x 120 x 180 mm, 0.62 kg, 6.2 W, fanless, desktop (19-inch bracket optional). Console is the rear RJ-45 (USB-to-RJ45 cable in the box); FortiSwitchOS default 115200 8-N-1 - not the 9600 a FortiGate uses (https://docs.fortinet.com/document/fortiswitch/7.6.5/enterprise-data-center-switching-with-evpn-vxlan-deployment-guide/313313/deployment-procedures; `config system console` baudrate default 115200 in https://docs.fortinet.com/document/fortiswitch/8.0.0/fortiswitchos-cli-reference/500379/config-system) - console port default 192.168.1.99 (QuickStart Guide). FortiLink ports 7-10. Layer 2 only: inter-VLAN routing, policy routing and L3 services are performed by the FortiGate over FortiLink, so no l3-forward is declared. Datasheet ordering text says dual powered while the specification table says 0 PoE ports; the table is right - dual power is DC adapter or PoE PD input. Every copper port declares poeOut 0 rather than staying silent: this model's own label mentions PoE, and the engine promotes every copper port of a PoE-capable switch to a PSE when the port says nothing about power."
+}
