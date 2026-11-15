@@ -387,6 +387,19 @@ class CliSession {
       if (usedKeyword && !text) {
         return ['% Incomplete command: name the VLAN with `vlan ' + id + ' name <text>`'];
       }
+      // A switch is born with VLAN 1, and every vendor documents it in the same terms: it is "created during
+      // system initialization" (Cisco IOS), and it "cannot be created, deleted or renamed" (IOS, NX-OS,
+      // Extreme). So `vlan 1` has nothing to create - and the record it used to write was a lie twice over:
+      // it announced "VLAN 1 created (name: VLAN0001)" for a VLAN that `show vlan` had been listing as
+      // `1 default` since power-on, and it stored a name in the config that the box does not own. The port
+      // door already knew this (`_createVlanForPort` refuses to make VLAN 1, and `vlan-auto-create` asserts
+      // it); the console door did not.
+      if (id === vlanLib.VLAN_DEFAULT) {
+        if (text && text.toLowerCase() !== 'default') {
+          return ['% VLAN 1 is the default VLAN: it cannot be renamed (its name is "default")'];
+        }
+        return ['VLAN 1 is the default VLAN: it already exists (name: default), so there was nothing to create'];
+      }
       const name = text || ('VLAN' + String(id).padStart(4, '0'));
       this.device.config.vlans[id] = { name: name };
       out.push('VLAN ' + id + ' created (name: ' + name + ')');
@@ -466,6 +479,13 @@ class CliSession {
       const bad = this._vlanIdRefusal(tokens[2], 'a VLAN id');
       if (bad) return [bad];
       const id = parseInt(tokens[2], 10);
+      // `no vlan 1` answered "% VLAN 1 does not exist" - about the one VLAN that certainly does: the one
+      // `show vlan` lists before anybody configures anything, and the one every access port starts in. Real
+      // switches refuse the command outright ("%Default VLAN 1 may not be deleted."), because the default
+      // VLAN is created at initialisation and cannot be removed. The rule is stated now instead of denied.
+      if (id === vlanLib.VLAN_DEFAULT) {
+        return ['% VLAN 1 is the default VLAN: every access port starts in it and it cannot be deleted'];
+      }
       const have = this.device.config.vlans && this.device.config.vlans[id];
       // It used to print "VLAN 42 removed" whether or not there was one - the same sentence for work done and
       // work not done - and it would remove a VLAN that ports still carried: `show running-config` then

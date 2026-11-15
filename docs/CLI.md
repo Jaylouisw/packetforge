@@ -187,6 +187,16 @@ Two of those refusals are there for more than tidiness:
 canvas label so the two cannot disagree (#21); undoing only half of it would leave a clean config over a
 label that lies.
 
+**VLAN 1 is the exception, and it is the switch vendors' rule, not this model's.** The default VLAN is created
+when the box initialises, so `vlan 1` has nothing to create: it says so and writes no `vlan 1` line into the
+config, and the name stays `default` instead of becoming `VLAN0001`. `no vlan 1` is refused by name —
+`% VLAN 1 is the default VLAN: every access port starts in it and it cannot be deleted` — rather than answered
+with `% VLAN 1 does not exist`, which was a denial of the one VLAN that is certainly there. Neither can the name
+be changed. Every vendor documents the same rule: the Catalyst 2960 configuration guide says VLAN IDs 1 and 1002
+to 1005 "are automatically created and cannot be removed", the Nexus 3548 layer 2 guide says "VLAN1 is the
+default VLAN and cannot be created or deleted", and a real IOS XE switch answers `no vlan 1` with
+`%Default VLAN 1 may not be deleted.`
+
 
 ## Config-mode commands
 
@@ -514,8 +524,9 @@ appears under a VLAN if and only if a frame in that VLAN could leave by it:
   chase a native-VLAN mismatch that the table was previously hiding;
 * a trunk with `allowedVlan all` appears in every row.
 
-A VLAN exists in this table if it is configured with `vlan <id> [name] [<text>]`, or if a port uses it. A configured
-VLAN nothing carries prints an empty Ports column rather than an invented port.
+A VLAN exists in this table if it is configured with `vlan <id> [name] [<text>]`, or if a port uses it — and
+VLAN 1 is there from power-on, named `default`, before anybody types anything. A configured VLAN nothing
+carries prints an empty Ports column rather than an invented port.
 
 `show vlan brief` prints the same table; there is no short form that disagrees with the long one.
 
