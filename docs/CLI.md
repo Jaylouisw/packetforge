@@ -1642,7 +1642,7 @@ commands.
 
 | accepted since | command | was in `help`? |
 |---|---|---|
-| #1484 | `traceroute <target> [max <n>]`, alias `tracert` | no |
+| #1484 | `traceroute <ip>`, alias `tracert` | no |
 | #1483 | `clock rate <bps>` (interface mode, serial only) | no |
 | the DHCP pool feature | `network`, `range`, `default-router`, `lease`, `host`, `excluded-address`, `dns-server` | no — `help` mentioned only `no ip dhcp pool <name>` |
 | the interface feature | `speed`, `duplex`, `description` | no |
@@ -1653,6 +1653,13 @@ All of them were documented in `docs/CLI.md` and reachable at the console; the i
 `test/help-completeness.test.js` now checks the direction that used to be remembered rather than verified: it reads every token the dispatcher compares against `head` out of `engine/cli.js` — the console's whole vocabulary in the console's own spelling — drops the keypresses (`?`, `exit`, `quit`, `logout`, `end`, `help`, and the abbreviations `conf`, `en`, `int`), and requires each remaining verb to be named in the index. With the old index and the new check it reports **15 missing verbs**; with this one, none.
 
 The opposite direction is a hand-written list on purpose: it has to describe modes as well as words (`['clock rate <bps>', 'iface', ROUTER]`), and parsing the index's prose to recover modes would be testing a prose parser. Every row in it is typed at a real device and must be accepted — 98 of them now, including the fourteen added here.
+
+One of those index rows is larger than the command behind it: the traceroute row in `help` reads
+`traceroute|tracert <address|name> [max <n>]`, and the parser takes neither: a name is refused
+(`traceroute r1.lab` -> `% Invalid traceroute target: r1.lab`, because the target goes through `net.isIp()`), and
+there is no hop limit — `_traceroute()` reads `tokens[0]` and nothing else, so
+`traceroute 10.0.0.1 max 5` runs the default 30-hop walk (`Simulator.traceroute()`'s `opts.maxHops` is never
+passed) and swallows `max 5` without a word. The verb is indexed; the form is not real yet.
 
 ## Three commands that answered a question nobody asked
 
