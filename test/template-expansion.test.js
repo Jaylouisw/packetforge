@@ -20,6 +20,8 @@
 //      written into devices/;
 //   3. a sample of real templates expands to the port count their datasheet
 //      description documents.
+const fs = require('fs');
+const os = require('os');
 const path = require('path');
 const { Topology } = require('../engine');
 const { loadCatalog, effectiveInterfaces } = require('../devices/registry');
@@ -247,5 +249,80 @@ console.log('\nReal templates expand to the documented port count:');
   }
 }
 
+console.log('\nA template whose `start` is not a number is refused, not obeyed (#1525):');
+{
+  // `start` is the first NUMBER, not the first name. The expander added whatever it was given, so a template that
+  // put the whole first port name in `start` came out as Gi1/0/10 .. Gi1/0/13 - four ports whose names run past the
+  // end of the box they describe, and every fact attached to them (address, VLAN, cable) attached to a port that
+  // does not exist. Nothing in the catalogue writes one, which is why nothing caught it; an importer generating
+  // templates from observed names is exactly how such a spec arrives.
+  const slashed = {
+    vendor: 'fixture', model: 'tpl-slash',
+    portTemplate: { prefix: 'Gi', start: '1/0/1', count: 4, type: 'ethernet', speed: '1G' }
+  };
+  let invented = null, said = null;
+  try { invented = effectiveInterfaces(slashed).map(function (p) { return p.name; }).join(' '); }
+  catch (e) { said = e.message; }
+  ok(said !== null, 'a slashed start is refused rather than added to' +
+    (said ? '' : ' - it produced ' + invented));
+
+  // The sentence has to name the correct form, because "not a number" alone sends the author to retype the same
+  // template: the chassis goes in `prefix`, and the numbering in `start`.
+  ok(/portTemplate\.start/.test(said || ''), 'the message names the field' + (said ? '' : ' (nothing was thrown)'));
+  ok(/"prefix"/.test(said || '') && /"start"/.test(said || ''),
+    'and both halves of the split it got wrong' + (said ? ' ("' + said + '")' : ''));
+  ok(/\{"prefix":"Gi1\/0\/","start":1\}/.test(said || ''),
+    'and shows the form that does work' + (said ? ' ("' + said + '")' : ''));
+
+  // The engine builds devices from raw specs too (an importer, a hand-built lab), so the same refusal has to hold
+  // there - and hold BEFORE a device exists, or the board keeps a box with invented ports and an error nobody reads.
+  const t = new Topology();
+  let engineSaid = null;
+  try { t.addDevice(slashed, 'd1'); } catch (e) { engineSaid = e.message; }
+  ok(engineSaid !== null, 'addDevice() refuses the same spec' + (engineSaid ? '' : ' - it built a device'));
+  ok(t.devices.size === 0, 'and no half-built device is left on the board (got ' + t.devices.size + ')');
+
+  // The other spellings of the same mistake: a fraction, a numeric string, and a numeric prefix. All three used to
+  // be arithmetic, and all three are names nobody meant.
+  const refused = function (tpl) {
+    try { effectiveInterfaces({ vendor: 'fixture', model: 'm', portTemplate: tpl }); return null; }
+    catch (e) { return e.message; }
+  };
+  ok(refused({ prefix: 'Et', start: 1.5, count: 2 }) !== null, 'a fractional start is refused');
+  ok(refused({ prefix: 'Et', start: '1', count: 2 }) !== null, 'a numeric string is refused, not coerced');
+  const prefixed = refused({ prefix: 5, start: 1, count: 2 });
+  ok(prefixed !== null, 'a numeric prefix is refused' + (prefixed ? '' : ' - it named its ports after numbers'));
+  ok(/portTemplate\.prefix/.test(prefixed || ''), 'and that message names the prefix' + (prefixed ? ' ("' + prefixed + '")' : ''));
+
+  // The correct form is what the catalogue already writes, and it still expands: 0 is a legitimate first number
+  // (a card whose numbering starts at 0), and an absent start still means 1.
+  const good = effectiveInterfaces({
+    vendor: 'fixture', model: 'tpl-good',
+    portTemplate: { prefix: 'Gi1/0/', start: 1, count: 4, type: 'ethernet', speed: '1G' }
+  });
+  ok(good.map(function (p) { return p.name; }).join(',') === 'Gi1/0/1,Gi1/0/2,Gi1/0/3,Gi1/0/4',
+    'the supported form still expands (got ' + good.map(function (p) { return p.name; }).join(',') + ')');
+  ok(effectiveInterfaces({ vendor: 'fixture', model: 'z', portTemplate: { prefix: 'Et', start: 0, count: 2 } })
+    .map(function (p) { return p.name; }).join(',') === 'Et0,Et1', 'start:0 is still a number, not a default');
+  ok(effectiveInterfaces({ vendor: 'fixture', model: 'd', portTemplate: { prefix: 'Et', count: 2 } })
+    .map(function (p) { return p.name; }).join(',') === 'Et1,Et2', 'and an absent start still means 1');
+
+  // A file on disk is reported against the file, in the same words, and the catalogue still loads - a bad template
+  // must not throw out of the middle of the catalogue walk.
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'pf-tpl-start-'));
+  try {
+    fs.mkdirSync(path.join(dir, 'acme'));
+    fs.writeFileSync(path.join(dir, 'acme', 'slash.json'),
+      JSON.stringify({ vendor: 'acme', model: 'sl', portTemplate: { prefix: 'Gi', start: '1/0/1', count: 4 } }));
+    const entries = loadCatalog(dir);
+    const broken = entries[0] || {};
+    ok(!!broken.error, 'the loader reports it instead of loading it' + (broken.error ? '' : ' - it loads as a device'));
+    ok(String(broken.error).indexOf('slash.json') !== -1, 'naming the file' + (broken.error ? ' (' + broken.error + ')' : ''));
+    ok(/"portTemplate\.start" must be a whole number/.test(String(broken.error)),
+      'with the same sentence the expander throws' + (broken.error ? ' (' + broken.error + ')' : ''));
+  } finally {
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
+}
 console.log('\n' + passed + ' passed, ' + failed + ' failed');
 process.exit(failed ? 1 : 0);

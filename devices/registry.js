@@ -23,6 +23,33 @@ function portCountProblem(count) {
   return '';
 }
 
+// A port name is `prefix` followed by a number: `prefix` carries the chassis ("Gi1/0/"), `start` is the first number
+// in the run. The expander used to *add* whatever it was given, so a template that put the whole first name in `start`
+// - `{prefix: "Gi", start: "1/0/1", count: 4}`, which is what an importer reading observed port names produces -
+// came out as Gi1/0/10 .. Gi1/0/13: four ports whose names run past the box they name, and every fact attached to
+// them (address, VLAN, cable) attached to a port that does not exist (#1525). Nothing in the catalogue writes a
+// slashed start today, which is exactly why nothing caught it.
+//
+// So the rule is stated once, here, and the expander refuses rather than obeys - the same way it already refuses a
+// count it cannot honour. Refusing is what makes the sentence reach the person: `loadCatalog()` reports it against
+// the file, the importer reports it against the generated spec, and `addDevice()` throws before a device exists.
+const TEMPLATE_START_FORM = '{"prefix":"Gi1/0/","start":1}';
+
+function portStartProblem(start) {
+  if (start === undefined || start === null) return '';   // absent means 1
+  const shown = (typeof start === 'number' && !Number.isFinite(start)) ? String(start) : JSON.stringify(start);
+  if (typeof start === 'number' && Math.floor(start) === start && start >= 0) return '';
+  return 'must be a whole number from 0 up, got ' + shown + ' - the chassis belongs in "prefix" and the numbering in ' +
+    '"start", so ' + TEMPLATE_START_FORM + ' names the first port Gi1/0/1';
+}
+
+function portPrefixProblem(prefix) {
+  if (prefix === undefined || prefix === null) return '';  // absent means "eth"
+  if (typeof prefix === 'string') return '';
+  return 'must be a string, got ' + JSON.stringify(prefix) + ' - a port is named "prefix" followed by the number in ' +
+    '"start", so ' + TEMPLATE_START_FORM + ' names the first port Gi1/0/1';
+}
+
 // How a spec that cannot describe a device is reported.
 //
 // The loader used to swallow these: a file whose `interfaces` was a string got four invented ports
@@ -102,6 +129,20 @@ function loadCatalog(dir) {
             specs.push(brokenSpec(full, '"portTemplate.count" ' + countProblem));
             continue;
           }
+          // The other two numbers in a template, checked here through the same functions the expander uses - so a
+          // file and a spec that never went through a file are refused with one sentence, not two (#1525). They
+          // run before `effectiveInterfaces()` below, which throws on both, so a bad file becomes a broken entry
+          // rather than an exception thrown out of the middle of a catalogue walk.
+          const prefixProblem = portPrefixProblem(spec.portTemplate.prefix);
+          if (prefixProblem) {
+            specs.push(brokenSpec(full, '"portTemplate.prefix" ' + prefixProblem));
+            continue;
+          }
+          const startRuleProblem = portStartProblem(spec.portTemplate.start);
+          if (startRuleProblem) {
+            specs.push(brokenSpec(full, '"portTemplate.start" ' + startRuleProblem));
+            continue;
+          }
         }
         if (!Array.isArray(spec.interfaces) && !spec.portTemplate) {
           specs.push(brokenSpec(full, 'declares no ports: it needs "interfaces" or a "portTemplate"'));
@@ -110,19 +151,6 @@ function loadCatalog(dir) {
         if (effectiveInterfaces(spec).length === 0) {
           specs.push(brokenSpec(full, 'resolves to zero ports - a device with nothing to cable to'));
           continue;
-        }
-        // A template expands to names `prefix + (start + i)`, so a non-string prefix or a non-integer start invents
-        // names nobody meant: prefix 5 with start "1" yields Gi10, Gi11 ... as if the port numbering began at ten.
-        if (spec.portTemplate) {
-          const t = spec.portTemplate;
-          if (t.prefix != null && typeof t.prefix !== 'string') {
-            specs.push(brokenSpec(full, '"portTemplate.prefix" must be a string, got ' + JSON.stringify(t.prefix)));
-            continue;
-          }
-          if (t.start != null && !(typeof t.start === 'number' && Math.floor(t.start) === t.start && t.start >= 0)) {
-            specs.push(brokenSpec(full, '"portTemplate.start" must be a whole number, got ' + JSON.stringify(t.start)));
-            continue;
-          }
         }
         // Two ports with one name. The engine keeps ports in a map keyed by name, so the later one silently
         // replaces the earlier: a spec that describes five ports becomes a device with four, and nothing anywhere
@@ -214,6 +242,14 @@ function effectiveInterfaces(spec) {
   const s = spec || {};
   if (s.portTemplate) {
     const t = s.portTemplate;
+    // Refuse a name nobody meant before building any. Both of these used to be arithmetic on whatever arrived: a
+    // numeric prefix made number-named ports and a slashed start ran the numbering past the end of the chassis
+    // (#1525). A caller that never passes through `loadCatalog()` - the importer, an audit, `addDevice()` on a
+    // generated spec - is refused here too, with the same sentence the loader reports against the file.
+    const prefixProblem = portPrefixProblem(t.prefix);
+    if (prefixProblem) throw new Error('portTemplate.prefix ' + prefixProblem);
+    const startProblem = portStartProblem(t.start);
+    if (startProblem) throw new Error('portTemplate.start ' + startProblem);
     const prefix = t.prefix || 'eth';
     const start = (t.start === undefined || t.start === null) ? 1 : t.start;
     const count = (t.count === undefined || t.count === null) ? 1 : t.count;
@@ -252,4 +288,4 @@ function groupByCategory(specs) {
 }
 
 module.exports = { loadCatalog, groupByCategory, modelKey, effectiveInterfaces, CATEGORY_ORDER,
-  portCountProblem, MAX_TEMPLATE_PORTS };
+  portCountProblem, portStartProblem, portPrefixProblem, MAX_TEMPLATE_PORTS };

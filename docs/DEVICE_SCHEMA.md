@@ -145,12 +145,28 @@ Two ways to write them. Both end up as the same list.
 
 `count` is 1..512, `prefix` must be non-empty, and the expansion must produce at least one port.
 
+`prefix` carries the chassis and `start` carries the numbering — `start` is a **number**, not the first name:
+
+```json
+"portTemplate": { "prefix": "Gi1/0/", "start": 1, "count": 24, "type": "ethernet", "connector": "rj45", "speed": "1G" }
+```
+
+names `Gi1/0/1` .. `Gi1/0/24`. Writing the whole first name in `start` (`{ "prefix": "Gi", "start": "1/0/1" }`) is
+refused rather than obeyed: the expander used to *add* it, which produced `Gi1/0/10` .. `Gi1/0/13` — plausible port
+names that run past the end of the box, with every address, VLAN and cable attached to a port that does not exist.
+
 The 1..512 range is **enforced** — by `portCountProblem()` in `devices/registry.js`, which the loader and the
 expander both call. It used to be a sentence in this file and nothing else: the loader accepted any positive whole
 number, and `count: 1000000` asked it for a million ports while `count: Infinity` (which is a positive whole number
 as far as `Math.floor(n) === n` is concerned) asked for infinitely many, so building the catalogue never returned.
 The expander now refuses a count it cannot honour instead of trying: a spec that arrives from a hand-edited saved
 board never passes the loader, so the rule lives in the one function both doors use.
+
+`prefix` and `start` are enforced the same way and in the same place (`portPrefixProblem()` and `portStartProblem()`,
+called by the loader and by the expander). They used to be checked **only** by the loader, and the expander did
+arithmetic on whatever arrived: prefix `5` with start `1` named its ports `6`, `7`, `8`, and a slashed start ran the
+numbering off the end of the chassis. Every door that builds a device without reading a file — the importer
+generating a template from observed names, `addDevice()`, an audit — went through the expander.
 
 | field | rule |
 |---|---|
@@ -208,8 +224,8 @@ broken.
 | has `interfaces` that is not an array | what it got instead |
 | has no ports, or expands to zero | nothing to cable to |
 | has `portTemplate.count` of `0`, `-5`, `"8"` | must be a positive whole number |
-| has `portTemplate.prefix` that is not a string | what it got instead |
-| has `portTemplate.start` that is not a whole number ≥ 0 | what it got instead |
+| has `portTemplate.prefix` that is not a string | what it got instead, and the form that works |
+| has `portTemplate.start` that is not a whole number ≥ 0 | what it got instead, and that the chassis belongs in `prefix` — `{"prefix":"Gi1/0/","start":1}` names the first port `Gi1/0/1` |
 | gives **two ports the same name** | which name, and how many ports the device would really keep — `port name "Gi2" is used 2 times - a device would keep 4 of the 5 ports the spec describes` |
 | declares a model **another file already declares** | the file that already has it — comparison ignores punctuation, so `ASR1001-X` and `ASR 1001-X` are one box |
 
