@@ -88,9 +88,15 @@ console.log('\nAmbiguity is refused by name, not guessed:');
   const l = lab();
   const out = l.run(['sh l']);
   match(/% Ambiguous command: "sh l"/, out, 'a prefix that matches two commands is refused');
-  match(/% Candidates: lldp, logging/, out, 'and the candidates are named, alphabetically');
+  // The candidate list is whatever the page now holds for that prefix: `sh l` gained `license` and
+  // `line` when the hardware views got rows of their own (show-word-coverage). What the assertion is
+  // for is that every candidate is named, in alphabetical order - not one particular list.
+  match(/% Candidates: .*logging/, out, 'and the candidates are named, alphabetically');
+  match(/% Candidates: license, line, lldp, logging$/, out,
+    'every word the prefix can still become is named, in order');
   const i = l.run(['sh i']);
-  match(/% Candidates: interfaces, ip, ipv6/, i, 'a deeper ambiguity lists all three');
+  match(/% Candidates: interfaces, inventory, ip, ipv6$/, i,
+    'a deeper ambiguity lists all four');
   // The refusal must not be a dead end: naming the candidates is what makes the prefix fixable.
   ok(!/Unrecognized/.test(i), 'an ambiguous prefix is not reported as unrecognised - it is a different problem');
 }

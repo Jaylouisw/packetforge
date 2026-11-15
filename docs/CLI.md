@@ -32,6 +32,17 @@ lists its own sub-commands (`network`, `range`, `lease`, …).
 | `show version` | vendor, model, category, capabilities |
 | `show logging [<type> \| summary] [last <n>] [device <name>]` | the lab's event log — why something was dropped, forwarded or denied ([Event log](#event-log)) |
 | `show clock` | the instant the lab is being asked about, and a plain statement that there is no wall clock ([Event log](#event-log)) |
+| `show inventory`, `show chassis`, `show module`, `show stack` | what is in the box: serials, modules, supervisor slots, stacking — and that this model keeps none ([What a device is made of](#what-a-device-is-made-of-and-what-it-is-not)) |
+| `show cpu`, `show processes`, `show memory`, `show buffers`, `show controllers` | the CPU, scheduler and memory — this model forwards at line rate and keeps no hardware counters |
+| `show environment`, `show diagnostic`, `show diagnostics`, `show selftest` | sensors and self-test: there is no hardware to test |
+| `show flash`, `show filesystems`, `show boot`, `show license` | filesystem, boot image and licence: nothing here is stored on disk |
+| `show ntp` | the time source; there is no wall clock to synchronise |
+| `show users`, `show line`, `show sessions` | who else is logged in — one console, and no VTY to configure |
+| `show tech-support` | a support bundle: no memory image, register state or log file to collect |
+| `show switchport` | not a word here — the L2 state is split across `show interfaces status`, `show vlan` and `show spanning-tree` |
+| `show cdp`, `show cdp neighbors` | CDP is not modelled — LLDP is what these devices speak |
+| `show hsrp`, `show standby` | HSRP is not modelled — the first-hop redundancy here is VRRP |
+| `show dhcp` | the pools and what they are leasing — the same view as `show ip dhcp pool`, because "what is DHCP doing here" is the question the bare word asks |
 | `clear logging` | truncate the event log (privileged exec) |
 | `show startup-config` | the saved copy, then what the running config has changed ([Saving the configuration](#saving-the-configuration)) |
 | `write memory` | save the running configuration as the startup copy (privileged exec) |
@@ -1811,6 +1822,59 @@ The gate also read the wrong word. The test was "does the row contain `bgp` anyw
 
 The suite sweeps one device from each catalogue category: every `show` row its page **hides** is typed,
 and must be refused — a hidden row that answers is a view an operator will never find.
+
+### What a device is made of, and what it is not
+
+The hardware questions an operator asks to orient on a box they have never seen. Every one of them
+answered — honestly, with what this model keeps — and none of them was on the `?` page:
+
+```
+R1#show inventory
+% There is no inventory: this model has no serial numbers, no FRUs and no modules
+R1#show inv
+% Invalid show command: inv
+R1#show inventory ?
+% No completions for "show inventory"
+```
+
+The console answered the question and could not be found asking it. Twenty-eight words were in that
+state, and they are the first words anyone types at an unfamiliar chassis: inventory, chassis, module,
+stack, cpu, processes, memory, buffers, controllers, environment, diagnostic, diagnostics, selftest,
+flash, filesystems, boot, license, ntp, users, line, sessions, cdp, hsrp, standby, tech-support,
+switchport, dhcp.
+
+Each is a row now, so the word completes and its abbreviation reaches the same view:
+
+```
+R1#show inv
+% There is no inventory: this model has no serial numbers, no FRUs and no modules
+R1#show proc
+% No CPU and no scheduler: every device forwards at line rate in this model
+R1#show diag
+% Ambiguous command: "show diag"
+% Candidates: diagnostic, diagnostics
+```
+
+Two of them are redirects rather than absences, and say where the answer really is: `show cdp` points
+at LLDP (`show lldp neighbors`), `show hsrp`/`show standby` at VRRP (`show vrrp`). `show switchport`
+names the three views the L2 state is actually split across.
+
+Giving them rows found two more defects underneath, both of the same shape — an answer that read as
+success while the line was not what was typed:
+
+* **The absence views swallowed a word.** `show diagnostic zz` returned the diagnostics explanation, so
+  a typo read as a success. Each now refuses the extra word by name and prints its own usage; `show
+  cdp` is the one form with a second word (`neighbors`).
+* **A bare `show dhcp` answered with a usage line** naming three other spellings. The question "what is
+  DHCP doing here" has an answer — the pool summary — so the bare word is that view now, and a word
+  that is not one of the views is refused by name rather than answered with a usage line.
+* **The diagnostics explanation quoted a view a router refuses** (`"show interfaces status"` is a
+  bridge's table). The sentence names `show ip interface brief` on a device that does not switch.
+
+The suite sweeps the console's whole candidate vocabulary — every quoted literal in the dispatch —
+at three device kinds, and requires that any word which answers is documented somewhere. A word
+documented but hidden on a device is the capability gate's case: it must be refused when typed, which
+that suite asserts.
 
 ### A `?` against a pipe filter is a question
 

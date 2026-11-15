@@ -4818,6 +4818,51 @@ class CliSession {
     const words = tokens.map(function (t) { return String(t).toLowerCase(); });
     const has = function (w) { return words.indexOf(w) !== -1; };
     const first = words[0] || '';
+    // These views take a word and nothing after it, and they answered as though a stray word were part
+    // of the command: `show diagnostic zz` returned the diagnostics explanation, so a typo read as a
+    // success. The words each family really answers are listed here - the ones its own branch reads -
+    // and anything else is refused by name. `show cdp neighbors detail` stays, because `neighbors` and
+    // `detail` are words this family uses; `show diagnostic zz` does not, because `zz` is not.
+    {
+      const EXTRAS = {
+        cdp: ['neighbors', 'detail', 'interface', 'traffic', 'entry'],
+        tech: ['support'], 'tech-support': [],
+        memory: [], buffers: [], controllers: [],
+        diagnostic: [], diagnostics: [], selftest: [],
+        flash: [], filesystems: [], boot: [], license: [],
+        module: [], stack: [], chassis: [],
+        standby: [], hsrp: [],
+        inventory: [], environment: [],
+        power: ['inline', 'supply', 'inline-supply'],
+        cpu: [], processes: ['cpu'],
+        users: [], sessions: [], line: [],
+        // The redirect for `show switchport` names the tables by port too, so a port name is a word
+        // this family really uses: `show switchport interface Fa0/1` is the same question asked twice.
+        switchport: ['interface', '*port'],
+        interfaces: ['switchport', 'counters', 'errors'],
+        // `ip` is not listed: it has a dozen documented children of its own, so an unknown sub-word is
+        // an unknown *command*, and saying "not an argument to show ip" would answer a smaller
+        // question than the one typed.
+        ntp: ['status']
+      };
+      const extras = EXTRAS[first];
+      if (extras) {
+        const allowed = [first].concat(extras);
+        const resolvePortName = require('./iface-name').resolvePortName;
+        const stray = words.filter(function (w) {
+          if (allowed.indexOf(w) !== -1) return false;
+          // `*port` means "any port this device really has" - a name that resolves is a word the
+          // family uses, a name that does not is the stray.
+          if (extras.indexOf('*port') !== -1 && resolvePortName(this.device, w)) return false;
+          return true;
+        }, this);
+        if (stray.length) {
+          const forms = ['show ' + first].concat(extras.map(function (e) { return 'show ' + first + ' ' + e; }));
+          return ['% "' + stray.join(' ') + '" is not an argument to "show ' + first + '"',
+            '% Usage: ' + forms.slice(0, 3).join(' | ')];
+        }
+      }
+    }
     if (first === 'cdp') {
       return ['% CDP is not modelled: nothing here speaks it',
         '% These devices speak LLDP, and the table is the same one you were asking for:',
@@ -4846,7 +4891,13 @@ class CliSession {
     }
     if (first === 'diagnostic' || first === 'diagnostics' || first === 'selftest') {
       return ['% No on-board diagnostics: there is no hardware to test, so no self-test result exists',
-        '% A port that is up and passing traffic is "up" in "show interfaces status"'];
+        // The quoted view has to be one this device answers: `show interfaces status` is a bridge's
+        // table, and a router refuses it - so the sentence named a command that could not be typed
+        // where it was read.
+        '% A port that is up and passing traffic is reported as up by ' +
+          (typeof this.device.isL2 === 'function' && this.device.isL2()
+            ? '"show interfaces status"'
+            : '"show ip interface brief"')];
     }
     if (first === 'flash' || first === 'filesystems' || first === 'boot' || first === 'license') {
       return ['% No filesystem, no boot image and no licence: nothing here is stored on disk',
@@ -11601,6 +11652,16 @@ class CliSession {
       return this._showDhcpStatistics(pools);
     }
 
+    // A bare `show dhcp` is how an operator asks "what is DHCP doing here", and it answered with a
+    // usage line naming three other spellings. The pool summary is the answer to that question, so the
+    // bare form is that view; a word that is not one of the views is refused by name rather than
+    // answered with a usage line, which reads as though the word were accepted.
+    if (what === '') {
+      if (!pools.length) return ['% ' + dev.name + ' is not a DHCP server: no pool is configured',
+        '% "ip dhcp pool <name>" in config mode makes it one'];
+      return this._showDhcp(['pool']);
+    }
+
     if (what === 'pool' || what === 'pools') {
       if (!pools.length) return ['% ' + dev.name + ' has no DHCP pools'];
       out.push('DHCP pools on ' + dev.name + ':');
@@ -11671,7 +11732,8 @@ class CliSession {
     }
 
     if (what !== 'binding' && what !== 'bindings' && what !== 'lease' && what !== 'leases') {
-      return ['% Usage: show ip dhcp binding | show ip dhcp pool | show ip dhcp server statistics'];
+      return ['% "' + what + '" is not a DHCP view - the words are binding, pool and server statistics',
+        '% Usage: show ip dhcp binding | show ip dhcp pool | show ip dhcp server statistics'];
     }
 
     const bindings = this.sim ? this.sim.dhcpBindings(dev.id) : [];
@@ -13728,6 +13790,24 @@ class CliSession {
       'Show commands:',
       helpLine('show version', 'model, vendor and software'),
       helpLine('show clock', 'the instant this lab is being asked about'),
+      // The hardware questions an operator asks to orient on a box they have never seen. Every one of
+      // them answered - honestly, with what this model keeps - and none of them was on the page, so
+      // `show inv`, `show proc` and `show mem` were "% Invalid show command" and no abbreviation of
+      // them could reach the view that was already answering.
+      helpLine('show inventory', 'serial numbers, modules and FRUs - this model keeps none'),
+      helpLine('show chassis | show module | show stack', 'the physical chassis: modules, supervisor slots, stacking'),
+      helpLine('show cpu | show processes', 'CPU and scheduler - every device forwards at line rate here'),
+      helpLine('show memory | show buffers | show controllers', 'memory, buffers and controller registers'),
+      helpLine('show environment', 'temperature, fans and PSUs'),
+      helpLine('show diagnostic | show diagnostics | show selftest', 'on-board self-test results'),
+      helpLine('show flash | show filesystems | show boot | show license', 'filesystem, boot image and licence'),
+      helpLine('show ntp', 'time source and sync state - there is no wall clock here'),
+      helpLine('show users | show line | show sessions', 'who else is logged in - one console, and no VTY to configure'),
+      helpLine('show cdp | show cdp neighbors', 'CDP is not modelled - LLDP is what these devices speak'),
+      helpLine('show hsrp | show standby', 'HSRP is not modelled - the first-hop redundancy here is VRRP'),
+      helpLine('show tech-support', 'a support bundle - there is no memory image, register state or log file to collect'),
+      helpLine('show switchport', 'not a word here: L2 state is split across show interfaces status, show vlan and show spanning-tree'),
+      helpLine('show dhcp', 'the pools and what they are leasing - the same view as "show ip dhcp pool"'),
       helpLine('show logging [<type>|summary|types] [last <n>] [device <name>]',
         'why something happened - drops, forwards, protocol events'),
       helpLine('clear logging', 'truncate the event log'),
