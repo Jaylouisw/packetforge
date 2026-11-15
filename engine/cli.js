@@ -344,10 +344,17 @@ class CliSession {
       }
       const p = Number(value);
       const stpLib = require('./stp');
-      const problem = p % 4096 !== 0
-        ? 'it must be a multiple of 4096 (the low 12 bits are the system ID extension); the nearest valid values are ' +
-          (Math.floor(p / 4096) * 4096) + ' and ' + Math.ceil(p / 4096) * 4096
-        : (p > 61440 ? 'the range is 0 to 61440' : null);
+      // The range was tested *last*, so the value most likely to be one step too far -
+      // `spanning-tree priority 61441` - was answered with the step rule, which then offered
+      // "the nearest valid values are 61440 and 65536". 65536 is not a bridge priority, so the correction
+      // the console handed back led straight into a second refusal (#1505). The range is asked first, and in
+      // the words the neighbouring refusals already use.
+      const problem = (p < 0 || p > 61440)
+        ? 'the range is 0 to 61440'
+        : (p % 4096 !== 0
+          ? 'it must be a multiple of 4096 (the low 12 bits are the system ID extension); the nearest valid values are ' +
+            (Math.floor(p / 4096) * 4096) + ' and ' + Math.ceil(p / 4096) * 4096
+          : null);
       if (problem) return ['% ' + p + ' is not a valid bridge priority: ' + problem];
       const was = dev.config.stpPriority;
       dev.config.stpPriority = p;
@@ -1816,6 +1823,9 @@ class CliSession {
     // becoming configuration, with a receipt (#1495). The mode was validated and the id was not.
     const id = t[0];
     if (!id) return ['% Usage: channel-group <id> mode active|passive|on'];
+    // `channel-group 4097 mode active` used to build a bundle that the refusal's own sentence says cannot
+    // exist: the range printed was 1-4096 and the range that was checked was a lower bound only (#1505). Both
+    // numbers are applied in `_channelGroupId`, so the range printed and the range checked cannot drift apart.
     const idChk = this._channelGroupId(tokens[0]);
     if (idChk.error) return [idChk.error];
     let typed = 'active';

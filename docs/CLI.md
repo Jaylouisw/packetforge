@@ -1939,3 +1939,57 @@ Ungrammatical, no subject, and phrased as if the command had removed something. 
 Writing it a different way first — `Access list 101 is not applied in on Gi0/0`, which reads fine — failed an existing check in `test/config-undo.test.js`, which had already pinned the house shape for this refusal. The repo's own test caught the deviation, so the new wording follows the neighbours instead of the other way round.
 
 `test/no-command-touches-only-what-it-names.test.js` holds all three: seven checks covering the four destructive `no` forms, the two forms that really do clear the priority, the "nothing set" answer, the help row, the three speed spellings, and both access-group sentences. With the old handler: 3 passed / 4 failed.
+
+## A stated range is the range the check applies
+
+Every handler that takes a number prints the range it accepts, and that sentence is the only specification the
+operator has: nobody reads the source to find out whether `4097` is a channel group. So the check behind the
+sentence and the sentence itself have to be the same two numbers — no wider, and no narrower.
+
+`test/stated-range-is-the-enforced-range.test.js` asks the question at four points per setting — below the range,
+the low edge, the high edge, above the range — and requires refused, accepted, accepted, refused:
+
+| setting | range | probed |
+|---|---|---|
+| `vlan <id>` | 1-4094 | 0, 1, 4094, 4095 |
+| `channel-group <id>` | 1-4096 | 0, 1, 4096, 4097 |
+| `vrrp <vrid>` | 1-255 | 0, 1, 255, 256 |
+| `vrrp <vrid> priority` | 1-255 | 0, 1, 255, 256 |
+| `spanning-tree priority` | 0-61440 in steps of 4096 | -1, 0, 61440, 61441 |
+| `ipv6 nd ra lifetime` | 0-65535 | 0, 65535, 65536 |
+| `ip ospf cost` | 1-65535 | 0, 1, 65535, 65536 |
+| `ping <address> <count>` | 1-50 | 0, 1, 50, 51 |
+
+A refusal is also the place the range is quoted back, so both refusals must *state* it, and any value a refusal
+offers as valid must itself be accepted. Two settings failed that (#1505); the rest of the table was already right
+and stays as a guard.
+
+### `channel-group 4097` built a bundle its own refusal says cannot exist
+
+```
+sw1(config-if)#channel-group 4097 mode active
+Interface Fa0/2 added to channel group 4097 (mode active)                  ← before
+% Invalid channel group id "4097": a channel group is identified by a number, 1-4096   ← now
+```
+
+The condition was `!/^\d+$/.test(id) || Number(id) < 1` — a lower bound only. #1495 fixed the half where a *word*
+became configuration (`channel-group flurbish` created a group called "flurbish") and left the ceiling unapplied,
+so an id one digit too far became a bundle that `show etherchannel summary` then printed as fact. A refused id now
+leaves nothing behind: no entry in the bundle table, no membership on the port, no row in the summary.
+
+### `spanning-tree priority 61441` offered a correction that is also refused
+
+```
+% 61441 is not a valid bridge priority: it must be a multiple of 4096 (the low 12 bits are the system ID
+  extension); the nearest valid values are 61440 and 65536                            ← before
+% 61441 is not a valid bridge priority: the range is 0 to 61440                       ← now
+```
+
+The range was tested *last*, so the step rule answered first and computed its neighbours arithmetically
+(`Math.ceil(61441 / 4096) * 4096`), past the top of the range. `65536` is not a bridge priority: the handler that
+suggested it refuses it. The range is now asked before the step, so the value one step too far is answered with
+the range in the same words the neighbouring refusals use, and the only values ever suggested are ones the check
+accepts.
+
+Measured at the same time and correct as it stands: `encapsulation dot1q` and `ip access-group` refuse a *physical
+port* and a *list that does not exist*, and both answer in terms of the real problem rather than the number.
