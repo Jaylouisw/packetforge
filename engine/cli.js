@@ -12172,6 +12172,20 @@ class CliSession {
     if (any(function (ph, prev) { return /^name$/i.test(ph) && /^access-lists?$/.test(prev); })) return 'acl';
     if (any(function (ph, prev) { return /^type$/i.test(ph) && prev === 'logging'; })) return 'type';
     if (any(function (ph, prev) { return /^id$/i.test(ph) && /^(vlan|spanning-tree)$/.test(prev); })) return 'vlanid';
+    // `show vlan name <name>` takes the name of a VLAN. `name` is otherwise a port slot, so this had
+    // offered the device's *ports* as VLAN names - a value list for a different question.
+    // The slot sits two words after `vlan` (`show vlan name <name>`), not one - the keyword in
+    // between is `name`, so the test that mattered was whether `vlan` comes before it.
+    const prev2Of = function (row) { return String(row.tokens[at - 2] || '').toLowerCase(); };
+    if ((rows || []).some(function (r) {
+      return /^name$/i.test(tokOf(r)) && prevOf(r) === 'name' && prev2Of(r) === 'vlan';
+    })) return 'vlanname';
+    // `show interfaces transceiver <port>` takes a module bay, not a data port: it listed the
+    // device's ports, and every one of them was refused with "No transceiver port named eth0 on D1
+    // (module bays: sfp1, sfp2)" - the console knew the answer and the hint did not ask for it.
+    if ((rows || []).some(function (r) {
+      return r.tokens.some(function (t) { return String(t).toLowerCase() === 'transceiver'; });
+    })) return 'bay';
     if (any(function (ph) { return /^(name|port|interface|iface)$/i.test(ph); })) return 'port';
     return null;
   }
@@ -12199,10 +12213,26 @@ class CliSession {
       }
       if (kind === 'vlanid') {
         for (const id of Object.keys((dev.config && dev.config.vlans) || {})) ids.add(Number(id));
-        ids.add(1);
+        // VLAN 1 exists on a device that bridges, and only there: the old list added it
+        // unconditionally, so a router was offered `show vlan 1` and answered "No VLAN 1 on R1".
+        if (typeof dev.isL2 === 'function' && dev.isL2()) {
+          ids.add(1);
+          for (const id of this._vlanMap(dev).keys()) if (id !== 'all') ids.add(Number(id));
+        }
       }
       const out = Array.from(ids).filter(function (n) { return n > 0; }).sort(function (a, b) { return a - b; });
       return take(out, 24);
+    }
+    if (kind === 'vlanname') {
+      // The names `show vlan name` matches are the declared ones - the same list its refusal prints.
+      const names = (dev.config && dev.config.vlans) || {};
+      const list = [];
+      for (const k of Object.keys(names)) {
+        const v = names[k];
+        const n = typeof v === 'string' ? v : (v && v.name ? String(v.name) : '');
+        if (n) list.push(n);
+      }
+      return take(list.sort(), 24);
     }
     if (kind === 'device') {
       const names = this.topo && this.topo.devices ? Array.from(this.topo.devices.values()) : [];
@@ -12217,6 +12247,13 @@ class CliSession {
     }
     if (kind === 'type') {
       return take(Array.from(require('./simulator').EVENT_TYPES || []).sort(), 12);
+    }
+    if (kind === 'bay') {
+      const bays = [];
+      for (const i of (dev.interfaces ? dev.interfaces.values() : [])) {
+        if (this._isModuleBay(i)) bays.push(i.name);
+      }
+      return take(bays, 24);
     }
     if (kind === 'port') {
       return take(dev.interfaces ? Array.from(dev.interfaces.keys()) : [], 24);
@@ -12243,9 +12280,11 @@ class CliSession {
       if (kind) kinds.get(kind).push(single);
     }
     const LABEL = {
-      svi: 'SVIs on this device', vlanid: 'VLANs on this device', device: 'Devices in this lab',
+      svi: 'SVIs on this device', vlanid: 'VLANs on this device',
+      vlanname: 'VLAN names on this device', device: 'Devices in this lab',
       pool: 'DHCP pools on this device', acl: 'Access lists on this device',
-      type: 'Event types this console records', port: 'Ports on this device'
+      type: 'Event types this console records', port: 'Ports on this device',
+      bay: 'Module bays on this device'
     };
     const out = [];
     for (const kind of kinds.keys()) {

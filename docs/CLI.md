@@ -1841,12 +1841,29 @@ SW1(config)#no vlan ?
   VLANs on this device: 1, 10, 30, 44
 ```
 
-The kinds covered: devices in the lab, ports, SVIs, VLAN ids, DHCP pools, access lists, and the event
-types `show logging <type>` takes. One place (`_valueKind`) decides what kind of value a slot takes, so
-the attached form (`show vlan 3?`) and the detached form (`show vlan ?`) answer the same question the
-same way; the word before the slot settles the kind — `interface vlan <id>` is answered with the SVIs
-the device has, every other `… vlan <id>` with the VLAN ids it carries. A slot whose values the device
-does not hold lists nothing: an invented value is worse than the slot's name.
+The kinds covered: devices in the lab, ports, SVIs, VLAN ids, VLAN names, DHCP pools, access lists,
+module bays, and the event types `show logging <type>` takes. One place (`_valueKind`) decides what
+kind of value a slot takes, so the attached form (`show vlan 3?`) and the detached form
+(`show vlan ?`) answer the same question the same way; the word before the slot settles the kind —
+`interface vlan <id>` is answered with the SVIs the device has, every other `… vlan <id>` with the
+VLAN ids it carries. A slot whose values the device does not hold lists nothing: an invented value is
+worse than the slot's name.
+
+Three hints that named the wrong kind of thing, found by typing every hinted value back at the command
+that offered it:
+
+* **`show vlan name <name>` listed the switch's ports.** `name` is otherwise a port slot, and a VLAN
+  name is not a port — the row now lists the names the VLANs have, the same list its own refusal
+  prints.
+* **`show interfaces transceiver <port>` listed data ports**, and every one was refused with
+  *"No transceiver port named eth0 on D1 (module bays: sfp1, sfp2)"* — a transceiver slot takes a
+  module bay. The refusal already knew the bays; the hint asks the same question now.
+* **VLAN 1 was invented on a router**, which bridges nothing: `show vlan 1` on R1 answered *"No VLAN 1
+  on R1"* after the hint had offered it.
+
+The sweep is now part of the suite: one device from each catalogue category, every value slot that can
+be answered from the device, its first value typed back — 3,100 values, none refused as the wrong kind
+of thing.
 
 Also on this page: `show vlan id <id>` was accepted by the parser but absent from `?` (the page only
 showed `show vlan <id>`), so the spelling IOS documents answered while `?` called it a typo. The row

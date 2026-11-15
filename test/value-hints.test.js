@@ -132,5 +132,115 @@ console.log('\nThe page shows the form the parser takes:');
   ok(/Usage: show vlan id <id>/.test(bad), 'and the usage names the value');
 }
 
+console.log('\nA VLAN named is a name, and a VLAN numbered is an id:');
+{
+  // `show vlan name <name>` takes a VLAN name. `name` was read as a port slot, so the console
+  // offered the switch's *ports* as VLAN names - a value list for a different question.
+  ss.run('configure terminal');
+  ss.run('vlan 30 name sales');
+  ss.run('exit');
+  const names = text(ss.run('show vlan name ?'));
+  ok(/VLAN names on this device: .*sales/.test(names), 'show vlan name ? lists the VLAN names');
+  ok(!/Ports on this device/.test(names), 'and not the ports');
+  ok(/sales/.test(text(ss.run('show vlan name sal?'))), 'and a name completes from this device');
+  // A router has no VLAN 1 - it does not bridge - so the id list must not invent one.
+  rs.run('configure terminal'); rs.run('vlan 50 name core'); rs.run('end');
+  const rq = text(rs.run('show vlan ?'));
+  ok(!/VLANs on this device: 1\b/.test(rq), 'a router is not offered VLAN 1');
+  ok(/VLANs on this device: 50/.test(rq), 'but is offered the VLAN it declared');
+}
+
+console.log('\nA module bay is not a data port:');
+{
+  // `show interfaces transceiver <port>` listed the device's ports, and the console refused every
+  // one with "No transceiver port named eth0 on D1 (module bays: sfp1, sfp2)" - so the hint offered
+  // a value the command does not take, in the one slot where the console already knew the answer.
+  // A device with a module bay: cages come from the hardware record, so the test looks for one the
+  // same way the console does rather than guessing from the catalogue's media strings.
+  let withBay = null;
+  let bayProbe = null;
+  for (const cand of catalog) {
+    const tt = new Topology();
+    const dd = tt.addDevice(cand);
+    let has = false;
+    for (const i of dd.interfaces.values()) { if (bayProbe && bayProbe._isModuleBay(i)) { has = true; break; } }
+    if (!bayProbe) {
+      bayProbe = new CliSession(dd, tt, new Simulator(tt));
+      for (const i of dd.interfaces.values()) { if (bayProbe._isModuleBay(i)) { has = true; break; } }
+    }
+    if (has) { withBay = cand; break; }
+  }
+  ok(!!withBay, 'the catalogue has a device with a module bay (' + (withBay && withBay.model) + ')');
+  const t2 = new Topology();
+  const d2 = t2.addDevice(withBay); d2.name = 'D2';
+  const s2 = new CliSession(d2, t2, new Simulator(t2)); s2.run('enable');
+  const hint = text(s2.run('show interfaces transceiver ?'));
+  const listed = /Module bays on this device: ([^\n]+)/.exec(hint);
+  ok(!!listed, 'a transceiver slot lists module bays, not ports');
+  if (listed) {
+    const firstBay = listed[1].split(',')[0].trim().replace(/ \.\.\..*$/, '');
+    ok(!/No transceiver port named/.test(text(s2.run('show interfaces transceiver ' + firstBay))),
+      'and the first bay it offers is accepted (' + firstBay + ')');
+  }
+  // The ports of that device are not offered as bays.
+  const baysOnly = listed ? listed[1] : '';
+  ok(!/eth0|Gi0\/0/.test(baysOnly), 'a data port is not offered as a bay');
+}
+
+console.log('\nThe sweep behind all of this: a hinted value is a value the command takes:');
+{
+  // One device from each catalogue category. Wherever a value slot can be answered from the device,
+  // the first value it offers is typed back, and the answer must not be that the value is the wrong
+  // kind of thing. A hint that leads to "No VLAN named eth0" is worse than no hint at all.
+  const KINDY = /No VLAN |is not a VLAN|No VLAN named|No interface named|No transceiver port named|is not a port|No such port|is not an interface/;
+  const byKind = {};
+  for (const cat of catalog) {
+    const kind = cat.category || 'other';
+    if (!byKind[kind]) byKind[kind] = cat;
+  }
+  let typed = 0;
+  const wrong = [];
+  for (const kind of Object.keys(byKind)) {
+    const t3 = new Topology();
+    const d3 = t3.addDevice(byKind[kind]); d3.name = 'D1';
+    const pc3 = t3.addDevice(find('generic-pc')); pc3.name = 'PC9';
+    try {
+      t3.connect(d3.id, d3.interfaces.keys().next().value, pc3.id, pc3.interfaces.keys().next().value);
+    } catch (e) { /* incompatible media: the device stands alone */ }
+    const s3 = new CliSession(d3, t3, new Simulator(t3)); s3.run('enable');
+    s3.run('configure terminal');
+    s3.run('vlan 10'); s3.run('vlan 30 name sales');
+    s3.run('interface vlan 10'); s3.run('ip address 10.10.0.254 255.255.255.0'); s3.run('exit');
+    s3.run('ip dhcp pool P1'); s3.run('network 10.10.0.0 255.255.255.0'); s3.run('exit');
+    s3.run('access-list 10 permit any');
+    s3.run('end');
+    for (const mode of [2, 3, 4]) {
+      let rows = [];
+      try { rows = s3._helpFormRows(mode); } catch (e) { continue; }
+      for (const row of rows) {
+        let at = -1;
+        for (let i = 0; i < row.tokens.length; i++) {
+          const tk = row.tokens[i];
+          if (tk && typeof tk === 'object' && s3._valueKind([row], i)) { at = i; break; }
+        }
+        if (at < 0) continue;
+        const vals = s3._valuesFor(s3._valueKind([row], at), '');
+        if (!vals.length) continue;
+        const cmd = row.tokens.map(function (x, i) {
+          return i === at ? vals[0] : (typeof x === 'object' ? 'X' : String(x));
+        }).join(' ').replace(/[\[\]]/g, '');
+        typed++;
+        const firstLine = String(text(s3.run(cmd))).split('\n')[0];
+        if (/^%/.test(firstLine) && firstLine.indexOf(String(vals[0])) !== -1 && KINDY.test(firstLine)) {
+          wrong.push(kind + ': ' + cmd);
+        }
+      }
+    }
+  }
+  ok(typed > 1000, 'the sweep typed every hinted value it could (' + typed + ')');
+  ok(wrong.length === 0, 'and none was the wrong kind of value'
+    + (wrong.length ? ' - ' + wrong.slice(0, 4).join(' | ') : ''));
+}
+
 console.log('\n' + passed + ' passed, ' + failed + ' failed');
 process.exit(failed ? 1 : 0);
