@@ -154,6 +154,9 @@ class Topology {
     this.layout = {}; // deviceId -> { x, y }
     this._seq = 1;
     this._macBase = 0x020000000000; // locally administered unicast base
+    // Which port holds which address, so a loaded board keeps the addresses its document states (#1521) and still
+    // cannot end up with two ports sharing one. Reset wherever `_macBase` is.
+    this._usedMacs = new Map();
     // The instant of the last link-state change, in milliseconds since power-on. It belongs to the
     // network rather than to a query, because the cable that was pulled at t=10 s is still pulled
     // when the next question is asked at t=41 s.
@@ -207,14 +210,40 @@ addDevice(spec, id) {
     return dev;
   }
 
-  _assignMacs(dev) {
+  // Give every physical port an address, keeping the ones the document already stated.
+  //
+  // Uniqueness is the invariant this exists for: two ports answering to one address is not a board that works, which
+  // is why a load re-numbered every port from top to bottom. That also threw away the one address that is a fact
+  // about the hardware rather than about this run - a real switch's, read off by an importer (#1521). So the
+  // document wins where it said something and the base is only used where it said nothing, skipping any address a
+  // port on the board already holds. A stated address that collides is the one case that cannot be honoured: the
+  // first port to claim it keeps it, the second is given a free one, and the load says which (see the caller).
+  _assignMacs(dev, issues) {
     const base = this._macBase;
     this._macBase += 0x100;
+    const used = this._usedMacs;
     let i = 0;
     for (const iface of dev.interfaces.values()) {
       // Subinterfaces have no MAC of their own: they share the parent's.
       if (iface.parent) continue;
-      iface.mac = net.intToMac(base + i);
+      let clash = null;
+      if (iface.mac && used.has(iface.mac)) {
+        clash = { mac: iface.mac, owner: used.get(iface.mac) };
+        iface.mac = null;
+      }
+      if (!iface.mac) {
+        let n = base + i;
+        while (used.has(net.intToMac(n))) n++;
+        iface.mac = net.intToMac(n);
+      }
+      used.set(iface.mac, dev.id + ' port ' + iface.name);
+      if (clash && issues) {
+        issues.push({
+          severity: 'warning', code: 'E_IFACE_DUPLICATE_MAC', device: dev.id, port: iface.name,
+          message: 'port ' + iface.name + ' of ' + dev.id + ': MAC ' + clash.mac + ' is already the address of ' +
+            clash.owner + ', so this port was given ' + iface.mac
+        });
+      }
       i++;
     }
     for (const iface of dev.interfaces.values()) {
@@ -768,6 +797,18 @@ addDevice(spec, id) {
       });
       const dev = Device.hydrate(d.id, spec, d);
       topo.devices.set(d.id, dev);
+      // An address the document states that no port can have is reported, like an address that is not one (#1413):
+      // the board opened and the port is usable, but not with the address the file named. `Device.hydrate` left it
+      // unset, so `_assignMacs` below gives the port a real one.
+      for (const is of (Array.isArray(d.interfaces) ? d.interfaces : [])) {
+        if (!is || is.parent || is.mac === undefined || is.mac === null) continue;
+        if (Device.statedMac(is.mac)) continue;
+        topo.loadIssues.push({
+          severity: 'warning', code: 'E_IFACE_BAD_MAC', device: d.id, port: is.name,
+          message: 'port ' + is.name + ' of ' + d.id + ': "' + String(is.mac) +
+            '" is not a unicast MAC address a port can have, so the port was given one from the pool'
+        });
+      }
     }
     // An address a document states is either restored or explained, like a cable (#1413).
     //
@@ -786,9 +827,11 @@ addDevice(spec, id) {
       }
     }
 
-    // recompute MACs so they remain unique regardless of load order
+    // Assign MACs: the ones the document states are kept, and anything it left unsaid is numbered, so the board is
+    // unique regardless of load order without discarding an address that came off real hardware (#1521).
     topo._macBase = 0x020000000000;
-    for (const dev of topo.devices.values()) topo._assignMacs(dev);
+    topo._usedMacs = new Map();
+    for (const dev of topo.devices.values()) topo._assignMacs(dev, topo.loadIssues);
 
     // Every cable a document describes is either restored or explained.
     for (const l of (data.links || [])) {

@@ -1206,6 +1206,14 @@ class Device {
         // every board: `maxRangeM`, `comboWith` and `comboRole` are added below only when they hold something.
         const doc = {
           name: i.name, type: i.type, speed: i.speed,
+          // The hardware address. It was the one field of a port the document never carried, so a board that said
+          // `00:1b:21:aa:bb:cc` came back with a freshly invented `02:00:...`: an importer could read a real
+          // switch's address table and had nowhere to put it (#1521).
+          //
+          // A subinterface states none: it has no address of its own, it borrows its parent's (`Topology._assignMacs`),
+          // and writing the parent's address onto the child would be two ports claiming one. Undefined is dropped by
+          // `JSON.stringify`, which is how a port that somehow has no address keeps the document it had.
+          mac: i.parent ? undefined : (i.mac || undefined),
           ip: i.ip, mask: i.mask, enabled: i.enabled,
           dhcp: i.dhcp, description: i.description,
           // 'ipv6 address autoconfig' - the interface is waiting for a router
@@ -1305,6 +1313,21 @@ class Device {
     return out;
   }
 
+  // A MAC a document states, normalised, or null when it is not an address a port can have.
+  //
+  // A port's address is a unicast, non-zero 48-bit value. Broadcast and multicast are what frames are *sent to*,
+  // never what a port *is*, and 00:00:00:00:00:00 is what a document says when it has nothing to say. None of the
+  // three is adopted: a hand-edited file must not be able to make a port answer to an address no frame can reach
+  // it at.
+  static statedMac(value) {
+    if (value === null || value === undefined) return null;
+    let n;
+    try { n = net.macToInt(value); } catch (e) { return null; }
+    if (!Number.isFinite(n) || n <= 0 || n > 0xffffffffffff) return null;
+    const text = net.intToMac(n);
+    return net.isMulticastMac(text) ? null : text;
+  }
+
   // Apply a previously serialized device body onto this instance.
   static hydrate(id, spec, state) {
     const d = new Device(id, spec);
@@ -1358,6 +1381,11 @@ class Device {
           iface.autoconfig = !!is.autoconfig;
           iface.description = is.description || '';
           if (is.duplex) iface.duplex = is.duplex;
+          // The address the document states, which no loader ever read (#1521). Only a unicast address a port can
+          // actually have is adopted - `Topology._assignMacs` gives the port a free one otherwise, and `fromJSON`
+          // reports what the document said.
+          const statedMac = Device.statedMac(is.mac);
+          if (statedMac && !is.parent) iface.mac = statedMac;
           // The other half of the same setting. `speed 100` was stored, printed by `show interfaces` as
           // "100Mb/s (forced)" and written to running-config - and the port document never carried it, so a saved
           // lab came back at whatever the hardware negotiates, with the command gone from the config too: nothing
@@ -1408,6 +1436,23 @@ class Device {
               poeOut: ('poeOut' in is) ? is.poeOut : derived.poeOut,
               poeIn: ('poeIn' in is) ? is.poeIn : derived.poeIn
             });
+          }
+          // What announced itself on this port. `serialize()` has written this record since LLDP existed and
+          // nothing ever read it back, so a document could state a neighbour on a port and the board came up
+          // claiming no LLDP had ever been heard there - a field written and read by nothing (#1521).
+          //
+          // Restored rather than re-announced, because the two are not the same fact. The announcement on load
+          // reaches the ports whose far end is still cabled, and that is what makes a reopened board's table
+          // match a live board's (#1467). A port whose cable was pulled, or whose far end is silent, hears
+          // nothing on load - and a live board keeps the record it heard earlier and marks the entry down
+          // rather than deleting it (docs/LINK-STATE.md). Dropping it on load made a saved lab the one place
+          // the neighbour history went missing.
+          //
+          // A record that names nobody is not a neighbour: a hand-edited document must not be able to make a
+          // port claim it heard from something with no identity, which is why an empty object is ignored.
+          if (is.lldp && typeof is.lldp === 'object' && !Array.isArray(is.lldp) &&
+              (is.lldp.chassisId || is.lldp.portId || is.lldp.systemName)) {
+            d.lldp.set(iface.name, JSON.parse(JSON.stringify(is.lldp)));
           }
         }
       }

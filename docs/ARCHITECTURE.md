@@ -138,6 +138,17 @@ The reader now passes the whole port document through. Physical facts are not re
 honours what the file states (`cage`, `poeOut`, `speedCaps`, `maxSpeedMbps`, `poeOutDeclared`, `maxRangeM`, …) and
 only computes what is missing, which is what a spec needs and what a saved board does not.
 
+Two more facts a port carries had no reader, and they are the two an importer needs (#1521). `interfaces[].mac` was
+never written: `fromJSON()` renumbered every port from the locally-administered base, so a document that stated
+`00:1b:21:aa:bb:cc` reloaded as an invented `02:00:00:00:00:00`. The per-port `lldp` record was the reverse - written
+by every save, read by nobody - so a reopened board's neighbour table came back empty while the file still listed
+the neighbours. Both are restored now, and a stated address is *kept* rather than renumbered: uniqueness is held by
+skipping addresses a port on the board already holds, so a device added after a load cannot collide with one the
+document stated. A document that gives two ports one address keeps it for the first and gives the second a free
+one, reported as `E_IFACE_DUPLICATE_MAC`; an address no port can have (broadcast, multicast, all-zero, or a word) is
+not adopted at all and is reported as `E_IFACE_BAD_MAC`. A subinterface states no address of its own - it borrows
+its parent's - which is why the field is written only for physical ports.
+
 **A sweep over virgin labs cannot see a setting.** The first version of that test round-tripped a lab straight out of
 the catalogue, so every field sat at its default and the comparison was default-in, default-out: it agreed with
 itself about a file that carried nothing. `speedMbps` walked through that gap — `speed 100` was stored, printed by

@@ -341,5 +341,98 @@ console.log('The forced rate is in the file, said by every surface, and used by 
 }
 
 console.log('');
+console.log('A port keeps the address the document gives it:');
+{
+  // `serialize()` never wrote `interfaces[].mac`, and `fromJSON()` renumbered every port from the
+  // locally-administered base, so a document that stated a real hardware address came back as
+  // 02:00:00:00:00:00 - an invented one. The importer being built has to store a real switch's address table, so
+  // the address has to survive the file, and the port is where a MAC lives (#1521).
+  const SW = specs.filter(function (s) { return s.model === 'generic-switch'; })[0];
+  const PC = specs.filter(function (s) { return s.model === 'generic-pc'; })[0];
+  function lab() {
+    const t = new Topology();
+    t.addDevice(SW, 'sw'); t.addDevice(PC, 'p1');
+    t.connect('p1', 'eth0', 'sw', 'Fa0/1');
+    return t;
+  }
+  function board(t) { return JSON.parse(JSON.stringify(t.serialize())); }
+  function devDoc(doc, id) { return doc.devices.filter(function (d) { return d.id === id; })[0]; }
+  // Every physical address on the board, so "no two ports share one" can be asked of the whole lab.
+  function macs(t) {
+    const out = [];
+    for (const d of t.devices.values()) {
+      for (const p of d.interfaces.values()) if (!p.parent) out.push(p.mac);
+    }
+    return out;
+  }
+
+  const t = lab();
+  const doc = board(t);
+  ok(devDoc(doc, 'p1').interfaces[0].mac === t.getDevice('p1').interfaces.get('eth0').mac,
+    'the document states the address the port actually has', String(devDoc(doc, 'p1').interfaces[0].mac));
+
+  // The kind of address an importer reads off a real switch and has to be able to write down.
+  devDoc(doc, 'sw').interfaces[0].mac = '00:1b:21:aa:bb:cc';
+  const back = Topology.fromJSON(JSON.parse(JSON.stringify(doc)));
+  ok(back.getDevice('sw').interfaces.get('Fa0/1').mac === '00:1b:21:aa:bb:cc',
+    'a stated address is the one the port comes back with',
+    String(back.getDevice('sw').interfaces.get('Fa0/1').mac));
+  ok(JSON.stringify(back.serialize()) === JSON.stringify(doc),
+    'and saving it again states the same address, byte for byte',
+    String(JSON.stringify(back.serialize()).length) + ' vs ' + String(JSON.stringify(doc).length));
+
+  // Two ports sharing one address is a board that does not work, so the first port that claimed it keeps it and
+  // the second is given a free one - said out loud, because the document is what said it.
+  const dup = JSON.parse(JSON.stringify(doc));
+  devDoc(dup, 'sw').interfaces[1].mac = '00:1b:21:aa:bb:cc';
+  const dupBoard = Topology.fromJSON(dup);
+  const dupMacs = macs(dupBoard);
+  ok(dupMacs.length === new Set(dupMacs).size, 'two ports stating one address do not end up sharing it',
+    JSON.stringify(dupMacs));
+  ok(dupBoard.getDevice('sw').interfaces.get('Fa0/1').mac === '00:1b:21:aa:bb:cc',
+    'the port that claimed it keeps it', String(dupBoard.getDevice('sw').interfaces.get('Fa0/1').mac));
+  ok(dupBoard.loadIssues.some(function (i) { return i.code === 'E_IFACE_DUPLICATE_MAC'; }),
+    'and the load says a port was moved rather than doing it quietly',
+    JSON.stringify(dupBoard.loadIssues.map(function (i) { return i.code; })));
+
+  // An address that is not one a port can have is not adopted. Broadcast is what frames are sent to, all-zero and
+  // a word are what a hand-edited file says when it means nothing.
+  const bad = JSON.parse(JSON.stringify(doc));
+  devDoc(bad, 'sw').interfaces[0].mac = 'ff:ff:ff:ff:ff:ff';
+  devDoc(bad, 'p1').interfaces[0].mac = 'banana';
+  const badBoard = Topology.fromJSON(bad);
+  ok(badBoard.getDevice('sw').interfaces.get('Fa0/1').mac !== 'ff:ff:ff:ff:ff:ff',
+    'a broadcast address is not what a port comes back with',
+    String(badBoard.getDevice('sw').interfaces.get('Fa0/1').mac));
+  ok(/^([0-9a-f]{2}:){5}[0-9a-f]{2}$/.test(badBoard.getDevice('p1').interfaces.get('eth0').mac),
+    'nor is a word', String(badBoard.getDevice('p1').interfaces.get('eth0').mac));
+  ok(badBoard.loadIssues.filter(function (i) { return i.code === 'E_IFACE_BAD_MAC'; }).length === 2,
+    'and each of them is reported, naming the port and the line',
+    JSON.stringify(badBoard.loadIssues.map(function (i) { return i.message; })));
+  ok(macs(badBoard).length === new Set(macs(badBoard)).size, 'the addresses they were given are still unique',
+    JSON.stringify(macs(badBoard)));
+
+  // A device added after the load is given an address nobody on the board holds.
+  const grown = Topology.fromJSON(JSON.parse(JSON.stringify(doc)));
+  grown.addDevice(PC, 'p2');
+  const grownMacs = macs(grown);
+  ok(grownMacs.length === new Set(grownMacs).size,
+    'a device added later cannot collide with an address the document stated', JSON.stringify(grownMacs));
+
+  // A subinterface has no address of its own - it borrows its parent's - so it states none and comes back with the
+  // parent's, which is the rule `_assignMacs` applies to a device it has just built.
+  const withSub = lab();
+  const sub = withSub.getDevice('sw').addSubinterface('Fa0/2', 20);
+  const subDoc = board(withSub);
+  const subEntry = devDoc(subDoc, 'sw').interfaces.filter(function (i) { return i.name === sub.name; })[0];
+  ok(!!subEntry && subEntry.mac === undefined, 'a subinterface states no address of its own',
+    JSON.stringify(subEntry));
+  const subBack = Topology.fromJSON(subDoc).getDevice('sw');
+  ok(subBack.interfaces.get(sub.name).mac === subBack.interfaces.get('Fa0/2').mac,
+    'and it comes back borrowing its parent\'s, not a new one',
+    String(subBack.interfaces.get(sub.name).mac) + ' vs ' + String(subBack.interfaces.get('Fa0/2').mac));
+}
+
+console.log('');
 console.log(passed + ' passed, ' + failed + ' failed');
 process.exit(failed ? 1 : 0);

@@ -134,9 +134,15 @@ console.log('Announcing on load does not change the document:');
   sim.refreshNeighbours();             // and so does this
   const second = JSON.stringify(re.serialize());
   ok(second === first, 'save -> load -> save is byte-identical', second.length + ' vs ' + first.length);
-    const saved = JSON.parse(first);
-  ok((saved.devices || []).every(function (d) { return !d.lldp || Object.keys(d.lldp).length === 0; }),
-    'the document never carried neighbour rows to begin with', JSON.stringify((saved.devices || []).map(function (d) { return d.lldp; })));
+  const saved = JSON.parse(first);
+  // The rows live on the PORTS, under `interfaces[].lldp`. This check used to look for them on the
+  // DEVICE (`d.lldp`), where nothing is ever written, so it passed whatever the port documents said -
+  // which is how a field that no loader read survived (#1521).
+  const savedPortRows = (saved.devices || []).reduce(function (n, d) {
+    return n + (d.interfaces || []).filter(function (i) { return i.lldp; }).length;
+  }, 0);
+  ok(savedPortRows === 4, 'the document states the four neighbours the board had heard, on its ports',
+    String(savedPortRows));
 }
 
 console.log('');
@@ -184,5 +190,35 @@ console.log('A trunk that carries one VLAN still describes both its ends:');
 }
 
 console.log('');
+console.log('A reopened board restores the neighbours its document states:');
+{
+  const L = liveLab();
+  const saved = JSON.parse(JSON.stringify(L.t.serialize()));
+  // No simulator in this block on purpose: this is the document on its own, which is the path a
+  // converter, an importer or a hand-edited board file takes. `serialize()` has written a per-port
+  // `lldp` record since LLDP existed, and `hydrate()` had no branch for it, so every one of those
+  // callers got a board that had never heard from anyone: a field written and read by nothing (#1521).
+  const re = Topology.fromJSON(JSON.parse(JSON.stringify(saved)));
+  const sw = re.getDevice('sw');
+  const live = L.t.getDevice('sw').lldp.get('Fa0/1');
+  // Both cabled ports heard from their far end, and the document states both.
+  ok(sw.lldp.size === 2, 'a reopened board knows both neighbours without announcing again',
+    String(sw.lldp.size) + ': ' + JSON.stringify(Array.from(sw.lldp.keys())));
+  ok(JSON.stringify(sw.lldp.get('Fa0/1')) === JSON.stringify(live),
+    'and it is the record the document named, field for field',
+    JSON.stringify(sw.lldp.get('Fa0/1')) + '  vs  ' + JSON.stringify(live));
+  ok(JSON.stringify(re.serialize()) === JSON.stringify(saved),
+    'save -> load -> save is byte-identical with no simulator and no announcement',
+    JSON.stringify(re.serialize()).length + ' vs ' + JSON.stringify(saved).length);
+  // A record that says nothing is not a neighbour: a hand-edited file cannot make a port claim it
+  // heard from somebody it cannot name.
+  const junk = JSON.parse(JSON.stringify(saved));
+  junk.devices.filter(function (d) { return d.id === 'sw'; })[0].interfaces[0].lldp = {};
+  const junkSw = Topology.fromJSON(junk).getDevice('sw');
+  ok(!junkSw.lldp.has('Fa0/1') && junkSw.lldp.size === 1,
+    'an empty record is not restored as a neighbour, and the port that did name one still is',
+    JSON.stringify(Array.from(junkSw.lldp.keys())));
+}
+
 console.log(passed + ' passed, ' + failed + ' failed');
 process.exitCode = failed ? 1 : 0;
