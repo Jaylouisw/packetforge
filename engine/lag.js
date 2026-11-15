@@ -329,6 +329,9 @@ function validateLag(lag, memberPorts) {
     }
   }
   if (duplexes.length > 1) {
+    // Sorted like the rates above: one bundle must not be described two ways depending on which member was
+    // typed first.
+    duplexes.sort();
     err('E_LAG_DUPLEX_MISMATCH',
       'LAG ' + cfg.id + ': member duplex settings differ (' + duplexes.join('/') + '); ' +
       'all members must agree on duplex.');

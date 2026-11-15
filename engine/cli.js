@@ -1739,7 +1739,15 @@ class CliSession {
     dev.config.lags[id] = g;
 
     out.push('Interface ' + iface.name + ' added to channel group ' + id + ' (mode ' + lagLib.cliMode(mode) + ')');
-    const chk = lagLib.validateLag ? lagLib.validateLag(g) : null;
+    // The port records, which nobody passed (#1524). Every per-member rule in engine/lag.js - rate, duplex,
+    // VLAN set - is guarded by "do I have a record for this port", so with no records the whole section was
+    // skipped and a bundle of ports that cannot carry traffic the same way was accepted with a receipt and no
+    // word. The rules were written, tested in isolation, and unreachable from the console.
+    // The group's name travels with it: `lags` is keyed by the number the operator typed but the object does
+    // not carry it, and `validateLag()` falls back to a default id - so every warning would have named a group
+    // that does not exist rather than the one just configured.
+    const named = Object.assign({ id: String(id) }, g);
+    const chk = lagLib.validateLag ? lagLib.validateLag(named, this._lagMemberPorts(g)) : null;
     // A group is built one port at a time, so "needs at least 2 members" is true of every bundle for as long
     // as it takes to type the second line. Warning on it turns every correct configuration into a warning
     // storm, which is how a warning stops being read. The shortfall is reported where it matters - in
@@ -1749,6 +1757,41 @@ class CliSession {
       ? chk.errors.filter(function (e) { return NOT_HERE_YET.indexOf(e.code) === -1; })
       : [];
     if (real.length) out.push('% Warning: ' + real[0].message);
+    // A warning is a true statement that does not refuse the command - a shut member will carry nothing, and
+    // saying so at the moment the port joins is the only time the operator is looking at that port.
+    const soft = (chk && Array.isArray(chk.warnings)) ? chk.warnings : [];
+    if (soft.length) out.push('% Warning: ' + soft[0].message);
+    return out;
+  }
+
+  // The member records `lag.validateLag()` needs, read off the ports the bundle actually names.
+  //
+  // `speedMbps` is the rate the port will run at: a forced rate if one was typed, otherwise the rate the
+  // catalogue gives the port. A bundle's whole point is one logical link, so members at different rates are
+  // the classic half-working bundle and the check has to see the rate, not the capability.
+  // `vlanCompatible` is not this function's opinion: engine/vlan.js decides whether two ports file a frame
+  // the same way, and the first member is the one the rest must agree with.
+  _lagMemberPorts(g) {
+    const out = [];
+    const members = (g && Array.isArray(g.members)) ? g.members : [];
+    let ref = null;
+    for (const name of members) {
+      const i = this.device.interfaces.get(name);
+      if (!i) continue;
+      const rated = mediaLib.parseSpeedMbps(i.speed);
+      const hwMax = (i.hardware && i.hardware.maxSpeedMbps) ? i.hardware.maxSpeedMbps : null;
+      const rec = {
+        name: name,
+        speedMbps: i.speedMbps || rated || hwMax || null,
+        duplex: i.duplex || null,
+        enabled: i.enabled !== false
+      };
+      if (i.vlan) {
+        if (!ref) ref = i;
+        else rec.vlanCompatible = vlanLib.framesCompatible(ref.vlan, i.vlan);
+      }
+      out.push(rec);
+    }
     return out;
   }
 
