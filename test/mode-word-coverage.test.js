@@ -101,11 +101,13 @@ console.log('\nThe sweep behind it: a word taken at a prompt is a word that prom
     ['global config', ['configure terminal']],
     ['interface block', ['configure terminal', 'interface Gi0/0']],
     ['DHCP pool', ['configure terminal', 'ip dhcp pool LAN']],
-    ['standard ACL', ['configure terminal', 'ip access-list standard 10']],
+    // A *named* list: `ip access-list standard 10` is refused by name ("10 is a number"), and using it
+    // here meant the "ACL" sweep was really sweeping global config mode.
+    ['standard ACL', ['configure terminal', 'ip access-list standard BLOCK']],
     ['OSPF process', ['configure terminal', 'router ospf 1']],
     ['BGP process', ['configure terminal', 'router bgp 65001']]
   ];
-  const REFUSED = /^% Unrecognized|^% Invalid|% Unrecognized config command|is an exec command, not a configuration command|is not a router (ospf|bgp) command|is not an interface command|^% Usage:/;
+  const REFUSED = /^% Unrecognized|^% Invalid|% Unrecognized config command|is an exec command, not a configuration command|is not a router (ospf|bgp) command|is not an interface command|^% Usage:|^% Inside an access list, a line starts with permit or deny|^% Incomplete command/;
   let typed = 0;
   const orphans = [];
   for (const [name, steps] of MODES) {

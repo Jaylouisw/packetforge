@@ -1196,7 +1196,14 @@ class CliSession {
           return ['% No interface Vlan' + tokens[3] + ' on ' + (this.device.name || this.device.id),
             '% "show vlan" lists the VLANs, and "show ip interface brief" the interfaces'];
         }
-        return ['% Interface not found: ' + (typed || '')];
+        // A missing argument is not a missing interface: `no interface` answered
+        // "% Interface not found: " - an empty name after a colon, which reads as a port that has no
+        // name rather than as a line that stopped too early.
+        if (typed === undefined || typed === null || String(typed) === '') {
+          return ['% Incomplete command: no interface <name>',
+            '% Usage: no interface <name> | no interface <parent>.<vlan> | no interface vlan <id>'];
+        }
+        return ['% Interface not found: ' + typed];
       }
       if (vi.svi) {
         const vid = String(name).replace(/\D/g, '');
@@ -3807,6 +3814,15 @@ class CliSession {
   }
 
   // Inside `router ospf`: the two verbs that matter, and nothing that pretends to be something else.
+
+  // One sentence for a global line typed in a block: applied at global scope, and what happened to the
+  // block. The interface block keeps its block, so it says so; these leave it, so they say that. A
+  // command that changes the device and moves the prompt without a word is the defect this note names.
+  _globalInBlockNote(tokens, kept) {
+    return '  note: "' + tokens.join(' ') + '" is a global command - applied at global scope; ' +
+      (kept ? 'you are still in this block' : 'this block was left');
+  }
+
   _ospfRouterMode(tokens) {
     const head = String(tokens[0] || '').toLowerCase();
     if (this.routerKind === 'bgp') return this._bgpRouterMode(tokens);
@@ -3861,7 +3877,9 @@ class CliSession {
     this.mode = MODE_CONFIG;
     const asGlobal = this._configMode(tokens);
     const refused = asGlobal.length && /^% (Unrecognized|Unknown|Invalid) (config )?command/.test(asGlobal[0]);
-    if (!refused) return asGlobal;
+    // Applied, and the process block is left (a pasted dump carries no `exit` between its blocks, and
+    // this suite documents that). Saying nothing left the operator to discover the prompt change.
+    if (!refused) return asGlobal.concat([this._globalInBlockNote(tokens, false)]);
     // Nothing anywhere: report it in the vocabulary of the mode the operator is actually in.
     this.mode = saved;
     return ['% "' + tokens.join(' ') + '" is not a router ospf command',
@@ -3917,7 +3935,7 @@ class CliSession {
     this.routerKind = null;
     const asGlobal = this._configMode(tokens);
     const refused = asGlobal.length && /^% (Unrecognized|Unknown|Invalid) (config )?command/.test(asGlobal[0]);
-    if (!refused) return asGlobal;
+    if (!refused) return asGlobal.concat([this._globalInBlockNote(tokens, false)]);
     this.mode = saved;
     this.routerKind = 'bgp';
     return ['% "' + tokens.join(' ') + '" is not a router bgp command',
@@ -6471,9 +6489,16 @@ class CliSession {
       // this block still has to be told that the block no longer owns it - and only when the
       // command did not name a new list of its own (clearing the name it just set is how a pasted
       // dump lost every line after its first `ip access-list`).
-      if (!this._enteredAclBlock && this.mode === MODE_ACL) {
-        this.aclName = null;
-        this.mode = MODE_CONFIG;
+      if (!this._enteredAclBlock) {
+        // The block was left - either for global config, or for whatever block the line opened. Until
+        // now nothing said so: the line was applied, the prompt moved, and the next `permit` the
+        // operator typed was a global command.
+        if (this.mode === MODE_ACL) {
+          this.aclName = null;
+          this.mode = MODE_CONFIG;
+        }
+        this._enteredAclBlock = false;
+        return asConfig.concat([this._globalInBlockNote(tokens, false)]);
       }
       this._enteredAclBlock = false;
       return asConfig;
@@ -7106,10 +7131,29 @@ class CliSession {
       pool.reservations[tokens[2]] = tokens[1];
     } else if (head === 'no') {
       const what = (tokens[1] || '').toLowerCase();
-      if (what === 'default-router') delete pool.gateway;
-      else if (what === 'dns-server') delete pool.dns;
-      else if (what === 'range') { delete pool.rangeStart; delete pool.rangeEnd; }
-      else if (what === 'lease') delete pool.leaseSec;
+      // Each removal says what it cleared. Silence was the sub-mode's habit for *settings* (`network`
+      // is accepted without a word, as on IOS), but a removal that says nothing is indistinguishable
+      // from a word that was ignored - and `no zz` was ignored too.
+      if (what === 'default-router') {
+        const was = pool.gateway;
+        delete pool.gateway;
+        out.push(was ? 'Default router cleared (was ' + was + ')' : 'No default router was configured');
+      }
+      else if (what === 'dns-server') {
+        const had = Array.isArray(pool.dns) ? pool.dns.slice() : (pool.dns ? [pool.dns] : []);
+        delete pool.dns;
+        out.push(had.length ? 'DNS servers cleared (were ' + had.join(', ') + ')' : 'No DNS server was configured');
+      }
+      else if (what === 'range') {
+        const had = pool.rangeStart && pool.rangeEnd ? pool.rangeStart + ' - ' + pool.rangeEnd : null;
+        delete pool.rangeStart; delete pool.rangeEnd;
+        out.push(had ? 'Lease range cleared (was ' + had + ')' : 'No range was configured');
+      }
+      else if (what === 'lease') {
+        const had = pool.leaseSec;
+        delete pool.leaseSec;
+        out.push(had ? 'Lease length cleared (was ' + had + 's)' : 'No lease length was configured');
+      }
       else if (what === 'excluded-address') {
         // Granularity, the same rule the other removals follow: naming one range removes that range,
         // and the bare form is what empties the list. Before this a named range was refused outright
@@ -7156,6 +7200,13 @@ class CliSession {
         this.pool = null;
         out.push('Removed DHCP pool');
         return out;
+      }
+      else {
+        // Every other word fell through and the console said *nothing* - so a typo (`no zz`) was
+        // accepted in silence and was indistinguishable from a removal that worked, which is the one
+        // answer a refusal must not give.
+        return ['% "' + (tokens[1] || '') + '" is not something this pool can remove',
+          '% The words are: default-router, dns-server, range, lease, excluded-address, pool'];
       }
       return out;
     } else {
@@ -13721,6 +13772,8 @@ class CliSession {
         'a global command: applied at global scope, and this interface block is kept'),
       helpLine('dns zone <name> | ospf area <id> | bgp router-id <ip> | ip route <net> <mask> <gw>',
         'the other global commands, in the words they take at global scope'),
+      helpLine('no hostname | no ospf [area <id>|router-id <ip>] | no scion',
+        'the global removals, in the words they take at global scope'),
       // A prose line, not a row: it starts with `%` and no two-space indent, so the help parser skips
       // it (it is not a command) and the reader still sees it. Last, where a note belongs - and it is
       // the one fact this page cannot state as a row, because "any command" is not a command.
@@ -13748,6 +13801,7 @@ class CliSession {
         helpLine('network <net> <wildcard> area <id>', 'put every interface the wildcard matches into an area'),
         helpLine('no network <net> <wildcard> area <id>', 'take those interfaces out of the area'),
         helpLine('router-id <ip>', 'name this router in OSPF'),
+        helpLine('no router-id', 'go back to the identifier derived from the addresses'),
         helpLine('show <what> | do show <what>', 'any exec view, without leaving this process'),
         helpLine('help / ?', 'this list'),
         helpLine('exit', 'back to global configuration - the process stays running'),

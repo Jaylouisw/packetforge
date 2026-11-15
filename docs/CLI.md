@@ -1823,6 +1823,41 @@ The gate also read the wrong word. The test was "does the row contain `bgp` anyw
 The suite sweeps one device from each catalogue category: every `show` row its page **hides** is typed,
 and must be refused — a hidden row that answers is a view an operator will never find.
 
+### A `no` line always answers
+
+Silence is the one reply that cannot be told apart from "ignored", and two places used it:
+
+```
+R1(config-dhcp)#no range
+R1(config-dhcp)#no zz          <- the same nothing, for a typo and for a real removal
+R1(config-if)#no interface
+% Interface not found:          <- a port with no name, or a line that stopped too early?
+```
+
+* **Every pool removal says what it cleared** — `Lease range cleared (was 10.5.0.10 - 10.5.0.99)`,
+  `Default router cleared (was 10.5.0.1)` — and a removal of something not configured says that
+  instead. A word the pool cannot remove is refused by name, with the words it does take; the pool
+  itself is untouched.
+* **`no interface` with no name** is an incomplete command, not a missing interface, and the usage
+  line names the three forms that take a name.
+
+### A global command in a block says what it did
+
+The interface block keeps its block when a global line is applied (so three lines for one port do not
+evict the operator). The process and list blocks **leave** theirs — a pasted dump carries no `exit`
+between blocks, and that behaviour is documented by its own suite — but they left it in silence:
+
+```
+R1(config-std-nacl)#hostname R9
+  note: "hostname R9" is a global command - applied at global scope; this block was left
+```
+
+One sentence now, from one helper, in the vocabulary of what actually happened: *"you are still in this
+interface block"* or *"this block was left"*. The prompt always matches the note.
+
+The suite types a `no` line for every candidate word at six prompts and requires an answer every time;
+that sweep is what found the pool's silence.
+
 ### A word a block takes is a word its page names
 
 The mirror of the `show` sweep, on the configuration side. `hostname` typed inside an interface block
