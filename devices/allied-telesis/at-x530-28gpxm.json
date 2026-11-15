@@ -1,0 +1,139 @@
+{
+  "vendor": "allied-telesis",
+  "model": "AT-x530-28GPXm",
+  "label": "Allied Telesis AT-x530-28GPXm",
+  "category": "l3-switch",
+  "description": "Allied Telesis AT-x530-28GPXm stackable L3 PoE+ switch: 20x 10/100/1000T PoE+ RJ-45, 4x 100M/1G/2.5G/5G PoE+ RJ-45 (24 PoE+ ports, 740 W), 4x 1/10G SFP+ uplinks, 160 Gbps switching fabric, 119 Mpps.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli",
+    "vlan",
+    "lacp",
+    "stp",
+    "poe-pse",
+    "802.3af",
+    "802.3at"
+  ],
+  "icon": "switch",
+  "color": "#b91c1c",
+  "portTemplate": {
+    "prefix": "port1.0.",
+    "start": 1,
+    "count": 20,
+    "type": "ethernet",
+    "speed": "1G",
+    "connector": "rj45",
+    "poeOut": 30
+  },
+  "interfaces": [
+    {
+      "name": "port1.0.21",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "5G",
+      "speedCaps": [
+        100,
+        1000,
+        2500,
+        5000
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "port1.0.22",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "5G",
+      "speedCaps": [
+        100,
+        1000,
+        2500,
+        5000
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "port1.0.23",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "5G",
+      "speedCaps": [
+        100,
+        1000,
+        2500,
+        5000
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "port1.0.24",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "5G",
+      "speedCaps": [
+        100,
+        1000,
+        2500,
+        5000
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "port1.0.25",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "port1.0.26",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "port1.0.27",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "port1.0.28",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "console",
+      "type": "console"
+    }
+  ],
+  "poe": {
+    "budgetW": 740,
+    "sourceUrl": "https://www.alliedtelesis.com/sites/default/files/documents/installation-guides/ati_x530_vc_stacking_ig.pdf",
+    "note": "740 W total from two fixed 370 W supplies (370 W per supply - what the installation guide quotes, not a single 740 W brick). IEEE 802.3af/at, PD classes 0-4, 15.4 W PoE and 30 W PoE+ on all 24 copper ports, Mode A wiring. 740 W covers 24 Class 4 devices at 25.5 W (612 W), which is why every port can be modelled at 30 W against a 740 W budget."
+  },
+  "fabric": {
+    "capacityMbps": 160000,
+    "kind": "switching fabric",
+    "note": "Vendor switching-fabric figure (forwarding rate 119 Mpps), the full-duplex aggregate of the port rates: 2 x (80000 Mbit/s of line rate)."
+  },
+  "sourceUrl": "https://www.alliedtelesis.com/wp-content/uploads/2026/05/ati-x530series-ds.pdf",
+  "notes": "All 24 copper ports are PSE ports - the 20 gigabit ports 1-20 and the 4 multi-gigabit ports 21-24 - and the 4 SFP+ cages 25-28 are not. 441 x 421 x 44 mm, 6.3 kg, 77 W with no PoE load, 900 W fully loaded. 802.3bz multi-gigabit on ports 21-24: the 5.4.8-2 stand-alone installation guide carried a note that \"for the current release, ports 21-24 only support 100 Mbps/1 Gbps\" while the same figure LED legend already read 5G/2.5G/1G/100, so the restriction was firmware and not hardware; the current datasheet states 100M/1/2.5/5G, which is what is modelled here. Console is the front-panel RJ-45 RS-232 port (AlliedWare Plus default 9600 8-N-1, no flow control; the switch ships with the manager/friend logins), reached with the RJ-45-to-DB-9 cable in the box or an AT-VT-Kit3 USB-to-serial cable. The management panel also carries a USB port and the eco-friendly button; neither is a network interface, so neither is modelled. Numbers: the x530 Series datasheet SPECIFICATIONS and Power and Noise tables and the model page at https://www.alliedtelesis.com/us/en/products/switches/x530-series; port numbering from the x530 Quick Installation Guide (https://www.alliedtelesis.com/sites/default/files/file/2022-03/ati-x530-english-qig.pdf) and, for the 10/18/28GSX/DP port fronts, the VCStack installation guide (https://www.alliedtelesis.com/sites/default/files/documents/installation-guides/ati_x530_vc_stacking_ig.pdf)."
+}

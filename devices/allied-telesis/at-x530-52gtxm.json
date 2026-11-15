@@ -1,0 +1,174 @@
+{
+  "vendor": "allied-telesis",
+  "model": "AT-x530-52GTXm",
+  "label": "Allied Telesis AT-x530-52GTXm",
+  "category": "l3-switch",
+  "description": "Allied Telesis AT-x530-52GTXm stackable L3 access switch: 40x 10/100/1000T RJ-45, 8x 100M/1G/2.5G/5G RJ-45, 4x 1/10G SFP+ uplinks, no PoE, 240 Gbps switching fabric, 179 Mpps.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli",
+    "vlan",
+    "lacp",
+    "stp"
+  ],
+  "icon": "switch",
+  "color": "#b91c1c",
+  "portTemplate": {
+    "prefix": "port1.0.",
+    "start": 1,
+    "count": 40,
+    "type": "ethernet",
+    "speed": "1G",
+    "connector": "rj45"
+  },
+  "interfaces": [
+    {
+      "name": "port1.0.41",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "5G",
+      "speedCaps": [
+        100,
+        1000,
+        2500,
+        5000
+      ]
+    },
+    {
+      "name": "port1.0.42",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "5G",
+      "speedCaps": [
+        100,
+        1000,
+        2500,
+        5000
+      ]
+    },
+    {
+      "name": "port1.0.43",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "5G",
+      "speedCaps": [
+        100,
+        1000,
+        2500,
+        5000
+      ]
+    },
+    {
+      "name": "port1.0.44",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "5G",
+      "speedCaps": [
+        100,
+        1000,
+        2500,
+        5000
+      ]
+    },
+    {
+      "name": "port1.0.45",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "5G",
+      "speedCaps": [
+        100,
+        1000,
+        2500,
+        5000
+      ]
+    },
+    {
+      "name": "port1.0.46",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "5G",
+      "speedCaps": [
+        100,
+        1000,
+        2500,
+        5000
+      ]
+    },
+    {
+      "name": "port1.0.47",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "5G",
+      "speedCaps": [
+        100,
+        1000,
+        2500,
+        5000
+      ]
+    },
+    {
+      "name": "port1.0.48",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "5G",
+      "speedCaps": [
+        100,
+        1000,
+        2500,
+        5000
+      ]
+    },
+    {
+      "name": "port1.0.49",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "port1.0.50",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "port1.0.51",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "port1.0.52",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "console",
+      "type": "console"
+    }
+  ],
+  "fabric": {
+    "capacityMbps": 240000,
+    "kind": "switching fabric",
+    "note": "Vendor switching-fabric figure (forwarding rate 179 Mpps), the full-duplex aggregate of the port rates: 2 x (120000 Mbit/s of line rate)."
+  },
+  "sourceUrl": "https://www.alliedtelesis.com/wp-content/uploads/2026/05/ati-x530series-ds.pdf",
+  "notes": "The unpowered 52-port twin of the 52GPXm. Port numbering: copper 1-40, multi-gigabit 41-48, SFP+ 49-52, with 51/S1 and 52/S2 the default stacking ports. 441 x 323 x 44 mm, 5.3 kg, 85 W, 42 dBA - half the depth of the PoE model because there is no PoE supply to fit. Takes the AT-BRKT-J22 wall-mount kit. Console is the front-panel RJ-45 RS-232 port (AlliedWare Plus default 9600 8-N-1, no flow control; the switch ships with the manager/friend logins), reached with the RJ-45-to-DB-9 cable in the box or an AT-VT-Kit3 USB-to-serial cable. The management panel also carries a USB port and the eco-friendly button; neither is a network interface, so neither is modelled. Numbers: the x530 Series datasheet SPECIFICATIONS and Power and Noise tables and the model page at https://www.alliedtelesis.com/us/en/products/switches/x530-series; port numbering from the x530 Quick Installation Guide (https://www.alliedtelesis.com/sites/default/files/file/2022-03/ati-x530-english-qig.pdf) and, for the 10/18/28GSX/DP port fronts, the VCStack installation guide (https://www.alliedtelesis.com/sites/default/files/documents/installation-guides/ati_x530_vc_stacking_ig.pdf)."
+}

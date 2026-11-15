@@ -1,0 +1,74 @@
+{
+  "vendor": "allied-telesis",
+  "model": "AT-x530-18GHXm",
+  "label": "Allied Telesis AT-x530-18GHXm",
+  "category": "l3-switch",
+  "description": "Allied Telesis AT-x530-18GHXm stackable L3 switch: 16x 100M/1G/2.5G/5G PoE++ RJ-45 ports (1000 W budget; 60 W on all 16, 90 W on 11), 2x 1/10G SFP+ uplinks, 200 Gbps switching fabric, 149 Mpps.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli",
+    "vlan",
+    "lacp",
+    "stp",
+    "poe-pse",
+    "802.3af",
+    "802.3at",
+    "802.3bt"
+  ],
+  "icon": "switch",
+  "color": "#b91c1c",
+  "portTemplate": {
+    "prefix": "port1.0.",
+    "start": 1,
+    "count": 16,
+    "type": "ethernet",
+    "speed": "5G",
+    "connector": "rj45",
+    "speedCaps": [
+      100,
+      1000,
+      2500,
+      5000
+    ],
+    "poeOut": 60
+  },
+  "interfaces": [
+    {
+      "name": "port1.0.17",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "port1.0.18",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "console",
+      "type": "console"
+    }
+  ],
+  "poe": {
+    "budgetW": 1000,
+    "sourceUrl": "https://www.alliedtelesis.com/sites/default/files/documents/installation-guides/ati_x530_vc_stacking_ig.pdf",
+    "note": "1000 W total from two fixed 500 W supplies. Vendor budget table: 15.4 W PoE to 16 powered devices, 30 W PoE+ to 16, 60 W PoE++ to 16, but 90 W PoE++ to only 11 of the 16 - so the per-port figure modelled here is 60 W, the rate every port can hold at once. All 16 ports are 802.3bt PSE ports, PD classes 0-8, Mode A and Mode B."
+  },
+  "fabric": {
+    "capacityMbps": 200000,
+    "kind": "switching fabric",
+    "note": "Vendor switching-fabric figure (forwarding rate 149 Mpps), the full-duplex aggregate of the port rates: 2 x (100000 Mbit/s of line rate)."
+  },
+  "sourceUrl": "https://www.alliedtelesis.com/wp-content/uploads/2026/05/ati-x530series-ds.pdf",
+  "notes": "1U full-width: 441 x 421 x 44 mm, 6.7 kg. No front-panel figure for this model was found in the guides checked, so the 1-16 / 17-18 numbering follows the family pattern confirmed by the VCStack guide, which names 17/S1 and 18/S2 as the stacking ports. The 16 multi-gigabit copper ports are ports 1-16, the two SFP+ cages are ports 17 and 18 (17/S1 and 18/S2, stacking by default). 130 W with no PoE load, 1400 W fully loaded. The 90 W figure is a budget consequence, not a port limit: 11 x 90 W is 990 W and a twelfth port at 90 W would overrun the 1000 W ceiling. Console is the front-panel RJ-45 RS-232 port (AlliedWare Plus default 9600 8-N-1, no flow control; the switch ships with the manager/friend logins), reached with the RJ-45-to-DB-9 cable in the box or an AT-VT-Kit3 USB-to-serial cable. The management panel also carries a USB port and the eco-friendly button; neither is a network interface, so neither is modelled. Numbers: the x530 Series datasheet SPECIFICATIONS and Power and Noise tables and the model page at https://www.alliedtelesis.com/us/en/products/switches/x530-series; port numbering from the x530 Quick Installation Guide (https://www.alliedtelesis.com/sites/default/files/file/2022-03/ati-x530-english-qig.pdf) and, for the 10/18/28GSX/DP port fronts, the VCStack installation guide (https://www.alliedtelesis.com/sites/default/files/documents/installation-guides/ati_x530_vc_stacking_ig.pdf)."
+}

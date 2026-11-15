@@ -1,0 +1,192 @@
+{
+  "vendor": "allied-telesis",
+  "model": "AT-x530DP-52GHXm",
+  "label": "Allied Telesis AT-x530DP-52GHXm",
+  "category": "l3-switch",
+  "description": "Allied Telesis AT-x530DP-52GHXm stackable L3 PoE++ switch with dual hot-swap PSU bays: 40x 10/100/1000T, 8x 100M/1G/2.5G/5G (48 PoE++ ports), 4x 1/10G SFP+ uplinks, 1480 W PoE with two PWR1200 supplies, 240 Gbps, 179 Mpps.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli",
+    "vlan",
+    "lacp",
+    "stp",
+    "poe-pse",
+    "802.3af",
+    "802.3at",
+    "802.3bt"
+  ],
+  "icon": "switch",
+  "color": "#b91c1c",
+  "portTemplate": {
+    "prefix": "port1.0.",
+    "start": 1,
+    "count": 40,
+    "type": "ethernet",
+    "speed": "1G",
+    "connector": "rj45",
+    "poeOut": 60
+  },
+  "interfaces": [
+    {
+      "name": "port1.0.41",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "5G",
+      "speedCaps": [
+        100,
+        1000,
+        2500,
+        5000
+      ],
+      "poeOut": 60
+    },
+    {
+      "name": "port1.0.42",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "5G",
+      "speedCaps": [
+        100,
+        1000,
+        2500,
+        5000
+      ],
+      "poeOut": 60
+    },
+    {
+      "name": "port1.0.43",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "5G",
+      "speedCaps": [
+        100,
+        1000,
+        2500,
+        5000
+      ],
+      "poeOut": 60
+    },
+    {
+      "name": "port1.0.44",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "5G",
+      "speedCaps": [
+        100,
+        1000,
+        2500,
+        5000
+      ],
+      "poeOut": 60
+    },
+    {
+      "name": "port1.0.45",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "5G",
+      "speedCaps": [
+        100,
+        1000,
+        2500,
+        5000
+      ],
+      "poeOut": 60
+    },
+    {
+      "name": "port1.0.46",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "5G",
+      "speedCaps": [
+        100,
+        1000,
+        2500,
+        5000
+      ],
+      "poeOut": 60
+    },
+    {
+      "name": "port1.0.47",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "5G",
+      "speedCaps": [
+        100,
+        1000,
+        2500,
+        5000
+      ],
+      "poeOut": 60
+    },
+    {
+      "name": "port1.0.48",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "5G",
+      "speedCaps": [
+        100,
+        1000,
+        2500,
+        5000
+      ],
+      "poeOut": 60
+    },
+    {
+      "name": "port1.0.49",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "port1.0.50",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "port1.0.51",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "port1.0.52",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "console",
+      "type": "console"
+    }
+  ],
+  "poe": {
+    "budgetW": 1480,
+    "sourceUrl": "https://www.alliedtelesis.com/wp-content/uploads/2026/05/ati-x530series-ds.pdf",
+    "note": "1480 W only with two PWR1200 supplies (740 W with one PWR1200 or two PWR800s, 370 W with a single PWR800). At 1480 W the vendor table gives 60 W PoE++ to 24 of the 48 ports and 30 W to all 48, so 48 x 60 W is not on offer whatever the supply count - the per-port capability is 60 W and the budget is what limits a 60 W fill to 24 ports. 802.3bt, PD classes 0-8."
+  },
+  "fabric": {
+    "capacityMbps": 240000,
+    "kind": "switching fabric",
+    "note": "Vendor switching-fabric figure (forwarding rate 179 Mpps), the full-duplex aggregate of the port rates: 2 x (120000 Mbit/s of line rate)."
+  },
+  "sourceUrl": "https://www.alliedtelesis.com/wp-content/uploads/2026/05/ati-x530series-ds.pdf",
+  "notes": "The 52-port dual-PSU chassis: 441 x 421 x 44 mm, 5.6 kg, 170 W with no PoE load, 1930 W fully loaded, 63 dBA with two PWR1200s. Copper ports 1-40, multi-gigabit 41-48, SFP+ 49-52 (51/S1, 52/S2 stacking by default, following the 52-port chassis - no DP front-panel figure was found in the guides checked here). Same PSU matrix and the same Class 5-8 hot-swap caution as the DP-28GHXm. Console is the front-panel RJ-45 RS-232 port (AlliedWare Plus default 9600 8-N-1, no flow control; the switch ships with the manager/friend logins), reached with the RJ-45-to-DB-9 cable in the box or an AT-VT-Kit3 USB-to-serial cable. The management panel also carries a USB port and the eco-friendly button; neither is a network interface, so neither is modelled. Numbers: the x530 Series datasheet SPECIFICATIONS and Power and Noise tables and the model page at https://www.alliedtelesis.com/us/en/products/switches/x530-series; port numbering from the x530 Quick Installation Guide (https://www.alliedtelesis.com/sites/default/files/file/2022-03/ati-x530-english-qig.pdf) and, for the 10/18/28GSX/DP port fronts, the VCStack installation guide (https://www.alliedtelesis.com/sites/default/files/documents/installation-guides/ati_x530_vc_stacking_ig.pdf)."
+}
