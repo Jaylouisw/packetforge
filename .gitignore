@@ -18,6 +18,10 @@ Thumbs.db
 /data/
 .tmp-*
 
+# Scratch directory for probe debris (worktrees, captured output, one-off scripts). Nothing
+# here is meant to be committed; see CONTRIBUTING.md.
+tmp/
+
 # vendor datasheet cache (downloaded, never committed)
 research/pdf/
 research/_*.json
