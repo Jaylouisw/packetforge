@@ -881,6 +881,13 @@ class CliSession {
             out.push.apply(out, this._saveConfig(this.device));
           }
         } else if (head === 'configure' || head === 'conf') {
+          // Every other privileged command refuses without `enable` - `write memory`, `copy run start`,
+          // `clear logging`, `clear counters`, `clear arp` - and the one that opens the whole device
+          // to configuration did not. A user-exec session could not save or clear, but could change
+          // anything, which is the privilege distinction exactly backwards.
+          if (this.mode === MODE_EXEC) {
+            return { output: out.concat(['% configure terminal needs enable mode' + NEEDS.enable]), actions: [] };
+          }
           if (tokens[1] === 'terminal' || tokens[1] === 't') {
             // Remember where we came from: `exit`/`end` return to that prompt. IOS puts you back
             // at privileged exec, and the old code sent every session to *user* exec instead, so a
@@ -12522,7 +12529,12 @@ class CliSession {
         out.push('', '  | ' + name + ' takes the text to look for, e.g. ' + main.trim() +
           ' | ' + name + ' vlan');
       } else {
-        out.push('', '  ' + fits.length + ' filters start with "' + typed + '" - keep typing, or ask again');
+        // `| ?` - the help character on its own with nothing typed before it - is the same question as
+        // `| include ?`: what can follow a pipe. It answered `5 filters start with "" - keep typing`,
+        // which is advice about a prefix nobody typed.
+        if (typed) {
+          out.push('', '  ' + fits.length + ' filters start with "' + typed + '" - keep typing, or ask again');
+        }
       }
       return out;
     }
