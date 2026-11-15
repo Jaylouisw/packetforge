@@ -20,8 +20,19 @@
 const VLAN_MIN = 1;
 const VLAN_MAX = 4094;          // 802.1Q usable range (0x001 .. 0xFFE)
 const VLAN_DEFAULT = 1;         // default VLAN
-const VLAN_RESERVED_MIN = 1002; // IEEE 802.1Q reserved range ...
-const VLAN_RESERVED_MAX = 1005; // ... Token Ring / FDDI / ATM-FUNI defaults
+// The four VLANs a switch is born with. 1002-1005 are the reserved Token Ring / FDDI defaults: they exist on
+// every IOS-like switch before a single line of configuration, no port may be put in one, and `show vlan`
+// prints them as `act/unsup` with an empty Ports column (Cisco Catalyst 2960-X command reference, `show vlan`).
+// The names sit beside the range they occupy, so the refusal ("VLAN id 1002 is reserved") and the row that
+// prints it are talking about the same four ids.
+const RESERVED_VLANS = Object.freeze([
+  { id: 1002, name: 'fddi-default' },
+  { id: 1003, name: 'token-ring-default' },
+  { id: 1004, name: 'fddinet-default' },
+  { id: 1005, name: 'trnet-default' }
+]);
+const VLAN_RESERVED_MIN = RESERVED_VLANS[0].id;                        // IEEE 802.1Q reserved range ...
+const VLAN_RESERVED_MAX = RESERVED_VLANS[RESERVED_VLANS.length - 1].id; // ... Token Ring / FDDI / ATM-FUNI defaults
 
 // ---------------------------------------------------------------------------
 // small helpers
@@ -584,6 +595,7 @@ function describeAllowed(allowed) {
 
 module.exports = {
   VLAN_MIN,
+  RESERVED_VLANS,
   VLAN_MAX,
   VLAN_DEFAULT,
   parseVlanList,

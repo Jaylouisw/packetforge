@@ -3776,11 +3776,27 @@ class CliSession {
           vlanSet.add(Number(v.accessVlan) || 1);
         }
       }
+      // A switch has five VLANs before anyone configures one: the default VLAN and the four reserved Token Ring /
+      // FDDI defaults, 1002-1005. They exist on the hardware, no port may belong to one, and `show vlan` prints
+      // them as `act/unsup` with an empty Ports column - which is what makes `vlan 1002` being refused as
+      // reserved readable rather than an arbitrary rule. The table listed VLAN 1 alone, so a factory-default
+      // switch reported one VLAN where the device it imitates reports five. Only a bridge has a VLAN
+      // database, so a router keeps the table it printed before (whether it should answer `show vlan` at all is
+      // a separate question - a real router does not).
+      const reserved = (typeof dev.isL2 === 'function' && dev.isL2()) ? vlanLib.RESERVED_VLANS : [];
+      for (const r of reserved) vlanSet.add(r.id);
       // A trunk with `allowedVlans: all` carries every VLAN in the table, so it is listed in each row.
       const ids = Array.from(vlanSet).filter(function (id) { return Number.isFinite(id) && id >= 1; })
         .sort(function (a, b) { return a - b; });
       out.push(pad('VLAN', 8) + pad('Name', 33) + pad('Status', 10) + 'Ports');
       for (const id of ids) {
+        // The reserved rows sort into place by id, as they do on the device: a VLAN 2000 configured by hand sits
+        // after 1005, not before it.
+        const fixed = reserved.filter(function (r) { return r.id === id; })[0];
+        if (fixed) {
+          out.push((pad(id, 8) + pad(fixed.name, 33) + pad('act/unsup', 10)).replace(/\s+$/, ''));
+          continue;
+        }
         const members = [];
         for (const i of dev.interfaces.values()) {
           const verdict = vlanLib.classifyEgress(i.vlan, id);

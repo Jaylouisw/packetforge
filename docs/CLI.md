@@ -24,7 +24,7 @@ Modes and their prompts:
 | `show ip route` | routing table: connected, static, OSPF, BGP, and the default |
 | `show arp` | ARP cache, with an age per neighbour, the port it was learned on, and whether that port can still carry a frame |
 | `show mac address-table` | MAC table (switches), per VLAN, with an age per entry and stale entries marked |
-| `show vlan` / `show vlan brief` | VLAN table: one row per VLAN, with the ports that actually carry it |
+| `show vlan` / `show vlan brief` | VLAN table: one row per VLAN, with the ports that actually carry it, and the four reserved defaults (1002-1005) a switch has from boot |
 | `show spanning-tree` | per-port STP role and state, the bridge priority and the elected root, or "not measured" when nothing has run |
 | `show etherchannel summary` | LAG members, `(P)` bundled or `(D)` unbundled with the reason |
 | `show lldp` | LLDP neighbours, with the local port marked when it can no longer carry |
@@ -513,6 +513,10 @@ VLAN    Name                             Status    Ports
 1       default                          active    Fa0/3, Fa0/4, Fa0/5, Fa0/6, Fa0/7, Fa0/8
 20      twenty                           active    Fa0/1, Fa0/2, Fa0/3
 30      thirty                           active    Fa0/2, Fa0/3
+1002    fddi-default                     act/unsup
+1003    token-ring-default               act/unsup
+1004    fddinet-default                  act/unsup
+1005    trnet-default                    act/unsup
 ```
 
 One row per VLAN, in VLAN order. **Membership is decided by the same rule the switch forwards by** — a port
@@ -524,9 +528,18 @@ appears under a VLAN if and only if a frame in that VLAN could leave by it:
   chase a native-VLAN mismatch that the table was previously hiding;
 * a trunk with `allowedVlan all` appears in every row.
 
-A VLAN exists in this table if it is configured with `vlan <id> [name] [<text>]`, or if a port uses it — and
-VLAN 1 is there from power-on, named `default`, before anybody types anything. A configured VLAN nothing
-carries prints an empty Ports column rather than an invented port.
+A VLAN exists in this table if it is configured with `vlan <id> [name] [<text>]`, or if a port uses it, or if the
+box has it from boot — VLAN 1 is there from power-on, named `default`, before anybody types anything. A configured
+VLAN nothing carries prints an empty Ports column rather than an invented port.
+
+**A switch has five VLANs before anything is configured**: 1, and the four reserved Token Ring / FDDI defaults,
+1002-1005. They belong to the VLAN database from power-on, no port may be assigned to one, and they print
+`act/unsup` with an empty Ports column — which is the fact behind `% VLAN id 1002 is reserved`. They are not
+configuration: `show running-config` never prints them, and they keep their place in the sort, so a hand-made
+VLAN 2000 appears after 1005. The names are `RESERVED_VLANS` in `engine/vlan.js`, the same list the reserved-range
+refusal quotes. A device that is not a bridge is not given the reserved rows, because it has no VLAN database
+(`test/show-vlan-reserved-defaults.test.js`, 30 checks) — though a router still answers `show vlan` with VLAN 1,
+which a real router refuses outright; that is a separate fault, recorded and not fixed here.
 
 `show vlan brief` prints the same table; there is no short form that disagrees with the long one.
 
