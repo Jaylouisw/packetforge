@@ -1,0 +1,1341 @@
+[
+  {
+    "vendor": "ruckus",
+    "model": "ICX 7150-24",
+    "label": "RUCKUS ICX 7150-24",
+    "category": "l3-switch",
+    "description": "RUCKUS ICX 7150-24 stackable access switch: 24x 1G RJ-45 downlinks, 2x 1G RJ-45 uplinks, 4x 1/10G SFP+ uplink/stacking ports, no PoE, 180 Gbps switching capacity.",
+    "capabilities": [
+      "l2-forward",
+      "l3-forward",
+      "cli"
+    ],
+    "icon": "switch",
+    "color": "#c8102e",
+    "portTemplate": {
+      "prefix": "1/1/",
+      "start": 1,
+      "count": 24,
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "rj45"
+    },
+    "interfaces": [
+      {
+        "name": "1/2/1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "1/2/2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "1/3/1",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "1/3/2",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "1/3/3",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "1/3/4",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "mgmt",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "console",
+        "type": "console"
+      }
+    ],
+    "sourceUrl": "https://webresources.ruckuswireless.com/pdf/datasheets/ds-icx-family.pdf",
+    "notes": "Family datasheet: 24+2 x 10/100/1000 Mbps RJ-45 and 4x 1/10 GbE uplink/stacking SFP/SFP+, no PoE; switching capacity 180 Gbps on the standard 7150 column of the model table. Port numbering follows the hardware guide: downlinks on slot 1 (1/1/1-1/1/24), the two RJ-45 uplinks on slot 2 (1/2/1-1/2/2), the SFP+ cages on slot 3 (1/3/1-1/3/4). The 10G rate is licence-gated - the PoD licensing guide names 1/3/1-1/3/4 as the licence-gated 10G ports - so the spec models the SFP+ cage and both rates rather than assuming a licence is fitted. Out-of-band 1G RJ-45 management port plus an RS-232 RJ-45 console port; the second, USB Type-C console port is not modelled because the engine has no USB interface."
+  },
+  {
+    "vendor": "ruckus",
+    "model": "ICX 7150-24P",
+    "label": "RUCKUS ICX 7150-24P",
+    "category": "l3-switch",
+    "description": "RUCKUS ICX 7150-24P stackable access switch: 24x 1G PoE+ RJ-45 (370 W budget), 2x 1G RJ-45 uplinks, 4x 1/10G SFP+ uplink/stacking, 180 Gbps switching capacity.",
+    "capabilities": [
+      "l2-forward",
+      "l3-forward",
+      "cli",
+      "poe-pse",
+      "802.3af",
+      "802.3at"
+    ],
+    "icon": "switch",
+    "color": "#c8102e",
+    "portTemplate": {
+      "prefix": "1/1/",
+      "start": 1,
+      "count": 24,
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "rj45",
+      "poeOut": 30
+    },
+    "interfaces": [
+      {
+        "name": "1/2/1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "1/2/2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "1/3/1",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "1/3/2",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "1/3/3",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "1/3/4",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "mgmt",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "console",
+        "type": "console"
+      }
+    ],
+    "poe": {
+      "budgetW": 370,
+      "sourceUrl": "https://webresources.ruckuswireless.com/pdf/datasheets/ds-icx-family.pdf",
+      "note": "24 PoE+ ports, 370 W PoE budget (datasheet model table)."
+    },
+    "sourceUrl": "https://webresources.ruckuswireless.com/pdf/datasheets/ds-icx-family.pdf",
+    "notes": "Datasheet: 24+2 x 10/100/1000 Mbps RJ-45, 24 PoE+ ports, 370 W PoE budget, 4x 1/10 GbE uplink/stacking SFP/SFP+. Every downlink is a PSE port; the two RJ-45 uplinks are not, and are modelled unpowered. Switching capacity 180 Gbps (standard 7150 column). 10G on 1/3/1-1/3/4 is licence-gated per the PoD licensing guide."
+  },
+  {
+    "vendor": "ruckus",
+    "model": "ICX 7150-24F",
+    "label": "RUCKUS ICX 7150-24F",
+    "category": "l3-switch",
+    "description": "RUCKUS ICX 7150-24F fibre access switch: 24x 100/1000 Mbps SFP downlinks, 2x 1G RJ-45 uplinks, 4x 1/10G SFP+ uplink/stacking, no PoE, 180 Gbps switching capacity.",
+    "capabilities": [
+      "l2-forward",
+      "l3-forward",
+      "cli"
+    ],
+    "icon": "switch",
+    "color": "#c8102e",
+    "portTemplate": {
+      "prefix": "1/1/",
+      "start": 1,
+      "count": 24,
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        100,
+        1000
+      ]
+    },
+    "interfaces": [
+      {
+        "name": "1/2/1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "1/2/2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "1/3/1",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "1/3/2",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "1/3/3",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "1/3/4",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "mgmt",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "console",
+        "type": "console"
+      }
+    ],
+    "sourceUrl": "https://webresources.ruckuswireless.com/pdf/datasheets/ds-icx-family.pdf",
+    "notes": "Datasheet: 24x 100/1000 Mbps SFP ports, 2x 10/100/1000 Mbps uplink RJ-45 ports, 4x 1/10 GbE uplink/stacking SFP/SFP+. All 24 downlinks are fibre cages, so this box cannot take a copper access lead - that is the point of the -24F, and modelling the downlinks as RJ-45 would be the exact error this catalogue exists to avoid. DISCREPANCY: the technical specification page port table says two SFP+ 1-GbE/10-GbE ports for this model, while the family datasheet and the hardware guide model table both say four SFP+ uplink and four stacking. The spec follows the two sources that agree; the conflict is recorded here rather than silently resolved. No PoE."
+  },
+  {
+    "vendor": "ruckus",
+    "model": "ICX 7150-48",
+    "label": "RUCKUS ICX 7150-48",
+    "category": "l3-switch",
+    "description": "RUCKUS ICX 7150-48 stackable access switch: 48x 1G RJ-45 downlinks, 2x 1G RJ-45 uplinks, 4x 1/10G SFP+ uplink/stacking, no PoE, 180 Gbps switching capacity.",
+    "capabilities": [
+      "l2-forward",
+      "l3-forward",
+      "cli"
+    ],
+    "icon": "switch",
+    "color": "#c8102e",
+    "portTemplate": {
+      "prefix": "1/1/",
+      "start": 1,
+      "count": 48,
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "rj45"
+    },
+    "interfaces": [
+      {
+        "name": "1/2/1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "1/2/2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "1/3/1",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "1/3/2",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "1/3/3",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "1/3/4",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "mgmt",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "console",
+        "type": "console"
+      }
+    ],
+    "sourceUrl": "https://webresources.ruckuswireless.com/pdf/datasheets/ds-icx-family.pdf",
+    "notes": "Datasheet: 48+2 x 10/100/1000 Mbps RJ-45 and 4x 1/10 GbE uplink/stacking SFP/SFP+, no PoE. Switching capacity 180 Gbps. Downlinks 1/1/1-1/1/48, RJ-45 uplinks 1/2/1-1/2/2, SFP+ 1/3/1-1/3/4 (hardware guide: the SFP+ ports reside on slot 3, the RJ-45 uplinks on slot 2). Up to 12 switches per stack, 480 Gbps aggregate stack bandwidth. 10G on the SFP+ cages requires the PoD 4X10GR licence."
+  },
+  {
+    "vendor": "ruckus",
+    "model": "ICX 7150-48P",
+    "label": "RUCKUS ICX 7150-48P",
+    "category": "l3-switch",
+    "description": "RUCKUS ICX 7150-48P stackable access switch: 48x 1G PoE+ RJ-45 (370 W budget), 2x 1G RJ-45 uplinks, 4x 1/10G SFP+ uplink/stacking, 180 Gbps switching capacity.",
+    "capabilities": [
+      "l2-forward",
+      "l3-forward",
+      "cli",
+      "poe-pse",
+      "802.3af",
+      "802.3at"
+    ],
+    "icon": "switch",
+    "color": "#c8102e",
+    "portTemplate": {
+      "prefix": "1/1/",
+      "start": 1,
+      "count": 48,
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "rj45",
+      "poeOut": 30
+    },
+    "interfaces": [
+      {
+        "name": "1/2/1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "1/2/2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "1/3/1",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "1/3/2",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "1/3/3",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "1/3/4",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "mgmt",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "console",
+        "type": "console"
+      }
+    ],
+    "poe": {
+      "budgetW": 370,
+      "sourceUrl": "https://webresources.ruckuswireless.com/pdf/datasheets/ds-icx-family.pdf",
+      "note": "48 PoE+ ports, 370 W budget. The -48PF is the 740 W variant and is catalogued separately; conflating the two is how a PoE plan comes up 370 W short."
+    },
+    "sourceUrl": "https://webresources.ruckuswireless.com/pdf/datasheets/ds-icx-family.pdf",
+    "notes": "Datasheet: 48+2 x 10/100/1000 Mbps RJ-45, 48 PoE+ ports, 370 W PoE budget, 4x 1/10 GbE uplink/stacking SFP/SFP+. The 370 W figure is the datasheet number, not 48 x 30 W: a simultaneous Class 4 load is not supported, and that gap is what a camera or AP plan has to be designed around. The 740 W variant is the separately catalogued -48PF. Switching capacity 180 Gbps."
+  },
+  {
+    "vendor": "ruckus",
+    "model": "ICX 7150-48PF",
+    "label": "RUCKUS ICX 7150-48PF",
+    "category": "l3-switch",
+    "description": "RUCKUS ICX 7150-48PF stackable access switch: 48x 1G PoE+ RJ-45 (740 W budget), 2x 1G RJ-45 uplinks, 4x 1/10G SFP+ uplink/stacking, 180 Gbps switching capacity.",
+    "capabilities": [
+      "l2-forward",
+      "l3-forward",
+      "cli",
+      "poe-pse",
+      "802.3af",
+      "802.3at"
+    ],
+    "icon": "switch",
+    "color": "#c8102e",
+    "portTemplate": {
+      "prefix": "1/1/",
+      "start": 1,
+      "count": 48,
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "rj45",
+      "poeOut": 30
+    },
+    "interfaces": [
+      {
+        "name": "1/2/1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "1/2/2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "1/3/1",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "1/3/2",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "1/3/3",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "1/3/4",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "mgmt",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "console",
+        "type": "console"
+      }
+    ],
+    "poe": {
+      "budgetW": 740,
+      "sourceUrl": "https://webresources.ruckuswireless.com/pdf/datasheets/ds-icx-family.pdf",
+      "note": "48 PoE+ ports, 740 W budget - double the -48P, which is why the two must not be merged into one catalogue entry."
+    },
+    "sourceUrl": "https://webresources.ruckuswireless.com/pdf/datasheets/ds-icx-family.pdf",
+    "notes": "Datasheet: 48+2 x 10/100/1000 Mbps RJ-45 PoE+, 48 PoE+ ports, 740 W PoE budget, 4x 1/10 GbE uplink/stacking ports. 740 W does not fund 48 ports at the 30 W Class 4 ceiling (that would be 1440 W); it funds all 48 at Class 3 with headroom. The technical specification page lists the -48PF among the models with two modular fan trays and two modular power supplies, and states fanless mode is not supported. Switching capacity 180 Gbps."
+  },
+  {
+    "vendor": "ruckus",
+    "model": "ICX 7150-48ZP",
+    "label": "RUCKUS ICX 7150-48ZP",
+    "category": "l3-switch",
+    "description": "RUCKUS ICX 7150-48ZP multigigabit access switch: 16x 2.5G RJ-45 PoH (up to 90 W each) plus 32x 1G PoE+ RJ-45, 8x 1/10G SFP+, 1480 W PoE budget with two PSUs, 304 Gbps switching capacity.",
+    "capabilities": [
+      "l2-forward",
+      "l3-forward",
+      "cli",
+      "poe-pse",
+      "802.3af",
+      "802.3at",
+      "802.3bt"
+    ],
+    "icon": "switch",
+    "color": "#c8102e",
+    "portTemplate": {
+      "prefix": "1/1/",
+      "start": 1,
+      "count": 16,
+      "type": "ethernet",
+      "speed": "2.5G",
+      "connector": "rj45",
+      "speedCaps": [
+        100,
+        1000,
+        2500
+      ],
+      "poeOut": 90
+    },
+    "interfaces": [
+      {
+        "name": "1/1/17",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30,
+        "poeOutClass": "PoE+ (802.3at)"
+      },
+      {
+        "name": "1/1/18",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30,
+        "poeOutClass": "PoE+ (802.3at)"
+      },
+      {
+        "name": "1/1/19",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30,
+        "poeOutClass": "PoE+ (802.3at)"
+      },
+      {
+        "name": "1/1/20",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30,
+        "poeOutClass": "PoE+ (802.3at)"
+      },
+      {
+        "name": "1/1/21",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30,
+        "poeOutClass": "PoE+ (802.3at)"
+      },
+      {
+        "name": "1/1/22",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30,
+        "poeOutClass": "PoE+ (802.3at)"
+      },
+      {
+        "name": "1/1/23",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30,
+        "poeOutClass": "PoE+ (802.3at)"
+      },
+      {
+        "name": "1/1/24",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30,
+        "poeOutClass": "PoE+ (802.3at)"
+      },
+      {
+        "name": "1/1/25",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30,
+        "poeOutClass": "PoE+ (802.3at)"
+      },
+      {
+        "name": "1/1/26",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30,
+        "poeOutClass": "PoE+ (802.3at)"
+      },
+      {
+        "name": "1/1/27",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30,
+        "poeOutClass": "PoE+ (802.3at)"
+      },
+      {
+        "name": "1/1/28",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30,
+        "poeOutClass": "PoE+ (802.3at)"
+      },
+      {
+        "name": "1/1/29",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30,
+        "poeOutClass": "PoE+ (802.3at)"
+      },
+      {
+        "name": "1/1/30",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30,
+        "poeOutClass": "PoE+ (802.3at)"
+      },
+      {
+        "name": "1/1/31",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30,
+        "poeOutClass": "PoE+ (802.3at)"
+      },
+      {
+        "name": "1/1/32",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30,
+        "poeOutClass": "PoE+ (802.3at)"
+      },
+      {
+        "name": "1/1/33",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30,
+        "poeOutClass": "PoE+ (802.3at)"
+      },
+      {
+        "name": "1/1/34",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30,
+        "poeOutClass": "PoE+ (802.3at)"
+      },
+      {
+        "name": "1/1/35",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30,
+        "poeOutClass": "PoE+ (802.3at)"
+      },
+      {
+        "name": "1/1/36",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30,
+        "poeOutClass": "PoE+ (802.3at)"
+      },
+      {
+        "name": "1/1/37",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30,
+        "poeOutClass": "PoE+ (802.3at)"
+      },
+      {
+        "name": "1/1/38",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30,
+        "poeOutClass": "PoE+ (802.3at)"
+      },
+      {
+        "name": "1/1/39",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30,
+        "poeOutClass": "PoE+ (802.3at)"
+      },
+      {
+        "name": "1/1/40",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30,
+        "poeOutClass": "PoE+ (802.3at)"
+      },
+      {
+        "name": "1/1/41",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30,
+        "poeOutClass": "PoE+ (802.3at)"
+      },
+      {
+        "name": "1/1/42",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30,
+        "poeOutClass": "PoE+ (802.3at)"
+      },
+      {
+        "name": "1/1/43",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30,
+        "poeOutClass": "PoE+ (802.3at)"
+      },
+      {
+        "name": "1/1/44",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30,
+        "poeOutClass": "PoE+ (802.3at)"
+      },
+      {
+        "name": "1/1/45",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30,
+        "poeOutClass": "PoE+ (802.3at)"
+      },
+      {
+        "name": "1/1/46",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30,
+        "poeOutClass": "PoE+ (802.3at)"
+      },
+      {
+        "name": "1/1/47",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30,
+        "poeOutClass": "PoE+ (802.3at)"
+      },
+      {
+        "name": "1/1/48",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30,
+        "poeOutClass": "PoE+ (802.3at)"
+      },
+      {
+        "name": "1/2/1",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "1/2/2",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "1/2/3",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "1/2/4",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "1/2/5",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "1/2/6",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "1/2/7",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "1/2/8",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "mgmt",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "console",
+        "type": "console"
+      }
+    ],
+    "poe": {
+      "budgetW": 1480,
+      "sourceUrl": "https://webresources.ruckuswireless.com/pdf/datasheets/ds-icx-family.pdf",
+      "note": "1480 W with two power supplies. Only the first 16 ports are PoH (90 W); the other 32 are 802.3af/at at 30 W class."
+    },
+    "sourceUrl": "https://webresources.ruckuswireless.com/pdf/datasheets/ds-icx-family.pdf",
+    "notes": "Datasheet: 16x 100/1000 Mbps/2.5 Gbps RJ-45 PoH ports, 32x 10/100/1000 Mbps RJ-45 PoE+ ports, 1480 W PoE budget with two power supplies, 8x 1/10 GbE uplink/stacking SFP/SFP+. Z-Series column: 304 Gbps switching capacity, 480 Gbps aggregate stack bandwidth. Hardware guide: the eight SFP+ are 1/2/1-1/2/8 on this model (not slot 3 as on the -24/-48), the first four can stack and the last four are uplink/user only; 1/2/1 and 1/2/3 come up at 10G and the rest default to 1G until the 8X10GR licence is applied. Two hot-swap power supplies and two fan trays; fanless operation is not supported. 48 copper ports total, not 64: the 16 multigigabit and 32 gigabit ports are the whole downlink set."
+  },
+  {
+    "vendor": "ruckus",
+    "model": "ICX 7150-C08P",
+    "label": "RUCKUS ICX 7150-C08P",
+    "category": "l3-switch",
+    "description": "RUCKUS ICX 7150-C08P fanless compact switch: 8x 1G PoE+ RJ-45 (62 W budget) and 2x 1G SFP uplinks. No stacking, no local console and no out-of-band management port.",
+    "capabilities": [
+      "l2-forward",
+      "l3-forward",
+      "cli",
+      "poe-pse",
+      "802.3af",
+      "802.3at"
+    ],
+    "icon": "switch",
+    "color": "#c8102e",
+    "portTemplate": {
+      "prefix": "1/1/",
+      "start": 1,
+      "count": 8,
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "rj45",
+      "poeOut": 30,
+      "poeOutClass": "PoE+ (802.3at)"
+    },
+    "interfaces": [
+      {
+        "name": "sfp1",
+        "type": "ethernet",
+        "connector": "sfp",
+        "speed": "1G",
+        "speedCaps": [
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "sfp2",
+        "type": "ethernet",
+        "connector": "sfp",
+        "speed": "1G",
+        "speedCaps": [
+          100,
+          1000
+        ]
+      }
+    ],
+    "poe": {
+      "budgetW": 62,
+      "sourceUrl": "https://docs.ruckusnetworks.com/prod/ruckus-docs/icx7150-installguide/$/HardwarefeaturesGUID-F9ACD782-DB72-416F-9249-A91C658D99D26en-US",
+      "note": "62 W across 8 PoE+ ports (hardware guide model table, column PoE Power)."
+    },
+    "sourceUrl": "https://webresources.ruckuswireless.com/pdf/datasheets/ds-icx-family.pdf",
+    "notes": "Hardware guide model table: 8x1G copper, 8 PoE ports, 62 W, 2x1G fibre optic uplinks (uplink only), no stacking. Datasheet: 8x 10/100/1000 Mbps PoE+ RJ-45, 2x 1GbE SFP uplink, 62 W PoE power budget, fanless. This is the one 7150 with no local management hardware: the guide states the C08P and C08PT have no out-of-band management port, no RJ-45 console and no USB, so no mgmt port and no console port are modelled - management is in-band over the network only, which is why the CLI capability is kept while the console port is not invented. The two uplinks are named sfp1/sfp2 because the guide publishes their count and rate but not their slot/port numbers, and writing 1/3/1-1/3/2 would be a guess. The SFP uplinks are 1G only - there is no 10G option on this model."
+  },
+  {
+    "vendor": "ruckus",
+    "model": "ICX 7150-C12P",
+    "label": "RUCKUS ICX 7150-C12P",
+    "category": "l3-switch",
+    "description": "RUCKUS ICX 7150-C12P fanless compact switch: 12x 1G PoE+ RJ-45 (124 W budget), 2x 1G RJ-45 uplinks and 2x 1/10G SFP+ uplink/stacking.",
+    "capabilities": [
+      "l2-forward",
+      "l3-forward",
+      "cli",
+      "poe-pse",
+      "802.3af",
+      "802.3at"
+    ],
+    "icon": "switch",
+    "color": "#c8102e",
+    "portTemplate": {
+      "prefix": "1/1/",
+      "start": 1,
+      "count": 12,
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "rj45",
+      "poeOut": 30
+    },
+    "interfaces": [
+      {
+        "name": "1/2/1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "1/2/2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "1/3/1",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "1/3/2",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "mgmt",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "console",
+        "type": "console"
+      }
+    ],
+    "poe": {
+      "budgetW": 124,
+      "sourceUrl": "https://webresources.ruckuswireless.com/pdf/datasheets/ds-icx-family.pdf",
+      "note": "12 PoE+ ports, 124 W budget."
+    },
+    "sourceUrl": "https://webresources.ruckuswireless.com/pdf/datasheets/ds-icx-family.pdf",
+    "notes": "Datasheet: 12+2 x 10/100/1000 Mbps RJ-45, 12 PoE+ ports, 124 W PoE budget, 2x 1/10 GbE uplink/stacking SFP/SFP+, fanless. Hardware guide: downlinks on slot 1, the two RJ-45 uplinks on slot 2 (1/2/1-1/2/2) and the SFP+ on slot 3. The PoD licensing guide independently names 1/3/1 and 1/3/2 as this model pair of licence-gated 10G ports, which is the evidence for that numbering. Stacking is supported on the two SFP+ ports."
+  },
+  {
+    "vendor": "ruckus",
+    "model": "ICX 7150-C10ZP",
+    "label": "RUCKUS ICX 7150-C10ZP",
+    "category": "l3-switch",
+    "description": "RUCKUS ICX 7150-C10ZP fanless multigigabit compact switch: 8x 1G/2.5G RJ-45 plus 2x 1/2.5/5/10G RJ-45 uplinks, all ten PoE (240 W budget, four of them 802.3bt-ready PoH at up to 90 W), and 2x 1/10G SFP+ uplink/stacking.",
+    "capabilities": [
+      "l2-forward",
+      "l3-forward",
+      "cli",
+      "poe-pse",
+      "802.3af",
+      "802.3at",
+      "802.3bt"
+    ],
+    "icon": "switch",
+    "color": "#c8102e",
+    "portTemplate": {
+      "prefix": "1/1/",
+      "start": 1,
+      "count": 8,
+      "type": "ethernet",
+      "speed": "2.5G",
+      "connector": "rj45",
+      "speedCaps": [
+        100,
+        1000,
+        2500
+      ],
+      "poeOut": 30,
+      "poeOutClass": "PoE+ (802.3at)"
+    },
+    "interfaces": [
+      {
+        "name": "1/1/9",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "10G",
+        "speedCaps": [
+          1000,
+          2500,
+          5000,
+          10000
+        ],
+        "poeOut": 30,
+        "poeOutClass": "PoE+ (802.3at)"
+      },
+      {
+        "name": "1/1/10",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "10G",
+        "speedCaps": [
+          1000,
+          2500,
+          5000,
+          10000
+        ],
+        "poeOut": 30,
+        "poeOutClass": "PoE+ (802.3at)"
+      },
+      {
+        "name": "1/3/1",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "1/3/2",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "mgmt",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G"
+      },
+      {
+        "name": "console",
+        "type": "console"
+      }
+    ],
+    "poe": {
+      "budgetW": 240,
+      "sourceUrl": "https://docs.ruckusnetworks.com/prod/ruckus-docs/icx7150-installguide/$/HardwarefeaturesGUID-F9ACD782-DB72-416F-9249-A91C658D99D26en-US",
+      "note": "240 W PoE budget across 10 PoE ports; up to 90 W per port on four PoH 802.3bt-ready ports (the datasheet does not state which four)."
+    },
+    "sourceUrl": "https://webresources.ruckuswireless.com/pdf/datasheets/ds-icx-family.pdf",
+    "notes": "Hardware guide model table: 8x 1G/2.5G copper downlinks, 10 PoE ports, 240 W, 2x 1G/2.5G/10G copper uplinks plus 2xSFP+ uplink/stacking. Datasheet: 10x RJ-45 multigigabit ports, including 8x 2.5 GbE and 2x 2.5/5/10 GbE, 2x 1/10 GbE uplink/stacking SFP/SFP+, 240 W PoE budget, up to 90 W per port on 4 PoH 802.3bt-ready ports, fanless. All ten copper ports are PoE (the model table says 10 of 10), so all ten are modelled as PSE at the 802.3at class; the datasheet says up to 90 W on four 802.3bt-ready PoH ports but does not say WHICH four, so this spec records the 240 W budget and the four-port PoH capability here rather than assigning 90 W to ports by guesswork - on the 48ZP the guide does name the ports (the first 16) and there the 90 W figure is modelled per port. PoD licensing guide: 1/3/1 and 1/3/2 are the licence-gated 10G uplinks."
+  }
+]

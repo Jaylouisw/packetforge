@@ -1,0 +1,56 @@
+{
+  "vendor": "ruckus",
+  "model": "ICX 7150-C08P",
+  "label": "RUCKUS ICX 7150-C08P",
+  "category": "l3-switch",
+  "description": "RUCKUS ICX 7150-C08P fanless compact switch: 8x 1G PoE+ RJ-45 (62 W budget) and 2x 1G SFP uplinks. No stacking, no local console and no out-of-band management port.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli",
+    "poe-pse",
+    "802.3af",
+    "802.3at"
+  ],
+  "icon": "switch",
+  "color": "#c8102e",
+  "portTemplate": {
+    "prefix": "1/1/",
+    "start": 1,
+    "count": 8,
+    "type": "ethernet",
+    "speed": "1G",
+    "connector": "rj45",
+    "poeOut": 30,
+    "poeOutClass": "PoE+ (802.3at)"
+  },
+  "interfaces": [
+    {
+      "name": "sfp1",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "sfp2",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        100,
+        1000
+      ]
+    }
+  ],
+  "poe": {
+    "budgetW": 62,
+    "sourceUrl": "https://docs.ruckusnetworks.com/prod/ruckus-docs/icx7150-installguide/$/HardwarefeaturesGUID-F9ACD782-DB72-416F-9249-A91C658D99D26en-US",
+    "note": "62 W across 8 PoE+ ports (hardware guide model table, column PoE Power)."
+  },
+  "sourceUrl": "https://webresources.ruckuswireless.com/pdf/datasheets/ds-icx-family.pdf",
+  "notes": "Hardware guide model table: 8x1G copper, 8 PoE ports, 62 W, 2x1G fibre optic uplinks (uplink only), no stacking. Datasheet: 8x 10/100/1000 Mbps PoE+ RJ-45, 2x 1GbE SFP uplink, 62 W PoE power budget, fanless. This is the one 7150 with no local management hardware: the guide states the C08P and C08PT have no out-of-band management port, no RJ-45 console and no USB, so no mgmt port and no console port are modelled - management is in-band over the network only, which is why the CLI capability is kept while the console port is not invented. The two uplinks are named sfp1/sfp2 because the guide publishes their count and rate but not their slot/port numbers, and writing 1/3/1-1/3/2 would be a guess. The SFP uplinks are 1G only - there is no 10G option on this model."
+}

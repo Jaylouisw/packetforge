@@ -1,0 +1,88 @@
+{
+  "vendor": "ruckus",
+  "model": "ICX 7150-24",
+  "label": "RUCKUS ICX 7150-24",
+  "category": "l3-switch",
+  "description": "RUCKUS ICX 7150-24 stackable access switch: 24x 1G RJ-45 downlinks, 2x 1G RJ-45 uplinks, 4x 1/10G SFP+ uplink/stacking ports, no PoE, 180 Gbps switching capacity.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli"
+  ],
+  "icon": "switch",
+  "color": "#c8102e",
+  "portTemplate": {
+    "prefix": "1/1/",
+    "start": 1,
+    "count": 24,
+    "type": "ethernet",
+    "speed": "1G",
+    "connector": "rj45"
+  },
+  "interfaces": [
+    {
+      "name": "1/2/1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "1/2/2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "1/3/1",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "1/3/2",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "1/3/3",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "1/3/4",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "mgmt",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "console",
+      "type": "console"
+    }
+  ],
+  "sourceUrl": "https://webresources.ruckuswireless.com/pdf/datasheets/ds-icx-family.pdf",
+  "notes": "Family datasheet: 24+2 x 10/100/1000 Mbps RJ-45 and 4x 1/10 GbE uplink/stacking SFP/SFP+, no PoE; switching capacity 180 Gbps on the standard 7150 column of the model table. Port numbering follows the hardware guide: downlinks on slot 1 (1/1/1-1/1/24), the two RJ-45 uplinks on slot 2 (1/2/1-1/2/2), the SFP+ cages on slot 3 (1/3/1-1/3/4). The 10G rate is licence-gated - the PoD licensing guide names 1/3/1-1/3/4 as the licence-gated 10G ports - so the spec models the SFP+ cage and both rates rather than assuming a licence is fitted. Out-of-band 1G RJ-45 management port plus an RS-232 RJ-45 console port; the second, USB Type-C console port is not modelled because the engine has no USB interface."
+}

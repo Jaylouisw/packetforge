@@ -1,0 +1,92 @@
+{
+  "vendor": "ruckus",
+  "model": "ICX 7150-24F",
+  "label": "RUCKUS ICX 7150-24F",
+  "category": "l3-switch",
+  "description": "RUCKUS ICX 7150-24F fibre access switch: 24x 100/1000 Mbps SFP downlinks, 2x 1G RJ-45 uplinks, 4x 1/10G SFP+ uplink/stacking, no PoE, 180 Gbps switching capacity.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli"
+  ],
+  "icon": "switch",
+  "color": "#c8102e",
+  "portTemplate": {
+    "prefix": "1/1/",
+    "start": 1,
+    "count": 24,
+    "type": "ethernet",
+    "speed": "1G",
+    "connector": "sfp",
+    "speedCaps": [
+      100,
+      1000
+    ]
+  },
+  "interfaces": [
+    {
+      "name": "1/2/1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "1/2/2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "1/3/1",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "1/3/2",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "1/3/3",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "1/3/4",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "mgmt",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "console",
+      "type": "console"
+    }
+  ],
+  "sourceUrl": "https://webresources.ruckuswireless.com/pdf/datasheets/ds-icx-family.pdf",
+  "notes": "Datasheet: 24x 100/1000 Mbps SFP ports, 2x 10/100/1000 Mbps uplink RJ-45 ports, 4x 1/10 GbE uplink/stacking SFP/SFP+. All 24 downlinks are fibre cages, so this box cannot take a copper access lead - that is the point of the -24F, and modelling the downlinks as RJ-45 would be the exact error this catalogue exists to avoid. DISCREPANCY: the technical specification page port table says two SFP+ 1-GbE/10-GbE ports for this model, while the family datasheet and the hardware guide model table both say four SFP+ uplink and four stacking. The spec follows the two sources that agree; the conflict is recorded here rather than silently resolved. No PoE."
+}

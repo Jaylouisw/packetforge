@@ -1,0 +1,547 @@
+{
+  "vendor": "ruckus",
+  "model": "ICX 7150-48ZP",
+  "label": "RUCKUS ICX 7150-48ZP",
+  "category": "l3-switch",
+  "description": "RUCKUS ICX 7150-48ZP multigigabit access switch: 16x 2.5G RJ-45 PoH (up to 90 W each) plus 32x 1G PoE+ RJ-45, 8x 1/10G SFP+, 1480 W PoE budget with two PSUs, 304 Gbps switching capacity.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli",
+    "poe-pse",
+    "802.3af",
+    "802.3at",
+    "802.3bt"
+  ],
+  "icon": "switch",
+  "color": "#c8102e",
+  "portTemplate": {
+    "prefix": "1/1/",
+    "start": 1,
+    "count": 16,
+    "type": "ethernet",
+    "speed": "2.5G",
+    "connector": "rj45",
+    "speedCaps": [
+      100,
+      1000,
+      2500
+    ],
+    "poeOut": 90
+  },
+  "interfaces": [
+    {
+      "name": "1/1/17",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30,
+      "poeOutClass": "PoE+ (802.3at)"
+    },
+    {
+      "name": "1/1/18",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30,
+      "poeOutClass": "PoE+ (802.3at)"
+    },
+    {
+      "name": "1/1/19",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30,
+      "poeOutClass": "PoE+ (802.3at)"
+    },
+    {
+      "name": "1/1/20",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30,
+      "poeOutClass": "PoE+ (802.3at)"
+    },
+    {
+      "name": "1/1/21",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30,
+      "poeOutClass": "PoE+ (802.3at)"
+    },
+    {
+      "name": "1/1/22",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30,
+      "poeOutClass": "PoE+ (802.3at)"
+    },
+    {
+      "name": "1/1/23",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30,
+      "poeOutClass": "PoE+ (802.3at)"
+    },
+    {
+      "name": "1/1/24",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30,
+      "poeOutClass": "PoE+ (802.3at)"
+    },
+    {
+      "name": "1/1/25",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30,
+      "poeOutClass": "PoE+ (802.3at)"
+    },
+    {
+      "name": "1/1/26",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30,
+      "poeOutClass": "PoE+ (802.3at)"
+    },
+    {
+      "name": "1/1/27",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30,
+      "poeOutClass": "PoE+ (802.3at)"
+    },
+    {
+      "name": "1/1/28",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30,
+      "poeOutClass": "PoE+ (802.3at)"
+    },
+    {
+      "name": "1/1/29",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30,
+      "poeOutClass": "PoE+ (802.3at)"
+    },
+    {
+      "name": "1/1/30",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30,
+      "poeOutClass": "PoE+ (802.3at)"
+    },
+    {
+      "name": "1/1/31",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30,
+      "poeOutClass": "PoE+ (802.3at)"
+    },
+    {
+      "name": "1/1/32",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30,
+      "poeOutClass": "PoE+ (802.3at)"
+    },
+    {
+      "name": "1/1/33",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30,
+      "poeOutClass": "PoE+ (802.3at)"
+    },
+    {
+      "name": "1/1/34",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30,
+      "poeOutClass": "PoE+ (802.3at)"
+    },
+    {
+      "name": "1/1/35",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30,
+      "poeOutClass": "PoE+ (802.3at)"
+    },
+    {
+      "name": "1/1/36",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30,
+      "poeOutClass": "PoE+ (802.3at)"
+    },
+    {
+      "name": "1/1/37",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30,
+      "poeOutClass": "PoE+ (802.3at)"
+    },
+    {
+      "name": "1/1/38",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30,
+      "poeOutClass": "PoE+ (802.3at)"
+    },
+    {
+      "name": "1/1/39",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30,
+      "poeOutClass": "PoE+ (802.3at)"
+    },
+    {
+      "name": "1/1/40",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30,
+      "poeOutClass": "PoE+ (802.3at)"
+    },
+    {
+      "name": "1/1/41",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30,
+      "poeOutClass": "PoE+ (802.3at)"
+    },
+    {
+      "name": "1/1/42",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30,
+      "poeOutClass": "PoE+ (802.3at)"
+    },
+    {
+      "name": "1/1/43",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30,
+      "poeOutClass": "PoE+ (802.3at)"
+    },
+    {
+      "name": "1/1/44",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30,
+      "poeOutClass": "PoE+ (802.3at)"
+    },
+    {
+      "name": "1/1/45",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30,
+      "poeOutClass": "PoE+ (802.3at)"
+    },
+    {
+      "name": "1/1/46",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30,
+      "poeOutClass": "PoE+ (802.3at)"
+    },
+    {
+      "name": "1/1/47",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30,
+      "poeOutClass": "PoE+ (802.3at)"
+    },
+    {
+      "name": "1/1/48",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30,
+      "poeOutClass": "PoE+ (802.3at)"
+    },
+    {
+      "name": "1/2/1",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "1/2/2",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "1/2/3",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "1/2/4",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "1/2/5",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "1/2/6",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "1/2/7",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "1/2/8",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "mgmt",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "console",
+      "type": "console"
+    }
+  ],
+  "poe": {
+    "budgetW": 1480,
+    "sourceUrl": "https://webresources.ruckuswireless.com/pdf/datasheets/ds-icx-family.pdf",
+    "note": "1480 W with two power supplies. Only the first 16 ports are PoH (90 W); the other 32 are 802.3af/at at 30 W class."
+  },
+  "sourceUrl": "https://webresources.ruckuswireless.com/pdf/datasheets/ds-icx-family.pdf",
+  "notes": "Datasheet: 16x 100/1000 Mbps/2.5 Gbps RJ-45 PoH ports, 32x 10/100/1000 Mbps RJ-45 PoE+ ports, 1480 W PoE budget with two power supplies, 8x 1/10 GbE uplink/stacking SFP/SFP+. Z-Series column: 304 Gbps switching capacity, 480 Gbps aggregate stack bandwidth. Hardware guide: the eight SFP+ are 1/2/1-1/2/8 on this model (not slot 3 as on the -24/-48), the first four can stack and the last four are uplink/user only; 1/2/1 and 1/2/3 come up at 10G and the rest default to 1G until the 8X10GR licence is applied. Two hot-swap power supplies and two fan trays; fanless operation is not supported. 48 copper ports total, not 64: the 16 multigigabit and 32 gigabit ports are the whole downlink set."
+}

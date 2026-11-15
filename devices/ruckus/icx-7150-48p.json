@@ -1,0 +1,97 @@
+{
+  "vendor": "ruckus",
+  "model": "ICX 7150-48P",
+  "label": "RUCKUS ICX 7150-48P",
+  "category": "l3-switch",
+  "description": "RUCKUS ICX 7150-48P stackable access switch: 48x 1G PoE+ RJ-45 (370 W budget), 2x 1G RJ-45 uplinks, 4x 1/10G SFP+ uplink/stacking, 180 Gbps switching capacity.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli",
+    "poe-pse",
+    "802.3af",
+    "802.3at"
+  ],
+  "icon": "switch",
+  "color": "#c8102e",
+  "portTemplate": {
+    "prefix": "1/1/",
+    "start": 1,
+    "count": 48,
+    "type": "ethernet",
+    "speed": "1G",
+    "connector": "rj45",
+    "poeOut": 30
+  },
+  "interfaces": [
+    {
+      "name": "1/2/1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "1/2/2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "1/3/1",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "1/3/2",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "1/3/3",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "1/3/4",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "mgmt",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "console",
+      "type": "console"
+    }
+  ],
+  "poe": {
+    "budgetW": 370,
+    "sourceUrl": "https://webresources.ruckuswireless.com/pdf/datasheets/ds-icx-family.pdf",
+    "note": "48 PoE+ ports, 370 W budget. The -48PF is the 740 W variant and is catalogued separately; conflating the two is how a PoE plan comes up 370 W short."
+  },
+  "sourceUrl": "https://webresources.ruckuswireless.com/pdf/datasheets/ds-icx-family.pdf",
+  "notes": "Datasheet: 48+2 x 10/100/1000 Mbps RJ-45, 48 PoE+ ports, 370 W PoE budget, 4x 1/10 GbE uplink/stacking SFP/SFP+. The 370 W figure is the datasheet number, not 48 x 30 W: a simultaneous Class 4 load is not supported, and that gap is what a camera or AP plan has to be designed around. The 740 W variant is the separately catalogued -48PF. Switching capacity 180 Gbps."
+}
