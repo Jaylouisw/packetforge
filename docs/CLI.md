@@ -349,6 +349,13 @@ The **Status** column answers "can this port carry a frame", not merely "did som
 | cable patched but taken down (`link down`) | `down` | `down` |
 | otherwise | `up` | `up` |
 
+The **Method** column names where the address came from, and a port with no address says `unset`:
+`Gi0/0  unassigned  YES unset  down  down`. `manual` belongs beside an address configured at the console, and
+`DHCP` stays beside `unassigned` while an `ip address dhcp` client has no lease yet - the method records the
+intent, not whether it has succeeded. Cisco's field list defines `unset` as "Unset" and its sample output pairs
+`Serial1  unassigned  YES unset  administratively down down`; `manual` beside `unassigned` would claim a
+configuration nobody typed.
+
 The reason travels with it in `show interfaces` — `status: down (no cable)`, `status: down (peer shut
 down)`, `status: down (link down)` — because `status: up` printed directly above `peer: disconnected`
 was two halves of one output disagreeing. A cable that was pulled with `link down` is not the same fault

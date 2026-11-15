@@ -3604,7 +3604,11 @@ class CliSession {
         // Status is whether the port can carry a frame, not merely whether someone shut it (#1237).
         // The topology has to be passed in: it is the only thing that knows a cable is missing.
         const link = dev.ifaceStatus(i, this.topo);
-        out.push(pad(i.name, 22) + pad(ip, 16) + 'YES  ' + pad(i.dhcp ? 'DHCP' : 'manual', 8) +
+        // Method names where the address came from, and `unset` is an answer: a port with no address has no
+        // method, so printing `manual` beside `unassigned` claims a configuration nobody typed. Cisco's field
+        // list includes `unset - Unset`, and its sample output pairs `unassigned  YES unset  ...`.
+        const method = i.dhcp ? 'DHCP' : (i.ip ? 'manual' : 'unset');
+        out.push(pad(i.name, 22) + pad(ip, 16) + 'YES  ' + pad(method, 8) +
           pad(link.status, 22) + link.protocol);
       }
     } else if (what === 'ip' && tokens[1] === 'route') {
