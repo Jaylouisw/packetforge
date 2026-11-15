@@ -271,6 +271,20 @@ class CliSession {
     return '% ' + String(first.message).replace(/^(accessVlan|nativeVlan|pvid|voiceVlan)\b/, what);
   }
 
+  // The VLAN-table entry a port's access VLAN needs, written in the same words `vlan <id>` uses, so a VLAN
+  // cannot exist only in the port configuration. Returns true when the VLAN was not there and has now been
+  // made, which is the one case a real switch announces. VLAN 1 is never created: it is the default VLAN and
+  // it exists on every switch before anybody types anything.
+  _createVlanForPort(id) {
+    const lib = require('./vlan');
+    if (id === lib.VLAN_DEFAULT) return false;
+    const dev = this.device;
+    if (!dev.config.vlans) dev.config.vlans = {};
+    if (dev.config.vlans[id]) return false;
+    dev.config.vlans[id] = { name: 'VLAN' + String(id).padStart(4, '0') };
+    return true;
+  }
+
   _capabilityRefusal(cap, consequence) {
     const dev = this.device;
     if (!dev || typeof dev.hasCap !== 'function' || dev.hasCap(cap)) return null;
@@ -1576,9 +1590,23 @@ class CliSession {
       const chk = vlanLib.validatePortConfig({ accessVlan: id });
       if (!chk.ok) return [this._vlanRefusal(chk, 'access VLAN')];
       const note = modeNote(this, iface, 'access');
+      // Assigning a port to a VLAN that does not exist CREATES that VLAN. A Cisco switch says so in two
+      // lines - `% Access VLAN does not exist.` then `Creating vlan 22` - applies the assignment anyway, and
+      // `show vlan` lists the VLAN afterwards. That transcript is in the Catalyst 3750 software configuration
+      // guide 12.2(52)SE ("Configuring IEEE 802.1Q and Layer 2 Protocol Tunneling": `interface
+      // gigabitethernet1/0/7` -> `switchport access vlan 22` -> the two lines) and is still word for word the
+      // same in the Catalyst 9300 Layer 2 guide from IOS XE Everest 16.9.x to 26.x.
+      //
+      // This console only moved the port. `show vlan` grew a row because it builds the table from the port
+      // list too, so the port and its table agreed while `show running-config` printed no `vlan 22` - the gap
+      // #1232 closed for VLANs somebody typed `vlan 22` for, left open on the one command that can create a
+      // VLAN without anybody typing `vlan`.
+      const created = this._createVlanForPort(id);
       iface.vlan = vlanLib.normalizePortConfig(Object.assign({}, iface.vlan, { accessVlan: id }));
       this.device.flushMacsOnPort(iface.name);
-      return ['Access VLAN ' + id + ' on ' + iface.name + note];
+      const said = created ? ['% Access VLAN does not exist.', 'Creating vlan ' + id] : [];
+      said.push('Access VLAN ' + id + ' on ' + iface.name + note);
+      return said;
     }
     if (t[0] === 'voice' && t[1] === 'vlan') {
       // The voice VLAN was in the config shape, validated and printed, and read by nothing: a phone on a
