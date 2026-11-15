@@ -2,7 +2,8 @@
 
 One file per physical device: `devices/<vendor>/<model>.json`. This page is the vocabulary the
 importer accepts, taken from `scripts/import-devices.js` — if a value here is wrong, the importer
-is right and this page has drifted.
+is right and this page has drifted. The capability list is the exception: it is not the
+importer's to state, and is taken from `engine/device.js` (`CAPABILITIES`).
 
 ```json
 {
@@ -46,6 +47,9 @@ optical splits — a different device with a different failure mode.
 
 ### Capabilities
 
+The list is `CAPABILITIES` in `engine/device.js`, and the importer imports it rather than
+keeping a copy — so what follows is the set of tokens the simulator actually branches on.
+
 | capability | means |
 |---|---|
 | `l2-forward` | bridges, has a MAC table, forwards frames |
@@ -57,17 +61,28 @@ optical splits — a different device with a different failure mode.
 | `cli` | has a command line |
 | `http-server` | serves a management UI |
 | `host` | is an endpoint: it can originate and terminate traffic |
-
-Power descriptors, which grant **no** forwarding behaviour — they exist so the power model can say
-whether a link will come up:
-
-| capability | means |
-|---|---|
 | `poe-pse` | can source power on its ports |
 | `poe-pd` | is powered by PoE |
-| `poe-injector` | sits inline and sources power, forwards nothing logically |
-| `passive-poe` | injects without negotiation |
-| `802.3af` / `802.3at` / `802.3bt` | which standard it speaks, as source or sink |
+| `vlan` | speaks 802.1Q |
+| `lacp` | aggregates links |
+| `stp` | participates in spanning tree |
+
+A token that is not in that list is **kept**, exactly as the source declared it, and named in
+the run:
+
+```
+1 spec(s) had warnings (still imported):
+  - aruba/2540-48g-poe
+      capability "802.3at" is not one of the 15 capabilities engine/device.js implements;
+      kept as declared, so the simulator ignores it
+```
+
+Kept, because the spec is a record of the hardware and a token the datasheet declares is a fact
+— dropping it is data loss, and it used to happen without a word (#1522). Named, because the
+engine will not honour it and the run must not call that clean. `802.3af`, `802.3at`, `802.3bt`,
+`poe-injector`, `passive-poe` and `midspan` are in this class today: real power facts with no
+behaviour behind them. If one of them should grant behaviour, it belongs in `CAPABILITIES` and
+in the code that branches on it, not in a second list here.
 
 A capability that is not in that list but is within edit distance 2 of one is refused with
 `capability "x" looks like a typo of "y"` rather than silently dropped, because a misspelt
@@ -219,5 +234,6 @@ node scripts/import-devices.js --apply     # write
 node scripts/import-devices.js             # dry run, prints what would change
 ```
 
-It reports `Added`, `duplicates`, `rejected` and `refused duplicate spellings`. **Rejected means
-the spec is wrong** — read the message; it names the field and the accepted values.
+It reports `Added`, `duplicates`, `rejected`, `refused duplicate spellings` and warnings, each
+warning naming the model it belongs to. **Rejected means the spec is wrong** — read the message;
+it names the field and the accepted values.

@@ -17,6 +17,7 @@
 //   node scripts/import-devices.js --json        # machine-readable summary
 const fs = require('fs');
 const path = require('path');
+const { CAPABILITIES } = require('../engine');
 const { expandInterfaces } = require('../engine/topology');
 const media = require('../engine/media');
 const { loadCatalog, modelKey } = require('../devices/registry');
@@ -31,18 +32,18 @@ const DEVICES = process.env.PF_DEVICES
   ? path.resolve(process.env.PF_DEVICES)
   : path.join(ROOT, 'devices');
 
-// Vocabulary accepted by the registry and the UI.
+// Categories accepted by the registry and the UI.
 const CATEGORIES = ['router', 'switch', 'l3-switch', 'firewall', 'ont', 'host', 'server',
   'wireless', 'ptp', 'cloud', 'olt', 'splitter', 'modem', 'powerline', 'nas', 'desktop', 'laptop',
   'phone', 'tablet', 'printer', 'camera', 'nvr', 'iot', 'tap'];
-const CAPABILITIES = ['cli', 'dhcp-client', 'dhcp-server', 'firewall', 'host', 'http-server',
-  'l2-forward', 'l3-forward', 'nat', 'wireless',
-  // Hardware descriptors. These describe power, not forwarding: they grant no
-  // behaviour, so they cannot make the simulator pretend a box routes.
-  'poe-injector', 'poe-pse', 'poe-pd', 'passive-poe', '802.3af', '802.3at', '802.3bt'];
-// Researchers describe endpoints in the vocabulary of the device, not of this
-// engine ("ipv4-host", "wifi-client"). Map those onto the capabilities the
-// simulator actually implements rather than losing an otherwise good spec.
+
+// The capability vocabulary is the engine's, not this script's.
+//
+// This list used to be a second copy, and the copy is what went wrong: it advertised 17
+// tokens against the engine's 15 and the three it had never heard of (vlan, lacp, stp) were
+// then quietly stripped out of every spec that declared them (#1522). A token the engine
+// implements must survive the import; a token it does not implement grants nothing however
+// this script spells it. There is one list, and it lives beside the code that branches on it.
 const CAPABILITY_ALIASES = {
   'ipv4-host': 'host',
   'ip6-host': 'host',
@@ -72,6 +73,28 @@ function normaliseCapabilities(list) {
     const c = String(raw).toLowerCase().trim();
     const mapped = CAPABILITY_ALIASES[c] || c;
     if (out.indexOf(mapped) === -1) out.push(mapped);
+  }
+  return out;
+}
+
+// Every alias must land on a token the engine implements. An alias table is a second way to
+// name a capability, so it is a second way to drift: if the engine ever renames or drops a
+// token, this fails here at load rather than turning every mapped spec into a silent unknown.
+for (const alias of Object.keys(CAPABILITY_ALIASES)) {
+  const target = CAPABILITY_ALIASES[alias];
+  if (CAPABILITIES.indexOf(target) === -1) {
+    throw new Error('capability alias "' + alias + '" maps to "' + target +
+      '", which is not in engine/device.js CAPABILITIES');
+  }
+}
+
+// Which declared capabilities are missing from what is about to be written. Nothing leaves
+// this script less capable than it arrived: the strip in #1522 was invisible because no stage
+// ever compared the two lists, so this is the stage that compares them.
+function capabilitiesLost(declared, written) {
+  const out = [];
+  for (const c of (declared || [])) {
+    if ((written || []).indexOf(c) === -1) out.push(c);
   }
   return out;
 }
@@ -111,7 +134,12 @@ function slug(s) {
 function validateSpec(spec) {
   const errors = [];
   const warnings = [];
-  if (!spec || typeof spec !== 'object') return { ok: false, errors: ['spec is not an object'], warnings: warnings };
+  // Tokens the source declared that the engine does not implement. Kept in the spec, but
+  // named in the report; see the capability block below.
+  const described = [];
+  if (!spec || typeof spec !== 'object') {
+    return { ok: false, errors: ['spec is not an object'], warnings: warnings, declared: [], described: described };
+  }
 
   const vendor = String(spec.vendor || '');
   if (!/^[a-z0-9][a-z0-9-]*$/.test(vendor)) errors.push('vendor "' + vendor + '" must be lowercase alphanumeric/dash');
@@ -135,29 +163,35 @@ function validateSpec(spec) {
     spec.capabilities = normaliseCapabilities(spec.capabilities);
     // Capabilities are a CLOSED set because the simulator branches on them: if a
     // spec says "l3-forward" the box routes, so an unknown string must never be
-    // waved through. But researchers also use this field descriptively ("midspan",
-    // "poe-splitter", "802.3bt-type-3"), and rejecting the whole spec over a label
-    // loses a perfectly good device.
+    // waved through.
     //
-    // So: a near-miss of a real capability is a typo and is rejected ("l3-foward"
-    // would silently cost the device its routing); anything else is hardware
-    // description and moves to `role`, which the engine never branches on.
-    const described = [];
+    // Two things can be wrong with a declared token, and they are not the same thing:
+    //
+    //   - a near-miss of a real capability is a typo, and it is rejected, because
+    //     accepting it silently would cost the device the behaviour it meant ("l3-foward"
+    //     must not import as a box that cannot route);
+    //   - anything else is a description the engine has no concept of ("midspan",
+    //     "802.3at"). It is KEPT, exactly as the source declared it, and reported by name.
+    //
+    // Kept, because dropping a fact the source declared is data loss and 800-odd catalogue
+    // entries carry power descriptors this engine does not implement: rewriting them out
+    // would make every spec poorer than its datasheet (#1522). Reported, because the engine
+    // ignores the token and the run must say so rather than call the import clean.
     const kept = [];
     for (const c of spec.capabilities) {
-      if (CAPABILITIES.indexOf(c) !== -1) { kept.push(c); continue; }
-      const near = CAPABILITIES.filter(function (k) { return editDistance(c, k) <= 2; });
-      if (near.length) {
-        errors.push('capability "' + c + '" looks like a typo of "' + near[0] + '"');
-      } else {
+      if (CAPABILITIES.indexOf(c) === -1) {
+        const near = CAPABILITIES.filter(function (k) { return editDistance(c, k) <= 2; });
+        if (near.length) {
+          errors.push('capability "' + c + '" looks like a typo of "' + near[0] + '"');
+          continue;
+        }
         described.push(c);
+        warnings.push('capability "' + c + '" is not one of the ' + CAPABILITIES.length +
+          ' capabilities engine/device.js implements; kept as declared, so the simulator ignores it');
       }
+      if (kept.indexOf(c) === -1) kept.push(c);
     }
     spec.capabilities = kept;
-    if (described.length) {
-      // Keep the description, just not in the field the simulator branches on.
-      spec.role = described;
-    }
   }
 
   // Wireless ports carry a radio throughput, not a cabled line rate. If the
@@ -225,7 +259,15 @@ function validateSpec(spec) {
   if (!spec.label) warnings.push('no label (model will be used)');
   if (!spec.description) warnings.push('no description');
 
-  return { ok: errors.length === 0, errors: errors, warnings: warnings };
+  return {
+    ok: errors.length === 0,
+    errors: errors,
+    warnings: warnings,
+    // What the source said, after aliasing - the list nothing may shrink. Compared against
+    // the capabilities actually written by main().
+    declared: (spec.capabilities || []).slice(),
+    described: described
+  };
 }
 
 function readIncoming() {
@@ -374,7 +416,7 @@ function main() {
     return 0;
   }
 
-  const report = { files: groups.length, seen: 0, added: [], duplicates: [], rejected: [], collisions: [], warnings: [] };
+  const report = { files: groups.length, seen: 0, added: [], duplicates: [], rejected: [], collisions: [], losses: [], warnings: [] };
 
   for (const g of groups) {
     if (g.fatal) { report.rejected.push({ file: g.file, model: '(whole file)', errors: [g.fatal] }); continue; }
@@ -495,6 +537,20 @@ function main() {
         });
       }
 
+      // The last gate before the write: nothing leaves this script less capable than it
+      // arrived. validateSpec already keeps every declared token, so this can only fire if a
+      // later stage starts rewriting capabilities again - which is exactly the failure that
+      // had no tripwire before (#1522). A dropped capability is data loss, so the spec is
+      // refused and the batch exits non-zero rather than importing a quieter device.
+      const lost = capabilitiesLost(v.declared, clean.capabilities);
+      if (lost.length) {
+        const why = 'import would drop declared capabilities ' + lost.join(', ') +
+          ' - the spec says the box can do this and the importer cannot';
+        report.rejected.push({ file: g.file, vendor: spec.vendor, model: spec.model, errors: [why] });
+        report.losses.push({ file: g.file, vendor: spec.vendor, model: spec.model, dropped: lost });
+        continue;
+      }
+
       if (!dryRun) writeSpec(clean, vendorDir(clean.vendor), clean.model);
       report.added.push({ vendor: clean.vendor, model: clean.model, category: clean.category });
     }
@@ -502,7 +558,7 @@ function main() {
 
   if (asJson) {
     console.log(JSON.stringify(report, null, 2));
-    return report.collisions.length ? 1 : 0;
+    return (report.collisions.length || report.losses.length) ? 1 : 0;
   }
 
   const byVendor = {};
@@ -545,11 +601,43 @@ function main() {
     console.log('  Punctuation is not an identity: fix the spec that is already there rather than' +
       ' adding a second spelling of it.');
   }
-  if (report.warnings.length) console.log('\n' + report.warnings.length + ' spec(s) had minor warnings (still imported).');
+  if (report.losses.length) {
+    console.log('\nREFUSED - the import would have dropped capabilities the source declared:');
+    for (const l of report.losses) {
+      console.log('  - ' + l.vendor + '/' + l.model + '  (' + l.file + ')');
+      console.log('      would have lost: ' + l.dropped.join(', '));
+    }
+  }
+  if (report.warnings.length) {
+    // Named, not counted. "N spec(s) had minor warnings" was how the capability strip in
+    // #1522 stayed invisible: the run said the import was fine, and the token that went
+    // missing was never printed. Every warning now names the spec it belongs to.
+    console.log('\n' + report.warnings.length + ' spec(s) had warnings (still imported):');
+    for (const w of report.warnings.slice(0, 20)) {
+      console.log('  - ' + w.vendor + '/' + w.model);
+      for (const one of w.warnings.slice(0, 4)) console.log('      ' + one);
+      if (w.warnings.length > 4) console.log('      ... and ' + (w.warnings.length - 4) + ' more');
+    }
+    if (report.warnings.length > 20) console.log('  ... and ' + (report.warnings.length - 20) + ' more');
+  }
   if (dryRun) console.log('\nDry run: nothing was written. Re-run with --apply to import.');
   // A collision is a catalogue-integrity failure, not a benign re-import, so the batch fails
-  // loudly. Exact duplicates stay non-fatal: re-running a research file must remain a no-op.
-  return report.collisions.length ? 1 : 0;
+  // loudly. A dropped capability is data loss and fails the same way. Exact duplicates stay
+  // non-fatal: re-running a research file must remain a no-op.
+  return (report.collisions.length || report.losses.length) ? 1 : 0;
 }
 
-process.exit(main());
+if (require.main === module) process.exit(main());
+
+// validateSpec and the vocabulary are exported so a test can assert the importer's capability
+// set IS the engine's rather than comparing both to a third, hand-written list.
+module.exports = {
+  CAPABILITIES,
+  CAPABILITY_ALIASES,
+  CATEGORIES,
+  normaliseCapabilities,
+  capabilitiesLost,
+  editDistance,
+  validateSpec
+};
+

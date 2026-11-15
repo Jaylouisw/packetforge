@@ -12,8 +12,10 @@ reviewed pull request, and what to do when the usual route fails.
    engine can act on belong in it - a serial console, a USB port or an FXS line is a note, not an
    interface.
 3. **The importer checks it** (`node scripts/import-devices.js --apply`): schema, duplicate
-   spellings, unknown interface types, unknown capabilities. It refuses rather than guesses, and
-   its refusals are how most bad entries surface.
+   spellings, unknown interface types, unknown capabilities. A capability it does not recognise is
+   named in the run and kept as declared; a near-miss of a real one is refused as a typo. It
+   refuses rather than guesses, and its refusals are how most bad entries surface. It never drops
+   a capability the source declared.
 4. **The suite checks it** (`npm test`): catalogue invariants, spec-versus-description agreement,
    naming rules, registry counts in `docs/DEVICE_REGISTRY.md`. Do not edit those counts by hand —
    run `npm run regen:registry-doc` and let it print the numbers from `loadCatalog()`. Hand-editing
