@@ -96,6 +96,12 @@ function showIpUsage() {
     '  No equivalent here: ' + pointed.join(', ') + '. Type `help` for the full command list.'];
 }
 
+// Spanning-tree sub-commands this console knows by name but does not model: the device runs one spanning tree and its
+// only tunable is the bridge priority. Shared by `spanning-tree <verb>` and `no spanning-tree <verb>` so both answer
+// the same way - the `no` form used to ignore the word entirely and clear the priority whatever was asked (#1501).
+const STP_UNMODELLED = ['portfast', 'edge', 'bpduguard', 'bpdufilter', 'cost', 'guard', 'link-type',
+  'mode', 'mst', 'loopguard', 'root', 'backbonefast', 'uplinkfast'];
+
 class CliSession {
   constructor(device, topology, simulator) {
     this.device = device;
@@ -308,10 +314,8 @@ class CliSession {
       // `spanning-tree portfast` came back "Usage: spanning-tree priority <0-61440>" and `spanning-tree cost 19`
       // came back "19 is not a valid bridge priority", which is an answer to a question nobody asked (#1493).
       const verb = (tokens[1] || '').toLowerCase();
-      const MODELLED_ELSEWHERE = ['portfast', 'edge', 'bpduguard', 'bpdufilter', 'cost', 'guard', 'link-type',
-        'mode', 'mst', 'loopguard', 'root', 'backbonefast', 'uplinkfast'];
       if (verb && verb !== 'priority') {
-        if (MODELLED_ELSEWHERE.indexOf(verb) !== -1) {
+        if (STP_UNMODELLED.indexOf(verb) !== -1) {
           return ['% spanning-tree ' + verb + ' is not modelled: this device runs one spanning tree, and its only ' +
             'tunable is `spanning-tree priority <0-61440 in 4096 steps>`'];
         }
@@ -408,6 +412,19 @@ class CliSession {
       return ['% Usage: no ip nat pool <name> | no ip nat inside source'];
     } else if (head === 'no' && tokens[1] === 'spanning-tree') {
       const dev = this.device;
+      // Read the word after `spanning-tree` here too. This branch used to ignore it entirely and clear the bridge
+      // priority whatever was asked, so `no spanning-tree portfast` - a port-level command with no priority in it -
+      // wiped a bridge priority the operator had set, and `no spanning-tree flurbish` did the same. The set form was
+      // fixed in #1493; the `no` form is the same defect pointing the other way, and it is destructive (#1501).
+      const verb = (tokens[2] || '').toLowerCase();
+      if (verb && verb !== 'priority') {
+        if (STP_UNMODELLED.indexOf(verb) !== -1) {
+          return ['% spanning-tree ' + verb + ' is not modelled, so there is nothing to remove: this device runs ' +
+            'one spanning tree, and its only tunable is `spanning-tree priority <0-61440 in 4096 steps>`'];
+        }
+        return ['% Unknown spanning-tree sub-command "' + tokens[2] + '": the only form here is ' +
+          '`no spanning-tree` (clears the bridge priority), or `no spanning-tree priority`'];
+      }
       if (!dev.config.stpPriority && dev.config.stpPriority !== 0) {
         const stpLib = require('./stp');
         return ['% No bridge priority set: the device is using the default ' + stpLib.STP_DEFAULT_PRIORITY];
@@ -1842,8 +1859,14 @@ class CliSession {
         cleared.push(d);
       }
       if (!cleared.length) {
-        const what = want != null ? 'access list ' + want : 'an access list';
-        return ['% No ' + what + ' applied ' + (dir || 'in or out') + ' on ' + iface.name];
+        // "No an access list applied in or out on Gi0/0" is what this said: ungrammatical, and phrased as if the
+        // `no` had removed something. The house shape for "removing what is not there" is the one the sibling
+        // refusals use - `No hostname set`, `No DHCP pool named nope` - so this says which list, or that there is
+        // none, and where it looked (#1501).
+        const where = dir || 'in or out';
+        return [want != null
+          ? '% No access list ' + want + ' applied ' + where + ' on ' + iface.name
+          : '% No access list applied ' + where + ' on ' + iface.name];
       }
       if (dev0.aclBindings && dev0.aclBindings[iface.name] &&
           !Object.keys(dev0.aclBindings[iface.name]).length) {
@@ -4367,7 +4390,10 @@ class CliSession {
       // (#1484). `help` is how an operator finds out what the console can do, so an unlisted verb is a verb only
       // its author knows about (#1491).
       '  traceroute|tracert <address|name> [max <n>]   each hop that answers, from its own time-exceeded',
-      '  speed auto|forced <mbps> | duplex half|full | description <text>   (interface mode)',
+      // `speed auto|forced <mbps>` was the promise here and `_speed()` has never had a `forced` keyword: it parses
+      // `auto` or a rate (`100`, `1000`, `1G`), and its own usage line says so. A documented spelling the parser
+      // refuses is worse than a missing one, because the help is the thing a technician trusts first (#1501).
+      '  speed auto|<mbps> | duplex half|full | description <text>   (interface mode)  e.g. `speed 100`, `speed 1G`',
       '  clock rate <bps>                       (interface mode, serial only) makes this end the DCE',
       '  converge [at <ms>]                - when each control plane finishes',
       '  link up|down <id> [at <ms>]       - pull or replace a cable, re-converge from there',
