@@ -1,0 +1,601 @@
+{
+  "vendor": "huawei",
+  "model": "netengine-8000-f1a",
+  "label": "Huawei NetEngine 8000 F1A-8H20Q (CR8B0BKP03D0)",
+  "category": "router",
+  "description": "NetEngine 8000 F1A-8H20Q 1U fixed metro-edge router: 56 service ports - 28x 10GE/GE SFP+ (0-27), 8x 25GE/10GE/GE SFP28 (28-35, port-group switchable to 10GE/GE), 12x 25GE/10GE SFP28 (36-47) and 8x 100GE/50GE/40GE QSFP28 (48-55) that break out to 4x25GE or 4x10GE. 2.4 Tbit/s switching, 453 Mpps, ~325 W typical.",
+  "capabilities": [
+    "l3-forward",
+    "l2-forward",
+    "cli",
+    "http-server",
+    "nat",
+    "firewall",
+    "dhcp-server"
+  ],
+  "interfaces": [
+    {
+      "name": "10GE0/1/0",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        10000,
+        1000
+      ]
+    },
+    {
+      "name": "10GE0/1/1",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        10000,
+        1000
+      ]
+    },
+    {
+      "name": "10GE0/1/2",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        10000,
+        1000
+      ]
+    },
+    {
+      "name": "10GE0/1/3",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        10000,
+        1000
+      ]
+    },
+    {
+      "name": "10GE0/1/4",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        10000,
+        1000
+      ]
+    },
+    {
+      "name": "10GE0/1/5",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        10000,
+        1000
+      ]
+    },
+    {
+      "name": "10GE0/1/6",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        10000,
+        1000
+      ]
+    },
+    {
+      "name": "10GE0/1/7",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        10000,
+        1000
+      ]
+    },
+    {
+      "name": "10GE0/1/8",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        10000,
+        1000
+      ]
+    },
+    {
+      "name": "10GE0/1/9",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        10000,
+        1000
+      ]
+    },
+    {
+      "name": "10GE0/1/10",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        10000,
+        1000
+      ]
+    },
+    {
+      "name": "10GE0/1/11",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        10000,
+        1000
+      ]
+    },
+    {
+      "name": "10GE0/1/12",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        10000,
+        1000
+      ]
+    },
+    {
+      "name": "10GE0/1/13",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        10000,
+        1000
+      ]
+    },
+    {
+      "name": "10GE0/1/14",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        10000,
+        1000
+      ]
+    },
+    {
+      "name": "10GE0/1/15",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        10000,
+        1000
+      ]
+    },
+    {
+      "name": "10GE0/1/16",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        10000,
+        1000
+      ]
+    },
+    {
+      "name": "10GE0/1/17",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        10000,
+        1000
+      ]
+    },
+    {
+      "name": "10GE0/1/18",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        10000,
+        1000
+      ]
+    },
+    {
+      "name": "10GE0/1/19",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        10000,
+        1000
+      ]
+    },
+    {
+      "name": "10GE0/1/20",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        10000,
+        1000
+      ]
+    },
+    {
+      "name": "10GE0/1/21",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        10000,
+        1000
+      ]
+    },
+    {
+      "name": "10GE0/1/22",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        10000,
+        1000
+      ]
+    },
+    {
+      "name": "10GE0/1/23",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        10000,
+        1000
+      ]
+    },
+    {
+      "name": "10GE0/1/24",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        10000,
+        1000
+      ]
+    },
+    {
+      "name": "10GE0/1/25",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        10000,
+        1000
+      ]
+    },
+    {
+      "name": "10GE0/1/26",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        10000,
+        1000
+      ]
+    },
+    {
+      "name": "10GE0/1/27",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        10000,
+        1000
+      ]
+    },
+    {
+      "name": "25GE0/1/28",
+      "type": "ethernet",
+      "connector": "sfp28",
+      "speed": "25G",
+      "speedCaps": [
+        25000,
+        10000,
+        1000
+      ]
+    },
+    {
+      "name": "25GE0/1/29",
+      "type": "ethernet",
+      "connector": "sfp28",
+      "speed": "25G",
+      "speedCaps": [
+        25000,
+        10000,
+        1000
+      ]
+    },
+    {
+      "name": "25GE0/1/30",
+      "type": "ethernet",
+      "connector": "sfp28",
+      "speed": "25G",
+      "speedCaps": [
+        25000,
+        10000,
+        1000
+      ]
+    },
+    {
+      "name": "25GE0/1/31",
+      "type": "ethernet",
+      "connector": "sfp28",
+      "speed": "25G",
+      "speedCaps": [
+        25000,
+        10000,
+        1000
+      ]
+    },
+    {
+      "name": "25GE0/1/32",
+      "type": "ethernet",
+      "connector": "sfp28",
+      "speed": "25G",
+      "speedCaps": [
+        25000,
+        10000,
+        1000
+      ]
+    },
+    {
+      "name": "25GE0/1/33",
+      "type": "ethernet",
+      "connector": "sfp28",
+      "speed": "25G",
+      "speedCaps": [
+        25000,
+        10000,
+        1000
+      ]
+    },
+    {
+      "name": "25GE0/1/34",
+      "type": "ethernet",
+      "connector": "sfp28",
+      "speed": "25G",
+      "speedCaps": [
+        25000,
+        10000,
+        1000
+      ]
+    },
+    {
+      "name": "25GE0/1/35",
+      "type": "ethernet",
+      "connector": "sfp28",
+      "speed": "25G",
+      "speedCaps": [
+        25000,
+        10000,
+        1000
+      ]
+    },
+    {
+      "name": "25GE0/1/36",
+      "type": "ethernet",
+      "connector": "sfp28",
+      "speed": "25G",
+      "speedCaps": [
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "25GE0/1/37",
+      "type": "ethernet",
+      "connector": "sfp28",
+      "speed": "25G",
+      "speedCaps": [
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "25GE0/1/38",
+      "type": "ethernet",
+      "connector": "sfp28",
+      "speed": "25G",
+      "speedCaps": [
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "25GE0/1/39",
+      "type": "ethernet",
+      "connector": "sfp28",
+      "speed": "25G",
+      "speedCaps": [
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "25GE0/1/40",
+      "type": "ethernet",
+      "connector": "sfp28",
+      "speed": "25G",
+      "speedCaps": [
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "25GE0/1/41",
+      "type": "ethernet",
+      "connector": "sfp28",
+      "speed": "25G",
+      "speedCaps": [
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "25GE0/1/42",
+      "type": "ethernet",
+      "connector": "sfp28",
+      "speed": "25G",
+      "speedCaps": [
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "25GE0/1/43",
+      "type": "ethernet",
+      "connector": "sfp28",
+      "speed": "25G",
+      "speedCaps": [
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "25GE0/1/44",
+      "type": "ethernet",
+      "connector": "sfp28",
+      "speed": "25G",
+      "speedCaps": [
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "25GE0/1/45",
+      "type": "ethernet",
+      "connector": "sfp28",
+      "speed": "25G",
+      "speedCaps": [
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "25GE0/1/46",
+      "type": "ethernet",
+      "connector": "sfp28",
+      "speed": "25G",
+      "speedCaps": [
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "25GE0/1/47",
+      "type": "ethernet",
+      "connector": "sfp28",
+      "speed": "25G",
+      "speedCaps": [
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "100GE0/1/48",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        100000,
+        50000,
+        40000
+      ]
+    },
+    {
+      "name": "100GE0/1/49",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        100000,
+        50000,
+        40000
+      ]
+    },
+    {
+      "name": "100GE0/1/50",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        100000,
+        50000,
+        40000
+      ]
+    },
+    {
+      "name": "100GE0/1/51",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        100000,
+        50000,
+        40000
+      ]
+    },
+    {
+      "name": "100GE0/1/52",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        100000,
+        50000,
+        40000
+      ]
+    },
+    {
+      "name": "100GE0/1/53",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        100000,
+        50000,
+        40000
+      ]
+    },
+    {
+      "name": "100GE0/1/54",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        100000,
+        50000,
+        40000
+      ]
+    },
+    {
+      "name": "100GE0/1/55",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        100000,
+        50000,
+        40000
+      ]
+    }
+  ],
+  "notes": "Huawei figures for the F1A-8H20Q: 56 physical ports maximum, 8x100GE, 20x25GE (+32 via 100GE breakout), 48x10GE (+32 breakout), 2.4 Tbit/s switching, 453 Mpps, 325 W typical, 2x power 1+1, 4 fans 3+1, 43.6 x 442 x 420 mm (1U). The port map: ports 0-27 are 10GE/GE SFP+ and 10GE WAN capable; 28-35 are 25GE/10GE/GE in two port groups (28-31, 32-35) whose mode changes together; 36-47 are 25GE/10GE only; 48-55 are 100GE/50GE/40GE and are the only ports that break out (port split). Management is separate from the data ports: MGMT-ETH (RJ45), a Console/AUX RJ45 hybrid at 9600 bit/s, TOD and CLK RJ45 clock ports, USB, and two reserved SFP 1G cascade ports (GE0/GE1) - none of those are modelled here. Capacity discrepancy worth stating: the F-series marketing page gives the F1A a maximum capacity of 1.2 Tbit/s (1200 G/U capacity density) while the V800R023C10SPC500 hardware description states 2.4 Tbit/s switching capacity for this chassis; the hardware description is the datasheet of record here. The F-series platform is documented as SR/BNG/CGN/IPSec-capable, which is where nat, firewall and dhcp-server come from. https://support.huawei.com/enterprise/en/doc/EDOC1100382055/ce5c8c83/netengine-8000-f1a-8h20q",
+  "sourceUrl": "https://support.huawei.com/enterprise/en/doc/EDOC1100382055/ce5c8c83/netengine-8000-f1a-8h20q",
+  "aliases": [
+    "F1A-8H20Q",
+    "cr8b0bkp03d0",
+    "NE8000 F1A"
+  ]
+}
