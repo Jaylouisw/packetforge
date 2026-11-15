@@ -6534,7 +6534,14 @@ class CliSession {
   _accessList(tokens) {
     const aclLib = require('./acl');
     if (!tokens.length) return ['% Incomplete command'];
-    const num = parseInt(tokens[0], 10);
+    // A list number is decimal digits. `parseInt` read `1e3` as 1, `12abc` as 12 and `+5` as 5, so a
+    // line naming a list that does not exist quietly configured a different one - the same class of
+    // defect `vrrp 1e3` had, found the same way (a numeric slot swept with the words parseInt accepts).
+    if (this._decimal(tokens[0]) === null) {
+      return ['% "' + tokens[0] + '" is not an access list number - a standard list is 1-99 or 1300-1999,',
+        '% an extended one is 100-199 or 2000-2699'];
+    }
+    const num = this._decimal(tokens[0]);
     const kind = aclLib.aclKind(num);
     if (!kind) return ['% Invalid access list number: ' + tokens[0]];
     const entry = aclLib.parseEntry(tokens.slice(1).join(' '), num);
@@ -13357,7 +13364,12 @@ class CliSession {
       return l2 ? null : switches;
     }
     // Routing between interfaces.
-    if (first === 'ip' && (second === 'routing' || second === 'route')) return l3 ? null : routes;
+    // `ip route` is available everywhere for the same reason `show ip route` is ungated: every device
+    // in this model keeps a route table, a host carries its way out as a route to 0.0.0.0/0, and a
+    // switch with an SVI needs one for its own management traffic. The page hid it on anything that
+    // was not a router while the parser accepted it and answered "Route added" - a promise the page
+    // said the device could not keep. `ip routing` still needs a device that routes.
+    if (first === 'ip' && second === 'routing') return l3 ? null : routes;
     if (first === 'no' && second === 'ip' && (words[2] === 'routing' || words[2] === 'route')) {
       return l3 ? null : routes;
     }
@@ -13702,6 +13714,13 @@ class CliSession {
       // stood for is stated once, below the rows, where a reader looking for a verb never trips on it.
       helpLine('help / ?', 'this list'),
       helpLine('exit / end', 'config / exec'),
+      // The global commands that really do work from inside a block. They were covered by the prose
+      // note below and by nothing else, so `hostname ?` completed here while `hostn` was *Unrecognized
+      // config command* - the page could not be abbreviated because the words were not rows.
+      helpLine('hostname <name> | arp <ip> <mac> | vlan <id> [name] | access-list <id> permit <ip>',
+        'a global command: applied at global scope, and this interface block is kept'),
+      helpLine('dns zone <name> | ospf area <id> | bgp router-id <ip> | ip route <net> <mask> <gw>',
+        'the other global commands, in the words they take at global scope'),
       // A prose line, not a row: it starts with `%` and no two-space indent, so the help parser skips
       // it (it is not a command) and the reader still sees it. Last, where a note belongs - and it is
       // the one fact this page cannot state as a row, because "any command" is not a command.
@@ -13717,7 +13736,11 @@ class CliSession {
         helpLine('neighbor <ip> remote-as <as>', 'accept sessions from that address in that AS'),
         helpLine('no neighbor <ip>', 'remove the peer'),
         helpLine('bgp router-id <ip>', 'name this speaker by an address of its own choosing'),
+        // `network <prefix>` is a real IOS verb that this model does not implement - it announces the
+        // connected prefixes - and its refusal was the only place that said so.
+        helpLine('network <prefix>', 'not modelled: this box announces the subnets it has an address on'),
         helpLine('show <what> | do show <what>', 'any exec view, without leaving this process'),
+        helpLine('help / ?', 'this list'),
         helpLine('exit', 'back to global configuration - the process stays running'),
         helpLine('end', 'leave configuration mode entirely')
       ], 'BGP mode - the process is this autonomous system, and its peers are the addresses below it');
@@ -13726,6 +13749,7 @@ class CliSession {
         helpLine('no network <net> <wildcard> area <id>', 'take those interfaces out of the area'),
         helpLine('router-id <ip>', 'name this router in OSPF'),
         helpLine('show <what> | do show <what>', 'any exec view, without leaving this process'),
+        helpLine('help / ?', 'this list'),
         helpLine('exit', 'back to global configuration - the process stays running'),
         helpLine('end', 'leave configuration mode entirely')
       ], 'Router mode - the areas live on the interfaces, and "network" is the shorthand that writes them');

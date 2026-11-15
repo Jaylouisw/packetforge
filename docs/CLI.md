@@ -1823,6 +1823,46 @@ The gate also read the wrong word. The test was "does the row contain `bgp` anyw
 The suite sweeps one device from each catalogue category: every `show` row its page **hides** is typed,
 and must be refused — a hidden row that answers is a view an operator will never find.
 
+### A word a block takes is a word its page names
+
+The mirror of the `show` sweep, on the configuration side. `hostname` typed inside an interface block
+is applied at global scope and the block is kept — the page said so in one prose line, and prose is not
+a row:
+
+```
+R1(config-if)#hostname R9
+Hostname: R9
+  note: "hostname" is a global command - applied at global scope and the interface block was kept
+R1(config-if)#hostn R9
+% Unrecognized config command: hostn R9
+```
+
+Eight words were in that state — `hostname`, `arp`, `vlan`, `access-list`, `dns`, `ospf`, `bgp`,
+`ip route` — so nothing completed, nothing abbreviated, and `?` never showed them. They are rows now
+("a global command: applied at global scope, and this interface block is kept"), and the prose line
+stays for the rest, because "any command" is not a command.
+
+Two more things fell out of asking the question at every prompt:
+
+* **`ip route` was hidden on anything that is not a router while the parser accepted it.** A switch was
+  told "Route added" by a page that said it had no routes to add. It is ungated for the same reason
+  `show ip route` is: every device here keeps a route table, a host carries its way out as a route to
+  `0.0.0.0/0`, and a switch with an SVI needs one for its own management traffic. `ip routing` still
+  needs a device that routes.
+* **The BGP and OSPF process pages** did not name `help / ?`, and the BGP page did not name
+  `network <prefix>` — a real IOS verb this model does not implement, whose absence was stated only in
+  the refusal it printed. Both are rows now, and the row and the refusal use the same words.
+
+A third defect came out of the same sweep, in a slot it had never been filled at that prompt: an
+access-list number was read with `parseInt`, so `access-list 1e3 permit …` configured **list 1**,
+`12abc` configured list 12 and `+5` configured list 5 — a line naming a list that does not exist
+quietly configuring a different one. A list number is decimal digits now, refused by name otherwise.
+
+The sweep is part of the suite: every quoted literal in the console typed at six prompts, with the
+prompt restored between words (without that, `exit` and `quit` move the session and the next word is
+measured against the wrong page — the first version of this probe reported seventeen findings, of which
+eight were real).
+
 ### What a device is made of, and what it is not
 
 The hardware questions an operator asks to orient on a box they have never seen. Every one of them

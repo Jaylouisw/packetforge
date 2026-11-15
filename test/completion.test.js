@@ -131,7 +131,10 @@ console.log('\nIt works in every mode and through `do`:');
   ok(cfg.length > 0, 'config mode completes its own subtree (' + cfg.join(',') + ')');
   l.run('interface Gi0/0');
   const iface = l.labels(l.run('ip ?'));
-  eq(iface.join(','), 'access-group,address,helper-address,nat,ospf', 'interface mode lists its ip subcommands');
+  // `route` joined the list: a global `ip route` works from inside a block (it is applied at global
+  // scope and the block is kept), so the page owes the word - mode-word-coverage asserts it.
+  eq(iface.join(','), 'access-group,address,helper-address,nat,ospf,route',
+    'interface mode lists its ip subcommands, including the global ones');
   const ospf = l.labels(l.run('ip ospf ?'));
   // The list follows the help row, and the help row now lists `network`: the device accepted
   // `ip ospf network point-to-point` while the refusal and this completion both omitted it.
