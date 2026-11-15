@@ -293,6 +293,20 @@ A cable that cannot be restored is not skipped in silence. `fromJSON()` records 
 | an end naming a device or port the document does not contain | `E_LINK_ENDPOINT_MISSING` |
 | a cable the engine refuses (a port already connected, a cage already occupied) | `E_LINK_NOT_RESTORED`, with the engine's own sentence |
 
+Every one of those is a **warning**, and the sentence names the cable id and the end that failed —
+`cable l2 end d1/GigabitEthernet1/0/99 names a port d1 does not have`. The board loads; one cable of it did
+not, and the entry says which. `loadIssues` is the list of things a document said that were not adopted, not a list
+of reasons to refuse the document.
+
+A port name in a link is resolved, not string-matched. `cableProblem()` — the pre-check that runs before
+`connect()` — asks the same `ifaceName.resolvePortName()` the console and `connect()` use, so `ether1` on a device
+whose port is `eth1`, a name in the wrong case, and a subinterface spelled through its parent's alias are all the
+same socket on the way in as they are at the console. It used to ask `interfaces.has()`, an exact map lookup, which
+is stricter than the function that would have done the work: a document holding four `ether1`-style cables loaded
+with **zero** links and four `E_LINK_ENDPOINT_MISSING` entries claiming the ports did not exist, when the ports
+existed and only the spelling differed (the case #39 introduced the resolver for). A name the resolver refuses — a
+port the device genuinely does not have — is still refused, with the same code.
+
 The HTTP API has always refused a bad link state (`422 E_BAD_STATE`); the load path accepted anything, so a
 hand-edited or corrupted file produced a cable that `isUp()` said was not up and nothing else could explain.
 

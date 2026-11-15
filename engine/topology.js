@@ -30,22 +30,30 @@ function expandInterfaces(spec) {
 // itself, a state nobody defines, or two cables sharing one id (the second silently replaced the first, because
 // links are kept in a map). The HTTP API refuses a bad state with 422; the load path accepted anything, so a
 // hand-edited or corrupted file produced a cable in a state that is neither up nor down (#1323).
+//
+// "A port that does not exist" is answered by the same resolver `connect()` uses, not by a bare map lookup (#1519).
+// The two used to disagree - this check asked `interfaces.has()`, so a cable naming `ether1` on a device whose port
+// is `eth1` (the console spelling of an older lab file, which is the case the resolver exists for, #39) was refused
+// here and never reached `connect()`, which would have resolved it. A board came back with the cables missing and a
+// report claiming the port did not exist, when the port did and only the spelling differed.
 const LINK_STATES = ['up', 'down', 'blocked'];
 
 function cableProblem(link, topo) {
   if (!link || typeof link !== 'object') return { code: 'E_LINK_MALFORMED', message: 'not a cable' };
+  // Which cable is speaking. The id is what a person can find in the document.
+  const called = (link.id === undefined || link.id === null) ? 'cable ' : 'cable ' + link.id + ' ';
   const a = link.a, b = link.b;
   if (!a || typeof a !== 'object' || typeof a.deviceId !== 'string' || typeof a.iface !== 'string') {
-    return { code: 'E_LINK_MALFORMED', message: 'cable has no a end (deviceId and iface)' };
+    return { code: 'E_LINK_MALFORMED', message: called + 'has no a end (deviceId and iface)' };
   }
   if (!b || typeof b !== 'object' || typeof b.deviceId !== 'string' || typeof b.iface !== 'string') {
-    return { code: 'E_LINK_MALFORMED', message: 'cable has no b end (deviceId and iface)' };
+    return { code: 'E_LINK_MALFORMED', message: called + 'has no b end (deviceId and iface)' };
   }
   if (a.deviceId === b.deviceId && a.iface === b.iface) {
-    return { code: 'E_LINK_SELF_LOOP', message: 'cable joins ' + a.deviceId + '/' + a.iface + ' to itself' };
+    return { code: 'E_LINK_SELF_LOOP', message: called + 'joins ' + a.deviceId + '/' + a.iface + ' to itself' };
   }
   if (link.state !== undefined && LINK_STATES.indexOf(link.state) === -1) {
-    return { code: 'E_LINK_BAD_STATE', message: 'cable state ' + JSON.stringify(link.state) +
+    return { code: 'E_LINK_BAD_STATE', message: called + 'state ' + JSON.stringify(link.state) +
       ' is not one of ' + LINK_STATES.join(', ') };
   }
   if (link.id !== undefined && link.id !== null && topo.links.has(link.id)) {
@@ -54,10 +62,12 @@ function cableProblem(link, topo) {
   }
   for (const end of [a, b]) {
     const dev = topo.devices.get(end.deviceId);
-    if (!dev) return { code: 'E_LINK_ENDPOINT_MISSING', message: 'cable end ' + end.deviceId + '/' + end.iface +
+    if (!dev) return { code: 'E_LINK_ENDPOINT_MISSING', message: called + 'end ' + end.deviceId + '/' + end.iface +
       ' names a device that is not in the document' };
-    if (!dev.interfaces.has(end.iface)) return { code: 'E_LINK_ENDPOINT_MISSING', message: 'cable end ' +
-      end.deviceId + '/' + end.iface + ' names a port that device does not have' };
+    if (!ifaceName.resolvePortName(dev, end.iface)) {
+      return { code: 'E_LINK_ENDPOINT_MISSING', message: called + 'end ' + end.deviceId + '/' + end.iface +
+        ' names a port ' + end.deviceId + ' does not have' };
+    }
   }
   return null;
 }
@@ -747,7 +757,10 @@ addDevice(spec, id) {
     for (const l of (data.links || [])) {
       const problem = cableProblem(l, topo);
       if (problem) {
-        topo.loadIssues.push({ severity: 'error', linkId: l && l.id, code: problem.code, message: problem.message });
+        // A warning, not an error: the board opened and everything else in it is intact, and #1519 is about the
+        // cable being *lost*, not about the load being refused. The message names the cable id and the end that
+        // failed, so a person can find the line in the document without diffing it against the board.
+        topo.loadIssues.push({ severity: 'warning', linkId: l && l.id, code: problem.code, message: problem.message });
         continue;
       }
       // force: true so legacy topologies (no media info) still load.
@@ -764,8 +777,14 @@ addDevice(spec, id) {
         });
       } catch (e) {
         // The cable cannot be made - a port the engine refuses, a cage already occupied - and it is reported
-        // rather than dropped quietly.
-        topo.loadIssues.push({ severity: 'error', linkId: l && l.id, code: 'E_LINK_NOT_RESTORED', message: e.message });
+        // rather than dropped quietly. A warning for the same reason as the entry above: the board loaded, and one
+        // cable of it did not. `loadIssues` is the list of things a document said that were not adopted, not a list
+        // of reasons to refuse the document (#1519).
+        topo.loadIssues.push({
+          severity: 'warning', linkId: l && l.id, code: 'E_LINK_NOT_RESTORED',
+          message: 'cable ' + (l && l.id !== undefined && l.id !== null ? l.id : '(no id)') +
+            ' was not restored: ' + e.message
+        });
       }
     }
     // Where each box sits. Validated, because the canvas draws `pos.x` straight from here: a document with
