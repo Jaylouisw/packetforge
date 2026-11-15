@@ -966,7 +966,9 @@ class CliSession {
       if (cannotBundle) return [cannotBundle];
       out.push.apply(out, this._channelGroup(tokens.slice(1), iface));
     } else if (head === 'no' && tokens[1] === 'channel-group') {
-      out.push.apply(out, this._channelGroup(['remove'], iface));
+      // The id travels with the command. It used to be dropped here, so `no channel-group 9999` removed the
+      // port from whatever group it was really in (#1510).
+      out.push.apply(out, this._channelGroup(['remove'].concat(tokens.slice(2)), iface));
     } else if (head === 'speed') {
       out.push.apply(out, this._speed(tokens.slice(1), iface));
     } else if (head === 'no' && tokens[1] === 'speed') {
@@ -1746,6 +1748,22 @@ class CliSession {
   }
 
   // ---------- link aggregation ----------
+
+  // A channel group id, checked on both doors of the same command.
+  //
+  // The set form tested a lower bound only while its own refusal stated `1-4096`, so `channel-group 4097`
+  // created a bundle the console said could not exist and every view that lists bundles printed it (#1505);
+  // the `no` form checked nothing at all and threw the word away (#1510). One check, both ends, both doors,
+  // so a number the console prints as the range is a number it applies.
+  _channelGroupId(raw) {
+    const s = String(raw == null ? '' : raw);
+    if (!/^\d+$/.test(s) || Number(s) < 1 || Number(s) > 4096) {
+      return { id: null, error: '% Invalid channel group id "' + s + '": a channel group is identified by a ' +
+        'number, 1-4096 (e.g. `channel-group 1 mode active`)' };
+    }
+    return { id: s, error: null };
+  }
+
   _channelGroup(tokens, iface) {
     const lagLib = require('./lag');
     const dev = this.device;
@@ -1755,13 +1773,36 @@ class CliSession {
     if (t[0] === 'remove') {
       // It used to print "Removed Fa0/4 from any channel group" for a port that was in none - the same
       // sentence for work done and work not done.
+      //
+      // The id the operator named is read here rather than thrown away. `no channel-group 9999` answered
+      // "Fa0/1 removed from channel group 2": the word was dropped by the dispatcher, so a technician
+      // correcting a typo took the port out of the bundle that was carrying traffic, and every view then
+      // agreed the port was loose (#1510). An id that is not this port's group is a refusal that names
+      // both groups; it is not an action on a group the operator did not ask about.
+      //
+      // A bare `no channel-group` keeps its old meaning - the group the port is actually in - because that
+      // is what an operator types when they do not remember the number.
+      const named = (t[1] == null || t[1] === '') ? null : t[1];
+      if (named !== null) {
+        const chk = this._channelGroupId(tokens[1]);
+        if (chk.error) return [chk.error];
+      }
       const was = Object.keys(dev.config.lags).filter(function (id) {
         return (dev.config.lags[id].members || []).indexOf(iface.name) !== -1;
-      });
-      if (!was.length) return ['% ' + iface.name + ' is not in a channel group'];
+      }).sort(function (a, b) { return Number(a) - Number(b); });
+      if (!was.length) {
+        return [named !== null
+          ? '% ' + iface.name + ' is not in channel group ' + named
+          : '% ' + iface.name + ' is not in a channel group'];
+      }
+      if (named !== null && was.indexOf(named) === -1) {
+        return ['% ' + iface.name + ' is not in channel group ' + named + ': it is in group ' + was.join(', ')];
+      }
+      const targets = named !== null ? [named] : was;
       const gone = [];
-      for (const id of was) {
+      for (const id of targets) {
         const l = dev.config.lags[id];
+        if (!l) continue;
         l.members = (l.members || []).filter(function (m) { return m !== iface.name; });
         gone.push(id);
         if (!l.members.length) delete dev.config.lags[id];
@@ -1775,10 +1816,8 @@ class CliSession {
     // becoming configuration, with a receipt (#1495). The mode was validated and the id was not.
     const id = t[0];
     if (!id) return ['% Usage: channel-group <id> mode active|passive|on'];
-    if (!/^\d+$/.test(id) || Number(id) < 1) {
-      return ['% Invalid channel group id "' + tokens[0] + '": a channel group is identified by a number, ' +
-        '1-4096 (e.g. `channel-group 1 mode active`)'];
-    }
+    const idChk = this._channelGroupId(tokens[0]);
+    if (idChk.error) return [idChk.error];
     let typed = 'active';
     const mi = t.indexOf('mode');
     if (mi !== -1 && t[mi + 1]) typed = t[mi + 1];
@@ -1787,6 +1826,20 @@ class CliSession {
     }
     // The console's word is translated to the model's once, here; nothing downstream should ever see "active".
     const mode = lagLib.canonicalMode(typed);
+    // A port belongs to one bundle. A second `channel-group` moves it, the way IOS does; before this each
+    // line added membership to another group, so one cable appeared in every bundle it had ever been joined
+    // to - a state no switch can be in, invented by commands that were each typed correctly, and then
+    // reported by the view that is supposed to be the truth about bundles (#1510).
+    const movedFrom = Object.keys(dev.config.lags).filter(function (other) {
+      if (other === id) return false;
+      const l = dev.config.lags[other];
+      return l && Array.isArray(l.members) && l.members.indexOf(iface.name) !== -1;
+    }).sort(function (a, b) { return Number(a) - Number(b); });
+    for (const other of movedFrom) {
+      const l = dev.config.lags[other];
+      l.members = l.members.filter(function (m) { return m !== iface.name; });
+      if (!l.members.length) delete dev.config.lags[other];
+    }
     const existing = dev.config.lags[id];
     const g = existing || { mode: mode, hashPolicy: 'l2', members: [] };
     const out = [];
@@ -1803,7 +1856,10 @@ class CliSession {
     if (g.members.indexOf(iface.name) === -1) g.members.push(iface.name);
     dev.config.lags[id] = g;
 
-    out.push('Interface ' + iface.name + ' added to channel group ' + id + ' (mode ' + lagLib.cliMode(mode) + ')');
+    out.push(movedFrom.length
+      ? 'Interface ' + iface.name + ' moved from channel group ' + movedFrom.join(', ') + ' to ' + id +
+        ' (mode ' + lagLib.cliMode(mode) + ')'
+      : 'Interface ' + iface.name + ' added to channel group ' + id + ' (mode ' + lagLib.cliMode(mode) + ')');
     // The port records, which nobody passed (#1524). Every per-member rule in engine/lag.js - rate, duplex,
     // VLAN set - is guarded by "do I have a record for this port", so with no records the whole section was
     // skipped and a bundle of ports that cannot carry traffic the same way was accepted with a receipt and no
@@ -3802,7 +3858,9 @@ class CliSession {
         }
       }
       const lags = dev.config.lags || {};
-      const ids = Object.keys(lags).sort();
+      // Bundle ids are numbers and a technician reads that column as a list; `sort()` on the keys gave
+      // `10, 100, 2`. `show access-lists` already sorts with a numeric comparator (#1510).
+      const ids = Object.keys(lags).sort(function (a, b) { return Number(a) - Number(b); });
       if (!ids.length) {
         out.push('% No link aggregation groups configured');
       } else {

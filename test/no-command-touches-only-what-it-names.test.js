@@ -131,3 +131,73 @@ test('no ip access-group says which list, or that none is applied', () => {
   assert.ok(!dev.aclBindings || !dev.aclBindings['Gi0/0'] || !dev.aclBindings['Gi0/0'].in,
     'and the binding is actually gone');
 });
+
+// ---------------------------------------------------------------------------
+// The same defect, in the bundle handler: `no channel-group <id>` threw the id
+// away, so it removed the port from whatever group the port was really in.
+// ---------------------------------------------------------------------------
+
+function lagLab() {
+  const L = lab('generic-switch');
+  L.run('interface Fa0/1');
+  return L;
+}
+
+test('no channel-group <id> does not remove the port from a different group', () => {
+  const { run, dev } = lagLab();
+  assert.match(run('channel-group 2 mode active'), /added to channel group 2/, 'setup: the port must join');
+  assert.ok((dev.config.lags['2'].members || []).indexOf('Fa0/1') !== -1, 'setup: membership is recorded');
+
+  // An id outside the range the console itself states is refused as an id, not acted on.
+  const outOfRange = run('no channel-group 9999');
+  assert.match(outOfRange, /^% /, 'a refused id is a refusal: ' + outOfRange);
+  assert.match(outOfRange, /1-4096/, 'and it states the range it applied: ' + outOfRange);
+  assert.ok(dev.config.lags['2'] && dev.config.lags['2'].members.indexOf('Fa0/1') !== -1,
+    'the out-of-range id must not touch group 2: ' + JSON.stringify(dev.config.lags));
+
+  // An id in range but not this port's group is refused, and the answer names the group the port is in.
+  const wrongGroup = run('no channel-group 5');
+  assert.match(wrongGroup, /not in channel group 5/, 'the refusal names the id that was asked for: ' + wrongGroup);
+  assert.match(wrongGroup, /in group 2/, 'and the group the port is actually in: ' + wrongGroup);
+  assert.ok(dev.config.lags['2'] && dev.config.lags['2'].members.indexOf('Fa0/1') !== -1,
+    'the wrong-group `no` must leave group 2 alone: ' + JSON.stringify(dev.config.lags));
+
+  // The id that is really the port's group still works, and says which group it left.
+  const right = run('no channel-group 2');
+  assert.match(right, /removed from channel group 2/, 'the named group is the one removed: ' + right);
+  assert.ok(!dev.config.lags['2'], 'and the emptied group is gone: ' + JSON.stringify(dev.config.lags));
+});
+
+test('a bare no channel-group still means "whatever it is in"', () => {
+  const { run, dev } = lagLab();
+  run('channel-group 7 mode active');
+  const answer = run('no channel-group');
+  assert.match(answer, /removed from channel group 7/, 'the bare form removes the group the port is in: ' + answer);
+  assert.ok(!dev.config.lags['7'], 'and the group is gone: ' + JSON.stringify(dev.config.lags));
+});
+
+test('a second channel-group moves the port instead of adding it to another group', () => {
+  const { run, dev } = lagLab();
+  run('channel-group 2 mode active');
+  const moved = run('channel-group 10 mode on');
+  assert.match(moved, /moved from channel group 2 to 10/, 'the move is announced: ' + moved);
+  assert.match(moved, /\(mode on\)/, 'with the mode the port now runs: ' + moved);
+  assert.deepStrictEqual(Object.keys(dev.config.lags), ['10'], 'the port is in exactly one bundle: ' +
+    JSON.stringify(dev.config.lags));
+  assert.deepStrictEqual(dev.config.lags['10'].members, ['Fa0/1'], 'and it is a member of the new one');
+});
+
+test('the bundle table is ordered by number, not as strings', () => {
+  const { run } = lagLab();
+  for (const [port, id] of [['Fa0/1', 10], ['Fa0/2', 100], ['Fa0/3', 2]]) {
+    if (port !== 'Fa0/1') run('interface ' + port);
+    run('channel-group ' + id + ' mode active');
+  }
+  run('end');
+  const summary = run('show etherchannel summary');
+  const order = summary.split('\n')
+    .map(function (l) { return /^(\d+)\s+(Static|LACP)/.exec(l); })
+    .filter(Boolean)
+    .map(function (m) { return Number(m[1]); });
+  assert.deepStrictEqual(order, [2, 10, 100], 'the groups read 2, 10, 100: ' + summary);
+});

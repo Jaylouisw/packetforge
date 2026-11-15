@@ -1104,6 +1104,28 @@ member of a two-member bundle does not cost you half your flows while the other 
 member can carry, the bundle is reported down and the frames are still attempted and dropped with a reason,
 so the loss is countable rather than invisible.
 
+### `no channel-group` undoes the group it names
+
+`no channel-group <id>` takes the port out of **that** group and of nothing else:
+
+```
+sw1(config-if)#no channel-group 5
+% Fa0/1 is not in channel group 5: it is in group 2
+```
+
+The id used to be dropped by the dispatcher, so `no channel-group 9999` answered
+`Fa0/1 removed from channel group 2 (the group had no other members)`: a technician correcting a typo took the
+port out of the bundle that was carrying traffic, and every view afterwards agreed the port was loose. An id
+outside `1-4096` is now refused as an id, and a port that is in no group says where it looked. A bare
+`no channel-group` keeps its old meaning - the group the port is actually in - because that is what you type
+when you do not remember the number.
+
+A port belongs to **one** bundle. A second `channel-group` **moves** it, and says where from -
+`Interface Fa0/1 moved from channel group 2 to 10 (mode on)`. Before this each line added membership to another
+group, so one cable was listed in every bundle it had ever been joined to, which is a state no switch can be in.
+
+The table is ordered by number rather than as strings, so groups read `2, 10, 100`.
+
 ### Reading `show power inline`
 
 ```
