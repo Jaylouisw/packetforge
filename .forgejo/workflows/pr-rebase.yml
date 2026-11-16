@@ -154,6 +154,29 @@ jobs:
           export GIT_HTTP_LOW_SPEED_LIMIT=1000
           export GIT_HTTP_LOW_SPEED_TIME=30
 
+          # A merged or closed pull request must not be rebased or armed. The push would
+          # fire a `synchronize` event, and that starts the whole matrix - three ~200 s
+          # test legs, the smoke test and the Docker build - against a branch nobody will
+          # merge. On 2026-11-16 that is where a large share of the runner's time went:
+          # #1560 merged at 01:35:12 and its rebase task 6606 still ran at 02:23:12, and
+          # #1545 merged at 01:00:11 while its test legs (tasks 6586-6588) ran from 02:10:53.
+          #
+          # The guard is here, not in the job `if:`, because #1172 measured the other
+          # version: gating the job on `pull_request.state` stopped it being dispatched for
+          # healthy pull requests as well. This one fails open by construction - the reply
+          # is requested first, and only an explicit `"merged":true` or `"state":"closed"`
+          # stops the run. A timeout, a 404, a 502 or an unexpected shape rebases exactly
+          # as before.
+          pr_json=$(http -H "$(auth)" "$api/repos/$repo/pulls/$number" 2>/dev/null || true)
+          if printf '%s' "$pr_json" | grep -q '"merged":true'; then
+            echo "#${number}: already merged - not rebasing and not arming"
+            exit 0
+          fi
+          if printf '%s' "$pr_json" | grep -q '"state":"closed"'; then
+            echo "#${number}: closed - not rebasing and not arming"
+            exit 0
+          fi
+
           git config user.name  'packetforge-bot'
           git config user.email 'packetforge-bot@users.noreply.git.jayw.uk'
 

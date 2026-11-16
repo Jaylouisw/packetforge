@@ -57,6 +57,7 @@ jobs:
     outputs:
       data_only: ${{ steps.classify.outputs.data_only }}
       code: ${{ steps.classify.outputs.code }}
+      live: ${{ steps.liveness.outputs.live }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -72,6 +73,57 @@ jobs:
             node scripts/classify-change.js --base ""
           fi
 
+      # A queued job runs eventually, whether or not the thing it was queued for still
+      # exists. This host has two runner slots and a backlog measured in hours, so by the
+      # time a `Test (Node *)` leg is dispatched the pull request it belongs to has often
+      # already been merged by hand - and the leg then spends its full ~200 s proving
+      # something nobody can act on, pushing every live pull request further back.
+      #
+      # Measured on 2026-11-16 through the actions API over the 200 most recent jobs (task
+      # ids 6422-6621, /actions/tasks): 156 of the 199 pull-request jobs - 18,529 of 23,097
+      # runner seconds, 80% of all runner time - started for a pull request that was
+      # already merged or closed when the job started. #1545 is the clearest single case:
+      # merged at 01:00:11, and its three test legs (tasks 6586, 6587, 6588; run 2996)
+      # started at 02:10:53, 02:13:00 and 02:14:20.
+      #
+      # So the state is asked for once, before anything expensive, and only a positive
+      # answer that the pull request can no longer merge stops the matrix: `live=false` is
+      # written only when the reply says `"merged":true` or `"state":"closed"`.
+      # Everything else - a timed-out API, a missing token, an unparseable body, a push
+      # event, a runner that predates this change - leaves the output unset, and every
+      # job's condition is `!= 'false'`, so the full five jobs run exactly as before.
+      # That direction is deliberate: the failure this must never cause is a green check
+      # on a pull request that was never tested. `code:` above is untouched - nothing that
+      # a live pull request runs has changed.
+      - id: liveness
+        name: Is this pull request still open?
+        if: github.event_name == 'pull_request'
+        env:
+          TOKEN: ${{ secrets.FORGEJO_TOKEN || secrets.GITHUB_TOKEN || github.token }}
+        run: |
+          set -u
+          # No `live` output is written unless the answer is a positive "closed":
+          # the comparison in the jobs below is `!= 'false'`, so an absent output - a
+          # skipped step, a failed write, an older runner - keeps the full matrix.
+          api="${GITHUB_API_URL:-http://10.0.10.20:3000/api/v1}"
+          number="${{ github.event.pull_request.number }}"
+          json=$(curl -sS --connect-timeout 5 --max-time 20 --retry 2 --retry-delay 1                    --retry-connrefused -H "Authorization: token ${TOKEN:-}"                    "$api/repos/$GITHUB_REPOSITORY/pulls/$number" 2>/dev/null || true)
+          if printf '%s' "$json" | grep -q '"merged":true'; then
+            echo "live=false" >> "$GITHUB_OUTPUT"
+            echo "pull #${number} is already merged - this run cannot gate anything, so the matrix is skipped and both runner slots go back to the queue"
+            exit 0
+          fi
+          if printf '%s' "$json" | grep -q '"state":"closed"'; then
+            echo "live=false" >> "$GITHUB_OUTPUT"
+            echo "pull #${number} is closed - this run cannot gate anything, so the matrix is skipped"
+            exit 0
+          fi
+          if [ -z "$json" ]; then
+            echo "could not ask whether pull #${number} is still open - no reply from ${api} - running the full matrix"
+            exit 0
+          fi
+          echo "pull #${number} is open - running the full matrix"
+
   # A job that hangs holds the only runner, and a held runner is a queue that
   # stops moving: issue #930 documents a task stuck in `running` for over forty
   # minutes while every other pull request waited behind it. A bound does not make
@@ -81,6 +133,11 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     needs: changes
+    # Skipped only for a pull request the API positively reports as merged or closed
+    # (see the `liveness` step): the job cannot change an outcome there, and on a
+    # two-slot runner it is the difference between a live pull request waiting minutes
+    # or hours. Every open pull request still gets all three Node versions.
+    if: needs.changes.outputs.live != 'false'
     # A data-only diff used to run one Node version instead of three. That saving was bought with
     # an `if:` that read `matrix.node`, which cannot work: the job condition is evaluated before
     # the matrix exists, so every leg died ~2 s after starting (runs 1398, 1401, 1402 - three red
@@ -146,7 +203,7 @@ jobs:
     needs: changes
     # A device spec cannot change how the server boots or how the image builds. For a
     # data-only diff this job reports success without taking a runner for ten minutes.
-    if: needs.changes.outputs.data_only != 'true'
+    if: needs.changes.outputs.data_only != 'true' && needs.changes.outputs.live != 'false'
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -162,7 +219,7 @@ jobs:
     needs: changes
     # A device spec cannot change how the server boots or how the image builds. For a
     # data-only diff this job reports success without taking a runner for ten minutes.
-    if: needs.changes.outputs.data_only != 'true'
+    if: needs.changes.outputs.data_only != 'true' && needs.changes.outputs.live != 'false'
     steps:
       - uses: actions/checkout@v4
       # node:20-bookworm ships no docker binary. The runner mounts the host
