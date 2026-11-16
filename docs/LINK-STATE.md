@@ -63,9 +63,10 @@ Four things, and all four are what real gear does — the model would be a lie w
 | **Forwarding tables are flushed** | A topology change notification empties every bridge's MAC table. Keeping the entries is how a real network black-holes after a failure: traffic is unicast into the port that used to lead somewhere. |
 | **The convergence schedule re-bases** | Every control-plane timer runs again *from the instant of the change*. Without this, a lab that broke a cable reported the network as converged because it had converged once, hours earlier. |
 
-The change instant is stored on the topology (`lastChangeAtMs`) and on the link
-(`stateSinceMs`), not on a query object, so it survives save/load and every later question knows
-when it happened.
+The change instant lives on the topology (`lastChangeAtMs`), which is the instant every later
+question is answered against, and on the link (`stateSinceMs`), which is the part that is written
+to the file. Neither is a property of the query, so every view and every convergence schedule
+reads the same answer.
 
 ## The window where nothing works
 
@@ -102,9 +103,12 @@ A lab saved with a cable down comes back with it down:
 { "id": "l5", "a": {...}, "b": {...}, "state": "down", "stateSinceMs": 10000 }
 ```
 
-and the topology records `"lastChangeAtMs": 10000`. Links that never changed carry no `stateSinceMs`
-at all — a field on every cable would be noise in every diff and every regenerated example, and the
-examples-idempotent test would fail on it, which is how that was caught.
+There is no `lastChangeAtMs` in the document. The board's clock is an instant in a run and a run
+ends, so it is **derived** on the way back in, from the newest `stateSinceMs` any cable carries —
+which is how a reloaded lab still knows when the cable was cut without inheriting an instant from a
+session that no longer exists. Links that never changed carry no `stateSinceMs` at all — a field on
+every cable would be noise in every diff and every regenerated example, and the examples-idempotent
+test would fail on it, which is how that was caught.
 
 ## What this does not model
 
