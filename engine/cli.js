@@ -25,6 +25,30 @@ const vlanLib = require('./vlan');
 
 function pad(s, w) { s = String(s); return s + ' '.repeat(Math.max(0, w - s.length)); }
 
+// IOS accepts an abbreviation down to "the number of characters that allow a unique abbreviation", and names
+// this very command as the example: "you can abbreviate the configure terminal command to config t"
+// (Cisco IOS XE 16 Fundamentals Configuration Guide, Using the Cisco IOS Command-Line Interface).
+// https://cisco.com/c/en/us/td/docs/ios-xml/ios/fundamentals/configuration/xe-16/fundamentals-xe-16-book/cf-cli-basics.html
+//
+// This door knew two literal spellings, `configure` and `conf`, and refused the rest: `config t`, `config term`
+// and `conf term` all came back `% Invalid input`, though every one of them opens config mode on a real box
+// (`switch# config t` is printed as accepted in the MDS 9000 CLI guide, and `config ?` there lists `terminal`:
+// https://www.cisco.com/en/US/docs/storage/san_switches/mds9000/sw/rel_1_x/1_1_1a/san-os/configuration/guide/BforBgin.html).
+// An alias list is not the rule; the rule is a prefix match against the words the console actually has. The
+// rivals matter as much as the matches: on a box `c`, `co` and `con` are ambiguous, and so are they here,
+// where `converge` shares those letters with `configure` - refused as ambiguous rather than guessed, which is
+// the same call `interface` makes about a port spelling that folds onto two ports.
+const EXEC_WORDS_SHARING_CONFIGURE_STEM = ['converge'];
+
+// null when the typed word is not a spelling of `configure`; otherwise the words an exact match would have had
+// to choose between (empty when the prefix is unique, which is the case IOS accepts).
+function resolveConfigureWord(word) {
+  const typed = String(word === undefined || word === null ? '' : word).toLowerCase();
+  if (!typed || 'configure'.indexOf(typed) !== 0) return null;
+  const rivals = EXEC_WORDS_SHARING_CONFIGURE_STEM.filter(function (w) { return w.indexOf(typed) === 0; });
+  return { ambiguous: rivals.length ? ['configure'].concat(rivals) : [] };
+}
+
 // `show ip interface brief` is one table with six columns, and its header is the table's first row - padded
 // from the same widths, so the two cannot drift apart. They had drifted: the header put `OK?` in four columns
 // while every row put `YES  ` in five, so `Method` sat one column right of the word `Method` above it and every
@@ -290,9 +314,22 @@ class CliSession {
         // exec / enable mode
         if (head === 'enable' || head === 'en') {
           this.mode = MODE_ENABLE;
-        } else if (head === 'configure' || head === 'conf') {
-          if (tokens[1] === 'terminal' || tokens[1] === 't') this.mode = MODE_CONFIG;
-          else out.push('% Invalid input: ' + line);
+        } else if (resolveConfigureWord(head)) {
+          // Any unique abbreviation of both words opens config mode: `config t`, `conf term`, `configure term`.
+          // The second word is matched the same way, because `terminal` is the only keyword this console has
+          // after `configure` - so a prefix of it is unique by construction and a word that is not one is still
+          // refused with the line quoted, as before.
+          const spelled = resolveConfigureWord(head);
+          if (spelled.ambiguous.length) {
+            out.push('% Ambiguous command "' + head + '": ' + spelled.ambiguous.join(' | ') +
+              ' (type more characters)');
+          } else if (!tokens[1]) {
+            out.push('% Incomplete command: configure terminal');
+          } else if ('terminal'.indexOf(String(tokens[1]).toLowerCase()) === 0) {
+            this.mode = MODE_CONFIG;
+          } else {
+            out.push('% Invalid input: ' + line);
+          }
         } else if (head === 'show') {
           out.push.apply(out, this._show(tokens.slice(1)));
         } else if (head === 'ping') {

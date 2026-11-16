@@ -10,7 +10,7 @@ Modes and their prompts:
 |------|--------|-------------------|
 | exec | `Hostname>` | (start) |
 | enable | `Hostname#` | `enable` |
-| config | `Hostname(config)#` | `configure terminal` / `conf t` |
+| config | `Hostname(config)#` | `configure terminal`, or any unique abbreviation of both words (`config t`, `conf term`, `configure term`) |
 | interface | `Hostname(config-if)#` | `interface <name>` (from config) |
 
 ## Global / exec commands
@@ -18,7 +18,7 @@ Modes and their prompts:
 | Command | Effect |
 |---------|--------|
 | `enable` | enter enable mode |
-| `configure terminal` | enter config mode |
+| `configure terminal` | enter config mode; abbreviable word by word, down to what is still unique - `config t` is accepted, `con` is refused as ambiguous (`configure` / `converge`), and a bare `configure` is `% Incomplete command` |
 | `show version` | vendor, model, category, capabilities |
 | `show ip interface brief` | interface IP / status table (status = whether the port can carry a frame) |
 | `show ip route` | routing table: connected, static, OSPF, BGP, and the default - or `Gateway of last resort is not set` when there is none; a box that does not route prints `Default gateway is ...` over the host/redirect cache instead |
