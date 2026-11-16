@@ -1,0 +1,63 @@
+{
+  "vendor": "cisco",
+  "model": "C1300-16T-2G",
+  "label": "Cisco Catalyst 1300 C1300-16T-2G",
+  "category": "l3-switch",
+  "description": "Cisco Catalyst 1300 C1300-16T-2G - 16x 10/100/1000BASE-T (data only) plus 2 x 1G SFP uplinks, 36 Gbps switching capacity, 26.78 Mpps, fanless, managed L3.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli",
+    "http-server",
+    "dhcp-server",
+    "vlan",
+    "lacp",
+    "stp"
+  ],
+  "portTemplate": {
+    "prefix": "Gi1/0/",
+    "start": 1,
+    "count": 16,
+    "type": "ethernet",
+    "speed": "1G",
+    "connector": "rj45",
+    "speedCaps": [
+      10,
+      100,
+      1000
+    ]
+  },
+  "interfaces": [
+    {
+      "name": "Gi1/0/17",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        1000
+      ]
+    },
+    {
+      "name": "Gi1/0/18",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        1000
+      ]
+    },
+    {
+      "name": "console",
+      "type": "console"
+    }
+  ],
+  "fabric": {
+    "capacityMbps": 36000,
+    "kind": "switching capacity",
+    "note": "Cisco Table 1 states 36 Gbps switching capacity and 26.78 Mpps forwarding rate for the C1300-16T-2G, the full-duplex aggregate of every port at line rate (16 x 1G downlinks plus 2 x 1G SFP), so nothing is oversubscribed (https://www.cisco.com/c/en/us/products/collateral/switches/catalyst-1300-series-switches/nb-06-cat1300-ser-data-sheet-cte-en.pdf)."
+  },
+  "notes": "Datasheet Table 1 and the model comparison table: 16 x 10/100/1000BASE-T downlinks plus 2 x 1G SFP uplinks; 36 Gbps switching capacity, 26.78 Mpps forwarding rate, 1.5 MB shared packet buffer, 512 MB flash, ARM dual-core CPU, 1 GB DDR4, 16 K MAC entries, up to 4094 VLANs, 8 LACP groups. PoE: none. The datasheet PoE table does not list this model and the model comparison table prints Data only; worst-case system power at 110 V is 10.9 W. Cooling: Fanless per the comparison table. No stacking on this SKU: the datasheet hardware-stacking list names only the 4X and MGP models, and the model comparison table prints N/A for this one. Management: Cisco Business Dashboard and mobile app, on-device web UI, CLI and SNMPv1/v2c/v3, per the comparison table; the datasheet also states dual images, a DHCP server, RIP v2, static routing and PBR. Ports live in the Gi1/0/x space the uplinks continue from, because the datasheet prints a total of 18 Ethernet ports for this model; the RJ-45 console port and the USB Type C port are both front-panel per the datasheet hardware table. Sources: https://www.cisco.com/c/en/us/products/collateral/switches/catalyst-1300-series-switches/nb-06-cat1300-ser-data-sheet-cte-en.pdf and https://www.cisco.com/c/en/us/products/switches/catalyst-1300-series-switches/models-comparison.html.",
+  "icon": "switch",
+  "color": "#ef4444",
+  "sourceUrl": "https://www.cisco.com/c/en/us/products/collateral/switches/catalyst-1300-series-switches/nb-06-cat1300-ser-data-sheet-cte-en.pdf"
+}

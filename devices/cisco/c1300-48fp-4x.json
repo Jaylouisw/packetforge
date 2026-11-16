@@ -1,0 +1,95 @@
+{
+  "vendor": "cisco",
+  "model": "C1300-48FP-4X",
+  "label": "Cisco Catalyst 1300 C1300-48FP-4X",
+  "category": "l3-switch",
+  "description": "Cisco Catalyst 1300 C1300-48FP-4X - 48x 10/100/1000BASE-T PoE+ RJ-45 (802.3af/at, 30 W per port) on a 740 W budget plus 4 x 10G SFP+ uplinks, 176 Gbps switching capacity, 130.94 Mpps, 1 fan, managed L3.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli",
+    "http-server",
+    "dhcp-server",
+    "vlan",
+    "lacp",
+    "stp",
+    "poe-pse",
+    "802.3af",
+    "802.3at"
+  ],
+  "portTemplate": {
+    "prefix": "Gi1/0/",
+    "start": 1,
+    "count": 48,
+    "type": "ethernet",
+    "speed": "1G",
+    "connector": "rj45",
+    "speedCaps": [
+      10,
+      100,
+      1000
+    ],
+    "poeOut": 30
+  },
+  "interfaces": [
+    {
+      "name": "Gi1/0/49",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "Gi1/0/50",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "Gi1/0/51",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "Gi1/0/52",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "console",
+      "type": "console"
+    }
+  ],
+  "fabric": {
+    "capacityMbps": 176000,
+    "kind": "switching capacity",
+    "note": "Cisco Table 1 states 176 Gbps switching capacity and 130.94 Mpps forwarding rate for the C1300-48FP-4X, the full-duplex aggregate of every port at line rate (48 x 1G downlinks plus 4 x 10G SFP+), so nothing is oversubscribed (https://www.cisco.com/c/en/us/products/collateral/switches/catalyst-1300-series-switches/nb-06-cat1300-ser-data-sheet-cte-en.pdf)."
+  },
+  "notes": "Datasheet Table 1 and the model comparison table: 48 x 10/100/1000BASE-T downlinks plus 4 x 10G SFP+ uplinks; 176 Gbps switching capacity, 130.94 Mpps forwarding rate, 1.5 MB shared packet buffer, 512 MB flash, ARM dual-core CPU, 1 GB DDR4, 16 K MAC entries, up to 4094 VLANs, 8 LACP groups. PoE: the datasheet PoE table gives 740 W dedicated to PoE across 48 ports at 30 W PoE+ (802.3at) each, with 802.3af also supported; worst-case power at 110 V is 49.89 W system-only and 874.52 W with PoE loaded. Cooling: 1 fan per the comparison table. Cisco states front-panel stacking (up to 8 switches, 400 ports managed as one system) for the 4X and MGP SKUs only, and this model is in that C1300 Family 1 list. Management: Cisco Business Dashboard and mobile app, on-device web UI, CLI and SNMPv1/v2c/v3, per the comparison table; the datasheet also states dual images, a DHCP server, RIP v2, static routing and PBR. Ports live in the Gi1/0/x space the uplinks continue from, because the datasheet prints a total of 52 Ethernet ports for this model; the RJ-45 console port and the USB Type C port are both front-panel per the datasheet hardware table. Sources: https://www.cisco.com/c/en/us/products/collateral/switches/catalyst-1300-series-switches/nb-06-cat1300-ser-data-sheet-cte-en.pdf and https://www.cisco.com/c/en/us/products/switches/catalyst-1300-series-switches/models-comparison.html.",
+  "icon": "switch",
+  "color": "#ef4444",
+  "sourceUrl": "https://www.cisco.com/c/en/us/products/collateral/switches/catalyst-1300-series-switches/nb-06-cat1300-ser-data-sheet-cte-en.pdf",
+  "poe": {
+    "budgetW": 740,
+    "standard": "802.3at",
+    "perPortW": 30,
+    "sourceUrl": "https://www.cisco.com/c/en/us/products/collateral/switches/catalyst-1300-series-switches/nb-06-cat1300-ser-data-sheet-cte-en.pdf"
+  }
+}

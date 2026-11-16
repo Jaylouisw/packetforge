@@ -1,0 +1,103 @@
+{
+  "vendor": "cisco",
+  "model": "C1300-8FP-2G",
+  "label": "Cisco Catalyst 1300 C1300-8FP-2G",
+  "category": "l3-switch",
+  "description": "Cisco Catalyst 1300 C1300-8FP-2G - 8x 10/100/1000BASE-T PoE+ RJ-45 (802.3af/at, 30 W per port) on a 120 W budget plus 2 x 1G RJ45/SFP combo uplinks, 20 Gbps switching capacity, 14.88 Mpps, fanless, managed L3.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli",
+    "http-server",
+    "dhcp-server",
+    "vlan",
+    "lacp",
+    "stp",
+    "poe-pse",
+    "802.3af",
+    "802.3at"
+  ],
+  "portTemplate": {
+    "prefix": "Gi1/0/",
+    "start": 1,
+    "count": 8,
+    "type": "ethernet",
+    "speed": "1G",
+    "connector": "rj45",
+    "speedCaps": [
+      10,
+      100,
+      1000
+    ],
+    "poeOut": 30
+  },
+  "interfaces": [
+    {
+      "name": "Gi1/0/9",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "comboWith": "Gi1/0/9-sfp",
+      "comboRole": "rj45"
+    },
+    {
+      "name": "Gi1/0/9-sfp",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        1000
+      ],
+      "comboWith": "Gi1/0/9",
+      "comboRole": "sfp"
+    },
+    {
+      "name": "Gi1/0/10",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "comboWith": "Gi1/0/10-sfp",
+      "comboRole": "rj45"
+    },
+    {
+      "name": "Gi1/0/10-sfp",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        1000
+      ],
+      "comboWith": "Gi1/0/10",
+      "comboRole": "sfp"
+    },
+    {
+      "name": "console",
+      "type": "console"
+    }
+  ],
+  "fabric": {
+    "capacityMbps": 20000,
+    "kind": "switching capacity",
+    "note": "Cisco Table 1 states 20 Gbps switching capacity and 14.88 Mpps forwarding rate for the C1300-8FP-2G, the full-duplex aggregate of every port at line rate (8 x 1G downlinks plus 2 x 1G RJ45/SFP combo), so nothing is oversubscribed (https://www.cisco.com/c/en/us/products/collateral/switches/catalyst-1300-series-switches/nb-06-cat1300-ser-data-sheet-cte-en.pdf)."
+  },
+  "notes": "Datasheet Table 1 and the model comparison table: 8 x 10/100/1000BASE-T downlinks plus 2 x 1G RJ45/SFP combo uplinks; 20 Gbps switching capacity, 14.88 Mpps forwarding rate, 1.5 MB shared packet buffer, 512 MB flash, ARM dual-core CPU, 1 GB DDR4, 16 K MAC entries, up to 4094 VLANs, 8 LACP groups. PoE: the datasheet PoE table gives 120 W dedicated to PoE across 8 ports at 30 W PoE+ (802.3at) each, with 802.3af also supported; worst-case power at 110 V is 14.59 W system-only and 145.44 W with PoE loaded. Cooling: Fanless per the comparison table. No stacking on this SKU: the datasheet hardware-stacking list names only the 4X and MGP models, and the model comparison table prints N/A for this one. Management: Cisco Business Dashboard and mobile app, on-device web UI, CLI and SNMPv1/v2c/v3, per the comparison table; the datasheet also states dual images, a DHCP server, RIP v2, static routing and PBR. Ports live in the Gi1/0/x space the uplinks continue from, because the datasheet prints a total of 10 Ethernet ports for this model; the RJ-45 console port and the USB Type C port are both front-panel per the datasheet hardware table. Sources: https://www.cisco.com/c/en/us/products/collateral/switches/catalyst-1300-series-switches/nb-06-cat1300-ser-data-sheet-cte-en.pdf and https://www.cisco.com/c/en/us/products/switches/catalyst-1300-series-switches/models-comparison.html.",
+  "icon": "switch",
+  "color": "#ef4444",
+  "sourceUrl": "https://www.cisco.com/c/en/us/products/collateral/switches/catalyst-1300-series-switches/nb-06-cat1300-ser-data-sheet-cte-en.pdf",
+  "poe": {
+    "budgetW": 120,
+    "standard": "802.3at",
+    "perPortW": 30,
+    "sourceUrl": "https://www.cisco.com/c/en/us/products/collateral/switches/catalyst-1300-series-switches/nb-06-cat1300-ser-data-sheet-cte-en.pdf"
+  }
+}
