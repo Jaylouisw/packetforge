@@ -1439,10 +1439,18 @@ are read together when a route is not being used.
 
 ```
 Extended IP access list 101
-  1 deny icmp any any (5 matches)
-  2 permit ip any any
+    10 deny icmp any any (5 matches)
+    20 permit ip any any
     applied IN on Gi0
 ```
+
+The number is the line's own sequence number, four columns in under the header. A list typed without
+sequence numbers is numbered from 10, stepping by ten, because that is what a box does: "if entries with no
+sequence numbers are applied, the first entry is assigned a sequence number of 10, and successive entries
+are incremented by 10" ([Cisco IOS XE, IP Access List Entry Sequence Numbering](https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/sec_data_acl/configuration/xe-16-11/sec-data-acl-xe-16-11-book/sec-acl-seq-num.pdf)).
+An entry typed with a sequence of its own keeps it, and moves to its place in the list — a `5` is read, and
+tested, before a `10`. The numbering and the first-match order come from one helper, so the table cannot
+show an order the engine does not use (research/show-access-lists-numbering.md).
 
 Each rule carries how many packets it has matched, counted at the one place every frame is tested, so
 permits are counted as well as denies. A rule that has matched nothing prints **no count at all** — saying

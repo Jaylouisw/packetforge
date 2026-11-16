@@ -4346,14 +4346,24 @@ class CliSession {
         const kind = aclLib.aclKind(parseInt(id, 10));
         out.push((kind === 'standard' ? 'Standard' : 'Extended') + ' IP access list ' + id);
         const tally = hits ? hits[String(id)] : null;
-        let n = 1;
-        for (const e of acls[id]) {
+        // Every line carries the sequence number the box shows, indented four columns under the header -
+        // "the first entry is assigned a sequence number of 10, and successive entries are incremented by 10"
+        // (Cisco IOS XE, IP Access List Entry Sequence Numbering, sec-acl-seq-num). This table printed 1, 2, 3
+        // - an array index, not a sequence - with two spaces of indent, so a reader comparing it with a real
+        // box found a column of numbers no box prints, and could not name the line to change. The order is
+        // the evaluation order, from the same helper `evaluate()` uses (research/show-access-lists-numbering.md).
+        for (const slot of aclLib.numberedEntries(acls[id])) {
+          const e = slot.entry;
           // Which line is doing the denying is the question this table is opened for. A rule that matched
           // nothing says nothing - printing "(0 matches)" beside every line of a twenty-line ACL is noise,
           // and the absence of a count is the same statement.
-          const ruleText = e.line || (e.action + ' ' + (e.protocol || 'ip'));
-          const count = tally && tally.entries[ruleText] ? tally.entries[ruleText] : 0;
-          out.push('  ' + (n++) + ' ' + ruleText +
+          // The counter is keyed by the text as it was typed, sequence number included, so the number is
+          // stripped from the body rather than from the key: an entry typed as "10 permit ip any any"
+          // must not print its 10 twice.
+          const key = e.line || (e.action + ' ' + (e.protocol || 'ip'));
+          const ruleText = String(key).replace(/^\d+\s+(?=(?:permit|deny)\b)/i, '');
+          const count = tally && tally.entries[key] ? tally.entries[key] : 0;
+          out.push('    ' + slot.seq + ' ' + ruleText +
             (count ? ' (' + count + (count === 1 ? ' match' : ' matches') + ')' : ''));
         }
         if (tally && tally.implicit) {

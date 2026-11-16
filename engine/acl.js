@@ -290,12 +290,25 @@ function sequenceOf(entry, index) {
   return Number.isFinite(n) && n > 0 ? n : (index + 1) * 10;
 }
 
-function sortAcl(entries) {
-  const list = Array.isArray(entries) ? entries : [];
+// Every line of a list with the sequence number a box shows beside it.
+//
+// The number is the entry's own when it was given one, and otherwise the default the vendor documents:
+// "if entries with no sequence numbers are applied, the first entry is assigned a sequence number of 10,
+// and successive entries are incremented by 10" (Cisco IOS XE, IP Access List Entry Sequence Numbering,
+// sec-acl-seq-num). The default is taken from the position the entry was *typed* at, not from where it
+// lands after sorting, so an entry given 5 in front of one that defaulted to 10 keeps its ten.
+//
+// The display and the first-match evaluation read this one ordering, so the numbers an operator reads are
+// the order the box tests packets in, and neither can drift from the other.
+function numberedEntries(acl) {
+  const list = entriesOf(acl);
   return list
     .map(function (entry, index) { return { entry: entry, seq: sequenceOf(entry, index), index: index }; })
-    .sort(function (a, b) { return (a.seq - b.seq) || (a.index - b.index); })
-    .map(function (slot) { return slot.entry; });
+    .sort(function (a, b) { return (a.seq - b.seq) || (a.index - b.index); });
+}
+
+function sortAcl(entries) {
+  return numberedEntries(Array.isArray(entries) ? entries : []).map(function (slot) { return slot.entry; });
 }
 
 function normalizeAcl(entries) {
@@ -465,5 +478,6 @@ module.exports = {
   matchEntry,
   evaluate,
   validateAcl,
-  sortAcl
+  sortAcl,
+  numberedEntries
 };
