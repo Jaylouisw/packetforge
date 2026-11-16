@@ -120,6 +120,19 @@ jobs:
         # jobs that carry `needs:`, so pull requests sat armed against checks that did not exist.
         run: node scripts/check-ci-disk-hygiene.js
       - name: Full test suite
+        # 200 s per leg, three legs, two runner slots: the suite is the whole wall clock of
+        # a pull request, and it was running 257 separate processes one at a time on one
+        # core. The runner now takes `PF_TEST_CONCURRENCY` (default 1, so a local `npm
+        # test` is unchanged) and prints results in discovery order, which is why the
+        # concurrent log diffs against the serial one with only the timings moved.
+        #
+        # Measured on the same working copy, same 257 suites, same 9387 assertions, same
+        # single pre-existing failure (main's spec-vs-description, see the note on the pull
+        # request): 340 s serial, 148 s at 4, 118 s at 6. Four here rather than six because
+        # the matrix runs two legs at once on one host - six would be twelve concurrent
+        # node processes fighting for the same cores, and the curve is already flat there.
+        env:
+          PF_TEST_CONCURRENCY: 4
         run: npm test
       - name: Build & verify example labs
         run: node examples/build-examples.js

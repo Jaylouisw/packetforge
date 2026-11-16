@@ -22,10 +22,20 @@
 //   node scripts/run-tests.js --bail           # stop at the first failure
 //   node scripts/run-tests.js --verbose        # stream each suite's output
 //   node scripts/run-tests.js --list           # show what would run
+//   node scripts/run-tests.js --concurrency=4  # four suites at a time
+//
+// Concurrency exists because the suite is now the slowest thing CI does: 257 suites,
+// one process each, and a single core doing them one after another. Every suite is
+// already a separate process with its own port (they all bind 0) and its own heap, so
+// the isolation the serial loop was buying is the isolation the process boundary gives
+// us for free - the loop was serial because that was the shape it started in, not
+// because anything needed it. `PF_TEST_CONCURRENCY` (or --concurrency=N) is the knob;
+// the default is 1, so a local `npm test` behaves exactly as it always has, and
+// --bail and --verbose force it back to 1, both being single-suite-reading modes.
 
 const fs = require('fs');
 const path = require('path');
-const { spawnSync } = require('child_process');
+const { spawn } = require('child_process');
 
 const ROOT = path.resolve(__dirname, '..');
 const TEST_DIR = path.join(ROOT, 'test');
@@ -41,6 +51,7 @@ const filter = value('--filter');
 const bail = has('--bail');
 const verbose = has('--verbose');
 const listOnly = has('--list');
+const requestedConcurrency = Number(value('--concurrency') || process.env.PF_TEST_CONCURRENCY || 1);
 
 function discover() {
   if (!fs.existsSync(TEST_DIR)) return [];
@@ -95,66 +106,141 @@ let totalPassed = 0;
 let totalFailed = 0;
 const started = Date.now();
 
-console.log('PacketForge test runner — ' + suites.length + ' suite(s)\n');
+// 1 unless asked otherwise, and never more than there is work for. `--bail` and --verbose
+// are single-suite-reading modes, so they stay serial whatever the environment says.
+const concurrency = Math.max(1, Math.min(
+  Number.isFinite(requestedConcurrency) ? Math.floor(requestedConcurrency) : 1,
+  verbose || bail ? 1 : 16,
+  suites.length
+));
 
-for (const suite of suites) {
-  const rel = path.relative(ROOT, suite).replace(/\\/g, '/');
-  const label = path.basename(suite, '.test.js');
-  const t0 = Date.now();
-  const res = spawnSync(process.execPath, [suite], {
-    cwd: ROOT,
-    encoding: 'utf8',
-    // A suite that never returns is a bug in the suite, but it must not wedge the whole
-    // run. Generous: the catalogue-wide audits walk ~975 specs each.
-    timeout: 300000,
-    stdio: ['ignore', 'pipe', 'pipe']
+console.log('PacketForge test runner \u2014 ' + suites.length + ' suite(s)' +
+  (concurrency > 1 ? ' at ' + concurrency + '-way concurrency' : '') + '\n');
+
+function report(r) {
+  const note = !r.reported ? ' (no summary line)' : '';
+  console.log((r.ok ? '  \u2713 ' : '  \u2717 ') + r.label.padEnd(34) +
+    String(r.passed).padStart(5) + ' passed' +
+    (r.failed ? ', ' + r.failed + ' failed' : '') +
+    '  ' + String(r.ms).padStart(6) + ' ms' + note);
+  if (verbose || !r.ok) {
+    const text = r.out.trim().split('\n').slice(-25).join('\n');
+    if (text) console.log(text.split('\n').map((l) => '      ' + l).join('\n'));
+  }
+}
+
+// One suite, one process, one bound. The 300 s ceiling is unchanged from the serial loop:
+// a suite that never returns is a bug in the suite, but it must not wedge the run.
+function runSuite(suite) {
+  return new Promise((resolve) => {
+    const t0 = Date.now();
+    let out = '';
+    let settled = false;
+    const finish = (status) => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(killer);
+      const rel = path.relative(ROOT, suite).replace(/\\/g, '/');
+      const label = path.basename(suite, '.test.js');
+      const t = tally(suite, out, status);
+      resolve({ suite, rel, label, ok: status === 0, ...t, ms: Date.now() - t0, out });
+    };
+    const child = spawn(process.execPath, [suite], {
+      cwd: ROOT,
+      stdio: ['ignore', 'pipe', 'pipe']
+    });
+    const killer = setTimeout(() => {
+      out += '\n[runner] suite exceeded its 300 s budget and was killed\n';
+      try { child.kill('SIGKILL'); } catch (e) { /* already gone */ }
+      finish(1);
+    }, 300000);
+    child.stdout.on('data', (d) => { out += d; });
+    child.stderr.on('data', (d) => { out += d; });
+    child.on('error', () => finish(1));
+    child.on('close', (code) => finish(code === null ? 1 : code));
   });
-  const ms = Date.now() - t0;
-  const out = (res.stdout || '') + (res.stderr || '');
-  const status = res.status === null ? 1 : res.status;
-  const t = tally(suite, out, status);
-  totalPassed += t.passed;
-  totalFailed += t.failed;
-
-  const ok = status === 0;
-  results.push({ rel, label, ok, ...t, ms, out });
-
-  const note = !t.reported ? ' (no summary line)' : '';
-  console.log((ok ? '  ✓ ' : '  ✗ ') + label.padEnd(34) +
-    String(t.passed).padStart(5) + ' passed' +
-    (t.failed ? ', ' + t.failed + ' failed' : '') +
-    '  ' + String(ms).padStart(6) + ' ms' + note);
-
-  if (verbose || !ok) {
-    const tail = out.trim().split('\n').slice(-25).join('\n');
-    if (tail) console.log(tail.split('\n').map((l) => '      ' + l).join('\n'));
-  }
-
-  if (!ok && bail) {
-    console.log('\nStopped at the first failure (--bail).');
-    break;
-  }
 }
 
-const failedSuites = results.filter((r) => !r.ok);
-const elapsed = ((Date.now() - started) / 1000).toFixed(1);
+async function runAll() {
+  if (concurrency === 1) {
+    for (const suite of suites) {
+      const r = await runSuite(suite);
+      totalPassed += r.passed;
+      totalFailed += r.failed;
+      results.push(r);
+      report(r);
+      if (!r.ok && bail) {
+        console.log('\nStopped at the first failure (--bail).');
+        break;
+      }
+    }
+    return;
+  }
 
-console.log('\n' + '-'.repeat(66));
-console.log(results.length + ' suite(s) in ' + elapsed + ' s — ' +
-  totalPassed + ' assertions passed, ' + totalFailed + ' failed');
+  // Results are printed in discovery order, not completion order, so the log of a
+  // concurrent run diffs cleanly against the log of a serial one - only the timings
+  // move. A slow suite at the front delays the lines after it in the buffer, which is
+  // the only cost ordering has here, and the summary at the end is the same either way.
+  const pending = new Map();
+  let next = 0;        // next suite to start
+  let printed = 0;     // next suite to print
+  let stopped = false; // --bail tripped
 
-if (failedSuites.length) {
-  console.log('\nFailed:');
-  failedSuites.forEach((r) => console.log('  ✗ ' + r.rel));
+  const flush = () => {
+    while (pending.has(printed)) {
+      const r = pending.get(printed);
+      pending.delete(printed);
+      printed += 1;
+      totalPassed += r.passed;
+      totalFailed += r.failed;
+      results.push(r);
+      report(r);
+    }
+  };
+
+  const worker = async () => {
+    while (!stopped) {
+      const index = next;
+      if (index >= suites.length) return;
+      next += 1;
+      const r = await runSuite(suites[index]);
+      pending.set(index, r);
+      flush();
+      if (!r.ok && bail) stopped = true;
+    }
+  };
+
+  await Promise.all(Array.from({ length: concurrency }, () => worker()));
+  flush();
+}
+
+function summarise() {
+  const failedSuites = results.filter((r) => !r.ok);
+  const elapsed = ((Date.now() - started) / 1000).toFixed(1);
+
+  console.log('\n' + '-'.repeat(66));
+  console.log(results.length + ' suite(s) in ' + elapsed + ' s \u2014 ' +
+    totalPassed + ' assertions passed, ' + totalFailed + ' failed');
+
+  if (failedSuites.length) {
+    console.log('\nFailed:');
+    failedSuites.forEach((r) => console.log('  \u2717 ' + r.rel));
+    process.exit(1);
+  }
+
+  // A suite that printed no summary line is suspicious: it means the convention broke,
+  // not that the suite was empty. Say so rather than letting the totals quietly
+  // under-report.
+  const silent = results.filter((r) => !r.reported);
+  if (silent.length) {
+    console.log('\nNote: ' + silent.length + ' suite(s) printed no "<n> passed, <m> failed" line:');
+    silent.forEach((r) => console.log('  \u00b7 ' + r.rel));
+  }
+
+  console.log('OK \u2014 every suite passed.');
+}
+
+runAll().then(summarise).catch((err) => {
+  console.error(err && err.stack ? err.stack : String(err));
   process.exit(1);
-}
-
-// A suite that printed no summary line is suspicious: it means the convention broke, not
-// that the suite was empty. Say so rather than letting the totals quietly under-report.
-const silent = results.filter((r) => !r.reported);
-if (silent.length) {
-  console.log('\nNote: ' + silent.length + ' suite(s) printed no "<n> passed, <m> failed" line:');
-  silent.forEach((r) => console.log('  · ' + r.rel));
-}
-
-console.log('OK — every suite passed.');
+});
