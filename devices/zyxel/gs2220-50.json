@@ -1,0 +1,159 @@
+{
+  "vendor": "zyxel",
+  "model": "GS2220-50",
+  "label": "Zyxel GS2220-50",
+  "category": "switch",
+  "description": "Zyxel GS2220-50 - 44x 10/100/1000BASE-T RJ-45, 4x GbE combo ports and 2x GbE SFP cages, L2+ managed NebulaFlex Pro switch, 100 Gbps switching capacity, 74 Mpps, no PoE.",
+  "capabilities": [
+    "l2-forward",
+    "cli",
+    "http-server",
+    "dhcp-client",
+    "vlan",
+    "lacp",
+    "stp"
+  ],
+  "icon": "switch",
+  "color": "#f97316",
+  "portTemplate": {
+    "prefix": "port",
+    "start": 1,
+    "count": 44,
+    "type": "ethernet",
+    "speed": "1G",
+    "connector": "rj45",
+    "speedCaps": [
+      10,
+      100,
+      1000
+    ]
+  },
+  "interfaces": [
+    {
+      "name": "port45",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "comboWith": "port45-sfp",
+      "comboRole": "rj45"
+    },
+    {
+      "name": "port45-sfp",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        1000
+      ],
+      "comboWith": "port45",
+      "comboRole": "sfp"
+    },
+    {
+      "name": "port46",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "comboWith": "port46-sfp",
+      "comboRole": "rj45"
+    },
+    {
+      "name": "port46-sfp",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        1000
+      ],
+      "comboWith": "port46",
+      "comboRole": "sfp"
+    },
+    {
+      "name": "port47",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "comboWith": "port47-sfp",
+      "comboRole": "rj45"
+    },
+    {
+      "name": "port47-sfp",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        1000
+      ],
+      "comboWith": "port47",
+      "comboRole": "sfp"
+    },
+    {
+      "name": "port48",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "comboWith": "port48-sfp",
+      "comboRole": "rj45"
+    },
+    {
+      "name": "port48-sfp",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        1000
+      ],
+      "comboWith": "port48",
+      "comboRole": "sfp"
+    },
+    {
+      "name": "sfp1",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        1000
+      ]
+    },
+    {
+      "name": "sfp2",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        1000
+      ]
+    },
+    {
+      "name": "console",
+      "type": "console"
+    }
+  ],
+  "comboPorts": 4,
+  "sourceUrl": "https://static.us.zyxel.com/pdf/2024/switch/ds_GS2220-10HP.pdf",
+  "fabric": {
+    "capacityMbps": 100000,
+    "kind": "switching capacity",
+    "note": "Zyxel quotes 100 Gbps switching capacity and 74 Mpps forwarding rate for the GS2220-50, with a 1.5 MB packet buffer, 16 K MAC address table, 9 K jumbo frames and 32 MB flash / 256 MB RAM (datasheet Performance table, https://static.us.zyxel.com/pdf/2024/switch/ds_GS2220-10HP.pdf; the product specification table carries the same figures, https://www.zyxel.com/us/en-us/products/switch/gs2220-series/specifications). The switching capacity is the full-duplex aggregate of the port rates - 200 ports at 1G - so it caps nothing the ports cannot already do."
+  },
+  "notes": "Census from the GS2220 Series datasheet (04/23, https://static.us.zyxel.com/pdf/2024/switch/ds_GS2220-10HP.pdf) and the product specification table (https://www.zyxel.com/us/en-us/products/switch/gs2220-series/specifications). The only member with dedicated 1G SFP cages: 44 copper + 4 combo + 2 SFP is the datasheet total of 50, and those two slots are listed as \"Gigabit SFP\" rather than combo, so they are modelled as their own sfp1/sfp2 cages and share nothing with a copper port. Non-PoE. One fan at 23.6/47.3 dBA, 100-240 V AC, 36.9 W maximum, 20.97 W idle. The datasheet model list calls it a \"48-port GbE L2+ Switch with GbE Uplink\" and its specification table calls it a 44-port switch; the census (44 + 4 + 2 = 50) is what both agree on. Firmware: the series spans two documentation trains. The GS2220-10 User's Guide is Version 4.70 Edition 3 (12/2021, https://download.zyxel.com/GS2220-10/user_guide/GS2220-10_V4.70_Ed3.pdf) and the GS2220-28HP guide is Version 5.00 Edition 1 (12/2024, https://download.zyxel.com/GS2220-28HP/user_guide/GS2220-28HP_V5.00_Ed1.pdf). The 4.70 guide calls the RS-232 port \"for troubleshooting only\" and names the default management address http://192.168.1.1 with admin/1234; the 5.00 guide opens the same port as the CLI door and moves the default management address to https://setup.zyxel (https, not http) with the same admin/1234 or a local credential in cloud mode. The datasheet (04/23) lists features marked \"New for V4.80\" (new Web interface, Flex link, auto configuration recovery, intuitive cloud connection status), so the datasheet describes a firmware newer than the 4.70 guide and older than the 5.00 one. Console parameters do not change across the two guides: 115200 bps, 8 data bits, no parity, 1 stop bit, no flow control, VT100 emulation, male 9-pin RS-232 cable. The 4.70 guide restricts that port to troubleshooting, while the datasheet feature list offers \"Management through Web interface, Console, Telnet, SNMP\" and a \"Cisco-like CLI\" - which is why cli is modelled: telnet, SSH, web and (from firmware 5.00) console all carry it."
+}

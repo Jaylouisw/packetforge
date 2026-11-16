@@ -1,0 +1,106 @@
+{
+  "vendor": "zyxel",
+  "model": "GS2220-10HP",
+  "label": "Zyxel GS2220-10HP",
+  "category": "switch",
+  "description": "Zyxel GS2220-10HP - 8x 10/100/1000BASE-T PoE+ RJ-45 (30 W a port, 180 W budget) plus 2x GbE combo ports, L2+ managed NebulaFlex Pro switch, 20 Gbps, 15 Mpps.",
+  "capabilities": [
+    "l2-forward",
+    "cli",
+    "http-server",
+    "dhcp-client",
+    "vlan",
+    "lacp",
+    "stp",
+    "poe-pse",
+    "802.3af",
+    "802.3at"
+  ],
+  "icon": "switch",
+  "color": "#f97316",
+  "portTemplate": {
+    "prefix": "port",
+    "start": 1,
+    "count": 8,
+    "type": "ethernet",
+    "speed": "1G",
+    "connector": "rj45",
+    "speedCaps": [
+      10,
+      100,
+      1000
+    ],
+    "poeOut": 30
+  },
+  "interfaces": [
+    {
+      "name": "port9",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30,
+      "poeOutClass": "PoE+",
+      "comboWith": "port9-sfp",
+      "comboRole": "rj45"
+    },
+    {
+      "name": "port9-sfp",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        1000
+      ],
+      "comboWith": "port9",
+      "comboRole": "sfp"
+    },
+    {
+      "name": "port10",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30,
+      "poeOutClass": "PoE+",
+      "comboWith": "port10-sfp",
+      "comboRole": "rj45"
+    },
+    {
+      "name": "port10-sfp",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        1000
+      ],
+      "comboWith": "port10",
+      "comboRole": "sfp"
+    },
+    {
+      "name": "console",
+      "type": "console"
+    }
+  ],
+  "comboPorts": 2,
+  "sourceUrl": "https://static.us.zyxel.com/pdf/2024/switch/ds_GS2220-10HP.pdf",
+  "fabric": {
+    "capacityMbps": 20000,
+    "kind": "switching capacity",
+    "note": "Zyxel quotes 20 Gbps switching capacity and 15 Mpps forwarding rate for the GS2220-10HP, with a 1.5 MB packet buffer, 16 K MAC address table, 9 K jumbo frames and 32 MB flash / 256 MB RAM (datasheet Performance table, https://static.us.zyxel.com/pdf/2024/switch/ds_GS2220-10HP.pdf; the product specification table carries the same figures, https://www.zyxel.com/us/en-us/products/switch/gs2220-series/specifications). The switching capacity is the full-duplex aggregate of the port rates - 40 ports at 1G - so it caps nothing the ports cannot already do."
+  },
+  "notes": "Census from the GS2220 Series datasheet (04/23, https://static.us.zyxel.com/pdf/2024/switch/ds_GS2220-10HP.pdf) and the product specification table (https://www.zyxel.com/us/en-us/products/switch/gs2220-series/specifications). PoE member of the 10-port pair: the eight copper ports and the two combo RJ45 halves are 802.3at PoE+ PSE ports against 180 W. Ten positions at 30 W is 300 W, so the budget binds - 210.8 W maximum at the wall with a full PoE load, 12.61 W idle. The Fanless row is \"-\" here: one fan, 18/41 dBA. Budget check: 180 W covers six Class 4 ports at 30 W (180 W), so six full PoE+ loads exhaust it. Firmware: the series spans two documentation trains. The GS2220-10 User's Guide is Version 4.70 Edition 3 (12/2021, https://download.zyxel.com/GS2220-10/user_guide/GS2220-10_V4.70_Ed3.pdf) and the GS2220-28HP guide is Version 5.00 Edition 1 (12/2024, https://download.zyxel.com/GS2220-28HP/user_guide/GS2220-28HP_V5.00_Ed1.pdf). The 4.70 guide calls the RS-232 port \"for troubleshooting only\" and names the default management address http://192.168.1.1 with admin/1234; the 5.00 guide opens the same port as the CLI door and moves the default management address to https://setup.zyxel (https, not http) with the same admin/1234 or a local credential in cloud mode. The datasheet (04/23) lists features marked \"New for V4.80\" (new Web interface, Flex link, auto configuration recovery, intuitive cloud connection status), so the datasheet describes a firmware newer than the 4.70 guide and older than the 5.00 one. Console parameters do not change across the two guides: 115200 bps, 8 data bits, no parity, 1 stop bit, no flow control, VT100 emulation, male 9-pin RS-232 cable. The 4.70 guide restricts that port to troubleshooting, while the datasheet feature list offers \"Management through Web interface, Console, Telnet, SNMP\" and a \"Cisco-like CLI\" - which is why cli is modelled: telnet, SSH, web and (from firmware 5.00) console all carry it.",
+  "poe": {
+    "budgetW": 180,
+    "sourceUrl": "https://static.us.zyxel.com/pdf/2024/switch/ds_GS2220-10HP.pdf",
+    "note": "IEEE 802.3af/at on every 10 PoE port at up to 30 W a port against a 180 W budget (datasheet PoE table; the user guide PoE feature table states the same budget and lists 802.3af and 802.3at both supported). 10 ports at 30 W would be 300 W, so the budget binds: at most 6 ports can carry a full Class 4 / PoE+ load at once, and the default power management mode is consumption classification, not class-based reservation. Datasheet maximum power consumption with a full PoE load is 210.8 W, minimum 12.61 W with nothing connected."
+  }
+}
