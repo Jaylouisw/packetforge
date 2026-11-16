@@ -4,7 +4,7 @@
 // A host with a default gateway sends to that gateway. When the gateway has no route for the destination it drops the
 // frame and records the drop, and the host's `ping` reported the drop's own words - `no route to 10.9.9.9` - verbatim.
 // That is a statement about whichever box the reader is standing at, and the reader is standing at a host whose
-// `show ip route` prints `S* 0.0.0.0/0 via 10.1.1.1` three lines above the failure. The event knew the box all along
+// `show ip route` prints `Default gateway is 10.1.1.1` three lines above the failure. The event knew the box all along
 // (`dev: 'r1'`); the sentence did not.
 //
 // The rule: a reason names the dropping box when that box is not the one the reader is at, and stays silent when the
@@ -51,8 +51,13 @@ console.log('The host had a route; the gateway did not:');
 {
   const L = gatewayLab();
   const route = L.c('a').run('show ip route').output;
-  ok(route.some(function (l) { return /S\*\s+0\.0\.0\.0/.test(l); }),
-    'the host prints a default route, so `no route to` is false about the host', route.join(' | '));
+  // The host does not route, so its `show ip route` is the default gateway over an empty host cache - the one
+  // line that says it has somewhere to send a non-local packet (research/show-ip-route-host-table.md).
+  ok(route[0] === 'Default gateway is 10.1.1.1',
+    'the host names its default gateway, so `no route to` is false about the host', route.join(' | '));
+  const gwTable = L.c('r1').run('show ip route').output;
+  ok(gwTable.indexOf('Gateway of last resort is not set') !== -1,
+    'and the gateway it sent to has no default of its own', gwTable.join(' | '));
   const p = L.sim.ping('a', '10.9.9.9', { count: 1 });
   const why = String(p.replies[0].reason);
   ok(/^no route to 10\.9\.9\.9/.test(why), 'the reason is the drop the gateway recorded', why);
@@ -77,7 +82,8 @@ console.log('A drop at the source is still a statement about the source:');
   const L = gatewayLab();
   L.c('a').run('configure terminal'); L.c('a').run('no ip default-gateway 10.1.1.1'); L.c('a').run('end');
   const route = L.c('a').run('show ip route').output.join('\n');
-  ok(route.indexOf('S*') === -1, 'the host has no default route any more', route);
+  ok(route.indexOf('Default gateway is not set') !== -1,
+    'the host has no default gateway any more', route);
   const why = String(L.sim.ping('a', '10.9.9.9', { count: 1 }).replies[0].reason);
   ok(/^no route to 10\.9\.9\.9$/.test(why), 'so the reason carries no box: it is about this one', why);
   ok(why.indexOf('dropped by') === -1, 'nothing appended', why);

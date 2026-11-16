@@ -21,7 +21,7 @@ Modes and their prompts:
 | `configure terminal` | enter config mode |
 | `show version` | vendor, model, category, capabilities |
 | `show ip interface brief` | interface IP / status table (status = whether the port can carry a frame) |
-| `show ip route` | routing table: connected, static, OSPF, BGP, and the default - or `Gateway of last resort is not set` when there is none |
+| `show ip route` | routing table: connected, static, OSPF, BGP, and the default - or `Gateway of last resort is not set` when there is none; a box that does not route prints `Default gateway is ...` over the host/redirect cache instead |
 | `show arp` | ARP cache, with an age per neighbour, the port it was learned on, and whether that port can still carry a frame |
 | `show mac address-table` | MAC table (switches), per VLAN, with an age per entry and stale entries marked, titled and ruled as the device prints it and closed by `Total Mac Addresses for this criterion: N` |
 | `show vlan` / `show vlan brief` | VLAN table: one row per VLAN, with the ports that actually carry it, and the four reserved defaults (1002-1005) a switch has from boot |
@@ -1600,9 +1600,22 @@ Codes: C - connected, S - static, O - OSPF, B - BGP
 Gateway of last resort is not set
 ```
 
-The line is absent only on a box that does not route at all. A Catalyst without `ip routing` answers
-`show ip route` with a different shape — `Default gateway is not set` above a Host/Gateway table — which
-this console does not model, so it is not handed a router's sentence.
+A box that does not route gets no router sentence at all. A Catalyst without `ip routing` answers
+`show ip route` with a different shape, its default gateway over the host/redirect cache — three lines and no
+codes legend, which is what this console prints for it now:
+
+```
+sw1#show ip route
+Default gateway is 10.0.0.1
+Host               Gateway           Last Use    Total Uses  Interface
+ICMP redirect cache is empty
+```
+
+The first line is `Default gateway is not set` when no `ip default-gateway` is configured, and it names the
+gateway verbatim when one is. The route rows are absent because such a box builds no table; `ip default-gateway`
+still appears in `show running-config` and still answers for management traffic. The host cache under the header
+is not modelled, so it is printed empty in the wording a box with nothing cached uses — see
+`research/show-ip-route-host-table.md`.
 
 #### One prefix, one installed route
 

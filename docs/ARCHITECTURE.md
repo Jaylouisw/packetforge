@@ -573,6 +573,39 @@ as ARP silence, not as a routing problem), the shut-port and missing-port shapes
 ranking — an unreachable next hop now outranks silence and outranks a policy denial on a
 device the packet never reached, because the frame never left this box.
 
+### A switch that cannot route answered with a router's table
+
+A Catalyst 2960 forwards no IP packets, so it has no routing table to print. The console gave it one anyway,
+because every device was answered by the same printer:
+
+```
+sw1> show ip route
+Codes: C - connected, S - static, O - OSPF, B - BGP
+S*  0.0.0.0        /0  [254/0] via 10.0.0.1
+```
+
+Those two lines are the router's shape twice over: the codes legend belongs to a table, and the `S*` row is the
+`ip default-gateway` this box keeps for its own management traffic, dressed as a route. A real box answers with
+three lines and no table at all — the gateway, the header of its host/redirect cache, and the line that says
+nothing is in it:
+
+```
+sw1> show ip route
+Default gateway is 10.0.0.1
+Host               Gateway           Last Use    Total Uses  Interface
+ICMP redirect cache is empty
+```
+
+The first line is `Default gateway is not set` when no gateway was configured. The shape follows the routing
+capability, not the vendor: a box that forwards keeps the legend and the `Gateway of last resort` sentence.
+The evidence is two Cisco configuration guides that verify `ip default-gateway` with `show ip route`, two field
+captures of the negative form on a 2960 and a 3560, and the `show ip redirects` command reference for the
+header's column widths — `research/show-ip-route-host-table.md` records what is known and what is not.
+
+The host cache under the header is not modelled, so it prints empty in the wording a box with nothing cached
+uses; that is the one part of this answer that is a stand-in rather than a measurement.
+`test/show-ip-route-host-table.test.js` pins it.
+
 ### A blocked port was painted green
 
 Three switches cabled in a triangle, and the tree must shut one port to keep the loop out.

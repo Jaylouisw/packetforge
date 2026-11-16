@@ -146,8 +146,9 @@ console.log('');
 console.log('A box that does not route gets no router sentence:');
 {
   // A Catalyst without ip routing prints its own show ip route - "Default gateway is not set" over a
-  // Host/Gateway table - which this console does not model. Handing it the router form would answer with a
-  // shape the device never prints.
+  // Host/Gateway table - so handing it the router form would answer with a shape the device never prints.
+  // test/show-ip-route-host-table.test.js pins that shape line by line; this section keeps the two shapes
+  // from drifting into one.
   const sw = catalog.filter(function (s) { return /Catalyst2960/.test(s.model); })[0];
   ok(!!sw, 'the switch spec is in the catalogue');
   if (sw) {
@@ -156,6 +157,7 @@ console.log('A box that does not route gets no router sentence:');
     ok(dev.isL3() === false, 'a Catalyst 2960 does not route');
     ok(!lines.some(function (l) { return /^Gateway of last resort/.test(l); }),
       'so no "Gateway of last resort" line is printed for it', JSON.stringify(lines));
+    ok(lines[0] === 'Default gateway is not set', 'it gets the default-gateway line instead', lines[0]);
   }
 }
 

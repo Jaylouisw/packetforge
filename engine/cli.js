@@ -3826,6 +3826,40 @@ class CliSession {
         return showNoTail('show ip route', tokens.slice(2), 'the whole table is printed',
           'read the row for the prefix in the table below');
       }
+      // A box that does not route has no routing table, and IOS does not print one for it. `show ip route` on a
+      // Catalyst with `ip routing` off answers with the default gateway over the host/redirect cache - three
+      // lines, no codes legend:
+      //
+      //   Default gateway is not set
+      //   Host               Gateway           Last Use    Total Uses  Interface
+      //   ICMP redirect cache is empty
+      //
+      // Two of Cisco's own configuration guides print the positive form, gateway configured and printed back
+      // (the switch uses it only when no routing protocol is configured):
+      //   https://www.cisco.com/c/en/us/td/docs/switches/lan/catalyst4500/12-2/18ew/configuration/guide/config/supcfg.html
+      //   https://www.cisco.com/c/en/us/td/docs/switches/lan/catalyst4500/15-1-2/XE_340/configuration/guide/config/supcfg.html
+      // The negative form, "Default gateway is not set", is what a 2960 and a 3560 print from the box:
+      //   https://community.cisco.com/t5/switching/ip-route-0-0-versus-ip-default-gateway/td-p/812905
+      //   https://community.cisco.com/t5/switching/not-sure-what-i-m-missing-switch-reaching-outside-network/td-p/3702977
+      // The column layout is taken byte for byte from the `show ip redirects` command reference, which prints
+      // this same table: https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/ipapp/command/iap-cr-book/iap-s1.html
+      //
+      // This console printed the router's legend and then the `S*` row for the configured gateway - a shape no
+      // non-routing box produces - because it answered every device with one shape. No route rows here: the
+      // box forwards nothing, so there is no table for rows to belong to. `routeTo()` still reads the gateway,
+      // and `ip default-gateway` still appears in `show running-config`.
+      //
+      // The host cache below the header is not modelled (a real box fills it with destinations reached through
+      // the gateway and with ICMP redirect targets), so it is printed empty, in the wording a box with nothing
+      // cached prints. research/show-ip-route-host-table.md records what is known and what is not.
+      if (typeof dev.isL3 === 'function' && !dev.isL3()) {
+        const gw = dev.config && dev.config.defaultGateway;
+        out.push(gw ? 'Default gateway is ' + gw : 'Default gateway is not set');
+        out.push('Host               Gateway           Last Use    Total Uses  Interface');
+        out.push('ICMP redirect cache is empty');
+        return out;
+      }
+
       // The legend has to name every code the table can produce: routesTable() emits O (OSPF) and B
       // (BGP) rows as well as C and S, and an undefined code in the legend is a code the reader has to
       // guess at (#1234).
