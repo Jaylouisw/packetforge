@@ -4604,11 +4604,19 @@ class CliSession {
           // emit a line the console cannot read back - which is what `no switchport` used to leave behind.
           const spAllowedText = (spAllowed === 'all' || !Array.isArray(spAllowed) || spAllowed.length === 0)
             ? null : spAllowed.join(',');
-          if (spMode === 'trunk' || spAccess !== 1) out.push('  switchport mode ' + spMode);
+          // The lines come out in the order a real switch writes them, not the order this file happens to
+          // know them in: the VLAN parameters first, then the mode they select, then the phone-facing voice
+          // line. Two Cisco-published `show running-config` samples settle it
+          // (research/running-config-switchport-order.md): a voice port prints `switchport access vlan 2` /
+          // `switchport mode access` / `switchport voice vlan 3`, and a trunk prints
+          // `switchport trunk encapsulation dot1q` / `switchport trunk native vlan 4` / `switchport mode
+          // trunk`. Where the allowed-vlan line sits between those is the one placement no sample showed,
+          // so it keeps the position it already had, among the parameters.
           if (spAccess !== 1) out.push('  switchport access vlan ' + spAccess);
-          if (spVoice !== null) out.push('  switchport voice vlan ' + spVoice);
           if (spNative !== 1) out.push('  switchport trunk native vlan ' + spNative);
           if (spAllowedText !== null) out.push('  switchport trunk allowed vlan ' + spAllowedText);
+          if (spMode === 'trunk' || spAccess !== 1) out.push('  switchport mode ' + spMode);
+          if (spVoice !== null) out.push('  switchport voice vlan ' + spVoice);
         }
         // An IPv6 address lives in config.ip6, not on the interface object, so a printer that walked the
         // interfaces could not have found it even in principle.

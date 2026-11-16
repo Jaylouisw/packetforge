@@ -955,10 +955,14 @@ sw1> show ip ospf
 
 ```
 interface Gi1/0/5
- switchport mode trunk
  switchport trunk allowed vlan 10
+ switchport mode trunk
  switchport voice vlan 20
 ```
+
+The lines come out in the order a real switch writes them - the VLAN parameters, then the mode they select,
+then the voice line - rather than the order this project happened to hold them in
+(`research/running-config-switchport-order.md` has the vendor output that fixes it).
 
 A phone on that port talks on VLAN 20 and the PC behind it on VLAN 10. The voice VLAN is carried by the trunk
 **whether or not it appears in the allowed list** — that field is how the switch is told which VLAN voice traffic
