@@ -19,6 +19,9 @@ minute.
 |---|---|---|
 | `ci.yml` | pull request to `main`, push to `main`, manual dispatch | The matrix: tests on three Node versions, a live server smoke test, a Docker build |
 | `auto-rebase.yml` | push to `main`, manual dispatch, and a 10-minute schedule the host never dispatches | Rebases open pull requests onto current `main` and re-arms auto-merge; stands down green, before its checkout, when the host has less than 512 MB free (#1508) |
+| `pr-rebase.yml` | pull request opened, pushed to, or reopened | The rebase that actually runs: rebases that one pull request onto current `main` and arms squash auto-merge. Every failure path warns and exits 0; a job that fails before it can report why comments the reason on the pull request |
+| `closed-audit.yml` | push to `main`, manual dispatch (`limit`, default 120) | Matches recently closed requests against the catalogue and prints any close that names no file in `devices/`; a report, never a red build |
+| `wiki-sync.yml` | push to `main` that touches `docs/wiki/**`, manual dispatch | Mirrors `docs/wiki/*.md` into the separate `<owner>/<repo>.wiki` repository, removing pages deleted upstream; needs the `WIKI_TOKEN` secret and fails without it |
 
 `.github/workflows/` was deleted in #1059. While it existed, the GitHub workflow
 ran on Forgejo too — and failed every time with `docker: command not found`,
