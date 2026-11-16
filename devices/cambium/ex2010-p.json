@@ -1,0 +1,148 @@
+{
+  "vendor": "cambium",
+  "model": "EX2010-P",
+  "label": "Cambium cnMatrix EX2010-P",
+  "category": "l3-switch",
+  "description": "Cambium cnMatrix EX2010-P managed PoE switch: 8x 1G RJ45 all PoE+ (802.3af/at, 30 W per port, 100 W budget), 2x 1G SFP uplinks, 20 Gbps throughput, fanless, RS-232 console.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli",
+    "http-server",
+    "dhcp-server",
+    "vlan",
+    "lacp",
+    "stp",
+    "poe-pse",
+    "802.3af",
+    "802.3at"
+  ],
+  "interfaces": [
+    {
+      "name": "Port 1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "Port 2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "Port 3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "Port 4",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "Port 5",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "Port 6",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "Port 7",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "Port 8",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "Port 9",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        1000
+      ]
+    },
+    {
+      "name": "Port 10",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        1000
+      ]
+    }
+  ],
+  "poe": {
+    "budgetW": 100,
+    "sourceUrl": "https://brandcentral.cambiumnetworks.com/asset/c544bc91-c854-4589-a6e6-94864102a2d9/cnMatrix-EX2000-Data-Sheet.pdf",
+    "note": "100 W PoE+ budget at 54 V, 30 W maximum per port, 802.3af/at on all 8 copper ports. The two SFP cages carry no power."
+  },
+  "fabric": {
+    "capacityMbps": 20000,
+    "kind": "switching fabric",
+    "note": "Data sheet 'Throughput' of 20 Gbps, the full-duplex aggregate of 8 x 1G plus 2 x 1G."
+  },
+  "sourceUrl": "https://brandcentral.cambiumnetworks.com/asset/c544bc91-c854-4589-a6e6-94864102a2d9/cnMatrix-EX2000-Data-Sheet.pdf",
+  "notes": "The small member of the series: 8 x 10/100/1000 PSE ports numbered 1-8, 2 x 1G SFP cages numbered 9-10 (SFP, not SFP+, so no 10G uplink on this model), fanless, 21 x 4.4 x 25 cm, 1.99 kg, 10.54 W maximum switch power with traffic. Fully managed Layer 2/3 switch, managed by cloud or on-premises cnMaestro and by an industry-standard CLI, with embedded web management, a DHCP server and client, DHCP relay, OSPFv2 and RIPv1/v2 (static routes and inter-VLAN routing included), LACP/static LAGs, RSTP/MSTP/PVRST, ERPSv1, QinQ, IGMP snooping v1/v2, LLDP/LLDP-MED, 802.1X/MAB, DHCP snooping, dynamic ARP inspection, per-port flow control and storm control. 16 K MAC table, 4 K VLANs, 9 K jumbo frames, 800 MHz CPU, 128 MB flash, 512 MB DRAM, 1.5 MB packet buffer. 100-240 VAC supply, 1U rack mountable, 0-50 C operating, -40 to 70 C storage, 55 C at 95% RH. RS-232 serial console (RJ-45) on every model, plus a USB port and an out-of-band Ethernet management port: the spec table lists the management port but states its rate only for the EX2028-P (10/100 Mbps), so it is recorded here rather than modelled as a data port at a rate no document gives. Sources: cnMatrix EX2000 Series data sheet https://brandcentral.cambiumnetworks.com/asset/c544bc91-c854-4589-a6e6-94864102a2d9/cnMatrix-EX2000-Data-Sheet.pdf and the model page https://www.cambiumnetworks.com/products/switching/cnmatrix-switch-ex2010-p/."
+}

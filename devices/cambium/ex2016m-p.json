@@ -1,0 +1,223 @@
+{
+  "vendor": "cambium",
+  "model": "EX2016M-P",
+  "label": "Cambium cnMatrix EX2016M-P",
+  "category": "l3-switch",
+  "description": "Cambium cnMatrix EX2016M-P managed PoE switch: 8x 1G RJ45 PoE+ (30 W) and 6x 2.5G RJ45 PoE (60 W, 802.3bt), 14 PoE ports on a 240 W budget, 2x 10G SFP+ uplinks, 86 Gbps throughput, RS-232 console.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli",
+    "http-server",
+    "dhcp-server",
+    "vlan",
+    "lacp",
+    "stp",
+    "poe-pse",
+    "802.3af",
+    "802.3at",
+    "802.3bt"
+  ],
+  "interfaces": [
+    {
+      "name": "Port 1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "Port 2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "Port 3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "Port 4",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "Port 5",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "Port 6",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "Port 7",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "Port 8",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "Port 9",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "2.5G",
+      "speedCaps": [
+        100,
+        1000,
+        2500
+      ],
+      "poeOut": 60
+    },
+    {
+      "name": "Port 10",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "2.5G",
+      "speedCaps": [
+        100,
+        1000,
+        2500
+      ],
+      "poeOut": 60
+    },
+    {
+      "name": "Port 11",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "2.5G",
+      "speedCaps": [
+        100,
+        1000,
+        2500
+      ],
+      "poeOut": 60
+    },
+    {
+      "name": "Port 12",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "2.5G",
+      "speedCaps": [
+        100,
+        1000,
+        2500
+      ],
+      "poeOut": 60
+    },
+    {
+      "name": "Port 13",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "2.5G",
+      "speedCaps": [
+        100,
+        1000,
+        2500
+      ],
+      "poeOut": 60
+    },
+    {
+      "name": "Port 14",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "2.5G",
+      "speedCaps": [
+        100,
+        1000,
+        2500
+      ],
+      "poeOut": 60
+    },
+    {
+      "name": "Port 15",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "Port 16",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    }
+  ],
+  "poe": {
+    "budgetW": 240,
+    "sourceUrl": "https://brandcentral.cambiumnetworks.com/asset/c544bc91-c854-4589-a6e6-94864102a2d9/cnMatrix-EX2000-Data-Sheet.pdf",
+    "note": "240 W budget for 14 PoE ports: 8 gigabit ports at up to 30 W (802.3af/at) and 6 multi-gigabit ports at up to 60 W (802.3bt), per the data sheet's 'PoE+ Power Budget 240W' and the product page's '14 PoE Enabled Ports (802.3af/at/bt - 8x30W, 6x60W)'."
+  },
+  "fabric": {
+    "capacityMbps": 86000,
+    "kind": "switching fabric",
+    "note": "Data sheet 'Throughput' of 86 Gbps, the full-duplex aggregate of 8 x 1G, 6 x 2.5G and 2 x 10G."
+  },
+  "sourceUrl": "https://brandcentral.cambiumnetworks.com/asset/c544bc91-c854-4589-a6e6-94864102a2d9/cnMatrix-EX2000-Data-Sheet.pdf",
+  "notes": "The multi-gigabit member: 8 x 10/100/1000 PSE ports, 6 x 100M/2.5G PSE ports and 2 x SFP+ cages. Numbered gigabit first, multi-gigabit second and the uplinks last because the data sheet lists the counts but not the front-panel order; no CLI port name is claimed. 44 x 4.4 x 25 cm, 3.6 kg, two internal fans (44.4 dB under 33 C, 49.3 dB above 43 C), 26.76 W maximum switch power with traffic and no PoE. Fully managed Layer 2/3 switch, managed by cloud or on-premises cnMaestro and by an industry-standard CLI, with embedded web management, a DHCP server and client, DHCP relay, OSPFv2 and RIPv1/v2 (static routes and inter-VLAN routing included), LACP/static LAGs, RSTP/MSTP/PVRST, ERPSv1, QinQ, IGMP snooping v1/v2, LLDP/LLDP-MED, 802.1X/MAB, DHCP snooping, dynamic ARP inspection, per-port flow control and storm control. 16 K MAC table, 4 K VLANs, 9 K jumbo frames, 800 MHz CPU, 128 MB flash, 512 MB DRAM, 1.5 MB packet buffer. 100-240 VAC supply, 1U rack mountable, 0-50 C operating, -40 to 70 C storage, 55 C at 95% RH. RS-232 serial console (RJ-45) on every model, plus a USB port and an out-of-band Ethernet management port: the spec table lists the management port but states its rate only for the EX2028-P (10/100 Mbps), so it is recorded here rather than modelled as a data port at a rate no document gives. Sources: cnMatrix EX2000 Series data sheet https://brandcentral.cambiumnetworks.com/asset/c544bc91-c854-4589-a6e6-94864102a2d9/cnMatrix-EX2000-Data-Sheet.pdf and the model page https://www.cambiumnetworks.com/products/switching/cnmatrix-switch-ex2016m-p/. Its 60 W ports are the only ones in the series rated above 30 W."
+}

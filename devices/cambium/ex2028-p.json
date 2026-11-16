@@ -1,0 +1,362 @@
+{
+  "vendor": "cambium",
+  "model": "EX2028-P",
+  "label": "Cambium cnMatrix EX2028-P",
+  "category": "l3-switch",
+  "description": "Cambium cnMatrix EX2028-P managed PoE switch: 24x 1G RJ45 all PoE+ (802.3af/at, 30 W per port, 400 W budget), 4x 10G SFP+ uplinks, 128 Gbps throughput, 25.1 W with no PoE load, RS-232 console.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli",
+    "http-server",
+    "dhcp-server",
+    "vlan",
+    "lacp",
+    "stp",
+    "poe-pse",
+    "802.3af",
+    "802.3at"
+  ],
+  "interfaces": [
+    {
+      "name": "Port 1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "Port 2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "Port 3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "Port 4",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "Port 5",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "Port 6",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "Port 7",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "Port 8",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "Port 9",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "Port 10",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "Port 11",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "Port 12",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "Port 13",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "Port 14",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "Port 15",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "Port 16",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "Port 17",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "Port 18",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "Port 19",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "Port 20",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "Port 21",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "Port 22",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "Port 23",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "Port 24",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "Port 25",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "Port 26",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "Port 27",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "Port 28",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    }
+  ],
+  "poe": {
+    "budgetW": 400,
+    "sourceUrl": "https://brandcentral.cambiumnetworks.com/asset/c544bc91-c854-4589-a6e6-94864102a2d9/cnMatrix-EX2000-Data-Sheet.pdf",
+    "note": "400 W PoE+ budget at 54 V, 30 W maximum per port, 802.3af/at on all 24 copper ports. The four SFP+ cages carry no power."
+  },
+  "fabric": {
+    "capacityMbps": 128000,
+    "kind": "switching fabric",
+    "note": "Data sheet 'Throughput' of 128 Gbps, which is the full-duplex aggregate of 24 x 1G plus 4 x 10G (28 ports x 2 x rate / 2). Forwarding rate 120 Mpps."
+  },
+  "sourceUrl": "https://brandcentral.cambiumnetworks.com/asset/c544bc91-c854-4589-a6e6-94864102a2d9/cnMatrix-EX2000-Data-Sheet.pdf",
+  "notes": "24 copper PSE ports numbered 1-24 and four SFP+ cages numbered 25-28; the numbering is positional, which the data sheet supports but never prints as a CLI name, so no CLI port name is claimed. 44 x 4.4 x 25 cm, 3.96 kg, two internal fans (40 dB under 33 C, 52 dB above 43 C), 25.10 W maximum switch power with traffic and no PoE load. An out-of-band management port is listed at 10/100 Mbps in this model's connector table; it is described rather than modelled. Fully managed Layer 2/3 switch, managed by cloud or on-premises cnMaestro and by an industry-standard CLI, with embedded web management, a DHCP server and client, DHCP relay, OSPFv2 and RIPv1/v2 (static routes and inter-VLAN routing included), LACP/static LAGs, RSTP/MSTP/PVRST, ERPSv1, QinQ, IGMP snooping v1/v2, LLDP/LLDP-MED, 802.1X/MAB, DHCP snooping, dynamic ARP inspection, per-port flow control and storm control. 16 K MAC table, 4 K VLANs, 9 K jumbo frames, 800 MHz CPU, 128 MB flash, 512 MB DRAM, 1.5 MB packet buffer. 100-240 VAC supply, 1U rack mountable, 0-50 C operating, -40 to 70 C storage, 55 C at 95% RH. RS-232 serial console (RJ-45) on every model, plus a USB port and an out-of-band Ethernet management port: the spec table lists the management port but states its rate only for the EX2028-P (10/100 Mbps), so it is recorded here rather than modelled as a data port at a rate no document gives. Sources: cnMatrix EX2000 Series data sheet https://brandcentral.cambiumnetworks.com/asset/c544bc91-c854-4589-a6e6-94864102a2d9/cnMatrix-EX2000-Data-Sheet.pdf and the model page https://www.cambiumnetworks.com/products/switching/cnmatrix-switch-ex2028-p/. Firmware note: the data sheet marks IGMP snooping v3 and AAA with 'feature to be included in a future release', so current firmware is v1/v2 snooping only."
+}
