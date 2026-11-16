@@ -154,9 +154,39 @@ jobs:
         node: [18, 20, 22]
     steps:
       - uses: actions/checkout@v4
+      # Every job in this workflow already runs on Node 20: the runner's image for
+      # `ubuntu-latest` is `node:20-bookworm`, which is the `Start image=` line at the
+      # top of every job log and the reason the `changes` job has never needed a setup
+      # step. Downloading Node 20 onto Node 20 cost this leg 25 seconds of a 229-second
+      # job (run 3122, task 6833: clone of the setup-node action at 04:27:14, tarball
+      # download at 04:27:32), and - because act keeps one cache directory per action
+      # revision under /data/.cache/act - it made all three legs clone the same action
+      # into the same path within five seconds of each other. That race is not
+      # theoretical: in the same run, task 6834 died 22 seconds in with
+      #   Unable to checkout 49933ea5288caeca8642d1e84afbd3f7d6820020:
+      #   remove /data/.cache/act/e5/877e.../.gitignore: no such file or directory
+      # while 6833 and 6835 ran the identical 260-suite suite to completion - the run
+      # went red on a tree that was green, and the pull request it belonged to cannot
+      # merge while it stays red. Two clones can collide instead of three.
       - uses: actions/setup-node@v4
+        if: matrix.node != 20
         with:
           node-version: ${{ matrix.node }}
+      # The saving above is only a saving if the runtime really is the version the leg
+      # is named for. A leg that quietly tested Node 22 under the name "Test (Node 20)"
+      # would report coverage it never had, which is the failure this repository has
+      # already paid for twice (runs 1398/1401/1402). So every leg checks, and a
+      # runner image that changes underneath this file fails loudly here instead.
+      - name: The runtime is the version this leg is named for
+        run: |
+          want="${{ matrix.node }}"
+          got="$(node --version)"
+          echo "wanted Node ${want}, running ${got} ($(npm --version))"
+          case "$got" in
+            "v${want}."*) exit 0 ;;
+          esac
+          echo "::error title=Test (Node ${want})::this leg is running ${got} - it would report coverage for a runtime it never tested"
+          exit 1
       - name: Syntax check (all JS)
         run: node scripts/syntax-check.js
       - name: No control bytes in source
