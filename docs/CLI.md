@@ -1755,11 +1755,11 @@ time. With an instant — a bare number of milliseconds, `converge 10000` — an
 marked `(pending)`.
 
 The instant has **no `at` keyword**, unlike `link down <id> at <ms>`. This page said `converge [at
-<ms>]` too; `_converge()` (`engine/cli.js:2820`) reads `Number(tokens[0])` and nothing else, so
+<ms>]` too; `_converge()` (`engine/cli.js:2857`) reads `Number(tokens[0])` and nothing else, so
 `converge at 10000` hands it the word `at`, `NaN` suppresses the pending mark on every row, and the
 answer is the one you get with no instant at all - the `(pending)` column is missing rather than the
 command failing, which is why the wrong form stayed in the text. The index still carries it: the
-`help` output advertises `converge [at <ms>]` (engine/cli.js:4978), so a reader who asks the box
+`help` output advertises `converge [at <ms>]` (engine/cli.js:5028), so a reader who asks the box
 instead of this page is taught the spelling that quietly does nothing. The fix belongs in the parser
 (take `at` the way `link` does); until it lands, this line names the spelling that works.
 
@@ -2111,6 +2111,17 @@ Router#                   <- and again, and again
 Exec and privileged EXEC share one dispatcher, and only `exit` at `>` was handled (as a no-op, because there is no login to leave). One level up from `#` is `>`, which this console always has underneath, so the ladder is now continuous — `(config-if)#` → `(config)#` → `#` → `>` — and each step is one `exit`.
 
 What did **not** change: a word the console does not know is still reported in every mode (`% Unrecognized config command: flurbish`), because the fix is the two help keys and the one level, not a general amnesty.
+
+`?` was still a typo one position after a word, though, and that position is the other one the console keeps a complete table for. Every other place is left alone deliberately — there is no complete list of what may follow `interface` or `speed`, and a console that guesses there accepts lines the box it imitates would refuse:
+
+```
+Router#show ?
+% Invalid show command: ?
+Router#show ip ?
+% `show ip` needs a view. This console has: route, interface brief, ospf, ...
+```
+
+So the operator unsure of the *first* word of a `show` line was told the key was invalid, while the one unsure of the second was handed the list. `show ?` now answers from `SHOW_VIEW_WORDS` — the same table the dispatcher resolves `sh ver` against, so the list cannot name a view that `show` then refuses — and every row it prints is a completion of `show `, which is why `mac address-table` and `power inline` appear with the words they need and the whole list can be typed back. `ip` and `ipv6` are words that take a view of their own, so they are named on their own line, and `show ipv6 ?` names its one view (`nd`) where it used to be the same invalid-command report.
 
 `test/help-key-works-in-every-prompt.test.js` holds it: nine checks over all five prompts (the index from `?` and from `help`, the prompt unchanged afterwards, a command still working after asking for help), plus the full `exit` ladder and the unknown-word reports. With the old handler: 4 passed / 5 failed.
 

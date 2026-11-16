@@ -119,3 +119,62 @@ test('the rest of the ladder still climbs down one level at a time', () => {
   run('exit');
   assert.match(cli.prompt(), />$/, 'privileged EXEC -> user EXEC');
 });
+
+// `?` works at a prompt, and the note over `EXEC_WORDS` in engine/cli.js names the other place a complete table
+// exists: the view word after `show`. At that position the key was answered as a typo -
+//   Router# show ?
+//   % Invalid show command: ?
+// - while one word deeper the same question was already answered in full:
+//   Router# show ip ?
+//   % `show ip` needs a view. This console has: route, interface brief, ospf, ...
+// So the operator unsure of the *first* word of a `show` line was told the key was invalid, and the one unsure of
+// the second was handed the list. Both positions hold a complete table here (`SHOW_VIEW_WORDS`, and the `show ip`
+// maps), which is the whole condition this console applies before it agrees to answer a question about what may
+// stand somewhere - it is why `interface ?` and `speed ?` are still left alone.
+//
+// The list is derived from the table the dispatcher resolves against, so it cannot advertise a view `show` then
+// refuses. Every row is a *completion of `show `* - `mac` and `power` are printed with the word they need, because
+// a row of bare words would be advertising two commands this console refuses - so the whole list is pasteable, the
+// same rule the views themselves are held to. `ip` and `ipv6` are words that take a view of their own and are on
+// their own line rather than among the one-word views.
+test('`?` after `show` answers with the views, not with an invalid command', () => {
+  const { cli, run } = session();
+  run('enable');
+  const text = run('show ?');
+
+  assert.doesNotMatch(text, /Invalid show command/, '`?` is the index key, not an invalid view');
+  assert.match(text, /^Available `show` views/, 'it must answer with the views, got: ' + text.split('\n')[0]);
+
+  // Every row the list prints, typed back exactly as printed.
+  const FORMS = ['version', 'interfaces', 'running-config', 'vlan', 'spanning-tree', 'etherchannel',
+    'lldp', 'access-lists', 'vrrp', 'arp', 'mac address-table', 'power inline'];
+  for (const form of FORMS) {
+    assert.ok(text.indexOf(form) !== -1, 'the listing must name `show ' + form + '`');
+    assert.doesNotMatch(run('show ' + form), /Invalid show command/,
+      '`show ' + form + '` is printed by the list and must be a view this console answers');
+  }
+
+  // The other spellings are named, and they are views too.
+  const ALIASES = [['ver', 'version'], ['interface', 'interfaces'], ['run', 'running-config'],
+    ['port-channel', 'etherchannel'], ['access-list', 'access-lists']];
+  for (const pair of ALIASES) {
+    assert.ok(text.indexOf(pair[0] + ' = ' + pair[1]) !== -1,
+      'the listing must say `' + pair[0] + ' = ' + pair[1] + '`');
+    assert.doesNotMatch(run('show ' + pair[0]), /Invalid show command/, '`show ' + pair[0] + '` is a view');
+  }
+
+  // The two words that take a view of their own are named, and both `?` doors answer.
+  for (const holder of ['ip', 'ipv6']) {
+    assert.ok(text.indexOf('`show ' + holder + ' ?`') !== -1, 'the listing points at `show ' + holder + ' ?`');
+    assert.doesNotMatch(run('show ' + holder + ' ?'), /Invalid show command/,
+      '`show ' + holder + ' ?` must answer with what may follow it');
+  }
+  assert.match(run('show ipv6 ?'), /\bnd\b/, 'and `show ipv6 ?` names its one view');
+
+  assert.strictEqual(run('sh ?'), text, 'the shortened `show` asks the same question and gets the same answer');
+  assert.strictEqual(run('show ?'), text, 'and the answer does not depend on what ran before it');
+  assert.match(cli.prompt(), /#$/, 'asking for the list must not change the mode');
+
+  // An unknown word is still an unknown word: the key is not a wildcard.
+  assert.match(run('show flurbish'), /Invalid show command: flurbish/);
+});

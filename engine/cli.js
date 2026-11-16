@@ -284,6 +284,43 @@ function showIpUsage() {
     '  No equivalent here: ' + pointed.join(', ') + '. Type `help` for the full command list.'];
 }
 
+// What `show` may be followed by, for the operator who presses `?` instead of guessing. Built from
+// `SHOW_VIEW_WORDS` - the same table the dispatcher resolves against - so the list cannot name a view that `show`
+// then refuses, and each alias is printed beside the word it reaches, because `show port-channel summary` is how
+// most of the world spells `etherchannel` and a list of doors without their other names sends that operator to
+// `etherchannel` when they already knew the word they wanted.
+// `mac` and `power` are doors that need their word - `show mac address-table`, `show power inline` - and a listing
+// that printed the bare words would be advertising two commands this console refuses. Every row below is therefore
+// a *completion of `show `*: what the list prints can be typed back into the session that printed it.
+const SHOW_VIEW_TAILS = { mac: 'address-table', power: 'inline' };
+
+function showViewUsage() {
+  const forms = [];
+  const aliases = [];
+  for (const entry of SHOW_VIEW_WORDS) {
+    // `ip` and `ipv6` are words followed by a view of their own; they are on the last line instead, because
+    // printing `ipv6` among the completions would advertise `show ipv6`, which needs a word after it.
+    if (entry.word === 'ip' || entry.word === 'ipv6') continue;
+    const tail = SHOW_VIEW_TAILS[entry.word];
+    forms.push(entry.word + (tail ? ' ' + tail : ''));
+    for (const spelling of entry.spellings) {
+      if (spelling !== entry.word) aliases.push(spelling + ' = ' + entry.word);
+    }
+  }
+  const lines = ['Available `show` views (each row is a completion of `show `):'];
+  for (let i = 0; i < forms.length; i += 4) lines.push('  ' + forms.slice(i, i + 4).join('  |  '));
+  lines.push('  other spellings: ' + aliases.join(', '));
+  lines.push('  `ip` and `ipv6` each take a view of their own: `show ip ?` and `show ipv6 ?` list those.');
+  return lines;
+}
+
+// What `show ipv6` can be followed by. It is one word, and the position is the same one `show ip ?` already
+// answers - so `show ipv6 ?` was calling the index key an invalid command while its sibling listed the views.
+function showIpv6Usage() {
+  return ['% `show ipv6` needs a view: this console has nd - what this device would advertise. ' +
+    'Type `help` for the full command list.'];
+}
+
 // Spanning-tree sub-commands this console knows by name but does not model: the device runs one spanning tree and its
 // only tunable is the bridge priority. Shared by `spanning-tree <verb>` and `no spanning-tree <verb>` so both answer
 // the same way - the `no` form used to ignore the word entirely and clear the priority whatever was asked (#1501).
@@ -3819,6 +3856,12 @@ class CliSession {
     //  * an ambiguous prefix is refused before any door opens, because there is no door to open.
     this._showAliasFrom = null;
     const typedView = String(tokens[0] || '').toLowerCase();
+    // `?` is the console's index key, and the view word after `show` is one of the two positions where a *complete*
+    // table exists (see the note over EXEC_WORDS) - the one condition this console asks before it agrees to answer a
+    // question about what may stand somewhere. It answered `% Invalid show command: ?` instead, calling the key
+    // itself the mistake, one word after `show ip ?` had already listed the views behind `ip` (#1673). The answer
+    // comes from the dispatch table rather than from a second copy of it, so the two cannot disagree.
+    if (typedView === '?') return showViewUsage();
     const viewWord = resolveCommandWord(typedView, SHOW_VIEW_WORDS);
     if (viewWord.rivals.length) {
       return ['% Ambiguous command "show ' + typedView + '": ' + viewWord.rivals.join(' | ') +
@@ -4038,6 +4081,8 @@ class CliSession {
       out.push.apply(out, this._showOspf(tokens.slice(2)));
     } else if (what === 'ip' && tokens[1] === 'bgp') {
       out.push.apply(out, this._showBgp(tokens.slice(2)));
+    } else if (what === 'ipv6' && (!tokens[1] || tokens[1] === '?')) {
+      out.push.apply(out, showIpv6Usage());
     } else if (what === 'ipv6' && tokens[1] === 'nd') {
       out.push.apply(out, this._showIpv6Nd());
     } else if (what === 'power' && (tokens[1] || '').toLowerCase() === 'inline') {
