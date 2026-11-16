@@ -9,7 +9,7 @@ Modes and their prompts:
 | Mode | Prompt | How you get there |
 |------|--------|-------------------|
 | exec | `Hostname>` | (start) |
-| enable | `Hostname#` | `enable` |
+| enable | `Hostname#` | `enable` (or `en`) |
 | config | `Hostname(config)#` | `configure terminal`, or any unique abbreviation of both words (`config t`, `conf term`, `configure term`) |
 | interface | `Hostname(config-if)#` | `interface <name>` (from config) |
 
@@ -37,6 +37,41 @@ Modes and their prompts:
 | `ping <ip> [count]` | ICMP echo from this device |
 | `traceroute <ip>` (`tracert`) | TTL-limited probes, one hop at a time; each router that expires a probe answers with ICMP time exceeded, the destination with an echo reply, and a hop stopped by a down cable, a shut port or an ACL says why and ends the walk |
 | `exit` / `logout` | leave the session |
+
+## A command word can be shortened, down to what is still unique
+
+`sh ver` is `show version`, `sh int` is `show interfaces`, `conf t` is `configure terminal`. IOS accepts an
+abbreviation of a command word "to the number of characters that allow a unique abbreviation", and this console
+follows that rule at the two places where it holds a complete list of the words that may appear there: the **first
+word** of a line, and the **view word after `show`**.
+
+| typed | answered as |
+|-------|-------------|
+| `en`, `ena` | `enable` |
+| `conf t`, `config term` | `configure terminal` |
+| `sh ver`, `sh vers` | `version` |
+| `sh int`, `sh int Fa0/1` | `interfaces` |
+| `sh run`, `sh ru` | `running-config` |
+| `trac` | `traceroute` |
+
+A shortening two words share is refused, and the refusal names the words it could have been - the same sentence
+`configure` has answered with since it learned to abbreviate:
+
+```
+sw1#sh i
+% Ambiguous command "show i": interfaces | ip | ipv6 (type more characters)
+```
+
+So `c`, `co` and `con` are still ambiguous between `configure` and `converge`, `sh v` between `version`, `vlan`
+and `vrrp`, and `sh p` between `power` and `port-channel`.
+
+The rule stops where this console has no complete list of the words that could appear. The words after `show ip`
+are not shortened - type `show ip interface brief` in full; `sh ip int br` is refused as an unknown view - and a
+keyword such as `brief` is not shortened either, nor is a value such as a port name: `sh int Fa` names no port
+rather than guessing one. A one- or
+two-letter prefix is also this simulator's answer rather than a claim about a particular switch: it is measured
+against this console's shorter command set, so `sh s` reaches the spanning tree here where a box with `snmp`,
+`ssh` and `spanning-tree` would call it ambiguous.
 
 ## A command with words it cannot use refuses them
 

@@ -26,27 +26,86 @@ const vlanLib = require('./vlan');
 function pad(s, w) { s = String(s); return s + ' '.repeat(Math.max(0, w - s.length)); }
 
 // IOS accepts an abbreviation down to "the number of characters that allow a unique abbreviation", and names
-// this very command as the example: "you can abbreviate the configure terminal command to config t"
+// `configure terminal` as its own example: "you can abbreviate the configure terminal command to config t"
 // (Cisco IOS XE 16 Fundamentals Configuration Guide, Using the Cisco IOS Command-Line Interface).
 // https://cisco.com/c/en/us/td/docs/ios-xml/ios/fundamentals/configuration/xe-16/fundamentals-xe-16-book/cf-cli-basics.html
 //
-// This door knew two literal spellings, `configure` and `conf`, and refused the rest: `config t`, `config term`
-// and `conf term` all came back `% Invalid input`, though every one of them opens config mode on a real box
-// (`switch# config t` is printed as accepted in the MDS 9000 CLI guide, and `config ?` there lists `terminal`:
-// https://www.cisco.com/en/US/docs/storage/san_switches/mds9000/sw/rel_1_x/1_1_1a/san-os/configuration/guide/BforBgin.html).
-// An alias list is not the rule; the rule is a prefix match against the words the console actually has. The
-// rivals matter as much as the matches: on a box `c`, `co` and `con` are ambiguous, and so are they here,
-// where `converge` shares those letters with `configure` - refused as ambiguous rather than guessed, which is
-// the same call `interface` makes about a port spelling that folds onto two ports.
-const EXEC_WORDS_SHARING_CONFIGURE_STEM = ['converge'];
+// This console learned the rule for one word and no other: `configure` and `conf` opened config mode while
+// `config t` did not (#1661), and `sh ver` - the spelling every operator's fingers type, printed as accepted in
+// every Cisco community transcript that pastes a version banner (`Switch#sh ver` over the banner) - answered
+// `% Unrecognized command: sh ver` on a console that has the view. (The one word it did know is pinned by the MDS
+// 9000 CLI guide, which prints `switch# config t` accepted and `config ?` listing `terminal`:
+// https://www.cisco.com/en/US/docs/storage/san_switches/mds9000/sw/rel_1_x/1_1_1a/san-os/configuration/guide/BforBgin.html)
+// An alias list is not the rule; the rule is a prefix match against the words the console actually has, so it is
+// applied here at the two positions where this console keeps a *complete* table of what may stand there: the first
+// word of an EXEC line, and the view word after `show`.
+//
+// Everywhere else - the words after `show ip`, a value such as a port name, `brief` after `interface` - there is
+// no complete table, so a short word cannot be told from an ambiguous one and is left exactly as it was. Guessing
+// in those positions is how a console accepts a line the box it imitates would have refused, and this repo has
+// paid for that mistake before (research/parse-error-caret.md).
+//
+// The rivals matter as much as the matches: on a box `c`, `co` and `con` are ambiguous, and so are they here,
+// where `converge` shares those letters with `configure` - refused as ambiguous rather than guessed, which is the
+// same call `interface` makes about a port spelling that folds onto two ports.
+//
+// `word` is the spelling the dispatcher tests; `spellings` are the words an operator may type for it (`run` for
+// `running-config`, `tracert` for `traceroute`, `port-channel` for `etherchannel`). Both are matched by prefix, so
+// `trac` reaches `traceroute` instead of becoming ambiguous with its own alias.
+const EXEC_WORDS = [
+  { word: 'enable', spellings: ['enable'] },
+  { word: 'configure', spellings: ['configure'] },
+  { word: 'converge', spellings: ['converge'] },
+  { word: 'show', spellings: ['show'] },
+  { word: 'ping', spellings: ['ping'] },
+  { word: 'link', spellings: ['link'] },
+  { word: 'links', spellings: ['links'] },
+  { word: 'traceroute', spellings: ['traceroute', 'tracert'] },
+  { word: 'exit', spellings: ['exit'] },
+  { word: 'logout', spellings: ['logout'] },
+  { word: 'quit', spellings: ['quit'] },
+  { word: 'help', spellings: ['help'] }
+];
 
-// null when the typed word is not a spelling of `configure`; otherwise the words an exact match would have had
-// to choose between (empty when the prefix is unique, which is the case IOS accepts).
-function resolveConfigureWord(word) {
-  const typed = String(word === undefined || word === null ? '' : word).toLowerCase();
-  if (!typed || 'configure'.indexOf(typed) !== 0) return null;
-  const rivals = EXEC_WORDS_SHARING_CONFIGURE_STEM.filter(function (w) { return w.indexOf(typed) === 0; });
-  return { ambiguous: rivals.length ? ['configure'].concat(rivals) : [] };
+// The view word after `show`, one entry per door `_show()` can open. `ver` and `run` were already answered by
+// their whole spelling; `interface`, `access-list` and `port-channel` are here because IOS accepts the singular
+// and the port-channel spelling of the same view.
+const SHOW_VIEW_WORDS = [
+  { word: 'version', spellings: ['version', 'ver'] },
+  { word: 'ip', spellings: ['ip'] },
+  { word: 'ipv6', spellings: ['ipv6'] },
+  { word: 'interfaces', spellings: ['interfaces', 'interface'] },
+  { word: 'running-config', spellings: ['running-config', 'run'] },
+  { word: 'vlan', spellings: ['vlan'] },
+  { word: 'spanning-tree', spellings: ['spanning-tree'] },
+  { word: 'etherchannel', spellings: ['etherchannel', 'port-channel'] },
+  { word: 'lldp', spellings: ['lldp'] },
+  { word: 'access-lists', spellings: ['access-lists', 'access-list'] },
+  { word: 'vrrp', spellings: ['vrrp'] },
+  { word: 'arp', spellings: ['arp'] },
+  { word: 'mac', spellings: ['mac'] },
+  { word: 'power', spellings: ['power'] }
+];
+
+// The word a typed spelling means, or the words it could mean. An exact spelling wins over a longer one that
+// starts with it (`link` is not made ambiguous by `links`), one prefix match is the answer IOS accepts, and more
+// than one is an ambiguity for the caller to report in its own words. `word: null` means "no command of that name
+// here", and the caller's existing refusal answers it, unchanged.
+function resolveCommandWord(typed, table) {
+  const w = String(typed === undefined || typed === null ? '' : typed).toLowerCase();
+  if (!w) return { word: null, rivals: [] };
+  for (const entry of table) {
+    if (entry.spellings.indexOf(w) !== -1) return { word: entry.word, rivals: [] };
+  }
+  const hits = table.filter(function (entry) {
+    return entry.spellings.some(function (s) { return s.indexOf(w) === 0; });
+  });
+  if (hits.length === 1) return { word: hits[0].word, rivals: [] };
+  // The rivals are the spellings the operator could have meant, not the doors they open: `show p` is ambiguous
+  // between `power` and `port-channel`, and naming `etherchannel` there would answer about a word they did not type.
+  return { word: null, rivals: hits.map(function (e) {
+    return e.spellings.filter(function (s) { return s.indexOf(w) === 0; })[0] || e.word;
+  }) };
 }
 
 // `show ip interface brief` is one table with six columns, and its header is the table's first row - padded
@@ -301,7 +360,8 @@ class CliSession {
     if (/^\s*[!#]/.test(String(line == null ? '' : line))) return { output: out, actions: [] };
     const tokens = line.trim().split(/\s+/).filter(Boolean);
     if (!tokens.length) return { output: out, actions: [] };
-    const head = tokens[0].toLowerCase();
+    // Reassigned in EXEC mode, where a command word may be shortened to what is still unique.
+    let head = tokens[0].toLowerCase();
 
     try {
       if (this.mode === MODE_IFACE) {
@@ -312,18 +372,22 @@ class CliSession {
         out.push.apply(out, this._configMode(tokens));
       } else {
         // exec / enable mode
-        if (head === 'enable' || head === 'en') {
+        // A command word may be shortened to what is still unique: `sh ver`, `conf t`, `en`. A prefix two commands
+        // share is reported, not guessed at - IOS refuses it too, and says which words it could have been.
+        const spelled = resolveCommandWord(head, EXEC_WORDS);
+        if (spelled.rivals.length) {
+          return { output: ['% Ambiguous command "' + head + '": ' + spelled.rivals.join(' | ') +
+            ' (type more characters)'], actions: [] };
+        }
+        if (spelled.word) head = spelled.word;
+        if (head === 'enable') {
           this.mode = MODE_ENABLE;
-        } else if (resolveConfigureWord(head)) {
-          // Any unique abbreviation of both words opens config mode: `config t`, `conf term`, `configure term`.
-          // The second word is matched the same way, because `terminal` is the only keyword this console has
-          // after `configure` - so a prefix of it is unique by construction and a word that is not one is still
-          // refused with the line quoted, as before.
-          const spelled = resolveConfigureWord(head);
-          if (spelled.ambiguous.length) {
-            out.push('% Ambiguous command "' + head + '": ' + spelled.ambiguous.join(' | ') +
-              ' (type more characters)');
-          } else if (!tokens[1]) {
+        } else if (head === 'configure') {
+          // Both words are abbreviable: `config t`, `conf term`, `configure term`. The second word is matched by
+          // prefix for the same reason, because `terminal` is the only keyword this console has after `configure` -
+          // so a prefix of it is unique by construction and a word that is not one is still refused with the line
+          // quoted, as before.
+          if (!tokens[1]) {
             out.push('% Incomplete command: configure terminal');
           } else if ('terminal'.indexOf(String(tokens[1]).toLowerCase()) === 0) {
             this.mode = MODE_CONFIG;
@@ -340,7 +404,7 @@ class CliSession {
           out.push.apply(out, this._link(tokens.slice(1)));
         } else if (head === 'links') {
           out.push.apply(out, this._links());
-        } else if (head === 'traceroute' || head === 'tracert') {
+        } else if (head === 'traceroute') {
           out.push.apply(out, this._traceroute(tokens.slice(1)));
         } else if (head === 'exit' || head === 'logout' || head === 'quit') {
           // `exit` at `>` stays at `>` - there is no login to leave. At `#` it used to do nothing at all,
@@ -3743,15 +3807,26 @@ class CliSession {
   }
 
   _show(tokens) {
-    // `show port-channel summary` is how most of the world spells the table this console keeps under
-    // `show etherchannel summary` (#1449). Same door, so the two cannot disagree; the target's own argument rules
-    // then apply, which is why `show port-channel 1` gets the sentence about every group being listed.
-    // The spelling the reader typed is remembered so any refusal below names *their* command, not the one it was
-    // rewritten into: being answered about `show etherchannel` after typing `show port-channel` reads as a non sequitur.
+    // The view word may be shortened to what is still unique, like any command word: `sh ver`, `sh int`, `sh sp`.
+    // Two things depend on the spelling that was typed rather than on the door it reached:
+    //
+    //  * `show port-channel summary` is how most of the world spells the table this console keeps under
+    //    `show etherchannel summary` (#1449). Same door, so the two cannot disagree; the target's own argument rules
+    //    then apply, which is why `show port-channel 1` gets the sentence about every group being listed. The
+    //    spelling the reader typed is remembered so any refusal below names *their* command, not the one it was
+    //    rewritten into: being answered about `show etherchannel` after typing `show port-channel` reads as a non
+    //    sequitur.
+    //  * an ambiguous prefix is refused before any door opens, because there is no door to open.
     this._showAliasFrom = null;
-    if (String(tokens[0] || '').toLowerCase() === 'port-channel') {
-      this._showAliasFrom = 'show port-channel';
-      tokens = ['etherchannel'].concat(tokens.slice(1));
+    const typedView = String(tokens[0] || '').toLowerCase();
+    const viewWord = resolveCommandWord(typedView, SHOW_VIEW_WORDS);
+    if (viewWord.rivals.length) {
+      return ['% Ambiguous command "show ' + typedView + '": ' + viewWord.rivals.join(' | ') +
+        ' (type more characters)'];
+    }
+    if (viewWord.word && viewWord.word !== typedView) {
+      if (viewWord.word === 'etherchannel') this._showAliasFrom = 'show ' + typedView;
+      tokens = [viewWord.word].concat(tokens.slice(1));
     }
     // A `show ip <view>` spelling is answered by the door that has the view (#1447), before any other branch sees it.
     const redirect = this._showIpRedirect(tokens);
