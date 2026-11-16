@@ -59,11 +59,11 @@ A shortening two words share is refused, and the refusal names the words it coul
 
 ```
 sw1#sh i
-% Ambiguous command "show i": interfaces | ip | ipv6 (type more characters)
+% Ambiguous command "show i": ip | ipv6 | interfaces (type more characters)
 ```
 
 So `c`, `co` and `con` are still ambiguous between `configure` and `converge`, `sh v` between `version`, `vlan`
-and `vrrp`, and `sh p` between `power` and `port-channel`.
+and `vrrp`, and `sh p` between `port-channel` and `power`.
 
 The rule stops where this console has no complete list of the words that could appear. The words after `show ip`
 are not shortened - type `show ip interface brief` in full; `sh ip int br` is refused as an unknown view - and a
