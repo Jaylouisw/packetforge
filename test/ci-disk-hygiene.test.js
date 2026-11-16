@@ -14,7 +14,9 @@
 const { test } = require('node:test');
 const assert = require('node:assert');
 const fs = require('fs');
+const os = require('node:os');
 const path = require('path');
+const { spawnSync } = require('node:child_process');
 const { audit, jobBlocks, steps } = require('../scripts/check-ci-disk-hygiene');
 
 const ROOT = path.join(__dirname, '..');
@@ -220,4 +222,90 @@ test('the rebase tick measures the room it needs before it checks out', () => {
   assert.ok(workAt > guardAt, 'the work must come after the guard');
   assert.ok(gated(texts[workAt]),
     "the rebase must be gated on the same verdict: a checkout that was skipped leaves nothing to rebase");
+});
+
+// #1651: the guard decides whether to spend the bytes a checkout needs, from a number
+// `df` may be unable to print at all. A filesystem it cannot measure answers with a dash
+// or `n/a` in the Available column, and that success is not a reading of zero: the
+// guard's own rule is that unmeasurable runs the batch, because a tick that stands itself
+// down on a figure it could not read is a silent outage that reports green. Reading the
+// step as text cannot tell those two apart - `0 MB free` and `could not read the figure`
+// both look like a working guard - so the step is executed against a `df` this test owns.
+function guardScript() {
+  const yml = fs.readFileSync(path.join(ROOT, '.forgejo/workflows/auto-rebase.yml'), 'utf8');
+  const job = jobBlocks(yml).find(function (j) { return j.name === 'rebase'; });
+  assert.ok(job, 'auto-rebase.yml must still have a `rebase` job');
+  const texts = steps(job.lines).map(function (s) { return s.text; });
+  const guard = texts.find(function (t) { return /df\s+-Pk/.test(t); });
+  assert.ok(guard, 'the job must still measure free space with `df -Pk`');
+  const lines = guard.split('\n');
+  const at = lines.findIndex(function (l) { return /^\s*run:\s*\|\s*$/.test(l); });
+  assert.notStrictEqual(at, -1, 'the guard step must still have a `run: |` block');
+  const body = lines.slice(at + 1);
+  const indent = Math.min.apply(null, body.filter(function (l) { return l.trim(); })
+    .map(function (l) { return l.match(/^ */)[0].length; }));
+  return body.map(function (l) { return l.slice(indent); }).join('\n') + '\n';
+}
+
+// Run the guard with a `df` that answers exactly `rows` (or fails, when `exitStatus` is
+// set), and report its verdict. Null when there is no shell to run it in: the step only
+// ever runs on a Linux runner, so a host without `bash` skips rather than fails.
+function runGuard(rows, exitStatus) {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'pf-guard-'));
+  function posix(p) { return p.split(String.fromCharCode(92)).join('/'); }
+  try {
+    const bin = path.join(dir, 'bin');
+    fs.mkdirSync(bin);
+    const shim = exitStatus
+      ? '#!/bin/sh\nexit ' + exitStatus + '\n'
+      : '#!/bin/sh\ncat "$(dirname "$0")/rows"\n';
+    fs.writeFileSync(path.join(bin, 'df'), shim);
+    fs.chmodSync(path.join(bin, 'df'), 0o755);
+    if (rows) fs.writeFileSync(path.join(bin, 'rows'), rows.join('\n') + '\n');
+    const script = path.join(dir, 'guard.sh');
+    fs.writeFileSync(script, guardScript());
+    const outFile = path.join(dir, 'verdict');
+    const run = spawnSync('bash', [posix(script)], {
+      encoding: 'utf8',
+      timeout: 30000,
+      env: Object.assign({}, process.env, {
+        GITHUB_WORKSPACE: posix(dir),
+        GITHUB_OUTPUT: posix(outFile),
+        PATH: posix(bin) + ':' + (process.env.PATH || '')
+      })
+    });
+    if (run.error) return null;
+    const verdict = fs.existsSync(outFile) ? fs.readFileSync(outFile, 'utf8').trim() : '';
+    return { status: run.status, stdout: run.stdout || '', stderr: run.stderr || '', verdict: verdict };
+  } finally {
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
+}
+
+const DF_HEADER = 'Filesystem 1024-blocks Used Available Capacity Mounted on';
+
+test('a `df` that cannot say how much room there is must not switch the rebase off', function (t) {
+  const run = runGuard([DF_HEADER, '/dev/sda1 1000 999 n/a 99% /']);
+  if (!run) return t.skip('no shell to run the guard in');
+  assert.strictEqual(run.status, 0, 'the guard must end green whatever it decides, got stderr: ' + run.stderr);
+  assert.match(run.verdict, /room=true/,
+    'an unreadable figure is not a full disk: the batch must run, and the guard answered ' +
+    JSON.stringify(run.verdict) + ' with log ' + JSON.stringify(run.stdout));
+  assert.doesNotMatch(run.stdout, /\b0 MB free\b/,
+    'an unmeasured figure must not be reported as a reading of zero: ' + JSON.stringify(run.stdout));
+});
+
+test('a disk with no room still stands the tick down, and says so', function (t) {
+  const run = runGuard([DF_HEADER, '/dev/sda1 1000 999 1 99% /']);
+  if (!run) return t.skip('no shell to run the guard in');
+  assert.strictEqual(run.status, 0, 'standing down is green, not a failure');
+  assert.match(run.verdict, /room=false/, '1 KB free is less than a checkout needs, so the batch must be skipped');
+  assert.match(run.stdout, /Not enough disk/, 'the log must carry the reason and the issue it is standing down for');
+});
+
+test('a `df` that fails outright still runs the batch', function (t) {
+  const run = runGuard(null, 1);
+  if (!run) return t.skip('no shell to run the guard in');
+  assert.match(run.verdict, /room=true/,
+    'a command that answered nothing must not switch the workflow off silently, got ' + JSON.stringify(run.verdict));
 });

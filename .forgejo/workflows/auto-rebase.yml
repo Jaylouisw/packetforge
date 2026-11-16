@@ -105,14 +105,27 @@ jobs:
           [ -d "$dir" ] || dir=.
 
           need=${MIN_FREE_MB:-512}
-          free=$(df -Pk "$dir" 2>/dev/null | awk 'NR==2 {print int($4/1024)}') || free=""
+          # Read the column, do not parse it. `int($4/1024)` turned "I cannot tell you" - the
+          # dash or `n/a` that `df` prints in the Available column of a filesystem it cannot
+          # measure - into the number zero, which is indistinguishable from a disk with nothing
+          # left. The tick then stood down, printed "0 MB free", and switched the rebase off for
+          # as long as `df` kept answering that way, while its own rule says the opposite. So the
+          # field is kept exactly as `df` printed it, and arithmetic is only applied to a value
+          # that has already been proved a number.
+          free_kb=$(df -Pk "$dir" 2>/dev/null | awk 'NR==2 {print $4}') || free_kb=""
+          free=""
+          case "${free_kb:-}" in
+            ''|*[!0-9]*) ;;
+            *) free=$(( free_kb / 1024 )) ;;
+          esac
 
-          # Unmeasurable is not the same as full. A `df` that answers nothing must not be able
-          # to switch this workflow off silently, so the default is to run the batch.
+          # Unmeasurable is not the same as full. A `df` that answers nothing - or answers
+          # something that is not a number - must not be able to switch this workflow off
+          # silently, so the default is to run the batch.
           room=true
           case "${free:-}" in
             ''|*[!0-9]*)
-              echo "could not measure free space in $dir; running the batch anyway"
+              echo "could not read free space in $dir; running the batch anyway"
               ;;
             *)
               echo "${free} MB free in $dir (a checkout of this repository needs about ${need} MB)"
