@@ -3,7 +3,8 @@
 const net = require('./net');
 const { Device, Interface, CAPABILITIES } = require('./device');
 const { Link } = require('./link');
-const { Topology, expandInterfaces, isPosition, positionProblem, WORLD_LIMIT } = require('./topology');
+const { Topology, expandInterfaces, isPosition, positionProblem, WORLD_LIMIT,
+  DOC_FORMAT, DOC_VERSION, documentStampProblem } = require('./topology');
 const { Simulator } = require('./simulator');
 const { CliSession, runCommands } = require('./cli');
 const media = require('./media');
@@ -55,6 +56,10 @@ module.exports = {
   isPosition,
   positionProblem,
   WORLD_LIMIT,
+  // The board document's stamp, exported so the server writes and reads the same pair the engine does (#1520).
+  DOC_FORMAT,
+  DOC_VERSION,
+  documentStampProblem,
   Simulator,
   CliSession,
   runCommands,

@@ -103,6 +103,16 @@
 
 ### Fixed
 
+- **The board document's `format`/`version` stamp is read, not just written** (#1520). `serialize()`
+  stamped every board `format: 'packetforge-topology', version: 1` and `server/index.js` restated the
+  same two lines by hand into the file envelope, and **nothing ever read either**: `Topology.fromJSON()`
+  turned `{format:'lab', version:99}` into a board without a word. A guard that looks like a guard and
+  is none is worse than no guard, because the next reader concludes the version is checked. The pair is
+  now one exported constant, `documentStampProblem()` reads it, and every door - the engine loader, the
+  saved-file reader, `POST /load` - asks that one function and answers in words that name both what the
+  document claimed and what this build reads. Absent still loads, because every board written before
+  the check existed carries no stamp. `test/document-stamp.test.js` pins all of it, including the HTTP
+  answer.
 - **`wired-port-has-media` now asserts that every cabled port has a medium**, rather than guarding
   only the ones that already had one. 84 coax and 24 MCX ports had none, so the picker silently
   omitted them and no check noticed.

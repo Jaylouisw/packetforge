@@ -8,7 +8,8 @@ const zlib = require('zlib');
 const crypto = require('crypto');
 const { URL } = require('url');
 
-const { Topology, Simulator, CliSession, flow, isPosition, positionProblem, WORLD_LIMIT } = require('../engine');
+const { Topology, Simulator, CliSession, flow, isPosition, positionProblem, WORLD_LIMIT,
+  DOC_FORMAT, DOC_VERSION, documentStampProblem } = require('../engine');
 const { loadCatalog, groupByCategory } = require('../devices/registry');
 const { validateTopology } = require('../engine/validation');
 const media = require('../engine/media');
@@ -72,8 +73,10 @@ function saveTopologyNow(id) {
   try {
     fs.mkdirSync(TOPO_DIR, { recursive: true });
     const body = {
-      format: 'packetforge-topology',
-      version: 1,
+      // The same pair the engine stamps into `topology` above, taken from the engine rather than copied, so a
+      // format bump cannot reach one document and miss the other (#1520).
+      format: DOC_FORMAT,
+      version: DOC_VERSION,
       id: id,
       savedAt: new Date().toISOString(),
       topology: t.serialize()
@@ -146,10 +149,14 @@ function loadSavedTopologies() {
 
 // What a saved file must look like before it is allowed to become a board.
 function savedDocProblem(raw, body) {
-  if (body && body.format !== undefined && body.format !== 'packetforge-topology') {
-    return 'expected format "packetforge-topology", got ' + JSON.stringify(body.format);
-  }
+  // The envelope is a board file written by a build; the inner document is the board and carries its own stamp.
+  // Both are read, and both answer through the engine so a file this server wrote tomorrow is still readable by
+  // the rules in one place (#1520).
+  const envelopeProblem = documentStampProblem(body);
+  if (envelopeProblem) return envelopeProblem;
   if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return 'not a topology document';
+  const innerProblem = documentStampProblem(raw);
+  if (innerProblem) return innerProblem;
   // A save always has at least one of these keys; a board is allowed to be empty, but the keys have to be there,
   // because a file without them is a mistake rather than an empty lab.
   if (raw.devices === undefined && raw.links === undefined) {
@@ -277,9 +284,10 @@ function endShape(end) {
 function documentShapeProblem(doc) {
   if (doc === undefined || doc === null) return 'expected a topology document, got nothing';
   if (typeof doc !== 'object' || Array.isArray(doc)) return 'expected a topology document (an object)';
-  if (doc.format !== undefined && doc.format !== 'packetforge-topology') {
-    return 'expected format "packetforge-topology", got ' + JSON.stringify(doc.format);
-  }
+  // Format and version, read the way the engine reads them, so `/load` accepts exactly what `fromJSON()` accepts
+  // and refuses a document from a newer build in the same words (#1520).
+  const stampProblem = documentStampProblem(doc);
+  if (stampProblem) return stampProblem;
   if (doc.devices !== undefined && !Array.isArray(doc.devices)) return 'devices must be an array';
   if (doc.links !== undefined && !Array.isArray(doc.links)) return 'links must be an array';
   // A document with neither key is not a topology, it is a mistake - and loading it empties the board.

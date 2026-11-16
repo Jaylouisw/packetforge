@@ -38,6 +38,42 @@ function expandInterfaces(spec) {
 // report claiming the port did not exist, when the port did and only the spelling differed.
 const LINK_STATES = ['up', 'down', 'blocked'];
 
+// The stamp every board document carries: what it is, and which generation of the file format it was written in.
+//
+// Both were written - `serialize()` here and the file envelope in `server/index.js` - and neither was ever read.
+// `Topology.fromJSON()` built a board out of `{format:'lab', version:99}` without a word, so a file that said it
+// was something else, or something this build has never heard of, loaded as an empty lab. The stamp was two
+// hardcoded literals in two places that could drift, guarding nothing (#1520).
+//
+// There is one pair of constants now, and one function that reads a document's stamp. Every door - this loader,
+// the saved-file reader, the `/load` endpoint - asks the same function, so a version bump cannot be half-done.
+const DOC_FORMAT = 'packetforge-topology';
+const DOC_VERSION = 1;
+
+// What is wrong with a document's format/version stamp, or '' when it is readable.
+//
+// Absent is readable on purpose: every board written before this check existed has no `format` and no `version`,
+// and a lab saved yesterday has to open today. Absent means "before there was a stamp", not "unknown format".
+function documentStampProblem(doc) {
+  if (!doc || typeof doc !== 'object' || Array.isArray(doc)) return '';  // not this function's argument to judge
+  if (doc.format !== undefined && doc.format !== DOC_FORMAT) {
+    return 'expected format "' + DOC_FORMAT + '", got ' + JSON.stringify(doc.format);
+  }
+  if (doc.version !== undefined) {
+    const v = doc.version;
+    // A version is a generation number. A string, a fraction or zero is not an older file, it is a mistake, and
+    // treating it as "old" would make the check answer `fine` to documents it never understood.
+    if (typeof v !== 'number' || !Number.isInteger(v) || v < 1) {
+      return 'version must be a whole number of 1 or more, got ' + JSON.stringify(v);
+    }
+    if (v > DOC_VERSION) {
+      return 'this document was written by a newer PacketForge (version ' + v + '); this build reads version ' +
+        DOC_VERSION + ' and older';
+    }
+  }
+  return '';
+}
+
 function cableProblem(link, topo) {
   if (!link || typeof link !== 'object') return { code: 'E_LINK_MALFORMED', message: 'not a cable' };
   // Which cable is speaking. The id is what a person can find in the document.
@@ -732,7 +768,7 @@ addDevice(spec, id) {
     // The id sequence is part of the state. Omitting it meant a reloaded topology
     // restarted at d1 and its next addDevice() overwrote an existing device (#13).
     const out = {
-      format: 'packetforge-topology', version: 1,
+      format: DOC_FORMAT, version: DOC_VERSION,
       seq: this._seq,
       devices: devices, links: links,
       // A copy, for the same reason link endpoints are copies (#1323): the document that goes out is what the API,
@@ -767,6 +803,11 @@ addDevice(spec, id) {
   }
 
   static fromJSON(data) {
+    // Read what we write. A document that states it is a different format, or a version this build has never
+    // heard of, is refused here - at the one door every caller goes through - rather than being absorbed into a
+    // board that looks like it loaded. A document that states nothing still loads: that is an older file (#1520).
+    const stampProblem = documentStampProblem(data);
+    if (stampProblem) throw new Error(stampProblem);
     const topo = new Topology();
     // What a document said that could not be restored, one entry per cable. A board that loses a cable used to do
     // it in silence: the link was skipped by a bare `catch`, so an imported lab came back one cable short and the
@@ -993,4 +1034,7 @@ function restoreAddress(iface) {
   return null;
 }
 
-module.exports = { Topology, expandInterfaces, isPosition, positionProblem, WORLD_LIMIT };
+module.exports = {
+  Topology, expandInterfaces, isPosition, positionProblem, WORLD_LIMIT,
+  DOC_FORMAT, DOC_VERSION, documentStampProblem
+};

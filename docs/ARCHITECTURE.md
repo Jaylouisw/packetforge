@@ -331,6 +331,16 @@ hand-edited or corrupted file produced a cable that `isUp()` said was not up and
 A board written by an older version — without any of the newer keys — still loads, and its hardware is derived the
 way it always was.
 
+That tolerance applies to keys a document is **missing**, not to the `format`/`version` stamp a document states.
+Every board carries `format: "packetforge-topology", version: 1`, written from one pair of constants
+(`DOC_FORMAT`, `DOC_VERSION` in `engine/topology.js`) by both the document and the file envelope that wraps it.
+`documentStampProblem()` reads the stamp and is asked by every door — `Topology.fromJSON()`, the saved-file reader,
+`POST /load` — so a document that says it is another format, or a version newer than this build reads, is refused
+with the format or version it claimed and the one that was expected. Until #1520 the stamp was written in two
+hand-copied places and read by nothing, which meant a document claiming version 99 loaded silently: a guard that
+looks like a guard and is none. A document with no stamp at all still loads, because that is what every file
+written before the check looks like.
+
 ### The live-sync socket
 
 `server/ws.js` is a hand-written RFC 6455 server (about 140 lines, no dependencies) used for live multi-client
@@ -395,8 +405,9 @@ Two rules, both learned the hard way:
 * **a rejected request changes nothing.** `POST /load` with `{"format":"x"}` used to replace the live board with an
   empty one and answer `ok: true`: silent data loss from a request that should never have touched anything. The
   document's envelope is now checked first (`format`, `devices`, `links`), and a document with neither `devices`
-  nor `links` is refused rather than emptying the board. `Topology.fromJSON()` stays tolerant — it reads old files
-  — but tolerance belongs to reading, not to replacing.
+  nor `links` is refused rather than emptying the board. `Topology.fromJSON()` stays tolerant of what a document
+  leaves out — it reads old files — but tolerance belongs to reading, not to replacing, and it does not extend to a
+  document that states a `format` or `version` it cannot read.
 
 ### A mask the console refuses is refused by every door
 
