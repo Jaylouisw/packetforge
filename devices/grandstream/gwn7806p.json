@@ -1,0 +1,108 @@
+{
+  "vendor": "grandstream",
+  "model": "GWN7806P",
+  "label": "Grandstream GWN7806P",
+  "category": "switch",
+  "description": "Grandstream GWN7806P - 54-port Layer 2+ managed PoE switch: 48x 10/100/1000BASE-T RJ45 (48 PoE+) and 6x 10G SFP+ uplinks, 802.3af/at, 30 W a port, 400 W total PoE budget from a 470 W supply. 216 Gbps switching capacity, 160.704 Mpps, three fans, 1U 440 mm rack case.",
+  "capabilities": [
+    "l2-forward",
+    "cli",
+    "http-server",
+    "vlan",
+    "lacp",
+    "stp",
+    "dhcp-client",
+    "dhcp-server",
+    "poe-pse",
+    "802.3af",
+    "802.3at"
+  ],
+  "icon": "switch",
+  "color": "#7c3aed",
+  "portTemplate": {
+    "prefix": "port",
+    "start": 1,
+    "count": 48,
+    "type": "ethernet",
+    "speed": "1G",
+    "connector": "rj45",
+    "speedCaps": [
+      10,
+      100,
+      1000
+    ],
+    "poeOut": 30
+  },
+  "interfaces": [
+    {
+      "name": "sfp1",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        10000
+      ]
+    },
+    {
+      "name": "sfp2",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        10000
+      ]
+    },
+    {
+      "name": "sfp3",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        10000
+      ]
+    },
+    {
+      "name": "sfp4",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        10000
+      ]
+    },
+    {
+      "name": "sfp5",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        10000
+      ]
+    },
+    {
+      "name": "sfp6",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        10000
+      ]
+    },
+    {
+      "name": "console",
+      "type": "console"
+    }
+  ],
+  "poe": {
+    "budgetW": 400,
+    "sourceUrl": "https://www.grandstream.com/hubfs/Product_Documentation/GWN7806(P)/Datasheet_GWN7806_English.pdf",
+    "note": "Datasheet Max Total PoE Output Power 400 W from a 470 W integrated supply, Max Output Power per PoE Port 30 W, standards IEEE 802.3af/at. 400 W is the ceiling, not 48 ports x 30 W."
+  },
+  "fabric": {
+    "capacityMbps": 216000,
+    "kind": "switching capacity",
+    "note": "Datasheet Switching Capability 216 Gbps, Total non-blocking throughput 108 Gbps, forwarding rate 160.704 Mpps."
+  },
+  "sourceUrl": "https://www.grandstream.com/hubfs/Product_Documentation/GWN7806(P)/Datasheet_GWN7806_English.pdf",
+  "notes": "Datasheet: 48 PoE ports at 802.3af/at with 30 W maximum a port (no 802.3bt on this series), 6x 10G SFP+, 1 console, 470 W supply, 400 W PoE budget, 3 fans, 5.1 kg. Static routing 32 IPv4 / 32 IPv6 plus DHCP server and relay. Console 115200 8-N-1 into the CLI. 400 W is the ceiling, so about 13 ports can draw a full 30 W each before the budget binds."
+}

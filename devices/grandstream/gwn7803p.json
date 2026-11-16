@@ -1,0 +1,89 @@
+{
+  "vendor": "grandstream",
+  "model": "GWN7803P",
+  "label": "Grandstream GWN7803P",
+  "category": "switch",
+  "description": "Grandstream GWN7803P - 28-port Layer 2+ managed PoE switch: 24x 10/100/1000BASE-T RJ45 (24 PoE+) and 4x 1G SFP uplinks, 802.3af/at, 30 W a port, 370 W total PoE budget from a 400 W supply. 56 Gbps switching capacity, 41.66 Mpps, two-fan 1U 440 mm case.",
+  "capabilities": [
+    "l2-forward",
+    "cli",
+    "http-server",
+    "vlan",
+    "lacp",
+    "stp",
+    "dhcp-client",
+    "poe-pse",
+    "802.3af",
+    "802.3at"
+  ],
+  "icon": "switch",
+  "color": "#7c3aed",
+  "portTemplate": {
+    "prefix": "port",
+    "start": 1,
+    "count": 24,
+    "type": "ethernet",
+    "speed": "1G",
+    "connector": "rj45",
+    "speedCaps": [
+      10,
+      100,
+      1000
+    ],
+    "poeOut": 30
+  },
+  "interfaces": [
+    {
+      "name": "sfp1",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
+    },
+    {
+      "name": "sfp2",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
+    },
+    {
+      "name": "sfp3",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
+    },
+    {
+      "name": "sfp4",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
+    },
+    {
+      "name": "console",
+      "type": "console"
+    }
+  ],
+  "poe": {
+    "budgetW": 370,
+    "sourceUrl": "https://www.grandstream.com/hubfs/Product_Documentation/GWN7800%20Series/Datasheet_GWN7801(P)_GWN7802(P)_GWN7803(P)_English.pdf",
+    "note": "Datasheet Max Total PoE Output Power 370 W from a 400 W integrated supply, Max Output Power per PoE Port 30 W, standards IEEE 802.3af/at. 370 W is the ceiling, not 24 ports x 30 W."
+  },
+  "fabric": {
+    "capacityMbps": 56000,
+    "kind": "switching capacity",
+    "note": "Datasheet Switching Capability 56 Gbps, Total non-blocking throughput 28 Gbps, forwarding rate 41.66 Mpps."
+  },
+  "sourceUrl": "https://www.grandstream.com/hubfs/Product_Documentation/GWN7800%20Series/Datasheet_GWN7801(P)_GWN7802(P)_GWN7803(P)_English.pdf",
+  "notes": "Datasheet: 24 PoE ports at 802.3af/at, 4x 1G SFP, 1 console, 400 W supply, 370 W PoE budget, 2 fans, 3.3 kg. Console 115200 8-N-1 into the CLI. Discrepancy: the GWN780x technical-specification page (https://documentation.grandstream.com/knowledge-base/gwn780x-series-technical-specifications/) and the GWN7800 series presentation both state 360 W maximum total PoE output for the GWN7803P, while the model datasheet states 370 W from a 400 W supply; the datasheet figure is what is modelled."
+}

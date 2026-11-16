@@ -1,0 +1,99 @@
+{
+  "vendor": "grandstream",
+  "model": "GWN7806",
+  "label": "Grandstream GWN7806",
+  "category": "switch",
+  "description": "Grandstream GWN7806 - 54-port Layer 2+ managed switch: 48x 10/100/1000BASE-T RJ45 and 6x 10G SFP+ uplinks, no PoE. 216 Gbps switching capacity, 108 Gbps non-blocking, 160.704 Mpps, 16 Mb packet buffer, 32 IPv4 / 32 IPv6 static routes, stackable to 4 units, three fans, 1U 440 mm rack case.",
+  "capabilities": [
+    "l2-forward",
+    "cli",
+    "http-server",
+    "vlan",
+    "lacp",
+    "stp",
+    "dhcp-client",
+    "dhcp-server"
+  ],
+  "icon": "switch",
+  "color": "#7c3aed",
+  "portTemplate": {
+    "prefix": "port",
+    "start": 1,
+    "count": 48,
+    "type": "ethernet",
+    "speed": "1G",
+    "connector": "rj45",
+    "speedCaps": [
+      10,
+      100,
+      1000
+    ]
+  },
+  "interfaces": [
+    {
+      "name": "sfp1",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        10000
+      ]
+    },
+    {
+      "name": "sfp2",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        10000
+      ]
+    },
+    {
+      "name": "sfp3",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        10000
+      ]
+    },
+    {
+      "name": "sfp4",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        10000
+      ]
+    },
+    {
+      "name": "sfp5",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        10000
+      ]
+    },
+    {
+      "name": "sfp6",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        10000
+      ]
+    },
+    {
+      "name": "console",
+      "type": "console"
+    }
+  ],
+  "fabric": {
+    "capacityMbps": 216000,
+    "kind": "switching capacity",
+    "note": "Datasheet Switching Capability 216 Gbps, Total non-blocking throughput 108 Gbps, forwarding rate 160.704 Mpps."
+  },
+  "sourceUrl": "https://www.grandstream.com/hubfs/Product_Documentation/GWN7806(P)/Datasheet_GWN7806_English.pdf",
+  "notes": "Datasheet: 48 Gigabit Ethernet ports, 6x 10G SFP+ (DAC up to 5 m; supported modules SM-10G 6, MM-10G 6, RJ45-10G 3, inserted into alternating slots), 1 console, integrated power supply 60 W, 3 fans, 440 x 301 x 44 mm, 4.0 kg, 32K MAC addresses, 4K VLANs, 32 VLAN virtual interfaces with 9216 MTU, 1K ARP/NDP, 32 link aggregation groups, 256 ACLs with 4K ACEs, jumbo frames 10240 bytes. Routing is 32 IPv4 / 32 IPv6 static entries plus DHCP server and relay, so dhcp-server is declared while the category stays switch: no dynamic routing protocol is listed. Stacking up to 4 devices with dual-boot hardware (two FLASH chips) and dual system-file redundancy. Console 115200 8-N-1 into the CLI. Discrepancies: the technical-specification page (https://documentation.grandstream.com/knowledge-base/gwn780x-series-technical-specifications/) gives 160.702 Mpps (datasheet 160.704 Mpps) and 27 link aggregation groups (datasheet 32); the GWN7800 series eBrochure calls the six uplinks Gigabit SFP while the model datasheet and product page call them 10G SFP+, and the datasheet wins. Firmware (https://documentation.grandstream.com/knowledge-base/gwn-management-platforms-user-guide/): minimum 1.0.1.14 for GWN7806, recommended 1.0.5.52."
+}

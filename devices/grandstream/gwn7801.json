@@ -1,0 +1,62 @@
+{
+  "vendor": "grandstream",
+  "model": "GWN7801",
+  "label": "Grandstream GWN7801",
+  "category": "switch",
+  "description": "Grandstream GWN7801 - 10-port Layer 2+ managed switch: 8x 10/100/1000BASE-T RJ45 and 2x 1G SFP uplinks, no PoE. 20 Gbps switching capacity, 10 Gbps non-blocking, 14.88 Mpps, 4.1 Mb packet buffer, fanless 300 mm desktop case, managed by web UI, CLI and GDMS Networking / GWN Manager.",
+  "capabilities": [
+    "l2-forward",
+    "cli",
+    "http-server",
+    "vlan",
+    "lacp",
+    "stp",
+    "dhcp-client"
+  ],
+  "icon": "switch",
+  "color": "#7c3aed",
+  "portTemplate": {
+    "prefix": "port",
+    "start": 1,
+    "count": 8,
+    "type": "ethernet",
+    "speed": "1G",
+    "connector": "rj45",
+    "speedCaps": [
+      10,
+      100,
+      1000
+    ]
+  },
+  "interfaces": [
+    {
+      "name": "sfp1",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
+    },
+    {
+      "name": "sfp2",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
+    },
+    {
+      "name": "console",
+      "type": "console"
+    }
+  ],
+  "fabric": {
+    "capacityMbps": 20000,
+    "kind": "switching capacity",
+    "note": "Datasheet Switching Capability 20 Gbps, Total non-blocking throughput 10 Gbps, forwarding rate 14.88 Mpps."
+  },
+  "sourceUrl": "https://www.grandstream.com/hubfs/Product_Documentation/GWN7800%20Series/Datasheet_GWN7801(P)_GWN7802(P)_GWN7803(P)_English.pdf",
+  "notes": "Datasheet table: 8 Gigabit Ethernet ports, 2x 1G SFP ports, 1 console, integrated power supply 30 W, 1x reset pinhole, no PoE ports on this SKU. 300 x 175 x 44 mm, 1.8 kg, fanless, desktop/wall/rack mount. RJ45 console at 115200 8-N-1 drops into the CLI (https://documentation.grandstream.com/knowledge-base/grandstream-network-switches-faq/), so cli is declared. Management is web UI, CLI and GDMS Networking / GWN Manager; the datasheet lists HTTPS, SSH and Telnet, so http-server and cli are the modelled capabilities. Layer 2+ only: no static routing is listed for the GWN7801/GWN7802/GWN7803 SKUs, so l3-forward is not declared. Firmware (https://documentation.grandstream.com/knowledge-base/gwn-management-platforms-user-guide/): minimum 1.0.3.19 (1.0.5.52 with GWN Manager), recommended 1.0.5.52."
+}

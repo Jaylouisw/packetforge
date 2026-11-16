@@ -1,0 +1,80 @@
+{
+  "vendor": "grandstream",
+  "model": "GWN7803",
+  "label": "Grandstream GWN7803",
+  "category": "switch",
+  "description": "Grandstream GWN7803 - 28-port Layer 2+ managed switch: 24x 10/100/1000BASE-T RJ45 and 4x 1G SFP uplinks, no PoE. 56 Gbps switching capacity, 28 Gbps non-blocking, 41.66 Mpps, 4.1 Mb packet buffer, fanless 1U 440 mm rack/desktop case.",
+  "capabilities": [
+    "l2-forward",
+    "cli",
+    "http-server",
+    "vlan",
+    "lacp",
+    "stp",
+    "dhcp-client"
+  ],
+  "icon": "switch",
+  "color": "#7c3aed",
+  "portTemplate": {
+    "prefix": "port",
+    "start": 1,
+    "count": 24,
+    "type": "ethernet",
+    "speed": "1G",
+    "connector": "rj45",
+    "speedCaps": [
+      10,
+      100,
+      1000
+    ]
+  },
+  "interfaces": [
+    {
+      "name": "sfp1",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
+    },
+    {
+      "name": "sfp2",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
+    },
+    {
+      "name": "sfp3",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
+    },
+    {
+      "name": "sfp4",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
+    },
+    {
+      "name": "console",
+      "type": "console"
+    }
+  ],
+  "fabric": {
+    "capacityMbps": 56000,
+    "kind": "switching capacity",
+    "note": "Datasheet Switching Capability 56 Gbps, Total non-blocking throughput 28 Gbps, forwarding rate 41.66 Mpps."
+  },
+  "sourceUrl": "https://www.grandstream.com/hubfs/Product_Documentation/GWN7800%20Series/Datasheet_GWN7801(P)_GWN7802(P)_GWN7803(P)_English.pdf",
+  "notes": "Datasheet: 24 Gigabit Ethernet ports, 4x 1G SFP, 1 console, integrated power supply 30 W, fanless, 2.7 kg. Console 115200 8-N-1 into the CLI. Layer 2+ only, no static routing on this SKU."
+}
