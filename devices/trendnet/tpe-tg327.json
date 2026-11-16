@@ -1,0 +1,113 @@
+{
+  "vendor": "trendnet",
+  "model": "TPE-TG327",
+  "label": "TRENDnet TPE-TG327",
+  "category": "switch",
+  "description": "TRENDnet TPE-TG327 (v1) - seven-port multi-gig unmanaged PoE+ switch: 5x 10/100/1000 PoE+ RJ45 and 2x 2.5GBASE-T PoE+ RJ45 at up to 30 W each against a 70 W budget, 20 Gbps switching capacity, fanless desktop or wall-mount housing.",
+  "capabilities": [
+    "l2-forward",
+    "poe-pse",
+    "802.3af",
+    "802.3at"
+  ],
+  "interfaces": [
+    {
+      "name": "port1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "port2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "port3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "port4",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "port5",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "port6",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "2.5G",
+      "speedCaps": [
+        10,
+        100,
+        1000,
+        2500
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "port7",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "2.5G",
+      "speedCaps": [
+        10,
+        100,
+        1000,
+        2500
+      ],
+      "poeOut": 30
+    }
+  ],
+  "poe": {
+    "budgetW": 70,
+    "sourceUrl": "https://www.trendnet.com/products/affordable-2-5g-poe-switch/7-port-multi-gig-poe-switch-TPE-TG327",
+    "note": "PoE standard 802.3af/at, Mode A (pins 1, 2, 3 and 6 carry power), on all seven ports, up to 30 W per port, 70 W total budget with over-current and short-circuit protection. 7 x 15.4 W is 107.8 W, so 802.3af on every port does not fit either: the budget covers four 15.4 W devices, or two 30 W devices plus a little. The vendor describes it as supplying up to seven PoE+ devices, which means seven low-draw ones. The two 2.5G ports carry the same PoE capability as the five gigabit ones."
+  },
+  "fabric": {
+    "capacityMbps": 20000,
+    "kind": "switching fabric",
+    "note": "Vendor switch capacity of 20 Gbps: five gigabit ports plus two 2.5GBASE-T ports at full duplex (10 + 10 Gbps), matching the 14.88 Mpps forwarding rate."
+  },
+  "sourceUrl": "https://www.trendnet.com/products/affordable-2-5g-poe-switch/7-port-multi-gig-poe-switch-TPE-TG327",
+  "notes": "TRENDnet TPE-TG327 v1 figures from the product page (https://www.trendnet.com/products/affordable-2-5g-poe-switch/7-port-multi-gig-poe-switch-TPE-TG327); the port split is stated on the support page (https://www.trendnet.com/support/support-detail.asp?prod=200_TPE-TG327): the 2.5Gbps ports are ports 6 and 7, while ports 1-5 are rated at 1.0 Gbps. Hardware: 5x gigabit PoE+ and 2x 2.5GBASE-T PoE+ (10/100/1000/2500 Mbps), 20 Gbps switch capacity, 384 KB data RAM buffer, 2K MAC entries, 14.88 Mpps forwarding, 15 KB jumbo frames, IEEE 802.3x/802.3z/802.3ab/802.3af/802.3at/802.3bz, fanless metal case 286 x 102 x 27 mm, 0.9 kg, 55 V 1.67 A power brick, 8 W maximum consumption with no PD, MTBF 830,917 hours, 0-50 C. Unmanaged: no CLI, no HTTP server, no VLANs. The 2.5G ports are the reason it is here - it is the only TRENDnet PoE switch in this batch that mixes line rates on one box."
+}

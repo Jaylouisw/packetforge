@@ -1,0 +1,186 @@
+[
+  {
+    "vendor": "trendnet",
+    "model": "TPE-TG50g",
+    "label": "TRENDnet TPE-TG50g",
+    "category": "switch",
+    "description": "TRENDnet TPE-TG50g (v4) - five-port unmanaged gigabit desktop switch with PoE+ on four ports: 4x 10/100/1000 PoE/PoE+ RJ45 at up to 30 W each against a 31 W total budget, 1x plain gigabit RJ45 for the uplink, 10 Gbps switching capacity, fanless, 54 V DC 0.7 A external adapter.",
+    "capabilities": ["l2-forward", "poe-pse", "802.3af", "802.3at"],
+    "interfaces": [
+      { "name": "port1", "type": "ethernet", "connector": "rj45", "speed": "1G", "speedCaps": [10, 100, 1000], "poeOut": 30 },
+      { "name": "port2", "type": "ethernet", "connector": "rj45", "speed": "1G", "speedCaps": [10, 100, 1000], "poeOut": 30 },
+      { "name": "port3", "type": "ethernet", "connector": "rj45", "speed": "1G", "speedCaps": [10, 100, 1000], "poeOut": 30 },
+      { "name": "port4", "type": "ethernet", "connector": "rj45", "speed": "1G", "speedCaps": [10, 100, 1000], "poeOut": 30 },
+      { "name": "port5", "type": "ethernet", "connector": "rj45", "speed": "1G", "speedCaps": [10, 100, 1000] }
+    ],
+    "poe": {
+      "budgetW": 31,
+      "sourceUrl": "https://www.trendnet.com/products/PoE/5-Port-Gigabit-PoEplus-Switch-TPE-TG50g-v4",
+      "note": "PoE standard 802.3af/at, Mode A (pins 1, 2, 3 and 6 carry power), ports 1-4 only, up to 30 W per port, 31 W total budget. The budget binds long before the port count: one 30 W 802.3at device fills it, two 15.4 W 802.3af devices fit (30.8 W), and four powered devices only fit at Class 2 (7 W) draw each. Port 5 is data only, so a fifth powered device on this box is a cabling error the spec should refuse. Full PoE load is stated at 33.4 W input, 3.1 W with no PoE load."
+    },
+    "fabric": {
+      "capacityMbps": 10000,
+      "kind": "switching fabric",
+      "note": "Vendor switch fabric of 10 Gbps for five gigabit ports (5 x 2 Gbps full duplex), matching the 7.44 Mpps forwarding rate."
+    },
+    "sourceUrl": "https://www.trendnet.com/products/PoE/5-Port-Gigabit-PoEplus-Switch-TPE-TG50g-v4",
+    "notes": "TRENDnet TPE-TG50g v4 figures from the product page (https://www.trendnet.com/products/PoE/5-Port-Gigabit-PoEplus-Switch-TPE-TG50g-v4). Hardware: 4x 10/100/1000 PoE+ ports and 1x 10/100/1000 port, all Auto-MDIX, 128 KB packet buffer, 2K MAC entries, 7.44 Mpps forwarding, 9 KB jumbo frames, IEEE 802.3/802.3u/802.3x/802.3ab/802.3af/802.3at/802.3az, fanless metal case 105 x 98 x 28 mm, 276 g, external 54 V DC 0.7 A adapter, 3.1 W no-load and 33.4 W at full PoE load, 0-40 C. Unmanaged: no CLI, no HTTP server, no VLANs. This is the smallest member of the family and its 31 W budget cannot power four PoE+ devices at once."
+  },
+  {
+    "vendor": "trendnet",
+    "model": "TPE-TG160g",
+    "label": "TRENDnet TPE-TG160g",
+    "category": "switch",
+    "description": "TRENDnet TPE-TG160g (v4) - sixteen-port unmanaged gigabit PoE+ rack switch: 16x 10/100/1000 PoE+ RJ45 at up to 30 W each against a 246 W budget, 32 Gbps switching capacity, DIP switch for VLAN port isolation, storm control and 250 m extend mode on ports 1-8, smart fans, internal PSU, 1U 19-inch housing.",
+    "capabilities": ["l2-forward", "poe-pse", "802.3af", "802.3at"],
+    "interfaces": [
+      { "name": "port1", "type": "ethernet", "connector": "rj45", "speed": "1G", "speedCaps": [10, 100, 1000], "poeOut": 30 },
+      { "name": "port2", "type": "ethernet", "connector": "rj45", "speed": "1G", "speedCaps": [10, 100, 1000], "poeOut": 30 },
+      { "name": "port3", "type": "ethernet", "connector": "rj45", "speed": "1G", "speedCaps": [10, 100, 1000], "poeOut": 30 },
+      { "name": "port4", "type": "ethernet", "connector": "rj45", "speed": "1G", "speedCaps": [10, 100, 1000], "poeOut": 30 },
+      { "name": "port5", "type": "ethernet", "connector": "rj45", "speed": "1G", "speedCaps": [10, 100, 1000], "poeOut": 30 },
+      { "name": "port6", "type": "ethernet", "connector": "rj45", "speed": "1G", "speedCaps": [10, 100, 1000], "poeOut": 30 },
+      { "name": "port7", "type": "ethernet", "connector": "rj45", "speed": "1G", "speedCaps": [10, 100, 1000], "poeOut": 30 },
+      { "name": "port8", "type": "ethernet", "connector": "rj45", "speed": "1G", "speedCaps": [10, 100, 1000], "poeOut": 30 },
+      { "name": "port9", "type": "ethernet", "connector": "rj45", "speed": "1G", "speedCaps": [10, 100, 1000], "poeOut": 30 },
+      { "name": "port10", "type": "ethernet", "connector": "rj45", "speed": "1G", "speedCaps": [10, 100, 1000], "poeOut": 30 },
+      { "name": "port11", "type": "ethernet", "connector": "rj45", "speed": "1G", "speedCaps": [10, 100, 1000], "poeOut": 30 },
+      { "name": "port12", "type": "ethernet", "connector": "rj45", "speed": "1G", "speedCaps": [10, 100, 1000], "poeOut": 30 },
+      { "name": "port13", "type": "ethernet", "connector": "rj45", "speed": "1G", "speedCaps": [10, 100, 1000], "poeOut": 30 },
+      { "name": "port14", "type": "ethernet", "connector": "rj45", "speed": "1G", "speedCaps": [10, 100, 1000], "poeOut": 30 },
+      { "name": "port15", "type": "ethernet", "connector": "rj45", "speed": "1G", "speedCaps": [10, 100, 1000], "poeOut": 30 },
+      { "name": "port16", "type": "ethernet", "connector": "rj45", "speed": "1G", "speedCaps": [10, 100, 1000], "poeOut": 30 }
+    ],
+    "poe": {
+      "budgetW": 246,
+      "sourceUrl": "https://www.trendnet.com/products/unmanaged-poe-switch/16-port-gigabit-poeplus-switch-TPE-TG160g-v4",
+      "note": "PoE standard 802.3af/at on all 16 ports, up to 30 W per port, 246 W total budget - the vendor states it as supplying up to 16 Power over Ethernet devices with up to 30 W per port, which is 480 W of port capability against a 246 W budget. 246 W is 16 x 15.4 W, so 802.3af on every port fits and only about eight ports can run at 802.3at at once. The budget, not the port count, is the limit."
+    },
+    "fabric": {
+      "capacityMbps": 32000,
+      "kind": "switching fabric",
+      "note": "Vendor switching capacity of 32 Gbps, the full-duplex aggregate of sixteen gigabit ports."
+    },
+    "sourceUrl": "https://www.trendnet.com/products/unmanaged-poe-switch/16-port-gigabit-poeplus-switch-TPE-TG160g-v4",
+    "notes": "TRENDnet TPE-TG160g v4 figures from the product page (https://www.trendnet.com/products/unmanaged-poe-switch/16-port-gigabit-poeplus-switch-TPE-TG160g-v4). Hardware: 16x gigabit PoE+ ports, 32 Gbps switching capacity, internal power supply, 1U 19-inch rack-mountable metal housing with brackets in the box, smart fans, 0-40 C operating range, 3 kg. The DIP switch offers VLAN port isolation (traffic separated between ports) and storm control, and turns ports 1-8 into 250 m / 820 ft PoE+ runs at 10 Mbps - that is a physical toggle, not 802.1Q: the box has no management interface, no CLI, no per-VLAN configuration and no SFP cages, so this spec declares l2-forward and nothing beyond it. The extend-mode rate drop is a port setting, not a separate interface."
+  },
+  {
+    "vendor": "trendnet",
+    "model": "TPE-TG182F",
+    "label": "TRENDnet TPE-TG182F",
+    "category": "switch",
+    "description": "TRENDnet TPE-TG182F (v2) - eighteen-port unmanaged gigabit high-power PoE+ rack switch: 16x 10/100/1000 PoE+ RJ45 at up to 30 W each against a 440 W budget, plus 2 shared gigabit positions that take either an RJ45 plug or an SFP module, 36 Gbps switching capacity, two fans, internal PSU, 1U 19-inch housing.",
+    "capabilities": ["l2-forward", "poe-pse", "802.3af", "802.3at"],
+    "interfaces": [
+      { "name": "port1", "type": "ethernet", "connector": "rj45", "speed": "1G", "speedCaps": [10, 100, 1000], "poeOut": 30 },
+      { "name": "port2", "type": "ethernet", "connector": "rj45", "speed": "1G", "speedCaps": [10, 100, 1000], "poeOut": 30 },
+      { "name": "port3", "type": "ethernet", "connector": "rj45", "speed": "1G", "speedCaps": [10, 100, 1000], "poeOut": 30 },
+      { "name": "port4", "type": "ethernet", "connector": "rj45", "speed": "1G", "speedCaps": [10, 100, 1000], "poeOut": 30 },
+      { "name": "port5", "type": "ethernet", "connector": "rj45", "speed": "1G", "speedCaps": [10, 100, 1000], "poeOut": 30 },
+      { "name": "port6", "type": "ethernet", "connector": "rj45", "speed": "1G", "speedCaps": [10, 100, 1000], "poeOut": 30 },
+      { "name": "port7", "type": "ethernet", "connector": "rj45", "speed": "1G", "speedCaps": [10, 100, 1000], "poeOut": 30 },
+      { "name": "port8", "type": "ethernet", "connector": "rj45", "speed": "1G", "speedCaps": [10, 100, 1000], "poeOut": 30 },
+      { "name": "port9", "type": "ethernet", "connector": "rj45", "speed": "1G", "speedCaps": [10, 100, 1000], "poeOut": 30 },
+      { "name": "port10", "type": "ethernet", "connector": "rj45", "speed": "1G", "speedCaps": [10, 100, 1000], "poeOut": 30 },
+      { "name": "port11", "type": "ethernet", "connector": "rj45", "speed": "1G", "speedCaps": [10, 100, 1000], "poeOut": 30 },
+      { "name": "port12", "type": "ethernet", "connector": "rj45", "speed": "1G", "speedCaps": [10, 100, 1000], "poeOut": 30 },
+      { "name": "port13", "type": "ethernet", "connector": "rj45", "speed": "1G", "speedCaps": [10, 100, 1000], "poeOut": 30 },
+      { "name": "port14", "type": "ethernet", "connector": "rj45", "speed": "1G", "speedCaps": [10, 100, 1000], "poeOut": 30 },
+      { "name": "port15", "type": "ethernet", "connector": "rj45", "speed": "1G", "speedCaps": [10, 100, 1000], "poeOut": 30 },
+      { "name": "port16", "type": "ethernet", "connector": "rj45", "speed": "1G", "speedCaps": [10, 100, 1000], "poeOut": 30 },
+      { "name": "port17", "type": "ethernet", "connector": "rj45", "speed": "1G", "speedCaps": [10, 100, 1000], "comboWith": "port17-sfp", "comboRole": "rj45" },
+      { "name": "port17-sfp", "type": "ethernet", "connector": "sfp", "speed": "1G", "speedCaps": [1000], "comboWith": "port17", "comboRole": "sfp" },
+      { "name": "port18", "type": "ethernet", "connector": "rj45", "speed": "1G", "speedCaps": [10, 100, 1000], "comboWith": "port18-sfp", "comboRole": "rj45" },
+      { "name": "port18-sfp", "type": "ethernet", "connector": "sfp", "speed": "1G", "speedCaps": [1000], "comboWith": "port18", "comboRole": "sfp" }
+    ],
+    "poe": {
+      "budgetW": 440,
+      "sourceUrl": "https://www.trendnet.com/products/18-port-gigabit-high-power-poeplus-switch-TPE-TG182F-v2",
+      "note": "PoE standard 802.3af/at, Mode A (pin 1, 2 positive and pin 3, 6 negative), on the sixteen PoE+ ports only, up to 30 W per port, 440 W total budget. 16 x 30 W would be 480 W, so at 802.3at the sixteenth port cannot be powered at full rate: about fourteen 30 W devices fit inside 440 W, or all sixteen at 802.3af (246 W). The two shared positions carry data only - there is no PoE on ports 17-18."
+    },
+    "fabric": {
+      "capacityMbps": 36000,
+      "kind": "switching fabric",
+      "note": "Vendor switch fabric of 36 Gbps for eighteen gigabit positions, matching the 26.78 Mpps forwarding rate. The two shared positions count once each even though each is modelled as two interfaces (RJ45 and SFP), so 18 positions x 2 Gbps = 36 Gbps."
+    },
+    "sourceUrl": "https://www.trendnet.com/products/18-port-gigabit-high-power-poeplus-switch-TPE-TG182F-v2",
+    "notes": "TRENDnet TPE-TG182F v2 figures from the product page (https://www.trendnet.com/products/18-port-gigabit-high-power-poeplus-switch-TPE-TG182F-v2). Hardware: 16x gigabit PoE+ RJ45 plus 2x shared gigabit ports (RJ45 or SFP), 36 Gbps switch fabric, 4.1 Mbit RAM buffer, 8K MAC entries, 26.78 Mpps forwarding, 9 KB jumbo frames, internal power supply with 480 W maximum consumption, two fans at 61 dBA maximum, 440 x 196 x 44 mm, 3 kg, 0-40 C. Numbering is the one modelled choice in this spec: the vendor text names 2 x Shared Gigabit ports (RJ-45 or SFP) without giving them numbers, so they are named port17 and port18 as the last two physical positions on the front panel shown in the vendor callout, each paired with an -sfp sibling so a cable in one half refuses the other (E_COMBO_OCCUPIED). 20 interfaces for 18 physical positions is the combo convention, not a miscount."
+  },
+  {
+    "vendor": "trendnet",
+    "model": "TPE-TG262",
+    "label": "TRENDnet TPE-TG262",
+    "category": "switch",
+    "description": "TRENDnet TPE-TG262 (v1) - twenty-six-port unmanaged gigabit PoE+ rack switch: 24x 10/100/1000 PoE+ RJ45 at up to 30 W each against a 380 W budget, 2x gigabit SFP slots, 52 Gbps switching capacity, internal PSU, 1U 19-inch housing.",
+    "capabilities": ["l2-forward", "poe-pse", "802.3af", "802.3at"],
+    "interfaces": [
+      { "name": "port1", "type": "ethernet", "connector": "rj45", "speed": "1G", "speedCaps": [10, 100, 1000], "poeOut": 30 },
+      { "name": "port2", "type": "ethernet", "connector": "rj45", "speed": "1G", "speedCaps": [10, 100, 1000], "poeOut": 30 },
+      { "name": "port3", "type": "ethernet", "connector": "rj45", "speed": "1G", "speedCaps": [10, 100, 1000], "poeOut": 30 },
+      { "name": "port4", "type": "ethernet", "connector": "rj45", "speed": "1G", "speedCaps": [10, 100, 1000], "poeOut": 30 },
+      { "name": "port5", "type": "ethernet", "connector": "rj45", "speed": "1G", "speedCaps": [10, 100, 1000], "poeOut": 30 },
+      { "name": "port6", "type": "ethernet", "connector": "rj45", "speed": "1G", "speedCaps": [10, 100, 1000], "poeOut": 30 },
+      { "name": "port7", "type": "ethernet", "connector": "rj45", "speed": "1G", "speedCaps": [10, 100, 1000], "poeOut": 30 },
+      { "name": "port8", "type": "ethernet", "connector": "rj45", "speed": "1G", "speedCaps": [10, 100, 1000], "poeOut": 30 },
+      { "name": "port9", "type": "ethernet", "connector": "rj45", "speed": "1G", "speedCaps": [10, 100, 1000], "poeOut": 30 },
+      { "name": "port10", "type": "ethernet", "connector": "rj45", "speed": "1G", "speedCaps": [10, 100, 1000], "poeOut": 30 },
+      { "name": "port11", "type": "ethernet", "connector": "rj45", "speed": "1G", "speedCaps": [10, 100, 1000], "poeOut": 30 },
+      { "name": "port12", "type": "ethernet", "connector": "rj45", "speed": "1G", "speedCaps": [10, 100, 1000], "poeOut": 30 },
+      { "name": "port13", "type": "ethernet", "connector": "rj45", "speed": "1G", "speedCaps": [10, 100, 1000], "poeOut": 30 },
+      { "name": "port14", "type": "ethernet", "connector": "rj45", "speed": "1G", "speedCaps": [10, 100, 1000], "poeOut": 30 },
+      { "name": "port15", "type": "ethernet", "connector": "rj45", "speed": "1G", "speedCaps": [10, 100, 1000], "poeOut": 30 },
+      { "name": "port16", "type": "ethernet", "connector": "rj45", "speed": "1G", "speedCaps": [10, 100, 1000], "poeOut": 30 },
+      { "name": "port17", "type": "ethernet", "connector": "rj45", "speed": "1G", "speedCaps": [10, 100, 1000], "poeOut": 30 },
+      { "name": "port18", "type": "ethernet", "connector": "rj45", "speed": "1G", "speedCaps": [10, 100, 1000], "poeOut": 30 },
+      { "name": "port19", "type": "ethernet", "connector": "rj45", "speed": "1G", "speedCaps": [10, 100, 1000], "poeOut": 30 },
+      { "name": "port20", "type": "ethernet", "connector": "rj45", "speed": "1G", "speedCaps": [10, 100, 1000], "poeOut": 30 },
+      { "name": "port21", "type": "ethernet", "connector": "rj45", "speed": "1G", "speedCaps": [10, 100, 1000], "poeOut": 30 },
+      { "name": "port22", "type": "ethernet", "connector": "rj45", "speed": "1G", "speedCaps": [10, 100, 1000], "poeOut": 30 },
+      { "name": "port23", "type": "ethernet", "connector": "rj45", "speed": "1G", "speedCaps": [10, 100, 1000], "poeOut": 30 },
+      { "name": "port24", "type": "ethernet", "connector": "rj45", "speed": "1G", "speedCaps": [10, 100, 1000], "poeOut": 30 },
+      { "name": "sfp1", "type": "ethernet", "connector": "sfp", "speed": "1G", "speedCaps": [1000] },
+      { "name": "sfp2", "type": "ethernet", "connector": "sfp", "speed": "1G", "speedCaps": [1000] }
+    ],
+    "poe": {
+      "budgetW": 380,
+      "sourceUrl": "https://www.trendnet.com/products/poe-switch-with-sfp/26-port-gigabit-poeplus-switch-TPE-TG262",
+      "note": "PoE standard 802.3af/at, Mode A (pins 1, 2, 3 and 6 carry power), on the 24 copper ports only, up to 30 W per port, 380 W total budget with over-current and short-circuit protection. 24 x 15.4 W is 369.6 W, so 802.3af on every port fits inside the budget while 802.3at tops out at about twelve 30 W devices. The two SFP slots are data only - no PoE on fibre."
+    },
+    "fabric": {
+      "capacityMbps": 52000,
+      "kind": "switching fabric",
+      "note": "Vendor switching capacity of 52 Gbps for 24 copper plus 2 SFP gigabit ports (26 x 2 Gbps full duplex), matching the 35.7 Mpps forwarding rate."
+    },
+    "sourceUrl": "https://www.trendnet.com/products/poe-switch-with-sfp/26-port-gigabit-poeplus-switch-TPE-TG262",
+    "notes": "TRENDnet TPE-TG262 v1 figures from the product page (https://www.trendnet.com/products/poe-switch-with-sfp/26-port-gigabit-poeplus-switch-TPE-TG262). Hardware: 24x gigabit PoE+ RJ45, 2x gigabit SFP slots, 52 Gbps switch fabric, 512 KB data RAM buffer, 8K MAC entries, 35.7 Mpps forwarding, 10 KB jumbo frames, internal power supply at 40 W maximum consumption with no PD connected, two fans at 30 dB, 435 x 195 x 44 mm, 3.04 kg, MTBF 480,878 hours, 0-40 C. Unmanaged: no CLI, no HTTP server, no VLANs - the SFP slots exist so the box can take a fibre uplink, not so it can be configured. Distinct from the TPE-TG182F in that its cages are dedicated rather than shared with copper, and from the TPE-TG160g in carrying cages at all."
+  },
+  {
+    "vendor": "trendnet",
+    "model": "TPE-TG327",
+    "label": "TRENDnet TPE-TG327",
+    "category": "switch",
+    "description": "TRENDnet TPE-TG327 (v1) - seven-port multi-gig unmanaged PoE+ switch: 5x 10/100/1000 PoE+ RJ45 and 2x 2.5GBASE-T PoE+ RJ45 at up to 30 W each against a 70 W budget, 20 Gbps switching capacity, fanless desktop or wall-mount housing.",
+    "capabilities": ["l2-forward", "poe-pse", "802.3af", "802.3at"],
+    "interfaces": [
+      { "name": "port1", "type": "ethernet", "connector": "rj45", "speed": "1G", "speedCaps": [10, 100, 1000], "poeOut": 30 },
+      { "name": "port2", "type": "ethernet", "connector": "rj45", "speed": "1G", "speedCaps": [10, 100, 1000], "poeOut": 30 },
+      { "name": "port3", "type": "ethernet", "connector": "rj45", "speed": "1G", "speedCaps": [10, 100, 1000], "poeOut": 30 },
+      { "name": "port4", "type": "ethernet", "connector": "rj45", "speed": "1G", "speedCaps": [10, 100, 1000], "poeOut": 30 },
+      { "name": "port5", "type": "ethernet", "connector": "rj45", "speed": "1G", "speedCaps": [10, 100, 1000], "poeOut": 30 },
+      { "name": "port6", "type": "ethernet", "connector": "rj45", "speed": "2.5G", "speedCaps": [10, 100, 1000, 2500], "poeOut": 30 },
+      { "name": "port7", "type": "ethernet", "connector": "rj45", "speed": "2.5G", "speedCaps": [10, 100, 1000, 2500], "poeOut": 30 }
+    ],
+    "poe": {
+      "budgetW": 70,
+      "sourceUrl": "https://www.trendnet.com/products/affordable-2-5g-poe-switch/7-port-multi-gig-poe-switch-TPE-TG327",
+      "note": "PoE standard 802.3af/at, Mode A (pins 1, 2, 3 and 6 carry power), on all seven ports, up to 30 W per port, 70 W total budget with over-current and short-circuit protection. 7 x 15.4 W is 107.8 W, so 802.3af on every port does not fit either: the budget covers four 15.4 W devices, or two 30 W devices plus a little. The vendor describes it as supplying up to seven PoE+ devices, which means seven low-draw ones. The two 2.5G ports carry the same PoE capability as the five gigabit ones."
+    },
+    "fabric": {
+      "capacityMbps": 20000,
+      "kind": "switching fabric",
+      "note": "Vendor switch capacity of 20 Gbps: five gigabit ports plus two 2.5GBASE-T ports at full duplex (10 + 10 Gbps), matching the 14.88 Mpps forwarding rate."
+    },
+    "sourceUrl": "https://www.trendnet.com/products/affordable-2-5g-poe-switch/7-port-multi-gig-poe-switch-TPE-TG327",
+    "notes": "TRENDnet TPE-TG327 v1 figures from the product page (https://www.trendnet.com/products/affordable-2-5g-poe-switch/7-port-multi-gig-poe-switch-TPE-TG327); the port split is stated on the support page (https://www.trendnet.com/support/support-detail.asp?prod=200_TPE-TG327): the 2.5Gbps ports are ports 6 and 7, while ports 1-5 are rated at 1.0 Gbps. Hardware: 5x gigabit PoE+ and 2x 2.5GBASE-T PoE+ (10/100/1000/2500 Mbps), 20 Gbps switch capacity, 384 KB data RAM buffer, 2K MAC entries, 14.88 Mpps forwarding, 15 KB jumbo frames, IEEE 802.3x/802.3z/802.3ab/802.3af/802.3at/802.3bz, fanless metal case 286 x 102 x 27 mm, 0.9 kg, 55 V 1.67 A power brick, 8 W maximum consumption with no PD, MTBF 830,917 hours, 0-50 C. Unmanaged: no CLI, no HTTP server, no VLANs. The 2.5G ports are the reason it is here - it is the only TRENDnet PoE switch in this batch that mixes line rates on one box."
+  }
+]

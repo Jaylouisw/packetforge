@@ -1,0 +1,86 @@
+{
+  "vendor": "trendnet",
+  "model": "TPE-TG50g",
+  "label": "TRENDnet TPE-TG50g",
+  "category": "switch",
+  "description": "TRENDnet TPE-TG50g (v4) - five-port unmanaged gigabit desktop switch with PoE+ on four ports: 4x 10/100/1000 PoE/PoE+ RJ45 at up to 30 W each against a 31 W total budget, 1x plain gigabit RJ45 for the uplink, 10 Gbps switching capacity, fanless, 54 V DC 0.7 A external adapter.",
+  "capabilities": [
+    "l2-forward",
+    "poe-pse",
+    "802.3af",
+    "802.3at"
+  ],
+  "interfaces": [
+    {
+      "name": "port1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "port2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "port3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "port4",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "port5",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
+    }
+  ],
+  "poe": {
+    "budgetW": 31,
+    "sourceUrl": "https://www.trendnet.com/products/PoE/5-Port-Gigabit-PoEplus-Switch-TPE-TG50g-v4",
+    "note": "PoE standard 802.3af/at, Mode A (pins 1, 2, 3 and 6 carry power), ports 1-4 only, up to 30 W per port, 31 W total budget. The budget binds long before the port count: one 30 W 802.3at device fills it, two 15.4 W 802.3af devices fit (30.8 W), and four powered devices only fit at Class 2 (7 W) draw each. Port 5 is data only, so a fifth powered device on this box is a cabling error the spec should refuse. Full PoE load is stated at 33.4 W input, 3.1 W with no PoE load."
+  },
+  "fabric": {
+    "capacityMbps": 10000,
+    "kind": "switching fabric",
+    "note": "Vendor switch fabric of 10 Gbps for five gigabit ports (5 x 2 Gbps full duplex), matching the 7.44 Mpps forwarding rate."
+  },
+  "sourceUrl": "https://www.trendnet.com/products/PoE/5-Port-Gigabit-PoEplus-Switch-TPE-TG50g-v4",
+  "notes": "TRENDnet TPE-TG50g v4 figures from the product page (https://www.trendnet.com/products/PoE/5-Port-Gigabit-PoEplus-Switch-TPE-TG50g-v4). Hardware: 4x 10/100/1000 PoE+ ports and 1x 10/100/1000 port, all Auto-MDIX, 128 KB packet buffer, 2K MAC entries, 7.44 Mpps forwarding, 9 KB jumbo frames, IEEE 802.3/802.3u/802.3x/802.3ab/802.3af/802.3at/802.3az, fanless metal case 105 x 98 x 28 mm, 276 g, external 54 V DC 0.7 A adapter, 3.1 W no-load and 33.4 W at full PoE load, 0-40 C. Unmanaged: no CLI, no HTTP server, no VLANs. This is the smallest member of the family and its 31 W budget cannot power four PoE+ devices at once."
+}

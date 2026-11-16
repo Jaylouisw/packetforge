@@ -1,0 +1,219 @@
+{
+  "vendor": "trendnet",
+  "model": "TPE-TG160g",
+  "label": "TRENDnet TPE-TG160g",
+  "category": "switch",
+  "description": "TRENDnet TPE-TG160g (v4) - sixteen-port unmanaged gigabit PoE+ rack switch: 16x 10/100/1000 PoE+ RJ45 at up to 30 W each against a 246 W budget, 32 Gbps switching capacity, DIP switch for VLAN port isolation, storm control and 250 m extend mode on ports 1-8, smart fans, internal PSU, 1U 19-inch housing.",
+  "capabilities": [
+    "l2-forward",
+    "poe-pse",
+    "802.3af",
+    "802.3at"
+  ],
+  "interfaces": [
+    {
+      "name": "port1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "port2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "port3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "port4",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "port5",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "port6",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "port7",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "port8",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "port9",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "port10",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "port11",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "port12",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "port13",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "port14",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "port15",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "port16",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30
+    }
+  ],
+  "poe": {
+    "budgetW": 246,
+    "sourceUrl": "https://www.trendnet.com/products/unmanaged-poe-switch/16-port-gigabit-poeplus-switch-TPE-TG160g-v4",
+    "note": "PoE standard 802.3af/at on all 16 ports, up to 30 W per port, 246 W total budget - the vendor states it as supplying up to 16 Power over Ethernet devices with up to 30 W per port, which is 480 W of port capability against a 246 W budget. 246 W is 16 x 15.4 W, so 802.3af on every port fits and only about eight ports can run at 802.3at at once. The budget, not the port count, is the limit."
+  },
+  "fabric": {
+    "capacityMbps": 32000,
+    "kind": "switching fabric",
+    "note": "Vendor switching capacity of 32 Gbps, the full-duplex aggregate of sixteen gigabit ports."
+  },
+  "sourceUrl": "https://www.trendnet.com/products/unmanaged-poe-switch/16-port-gigabit-poeplus-switch-TPE-TG160g-v4",
+  "notes": "TRENDnet TPE-TG160g v4 figures from the product page (https://www.trendnet.com/products/unmanaged-poe-switch/16-port-gigabit-poeplus-switch-TPE-TG160g-v4). Hardware: 16x gigabit PoE+ ports, 32 Gbps switching capacity, internal power supply, 1U 19-inch rack-mountable metal housing with brackets in the box, smart fans, 0-40 C operating range, 3 kg. The DIP switch offers VLAN port isolation (traffic separated between ports) and storm control, and turns ports 1-8 into 250 m / 820 ft PoE+ runs at 10 Mbps - that is a physical toggle, not 802.1Q: the box has no management interface, no CLI, no per-VLAN configuration and no SFP cages, so this spec declares l2-forward and nothing beyond it. The extend-mode rate drop is a port setting, not a separate interface."
+}
