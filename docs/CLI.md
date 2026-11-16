@@ -23,7 +23,7 @@ Modes and their prompts:
 | `show ip interface brief` | interface IP / status table (status = whether the port can carry a frame) |
 | `show ip route` | routing table: connected, static, OSPF, BGP, and the default - or `Gateway of last resort is not set` when there is none |
 | `show arp` | ARP cache, with an age per neighbour, the port it was learned on, and whether that port can still carry a frame |
-| `show mac address-table` | MAC table (switches), per VLAN, with an age per entry and stale entries marked |
+| `show mac address-table` | MAC table (switches), per VLAN, with an age per entry and stale entries marked, titled and ruled as the device prints it and closed by `Total Mac Addresses for this criterion: N` |
 | `show vlan` / `show vlan brief` | VLAN table: one row per VLAN, with the ports that actually carry it, and the four reserved defaults (1002-1005) a switch has from boot |
 | `show spanning-tree` | per-port STP role and state, the bridge priority and the elected root, or "not measured" when nothing has run |
 | `show etherchannel summary` | LAG members, `(P)` bundled or `(D)` unbundled with the reason |
@@ -341,12 +341,21 @@ R1# ping 10.0.1.10
 Type escape sequence to abort.
 Sending 4, 100-byte ICMP Echos to 10.0.1.10, timeout is 2 seconds:
 !!!!
-Success rate is 100 percent (4/4)
+Success rate is 100 percent (4/4), round-trip min/avg/max = 0.002/0.002/0.002 ms
 Reply from 10.0.1.10: bytes=100 time=0.002 ms
 Reply from 10.0.1.10: bytes=100 time=0.002 ms
 Reply from 10.0.1.10: bytes=100 time=0.002 ms
 Reply from 10.0.1.10: bytes=100 time=0.002 ms
 ```
+
+The success-rate line is the vendor's, clause and all. When at least one echo comes back it goes on with
+`, round-trip min/avg/max = <min>/<avg>/<max> ms`; when none does it stops at the rate, because there is no round
+trip to average. Both halves are the vendor's own: the 4/5 ping in Cisco's NAT connectivity note prints
+`Success rate is 80 percent (4/5), round-trip min/avg/max = 1/1/2 ms`, and the ping/traceroute note prints
+`Success rate is 0 percent (0/5)` with nothing after it. The figures are in this console's units - the ones the
+`Reply from` lines print, one precision for the whole clause - because a real box truncates to whole milliseconds
+and would print `0/0/0 ms` for this path beside `time=0.002 ms`, which is two answers to one question.
+`test/ping-round-trip-clause.test.js` pins both halves of the rule.
 
 Only the two connected subnets are in the table because no default has been configured yet; `ip
 default-gateway` and `ip route 0.0.0.0 0.0.0.0` are the two ways to add one, and their rows — plus the
@@ -694,7 +703,7 @@ Translating "r1.lab"...domain server (10.0.0.1) [OK]
   r1.lab -> 10.0.0.1
 Sending 4, 100-byte ICMP Echos to 10.0.0.1, timeout is 2 seconds:
 !!!!
-Success rate is 100 percent (4/4)
+Success rate is 100 percent (4/4), round-trip min/avg/max = 0.002/0.002/0.002 ms
 Reply from 10.0.0.1: bytes=100 time=0.002 ms
 ```
 
@@ -1349,12 +1358,23 @@ Beyond ~30 entries the table is not the place to look for a neighbour; use the i
 
 ```
 SW1#show mac address-table
+
+          Mac Address Table
+-------------------------------------------
+
 Vlan    Mac Address         Type        Age     Ports
+----    -----------         --------    ---     -----
 1       02:00:00:00:01:00   DYNAMIC     0s      Fa0/1
 1       02:00:00:00:02:00   DYNAMIC     140s    Fa0/2 (administratively down)
 20      02:00:00:00:09:00   DYNAMIC     -       Fa0/1 (vlan mismatch)
+Total Mac Addresses for this criterion: 3
 ```
 
+* **The table is titled, ruled and counted, the way the device prints it.** `Total Mac Addresses for this
+  criterion: N` counts the rows just printed — so under `interface <port>` it is that port's entries, not the
+  switch's, and a view that matched nothing reads `…: 0` rather than losing the line. The underline under the
+  headings is the device's own fixed run of dashes (4, 11, 8 and 5 for Vlan, Mac Address, Type and Ports); `Age`
+  is this model's column and is underlined to the length of its own name.
 * **Ports** is the port the source MAC was heard on, per VLAN.
 * **Age** is the silence: a dynamic entry leaves the table after 300 s without a frame from that address, and the
   same aged lookup decides forwarding — an entry the table only remembers is not a port a frame may be sent to. `-`
@@ -1366,8 +1386,14 @@ Vlan    Mac Address         Type        Age     Ports
 
   ```
   SW1#show mac address-table interface Port 1
+
+            Mac Address Table
+  -------------------------------------------
+
   Vlan    Mac Address         Type        Age     Ports
+  ----    -----------         --------    ---     -----
   1       02:00:00:00:01:00   DYNAMIC     0s      Port 1
+  Total Mac Addresses for this criterion: 1
   ```
 
   A filter that matches nothing says so about that port (`(no entry learned on Port 9)`) rather than printing an

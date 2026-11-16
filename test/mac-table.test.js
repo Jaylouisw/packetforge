@@ -50,10 +50,16 @@ function lab() {
   return { t: t, sim: sim, sw: sw, a: a, b: b };
 }
 
+// The table is surrounded by a title, a rule, a blank line and a total, so the rows are found rather than
+// assumed to start on line 1: the heading is the line that begins `Vlan`, the data starts under its dash rule,
+// and the trailing total is the device's count, not a row (#1395 follow).
 function table(env) {
   const lines = ((new CliSession(env.sw, env.t, env.sim).run('show mac address-table').output) || [])
     .map(String);
-  return { header: lines[0] || '', body: lines.slice(1), fields: lines.slice(1).map(function (l) { return l.trim().split(/\s+/); }) };
+  const head = lines.findIndex(function (l) { return /^Vlan\s/.test(l); });
+  const total = lines.findIndex(function (l) { return /^Total Mac Addresses for this criterion:/.test(l); });
+  const body = lines.slice(head + 2, total < 0 ? lines.length : total).filter(function (l) { return l !== ''; });
+  return { header: lines[head] || '', body: body, fields: body.map(function (l) { return l.trim().split(/\s+/); }) };
 }
 
 console.log('');

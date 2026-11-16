@@ -183,6 +183,43 @@ const STP_UNMODELLED = ['portfast', 'edge', 'bpduguard', 'bpdufilter', 'cost', '
 // and not true (#1509). `vlan` is not a verb, which is why hoisting the unmodelled verbs in #1501 missed it.
 const STP_ONE_TREE = 'This device runs one spanning tree, not one per VLAN';
 
+// The clause a real IOS appends to a ping's success-rate line, and the rule for when it cannot be printed.
+//
+// `Success rate is 80 percent (4/5)` is a sentence IOS never finishes there: when at least one echo comes back the
+// line continues `, round-trip min/avg/max = 1/1/2 ms`, and when none does it stops exactly where this console used to
+// stop. Both halves are in Cisco's own transcripts - the NAT connectivity note prints the first for a 4/5 ping, the
+// ping/traceroute note prints `Success rate is 0 percent (0/5)` with nothing after it - so the clause is a
+// measurement, printed if and only if there is one to report. A clause on a ping that lost every echo would be a
+// figure nothing measured, which is the failure this repo keeps fixing in the other direction.
+//
+// The figures are this console's, not the vendor's. A real box reports whole milliseconds and truncates the
+// fraction - an IOS host pinging its own link-local address prints `0/0/0 ms` - but this console's whole reason for
+// having a latency model is that a 1 m patch lead (0.103 ms) and a 40 km span (0.65 ms) are different paths, and
+// rounding both to `0/0/0` would put that difference back where it started. So the clause is the vendor's sentence
+// in the units `Reply from ... time=` already prints, and the two cannot disagree: a fast lab reads
+// `round-trip min/avg/max = 0.103/0.103/0.103 ms` beside `time=0.103 ms`. Printing `0/0/0` there would be the vendor's
+// spelling of the same measurement, and also the one thing an operator would report as a bug.
+function formatRttMs(ms) {
+  return ms < 1 ? ms.toFixed(3) : ms.toFixed(1);
+}
+
+function roundTripClause(replies) {
+  const measured = (replies || []).filter(function (r) {
+    return r && r.success && typeof r.rtt === 'number' && isFinite(r.rtt);
+  }).map(function (r) { return r.rtt; });
+  // No echo came back, or none of the replies carried a modelled delay: there is no round trip to report.
+  if (!measured.length) return '';
+  const min = Math.min.apply(null, measured);
+  const max = Math.max.apply(null, measured);
+  const avg = measured.reduce(function (a, b) { return a + b; }, 0) / measured.length;
+  // One precision for the whole clause, chosen by its largest value, so the three figures read as one measurement
+  // rather than `0.200/0.733/1.6`. The thresholds are `formatRttMs`'s, so a figure here and the same figure on a
+  // reply line are never spelled two ways.
+  const f = function (ms) { return ms.toFixed(max < 1 ? 3 : 1); };
+  return ', round-trip min/avg/max = ' + f(min) + '/' + f(avg) + '/' + f(max) + ' ms';
+}
+
+
 class CliSession {
   constructor(device, topology, simulator) {
     this.device = device;
@@ -2623,12 +2660,15 @@ class CliSession {
   _pingReplyLines(out, shownTarget, count, replies) {
     out.push(replies.map(function (r) { return r.success ? '!' : '.'; }).join(''));
     const ok = replies.filter(function (r) { return r.success; }).length;
-    out.push('Success rate is ' + Math.round((ok / count) * 100) + ' percent (' + ok + '/' + count + ')');
+    // The success-rate line is the vendor's, clause and all: one sentence that says how many echoes came back
+    // and - when any did - how long they took. A ping that lost everything keeps the short form.
+    out.push('Success rate is ' + Math.round((ok / count) * 100) + ' percent (' + ok + '/' + count + ')' +
+      roundTripClause(replies));
     for (const r of replies) {
       if (r.success) {
         const t = (r.rtt === null || r.rtt === undefined)
           ? (r.hops + ' hops')
-          : (r.rtt < 1 ? r.rtt.toFixed(3) : r.rtt.toFixed(1)) + ' ms';
+          : formatRttMs(r.rtt) + ' ms';
         out.push('Reply from ' + shownTarget + ': bytes=100 time=' + t);
       } else if (r.reason === 'converging') {
         // Not "request timed out": nothing was lost, the network is not up yet. Said once, below, rather than
@@ -4151,7 +4191,22 @@ class CliSession {
         if (!name) return ['% No interface ' + typed + ' on ' + (dev.name || 'this device')];
         only = name;
       }
-      out.push(pad('Vlan', 8) + pad('Mac Address', 20) + pad('Type', 12) + pad('Age', 8) + 'Ports');
+      // The table's surround, as the device prints it: a centred title, a rule under it, the column headings and
+      // their own dash underline, then one total at the end. This table used to start at the column headings and
+      // stop at the last row, so the two things a printed table carries were missing: what it is, and how many
+      // rows it is. On a filtered table the total is the only thing that says the count is the filter's, not the
+      // box's - and an operator checking a port against a change record reads exactly that number (#1395).
+      // The underline is the device's, not the heading's: four, eleven, eight and five dashes for Vlan, Mac
+      // Address, Type and Ports, on a switch that prints 14-character dotted MACs above that 11-dash rule - the
+      // two widths are not the same field on real hardware, so copying the heading lengths would look tidier and
+      // be less true. `Age` has no counterpart in the vendor view (it is this model's column), so it is the one
+      // rule mark here that is the heading's own length.
+      const columns = [['Vlan', 8, 4], ['Mac Address', 20, 11], ['Type', 12, 8], ['Age', 8, 3], ['Ports', 0, 5]];
+      out.push('          Mac Address Table');
+      out.push('-------------------------------------------');
+      out.push('');
+      out.push(columns.map(function (c) { return pad(c[0], c[1]); }).join(''));
+      out.push(columns.map(function (c) { return pad('-'.repeat(c[2]), c[1]); }).join(''));
       // The rows come from the engine, so the payload the browser reads and this table cannot disagree (#1327).
       let rows = dev.macRows(this.topo, nowMs);
       if (only) rows = rows.filter(function (r) { return r.port === only; });
@@ -4167,6 +4222,13 @@ class CliSession {
         out.push(pad(r.vlan, 8) + pad(r.mac, 20) + pad('DYNAMIC', 12) + pad(age, 8) +
           r.port + (r.note ? ' ' + r.note : ''));
       }
+      // The count is of the rows this view just printed - which is what the device's sentence counts: "for this
+      // criterion" is the filter the operator typed, so a filtered view totals that port, not the box (a 9200
+      // transcript shows `Total ...: 1` under a one-row filter on a switch holding 22 entries). An empty view
+      // prints 0 rather than losing the line, which would read as a command that did not finish.
+      // Known gap, not fixed here: a real box also lists its reserved `STATIC ... CPU` rows above the learned
+      // ones, and counts them; this model has none to count (research/mac-table-surround.md).
+      out.push('Total Mac Addresses for this criterion: ' + rows.length);
     } else if (what === 'interfaces' || what === 'interface') {
       // `show interfaces Fa0/1` printed every port on the box: the answer to a question about one socket was
       // the whole switch, and on a 48-port model the socket asked about could be eight screens down. The name

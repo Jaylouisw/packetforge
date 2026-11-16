@@ -56,8 +56,12 @@ function liveLab() {
 function show(t, sim, id, cmd) {
   return new CliSession(t.getDevice(id), t, sim).run(cmd).output;
 }
+// The MAC table's title line is indented exactly like a row, so it is excluded by name: it is furniture,
+// not an entry, and a helper that counted it would compare tables by their title.
 function rows(out) {
-  return out.filter(function (l) { return /^\s{2}\S/.test(l) && !/^  (Neighbour|\(none)/.test(l); })
+  return out.filter(function (l) {
+    return /^\s{2}\S/.test(l) && !/^  (Neighbour|\(none)/.test(l) && !/Mac Address Table\s*$/.test(l);
+  })
     .map(function (l) { return l.trim().replace(/\s+/g, ' '); });
 }
 

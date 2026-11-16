@@ -46,10 +46,15 @@ function lab() {
   return { t: t, sw: t.getDevice('sw1'), sim: new Simulator(t) };
 }
 
+// The rows sit between the heading's dash rule and the total the device prints after them; the title, rule
+// and total are not entries (#1395 follow).
 function table(env, nowMs) {
   const out = [];
   const lines = ((new CliSession(env.sw, env.t, env.sim).run('show mac address-table').output) || []).map(String);
-  for (const l of lines.slice(1)) {
+  const head = lines.findIndex(function (l) { return /^Vlan\s/.test(l); });
+  const total = lines.findIndex(function (l) { return /^Total Mac Addresses for this criterion:/.test(l); });
+  for (const l of lines.slice(head + 2, total < 0 ? lines.length : total)) {
+    if (!l.trim()) continue;
     const f = l.trim().split(/\s+/);
     out.push({ vlan: f[0], mac: f[1], type: f[2], age: f[3], port: f[4] });
   }
