@@ -1,13 +1,17 @@
 'use strict';
-// `show vlan` printed two tables under one header, and one of them was nonsense (#1261).
+// What `show vlan` lists, and what it must not: access ports only, out of the switch's VLAN database.
 //
-// A trunk with `allowedVlans: 'all'` was pushed into VLAN 1 under a pseudo-key `all`, which was then
-// *rendered* as VLAN 1 — so VLAN 1 appeared twice with identical ports, and a trunk carrying every VLAN
-// was reported as a member of VLAN 1 and of nothing else. Every other row carried `(n)`/`(t)`/`(trunk)`
-// decorations that real `show vlan` does not print and that disagreed with what the switch forwarded.
+// An earlier pass (#1261) fixed a genuinely broken table - VLAN 1 printed twice, `(n)`/`(t)`/`(trunk)`
+// decorations a device never prints - by deciding membership with `classifyEgress()`, the data plane's
+// rule. That is the right rule for forwarding and the wrong rule for this table: a trunk forwards every
+// VLAN it carries and appears in no row of `show vlan`.
 //
-// Membership is now decided by `classifyEgress()` — the rule the data plane uses — so the table cannot
-// list a port the switch would drop for, or omit one it would forward to.
+// The vendor's command reference states it for the form this console prints - one line per VLAN for the
+// whole database: "When displaying multiple VLANs only non-trunk ports are displayed" (Cisco IOS LAN
+// Switching Command Reference, `show vlan`, lsw-cr-book/lsw-s2.html), and `show vlan all-ports` exists
+// only because the default view leaves trunks out. The table is the VLAN database: a VLAN that only a
+// trunk's allowed list names was never created and gets no row. Evidence and the one contradiction
+// (unconnected trunks, single-vendor field report) are in research/vlan-brief-trunk-ports.md.
 const path = require('path');
 const { Topology, Simulator, runCommands } = require('../engine');
 const { CliSession } = require('../engine/cli');
@@ -87,7 +91,7 @@ console.log('One row per VLAN, not two:');
 }
 
 console.log('');
-console.log('Membership is what the switch would actually forward to:');
+console.log('Membership is access membership, and a trunk is in no row:');
 {
   const env = lab();
   const out = rows(env);
@@ -100,28 +104,49 @@ console.log('Membership is what the switch would actually forward to:');
 
   ok(listed(20, 'Fa0/1'), 'an access port is in its access VLAN', rowFor(20).ports);
   ok(!listed(1, 'Fa0/1'), 'and not in VLAN 1 any more', rowFor(1).ports);
-  ok(listed(20, 'Fa0/2') && listed(30, 'Fa0/2'),
-    'a trunk is in both VLANs its allowed list names', rowFor(20).ports + ' / ' + rowFor(30).ports);
-  ok(!listed(1, 'Fa0/2'),
-    'and NOT in VLAN 1, which its allowed list excludes - a trunk is not "in VLAN 1" by default',
-    rowFor(1).ports);
-  ok(listed(1, 'Fa0/3') && listed(20, 'Fa0/3') && listed(30, 'Fa0/3'),
-    'a trunk carrying all VLANs is in every row, which the old table got wrong',
-    rowFor(1).ports + ' / ' + rowFor(20).ports);
+  ok(!listed(20, 'Fa0/2') && !listed(30, 'Fa0/2') && !listed(1, 'Fa0/2'),
+    'a trunk is in no row at all, though its allowed list names 20 and 30',
+    rowFor(1).ports + ' / ' + rowFor(20).ports + ' / ' + rowFor(30).ports);
+  ok(!listed(1, 'Fa0/3') && !listed(20, 'Fa0/3') && !listed(30, 'Fa0/3'),
+    'nor is a trunk that allows every VLAN', rowFor(1).ports + ' / ' + rowFor(20).ports);
+  ok(listed(1, 'Fa0/4'), 'the untouched default access ports stay in VLAN 1', rowFor(1).ports);
 
-  // The load-bearing one: for every port and every VLAN, listed <=> the egress rule forwards it.
+  // The load-bearing one: listed <=> this is an access port that belongs to the VLAN. The data plane's
+  // answer is deliberately not the test - a trunk carrying the VLAN is exactly the case they disagree on.
   let disagreements = [];
   for (const id of out.fields.map(function (f) { return Number(f.vlan); })) {
     for (const iface of env.sw.interfaces.values()) {
-      const carries = vlanLib.classifyEgress(iface.vlan, id).action !== 'drop';
-      if (carries !== listed(id, iface.name)) {
+      const access = !(iface.vlan && iface.vlan.mode === 'trunk');
+      const belongs = access && vlanLib.classifyEgress(iface.vlan, id).action !== 'drop';
+      if (belongs !== listed(id, iface.name)) {
         disagreements.push(iface.name + ' in VLAN ' + id + ': table=' + listed(id, iface.name) +
-          ' data plane=' + carries);
+          ' access membership=' + belongs);
       }
     }
   }
-  ok(disagreements.length === 0, 'the table and the data plane agree for every port and VLAN',
+  ok(disagreements.length === 0, 'every row lists exactly the access ports that belong to that VLAN',
     disagreements.join(' | '));
+}
+
+console.log('');
+console.log('The row set is the VLAN database, not the VLANs a trunk mentions:');
+{
+  const t = new Topology();
+  const sw = t.addDevice(SWITCH, 'sw');
+  const other = t.addDevice(SWITCH, 'sw2');
+  t.connect('sw', 'Fa0/2', 'sw2', 'Fa0/1');
+  const sim = new Simulator(t);
+  runCommands(sw, t, sim, ['configure terminal', 'interface Fa0/2',
+    'switchport mode trunk', 'switchport trunk allowed vlan 20,30', 'end']);
+  const out = rows({ t: t, sim: sim, sw: sw });
+  const ids = out.fields.map(function (f) { return Number(f.vlan); });
+  ok(ids.indexOf(20) === -1 && ids.indexOf(30) === -1,
+    'a trunk that allows VLANs nobody created puts no row in the table - they do not exist',
+    ids.join(','));
+  ok(ids.indexOf(1) !== -1, 'while VLAN 1, which does exist, is still there', ids.join(','));
+  const one = out.fields.filter(function (f) { return f.vlan === '1'; })[0];
+  ok(one && one.ports === 'Fa0/1, Fa0/3, Fa0/4, Fa0/5, Fa0/6, Fa0/7, Fa0/8',
+    "and the trunk is gone from VLAN 1's Ports cell", one && one.ports);
 }
 
 console.log('');
@@ -143,10 +168,9 @@ console.log('Names are the configured ones, and a VLAN with no name says so hone
   const r44 = after.fields.filter(function (f) { return f.vlan === '44'; })[0];
   ok(!!r44, 'a VLAN that exists only because a port uses it gets a row', JSON.stringify(after.fields.map(function (f) { return f.vlan; })));
   ok(r44 && r44.name === 'VLAN0044', 'with the generated name, not an invented one', r44 && r44.name);
-  // The all-VLAN trunk carries VLAN 44 too, so it is a member as well - the row is the access port that
-  // created the VLAN plus that trunk, and nothing else.
-  ok(r44 && r44.ports === 'Fa0/3, Fa0/4',
-    'and the ports that really carry it: the access port, plus the trunk that carries every VLAN',
+  // The all-VLAN trunk carries VLAN 44, and that is not a membership: the row is the access port alone.
+  ok(r44 && r44.ports === 'Fa0/4',
+    'and the only port in it is the access port that put it there, not the trunk that carries it',
     r44 && r44.ports);
 }
 
@@ -163,8 +187,9 @@ console.log('The table follows the port when it moves:');
   };
   ok(ports(20).indexOf('Fa0/1') === -1, 'the port leaves the VLAN it left', ports(20).join(','));
   ok(ports(30).indexOf('Fa0/1') !== -1, 'and appears in the one it joined', ports(30).join(','));
-  ok(ports(20).indexOf('Fa0/2') !== -1 && ports(20).indexOf('Fa0/3') !== -1,
-    'while the trunks in VLAN 20 stay', ports(20).join(','));
+  ok(ports(20).filter(Boolean).length === 0 && ports(30).join(',') === 'Fa0/1',
+    'and the trunks that carry those VLANs are still in neither row',
+    ports(20).join(',') + ' / ' + ports(30).join(','));
 }
 
 console.log('');
@@ -177,14 +202,10 @@ console.log('`show vlan brief` is the same answer, and an empty VLAN says nothin
     'brief and the full form agree row for row');
   runCommands(env.sw, env.t, env.sim, ['configure terminal', 'vlan 99 ninetynine', 'end']);
   const with99 = rows(env).fields.filter(function (f) { return f.vlan === '99'; })[0];
-  // Nothing is *configured* into VLAN 99, so the only ports that carry it are the trunks that carry
-  // everything - and no access port is invented for it.
+  // Nothing is *configured* into VLAN 99, so no port is a member of it - not even the trunk that
+  // carries every VLAN, which is precisely the port the old rule would have invented here.
   ok(!!with99, 'a VLAN created by config but used by no access port still gets a row', JSON.stringify(with99));
-  const accessIn99 = with99.ports.split(',').map(function (s) { return s.trim(); }).filter(function (name) {
-    const iface = env.sw.interfaces.get(name);
-    return iface && iface.vlan.mode !== 'trunk';
-  });
-  ok(accessIn99.length === 0, 'with no access port invented into it', accessIn99.join(','));
+  ok(with99.ports === '', 'with an empty Ports cell, because a trunk is not an access member', with99.ports);
 }
 
 console.log('');

@@ -4028,23 +4028,29 @@ class CliSession {
       if (tokens.length > 2) {
         return showNoTail('show vlan brief', tokens.slice(2), 'every VLAN is listed');
       }
-      // One table, and one row per VLAN.
+      // One table, one row per VLAN, and **access ports only** in the Ports column.
       //
-      // It printed two: trunks listed under the VLANs they carry, and then an extra pseudo-row called
-      // `all` rendered as VLAN 1 - so VLAN 1 appeared twice with the same ports, and a trunk that carries
-      // every VLAN was reported as a member of VLAN 1 and of nothing else. Membership is now decided by
-      // `classifyEgress()`, the same rule the data plane forwards by, so the table cannot list a port the
-      // switch would drop for, or omit one it would forward to (#1261).
+      // The row set is the switch's VLAN database, not the set of VLANs some port mentions: a trunk whose
+      // allowed list names a VLAN that was never created carries nothing, and the device prints no row for
+      // it. The table used to add every allowed and native VLAN of every trunk, so a lab that had typed
+      // `switchport trunk allowed vlan 20,30` and nothing else showed rows for two VLANs that did not exist
+      // - and listed the trunk in them.
+      //
+      // Membership is the vendor's rule, not the data plane's: `show vlan` lists ports configured as
+      // access ports, and a trunk port is in no row at all (research/vlan-brief-trunk-ports.md). Cisco's
+      // command reference states it for the multi-VLAN form this console prints - "When displaying multiple
+      // VLANs only non-trunk ports are displayed" (LAN Switching Command Reference, `show vlan`,
+      // https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/lanswitch/command/lsw-cr-book/lsw-s2.html) - and
+      // `show vlan all-ports` exists precisely because the default view leaves trunks out. The earlier rule
+      // here was `classifyEgress()`, the data plane's answer (#1261), which is right about forwarding and
+      // wrong about this table: a trunk forwards every VLAN it carries and appears in none of them.
       const vlanSet = new Set();
       const named = dev.config.vlans || {};
       Object.keys(named).forEach(function (k) { vlanSet.add(Number(k)); });
       vlanSet.add(1);
       for (const i of dev.interfaces.values()) {
         const v = i.vlan || {};
-        if (v.mode === 'trunk') {
-          vlanSet.add(Number(v.nativeVlan) || 1);
-          if (Array.isArray(v.allowedVlans)) v.allowedVlans.forEach(function (id) { vlanSet.add(Number(id)); });
-        } else {
+        if (v.mode !== 'trunk') {
           const id = Number(v.accessVlan) || 1;
           // An access port does not put its VLAN back into the table. After `no vlan 22` the port is still
           // assigned to 22 and the VLAN is gone; the device drops both the row and the port's place in it.
@@ -4062,7 +4068,6 @@ class CliSession {
       // a separate question - a real router does not).
       const reserved = (typeof dev.isL2 === 'function' && dev.isL2()) ? vlanLib.RESERVED_VLANS : [];
       for (const r of reserved) vlanSet.add(r.id);
-      // A trunk with `allowedVlans: all` carries every VLAN in the table, so it is listed in each row.
       const ids = Array.from(vlanSet).filter(function (id) { return Number.isFinite(id) && id >= 1; })
         .sort(function (a, b) { return a - b; });
       out.push(vlanLine(VLAN_COLUMNS.map(function (c) { return c.head; })));
@@ -4077,6 +4082,10 @@ class CliSession {
         }
         const members = [];
         for (const i of dev.interfaces.values()) {
+          // A trunk port is in no row: it carries the VLAN, it is not a member of it, and the vendor's
+          // table lists access ports only. Emitting it in every VLAN its allowed list names made a trunk
+          // read as an access member of half the database.
+          if (i.vlan && i.vlan.mode === 'trunk') continue;
           const verdict = vlanLib.classifyEgress(i.vlan, id);
           if (verdict.action === 'drop') continue;
           members.push(i.name);

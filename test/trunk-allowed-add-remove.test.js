@@ -87,13 +87,24 @@ console.log('The three views of the same list agree after an edit:');
   ok(L.config() === 'switchport trunk allowed vlan 10,20,30', 'the running-config prints the new list', L.config());
   ok(/allowed 10,20,30/.test(L.portLine()), 'the port line prints it too', L.portLine());
   ok(JSON.stringify(L.allowed()) === '[10,20,30]', 'and the engine holds it', JSON.stringify(L.allowed()));
-  // `show vlan brief` membership is read from the same rule the data plane forwards by, so it must list them all.
+  // `show vlan brief` is not a view of this list: the VLANs it names were never created, so there are no
+  // rows for them, and a trunk is in no row even when the VLAN does exist (research/vlan-brief-trunk-ports.md).
   L.cli.run('end');
-  const brief = L.cli.run('show vlan brief').output.join('\n');
+  const rowsOf = function () {
+    return L.cli.run('show vlan brief').output.map(String).filter(function (l) { return /^\d+\s/.test(l); });
+  };
+  const NL = String.fromCharCode(10);
+  const brief = rowsOf().join(NL);
   ['10', '20', '30'].forEach(function (id) {
-    const row = brief.split('\n').filter(function (l) { return new RegExp('^' + id + '\\s').test(l); })[0] || '';
-    ok(/Fa0\/1/.test(row), 'VLAN ' + id + ' lists Fa0/1 as a member', row);
+    const row = brief.split(NL).filter(function (l) { return new RegExp('^' + id + '\s').test(l); })[0] || '';
+    ok(row === '', 'VLAN ' + id + ' gets no row: the trunk names it, nobody created it', row);
   });
+  ok(!/Fa0\/1/.test(brief), 'and the trunk port is in no row at all', brief);
+  L.cli.run('configure terminal');
+  L.cli.run('vlan 10 ten');
+  const withTen = rowsOf().filter(function (l) { return /^10\s/.test(l); })[0] || '';
+  ok(/^10\s/.test(withTen), 'a VLAN that does exist gets its row', withTen);
+  ok(!/Fa0\/1/.test(withTen), 'still without the trunk that carries it', withTen);
 }
 
 console.log('');
