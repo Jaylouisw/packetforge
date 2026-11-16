@@ -1706,11 +1706,19 @@ nothing — no half-made pool, no route that nothing forwards, no switchport sta
 ### converge — when is it up?
 
 ```
-converge [at <ms>]
+converge [<ms>]
 ```
 
 Lists every process on every device with the instant it finishes, and the lab's fully-converged
-time. With an instant, anything still pending is marked.
+time. With an instant — a bare number of milliseconds, `converge 10000` — anything still pending is
+marked `(pending)`.
+
+The instant has **no `at` keyword**, unlike `link down <id> at <ms>`. This page and `help` both said
+`converge [at <ms>]`; `_converge()` (`engine/cli.js:2719`) reads `Number(tokens[0])` and nothing
+else, so `converge at 10000` hands it the word `at`, `NaN` suppresses the pending mark on every row,
+and the answer is the one you get with no instant at all - the `(pending)` column is missing rather
+than the command failing, which is why the wrong form stayed in the text. The fix belongs in the
+parser (take `at` the way `link` does); until it lands, this line names the spelling that works.
 
 ## DHCP server
 
