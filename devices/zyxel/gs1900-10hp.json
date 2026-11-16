@@ -1,0 +1,146 @@
+{
+  "vendor": "zyxel",
+  "model": "GS1900-10HP",
+  "label": "Zyxel GS1900-10HP",
+  "category": "switch",
+  "description": "Zyxel GS1900-10HP - 8x 10/100/1000BASE-T RJ45, all eight PoE+ (802.3at, 30 W/port, 77 W budget), plus 2x 1G SFP uplink cages; fanless desktop smart-managed switch.",
+  "capabilities": [
+    "l2-forward",
+    "http-server",
+    "dhcp-client",
+    "poe-pse",
+    "vlan",
+    "lacp",
+    "stp"
+  ],
+  "interfaces": [
+    {
+      "name": "port1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "port2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "port3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "port4",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "port5",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "port6",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "port7",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "port8",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "sfp1",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "sfp2",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        100,
+        1000
+      ]
+    }
+  ],
+  "poe": {
+    "budgetW": 77,
+    "sourceUrl": "https://static.us.zyxel.com/pdf/2024/switch/ds_GS1900-10HP.pdf",
+    "note": "IEEE 802.3at PoE+ on the eight RJ45 ports at up to 30 W per port, 77 W total budget. The two SFP cages are not PSE ports: the extra two ports over the GS1900-8HP are fibre uplinks, which carry no power, so the budget is identical at 77 W."
+  },
+  "fabric": {
+    "capacityMbps": 20000,
+    "kind": "switching capacity",
+    "note": "Zyxel quotes 20 Gbps switching capacity and 14.88 Mpps forwarding rate, with a 525 K packet buffer, an 8 K MAC address table and 9 K jumbo frames."
+  },
+  "sourceUrl": "https://static.us.zyxel.com/pdf/2024/switch/ds_GS1900-10HP.pdf",
+  "notes": "Zyxel GS1900 Series datasheet (dated 16/11/22) https://static.us.zyxel.com/pdf/2024/switch/ds_GS1900-10HP.pdf; specification table https://www.zyxel.com/global/en/products/switch/gs1900-series/specification. Management and switching features from the datasheet feature list and the GS1900 Series User Guide V2.90 Edition 2 https://download.zyxel.com/GS1900-48HPv2/user_guide/GS1900-48HPv2_V2.90_Ed2.pdf. There is NO console port and no CLI anywhere in the series: management is the web GUI, SNMP v1/v2/v3, RMON 1/2/3/9, syslog, LLDP/LLDP-MED, 802.1x, RADIUS and TACACS+, which is why no device here declares cli. Ten-port model: total port count 10 = 8 RJ45 + 2 SFP, eight of the copper ports PoE, 77 W budget, 95.3 W maximum consumption, 250 x 104 x 27 mm, 0.72 kg, fanless. The datasheet ordering table lists GS1900-10HP-EU0102F / -US0102F at hardware revision B1."
+}

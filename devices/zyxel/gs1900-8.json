@@ -3,19 +3,110 @@
   "model": "GS1900-8",
   "label": "Zyxel GS1900-8",
   "category": "switch",
-  "description": "Zyxel GS1900-8 - 8x 1G RJ45 web-managed smart switch, fanless desktop unit (no SFP).",
+  "description": "Zyxel GS1900-8 - 8x 10/100/1000BASE-T RJ45, fanless desktop smart-managed switch with no SFP and no PoE (the non-PoE base model of the GS1900 line).",
   "capabilities": [
     "l2-forward",
-    "http-server"
+    "http-server",
+    "dhcp-client",
+    "vlan",
+    "lacp",
+    "stp"
   ],
-  "portTemplate": {
-    "prefix": "port",
-    "start": 1,
-    "count": 8,
-    "type": "ethernet",
-    "speed": "1G"
+  "interfaces": [
+    {
+      "name": "port1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "port2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "port3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "port4",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "port5",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "port6",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "port7",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "port8",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
+    }
+  ],
+  "fabric": {
+    "capacityMbps": 16000,
+    "kind": "switching capacity",
+    "note": "Zyxel quotes 16 Gbps switching capacity and 11.9 Mpps forwarding rate, with a 525 K packet buffer, an 8 K MAC address table and 9 K jumbo frames."
   },
-  "interfaces": [],
-  "icon": "switch",
-  "color": "#f97316"
+  "sourceUrl": "https://static.us.zyxel.com/pdf/2024/switch/ds_GS1900-10HP.pdf",
+  "notes": "Zyxel GS1900 Series datasheet (dated 16/11/22) https://static.us.zyxel.com/pdf/2024/switch/ds_GS1900-10HP.pdf; specification table https://www.zyxel.com/global/en/products/switch/gs1900-series/specification. Management and switching features from the datasheet feature list and the GS1900 Series User Guide V2.90 Edition 2 https://download.zyxel.com/GS1900-48HPv2/user_guide/GS1900-48HPv2_V2.90_Ed2.pdf. There is NO console port and no CLI anywhere in the series: management is the web GUI, SNMP v1/v2/v3, RMON 1/2/3/9, syslog, LLDP/LLDP-MED, 802.1x, RADIUS and TACACS+, which is why no device here declares cli. Eight-port model: total port count 8, all 100/1000 Mbps RJ45, no SFP, no PoE, 5.0 W maximum consumption, 250 x 104 x 27 mm, 0.65 kg, fanless (0 dBA). The datasheet ordering table lists GS1900-8-EU0102F / -US0102F at hardware revision B1 as the current build."
 }

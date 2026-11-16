@@ -1,0 +1,3000 @@
+[
+  {
+    "vendor": "zyxel",
+    "model": "GS1900-8",
+    "label": "Zyxel GS1900-8",
+    "category": "switch",
+    "description": "Zyxel GS1900-8 - 8x 10/100/1000BASE-T RJ45, fanless desktop smart-managed switch with no SFP and no PoE (the non-PoE base model of the GS1900 line).",
+    "capabilities": [
+      "l2-forward",
+      "http-server",
+      "dhcp-client",
+      "vlan",
+      "lacp",
+      "stp"
+    ],
+    "interfaces": [
+      {
+        "name": "port1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "port2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "port3",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "port4",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "port5",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "port6",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "port7",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "port8",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      }
+    ],
+    "fabric": {
+      "capacityMbps": 16000,
+      "kind": "switching capacity",
+      "note": "Zyxel quotes 16 Gbps switching capacity and 11.9 Mpps forwarding rate, with a 525 K packet buffer, an 8 K MAC address table and 9 K jumbo frames."
+    },
+    "sourceUrl": "https://static.us.zyxel.com/pdf/2024/switch/ds_GS1900-10HP.pdf",
+    "notes": "Zyxel GS1900 Series datasheet (dated 16/11/22) https://static.us.zyxel.com/pdf/2024/switch/ds_GS1900-10HP.pdf; specification table https://www.zyxel.com/global/en/products/switch/gs1900-series/specification. Management and switching features from the datasheet feature list and the GS1900 Series User Guide V2.90 Edition 2 https://download.zyxel.com/GS1900-48HPv2/user_guide/GS1900-48HPv2_V2.90_Ed2.pdf. There is NO console port and no CLI anywhere in the series: management is the web GUI, SNMP v1/v2/v3, RMON 1/2/3/9, syslog, LLDP/LLDP-MED, 802.1x, RADIUS and TACACS+, which is why no device here declares cli. Eight-port model: total port count 8, all 100/1000 Mbps RJ45, no SFP, no PoE, 5.0 W maximum consumption, 250 x 104 x 27 mm, 0.65 kg, fanless (0 dBA). The datasheet ordering table lists GS1900-8-EU0102F / -US0102F at hardware revision B1 as the current build."
+  },
+  {
+    "vendor": "zyxel",
+    "model": "GS1900-8HP",
+    "label": "Zyxel GS1900-8HP",
+    "category": "switch",
+    "description": "Zyxel GS1900-8HP - 8x 10/100/1000BASE-T RJ45, all eight PoE+ (802.3at, 30 W/port) against a 77 W budget, fanless desktop smart-managed switch with no SFP.",
+    "capabilities": [
+      "l2-forward",
+      "http-server",
+      "dhcp-client",
+      "poe-pse",
+      "vlan",
+      "lacp",
+      "stp"
+    ],
+    "interfaces": [
+      {
+        "name": "port1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "port2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "port3",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "port4",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "port5",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "port6",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "port7",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "port8",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      }
+    ],
+    "poe": {
+      "budgetW": 77,
+      "sourceUrl": "https://static.us.zyxel.com/pdf/2024/switch/ds_GS1900-10HP.pdf",
+      "note": "IEEE 802.3at PoE+ on all eight copper ports at up to 30 W per port against a 77 W total budget, so the budget and not the port count is the binding limit: two 30 W PDs plus a third at 17 W already fills it. The user guide LED table numbers these as PoE 10/100/1000Base-T Ports (1 - 8), so every copper port is a PSE port. Default consumption mode powers only what the PD asks for and reserves the remainder; PoE can be scheduled per time range; a PoE MODE button turns the port LEDs into PoE state LEDs."
+    },
+    "fabric": {
+      "capacityMbps": 16000,
+      "kind": "switching capacity",
+      "note": "Zyxel quotes 16 Gbps switching capacity and 11.9 Mpps forwarding rate, with a 525 K packet buffer, an 8 K MAC address table and 9 K jumbo frames."
+    },
+    "sourceUrl": "https://static.us.zyxel.com/pdf/2024/switch/ds_GS1900-10HP.pdf",
+    "notes": "Zyxel GS1900 Series datasheet (dated 16/11/22) https://static.us.zyxel.com/pdf/2024/switch/ds_GS1900-10HP.pdf; specification table https://www.zyxel.com/global/en/products/switch/gs1900-series/specification. Management and switching features from the datasheet feature list and the GS1900 Series User Guide V2.90 Edition 2 https://download.zyxel.com/GS1900-48HPv2/user_guide/GS1900-48HPv2_V2.90_Ed2.pdf. There is NO console port and no CLI anywhere in the series: management is the web GUI, SNMP v1/v2/v3, RMON 1/2/3/9, syslog, LLDP/LLDP-MED, 802.1x, RADIUS and TACACS+, which is why no device here declares cli. Eight-port PoE model: total port count 8, eight 802.3at PoE ports, 77 W budget, 84.8 W maximum consumption, 250 x 104 x 27 mm, 0.71 kg, fanless (0 dBA). The datasheet ordering table lists GS1900-8HP-EU0103F / -US0103F / -USAM03F as hardware revision B2, with B1 part numbers (EU0102F / US0102F / USAM02F) still listed."
+  },
+  {
+    "vendor": "zyxel",
+    "model": "GS1900-10HP",
+    "label": "Zyxel GS1900-10HP",
+    "category": "switch",
+    "description": "Zyxel GS1900-10HP - 8x 10/100/1000BASE-T RJ45, all eight PoE+ (802.3at, 30 W/port, 77 W budget), plus 2x 1G SFP uplink cages; fanless desktop smart-managed switch.",
+    "capabilities": [
+      "l2-forward",
+      "http-server",
+      "dhcp-client",
+      "poe-pse",
+      "vlan",
+      "lacp",
+      "stp"
+    ],
+    "interfaces": [
+      {
+        "name": "port1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "port2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "port3",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "port4",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "port5",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "port6",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "port7",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "port8",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "sfp1",
+        "type": "ethernet",
+        "connector": "sfp",
+        "speed": "1G",
+        "speedCaps": [
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "sfp2",
+        "type": "ethernet",
+        "connector": "sfp",
+        "speed": "1G",
+        "speedCaps": [
+          100,
+          1000
+        ]
+      }
+    ],
+    "poe": {
+      "budgetW": 77,
+      "sourceUrl": "https://static.us.zyxel.com/pdf/2024/switch/ds_GS1900-10HP.pdf",
+      "note": "IEEE 802.3at PoE+ on the eight RJ45 ports at up to 30 W per port, 77 W total budget. The two SFP cages are not PSE ports: the extra two ports over the GS1900-8HP are fibre uplinks, which carry no power, so the budget is identical at 77 W."
+    },
+    "fabric": {
+      "capacityMbps": 20000,
+      "kind": "switching capacity",
+      "note": "Zyxel quotes 20 Gbps switching capacity and 14.88 Mpps forwarding rate, with a 525 K packet buffer, an 8 K MAC address table and 9 K jumbo frames."
+    },
+    "sourceUrl": "https://static.us.zyxel.com/pdf/2024/switch/ds_GS1900-10HP.pdf",
+    "notes": "Zyxel GS1900 Series datasheet (dated 16/11/22) https://static.us.zyxel.com/pdf/2024/switch/ds_GS1900-10HP.pdf; specification table https://www.zyxel.com/global/en/products/switch/gs1900-series/specification. Management and switching features from the datasheet feature list and the GS1900 Series User Guide V2.90 Edition 2 https://download.zyxel.com/GS1900-48HPv2/user_guide/GS1900-48HPv2_V2.90_Ed2.pdf. There is NO console port and no CLI anywhere in the series: management is the web GUI, SNMP v1/v2/v3, RMON 1/2/3/9, syslog, LLDP/LLDP-MED, 802.1x, RADIUS and TACACS+, which is why no device here declares cli. Ten-port model: total port count 10 = 8 RJ45 + 2 SFP, eight of the copper ports PoE, 77 W budget, 95.3 W maximum consumption, 250 x 104 x 27 mm, 0.72 kg, fanless. The datasheet ordering table lists GS1900-10HP-EU0102F / -US0102F at hardware revision B1."
+  },
+  {
+    "vendor": "zyxel",
+    "model": "GS1900-16",
+    "label": "Zyxel GS1900-16",
+    "category": "switch",
+    "description": "Zyxel GS1900-16 - 16x 10/100/1000BASE-T RJ45, fanless desktop smart-managed switch with no SFP and no PoE.",
+    "capabilities": [
+      "l2-forward",
+      "http-server",
+      "dhcp-client",
+      "vlan",
+      "lacp",
+      "stp"
+    ],
+    "interfaces": [
+      {
+        "name": "port1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "port2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "port3",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "port4",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "port5",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "port6",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "port7",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "port8",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "port9",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "port10",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "port11",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "port12",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "port13",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "port14",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "port15",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "port16",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      }
+    ],
+    "fabric": {
+      "capacityMbps": 32000,
+      "kind": "switching capacity",
+      "note": "Zyxel quotes 32 Gbps switching capacity and 23.8 Mpps forwarding rate, with a 525 K packet buffer, an 8 K MAC address table and 9 K jumbo frames."
+    },
+    "sourceUrl": "https://static.us.zyxel.com/pdf/2024/switch/ds_GS1900-10HP.pdf",
+    "notes": "Zyxel GS1900 Series datasheet (dated 16/11/22) https://static.us.zyxel.com/pdf/2024/switch/ds_GS1900-10HP.pdf; specification table https://www.zyxel.com/global/en/products/switch/gs1900-series/specification. Management and switching features from the datasheet feature list and the GS1900 Series User Guide V2.90 Edition 2 https://download.zyxel.com/GS1900-48HPv2/user_guide/GS1900-48HPv2_V2.90_Ed2.pdf. There is NO console port and no CLI anywhere in the series: management is the web GUI, SNMP v1/v2/v3, RMON 1/2/3/9, syslog, LLDP/LLDP-MED, 802.1x, RADIUS and TACACS+, which is why no device here declares cli. Sixteen-port model: total port count 16, all RJ45, no SFP, no PoE, 10.2 W maximum consumption, 216 x 133 x 42 mm, 0.97 kg, fanless. The datasheet ordering table lists GS1900-16-EU0103F / -US0103F at hardware revision B1."
+  },
+  {
+    "vendor": "zyxel",
+    "model": "GS1900-24E",
+    "label": "Zyxel GS1900-24E",
+    "category": "switch",
+    "description": "Zyxel GS1900-24E - 24x 10/100/1000BASE-T RJ45, fanless desktop smart-managed switch with no SFP cages and no PoE; the only 24-port member of the line without uplinks.",
+    "capabilities": [
+      "l2-forward",
+      "http-server",
+      "dhcp-client",
+      "vlan",
+      "lacp",
+      "stp"
+    ],
+    "interfaces": [
+      {
+        "name": "port1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "port2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "port3",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "port4",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "port5",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "port6",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "port7",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "port8",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "port9",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "port10",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "port11",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "port12",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "port13",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "port14",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "port15",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "port16",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "port17",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "port18",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "port19",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "port20",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "port21",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "port22",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "port23",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "port24",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      }
+    ],
+    "fabric": {
+      "capacityMbps": 48000,
+      "kind": "switching capacity",
+      "note": "Zyxel quotes 48 Gbps switching capacity and 35.7 Mpps forwarding rate, with a 525 K packet buffer, an 8 K MAC address table and 9 K jumbo frames."
+    },
+    "sourceUrl": "https://static.us.zyxel.com/pdf/2024/switch/ds_GS1900-10HP.pdf",
+    "notes": "Zyxel GS1900 Series datasheet (dated 16/11/22) https://static.us.zyxel.com/pdf/2024/switch/ds_GS1900-10HP.pdf; specification table https://www.zyxel.com/global/en/products/switch/gs1900-series/specification. Management and switching features from the datasheet feature list and the GS1900 Series User Guide V2.90 Edition 2 https://download.zyxel.com/GS1900-48HPv2/user_guide/GS1900-48HPv2_V2.90_Ed2.pdf. There is NO console port and no CLI anywhere in the series: management is the web GUI, SNMP v1/v2/v3, RMON 1/2/3/9, syslog, LLDP/LLDP-MED, 802.1x, RADIUS and TACACS+, which is why no device here declares cli. Twenty-four-port model: total port count 24, all RJ45, NO SFP slots and no PoE, 15.6 W maximum consumption, 267 x 162 x 42 mm, 1.56 kg, fanless. The datasheet ordering table lists GS1900-24E-EU0103F / -US0103F at hardware revision B1. It is not the GS1900-24: that is the same 24 copper ports plus 2 SFP, and 4 Gbps more switching capacity."
+  },
+  {
+    "vendor": "zyxel",
+    "model": "GS1900-24EP",
+    "label": "Zyxel GS1900-24EP",
+    "category": "switch",
+    "description": "Zyxel GS1900-24EP - 24x 10/100/1000BASE-T RJ45, 12 of them PoE+ (802.3at, 30 W/port) against a 130 W budget, no SFP cages, smart-managed switch on a smart fan.",
+    "capabilities": [
+      "l2-forward",
+      "http-server",
+      "dhcp-client",
+      "poe-pse",
+      "vlan",
+      "lacp",
+      "stp"
+    ],
+    "interfaces": [
+      {
+        "name": "port1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "port2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "port3",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "port4",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "port5",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "port6",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "port7",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "port8",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "port9",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "port10",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "port11",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "port12",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "port13",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "port14",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "port15",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "port16",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "port17",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "port18",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "port19",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "port20",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "port21",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "port22",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "port23",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "port24",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      }
+    ],
+    "poe": {
+      "budgetW": 130,
+      "sourceUrl": "https://static.us.zyxel.com/pdf/2024/switch/ds_GS1900-10HP.pdf",
+      "note": "IEEE 802.3at PoE+ on twelve of the twenty-four copper ports at up to 30 W per port against a 130 W total budget; the other twelve ports carry no power at all. The datasheet states counts only (12 x GbE PoE RJ-45 ports, 12 x GbE RJ-45 ports) and neither the datasheet text layer nor the series user guide names which port numbers form the PSE group, so ports 1-12 are modelled as the PoE group following the model list left-to-right order. That numbering is the one inferred field in this spec; the counts, the standard and the 130 W budget are cited. 130 W cannot fill twelve 30 W ports, so the budget binds before the port count does."
+    },
+    "fabric": {
+      "capacityMbps": 48000,
+      "kind": "switching capacity",
+      "note": "Zyxel quotes 48 Gbps switching capacity and 35.7 Mpps forwarding rate, with a 525 K packet buffer, an 8 K MAC address table and 9 K jumbo frames."
+    },
+    "sourceUrl": "https://static.us.zyxel.com/pdf/2024/switch/ds_GS1900-10HP.pdf",
+    "notes": "Zyxel GS1900 Series datasheet (dated 16/11/22) https://static.us.zyxel.com/pdf/2024/switch/ds_GS1900-10HP.pdf; specification table https://www.zyxel.com/global/en/products/switch/gs1900-series/specification. Management and switching features from the datasheet feature list and the GS1900 Series User Guide V2.90 Edition 2 https://download.zyxel.com/GS1900-48HPv2/user_guide/GS1900-48HPv2_V2.90_Ed2.pdf. There is NO console port and no CLI anywhere in the series: management is the web GUI, SNMP v1/v2/v3, RMON 1/2/3/9, syslog, LLDP/LLDP-MED, 802.1x, RADIUS and TACACS+, which is why no device here declares cli. Twenty-four-port PoE model: total port count 24, of which 12 are 802.3at PoE ports, no SFP, 130 W budget, 166.5 W maximum consumption, 330 x 230 x 44 mm, 2.48 kg, smart fan (19 dBA idle / 40 dBA maximum) - the first model in the line that is not fanless."
+  },
+  {
+    "vendor": "zyxel",
+    "model": "GS1900-24HPv2",
+    "label": "Zyxel GS1900-24HPv2",
+    "category": "switch",
+    "description": "Zyxel GS1900-24HPv2 - 24x 10/100/1000BASE-T RJ45 all PoE+ (802.3at, 30 W/port) against a 170 W budget, plus 2x 1G SFP cages; smart-managed switch with a smart fan.",
+    "capabilities": [
+      "l2-forward",
+      "http-server",
+      "dhcp-client",
+      "poe-pse",
+      "vlan",
+      "lacp",
+      "stp"
+    ],
+    "interfaces": [
+      {
+        "name": "port1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "port2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "port3",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "port4",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "port5",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "port6",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "port7",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "port8",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "port9",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "port10",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "port11",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "port12",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "port13",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "port14",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "port15",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "port16",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "port17",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "port18",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "port19",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "port20",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "port21",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "port22",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "port23",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "port24",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "sfp1",
+        "type": "ethernet",
+        "connector": "sfp",
+        "speed": "1G",
+        "speedCaps": [
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "sfp2",
+        "type": "ethernet",
+        "connector": "sfp",
+        "speed": "1G",
+        "speedCaps": [
+          100,
+          1000
+        ]
+      }
+    ],
+    "poe": {
+      "budgetW": 170,
+      "sourceUrl": "https://static.us.zyxel.com/pdf/2024/switch/ds_GS1900-10HP.pdf",
+      "note": "IEEE 802.3at PoE+ on all twenty-four copper ports at up to 30 W per port against a 170 W budget: 24 ports advertise 720 W of capability that the 170 W supply cannot deliver, so at most five ports run at the full 30 W at once. Firmware 2.90(ABTP.3)C0, released 2026-10-22, is the current release listed for this model on Zyxel download library https://www.zyxel.com/uk/en-gb/support/download?model=gs1900-24hpv2; the build code is per model (ABTP here) so the version string does not transfer verbatim to the other GS1900 members. The series user guide is V2.90 Edition 2 https://download.zyxel.com/GS1900-48HPv2/user_guide/GS1900-48HPv2_V2.90_Ed2.pdf."
+    },
+    "fabric": {
+      "capacityMbps": 52000,
+      "kind": "switching capacity",
+      "note": "Zyxel quotes 52 Gbps switching capacity and 39 Mpps forwarding rate, with a 525 K packet buffer, an 8 K MAC address table and 9 K jumbo frames."
+    },
+    "sourceUrl": "https://static.us.zyxel.com/pdf/2024/switch/ds_GS1900-10HP.pdf",
+    "notes": "Zyxel GS1900 Series datasheet (dated 16/11/22) https://static.us.zyxel.com/pdf/2024/switch/ds_GS1900-10HP.pdf; specification table https://www.zyxel.com/global/en/products/switch/gs1900-series/specification. Management and switching features from the datasheet feature list and the GS1900 Series User Guide V2.90 Edition 2 https://download.zyxel.com/GS1900-48HPv2/user_guide/GS1900-48HPv2_V2.90_Ed2.pdf. There is NO console port and no CLI anywhere in the series: management is the web GUI, SNMP v1/v2/v3, RMON 1/2/3/9, syslog, LLDP/LLDP-MED, 802.1x, RADIUS and TACACS+, which is why no device here declares cli. Twenty-four-port PoE model with uplinks: total port count 26 = 24 PoE RJ45 + 2 SFP, 170 W budget, 206.5 W maximum consumption, 441 x 270 x 44 mm, 3.55 kg, smart fan (22.1 dBA idle / 45.4 dBA maximum). The datasheet ordering table lists GS190024HPV2-EU0101F / -US0101F at hardware revision B1. The v2 suffix matters: the plain GS1900-24HP is a different chassis and is not modelled here."
+  },
+  {
+    "vendor": "zyxel",
+    "model": "GS1900-48HPv2",
+    "label": "Zyxel GS1900-48HPv2",
+    "category": "switch",
+    "description": "Zyxel GS1900-48HPv2 - 48x 10/100/1000BASE-T RJ45 of which 24 are PoE+ (802.3at, 30 W/port) against a 170 W budget, plus 2x 1G SFP cages; 1U smart-managed switch with a smart fan.",
+    "capabilities": [
+      "l2-forward",
+      "http-server",
+      "dhcp-client",
+      "poe-pse",
+      "vlan",
+      "lacp",
+      "stp"
+    ],
+    "interfaces": [
+      {
+        "name": "port1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "port2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "port3",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "port4",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "port5",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "port6",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "port7",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "port8",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "port9",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "port10",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "port11",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "port12",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "port13",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "port14",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "port15",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "port16",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "port17",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "port18",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "port19",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "port20",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "port21",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "port22",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "port23",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "port24",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "port25",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "port26",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "port27",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "port28",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "port29",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "port30",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "port31",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "port32",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "port33",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "port34",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "port35",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "port36",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "port37",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "port38",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "port39",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "port40",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "port41",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "port42",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "port43",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "port44",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "port45",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "port46",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "port47",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "port48",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "sfp1",
+        "type": "ethernet",
+        "connector": "sfp",
+        "speed": "1G",
+        "speedCaps": [
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "sfp2",
+        "type": "ethernet",
+        "connector": "sfp",
+        "speed": "1G",
+        "speedCaps": [
+          100,
+          1000
+        ]
+      }
+    ],
+    "poe": {
+      "budgetW": 170,
+      "sourceUrl": "https://static.us.zyxel.com/pdf/2024/switch/ds_GS1900-10HP.pdf",
+      "note": "IEEE 802.3at PoE+ on twenty-four of the forty-eight copper ports at up to 30 W per port against a 170 W budget - the same 170 W as the GS1900-24HPv2, spread over twice the copper, so a 48-port chassis here powers no more PDs than the 24-port one. The datasheet states counts only (24 x GbE PoE RJ-45 ports, 24 x GbE RJ-45 ports) without naming port numbers, so ports 1-24 are modelled as the PSE group in the model list left-to-right order; that numbering is the one inferred field, while the counts and the budget are cited."
+    },
+    "fabric": {
+      "capacityMbps": 100000,
+      "kind": "switching capacity",
+      "note": "Zyxel quotes 100 Gbps switching capacity and 74 Mpps forwarding rate, with a 525 K packet buffer, an 8 K MAC address table and 9 K jumbo frames."
+    },
+    "sourceUrl": "https://static.us.zyxel.com/pdf/2024/switch/ds_GS1900-10HP.pdf",
+    "notes": "Zyxel GS1900 Series datasheet (dated 16/11/22) https://static.us.zyxel.com/pdf/2024/switch/ds_GS1900-10HP.pdf; specification table https://www.zyxel.com/global/en/products/switch/gs1900-series/specification. Management and switching features from the datasheet feature list and the GS1900 Series User Guide V2.90 Edition 2 https://download.zyxel.com/GS1900-48HPv2/user_guide/GS1900-48HPv2_V2.90_Ed2.pdf. There is NO console port and no CLI anywhere in the series: management is the web GUI, SNMP v1/v2/v3, RMON 1/2/3/9, syslog, LLDP/LLDP-MED, 802.1x, RADIUS and TACACS+, which is why no device here declares cli. Forty-eight-port PoE model: total port count 50 = 48 RJ45 (24 PoE) + 2 SFP, 170 W budget, 220.5 W maximum consumption, 441 x 270 x 44 mm, 3.55 kg, smart fan (27.8 dBA idle / 44.7 dBA maximum). The datasheet ordering table lists GS190048HPV2-EU0101F / -US0101F at hardware revision B1."
+  },
+  {
+    "vendor": "zyxel",
+    "model": "GS1900-48",
+    "label": "Zyxel GS1900-48",
+    "category": "switch",
+    "description": "Zyxel GS1900-48 - 48x 10/100/1000BASE-T RJ45 plus 2x 1G SFP cages, 1U smart-managed switch with no PoE.",
+    "capabilities": [
+      "l2-forward",
+      "http-server",
+      "dhcp-client",
+      "vlan",
+      "lacp",
+      "stp"
+    ],
+    "interfaces": [
+      {
+        "name": "port1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "port2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "port3",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "port4",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "port5",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "port6",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "port7",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "port8",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "port9",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "port10",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "port11",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "port12",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "port13",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "port14",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "port15",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "port16",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "port17",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "port18",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "port19",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "port20",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "port21",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "port22",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "port23",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "port24",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "port25",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "port26",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "port27",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "port28",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "port29",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "port30",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "port31",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "port32",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "port33",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "port34",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "port35",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "port36",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "port37",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "port38",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "port39",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "port40",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "port41",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "port42",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "port43",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "port44",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "port45",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "port46",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "port47",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "port48",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "sfp1",
+        "type": "ethernet",
+        "connector": "sfp",
+        "speed": "1G",
+        "speedCaps": [
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "sfp2",
+        "type": "ethernet",
+        "connector": "sfp",
+        "speed": "1G",
+        "speedCaps": [
+          100,
+          1000
+        ]
+      }
+    ],
+    "fabric": {
+      "capacityMbps": 100000,
+      "kind": "switching capacity",
+      "note": "Zyxel quotes 100 Gbps switching capacity and 74 Mpps forwarding rate, with a 525 K packet buffer, an 8 K MAC address table and 9 K jumbo frames."
+    },
+    "sourceUrl": "https://static.us.zyxel.com/pdf/2024/switch/ds_GS1900-10HP.pdf",
+    "notes": "Zyxel GS1900 Series datasheet (dated 16/11/22) https://static.us.zyxel.com/pdf/2024/switch/ds_GS1900-10HP.pdf; specification table https://www.zyxel.com/global/en/products/switch/gs1900-series/specification. Management and switching features from the datasheet feature list and the GS1900 Series User Guide V2.90 Edition 2 https://download.zyxel.com/GS1900-48HPv2/user_guide/GS1900-48HPv2_V2.90_Ed2.pdf. There is NO console port and no CLI anywhere in the series: management is the web GUI, SNMP v1/v2/v3, RMON 1/2/3/9, syslog, LLDP/LLDP-MED, 802.1x, RADIUS and TACACS+, which is why no device here declares cli. Forty-eight-port model: total port count 50 = 48 RJ45 + 2 SFP, no PoE, 31.9 W maximum consumption, 440 x 200 x 44 mm, 2.9 kg, fans (23 dBA idle / 41 dBA maximum). The datasheet ordering table lists GS1900-48-EU0102F / -US0102F at hardware revision B1."
+  },
+  {
+    "vendor": "zyxel",
+    "model": "GS1900-24",
+    "label": "Zyxel GS1900-24",
+    "category": "switch",
+    "description": "Zyxel GS1900-24 - 24x 10/100/1000BASE-T RJ45 plus 2x 1G SFP cages, fanless smart-managed switch with no PoE.",
+    "capabilities": [
+      "l2-forward",
+      "http-server",
+      "dhcp-client",
+      "vlan",
+      "lacp",
+      "stp"
+    ],
+    "interfaces": [
+      {
+        "name": "port1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "port2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "port3",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "port4",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "port5",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "port6",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "port7",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "port8",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "port9",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "port10",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "port11",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "port12",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "port13",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "port14",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "port15",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "port16",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "port17",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "port18",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "port19",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "port20",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "port21",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "port22",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "port23",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "port24",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "sfp1",
+        "type": "ethernet",
+        "connector": "sfp",
+        "speed": "1G",
+        "speedCaps": [
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "sfp2",
+        "type": "ethernet",
+        "connector": "sfp",
+        "speed": "1G",
+        "speedCaps": [
+          100,
+          1000
+        ]
+      }
+    ],
+    "fabric": {
+      "capacityMbps": 52000,
+      "kind": "switching capacity",
+      "note": "Zyxel quotes 52 Gbps switching capacity and 39 Mpps forwarding rate, with a 525 K packet buffer, an 8 K MAC address table and 9 K jumbo frames."
+    },
+    "sourceUrl": "https://static.us.zyxel.com/pdf/2024/switch/ds_GS1900-10HP.pdf",
+    "notes": "Zyxel GS1900 Series datasheet (dated 16/11/22) https://static.us.zyxel.com/pdf/2024/switch/ds_GS1900-10HP.pdf; specification table https://www.zyxel.com/global/en/products/switch/gs1900-series/specification. Management and switching features from the datasheet feature list and the GS1900 Series User Guide V2.90 Edition 2 https://download.zyxel.com/GS1900-48HPv2/user_guide/GS1900-48HPv2_V2.90_Ed2.pdf. There is NO console port and no CLI anywhere in the series: management is the web GUI, SNMP v1/v2/v3, RMON 1/2/3/9, syslog, LLDP/LLDP-MED, 802.1x, RADIUS and TACACS+, which is why no device here declares cli. Twenty-four-port model with uplinks: total port count 26 = 24 RJ45 + 2 SFP, no PoE, 17.1 W maximum consumption, 440 x 131 x 44 mm, 2.09 kg, fanless. The datasheet ordering table lists GS1900-24-EU0102F / -US0102F at hardware revision B1."
+  }
+]

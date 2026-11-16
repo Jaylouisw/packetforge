@@ -1,0 +1,338 @@
+{
+  "vendor": "zyxel",
+  "model": "GS1900-24HPv2",
+  "label": "Zyxel GS1900-24HPv2",
+  "category": "switch",
+  "description": "Zyxel GS1900-24HPv2 - 24x 10/100/1000BASE-T RJ45 all PoE+ (802.3at, 30 W/port) against a 170 W budget, plus 2x 1G SFP cages; smart-managed switch with a smart fan.",
+  "capabilities": [
+    "l2-forward",
+    "http-server",
+    "dhcp-client",
+    "poe-pse",
+    "vlan",
+    "lacp",
+    "stp"
+  ],
+  "interfaces": [
+    {
+      "name": "port1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "port2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "port3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "port4",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "port5",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "port6",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "port7",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "port8",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "port9",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "port10",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "port11",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "port12",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "port13",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "port14",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "port15",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "port16",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "port17",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "port18",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "port19",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "port20",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "port21",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "port22",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "port23",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "port24",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "sfp1",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "sfp2",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        100,
+        1000
+      ]
+    }
+  ],
+  "poe": {
+    "budgetW": 170,
+    "sourceUrl": "https://static.us.zyxel.com/pdf/2024/switch/ds_GS1900-10HP.pdf",
+    "note": "IEEE 802.3at PoE+ on all twenty-four copper ports at up to 30 W per port against a 170 W budget: 24 ports advertise 720 W of capability that the 170 W supply cannot deliver, so at most five ports run at the full 30 W at once. Firmware 2.90(ABTP.3)C0, released 2026-10-22, is the current release listed for this model on Zyxel download library https://www.zyxel.com/uk/en-gb/support/download?model=gs1900-24hpv2; the build code is per model (ABTP here) so the version string does not transfer verbatim to the other GS1900 members. The series user guide is V2.90 Edition 2 https://download.zyxel.com/GS1900-48HPv2/user_guide/GS1900-48HPv2_V2.90_Ed2.pdf."
+  },
+  "fabric": {
+    "capacityMbps": 52000,
+    "kind": "switching capacity",
+    "note": "Zyxel quotes 52 Gbps switching capacity and 39 Mpps forwarding rate, with a 525 K packet buffer, an 8 K MAC address table and 9 K jumbo frames."
+  },
+  "sourceUrl": "https://static.us.zyxel.com/pdf/2024/switch/ds_GS1900-10HP.pdf",
+  "notes": "Zyxel GS1900 Series datasheet (dated 16/11/22) https://static.us.zyxel.com/pdf/2024/switch/ds_GS1900-10HP.pdf; specification table https://www.zyxel.com/global/en/products/switch/gs1900-series/specification. Management and switching features from the datasheet feature list and the GS1900 Series User Guide V2.90 Edition 2 https://download.zyxel.com/GS1900-48HPv2/user_guide/GS1900-48HPv2_V2.90_Ed2.pdf. There is NO console port and no CLI anywhere in the series: management is the web GUI, SNMP v1/v2/v3, RMON 1/2/3/9, syslog, LLDP/LLDP-MED, 802.1x, RADIUS and TACACS+, which is why no device here declares cli. Twenty-four-port PoE model with uplinks: total port count 26 = 24 PoE RJ45 + 2 SFP, 170 W budget, 206.5 W maximum consumption, 441 x 270 x 44 mm, 3.55 kg, smart fan (22.1 dBA idle / 45.4 dBA maximum). The datasheet ordering table lists GS190024HPV2-EU0101F / -US0101F at hardware revision B1. The v2 suffix matters: the plain GS1900-24HP is a different chassis and is not modelled here."
+}
