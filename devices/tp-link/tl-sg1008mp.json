@@ -1,0 +1,123 @@
+{
+  "vendor": "tp-link",
+  "model": "TL-SG1008MP",
+  "label": "TP-Link TL-SG1008MP",
+  "category": "switch",
+  "description": "TP-Link TL-SG1008MP - eight-port unmanaged gigabit desktop/rackmount switch with PoE+ on all eight ports: 8x 10/100/1000 RJ45, 802.3af/at at up to 30 W per port against a 153 W total budget, 16 Gbps switching capacity, rack-mountable 1U, internal 100-240 V AC PSU.",
+  "capabilities": [
+    "l2-forward",
+    "poe-pse",
+    "802.3af",
+    "802.3at"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "eth2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "eth3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "eth4",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "eth5",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "eth6",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "eth7",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30
+    }
+  ],
+  "poe": {
+    "budgetW": 153,
+    "sourceUrl": "https://www.tp-link.com/uk/business-networking/unmanaged-switch/tl-sg1008mp/",
+    "note": "PoE+ on all eight ports, IEEE 802.3af/at, up to 30 W per port with a 153 W total budget. Eight ports at 30 W is 240 W of demand, so the budget is the binding constraint: five 30 W devices is the practical ceiling. Extend mode applies to ports 1-2 only (rate drops to 10 Mbps for runs to 250 m) and PoE auto recovery is supported."
+  },
+  "fabric": {
+    "capacityMbps": 16000,
+    "kind": "switching fabric",
+    "note": "Vendor switching capacity of 16 Gbps, the full-duplex aggregate of the eight gigabit ports (8 Gbps each way)."
+  },
+  "sourceUrl": "https://www.tp-link.com/uk/business-networking/unmanaged-switch/tl-sg1008mp/",
+  "notes": "TP-Link figures from the current product pages (https://www.tp-link.com/uk/business-networking/unmanaged-switch/tl-sg1008mp/ and https://www.tp-link.com/us/business-networking/unmanaged-switch/tl-sg1008mp/) and the current TL-SG1008MP(UN) datasheet. Hardware: 8x 10/100/1000 Mbps RJ45 with PoE+ on every port, 16 Gbps switching capacity, 4 K MAC table, 16 KB jumbo frames, store-and-forward, 802.1p priority, auto MDI/MDIX, 294 x 180 x 44 mm 1U metal case with rack-mount kit, internal 100-240 V AC supply, 8.77 W with no PD and 172.49 W with a 153 W PoE load, 29.91 / 588.19 BTU/h heat, operating range 0 to 50 C, LEDs for Power, PoE MAX, 1000 Mbps, Link/Act and PoE status. Unmanaged: no CLI, no HTTP server. DISCREPANCIES: (1) revision V1 of this model published a 126 W PoE budget (https://www.tp-link.com/gr/business-networking/unmanaged-switch/tl-sg1008mp/v1/) while the current revision and its datasheet publish 153 W - this entry follows the current 153 W figure, so a lab built from a V1 unit has 27 W less to give than the entry allows. (2) Cooling is unresolved: the US and UK product pages describe the box as fanless while the datasheet lists one fan, so no fan claim is made here. Neither discrepancy touches port count, port type or the PoE standard."
+}

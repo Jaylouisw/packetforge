@@ -1,0 +1,119 @@
+{
+  "vendor": "tp-link",
+  "model": "TL-SG1008P",
+  "label": "TP-Link TL-SG1008P",
+  "category": "switch",
+  "description": "TP-Link TL-SG1008P - eight-port unmanaged gigabit desktop switch with PoE+ on four ports: 8x 10/100/1000 RJ45, 802.3af/at on ports 1-4 at up to 30 W each against a 64 W total budget, 16 Gbps switching capacity, fanless, external 54 V DC adapter.",
+  "capabilities": [
+    "l2-forward",
+    "poe-pse",
+    "802.3af",
+    "802.3at"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "eth2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "eth3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "eth4",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "eth5",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "eth6",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "eth7",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
+    }
+  ],
+  "poe": {
+    "budgetW": 64,
+    "sourceUrl": "https://www.tp-link.com/us/business-networking/unmanaged-switch/tl-sg1008p/",
+    "note": "PoE standard 802.3af/at, PoE+ ports 1-4 only, up to 30 W per port, 64 W budget for all four. Intelligent power management sheds the lowest-priority port once draw passes 64 W. Ports 5-8 carry data only, so eight powered devices on this box is a cabling error the spec should refuse."
+  },
+  "fabric": {
+    "capacityMbps": 16000,
+    "kind": "switching fabric",
+    "note": "Vendor switching capacity of 16 Gbps, the full-duplex aggregate of the eight gigabit ports (8 Gbps each way)."
+  },
+  "sourceUrl": "https://www.tp-link.com/us/business-networking/unmanaged-switch/tl-sg1008p/",
+  "notes": "TP-Link figures from the current product page (https://www.tp-link.com/us/business-networking/unmanaged-switch/tl-sg1008p/), with the PoE split cross-checked on the UK page (https://www.tp-link.com/uk/business-networking/unmanaged-switch/tl-sg1008p/). Hardware: 8x 10/100/1000 Mbps RJ45, auto negotiation and auto MDI/MDIX, PoE+ on ports 1-4 at up to 30 W each against a 64 W budget, 16 Gbps switching capacity, 11.904 Mpps forwarding, 4 K MAC table, 16 KB jumbo frames, store-and-forward, 802.1p/DSCP QoS, IGMP snooping, fanless metal case 171 x 98 x 27 mm with a physical security lock and an external 54 V DC / 1.3 A adapter, 5.4 W idle and 75 W with the full 64 W PoE load, operating range 0 to 40 C. Unmanaged: plug and play, no CLI, no HTTP server. Four PoE ports out of eight is the point of the entry - the nearest existing TP-Link entry, tl-sg105, is the five-port non-PoE model, and tl-sg1016pe is PoE on 8 of 16 ports."
+}

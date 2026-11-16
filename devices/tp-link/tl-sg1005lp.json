@@ -1,0 +1,86 @@
+{
+  "vendor": "tp-link",
+  "model": "TL-SG1005LP",
+  "label": "TP-Link TL-SG1005LP",
+  "category": "switch",
+  "description": "TP-Link TL-SG1005LP - five-port unmanaged gigabit desktop switch with PoE+ on four ports and a 40 W budget: 5x 10/100/1000 RJ45, 802.3af/at at up to 30 W each on ports 1-4, 10 Gbps switching capacity, fanless, external 53.5 V DC adapter.",
+  "capabilities": [
+    "l2-forward",
+    "poe-pse",
+    "802.3af",
+    "802.3at"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "eth2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "eth3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30
+    },
+    {
+      "name": "eth4",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
+    }
+  ],
+  "poe": {
+    "budgetW": 40,
+    "sourceUrl": "https://static.tp-link.com/upload/product-overview/2026/202609/20260924/TL-SG1005LP(UN)4.0_datasheet.pdf",
+    "note": "PoE standard 802.3af/at, ports 1-4, up to 30 W per port against a 40 W budget. Because the budget is 40 W, one 30 W PoE+ device leaves 10 W - a second 30 W device is refused by the switch, not merely drawn beyond spec. Intelligent power management sheds lower-priority ports above 40 W. PoE auto recovery on ports 1-4; extend mode on ports 1-2 only, dropping those ports to 10 Mbps for runs up to 250 m."
+  },
+  "fabric": {
+    "capacityMbps": 10000,
+    "kind": "switching fabric",
+    "note": "Vendor switching capacity of 10 Gbps, the full-duplex aggregate of the five gigabit ports (5 Gbps each way)."
+  },
+  "sourceUrl": "https://static.tp-link.com/upload/product-overview/2026/202609/20260924/TL-SG1005LP(UN)4.0_datasheet.pdf",
+  "notes": "TP-Link figures from datasheet TL-SG1005LP(UN) 4.0 (https://static.tp-link.com/upload/product-overview/2026/202609/20260924/TL-SG1005LP(UN)4.0_datasheet.pdf), cross-checked against the UK product page (https://www.tp-link.com/uk/business-networking/poe-switch/tl-sg1005lp/). Hardware: 5x 10/100/1000 Mbps RJ45, auto negotiation and auto MDI/MDIX, PoE+ on ports 1-4, 10 Gbps switching capacity, 7.44 Mpps forwarding, 2 K MAC table, 1 Mbit packet buffer, store-and-forward, 802.1p/DSCP QoS, IGMP snooping, fanless metal desktop/wall case 99.8 x 98 x 25 mm fed by an external 53.5 V DC / 0.81 A adapter, 46.9 W maximum consumption, 159.46 BTU/h, MTBF 611,257 h at 25 C, operating range -5 to 40 C. Unmanaged: no CLI, no HTTP server. Jumbo frame is 9 KB in the datasheet but 16 KB on the product page - the datasheet figure is used. Against the TL-SG1005P this box trades 25 W of PoE budget (40 W against 65 W) on the same port layout, which is the difference that decides whether two PoE+ cameras fit on one unit."
+}
