@@ -548,6 +548,17 @@ class CliSession {
     return null;
   }
 
+  // `?` is the key an operator presses to ask what goes here, and the free-text positions stored the key as the
+  // text itself (#1685): `hostname ?` renamed the box to "?" and printed nothing, `dns zone ?` answered
+  // "DNS zone ? ready" and wrote `dns zone ?` into the running-config, and `vlan 42 name ?` created VLAN 42
+  // named "?". Every typed position already refuses the key by quoting it (`% Invalid VLAN id "?"`), because a
+  // value that will not parse can be corrected; a name will take any string, so the key became the name. Only
+  // the whole value is the key: a question mark inside a longer name (`edge?1`) is still part of the name.
+  _helpKeyRefusal(value, syntax, consequence) {
+    if (String(value === undefined || value === null ? '' : value).trim() !== '?') return null;
+    return '% "?" is the help key, not a name: `' + syntax + '`' + (consequence ? ' - ' + consequence : '');
+  }
+
   // What is left for the shared validator to say is about the number, not the caller's word for it: the messages
   // are written for whoever validated a port object ("accessVlan 1002 is reserved..."), and the operator typed
   // `switchport access vlan 1002`. Only the field name is swapped; the reason is the validator's.
@@ -658,6 +669,9 @@ class CliSession {
       // `hostname` with nothing after it used to clear the name to null and print nothing at all: a destructive
       // command with no receipt, and the one way to find out was to look at a surface that shows the name (#1497).
       if (!name) return ['% Incomplete command: hostname <name> (the name is unchanged)'];
+      // The same destructive silence, one keypress away: `hostname ?` renamed the box to "?" (#1685).
+      const keyed = this._helpKeyRefusal(name, 'hostname <name>', 'the name is unchanged');
+      if (keyed) return [keyed];
       if (!this.device.config.hostname) this.device.nameBeforeHostname = this.device.name;
       this.device.config.hostname = name;
       // device.name is what the UI renders: the canvas label, the inspector header, the
@@ -693,6 +707,10 @@ class CliSession {
         }
         return ['VLAN 1 is the default VLAN: it already exists (name: default), so there was nothing to create'];
       }
+      // `vlan 42 name ?` created VLAN 42 and named it "?" (#1685): a role, not just a name - the same keypress
+      // that asks what a name is. Refused before the VLAN is made, so nothing is left behind either.
+      const keyed = this._helpKeyRefusal(text, 'vlan <id> name <text>', 'nothing was changed');
+      if (keyed) return [keyed];
       const name = text || ('VLAN' + String(id).padStart(4, '0'));
       this.device.config.vlans[id] = { name: name };
       out.push('VLAN ' + id + ' created (name: ' + name + ')');
@@ -1654,6 +1672,10 @@ class CliSession {
     if (t[0] === 'zone') {
       const apex = t[1];
       if (!apex) return ['% Usage: dns zone <name>'];
+      // `dns zone ?` opened a zone called "?" and said so (#1685): a keypress became a zone, and later `dns add`
+      // lines resolved under it.
+      const keyed = this._helpKeyRefusal(apex, 'dns zone <name>', 'no zone was created');
+      if (keyed) return [keyed];
       const key = dnsLib.normalizeName(apex);
       let z = dev.config.dnsZones.filter(function (x) { return dnsLib.normalizeName(x.name) === key; })[0];
       if (!z) {
