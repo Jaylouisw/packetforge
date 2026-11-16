@@ -193,11 +193,29 @@ jobs:
       # 18` resolves to whatever 18.x was newest that morning, so the gate silently
       # changes what it tests between runs. These move only when this file does.
       #
-      # The download is not allowed to cost the gate: if the fetch or the unpack fails the
-      # step is marked failed, `continue-on-error` keeps the leg alive, and the fallback
-      # below installs the runtime the old way and says so in the log. The next step
-      # asserts the running major either way, so a wrong-arch tarball cannot pass as
-      # coverage.
+      # The download is not allowed to cost the gate: the fetch is attempted twice (curl's
+      # own retries, then one more attempt after a short sleep) before the step gives up,
+      # `continue-on-error` keeps the leg alive, and the assertion below is what actually
+      # fails the leg - so a wrong-arch, truncated or half-unpacked tarball cannot pass as
+      # coverage, whatever this step's own colour is.
+      #
+      # The `actions/setup-node@v4` fallback that used to sit under this step is gone.
+      # Measured, not stylistic. The runner pre-fetches every `uses:` action of a job
+      # before it runs the first step - including one whose `if:` is false - and it does
+      # not reuse that clone between runs:
+      #   run 3877 (PR #1686), Node 22 leg: clone of setup-node at 16:14:17, first real
+      #   step at 16:14:49 - 32 s of a 79 s leg spent before any work - and then
+      #   `skipping post step for 'actions/setup-node@v4'; main step was skipped`.
+      #   run 3884, Node 22 leg: 36 s. run 3887: 22 s (Node 18), 27 s (Node 20), 32 s
+      #   (Node 22).
+      # In every one of those legs the prepared step never ran: Node 20's leg excludes it
+      # by `if:`, and the 18 and 22 legs had already installed from the tarball. So 22-36 s
+      # of a 78-95 s job - roughly a third of every test leg, three legs per push - was
+      # being paid to hedge a failure that has not happened once in that window.
+      # It was never an independent path anyway: setup-node downloads from nodejs.org/dist,
+      # the same host and the same tarball this step fetches. A second attempt at that URL
+      # keeps the hedge; a pre-cloned action that never executes does not. The major-version
+      # assertion below is unchanged, so what this job claims to test is unchanged.
       - name: Provide the runtime this leg is named for
         id: node_runtime
         if: matrix.node != 20
@@ -213,19 +231,22 @@ jobs:
           esac
           dest="/opt/node-${DIST}"
           url="https://nodejs.org/dist/${DIST}/node-${DIST}-linux-x64.tar.gz"
-          echo "fetching ${url} for Node ${MAJOR}"
-          curl -fsSL --retry 3 --retry-delay 2 --retry-connrefused --connect-timeout 10 --max-time 180 -o "${dest}.tar.gz" "$url"
-          mkdir -p "$dest"
-          tar -xzf "${dest}.tar.gz" -C "$dest" --strip-components=1
+          # `fetch` is all-or-nothing: a truncated tarball or a failed unpack must not leave
+          # a half-populated /opt/node-* behind for the second attempt to bolt onto.
+          fetch() {
+            rm -rf "${dest}" "${dest}.tar.gz"
+            mkdir -p "${dest}"
+            echo "fetching ${url} for Node ${MAJOR} (attempt ${1})"
+            curl -fsSL --retry 3 --retry-delay 2 --retry-connrefused --connect-timeout 10 --max-time 180 -o "${dest}.tar.gz" "$url" &&
+              tar -xzf "${dest}.tar.gz" -C "${dest}" --strip-components=1 &&
+              [ -x "${dest}/bin/node" ]
+          }
+          fetch 1 || { echo "first attempt at ${url} failed - retrying once in 5 s"; sleep 5; fetch 2; }
           # Over the image's own Node 20, not beside it: the assertion below reads
           # `node --version`, and a second runtime earlier on PATH would let it pass while
           # `npm test` still ran on the runtime the image shipped.
           for b in node npm npx; do ln -sf "${dest}/bin/${b}" "/usr/local/bin/${b}"; done
           echo "installed $(command -v node): $(node --version) / npm $(npm --version)"
-      - uses: actions/setup-node@v4
-        if: matrix.node != 20 && steps.node_runtime.outcome != 'success'
-        with:
-          node-version: ${{ matrix.node }}
       # The saving above is only a saving if the runtime really is the version the leg
       # is named for. A leg that quietly tested Node 22 under the name "Test (Node 20)"
       # would report coverage it never had, which is the failure this repository has
