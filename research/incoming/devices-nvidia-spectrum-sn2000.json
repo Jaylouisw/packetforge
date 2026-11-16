@@ -1,0 +1,240 @@
+[
+  {
+    "vendor": "mellanox",
+    "model": "SN2010",
+    "label": "NVIDIA Mellanox Spectrum SN2010",
+    "category": "l3-switch",
+    "description": "NVIDIA (Mellanox) Spectrum SN2010 half-width 1RU open Ethernet switch for storage and hyperconverged racks: 18x 1/10/25GbE SFP28 plus 4x 40/100GbE QSFP28, 1.7 Tb/s, 1.26 Bpps, 57 W typical. Two fit side by side in one 19-inch 1U slot.",
+    "capabilities": [
+      "l2-forward",
+      "l3-forward",
+      "cli",
+      "http-server",
+      "vlan",
+      "lacp",
+      "stp"
+    ],
+    "portTemplate": {
+      "prefix": "Ethernet1/",
+      "start": 1,
+      "count": 18,
+      "type": "ethernet",
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        1000,
+        10000,
+        25000
+      ]
+    },
+    "interfaces": [
+      {
+        "name": "Ethernet1/19",
+        "type": "ethernet",
+        "speed": "100G",
+        "connector": "qsfp28",
+        "speedCaps": [
+          40000,
+          100000
+        ]
+      },
+      {
+        "name": "Ethernet1/20",
+        "type": "ethernet",
+        "speed": "100G",
+        "connector": "qsfp28",
+        "speedCaps": [
+          40000,
+          100000
+        ]
+      },
+      {
+        "name": "Ethernet1/21",
+        "type": "ethernet",
+        "speed": "100G",
+        "connector": "qsfp28",
+        "speedCaps": [
+          40000,
+          100000
+        ]
+      },
+      {
+        "name": "Ethernet1/22",
+        "type": "ethernet",
+        "speed": "100G",
+        "connector": "qsfp28",
+        "speedCaps": [
+          40000,
+          100000
+        ]
+      },
+      {
+        "name": "mgmt",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "speedCaps": [
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "console",
+        "type": "console",
+        "connector": "usb"
+      }
+    ],
+    "fabric": {
+      "capacityMbps": 1700000,
+      "kind": "switching fabric",
+      "note": "Vendor aggregate throughput 1.7 Tb/s (1.26 Bpps) from the SN2010 product brief KEY FEATURES and the SN2000 1U hardware manual speed table: 18 x 25GbE (2 x 25 Gbit/s full duplex) + 4 x 100GbE (2 x 100 Gbit/s) = 900 + 800 Gbit/s = 1.7 Tb/s. QSFP28 ports split to 4x25GbE or 2x50GbE, so the table counts up to 34 x 25GbE ports when every cage is broken out; breakout does not change the fabric figure."
+    },
+    "notes": "Half-width 1RU: 43.8 mm (H) x 200 mm (W) x 508 mm (D), 4.54 kg, 57 W typical with passive cables (ATIS), 100-240 VAC input, per the SN2010 product brief (53196PB) power and physical table. Ports: 18 x SFP28 at 1/10/25GbE (1GbE needs a 1G SFP) and 4 x QSFP28 at 40/100GbE, all splittable (100GbE to 4x25GbE or 2x50GbE; 40GbE to 4x10GbE). ONIE-bootable; ships with Mellanox Onyx, Cumulus Linux or ONIE, so the boot image is a property of the SKU rather than of the box. Management: one 10/100/1000BASE-T RJ45 MGT port and a USB console port (the brief lists a USB console port for management); there is no RJ45 serial console and no PoE on any model in this family. L2/L3: MLAG, 802.1Q 4K VLANs, 802.1w and 802.1s, 802.3ad LACP (64 groups, 32 ports per channel), 64 VRFs, BGP4, OSPFv2, VRRP, PIM-SM and PIM-SSM, 64-way ECMP, VXLAN EVPN hardware VTEP, PTP IEEE-1588, sFlow, dual software images. SN2010-to-SN2010 DAC connection is limited to ports 3, 6, 9, 12, 15 and 18. Datasheet contradiction recorded: the product brief headline says 18 ports of 10/25GbE and 4 splittable ports of 40/100GbE, while the family hardware manual labels the 18 SFP28 cages 1/10/25GbE and marks 1GbE as needing a 1G SFP; the catalogue follows the manual and carries 1GbE only as a speed capability of the cage. Sources: https://network.nvidia.com/files/doc-2020/pb-sn2010.pdf and https://docs.nvidia.com/networking/display/nvidia-spectrum-sn2000-1u-switch-systems-hardware-user-manual.pdf",
+    "sourceUrl": "https://network.nvidia.com/files/doc-2020/pb-sn2010.pdf"
+  },
+  {
+    "vendor": "mellanox",
+    "model": "SN2100",
+    "label": "NVIDIA Mellanox Spectrum SN2100",
+    "category": "l3-switch",
+    "description": "NVIDIA (Mellanox) Spectrum SN2100 half-width 1RU open Ethernet switch: 16x 40/56/100GbE QSFP28, 3.2 Tb/s, 2.38 Bpps, 94.3 W typical. Up to 64 x 10/25GbE or 32 x 50GbE with breakout, two switches side by side in 1U.",
+    "capabilities": [
+      "l2-forward",
+      "l3-forward",
+      "cli",
+      "http-server",
+      "vlan",
+      "lacp",
+      "stp"
+    ],
+    "portTemplate": {
+      "prefix": "Ethernet1/",
+      "start": 1,
+      "count": 16,
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        40000,
+        100000
+      ]
+    },
+    "interfaces": [
+      {
+        "name": "mgmt",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "speedCaps": [
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "console",
+        "type": "console",
+        "connector": "usb"
+      }
+    ],
+    "fabric": {
+      "capacityMbps": 3200000,
+      "kind": "switching fabric",
+      "note": "Vendor throughput 3.2 Tb/s (2.38 Bpps) from the SN2100 product brief KEY FEATURES, and it is the full-duplex aggregate of the 16 cages: 16 x 100GbE x 2 = 3.2 Tb/s. Breakout does not change it - the same 16 cages are 64 x 25GbE or 32 x 50GbE."
+    },
+    "notes": "Half-width 1RU: 43.8 mm (H) x 200 mm (W) x 508 mm (D), 4.54 kg, 94.3 W typical with passive cables (ATIS), 100-240 VAC, per the SN2100 product brief (53197PB Rev 2.8). 16 x QSFP28 at 40/56/100GbE, all splittable; the brief quotes up to 64 10/25 ports and up to 32 50GbE ports. ONIE-bootable with Onyx, Cumulus Linux or a third-party OS on the same hardware, and the brief's part-number tables make the software image part of the order code (MSN2100-CB2F Onyx, -CB2FC Cumulus, -CB2FO ONIE, plus the 40GbE-only -BB2F codes with the same 16 cages). Management: one 10/100/1000BASE-T RJ45 MGT port plus a USB console port; no RJ45 serial console. No PoE: this is a data-centre leaf or spine switch, not an access switch. Latency 300 ns port-to-port at 100GbE and under 6 watts per port. L2/L3 as the rest of Spectrum-1: MLAG, 4K VLANs, 802.1w and 802.1s, LACP, 64 VRFs, BGP4, OSPFv2, VRRP, VXLAN EVPN VTEP, PTP, sFlow, dual software images. The brief also advertises MPLS tunnelling for this model, which the SN2010 brief does not. Sources: https://network.nvidia.com/files/doc-2020/pb-sn2100.pdf and https://docs.nvidia.com/networking/display/nvidia-spectrum-sn2000-1u-switch-systems-hardware-user-manual.pdf",
+    "sourceUrl": "https://network.nvidia.com/files/doc-2020/pb-sn2100.pdf"
+  },
+  {
+    "vendor": "mellanox",
+    "model": "SN2201",
+    "label": "NVIDIA Mellanox Spectrum SN2201",
+    "category": "l3-switch",
+    "description": "NVIDIA (Mellanox) Spectrum SN2201 1RU out-of-band management switch: 48x 10/100/1000BASE-T RJ45 plus 4x 40/100GbE QSFP28 uplinks, 448 Gb/s, 667 Mpps, 98 W typical. The 1G box that manages a 100G fabric.",
+    "capabilities": [
+      "l2-forward",
+      "l3-forward",
+      "cli",
+      "http-server",
+      "vlan",
+      "lacp",
+      "stp"
+    ],
+    "portTemplate": {
+      "prefix": "Ethernet1/",
+      "start": 1,
+      "count": 48,
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "rj45",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
+    },
+    "interfaces": [
+      {
+        "name": "Ethernet1/49",
+        "type": "ethernet",
+        "speed": "100G",
+        "connector": "qsfp28",
+        "speedCaps": [
+          40000,
+          100000
+        ]
+      },
+      {
+        "name": "Ethernet1/50",
+        "type": "ethernet",
+        "speed": "100G",
+        "connector": "qsfp28",
+        "speedCaps": [
+          40000,
+          100000
+        ]
+      },
+      {
+        "name": "Ethernet1/51",
+        "type": "ethernet",
+        "speed": "100G",
+        "connector": "qsfp28",
+        "speedCaps": [
+          40000,
+          100000
+        ]
+      },
+      {
+        "name": "Ethernet1/52",
+        "type": "ethernet",
+        "speed": "100G",
+        "connector": "qsfp28",
+        "speedCaps": [
+          40000,
+          100000
+        ]
+      },
+      {
+        "name": "mgmt",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "speedCaps": [
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "console",
+        "type": "console",
+        "connector": "rj45"
+      }
+    ],
+    "fabric": {
+      "capacityMbps": 448000,
+      "kind": "switching fabric",
+      "note": "NVIDIA publishes 448 Gb/s (667 Mpps) for the SN2201 - the vendor's own maximum-throughput figure, carried as published. It is NOT the full-duplex sum of the cages: 48 x 1GbE x 2 + 4 x 100GbE x 2 would be 896 Gbit/s, while the published 448 Gb/s is 48 x 1G + 4 x 100 GbE counted once. The rest of the family uses full-duplex arithmetic (3.2 Tb/s = 16 x 100G x 2). Recorded as the vendor states it; see notes."
+    },
+    "notes": "SN2201 (MSN2201-CB2FC / CB2RC): 48 x 1GbE RJ45 at 10/100/1000BASE-T plus 4 x QSFP28 at 40/50/100GbE, from the SN2201 hardware manual speed-and-switching-capabilities table and the NVIDIA Ethernet Switching family table (448 Gb/s, 667 Mpps). Physical, from the same manual's specifications page: 43.9 mm (H) x 428 mm (W) x 432 mm (D), 19-inch rack mount, 7.41 kg, 98 W typical with passive cables (ATIS), dual PSU (100-127 VAC 4 A or 200-240 VAC 2 A), 4 fans, 60 dB(A), 0-40 C operating. Management interfaces are all on the front panel: a USB port, one 1G RJ45 management port, and - unlike the SN2010, SN2100, SN2410 and SN2700, which offer only a USB console - a front RJ45 console port, so this is the one box in the family a rollover cable plugs into. QSFP28 ports split to 4x25GbE or 2x50GbE with no blocking requirements. CPU: Intel x86 dual core, 8 GB DDR4 ECC SDRAM, 20 GB M.2 PCIe Gen3 SSD. Capacity discrepancy: NVIDIA's 448 Gb/s is not the full-duplex sum of the cages (896 Gb/s); the catalogue carries the published 448 Gb/s and states the arithmetic rather than inventing a reconciled figure. No PoE on any port. Sources: https://networking-docs.nvidia.com/sn2201hw/specifications and https://www.nvidia.com/en-us/networking/ethernet-switching/",
+    "sourceUrl": "https://networking-docs.nvidia.com/sn2201hw/specifications"
+  }
+]

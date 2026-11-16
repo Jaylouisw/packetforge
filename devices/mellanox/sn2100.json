@@ -1,0 +1,51 @@
+{
+  "vendor": "mellanox",
+  "model": "SN2100",
+  "label": "NVIDIA Mellanox Spectrum SN2100",
+  "category": "l3-switch",
+  "description": "NVIDIA (Mellanox) Spectrum SN2100 half-width 1RU open Ethernet switch: 16x 40/56/100GbE QSFP28, 3.2 Tb/s, 2.38 Bpps, 94.3 W typical. Up to 64 x 10/25GbE or 32 x 50GbE with breakout, two switches side by side in 1U.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli",
+    "http-server",
+    "vlan",
+    "lacp",
+    "stp"
+  ],
+  "portTemplate": {
+    "prefix": "Ethernet1/",
+    "start": 1,
+    "count": 16,
+    "type": "ethernet",
+    "speed": "100G",
+    "connector": "qsfp28",
+    "speedCaps": [
+      40000,
+      100000
+    ]
+  },
+  "interfaces": [
+    {
+      "name": "mgmt",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "rj45",
+      "speedCaps": [
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "console",
+      "type": "console"
+    }
+  ],
+  "fabric": {
+    "capacityMbps": 3200000,
+    "kind": "switching fabric",
+    "note": "Vendor throughput 3.2 Tb/s (2.38 Bpps) from the SN2100 product brief KEY FEATURES, and it is the full-duplex aggregate of the 16 cages: 16 x 100GbE x 2 = 3.2 Tb/s. Breakout does not change it - the same 16 cages are 64 x 25GbE or 32 x 50GbE."
+  },
+  "notes": "Half-width 1RU: 43.8 mm (H) x 200 mm (W) x 508 mm (D), 4.54 kg, 94.3 W typical with passive cables (ATIS), 100-240 VAC, per the SN2100 product brief (53197PB Rev 2.8). 16 x QSFP28 at 40/56/100GbE, all splittable; the brief quotes up to 64 10/25 ports and up to 32 50GbE ports. ONIE-bootable with Onyx, Cumulus Linux or a third-party OS on the same hardware, and the brief's part-number tables make the software image part of the order code (MSN2100-CB2F Onyx, -CB2FC Cumulus, -CB2FO ONIE, plus the 40GbE-only -BB2F codes with the same 16 cages). Management: one 10/100/1000BASE-T RJ45 MGT port plus a USB console port; no RJ45 serial console. No PoE: this is a data-centre leaf or spine switch, not an access switch. Latency 300 ns port-to-port at 100GbE and under 6 watts per port. L2/L3 as the rest of Spectrum-1: MLAG, 4K VLANs, 802.1w and 802.1s, LACP, 64 VRFs, BGP4, OSPFv2, VRRP, VXLAN EVPN VTEP, PTP, sFlow, dual software images. The brief also advertises MPLS tunnelling for this model, which the SN2010 brief does not. Sources: https://network.nvidia.com/files/doc-2020/pb-sn2100.pdf and https://docs.nvidia.com/networking/display/nvidia-spectrum-sn2000-1u-switch-systems-hardware-user-manual.pdf",
+  "sourceUrl": "https://network.nvidia.com/files/doc-2020/pb-sn2100.pdf"
+}

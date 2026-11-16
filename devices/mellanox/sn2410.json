@@ -8,7 +8,10 @@
     "l2-forward",
     "l3-forward",
     "cli",
-    "http-server"
+    "http-server",
+    "vlan",
+    "lacp",
+    "stp"
   ],
   "portTemplate": {
     "prefix": "Ethernet1/",
@@ -103,7 +106,27 @@
         40000,
         100000
       ]
+    },
+    {
+      "name": "mgmt",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "rj45",
+      "speedCaps": [
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "console",
+      "type": "console"
     }
   ],
-  "sourceUrl": "https://network.nvidia.com/files/doc-2020/pb-sn2410.pdf"
+  "sourceUrl": "https://network.nvidia.com/files/doc-2020/pb-sn2410.pdf",
+  "fabric": {
+    "capacityMbps": 4000000,
+    "kind": "switching fabric",
+    "note": "Vendor throughput 4 Tb/s (2.97 Bpps) from the SN2410 product brief KEY FEATURES, and it is the full-duplex aggregate of the cages: 48 x 25GbE x 2 (2400 Gbit/s) + 8 x 100GbE x 2 (1600 Gbit/s) = 4000 Gbit/s. Breakout does not change it: the same 48 SFP28 cages can also run 34 x 50GbE total with the QSFP28 ports split 2x50GbE. Source: https://network.nvidia.com/files/doc-2020/pb-sn2410.pdf"
+  },
+  "notes": "SN2410 (MSN2410-CB2F Onyx / -CB2FC Cumulus / -CB2FO ONIE, plus the C2P-airflow 'R' codes): 48 x SFP28 at 10/25GbE and 8 x QSFP28 at 40/100GbE in a full-width 1RU, 4 Tb/s, 2.97 Bpps, from the SN2410 product brief. Physical, from the brief's power and physical table: 43.8 mm (H) x 438 mm (W) x 436 mm (D), 8.52 kg, 165 W typical with passive cables (ATIS), 100-127 VAC and 200-240 VAC input, dual PSUs, short depth. Ports split: 100GbE to 4x25GbE or 2x50GbE, 40GbE to 4x10GbE. ONIE-bootable, with Onyx, Cumulus Linux or ONIE depending on the order code - the boot/firmware image is a SKU property. Management: one 10/100/1000BASE-T RJ45 MGT port and a USB console port (the brief lists a USB console port for management); no RJ45 serial console, and no PoE on any port. L2/L3 per the brief: MLAG, 802.1Q 4K VLANs, 802.1w and 802.1s, 802.3ad LACP (64 groups, 32 ports per channel), 64 VRFs, BGP4, OSPFv2, VRRP, PIM-SM and PIM-SSM, 64-way ECMP, VXLAN EVPN hardware VTEP, PTP IEEE-1588, sFlow, dual software images, 9216-byte jumbo frames. Correction recorded this run: the entry previously carried ports and a source URL but no fabric capacity, no management or console ports and no power/physical provenance. Sources: https://network.nvidia.com/files/doc-2020/pb-sn2410.pdf and https://docs.nvidia.com/networking/display/nvidia-spectrum-sn2000-1u-switch-systems-hardware-user-manual.pdf"
 }

@@ -1,0 +1,92 @@
+{
+  "vendor": "mellanox",
+  "model": "SN2201",
+  "label": "NVIDIA Mellanox Spectrum SN2201",
+  "category": "l3-switch",
+  "description": "NVIDIA (Mellanox) Spectrum SN2201 1RU out-of-band management switch: 48x 10/100/1000BASE-T RJ45 plus 4x 40/100GbE QSFP28 uplinks, 448 Gb/s, 667 Mpps, 98 W typical. The 1G box that manages a 100G fabric.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli",
+    "http-server",
+    "vlan",
+    "lacp",
+    "stp"
+  ],
+  "portTemplate": {
+    "prefix": "Ethernet1/",
+    "start": 1,
+    "count": 48,
+    "type": "ethernet",
+    "speed": "1G",
+    "connector": "rj45",
+    "speedCaps": [
+      10,
+      100,
+      1000
+    ]
+  },
+  "interfaces": [
+    {
+      "name": "Ethernet1/49",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        40000,
+        100000
+      ]
+    },
+    {
+      "name": "Ethernet1/50",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        40000,
+        100000
+      ]
+    },
+    {
+      "name": "Ethernet1/51",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        40000,
+        100000
+      ]
+    },
+    {
+      "name": "Ethernet1/52",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        40000,
+        100000
+      ]
+    },
+    {
+      "name": "mgmt",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "rj45",
+      "speedCaps": [
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "console",
+      "type": "console"
+    }
+  ],
+  "fabric": {
+    "capacityMbps": 448000,
+    "kind": "switching fabric",
+    "note": "NVIDIA publishes 448 Gb/s (667 Mpps) for the SN2201 - the vendor's own maximum-throughput figure, carried as published. It is NOT the full-duplex sum of the cages: 48 x 1GbE x 2 + 4 x 100GbE x 2 would be 896 Gbit/s, while the published 448 Gb/s is 48 x 1G + 4 x 100 GbE counted once. The rest of the family uses full-duplex arithmetic (3.2 Tb/s = 16 x 100G x 2). Recorded as the vendor states it; see notes."
+  },
+  "notes": "SN2201 (MSN2201-CB2FC / CB2RC): 48 x 1GbE RJ45 at 10/100/1000BASE-T plus 4 x QSFP28 at 40/50/100GbE, from the SN2201 hardware manual speed-and-switching-capabilities table and the NVIDIA Ethernet Switching family table (448 Gb/s, 667 Mpps). Physical, from the same manual's specifications page: 43.9 mm (H) x 428 mm (W) x 432 mm (D), 19-inch rack mount, 7.41 kg, 98 W typical with passive cables (ATIS), dual PSU (100-127 VAC 4 A or 200-240 VAC 2 A), 4 fans, 60 dB(A), 0-40 C operating. Management interfaces are all on the front panel: a USB port, one 1G RJ45 management port, and - unlike the SN2010, SN2100, SN2410 and SN2700, which offer only a USB console - a front RJ45 console port, so this is the one box in the family a rollover cable plugs into. QSFP28 ports split to 4x25GbE or 2x50GbE with no blocking requirements. CPU: Intel x86 dual core, 8 GB DDR4 ECC SDRAM, 20 GB M.2 PCIe Gen3 SSD. Capacity discrepancy: NVIDIA's 448 Gb/s is not the full-duplex sum of the cages (896 Gb/s); the catalogue carries the published 448 Gb/s and states the arithmetic rather than inventing a reconciled figure. No PoE on any port. Sources: https://networking-docs.nvidia.com/sn2201hw/specifications and https://www.nvidia.com/en-us/networking/ethernet-switching/",
+  "sourceUrl": "https://networking-docs.nvidia.com/sn2201hw/specifications"
+}

@@ -1,0 +1,92 @@
+{
+  "vendor": "mellanox",
+  "model": "SN2010",
+  "label": "NVIDIA Mellanox Spectrum SN2010",
+  "category": "l3-switch",
+  "description": "NVIDIA (Mellanox) Spectrum SN2010 half-width 1RU open Ethernet switch for storage and hyperconverged racks: 18x 1/10/25GbE SFP28 plus 4x 40/100GbE QSFP28, 1.7 Tb/s, 1.26 Bpps, 57 W typical. Two fit side by side in one 19-inch 1U slot.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli",
+    "http-server",
+    "vlan",
+    "lacp",
+    "stp"
+  ],
+  "portTemplate": {
+    "prefix": "Ethernet1/",
+    "start": 1,
+    "count": 18,
+    "type": "ethernet",
+    "speed": "25G",
+    "connector": "sfp28",
+    "speedCaps": [
+      1000,
+      10000,
+      25000
+    ]
+  },
+  "interfaces": [
+    {
+      "name": "Ethernet1/19",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        40000,
+        100000
+      ]
+    },
+    {
+      "name": "Ethernet1/20",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        40000,
+        100000
+      ]
+    },
+    {
+      "name": "Ethernet1/21",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        40000,
+        100000
+      ]
+    },
+    {
+      "name": "Ethernet1/22",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        40000,
+        100000
+      ]
+    },
+    {
+      "name": "mgmt",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "rj45",
+      "speedCaps": [
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "console",
+      "type": "console"
+    }
+  ],
+  "fabric": {
+    "capacityMbps": 1700000,
+    "kind": "switching fabric",
+    "note": "Vendor aggregate throughput 1.7 Tb/s (1.26 Bpps) from the SN2010 product brief KEY FEATURES and the SN2000 1U hardware manual speed table: 18 x 25GbE (2 x 25 Gbit/s full duplex) + 4 x 100GbE (2 x 100 Gbit/s) = 900 + 800 Gbit/s = 1.7 Tb/s. QSFP28 ports split to 4x25GbE or 2x50GbE, so the table counts up to 34 x 25GbE ports when every cage is broken out; breakout does not change the fabric figure."
+  },
+  "notes": "Half-width 1RU: 43.8 mm (H) x 200 mm (W) x 508 mm (D), 4.54 kg, 57 W typical with passive cables (ATIS), 100-240 VAC input, per the SN2010 product brief (53196PB) power and physical table. Ports: 18 x SFP28 at 1/10/25GbE (1GbE needs a 1G SFP) and 4 x QSFP28 at 40/100GbE, all splittable (100GbE to 4x25GbE or 2x50GbE; 40GbE to 4x10GbE). ONIE-bootable; ships with Mellanox Onyx, Cumulus Linux or ONIE, so the boot image is a property of the SKU rather than of the box. Management: one 10/100/1000BASE-T RJ45 MGT port and a USB console port (the brief lists a USB console port for management); there is no RJ45 serial console and no PoE on any model in this family. L2/L3: MLAG, 802.1Q 4K VLANs, 802.1w and 802.1s, 802.3ad LACP (64 groups, 32 ports per channel), 64 VRFs, BGP4, OSPFv2, VRRP, PIM-SM and PIM-SSM, 64-way ECMP, VXLAN EVPN hardware VTEP, PTP IEEE-1588, sFlow, dual software images. SN2010-to-SN2010 DAC connection is limited to ports 3, 6, 9, 12, 15 and 18. Datasheet contradiction recorded: the product brief headline says 18 ports of 10/25GbE and 4 splittable ports of 40/100GbE, while the family hardware manual labels the 18 SFP28 cages 1/10/25GbE and marks 1GbE as needing a 1G SFP; the catalogue follows the manual and carries 1GbE only as a speed capability of the cage. Sources: https://network.nvidia.com/files/doc-2020/pb-sn2010.pdf and https://docs.nvidia.com/networking/display/nvidia-spectrum-sn2000-1u-switch-systems-hardware-user-manual.pdf",
+  "sourceUrl": "https://network.nvidia.com/files/doc-2020/pb-sn2010.pdf"
+}

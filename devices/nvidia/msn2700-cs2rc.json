@@ -2,13 +2,16 @@
   "vendor": "nvidia",
   "model": "msn2700-cs2rc",
   "label": "NVIDIA MSN2700-CS2RC (Spectrum SN2700, 32x 100GbE)",
-  "category": "switch",
+  "category": "l3-switch",
   "description": "NVIDIA Spectrum SN2700 1U open Ethernet switch: 32x 100GbE QSFP28, 6.4 Tb/s, Cumulus Linux, plus 1x 1G management.",
   "capabilities": [
     "l2-forward",
     "l3-forward",
     "cli",
-    "http-server"
+    "http-server",
+    "vlan",
+    "lacp",
+    "stp"
   ],
   "interfaces": [
     {
@@ -436,7 +439,27 @@
         1000,
         100
       ]
+    },
+    {
+      "name": "mgmt",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "rj45",
+      "speedCaps": [
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "console",
+      "type": "console"
     }
   ],
-  "notes": "Vendor figures: **32 ports at 100GbE (QSFP28), 6.4 Tb/s throughput, 4.76 Bpps**, Spectrum-1 ASIC, 1U, **Cumulus Linux** in the -C2RC SKU (the suffix is the OS image and airflow, not the hardware). Each QSFP28 cage breaks out to 4 x 25G, 2 x 50G or 1 x 40G, which is why the entry carries the whole `speedCaps` list - a 32-port switch becomes a 128-port one on breakout cables."
+  "notes": "MSN2700-CS2RC is the Cumulus Linux, connector-to-power (C2P) airflow order code of the SN2700: 32 x QSFP28 at 40/50/100GbE in a full-width 1RU, 6.4 Tb/s, 4.76 Bpps, from the SN2700 product brief and its part-number table (MSN2700-CS2F/-CS2R Onyx, -CS2FC/-CS2RC Cumulus, -CS2FO/-CS2RO ONIE, -CBBFO ONIE with DC supplies; the -BS2x table is the 40GbE-only order code set on the same 32 cages). Physical: 43.8 mm (H) x 427.83 mm (W) x 686 mm (D), 11.1 kg, 150 W typical with passive cables (ATIS), 100-127 VAC and 200-240 VAC input, standard depth, dual PSUs. Management: one 10/100/1000BASE-T RJ45 MGT port and a USB console port; no RJ45 serial console, no PoE. L2/L3: MLAG, 4K VLANs, 802.1w and 802.1s, LACP, 64 VRFs, BGP4, OSPFv2, VRRP, 64-way ECMP, VXLAN EVPN VTEP, PTP IEEE-1588, sFlow, dual software images. Corrections recorded this run: the entry had no source URL, was catalogued as a plain 'switch' although the brief lists L3 routing (BGP4/OSPFv2/VRRP, 64 VRFs), and carried 32 QSFP28 ports with no management port, no console and no fabric capacity. Its vendor key stays 'nvidia' while the rest of this Spectrum-1 family (SN2010, SN2100, SN2201, SN2410) sits under 'mellanox'; that split is upstream of this run and is flagged in the PR rather than changed here. Sources: https://network.nvidia.com/files/doc-2020/pb-sn2700.pdf and https://docs.nvidia.com/networking/display/nvidia-spectrum-sn2000-1u-switch-systems-hardware-user-manual.pdf",
+  "sourceUrl": "https://network.nvidia.com/files/doc-2020/pb-sn2700.pdf",
+  "fabric": {
+    "capacityMbps": 6400000,
+    "kind": "switching fabric",
+    "note": "Vendor throughput 6.4 Tb/s (4.76 Bpps) from the SN2700 product brief KEY FEATURES: 32 x 100GbE x 2 = 6.4 Tb/s full duplex. With breakout the same 32 cages present 128 x 25GbE or 64 x 50GbE; that does not change the fabric figure. Source: https://network.nvidia.com/files/doc-2020/pb-sn2700.pdf"
+  }
 }
