@@ -1,0 +1,75 @@
+{
+  "vendor": "huawei",
+  "model": "MA5800-X17",
+  "label": "SmartAX MA5800-X17 OLT",
+  "category": "olt",
+  "description": "Huawei SmartAX MA5800-X17 11U OLT: a 22-slot shelf - 17 service/upstream slots (1-8 and 11-19), 2 control-board slots (9, 10), the universal interface slot 0 and power slots 20, 21 - scaling to 272 GPON, 272 XG-PON or 272 XGS-PON ports. Modelled as one stated configuration, the same way the X7 and X15 already are: one H901GPHF 16-port GPON card in slot 1 (gpon1/1-16, SC/APC) plus the 4x GE/10GE SFP+ uplinks of a single H901MPLA control board and 1 GE out-of-band management port = 21 ports. The 272-port figure is the shelf's capacity with every service slot filled by a 16-port card, not a port census, so it lives in the notes rather than in the interface list.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli",
+    "dhcp-server",
+    "dhcp-client"
+  ],
+  "portTemplate": {
+    "prefix": "gpon1/",
+    "start": 1,
+    "count": 16,
+    "type": "pon",
+    "speed": "2.5G",
+    "connector": "sc-apc",
+    "speedCaps": [
+      1244,
+      2488
+    ]
+  },
+  "interfaces": [
+    {
+      "name": "xge0/1",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "xge0/2",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "xge0/3",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "xge0/4",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "mgmt0",
+      "type": "ethernet",
+      "speed": "1G"
+    }
+  ],
+  "sourceUrl": "https://e.huawei.com/en/products/optical-access/ma5800",
+  "notes": "Huawei MA5800 specification table, MA5800-X17 column (https://e.huawei.com/en/products/optical-access/ma5800): board configuration 'Control board slots: 9, 10 / Service board or upstream interface board slots: 1-8, 11-19 / Universal interface board slot: 0 / Power board slots: 20, 21'; GPON ports 272, XG-PON ports 272, XGS-PON ports 272; upstream ports 'MPLA/MPLB: 8 x 10GE/GE, MPLG: 2 x 100GE + 4 x 10GE/GE, MPLH: 4 x 100GE + 8 x 25GE/10GE/GE' when both control boards carry upstream traffic; payload switching capacity per control board MPLA 3.6 Tbit/s, MPLB 7.0, MPLG 7.3, MPLH 8.0 Tbit/s (load sharing); maximum payload bandwidth per service slot MPLA 100 Gbit/s, MPLB/MPLG/MPLH 200 Gbit/s; 34816 access ONTs; dimensions 493 x 287 x 486 mm excluding mounting ears (535 x 287 x 486 with them), 45 kg fully loaded; -38.4 V to -72 V DC, 60 A maximum input, dual power boards; -40 to +65 C. Board table on the same page: H901MPLA '4x GE / 10GE upstream, load sharing, 200 Gbps for service board' (single board = 4 uplinks, which is why this spec shows xge0/1-4), H901GPHF '16 GPON ports', H901XGHD '8 XGPON 10 Gb/s / 2.5 Gb/s asymmetric ports', H901TWED '8 symmetrical XGPON 10 Gb/s ports', H901OGHK '48 GE / FE ports', H901OXHD '8x 10GE optical ports', H901NXED '8x 10GE, GE / 10GE'. No PoE: an OLT subrack sources no power over its PON ports."
+}

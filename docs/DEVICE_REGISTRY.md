@@ -243,7 +243,7 @@ entry it returns is either a device with at least one named port or an error tha
 
 ## What is in the catalogue
 
-**2,201 models across 252 vendors**, and it grows every time somebody's hardware is
+**2,202 models across 252 vendors**, and it grows every time somebody's hardware is
 added. The largest vendors by model count:
 
 | vendor | models | | category | models |
@@ -251,7 +251,7 @@ added. The largest vendors by model count:
 | MikroTik | 366 | | router | 372 |
 | Ubiquiti | 367 | | switch | 375 |
 | Aruba | 73 | | point-to-point | 212 |
-| Huawei | 85 | | wireless | 219 |
+| Huawei | 86 | | wireless | 219 |
 | Cisco | 58 | | L3 switch | 206 |
 | TP-Link | 56 | | IoT | 125 |
 | Teltonika | 88 | | modem | 54 |
