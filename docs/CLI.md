@@ -2152,7 +2152,7 @@ Exec and privileged EXEC share one dispatcher, and only `exit` at `>` was handle
 
 What did **not** change: a word the console does not know is still reported in every mode (`% Unrecognized config command: flurbish`), because the fix is the two help keys and the one level, not a general amnesty.
 
-`?` was still a typo one position after a word, though, and that position is the other one the console keeps a complete table for. Every other place is left alone deliberately — there is no complete list of what may follow `interface` or `speed`, and a console that guesses there accepts lines the box it imitates would refuse:
+`?` was still a typo one position after a word, though, and that position is one of the two the console keeps a complete table for — the other is the end of a `no` line, in the `no` section below. Every other place is left alone deliberately — there is no complete list of what may follow `interface` or `speed`, and a console that guesses there accepts lines the box it imitates would refuse:
 
 ```
 Router#show ?
@@ -2226,6 +2226,63 @@ Ungrammatical, no subject, and phrased as if the command had removed something. 
 Writing it a different way first — `Access list 101 is not applied in on Gi0/0`, which reads fine — failed an existing check in `test/config-undo.test.js`, which had already pinned the house shape for this refusal. The repo's own test caught the deviation, so the new wording follows the neighbours instead of the other way round.
 
 `test/no-command-touches-only-what-it-names.test.js` holds all three: seven checks covering the four destructive `no` forms, the two forms that really do clear the priority, the "nothing set" answer, the help row, the three speed spellings, and both access-group sentences. With the old handler: 3 passed / 4 failed.
+
+### `no vlan 42 name ?` removed the VLAN
+
+The `no` forms in this section all read the word that names what to undo. None of them read the words *after*
+it: a branch takes the tokens it needs and ignores the rest, so a `?` typed at the end of a `no` line where the
+operator was asking for help was one more token to ignore and the line acted.
+
+```
+sw1(config)#no vlan 42 name ?
+VLAN 42 removed
+sw1(config)#no hostname ?
+Hostname cleared (device is now d1)
+sw1(config-if)#no description ?
+Description removed: uplink to core
+```
+
+Three destructive lines, three receipts shaped like success, and none of them answers the question the key was
+asking. Checking the value position (#1685, #1691) cannot see this one, because the damage is done by the words
+*before* the key — `no vlan 42` is a complete and destructive line on its own.
+
+So the key is checked once, before any `no` branch acts, and the refusal is written in the words of the branch it
+stopped, which is the syntax the operator wanted in the first place:
+
+```
+sw1(config)#no vlan 42 name ?
+% "?" is the help key, not a value: `no vlan <id>` removes a VLAN - nothing was removed
+sw1(config)#no hostname ?
+% "?" is the help key, not a value: `no hostname` clears the hostname - nothing was cleared
+sw1(config-if)#no description ?
+% "?" is the help key, not a value: `no description` clears the description on this port - nothing was cleared
+```
+
+The table behind it is `NO_FORMS` in `engine/cli.js`: 32 branches — 15 in config mode, 9 at an interface, 8 in a
+DHCP pool — and the longest match wins, so `no ip nat pool <name>` is named rather than the `no ip nat` beside it.
+A head the table does not know is refused without inventing a syntax it never had:
+
+```
+sw1(config)#no flurbish ?
+% "?" is the help key, not a value: a `no` line undoes a command that is already configured - nothing was changed
+```
+
+`no ?` is the one line where the key really is a question — the word it wanted is missing, so the answer is where
+the index is:
+
+```
+sw1(config)#no ?
+% Incomplete command: `no` needs the command it undoes, e.g. `no vlan <id>`; type `?` on its own for the index - nothing was changed
+```
+
+Only a whole token is the key. A `?` inside a longer word is part of the word and is left alone, so on a box
+with VLAN 42, `no vlan 42 name lab?1` is still a `no vlan 42` and answers `VLAN 42 removed`.
+
+`test/no-form-help-key.test.js` holds the lot: eight groups covering the three destructive lines above and the
+state each one left behind (`show vlan` still lists VLAN 42, the running-config still prints the hostname, the port
+keeps its description), the other `no` heads that ignore trailing tokens, `no network ?` and `no pool ?` in pool
+mode, the whole-token rule, the bare `no ?`, and an unrecognised head. 81 checks; with the old handler, 13 passed
+/ 68 failed.
 
 ## A stated range is the range the check applies
 
