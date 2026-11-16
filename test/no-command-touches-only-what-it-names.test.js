@@ -201,3 +201,31 @@ test('the bundle table is ordered by number, not as strings', () => {
     .map(function (m) { return Number(m[1]); });
   assert.deepStrictEqual(order, [2, 10, 100], 'the groups read 2, 10, 100: ' + summary);
 });
+
+// ---------------------------------------------------------------------------
+// The same word, asked in both directions, has to get the same answer.
+//
+// `spanning-tree vlan 10` explains that this device runs one tree and names the command that does exist.
+// `no spanning-tree vlan 10` called `vlan` an *unknown* sub-command, which tells an operator the console has
+// never heard of per-VLAN spanning tree - not what the other door says, and not true: per-VLAN STP is a real
+// IOS concept this model deliberately does not have (#1509). #1501 taught the `no` branch the unmodelled
+// *verbs*; `vlan` is the one sub-command that is not a verb, and it stayed in the set branch only.
+// ---------------------------------------------------------------------------
+
+test('the set and no directions agree about per-VLAN spanning tree', () => {
+  const { run, dev } = lab('generic-switch');
+  run('spanning-tree priority 4096');
+  assert.strictEqual(dev.config.stpPriority, 4096, 'setup: the priority must be set');
+
+  for (const form of ['spanning-tree vlan 10', 'no spanning-tree vlan 10']) {
+    const answer = run(form);
+    assert.match(answer, /one spanning tree, not one per VLAN/,
+      '`' + form + '` has to say why the concept is not here: ' + answer);
+    assert.doesNotMatch(answer, /unknown/i,
+      'vlan is a real IOS word, so neither direction may call it unknown - `' + form + '` said: ' + answer);
+    assert.match(answer, /spanning-tree priority/,
+      'and each direction has to name the command that does exist - `' + form + '` said: ' + answer);
+    assert.strictEqual(dev.config.stpPriority, 4096,
+      '`' + form + '` asks about a tree this device does not have, so it must not remove the priority');
+  }
+});

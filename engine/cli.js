@@ -102,6 +102,12 @@ function showIpUsage() {
 const STP_UNMODELLED = ['portfast', 'edge', 'bpduguard', 'bpdufilter', 'cost', 'guard', 'link-type',
   'mode', 'mst', 'loopguard', 'root', 'backbonefast', 'uplinkfast'];
 
+// Per-VLAN spanning tree is a real IOS concept this model deliberately does not have, so both directions refuse it
+// in the same words. The set form explained that and the `no` form instead called `vlan` an *unknown* sub-command,
+// which tells an operator the console has never heard of per-VLAN STP - the opposite of what the other door said,
+// and not true (#1509). `vlan` is not a verb, which is why hoisting the unmodelled verbs in #1501 missed it.
+const STP_ONE_TREE = 'This device runs one spanning tree, not one per VLAN';
+
 class CliSession {
   constructor(device, topology, simulator) {
     this.device = device;
@@ -321,7 +327,7 @@ class CliSession {
         // IOS spells this per VLAN. This model runs one spanning tree for the device, so accepting a
         // VLAN id would promise a per-VLAN election that does not exist - say so instead of quietly
         // applying it to everything.
-        return ['% This device runs one spanning tree, not one per VLAN: use `spanning-tree priority <0-61440>`'];
+        return ['% ' + STP_ONE_TREE + ': use `spanning-tree priority <0-61440>`'];
       }
       // Read the verb before the value. This handler used to take tokens[2] as the priority no matter what
       // tokens[1] said, so every other spanning-tree sub-command was answered as if it were `priority`:
@@ -451,6 +457,13 @@ class CliSession {
       // wiped a bridge priority the operator had set, and `no spanning-tree flurbish` did the same. The set form was
       // fixed in #1493; the `no` form is the same defect pointing the other way, and it is destructive (#1501).
       const verb = (tokens[2] || '').toLowerCase();
+      if (verb === 'vlan') {
+        // There is no per-VLAN tree here, so there is nothing to remove - but calling the word unknown says
+        // this console has never heard of the concept, while the set form explains it. Both doors answer the
+        // same question, so they answer it the same way, and name the removal that does exist (#1509).
+        return ['% ' + STP_ONE_TREE + ': there is no per-VLAN tree to remove, so the removal that exists is ' +
+          '`no spanning-tree priority`, which takes the bridge priority off'];
+      }
       if (verb && verb !== 'priority') {
         if (STP_UNMODELLED.indexOf(verb) !== -1) {
           return ['% spanning-tree ' + verb + ' is not modelled, so there is nothing to remove: this device runs ' +
