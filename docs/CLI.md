@@ -35,7 +35,7 @@ Modes and their prompts:
 | `show vrrp` | the group, its state (`Master`/`Backup`/`Init` with the reason), and the master the election chose |
 | `show running-config` | full configuration |
 | `ping <ip> [count]` | ICMP echo from this device |
-| `traceroute <ip>` (`tracert`) | TTL-limited probes, one hop at a time; each router that expires a probe answers with ICMP time exceeded, the destination with an echo reply |
+| `traceroute <ip>` (`tracert`) | TTL-limited probes, one hop at a time; each router that expires a probe answers with ICMP time exceeded, the destination with an echo reply, and a hop stopped by a down cable, a shut port or an ACL says why and ends the walk |
 | `exit` / `logout` | leave the session |
 
 ## A command with words it cannot use refuses them
@@ -807,6 +807,35 @@ extra: the timeout line already said what happened, and inventing a cause for it
 
 The browser's Simulate dialog draws the same sentence from the same rule, mirrored and checked case for case, so a
 percentage and its explanation cannot drift apart on one surface and agree on the other.
+
+### A trace that stops where the cable did
+
+`ping` and `traceroute` are read side by side in a ticket, so a trace is not allowed to be vaguer than the echo
+beside it. A hop that was **stopped** — a cable that is down, a port that is shut, an ACL that refused the probe, a
+VLAN the egress port is not allowed on — is not the same statement as a hop that stayed silent, and the walk now
+ends where the wire did instead of printing the same star thirty times:
+
+```
+PC1#traceroute 10.0.3.9
+Type escape sequence to abort.
+Tracing the route to 10.0.3.9
+ 1  *  no reply  (link down)
+% destination not reached after 1 hops
+```
+
+That is PC1's own cable pulled: `show interfaces eth0` says `status: down (link down)` and counts `link down` in
+its drops. The bracketed clause is the reason the engine recorded for the drop, in the vocabulary `show interfaces`
+already counts (`peer port shut (R2 Gi0/0)`, `ACL 101 denied (out)`, `VLAN not allowed on egress`), and it is chosen
+differently from `ping`'s: a trace looks for the structural cause first, because `no ARP reply from <ip>` is a
+conclusion drawn from the silence that followed the drop, and it would name the symptom instead of the cable.
+
+The walk stops there because a probe that never crossed a link cannot take another road with a larger TTL — hops
+two to thirty would repeat that sentence verbatim, and thirty identical stars are not a report.
+
+One silence is deliberately **not** final: `no ARP reply from <ip>` alone is not a stopped probe, because a lab that
+is still converging can resolve it on the next probe, so that hop prints its reason and the walk continues. When the
+drop was recorded on a router in the path rather than on the box you are standing at, the clause says so, so a trace
+from a PC does not read as though the PC dropped its own probe.
 
 ### Reading DHCP
 
