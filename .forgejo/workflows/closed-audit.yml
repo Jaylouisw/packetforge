@@ -35,9 +35,30 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
+      # No setup-node here, for the reason ci.yml already removed it from the `smoke` job and
+      # from the `Test (Node *)` legs: every job in this repository already runs on Node 20,
+      # because the runner's `ubuntu-latest` image is `node:20-bookworm`. Downloading Node 20
+      # onto Node 20 was most of a 48 s `smoke` job (median 48.5 s over 22 jobs, tasks
+      # 7312-7608, against 22 s for the `docker` job that does more work) and 25 s of a 229 s
+      # test leg (run 3122, task 6833).
+      #
+      # This audit kept the step and paid the same price on every merge: over the 185
+      # successful audit jobs recorded up to task 8071 (median 32 s, the twelve most recent
+      # 28-39 s) the script itself accounts for a few seconds and the runtime download for the
+      # rest. Nothing here needs a package install or a Node version different from the image's:
+      # the script is plain Node with three `require`s and no dependency in `node_modules`.
+      #
+      # Two smaller costs go with it. `setup-node` is one more action for the runner to clone
+      # into /data/.cache/act, on the same volume that has already filled once, once per action
+      # revision (ci.yml documents the checkout collision that caused: run 3122, task 6834).
+      # And this job fires on **every push to main**, so the download is paid per merge, not
+      # per pull request.
+      #
+      # The runtime is printed rather than asserted, following the `smoke` job: this job's job
+      # is an API read, the Node 18/20/22 matrix is what pins the runtime, and a bumped image
+      # should be visible in the log rather than a red check that blocks an unrelated merge.
+      - name: Which runtime is running this
+        run: node --version
 
       - name: Audit closed requests against the catalogue
         # A missing token is reported as a skip, not a failure: the audit needs API reads on the
