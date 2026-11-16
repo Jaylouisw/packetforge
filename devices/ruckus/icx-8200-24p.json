@@ -1,0 +1,103 @@
+{
+  "vendor": "ruckus",
+  "model": "ICX 8200-24P",
+  "label": "RUCKUS ICX 8200-24P (24x 1G PoE+, 370 W, 4x 25G SFP28)",
+  "category": "l3-switch",
+  "description": "RUCKUS ICX 8200-24P stackable PoE access switch: 24x 10/100/1000BASE-T RJ-45 802.3af/at PoE+ (370 W budget), 4x 1/10/25G SFP28 uplink/stacking cages, 248 Gbps switching capacity.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli",
+    "vlan",
+    "lacp",
+    "stp",
+    "poe-pse",
+    "802.3af",
+    "802.3at"
+  ],
+  "icon": "switch",
+  "color": "#c8102e",
+  "portTemplate": {
+    "prefix": "1/1/",
+    "start": 1,
+    "count": 24,
+    "type": "ethernet",
+    "connector": "rj45",
+    "speed": "1G",
+    "speedCaps": [
+      10,
+      100,
+      1000
+    ],
+    "poeOut": 30,
+    "poeOutClass": "PoE+"
+  },
+  "interfaces": [
+    {
+      "name": "1/2/1",
+      "type": "ethernet",
+      "connector": "sfp28",
+      "speed": "25G",
+      "speedCaps": [
+        1000,
+        10000,
+        25000
+      ]
+    },
+    {
+      "name": "1/2/2",
+      "type": "ethernet",
+      "connector": "sfp28",
+      "speed": "25G",
+      "speedCaps": [
+        1000,
+        10000,
+        25000
+      ]
+    },
+    {
+      "name": "1/2/3",
+      "type": "ethernet",
+      "connector": "sfp28",
+      "speed": "25G",
+      "speedCaps": [
+        1000,
+        10000,
+        25000
+      ]
+    },
+    {
+      "name": "1/2/4",
+      "type": "ethernet",
+      "connector": "sfp28",
+      "speed": "25G",
+      "speedCaps": [
+        1000,
+        10000,
+        25000
+      ]
+    },
+    {
+      "name": "mgmt",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "console",
+      "type": "console"
+    }
+  ],
+  "poe": {
+    "budgetW": 370,
+    "sourceUrl": "https://www.ruckusnetworks.com/products/ethernet-switches/itemicx8200-24p/",
+    "note": "370 W across the 24 PoE+ downlinks. The data sheet caps this at 24 ports of 15.4 W (Class 3) or 12 ports of 30 W (Class 4) - 24 x 30 W would be 720 W, twice the supply. The FastIron 10.0.20 PoE Support Matrix lists 2-pair power on ports 1-24 at 30 W and 802.3bt Type-3 up to Class 4, i.e. the controller can speak bt but no port is offered more than 30 W."
+  },
+  "fabric": {
+    "capacityMbps": 248000,
+    "kind": "switching capacity",
+    "note": "Vendor figure 248 Gbps (data rate, full duplex); forwarding capacity 184 Mpps."
+  },
+  "sourceUrl": "https://www.ruckusnetworks.com/globalassets/digizuite/993200-RUCKUS-ICX-8200-Switch-Data-Sheet.pdf",
+  "notes": "PoE+ on all 24 downlinks at up to 30 W on a 370 W budget: that budget is 12 ports at a full 30 W, not 24 (which would need 720 W), or 24 ports at 15.4 W. The 30 W figure is the port capability, not a promise the switch runs every port at it. PoE matrix (FastIron 10.0.20): https://docs.ruckusnetworks.com/prod/ruckus-docs/fastiron-10020-managementguide/$/PoESupportMatrixGUID-5F3A189B-9A72-418A-AEA6-96FDC67978333en-US. Chassis: single integrated power supply and fans (no redundant PSU), one RJ-45 Ethernet out-of-band management port, one RJ-45 serial console port and one USB Type-C console port, one USB port for external storage. Serial console is fixed at 9600 baud, 8 data bits, no parity, 1 stop bit, no flow control; the RJ-45 pinout is pin 3 TXD, pin 6 RXD, pin 4 ground. Boot firmware: 16 MB SPI flash holding two boot images (dual boot), 4 GB DDR4 main memory, 8 GB eMMC NAND. Stacking: up to 12 switches per stack over the SFP28 uplinks (1.2 Tbps aggregate stacking bandwidth; 10 km maximum stacking distance). Layer 3: static routing and RIP in the base image; OSPF, VRRP, VRF, GRE, PIM, PBR, BGP and VXLAN need the ICX8200-PREM-LIC premium licence, so this is modelled as l3-forward with no licence claim. Management: RUCKUS One, SmartZone, or controllerless Unleashed; the box also carries a CLI. Software: FastIron 10.0.20 is the train the ICX 8200 documentation set is published against (FastIron Management Configuration Guide 10.0.20). Sources: ICX 8200 data sheet (PA-117001.3-EN) https://www.ruckusnetworks.com/globalassets/digizuite/993200-RUCKUS-ICX-8200-Switch-Data-Sheet.pdf; ICX 8200 Technical Specifications, part 53-1005761-03, 15 October 2024 https://docs.ruckusnetworks.com/prod/ruckus-pdfs/icx8200-technicalspecification; product page https://www.ruckusnetworks.com/products/ethernet-switches/itemicx8200-24p/."
+}

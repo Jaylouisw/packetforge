@@ -115,6 +115,15 @@ const RULES = [
     description: 'A console port can only be cabled to another console or USB console port.'
   },
   {
+    // Passed through from canMate() (engine/media.js): the two ends are the right connector
+    // and the wrong protocol - a console against a data port, or a Fibre Channel cage against
+    // an Ethernet one. Listed here because this array is the code list, and a code the
+    // validator can emit that is missing from it reads as an undocumented refusal.
+    code: 'E_PROTOCOL_MISMATCH', severity: 'error',
+    description: 'The two ends carry different protocols (console against data, or Fibre ' +
+      'Channel against Ethernet). The connector may mate; no frame crosses.'
+  },
+  {
     code: 'E_MEDIA_NOT_SUPPORTED', severity: 'error',
     description: 'The requested medium is not supported by both ports.'
   },

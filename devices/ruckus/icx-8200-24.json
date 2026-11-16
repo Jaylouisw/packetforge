@@ -1,0 +1,93 @@
+{
+  "vendor": "ruckus",
+  "model": "ICX 8200-24",
+  "label": "RUCKUS ICX 8200-24 (24x 1G, 4x 25G SFP28)",
+  "category": "l3-switch",
+  "description": "RUCKUS ICX 8200-24 stackable access switch: 24x 10/100/1000BASE-T RJ-45, 4x 1/10/25G SFP28 uplink/stacking cages, no PoE, 248 Gbps switching capacity.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli",
+    "vlan",
+    "lacp",
+    "stp"
+  ],
+  "icon": "switch",
+  "color": "#c8102e",
+  "portTemplate": {
+    "prefix": "1/1/",
+    "start": 1,
+    "count": 24,
+    "type": "ethernet",
+    "connector": "rj45",
+    "speed": "1G",
+    "speedCaps": [
+      10,
+      100,
+      1000
+    ]
+  },
+  "interfaces": [
+    {
+      "name": "1/2/1",
+      "type": "ethernet",
+      "connector": "sfp28",
+      "speed": "25G",
+      "speedCaps": [
+        1000,
+        10000,
+        25000
+      ]
+    },
+    {
+      "name": "1/2/2",
+      "type": "ethernet",
+      "connector": "sfp28",
+      "speed": "25G",
+      "speedCaps": [
+        1000,
+        10000,
+        25000
+      ]
+    },
+    {
+      "name": "1/2/3",
+      "type": "ethernet",
+      "connector": "sfp28",
+      "speed": "25G",
+      "speedCaps": [
+        1000,
+        10000,
+        25000
+      ]
+    },
+    {
+      "name": "1/2/4",
+      "type": "ethernet",
+      "connector": "sfp28",
+      "speed": "25G",
+      "speedCaps": [
+        1000,
+        10000,
+        25000
+      ]
+    },
+    {
+      "name": "mgmt",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "console",
+      "type": "console"
+    }
+  ],
+  "fabric": {
+    "capacityMbps": 248000,
+    "kind": "switching capacity",
+    "note": "Vendor figure 248 Gbps (data rate, full duplex); forwarding capacity 184 Mpps."
+  },
+  "sourceUrl": "https://www.ruckusnetworks.com/globalassets/digizuite/993200-RUCKUS-ICX-8200-Switch-Data-Sheet.pdf",
+  "notes": "Non-PoE 24-port member of the ICX 8200 family: 24 gigabit RJ-45 downlinks in slot 1 and four SFP28 cages in slot 2, each taking 1G, 10G or 25G optics or a DAC. No PoE hardware at all, so nothing on this box can power a PD. Chassis: single integrated power supply and fans (no redundant PSU), one RJ-45 Ethernet out-of-band management port, one RJ-45 serial console port and one USB Type-C console port, one USB port for external storage. Serial console is fixed at 9600 baud, 8 data bits, no parity, 1 stop bit, no flow control; the RJ-45 pinout is pin 3 TXD, pin 6 RXD, pin 4 ground. Boot firmware: 16 MB SPI flash holding two boot images (dual boot), 4 GB DDR4 main memory, 8 GB eMMC NAND. Stacking: up to 12 switches per stack over the SFP28 uplinks (1.2 Tbps aggregate stacking bandwidth; 10 km maximum stacking distance). Layer 3: static routing and RIP in the base image; OSPF, VRRP, VRF, GRE, PIM, PBR, BGP and VXLAN need the ICX8200-PREM-LIC premium licence, so this is modelled as l3-forward with no licence claim. Management: RUCKUS One, SmartZone, or controllerless Unleashed; the box also carries a CLI. Software: FastIron 10.0.20 is the train the ICX 8200 documentation set is published against (FastIron Management Configuration Guide 10.0.20). Sources: ICX 8200 data sheet (PA-117001.3-EN) https://www.ruckusnetworks.com/globalassets/digizuite/993200-RUCKUS-ICX-8200-Switch-Data-Sheet.pdf; ICX 8200 Technical Specifications, part 53-1005761-03, 15 October 2024 https://docs.ruckusnetworks.com/prod/ruckus-pdfs/icx8200-technicalspecification; product page https://www.ruckusnetworks.com/products/ethernet-switches/itemicx8200-24/."
+}
