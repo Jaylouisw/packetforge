@@ -1,0 +1,185 @@
+{
+  "vendor": "planet",
+  "model": "GS-4210-24T4S",
+  "label": "GS-4210-24T4S 24-port Gigabit managed switch",
+  "category": "switch",
+  "description": "24 x 10/100/1000BASE-T plus 4 x 1000/2500BASE-X SFP and an RS-232-to-RJ45 console, no PoE. L2/L4 managed, 68 Gbps non-blocking fabric, 1U rack mount, 17.4 W at full load.",
+  "capabilities": [
+    "l2-forward",
+    "vlan",
+    "lacp",
+    "stp",
+    "cli",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "3",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "4",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "5",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "6",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "7",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "8",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "9",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "10",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "11",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "12",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "13",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "14",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "15",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "16",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "17",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "18",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "19",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "20",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "21",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "22",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "23",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "24",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "25",
+      "type": "ethernet",
+      "speed": "2.5G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000,
+        2500
+      ]
+    },
+    {
+      "name": "26",
+      "type": "ethernet",
+      "speed": "2.5G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000,
+        2500
+      ]
+    },
+    {
+      "name": "27",
+      "type": "ethernet",
+      "speed": "2.5G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000,
+        2500
+      ]
+    },
+    {
+      "name": "28",
+      "type": "ethernet",
+      "speed": "2.5G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000,
+        2500
+      ]
+    },
+    {
+      "name": "console",
+      "type": "console"
+    }
+  ],
+  "notes": "Hardware version 2 figures from the PLANET product page: 68 Gbps non-blocking fabric, 50.5 Mpps at 64 B, 16K MAC table, 4.1 Mbit buffer, 12K jumbo frame, 17.4 W at full load, 440 x 207 x 44 mm, 1.9 kg, 0-50 C. The SFP slots are stated as 1000/2500BASE-X dual mode, so they are modelled at 2.5G with a 1G/2.5G capability list rather than as 100M-capable cages. The GS-4210-24T4SR is the same chassis with an added 36-60 VDC input and is not modelled here.",
+  "sourceUrl": "https://www.planet.com.tw/en/product/gs-4210-24t4s-gs-4210-24t4sr-v2",
+  "icon": "switch",
+  "color": "#64748b"
+}

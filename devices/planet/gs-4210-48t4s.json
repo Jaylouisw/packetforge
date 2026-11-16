@@ -1,0 +1,305 @@
+{
+  "vendor": "planet",
+  "model": "GS-4210-48T4S",
+  "label": "GS-4210-48T4S 48-port Gigabit managed switch",
+  "category": "switch",
+  "description": "48 x 10/100/1000BASE-T plus 4 x 100/1000BASE-X SFP (ports 49-52) and an RS-232-to-RJ45 console, no PoE. L2/L4 managed, 104 Gbps non-blocking fabric, fanless 1U rack mount.",
+  "capabilities": [
+    "l2-forward",
+    "vlan",
+    "lacp",
+    "stp",
+    "cli",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "1",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "2",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "3",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "4",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "5",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "6",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "7",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "8",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "9",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "10",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "11",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "12",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "13",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "14",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "15",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "16",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "17",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "18",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "19",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "20",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "21",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "22",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "23",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "24",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "25",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "26",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "27",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "28",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "29",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "30",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "31",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "32",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "33",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "34",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "35",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "36",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "37",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "38",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "39",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "40",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "41",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "42",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "43",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "44",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "45",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "46",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "47",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "48",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "49",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "50",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "51",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "52",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "console",
+      "type": "console"
+    }
+  ],
+  "notes": "Hardware version 3 figures from the PLANET product page: 104 Gbps non-blocking fabric, 77.38 Mpps at 64 B, 16K MAC table, 12 Mbit SRAM packet buffer, 10K jumbo frame, 36.1 W max draw, fanless, 440 x 330 x 44 mm, 4.2 kg, 0-50 C. SFP ports are numbered 49-52 and are 100/1000BASE-X only - the 2.5G uplinks belong to the 24T4S/24T4SR hardware v2 pair, not this chassis.",
+  "sourceUrl": "https://www.planet.com.tw/en/product/gs-4210-48t4s-v3",
+  "icon": "switch",
+  "color": "#64748b"
+}
