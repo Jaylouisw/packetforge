@@ -1220,14 +1220,15 @@ cannot disagree — and a refusal underneath names **the command the reader type
 rewritten into: being answered about `show etherchannel` after typing `show port-channel` reads as a
 non sequitur.
 
-`test/show-view-phrase.test.js` pins both, 48 checks: six view words with six different tails are
+`test/show-view-phrase.test.js` pins both, 49 checks: six view words with six different tails are
 each reported as views, never as missing ports, quoting the typed phrase; the bare word and the
 phrase point at the same place; a typo, a near-miss port and a real port all answer exactly as
 before; the port lookup precedes the keyword lookup in the source; `show port-channel`,
 `show port-channel summary` and `show port-channel brief` print *exactly* what their etherchannel
 counterparts print on a lab with a live bundle; an argument is refused by the name the reader typed;
-a device with no bundle gives the same sentence under both names; and all thirteen view words are
-still views.
+a device with no bundle answers both spellings with the device's own empty table — the key, two
+zeros, the header and the rule, with no `% ` error line in it; and all thirteen view words are still
+views.
 
 ### The spellings IOS taught, on a console that has the views under other names
 
