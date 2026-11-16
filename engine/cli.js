@@ -3710,7 +3710,23 @@ class CliSession {
         .filter(function (r) { return r.mask === '0.0.0.0' && r.gw && r.gw !== '-'; })
         .filter(function (r) { return !r.unusable; })
         .sort(function (a, b) { return a.distance - b.distance; })[0];
-      if (fallback) out.push('Gateway of last resort is ' + fallback.gw + ' to network 0.0.0.0');
+      if (fallback) {
+        out.push('Gateway of last resort is ' + fallback.gw + ' to network 0.0.0.0');
+      } else if (typeof dev.isL3 === 'function' && dev.isL3()) {
+        // A box that routes always answers the question, and Cisco's own `show ip route` samples answer it
+        // negatively when nothing is installed: `Gateway of last resort is not set`, in this same place,
+        // between the codes legend and the first route row. Leaving the line out made "there is no default"
+        // and "this console does not talk about defaults" look identical.
+        //
+        // The negative form is printed whenever no reachable default exists - including when a default row is
+        // listed but no packet can leave by it, which is what a real box does with a next hop that is off every
+        // connected subnet: the row still carries the reason, and the line above it says the gateway is not set.
+        //
+        // Only for a box that routes. A Catalyst that does not run `ip routing` prints its own, different
+        // `show ip route` ("Default gateway is not set" over a Host/Gateway table), which this console does
+        // not model - giving it a router's sentence would answer with a shape the device never prints.
+        out.push('Gateway of last resort is not set');
+      }
 
       for (const r of rows) {
         const prefix = net.prefixOf(r.mask);

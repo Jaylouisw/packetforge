@@ -106,8 +106,11 @@ console.log('Scenario B: a default route through an unreachable gateway');
 {
   const L = lab(['ip route 0.0.0.0 0.0.0.0 172.16.9.1']);
   const out = showRoute(L);
-  ok(!out.some(function (l) { return /^Gateway of last resort/.test(l); }),
-    'no "Gateway of last resort" line names a gateway that cannot be reached',
+  // The line is still printed - a box that routes always answers this question - but it must not name a
+  // gateway no packet can reach: with no reachable default, that is the negative form and nothing else.
+  const gwLines = out.filter(function (l) { return /^Gateway of last resort/.test(l); });
+  ok(gwLines.length === 1 && gwLines[0] === 'Gateway of last resort is not set',
+    'the gateway line says it is not set rather than naming a gateway that cannot be reached',
     out.filter(function (l) { return /Gateway/.test(l); }).join(' | '));
   ok(/\(no interface on the subnet of next hop 172\.16\.9\.1\)/.test(printedFor(out, '0.0.0.0')),
     'the default is still printed, with its reason', printedFor(out, '0.0.0.0'));

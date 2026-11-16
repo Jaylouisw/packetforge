@@ -21,7 +21,7 @@ Modes and their prompts:
 | `configure terminal` | enter config mode |
 | `show version` | vendor, model, category, capabilities |
 | `show ip interface brief` | interface IP / status table (status = whether the port can carry a frame) |
-| `show ip route` | routing table: connected, static, OSPF, BGP, and the default |
+| `show ip route` | routing table: connected, static, OSPF, BGP, and the default - or `Gateway of last resort is not set` when there is none |
 | `show arp` | ARP cache, with an age per neighbour, the port it was learned on, and whether that port can still carry a frame |
 | `show mac address-table` | MAC table (switches), per VLAN, with an age per entry and stale entries marked |
 | `show vlan` / `show vlan brief` | VLAN table: one row per VLAN, with the ports that actually carry it, and the four reserved defaults (1002-1005) a switch has from boot |
@@ -1480,6 +1480,20 @@ The default gets two forms because there are two ways to configure one:
 the default packets actually leave by, so a device with both configured shows the static route there and
 the configured gateway as `S*` below it — which is exactly the tie the old output hid by printing both as
 `S`.
+
+A box that routes always answers that question, in one of two forms. With no reachable default it is the
+negative one, in the place Cisco's own samples put it — directly under the codes legend, above the first
+route row:
+
+```
+r1#show ip route
+Codes: C - connected, S - static, O - OSPF, B - BGP
+Gateway of last resort is not set
+```
+
+The line is absent only on a box that does not route at all. A Catalyst without `ip routing` answers
+`show ip route` with a different shape — `Default gateway is not set` above a Host/Gateway table — which
+this console does not model, so it is not handed a router's sentence.
 
 #### One prefix, one installed route
 

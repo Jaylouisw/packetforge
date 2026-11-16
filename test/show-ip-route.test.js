@@ -125,14 +125,38 @@ console.log('Distances are the ones the engine actually uses:');
 }
 
 console.log('');
-console.log('A device with no default prints no gateway line:');
+console.log('A device with no default says so, in the place the device says it:');
 {
+  // Cisco's own show ip route samples print the negative form between the codes legend and the first
+  // route row when nothing is installed. Leaving it out made "there is no default" and "this console does
+  // not talk about defaults" the same answer.
   const s = build();
   s.dev.config.defaultGateway = null;
   s.dev.config.routes = [];
   const lines = show(s);
-  ok(!lines.some(function (l) { return /^Gateway of last resort/.test(l); }), 'no stale gateway line');
+  const negative = lines.filter(function (l) { return /^Gateway of last resort/.test(l); })[0] || '';
+  ok(negative === 'Gateway of last resort is not set', 'the line says the gateway is not set', negative);
+  ok(lines.indexOf(negative) === 1, 'and it sits directly under the codes legend',
+    lines.slice(0, 3).join(' | '));
+  ok(!/\d/.test(negative.replace(/^[^\d]*/, '')), 'naming no address at all', negative);
   ok(!lines.some(function (l) { return /^S\*/.test(l); }), 'and no candidate default row');
+}
+
+console.log('');
+console.log('A box that does not route gets no router sentence:');
+{
+  // A Catalyst without ip routing prints its own show ip route - "Default gateway is not set" over a
+  // Host/Gateway table - which this console does not model. Handing it the router form would answer with a
+  // shape the device never prints.
+  const sw = catalog.filter(function (s) { return /Catalyst2960/.test(s.model); })[0];
+  ok(!!sw, 'the switch spec is in the catalogue');
+  if (sw) {
+    const dev = new Device('sw1', sw);
+    const lines = new CliSession(dev, null, null).run('show ip route').output.map(String);
+    ok(dev.isL3() === false, 'a Catalyst 2960 does not route');
+    ok(!lines.some(function (l) { return /^Gateway of last resort/.test(l); }),
+      'so no "Gateway of last resort" line is printed for it', JSON.stringify(lines));
+  }
 }
 
 console.log('');
