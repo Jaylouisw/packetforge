@@ -36,7 +36,7 @@ connect" are different mistakes. See section 4.
 
 ---
 
-## 2. The nineteen cages
+## 2. The twenty-eight cages
 
 Family is the value the engine reports in `port.hardware.family`. The
 `combo`, `coax`, `dsl`, `powerline` and `management` values are the
@@ -46,28 +46,35 @@ console / other.
 | Cage | Name | Family | Mates with | Media it can carry | Speed classes (Mbps) |
 |------|------|--------|-----------|--------------------|----------------------|
 | `rj45` | RJ45 | copper | `rj45`, `combo` | `10base-t`, `100base-tx`, `1000base-t`, plus `2.5gbase-t`, `5gbase-t`, `10gbase-t` when the port is rated that high | 10, 100, 1000 (all filtered by the port rating), plus 2500 / 5000 / 10000 when rated that high |
-| `sfp` | SFP | optical | `sfp`, `sfp+`, `sfp28`, `combo` | `1000base-sx`, `1000base-lx`, `1000base-ex`, `1000base-zx`, `1000base-t-sfp`, `dac-1g` | 1000 |
-| `sfp+` | SFP+ | optical | `sfp`, `sfp+`, `sfp28`, `combo` | `10gbase-sr`, `10gbase-lr`, `10gbase-er`, `1000base-sx`, `1000base-lx`, `1000base-t-sfp`, `dac-10g`, `dac-10g-active`, `aoc-10g` | 1000, 10000 |
-| `sfp28` | SFP28 | optical | `sfp`, `sfp+`, `sfp28`, `combo` | `25gbase-sr`, `25gbase-lr`, `10gbase-sr`, `10gbase-lr`, `dac-25g`, `dac-10g` | 10000, 25000 |
-| `combo` | Combo | combo | `combo`, `rj45`, `sfp`, `sfp+`, `sfp28` | Union of the `rj45` and `sfp` lists: the six copper media plus `1000base-sx`, `1000base-lx`, `1000base-ex`, `1000base-zx`, `1000base-t-sfp`, `dac-1g` | 10, 100, 1000, and 10000 when rated 10G |
-| `qsfp+` | QSFP+ | optical | `qsfp+`, `qsfp28`, `qsfpdd` | `40gbase-sr4`, `40gbase-lr4`, `dac-40g` | 40000 |
-| `qsfp28` | QSFP28 | optical | `qsfp+`, `qsfp28`, `qsfpdd` | `100gbase-sr4`, `100gbase-lr4`, `dac-100g`, `40gbase-sr4`, `40gbase-lr4` | 40000, 100000 |
-| `qsfpdd` | QSFP-DD | optical | `qsfpdd`, `qsfp28`, `qsfp+` | `200gbase-dr4`, `200gbase-fr4`, `400gbase-dr4`, `400gbase-fr4`, `100gbase-sr4`, `100gbase-lr4`, `40gbase-sr4`, `40gbase-lr4`, `dac-100g` | 40000, 100000, 200000, 400000 (filtered by the port rating) |
+| `sfp` | SFP | optical | `sfp`, `sfp+`, `sfp28`, `sfp56`, `combo`, `fc-sfp`, `fc-sfp28` | `1000base-sx`, `1000base-lx`, `1000base-ex`, `1000base-zx`, the BX10 pair `1000base-bx-u` / `1000base-bx-d`, `1000base-t-sfp`, `dac-1g` | 1000, 2500 (fixed) |
+| `sfp+` | SFP+ | optical | `sfp`, `sfp+`, `sfp28`, `sfp56`, `combo`, `fc-sfp`, `fc-sfp28`, `fc-sfpdd` | `10gbase-sr`, `10gbase-lr`, `10gbase-er`, `1000base-sx`, `1000base-lx`, the BX10 pair `1000base-bx-u` / `1000base-bx-d`, `1000base-t-sfp`, `dac-10g`, `dac-10g-active`, `aoc-10g` | 1000, 10000 (fixed) |
+| `sfp28` | SFP28 | optical | `sfp`, `sfp+`, `sfp28`, `sfp56`, `combo`, `fc-sfp`, `fc-sfp28`, `fc-sfpdd` | `25gbase-sr`, `25gbase-lr`, `10gbase-sr`, `10gbase-lr`, `10gbase-er`, `dac-25g`, `dac-10g`, plus the 1G optics `1000base-sx`, `1000base-lx`, `1000base-ex`, `1000base-zx`, `1000base-bx-u`, `1000base-bx-d`, `1000base-t-sfp`, `dac-1g` | 1000, 10000, 25000 (filtered by rating) |
+| `sfp56` | SFP56 | optical | `sfp`, `sfp+`, `sfp28`, `sfp56`, `combo` | `50gbase-sr`, `50gbase-lr`, `25gbase-sr`, `25gbase-lr`, `dac-25g` | 25000, 50000 |
+| `combo` | Combo | combo | `combo`, `rj45`, `sfp`, `sfp+`, `sfp28` | Union of the `rj45` and `sfp` lists: the six copper media plus `1000base-sx`, `1000base-lx`, `1000base-ex`, `1000base-zx`, `1000base-bx-u`, `1000base-bx-d`, `1000base-t-sfp`, `dac-1g` | 10, 100, 1000, and 10000 when rated 10G |
+| `qsfp+` | QSFP+ | optical | `qsfp+`, `qsfp28`, `qsfpdd`, `qsfp56` | `40gbase-sr4`, `40gbase-lr4`, `dac-40g` | 40000 |
+| `qsfp28` | QSFP28 | optical | `qsfp+`, `qsfp28`, `qsfpdd`, `qsfp56`, `fc-qsfp28` | `100gbase-sr4`, `100gbase-lr4`, `dac-100g`, `40gbase-sr4`, `40gbase-lr4` | 40000, 100000 |
+| `qsfpdd` | QSFP-DD | optical | `qsfpdd`, `qsfp28`, `qsfp+`, `qsfp56` | `200gbase-dr4`, `200gbase-fr4`, `400gbase-dr4`, `400gbase-fr4`, `100gbase-sr4`, `100gbase-lr4`, `40gbase-sr4`, `40gbase-lr4`, `dac-100g` | 40000, 100000, 200000, 400000 (filtered by the port rating) |
+| `qsfp56` | QSFP56 | optical | `qsfp56`, `qsfp28`, `qsfp+` | `200gbase-dr4`, `200gbase-fr4`, `100gbase-sr4`, `100gbase-lr4`, `40gbase-sr4`, `40gbase-lr4`, `dac-100g` | 40000, 100000, 200000 |
+| `xfp` | XFP | optical | `xfp` only | `10gbase-sr`, `10gbase-lr`, `10gbase-er` | 10000 |
 | `cfp2` | CFP2 | optical | `cfp2` | `200gbase-fr4`, `200gbase-dr4`, `100gbase-lr4`, `40gbase-lr4` | 40000, 100000, 200000 |
-| `sc-apc` | SC/APC | optical | `sc-apc` only | `gpon-sc-apc`, `xgspon-sc-apc` | 1244, 2488, 9953 |
-| `sc-upc` | SC/UPC | optical | `sc-upc` only | `gpon-sc-upc`, `xgspon-sc-upc` | 1244, 2488, 9953 (filtered by rating) |
+| `fc-sfp` | SFP+ (FC) | fibre-channel | `fc-sfp`, `sfp+`, `sfp28`, `fc-sfp28`, `fc-sfpdd` | `2gfc-sw`, `2gfc-lw`, `4gfc-sw`, `4gfc-lw`, `8gfc-sw`, `8gfc-lw`, `10gfc-sw`, `10gfc-lw`, `16gfc-sw`, `16gfc-lw` | 2125, 4250, 8500, 10519, 14025 |
+| `fc-sfp28` | SFP28 (FC) | fibre-channel | `fc-sfp28`, `fc-sfp`, `sfp28`, `sfp+`, `fc-sfpdd` | `32gfc-sw`, `32gfc-lw`, `16gfc-sw`, `16gfc-lw`, `8gfc-sw`, `8gfc-lw` | 8500, 14025, 28050 |
+| `fc-sfpdd` | SFP-DD (FC) | fibre-channel | `fc-sfpdd`, `fc-sfp28`, `fc-sfp`, `sfp28`, `sfp+` | `64gfc-sw`, `64gfc-lw`, `32gfc-sw`, `32gfc-lw`, `16gfc-sw`, `16gfc-lw` | 14025, 28050, 57800 |
+| `fc-qsfp28` | QSFP28 (FC) | fibre-channel | `fc-qsfp28`, `qsfp28` | `128gfc-sw`, `128gfc-lw`, `32gfc-sw`, `32gfc-lw` | 28050, 112200 |
+| `sc-apc` | SC/APC | optical | `sc-apc` only | `gpon-sc-apc`, `xgspon-sc-apc` | 100, 1000, 1244, 2488, 9953 (filtered by rating) |
+| `sc-upc` | SC/UPC | optical | `sc-upc` only | `gpon-sc-upc`, `xgspon-sc-upc`, `100base-fx`, `1000base-lx` | 100, 1000, 1244, 2488, 9953 (filtered by rating) |
 | `lc-upc` | LC/UPC | optical | `lc-upc` only | `gpon-lc-upc`, `xgspon-lc-upc`, plus one Ethernet optic chosen by rate: `1000base-lx` (≥1G), `10gbase-lr` (≥10G), `25gbase-lr` (≥25G), `100gbase-lr4` (≥100G) | 1000, 1244, 2488, 9953, 10000, 25000, 100000 (filtered by rating) |
 | `lc-apc` | LC/APC | optical | `lc-apc` only | `gpon-lc-upc`, `xgspon-lc-upc`, plus one Ethernet optic chosen by rate: `1000base-lx` (≥1G), `10gbase-lr` (≥10G), `25gbase-lr` (≥25G), `100gbase-lr4` (≥100G) | 1000, 1244, 2488, 9953, 10000, 25000, 100000 (filtered by rating) |
-| `coax` | F-connector | coax | `coax` only | `moca-11`, `moca-25`, `docsis-30`, `docsis-31` | 175, 1000, and 2500 / 5000 / 10000 gated by rating |
+| `coax` | F-connector | coax | `coax` only | `moca-11`, `moca-25`, `docsis-30`, `docsis-30-us`, `docsis-31`, `docsis-31-us` | 175, 200, 1000, and 2500 / 5000 / 10000 gated by rating |
 | `dsl` | RJ11 | dsl | `dsl` only | `adsl2plus`, `vdsl2-17a`, `vdsl2-35b` | 24, 100, and 300 when rated 300M |
-| `powerline` | Mains | powerline | `powerline` only | `homeplug-av`, `homeplug-av2`, `ghn`, `ghn-25` | 200, 1000, 1700, 2500 (fixed) |
+| `powerline` | Mains | powerline | `powerline` only | `homeplug-av`, `homeplug-av2`, `ghn`, `ghn-25` | 200, 1000, 1700, 2500 (filtered by rating) |
 | `serial` | V.35 | serial | `serial` only | `serial-v35` | 64k – 8M, **clocked** by the DCE end |
-| `console` | Console | management | `console` only | `console-rs232` | 0.1152 (115200 baud) |
-| `usb` | USB | management | `usb`, `console` | `usb-console` | 12 |
-| `antenna` | Antenna | wireless | `antenna` only | `wireless-2.4`, `wireless-5`, `wireless-60` — narrowed to exactly one band per port | the port's declared rate |
+| `console` | Console | management | `console` only | `console-rs232` at 115200, plus the slower variants `console-rs232-57600`, `console-rs232-38400`, `console-rs232-19200`, `console-rs232-9600` | 0.0096, 0.0192, 0.0384, 0.0576, 0.1152 (fixed) |
+| `usb` | USB | management | `usb` only | `usb-console` | 12 |
+| `antenna` | Antenna | wireless | `antenna` only | the bands the port's generation reaches (`wireless-2.4`, `wireless-5`, `wireless-6`, `wireless-7` for 802.11be), or exactly the one band it declares — `wireless-60` included | the port's declared rate |
 | `wwan` | Cellular | wireless | **nothing** | `lte`, `lte-a`, `5g-sub6`, `5g-mmwave` | the modem's own category |
 
-That is **20 cages**. `CAGES` is the authority; if you add one, this table and
+That is **28 cages**. `CAGES` is the authority; if you add one, this table and
 the tests in section 8.3 are what has to change with it.
 
 `wwan` is the odd one out: it mates with nothing at all, including itself. A cellular modem
@@ -79,16 +86,25 @@ radio (issue #129).
 
 ### Reading the table
 
-- **`rj45` is not a synonym for "ethernet".** It is one cage among nineteen. A
+- **`rj45` is not a synonym for "ethernet".** It is one cage among twenty-eight. A
   10GBASE-T port is `rj45`; a 10GBASE-SR port is `sfp+`. Only the cage decides
   what plugs in.
-- **The SFP family intermates across rates.** `sfp`, `sfp+` and `sfp28` all mate
-  with each other in both directions, because a slower module fits a faster
-  cage. What stops a 25G module in an SFP cage is the *medium and speed*
+- **The SFP family intermates across rates.** `sfp`, `sfp+`, `sfp28` and `sfp56`
+  all mate with each other in both directions, because a slower module fits a
+  faster cage. What stops a 25G module in an SFP cage is the *medium and speed*
   intersection, not the connector — the 25G optics are simply not in the SFP
   cage's media list.
-- **QSFP and SFP never mix.** `qsfp+`, `qsfp28` and `qsfpdd` mate among
-  themselves; none of them mates with the SFP family. Different shell width.
+- **QSFP and SFP never mix.** `qsfp+`, `qsfp28`, `qsfpdd` and `qsfp56` mate
+  among themselves; none of them mates with the SFP family. Different shell
+  width. The one direction that is not mutual: a QSFP-DD cage takes a QSFP56
+  module, and a QSFP56 cage does not take a QSFP-DD one, because the module is
+  deeper than the cage.
+- **A Fibre Channel cage is the same socket, a different ladder.** `fc-sfp`,
+  `fc-sfp28` and `fc-sfpdd` mate with the Ethernet `sfp+`/`sfp28` cages and
+  `fc-qsfp28` mates with `qsfp28`, because the hardware really does take an FC
+  module. What refuses the link is the protocol, not the connector — no medium
+  is common to a 16GFC and a 10GBASE-SR port. See
+  [FIBRE-CHANNEL.md](FIBRE-CHANNEL.md).
 - **The four PON cages mate only with themselves.** `sc-apc` will not meet
   `sc-upc`, and `lc-apc` will not meet `lc-upc`. That is the polish rule
   (section 4.2).
@@ -108,10 +124,12 @@ radio (issue #129).
 ### Speeds are the cage's, then the port's
 
 `CAGE_SPEEDS` gives the *cage* its speed classes, and `derivePortHardware` calls
-it with the port's declared rate. Rate-agile cages (`rj45`, `combo`, `qsfpdd`,
-the PON cages, `coax`, `dsl`) filter their list with `maxMbps`; fixed-rate cages
-(`sfp`, `sfp+`, `sfp28`, `qsfp+`, `qsfp28`, `powerline`, `console`, `usb`)
-ignore it entirely. Final link speed is then:
+it with the port's declared rate. Rate-agile cages (`rj45`, `combo`, `sfp28`,
+`qsfpdd`, the PON cages, `coax`, `dsl`, `powerline`, `serial`, `antenna`,
+`wwan`) filter their list with `maxMbps`; fixed-rate cages (`sfp`, `sfp+`,
+`qsfp+`, `qsfp28`, `qsfp56`, `sfp56`, `xfp`, `cfp2`, the four `fc-*` cages,
+`console`, `usb`) return the same list whatever the port is rated. Final link
+speed is then:
 
 ```
 speed = max(intersection(portA.speedCaps, portB.speedCaps))
@@ -122,15 +140,18 @@ The second clamp is why a 10G port pair with a `1000base-t-sfp` selected runs at
 1000 Mbps, not 10000. "Both cages could do 10G" is not enough — the glass in the
 cage decides.
 
-Because the fixed lists ignore the port's rating, **an unqualified spec can
-advertise more than its port can run**: a port declared `"speed": "10G"` with
-`"connector": "sfp28"` gets `speedCaps: [10000, 25000]` and negotiates 25G
-against an identical port, even though its own `maxSpeedMbps` is 10000. This is
-why catalogue uplinks declare `speedCaps` explicitly:
+A fixed ladder is not a free pass either: `derivePortHardware` filters the
+cage's list against the port's own `maxSpeedMbps` after the table has run
+("belt and braces", so that a table which forgets to filter cannot make a
+1000 Mbps port negotiate 2500). A port declared `"speed": "10G"` with
+`"connector": "sfp28"` therefore gets `speedCaps: [1000, 10000]`, not
+`[10000, 25000]`. What no table can know is that a particular platform refuses
+a rate the cage allows — an Aruba 8325P does not do 1G in an SFP28 cage at all —
+so a catalogue entry that knows better says so itself:
 
 ```json
 { "name": "xe1/1", "type": "ethernet", "speed": "10G",
-  "connector": "sfp28", "speedCaps": [10000, 25000] }
+  "connector": "sfp28", "speedCaps": [10000] }
 ```
 
 If the datasheet says the port is 10G only, say so with `speedCaps: [10000]`;
@@ -398,21 +419,22 @@ odd until you remember both ends are simply "Antenna".
 
 ### 4.7 Console and USB
 
-`console` mates only `console`. `CAGE_MATE.usb` lists both `usb` and `console`,
-but the table is read one-way, so the pair is not actually usable:
+`console` mates only `console`, and `usb` mates only `usb`:
 
 ```text
-cagesMate('usb', 'console')      -> true
+cagesMate('usb', 'console')      -> false
 cagesMate('console', 'usb')      -> false
 ```
 
-and even in the permitted direction there is no shared medium (`console-rs232`
-versus `usb-console`), so `canMate` ends at `E_NO_COMMON_MEDIA` or
-`E_CONNECTOR_MISMATCH` depending on which port is passed first. **Treat a USB
-console port as connectable only to another USB console port.** This is the
-cleanest example in the codebase of why step 3 of the new-connector checklist
-(symmetry) exists: a one-sided entry is silent, survives review, and produces an
-order-dependent verdict that is miserable to debug.
+`CAGE_MATE.usb` used to list `console` while `CAGE_MATE.console` did not, so the
+answer depended on which end you asked about and the pair could be cabled from
+one side only. The entry was removed rather than mirrored: a USB-to-serial
+adapter is an external part, not a cable between two devices. Nor is there a
+shared medium (`console-rs232` versus `usb-console`), so the refusal names the
+connector. **Treat a USB console port as connectable only to another USB console
+port.** This is the cleanest example in the codebase of why step 3 of the
+new-connector checklist (symmetry) exists: a one-sided entry is silent, survives
+review, and produces an order-dependent verdict that is miserable to debug.
 
 `validateConnection` reports `E_CONSOLE_TO_DATA` and suppresses the connector
 verdict when a console port is paired with a data port, so the message the user
@@ -880,9 +902,9 @@ drawing can be read without clicking anything, and a screenshot means something.
 | `dac` | amber, 3.5 px | direct-attach twinax: copper, but a stiff assembly, not a run |
 | `aoc` | teal, 3 px | active optical cable: fibre with transceivers moulded on |
 | `pon` | mauve, dashed 10 3 | a shared optical drop from a splitter |
-| `coax` | steel grey, 3 px | DOCSIS / MoCA segment |
+| `coax` | F-connector | coax | `coax` only | `moca-11`, `moca-25`, `docsis-30`, `docsis-30-us`, `docsis-31`, `docsis-31-us` | 175, 200, 1000, and 2500 / 5000 / 10000 gated by rating |
 | `dsl` | green, dashed 6 4 | one twisted pair carrying VDSL2/ADSL2+ |
-| `powerline` | yellow, dashed 2 4 | the mains as a medium |
+| `powerline` | Mains | powerline | `powerline` only | `homeplug-av`, `homeplug-av2`, `ghn`, `ghn-25` | 200, 1000, 1700, 2500 (filtered by rating) |
 | `wireless` | blue, dashed 5 5 | an association, not a cable |
 
 Cables are drawn above the chassis: a run that passes behind a device stays continuous from
