@@ -17,9 +17,9 @@ minute.
 
 | File | Trigger | What it does |
 |---|---|---|
-| `ci.yml` | pull request to `main`, push to `main`, manual dispatch | The matrix: tests on three Node versions, a live server smoke test, a Docker build |
-| `auto-rebase.yml` | push to `main`, manual dispatch, and a 10-minute schedule the host never dispatches | Rebases open pull requests onto current `main` and re-arms auto-merge; stands down green, before its checkout, when the host has less than 512 MB free (#1508) |
-| `pr-rebase.yml` | pull request opened, pushed to, or reopened | The rebase that actually runs: rebases that one pull request onto current `main` and arms squash auto-merge. Every failure path warns and exits 0; a job that fails before it can report why comments the reason on the pull request |
+| `ci.yml` | pull request to `main`, push to `main`, manual dispatch | The matrix: tests on three Node versions, a live server smoke test, a Docker build — and, on an open pull request, a final `Arm auto-merge` job that merges it once every check has reported green (#1725) |
+| `auto-rebase.yml` | push to `main`, manual dispatch, and a 10-minute schedule the host never dispatches | Rebases open pull requests onto current `main` and re-arms auto-merge only for a head whose reported checks are all green - anything else is left to `ci.yml`'s `Arm auto-merge` job; stands down green, before its checkout, when the host has less than 512 MB free (#1508) |
+| `pr-rebase.yml` | pull request opened, pushed to, or reopened | The rebase that actually runs: rebases that one pull request onto current `main` and arms squash auto-merge - but only when every reported check on the new head is green, otherwise it says so and leaves the merge to `ci.yml`'s `Arm auto-merge` job. Every failure path warns and exits 0; a job that fails before it can report why comments the reason on the pull request |
 | `closed-audit.yml` | push to `main`, manual dispatch (`limit`, default 120) | Matches recently closed requests against the catalogue and prints any close that names no file in `devices/`; a report, never a red build |
 | `wiki-sync.yml` | push to `main` that touches `docs/wiki/**`, manual dispatch | Mirrors `docs/wiki/*.md` into the separate `<owner>/<repo>.wiki` repository, removing pages deleted upstream; needs the `WIKI_TOKEN` secret and fails without it |
 
@@ -30,7 +30,7 @@ could never pass.
 
 ## What a pull request goes through
 
-Five checks on a code change, all required before a merge. A **data-only** diff is gated on the three test legs only — `smoke` and `docker` are skipped for it (*What runs, and why a device PR runs less of it*, below):
+Five verification checks on a code change, all of which must be green before a merge. A **data-only** diff is gated on the three test legs only — `smoke` and `docker` are skipped for it (*What runs, and why a device PR runs less of it*, below). Two more job statuses sit alongside them and are not checks on the diff: `Classify the change`, which decides what runs, and `Arm auto-merge`, which is the merge decision itself (*Merging*, below):
 
 | Check | Catches |
 |---|---|
@@ -96,12 +96,43 @@ one.
 
 ## Merging
 
-Pull requests are armed with squash auto-merge as soon as `mergeable` settles,
-which the forge computes asynchronously. A green check on a stale base proves
-nothing: rebase first, let CI re-run against the current tree, then arm. #776
-merged green off a stale base and took `main` red for hours.
+Merge commits are not used. One pull request becomes one commit on `main`, and the
+decision to make that commit belongs to `ci.yml`'s **`Arm auto-merge`** job - the one
+job that runs after the checks it reads.
 
-Merge commits are not used. One pull request becomes one commit on `main`.
+Until #1725 every gate in this repository was an *arm*. `pr-rebase.yml` and
+`auto-rebase.yml` both POSTed `{"Do":"squash","merge_when_checks_succeed":true}`
+immediately after the force-push that rebased the branch, and the forge evaluates
+that flag against the checks that exist at the moment of the call. For a head pushed
+seconds earlier that set is empty, and "all checks succeeded" over nothing is true.
+Measured on 2026-11-16 over the 25 most recently merged pull requests
+(`/commits/{sha}/status`): all 25 merged before any of their seven checks reported,
+15 of them with no status at all on the head commit at the moment of the merge.
+#1719 armed at 19:59:43, merged at 19:59:54, and its own first test leg did not
+finish until 20:00:46 — 52 s after the commit it was testing was on `main`.
+
+So both rebase workflows now ask a narrower question first (`checks_green`, in
+`pr-rebase.yml` and `auto-rebase.yml`): at least one check has reported, nothing in
+the set is anything but `success`, and the three `Test (Node …)` legs are among them
+— a set that has not grown them is a run that has not started, not a run that passed.
+Each ignores its own status, which is `pending` while it runs. A pull request that
+fails that test is left untouched and green, with a line naming `ci.yml`'s
+`Arm auto-merge` job as the thing that will merge it instead; one that is already
+green is still armed here, so a pull request that lost its arm does not sit
+mergeable and unarmed.
+
+`Arm auto-merge` takes `needs: [changes, test, smoke, docker]` for ordering but asks
+the statuses API for the verdict, so a leg skipped for a data-only diff is a
+legitimate absence while a leg that never reported is not. It merges with
+`head_commit_id` set to the head it read, so a run against a commit that has since
+been rebased away is refused by the server rather than merging a tree this run never
+tested. `mergeable` is computed off the request thread, so a `405` means "not known
+yet" and is waited on for up to 90 s. Nothing in it can go red: every failure is a
+`::warning::` on a pull request left unmerged and untouched.
+
+A green check on a stale base still proves nothing: rebase first, let CI re-run
+against the current tree, then merge. #776 merged green off a stale base and took
+`main` red for hours.
 
 ## The runner
 
