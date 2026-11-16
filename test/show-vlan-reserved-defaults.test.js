@@ -45,9 +45,17 @@ function say(dev, t, sim, cmds) {
 function table(lines) {
   const start = lines.findIndex(function (l) { return /^VLAN\s+Name\s+Status\s+Ports/.test(l); });
   if (start === -1) return null;
-  return lines.slice(start + 1).filter(function (l) { return l.trim(); }).map(function (l) {
-    const m = l.match(/^(\S+)\s+(.{33})\s+(\S+)\s*(.*)$/);
-    return m ? { id: Number(m[1]), name: m[2].trim(), status: m[3], ports: m[4].trim(), raw: l } : { raw: l };
+  // The header is followed by the device's rule line, which is not a row.
+  return lines.slice(start + 1).filter(function (l) { return l.trim() && !/^-{4}/.test(l); }).map(function (l) {
+    // Read by column position, as the header prints it: `1002 fddi-default ... act/unsup` has one space
+    // after the id, so a whitespace-run regex sees the wrong fields.
+    return {
+      id: Number(l.slice(0, 4).trim()),
+      name: l.slice(5, 37).trim(),
+      status: l.slice(38, 47).trim(),
+      ports: l.slice(48).trim(),
+      raw: l
+    };
   });
 }
 function row(rows, id) {
@@ -77,7 +85,7 @@ console.log('A factory-default switch lists the VLANs the hardware has, not just
   ok(one && /Fa0\/1/.test(one.ports), 'and still lists the ports that carry it', one && one.ports);
   const withPorts = rows.filter(function (r) { return r.status === 'act/unsup' && r.ports; });
   ok(withPorts.length === 0, 'no reserved VLAN is shown with ports', JSON.stringify(withPorts));
-  const line = '1002    fddi-default                     act/unsup';
+  const line = '1002 fddi-default                     act/unsup';
   ok(rows.some(function (r) { return r.raw === line; }), 'the row is laid out where the Status column is',
     (row(rows, 1002) || {}).raw);
 }

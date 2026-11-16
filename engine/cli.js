@@ -50,6 +50,44 @@ function briefLine(cells) {
   }).join('');
 }
 
+// `show vlan` has a shape the vendor's own samples pin down, and this console had it three columns wide:
+//
+//   VLAN Name                             Status    Ports
+//   ---- -------------------------------- --------- -------------------------------
+//   1    default                          active    Fa0/1, Fa0/2
+//   1002 fddi-default                     act/unsup
+//
+// Four characters of VLAN id and a space, 32 of Name and a space, nine of Status and a space, and the Ports
+// list starting in column 48 - with a rule line under the header that draws those widths in dashes. This
+// table padded the id to eight characters and printed no rule line at all, so `Status` sat at column 41
+// instead of 38 and every row was three columns right of the word above it. The widths live in one
+// list, the header, the rule and the rows are all built from it, so they cannot drift apart again.
+const VLAN_COLUMNS = [
+  { head: 'VLAN', width: 5, dashes: 4 },
+  { head: 'Name', width: 33, dashes: 32 },
+  { head: 'Status', width: 10, dashes: 9 },
+  { head: 'Ports', width: 0, dashes: 31 }
+];
+
+function vlanLine(cells) {
+  return cells.map(function (c, i) {
+    const col = VLAN_COLUMNS[i];
+    const w = col ? col.width : 0;
+    const text = String(c === null || c === undefined ? '' : c);
+    if (!w) return text;
+    return text.length >= w ? text + ' ' : pad(text, w);
+  }).join('');
+}
+
+// The rule line under the header: each column draws its own width in dashes, one short of the field because
+// the space between columns is not a column. The Ports window is the last one, so it runs to the end of the line.
+function vlanRule() {
+  return VLAN_COLUMNS.map(function (c) {
+    const dashes = '-'.repeat(c.dashes);
+    return c.width ? pad(dashes, c.width) : dashes;
+  }).join('');
+}
+
 // The Method column answers one question - how did this port come by the address it holds - so a port with no
 // address has no method at all. IOS prints `unset` there, beside `unassigned` in the IP-Address column; this
 // console printed `manual` beside `unassigned`, which claims somebody configured an address that is not there.
@@ -3894,13 +3932,14 @@ class CliSession {
       // A trunk with `allowedVlans: all` carries every VLAN in the table, so it is listed in each row.
       const ids = Array.from(vlanSet).filter(function (id) { return Number.isFinite(id) && id >= 1; })
         .sort(function (a, b) { return a - b; });
-      out.push(pad('VLAN', 8) + pad('Name', 33) + pad('Status', 10) + 'Ports');
+      out.push(vlanLine(VLAN_COLUMNS.map(function (c) { return c.head; })));
+      out.push(vlanRule());
       for (const id of ids) {
         // The reserved rows sort into place by id, as they do on the device: a VLAN 2000 configured by hand sits
         // after 1005, not before it.
         const fixed = reserved.filter(function (r) { return r.id === id; })[0];
         if (fixed) {
-          out.push((pad(id, 8) + pad(fixed.name, 33) + pad('act/unsup', 10)).replace(/\s+$/, ''));
+          out.push(vlanLine([id, fixed.name, 'act/unsup', '']).replace(/\s+$/, ''));
           continue;
         }
         const members = [];
@@ -3911,7 +3950,7 @@ class CliSession {
         }
         const name = (named[id] && named[id].name)
           || (id === 1 ? 'default' : 'VLAN' + String(id).padStart(4, '0'));
-        out.push(pad(id, 8) + pad(name, 33) + pad('active', 10) + members.join(', '));
+        out.push(vlanLine([id, name, 'active', members.join(', ')]));
       }
     } else if (what === 'spanning-tree') {
       if (tokens.length > 1) {

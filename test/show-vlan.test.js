@@ -26,16 +26,25 @@ const PC = catalog.filter(function (s) { return s.model === 'generic-pc'; })[0];
 
 function rows(env, cmd) {
   const lines = ((new CliSession(env.sw, env.t, env.sim).run(cmd || 'show vlan').output) || []).map(String);
-  const body = lines.slice(1).filter(function (l) { return l.trim(); });
+  // Row 0 is the header and row 1 is the rule line the device draws under it (`---- ---- ----- -----`),
+  // so the rows start at 2. The rule is skipped by its shape rather than by its index, so a table whose
+  // header grew a line cannot silently parse the rule as a VLAN.
+  const body = lines.slice(1).filter(function (l) { return l.trim() && !/^-{4}/.test(l); });
   return {
     header: lines[0] || '',
     lines: lines,
     body: body,
+    // Read by the column positions the device prints in (`VLAN` 4 wide, `Name` 32, `Status` 9, Ports from
+    // column 48), not by whitespace runs: a four-character id leaves a single space before the name, and a
+    // 32-character name leaves a single space before the status, so a regex that needs two spaces fails on
+    // exactly the rows the table is supposed to align.
     fields: body.map(function (l) {
-      // Ports are the last column and may be a long comma-separated list, so split on the first
-      // whitespace groups and keep the remainder whole.
-      const m = l.match(/^(\S+)\s+(.{33})\s+(\S+)\s*(.*)$/);
-      return m ? { vlan: m[1], name: m[2].trim(), status: m[3], ports: m[4].trim() } : { raw: l };
+      return {
+        vlan: l.slice(0, 4).trim(),
+        name: l.slice(5, 37).trim(),
+        status: l.slice(38, 47).trim(),
+        ports: l.slice(48).trim()
+      };
     })
   };
 }

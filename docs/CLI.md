@@ -554,15 +554,21 @@ are counted as dropped with that reason.
 ### Reading `show vlan`
 
 ```
-VLAN    Name                             Status    Ports
-1       default                          active    Fa0/3, Fa0/4, Fa0/5, Fa0/6, Fa0/7, Fa0/8
-20      twenty                           active    Fa0/1, Fa0/2, Fa0/3
-30      thirty                           active    Fa0/2, Fa0/3
-1002    fddi-default                     act/unsup
-1003    token-ring-default               act/unsup
-1004    fddinet-default                  act/unsup
-1005    trnet-default                    act/unsup
+VLAN Name                             Status    Ports
+---- -------------------------------- --------- -------------------------------
+1    default                          active    Fa0/3, Fa0/4, Fa0/5, Fa0/6, Fa0/7, Fa0/8
+20   twenty                           active    Fa0/1, Fa0/2, Fa0/3
+30   thirty                           active    Fa0/2, Fa0/3
+1002 fddi-default                     act/unsup
+1003 token-ring-default               act/unsup
+1004 fddinet-default                  act/unsup
+1005 trnet-default                    act/unsup
 ```
+
+The column widths are the device's own — a four-character id, a 32-character name, a nine-character status, Ports
+in column 48 — and the rule line under the header draws those widths in dashes, so a row pasted into a ticket
+lines up with the header when it is read on the device
+(`test/show-vlan-table-shape.test.js`).
 
 One row per VLAN, in VLAN order. **Membership is decided by the same rule the switch forwards by** — a port
 appears under a VLAN if and only if a frame in that VLAN could leave by it:
