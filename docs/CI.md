@@ -18,7 +18,7 @@ minute.
 | File | Trigger | What it does |
 |---|---|---|
 | `ci.yml` | pull request to `main`, push to `main`, manual dispatch | The matrix: tests on three Node versions, a live server smoke test, a Docker build |
-| `auto-rebase.yml` | every 10 minutes, manual dispatch | Rebases open pull requests onto current `main` and re-arms auto-merge; stands down green, before its checkout, when the host has less than 512 MB free (#1508) |
+| `auto-rebase.yml` | push to `main`, manual dispatch, and a 10-minute schedule the host never dispatches | Rebases open pull requests onto current `main` and re-arms auto-merge; stands down green, before its checkout, when the host has less than 512 MB free (#1508) |
 
 `.github/workflows/` was deleted in #1059. While it existed, the GitHub workflow
 ran on Forgejo too — and failed every time with `docker: command not found`,
