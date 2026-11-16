@@ -1,0 +1,86 @@
+{
+  "vendor": "juniper",
+  "model": "EX2300-48P",
+  "label": "EX2300-48P PoE+ 48-port 1G access switch",
+  "category": "switch",
+  "description": "Juniper EX2300-48P 1RU PoE+ access switch: 48x 10/100/1000BASE-T RJ-45, all 48 PSE ports at 802.3af/802.3at up to 30 W each on a 740 W budget, 4x 1G/10G SFP/SFP+ uplinks (xe-0/1/0-3), 1x RJ-45 out-of-band management port, RJ-45 serial and mini-USB Type B console, 176 Gbps packet-switching capacity, 130 Mpps, 100 W input power with no PoE load, 850 W fixed supply, image 15.1X53-D55 or later.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli",
+    "vlan",
+    "lacp",
+    "stp",
+    "poe-pse",
+    "802.3af",
+    "802.3at"
+  ],
+  "portTemplate": {
+    "prefix": "ge-0/0/",
+    "start": 0,
+    "count": 48,
+    "type": "ethernet",
+    "speed": "1G",
+    "connector": "rj45",
+    "speedCaps": [
+      10,
+      100,
+      1000
+    ],
+    "poeOut": 30
+  },
+  "interfaces": [
+    {
+      "name": "xe-0/1/0",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "xe-0/1/1",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "xe-0/1/2",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "xe-0/1/3",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    }
+  ],
+  "poe": {
+    "budgetW": 740,
+    "sourceUrl": "https://www.juniper.net/documentation/us/en/hardware/ex2300/topics/topic-map/ex2300-power-supplies.html",
+    "note": "740 W from an 850 W fixed supply per the power-supply table, the system-overview table and the datasheet, which spells the arithmetic out: 15.4 W of 802.3af Class 3 to 48 ports (739.2 W), or 30 W of 802.3at to 24 ports. Juniper's PoE User Guide Table 5 lists this switch at 750 W instead - see the PR body; three documents agree on 740 W and 48 x 15.4 W lands on 739.2 W, so 740 W is what is modelled."
+  },
+  "fabric": {
+    "capacityMbps": 176000,
+    "kind": "packet-switching capacity",
+    "note": "176 Gbps bidirectional, 130 Mpps. The per-model 'AC Max Power Consumption' row shows 740 W, which is the PoE budget rather than a separate system draw - 100 W is the no-PoE figure."
+  },
+  "sourceUrl": "https://apps.juniper.net/hct/product/EX2300/hwspecs",
+  "notes": "48 PoE+ RJ-45 ports with no non-PoE copper, 4 SFP+ uplinks, 2 console ports, 1 RJ-45 management port, 1 USB Type A. 12.2 in / 30.98 cm deep, 5.02 kg, two fixed front-to-back fans, 51.4 dB - the loudest of the four 1G models. 802.3af/at only."
+}

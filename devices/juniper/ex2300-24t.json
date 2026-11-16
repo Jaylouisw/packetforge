@@ -1,42 +1,77 @@
 {
   "vendor": "juniper",
   "model": "EX2300-24T",
-  "label": "EX2300-24T Switch",
+  "label": "EX2300-24T 24-port 1G access switch",
   "category": "switch",
-  "description": "Juniper EX2300-24T - 24x 1G RJ45 access plus 4x 1G/10G SFP+ uplinks (xe-0/1/0-3).",
+  "description": "Juniper EX2300-24T 1RU access switch: 24x 10/100/1000BASE-T RJ-45 (ge-0/0/0-23), no PoE, 4x 1G/10G SFP/SFP+ uplinks (xe-0/1/0-3), 1x RJ-45 out-of-band management port, RJ-45 serial and mini-USB Type B console, 128 Gbps packet-switching capacity, 95 Mpps, 55 W maximum input power, 2 GB DRAM, 2 GB flash, image 15.1X53-D50 or later.",
   "capabilities": [
     "l2-forward",
-    "cli"
+    "l3-forward",
+    "cli",
+    "vlan",
+    "lacp",
+    "stp"
   ],
   "portTemplate": {
     "prefix": "ge-0/0/",
     "start": 0,
     "count": 24,
     "type": "ethernet",
-    "speed": "1G"
+    "speed": "1G",
+    "connector": "rj45",
+    "speedCaps": [
+      10,
+      100,
+      1000
+    ]
   },
   "interfaces": [
     {
       "name": "xe-0/1/0",
       "type": "ethernet",
-      "speed": "10G"
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
     },
     {
       "name": "xe-0/1/1",
       "type": "ethernet",
-      "speed": "10G"
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
     },
     {
       "name": "xe-0/1/2",
       "type": "ethernet",
-      "speed": "10G"
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
     },
     {
       "name": "xe-0/1/3",
       "type": "ethernet",
-      "speed": "10G"
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
     }
   ],
-  "icon": "switch",
-  "color": "#84cc16"
+  "fabric": {
+    "capacityMbps": 128000,
+    "kind": "packet-switching capacity",
+    "note": "128 Gbps bidirectional from the EX2300 datasheet (the 24-port group) and from the per-model hardware specs, which add 64 Gbps unidirectional and 95 Mpps at 64 B. The access ports are copper: the four uplink cages are the only SFP+ ports, and each takes a 1G SFP or a 10G SFP+, hence speedCaps [1000, 10000] on the uplinks only."
+  },
+  "sourceUrl": "https://apps.juniper.net/hct/product/EX2300/hwspecs",
+  "notes": "Port roles from the per-model hardware specifications: 24 built-in RJ-45 access ports plus 4 SFP+ uplinks, 2 console ports (RJ-45 and mini-USB Type B), 1 RJ-45 management port and 1 USB Type A. 10.2 in / 25.9 cm deep, 3.29 kg, two fixed front-to-back fans, 34.2 dB. No PoE on this SKU: the T models have no PSE controller. Static routes and RIP are in the base licence; OSPF, IGMP/PIM, BFD, MLD and VRRP need the optional enhanced feature licence (datasheet, https://juniper.vn/public/cuploads/files/datasheet-juniper-ex2300.pdf). The catalogue entry this replaces carried the 24-port template and the four uplinks but declared no connector on either, so the copper access ports and the SFP+ cages were both being inferred from the port name."
 }

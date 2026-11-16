@@ -1,0 +1,1372 @@
+[
+  {
+    "vendor": "juniper",
+    "model": "EX2300-24T",
+    "label": "EX2300-24T 24-port 1G access switch",
+    "category": "switch",
+    "description": "Juniper EX2300-24T 1RU access switch: 24x 10/100/1000BASE-T RJ-45 (ge-0/0/0-23), no PoE, 4x 1G/10G SFP/SFP+ uplinks (xe-0/1/0-3), 1x RJ-45 out-of-band management port, RJ-45 serial and mini-USB Type B console, 128 Gbps packet-switching capacity, 95 Mpps, 55 W maximum input power, 2 GB DRAM, 2 GB flash, image 15.1X53-D50 or later.",
+    "capabilities": [
+      "l2-forward",
+      "l3-forward",
+      "cli",
+      "vlan",
+      "lacp",
+      "stp"
+    ],
+    "portTemplate": {
+      "prefix": "ge-0/0/",
+      "start": 0,
+      "count": 24,
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "rj45",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
+    },
+    "interfaces": [
+      {
+        "name": "xe-0/1/0",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "xe-0/1/1",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "xe-0/1/2",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "xe-0/1/3",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      }
+    ],
+    "fabric": {
+      "capacityMbps": 128000,
+      "kind": "packet-switching capacity",
+      "note": "128 Gbps bidirectional from the EX2300 datasheet (the 24-port group) and from the per-model hardware specs, which add 64 Gbps unidirectional and 95 Mpps at 64 B. The access ports are copper: the four uplink cages are the only SFP+ ports, and each takes a 1G SFP or a 10G SFP+, hence speedCaps [1000, 10000] on the uplinks only."
+    },
+    "sourceUrl": "https://apps.juniper.net/hct/product/EX2300/hwspecs",
+    "notes": "Port roles from the per-model hardware specifications: 24 built-in RJ-45 access ports plus 4 SFP+ uplinks, 2 console ports (RJ-45 and mini-USB Type B), 1 RJ-45 management port and 1 USB Type A. 10.2 in / 25.9 cm deep, 3.29 kg, two fixed front-to-back fans, 34.2 dB. No PoE on this SKU: the T models have no PSE controller. Static routes and RIP are in the base licence; OSPF, IGMP/PIM, BFD, MLD and VRRP need the optional enhanced feature licence (datasheet, https://juniper.vn/public/cuploads/files/datasheet-juniper-ex2300.pdf). The catalogue entry this replaces carried the 24-port template and the four uplinks but declared no connector on either, so the copper access ports and the SFP+ cages were both being inferred from the port name."
+  },
+  {
+    "vendor": "juniper",
+    "model": "EX2300-48T",
+    "label": "EX2300-48T 48-port 1G access switch",
+    "category": "switch",
+    "description": "Juniper EX2300-48T 1RU access switch: 48x 10/100/1000BASE-T RJ-45 (ge-0/0/0-47), no PoE, 4x 1G/10G SFP/SFP+ uplinks (xe-0/1/0-3), 1x RJ-45 out-of-band management port, RJ-45 serial and mini-USB Type B console, 176 Gbps packet-switching capacity, 130 Mpps, 70 W maximum input power, 2 GB DRAM, 2 GB flash, image 15.1X53-D55 or later.",
+    "capabilities": [
+      "l2-forward",
+      "l3-forward",
+      "cli",
+      "vlan",
+      "lacp",
+      "stp"
+    ],
+    "portTemplate": {
+      "prefix": "ge-0/0/",
+      "start": 0,
+      "count": 48,
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "rj45",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
+    },
+    "interfaces": [
+      {
+        "name": "xe-0/1/0",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "xe-0/1/1",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "xe-0/1/2",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "xe-0/1/3",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      }
+    ],
+    "fabric": {
+      "capacityMbps": 176000,
+      "kind": "packet-switching capacity",
+      "note": "176 Gbps bidirectional from the EX2300 datasheet (the 48-port group) and from the per-model hardware specs, which add 88 Gbps unidirectional and 130 Mpps at 64 B. Same four-cage uplink arrangement as the 24-port models."
+    },
+    "sourceUrl": "https://apps.juniper.net/hct/product/EX2300/hwspecs",
+    "notes": "48 RJ-45 access ports plus 4 SFP+ uplinks, 2 console ports, 1 RJ-45 management port, 1 USB Type A. 10.2 in / 25.9 cm deep, 3.76 kg, 34.6 dB. No PoE. Base image 15.1X53-D55 whereas the 24-port models start at D50. The entry this replaces had the same missing connectors as the 24T entry."
+  },
+  {
+    "vendor": "juniper",
+    "model": "EX2300-24P",
+    "label": "EX2300-24P PoE+ 24-port 1G access switch",
+    "category": "switch",
+    "description": "Juniper EX2300-24P 1RU PoE+ access switch: 24x 10/100/1000BASE-T RJ-45, all 24 PSE ports at 802.3af/802.3at up to 30 W each on a 370 W budget, 4x 1G/10G SFP/SFP+ uplinks (xe-0/1/0-3), 1x RJ-45 out-of-band management port, RJ-45 serial and mini-USB Type B console, 128 Gbps packet-switching capacity, 95 Mpps, 80 W input power with no PoE load, 450 W fixed supply, image 15.1X53-D50 or later.",
+    "capabilities": [
+      "l2-forward",
+      "l3-forward",
+      "cli",
+      "vlan",
+      "lacp",
+      "stp",
+      "poe-pse",
+      "802.3af",
+      "802.3at"
+    ],
+    "portTemplate": {
+      "prefix": "ge-0/0/",
+      "start": 0,
+      "count": 24,
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "rj45",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30
+    },
+    "interfaces": [
+      {
+        "name": "xe-0/1/0",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "xe-0/1/1",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "xe-0/1/2",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "xe-0/1/3",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      }
+    ],
+    "poe": {
+      "budgetW": 370,
+      "sourceUrl": "https://www.juniper.net/documentation/us/en/hardware/ex2300/topics/topic-map/ex2300-power-supplies.html",
+      "note": "370 W available for PoE from a 450 W fixed supply - the system-overview table, the power-supply table and the datasheet all quote 370 W. All 24 RJ-45 ports are PSE ports, so 12 x 30 W PoE+ plus 12 x 15.4 W af fits inside the budget and 24 x 30 W (720 W) does not. IEEE 802.3af (15.4 W) and 802.3at (30 W) only: no 802.3bt on any EX2300."
+    },
+    "fabric": {
+      "capacityMbps": 128000,
+      "kind": "packet-switching capacity",
+      "note": "128 Gbps bidirectional, 95 Mpps, from the datasheet's 24-port group and the per-model hardware specs. The 370 W in the per-model 'AC Max Power Consumption' row is the whole box with PoE at full budget, not the PoE budget itself - the no-PoE figure is 80 W."
+    },
+    "sourceUrl": "https://apps.juniper.net/hct/product/EX2300/hwspecs",
+    "notes": "24 PoE+ RJ-45 access ports, 4 SFP+ uplinks, 2 console ports (RJ-45 + mini-USB), 1 RJ-45 management port, 1 USB Type A. 12.2 in / 30.98 cm deep (deeper than the T because of the 450 W supply), 4.49 kg, two fixed front-to-back fans, 40.6 dB. The PSE allocates by class, so 24 x 30 W will not be granted on a 370 W budget."
+  },
+  {
+    "vendor": "juniper",
+    "model": "EX2300-48P",
+    "label": "EX2300-48P PoE+ 48-port 1G access switch",
+    "category": "switch",
+    "description": "Juniper EX2300-48P 1RU PoE+ access switch: 48x 10/100/1000BASE-T RJ-45, all 48 PSE ports at 802.3af/802.3at up to 30 W each on a 740 W budget, 4x 1G/10G SFP/SFP+ uplinks (xe-0/1/0-3), 1x RJ-45 out-of-band management port, RJ-45 serial and mini-USB Type B console, 176 Gbps packet-switching capacity, 130 Mpps, 100 W input power with no PoE load, 850 W fixed supply, image 15.1X53-D55 or later.",
+    "capabilities": [
+      "l2-forward",
+      "l3-forward",
+      "cli",
+      "vlan",
+      "lacp",
+      "stp",
+      "poe-pse",
+      "802.3af",
+      "802.3at"
+    ],
+    "portTemplate": {
+      "prefix": "ge-0/0/",
+      "start": 0,
+      "count": 48,
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "rj45",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30
+    },
+    "interfaces": [
+      {
+        "name": "xe-0/1/0",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "xe-0/1/1",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "xe-0/1/2",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "xe-0/1/3",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      }
+    ],
+    "poe": {
+      "budgetW": 740,
+      "sourceUrl": "https://www.juniper.net/documentation/us/en/hardware/ex2300/topics/topic-map/ex2300-power-supplies.html",
+      "note": "740 W from an 850 W fixed supply per the power-supply table, the system-overview table and the datasheet, which spells the arithmetic out: 15.4 W of 802.3af Class 3 to 48 ports (739.2 W), or 30 W of 802.3at to 24 ports. Juniper's PoE User Guide Table 5 lists this switch at 750 W instead - see the PR body; three documents agree on 740 W and 48 x 15.4 W lands on 739.2 W, so 740 W is what is modelled."
+    },
+    "fabric": {
+      "capacityMbps": 176000,
+      "kind": "packet-switching capacity",
+      "note": "176 Gbps bidirectional, 130 Mpps. The per-model 'AC Max Power Consumption' row shows 740 W, which is the PoE budget rather than a separate system draw - 100 W is the no-PoE figure."
+    },
+    "sourceUrl": "https://apps.juniper.net/hct/product/EX2300/hwspecs",
+    "notes": "48 PoE+ RJ-45 ports with no non-PoE copper, 4 SFP+ uplinks, 2 console ports, 1 RJ-45 management port, 1 USB Type A. 12.2 in / 30.98 cm deep, 5.02 kg, two fixed front-to-back fans, 51.4 dB - the loudest of the four 1G models. 802.3af/at only."
+  },
+  {
+    "vendor": "juniper",
+    "model": "EX2300-24MP",
+    "label": "EX2300-24MP PoE+ multigigabit 24-port access switch",
+    "category": "switch",
+    "description": "Juniper EX2300-24MP 1RU multigigabit PoE+ access switch: 16x 10/100/1000BASE-T plus 8x 100/1000/2500BASE-T RJ-45 (ports 0-7 are the multi-gigabit ones), all 24 PSE ports on a 380 W budget, 4x 1G/10G SFP/SFP+ uplinks (xe-0/1/0-3), 1x RJ-45 out-of-band management port and an RJ-45 serial console, 2 GB DRAM, 8 GB flash, 535 W fixed supply, image 18.1R2 or later.",
+    "capabilities": [
+      "l2-forward",
+      "l3-forward",
+      "cli",
+      "vlan",
+      "lacp",
+      "stp",
+      "poe-pse",
+      "802.3af",
+      "802.3at"
+    ],
+    "interfaces": [
+      {
+        "name": "mge-0/0/0",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "2.5G",
+        "speedCaps": [
+          100,
+          1000,
+          2500
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "mge-0/0/1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "2.5G",
+        "speedCaps": [
+          100,
+          1000,
+          2500
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "mge-0/0/2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "2.5G",
+        "speedCaps": [
+          100,
+          1000,
+          2500
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "mge-0/0/3",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "2.5G",
+        "speedCaps": [
+          100,
+          1000,
+          2500
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "mge-0/0/4",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "2.5G",
+        "speedCaps": [
+          100,
+          1000,
+          2500
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "mge-0/0/5",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "2.5G",
+        "speedCaps": [
+          100,
+          1000,
+          2500
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "mge-0/0/6",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "2.5G",
+        "speedCaps": [
+          100,
+          1000,
+          2500
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "mge-0/0/7",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "2.5G",
+        "speedCaps": [
+          100,
+          1000,
+          2500
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "ge-0/0/8",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "ge-0/0/9",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "ge-0/0/10",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "ge-0/0/11",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "ge-0/0/12",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "ge-0/0/13",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "ge-0/0/14",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "ge-0/0/15",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "ge-0/0/16",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "ge-0/0/17",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "ge-0/0/18",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "ge-0/0/19",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "ge-0/0/20",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "ge-0/0/21",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "ge-0/0/22",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "ge-0/0/23",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "xe-0/1/0",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "xe-0/1/1",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "xe-0/1/2",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "xe-0/1/3",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      }
+    ],
+    "poe": {
+      "budgetW": 380,
+      "sourceUrl": "https://apps.juniper.net/hct/product/EX2300%20Multigigabit/hwspecs",
+      "note": "380 W from a 535 W fixed supply, quoted identically by the per-model hardware specs, the power-supply table and the datasheet. All 24 access ports are PSE ports at 30 W each, so 380 W covers 12 x 30 W PoE+ and the other 12 at af. 802.3af/at only, including on the multi-gigabit ports."
+    },
+    "fabric": {
+      "capacityMbps": 128000,
+      "kind": "packet-switching capacity",
+      "note": "Datasheet figure: 128 Gbps, because the datasheet groups the 24MP with the 24-port models. Juniper's per-model hardware specs give this model 76 Gbps unidirectional / 152 Gbps bidirectional instead - a direct contradiction between two Juniper documents. The datasheet figure is recorded and the conflict is stated in the PR body; 95 Mpps is the throughput both documents share."
+    },
+    "sourceUrl": "https://apps.juniper.net/hct/product/EX2300%20Multigigabit/hwspecs",
+    "notes": "Port numbering is not contiguous by rate: the eight multi-gigabit ports are 0-7 (mge-0/0/0-7 in the datasheet's Table 1) and the sixteen gigabit ports are 8-23, which is why they are listed explicitly instead of generated from one template. The multi-gigabit ports are modelled at 2.5G: the datasheet calls them 1/2.5 Gbps ports and Juniper's quick start describes this model as 16 x 10/100/1000BASE-T plus 8 x 10/100/1000/2500BASE-T. 10 in / 25.4 cm deep, 3.99 kg, three fixed side-to-side fans, 45.7 dB, 8 GB flash against 2 GB on the non-multigigabit models. This model first shipped in 18.1R2, and PoE was only enabled on it from that release."
+  },
+  {
+    "vendor": "juniper",
+    "model": "EX2300-48MP",
+    "label": "EX2300-48MP PoE+ multigigabit 48-port access switch",
+    "category": "switch",
+    "description": "Juniper EX2300-48MP 1RU multigigabit PoE+ access switch: 32x 10/100/1000BASE-T plus 16x multi-gigabit RJ-45 (ports 16-31, 100M/1G/2.5G/5G/10G), all 48 PSE ports on a 740 W budget, 6x 1G/10G SFP/SFP+ uplinks (xe-0/1/0-5), 1x RJ-45 out-of-band management port and an RJ-45 serial console, 2 GB DRAM, 8 GB flash, 1005 W fixed supply, image 18.1R2 or later.",
+    "capabilities": [
+      "l2-forward",
+      "l3-forward",
+      "cli",
+      "vlan",
+      "lacp",
+      "stp",
+      "poe-pse",
+      "802.3af",
+      "802.3at"
+    ],
+    "interfaces": [
+      {
+        "name": "mge-0/0/16",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "2.5G",
+        "speedCaps": [
+          100,
+          1000,
+          2500,
+          5000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "mge-0/0/17",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "2.5G",
+        "speedCaps": [
+          100,
+          1000,
+          2500,
+          5000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "mge-0/0/18",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "2.5G",
+        "speedCaps": [
+          100,
+          1000,
+          2500,
+          5000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "mge-0/0/19",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "2.5G",
+        "speedCaps": [
+          100,
+          1000,
+          2500,
+          5000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "mge-0/0/20",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "2.5G",
+        "speedCaps": [
+          100,
+          1000,
+          2500,
+          5000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "mge-0/0/21",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "2.5G",
+        "speedCaps": [
+          100,
+          1000,
+          2500,
+          5000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "mge-0/0/22",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "2.5G",
+        "speedCaps": [
+          100,
+          1000,
+          2500,
+          5000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "mge-0/0/23",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "2.5G",
+        "speedCaps": [
+          100,
+          1000,
+          2500,
+          5000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "mge-0/0/24",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "2.5G",
+        "speedCaps": [
+          100,
+          1000,
+          2500,
+          5000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "mge-0/0/25",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "2.5G",
+        "speedCaps": [
+          100,
+          1000,
+          2500,
+          5000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "mge-0/0/26",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "2.5G",
+        "speedCaps": [
+          100,
+          1000,
+          2500,
+          5000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "mge-0/0/27",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "2.5G",
+        "speedCaps": [
+          100,
+          1000,
+          2500,
+          5000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "mge-0/0/28",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "2.5G",
+        "speedCaps": [
+          100,
+          1000,
+          2500,
+          5000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "mge-0/0/29",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "2.5G",
+        "speedCaps": [
+          100,
+          1000,
+          2500,
+          5000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "mge-0/0/30",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "2.5G",
+        "speedCaps": [
+          100,
+          1000,
+          2500,
+          5000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "mge-0/0/31",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "2.5G",
+        "speedCaps": [
+          100,
+          1000,
+          2500,
+          5000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "ge-0/0/0",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "ge-0/0/1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "ge-0/0/2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "ge-0/0/3",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "ge-0/0/4",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "ge-0/0/5",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "ge-0/0/6",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "ge-0/0/7",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "ge-0/0/8",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "ge-0/0/9",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "ge-0/0/10",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "ge-0/0/11",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "ge-0/0/12",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "ge-0/0/13",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "ge-0/0/14",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "ge-0/0/15",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "ge-0/0/32",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "ge-0/0/33",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "ge-0/0/34",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "ge-0/0/35",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "ge-0/0/36",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "ge-0/0/37",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "ge-0/0/38",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "ge-0/0/39",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "ge-0/0/40",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "ge-0/0/41",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "ge-0/0/42",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "ge-0/0/43",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "ge-0/0/44",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "ge-0/0/45",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "ge-0/0/46",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "ge-0/0/47",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "xe-0/1/0",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "xe-0/1/1",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "xe-0/1/2",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "xe-0/1/3",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "xe-0/1/4",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "xe-0/1/5",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      }
+    ],
+    "poe": {
+      "budgetW": 740,
+      "sourceUrl": "https://apps.juniper.net/hct/product/EX2300%20Multigigabit/hwspecs",
+      "note": "740 W from a 1005 W fixed supply: the per-model hardware specs, the power-supply table and the datasheet all say 740 W, while the PoE User Guide Table 5 says 750 W for this model as well as for the 48P. 740 W is recorded (three documents, and 48 x 15.4 W = 739.2 W). 802.3af/at only - the 10G-capable multi-gigabit ports are still PoE+ ports, not 802.3bt."
+    },
+    "fabric": {
+      "capacityMbps": 176000,
+      "kind": "packet-switching capacity",
+      "note": "Datasheet figure of 176 Gbps, from the datasheet's 48-port grouping. Juniper's per-model hardware specs give 132 Gbps unidirectional / 264 Gbps bidirectional for this model, more than the 176 Gbps the datasheet quotes - the second contradiction in this family, stated in the PR body. 130 Mpps is common to both."
+    },
+    "sourceUrl": "https://apps.juniper.net/hct/product/EX2300%20Multigigabit/hwspecs",
+    "notes": "Port layout from the datasheet's Table 1: gigabit ports 0-15 and 32-47, the sixteen multi-gigabit ports 16-31 in the middle, and six uplink cages (the only EX2300 with six). Juniper's quick start lists those 16 ports as 100/1000/2500/5000/10000BASE-T; they are modelled at 2.5G with speedCaps up to 5G because engine/media.js marks 10GBASE-T as carrying no power and every one of these ports is a PSE port, so a 10G model speed would silently strip PoE from the port. 14.45 in / 36.7 cm deep, 6.5 kg, four fixed side-to-side fans, 45.8 dB."
+  }
+]
