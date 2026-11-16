@@ -489,3 +489,118 @@ jobs:
           echo "--- what this job left on the host ---"
           docker system df || true
           df -h / || true
+
+  # The one place that knows the checks are green, because it runs after them.
+  #
+  # Every merge gate in this repository used to be an arm, and an arm is not a gate.
+  # pr-rebase.yml and auto-rebase.yml both POST
+  # `{"Do":"squash","merge_when_checks_succeed":true}` immediately after the force-push
+  # that rebased the branch, and Forgejo evaluates that flag against the checks that
+  # exist at the moment of the call. For a head pushed seconds earlier that set is
+  # empty - and "all checks succeeded" over nothing is true - so the pull request
+  # merged and CI then reported on a commit that was already on `main`.
+  #
+  # Measured on 2026-11-16 through `/commits/{sha}/status` over the 25 most recently
+  # merged pull requests (#1723, #1722, #1721, #1719, #1718, #1717, #1716, #1715,
+  # #1713, #1712, #1711, #1710, #1709, #1708, #1707, #1706, #1705, #1704, #1703,
+  # #1702, #1700, #1699, #1698, #1690): all 25 merged before any of their seven checks
+  # reported, and 15 of them had no status at all on the head commit at the moment of
+  # the merge. #1719 is the clearest single case: its rebase job (run 4092) armed it at
+  # 19:59:43 with HTTP 201, Forgejo merged it at 19:59:54, and its own CI run (4091) did
+  # not finish its first test leg until 20:00:46 - 52 s after the commit it was testing
+  # was already on `main`. A red pull request could not have been stopped by that path,
+  # because the path never saw the checks.
+  #
+  # So the merge moves to the one job that has the answer. `needs` supplies the
+  # results, and the statuses API is asked as well, because a leg skipped for a
+  # data-only diff is a legitimate `skipped` while a leg that never reported is not.
+  # The three CI test legs are required by name: a status set that has not yet grown
+  # them is a run that has not started, not a run that passed.
+  #
+  # Nothing here can turn a red pull request green, and nothing here can go red on a
+  # pull request that is fine: every failure is a `::warning::` and an unmerged but
+  # untouched branch. The merge carries `head_commit_id`, so a run against a commit
+  # that has since been rebased away is refused by the server rather than merging a
+  # tree this run never tested.
+  arm:
+    name: Arm auto-merge
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    needs: [changes, test, smoke, docker]
+    if: always() && github.event_name == 'pull_request' && needs.changes.outputs.live != 'false'
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - name: Merge once every check has reported green
+        env:
+          TOKEN: ${{ secrets.FORGEJO_TOKEN || secrets.GITHUB_TOKEN || github.token }}
+          NUMBER: ${{ github.event.pull_request.number }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          set -u
+          api="${GITHUB_API_URL:-http://10.0.10.20:3000/api/v1}"
+          repo="$GITHUB_REPOSITORY"
+          note() { echo "::warning title=Auto-merge::${*}" >&2; echo "${*}"; }
+          # `needs` is ordering, not the verdict: each job of this workflow posts its own
+          # commit status, so a leg that failed is already visible in the set read below,
+          # and a leg skipped for a data-only diff simply is not in it. Reading the set
+          # rather than `needs.*.result` also means this job agrees with the server about
+          # what "green" is, which is the only definition that keeps the gate honest.
+
+          # The same question the server would ask, asked while the answer is still
+          # knowable, and with a floor on the set: the three test legs must be in it.
+          got=$(curl -sS --connect-timeout 5 --max-time 20 --retry 2 --retry-delay 1 \
+                  --retry-connrefused -H "Authorization: token ${TOKEN}" \
+                  "$api/repos/$repo/commits/${HEAD_SHA}/status" 2>/dev/null || true)
+          if [ -z "$got" ]; then
+            note "#${NUMBER}: not merging - the checks for ${HEAD_SHA} could not be read"
+            exit 0
+          fi
+          verdict=$(printf '%s' "$got" | node -e '
+            let d = "";
+            process.stdin.on("data", (c) => { d += c; });
+            process.stdin.on("end", () => {
+              let j; try { j = JSON.parse(d); } catch (e) { console.log("the status reply was not JSON"); return; }
+              // The reader has its own status, `pending` while it runs, and that is
+              // on the change - it is this decision. Everything else on the head has to
+              // have reported, and reported green.
+              const s = (j.statuses || []).filter((x) => !/^CI \/ Arm auto-merge/.test(x.context || ""));
+              const legs = s.filter((x) => /^CI \/ Test \(Node \d+\)/.test(x.context || "")).length;
+              const bad  = s.filter((x) => x.status !== "success");
+              if (!s.length)  { console.log("no check has reported yet"); return; }
+              if (bad.length) { console.log("not successful: " + bad.map((x) => (x.context || "?") + "=" + x.status).join(", ")); return; }
+              if (legs < 3)   { console.log("only " + legs + " of the three CI test legs have reported"); return; }
+              console.log("");
+            });
+          ')
+          if [ -n "$verdict" ]; then
+            note "#${NUMBER}: not merging - ${verdict}"
+            exit 0
+          fi
+          echo "#${NUMBER}: every check on ${HEAD_SHA} is green - merging"
+
+          # `mergeable` is computed off the request thread, so 405 here means "not
+          # known yet" rather than "refused". Bounded against the wall clock, not
+          # against a count of tries.
+          deadline=$((SECONDS + 90))
+          while [ "$SECONDS" -lt "$deadline" ]; do
+            state=$(curl -sS --connect-timeout 5 --max-time 20 --retry 2 --retry-delay 1 \
+                      --retry-connrefused -H "Authorization: token ${TOKEN}" \
+                      "$api/repos/$repo/pulls/${NUMBER}" 2>/dev/null \
+                    | tr ',' '\n' | grep -m1 '"mergeable"' | cut -d: -f2 | tr -d ' ' || true)
+            if [ "$state" = "true" ]; then
+              code=$(curl -sS --connect-timeout 5 --max-time 20 --retry 2 --retry-delay 1 \
+                       --retry-connrefused -o /dev/null -w '%{http_code}' -X POST \
+                       -H "Authorization: token ${TOKEN}" -H 'Content-Type: application/json' \
+                       "$api/repos/$repo/pulls/${NUMBER}/merge" \
+                       -d "{\"Do\":\"squash\",\"head_commit_id\":\"${HEAD_SHA}\"}")
+              case "$code" in
+                200|201) echo "#${NUMBER}: merged ${HEAD_SHA} as a squash, every check green" ; exit 0 ;;
+                405|409) echo "#${NUMBER}: merge refused (HTTP ${code}) - the head moved or the branch is not mergeable; the next rebase pass will bring it back here" ; exit 0 ;;
+                *)       note "#${NUMBER}: merge refused (HTTP ${code})" ; exit 0 ;;
+              esac
+            fi
+            sleep 5
+          done
+          note "#${NUMBER}: mergeable was still not computed after 90 s - green and left unmerged"

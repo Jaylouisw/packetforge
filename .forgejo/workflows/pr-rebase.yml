@@ -228,6 +228,47 @@ jobs:
             fi
           fi
 
+          # Before arming: a head that was pushed seconds ago has no checks, and
+          # `merge_when_checks_succeed` is evaluated against the checks that exist when
+          # the call is made - so arming it there is not a gate, it is a merge. "All
+          # checks succeeded" over an empty set is true, and the pull request landed
+          # before CI had reported anything.
+          #
+          # Measured on 2026-11-16 through `/commits/{sha}/status` over the 25 most
+          # recently merged pull requests: all 25 merged before any of their seven checks
+          # reported, and 15 of them had no status at all on the head commit at merge
+          # time. #1719 is the clearest: this job (run 4092) armed it at 19:59:43, Forgejo
+          # merged at 19:59:54, and its own CI run 4091 did not finish its first test leg
+          # until 20:00:46 - 52 s after the commit it was testing was on `main`.
+          #
+          # So arming here is conditional on the checks already being green, which for a
+          # branch this job just rebased they are not; that pull request is merged by
+          # ci.yml's `Arm auto-merge` job, the one of the two that runs after the checks
+          # it depends on. Green here still arms, which is what keeps a pull request that
+          # lost its arm from sitting mergeable and unarmed.
+          checks_green() {   # $1 = head sha; exit 0 only when every reported check passed
+            st=$(http -H "$(auth)" "$api/repos/$repo/commits/$1/status" 2>/dev/null || true)
+            [ -z "$st" ] && return 1
+            printf '%s' "$st" | node -e '
+              let d = "";
+              process.stdin.on("data", (c) => { d += c; });
+              process.stdin.on("end", () => {
+                let j; try { j = JSON.parse(d); } catch (e) { process.exit(1); }
+                // The reader has its own status, `pending` while it runs, and that is not a
+                // check on the change - it is this decision. Everything else on the head
+                // has to have reported, and reported green.
+                const s = (j.statuses || []).filter((x) => !/^PR rebase \//.test(x.context || ""));
+                const legs = s.filter((x) => /^CI \/ Test \(Node \d+\)/.test(x.context || "")).length;
+                const bad  = s.filter((x) => x.status !== "success");
+                process.exit(s.length && !bad.length && legs >= 3 ? 0 : 1);
+              });'
+          }
+
+          if ! checks_green "$head_sha"; then
+            echo "#${number}: checks on ${head_sha} are not green yet - ci.yml's 'Arm auto-merge' job merges this once they are"
+            exit 0
+          fi
+
           # Arming: Forgejo computes `mergeable` asynchronously, so arming in the same
           # breath as the push answers 405 "Please try again later" - which reads like
           # a refusal and is only "not computed yet". Poll until it settles.
@@ -239,10 +280,10 @@ jobs:
             state=$(http -H "$(auth)" "$api/repos/$repo/pulls/$number" \
               | tr ',' '\n' | grep -m1 '"mergeable"' | cut -d: -f2 | tr -d ' ' || true)
             if [ "$state" = "true" ]; then
-              code=$(http -o /dev/null -w '%{http_code}' -X POST -H "$(auth)" \
-                -H 'Content-Type: application/json' \
-                "$api/repos/$repo/pulls/$number/merge" \
-                -d '{"Do":"squash","merge_when_checks_succeed":true}')
+              # The payload names the commit this run checked, so a head that has
+              # moved since cannot be merged by a stale decision.
+              payload=$(printf '{"Do":"squash","head_commit_id":"%s","merge_when_checks_succeed":true}' "$head_sha")
+              code=$(http -o /dev/null -w '%{http_code}' -X POST -H "$(auth)" -H 'Content-Type: application/json' "$api/repos/$repo/pulls/$number/merge" -d "$payload")
               # 409 is "already armed", which is the outcome asked for either way.
               case "$code" in
                 200|201|409) echo "#${number}: armed (HTTP ${code})" ;;

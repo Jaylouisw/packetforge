@@ -198,6 +198,43 @@ jobs:
             bounded_seconds="$1"; shift
             if command -v timeout >/dev/null 2>&1; then timeout "$bounded_seconds" "$@"; else "$@"; fi
           }
+          # A pull request may only be armed when its own checks have reported and all
+          # of them passed. `merge_when_checks_succeed` is evaluated against the checks
+          # that exist when the call is made, and `mergeable: true` says nothing about
+          # them - so arming a branch this pass just force-pushed merged a commit whose
+          # CI had not started, and "all checks succeeded" over an empty set is true.
+          #
+          # Measured on 2026-11-16 through `/commits/{sha}/status` over the 25 most
+          # recently merged pull requests: all 25 merged before any of their seven
+          # checks reported, 15 with no status at all on the head commit at merge time
+          # (#1719 merged 19:59:54 while its own run 4091 finished at 20:00:51).
+          #
+          # Green means: at least one check has reported, none of them is anything but a
+          # success, and the three CI test legs are among them - a status set that has
+          # not grown them yet is a run that has not reached the suite, not a run that
+          # passed it. Anything else is left unarmed for ci.yml's `Arm auto-merge` job,
+          # the only gate that runs after the checks it depends on.
+          checks_green() {   # $1 = head sha
+            st=$(http -H "Authorization: token $TOKEN" "$api/repos/$repo/commits/$1/status" 2>/dev/null || true)
+            [ -z "$st" ] && return 1
+            printf '%s' "$st" | node -e '
+              let d = "";
+              process.stdin.on("data", (c) => { d += c; });
+              process.stdin.on("end", () => {
+                let j; try { j = JSON.parse(d); } catch (e) { process.exit(1); }
+                // The reader has its own status, `pending` while it runs, and that is not a
+                // check on the change - it is this decision. Everything else on the head
+                // has to have reported, and reported green.
+                const s = (j.statuses || []).filter((x) => !/^Auto-rebase \//.test(x.context || ""));
+                const legs = s.filter((x) => /^CI \/ Test \(Node \d+\)/.test(x.context || "")).length;
+                const bad  = s.filter((x) => x.status !== "success");
+                process.exit(s.length && !bad.length && legs >= 3 ? 0 : 1);
+              });'
+          }
+
+          head_of() {   # $1 = pull number
+            http -H "Authorization: token $TOKEN" "$api/repos/$repo/pulls/$1" 2>/dev/null               | node -e 'let d="";process.stdin.on("data",c=>d+=c).on("end",()=>{try{process.stdout.write(JSON.parse(d).head.sha||"")}catch(e){process.stdout.write("")}})'
+          }
 
           export GIT_TERMINAL_PROMPT=0
           export GIT_HTTP_LOW_SPEED_LIMIT=1000
@@ -319,10 +356,13 @@ jobs:
               continue
             fi
 
-            code=$(http -o /dev/null -w '%{http_code}' -X POST \
-              -H "Authorization: token $TOKEN" -H 'Content-Type: application/json' \
-              -d '{"Do":"squash","merge_when_checks_succeed":true}' \
-              "$api/repos/$repo/pulls/$n/merge")
+            head_sha=$(head_of "$n")
+            if [ -z "$head_sha" ] || ! checks_green "$head_sha"; then
+              echo "PR #$n: checks are not green yet - ci.yml's Arm auto-merge job merges it once they are"
+              continue
+            fi
+            payload=$(printf '{"Do":"squash","head_commit_id":"%s","merge_when_checks_succeed":true}' "$head_sha")
+            code=$(http -o /dev/null -w '%{http_code}' -X POST -H "Authorization: token $TOKEN" -H 'Content-Type: application/json' -d "$payload" "$api/repos/$repo/pulls/$n/merge")
             case "$code" in
               200|201) armed=$((armed+1)); echo "PR #$n: armed for squash merge on green checks" ;;
               409)     armed=$((armed+1)); echo "PR #$n: already armed" ;;
@@ -357,10 +397,13 @@ jobs:
               });')
 
           for n in $armable; do
-            code=$(http -o /dev/null -w "%{http_code}" -X POST \
-              -H "Authorization: token $TOKEN" -H "Content-Type: application/json" \
-              -d '{"Do":"squash","merge_when_checks_succeed":true}' \
-              "$api/repos/$repo/pulls/$n/merge")
+            head_sha=$(head_of "$n")
+            if [ -z "$head_sha" ] || ! checks_green "$head_sha"; then
+              echo "PR #$n: checks are not green yet - ci.yml's Arm auto-merge job merges it once they are"
+              continue
+            fi
+            payload=$(printf '{"Do":"squash","head_commit_id":"%s","merge_when_checks_succeed":true}' "$head_sha")
+            code=$(http -o /dev/null -w '%{http_code}' -X POST -H "Authorization: token $TOKEN" -H 'Content-Type: application/json' -d "$payload" "$api/repos/$repo/pulls/$n/merge")
             case "$code" in
               200|201|409) rearmed=$((rearmed+1)) ;;
               *)           echo "PR #$n: arm refused (http $code)" ;;
