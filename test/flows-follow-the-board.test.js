@@ -86,7 +86,9 @@ function request(port, method, urlPath, body) {
   const byId = function (list, id) { return list.filter(function (f) { return f.id === id; })[0] || null; };
 
   try {
-    const deadline = Date.now() + 20000;
+    // One minute, not twenty seconds (#1720). At PF_TEST_CONCURRENCY=10 ten suites start a server
+    // at once, a cold start measured 3.5-4.8 s, and one suite that restarts its server spent 27 s.
+    const deadline = Date.now() + 60000;
     for (;;) {
       try {
         const r = await request(port, 'GET', '/api/version');

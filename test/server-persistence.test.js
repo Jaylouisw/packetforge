@@ -70,7 +70,9 @@ function startServer() {
   // Readiness is a successful HTTP probe, not a line in the log: a log line proves a
   // process printed something, not that it is the one answering on the port.
   return new Promise(function (resolve, reject) {
-    const deadline = Date.now() + 20000;
+    // One minute, not twenty seconds (#1720). At PF_TEST_CONCURRENCY=10 ten suites start a server
+    // at once, a cold start measured 3.5-4.8 s, and one suite that restarts its server spent 27 s.
+    const deadline = Date.now() + 60000;
     (function poll() {
       request('GET', '/api/catalog').then(function (r) {
         if (r.status === 200) return resolve({ child: child, log: function () { return log; } });

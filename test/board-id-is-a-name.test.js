@@ -43,11 +43,13 @@ function freePort() {
   });
 }
 
-function request(method, urlPath, body, rawBody) {
+// The port is an argument, not always the module-level PORT, because the one assertion that proves the
+// wait honours the deadline it was given has to address a port with nothing listening on it (#1720).
+function request(method, urlPath, body, rawBody, onPort) {
   return new Promise(function (resolve, reject) {
     const payload = rawBody !== undefined ? rawBody : (body === undefined ? null : JSON.stringify(body));
     const req = http.request({
-      host: '127.0.0.1', port: PORT, path: urlPath, method: method,
+      host: '127.0.0.1', port: onPort || PORT, path: urlPath, method: method,
       headers: payload ? { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(payload) } : {}
     }, function (res) {
       let data = '';
@@ -64,6 +66,33 @@ function request(method, urlPath, body, rawBody) {
   });
 }
 
+// One minute, not twenty seconds (#1720). At PF_TEST_CONCURRENCY=10 ten suites start a server at
+// once, and this suite alone has measured 26.8 s inside that run, so the restart below had a couple
+// of seconds of headroom and ran out of it on 2026-11-16 (10227 assertions, one red suite).
+const START_DEADLINE_MS = 60000;
+
+// A wall-clock deadline, not an attempt count (#1242, #1714) - and it takes the deadline as an
+// argument, so that "gives up too early" and "never gives up" are both things a test can assert.
+function waitReady(port, deadlineMs, child, logOf) {
+  const started = Date.now();
+  return new Promise(function (resolve, reject) {
+    (function poll() {
+      request('GET', '/api/catalog', undefined, undefined, port).then(function (r) {
+        if (r.status === 200) return resolve(null);
+        throw new Error('status ' + r.status);
+      }).catch(function (e) {
+        const log = logOf ? logOf() : '';
+        if (child && child.exitCode !== null) return reject(new Error('server exited (' + child.exitCode + '): ' + log));
+        if (Date.now() - started >= deadlineMs) {
+          return reject(new Error('server did not start within ' + deadlineMs + ' ms (last error: ' +
+            ((e && (e.code || e.message)) || 'no reply') + ') | ' + log));
+        }
+        setTimeout(poll, 100);
+      });
+    })();
+  });
+}
+
 function startServer() {
   const child = spawn(process.execPath, [path.join(ROOT, 'server', 'index.js')], {
     env: Object.assign({}, process.env, { PORT: String(PORT), PF_DATA: dataDir }),
@@ -72,19 +101,8 @@ function startServer() {
   let log = '';
   child.stdout.on('data', function (d) { log += d; });
   child.stderr.on('data', function (d) { log += d; });
-  return new Promise(function (resolve, reject) {
-    const deadline = Date.now() + 20000;
-    (function poll() {
-      request('GET', '/api/catalog').then(function (r) {
-        if (r.status === 200) return resolve({ child: child, log: function () { return log; } });
-        throw new Error('status ' + r.status);
-      }).catch(function (e) {
-        if (child.exitCode !== null) return reject(new Error('server exited (' + child.exitCode + '): ' + log));
-        if (Date.now() > deadline) return reject(new Error('server did not answer: ' + e.message + ' | ' + log));
-        setTimeout(poll, 100);
-      });
-    })();
-  });
+  return waitReady(PORT, START_DEADLINE_MS, child, function () { return log; })
+    .then(function () { return { child: child, log: function () { return log; } }; });
 }
 
 function stop(child, signal) {
@@ -121,6 +139,19 @@ const REFUSED = [
 
 (async function main() {
   PORT = await freePort();
+
+  // A bound nothing exercises is how the twenty-second cap came back (#1720), so this asserts on the
+  // wait itself, against a port that has no server behind it: it must give up at the deadline it was
+  // given, and say which one that was.
+  {
+    const closedPort = await freePort();
+    const failedToStart = await waitReady(closedPort, 400)
+      .then(function () { return null; }, function (e) { return e; });
+    ok(/did not start within 400 ms/.test(failedToStart ? failedToStart.message : ''),
+      'a port with no server behind it fails at the deadline it was given',
+      failedToStart ? failedToStart.message : 'resolved instead of failing');
+  }
+
   let srv = await startServer();
 
   console.log('');
