@@ -45,6 +45,11 @@ canonical-URL check.
 
 ```bash
 npm test              # every suite, the same entry point CI uses
+npm run syntax        # syntax-check across every JS file
+npm run smoke         # starts the server, exercises every route, shuts down
+docker build -t pf .  # exactly what the Docker job does
+npm run audit:ports   # per-port type audit
+```
 
 Two suites are randomised on purpose, and both are seeded so a failure reproduces exactly:
 
@@ -57,11 +62,6 @@ Two suites are randomised on purpose, and both are seeded so a failure reproduce
 Both print the seed with every failure. To reproduce one, use that seed in the generator at the
 top of the file; nothing about the run depends on wall-clock time or on the order of the
 surrounding suites.
-npm run syntax        # syntax-check across every JS file
-npm run smoke         # starts the server, exercises every route, shuts down
-docker build -t pf .  # exactly what the Docker job does
-npm run audit:ports   # per-port type audit
-```
 
 If `npm test` is green locally and CI is red, check the Node version: CI runs 18
 as well as 22, and a newer-than-18 API — `Array.prototype.findLast`,
