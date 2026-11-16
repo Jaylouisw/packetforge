@@ -1011,6 +1011,13 @@ Every number here is what `computeOspf()` recorded, so the report and `show ip r
 same topology. That includes the wait: on a lab that has not settled, the summary says
 `(withheld: still converging)` beside the route count, because that is what the engine did.
 
+The `Cost` column is also the first term of every metric that leaves by that port: a hop costs what the router
+sending the packet advertises for its own interface — RFC 2328 §16.1 prices a path as "the sum of the costs of
+the path's constituent links (as advertised in router-LSAs)" — so an asymmetric link costs what each end says it
+costs, and the `[110/n]` beside an `O` route is that sum plus the cost of the destination link. The engine used to
+add both ends of every link together, which priced one hop as two interfaces; `test/ospf.test.js` carries the
+arithmetic and `test/ospf-route-metric.test.js` the bracket.
+
 `show ip ospf neighbour <port>` and `show ip ospf interface <port>` narrow to one port, and name the reason when
 the port you asked about is not contributing:
 
@@ -1673,6 +1680,15 @@ each row carries `[distance/metric]`. The distance is not decoration: it is half
 the installed route (longest prefix first, then lowest distance), and without it two rows for the same
 prefix cannot be told apart.
 
+The metric is the protocol's own cost for the path, in the format Cisco's `show ip route` reference
+states — `[administrative distance/metric]`, where "`[110/2]` means that the route has an administrative
+distance of 110 and an OSPF metric of 2". It used to be a literal `0` on every row, so two OSPF paths to
+the same prefix read the same. For an `O` row it is the distance to the router that advertises the
+network plus that network link's own cost ([RFC 2328](https://www.rfc-editor.org/rfc/rfc2328.txt) §16.1,
+second stage), which is why a LAN one gigabit hop away behind a neighbour is `[110/2]` and one two hops
+away is `[110/3]`; a configured `ip ospf cost` is a term in that sum, and a loopback's stub link costs 0
+(§12.4.1). `S` and `B` rows print `0` in that column: no cost is computed for them here.
+
 The default gets two forms because there are two ways to configure one:
 
 | Row | Source | Distance |
@@ -1723,7 +1739,7 @@ configured gateway 254 — and it always did. The table did not say so: it print
 r1#show ip route
 C   10.0.12.0      /24  is directly connected, Gi0
 B  10.0.12.0      /24  [20/0] via 10.0.12.2  Gi0  (not installed: the C route for this prefix has distance 0)
-O   10.3.3.0       /24  [110/0] via 10.0.12.2  Gi0  (not installed: the B route for this prefix has distance 20)
+O   10.3.3.0       /24  [110/2] via 10.0.12.2  Gi0  (not installed: the B route for this prefix has distance 20)
 B  10.3.3.0       /24  [20/0] via 10.0.12.2  Gi0
 ```
 

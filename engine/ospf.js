@@ -11,9 +11,16 @@
 // Deliberate simplifications:
 //   * one area per link -- a link is usable only when both endpoints sit in the
 //     same area (no virtual links, no ABR route leaking)
-//   * link metric = the two interface costs added together when both ends
-//     configure one, otherwise the link's own cost, otherwise DEFAULT_COST
-//   * every edge is bidirectional with the same metric in both directions
+//   * a link is directed, one cost per direction: the cost the sending router
+//     advertises for its own interface (RFC 2328 §16.1, "the sum of the costs of
+//     the path's constituent links (as advertised in router-LSAs)"). The edge
+//     carries both, so an asymmetric link costs what each end says it costs
+//   * a link whose endpoints carry no cost falls back to the link's own cost,
+//     otherwise DEFAULT_COST
+//   * a route's metric is the distance to the router that advertises the network
+//     plus that network link's own cost (RFC 2328 §16.1, second stage: "D is
+//     equal to the distance from the root to the router vertex ... plus the stub
+//     network link's advertised cost") -- the second number in `[110/n]`
 //   * an interface area overrides its router's area, which is how a real ABR
 //     puts different interfaces in different areas
 //
@@ -442,12 +449,22 @@ function adjacencies(graph) {
 // SPF (Dijkstra)
 // ---------------------------------------------------------------------------
 
+// The cost of an edge *in the direction it is used*: the cost advertised by the
+// router the packet leaves from (`costA` belongs to `a`, `costB` to `b`, see
+// normalizeLink). A link's `cost` is the two ends added together and is only the
+// fallback for an endpoint that advertises nothing.
+function outCost(e, from) {
+  const side = (e.a === from) ? e.costA : e.costB;
+  const n = ifaceCost(side);
+  return (n === null) ? e.cost : n;
+}
+
 function adjacencyIndex(graph) {
   const index = new Map();
   for (const n of graph.nodes) index.set(n.id, []);
   for (const e of graph.edges) {
-    if (index.has(e.a)) index.get(e.a).push({ to: e.b, cost: e.cost });
-    if (index.has(e.b)) index.get(e.b).push({ to: e.a, cost: e.cost });
+    if (index.has(e.a)) index.get(e.a).push({ to: e.b, cost: outCost(e, e.a) });
+    if (index.has(e.b)) index.get(e.b).push({ to: e.a, cost: outCost(e, e.b) });
   }
   for (const list of index.values()) {
     list.sort(function (x, y) {
@@ -565,6 +582,16 @@ function betterRoute(cand, candOwner, cur, curOwner) {
 // connected networks are left out because those are code 'C'. A network
 // advertised by several routers keeps the cheapest entry (ties: lower next
 // hop, then lower owner id).
+// The cost of the network link a route is learned through: the interface's own OSPF cost, except that a
+// loopback is advertised as a stub link of cost 0 - "If the state of the interface is Loopback, add a Type 3
+// link (stub network) ... and the cost set to 0" (RFC 2328 §12.4.1) - so the route to a router's loopback
+// costs the distance to that router and nothing more.
+function stubCost(i) {
+  if (i.prefix === 32) return 0;
+  const c = ifaceCost(i.cost);
+  return (c === null) ? DEFAULT_COST : c;
+}
+
 function routesFromSpt(graph, rootId, spfResult) {
   const g = asGraph(graph);
   const root = (rootId === undefined || rootId === null) ? '' : String(rootId);
@@ -594,9 +621,10 @@ function routesFromSpt(graph, rootId, spfResult) {
       iface = e.ifB;
     }
     if (peer === null || !iface) continue;
+    const here = outCost(e, root);
     const cur = egress.get(peer);
-    if (!cur || e.cost < cur.cost || (e.cost === cur.cost && iface < cur.iface)) {
-      egress.set(peer, { iface: iface, cost: e.cost });
+    if (!cur || here < cur.cost || (here === cur.cost && iface < cur.iface)) {
+      egress.set(peer, { iface: iface, cost: here });
     }
   }
 
@@ -615,15 +643,19 @@ function routesFromSpt(graph, rootId, spfResult) {
       ? id
       : String(rec.nextHopRouterId);
     const hop = egress.get(nextHop);
-    const cost = Number(rec.cost);
+    const distance = Number(rec.cost);
 
     for (const i of usableInterfaces(node)) {
       const key = networkKey(i.network, i.prefix);
       if (ownNets.has(key)) continue;
+      // The metric of an OSPF route is the distance to the router advertising the
+      // network plus that link's own cost (RFC 2328 §16.1, second stage). The second
+      // number in `[110/n]`, and the number `show ip route` has to print.
+      const stub = stubCost(i);
       const route = {
         dest: net.intToIp(i.network),
         mask: net.intToIp(i.maskInt),
-        cost: cost,
+        cost: distance + (stub === null ? DEFAULT_COST : stub),
         nextHop: nextHop,
         iface: hop ? hop.iface : null,
         code: 'O'

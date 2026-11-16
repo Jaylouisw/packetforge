@@ -1144,7 +1144,10 @@ class Device {
     for (const r of (this.ospfRoutes || [])) {
       rows.push({
         code: 'O', dest: r.dest, mask: r.mask,
-        gw: r.nextHop || '-', iface: r.iface || '-', type: 'ospf'
+        gw: r.nextHop || '-', iface: r.iface || '-', type: 'ospf',
+        // The metric is the OSPF cost of the path to the network - the number a device prints as the
+        // second half of `[110/n]` - not the administrative distance beside it (#fidelity: show ip route).
+        metric: Number(r.cost) || 0
       });
     }
     for (const r of (this.bgpRoutes || [])) {
@@ -1165,6 +1168,10 @@ class Device {
     for (const row of rows) {
       row.displayCode = row.type === 'default' ? 'S*' : row.code;
       row.distance = Device.routeDistance(row);
+      // Every row carries a metric, because the bracket prints one for every row: a static, connected or
+      // BGP route is 0 (no protocol here computes a cost for it), an O route carries its OSPF cost.
+      if (row.metric === undefined || row.metric === null || !Number.isFinite(Number(row.metric))) row.metric = 0;
+      else row.metric = Number(row.metric);
     }
 
     // One prefix, one installed route (#1407).

@@ -427,22 +427,30 @@ const TRIANGLE_LINKS = [
   eq(graph.edges.length, 3, 'three same-area links form three adjacencies');
 
   const r12 = graph.edges.filter(function (e) { return e.a === 'r1' && e.b === 'r2'; })[0];
-  eq(r12 ? r12.cost : null, 10, 'an OSPF link costs the sum of both interface costs (5 + 5)');
+  // An edge still records both sides - `cost` as the sum (the fallback when a side advertises nothing),
+  // `costA`/`costB` as what each end says - but the SPT charges the sender's side only, which is the next
+  // block's arithmetic (RFC 2328 section 16.1).
+  eq(r12 ? r12.cost : null, 10, 'an edge records both interface costs, summed, as its fallback (5 + 5)');
+  eq(r12 ? r12.costA : null, 5, 'and the cost each end advertises separately');
 
   const spt = ospf.spf(graph, 'r1');
   const toR3 = spt.get('r3');
-  eq(toR3 ? toR3.cost : null, 20, 'SPF prefers the cheap two-hop path (10 + 10) over the direct 100');
+  // 5 + 5, not 10 + 10: a hop costs what the router sending the packet advertises for its own interface
+  // (RFC 2328 section 16.1), not both ends of the link added together.
+  eq(toR3 ? toR3.cost : null, 10, 'SPF prefers the cheap two-hop path (5 + 5) over the direct 100');
   eq(toR3 ? toR3.nextHopRouterId : null, 'r2', 'the next hop for r3 is r2, not the expensive link');
   deq(toR3 ? toR3.path : null, ['r1', 'r2', 'r3'], 'the shortest path tree records the full path');
 
   const back = ospf.spf(graph, 'r3').get('r1');
-  eq(back ? back.cost : null, 20, 'the SPF result is symmetric');
+  eq(back ? back.cost : null, 10, 'the SPF result is symmetric');
   eq(back ? back.nextHopRouterId : null, 'r2', 'the reverse path also transits r2');
 
   const routes = ospf.routesFromSpt(graph, 'r1', spt);
   const loopback = routes.filter(function (r) { return r.dest === '10.0.3.3'; })[0];
   ok(!!loopback, 'a remote /32 loopback is installed');
-  eq(loopback ? loopback.cost : null, 20, 'the installed route carries the SPF cost');
+  // A loopback is advertised as a stub link of cost 0 (RFC 2328 section 12.4.1), so the metric is the
+  // distance to r3 and nothing more.
+  eq(loopback ? loopback.cost : null, 10, 'the installed route carries the SPF cost, plus 0 for the /32');
   eq(loopback ? loopback.nextHop : null, 'r2', 'the next hop is the first-hop router id');
   eq(loopback ? loopback.iface : null, 'e12', 'the egress interface is the one facing that next hop');
   eq(loopback ? loopback.code : null, 'O', 'installed routes carry code O');
@@ -555,8 +563,9 @@ function ospfChain() {
   eq(toPc3 ? toPc3.nextHop : null, '10.0.12.2', 'the route points at the adjacent OSPF router');
   eq(toPc3 ? toPc3.iface : null, 'Gi0/0', 'the route leaves through the interface facing it');
   // Two gigabit transit links against IOS's default 100 Mbps reference: each port costs 1, so each
-  // link costs 1 + 1 = 2. This asserted 40 when the engine divided by 10 Gbps (10 + 10 per link).
-  eq(toPc3 ? toPc3.cost : null, 4, 'the cost accumulates across both transit links (2 + 2)');
+  // hop costs 1 - plus 1 for the stub on R3, which is the network the route is actually for. This
+  // asserted 40 when the engine divided by 10 Gbps, and 4 while a hop was priced as both interfaces.
+  eq(toPc3 ? toPc3.cost : null, 3, 'the metric is two hops (1 + 1) plus the destination link (1)');
 
   const toPc1 = ospfRouteOf(res[lab.r3.id], '10.0.1.0');
   ok(toPc1 !== null && toPc1.nextHop === '10.0.23.2', 'R3 learns the stub behind R1 symmetrically');
@@ -610,7 +619,8 @@ function ospfTriangle() {
   const res = lab.sim.computeOspf();
 
   const stub = ospfRouteOf(res[lab.r1.id], '10.0.3.0');
-  eq(stub ? stub.cost : null, 20, 'the lower-cost transit path (20) beats the direct link (100)');
+  // 5 + 5 over the cheap transit, plus 1 for the LAN link at the far end - against 50 direct.
+  eq(stub ? stub.cost : null, 11, 'the lower-cost transit path (11) beats the direct link (50 plus the LAN)');
   eq(stub ? stub.nextHop : null, '10.0.12.2', 'the next hop is the cheap neighbour');
 
   // 10, not 20: 10.0.12.0 is advertised by both R1 (reached at 20 over the cheap
@@ -700,7 +710,7 @@ function ospfTriangle() {
   ]);
   const res = sim.computeOspf();
   const near = ospfRouteOf(res[r1.id], '10.0.99.0');
-  eq(near ? near.cost : null, 10, 'SPF reaches the cheap neighbour at cost 10');
+  eq(near ? near.cost : null, 6, 'the stub behind the cheap neighbour costs 5 for the hop plus its own link');
   eq(near ? near.nextHop : null, '10.0.2.2', 'and installs that route out of the cheap interface');
 
   const shared = ospfRouteOf(res[r1.id], '10.0.23.0');
@@ -708,9 +718,10 @@ function ospfTriangle() {
   // Fixed in #44 (engine/simulator.js, route installation): computeOspf() kept
   // the first advertisement it met, so the cost of a shared network depended on
   // which router id the SPT happened to reach first. It keeps the lowest cost
-  // now -- X reaches 10.0.23.0 at 205, Y at 10.
-  eq(shared ? shared.cost : null, 10,
-    'a network shared by two routers keeps the cheaper advertisement (10, not 205) (#44)');
+  // now -- Y reaches 10.0.23.0 at 5 + 200, X at 200 + 200, and the metric counts the
+  // 10.0.23.0 link itself (RFC 2328 section 16.1) as well as the distance to whoever advertises it.
+  eq(shared ? shared.cost : null, 205,
+    'a network shared by two routers keeps the cheaper advertisement (205, not 400) (#44)');
   eq(shared ? shared.nextHop : null, '10.0.2.2',
     'and points at the cheap neighbour, whatever the device id order (#44)');
 }

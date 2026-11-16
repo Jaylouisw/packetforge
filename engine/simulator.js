@@ -1452,12 +1452,20 @@ class Simulator {
           const netAddr = net.intToIp(net.networkOf(di.ip, di.mask));
           const key = netAddr + '/' + di.mask;
           if (ownNets[key]) continue;        // the connected route is the route (#42)
+          // The route's metric is the distance to the router advertising the network
+          // plus that link's own cost (RFC 2328 §16.1, second stage) - the second number
+          // in `[110/n]`. The distance alone undercounts by the destination link,
+          // which is why `show ip route` printed a metric of 0 before it had one.
+          // A loopback is advertised with cost 0 (RFC 2328 §12.4.1), so only a real network link adds
+          // its interface cost to the distance.
+          const stub = (net.prefixOf(di.mask) === 32) ? 0
+            : ((di.cost === null || di.cost === undefined) ? ospfLib.DEFAULT_COST : Number(di.cost));
           const cand = {
             dest: netAddr,
             mask: di.mask,
             nextHop: hop.ip,
             iface: hop.iface,
-            cost: info.cost,
+            cost: info.cost + stub,
             learnedFrom: hopId
           };
           // One entry per destination, and the cheapest advertisement wins. The

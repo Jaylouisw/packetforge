@@ -361,8 +361,11 @@ console.log('\nspf');
   ok(spt.size === 3, 'SPF from r1 reaches all 3 routers');
   ok(eq(spt.get('r1'), { cost: 0, nextHopRouterId: null, path: ['r1'] }),
     'the root costs 0 and has no next hop');
-  ok(spt.get('r2').cost === 20, 'r1->r2 costs 20');
-  ok(spt.get('r3').cost === 40, 'r1->r3 costs 40 via r2, not the 200 direct link');
+  // Both ends of the r1-r2 link advertise cost 10, and a link costs what the *sending* router says it costs
+  // (RFC 2328 §16.1), so one hop is 10 - not the 20 this used to assert, when the two ends were added
+  // together and a path was priced as though the packet left by both interfaces.
+  ok(spt.get('r2').cost === 10, 'r1->r2 costs 10, the cost r1 advertises');
+  ok(spt.get('r3').cost === 20, 'r1->r3 costs 20 via r2, not the 100 direct link');
   ok(eq(spt.get('r3').path, ['r1', 'r2', 'r3']), 'r3 path is r1 -> r2 -> r3');
   ok(spt.get('r3').nextHopRouterId === 'r2', 'r3 next hop is r2');
   ok(spt.get('r2').nextHopRouterId === 'r2', 'a directly connected router is its own next hop');
@@ -370,8 +373,8 @@ console.log('\nspf');
   // The view from the other end is not symmetric: r3 pays 200 for r1 because
   // that is what the r1-r3 link costs, so r2 still wins (40).
   const back = ospf.spf(g, 'r3');
-  ok(back.get('r1').cost === 40 && back.get('r1').nextHopRouterId === 'r2',
-    'SPF from r3 mirrors it: r1 costs 40 via r2');
+  ok(back.get('r1').cost === 20 && back.get('r1').nextHopRouterId === 'r2',
+    'SPF from r3 mirrors it: r1 costs 20 via r2');
 
   ok(ospf.spf(g, 'ghost').size === 0, 'unknown root yields an empty SPT');
 
@@ -420,14 +423,14 @@ console.log('\ntie-breaking');
   cheap[2].interfaces[1].cost = 1; // r3's c4 port
   cheap[3].interfaces[0].cost = 1; // r4's d2 port
   cheap[3].interfaces[1].cost = 1; // r4's d3 port
-  // Both ends of the r2-r4 / r3-r4 links now carry cost 1, so the edge cost is
-  // 1 + 1 = 2 and r4 is reachable from r1 at 10 + 2 = 12.
+  // Both ends of the r2-r4 / r3-r4 links now carry cost 1, so one hop over them
+  // costs 1 and r4 is reachable from r1 at 10 + 1 = 11.
   const g3 = ospf.buildGraph(cheap, d.links.map(function (l) {
     return { a: l.a, b: l.b, cost: 10 };
   }));
   const spt3 = ospf.spf(g3, 'r1');
-  ok(spt3.get('r4').cost === 12 && spt3.get('r4').nextHopRouterId === 'r2',
-    'a cheaper path (12) replaces the plain 20, tie-break unchanged');
+  ok(spt3.get('r4').cost === 11 && spt3.get('r4').nextHopRouterId === 'r2',
+    'a cheaper path (11) replaces the plain 20, tie-break unchanged');
 }
 
 // ---------------------------------------------------------------------------
@@ -447,11 +450,13 @@ console.log('\nroutesFromSpt');
   ok(routeTo(routes, '10.0.13.0') === null, 'networks the root already owns are skipped');
 
   const lo2 = routeTo(routes, '10.0.2.2');
-  ok(lo2 !== null && lo2.mask === '255.255.255.255' && lo2.cost === 20, 'r2 loopback is 10.0.2.2/32 at cost 20');
+  // A loopback is advertised as a stub link of cost 0 (RFC 2328 §12.4.1), so its route is the distance to
+  // the router that owns it: one hop of 10, and nothing for the /32 itself.
+  ok(lo2 !== null && lo2.mask === '255.255.255.255' && lo2.cost === 10, 'r2 loopback is 10.0.2.2/32 at cost 10');
   ok(lo2.nextHop === 'r2' && lo2.iface === 'e12', 'route to r2 leaves via e12 straight to r2');
 
   const lo3 = routeTo(routes, '10.0.3.3');
-  ok(lo3 !== null && lo3.cost === 40 && lo3.nextHop === 'r2', 'r3 loopback costs 40 and is reached via r2');
+  ok(lo3 !== null && lo3.cost === 20 && lo3.nextHop === 'r2', 'r3 loopback costs 20 and is reached via r2');
   ok(lo3.iface === 'e12', 'the local interface towards r3 is still the r1-r2 port e12');
 
   const transit = routeTo(routes, '10.0.23.0');
@@ -469,7 +474,8 @@ console.log('\nroutesFromSpt');
   ok(passiveLo !== null && passiveLo.cost === 10, 'a passive interface network is still advertised');
   ok(dr.length === 5, 'diamond gives r1 five OSPF routes');
   const net24 = routeTo(dr, '10.1.34.0');
-  ok(net24 !== null && net24.cost === 10 && net24.nextHop === 'r3', 'r3 advertises 10.1.34.0/24 at cost 10');
+  ok(net24 !== null && net24.cost === 20 && net24.nextHop === 'r3',
+    'r3 advertises 10.1.34.0/24 at 10 for the hop plus its own 10 (unpriced interface) for the link');
 
   ok(ospf.routesFromSpt(g, 'r1', new Map()).length === 0, 'an empty SPT yields no routes');
   ok(ospf.routesFromSpt(g, 'ghost', ospf.spf(g, 'r1')).length === 0, 'an unknown root yields no routes');

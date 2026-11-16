@@ -4270,11 +4270,18 @@ class CliSession {
             (r.note ? '  ' + r.note : '') + (r.shadow ? '  ' + r.shadow : ''));
           continue;
         }
-        // [administrative distance/metric] - the distance is half of the rule that picks the installed
-        // route (longest prefix first, then lowest distance), so a table without it cannot be checked
-        // by reading. Three columns whatever the code length, so `S*` does not shift the whole row.
+        // [administrative distance/metric], the format Cisco's `show ip route` command reference states and
+        // its "Understand Administrative Distance" note reads: "the values in brackets use the format
+        // [administrative distance/metric]" and "[110/2] means that the route has an administrative
+        // distance of 110 and an OSPF metric of 2". The metric was the literal 0 for every row, so an OSPF
+        // route read `[110/0]` however far away the network was - the distance half was right and the half
+        // a reader uses to compare two paths was a placeholder (#fidelity: show ip route metric).
+        //
+        // The distance is half of the rule that picks the installed route (longest prefix first, then
+        // lowest distance), so a table without it cannot be checked by reading. Three columns whatever the
+        // code length, so `S*` does not shift the whole row.
         out.push((r.displayCode.length === 1 ? r.displayCode + '  ' : r.displayCode + ' ') + dest +
-          '  [' + r.distance + '/0] via ' + r.gw +
+          '  [' + r.distance + '/' + r.metric + '] via ' + r.gw +
           (r.iface && r.iface !== '-' ? '  ' + r.iface : '') +
           (r.note ? '  ' + r.note : '') + (r.shadow ? '  ' + r.shadow : ''));
       }
