@@ -1,0 +1,422 @@
+{
+  "vendor": "zyxel",
+  "model": "XGS2220-30HP",
+  "label": "Zyxel XGS2220-30HP",
+  "category": "l3-switch",
+  "description": "Zyxel XGS2220-30HP - 24x 1G RJ-45 (1-24, all PoE: 1-16 802.3at 30 W, 17-24 802.3bt 60 W), 2x 1G/2.5G/5G/10G RJ-45 that are also 802.3bt 60 W PSE ports (25-26), 4x 1G/10G SFP+. 26 PoE ports on a 400 W budget, 168 Gbps, 125 Mpps.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli",
+    "http-server",
+    "vlan",
+    "lacp",
+    "stp",
+    "poe-pse",
+    "802.3af",
+    "802.3at",
+    "802.3bt"
+  ],
+  "interfaces": [
+    {
+      "name": "1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "4",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "5",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "6",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "7",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "8",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "9",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "10",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "11",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "12",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "13",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "14",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "15",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "16",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "17",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 60,
+      "poeOutClass": "PoE++"
+    },
+    {
+      "name": "18",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 60,
+      "poeOutClass": "PoE++"
+    },
+    {
+      "name": "19",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 60,
+      "poeOutClass": "PoE++"
+    },
+    {
+      "name": "20",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 60,
+      "poeOutClass": "PoE++"
+    },
+    {
+      "name": "21",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 60,
+      "poeOutClass": "PoE++"
+    },
+    {
+      "name": "22",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 60,
+      "poeOutClass": "PoE++"
+    },
+    {
+      "name": "23",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 60,
+      "poeOutClass": "PoE++"
+    },
+    {
+      "name": "24",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 60,
+      "poeOutClass": "PoE++"
+    },
+    {
+      "name": "25",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "10G",
+      "speedCaps": [
+        100,
+        1000,
+        2500,
+        5000,
+        10000
+      ],
+      "poeOut": 60,
+      "poeOutClass": "PoE++"
+    },
+    {
+      "name": "26",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "10G",
+      "speedCaps": [
+        100,
+        1000,
+        2500,
+        5000,
+        10000
+      ],
+      "poeOut": 60,
+      "poeOutClass": "PoE++"
+    },
+    {
+      "name": "27",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "28",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "29",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "30",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "console",
+      "type": "console"
+    }
+  ],
+  "icon": "switch",
+  "color": "#0ea5e9",
+  "sourceUrl": "https://www.zyxel.kr/support/datasheet/XGS2220_Series.pdf",
+  "fabric": {
+    "capacityMbps": 168000,
+    "kind": "switching fabric",
+    "note": "Vendor switching capacity of 168 Gbps, the full-duplex aggregate of the port rates (24 x 1G + 2 x 10G + 4 x 10G = 84 Gbps each way)."
+  },
+  "notes": "PoE model of the 24-port chassis: every copper port is a PSE port, 16 of them at 802.3at and 10 at 802.3bt including the two multi-gig ports. Switching capacity 168 Gbps is the full-duplex aggregate of the port rates (24 x 1G + 2 x 10G + 4 x 10G = 84 Gbps each way), so it caps nothing the ports cannot already do and is recorded as a fabric figure rather than a limit. Forwarding rate 125 Mpps, 2 MB packet buffer, 32 K MAC addresses, 9 K jumbo frames, 64 static routes, 32 IP interfaces, 4 K VLANs, 64 MB flash and 1 GB RAM. The 400 W figure is the model suffix and the same datasheet row states the port split, so the budget and the port mix cannot drift apart. Physical stacking is a datasheet feature rather than a modelled one: the English datasheet says a stack is built through the last two or four 10-Gigabit fibre ports, up to four units in a ring, while the specification table in the same document still lists physical stacking as being in a future firmware release - recorded here because two pages of one datasheet disagree about whether the shipped firmware already carries it. The console port is USB Type-C rather than RJ-45, and the User Guide (https://download.zyxel.com/XGS2220-54FP/user_guide/XGS2220-54FP-UG.pdf) describes that connector as troubleshooting-only until the Access L3 licence is activated, after which it carries the CLI. Any serial-console assumption about this box is wrong twice over: the connector, and the condition. 1RU, 441 x 270 x 44 mm, single fixed AC input (100-240 V AC), smart fan. Sources: datasheet https://www.zyxel.kr/support/datasheet/XGS2220_Series.pdf and the product page https://www.zyxel.com/global/en/products/switch/xgs2220-series/specifications.",
+  "poe": {
+    "budgetW": 400,
+    "sourceUrl": "https://www.zyxel.kr/support/datasheet/XGS2220_Series.pdf",
+    "note": "400 W system budget across 26 PoE ports: the datasheet gives 802.3at (30 W) on ports 1-16 and 802.3bt (60 W) on ports 17-24 and on the two multi-gig ports 25-26. The per-port maxima therefore sum to 16 x 30 + 10 x 60 = 1080 W, so the 400 W budget, not the port count, is what limits the box - which is why the budget is recorded rather than inferred from the ports."
+  }
+}
