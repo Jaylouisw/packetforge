@@ -2620,6 +2620,33 @@ class Simulator {
   // 10.0.0.5 eq 80` can only ever match a packet that carries a protocol and a
   // port, so the check reads them off the frame instead of calling every packet
   // "ip".
+  // Is there a list bound on this interface and direction at all?
+  //
+  // Asked before evaluating, because "the interface has no policy" and "the policy permitted it" are
+  // different answers on a counter: evaluating an unbound interface is a no-op that still costs a
+  // lookup, and the callers below need the difference to decide *which* interface to ask.
+  _aclBound(dev, ifaceName, dir) {
+    const bind = dev && dev.aclBindings && dev.aclBindings[ifaceName];
+    return !!(bind && bind[dir] != null);
+  }
+
+  // The VLAN interface a frame arriving in `vid` on `ifaceName` is handled by.
+  //
+  // A subinterface is this console's VLAN interface: `interface Gi0/0.10` plus `encapsulation dot1q 10`
+  // is the interface the box terminates and routes VLAN 10 at, so it is the interface an access list
+  // for that VLAN belongs to. `ip access-group` accepted a binding there, `running-config` printed it
+  // back, and `_aclCheck` was only ever asked about the physical port - so the list was respected by
+  // every surface an operator reads and evaluated by nothing. It failed *open*, which is the one
+  // direction a policy must never fail (#1517).
+  _vlanIfaceName(dev, ifaceName, vid) {
+    if (!ifaceName || typeof ifaceName !== 'string') return ifaceName;
+    if (!dev || typeof dev.subinterfacesOf !== 'function') return ifaceName;
+    const subs = dev.subinterfacesOf(ifaceName) || [];
+    const want = Number(vid);
+    const sub = subs.filter(function (s) { return Number(s.encapVid) === want; })[0];
+    return sub ? sub.name : ifaceName;
+  }
+
   _aclCheck(dev, ifaceName, dir, frame) {
     const bind = dev.aclBindings && dev.aclBindings[ifaceName];
     if (!bind || bind[dir] == null) return { action: 'permit', acl: null };
@@ -2825,11 +2852,16 @@ class Simulator {
       return;
     }
 
-    // Outbound access list is evaluated on the physical port the frame leaves.
-    const aclOut = this._aclCheck(dev, port.name, 'out', frame);
+    // Outbound access list is evaluated on the interface the frame leaves by. For a frame leaving a
+    // subinterface that is the subinterface - it is the VLAN interface the packet is routed out of - and
+    // the physical port it rides is a different question `ip access-group` was also allowed to answer.
+    // Only the port was asked, so a list bound to the subinterface out was inert in that direction too
+    // (#1517).
+    const aclOutName = (iface.parent && this._aclBound(dev, iface.name, 'out')) ? iface.name : port.name;
+    const aclOut = this._aclCheck(dev, aclOutName, 'out', frame);
     if (aclOut.action === 'deny') {
       this._emit({
-        type: 'acl-deny', dev: dev.id, iface: port.name, dir: 'out', acl: aclOut.acl,
+        type: 'acl-deny', dev: dev.id, iface: aclOutName, dir: 'out', acl: aclOut.acl,
         src: frame.ip ? frame.ip.src : null, dst: frame.ip ? frame.ip.dst : null, vlan: v
       });
       return;
@@ -3046,7 +3078,11 @@ class Simulator {
     // settled lab, which means no clock and so no ageing (#1395).
     if (inIface && !dev.isSplitter() && !dev.isPassiveTap()) dev.learnMac(vid, f.srcMac, inIface, this._nowMs());
 
-    // 3b. Inbound access list.
+    // 3b. Inbound access list, on the port and on the VLAN interface the frame lands on.
+    //
+    // Both are real doors and both get asked. The port's list is a port policy; the subinterface's is the
+    // policy of the VLAN the box routes, and a frame that arrived tagged for VLAN 10 passes through
+    // `Gi0/0.10` on its way in whether or not anyone thinks of it that way (#1517).
     const aclIn = this._aclCheck(dev, inIface, 'in', f);
     if (aclIn.action === 'deny') {
       this._emit({
@@ -3054,6 +3090,17 @@ class Simulator {
         src: f.ip ? f.ip.src : null, dst: f.ip ? f.ip.dst : null, vlan: vid
       });
       return;
+    }
+    const vlanInName = this._vlanIfaceName(dev, inIface, vid);
+    if (vlanInName !== inIface && this._aclBound(dev, vlanInName, 'in')) {
+      const vlanIn = this._aclCheck(dev, vlanInName, 'in', f);
+      if (vlanIn.action === 'deny') {
+        this._emit({
+          type: 'acl-deny', dev: dev.id, iface: vlanInName, dir: 'in', acl: vlanIn.acl,
+          src: f.ip ? f.ip.src : null, dst: f.ip ? f.ip.dst : null, vlan: vid
+        });
+        return;
+      }
     }
 
     const bcast = net.isBroadcastMac(f.dstMac);
