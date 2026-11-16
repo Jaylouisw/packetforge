@@ -1,0 +1,35 @@
+[
+  {
+    "vendor": "planet",
+    "model": "IGS-5225-8T2S2X",
+    "label": "PLANET IGS-5225-8T2S2X (hardware version 4)",
+    "category": "l3-switch",
+    "description": "PLANET IGS-5225-8T2S2X industrial Layer 3 managed switch: 8x 10/100/1000BASE-T RJ45, 2x 100/1000/2500BASE-X SFP (ports 9-10), 2x 10GBASE-SR/LR SFP+ (ports 11-12, backward compatible with 1G/2.5G SFP), no PoE, 66 Gbps non-blocking fabric, 49.1 Mpps, dual 9-48 V DC or 24 V AC input, IP30 DIN-rail case, -40 to 75 C.",
+    "capabilities": ["l2-forward", "l3-forward", "cli", "http-server", "vlan", "lacp", "stp"],
+    "icon": "switch",
+    "color": "#0e7490",
+    "portTemplate": {
+      "prefix": "port",
+      "start": 1,
+      "count": 8,
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "rj45",
+      "speedCaps": [10, 100, 1000]
+    },
+    "interfaces": [
+      { "name": "port9", "type": "ethernet", "connector": "sfp", "speed": "2.5G", "speedCaps": [100, 1000, 2500] },
+      { "name": "port10", "type": "ethernet", "connector": "sfp", "speed": "2.5G", "speedCaps": [100, 1000, 2500] },
+      { "name": "port11", "type": "ethernet", "connector": "sfp+", "speed": "10G", "speedCaps": [1000, 2500, 10000] },
+      { "name": "port12", "type": "ethernet", "connector": "sfp+", "speed": "10G", "speedCaps": [1000, 2500, 10000] },
+      { "name": "console", "type": "console" }
+    ],
+    "fabric": {
+      "capacityMbps": 66000,
+      "kind": "switching fabric",
+      "note": "66 Gbps non-blocking and 49.1 Mpps at 64 bytes, 32K MAC table, 32 Mbit shared buffer, 10 KB jumbo frames."
+    },
+    "sourceUrl": "https://www.planet.com.tw/en/product/igs-5225-8t2s2x-v4",
+    "notes": "Datasheet C-IGS-5225-8T2S2Xv4_L.pdf, hardware version 4 (the product page's download table lists datasheet version 4.0 dated 2026-08-07). The non-PoE twin of the IGS-5225-8P2S2X: same twelve ports and the same 66 Gbps fabric, but twice the shared buffer (32 Mbit against 16 Mbit) because no PoE controller shares it. RJ45-to-RS232 console at 115200 8-N-1, 76.8 x 107 x 152 mm, 1377 g, dual 9-48 V DC with 24 V AC acceptable, reverse-polarity protection, 17.1 W idle and 24.8 W fully loaded. That low-voltage input is the substantive difference from the PoE models, which need 48-54 V DC. Layer 3: RIPv1/v2, OSPFv2, OSPFv3 and IPv4/IPv6 hardware static routing. Discrepancy: this datasheet allows 6 trunk groups of up to 12 ports (24 Gbps duplex) while the PoE model's datasheet states 6 groups of 4 ports (16 Gbps); the LACP group size is not modelled here because the two sheets disagree and neither could be confirmed on a running unit."
+  }
+]

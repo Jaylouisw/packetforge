@@ -1,0 +1,95 @@
+{
+  "vendor": "planet",
+  "model": "IGS-5225-8P4S-12V",
+  "label": "PLANET IGS-5225-8P4S-12V",
+  "category": "l3-switch",
+  "description": "PLANET IGS-5225-8P4S-12V industrial L2+ managed PoE switch with a 12 V booster for battery and solar sites: 8x 10/100/1000BASE-T 802.3af/at PoE+ RJ45 (36 W a port), 2x 100/1000BASE-X SFP (ports 9-10), 2x 100/1000/2500BASE-X SFP (ports 11-12), PoE budget 60 W on 12 V DC, 120 W on 24 V DC and 240 W on 48-54 V DC, 30 Gbps non-blocking fabric, 22.32 Mpps, -40 to 75 C.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli",
+    "http-server",
+    "vlan",
+    "lacp",
+    "stp",
+    "poe-pse",
+    "802.3af",
+    "802.3at"
+  ],
+  "icon": "switch",
+  "color": "#0e7490",
+  "portTemplate": {
+    "prefix": "port",
+    "start": 1,
+    "count": 8,
+    "type": "ethernet",
+    "speed": "1G",
+    "connector": "rj45",
+    "speedCaps": [
+      10,
+      100,
+      1000
+    ],
+    "poeOut": 36
+  },
+  "interfaces": [
+    {
+      "name": "port9",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "port10",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "port11",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "2.5G",
+      "speedCaps": [
+        100,
+        1000,
+        2500
+      ]
+    },
+    {
+      "name": "port12",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "2.5G",
+      "speedCaps": [
+        100,
+        1000,
+        2500
+      ]
+    },
+    {
+      "name": "console",
+      "type": "console"
+    }
+  ],
+  "poe": {
+    "budgetW": 240,
+    "sourceUrl": "https://www.planet.com.tw/en/product/igs-5225-8p4s-12v",
+    "note": "240 W maximum on a 48-54 V DC feed. The same switch gives 120 W on 24 V DC and only 60 W on 12 V DC, which is the point of the -12V variant: it boosts a 12 V battery or solar bus up to PoE voltage. Modelled at the 240 W ceiling, so a 12 V deployment must be read as 60 W - two 30 W ports, not eight."
+  },
+  "fabric": {
+    "capacityMbps": 30000,
+    "kind": "switching fabric",
+    "note": "30 Gbps non-blocking and 22.32 Mpps at 64 bytes, 8K MAC table, 4 Mbit shared buffer."
+  },
+  "sourceUrl": "https://www.planet.com.tw/en/product/igs-5225-8p4s-12v",
+  "notes": "Hardware version 1 per the shared IGS-5225-8P series datasheet; every figure here is taken from the current product page specification table. Dual 12-54 V DC input, 7.28 W idle and 249 W fully loaded, 76.8 x 107.3 x 152 mm, 1128 g, RJ45-to-RS232 console at 115200 8-N-1. Unverifiable detail: the page's LED table lists a 'Per 10/100/1000T RJ45 Ports' group in addition to the PoE port group, but the port table and the ordering description both give 8 copper ports, so 8 is modelled and the extra LED group is treated as a copy-paste leftover rather than two hidden data-only RJ45s."
+}

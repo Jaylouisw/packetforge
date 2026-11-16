@@ -1,0 +1,41 @@
+[
+  {
+    "vendor": "planet",
+    "model": "IGS-5225-8P4S",
+    "label": "PLANET IGS-5225-8P4S",
+    "category": "l3-switch",
+    "description": "PLANET IGS-5225-8P4S industrial L2+ managed PoE switch with static L3 routing: 8x 10/100/1000BASE-T 802.3af/at PoE+ RJ45 (36 W a port), 2x 100/1000BASE-X SFP (ports 9-10), 2x 100/1000/2500BASE-X SFP (ports 11-12), 240 W PoE budget at 52-54 V DC input (125 W at 48 V), 30 Gbps non-blocking fabric, 22.32 Mpps, IP30 DIN-rail case, -40 to 75 C.",
+    "capabilities": ["l2-forward", "l3-forward", "cli", "http-server", "vlan", "lacp", "stp", "poe-pse", "802.3af", "802.3at"],
+    "icon": "switch",
+    "color": "#0e7490",
+    "portTemplate": {
+      "prefix": "port",
+      "start": 1,
+      "count": 8,
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "rj45",
+      "speedCaps": [10, 100, 1000],
+      "poeOut": 36
+    },
+    "interfaces": [
+      { "name": "port9", "type": "ethernet", "connector": "sfp", "speed": "1G", "speedCaps": [100, 1000] },
+      { "name": "port10", "type": "ethernet", "connector": "sfp", "speed": "1G", "speedCaps": [100, 1000] },
+      { "name": "port11", "type": "ethernet", "connector": "sfp", "speed": "2.5G", "speedCaps": [100, 1000, 2500] },
+      { "name": "port12", "type": "ethernet", "connector": "sfp", "speed": "2.5G", "speedCaps": [100, 1000, 2500] },
+      { "name": "console", "type": "console" }
+    ],
+    "poe": {
+      "budgetW": 240,
+      "sourceUrl": "https://www.planet.com.tw/en/product/igs-5225-8p4s-v5",
+      "note": "240 W maximum at 52-54 V DC input, falling to 125 W at 48 V DC: the budget is a function of feed voltage, so a 48 V supply cannot buy eight 30 W ports. 802.3at/end-span PSE on ports 1-8, 36 W a port at the top of the range. Discrepancy: the shared IGS-5225-8P series datasheet (hardware version 4) stated 120 W at 48 V and 240 W at 52-56 V, with 6.48 W idle and 262 W fully loaded, while the current hardware version 5 page states 125 W, 5.3 W idle and 263 W fully loaded. The current page is modelled."
+    },
+    "fabric": {
+      "capacityMbps": 30000,
+      "kind": "switching fabric",
+      "note": "30 Gbps non-blocking and 22.32 Mpps at 64 bytes, 8K MAC table, 4 Mbit shared buffer, 9 KB jumbo frames. 8x 1G duplex + 2x 1G duplex + 2x 2.5G duplex = 30 Gbps."
+    },
+    "sourceUrl": "https://www.planet.com.tw/en/product/igs-5225-8p4s-v5",
+    "notes": "Port layout, cage speeds, fabric and buffer are from the current hardware version 5 product page specification table. RJ45-to-RS232 console at 115200 8-N-1, 76.8 x 107.3 x 152 mm, 1130 g, dual 48-54 V DC (>51 V DC recommended for PoE+), 5.3 W idle and 263 W fully loaded with PoE. Layer 3 on this model is static only - IPv4/IPv6 static routing, no OSPF; the IGS-5225-8P2S2X is the dynamic-routing member of the family. The discontinued siblings IGS-5225-8P2T2S and IGS-5225-8P2T4S no longer have product pages on planet.com.tw, so their 10-copper + 4-cage layout is deliberately not transcribed here from the older shared datasheet."
+  }
+]
