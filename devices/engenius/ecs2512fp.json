@@ -1,0 +1,94 @@
+{
+  "vendor": "engenius",
+  "model": "ECS2512FP",
+  "label": "EnGenius ECS2512FP (8x 2.5G PoE++, 240 W, 4x SFP+)",
+  "category": "l3-switch",
+  "description": "EnGenius Cloud ECS2512FP layer 2+ multi-gigabit PoE switch: 8x 100/1000/2500BASE-T 802.3af/at/bt PoE++ RJ45 (240 W budget), 4x 1/10G SFP+ uplinks, 120 Gbps switching capacity, 16K MAC, 13-inch 1U.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli",
+    "http-server",
+    "vlan",
+    "lacp",
+    "stp",
+    "poe-pse",
+    "802.3af",
+    "802.3at",
+    "802.3bt"
+  ],
+  "icon": "switch",
+  "color": "#ef4444",
+  "portTemplate": {
+    "prefix": "port",
+    "start": 1,
+    "count": 8,
+    "type": "ethernet",
+    "speed": "2.5G",
+    "connector": "rj45",
+    "speedCaps": [
+      100,
+      1000,
+      2500
+    ],
+    "poeOut": 60
+  },
+  "interfaces": [
+    {
+      "name": "sfp+1",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "sfp+2",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "sfp+3",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "sfp+4",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "console",
+      "type": "console"
+    }
+  ],
+  "poe": {
+    "budgetW": 240,
+    "sourceUrl": "https://www.engeniustech.com/wp-content/uploads/2021/07/ECS2512FP-Datasheet.pdf",
+    "note": "240 W across ports 1-8, 802.3af/at/bt. EnGenius publishes the budget (240 W) and the standard (bt) but no per-port wattage for this model; 240 W / 8 ports is 30 W average, and the port ceiling is 802.3bt Type 3 at 60 W, which is what is modelled. 8 x 60 W would be 480 W, double the supply, so at most four ports can run at 60 W at once - an access point and PTZ camera box, not a 90 W Type 4 box. 299 W full load."
+  },
+  "fabric": {
+    "capacityMbps": 120000,
+    "kind": "switching capacity",
+    "note": "Vendor figure 120 Gbps, the full-duplex aggregate of 8x 2.5G plus 4x 10G. Packet forwarding rate 89.29 Mpps."
+  },
+  "sourceUrl": "https://www.engeniustech.com/wp-content/uploads/2021/07/ECS2512FP-Datasheet.pdf",
+  "notes": "Datasheet ECS2512FP v1.10 (07/2021): 8x 10/100/1000/2500 Mbps ports, 4x SFP+ ports, 120 Gbps, 512 MB SDRAM, 128 MB flash, PoE capable ports 1-8 (802.3bt/at/af), 240 W budget, 16K MAC, 9K jumbo frame, 100-240 V AC, 330 x 230 x 44 mm, 2.6 kg, 13-inch 1U, 299 W full load, 512 KB packet buffer. RJ45 console port. The bt support is what lets it feed 802.11ax APs above 30 W; the 240 W supply is the binding constraint. Management is EnGenius Cloud (zero-touch provisioning), the local web GUI (HTTP/HTTPS over IPv4 and IPv6) and a CLI reached over SSH/Telnet/TFTP config backup; SNMP v1/v2c/v3 with RMON 1,2,3,9 is supported. Layer 3 is static routing only: 63 IPv4 and 21 IPv6 static routes, a 192-entry ARP table and up to 20 IPv6 addresses on the box - no OSPF and no BGP, which is why this is modelled as l3-forward without a routing engine. L2 set: 802.1D/w/s spanning tree, 802.1Q tagging with port-based and protocol-based VLANs, 802.3ad link aggregation, IGMP and MLD snooping, voice VLAN, 802.1X with RADIUS, MAC/IP ACLs and storm control, 8 QoS queues. Operating 0-50 C, 5-95% RH non-condensing, 100-240 V AC 50/60 Hz, 2-year warranty. Firmware: the ECS15XX-25XX image is shared across the ECS15xx and ECS25xx classes - the download table on the model pages lists ECS15XX-25XX_firmware_1.2.136-197.imag dated 16 July 2026 as the current build, with 1.2.130-193 (27 May 2026) and 1.2.125-192 (12 February 2026) beneath it. Sources: https://www.engeniustech.com/wp-content/uploads/2021/07/ECS2512FP-Datasheet.pdf and https://www.engeniustech.com/eu/products/network-switches/ecs2512fp/ (comparison table: 8 x 2.5G PoE++, ports 1-8 802.3af/at/bt, 240 W, 120 Gbps, 16K MAC)."
+}

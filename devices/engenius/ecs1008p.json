@@ -1,0 +1,47 @@
+{
+  "vendor": "engenius",
+  "model": "ECS1008P",
+  "label": "EnGenius ECS1008P (8x 1G, 802.3af only, 55 W, desktop)",
+  "category": "l3-switch",
+  "description": "EnGenius Cloud ECS1008P layer 2+ desktop PoE switch: 8x 10/100/1000BASE-T 802.3af (not at) PoE RJ45 with a 55 W budget, 16 Gbps switching capacity, 8K MAC, no uplink cages, no console port.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli",
+    "http-server",
+    "vlan",
+    "lacp",
+    "stp",
+    "poe-pse",
+    "802.3af"
+  ],
+  "icon": "switch",
+  "color": "#ef4444",
+  "portTemplate": {
+    "prefix": "port",
+    "start": 1,
+    "count": 8,
+    "type": "ethernet",
+    "speed": "1G",
+    "connector": "rj45",
+    "speedCaps": [
+      10,
+      100,
+      1000
+    ],
+    "poeOut": 15.4
+  },
+  "interfaces": [],
+  "poe": {
+    "budgetW": 55,
+    "sourceUrl": "https://www.engeniustech.com/eu/products/network-switches/ecs1008p/",
+    "note": "55 W across ports 1-8, and every source states 802.3af only on this SKU - 15.4 W a port, no 802.3at, so no PoE+ device can be powered from it. 8 x 15.4 W = 123 W of port capability behind a 55 W supply: three ports at a full 802.3af, or all eight at about 6.9 W. Full load 62.05 W. The 802.3at token is deliberately NOT declared here, because the vendor does not claim it for this model."
+  },
+  "fabric": {
+    "capacityMbps": 16000,
+    "kind": "switching capacity",
+    "note": "Vendor figure 16 Gbps, the full-duplex aggregate of 8x 1G."
+  },
+  "sourceUrl": "https://www.engeniustech.com/eu/products/network-switches/ecs1008p/",
+  "notes": "Desktop chassis, 240 x 105 x 27 mm, 620 g, external power adapter (the box ships with a power adapter and a wall-mount kit, not a line cord), 8K MAC, 512 KB packet buffer, 62.05 W full load. The one model in the family with NO RJ45 console port (the comparison table leaves the cell blank and the hardware drawing shows only the mode-selector/reset button) and with no SFP/SFP+ cages at all - 8 copper ports and nothing else. PoE Extended Mode and PD Lifeguard are supported. Firmware: the ECS15XX-25XX image is shared across the ECS15xx and ECS25xx classes - the download table on the model pages lists ECS15XX-25XX_firmware_1.2.136-197.imag dated 16 July 2026 as the current build, with 1.2.130-193 (27 May 2026) and 1.2.125-192 (12 February 2026) beneath it. Sources: https://www.engeniustech.com/eu/products/network-switches/ecs1008p/ (comparison table: 8 gigabit ports, ports 1-8 802.3af, 55 W, 16 Gbps, 8K MAC, 240 x 105 x 27 mm, 62.05 W) and https://www.engeniustech.com/wp-content/uploads/2020/09/Cloud-Switches-DS-09-29-20.pdf (package contents and hardware drawing: no console port, power adapter)."
+}

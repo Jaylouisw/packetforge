@@ -1,0 +1,93 @@
+{
+  "vendor": "engenius",
+  "model": "ECS1552P",
+  "label": "EnGenius ECS1552P (48x 1G PoE+, 410 W, 4x SFP+)",
+  "category": "l3-switch",
+  "description": "EnGenius Cloud ECS1552P layer 2+ PoE switch: 48x 10/100/1000BASE-T 802.3af/at PoE+ RJ45 (410 W budget), 4x 1/10G SFP+ uplinks, 176 Gbps switching capacity, 32K MAC, 19-inch 1U.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli",
+    "http-server",
+    "vlan",
+    "lacp",
+    "stp",
+    "poe-pse",
+    "802.3af",
+    "802.3at"
+  ],
+  "icon": "switch",
+  "color": "#ef4444",
+  "portTemplate": {
+    "prefix": "port",
+    "start": 1,
+    "count": 48,
+    "type": "ethernet",
+    "speed": "1G",
+    "connector": "rj45",
+    "speedCaps": [
+      10,
+      100,
+      1000
+    ],
+    "poeOut": 30
+  },
+  "interfaces": [
+    {
+      "name": "sfp+1",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "sfp+2",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "sfp+3",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "sfp+4",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "console",
+      "type": "console"
+    }
+  ],
+  "poe": {
+    "budgetW": 410,
+    "sourceUrl": "https://www.engeniustech.com/eu/products/network-switches/ecs1552p/",
+    "note": "410 W across ports 1-48 at 802.3af/at - the same budget as the 24-port ECS1528FP, spread over twice the ports. 48 x 30 W would be 1440 W, so this chassis powers 13 ports at a full 30 W or 48 ports at 8.5 W average: a voice and camera access box, not a 48-port PoE+ farm. The product page states \"48 x 802.3 at/af PoE+ ports with 410W PoE budget\"."
+  },
+  "fabric": {
+    "capacityMbps": 176000,
+    "kind": "switching capacity",
+    "note": "Vendor figure 176 Gbps, the full-duplex aggregate of 48x 1G plus 4x 10G (88 Gbit/s of line rate x 2). Packet forwarding rate 130.95 Mpps."
+  },
+  "sourceUrl": "https://www.engeniustech.com/eu/products/network-switches/ecs1552p/",
+  "notes": "Specification block on the product page: 48x 10/100/1000 Mbps ports, 4x SFP+ ports, 176 Gbps switching capacity, 512 MB SDRAM, 128 MB flash, PoE capable ports 1-48 (802.3af/at), 410 W total, 32K MAC, 10K jumbo frame, 440 x 310 x 44 mm, 19-inch 1U. Management is EnGenius Cloud (zero-touch provisioning), the local web GUI (HTTP/HTTPS over IPv4 and IPv6) and a CLI reached over SSH/Telnet/TFTP config backup; SNMP v1/v2c/v3 with RMON 1,2,3,9 is supported. Layer 3 is static routing only: 63 IPv4 and 21 IPv6 static routes, a 192-entry ARP table and up to 20 IPv6 addresses on the box - no OSPF and no BGP, which is why this is modelled as l3-forward without a routing engine. L2 set: 802.1D/w/s spanning tree, 802.1Q tagging with port-based and protocol-based VLANs, 802.3ad link aggregation, IGMP and MLD snooping, voice VLAN, 802.1X with RADIUS, MAC/IP ACLs and storm control, 8 QoS queues. Operating 0-50 C, 5-95% RH non-condensing, 100-240 V AC 50/60 Hz, 2-year warranty. Firmware: the ECS15XX-25XX image is shared across the ECS15xx and ECS25xx classes - the download table on the model pages lists ECS15XX-25XX_firmware_1.2.136-197.imag dated 16 July 2026 as the current build, with 1.2.130-193 (27 May 2026) and 1.2.125-192 (12 February 2026) beneath it. Sources: https://www.engeniustech.com/eu/products/network-switches/ecs1552p/ (technical specifications and model comparison table)."
+}

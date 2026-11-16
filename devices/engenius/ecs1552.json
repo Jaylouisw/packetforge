@@ -15,7 +15,13 @@
     "start": 1,
     "count": 48,
     "type": "ethernet",
-    "speed": "1G"
+    "speed": "1G",
+    "connector": "rj45",
+    "speedCaps": [
+      10,
+      100,
+      1000
+    ]
   },
   "interfaces": [
     {
@@ -60,5 +66,6 @@
     }
   ],
   "icon": "switch",
-  "color": "#ef4444"
+  "color": "#ef4444",
+  "sourceUrl": "https://www.engeniustech.com/eu/products/network-switches/ecs1552/"
 }

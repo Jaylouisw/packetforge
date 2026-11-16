@@ -1,0 +1,96 @@
+{
+  "vendor": "engenius",
+  "model": "ECS5512FP",
+  "label": "EnGenius ECS5512FP (8x 10G PoE++, 410 W, 4x SFP+)",
+  "category": "l3-switch",
+  "description": "EnGenius Cloud ECS5512FP layer 2+ 10-gigabit PoE switch: 8x 100/1000/2500/5000/10000BASE-T 802.3af/at/bt PoE++ RJ45 (up to 90 W a port, 410 W budget), 4x 1/10G SFP+ uplinks, 240 Gbps switching capacity, 32K MAC, 13-inch 1U.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli",
+    "http-server",
+    "vlan",
+    "lacp",
+    "stp",
+    "poe-pse",
+    "802.3af",
+    "802.3at",
+    "802.3bt"
+  ],
+  "icon": "switch",
+  "color": "#ef4444",
+  "portTemplate": {
+    "prefix": "port",
+    "start": 1,
+    "count": 8,
+    "type": "ethernet",
+    "speed": "10G",
+    "connector": "rj45",
+    "speedCaps": [
+      100,
+      1000,
+      2500,
+      5000,
+      10000
+    ],
+    "poeOut": 90
+  },
+  "interfaces": [
+    {
+      "name": "sfp+1",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "sfp+2",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "sfp+3",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "sfp+4",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "console",
+      "type": "console"
+    }
+  ],
+  "poe": {
+    "budgetW": 410,
+    "sourceUrl": "https://www.engeniustech.com/eu/products/network-switches/ecs5512fp/",
+    "note": "Budget 410 W on the current product pages, and the 2020 model datasheet (ECS5512FP v1.00, 12/11/2020) says 420 W for the same SKU - a vendor contradiction, recorded rather than resolved; the catalogue takes 410 W, the later published figure and the one the model pages and the cloud comparison table all print. Up to 90 W on a port (802.3bt Type 4 - the vendor states \"802.3af/at/bt (up to 90W)\"), so 8 x 90 W = 720 W of port capability behind a ~410 W supply: four ports at 90 W at once, or all eight at about 51 W."
+  },
+  "fabric": {
+    "capacityMbps": 240000,
+    "kind": "switching capacity",
+    "note": "Vendor figure 240 Gbps, the full-duplex aggregate of 8x 10G plus 4x 10G. Packet forwarding rate 178.57 Mpps."
+  },
+  "sourceUrl": "https://www.engeniustech.com/eu/products/network-switches/ecs5512fp/",
+  "notes": "Ports 1-8 are 100/1000/2500/5000/10000BASE-T, 4x SFP+ cages at 100/1000/10,000 Mbps. 32K MAC, 2 MB packet buffer, 330 x 230 x 44 mm, 2.61 kg, 13-inch 1U, RJ45 console port. Full-load input power: the model datasheet says 745.61 W for the ECS5512FP, while the EU and TW model pages print 410.35 W - a 410 W PoE budget plus a 10G switch cannot draw 410 W in total, so the page figure contradicts its own PoE budget and the 745.61 W datasheet number is the credible one; no power field is modelled from either. Management is EnGenius Cloud (zero-touch provisioning), the local web GUI (HTTP/HTTPS over IPv4 and IPv6) and a CLI reached over SSH/Telnet/TFTP config backup; SNMP v1/v2c/v3 with RMON 1,2,3,9 is supported. Layer 3 is static routing only: 63 IPv4 and 21 IPv6 static routes, a 192-entry ARP table and up to 20 IPv6 addresses on the box - no OSPF and no BGP, which is why this is modelled as l3-forward without a routing engine. L2 set: 802.1D/w/s spanning tree, 802.1Q tagging with port-based and protocol-based VLANs, 802.3ad link aggregation, IGMP and MLD snooping, voice VLAN, 802.1X with RADIUS, MAC/IP ACLs and storm control, 8 QoS queues. Operating 0-50 C, 5-95% RH non-condensing, 100-240 V AC 50/60 Hz, 2-year warranty. Firmware is the separate ECS55XX image: the model page lists ECS55XX_firmware_2.2.66-174.imag as the current build, so ECS5512/ECS5512FP do NOT use the ECS15XX-25XX image. Sources: https://www.engeniustech.com/eu/products/network-switches/ecs5512fp/ (comparison table: ports 1-8 802.3af/at/bt up to 90 W, 410 W, 240 Gbps, 32K MAC, 178.57 Mpps), the model datasheet https://www.engeniustech.com/wp-content/uploads/2020/12/ecs5512fp-datasheet.pdf (420 W budget, 240 Gbps, 745.61 W full load, 2.61 kg) and https://www.engeniustech.com/wp-content/uploads/2020/09/Cloud-Switches-DS-09-29-20.pdf."
+}

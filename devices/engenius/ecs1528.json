@@ -1,0 +1,84 @@
+{
+  "vendor": "engenius",
+  "model": "ECS1528",
+  "label": "EnGenius ECS1528 (24x 1G, 4x SFP+, no PoE)",
+  "category": "l3-switch",
+  "description": "EnGenius Cloud ECS1528 layer 2+ managed switch: 24x 10/100/1000BASE-T RJ45, 4x 1/10G SFP+ uplinks, 128 Gbps switching capacity, 16K MAC table, no PoE, 19-inch 1U chassis.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli",
+    "http-server",
+    "vlan",
+    "lacp",
+    "stp"
+  ],
+  "icon": "switch",
+  "color": "#ef4444",
+  "portTemplate": {
+    "prefix": "port",
+    "start": 1,
+    "count": 24,
+    "type": "ethernet",
+    "speed": "1G",
+    "connector": "rj45",
+    "speedCaps": [
+      10,
+      100,
+      1000
+    ]
+  },
+  "interfaces": [
+    {
+      "name": "sfp+1",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "sfp+2",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "sfp+3",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "sfp+4",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "console",
+      "type": "console"
+    }
+  ],
+  "fabric": {
+    "capacityMbps": 128000,
+    "kind": "switching capacity",
+    "note": "Vendor figure 128 Gbps, the full-duplex aggregate of 24x 1G plus 4x 10G (64 Gbit/s of line rate x 2). Packet forwarding rate 95.23 Mpps."
+  },
+  "sourceUrl": "https://www.engeniustech.com/eu/products/network-switches/ecs1528/",
+  "notes": "Ports 1-24 are 10/100/1000BASE-T RJ45; the four SFP+ cages take 100/1000/10,000 Mbps optics (the vendor hardware drawing labels them \"100/1000/10,000 Mbps SFP+ Slots\", so a 1G optic is supported in the cage). No PoE on this SKU: no budget is published and no port is a PSE port. 16K MAC, 1.5 MB packet buffer, 440 x 200 x 44 mm, 2.69 kg, 19-inch 1U. RJ45 console port present; the mode-selector/reset button is not a network interface. Management is EnGenius Cloud (zero-touch provisioning), the local web GUI (HTTP/HTTPS over IPv4 and IPv6) and a CLI reached over SSH/Telnet/TFTP config backup; SNMP v1/v2c/v3 with RMON 1,2,3,9 is supported. Layer 3 is static routing only: 63 IPv4 and 21 IPv6 static routes, a 192-entry ARP table and up to 20 IPv6 addresses on the box - no OSPF and no BGP, which is why this is modelled as l3-forward without a routing engine. L2 set: 802.1D/w/s spanning tree, 802.1Q tagging with port-based and protocol-based VLANs, 802.3ad link aggregation, IGMP and MLD snooping, voice VLAN, 802.1X with RADIUS, MAC/IP ACLs and storm control, 8 QoS queues. Operating 0-50 C, 5-95% RH non-condensing, 100-240 V AC 50/60 Hz, 2-year warranty. Firmware: the ECS15XX-25XX image is shared across the ECS15xx and ECS25xx classes - the download table on the model pages lists ECS15XX-25XX_firmware_1.2.136-197.imag dated 16 July 2026 as the current build, with 1.2.130-193 (27 May 2026) and 1.2.125-192 (12 February 2026) beneath it. Sources: https://www.engeniustech.com/eu/products/network-switches/ecs1528/ and the EnGenius Cloud Switch Series datasheet https://www.engeniustech.com/wp-content/uploads/2020/09/Cloud-Switches-DS-09-29-20.pdf (ECS1528 column: 24 gigabit ports, 4x SFP+, 128 Gbps, 16K MAC, 440 x 200 x 44 mm)."
+}
