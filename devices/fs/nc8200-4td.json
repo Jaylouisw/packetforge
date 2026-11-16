@@ -1,0 +1,1083 @@
+{
+  "vendor": "fs",
+  "model": "NC8200-4TD",
+  "label": "NC8200-4TD (4x NC8200-24BC)",
+  "category": "l3-switch",
+  "description": "FS NC8200-4TD - 2U 4-slot data-centre chassis, populated here with 4x NC8200-24BC line cards: 96x 25G SFP28 and 8x 100G QSFP28, 6.4 Tbps switching capacity, MLAG/VXLAN-EVPN, FSOS with an RJ-45 RS-232 console.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "TFGigabitEthernet1/1",
+      "type": "ethernet",
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "TFGigabitEthernet1/2",
+      "type": "ethernet",
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "TFGigabitEthernet1/3",
+      "type": "ethernet",
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "TFGigabitEthernet1/4",
+      "type": "ethernet",
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "TFGigabitEthernet1/5",
+      "type": "ethernet",
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "TFGigabitEthernet1/6",
+      "type": "ethernet",
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "TFGigabitEthernet1/7",
+      "type": "ethernet",
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "TFGigabitEthernet1/8",
+      "type": "ethernet",
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "TFGigabitEthernet1/9",
+      "type": "ethernet",
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "TFGigabitEthernet1/10",
+      "type": "ethernet",
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "TFGigabitEthernet1/11",
+      "type": "ethernet",
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "TFGigabitEthernet1/12",
+      "type": "ethernet",
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "TFGigabitEthernet1/13",
+      "type": "ethernet",
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "TFGigabitEthernet1/14",
+      "type": "ethernet",
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "TFGigabitEthernet1/15",
+      "type": "ethernet",
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "TFGigabitEthernet1/16",
+      "type": "ethernet",
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "TFGigabitEthernet1/17",
+      "type": "ethernet",
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "TFGigabitEthernet1/18",
+      "type": "ethernet",
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "TFGigabitEthernet1/19",
+      "type": "ethernet",
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "TFGigabitEthernet1/20",
+      "type": "ethernet",
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "TFGigabitEthernet1/21",
+      "type": "ethernet",
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "TFGigabitEthernet1/22",
+      "type": "ethernet",
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "TFGigabitEthernet1/23",
+      "type": "ethernet",
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "TFGigabitEthernet1/24",
+      "type": "ethernet",
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "HundredGigabitEthernet1/1",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000,
+        40000,
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "HundredGigabitEthernet1/2",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000,
+        40000,
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "TFGigabitEthernet2/1",
+      "type": "ethernet",
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "TFGigabitEthernet2/2",
+      "type": "ethernet",
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "TFGigabitEthernet2/3",
+      "type": "ethernet",
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "TFGigabitEthernet2/4",
+      "type": "ethernet",
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "TFGigabitEthernet2/5",
+      "type": "ethernet",
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "TFGigabitEthernet2/6",
+      "type": "ethernet",
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "TFGigabitEthernet2/7",
+      "type": "ethernet",
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "TFGigabitEthernet2/8",
+      "type": "ethernet",
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "TFGigabitEthernet2/9",
+      "type": "ethernet",
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "TFGigabitEthernet2/10",
+      "type": "ethernet",
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "TFGigabitEthernet2/11",
+      "type": "ethernet",
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "TFGigabitEthernet2/12",
+      "type": "ethernet",
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "TFGigabitEthernet2/13",
+      "type": "ethernet",
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "TFGigabitEthernet2/14",
+      "type": "ethernet",
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "TFGigabitEthernet2/15",
+      "type": "ethernet",
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "TFGigabitEthernet2/16",
+      "type": "ethernet",
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "TFGigabitEthernet2/17",
+      "type": "ethernet",
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "TFGigabitEthernet2/18",
+      "type": "ethernet",
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "TFGigabitEthernet2/19",
+      "type": "ethernet",
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "TFGigabitEthernet2/20",
+      "type": "ethernet",
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "TFGigabitEthernet2/21",
+      "type": "ethernet",
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "TFGigabitEthernet2/22",
+      "type": "ethernet",
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "TFGigabitEthernet2/23",
+      "type": "ethernet",
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "TFGigabitEthernet2/24",
+      "type": "ethernet",
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "HundredGigabitEthernet2/1",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000,
+        40000,
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "HundredGigabitEthernet2/2",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000,
+        40000,
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "TFGigabitEthernet3/1",
+      "type": "ethernet",
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "TFGigabitEthernet3/2",
+      "type": "ethernet",
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "TFGigabitEthernet3/3",
+      "type": "ethernet",
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "TFGigabitEthernet3/4",
+      "type": "ethernet",
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "TFGigabitEthernet3/5",
+      "type": "ethernet",
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "TFGigabitEthernet3/6",
+      "type": "ethernet",
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "TFGigabitEthernet3/7",
+      "type": "ethernet",
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "TFGigabitEthernet3/8",
+      "type": "ethernet",
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "TFGigabitEthernet3/9",
+      "type": "ethernet",
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "TFGigabitEthernet3/10",
+      "type": "ethernet",
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "TFGigabitEthernet3/11",
+      "type": "ethernet",
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "TFGigabitEthernet3/12",
+      "type": "ethernet",
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "TFGigabitEthernet3/13",
+      "type": "ethernet",
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "TFGigabitEthernet3/14",
+      "type": "ethernet",
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "TFGigabitEthernet3/15",
+      "type": "ethernet",
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "TFGigabitEthernet3/16",
+      "type": "ethernet",
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "TFGigabitEthernet3/17",
+      "type": "ethernet",
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "TFGigabitEthernet3/18",
+      "type": "ethernet",
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "TFGigabitEthernet3/19",
+      "type": "ethernet",
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "TFGigabitEthernet3/20",
+      "type": "ethernet",
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "TFGigabitEthernet3/21",
+      "type": "ethernet",
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "TFGigabitEthernet3/22",
+      "type": "ethernet",
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "TFGigabitEthernet3/23",
+      "type": "ethernet",
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "TFGigabitEthernet3/24",
+      "type": "ethernet",
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "HundredGigabitEthernet3/1",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000,
+        40000,
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "HundredGigabitEthernet3/2",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000,
+        40000,
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "TFGigabitEthernet4/1",
+      "type": "ethernet",
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "TFGigabitEthernet4/2",
+      "type": "ethernet",
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "TFGigabitEthernet4/3",
+      "type": "ethernet",
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "TFGigabitEthernet4/4",
+      "type": "ethernet",
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "TFGigabitEthernet4/5",
+      "type": "ethernet",
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "TFGigabitEthernet4/6",
+      "type": "ethernet",
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "TFGigabitEthernet4/7",
+      "type": "ethernet",
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "TFGigabitEthernet4/8",
+      "type": "ethernet",
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "TFGigabitEthernet4/9",
+      "type": "ethernet",
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "TFGigabitEthernet4/10",
+      "type": "ethernet",
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "TFGigabitEthernet4/11",
+      "type": "ethernet",
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "TFGigabitEthernet4/12",
+      "type": "ethernet",
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "TFGigabitEthernet4/13",
+      "type": "ethernet",
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "TFGigabitEthernet4/14",
+      "type": "ethernet",
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "TFGigabitEthernet4/15",
+      "type": "ethernet",
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "TFGigabitEthernet4/16",
+      "type": "ethernet",
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "TFGigabitEthernet4/17",
+      "type": "ethernet",
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "TFGigabitEthernet4/18",
+      "type": "ethernet",
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "TFGigabitEthernet4/19",
+      "type": "ethernet",
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "TFGigabitEthernet4/20",
+      "type": "ethernet",
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "TFGigabitEthernet4/21",
+      "type": "ethernet",
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "TFGigabitEthernet4/22",
+      "type": "ethernet",
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "TFGigabitEthernet4/23",
+      "type": "ethernet",
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "TFGigabitEthernet4/24",
+      "type": "ethernet",
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "HundredGigabitEthernet4/1",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000,
+        40000,
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "HundredGigabitEthernet4/2",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000,
+        40000,
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "console",
+      "type": "console"
+    }
+  ],
+  "fabric": {
+    "capacityMbps": 3200000,
+    "kind": "switching capacity",
+    "note": "FS states 6.4 Tbps for the NC8200-4TD (datasheet Table 5, and the product page prints 3.2 Tbps for the same box). 6.4 Tbps is the duplex aggregate; per direction it is 3.2 Tbps, which is what 4x NC8200-24BC offers as 96x 25G + 8x 100G. Ports are compared to the per-direction figure, so a full 24BC load is exactly line-rate."
+  },
+  "icon": "switch",
+  "color": "#dc2626",
+  "sourceUrl": "https://resource.fs.com/mall/doc/20221114163118tn7bta.pdf",
+  "notes": "Stated configuration, not a fixed chassis figure: the NC8200-4TD ships unloaded with 4 line-card slots, so the port list is 4x NC8200-24BC (24x 25G SFP28 + 2x 100G QSFP28 per card). A different fill is a different box - 4x NC8200-8C is 32x 100G, 4x NC8200-16Q is 64x 40G, and a mixed fill is anywhere in between - and needs its own spec rather than a reuse of this one.\n\nPort names follow FSOS: 25G ports are TFGigabitEthernet <slot>/<port> and 100G cages are HundredGigabitEthernet <slot>/<port>, with the slot being the line-card bay 1-4 (the CLI guide's line-card example is 'slot 3' on a 4-slot frame). The datasheet numbers the 24BC's SFP28 cages 1-24 and does not number its two QSFP28 cages, so those are modelled as the card's ports 1-2 of the 100G class; the cages' rates (40G/100G, or 4x 10G/4x 25G broken out) are from the datasheet's line-card note.\n\nSwitching capacity is where the two FS sources disagree and the datasheet wins: the NC8200 series datasheet (Table 5) gives 6.4 Tbps and 4.76 Bpps for this chassis, while the fs.com product page 110482 prints 3.2 Tbps. 6.4 Tbps is the duplex aggregate, 3.2 Tbps per direction - which is exactly what 96x 25G + 8x 100G sums to - so fabric.capacityMbps is 3,200,000 and a full 4x NC8200-24BC load is line-rate, not oversubscribed. The figure is recorded per direction because the fabric audit compares it with the sum of the ports, and a duplex 6,400,000 would have claimed the box was half-empty.\n\nThe headline '128x 10G/25G' density in the product overview is not a fourth card type: it is this fill with the eight QSFP28 cages broken out to 4x 25G, which is why the chassis keeps 32x 100G of cage capacity but only 3.2 Tbps of fabric.\n\nManagement and console: the datasheet lists 1 management port, 1 console port (RS-232 levels on a standard RJ45) and 1 Mini-USB B console port, and states no rate for the management port, so only the RJ-45 console is modelled; the Mini-USB B socket is the same console by another connector and the management NIC is out-of-band.\n\nNo PoE anywhere in the datasheet: power is 2x 1+1 hot-swap AC (800 W modules), 600 W max consumption, so no poe-pse and no budget. Stacking is 2 members with 48 VSL links on the 24BC card, and NC8200-24BC stacks only with other 24BC cards. VXLAN-EVPN, MLAG, BGP4+, OSPFv2/v3, IS-IS, PFC/ECN and RoCEv2 are software features and are not modelled as port capabilities."
+}
