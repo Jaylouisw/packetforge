@@ -192,16 +192,30 @@ console.log('A port that only references the VLAN protects it too:');
 }
 
 console.log('');
-console.log('...and a port that carries it is named as carrying it, not as referencing it:');
+console.log('...and only a trunk that carries it stops the removal:');
 {
+  // An access port does not stop it. The device deletes the VLAN and leaves the access port assigned to it
+  // and inactive until the VLAN comes back (Catalyst 9200, "Deleting a VLAN"); a trunk is the other half of
+  // that question, and is left refusing because the evidence for what a deletion does to an allowed list is
+  // not good enough to model yet.
   const env = lab();
   env.run(['enable', 'configure terminal', 'vlan 20',
     'interface Fa0/1', 'switchport access vlan 20', 'exit',
     'interface Fa0/2', 'switchport mode trunk', 'switchport trunk allowed vlan 10,20', 'exit', 'end']);
   const out = env.run(['enable', 'configure terminal', 'no vlan 20', 'end'])
     .filter(function (l) { return /^%/.test(l); });
-  ok(/still carried by 2 port\(s\)/.test(out.join(' ')), 'both carrier kinds are counted', JSON.stringify(out));
-  ok(/Fa0\/1/.test(out.join(' ')) && /Fa0\/2/.test(out.join(' ')), 'and both are named', JSON.stringify(out));
+  ok(/still carried by 1 port\(s\): Fa0\/2/.test(out.join(' ')), 'the trunk is the carrier that counts', JSON.stringify(out));
+  ok(!/Fa0\/1/.test(out.join(' ')), 'and the access port is not named as a reason to keep the VLAN', JSON.stringify(out));
+
+  // Take the trunk out of the VLAN and the deletion goes through, taking Fa0/1 down with it.
+  // The allowed list is staged on the port even out of trunk mode, so it has to be cleared as well - which is
+  // the "still referenced" refusal doing its job.
+  env.run(['enable', 'configure terminal', 'interface Fa0/2', 'switchport mode access',
+    'no switchport trunk allowed vlan', 'exit', 'end']);
+  const done = env.run(['enable', 'configure terminal', 'no vlan 20', 'end']);
+  ok(!done.some(function (l) { return /^%/.test(l); }), 'with no trunk on it the VLAN is deleted', JSON.stringify(done));
+  const block = env.run(['show interfaces Fa0/1']).join('\n');
+  ok(/status: down \(inactive\)/.test(block), 'and the access port is reported down (inactive)', block);
 }
 
 console.log('');

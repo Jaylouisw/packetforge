@@ -46,6 +46,14 @@ function isValidVlan(vid) {
   return Number.isInteger(vid) && vid >= VLAN_MIN && vid <= VLAN_MAX;
 }
 
+// A VLAN the bridge always holds, whatever `config.vlans` says: the default VLAN and the four media defaults.
+// Their existence cannot be deleted, so a port sitting on one of them is never waiting for a VLAN to come
+// back - which is what makes it the complete test for "is this port's VLAN still in the database?".
+function vlanIsBuiltIn(vid) {
+  const id = Number(vid);
+  return id === VLAN_DEFAULT || isReservedVlan(id);
+}
+
 // Every assignable VLAN id (1..4094 minus the reserved block). Built once; the
 // returned copy is what callers get so nobody can corrupt the cache.
 const ALL_VLANS = (function () {
@@ -596,6 +604,7 @@ function describeAllowed(allowed) {
 module.exports = {
   VLAN_MIN,
   RESERVED_VLANS,
+  vlanIsBuiltIn,
   VLAN_MAX,
   VLAN_DEFAULT,
   parseVlanList,

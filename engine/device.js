@@ -14,6 +14,7 @@ const ARP_AGE_MS = 14400000;
 const net = require('./net');
 const { resolvePortName } = require('./iface-name');
 const media = require('./media');
+const vlanLib = require('./vlan');
 
 class Interface {
   constructor(spec, index, deviceSpec) {
@@ -340,6 +341,31 @@ class Device {
     return Array.from(this.interfaces.values()).filter(function (i) { return i.enabled; });
   }
 
+  // The access VLAN this port is waiting for, or null when it is not waiting for one.
+  //
+  // `no vlan 22` deletes the VLAN and leaves every access port on it still assigned to 22. The assignment is
+  // not what decides whether the port forwards - the database is. Cisco states the rule under "Deleting a
+  // VLAN": "When you delete a VLAN, any ports assigned to that VLAN become inactive. They remain associated
+  // with the VLAN (and thus inactive) until you assign them to a new VLAN" (Catalyst 9200 Configuration
+  // Guide, Configuring VLANs), and `show interfaces` marks such a port `down (inactive)`.
+  //
+  // Only access ports answer here. A trunk that still lists the VLAN in its allowed list is the trunk half of
+  // the same question, and it changes a stored parameter rather than a port state, so it is left alone until
+  // the evidence for it is as good as this.
+  inactiveVlan(port) {
+    const p = typeof port === 'string' ? this.interfaces.get(port) : port;
+    // No switchport configuration at all means VLAN 1, which always exists: the common case, answered
+    // without building a normalised config for every frame that crosses a lab.
+    if (!p || !p.vlan) return null;
+    if (p.vlan.mode === 'trunk') return null;
+    if (typeof this.isL2 !== 'function' || !this.isL2()) return null;
+    const stated = p.vlan.accessVlan;
+    const id = Number(stated === undefined || stated === null || stated === '' ? 1 : stated);
+    if (!Number.isInteger(id) || vlanLib.vlanIsBuiltIn(id)) return null;
+    const named = this.config && this.config.vlans ? this.config.vlans : null;
+    return (named && named[id]) ? null : id;
+  }
+
   // Can this port actually carry a frame, and if not, why not (#1237)?
   //
   // The CLI used to answer "is it shut down" and call that the status, so a port with no cable - the
@@ -350,6 +376,10 @@ class Device {
     const port = typeof iface === 'string' ? this.interfaces.get(iface) : iface;
     if (!port) return { status: 'down', protocol: 'down', reason: 'no such port' };
     if (!port.enabled) return { status: 'administratively down', protocol: 'down', reason: 'shut down' };
+    // A port whose access VLAN is no longer in the database is inactive whatever the cable says. Asked before
+    // the cable tests for the same reason the device reports it that way: the port has nothing to forward in,
+    // so a cable cannot make it up.
+    if (this.inactiveVlan(port) !== null) return { status: 'down', protocol: 'down', reason: 'inactive' };
     if (!topo) return { status: 'up', protocol: 'up', reason: null };
     // A wireless radio has no cable to miss; its link is the radio.
     if (port.type === 'wireless' || (port.hardware && port.hardware.cage === 'antenna')) {
@@ -589,7 +619,9 @@ class Device {
   portCarrierNote(port, topo, extra) {
     if (!port) return extra || '(gone)';
     const link = this.ifaceStatus(port, topo);
-    if (link.status === 'up') return extra || '';
+    // The `extra` reason is about this row (a MAC in a VLAN the port no longer carries), so it outranks the
+    // port's own state - including `inactive`, which is also a way for a row to survive its port.
+    if (link.status === 'up' || extra) return extra || '';
     // `administratively down` already says who did it; "shut down" after it would be the same fact twice.
     const why = (!link.reason || link.reason === 'shut down' || link.reason === link.status)
       ? link.status : link.status + ': ' + link.reason;
@@ -787,6 +819,16 @@ class Device {
     };
     sweep(this.macTable);
     for (const table of (this.macTables || new Map()).values()) sweep(table);
+    return dropped;
+  }
+
+  // Every MAC learned in one VLAN, gone. The VLAN is no longer in the database, so no entry that names it is
+  // true, and a table that kept them would point at ports that have nothing to forward in.
+  flushMacsOnVlan(vid) {
+    const v = Number(vid);
+    if (!Number.isInteger(v) || !this.macTables || !this.macTables.has(v)) return 0;
+    const dropped = this.macTables.get(v).size;
+    this.macTables.delete(v);
     return dropped;
   }
 

@@ -172,16 +172,19 @@ Two of those refusals are there for more than tidiness:
 
 * `no ip access-group 103 in` while **102** is applied refuses and names 102. Silently clearing "whatever is
   bound" would remove a policy the operator did not ask about.
-* `no vlan 20` refuses while any port **depends on** it, and says how. Two kinds of dependence are counted,
-  and both are named:
-  * **carried** — asked of the data plane's own rule, not a second copy of it, so a trunk allowing all VLANs
-    counts (`still carried by 1 port(s): Fa0/4`) and a native VLAN is marked `(native)`;
+* `no vlan 20` still refuses while a **trunk** carries it, or while any port holds a trunk parameter that
+  names it, and says which:
+  * **carried by a trunk** — asked of the data plane's own rule, not a second copy of it, so a trunk allowing
+    all VLANs counts (`still carried by 1 port(s): Fa0/4`) and a native VLAN is marked `(native)`;
   * **referenced** — a trunk parameter stored on a port that is not in trunk mode yet
     (`still referenced by 1 port(s): Fa0/3 (trunk native, trunk allowed, stored) - clear that first`).
 
-  Deleting a VLAN behind the ports' backs left `show running-config` no longer printing `vlan 20` while
-  `show vlan` still listed it from the member ports — two descriptions of one switch that disagreed. The
-  referenced case was worse: removing the VLAN cleared a port's staged native VLAN in silence.
+  Removing a VLAN cleared a port's staged native VLAN in silence and left `show running-config` printing no
+  `vlan 20` while `show vlan` still listed it from the member ports — two descriptions of one switch that
+  disagreed. An **access** port no longer stops the removal, because on the device it does not: the VLAN goes
+  and the port stays assigned to it, inactive, until the VLAN comes back. Deleting a VLAN does rewrite a
+  trunk's allowed list on the device, and no primary source found states exactly how, so that half keeps the
+  refusal rather than replacing it with a guess.
 
 `no hostname` also puts the device's previous name back, because `hostname` sets both the config line and the
 canvas label so the two cannot disagree (#21); undoing only half of it would leave a clean config over a
@@ -208,7 +211,7 @@ default VLAN and cannot be created or deleted", and a real IOS XE switch answers
 | `ip route <dest> <mask> <gw> [iface]` | add static route |
 | `no ip route <dest> <mask> [gw]` | remove static route |
 | `ip default-gateway <gw>` | set default gateway (hosts) |
-| `no vlan <id>` | remove a VLAN (refused while ports still carry it) |
+| `no vlan <id>` | remove a VLAN (refused while a trunk carries it or a port has trunk settings naming it) |
 | `no ip dhcp pool <name>` | remove a DHCP pool |
 | `no dns zone <name>` | remove a DNS zone and its records |
 | `do show …` | run a `show` from config mode |
@@ -360,6 +363,7 @@ The **Status** column answers "can this port carry a frame", not merely "did som
 | no cable plugged in | `down` | `down` |
 | cabled, but the far port is shut down | `down` | `down` |
 | cable patched but taken down (`link down`) | `down` | `down` |
+| access VLAN deleted (`no vlan 22`) | `down` | `down` |
 | otherwise | `up` | `up` |
 
 The **Method** column names where the address came from, and a port with no address says `unset`:
@@ -370,8 +374,10 @@ intent, not whether it has succeeded. Cisco's field list defines `unset` as "Uns
 configuration nobody typed.
 
 The reason travels with it in `show interfaces` — `status: down (no cable)`, `status: down (peer shut
-down)`, `status: down (link down)` — because `status: up` printed directly above `peer: disconnected`
-was two halves of one output disagreeing. A cable that was pulled with `link down` is not the same fault
+down)`, `status: down (link down)`, `status: down (inactive)` — because `status: up` printed directly above
+`peer: disconnected` was two halves of one output disagreeing. `inactive` is the deleted-VLAN state and beats
+the cable tests: a port with nothing to forward in is down whatever is plugged into it, which is why the
+device lists such ports under `show interfaces status inactive`. A cable that was pulled with `link down` is not the same fault
 as a socket with nothing in it, and the two need different fixes. A wireless radio has no cable to miss, so it is up when its radio is.
 
 The **Method** column answers the other half of the question — how the port came by the address it holds —

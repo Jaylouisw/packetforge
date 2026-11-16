@@ -2789,6 +2789,15 @@ class Simulator {
       v = Number(iface.encapVid) || v;
     }
 
+    // The same inactive port on the way out: an access port whose VLAN was deleted does not forward, so a
+    // flood that reached its name has to stop here rather than leave with a VLAN tag nobody backs.
+    const goneVlan = typeof dev.inactiveVlan === 'function' ? dev.inactiveVlan(port) : null;
+    if (goneVlan !== null) {
+      this._emit({ type: 'vlan-drop', dev: dev.id, iface: port.name, vlan: goneVlan,
+        reason: 'inactive port: access VLAN ' + goneVlan + ' does not exist' });
+      return;
+    }
+
     // Outbound access list is evaluated on the physical port the frame leaves.
     const aclOut = this._aclCheck(dev, port.name, 'out', frame);
     if (aclOut.action === 'deny') {
@@ -2966,6 +2975,16 @@ class Simulator {
     // 1. Spanning tree: a blocking port does not forward (either direction).
     if (inIface && this._isBlocked(dev, inIface)) {
       this._emit({ type: 'stp-block', dev: dev.id, iface: inIface, reason: 'port in STP blocking state', discard: true });
+      return;
+    }
+
+    // 1b. A port whose access VLAN is no longer in the database is inactive: nothing enters or leaves it until
+    // the VLAN is back. `show interfaces` already says `down (inactive)` for it, so a frame it carried would be
+    // a console describing a port the data path does not believe in.
+    const inGoneVlan = inI && typeof dev.inactiveVlan === 'function' ? dev.inactiveVlan(inI) : null;
+    if (inGoneVlan !== null) {
+      this._emit({ type: 'drop', dev: dev.id, iface: inIface, reason: 'inactive port: access VLAN ' + inGoneVlan +
+        ' does not exist', discard: true });
       return;
     }
 

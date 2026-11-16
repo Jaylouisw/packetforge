@@ -549,22 +549,36 @@ class CliSession {
       // stopped printing `vlan 42` while `show vlan` still listed it from the ports, so the table and the
       // config described different switches.
       if (!have) return ['% VLAN ' + id + ' does not exist'];
-      // Two kinds of port depend on this VLAN, and both have to be named.
+      // A port that carries the VLAN does not stop the removal, because on the device it does not stop it
+      // either: `no vlan 22` deletes the VLAN and the access ports on it go inactive, still assigned to 22
+      // (Cisco, "Deleting a VLAN": "any ports assigned to that VLAN become inactive. They remain associated
+      // with the VLAN (and thus inactive) until you assign them to a new VLAN"). This console used to refuse
+      // instead, on the sound instinct that the config and `show vlan` must not describe different switches -
+      // but the device keeps them agreeing a different way, by dropping the VLAN's row and the port's place in
+      // it, which is what `show vlan` does now that a missing access VLAN stops adding itself to the table.
       //
-      //   * ports that carry it - asked of the data plane's own rule (`classifyEgress`), not of a second
-      //     copy of it, so a trunk allowing all VLANs counts and a staged parameter does not;
-      //   * ports that only reference it - a native VLAN or an allowed list stored on a port that is not in
+      // Two kinds of port still refuse, and both are named:
+      //
+      //   * a trunk that carries it - deleting a VLAN does rewrite a trunk's allowed list on the device, and
+      //     the evidence for how is not good enough to model yet, so the refusal stays rather than inventing
+      //     it;
+      //   * a port that only references it - a native VLAN or an allowed list stored on a port that is not in
       //     trunk mode yet. Those used to be missed, and removing the VLAN then rewrote the port's staged
       //     configuration in silence: `no vlan 20` said "VLAN 20 removed" and a port that had been staged for
       //     VLAN 20 quietly came back with native VLAN 1.
-      const carriers = [];
+      const accessCarriers = [];
+      const trunkCarriers = [];
       const staged = [];
       for (const i of this.device.interfaces.values()) {
         if (!i.vlan) continue;
         const verdict = vlanLib.classifyEgress(i.vlan, id);
         const action = (verdict && verdict.action) || 'drop';
         if (action !== 'drop') {
-          carriers.push(i.name + (i.vlan.mode === 'trunk' && action === 'untagged' ? ' (native)' : ''));
+          if (i.vlan.mode === 'trunk') {
+            trunkCarriers.push(i.name + (action === 'untagged' ? ' (native)' : ''));
+          } else {
+            accessCarriers.push(i.name);
+          }
           continue;
         }
         const where = [];
@@ -575,8 +589,8 @@ class CliSession {
       const list = function (arr) {
         return arr.slice(0, 5).join(', ') + (arr.length > 5 ? ' (+' + (arr.length - 5) + ' more)' : '');
       };
-      if (carriers.length) {
-        return ['% VLAN ' + id + ' is still carried by ' + carriers.length + ' port(s): ' + list(carriers) +
+      if (trunkCarriers.length) {
+        return ['% VLAN ' + id + ' is still carried by ' + trunkCarriers.length + ' port(s): ' + list(trunkCarriers) +
           ' - move them off it first'];
       }
       if (staged.length) {
@@ -584,7 +598,14 @@ class CliSession {
           ' - clear that first'];
       }
       delete this.device.config.vlans[id];
+      // The entries learned in it name a VLAN that is no longer there.
+      this.device.flushMacsOnVlan(id);
       out.push('VLAN ' + id + ' removed');
+      if (accessCarriers.length) {
+        const one = accessCarriers.length === 1;
+        out.push(list(accessCarriers) + (one ? ' is' : ' are') + ' now inactive: ' + (one ? 'its' : 'their') +
+          ' access VLAN no longer exists (vlan ' + id + ' ' + (one ? 'brings it back' : 'brings them back') + ')');
+      }
     } else if (head === 'no' && (tokens[1] === 'interface' || tokens[1] === 'int')) {
       const typed = tokens.slice(2).join(' ');
       const name = resolvePortName(this.device, typed);
@@ -3837,7 +3858,12 @@ class CliSession {
           vlanSet.add(Number(v.nativeVlan) || 1);
           if (Array.isArray(v.allowedVlans)) v.allowedVlans.forEach(function (id) { vlanSet.add(Number(id)); });
         } else {
-          vlanSet.add(Number(v.accessVlan) || 1);
+          const id = Number(v.accessVlan) || 1;
+          // An access port does not put its VLAN back into the table. After `no vlan 22` the port is still
+          // assigned to 22 and the VLAN is gone; the device drops both the row and the port's place in it.
+          // Building the table from the port list alone printed a `vlan 22` row on a switch with no VLAN 22,
+          // which is why the removal used to be refused instead - the wrong fix for a real disagreement.
+          if (vlanLib.vlanIsBuiltIn(id) || named[id]) vlanSet.add(id);
         }
       }
       // A switch has five VLANs before anyone configures one: the default VLAN and the four reserved Token Ring /

@@ -177,23 +177,22 @@ console.log('vlan:');
     ['configure terminal', 'no vlan 42', 'end'],
     /^vlan 42 /m);
 
-  // An in-use VLAN cannot be deleted behind the ports' backs.
+  // A VLAN an access port is in can be deleted, because on the device it can: the VLAN goes and the port
+  // stays assigned to it, inactive, until the VLAN comes back (Catalyst 9200 "Deleting a VLAN"; see
+  // test/vlan-delete-leaves-port-inactive.test.js). The byte-for-byte rule still holds either side of the
+  // deletion - deleting and re-adding the VLAN returns the config exactly as it was.
   const env = fresh(SWITCH);
   apply(env, ['configure terminal', 'vlan 20', 'interface Fa0/3',
     'switchport mode access', 'switchport access vlan 20', 'end']);
   const before = config(env);
   const out = apply(env, ['configure terminal', 'no vlan 20', 'end']);
   const msgs = messages(out);
-  ok(msgs.length === 1 && /Fa0\/3/.test(msgs[0]),
-    'deleting a VLAN ports still carry is refused, naming the port', msgs[0]);
-  ok(/still carried by 1 port/.test(msgs[0] || ''), 'and says how many', msgs[0]);
-  ok(config(env) === before, 'and nothing is deleted', config(env) === before ? '' : 'config moved');
-
-  // Move the port off it and it goes.
-  apply(env, ['configure terminal', 'interface Fa0/3', 'switchport access vlan 1', 'end']);
-  const out2 = apply(env, ['configure terminal', 'no vlan 20', 'end']);
-  ok(messages(out2).length === 0, 'once the port is off it, the VLAN can go', JSON.stringify(messages(out2)));
-  ok(!/^vlan 20 /m.test(config(env)), 'and the config no longer prints it');
+  ok(msgs.length === 0, 'an access port does not stop the VLAN being deleted', JSON.stringify(msgs));
+  ok(!/^vlan 20 /m.test(config(env)), 'and the config no longer prints the VLAN');
+  ok(/switchport access vlan 20/.test(config(env)), 'while the port keeps the assignment it is waiting on');
+  apply(env, ['configure terminal', 'vlan 20', 'end']);
+  ok(config(env) === before, 'and re-creating it returns the config byte for byte',
+    config(env) === before ? '' : 'config moved');
 }
 
 console.log('');

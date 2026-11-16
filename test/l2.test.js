@@ -44,6 +44,9 @@ console.log('Scenario A: access-port VLANs isolate broadcast domains');
   const sim = new Simulator(t);
   setIp(pc1, t, sim, '192.168.10.10');
   setIp(pc2, t, sim, '192.168.10.20');
+  // The VLANs have to exist in the database as well as on the ports: a port in a VLAN that is not there is
+  // inactive (`no vlan 22` does exactly this), so a scenario that only writes the port leaves the port down.
+  runCommands(sw, t, sim, ['configure terminal', 'vlan 10', 'vlan 20', 'end']);
 
   let r = sim.ping(pc1.id, '192.168.10.20', { count: 2 });
   ok(allUp(r.replies), 'default VLAN 1: same-subnet ping works');
@@ -84,6 +87,9 @@ console.log('\nScenario B: trunks tag frames and preserve VLAN separation');
   const sim = new Simulator(t);
   setIp(pc1, t, sim, '192.168.10.10');
   setIp(pc2, t, sim, '192.168.10.20');
+  // Same reason as scenario A: the VLAN has to be in the database, or the access ports on it are inactive.
+  runCommands(sw1, t, sim, ['configure terminal', 'vlan 10', 'vlan 20', 'end']);
+  runCommands(sw2, t, sim, ['configure terminal', 'vlan 10', 'vlan 20', 'end']);
 
   const r = sim.ping(pc1.id, '192.168.10.20', { count: 2 });
   ok(allUp(r.replies), 'VLAN 10 crosses a trunk between two switches');
