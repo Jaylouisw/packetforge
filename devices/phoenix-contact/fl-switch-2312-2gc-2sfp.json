@@ -1,0 +1,191 @@
+{
+  "vendor": "phoenix-contact",
+  "model": "FL SWITCH 2312-2GC-2SFP",
+  "label": "Phoenix Contact FL SWITCH 2312-2GC-2SFP (12x 1G RJ45 + 2 combo + 2 SFP)",
+  "category": "switch",
+  "description": "12 x RJ45 10/100/1000 Mbps, 2 x combo ports (SFP or RJ45, 10/100/1000 Mbps) and 2 x SFP 100/1000 Mbps cages; DIN-rail managed switch (item 2702910, Managed Switch 2000 series). Family-wide: DIN rail, IP20, -40 to +70 C, 12-57 V DC supply, PROFINET Conformance Class B, IEC 62443-4-2 certified.",
+  "capabilities": [
+    "l2-forward",
+    "cli",
+    "http-server",
+    "dhcp-server"
+  ],
+  "interfaces": [
+    {
+      "name": "1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "4",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "5",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "6",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "7",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "8",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "9",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "10",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "11",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "12",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "combo 1",
+      "type": "ethernet",
+      "connector": "combo",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "combo 2",
+      "type": "ethernet",
+      "connector": "combo",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "SFP 1",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "SFP 2",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        100,
+        1000
+      ]
+    }
+  ],
+  "sourceUrl": "https://www.phoenixcontact.com/us/products/2702910?type=pdf",
+  "notes": "Port census from the datasheet interface block: \"Ethernet (RJ45): No. of channels 12 (RJ45 ports), 10/100/1000 Mbps\"; \"Ethernet (SFP): Number of interfaces 2, 100/1000 Mbps (full duplex), up to 80 km (depending on the SFP module used)\"; \"Ethernet (combo): Number of interfaces 2, Connection method SFP/RJ45, Transmission speed 10/100/1000 Mbps (full duplex)\". One combo port is one physical port, so this chassis has 16 data ports, 85 mm wide. Switch functions: DHCP client / DHCP server (pool-based, port-based) / DHCP option 82 / BootP / DCP, MRP client and manager, RSTP, alarm digital output. No PoE: the datasheet lists no PoE/PSE interface and no power budget for this model, so no poe-pse capability is declared. Management is in-band only - the datasheet interfaces block lists Ethernet (RJ45), Ethernet (SFP) and Ethernet (combo) and nothing else, so no serial/console port is modelled. The datasheet publishes no switching-capacity / fabric-bandwidth figure, so none is stated here. Sources: datasheet https://www.phoenixcontact.com/us/products/2702910?type=pdf ; product page https://www.phoenixcontact.com/us/products/2702910."
+}

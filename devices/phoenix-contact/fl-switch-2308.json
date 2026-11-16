@@ -1,54 +1,105 @@
 {
   "vendor": "phoenix-contact",
   "model": "FL SWITCH 2308",
-  "label": "FL SWITCH 2308 managed switch",
+  "label": "Phoenix Contact FL SWITCH 2308 (8x 1G RJ45)",
   "category": "switch",
-  "description": "DIN-rail managed switch (2702652, Managed Switch 2000 series) with 8 x RJ45 ports at 10/100/1000 Mbps and no separate uplink cage. PROFINET Conformance Class B, -40 to 70 C, 12 to 57 V DC input.",
+  "description": "8 x RJ45 10/100/1000 Mbps copper ports and no uplink cage, DIN-rail managed switch (item 2702652, Managed Switch 2000 series). Family-wide: DIN rail, IP20, -40 to +70 C, 12-57 V DC supply, PROFINET Conformance Class B, IEC 62443-4-2 certified.",
   "capabilities": [
     "l2-forward",
-    "http-server"
+    "cli",
+    "http-server",
+    "dhcp-server"
   ],
   "interfaces": [
     {
       "name": "1",
       "type": "ethernet",
-      "speed": "1G"
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
     },
     {
       "name": "2",
       "type": "ethernet",
-      "speed": "1G"
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
     },
     {
       "name": "3",
       "type": "ethernet",
-      "speed": "1G"
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
     },
     {
       "name": "4",
       "type": "ethernet",
-      "speed": "1G"
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
     },
     {
       "name": "5",
       "type": "ethernet",
-      "speed": "1G"
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
     },
     {
       "name": "6",
       "type": "ethernet",
-      "speed": "1G"
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
     },
     {
       "name": "7",
       "type": "ethernet",
-      "speed": "1G"
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
     },
     {
       "name": "8",
       "type": "ethernet",
-      "speed": "1G"
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
     }
   ],
-  "sourceUrl": "https://www.phoenixcontact.com/en-us/products/switch-fl-switch-2308-2702652"
+  "sourceUrl": "https://www.phoenixcontact.com/us/products/2702652?type=pdf",
+  "notes": "Corrected from the datasheet interface block: \"Ethernet (RJ45): Connection method RJ45, Auto negotiation and autocrossing, Transmission speed 10/100/1000 Mbps, No. of channels 8 (RJ45 ports)\"; no SFP and no combo interface is listed. 45 mm wide. Switch functions: MAC address table 8k, VLAN up to 32 VLANs, IGMP snooping/querier v1/v2, QoS 8 priority classes, DHCP client / DHCP server (pool-based and port-based) / DHCP option 82 / BootP / DCP, MRP client and manager, RSTP, FRD, Large Tree Support, LACP, PROFINET S2 system redundancy, SNTP, jumbo frames max 9600 bytes, MMS/GOOSE (IEC 61850-8-1), Modbus/TCP; CLI over Telnet and SSH, SNMPv1/v2/v3, LLDP, RMON History, N:1 port mirroring; port security MAC-based, RADIUS (IEEE 802.1X), MAC Authentication Bypass. Alarm digital output 24 V DC, max 0.7 A for 1 minute. No PoE: the datasheet lists no PoE/PSE interface and no power budget for this model, so no poe-pse capability is declared. Management is in-band only - the datasheet interfaces block lists Ethernet (RJ45), Ethernet (SFP) and Ethernet (combo) and nothing else, so no serial/console port is modelled. The datasheet publishes no switching-capacity / fabric-bandwidth figure, so none is stated here. Sources: datasheet https://www.phoenixcontact.com/us/products/2702652?type=pdf ; product page https://www.phoenixcontact.com/us/products/2702652."
 }

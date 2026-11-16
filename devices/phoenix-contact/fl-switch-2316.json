@@ -1,0 +1,193 @@
+{
+  "vendor": "phoenix-contact",
+  "model": "FL SWITCH 2316",
+  "label": "Phoenix Contact FL SWITCH 2316 (16x 1G RJ45)",
+  "category": "switch",
+  "description": "16 x RJ45 10/100/1000 Mbps copper ports and no uplink cage, DIN-rail managed switch (item 2702909, Managed Switch 2000 series). Family-wide: DIN rail, IP20, -40 to +70 C, 12-57 V DC supply, PROFINET Conformance Class B, IEC 62443-4-2 certified.",
+  "capabilities": [
+    "l2-forward",
+    "cli",
+    "http-server",
+    "dhcp-server"
+  ],
+  "interfaces": [
+    {
+      "name": "1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "4",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "5",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "6",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "7",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "8",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "9",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "10",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "11",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "12",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "13",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "14",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "15",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "16",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
+    }
+  ],
+  "sourceUrl": "https://www.phoenixcontact.com/us/products/2702909?type=pdf",
+  "notes": "Port census from the datasheet interface block: \"Ethernet (RJ45): No. of channels 16 (RJ45 ports), Transmission speed 10/100/1000 Mbps\"; no SFP and no combo interface is listed, so the whole box is copper. 85 mm wide, 435 g. Switch functions: MAC address table 8k, DHCP client / DHCP server (pool-based, port-based) / DHCP option 82, MRP client and manager, RSTP, alarm digital output 24 V DC. No PoE: the datasheet lists no PoE/PSE interface and no power budget for this model, so no poe-pse capability is declared. Management is in-band only - the datasheet interfaces block lists Ethernet (RJ45), Ethernet (SFP) and Ethernet (combo) and nothing else, so no serial/console port is modelled. The datasheet publishes no switching-capacity / fabric-bandwidth figure, so none is stated here. Sources: datasheet https://www.phoenixcontact.com/us/products/2702909?type=pdf ; product page https://www.phoenixcontact.com/us/products/2702909."
+}

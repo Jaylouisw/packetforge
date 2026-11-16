@@ -1,0 +1,191 @@
+{
+  "vendor": "phoenix-contact",
+  "model": "FL SWITCH 2314-2SFP",
+  "label": "Phoenix Contact FL SWITCH 2314-2SFP (14x 1G RJ45 + 2x SFP)",
+  "category": "switch",
+  "description": "14 x RJ45 10/100/1000 Mbps plus 2 x SFP 100/1000 Mbps fibre cages, DIN-rail managed switch (item 1006191, Managed Switch 2000 series). Family-wide: DIN rail, IP20, -40 to +70 C, 12-57 V DC supply, PROFINET Conformance Class B, IEC 62443-4-2 certified.",
+  "capabilities": [
+    "l2-forward",
+    "cli",
+    "http-server",
+    "dhcp-server"
+  ],
+  "interfaces": [
+    {
+      "name": "1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "4",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "5",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "6",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "7",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "8",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "9",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "10",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "11",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "12",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "13",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "14",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "SFP 1",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "SFP 2",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        100,
+        1000
+      ]
+    }
+  ],
+  "sourceUrl": "https://www.phoenixcontact.com/us/products/1006191?type=pdf",
+  "notes": "Port census from the datasheet interface block: \"Ethernet (RJ45): No. of channels 14 (RJ45 ports), Transmission speed 10/100/1000 Mbps\"; \"Ethernet (SFP): Number of interfaces 2, No. of channels 2 (SFP ports), 100/1000 Mbps (full duplex), up to 80 km depending on the fibre/SFP module\". 16 data ports in total, 85 mm wide. Switch functions: MAC address table 8k, VLAN up to 32 VLANs, IGMP snooping/querier v1/v2, QoS 8 priority classes, DHCP client / DHCP server (pool-based, port-based) / DHCP option 82, MRP client and manager, RSTP, FRD, Large Tree Support, LACP, jumbo frames max 9600 bytes, MMS/GOOSE (IEC 61850-8-1), Modbus/TCP; CLI over Telnet and SSH, SNMPv1/v2/v3, LLDP, RMON History, N:1 port mirroring; port security MAC-based, RADIUS (IEEE 802.1X), MAC Authentication Bypass. No PoE: the datasheet lists no PoE/PSE interface and no power budget for this model, so no poe-pse capability is declared. Management is in-band only - the datasheet interfaces block lists Ethernet (RJ45), Ethernet (SFP) and Ethernet (combo) and nothing else, so no serial/console port is modelled. The datasheet publishes no switching-capacity / fabric-bandwidth figure, so none is stated here. Sources: datasheet https://www.phoenixcontact.com/us/products/1006191?type=pdf ; product page https://www.phoenixcontact.com/us/products/1006191."
+}
