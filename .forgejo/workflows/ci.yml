@@ -235,6 +235,13 @@ jobs:
         env:
           PF_TEST_CONCURRENCY: 4
         run: |
+          # Actions runs this file as `bash -e`, and that is the default this step has to
+          # leave: without it the first non-zero exit - `npm test` failing, which is the
+          # usual colour of a red leg - ends the script at that line. The syntax check's
+          # result is then never collected and never printed, so the leg reports one
+          # check where it ran two. Measured on run 3410, task 7302: the tail of this step
+          # did not execute and no syntax-check output appeared in the log.
+          set +e
           set -u
           # Outside the working tree: a log file in the repo root is one more thing a
           # later step might trip over, and nothing here needs to read it back.
