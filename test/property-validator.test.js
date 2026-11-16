@@ -10,7 +10,9 @@
 //
 //   * it never throws, whatever it is handed            (a crash in the UI is a lost lab)
 //   * `ok` means exactly "no errors", and never both    (a green check over a red list)
-//   * every error carries a code and a sentence         (the UI renders both; a blank one is a bug)
+//   * every error carries a code and a sentence         (the UI renders both; a blank one is a bug,
+//                                                        and the code has to be one the engine
+//                                                        actually declares - see CODE_SURFACE)
 //   * the same question twice gets the same answer       (no hidden state in the rules)
 //   * A->B and B->A agree                               (cabling is symmetric; a rule that isn't
 //                                                        is a rule that depends on click order)
@@ -19,6 +21,7 @@
 //
 // Topologies are built from the real catalogue with a seeded PRNG, so a failure here reproduces
 // exactly: the seed is printed with every assertion message.
+const fs = require('fs');
 const path = require('path');
 const { Topology, validation, media } = require('../engine');
 const { loadCatalog } = require('../devices/registry');
@@ -45,14 +48,33 @@ function mulberry32(seed) {
 const specs = loadCatalog(path.join(__dirname, '..', 'devices')).filter(function (s) { return !s.error; });
 const MEDIA_IDS = Object.keys(media.MEDIA).filter(function (m) { return !media.MEDIA[m].pairedHalf; });
 const JUNK_MEDIA = ['', 'nonsense', '1000BASE-T', null, undefined, '10G', '1000base-t '];
-const RULE_CODES = new Set(validation.RULES.map(function (r) { return (r && r.code) || r; }));
+// The codes connect() may return. `validation.RULES` documents validation.js's own rules; the
+// media and optical validators it delegates to own theirs (canMate(), biDiRefusal(), ponBudget()).
+// So the surface is the union, read out of the three modules that produce it.
+//
+// This used to be `validation.RULES` alone, with a hand-written `E_PORT_IN_USE` exemption - and that
+// made the check a lottery: a rule code outside the table only failed when the seeded draw happened
+// to land on it, so adding five device specs turned main red without the engine changing (#1654).
+// Scanning the sources makes the surface complete by construction and keeps the check honest: a code
+// that comes back as a runtime string, or from a module not listed here, has to be declared.
+const CODE_SURFACE = (function () {
+  const set = new Set(validation.RULES.map(function (r) { return (r && r.code) || r; }));
+  for (const file of ['validation.js', 'media.js', 'optical.js']) {
+    const src = fs.readFileSync(path.join(__dirname, '..', 'engine', file), 'utf8');
+    const re = /code: *'([EW]_[A-Z0-9_]+)'/g;
+    let m;
+    while ((m = re.exec(src))) set.add(m[1]);
+  }
+  return set;
+})();
+const CODE_SHAPE = /^[EW]_[A-Z0-9_]+$/;
 
 function codesOf(res) {
   return ((res && res.errors) || []).map(function (e) { return e.code; }).sort();
 }
 
 console.log('');
-console.log('Fixtures: ' + specs.length + ' loadable specs, ' + MEDIA_IDS.length + ' media, ' + RULE_CODES.size + ' rule codes');
+console.log('Fixtures: ' + specs.length + ' loadable specs, ' + MEDIA_IDS.length + ' media, ' + CODE_SURFACE.size + ' codes on the connect() surface');
 
 // Build a topology from N catalogue specs, deterministically.
 function buildTopology(rand, n) {
@@ -122,7 +144,8 @@ console.log('The validator never throws, never contradicts itself, and never dep
         if (!e || typeof e.code !== 'string' || !e.code) problems.push(tag + ': error without a code');
         else {
           seenCodes.add(e.code);
-          if (!RULE_CODES.has(e.code) && e.code !== 'E_PORT_IN_USE') problems.push(tag + ': unknown code ' + e.code);
+          if (!CODE_SHAPE.test(e.code)) problems.push(tag + ': malformed code ' + JSON.stringify(e.code));
+          else if (!CODE_SURFACE.has(e.code)) problems.push(tag + ': undeclared code ' + e.code);
         }
         if (!e || typeof e.message !== 'string' || e.message.length < 4) problems.push(tag + ': error without a readable message');
       }
@@ -150,6 +173,9 @@ console.log('The validator never throws, never contradicts itself, and never dep
   ok(accepted > 0, 'some random cabling is legal, so acceptance is exercised (' + accepted + ')');
   ok(refused > 0, 'and some is refused, so rejection is exercised (' + refused + ')');
   ok(seenCodes.size >= 3, 'more than one rule fired during the run (' + Array.from(seenCodes).sort().join(',') + ')');
+  // The regression this file was red for (#1654): E_BIDI_MISMATCH is raised by the media validator,
+  // not by validation.js, so a surface built from RULES alone called a legitimate refusal unknown.
+  ok(CODE_SURFACE.has('E_BIDI_MISMATCH'), 'the delegated media/optical codes are on the surface too');
 }
 
 console.log('');

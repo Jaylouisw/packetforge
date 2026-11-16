@@ -5,6 +5,8 @@
 // registry, no topology).
 
 const assert = require('assert');
+const fs = require('fs');
+const path = require('path');
 const media = require('../engine/media');
 const validation = require('../engine/validation');
 
@@ -367,7 +369,7 @@ test('rejects LAG members that run at different rates', function () {
 // 7. catalogue + topology aggregation
 // ---------------------------------------------------------------------------
 
-test('RULES documents every code the engine can emit', function () {
+test('RULES documents every code validation.js can emit', function () {
   assert.ok(Array.isArray(validation.RULES) && validation.RULES.length >= 16,
     'RULES must be a non-trivial array');
   const seen = {};
@@ -386,6 +388,36 @@ test('RULES documents every code the engine can emit', function () {
     'W_SPEED_DOWNGRADE', 'W_POE_DRAW', 'W_COPPER_LONGRUN'
   ].forEach(function (code) {
     assert.ok(seen[code], 'RULES is missing ' + code);
+  });
+
+  // The title is the assertion: scan the source for every `code: 'E_...'` this
+  // module returns, so a new rule cannot ship undocumented. Reading the file is
+  // the only way to see codes that no existing test happens to reach - four of
+  // them (E_LINK_UNCHECKABLE, E_NOT_A_TOPOLOGY, E_OPTICAL_BUDGET,
+  // W_OPTICAL_HEADROOM) were emitted for a while without a RULES entry, and the
+  // `severityOf()` W_ prefix fallback was the only thing keeping them sorted
+  // (#1654).
+  const source = fs.readFileSync(path.join(__dirname, '..', 'engine', 'validation.js'), 'utf8');
+  const emitted = [];
+  const re = /code: *'([EW]_[A-Z0-9_]+)'/g;
+  let m;
+  while ((m = re.exec(source))) { if (emitted.indexOf(m[1]) === -1) emitted.push(m[1]); }
+  assert.ok(emitted.length >= 16, 'the scan found rule codes (' + emitted.length + ')');
+  const undocumented = emitted.filter(function (code) { return !seen[code]; });
+  assert.deepStrictEqual(undocumented, [],
+    'these codes are emitted by engine/validation.js but are not in RULES: ' + undocumented.join(', '));
+
+  // And RULES must not document a code nothing emits: a stale entry is a
+  // description the UI can render for an error that can never occur.
+  const unemitted = Object.keys(seen).filter(function (code) { return emitted.indexOf(code) === -1; });
+  assert.deepStrictEqual(unemitted, [],
+    'these RULES codes are never emitted by engine/validation.js: ' + unemitted.join(', '));
+
+  // Severity must agree with the emit site, or validateTopology() would count a
+  // blocking failure as advisory.
+  validation.RULES.forEach(function (r) {
+    const expected = r.code.indexOf('W_') === 0 ? 'warning' : 'error';
+    assert.strictEqual(r.severity, expected, 'severity of ' + r.code + ' contradicts its prefix');
   });
 });
 

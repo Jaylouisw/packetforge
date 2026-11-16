@@ -136,6 +136,24 @@ const RULES = [
     description: 'Members of one LAG do not run at the same line rate.'
   },
   {
+    // The PON budget is a whole-path verdict, so it is reported on the cable rather than on a port.
+    code: 'E_OPTICAL_BUDGET', severity: 'error',
+    description: 'A PON over this cable exceeds its class budget in at least one direction ' +
+      '(splitters, fibre length and patch-cord loss together), so the far end would see no light.'
+  },
+  {
+    // validateTopology() could not get a verdict for a cable: the validator threw. Reported as a
+    // failed check rather than silence, because an unchecked cable is not a working one.
+    code: 'E_LINK_UNCHECKABLE', severity: 'error',
+    description: 'A cable in the topology could not be checked at all: the per-cable validator ' +
+      'threw while examining it, so its state is unknown and it cannot be trusted as working.'
+  },
+  {
+    code: 'E_NOT_A_TOPOLOGY', severity: 'error',
+    description: 'validateTopology() was handed neither a topology nor a list of issues, so there ' +
+      'was nothing to check. Answering clean to that would hide the mistake in the call.'
+  },
+  {
     code: 'W_DISTANCE', severity: 'warning',
     description: 'Cable length exceeds the reach of the chosen medium.'
   },
@@ -159,6 +177,11 @@ const RULES = [
     code: 'W_HYBRID_CORD', severity: 'warning',
     description: 'A hybrid UPC/APC patch cord is joining two different polishes; it is legal ' +
       'but costs its insertion loss and cannot be replaced by a plain lead.'
+  },
+  {
+    code: 'W_OPTICAL_HEADROOM', severity: 'warning',
+    description: 'A PON link passes budgeting with less than 3 dB to spare: one more splice or a ' +
+      'dirtier connector would put it over the class limit.'
   },
   {
     code: 'W_SWITCHPORT_MISMATCH', severity: 'warning',

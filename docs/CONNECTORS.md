@@ -518,13 +518,18 @@ Everything the rules engine can emit, and where it comes from:
 | `W_SPEED_DOWNGRADE` | warning | validation | Link below the maximum of a port on it — both ends, or one end facing a slower peer. Module-capped links are exempt |
 | `W_POE_DRAW` | warning | validation | Powered device on a port that supplies no PoE |
 | `W_HYBRID_CORD` | warning | validation | Hybrid UPC/APC cord joining two polishes; legal, costs its IL |
+| `E_LINK_UNCHECKABLE` | error | validation | `validateTopology` could not get a verdict for a cable; the per-cable validator threw |
+| `E_NOT_A_TOPOLOGY` | error | validation | `validateTopology` was handed neither a topology nor an issue list |
 
 `RULES` in `validation.js` is the declared catalogue, and `validateTopology`
-uses it for severity. Three codes above are emitted but **not** in `RULES`:
-`E_COMBO_OCCUPIED` (it lives in `topology.js`), `E_OPTICAL_BUDGET` and
-`W_OPTICAL_HEADROOM`. Unknown codes are still classified — anything starting
-`W_` is a warning, everything else an error — but if you add a code, add it to
-`RULES` so the UI can document it and the counts stay honest.
+uses it for severity. Every code above that `validation.js` itself emits is in
+`RULES`; `test/validation.test.js` reads the source and fails if one is missing
+or if `RULES` lists a code nothing emits. The single exception is
+`E_COMBO_OCCUPIED`, which is emitted by `topology.js` and therefore outside that
+module's surface. Codes from other modules are still classified when they reach
+`validateTopology` — anything starting `W_` is a warning, everything else an
+error — but if you add a code, add it to `RULES` so the UI can document it and
+the counts stay honest.
 
 ### At runtime: every cable carries a verdict
 
