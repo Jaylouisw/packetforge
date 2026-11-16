@@ -87,12 +87,67 @@ jobs:
     # calls below to time out one at a time and still finish.
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
+      # #1508: this job ticks every ten minutes and checks the repository out into the runner
+      # workspace. While the volume was full (#1507) each tick spent the bytes it was waiting
+      # for and then failed at its first write, so six red crosses an hour looked exactly like
+      # a regression in the code being rebased. A host out of disk is not a code failure: the
+      # first thing the job does is measure the room a checkout needs, and stand down green -
+      # with the number and the reason in the log - when there is none.
+      - name: Is there room for a checkout?
+        id: room
+        run: |
+          set -u
+          # Measure where the checkout will land. The runner normally creates the workspace
+          # before the first step, but it is not promised to, so walk up to a directory that
+          # exists rather than failing on a path that does not.
+          dir="${GITHUB_WORKSPACE:-$PWD}"
+          while [ -n "$dir" ] && [ "$dir" != "/" ] && [ ! -d "$dir" ]; do dir=$(dirname "$dir"); done
+          [ -d "$dir" ] || dir=.
+
+          need=${MIN_FREE_MB:-512}
+          free=$(df -Pk "$dir" 2>/dev/null | awk 'NR==2 {print int($4/1024)}') || free=""
+
+          # Unmeasurable is not the same as full. A `df` that answers nothing must not be able
+          # to switch this workflow off silently, so the default is to run the batch.
+          room=true
+          case "${free:-}" in
+            ''|*[!0-9]*)
+              echo "could not measure free space in $dir; running the batch anyway"
+              ;;
+            *)
+              echo "${free} MB free in $dir (a checkout of this repository needs about ${need} MB)"
+              if [ "$free" -lt "$need" ]; then
+                room=false
+                echo "::error title=Not enough disk::${free} MB free where a checkout needs ~${need} MB - see #1507"
+                echo "standing down: the checkout below would fail at its first write and spend the"
+                echo "bytes this host is waiting for. Nothing is wrong with the pull requests."
+              fi
+              ;;
+          esac
+
+          if [ -n "${GITHUB_OUTPUT:-}" ]; then
+            echo "room=$room" >> "$GITHUB_OUTPUT"
+          else
+            echo "::set-output name=room::$room"
+          fi
+
+          # Green, deliberately. A host out of disk is not a failure of the code being rebased,
+          # and a red X six times an hour only teaches everyone to ignore this workflow.
+          exit 0
+
+      # `exit 0` inside a step ends that step and nothing else - the step after it runs anyway,
+      # which is how the snippet in #1508 would still have spent the bytes. The stand-down is the
+      # step output above, and these two steps are gated on it: skipped checkout, skipped work,
+      # green job, reason in the log.
+      - name: Check out the queue
+        if: steps.room.outputs.room == 'true'
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
           persist-credentials: false
 
       - name: Rebase and arm
+        if: steps.room.outputs.room == 'true'
         # No env here that reads github.event.inputs.
         #
         # This workflow has produced twenty runs and started none of them. Not on

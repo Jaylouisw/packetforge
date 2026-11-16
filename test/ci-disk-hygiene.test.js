@@ -168,3 +168,56 @@ test('the cleanup step runs after the build, and removes the image it created', 
   assert.match(bound, /--keep-storage/, 'the cache must be bounded, not dropped wholesale');
   assert.match(bound, /docker system df/, 'the job must report what it left behind');
 });
+
+// #1508: `auto-rebase` ticks every ten minutes. While the volume was full it checked the
+// repository out into the runner workspace and then failed at the first write, so six red
+// crosses an hour spent the bytes it was waiting for and were indistinguishable from a real
+// regression. A host out of disk is not a code failure: the tick has to measure the room a
+// checkout needs and stand down green, before the checkout that would consume it.
+test('the rebase tick measures the room it needs before it checks out', () => {
+  const yml = fs.readFileSync(path.join(ROOT, '.forgejo/workflows/auto-rebase.yml'), 'utf8');
+  const job = jobBlocks(yml).find(function (j) { return j.name === 'rebase'; });
+  assert.ok(job, 'auto-rebase.yml must still have a `rebase` job');
+  const texts = steps(job.lines).map(function (s) { return s.text; });
+
+  const guardAt = texts.findIndex(function (t) { return /df\s+-Pk/.test(t); });
+  const checkoutAt = texts.findIndex(function (t) { return /uses:\s*actions\/checkout@/.test(t); });
+  assert.notStrictEqual(guardAt, -1,
+    'the job must measure free space (`df -Pk`): it checks out and force-pushes onto the same volume Forgejo keeps its data on');
+  assert.notStrictEqual(checkoutAt, -1, 'the job must still check out');
+  assert.ok(guardAt < checkoutAt,
+    'the measurement must come before the checkout it is deciding about (guard at step ' + guardAt +
+    ', checkout at step ' + checkoutAt + ')');
+
+  const guard = texts[guardAt];
+  assert.match(guard, /exit 0/,
+    'a host out of disk is not a red build: the tick must stand down with a green result and the reason in its log');
+  assert.match(guard, /#1507/, 'the message must name the disk issue it is standing down for');
+  assert.match(guard, /-lt/, 'there must be a threshold - a printed number with nothing comparing it stands down for nobody');
+  assert.match(guard, /room=true/,
+    'the verdict must default to "proceed": a tick that stands itself down because `df` answered oddly is a silent outage');
+
+  // `exit 0` inside a step ends that step and nothing else - the step after it runs anyway, so
+  // the checkout would still run and still consume the room. Standing the *job* down therefore
+  // needs the verdict carried in a step output that gates the work that follows it.
+  assert.match(guard, /GITHUB_OUTPUT/,
+    'the verdict must be published as a step output, or `exit 0` just moves on to the checkout');
+  const id = (/id:\s*([A-Za-z0-9_-]+)/.exec(guard) || [])[1];
+  assert.ok(id, 'the guard step needs an `id` for the later steps to read its output');
+
+  // Read the gate as text rather than with a regular expression: the verdict is the word
+  // `room` in an `if:` on the step that would otherwise run.
+  const gateName = 'steps.' + id + '.outputs.';
+  function gated(text) {
+    return text.split(String.fromCharCode(10)).some(function (line) {
+      return line.indexOf(gateName) !== -1 && line.indexOf("'true'") !== -1;
+    });
+  }
+  assert.ok(gated(texts[checkoutAt]),
+    "the checkout must be gated on the guard's verdict, or the bytes are spent regardless");
+  const workAt = texts.findIndex(function (t) { return /Rebase and arm/.test(t); });
+  assert.notStrictEqual(workAt, -1, 'the job must still have its `Rebase and arm` step');
+  assert.ok(workAt > guardAt, 'the work must come after the guard');
+  assert.ok(gated(texts[workAt]),
+    "the rebase must be gated on the same verdict: a checkout that was skipped leaves nothing to rebase");
+});

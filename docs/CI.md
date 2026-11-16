@@ -18,7 +18,7 @@ minute.
 | File | Trigger | What it does |
 |---|---|---|
 | `ci.yml` | pull request to `main`, push to `main`, manual dispatch | The matrix: tests on three Node versions, a live server smoke test, a Docker build |
-| `auto-rebase.yml` | every 10 minutes, manual dispatch | Rebases open pull requests onto current `main` and re-arms auto-merge |
+| `auto-rebase.yml` | every 10 minutes, manual dispatch | Rebases open pull requests onto current `main` and re-arms auto-merge; stands down green, before its checkout, when the host has less than 512 MB free (#1508) |
 
 `.github/workflows/` was deleted in #1059. While it existed, the GitHub workflow
 ran on Forgejo too — and failed every time with `docker: command not found`,
@@ -166,6 +166,7 @@ to run on the host, are in
 | A run says *cancelled* immediately | A newer commit to the same pull request superseded it | Expected. The newest run is the one that counts |
 | A run on `main` says *cancelled* | Should not happen after #1076 | Open an issue — this is the bug that fix exists to prevent |
 | `auto-rebase` has run but nothing moved | Every open PR was already up to date, or all rebases conflicted | Check the run log for the per-PR summary line |
+| `auto-rebase` is green and did not even check out | The host was short of disk, so the tick stood down instead of spending the bytes it was waiting for | The first step prints how many MB it measured in the workspace and names the threshold; see the disk section above and #1507 |
 | A check fails only in CI | Node version, or a path that differs on Linux | Run `npm test` on Node 18; check case-sensitivity in file paths |
 
 ## Known gaps
