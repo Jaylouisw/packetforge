@@ -189,4 +189,5 @@ node scripts/check-node-surface.js          # fails on any post-18 API
 node scripts/check-node-surface.js --list   # what is banned, and what to write instead
 ```
 
-It runs in CI before the matrix jobs, so the failure is immediate and names the API.
+It runs in CI as a step of every matrix leg, ahead of the suite, so the leg that would have
+failed names the API instead of failing somewhere inside `npm test`.

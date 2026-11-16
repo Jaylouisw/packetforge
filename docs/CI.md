@@ -69,7 +69,8 @@ surrounding suites.
 If `npm test` is green locally and CI is red, check the Node version: CI runs 18
 as well as 22, and a newer-than-18 API — `Array.prototype.findLast`,
 `structuredClone`, `Object.groupBy` — is the usual culprit. `scripts/check-node-surface.js`
-runs before the matrix precisely so that failure is named instead of mysterious.
+is a step of every matrix leg, ahead of the suite, precisely so that failure is named
+instead of mysterious.
 
 ## Concurrency: what gets cancelled and what does not
 
