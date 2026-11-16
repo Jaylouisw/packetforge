@@ -46,7 +46,16 @@ function table(lines) {
   const start = lines.findIndex(function (l) { return /^VLAN\s+Name\s+Status\s+Ports/.test(l); });
   if (start === -1) return null;
   // The header is followed by the device's rule line, which is not a row.
-  return lines.slice(start + 1).filter(function (l) { return l.trim() && !/^-{4}/.test(l); }).map(function (l) {
+  const body = lines.slice(start + 1).filter(function (l) { return l.trim() && !/^-{4}/.test(l); });
+  // A wrapped Ports list continues on the next line indented to column 48 with no comma at the break
+  // (research/show-vlan-columns.md); a row is one or more printed lines, rejoined here with ", ".
+  const folded = [];
+  for (const l of body) {
+    const continuation = !l.slice(0, 4).trim() && !l.slice(5, 37).trim() && !l.slice(38, 47).trim();
+    if (continuation && folded.length) folded[folded.length - 1] += ', ' + l.slice(48).trim();
+    else folded.push(l);
+  }
+  return folded.map(function (l) {
     // Read by column position, as the header prints it: `1002 fddi-default ... act/unsup` has one space
     // after the id, so a whitespace-run regex sees the wrong fields.
     return {

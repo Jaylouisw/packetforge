@@ -612,7 +612,8 @@ are counted as dropped with that reason.
 ```
 VLAN Name                             Status    Ports
 ---- -------------------------------- --------- -------------------------------
-1    default                          active    Fa0/3, Fa0/4, Fa0/5, Fa0/6, Fa0/7, Fa0/8
+1    default                          active    Fa0/3, Fa0/4, Fa0/5, Fa0/6
+                                                Fa0/7, Fa0/8
 20   twenty                           active    Fa0/1, Fa0/2, Fa0/3
 30   thirty                           active    Fa0/2, Fa0/3
 1002 fddi-default                     act/unsup
@@ -625,6 +626,14 @@ The column widths are the device's own — a four-character id, a 32-character n
 in column 48 — and the rule line under the header draws those widths in dashes, so a row pasted into a ticket
 lines up with the header when it is read on the device
 (`test/show-vlan-table-shape.test.js`).
+
+A Ports list that fills the console wraps: the box breaks it at 80 columns and starts the continuation back
+under the `Ports` heading, at column 48, so the cell has 32 columns of room and the break carries no comma.
+The arithmetic is the box's, not a per-family port count — 24 Fast Ethernet ports print four to a line, 48
+Gigabit ports three to a line, because a longer name fits fewer entries in the same 32 columns — and it
+reproduces three published samples exactly: the Catalyst 2960-X 15.2(6)E `show vlan` output, the 2950
+factory-reset procedure's 24-port table, and Cisco lab 5.5.1, whose indentation survives the PDF
+(`test/show-vlan-ports-wrap.test.js`, 13 checks; `research/show-vlan-columns.md`).
 
 One row per VLAN, in VLAN order. **Membership is decided by the same rule the switch forwards by** — a port
 appears under a VLAN if and only if a frame in that VLAN could leave by it:

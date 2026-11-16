@@ -42,15 +42,47 @@ The reserved-row spacing that `test/show-vlan-reserved-defaults.test.js` asserte
 (`1002    fddi-default …`) was the old eight-wide id column written down as an expectation; it is now
 `1002 fddi-default …`, which is the string the vendor samples contain.
 
-## What this run did not adopt
+## Wrapping the Ports list (the question this note left open)
 
-**Wrapping the Ports list.** On a real box the list breaks at the console width — the doc samples show three
-`Gi1/0/x` ports per line for a 48-port VLAN, and the continuation continues in the Ports column. That is
-consistent with a default terminal width of 80 columns and a 32-column Ports window, but the extraction of
-every vendor page collapses the leading whitespace of a `<pre>` block, so the continuation *indent* was not
-observable in the sources read here, and this console has no terminal-width model at all. A row longer than 80
-columns is therefore still printed as one line.
+The first pass on this table stopped short of wrapping the Ports list: the vendor pages it read had their
+leading whitespace collapsed by extraction, so the continuation *indent* was not observable, and a wrap built
+on a guessed indent would have been a guess. It was recorded as the open question, with what would settle it.
 
-What would settle it: a transcript (forum post, not a PDF) showing a wrapped Ports list with its indentation
-intact, or a candidate running `terminal width 0` on a real switch, which is documented to stop the wrap and
-would prove the break is width-driven rather than field-driven. Until then, wrapping would be a guess.
+**Verdict: settled, and adopted.** The list breaks at 80 columns, the continuation starts back under the
+`Ports` heading at column 48, and the break carries no comma. One arithmetic rule reproduces every sample:
+
+* the Ports cell has 80 - 48 = **32 columns** of room;
+* entries are joined by `", "`;
+* an entry that would take the cell past 32 columns starts a new line, indented 48 spaces, at the same entry.
+
+### The samples, and what each one settles
+
+| Source | Shows | What it settles |
+| --- | --- | --- |
+| [Cisco Catalyst 2960-X 15.2(6)E command reference, `show vlan`](https://www.cisco.com/c/en/us/td/docs/switches/lan/catalyst2960x/software/15_2_6_e/command_reference/b_1526_2960x_cr/vlan_commands.html) | 48 `Gi1/0/x` ports, **three to a line**, 16 continuation lines | The break is width-driven, not a port count: the same 32 columns hold three 8-character names and would hold four 5-character ones |
+| [Cisco 2950 reset procedure, `show vlan`](https://www.cisco.com/c/en/us/support/docs/lan-switching/vlan/217969-reset-catalyst-switches-to-factory-defau.html) | 24 `Fa0/x` ports, **four to a line**; `VLAN Type SAID MTU ...` block below | Four-per-line for the short name, and that the break sits *inside* the Ports cell - the rows that follow keep their own columns |
+| [Cisco lab 5.5.1 (PDF), `show vlan`](https://is.muni.cz/el/1433/jaro2014/PV234/cviceni/ESwitching/ESwitching_Lab_5_5_1.pdf) | The same table with its **indentation intact**: continuation lines begin at column 48, under `Ports`, and a `Gig0/1, Gig0/2` tail starts its own line because the previous one was full | The indent the first pass could not see. Also that a differently-named pair continues the same cell rather than starting a new column |
+| [howtonetwork, `show vlan` on a 3550](https://www.howtonetwork.com/certifications/cisco-2/show-vlan/) | VLAN 1 `Fa0/11..Fa0/14` then `Fa0/20..Fa0/23` then `Fa0/24`; VLAN 150 `Fa0/2..Fa0/5`, `Fa0/6..Fa0/9`, `Fa0/10` | The same rule on a different id/name width, and that the last line may hold a single entry |
+
+Worked check, 2960-X: `Gi1/0/2, Gi1/0/3, Gi1/0/4` is 28 characters, and `Gi1/0/5` would make it 38 - so the
+sample's groups of three are exactly what a 32-column window produces. Worked check, 2950: `Fa0/1, Fa0/2,
+Fa0/3, Fa0/4` is 26, and a fifth port would make 33 - so the sample's groups of four are the same window.
+
+### What changed
+
+`vlanRows()` in `engine/cli.js` prints a row as its head plus one or more Ports lines;
+`VLAN_TERMINAL_COLS` (80), `VLAN_PORTS_INDENT` (computed from the three column widths, 48) and
+`VLAN_PORTS_WIDTH` (32) are the rule. `test/show-vlan-ports-wrap.test.js` (13 checks) pins the 2950 row
+character for character, the 2960-X rhythm at three per line, the column-48 indent, the 80-column ceiling, the
+absence of a comma at the break, the whole list across the break, and a one-port VLAN staying on one line.
+The two existing `show vlan` readers now fold continuation lines back into their row, because a row is one or
+more printed lines.
+
+### What remains open
+
+* **Other tables.** `show interfaces` here is a key/value block on purpose, and `show access-lists` prints one
+  rule per line, so neither wraps today; the question has not been asked of them.
+* **Narrower terminals.** A box wraps at whatever width the terminal reports (`terminal width`, 0 = no wrap).
+  This console has no width model and fixes 80, the default; a lab that sets another width would still see 80.
+  What would settle a per-session width: a documented default per platform, or a decision to add
+  `terminal width` - the latter is a feature, not a fidelity fix.

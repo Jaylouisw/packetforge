@@ -162,6 +162,40 @@ function vlanLine(cells) {
   }).join('');
 }
 
+// The Ports list is not one line. A box wraps it at the console's 80 columns, and the continuation begins back
+// under the Ports heading rather than at column 0. Every transcript of a populated VLAN shows the same shape: the
+// 2960-X command reference prints 48 Gi1/0/x ports three to a line, a 2950 sample prints 24 Fa0/x ports four to a
+// line - and both fall out of one rule, not a per-family column count. The Ports cell has 80 - 48 = 32 columns to
+// fill, each entry is joined to the last by ", ", and an entry that would overrun the window starts a new line
+// indented to column 48. research/show-vlan-columns.md left this out for want of an indented transcript; the
+// transcripts cited in that note reproduce these line breaks exactly.
+const VLAN_TERMINAL_COLS = 80;
+const VLAN_PORTS_INDENT = VLAN_COLUMNS.slice(0, 3).reduce(function (n, c) { return n + c.width; }, 0);
+const VLAN_PORTS_WIDTH = VLAN_TERMINAL_COLS - VLAN_PORTS_INDENT;
+
+function vlanRows(cells) {
+  const head = vlanLine(cells.slice(0, 3));
+  const raw = cells[3];
+  const ports = Array.isArray(raw) ? raw.map(String)
+    : String(raw === null || raw === undefined ? '' : raw).split(', ').filter(Boolean);
+  const lines = [];
+  let line = head;
+  let used = 0;
+  for (const p of ports) {
+    if (!used) { line += p; used = p.length; continue; }
+    if (used + 2 + p.length > VLAN_PORTS_WIDTH) {
+      lines.push(line);
+      line = ' '.repeat(VLAN_PORTS_INDENT) + p;
+      used = p.length;
+    } else {
+      line += ', ' + p;
+      used += 2 + p.length;
+    }
+  }
+  lines.push(line);
+  return lines;
+}
+
 // What surrounds `show etherchannel summary`: a fixed legend, two counts, and a four-column table.
 //
 // None of it was printed. The table started at a three-column header this console invented
@@ -4271,7 +4305,7 @@ class CliSession {
         // after 1005, not before it.
         const fixed = reserved.filter(function (r) { return r.id === id; })[0];
         if (fixed) {
-          out.push(vlanLine([id, fixed.name, 'act/unsup', '']).replace(/\s+$/, ''));
+          for (const line of vlanRows([id, fixed.name, 'act/unsup', ''])) out.push(line.replace(/\s+$/, ''));
           continue;
         }
         const members = [];
@@ -4286,7 +4320,7 @@ class CliSession {
         }
         const name = (named[id] && named[id].name)
           || (id === 1 ? 'default' : 'VLAN' + String(id).padStart(4, '0'));
-        out.push(vlanLine([id, name, 'active', members.join(', ')]));
+        out.push.apply(out, vlanRows([id, name, 'active', members]));
       }
     } else if (what === 'spanning-tree') {
       if (tokens.length > 1) {

@@ -80,7 +80,9 @@ console.log('');
 console.log('Rows sit under their columns, whatever the id and the name are:');
 {
   const lines = table(lab(), 'show vlan');
-  const rows = lines.slice(2).filter(function (l) { return l.trim(); });
+  // A Ports list longer than its 32-column window wraps and continues in the Ports column, with no id of its
+  // own (research/show-vlan-columns.md): that line belongs to the row above, so only id-bearing lines are rows.
+  const rows = lines.slice(2).filter(function (l) { return l.trim() && /^[0-9]/.test(l); });
   const one = rows.filter(function (l) { return /^1\s/.test(l); })[0] || '';
   const twenty = rows.filter(function (l) { return /^20\s/.test(l); })[0] || '';
   const reserved = rows.filter(function (l) { return /^1002\s/.test(l); })[0] || '';

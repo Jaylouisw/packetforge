@@ -28,6 +28,19 @@ const catalog = loadCatalog(path.join(__dirname, '..', 'devices')).filter(functi
 const SWITCH = catalog.filter(function (s) { return s.model === 'generic-switch'; })[0];
 const PC = catalog.filter(function (s) { return s.model === 'generic-pc'; })[0];
 
+// A Ports list longer than its 32-column window continues on the next line, indented back to column 48, and the
+// break carries no comma - that is how a box prints it (research/show-vlan-columns.md). A row is therefore one or
+// more printed lines; the joiner here is ", " so that a caller splitting on commas still sees two ports.
+function fold(body) {
+  const out = [];
+  for (const l of body) {
+    const continuation = !l.slice(0, 4).trim() && !l.slice(5, 37).trim() && !l.slice(38, 47).trim();
+    if (continuation && out.length) out[out.length - 1] += ', ' + l.slice(48).trim();
+    else out.push(l);
+  }
+  return out;
+}
+
 function rows(env, cmd) {
   const lines = ((new CliSession(env.sw, env.t, env.sim).run(cmd || 'show vlan').output) || []).map(String);
   // Row 0 is the header and row 1 is the rule line the device draws under it (`---- ---- ----- -----`),
@@ -42,7 +55,7 @@ function rows(env, cmd) {
     // column 48), not by whitespace runs: a four-character id leaves a single space before the name, and a
     // 32-character name leaves a single space before the status, so a regex that needs two spaces fails on
     // exactly the rows the table is supposed to align.
-    fields: body.map(function (l) {
+    fields: fold(body).map(function (l) {
       return {
         vlan: l.slice(0, 4).trim(),
         name: l.slice(5, 37).trim(),
