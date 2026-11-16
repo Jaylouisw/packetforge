@@ -1,0 +1,58 @@
+{
+  "vendor": "westermo",
+  "model": "lynx-3510-f2g2-5-p8g-lv",
+  "label": "Westermo Lynx 3510-F2G2.5-P8G-LV",
+  "category": "switch",
+  "description": "Westermo Lynx 3510-F2G2.5-P8G-LV 10-port industrial managed Layer 2 PoE+ switch: 8x 10/100/1000BASE-T RJ45 with all eight ports 802.3at/af PoE+ PSE at up to 30 W a port inside a 240 W budget fed at 54 VDC, 2x 2.5 Gbit/s SFP cages, WeOS 5, -40 to +70 C.",
+  "capabilities": [
+    "l2-forward",
+    "cli",
+    "http-server",
+    "dhcp-client",
+    "dhcp-server",
+    "vlan",
+    "lacp",
+    "stp",
+    "poe-pse",
+    "802.3af",
+    "802.3at"
+  ],
+  "icon": "switch",
+  "color": "#0e7490",
+  "portTemplate": {
+    "prefix": "port",
+    "start": 1,
+    "count": 8,
+    "type": "ethernet",
+    "connector": "rj45",
+    "speed": "1G",
+    "speedCaps": [
+      10,
+      100,
+      1000
+    ],
+    "poeOut": 30,
+    "poeOutClass": "PoE+"
+  },
+  "interfaces": [
+    {
+      "name": "sfp1",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "2.5G"
+    },
+    {
+      "name": "sfp2",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "2.5G"
+    }
+  ],
+  "sourceUrl": "https://www.westermo.com/-/media/Files/Data-sheets/Lynx/westermo_ds_lynx-3000_2611_en_revp.pdf",
+  "poe": {
+    "budgetW": 240,
+    "sourceUrl": "https://www.westermo.com/-/media/Files/Data-sheets/Lynx/westermo_ds_lynx-3000_2611_en_revp.pdf",
+    "note": "Datasheet power budget (PoE models): max. 240 W total PD consumption, max. 30 W per PoE port - 8 x 30 W is exactly 240 W, so all eight ports can be filled at full PoE+ only if the feed holds up. The box is rated 54 VDC; 802.3at needs 53-57 VDC and 802.3af 48-57 VDC, and PoE is unavailable below 48 V (12-57 VDC only when drawing no PoE load)."
+  },
+  "notes": "Datasheet 'Lynx 3000 Series_2611_EN_REV.P'. All Lynx 3510 models are the 10-port chassis: 8 copper RJ45 plus 2 SFP cages, in 52 x 134 x 130 mm of full-metal IP40 housing at 1,100 g, DIN-rail or wall mount, -40 to +70 C operating (-40 to +85 C storage), 5-95% RH, 2,000 m altitude, 64 VLANs and 8 priority queues, 5-year warranty. Console is a USB-C port that emulates a serial port at 115200 bps; there is also a Micro SD slot (SD 2.0) and one digital input plus one digital output on screw terminals. Powered by WeOS 5: web UI over HTTP/HTTPS, CLI over console/SSHv2/Telnet, SNMPv1/v2c/v3 read-only MIBs, RADIUS/TACACS+, 802.1X, RSTP, LACP, FRNTv0/v2 and MRP ring recovery, DHCP server/relay/client, NTP, syslog. The datasheet gives no switching-capacity or MAC-table figure, so none is modelled here. Layer 2 PoE+ on the 2.5G SFP chassis; the copper ports are 10/100/1000BASE-T PoE+, not 2.5GBASE-T. Rated 54 VDC. MTBF Telcordia 638,000 h, MIL-HDBK-217F 583,000 h."
+}
