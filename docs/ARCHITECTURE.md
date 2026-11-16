@@ -885,7 +885,7 @@ Reply from 2001:db8:1::1: bytes=100 time=0.103 ms
 * **nothing IPv4 changed**, name resolution included: `ping nosuchname.lab` still resolves through the lab's servers
   and still explains SERVFAIL.
 
-`test/ping-ipv6.test.js` pins it, 43 checks; reverting `engine/cli.js` fails 30. The help row for `ping` now says
+`test/ping-ipv6.test.js` pins it, 44 checks; reverting `engine/cli.js` fails 30. The help row for `ping` now says
 "IPv4 or IPv6".
 
 A limitation this does not change, and does not hide: the engine answers nothing for a device's **own** address over
