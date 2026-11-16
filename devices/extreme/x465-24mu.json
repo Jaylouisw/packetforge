@@ -1,0 +1,63 @@
+{
+  "vendor": "extreme",
+  "model": "X465-24MU",
+  "label": "ExtremeSwitching X465-24MU",
+  "category": "l3-switch",
+  "description": "ExtremeSwitching X465-24MU - 24x 100M/1G/2.5G/5G BASE-T RJ-45 with 802.3bt Type 3 60 W PoE+ on every port, one empty VIM5 uplink slot, two 40G dedicated stacking ports (unpopulated), rear RJ-45 console and a 1G out-of-band management port; 648 Gbps aggregated switch bandwidth, 482.1 Mpps.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli",
+    "http-server",
+    "poe-pse",
+    "802.3bt"
+  ],
+  "portTemplate": {
+    "prefix": "1:",
+    "start": 1,
+    "count": 24,
+    "type": "ethernet",
+    "speed": "5G",
+    "connector": "rj45",
+    "speedCaps": [
+      100,
+      1000,
+      2500,
+      5000
+    ],
+    "poeOut": 60
+  },
+  "interfaces": [
+    {
+      "name": "mgmt",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "console",
+      "type": "console"
+    }
+  ],
+  "fabric": {
+    "capacityMbps": 648000,
+    "kind": "aggregated switch bandwidth",
+    "note": "Extreme states 648 aggregated switch bandwidth and 482.1 frame forwarding rate for the X465-24MU (datasheet Performance and Scale table, https://extr-p-001.sitecorecontenthub.cloud/api/public/content/df5d3e48f1834936bc0d1caeae677c02?v=f38c16b6). The vendor figure counts the VIM5 uplink capacity and the two 40G stacking ports as well as the front panel, so it is larger than the aggregate of the Ethernet ports modelled here; nothing on the modelled ports is capped by it."
+  },
+  "notes": "Port census: 24 x 100M/1/2.5/5G BASE-T 802.3bt Type 3 (60 W) ports, ports 1:1-1:24 - the multi-rate member of the family, 802.3bz 2.5G/5G on copper. The 5G ceiling is what the vendor Max Active multi-rate column and the installation guide state. VIM5 slot empty: VIM5-4X (4x 1/10G SFP+), VIM5-4XE (4x 1/10G SFP+, LRM/MACsec), VIM5-4Y / VIM5-4YE (4x 10/25G SFP28), VIM5-2Y (2x 25G SFP28), VIM5-2Q (2x 40G QSFP+). The module is not hot-swappable and its ports are not modelled here, so the box is the bare chassis. On this model VIM5-4X and VIM5-4XE run at 10G only (no 1G), while VIM5-4YE delivers its full 4x 25G. S1 and S2 are 2x 40G QSFP+ stacking ports on the front panel, 42 Gbps per link under SummitStack-V160; the stacking-support option is always enabled on the X465 and these are native stacking-only ports, so they are not modelled as Ethernet data ports. Console is the rear-panel RJ-45 serial port (plus a USB micro-B console that takes priority when connected), and the rear also carries a 10/100/1000BASE-T out-of-band management port, modelled as mgmt. Quad-core 2.1 GHz x86, 8 GB DDR4, 8 GB eMMC, 12 MB packet buffer, 2 fan modules. Idle 75 W, maximum consumption 1722 W with a full 60 W PoE load. Sources: https://extr-p-001.sitecorecontenthub.cloud/api/public/content/df5d3e48f1834936bc0d1caeae677c02?v=f38c16b6, https://cdn.blueally.com/netsolutionstore/datasheets/switches/x465-series-data-sheet.pdf, https://documentation.extremenetworks.com/ExtremeSwitching%20Installation%20Guide%20for%20Switches%20Using%20ExtremeXOS%20Version%2030/Wired_Hardware/ExtremeSwitching_Installation_Guide_for_Switches_Using_ExtremeXOS_Version_30/topics/extremeswitching_x465_series_switches_technical_specifications.shtml, https://documentation.extremenetworks.com/ExtremeSwitching%20Installation%20Guide%20for%20Switches%20Using%20ExtremeXOS%20Version%2030/Wired_Hardware/ExtremeSwitching_Installation_Guide_for_Switches_Using_ExtremeXOS_Version_30/topics/extremeswitching_x465_series_switches.shtml, https://documentation.extremenetworks.com/ExtremeSwitching%20Installation%20Guide%20for%20Switches%20Using%20ExtremeXOS%20Version%2030/Universal_Hardware/Universal_Hardware_Common/topics/build_stacks/extremeswitching_x465_stacking.shtml.",
+  "icon": "switch",
+  "color": "#e11d48",
+  "sourceUrl": "https://extr-p-001.sitecorecontenthub.cloud/api/public/content/df5d3e48f1834936bc0d1caeae677c02?v=f38c16b6",
+  "poe": {
+    "budgetW": 1440,
+    "standard": "802.3bt",
+    "perPortW": 60,
+    "sourceUrl": "https://documentation.extremenetworks.com/ExtremeSwitching%20Installation%20Guide%20for%20Switches%20Using%20ExtremeXOS%20Version%2030/Wired_Hardware/ExtremeSwitching_Installation_Guide_for_Switches_Using_ExtremeXOS_Version_30/topics/extremeswitching_x465_series_switches_technical_specifications.shtml",
+    "note": "1440 W ceiling, exactly 24 x 60 W, so every multi-gigabit port can sit at Type 3 only with two 1100 W or one 2000 W PSU; with a single 1100 W unit the budget is 825 W and with a 715 W unit 440 W (vendor PoE Power Budget table, https://documentation.extremenetworks.com/ExtremeSwitching%20Installation%20Guide%20for%20Switches%20Using%20ExtremeXOS%20Version%2030/Wired_Hardware/ExtremeSwitching_Installation_Guide_for_Switches_Using_ExtremeXOS_Version_30/topics/extremeswitching_x465_series_switches_technical_specifications.shtml)."
+  }
+}

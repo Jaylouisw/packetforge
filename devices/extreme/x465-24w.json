@@ -1,0 +1,62 @@
+{
+  "vendor": "extreme",
+  "model": "X465-24W",
+  "label": "ExtremeSwitching X465-24W",
+  "category": "l3-switch",
+  "description": "ExtremeSwitching X465-24W - 24x 10/100/1000BASE-T RJ-45 with 802.3bt Type 4 90 W PoE+ on every port, one empty VIM5 uplink slot, two 40G dedicated stacking ports (unpopulated), rear RJ-45 console and a 1G out-of-band management port; 316 Gbps aggregated switch bandwidth, 235.1 Mpps.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli",
+    "http-server",
+    "poe-pse",
+    "802.3bt"
+  ],
+  "portTemplate": {
+    "prefix": "1:",
+    "start": 1,
+    "count": 24,
+    "type": "ethernet",
+    "speed": "1G",
+    "connector": "rj45",
+    "speedCaps": [
+      10,
+      100,
+      1000
+    ],
+    "poeOut": 90
+  },
+  "interfaces": [
+    {
+      "name": "mgmt",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "console",
+      "type": "console"
+    }
+  ],
+  "fabric": {
+    "capacityMbps": 316000,
+    "kind": "aggregated switch bandwidth",
+    "note": "Extreme states 316 aggregated switch bandwidth and 235.1 frame forwarding rate for the X465-24W (datasheet Performance and Scale table, https://extr-p-001.sitecorecontenthub.cloud/api/public/content/df5d3e48f1834936bc0d1caeae677c02?v=f38c16b6). The vendor figure counts the VIM5 uplink capacity and the two 40G stacking ports as well as the front panel, so it is larger than the aggregate of the Ethernet ports modelled here; nothing on the modelled ports is capped by it."
+  },
+  "notes": "Port census from the datasheet External Ports/Slots table and the installation guide: 24 x 10/100/1000BASE-T 802.3bt Type 4 (90 W) MACsec-capable access ports, ports 1:1-1:24. VIM5 slot empty: VIM5-4X (4x 1/10G SFP+), VIM5-4XE (4x 1/10G SFP+, LRM/MACsec), VIM5-4Y / VIM5-4YE (4x 10/25G SFP28), VIM5-2Y (2x 25G SFP28), VIM5-2Q (2x 40G QSFP+). The module is not hot-swappable and its ports are not modelled here, so the box is the bare chassis. S1 and S2 are 2x 40G QSFP+ stacking ports on the front panel, 42 Gbps per link under SummitStack-V160; the stacking-support option is always enabled on the X465 and these are native stacking-only ports, so they are not modelled as Ethernet data ports. Console is the rear-panel RJ-45 serial port (plus a USB micro-B console that takes priority when connected), and the rear also carries a 10/100/1000BASE-T out-of-band management port, modelled as mgmt. Dimensions 440 x 43.6 x 489 mm (1RU, 19-inch), 2 unpopulated PSU slots, hot-swappable fan modules, 0-50 C operating range. X465-24W ships with two fan modules (the 48-port chassis take three). Extreme lists IEEE 802.3at PoE Plus and 802.3bt Type 3/Type 4 in the family standards table but states only Type 4 for this model's port row, so only 802.3bt is declared; a bt Type 4 PSE still powers af/at PDs in the field. Management: CLI and a web-based GUI on-box, ExtremeCloud IQ or Extreme Management Center off-box (product page, https://www.extremenetworks.com/products/switches/extremexos-switches/x465). Idle draw 61 W; maximum 2485 W with a full 90 W PoE load. Sources: https://extr-p-001.sitecorecontenthub.cloud/api/public/content/df5d3e48f1834936bc0d1caeae677c02?v=f38c16b6, https://cdn.blueally.com/netsolutionstore/datasheets/switches/x465-series-data-sheet.pdf, https://documentation.extremenetworks.com/ExtremeSwitching%20Installation%20Guide%20for%20Switches%20Using%20ExtremeXOS%20Version%2030/Wired_Hardware/ExtremeSwitching_Installation_Guide_for_Switches_Using_ExtremeXOS_Version_30/topics/extremeswitching_x465_series_switches_technical_specifications.shtml, VIM/stacking from https://documentation.extremenetworks.com/ExtremeSwitching%20Installation%20Guide%20for%20Switches%20Using%20ExtremeXOS%20Version%2030/Wired_Hardware/ExtremeSwitching_Installation_Guide_for_Switches_Using_ExtremeXOS_Version_30/topics/extremeswitching_x465_series_switches.shtml and https://documentation.extremenetworks.com/ExtremeSwitching%20Installation%20Guide%20for%20Switches%20Using%20ExtremeXOS%20Version%2030/Universal_Hardware/Universal_Hardware_Common/topics/build_stacks/extremeswitching_x465_stacking.shtml.",
+  "icon": "switch",
+  "color": "#e11d48",
+  "sourceUrl": "https://extr-p-001.sitecorecontenthub.cloud/api/public/content/df5d3e48f1834936bc0d1caeae677c02?v=f38c16b6",
+  "poe": {
+    "budgetW": 2160,
+    "standard": "802.3bt",
+    "perPortW": 90,
+    "sourceUrl": "https://documentation.extremenetworks.com/ExtremeSwitching%20Installation%20Guide%20for%20Switches%20Using%20ExtremeXOS%20Version%2030/Wired_Hardware/ExtremeSwitching_Installation_Guide_for_Switches_Using_ExtremeXOS_Version_30/topics/extremeswitching_x465_series_switches_technical_specifications.shtml",
+    "note": "2160 W with two 2000 W PSUs on 200-240 V - exactly 24 x 90 W, so every port can run at Type 4 only on a high-line pair; one 2000 W PSU gives 1771 W and a single 1100 W PSU 871 W (vendor PoE Power Budget table, https://documentation.extremenetworks.com/ExtremeSwitching%20Installation%20Guide%20for%20Switches%20Using%20ExtremeXOS%20Version%2030/Wired_Hardware/ExtremeSwitching_Installation_Guide_for_Switches_Using_ExtremeXOS_Version_30/topics/extremeswitching_x465_series_switches_technical_specifications.shtml). The datasheet prints the same 2160 W ceiling (https://extr-p-001.sitecorecontenthub.cloud/api/public/content/df5d3e48f1834936bc0d1caeae677c02?v=f38c16b6)."
+  }
+}

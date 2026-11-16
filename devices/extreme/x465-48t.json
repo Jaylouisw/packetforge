@@ -1,21 +1,52 @@
 {
   "vendor": "extreme",
   "model": "X465-48T",
-  "label": "X465-48T",
-  "category": "switch",
-  "description": "ExtremeSwitching X465-48T (10953) - 1RU universal edge switch, ExtremeXOS: 48x 10/100/1000BASE-T MACsec-capable RJ45 (ports 1:1-1:48), one VIM5 slot for 10G/25G/40G uplinks and 2 dedicated stacking ports. Shown with the VIM slot empty.",
+  "label": "ExtremeSwitching X465-48T",
+  "category": "l3-switch",
+  "description": "ExtremeSwitching X465-48T - 48x 10/100/1000BASE-T RJ-45, MACsec capable, on a non-PoE 1RU chassis, one empty VIM5 uplink slot, two 40G dedicated stacking ports (unpopulated), rear RJ-45 console and a 1G out-of-band management port; 364 Gbps aggregated switch bandwidth, 270.8 Mpps, no PoE.",
   "capabilities": [
     "l2-forward",
     "l3-forward",
-    "cli"
+    "cli",
+    "http-server"
   ],
   "portTemplate": {
     "prefix": "1:",
     "start": 1,
     "count": 48,
     "type": "ethernet",
-    "speed": "1G"
+    "speed": "1G",
+    "connector": "rj45",
+    "speedCaps": [
+      10,
+      100,
+      1000
+    ]
   },
+  "interfaces": [
+    {
+      "name": "mgmt",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "console",
+      "type": "console"
+    }
+  ],
+  "fabric": {
+    "capacityMbps": 364000,
+    "kind": "aggregated switch bandwidth",
+    "note": "Extreme states 364 aggregated switch bandwidth and 270.8 frame forwarding rate for the X465-48T (datasheet Performance and Scale table, https://extr-p-001.sitecorecontenthub.cloud/api/public/content/df5d3e48f1834936bc0d1caeae677c02?v=f38c16b6). The vendor figure counts the VIM5 uplink capacity and the two 40G stacking ports as well as the front panel, so it is larger than the aggregate of the Ethernet ports modelled here; nothing on the modelled ports is capped by it."
+  },
+  "notes": "Port census: 48 x 10/100/1000BASE-T full/half duplex MACsec-capable ports, ports 1:1-1:48, no PoE on this SKU (the vendor PoE budget table lists only the five PoE models, and the 48T is not one of them). This record replaces a template-only entry that carried no sources and no interface declarations; the category moves from switch to l3-switch because the platform runs the same EXOS L3 stack as the rest of the family (256K IPv4 LPM entries, 128K IPv6, MPLS/VPLS), which is what its l3-forward capability already claimed. VIM5 slot empty: VIM5-4X (4x 1/10G SFP+), VIM5-4XE (4x 1/10G SFP+, LRM/MACsec), VIM5-4Y / VIM5-4YE (4x 10/25G SFP28), VIM5-2Y (2x 25G SFP28), VIM5-2Q (2x 40G QSFP+). The module is not hot-swappable and its ports are not modelled here, so the box is the bare chassis. S1 and S2 are 2x 40G QSFP+ stacking ports on the front panel, 42 Gbps per link under SummitStack-V160; the stacking-support option is always enabled on the X465 and these are native stacking-only ports, so they are not modelled as Ethernet data ports. Console is the rear-panel RJ-45 serial port (plus a USB micro-B console that takes priority when connected), and the rear also carries a 10/100/1000BASE-T out-of-band management port, modelled as mgmt. Dual-core 1.5 GHz x86, 2 GB DDR4, 8 GB eMMC, 12 MB packet buffer, 3 fan modules, 350 W PSU only. Idle 74 W, maximum 176 W. Sources: https://extr-p-001.sitecorecontenthub.cloud/api/public/content/df5d3e48f1834936bc0d1caeae677c02?v=f38c16b6, https://cdn.blueally.com/netsolutionstore/datasheets/switches/x465-series-data-sheet.pdf, https://documentation.extremenetworks.com/ExtremeSwitching%20Installation%20Guide%20for%20Switches%20Using%20ExtremeXOS%20Version%2030/Wired_Hardware/ExtremeSwitching_Installation_Guide_for_Switches_Using_ExtremeXOS_Version_30/topics/extremeswitching_x465_series_switches_technical_specifications.shtml, https://documentation.extremenetworks.com/ExtremeSwitching%20Installation%20Guide%20for%20Switches%20Using%20ExtremeXOS%20Version%2030/Wired_Hardware/ExtremeSwitching_Installation_Guide_for_Switches_Using_ExtremeXOS_Version_30/topics/extremeswitching_x465_series_switches.shtml, https://documentation.extremenetworks.com/ExtremeSwitching%20Installation%20Guide%20for%20Switches%20Using%20ExtremeXOS%20Version%2030/Universal_Hardware/Universal_Hardware_Common/topics/build_stacks/extremeswitching_x465_stacking.shtml.",
   "icon": "switch",
-  "color": "#e11d48"
+  "color": "#e11d48",
+  "sourceUrl": "https://extr-p-001.sitecorecontenthub.cloud/api/public/content/df5d3e48f1834936bc0d1caeae677c02?v=f38c16b6"
 }
