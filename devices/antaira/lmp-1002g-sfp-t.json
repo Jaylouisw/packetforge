@@ -1,0 +1,73 @@
+{
+  "vendor": "antaira",
+  "model": "LMP-1002G-SFP-T",
+  "label": "Antaira LMP-1002G-SFP-T",
+  "category": "switch",
+  "description": "Antaira LMP-1002G-SFP-T 10-port industrial Gigabit PoE+ managed switch: 8x 10/100/1000BASE-T IEEE 802.3af/at PSE at up to 30 W a port, 2x 100/1000 dual-rate SFP cages rated 1G, 20 Gbps backplane, 8K MAC table, -40 to 75 C extended-temperature model, redundant 48-55 V DC input, IP30 DIN-rail case.",
+  "capabilities": [
+    "l2-forward",
+    "cli",
+    "http-server",
+    "vlan",
+    "lacp",
+    "stp",
+    "poe-pse",
+    "802.3af",
+    "802.3at"
+  ],
+  "icon": "switch",
+  "color": "#0e7490",
+  "portTemplate": {
+    "prefix": "port",
+    "start": 1,
+    "count": 8,
+    "type": "ethernet",
+    "speed": "1G",
+    "connector": "rj45",
+    "speedCaps": [
+      10,
+      100,
+      1000
+    ],
+    "poeOut": 30
+  },
+  "interfaces": [
+    {
+      "name": "port9",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "port10",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "console",
+      "type": "console",
+      "speed": "115.2k"
+    }
+  ],
+  "poe": {
+    "budgetW": 240,
+    "sourceUrl": "https://www.antaira.com.tw/img/datasheet/Antaira_LMP-1002G-SFP_datasheet.pdf",
+    "note": "The datasheet does not print a PoE budget: it gives 15 W with no PD and 255 W fully loaded, which leaves 240 W for the 8 PSE ports, exactly 8 x 30 W. Recorded as a derived figure rather than a quoted one."
+  },
+  "fabric": {
+    "capacityMbps": 20000,
+    "kind": "switching fabric",
+    "note": "Datasheet back-plane (switching fabric) 20.0 Gbps, the full-duplex aggregate of ten 1G ports."
+  },
+  "sourceUrl": "https://www.antaira.com.tw/img/datasheet/Antaira_LMP-1002G-SFP_datasheet.pdf",
+  "notes": "Datasheet 'LMP-1002G-SFP Series' (ordering info lists the two models LMP-1002G-SFP and LMP-1002G-SFP-T). Ports 1-8 are the PoE+ RJ45 ports and 9-10 the dual-rate 100/1000 SFP cages. Serial console is 1x RS232 in an RJ45 connector at 115.2 kbps 8-N-1; the separate 1x USB 2.0 port is configuration backup only, not a network interface, so it is not modelled. 54 x 142 x 99 mm, 2.4 lb, metal IP30, DIN-rail or wall mount, one alarm relay output (the datasheet lists the relay only as an 'Auto Warning ... Relay Output' feature and prints no contact rating for this series). Store-and-forward, 4 Mbit packet buffer, 9.6K jumbo, VLAN groups 1-4094, IGMP groups up to 256. Managed feature set is Layer 2 (STP/RSTP/MSTP, G.8032 ERPS, LACP, Q-in-Q, 802.1X, SNMP v1/v2c/v3, Modbus/TCP) although the product page markets the line as 'Light Layer 3'; no routing protocol is listed in the datasheet, so the model is catalogued as a plain L2 switch rather than an l3-switch."
+}
