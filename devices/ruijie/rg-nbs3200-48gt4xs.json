@@ -1,0 +1,76 @@
+{
+  "vendor": "ruijie",
+  "model": "RG-NBS3200-48GT4XS",
+  "label": "Ruijie Reyee RG-NBS3200-48GT4XS",
+  "category": "switch",
+  "description": "Ruijie Reyee RG-NBS3200-48GT4XS - 52-port Layer 2+ managed switch: 48x 10/100/1000BASE-T RJ45 and 4x 10GE SFP+ uplinks, no PoE. 176 Gbps switching capacity, 131 Mpps, two fixed fans, 1 GB RAM / 256 MB flash, 46.4 W maximum draw, 440 x 267.5 x 43.6 mm, 3.6 kg.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "http-server",
+    "vlan",
+    "lacp",
+    "stp",
+    "dhcp-client"
+  ],
+  "portTemplate": {
+    "prefix": "ge",
+    "start": 1,
+    "count": 48,
+    "type": "ethernet",
+    "speed": "1G",
+    "connector": "rj45",
+    "speedCaps": [
+      10,
+      100,
+      1000
+    ]
+  },
+  "interfaces": [
+    {
+      "name": "sfp+1",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        10000
+      ]
+    },
+    {
+      "name": "sfp+2",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        10000
+      ]
+    },
+    {
+      "name": "sfp+3",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        10000
+      ]
+    },
+    {
+      "name": "sfp+4",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        10000
+      ]
+    }
+  ],
+  "icon": "switch",
+  "color": "#0284c7",
+  "fabric": {
+    "capacityMbps": 176000,
+    "kind": "switching capacity",
+    "note": "Datasheet \"Switching capacity\" 176 Gbps, \"Forwarding rate\" 131 Mpps."
+  },
+  "sourceUrl": "https://eo-sgp-cos.ruijie.com/Document/pdf/2025/12/11/RG-NBS3200-48GT4XS_Datasheet_Official_2025-12-11.pdf",
+  "notes": "Datasheet: 48 RJ45 + 4 x 10GE SFP+, \"Module slots No\", \"Maximum power consumption 46.4 W\", \"RAM 1 GB\" (the only member of the family with 1 GB; the rest carry 512 MB), \"Flash memory 256 MB\", \"Fan 2 x fixed fans\", 440 x 267.5 x 43.6 mm, 3.6 kg, shipped with 2 mounting brackets and 8 screws. Management is web/cloud only: the datasheet lists SSH \"No\", HTTP login \"Yes\", HTTPS login \"Yes\", eWeb, SNMPv1/v2c/v3 and Ruijie Cloud / Reyee App; there is no console port and no serial CLI in the datasheet, so no cli capability and no console interface. Layer 2+ software: \"IEEE 802.1Q VLAN Yes\", \"LACP Yes\", \"STP/RSTP/MSTP Yes\", \"DHCP client Yes\", \"DHCP relay Yes\", \"DHCP server No\", \"IPv4 static route Yes\", \"IPv6 static route Yes\" - static routes and relay, no dynamic routing protocol is listed. Port names ge1..geN / sfp1..sfpN / sfp+1..sfp+4 are the catalogue naming convention for a web-managed access switch; the datasheet states port counts, not names. The product page hero block prints \"Forwarding Rate 132 Mpps\" against the datasheet figure of 131 Mpps, and a \"PoE Budget 370W\" panel this non-PoE box does not have; the datasheet wins."
+}

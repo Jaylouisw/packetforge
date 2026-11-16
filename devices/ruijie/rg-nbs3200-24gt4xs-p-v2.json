@@ -1,0 +1,86 @@
+{
+  "vendor": "ruijie",
+  "model": "RG-NBS3200-24GT4XS-P-V2",
+  "label": "Ruijie Reyee RG-NBS3200-24GT4XS-P-V2",
+  "category": "switch",
+  "description": "Ruijie Reyee RG-NBS3200-24GT4XS-P-V2 - 28-port Layer 2+ managed PoE switch: 24x 10/100/1000BASE-T RJ45 all PoE/PoE+ (IEEE 802.3af/at) on a 370 W budget and 4x 10GE SFP+ uplinks. 128 Gbps switching capacity, 96 Mpps, two PWM fans with intelligent speed adjustment, 30 W with no PoE load and 430 W at a full PoE load.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "http-server",
+    "vlan",
+    "lacp",
+    "stp",
+    "dhcp-client",
+    "poe-pse",
+    "802.3af",
+    "802.3at"
+  ],
+  "portTemplate": {
+    "prefix": "ge",
+    "start": 1,
+    "count": 24,
+    "type": "ethernet",
+    "speed": "1G",
+    "connector": "rj45",
+    "speedCaps": [
+      10,
+      100,
+      1000
+    ],
+    "poeOut": 30,
+    "poeOutClass": "PoE+"
+  },
+  "interfaces": [
+    {
+      "name": "sfp+1",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        10000
+      ]
+    },
+    {
+      "name": "sfp+2",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        10000
+      ]
+    },
+    {
+      "name": "sfp+3",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        10000
+      ]
+    },
+    {
+      "name": "sfp+4",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        10000
+      ]
+    }
+  ],
+  "icon": "switch",
+  "color": "#0284c7",
+  "poe": {
+    "budgetW": 370,
+    "sourceUrl": "https://eo-sgp-cos.ruijie.com/Document/pdf/2025/12/9/RG-NBS3200-24GT4XS-P-V2_Datasheet_Official_2025-12-09.pdf",
+    "note": "Datasheet: \"PoE Out standard PoE/PoE+ (IEEE 802.3af/at)\", \"Number of PoE Out ports 24\", \"PoE budget 370 W\". The vendor product page states \"Max. 30 W on Each Port\"."
+  },
+  "fabric": {
+    "capacityMbps": 128000,
+    "kind": "switching capacity",
+    "note": "Datasheet \"Switching capacity\" 128 Gbps, \"Forwarding rate\" 96 Mpps (the hero block agrees)."
+  },
+  "sourceUrl": "https://eo-sgp-cos.ruijie.com/Document/pdf/2025/12/9/RG-NBS3200-24GT4XS-P-V2_Datasheet_Official_2025-12-09.pdf",
+  "notes": "Datasheet: 24 RJ45 all PoE+, 4 x 10GE SFP+, \"Maximum power consumption 30 W (with no PoE load) / 430 W (with full PoE load)\", \"RAM 512 MB\", \"Flash memory 256 MB\", \"Fan 2 x fixed fans\", \"Fan speed adjustment Intelligent speed adjustment\", 440 x 222.6 x 44 mm, 2.88 kg, acoustic 32 dB at half PoE load / 49 dB at full PoE load. The V2 is a different chassis from the -P: 222.6 mm deep and 2.88 kg against 357.6 mm and 4.75 kg. Management is web/cloud only: the datasheet lists SSH \"No\", HTTP login \"Yes\", HTTPS login \"Yes\", eWeb, SNMPv1/v2c/v3 and Ruijie Cloud / Reyee App; there is no console port and no serial CLI in the datasheet, so no cli capability and no console interface. Layer 2+ software: \"IEEE 802.1Q VLAN Yes\", \"LACP Yes\", \"STP/RSTP/MSTP Yes\", \"DHCP client Yes\", \"DHCP relay Yes\", \"DHCP server No\", \"IPv4 static route Yes\", \"IPv6 static route Yes\" - static routes and relay, no dynamic routing protocol is listed. Port names ge1..geN / sfp1..sfpN / sfp+1..sfp+4 are the catalogue naming convention for a web-managed access switch; the datasheet states port counts, not names."
+}
