@@ -1,0 +1,89 @@
+{
+  "vendor": "netonix",
+  "model": "WS-8-150-DC",
+  "category": "switch",
+  "label": "Netonix WS-8-150-DC WISP Switch",
+  "description": "Battery-site managed passive-PoE switch: 6x 1G RJ45 PoE sources plus 2x 1G SFP uplinks, 9-72 VDC positive-only input, 150 W supply, with 48VH on port 1 only and no 24VH.",
+  "capabilities": [
+    "l2-forward",
+    "vlan",
+    "lacp",
+    "stp",
+    "cli",
+    "http-server",
+    "poe-pse"
+  ],
+  "interfaces": [
+    {
+      "name": "Port 1",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "rj45",
+      "poeOut": true
+    },
+    {
+      "name": "Port 2",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "rj45",
+      "poeOut": true
+    },
+    {
+      "name": "Port 3",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "rj45",
+      "poeOut": true
+    },
+    {
+      "name": "Port 4",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "rj45",
+      "poeOut": true
+    },
+    {
+      "name": "Port 5",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "rj45",
+      "poeOut": true
+    },
+    {
+      "name": "Port 6",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "rj45",
+      "poeOut": true
+    },
+    {
+      "name": "sfp1",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        1000
+      ]
+    },
+    {
+      "name": "sfp2",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        1000
+      ]
+    },
+    {
+      "name": "console",
+      "type": "console"
+    }
+  ],
+  "poe": {
+    "budgetW": 150,
+    "sourceUrl": "https://netonix.com/ws-8-150-dc.html",
+    "note": "150 W SMART DC supply taking 9-72 VDC, the only ceiling Netonix publishes; the sheet puts the switch's own consumption at '6-10 watts without POE budget', leaving the rest for the six sourcing ports. Per-port limits 0.75 A on 24V/48V and 1.5 A on 48VH."
+  },
+  "sourceUrl": "https://netonix.com/ws-8-150-dc.html",
+  "notes": "Store page: 'Managed 6 Port POE Switch + 2 SFP Uplink Ports ... 150 Watt SMART DC power supply accepts 9V to 72V DC variable input while providing uninterrupted 24V and 48V POE ... WARNING: These switches are not designed to operate on negative 48V site'. Six sourcing ports plus two SFP is what the store page and the model name ('WS-8') both say, and that is what is modelled. The spec sheet contradicts itself on the port count and the contradiction is recorded rather than smoothed over: its Ethernet row says '(3) 10/100/1000 Ethernet Ports', which cannot sit beside '2 SFP' in a box called WS-8 or beside the sibling WS-8-150-AC's eight ports, and its PoE table copies the AC row's 'Ports 01-08' where the store page's table says 'Ports 01-06'. Store page 6 RJ45 + 2 SFP is the only reading consistent with the name, the faceplate layout and the AC sibling, so that is the census here. Other sheet figures: 191 x 178 x 44 mm, 2 kg, forced-air cooling, Vitesse core, MIPS 24K 416 MHz, 128 MB RAM, 16 MB flash, -25 to 55 C, CE/FCC/IC; its 'Total Non-Blocking Line Rate 14 Gbps' is the 12-port row copied in, since eight gigabit ports cannot exceed 8 Gbps, so no fabric figure is claimed. PoE: 24 V and 48 V on ports 1-6 at 0.75 A, 48VH on port 1 at 1.5 A, no 24VH (the sheet's prose and its table agree on 0.75 A/1.5 A here; the store page's table quotes 1 A/2 A for the same ports, and the sheet is the datasheet of record) - the family member that can lift exactly one 2 A-class radio. Software from the spec sheet: LACP/static LAG, STP/RSTP/MSTP/ERPS, port mirroring, VLAN dot1Q/QinQ/port trunking, SNMP, SMTP alerts, per-port bandwidth limiting, QoS, per-port ping watchdog, scheduled port bouncing, cable diagnostics, loop protection, DHCP snooping, IGMP snooping, flow control, storm control, multicast filtering, port isolation, auto TFTP backup on config change, UDP (Ubiquiti discovery), CDP and LLDP, ACLs plus login tarpit. Nothing in the sheet routes IP between VLANs, so this is l2-forward only. Management is HTTPS on 192.168.1.20 (admin/admin) with the host on 192.168.1.0/24, and a RS-232 serial console at 115200 8-N-1, no parity, XON/XOFF flow control, null-modem cable."
+}
