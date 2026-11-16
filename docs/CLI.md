@@ -1813,21 +1813,22 @@ nothing — no half-made pool, no route that nothing forwards, no switchport sta
 ### converge — when is it up?
 
 ```
-converge [<ms>]
+converge [<ms> | at <ms>]
 ```
 
 Lists every process on every device with the instant it finishes, and the lab's fully-converged
-time. With an instant — a bare number of milliseconds, `converge 10000` — anything still pending is
-marked `(pending)`.
+time. With an instant — a bare number of milliseconds, `converge 10000`, or the `at` form
+`converge at 10000` — anything still pending is marked `(pending)`.
 
-The instant has **no `at` keyword**, unlike `link down <id> at <ms>`. This page said `converge [at
-<ms>]` too; `_converge()` (`engine/cli.js:2857`) reads `Number(tokens[0])` and nothing else, so
-`converge at 10000` hands it the word `at`, `NaN` suppresses the pending mark on every row, and the
-answer is the one you get with no instant at all - the `(pending)` column is missing rather than the
-command failing, which is why the wrong form stayed in the text. The index still carries it: the
-`help` output advertises `converge [at <ms>]` (engine/cli.js:5028), so a reader who asks the box
-instead of this page is taught the spelling that quietly does nothing. The fix belongs in the parser
-(take `at` the way `link` does); until it lands, this line names the spelling that works.
+Both spellings are one command. `at` is the keyword `link down <id> at <ms>` has always taken, and
+`converge at 10000` used to be worse than refused: `_converge()` read `Number(tokens[0])`,
+`Number('at')` is `NaN`, and a `NaN` instant fails the "is this process still pending" comparison —
+so every `(pending)` mark vanished and the console reported a converged lab at an instant before it
+converged. This page named the bare form and blamed the `help` index for teaching the other
+(`engine/cli.js:5272`); the parser reads both now, and a word that is neither an instant nor `at` is
+refused by name: `converge 1000 wibble` is `% Unrecognized "wibble" (converge [<ms> | at <ms>])`, and
+`converge at`, `converge wibble`, `converge -5` are each `% Invalid instant: …`. A refusal changes
+nothing, so the answer you then ask for is the one you get.
 
 ## DHCP server
 

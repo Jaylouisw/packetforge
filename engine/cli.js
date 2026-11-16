@@ -3015,13 +3015,33 @@ class CliSession {
   // The answer to "when is it up?" - every process, every device, in the order they finish.
   _converge(tokens) {
     if (!this.sim) return ['% Simulator not attached'];
+    // `help` has advertised `converge [at <ms>]` since the command existed, and this method read
+    // `Number(tokens[0])` and nothing else - so the advertised form was not refused, it was answered as if no
+    // instant had been named. `Number('at')` is `NaN`, `NaN` failed the `e.readyAtMs > atMs` comparison, and
+    // every row lost its `(pending)` mark: type the spelling the console printed and it told you the lab was
+    // converged when it was not. `link <up|down> <id> at <ms>` has parsed `at` since #1049, so this is the same
+    // grammar and the same message for the same mistake; a word that is neither an instant nor `at` is refused
+    // by name instead of being dropped, which is how the wrong form survived unnoticed.
+    const args = tokens.map(String).filter(function (t) { return t !== ''; });
+    let atMs = null;
+    if (args.length && args[0].toLowerCase() === 'at') {
+      args.shift();
+      if (!args.length) return ['% Invalid instant: "at" needs a time in milliseconds'];
+    }
+    if (args.length) {
+      const when = args[0];
+      const t = Number(when);
+      if (!Number.isFinite(t) || t < 0) return ['% Invalid instant: ' + when];
+      atMs = t;
+      args.shift();
+    }
+    if (args.length) return ['% Unrecognized "' + args[0] + '" (converge [<ms> | at <ms>])'];
     const sched = this.sim.getConvergence();
     const out = [];
     if (!sched.entries.length) {
       out.push('% Nothing in this lab runs a control plane that converges over time');
       return out;
     }
-    const atMs = tokens[0] !== undefined ? Number(tokens[0]) : null;
     out.push('Process   Device                 Ready   Basis');
     for (const e of sched.entries) {
       const mark = (atMs !== null && Number.isFinite(atMs) && e.readyAtMs > atMs) ? '  (pending)' : '';
@@ -5247,7 +5267,9 @@ class CliSession {
       // refuses is worse than a missing one, because the help is the thing a technician trusts first (#1501).
       '  speed auto|<mbps> | duplex half|full | description <text>   (interface mode)  e.g. `speed 100`, `speed 1G`',
       '  clock rate <bps>                       (interface mode, serial only) makes this end the DCE',
-      '  converge [at <ms>]                - when each control plane finishes',
+      // The index advertised a spelling the parser never read: `at` became NaN, and a NaN instant suppresses
+      // the `(pending)` column rather than failing. Both spellings are now the same grammar `link` uses.
+      '  converge [<ms> | at <ms>]         - when each control plane finishes',
       '  link up|down <id> [at <ms>]       - pull or replace a cable, re-converge from there',
       '  links                             - every cable and its state',
       '  show version | ip interface brief | ip route | arp',
