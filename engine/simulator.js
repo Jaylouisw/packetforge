@@ -1410,6 +1410,10 @@ class Simulator {
           routerId: byId[peerId].entry.routerId,
           address: nbr[peerId].ip,
           iface: nbr[peerId].iface,
+          // The neighbour's OSPF interface priority, which its Hello carries (RFC 2328 A.3.2). It is the
+          // default on every port here because `ip ospf priority` is not modelled - one value, carried as a
+          // number rather than spelled at the console, so the day the command exists the table reads it.
+          priority: 1,
           state: 'FULL/' + (nbr[peerId].role === '-' ? ' -' : nbr[peerId].role)
         };
       });

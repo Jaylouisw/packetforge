@@ -961,11 +961,20 @@ Routing Process "ospf 0" with ID 1.1.1.1
 
 ```
 r1> show ip ospf neighbour
-Neighbor ID     Address          Interface   State
-2.2.2.2         10.1.0.2         Gi0/0/0     FULL/DR
+Neighbor ID     Pri   State           Dead Time   Address         Interface
+2.2.2.2           1   FULL/DR         00:00:40    10.1.0.2        Gi0/0/0
 
 1 neighbour(s), all Fully adjacent
 ```
+
+The six columns are the device's, in its order and at its own columns - Neighbor ID, Pri, State,
+Dead Time, Address, Interface - so a reader who knows the command finds the priority and the
+countdown where they belong instead of the port under `Address`. **Pri** is the neighbour's Hello
+priority: 1 here, the hardware default, because `ip ospf priority` is not modelled and the column is
+carried as a number rather than spelled at the console. **Dead Time** is the Router Dead Interval
+counting down from the neighbour's last Hello, and it comes from `convergence.ospfTimers()` - the
+same timers the OSPF schedule converges on, not a second table - so a converged table prints the
+whole interval (00:00:40 over the default 10 s hello) and a run stopped 15 s in prints 00:00:35.
 
 **State** is two facts in one cell, the way IOS prints it: the adjacency's state, then the role the
 **neighbour** holds on that segment. A broadcast segment elects a designated router and a backup -
@@ -976,8 +985,9 @@ with the box doing the looking: a router in the middle of a chain reads `FULL/BD
 `FULL/DR` on the other. A serial line's default OSPF network type is point-to-point, where no
 election runs at all, and the box prints `FULL/ -`. The cell used to say `Full` - one word where the
 hardware prints a state and a role, which described a segment where nobody had stood for election.
-`research/show-ospf-neighbor-state.md` has the sources and what is still unmodelled (priority,
-`ip ospf network`, a third speaker on one segment).
+`research/show-ospf-neighbor-state.md` has the sources and what is still unmodelled (`ip ospf
+priority`, `ip ospf network`, a third speaker on one segment); `research/ospf-neighbor-table-layout.md`
+has the column order, the measured widths and what the countdown cell still cannot show.
 
 ```
 r1> show ip ospf interface

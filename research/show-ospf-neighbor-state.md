@@ -44,8 +44,10 @@ those adjacencies print `FULL/ -` and no role.
 ## What is inferred
 
 * **Priority.** There is no `ip ospf priority` command here, so every port sits at IOS's default of
-  1 and the router ID is the only tie-break that can fire. The code says that in a comment rather
-  than carrying a priority field nothing can change.
+  1 and the router ID is the only tie-break that can fire. The neighbour record carries the value
+  as a number (`ospfNeighbors[].priority`) rather than spelling 1 into the table, because the Hello
+  packet really does carry the field and the `Pri` column prints it -
+  `research/ospf-neighbor-table-layout.md`.
 * **Timing.** IOS's election is pre-emptive only when the DR role is vacant: an established DR
   keeps the role even when a higher-ID router appears later, and a box that finishes loading first
   can win a tie on a live network. This model has no boot order, so it applies the textbook

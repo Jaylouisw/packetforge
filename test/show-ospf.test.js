@@ -117,6 +117,79 @@ console.log('The neighbour table is the adjacency the SPF was built on:');
 }
 
 console.log('');
+console.log('The columns are the box\'s, in its order and at its widths - Pri and Dead Time included:');
+{
+  // The header and the row spacing are copied from a capture whose whitespace survived: ntc-templates
+  // keeps the raw CLI text for `show ip ospf neighbor`, and every field lands on the same column in it -
+  // Neighbor ID 0, Pri right-aligned in three columns ending at 18, State 22, Dead Time 38, Address 50,
+  // Interface 66. Cisco 13688-16 lists the same six fields in the same order and explains each.
+  // research/ospf-neighbor-table-layout.md has both sources.
+  const t = lab();
+  configure(t, 'r1', ['ospf router-id 1.1.1.1']);
+  configure(t, 'r2', ['ospf router-id 2.2.2.2']);
+  configure(t, 'r3', ['ospf router-id 3.3.3.3']);
+  const sim = new Simulator(t);
+  sim.computeOspf();
+  const table = show(t, sim, 'r1', 'show ip ospf neighbor');
+  const header = table.split('\n')[0];
+
+  ok(header === 'Neighbor ID     Pri   State           Dead Time   Address         Interface',
+    'the header is the device\'s six fields, in its order and at its widths', header);
+  // The shape that regressed: Address was the second column and State was last, where the reader looks
+  // for the priority and the countdown.
+  ok(!/^Neighbor ID\s+Address/.test(header), 'Address is not the second column any more', header);
+
+  const row = rowOf(table, '2.2.2.2');
+  ok(row.slice(0, 7) === '2.2.2.2', 'the neighbour id is the first column', row);
+  ok(row.slice(16, 19) === '  1',
+    'Pri is right-aligned in its three columns, the neighbour\'s default of 1', row);
+  ok(row.slice(22, 23) === 'F', 'State starts at column 22', row);
+  ok(/^\d\d:\d\d:\d\d/.test(row.slice(38)), 'Dead Time starts at column 38, as HH:MM:SS', row);
+  ok(row.slice(50, 58) === '10.1.0.2', 'Address starts at column 50', row);
+  ok(row.slice(66) === 'Gi0/0/0', 'and the port is last, un-padded', row);
+  ok(row.length <= 80, 'no row runs past the console\'s 80 columns', String(row.length));
+
+  const engine = t.getDevice('r1').ospfNeighbors;
+  ok(engine.every(function (n) { return n.priority === 1; }),
+    'the engine carries the neighbour\'s Hello priority, at the hardware default of 1',
+    JSON.stringify(engine.map(function (n) { return n.priority; })));
+}
+
+console.log('');
+console.log('Dead Time counts the Router Dead Interval down between Hellos:');
+{
+  // Cisco 13688-16: Dead Time is "the amount of time that remains as the router waits to receive an
+  // OSPF hello packet from the neighbor before it declares the neighbor is down". IOS's default dead
+  // interval is four 10 s hellos, so the cell reads 00:00:40 just after a Hello and falls towards zero
+  // until the next one restarts it. It is the same schedule the engine converges on, not a second table.
+  const t = lab();
+  configure(t, 'r1', ['ospf router-id 1.1.1.1']);
+  configure(t, 'r2', ['ospf router-id 2.2.2.2']);
+  configure(t, 'r3', ['ospf router-id 3.3.3.3']);
+  const sim = new Simulator(t);
+  sim.computeOspf();
+  const cell = function (atMs) {
+    if (atMs !== undefined) sim.setRunTime(atMs);
+    return rowOf(show(t, sim, 'r1', 'show ip ospf neighbor'), '2.2.2.2').slice(38, 46);
+  };
+
+  ok(cell() === '00:00:40', 'the converged table prints the whole interval', cell());
+  ok(cell(0) === '00:00:40', 'at t=0, the instant of the first Hello', cell(0));
+  ok(cell(4000) === '00:00:36', 'four seconds later it has counted four off', cell(4000));
+  ok(cell(9000) === '00:00:31', 'and nine seconds later, nine', cell(9000));
+  ok(cell(10000) === '00:00:40', 'a Hello at t=10 s restarts it', cell(10000));
+  ok(cell(14000) === '00:00:36', 'so the countdown is periodic, not monotonic from power-on', cell(14000));
+
+  // The interval is the box's own, so a lab that carries other timers sees them.
+  const dev = t.getDevice('r1');
+  dev.config.ospf.helloSec = 30;
+  dev.config.ospf.deadSec = 120;
+  sim.setRunTime(Infinity);   // back to the converged answer, the instant with no count started
+  ok(cell() === '00:02:00', 'a 120 s dead interval over a 30 s hello reads 00:02:00', cell());
+  ok(cell(45000) === '00:01:45', 'and 15 s after the Hello at t=30 s, 00:01:45', cell(45000));
+}
+
+console.log('');
 console.log('The State cell carries the role the neighbour holds, as IOS prints it (FULL/DR, FULL/BDR, FULL/ -):');
 {
   // A broadcast segment elects a DR and a BDR: highest interface priority first, then highest router

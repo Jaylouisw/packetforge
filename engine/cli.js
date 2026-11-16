@@ -3397,6 +3397,28 @@ class CliSession {
     return out;
   }
 
+  // The `Dead Time` cell of `show ip ospf neighbor`: how long is left before this box declares the neighbour
+  // dead. It is the Router Dead Interval counting down, reset by every Hello the port receives - "the amount
+  // of time that remains as the router waits to receive an OSPF hello packet from the neighbor before it
+  // declares the neighbor is down" (Cisco 13688-16), and RFC 2328 A.3.2 carries the interval in the Hello.
+  // The interval itself is not a second table: `convergence.ospfTimers()` is what the engine's convergence
+  // schedule already runs OSPF on, so a lab with `helloSec`/`deadSec` set sees the countdown those numbers
+  // produce. Hellos start at t=0 (the convergence model says so) and repeat every helloSec, so the last one
+  // arrived at the last multiple of helloSec at or before the instant being asked about. A question asked at
+  // `Infinity` - the converged answer - has no instant to count from and prints the interval itself, which is
+  // the cell in the instant after a Hello.
+  _ospfDeadTimeCell(dev) {
+    const timers = require('./convergence').ospfTimers(dev);
+    const nowMs = (this.sim && Number.isFinite(this.sim.runAtMs)) ? this.sim.runAtMs : null;
+    const periodMs = Math.max(1, timers.helloSec * 1000);
+    const sinceHello = nowMs === null ? 0 : (nowMs % periodMs) / 1000;
+    const left = Math.max(0, Math.round(timers.deadSec - sinceHello));
+    const hh = Math.floor(left / 3600);
+    const mm = Math.floor((left % 3600) / 60);
+    const ss = left % 60;
+    return String(hh).padStart(2, '0') + ':' + String(mm).padStart(2, '0') + ':' + String(ss).padStart(2, '0');
+  }
+
   // `show ip ospf`, `show ip ospf neighbour`, `show ip ospf interface`.
   //
   // OSPF has been configurable since it was modelled - router-id, area, `ip ospf cost|area|passive` - and the
@@ -3451,7 +3473,17 @@ class CliSession {
         return out;
       }
       const rows = wanted.name ? neighbours.filter(function (n) { return n.iface === wanted.name; }) : neighbours;
-      out.push(pad('Neighbor ID', 16) + pad('Address', 17) + pad('Interface', 12) + 'State');
+      // The device's columns, in its order and at its own columns. Every vendor sample prints
+      // `Neighbor ID  Pri  State  Dead Time  Address  Interface`, and this table had four of the six in a
+      // different order: the address and the port sat where the priority and the dead timer belong, so a
+      // reader who knew the command looked for a countdown that was not there and found the port under
+      // `Address`. The widths come from a capture whose spacing survives: ntc-templates keeps the raw CLI
+      // text for this command - Neighbor ID 16, Pri right-aligned in 3, three spaces, State 16, Dead Time
+      // 12, Address 16, Interface. research/ospf-neighbor-table-layout.md has the sources and the columns
+      // measured off that file.
+      const deadCell = this._ospfDeadTimeCell(dev);
+      out.push(pad('Neighbor ID', 16) + pad('Pri', 3) + '   ' + pad('State', 16) + pad('Dead Time', 12) +
+        pad('Address', 16) + 'Interface');
       if (!rows.length) {
         if (!evaluated) {
           out.push('(no OSPF state has been evaluated yet - run a simulation)');
@@ -3473,7 +3505,13 @@ class CliSession {
         return out;
       }
       for (const n of rows) {
-        out.push(pad(n.routerId, 16) + pad(n.address, 17) + pad(n.iface, 12) + n.state);
+        // Pri is the *neighbour's* interface priority, right-aligned in three columns, and it is 1 on every
+        // port here because nothing can set it: `ip ospf priority` is not modelled, so the value the Hello
+        // carries is always the default. RFC 2328 puts it in the Hello packet; Cisco 13688-16 states the
+        // default ("By default, priorities are set to 1") and that the field is the neighbour's.
+        const pri = (n.priority === null || n.priority === undefined) ? 1 : n.priority;
+        out.push(pad(n.routerId, 16) + String(pri).padStart(3, ' ') + '   ' + pad(n.state, 16) +
+          pad(deadCell, 12) + pad(n.address, 16) + n.iface);
       }
       out.push('');
       out.push(rows.length + ' neighbour(s), all Fully adjacent' +
