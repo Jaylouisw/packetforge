@@ -60,6 +60,10 @@
     mpo: { label: 'MPO', family: 'fibre' },
     console: { label: 'Console', family: 'console' },
     usb: { label: 'USB', family: 'console' },
+    // A serial WAN port is a data interface with its own family. Without this entry a declared
+    // `connector: "serial"` fell through to the unknown placeholder and the group was drawn under the
+    // console heading, on the same panel as the real Console and Aux0 (#1511).
+    serial: { label: 'Serial', family: 'serial' },
     coax: { label: 'Coax', family: 'other' },
     dsl: { label: 'DSL', family: 'other' },
     powerline: { label: 'Powerline', family: 'other' },
@@ -67,12 +71,15 @@
     unknown: { label: 'Connector unknown', family: 'other' }
   };
 
-  var FAMILY_ORDER = ['copper', 'combo', 'fibre', 'console', 'other'];
+  // Serial sits after console: a management port and a clocked WAN line are both narrow, quiet
+  // things at the edge of the silkscreen, and the data ports come first on every real panel.
+  var FAMILY_ORDER = ['copper', 'combo', 'fibre', 'console', 'serial', 'other'];
   var FAMILY_LABEL = {
     copper: 'Copper',
     combo: 'Combo',
     fibre: 'Fibre',
     console: 'Console',
+    serial: 'Serial',
     other: 'Other'
   };
   var FAMILY_RANK = {};
@@ -82,7 +89,9 @@
   // a 48-port is four, which is how the silkscreen looks and still fits a 340px
   // inspector. These are ceilings, not promises: plan() lowers the count when the
   // labels need the room (see Geometry below).
-  var COLUMNS = { copper: 12, combo: 6, fibre: 8, console: 2, other: 8 };
+  // serial: a WIC-2T is one pair and an NM-8A is eight, so the ceiling is the widest card rather
+  // than the pair; plan() still narrows the row until the port names fit (see Geometry below).
+  var COLUMNS = { copper: 12, combo: 6, fibre: 8, console: 2, serial: 8, other: 8 };
 
   // ---------------------------------------------------------------------------
   // Geometry — how much room a label actually gets
@@ -127,31 +136,43 @@
     return cageInfo(cage).label;
   }
 
+  // The connector table answers first; the interface *type* only decides when the connector is
+  // absent. Grouping both on one condition is what filed a serial WAN port under Console (#1511):
+  // each type now falls back to the family it actually belongs to and nothing else.
+  var FAMILY_OF_TYPE = { console: 'console', serial: 'serial' };
+
   function familyOf(cage, iface) {
     var known = CAGE_INFO[cage];
     if (known) return known.family;
     // Some CPEs declare a console port with no connector; type is the fallback.
-    if (iface && (iface.type === 'console' || iface.type === 'serial')) return 'console';
+    if (iface && FAMILY_OF_TYPE[iface.type]) return FAMILY_OF_TYPE[iface.type];
     return 'other';
   }
 
   function resolveCage(iface) {
     var cage = iface.cage || iface.connector || null;
     if (cage) return String(cage).toLowerCase();
-    if (iface.type === 'console' || iface.type === 'serial') return 'console';
+    if (iface && FAMILY_OF_TYPE[iface.type]) return iface.type;
     return 'unknown';
   }
 
   // ---------------------------------------------------------------------------
   // Formatting
   // ---------------------------------------------------------------------------
+  // The same ladder `formatSpeedMbps` in engine/media.js uses, so a rate the faceplate prints and a
+  // rate `show interfaces` prints cannot disagree: a 64 kbit serial line is 64K, not 0.064M, and a
+  // 9600 baud console line is 9.6K, not 0.0096M (#1511). Kept as a copy rather than a dependency
+  // because this module is a self-contained IIFE with no imports.
+  function trimRate(v) {
+    return String(Math.round(v * 1000) / 1000);
+  }
+
   function fmtRate(mbps) {
     if (typeof mbps !== 'number' || !isFinite(mbps) || mbps <= 0) return '';
-    if (mbps >= 1000) {
-      var g = mbps / 1000;
-      return (g % 1 === 0 ? g : g.toFixed(1)) + 'G';
-    }
-    return mbps + 'M';
+    if (mbps >= 1000000) return trimRate(mbps / 1000000) + 'T';
+    if (mbps >= 1000) return trimRate(mbps / 1000) + 'G';
+    if (mbps >= 1) return trimRate(mbps) + 'M';
+    return trimRate(mbps * 1000) + 'K';
   }
 
   function esc(s) {

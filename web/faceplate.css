@@ -45,6 +45,7 @@
 .faceplate [data-cage="antenna"] { --fp-tint: #60a5fa; }
 .faceplate [data-cage="console"] { --fp-tint: #a78bfa; }     /* purple  */
 .faceplate [data-cage="usb"] { --fp-tint: #cbd5e1; }
+.faceplate [data-cage="serial"] { --fp-tint: #d98cb3; }    /* the canvas's serial cable, so a line and its socket match */
 .faceplate [data-cage="unknown"] { --fp-tint: #6b7280; }
 
 /* ---------- header ---------- */
