@@ -374,7 +374,7 @@ IP address set on Gi0/1: 10.0.2.1/24
 R1(config-if)# exit
 R1(config)# exit
 R1# show ip route
-Codes: C - connected, S - static, O - OSPF, B - BGP
+Codes: C - connected, S - static, O - OSPF, B - BGP, * - candidate default
 C   10.0.1.0       /24  is directly connected, Gi0/0
 C   10.0.2.0       /24  is directly connected, Gi0/1
 R1# ping 10.0.1.10
@@ -1692,8 +1692,8 @@ producing a pool the validator rejects.
 
 ### Reading `show ip route`
 
-The legend names every code the table can print — `C` connected, `S` static, `O` OSPF, `B` BGP — and
-each row carries `[distance/metric]`. The distance is not decoration: it is half of the rule that picks
+The legend names every code the table can print — `C` connected, `S` static, `O` OSPF, `B` BGP, and
+`*` for a candidate default — and each row carries `[distance/metric]`. The distance is not decoration: it is half of the rule that picks
 the installed route (longest prefix first, then lowest distance), and without it two rows for the same
 prefix cannot be told apart.
 
@@ -1711,12 +1711,20 @@ The default gets two forms because there are two ways to configure one:
 | Row | Source | Distance |
 |---|---|---|
 | `S*  0.0.0.0/0 [254/0] via …` | `ip default-gateway` | 254 |
-| `S   0.0.0.0/0 [1/0] via …` | `ip route 0.0.0.0 0.0.0.0 …` | 1 |
+| `S*  0.0.0.0/0 [1/0] via …` | `ip route 0.0.0.0 0.0.0.0 …` | 1 |
 
-`S*` marks a **candidate** default, not the installed one. The `Gateway of last resort is …` line names
-the default packets actually leave by, so a device with both configured shows the static route there and
-the configured gateway as `S*` below it — which is exactly the tie the old output hid by printing both as
-`S`.
+The asterisk is the device's mark for a **candidate default**, and it belongs to the prefix, not to the
+row's origin: every route to `0.0.0.0/0` carries it, and the legend's last entry says so
+(`* - candidate default`). A typed static default therefore reads `S* 0.0.0.0/0 [1/0] via …`, which is
+the shape Cisco's own gateway-of-last-resort note prints, and so does a default learned by a protocol
+(`O*E2 0.0.0.0/0`, `D*EX 0.0.0.0/0`).
+
+What separates two candidate defaults is what separates any two routes: the distance in the brackets. The
+`Gateway of last resort is …` line names the one packets actually leave by, so a device holding both shows
+the static route (`[1/0]`) there and lets the configured gateway's `[254/0]` row say it is not installed.
+Starring only the configured gateway — which is what this console did — put the mark on the one row no real
+router keeps in its table and left the route an operator types looking like a plain `S`
+(`research/show-ip-route-candidate-default.md`).
 
 A box that routes always answers that question, in one of two forms. With no reachable default it is the
 negative one, in the place Cisco's own samples put it — directly under the codes legend, above the first
@@ -1724,7 +1732,7 @@ route row:
 
 ```
 r1#show ip route
-Codes: C - connected, S - static, O - OSPF, B - BGP
+Codes: C - connected, S - static, O - OSPF, B - BGP, * - candidate default
 Gateway of last resort is not set
 ```
 

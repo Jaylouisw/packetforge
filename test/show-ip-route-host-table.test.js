@@ -102,8 +102,8 @@ console.log('A box that routes is untouched:');
   ports[0].ip = '10.1.2.3'; ports[0].mask = '255.255.255.0';
   const cli = new CliSession(dev, t, null);
   const out = cli.run('show ip route').output.map(String);
-  ok(/^Codes: C - connected, S - static, O - OSPF, B - BGP$/.test(out[0]), 'the codes legend still leads',
-    out[0]);
+  ok(/^Codes: C - connected, S - static, O - OSPF, B - BGP, \* - candidate default$/.test(out[0]),
+    'the codes legend still leads, with the asterisk it uses defined', out[0]);
   ok(out[1] === 'Gateway of last resort is not set', 'and the router sentence is under it', out[1]);
   ok(!out.some(function (l) { return /ICMP redirect cache/.test(l); }),
     'no host/redirect cache is printed by a router', JSON.stringify(out));

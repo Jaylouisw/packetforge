@@ -144,7 +144,7 @@ function lab(kind) {
   }
   if (kind === 'gateway-and-static') {
     // A configured gateway is distance 254 and loses to a static default at 1. Both rows must be visible, and
-    // only the configured one carries `S*` - that is the code the panel used to print as a bare `S`.
+    // both carry `S*`, because each is a candidate default - the distance, not the code, is what separates them.
     r1.config.defaultGateway = '10.1.2.254';
     r1.config.routes = [{ dest: '0.0.0.0', mask: '0.0.0.0', gw: '10.1.2.1', iface: null }];
     return { t: t, r1: r1, r2: r2 };
@@ -255,21 +255,29 @@ console.log('The reported case: a router whose only uplink is down.');
     JSON.stringify(p.map(function (r) { return r.network + '=' + r.unusable; })));
   ok(p.every(function (r) { return /down: link down/.test(r.note); }), 'with the reason',
     JSON.stringify(p.map(function (r) { return r.note; })));
-  ok(p.filter(function (r) { return r.code === 'S' && r.network === '0.0.0.0/0'; }).length === 1,
-    'the default route is still shown', JSON.stringify(p));
+  ok(p.filter(function (r) { return r.code === 'S*' && r.network === '0.0.0.0/0'; }).length === 1,
+    'the default route is still shown, under the candidate-default mark', JSON.stringify(p));
 }
 
 console.log('');
-console.log('The gateway of last resort is distinguishable from a static default:');
+console.log('A static default and a configured gateway are both candidate defaults, told apart by distance:');
 {
   const env = lab('gateway-and-static');
   const p = panelRows(env.r1, env.t);
+  // The asterisk marks a candidate default, and on the device that is a property of the prefix: Cisco's own
+  // gateway-of-last-resort note prints `S* 0.0.0.0/0 [1/0]` for a typed default next to a second starred
+  // candidate. The panel used to hold the star for the configured gateway alone, which put the mark on the row
+  // no real router keeps in its table (research/show-ip-route-candidate-default.md).
   const star = p.filter(function (r) { return r.code === 'S*'; });
-  ok(star.length === 1, 'exactly one row carries the S* code', JSON.stringify(p));
-  ok(star[0] && star[0].via.indexOf('[254/0]') !== -1, 'the configured gateway shows distance 254', star[0] && star[0].via);
-  const plain = p.filter(function (r) { return r.code === 'S'; });
-  ok(plain.length === 1 && plain[0].via.indexOf('[1/0]') !== -1, 'the static default shows distance 1',
-    JSON.stringify(plain));
+  ok(star.length === 2, 'both defaults carry the S* code', JSON.stringify(p));
+  const gateway = star.filter(function (r) { return r.via.indexOf('[254/0]') !== -1; })[0];
+  const stat = star.filter(function (r) { return r.via.indexOf('[1/0]') !== -1; })[0];
+  ok(!!gateway && gateway.via.indexOf('10.1.2.254') !== -1, 'the configured gateway shows distance 254',
+    gateway && gateway.via);
+  ok(!!stat && stat.via.indexOf('10.1.2.1') !== -1, 'the static default shows distance 1', stat && stat.via);
+  ok(!!gateway && !!stat && gateway !== stat, 'so the two rows are not identical either');
+  ok(p.filter(function (r) { return r.code === 'S'; }).length === 0,
+    'and no row prints a bare S for a default any more', JSON.stringify(p));
 }
 
 console.log('');

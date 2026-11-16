@@ -117,8 +117,10 @@ console.log('The metric is the protocol cost, not a distance: a static route kee
 {
   const env = lab({ staticDefault: '10.0.12.1' });
   const text = show(env, env.r2, 'show ip route');
-  ok(/S\s+0\.0\.0\.0\s+\/0\s+\[1\/0\] via 10\.0\.12\.1/.test(text),
-    'a static default is [1/0] - distance 1, metric 0 - as the device prints it', text);
+  // The code is `S*` now: the asterisk marks the row as a candidate default, and on IOS it belongs to every
+  // route to 0.0.0.0/0 rather than to one particular row (research/show-ip-route-candidate-default.md).
+  ok(/S\*\s+0\.0\.0\.0\s+\/0\s+\[1\/0\] via 10\.0\.12\.1/.test(text),
+    'a static default is S*, [1/0] - distance 1, metric 0 - as the device prints it', text);
   ok(/\[110\/2\]/.test(text), 'and the O row beside it still carries its cost', text);
 }
 

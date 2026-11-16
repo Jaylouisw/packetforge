@@ -1124,7 +1124,7 @@ class Device {
   }
 
   // Connected + static routes as display rows, annotated so that every surface prints the same thing about
-  // them: the code (`S*` for the installed default), the distance, and the reason a row cannot be used.
+  // them: the code (`S*` for a candidate default), the distance, and the reason a row cannot be used.
   routesTable(topo) {
     const rows = [];
     for (const iface of this.activeInterfaces()) {
@@ -1166,7 +1166,19 @@ class Device {
     // `unusable`; a caller that passes no topology gets `checked: false` and should say so rather than imply
     // the route was examined.
     for (const row of rows) {
-      row.displayCode = row.type === 'default' ? 'S*' : row.code;
+      // The asterisk is the device's mark for a candidate default, and it belongs to the *prefix*, not to the
+      // row's origin: a static route to 0.0.0.0/0 is `S*` on every IOS that prints the legend `* - candidate
+      // default`, and so is a default learned by a protocol (`D*EX 0.0.0.0/0`, `O*E2 0.0.0.0/0`). This console
+      // keyed the star on the one row it had invented - the configured gateway - so the route an operator
+      // actually types, `ip route 0.0.0.0 0.0.0.0 <next hop>`, printed as a plain `S` beside it
+      // (research/show-ip-route-candidate-default.md).
+      //
+      // Every 0.0.0.0/0 row is starred, which is what the legend says: Cisco's own gateway-of-last-resort note
+      // lists `S* 0.0.0.0/0` and `S* 192.168.1.0/24` in the same table, so "candidate" is not a one-per-box
+      // title and not a mark for the loser. What separates two defaults is what separates any two routes:
+      // the distance in the brackets.
+      row.candidateDefault = row.dest === '0.0.0.0' && row.mask === '0.0.0.0';
+      row.displayCode = row.candidateDefault ? row.code + '*' : row.code;
       row.distance = Device.routeDistance(row);
       // Every row carries a metric, because the bracket prints one for every row: a static, connected or
       // BGP route is 0 (no protocol here computes a cost for it), an O route carries its OSPF cost.

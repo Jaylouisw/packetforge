@@ -4266,7 +4266,13 @@ class CliSession {
       // The legend has to name every code the table can produce: routesTable() emits O (OSPF) and B
       // (BGP) rows as well as C and S, and an undefined code in the legend is a code the reader has to
       // guess at (#1234).
-      out.push('Codes: C - connected, S - static, O - OSPF, B - BGP');
+      //
+      // `*` is a code too. The table has printed `S*` for a candidate default since #1407 while the legend
+      // above it defined only four letters, so the one mark that says "this is where unmatched traffic
+      // leaves" was the one a reader could not look up. IOS's own legend carries the same line, in the same
+      // place - after the protocol codes (`ia - IS-IS inter area, * - candidate default, U - per-user
+      // static route`) - so it goes last here as well (research/show-ip-route-candidate-default.md).
+      out.push('Codes: C - connected, S - static, O - OSPF, B - BGP, * - candidate default');
       // Every row arrives annotated by the device - displayCode, distance, and the sentence that says why it
       // cannot carry a packet - and the inspector's Routes table reads those same fields. Two surfaces printing
       // different verdicts for the same route is the defect this replaced (#1301).

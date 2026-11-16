@@ -5,7 +5,9 @@
 // It answered neither. The legend named C and S while the table could also print O and B; the default
 // gateway was labelled `S`, identical to a configured static default route even though the engine
 // treats them as different sources (distance 254 against 1); and the administrative distance - half of
-// the rule that picks the installed route - was not shown at all. `via -` on a connected row read as
+// the rule that picks the installed route - was not shown at all. The asterisk that marks a candidate
+// default is pinned here too, now that it belongs to the prefix rather than to one row
+// (research/show-ip-route-candidate-default.md). `via -` on a connected row read as
 // "no next hop" rather than "directly connected".
 //
 // The last section is the part that matters: for every prefix in the printed table, the row the engine
@@ -87,19 +89,27 @@ console.log('A connected route reads as a connected route:');
 }
 
 console.log('');
-console.log('The default gateway is not a static route:');
+console.log('Both defaults are candidate defaults, and the distance tells them apart:');
 {
   const s = build();
   const lines = show(s);
   const zero = rowFor(lines, '0.0.0.0');
   ok(zero.length === 2, 'both defaults are printed', JSON.stringify(zero));
-  const candidate = zero.filter(function (l) { return /^S\*/.test(l); })[0];
-  const stat = zero.filter(function (l) { return /^S\s/.test(l); })[0];
-  ok(!!candidate, 'the gateway is marked as the candidate default (S*)', JSON.stringify(zero));
-  ok(!!stat, 'the configured static default is still a plain S', JSON.stringify(zero));
-  ok(/\[254\/0\]/.test(candidate || ''), 'the gateway carries distance 254', candidate);
-  ok(/\[1\/0\]/.test(stat || ''), 'the static carries distance 1', stat);
-  ok(candidate !== stat, 'so the two rows are no longer identical looking');
+  // The asterisk means "this route is a candidate default", and on IOS it belongs to the prefix: a typed
+  // `ip route 0.0.0.0 0.0.0.0 <next hop>` prints `S* 0.0.0.0/0 [1/0] via ...` in Cisco's own
+  // gateway-of-last-resort note, and a default learned from a protocol prints `D*EX 0.0.0.0/0`. This console
+  // starred only the one row it had invented - the configured gateway - so the route an operator actually
+  // types read as a plain `S` while a row no real router puts in its table held the mark
+  // (research/show-ip-route-candidate-default.md).
+  const starred = zero.filter(function (l) { return /^S\*/.test(l); });
+  ok(starred.length === 2, 'both rows carry the candidate-default asterisk', JSON.stringify(zero));
+  const stat = zero.filter(function (l) { return /\[1\/0\]/.test(l); })[0] || '';
+  const candidate = zero.filter(function (l) { return /\[254\/0\]/.test(l); })[0] || '';
+  ok(/10\.1\.2\.1/.test(stat), 'the static default is the one at distance 1, via its own next hop', stat);
+  ok(/10\.1\.2\.254/.test(candidate), 'the configured gateway keeps distance 254', candidate);
+  ok(stat !== candidate, 'and the distance in the brackets is what tells the two rows apart, as for any two routes');
+  ok(lines[0].indexOf('* - candidate default') !== -1,
+    'while the legend defines the asterisk those rows use', lines[0]);
 
   const gatewayLine = lines.filter(function (l) { return /^Gateway of last resort is/.test(l); })[0];
   ok(!!gatewayLine, 'a "Gateway of last resort" line names the gateway', gatewayLine);
@@ -179,7 +189,10 @@ console.log('The printed table agrees with the data plane:');
   function maskFor(prefix) {
     return net.intToIp(prefix === 0 ? 0 : (0xFFFFFFFF << (32 - prefix)) >>> 0);
   }
-  const TYPE_OF_CODE = { C: 'connected', S: 'static', 'S*': 'default', O: 'ospf', B: 'bgp' };
+  // The code says which route this is; the asterisk says it is a candidate default. A `S*` row can therefore
+  // be a static route (typed as `ip route 0.0.0.0 0.0.0.0`) or the engine's own gateway row, so the code is
+  // checked against every type it can stand for rather than against one.
+  const TYPE_OF_CODE = { C: ['connected'], S: ['static'], 'S*': ['static', 'default'], O: ['ospf'], B: ['bgp'] };
 
   const problems = [];
   for (const r of rows) {
@@ -192,7 +205,7 @@ console.log('The printed table agrees with the data plane:');
     if (!best) continue;
     const verdict = s.dev.routeTo(probe);
     if (!verdict) { problems.push(probe + ': engine cannot route it, but the table lists ' + best.code); continue; }
-    if (verdict.type !== TYPE_OF_CODE[best.code]) {
+    if (TYPE_OF_CODE[best.code].indexOf(verdict.type) === -1) {
       problems.push(probe + ': engine says ' + verdict.type + ', table best is ' + best.code);
     }
     // And when the engine hands the packet on, the next hop is the one the winning row names.
@@ -213,8 +226,9 @@ console.log('The printed table agrees with the data plane:');
     .sort(function (a, b) { return a.distance - b.distance; })[0];
   ok(verdict && verdict.type === 'static', 'an uncovered destination uses the static default',
     JSON.stringify(verdict));
-  ok(!!installed && installed.distance === 1 && installed.code === 'S',
-    'and that is the row the table shows winning', JSON.stringify(installed));
+  ok(!!installed && installed.distance === 1 && installed.code === 'S*',
+    'and that is the row the table shows winning - at distance 1, under the candidate-default mark',
+    JSON.stringify(installed));
 
   const gatewayLine = lines.filter(function (l) { return /^Gateway of last resort is/.test(l); })[0] || '';
   ok(gatewayLine.indexOf('10.1.2.1') !== -1,
