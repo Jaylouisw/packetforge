@@ -93,8 +93,8 @@ two powered devices and a tight budget, which is the one arrangement where both 
 
 ## 2. Medium catalogue
 
-65 media across nine families (copper, fibre, DAC, coax, DSL, powerline,
-serial, console, wireless), carried by 20 cages — see [CONNECTORS.md](CONNECTORS.md) for
+90 media across ten families (copper, `fiber`, `fibre-channel`, DAC, coax, DSL, powerline,
+serial, console, wireless), carried by 28 cages — see [CONNECTORS.md](CONNECTORS.md) for
 the cage-by-cage table. Selected highlights:
 
 | Family | Medium | Speed | Connector | Reach |
