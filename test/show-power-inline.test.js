@@ -91,13 +91,13 @@ console.log('A real allocation is reported port by port:');
     'there is a table with a header', out[0]);
   // The devices are named PDA/PDB by the factory, so the row has to show that name - the point is that the
   // console names the powered device, not that it invents one.
-  ok(out.some(function (l) { return /^1\/1\/1\s+up\s+on\s+12\.95 W\s+PDA/.test(l); }),
+  ok(out.some(function (l) { return /^1\/1\/1\s+auto\s+on\s+12\.95 W\s+PDA/.test(l); }),
     'the powered port shows its device and its draw', JSON.stringify(out.slice(0, 3)));
-  ok(out.some(function (l) { return /^1\/1\/2\s+up\s+off\s+12\.95 W\s+PDB\s+\(denied\)/.test(l); }),
+  ok(out.some(function (l) { return /^1\/1\/2\s+auto\s+off\s+12\.95 W\s+PDB\s+\(denied\)/.test(l); }),
     'the denied port is marked denied', JSON.stringify(out.slice(0, 3)));
-  ok(out.some(function (l) { return /^1\/1\/3\s+up\s+off\s+-\s+the far end is not a powered device/.test(l); }),
+  ok(out.some(function (l) { return /^1\/1\/3\s+auto\s+off\s+-\s+the far end is not a powered device/.test(l); }),
     'a port cabled to something that is not a powered device says so', JSON.stringify(out));
-  ok(out.some(function (l) { return /^1\/1\/4\s+down\s+off\s+-\s+administratively down/.test(l); }),
+  ok(out.some(function (l) { return /^1\/1\/4\s+auto\s+off\s+-\s+administratively down/.test(l); }),
     'a shut-down port says why it supplies nothing', JSON.stringify(out));
 
   // The engine's own numbers, not a second copy of them.
@@ -119,6 +119,30 @@ console.log('A real allocation is reported port by port:');
 }
 
 console.log('');
+console.log('The Admin column is the PoE administration mode, not the link state:');
+{
+  // The vendor's own field table names this column's three words - "Administration mode: auto, off, static" -
+  // and `auto` is the factory default ("The default is auto (enabled)"). This view used to print `up`/`down`
+  // here, which is the *link's* administrative state: every working port read `up`, a word the column never
+  // carries, and a shut port read `down` as though its PoE mode had been configured. Both cases in one lab:
+  const env = lab({ budget: 25, disable: ['1/1/4'], cable: [{ port: '1/1/1', pd: 'a' }] });
+  const sim = new Simulator(env.t);
+  sim.computePoe();
+  const out = cliOf(env, sim).run('show power inline').output;
+  const row = function (name) {
+    return out.filter(function (l) { return l.indexOf(name + ' ') === 0; })[0] || '';
+  };
+  ok(/^1\/1\/1\s+auto\s+on\s/.test(row('1/1/1')), 'a port supplying power is `auto`', row('1/1/1'));
+  ok(/^1\/1\/4\s+auto\s+off\s/.test(row('1/1/4')),
+    'and a shut port is `auto` too: shutting the link does not configure the PoE mode', row('1/1/4'));
+  ok(/administratively down/.test(row('1/1/4')),
+    'the shutdown is said where it belongs, in the reason column', row('1/1/4'));
+  const modes = out.filter(function (l) { return /^1\//.test(l); }).map(function (l) { return l.split(/\s+/)[1]; });
+  ok(modes.length > 1 && modes.every(function (w) { return w === 'auto'; }),
+    'every PSE row carries a PoE mode word, never `up` or `down`', JSON.stringify(modes));
+}
+
+console.log('');
 console.log('A wall of idle ports is summarised, not printed one per line:');
 {
   const env = twoPDs();
@@ -131,7 +155,7 @@ console.log('A wall of idle ports is summarised, not printed one per line:');
   ok(/\(\+\d+ more\)/.test(idleRows[0]), 'with the tail counted rather than listed', idleRows[0]);
   // ...and any one of them can still be asked about by name.
   const one = cliOf(env, sim).run('show power inline 1/1/9').output;
-  ok(one.some(function (l) { return /^1\/1\/9\s+up\s+off\s+-\s+nothing plugged in/.test(l); }),
+  ok(one.some(function (l) { return /^1\/1\/9\s+auto\s+off\s+-\s+nothing plugged in/.test(l); }),
     'and asked about individually', JSON.stringify(one));
   ok(!one.some(function (l) { return /^Total:/.test(l); }),
     'a question about one port gets no device-wide total', JSON.stringify(one));

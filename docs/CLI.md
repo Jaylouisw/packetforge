@@ -1206,10 +1206,10 @@ The table is ordered by number rather than as strings, so groups read `2, 10, 10
 ```
 sw1#show power inline
 Interface  Admin  Oper  Draw     Powered device
-1/1/1      up     on    12.95 W  PD1
-1/1/2      up     off   12.95 W  PD2  (denied)
-1/1/3      up     off   -        the far end is not a powered device
-1/1/4      down   off   -        administratively down
+1/1/1      auto   on    12.95 W  PD1
+1/1/2      auto   off   12.95 W  PD2  (denied)
+1/1/3      auto   off   -        the far end is not a powered device
+1/1/4      auto   off   -        administratively down
 22 ports with nothing plugged in: 1/1/5, 1/1/6, 1/1/7, 1/1/8, 1/1/9 (+17 more)
 
 Total: 12.95 W of 25 W in use, 12.05 W left, 1 port denied
@@ -1222,6 +1222,11 @@ ones an operator is usually asking about:
 
 * `denied` means the device asked and the budget could not supply it; the sentence under the table is the same
   one the timeline emitted for the `poe-deny` event, not a re-rendering of the same arithmetic;
+* `Admin` is the port's PoE **administration mode**, not the link's: the vendor's field table reads
+  "Administration mode: auto, off, static", `auto` is the factory default, and `off` is what
+  `power inline never` leaves behind. This console has no `power inline` command, so every PSE port is `auto` —
+  including a shut one, whose shutdown is carried by `Oper off` and by the reason column. `up`/`down` is the
+  link's word and used to be printed here, which made a shut port read as though its PoE mode had been set;
 * a port with a cable but no powered device behind it says so, rather than looking like a port that works;
 * an administratively down port supplies nothing, and says why — the engine does not allocate through it, since
   it walks the active ports only;

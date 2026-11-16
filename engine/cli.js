@@ -3492,6 +3492,27 @@ class CliSession {
     return this.device.portCarrierNote(port, this.topo, extra);
   }
 
+  // The `Admin` column of `show power inline` is the port's PoE **administration mode**, and the vendor's own
+  // field table names its three words: "Administration mode: auto, off, static" (Catalyst 2960-X 15.2(6)E and
+  // 9300 17.9 both print that row). `auto` is the factory default - "The default is auto (enabled)" - and
+  // `off` is what `power inline never` puts there, which a 2960 transcript shows as
+  // `Fa0/24 off off 0.0 n/a n/a 15.4` after that command.
+  //
+  // `up`/`down` is the *link's* administrative state, a word this column never carries, and this console
+  // printed it here: a shut port read `down` in Admin as though its PoE mode had been configured to something,
+  // and a working port read `up`, which is not one of the three modes either. The link state belongs in the
+  // `Oper` word (`off`) and in the reason column beside it, where this view already says
+  // "administratively down".
+  //
+  // This model has no `power inline` command, so no port here can be `off` or `static`: every PSE port is in
+  // the one mode a factory-default port is in. Whether a real box flips this column to `off` when a port is
+  // merely shut is not settled by any transcript in hand - see research/show-power-inline-admin-column.md.
+  _poeAdminMode(iface) {
+    // The port is not consulted yet, and the parameter says why: the mode is per port, and the day a
+    // 'power inline' line exists this is where it is read from that port.
+    return 'auto';
+  }
+
   // `show power inline [<port>]` - what the PSE is supplying, and why a powered device got nothing.
   //
   // The engine has computed this since PoE was modelled (`computePoe()`), the inspector has displayed it, and the
@@ -3533,7 +3554,7 @@ class CliSession {
     if (!entry) {
       out.push(pad('Interface', 11) + pad('Admin', 7) + 'Supplied');
       for (const i of pse) {
-        out.push(pad(i.name, 11) + pad(i.enabled ? 'up' : 'down', 7) + 'not measured');
+        out.push(pad(i.name, 11) + pad(this._poeAdminMode(i), 7) + 'not measured');
       }
       out.push('budget not modelled on ' + dev.name +
         ': the ports are reported, the power they could supply is not');
@@ -3552,7 +3573,7 @@ class CliSession {
     let denied = 0;
     for (const i of pse) {
       const p = byIface.get(i.name);
-      const admin = i.enabled ? 'up' : 'down';
+      const admin = this._poeAdminMode(i);
       if (p) {
         const draw = (Math.round((p.draw || 0) * 100) / 100) + ' W';
         rows.push(pad(i.name, 11) + pad(admin, 7) + pad(p.powered ? 'on' : 'off', 6) + pad(draw, 9) +
