@@ -15,7 +15,7 @@ Cisco Packet Tracer teaches Cisco. PacketForge aims at the thing a lab actually 
 on which port, which optic mates with which ferrule, what a cable that cannot exist would
 mean if it did.
 
-The catalogue holds **926 device models from 208 vendors**, from ONTs and OLTs to PTP radios,
+The catalogue holds **2,192 device models from 252 vendors**, from ONTs and OLTs to PTP radios,
 switches, servers, printers, cameras and phones. It is JSON: one file per model, no code
 changes to add one.
 
@@ -30,4 +30,3 @@ BGP, DNS and SCION in the data path, with per-hop latency.
 
 If the documentation ever disagrees with the code, [Simulation-Fidelity](Simulation-Fidelity)
 is the one that is right.
-
