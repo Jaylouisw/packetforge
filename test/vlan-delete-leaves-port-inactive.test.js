@@ -128,5 +128,51 @@ console.log('A trunk still refuses, because that half of the question is unresol
 }
 
 console.log('');
+console.log('...and so does a staged voice VLAN, which is a reference too (#1701):');
+{
+  // `switchport voice vlan 22` on a port that is not a trunk is *stored* - the console says so in the receipt -
+  // and read by nothing until the port is a trunk (`classifyEgress` only asks the voice VLAN once the mode is
+  // trunk). That makes it the same kind of reference as a staged native VLAN or allowed list, and it was the one
+  // reference `no vlan` did not look at: the VLAN went, the port kept `switchport voice vlan 22`, and one
+  // `switchport mode trunk` later the switch carried voice traffic in a VLAN it did not have.
+  const t = new Topology();
+  const sw = t.addDevice(SW(), 'sw1');
+  const sim = new Simulator(t);
+  const cli = new CliSession(sw, t, sim);
+  const say = function (c) { return lines(cli.run(c).output); };
+  cli.run('enable');
+  cli.run('configure terminal');
+  say('vlan 22');
+  say('interface Fa0/3');
+  const stored = say('switchport voice vlan 22');
+  ok(/stored/.test(stored.join(' ')), 'the voice VLAN is stored, not carried, on a port that is not a trunk',
+    JSON.stringify(stored));
+  cli.run('end');
+
+  cli.run('configure terminal');
+  const out = say('no vlan 22');
+  cli.run('end');
+  ok(out.some(function (l) { return /still referenced by 1 port\(s\): Fa0\/3 \(voice, stored\)/.test(l); }),
+    'the staged voice VLAN refuses the removal, and is named', JSON.stringify(out));
+  ok(/clear that first/.test(out.join(' ')), 'with the instruction rather than the carried-port one', JSON.stringify(out));
+  ok(!out.some(function (l) { return /VLAN 22 removed/.test(l); }), 'and the VLAN is not removed', JSON.stringify(out));
+  ok(sw.config.vlans && sw.config.vlans[22], 'so the VLAN is still there', JSON.stringify(sw.config.vlans || {}));
+  ok(Number(sw.interfaces.get('Fa0/3').vlan.voiceVlan) === 22, 'and the port still holds the reference',
+    JSON.stringify(sw.interfaces.get('Fa0/3').vlan));
+
+  // Cleared, the reference stops protecting it - and the VLAN goes with the ordinary receipt.
+  cli.run('configure terminal');
+  say('interface Fa0/3');
+  say('switchport voice vlan none');
+  cli.run('end');
+  cli.run('configure terminal');
+  const after = say('no vlan 22');
+  cli.run('end');
+  ok(after.some(function (l) { return /VLAN 22 removed/.test(l); }), 'once cleared, the VLAN can go',
+    JSON.stringify(after));
+  ok(!(sw.config.vlans && sw.config.vlans[22]), 'and it is gone', JSON.stringify(sw.config.vlans || {}));
+}
+
+console.log('');
 console.log('Summary: ' + passed + ' passed, ' + failed + ' failed');
 if (failed) process.exitCode = 1;

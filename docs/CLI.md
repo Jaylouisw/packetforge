@@ -211,8 +211,13 @@ Two of those refusals are there for more than tidiness:
   names it, and says which:
   * **carried by a trunk** — asked of the data plane's own rule, not a second copy of it, so a trunk allowing
     all VLANs counts (`still carried by 1 port(s): Fa0/4`) and a native VLAN is marked `(native)`;
-  * **referenced** — a trunk parameter stored on a port that is not in trunk mode yet
-    (`still referenced by 1 port(s): Fa0/3 (trunk native, trunk allowed, stored) - clear that first`).
+  * **referenced** — a VLAN stored on a port that is not in trunk mode yet: a native VLAN, an allowed list, or
+    the **voice VLAN** (`switchport voice vlan 20` on an access port is stored and read by nothing until the port
+    is a trunk), and the refusal names every field it found
+    (`still referenced by 1 port(s): Fa0/3 (trunk native, trunk allowed, voice, stored) - clear that first`).
+    The voice VLAN was the reference this check did not look at, so `no vlan 20` removed a VLAN the port was
+    staged for and left `switchport voice vlan 20` in the running config — one `switchport mode trunk` later the
+    switch carried voice traffic in a VLAN it did not have (#1701).
 
   Removing a VLAN cleared a port's staged native VLAN in silence and left `show running-config` printing no
   `vlan 20` while `show vlan` still listed it from the member ports — two descriptions of one switch that
@@ -246,7 +251,7 @@ default VLAN and cannot be created or deleted", and a real IOS XE switch answers
 | `ip route <dest> <mask> <gw> [iface]` | add static route |
 | `no ip route <dest> <mask> [gw]` | remove static route |
 | `ip default-gateway <gw>` | set default gateway (hosts) |
-| `no vlan <id>` | remove a VLAN (refused while a trunk carries it or a port has trunk settings naming it) |
+| `no vlan <id>` | remove a VLAN (refused while a trunk carries it, or a port holds a trunk parameter or a voice VLAN naming it) |
 | `no ip dhcp pool <name>` | remove a DHCP pool |
 | `no dns zone <name>` | remove a DNS zone and its records |
 | `do show …` | run a `show` from config mode |

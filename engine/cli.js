@@ -962,6 +962,14 @@ class CliSession {
         const where = [];
         if (Number(i.vlan.nativeVlan) === id) where.push('trunk native');
         if (Array.isArray(i.vlan.allowedVlans) && i.vlan.allowedVlans.indexOf(id) !== -1) where.push('trunk allowed');
+        // The third staged reference, and the one this guard did not look at (#1701). `switchport voice vlan 20`
+        // on a port that is not a trunk is *stored* - the receipt says so - and `classifyEgress` reads it only once
+        // the mode is trunk, so nothing carried the VLAN and nothing stopped the deletion: `no vlan 20` removed it
+        // and left `switchport voice vlan 20` in the running config, and one `switchport mode trunk` later the
+        // switch was carrying voice traffic in a VLAN it did not have. A reference is a reference, whichever
+        // command stored it, so it is named here with the other two.
+        const voice = i.vlan.voiceVlan;
+        if (voice !== null && voice !== undefined && Number(voice) === id) where.push('voice');
         if (where.length) staged.push(i.name + ' (' + where.join(', ') + ', stored)');
       }
       const list = function (arr) {
