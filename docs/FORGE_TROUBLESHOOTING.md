@@ -131,6 +131,51 @@ repository can clean a volume it does not own — that is a host responsibility,
 the only thing this page can do is make the four symptoms recognisable as one
 cause.
 
+### Which repository owns the space
+
+`df -h` says the volume is full. It does not say what filled it, and on a forge the answer is usually one
+repository. Ask the API, which reports each repository's size on disk in kilobytes:
+
+```bash
+curl -sS -H "Authorization: token $TOKEN" 'http://odin:3000/api/v1/repos/search?limit=50&sort=size&order=desc' | node -e 'let d="";process.stdin.on("data",c=>d+=c).on("end",()=>{JSON.parse(d).data.forEach(x=>console.log((x.size/1048576).toFixed(1)+" GiB  "+x.full_name))})'
+```
+
+Measured on 2026-11-12, when that volume filled:
+
+```
+46.2 GiB  jaylouisw/packetforge-firmware
+1.1 GiB   jaylouisw/hermes-agent
+0.3 GiB   jaylouisw/hack-gpon.github.io
+0.2 GiB   jaylouisw/electricitymaps-contrib
+0.0 GiB   jaylouisw/packetforge
+```
+
+96% of the instance was one private repository. From the host, the same question from the other end:
+
+```bash
+du -sh /data/git/repositories/*/*.git | sort -h | tail -5
+```
+
+A large repository is not the same as a large *tree*, and the difference decides what reclaims it. In a
+bare clone of the suspect:
+
+```bash
+git count-objects -vH      # size-pack: every reachable object, plus anything unreachable but uncollected
+git ls-tree -r -l HEAD | awk '{s+=$4} END {print sprintf("%.1f MB across %d blobs", s/1048576, NR)}'
+```
+
+On `packetforge-firmware` those two answers disagreed by a factor of about 7,400: **46.2 GiB stored
+against a tip of 6.4 MB across 396 blobs**, one branch, no tags, no releases. Nothing there was dangling.
+The dumps had been committed to `main` and deleted afterwards, so the commits that added them - and every
+blob underneath - are still in the graph, and **`git gc` cannot reclaim a reachable object**. That is why
+`git_gc_repos`, `repo_health_check` and the rest of the housekeeping tasks could all answer `204` and free
+nothing: they were asked to collect garbage, and there was none.
+
+When the split looks like that, the ways out are a history rewrite (`git filter-repo --path firmware
+--invert-paths`, then `gc --prune=now`), moving that repository off the volume, or deleting it - tracked
+in `#1507`, because every one of those is a decision about content rather than a cleanup, and none of them
+should be done to a live repository unasked.
+
 ## When a restart fixes it for ten minutes and then it happens again
 
 A restart that buys minutes is not a fix, and the second outage is the one that repeats. On this
