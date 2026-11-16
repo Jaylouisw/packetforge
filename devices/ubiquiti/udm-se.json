@@ -11,7 +11,10 @@
     "dhcp-server",
     "dhcp-client",
     "cli",
-    "http-server"
+    "http-server",
+    "poe-pse",
+    "802.3af",
+    "802.3at"
   ],
   "interfaces": [
     {
@@ -22,42 +25,58 @@
     {
       "name": "Port 1",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "Port 2",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "Port 3",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE"
     },
     {
       "name": "Port 4",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE"
     },
     {
       "name": "Port 5",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE"
     },
     {
       "name": "Port 6",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE"
     },
     {
       "name": "Port 7",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE"
     },
     {
       "name": "Port 8",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE"
     },
     {
       "name": "SFP+ 1",
