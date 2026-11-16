@@ -37,6 +37,16 @@ const FINAL_DROP = /^(peer port shut|link administratively down|link down|no egr
 // the sentence, the browser drew `Success rate 0%` as if every echo had been lost, and the instant printed with it
 // came from the command rather than from the answer. One sentence, written here, used by the console and mirrored
 // in the browser (#1383).
+// IOS's default OSPF network type on a serial line is point-to-point, which elects no DR and no
+// BDR - the neighbour table prints `FULL/ -` where a broadcast segment prints `FULL/DR`. The port
+// hardware is the honest test: a spec that never states `type: serial` still infers the family from
+// the port name, so `hardware.family` and the type are checked rather than the name here.
+function isSerialPort(iface) {
+  if (!iface) return false;
+  const hw = iface.hardware || {};
+  return String(hw.family || '') === 'serial' || String(iface.type || '') === 'serial';
+}
+
 function pingConvergenceSentence(replies) {
   const conv = (replies || []).filter(function (r) { return r && r.reason === 'converging'; });
   if (!conv.length) return null;
@@ -1351,10 +1361,29 @@ class Simulator {
       // A misconfigured router is exactly what the subnet check exists to catch (#240).
       if (String(ai.mask) !== String(bi.mask)) continue;
       if (net.networkOf(ai.ip, ai.mask) !== net.networkOf(bi.ip, bi.mask)) continue;
+      // The half of the State cell the console prints after the slash: which role the *neighbour*
+      // holds on this segment. A broadcast segment elects a DR and a BDR - highest interface
+      // priority first, then highest router ID, every port here at the default priority 1 - so with
+      // exactly two speakers on a cable the higher router ID is the DR and the other end the BDR.
+      // A serial line's default OSPF network type is point-to-point, where no election runs at all
+      // and the real box prints `FULL/ -` (research/show-ospf-neighbor-state.md).
+      const p2p = isSerialPort(aIf) || isSerialPort(bIf);
+      let aRole = '-', bRole = '-';
+      if (!p2p) {
+        const aNum = net.ipToInt(a.entry.routerId);
+        const bNum = net.ipToInt(b.entry.routerId);
+        // Equal router IDs are a misconfiguration a real box never becomes adjacent over; this model
+        // has no such diagnosis, so the tie falls back to the device id and stays stable.
+        const aDr = aNum > bNum || (aNum === bNum && String(a.id) < String(b.id));
+        aRole = aDr ? 'DR' : 'BDR';
+        bRole = aDr ? 'BDR' : 'DR';
+      }
       links.push({
         a: { router: l.a.deviceId, iface: l.a.iface },
         b: { router: l.b.deviceId, iface: l.b.iface },
-        cost: 10
+        cost: 10,
+        aRole: aRole,
+        bRole: bRole
       });
     }
 
@@ -1367,10 +1396,10 @@ class Simulator {
       for (const l of links) {
         if (l.a.router === r.id) {
           const peer = byId[l.b.router].entry.interfaces.filter(function (x) { return x.name === l.b.iface; })[0];
-          if (peer) nbr[l.b.router] = { ip: peer.ip, iface: l.a.iface };
+          if (peer) nbr[l.b.router] = { ip: peer.ip, iface: l.a.iface, role: l.bRole };
         } else if (l.b.router === r.id) {
           const peer = byId[l.a.router].entry.interfaces.filter(function (x) { return x.name === l.a.iface; })[0];
-          if (peer) nbr[l.a.router] = { ip: peer.ip, iface: l.b.iface };
+          if (peer) nbr[l.a.router] = { ip: peer.ip, iface: l.b.iface, role: l.aRole };
         }
       }
 
@@ -1381,7 +1410,7 @@ class Simulator {
           routerId: byId[peerId].entry.routerId,
           address: nbr[peerId].ip,
           iface: nbr[peerId].iface,
-          state: 'Full'
+          state: 'FULL/' + (nbr[peerId].role === '-' ? ' -' : nbr[peerId].role)
         };
       });
       ospfDevR.ospfNeighbors = nbList;

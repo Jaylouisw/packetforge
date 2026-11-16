@@ -948,10 +948,22 @@ Routing Process "ospf 0" with ID 1.1.1.1
 ```
 r1> show ip ospf neighbour
 Neighbor ID     Address          Interface   State
-2.2.2.2         10.1.0.2         Gi0/0/0     Full
+2.2.2.2         10.1.0.2         Gi0/0/0     FULL/DR
 
 1 neighbour(s), all Fully adjacent
 ```
+
+**State** is two facts in one cell, the way IOS prints it: the adjacency's state, then the role the
+**neighbour** holds on that segment. A broadcast segment elects a designated router and a backup -
+highest interface priority first, then highest router ID, with every port here at the default
+priority 1 - so across a cable with two speakers the higher router ID is the DR, and reads
+`FULL/DR` from the other end, which is itself the BDR. The cell travels with the neighbour and not
+with the box doing the looking: a router in the middle of a chain reads `FULL/BDR` on one port and
+`FULL/DR` on the other. A serial line's default OSPF network type is point-to-point, where no
+election runs at all, and the box prints `FULL/ -`. The cell used to say `Full` - one word where the
+hardware prints a state and a role, which described a segment where nobody had stood for election.
+`research/show-ospf-neighbor-state.md` has the sources and what is still unmodelled (priority,
+`ip ospf network`, a third speaker on one segment).
 
 ```
 r1> show ip ospf interface

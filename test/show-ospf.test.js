@@ -117,6 +117,65 @@ console.log('The neighbour table is the adjacency the SPF was built on:');
 }
 
 console.log('');
+console.log('The State cell carries the role the neighbour holds, as IOS prints it (FULL/DR, FULL/BDR, FULL/ -):');
+{
+  // A broadcast segment elects a DR and a BDR: highest interface priority first, then highest router
+  // ID, with every port at the default priority 1. This model puts exactly two speakers on a cable,
+  // so the higher router ID is the DR and the other end the BDR. The cell describes the *neighbour*,
+  // so the same box reads FULL/DR on one port and FULL/BDR on another (Cisco 13688-16).
+  const t = lab();
+  configure(t, 'r1', ['ospf router-id 1.1.1.1']);
+  configure(t, 'r2', ['ospf router-id 2.2.2.2']);
+  configure(t, 'r3', ['ospf router-id 3.3.3.3']);
+  const sim = new Simulator(t);
+  sim.computeOspf();
+
+  const r1 = show(t, sim, 'r1', 'show ip ospf neighbor');
+  ok(/FULL\/DR/.test(rowOf(r1, '2.2.2.2')), 'r1 sees the higher router id as the DR', rowOf(r1, '2.2.2.2'));
+
+  const r3 = show(t, sim, 'r3', 'show ip ospf neighbor');
+  ok(/FULL\/BDR/.test(rowOf(r3, '1.1.1.1')), 'r3 sees the lower router id as the BDR',
+    rowOf(r3, '1.1.1.1'));
+  ok(!/FULL\/DR/.test(r3), 'and nobody is a DR to the box holding the highest id', r3);
+
+  // The role travels with the neighbour, not with the box looking: r2 is DR on one segment and BDR
+  // on the other, and its own table says so in two rows.
+  const r2 = show(t, sim, 'r2', 'show ip ospf neighbor');
+  ok(/FULL\/BDR/.test(rowOf(r2, '1.1.1.1')), 'r2 is the DR towards r1', rowOf(r2, '1.1.1.1'));
+  ok(/FULL\/DR/.test(rowOf(r2, '3.3.3.3')), 'and the BDR towards r3', rowOf(r2, '3.3.3.3'));
+
+  // `FULL` alone was the old cell: one word where the box prints a state and a role.
+  ok(!/\bFull\b/.test(r1) && !/\bFull\b/.test(r3), 'no row prints a state without its role', r1);
+}
+
+console.log('');
+console.log('A serial line is point-to-point, so the role cell is a dash:');
+{
+  // IOS's default OSPF network type on a serial interface is point-to-point, where no DR or BDR is
+  // elected and the neighbour table prints `FULL/ -` (Cisco 13687-15).
+  const SERIAL = specs.find(function (s) { return /^2811$/.test(s.model); });
+  const t = new Topology();
+  t.addDevice(SERIAL, 'a1');
+  t.addDevice(SERIAL, 'a2');
+  configure(t, 'a1', ['interface Se0/0/0', 'ip address 10.9.0.1 255.255.255.0', 'clock rate 64000']);
+  configure(t, 'a2', ['interface Se0/0/0', 'ip address 10.9.0.2 255.255.255.0']);
+  t.connect('a1', 'Se0/0/0', 'a2', 'Se0/0/0', { mediaId: 'serial-v35' });
+  configure(t, 'a1', ['ospf router-id 1.1.1.1']);
+  configure(t, 'a2', ['ospf router-id 2.2.2.2']);
+  const sim = new Simulator(t);
+  sim.computeOspf();
+
+  ['a1', 'a2'].forEach(function (id) {
+    const table = show(t, sim, id, 'show ip ospf neighbor');
+    const peer = id === 'a1' ? '2.2.2.2' : '1.1.1.1';
+    ok(/FULL\/ -/.test(rowOf(table, peer)), id + ' prints FULL/ - over the serial line',
+      rowOf(table, peer));
+    ok(!/FULL\/(DR|BDR)/.test(table), id + ' elects no designated router on a point-to-point link',
+      table);
+  });
+}
+
+console.log('');
 console.log('The interface table says what cost, and where it came from:');
 {
   const t = lab();
