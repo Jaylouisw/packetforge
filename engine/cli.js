@@ -4205,8 +4205,16 @@ class CliSession {
       // every entry as a live neighbour: an entry learned on a port that has since gone down is a stale
       // cache entry, not evidence that the address is still reachable, and that is exactly the state you
       // are in when you run this command.
+      // Six columns, because that is the table: the vendor's own field list under a `show arp` sample names
+      // Protocol, Address, Age (min), Hardware Addr, **Type**, Interface (Cisco IOS IP Addressing Services
+      // Command Reference, `show ip arp`: "Type | ARPA | Type of encapsulation: ARPA-Ethernet, SNAP-RFC 1042,
+      // SAP-IEEE 802.3"). The Type column was missing here, so a reader comparing this table against a box's
+      // found a line one field short and could not tell an Ethernet binding from an encapsulated one.
+      // ARPA is the only value this model can honestly print: SNAP and SAP are 802.3/RFC 1042 encapsulation on
+      // non-Ethernet media (Token Ring, FDDI), and the catalogue carries no such port - the ARP here is IPv4
+      // over 802.3 Ethernet, which is what ARPA names (research/show-arp-type-column.md).
       out.push(pad('Protocol', 10) + pad('Address', 17) + pad('Age (min)', 11) +
-        pad('Hardware Addr', 18) + 'Interface');
+        pad('Hardware Addr', 18) + pad('Type', 8) + 'Interface');
       // Rows are the rows at the instant this session is asking about: a neighbour silent for longer than
       // ARP_AGE_MS is gone, and the Age column counts the minutes since it was heard. Until this the column was a
       // header over a hard-coded '-' on every row, on the grounds that the simulator had steps and not minutes -
@@ -4231,7 +4239,9 @@ class CliSession {
       }
       rows.sort(function (a, b) { return String(a[0]).localeCompare(String(b[0]), undefined, { numeric: true }); });
       for (const r of rows) {
-        out.push(pad('Internet', 10) + pad(r[0], 17) + pad(r[2], 11) + pad(r[1], 18) + r[3]);
+        // Type sits between the hardware address and the interface, as the vendor table orders them.
+        out.push(pad('Internet', 10) + pad(r[0], 17) + pad(r[2], 11) + pad(r[1], 18) +
+          pad('ARPA', 8) + r[3]);
       }
       // An address two boxes answer for is the one row this table must not print like all the others: the binding
       // shown is simply the reply that arrived last, so traffic to it goes wherever that reply pointed - which is

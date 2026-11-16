@@ -27,8 +27,9 @@ const catalog = loadCatalog(path.join(__dirname, '..', 'devices')).filter(functi
 const ROUTER = catalog.filter(function (s) { return s.model === 'ISR 4331'; })[0];
 const HOST = catalog.filter(function (s) { return s.model === 'Raspberry Pi 5'; })[0];
 
-// The column the age sits in: Protocol, Address, Age (min), Hardware Addr, Interface.
-const COL = { proto: 0, ip: 1, age: 2, mac: 3, iface: 4 };
+// The column the age sits in: Protocol, Address, Age (min), Hardware Addr, Type, Interface - the vendor's
+// six columns, in its order.
+const COL = { proto: 0, ip: 1, age: 2, mac: 3, type: 4, iface: 5 };
 
 function cli(dev, topo, cmds) {
   const s = new CliSession(dev, topo, new Simulator(topo));

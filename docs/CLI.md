@@ -1367,9 +1367,9 @@ sentence `show arp` and `show mac address-table` use — `(down: link down)`, `(
 
 ```
 R1#show arp
-Protocol  Address          Age (min)  Hardware Addr     Interface
-Internet  10.0.0.9         20         0200.0000.0200    Gi0
-Internet  10.0.0.10        -          0200.0000.0300    Gi0 (down: link down)
+Protocol  Address          Age (min)  Hardware Addr     Type    Interface
+Internet  10.0.0.9         20         0200.0000.0200    ARPA    Gi0
+Internet  10.0.0.10        -          0200.0000.0300    ARPA    Gi0 (down: link down)
 ```
 
 A hardware address prints the way an IOS-family device prints one: three dotted quartets, `0200.0000.0300`,
@@ -1377,6 +1377,11 @@ not the colon-separated form the engine stores, compares and hashes them in. The
 `Mac Address` column of `show mac address-table`, the `MAC` on a `show interfaces <port>` block, and the
 virtual MAC in `show vrrp` (`0000.5e00.010a`).
 
+* **Type** is the encapsulation the binding was learned over, and it has three values on a real box:
+  `ARPA` (Ethernet), `SNAP` (RFC 1042) and `SAP` (IEEE 802.3). Only `ARPA` is reachable here — the
+  catalogue carries no Token Ring or FDDI port, the two media SNAP and SAP were for — so the column is a
+  constant rather than a guess. It sits between the hardware address and the interface, which is where
+  Cisco's own `show arp` field list puts it (research/show-arp-type-column.md).
 * **Interface** is the port the neighbour was heard on — where to look next.
 * **Age** is the minutes since this neighbour was last **heard**, and it ages out: past four hours of silence
   (`ARP_AGE_MS`, the IOS default `arp timeout 14400`) the entry is gone and the router ARPs again for that

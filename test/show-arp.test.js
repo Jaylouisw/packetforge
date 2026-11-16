@@ -70,7 +70,7 @@ console.log('Every learned neighbour is listed, and the Interface column holds s
 
   const out = rows(env);
   ok(out.body.length === 2, 'both neighbours are listed', String(out.body.length));
-  ok(out.fields.every(function (f) { return f.length === 5; }),
+  ok(out.fields.every(function (f) { return f.length === 6; }),
     'every row has as many columns as the header',
     out.fields.map(function (f) { return f.length; }).join(','));
   ok(/Interface/.test(out.header), 'the header still names the Interface column');
@@ -78,12 +78,12 @@ console.log('Every learned neighbour is listed, and the Interface column holds s
   // The port is the one the neighbour was heard on, not a guess: checked against what the engine recorded.
   const portOf = function (ip) { return env.r.arpPorts.get(ip); };
   const rowFor = function (ip) { return out.fields.filter(function (f) { return f[1] === ip; })[0] || []; };
-  ok(rowFor('10.0.0.9')[4] === portOf('10.0.0.9'),
+  ok(rowFor('10.0.0.9')[5] === portOf('10.0.0.9'),
     'the interface printed is the port the engine learned it on',
-    JSON.stringify({ printed: rowFor('10.0.0.9')[4], recorded: portOf('10.0.0.9') }));
+    JSON.stringify({ printed: rowFor('10.0.0.9')[5], recorded: portOf('10.0.0.9') }));
   ok(portOf('10.0.0.9') === eth(env.r)[0].name,
     'and that port is the one facing the switch', String(portOf('10.0.0.9')));
-  ok(rowFor('10.0.0.10')[4] === portOf('10.0.0.10'), 'for the other neighbour too');
+  ok(rowFor('10.0.0.10')[5] === portOf('10.0.0.10'), 'for the other neighbour too');
 
   // The MAC column is the data plane's, not a decoration.
   // The value is the table's, printed the way the device prints a hardware address: 0200.0000.0900.
@@ -96,12 +96,35 @@ console.log('Every learned neighbour is listed, and the Interface column holds s
 }
 
 console.log('');
+console.log('The Type column sits between the hardware address and the interface:');
+{
+  // The vendor's field list under `show arp` names six fields - Protocol, Address, Age (min), Hardware Addr,
+  // Type, Interface - and its own samples fill Type with ARPA (Ethernet), SNAP (RFC 1042) or SAP (802.3):
+  // https://www.cisco.com/E-Learning/bulk/public/tac/cim/cib/using_cisco_ios_software/cmdrefs/show_ip_arp.htm
+  // This table printed five, so a row could not be lined up against a box's and the encapsulation was simply
+  // absent. ARPA is the only value this model can print: SNAP and SAP are encap on Token Ring/FDDI, and the
+  // catalogue has no such port.
+  const env = lab();
+  env.sim.ping('nine', '10.0.0.1', { count: 1 });
+  const out = rows(env);
+  const row = out.body.filter(function (l) { return /^Internet\s+10\.0\.0\.9/.test(l); })[0] || '';
+  ok(/Hardware Addr\s+Type\s+Interface/.test(out.header),
+    'the header names Type between the hardware address and the interface', out.header);
+  ok((row.trim().split(/\s+/)[4] || '') === 'ARPA',
+    'an IPv4-over-Ethernet binding reads ARPA, the vendor word for it', row);
+  // A column that is named but whose values do not land under the name is the #1521 fault again.
+  ok(out.header.indexOf('Type') === row.indexOf('ARPA'),
+    'and ARPA lands under the Type heading',
+    JSON.stringify({ heading: out.header.indexOf('Type'), value: row.indexOf('ARPA') }));
+}
+
+console.log('');
 console.log('A neighbour on a port that is gone is not presented as reachable:');
 {
   const env = lab();
   env.sim.ping('nine', '10.0.0.1', { count: 1 });
   const before = rows(env);
-  ok(before.fields[0][4] === eth(env.r)[0].name, 'the entry starts out clean', before.fields[0][4]);
+  ok(before.fields[0][5] === eth(env.r)[0].name, 'the entry starts out clean', before.fields[0][5]);
 
   runCommands(env.r, env.t, env.sim, ['configure terminal', 'interface ' + eth(env.r)[0].name,
     'shutdown', 'end']);
@@ -110,8 +133,8 @@ console.log('A neighbour on a port that is gone is not presented as reachable:')
     String(after.fields.length));
   ok(/administratively down/.test(after.body[0] || ''), 'but it says the port cannot carry a frame',
     after.body[0]);
-  ok(after.fields[0][4] === eth(env.r)[0].name, 'and the port is still named',
-    after.fields[0][4]);
+  ok(after.fields[0][5] === eth(env.r)[0].name, 'and the port is still named',
+    after.fields[0][5]);
 
   // A cable pulled with `link down` is a different fault from a shut port, and the column says which.
   const env2 = lab();
@@ -137,9 +160,9 @@ console.log('An entry with no recorded port says so rather than inventing one:')
   env.r.arp.set('10.0.0.200', '02:00:00:00:00:aa');
   const out = rows(env);
   const row = out.fields.filter(function (f) { return f[1] === '10.0.0.200'; })[0] || [];
-  ok(row.length === 5, 'the row still has five columns', JSON.stringify(row));
-  ok(row[4] === '-', 'with no interface claimed', JSON.stringify(row[4]));
-  ok(!/[A-Za-z]/.test(row[4] || ''), 'and no invented port name', String(row[4]));
+  ok(row.length === 6, 'the row still has six columns', JSON.stringify(row));
+  ok(row[5] === '-', 'with no interface claimed', JSON.stringify(row[5]));
+  ok(!/[A-Za-z]/.test(row[5] || ''), 'and no invented port name', String(row[5]));
 }
 
 console.log('');
@@ -152,7 +175,7 @@ console.log('A recorded port that no longer exists is reported as gone:');
   const row = out.fields.filter(function (f) { return f[1] === '10.0.0.201'; })[0] || [];
   ok(/Gi9\/9/.test(out.body.join(' ')), 'the port it named is printed', out.body.join(' | '));
   ok(/gone/.test(out.body.join(' ')), 'and marked as gone', out.body.join(' | '));
-  ok(row[4] === 'Gi9/9', 'rather than silently dropped', JSON.stringify(row));
+  ok(row[5] === 'Gi9/9', 'rather than silently dropped', JSON.stringify(row));
 }
 
 console.log('');
@@ -164,8 +187,8 @@ console.log('A device with no topology still prints a table:');
   // and says nothing about link state (the same rule `show interfaces` follows).
   const lines = ((new CliSession(r, null, null).run('show arp').output) || []).map(String);
   ok(lines.length === 2, 'header and one row', lines.join(' | '));
-  ok(lines[1].trim().split(/\s+/).length === 5, 'with five columns', lines[1]);
-  ok(lines[1].trim().split(/\s+/)[4] === eth(r)[0].name,
+  ok(lines[1].trim().split(/\s+/).length === 6, 'with six columns', lines[1]);
+  ok(lines[1].trim().split(/\s+/)[5] === eth(r)[0].name,
     'and the port, with no link state to report', lines[1]);
   ok(!/\(/.test(lines[1]), 'without inventing a state it cannot know', lines[1]);
 }

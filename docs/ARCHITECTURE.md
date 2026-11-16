@@ -843,8 +843,8 @@ r1> ping 10.0.0.10 4
 Success rate is 100 percent (4/4), round-trip min/avg/max = 0.103/0.103/0.103 ms
 
 r1> show ip arp
-Protocol  Address          Age (min)  Hardware Addr     Interface
-Internet  10.0.0.10        -          0200.0000.0300    Gi0/0/1
+Protocol  Address          Age (min)  Hardware Addr     Type    Interface
+Internet  10.0.0.10        -          0200.0000.0300    ARPA    Gi0/0/1
 ```
 
 Nothing in that output is a lie and nothing in it is the whole truth. Two boxes hold the address; the table shows one
@@ -1172,8 +1172,8 @@ still views.
 s1> show ip arp
 % Invalid show command: ip arp
 s1> show arp                                     <- the view was here the whole time
-Protocol  Address          Age (min)  Hardware Addr     Interface
-Internet  10.7.0.2         -          0200.0000.0200    eth0
+Protocol  Address          Age (min)  Hardware Addr     Type    Interface
+Internet  10.7.0.2         -          0200.0000.0200    ARPA    eth0
 ```
 
 Thirty years of IOS put `show ip arp`, `show ip interface`, `show ip access-lists` and `show ip vrrp` in operators'
