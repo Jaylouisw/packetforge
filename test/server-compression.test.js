@@ -60,16 +60,26 @@ function bodyOf(res) {
   return res.raw;
 }
 
-function waitReady(port, tries) {
+function waitReady(port, opts) {
+  // A wall-clock deadline, not an attempt count (#1242 for server-immutable-json, #1714 the rest). 60 tries
+  // x 100 ms is six seconds, sized for one server on an idle machine; ten suites start one each at
+  // PF_TEST_CONCURRENCY=10, each start costs a measured 6.98-7.41 s, and two CI legs share the host.
+  const o = opts || {};
+  const deadlineMs = Number(o.deadlineMs) > 0 ? Number(o.deadlineMs) : 60000;
+  const started = Date.now();
   return new Promise(function (resolve, reject) {
-    let left = tries || 60;
+    let lastError = null;
     (function attempt() {
       const req = http.request({ host: '127.0.0.1', port: port, path: '/api/version', method: 'GET' }, function (res) {
         res.resume();
         resolve();
       });
-      req.on('error', function () {
-        if (--left <= 0) return reject(new Error('server did not start'));
+      req.on('error', function (e) {
+        lastError = e;
+        if (Date.now() - started >= deadlineMs) {
+          const why = (lastError && (lastError.code || lastError.message)) || 'no reply';
+          return reject(new Error('server did not start within ' + deadlineMs + ' ms (last error: ' + why + ')'));
+        }
         setTimeout(attempt, 100);
       });
       req.end();
@@ -89,6 +99,16 @@ function waitReady(port, tries) {
   child.stderr.on('data', function (c) { stderr += c; });
 
   try {
+    // A server that is not there must fail at the deadline it was given, not after a fixed number of tries
+    // (#1714). Without an assertion here the function could go back to counting attempts and nothing notices.
+    {
+      const closedPort = await freePort();
+      const failedToStart = await waitReady(closedPort, { deadlineMs: 400 })
+        .then(function () { return null; }, function (e) { return e; });
+      ok(/did not start within 400 ms/.test(failedToStart ? failedToStart.message : ''),
+        'a server that never answers fails at the deadline it was given',
+        failedToStart ? failedToStart.message : 'resolved instead of failing');
+    }
     await waitReady(port);
 
     console.log('');

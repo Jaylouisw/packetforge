@@ -236,10 +236,20 @@ console.log('Over HTTP, a load says which cables it could not keep:');
     });
   };
   try {
-    for (let i = 0; ; i++) {
-      const r = await request('GET', '/api/version').catch(function () { return { status: 0 }; });
+    // A deadline, not an attempt count (#1242 did this for server-immutable-json; #1714 the rest).
+    // 150 attempts x 100 ms is fifteen seconds of wall clock, sized for one server on an idle machine.
+    // Ten suites start one each at PF_TEST_CONCURRENCY=10 and each start costs 6.98-7.41 s measured, so
+    // the bound has to be time the machine actually took. A server that never comes up still fails, and
+    // now the failure says what the last attempt saw instead of only that it gave up.
+    const startDeadline = Date.now() + 60000;
+    let startError = null;
+    for (;;) {
+      const r = await request('GET', '/api/version').catch(function (e) { startError = e; return { status: 0 }; });
       if (r.status === 200) break;
-      if (i > 150) throw new Error('server did not start');
+      if (Date.now() >= startDeadline) {
+        throw new Error('server did not start within 60000 ms (last error: ' +
+          ((startError && (startError.code || startError.message)) || 'no reply') + ')');
+      }
       await new Promise(function (res) { setTimeout(res, 100); });
     }
     // Two documents, one defect each: a document with both is not twice as informative, because a cable that is

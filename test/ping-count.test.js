@@ -196,8 +196,20 @@ console.log('The dialog and the console refuse the same values:');
   };
 
   try {
-    for (let i = 0; i < 60; i++) {
-      try { await request('GET', '/api/topologies'); break; } catch (e) { await new Promise(function (r) { setTimeout(r, 100); }); }
+    // A deadline, not an attempt count (#1242 for server-immutable-json, #1714 the rest). 60 tries x
+    // 100 ms is six seconds; ten suites start a server each at PF_TEST_CONCURRENCY=10, measured at
+    // 6.98-7.41 s per start, and when this loop ran out it fell through - the next request then failed
+    // with ECONNREFUSED, which reads like a missing endpoint rather than a server that was not up yet.
+    const startDeadline = Date.now() + 60000;
+    for (;;) {
+      try { await request('GET', '/api/topologies'); break; }
+      catch (e) {
+        if (Date.now() >= startDeadline) {
+          throw new Error('server did not start within 60000 ms (last error: ' +
+            ((e && (e.code || e.message)) || 'no reply') + ')');
+        }
+        await new Promise(function (r) { setTimeout(r, 100); });
+      }
     }
     const dev = await request('POST', '/api/topologies/default/devices', { vendor: ROUTER.vendor, model: ROUTER.model });
     const devId = dev.body && dev.body.device && dev.body.device.id;
