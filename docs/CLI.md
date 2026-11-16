@@ -385,8 +385,10 @@ configuration nobody typed.
 The reason travels with it in `show interfaces` — `status: down (no cable)`, `status: down (peer shut
 down)`, `status: down (link down)`, `status: down (inactive)` — because `status: up` printed directly above
 `peer: disconnected` was two halves of one output disagreeing. `inactive` is the deleted-VLAN state and beats
-the cable tests: a port with nothing to forward in is down whatever is plugged into it, which is why the
-device lists such ports under `show interfaces status inactive`. A cable that was pulled with `link down` is not the same fault
+the cable tests: a port with nothing to forward in is down whatever is plugged into it, and that is reported on
+the port's own `status:` line and nowhere else. There is no filtered table of "inactive ports" to ask for: the
+console reads those words as a view it does not have, and refuses them in a sentence that says so rather than
+printing every port as though that were the answer. A cable that was pulled with `link down` is not the same fault
 as a socket with nothing in it, and the two need different fixes. A wireless radio has no cable to miss, so it is up when its radio is.
 
 The **Method** column answers the other half of the question — how the port came by the address it holds —
