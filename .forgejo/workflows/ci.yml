@@ -59,18 +59,52 @@ jobs:
       code: ${{ steps.classify.outputs.code }}
       live: ${{ steps.liveness.outputs.live }}
     steps:
+      # This job's answer is on the critical path of every run - all five jobs below need it
+      # and cannot start until it has published `data_only`, `code` and `live` - so what the
+      # job costs is paid before any coverage begins.
+      #
+      # Two of those three answers do not need the repository at all. A push to `main` has no
+      # base sha, and `classify-change.js` answers that case from a constant: data_only=false,
+      # code=true, "no base sha - treating this as a code change". It used to compute that
+      # constant after a full-history clone (`fetch-depth: 0`), on every merge, on every push
+      # run, before anything could start. Measured on 2026-11-16 over the 444 `Classify the
+      # change` tasks created that day (/actions/tasks, 3198 tasks total): median 15 s to
+      # reach a decision nothing in the repository could change. So on a push the constant is
+      # published directly and nothing is cloned. The values are the ones the script prints
+      # for that input, byte for byte - `data_only=false`, `code=true` - and every job's
+      # condition reads the same outputs it read before.
+      #
+      # A pull request keeps a clone, because there a diff is real. It no longer needs the
+      # history: the step below fetches the one commit the diff needs (`$BASE_SHA`), so a
+      # shallow clone holds both trees in full. Measured in the runner's own image
+      # (node:20-bookworm, same repository at 326ea7fc): full clone of 792 refs / 18 MB of
+      # history 7.0 s, against `--depth=1` of main 2.5 s plus `--depth=1` of the base sha
+      # 1.2 s. Same question, byte-identical answer: `classify-change.js --base <sha> --head
+      # <head>` printed the same `data_only=false / code=true / changed files (199)` list
+      # from the full clone and from the shallow one, for the same pair of commits.
+      #
+      # Nothing gets weaker. The fetch of the base is still attempted and still guarded, and
+      # every way this can go wrong - an unfetchable base, a missing depth, an unreadable
+      # diff - still lands on the conservative answer, `code=true`, which runs the full
+      # five-job matrix exactly as before.
       - uses: actions/checkout@v4
+        if: github.event_name == 'pull_request'
         with:
-          fetch-depth: 0
+          fetch-depth: 1
       - id: classify
         env:
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
         run: |
           if [ -n "${BASE_SHA:-}" ]; then
-            git fetch -q origin "$BASE_SHA" || true
+            git fetch -q --depth=1 origin "$BASE_SHA" || true
             node scripts/classify-change.js --base "$BASE_SHA" --head HEAD
           else
-            node scripts/classify-change.js --base ""
+            # No base: the answer is a constant, and a clone cannot change it.
+            {
+              echo "data_only=false"
+              echo "code=true"
+            } >> "${GITHUB_OUTPUT:-/dev/null}"
+            echo "no base sha - treating this as a code change and running the full matrix"
           fi
 
       # A queued job runs eventually, whether or not the thing it was queued for still
