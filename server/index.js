@@ -59,6 +59,39 @@ function safeDecode(s) {
   try { return decodeURIComponent(s); } catch (e) { return s; }
 }
 
+// What a board may be called.
+//
+// A board's id is the key of every other request: `GET /api/topologies/<name>` builds that key from a URL
+// segment, i.e. a **string**. The id used to arrive in a JSON body, which is not a URL, and was stored
+// unexamined, so three kinds of board could be created that nothing downstream could honour: `{"id":123}` set a
+// NUMBER key and 404'd for every URL that could name it; `{"id":{"a":1}}` wrote `_object_Object_-<hash>.json`;
+// and `.`/`..` named a directory. A 400-character name was acknowledged and then failed every save with ENOENT,
+// with a console.error as the only signal. The list endpoint, meanwhile, handed the caller numbers and objects -
+// so "list the boards" was not a list of board names at all (#1506).
+//
+// The rule is stated once, here, and every refusal names the rule it broke, because "invalid id" tells a caller
+// nothing about what to type instead. 128 characters of id leaves `<sanitised>-<hash>.json` comfortably inside
+// NAME_MAX (255) on every platform this runs on, so the save that used to fail cannot be reached at all.
+const BOARD_ID_MAX = 128;
+function boardIdProblem(id) {
+  if (typeof id !== 'string') {
+    return 'a board name must be a string, not ' + (Array.isArray(id) ? 'an array' : (id === null ? 'null' : typeof id));
+  }
+  if (!id.trim()) return 'a board name cannot be blank';
+  if (id.length > BOARD_ID_MAX) {
+    return 'a board name cannot be longer than ' + BOARD_ID_MAX + ' characters, got ' + id.length;
+  }
+  // Control characters, written as a code-point test rather than a character class: a character class holding
+  // a literal NUL is a collapse waiting to happen in the next scripted edit, and the byte check in CI is right to
+  // refuse it.
+  for (let i = 0; i < id.length; i++) {
+    const code = id.charCodeAt(i);
+    if (code < 32 || code === 127) return 'a board name cannot contain control characters';
+  }
+  if (id === '.' || id === '..') return 'a board name cannot be "." or "..": a dot names a directory, not a board';
+  return '';
+}
+
 function topologyFile(id) {
   const raw = String(id);
   const safe = raw.replace(/[^A-Za-z0-9._-]/g, '_');
@@ -718,10 +751,24 @@ async function handleApi(req, res, urlPath) {
 
     // topologies collection
     if (parts[1] === 'topologies' && parts.length === 2) {
-      if (method === 'GET') return sendJSON(res, 200, { ids: Array.from(topologies.keys()) });
+      // Only names are handed out. Every create is validated, so a non-string key can only come from an older
+      // build's memory or a hand-written board file - and a list of names is exactly what a caller can address.
+      if (method === 'GET') {
+        return sendJSON(res, 200, {
+          ids: Array.from(topologies.keys()).filter(function (k) { return typeof k === 'string'; })
+        });
+      }
       if (method === 'POST') {
         const body = await readBody(req);
-        const id = body.id || ('topo-' + Date.now().toString(36));
+        // Absent, null and "" all mean "make me one", which is what the client asks for when nobody has named the
+        // board yet. Anything else is a name the caller chose, and has to be one.
+        const asked = body && body.id !== undefined && body.id !== null && body.id !== ''
+          ? body.id : null;
+        if (asked !== null) {
+          const problem = boardIdProblem(asked);
+          if (problem) return sendJSON(res, 400, { error: problem, field: 'id', id: asked });
+        }
+        const id = asked === null ? ('topo-' + Date.now().toString(36)) : asked;
         if (!topologies.has(id)) {
           topologies.set(id, new Topology());
           // A board that was created and acknowledged is a thing the operator made. It used to live only in memory
