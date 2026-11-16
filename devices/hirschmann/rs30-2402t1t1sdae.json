@@ -1,0 +1,282 @@
+{
+  "vendor": "hirschmann",
+  "model": "RS30-2402T1T1SDAE",
+  "label": "Hirschmann RS30 OpenRail 24-port + 2x 1G RJ45",
+  "category": "switch",
+  "description": "Hirschmann RS30 compact OpenRail managed DIN-rail switch: 24x 100M RJ45 plus 2x 1G RJ45 uplink ports (26 ports in total), the widest RS30 density with copper uplinks, software Layer 2 Enhanced.",
+  "capabilities": [
+    "l2-forward",
+    "cli",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "Port 1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M",
+      "speedCaps": [
+        10,
+        100
+      ]
+    },
+    {
+      "name": "Port 2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M",
+      "speedCaps": [
+        10,
+        100
+      ]
+    },
+    {
+      "name": "Port 3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M",
+      "speedCaps": [
+        10,
+        100
+      ]
+    },
+    {
+      "name": "Port 4",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M",
+      "speedCaps": [
+        10,
+        100
+      ]
+    },
+    {
+      "name": "Port 5",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M",
+      "speedCaps": [
+        10,
+        100
+      ]
+    },
+    {
+      "name": "Port 6",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M",
+      "speedCaps": [
+        10,
+        100
+      ]
+    },
+    {
+      "name": "Port 7",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M",
+      "speedCaps": [
+        10,
+        100
+      ]
+    },
+    {
+      "name": "Port 8",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M",
+      "speedCaps": [
+        10,
+        100
+      ]
+    },
+    {
+      "name": "Port 9",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M",
+      "speedCaps": [
+        10,
+        100
+      ]
+    },
+    {
+      "name": "Port 10",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M",
+      "speedCaps": [
+        10,
+        100
+      ]
+    },
+    {
+      "name": "Port 11",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M",
+      "speedCaps": [
+        10,
+        100
+      ]
+    },
+    {
+      "name": "Port 12",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M",
+      "speedCaps": [
+        10,
+        100
+      ]
+    },
+    {
+      "name": "Port 13",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M",
+      "speedCaps": [
+        10,
+        100
+      ]
+    },
+    {
+      "name": "Port 14",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M",
+      "speedCaps": [
+        10,
+        100
+      ]
+    },
+    {
+      "name": "Port 15",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M",
+      "speedCaps": [
+        10,
+        100
+      ]
+    },
+    {
+      "name": "Port 16",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M",
+      "speedCaps": [
+        10,
+        100
+      ]
+    },
+    {
+      "name": "Port 17",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M",
+      "speedCaps": [
+        10,
+        100
+      ]
+    },
+    {
+      "name": "Port 18",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M",
+      "speedCaps": [
+        10,
+        100
+      ]
+    },
+    {
+      "name": "Port 19",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M",
+      "speedCaps": [
+        10,
+        100
+      ]
+    },
+    {
+      "name": "Port 20",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M",
+      "speedCaps": [
+        10,
+        100
+      ]
+    },
+    {
+      "name": "Port 21",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M",
+      "speedCaps": [
+        10,
+        100
+      ]
+    },
+    {
+      "name": "Port 22",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M",
+      "speedCaps": [
+        10,
+        100
+      ]
+    },
+    {
+      "name": "Port 23",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M",
+      "speedCaps": [
+        10,
+        100
+      ]
+    },
+    {
+      "name": "Port 24",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M",
+      "speedCaps": [
+        10,
+        100
+      ]
+    },
+    {
+      "name": "Port 25",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "Port 26",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "console",
+      "type": "console"
+    }
+  ],
+  "sourceUrl": "https://catalog.belden.com/techdata/EN/RS30-2402T1T1SDAE_techdata.pdf",
+  "notes": "Family facts from the vendor installation manual (https://www.doc.hirschmann.com/pdf/IG_RS20_RS30_RS40_Managed_08_0325_en_2025-03-27.pdf): an RS30 has two gigabit uplink ports ('Ports 1 and 2, 1000 Mbit/s, media selectable, SFP, RJ45') beside 8, 16 or 24 10/100 Mbit/s TP RJ45 ports. The V.24 management connection is an RJ11 socket and the separate USB port is only for the ACA21-USB auto-configuration adapter, so neither is a data port. Power 12/24/48 V DC (9.6-60 V) or 24 V AC (18-30 V) on a redundant 6-pin terminal block. Temperature class letter in the code: S = standard 0 to +60 C, T and E = extended -40 to +70 C. Software variant letter: E = Layer 2 Enhanced, P = Professional. Layer 2 only: Belden lists switching, redundancy and management, never routing, so these specs carry no l3-forward. The manual numbers the front panel 1 to 26 for the 24-port RS30 ('Figure 8: Device variants with 2 x 1000 Mbit/s ports and 24 x 10/100 Mbit/s ports (RS30-2402...)'), which is why the two gigabit uplinks are Port 25 and Port 26 here. Datasheet: https://catalog.belden.com/techdata/EN/RS30-2402T1T1SDAE_techdata.pdf"
+}

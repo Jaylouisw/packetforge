@@ -1,0 +1,175 @@
+{
+  "vendor": "hirschmann",
+  "model": "RS40-0009CCCCSDAE",
+  "label": "Hirschmann RS40 OpenRail 9-port all-gigabit",
+  "category": "switch",
+  "description": "Hirschmann RS40 compact OpenRail managed switch, every port gigabit: 4 combo positions that take an RJ45 at 100M/1G or an SFP module at 100M/1G, plus 5x 1G RJ45 - 9 cages in total and 13 interfaces counting both halves of each combo. Fitting an SFP in a combo disables its copper twin.",
+  "capabilities": [
+    "l2-forward",
+    "cli",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "Port 1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "comboWith": "Port 1-sfp",
+      "comboRole": "rj45"
+    },
+    {
+      "name": "Port 1-sfp",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        100,
+        1000
+      ],
+      "comboWith": "Port 1",
+      "comboRole": "sfp"
+    },
+    {
+      "name": "Port 2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "comboWith": "Port 2-sfp",
+      "comboRole": "rj45"
+    },
+    {
+      "name": "Port 2-sfp",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        100,
+        1000
+      ],
+      "comboWith": "Port 2",
+      "comboRole": "sfp"
+    },
+    {
+      "name": "Port 3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "comboWith": "Port 3-sfp",
+      "comboRole": "rj45"
+    },
+    {
+      "name": "Port 3-sfp",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        100,
+        1000
+      ],
+      "comboWith": "Port 3",
+      "comboRole": "sfp"
+    },
+    {
+      "name": "Port 4",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "comboWith": "Port 4-sfp",
+      "comboRole": "rj45"
+    },
+    {
+      "name": "Port 4-sfp",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        100,
+        1000
+      ],
+      "comboWith": "Port 4",
+      "comboRole": "sfp"
+    },
+    {
+      "name": "Port 5",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "Port 6",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "Port 7",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "Port 8",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "Port 9",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "console",
+      "type": "console"
+    }
+  ],
+  "sourceUrl": "https://catalog.belden.com/techdata/EN/RS40-0009CCCCSDAE_techdata.pdf",
+  "notes": "Belden's technical data sheet for part number 943935001 reads 'Port Type and Quantity: 9 ports in total: 4 x Combo Ports (10/100/1000BASE TX, RJ45 plus FE/GE-SFP slot); 5 x standard 10/100/1000BASE TX, RJ45', V.24 interface '1 x RJ11 socket', USB for the ACA21-USB, 12/24/48 V DC (9.6-60 V) or 24 V AC, max 20 W, 0 to +60 C, DIN rail IP20, 530 g. Software Layer 2 Enhanced: VLAN (802.1Q), IGMP snooping/querier v1/v2/v3, RSTP 802.1D-2004, MRP (IEC 62439-2) and HIPER-Ring, CLI, web management, SNMP v1/v2/v3, LLDP, SNTP. The combo EDA position is why this is 13 interfaces for a 9-port box. Life cycle, from Belden's configurator page for the HHXX.X. build: availability 'passiv', last order 2023-12-31, last delivery 2024-06-30 - modelled as hardware already on a DIN rail rather than a current order. Family manual: https://www.doc.hirschmann.com/pdf/IG_RS20_RS30_RS40_Managed_08_0325_en_2025-03-27.pdf"
+}
