@@ -18,8 +18,11 @@
 //    switchport mode access
 //    switchport voice vlan 3
 //
-// The one line no sample showed is `switchport trunk allowed vlan`; it keeps the place it already had, among
-// the parameters, and the test says so rather than pretending it was observed.
+// `switchport trunk allowed vlan` was the one line no sample showed when this test was written. A later
+// capture does show it - Cisco support doc 68100, `show running-config interface gigabitethernet 2/1` on a
+// Catalyst: trunk encapsulation, trunk native vlan 999, trunk allowed vlan 1,81,82,171,999, mode trunk
+// (research/running-config-switchport-order.md). It follows the native VLAN, which is where the engine put it,
+// so the order is observed now and the assertion below pins both halves of it.
 const path = require('path');
 const { Topology, Simulator, runCommands } = require('../engine');
 const { loadCatalog } = require('../devices/registry');
@@ -96,8 +99,10 @@ console.log('A trunk prints its parameters before `switchport mode trunk`:');
   const t = block(env.config(), 'Fa0/3');
   ok(t.indexOf('switchport trunk native vlan 99') < t.indexOf('switchport mode trunk'),
     'native VLAN before the mode', JSON.stringify(t));
+  ok(t.indexOf('switchport trunk native vlan 99') < t.indexOf('switchport trunk allowed vlan 10,20'),
+    'the allowed list follows the native VLAN, as the captured trunk block shows', JSON.stringify(t));
   ok(t.indexOf('switchport trunk allowed vlan 10,20') < t.indexOf('switchport mode trunk'),
-    'allowed list before the mode - the placement no sample showed, so it keeps its old place', JSON.stringify(t));
+    'and the allowed list comes before the mode', JSON.stringify(t));
   ok(t[t.length - 1] === 'switchport mode trunk', 'and the mode is the last switchport line', JSON.stringify(t));
 }
 

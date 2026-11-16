@@ -4,10 +4,12 @@
 inside one interface block of `show running-config` - the VLAN parameters first, or `switchport mode` first, and
 where does `switchport voice vlan` sit?
 
-**Verdict: the parameters come first and `switchport mode` follows them; the voice line comes last.** Two
+**Verdict: the parameters come first and `switchport mode` follows them; the voice line comes last.** Three
 Cisco-published `show running-config` samples show it directly. The engine printed the mode first, and now
-prints the vendor's order. One placement - `switchport trunk allowed vlan` - is inferred rather than observed,
-and one source contradicts the access/native relative order; both are recorded below.
+prints the vendor's order. The last open placement - `switchport trunk allowed vlan` - is settled by a capture
+in a Cisco support document: native VLAN, allowed list, mode. The engine already printed that order, so nothing
+moved; the test that used to admit it was guessing now pins it. One source still contradicts the access/native
+relative order, and that remains open.
 
 ## Evidence (observed output, not command reference text)
 
@@ -18,6 +20,7 @@ and one source contradicts the access/native relative order; both are recorded b
 | Same guide, p. 3-10 (the `cisco-router` macro) | `interface GigabitEthernet1/4` / `switchport trunk encapsulation dot1q` / `switchport trunk native vlan 4` / `switchport mode trunk` / `switchport nonegotiate` |
 | [Catalyst 2960-X Auto Identity chapter, 15.2(4)E](http://www.cisco.com/c/en/us/td/docs/switches/lan/catalyst2960x/software/15-2_4_e/configurationguide/b_1524e_consolidated_2960x_cg/b_1524e_consolidated_2960x_cg_chapter_01010101.html) | `show running-config interface gigabitethernet2/0/6`: `switchport mode access` / `switchport voice vlan 100` / `access-session port-control auto` / ... - the voice line again after the mode, with no access VLAN to place first. |
 | [Catalyst 4500 command reference, `show running-config`](https://www.cisco.com/c/en/us/td/docs/switches/lan/catalyst4500/12-2/3-1-1SG/command/reference/cmdref/show1.html) | `show running-config int fastethernet 6/1` with `switchport voice vlan 2` alone in the block - a voice VLAN on a port in the default mode prints no mode line at all. |
+| [Cisco support doc 68100, "Configure VLANs on Wireless LAN Controllers", Catalyst verification](https://www.cisco.com/c/en/us/support/docs/wireless-mobility/wireless-vlan/68100-wlan-controllers-vlans.html) | A captured `w-backbone-6k#show running-config interface gigabitethernet 2/1` with its byte count: `interface GigabitEthernet2/1` / `no ip address` / `switchport` / `switchport trunk encapsulation dot1q` / `switchport trunk native vlan 999` / `switchport trunk allowed vlan 1,81,82,171,999` / `switchport mode trunk`. The allowed list sits **after** the native VLAN and **before** the mode. |
 | [Cisco tech note: "Configure Catalyst 2960/2950 Series Switches with Voice VLAN"](https://www.cisco.com/c/en/us/support/docs/switches/catalyst-2950-series-switches/113260-voice-vlan-00.pdf) | `show running-config interface fastEthernet 0/6`: `switchport voice vlan 10` / `switchport priority extend trust` / ... |
 | [Cisco Community thread, book excerpt](https://community.cisco.com/t5/routing/the-command-switchport-voice-vlan/td-p/1107807) | The contradiction: `interface fastethernet 1/0/1` / `switchport trunk native vlan 99` / `switchport access vlan 10` / `switchport voice vlan 110` - native before access, and no mode line (the port was left in `dynamic auto`). |
 
@@ -27,8 +30,9 @@ way round. The samples above are output, which is the thing being modelled.
 
 ## What is known
 
-1. The three VLAN parameters (`access vlan`, `trunk encapsulation`, `trunk native vlan`) are printed **before**
-   `switchport mode`, on both an access port and a trunk.
+1. The VLAN parameters (`access vlan`, `trunk encapsulation`, `trunk native vlan`, `trunk allowed vlan`) are
+   printed **before** `switchport mode`, on both an access port and a trunk. The allowed list follows the native
+   VLAN on the one trunk that shows both.
 2. `switchport voice vlan` is printed **after** `switchport mode`, and no port-security or QoS line comes
    between the mode and it.
 3. A parameter whose value is the default prints nothing, and a port whose only switchport fact is a voice
@@ -36,9 +40,6 @@ way round. The samples above are output, which is the thing being modelled.
 
 ## What is inferred
 
-* **Where `switchport trunk allowed vlan` sits.** No published sample shows a trunk with an allowed list. It is
-  kept with the other parameters (after `native vlan`, before `mode trunk`), which is the position the engine
-  already gave it relative to them, and the only position that follows from rule 1 without a second assumption.
 * **The access/native relative order.** The engine prints `access vlan` before `trunk native vlan`. The
   community book excerpt prints native first on a port staged in `dynamic auto` - a configuration that only
   exists when a parameter was typed while the port was in another mode, which is exactly the case PacketForge
@@ -47,11 +48,12 @@ way round. The samples above are output, which is the thing being modelled.
 
 ## What is unresolved, and what would settle it
 
-* Whether the relative order of `access vlan` and `trunk native vlan` flips when the port is in trunk mode, and
-  whether `allowed vlan` precedes or follows `native vlan` on a real trunk. A single `show running-config` from
-  a trunk carrying `switchport access vlan 2`, `switchport trunk native vlan 99` and
-  `switchport trunk allowed vlan 10,20` on the same port would settle both - none was found in public
-  documentation, and IOS 12.2SX / 15.2E output is not something this project can produce.
+* Whether the relative order of `access vlan` and `trunk native vlan` flips when the port is in trunk mode.
+  The engine prints `access vlan` first. The only sample that shows both is the community book excerpt, where
+  `native vlan` comes first on a port left in `dynamic auto` - a different configuration from a port that is
+  actually trunking, so it does not settle the trunk case. A `show running-config` from a trunk carrying
+  `switchport access vlan 2`, `switchport trunk native vlan 99` and `switchport trunk allowed vlan 10,20` on the
+  same port would settle it; none was found in public documentation.
 * `switchport nonegotiate` is printed after `mode trunk`; PacketForge has no such command, so the slot is
   documented here only so that adding one later does not have to rediscover it.
 
@@ -62,3 +64,7 @@ list, mode, voice VLAN. Nothing about parsing, storage or round-tripping changed
 any order, and `test/config-roundtrip.test.js` still replays the output into an identical configuration.
 `test/running-config-switchport-order.test.js` holds the order, including the case where the commands were typed
 in the opposite order, and the case where the voice VLAN is the port's only switchport setting.
+
+The later run that found the support-document capture changed no code (the engine already printed native VLAN
+then allowed list) and added one assertion to that test: the allowed list follows the native VLAN, which used to
+be the one line the file called a guess.
