@@ -1,0 +1,199 @@
+{
+  "vendor": "netgear",
+  "model": "M4250-16XF",
+  "label": "Netgear M4250-16XF (XSM4216F)",
+  "category": "l3-switch",
+  "description": "Netgear AV Line 1U aggregation switch: 16x 1G/10G SFP+ (no copper, no PoE), 1G out-of-band management port, RJ45 RS232 and USB-C console. 320 Gbps fabric, 440 x 200 x 43.2 mm.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "sfp1",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "sfp2",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "sfp3",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "sfp4",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "sfp5",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "sfp6",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "sfp7",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "sfp8",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "sfp9",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "sfp10",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "sfp11",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "sfp12",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "sfp13",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "sfp14",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "sfp15",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "sfp16",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "mgmt",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "console",
+      "type": "console"
+    }
+  ],
+  "icon": "switch",
+  "color": "#64748b",
+  "sourceUrl": "https://www.downloads.netgear.com/files/GDC/M4250/M4250_Datasheet.pdf",
+  "fabric": {
+    "capacityMbps": 320000,
+    "kind": "switching fabric",
+    "note": "Vendor 320 Gbps non-blocking fabric across 16 ports (16 x 10G = 160 Gbit/s each way); forwarding rate 238.08 Mpps, line rate."
+  },
+  "notes": "M4250 series common platform: 16K MAC addresses, 4K ARP/NDP entries, 4K VLANs, static routes (894 IPv4 / 126 IPv6) plus RIP (32 IPv4), DHCP server (2K leases), sFlow, SNMP, console/telnet/SSH CLI and the AV web GUI. All-fibre aggregation model: sixteen SFP+ cages, no RJ45 data ports and no PoE. The two vendor statements about 1G on these cages do not say quite the same thing - the datasheet hardware table reads 16 ports SFP+ 10G only (first 12 ports support 1G), while the KB model table says twelve ports support 1G by autonegotiation and the remaining four can be set to 1G manually. Both are recorded here as 1G/10G cages, the reading the KB spells out; a 1G optic in cages 13-16 needs the port forced rather than negotiated. Sources: datasheet https://www.downloads.netgear.com/files/GDC/M4250/M4250_Datasheet.pdf and https://kb.netgear.com/000064904/NETGEAR-AV-Line-of-Fully-Managed-Switches-M4250-Series."
+}

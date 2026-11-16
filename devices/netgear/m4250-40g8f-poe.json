@@ -1,0 +1,639 @@
+{
+  "vendor": "netgear",
+  "model": "M4250-40G8F-PoE+",
+  "label": "Netgear M4250-40G8F-PoE+ (GSM4248P)",
+  "category": "l3-switch",
+  "description": "Netgear AV Line 1U switch: 40x 1G PoE+ (480 W) + 8x 1G SFP, 1G out-of-band management port, RJ45 RS232 and USB-C console. 96 Gbps fabric, 32 MB packet buffer, 440 x 400 x 43.2 mm.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli",
+    "http-server",
+    "poe-pse",
+    "802.3af",
+    "802.3at"
+  ],
+  "interfaces": [
+    {
+      "name": "port1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "port2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "port3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "port4",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "port5",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "port6",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "port7",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "port8",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "port9",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "port10",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "port11",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "port12",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "port13",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "port14",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "port15",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "port16",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "port17",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "port18",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "port19",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "port20",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "port21",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "port22",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "port23",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "port24",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "port25",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "port26",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "port27",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "port28",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "port29",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "port30",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "port31",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "port32",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "port33",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "port34",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "port35",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "port36",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "port37",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "port38",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "port39",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "port40",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "sfp1",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        1000
+      ]
+    },
+    {
+      "name": "sfp2",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        1000
+      ]
+    },
+    {
+      "name": "sfp3",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        1000
+      ]
+    },
+    {
+      "name": "sfp4",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        1000
+      ]
+    },
+    {
+      "name": "sfp5",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        1000
+      ]
+    },
+    {
+      "name": "sfp6",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        1000
+      ]
+    },
+    {
+      "name": "sfp7",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        1000
+      ]
+    },
+    {
+      "name": "sfp8",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        1000
+      ]
+    },
+    {
+      "name": "mgmt",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "console",
+      "type": "console"
+    }
+  ],
+  "icon": "switch",
+  "color": "#64748b",
+  "sourceUrl": "https://www.downloads.netgear.com/files/GDC/M4250/M4250_Datasheet.pdf",
+  "fabric": {
+    "capacityMbps": 96000,
+    "kind": "switching fabric",
+    "note": "Vendor 96 Gbps non-blocking fabric across 48 ports (48 x 1G = 48 Gbit/s each way); forwarding rate 71.42 Mpps, line rate."
+  },
+  "poe": {
+    "budgetW": 480,
+    "sourceUrl": "https://www.downloads.netgear.com/files/GDC/M4250/M4250_Datasheet.pdf",
+    "note": "480 W across 40 PoE+ ports is 12 W per port on average against a 30 W 802.3at ceiling - the same budget as the 24-port M4250-26G4XF-PoE+, spread over 16 more ports. A 40-endpoint AVoIP rack at full 802.3at cannot be powered from one of these."
+  },
+  "notes": "M4250 series common platform: 16K MAC addresses, 4K ARP/NDP entries, 4K VLANs, static routes (894 IPv4 / 126 IPv6) plus RIP (32 IPv4), DHCP server (2K leases), sFlow, SNMP, console/telnet/SSH CLI and the AV web GUI. 40-PoE-port chassis with 1G SFP-only uplinks: there are no non-PoE copper ports on this model (the hardware table lists 40 PoE+ ports and 8 SFP). Packet buffer 32 MB, twice the 16 MB of the 8/10/26-port models. Sources: datasheet https://www.downloads.netgear.com/files/GDC/M4250/M4250_Datasheet.pdf and https://kb.netgear.com/000064904/NETGEAR-AV-Line-of-Fully-Managed-Switches-M4250-Series."
+}

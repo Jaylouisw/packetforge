@@ -243,7 +243,7 @@ entry it returns is either a device with at least one named port or an error tha
 
 ## What is in the catalogue
 
-**2,227 models across 252 vendors**, and it grows every time somebody's hardware is
+**2,238 models across 252 vendors**, and it grows every time somebody's hardware is
 added. The largest vendors by model count:
 
 | vendor | models | | category | models |
@@ -252,11 +252,11 @@ added. The largest vendors by model count:
 | Ubiquiti | 368 | | switch | 395 |
 | Aruba | 73 | | point-to-point | 212 |
 | Huawei | 86 | | wireless | 220 |
-| Cisco | 58 | | L3 switch | 210 |
+| Cisco | 58 | | L3 switch | 221 |
 | TP-Link | 56 | | IoT | 125 |
 | Teltonika | 88 | | modem | 54 |
 | HPE | 33 |
-| NETGEAR | 41 | | | |
+| NETGEAR | 52 | | | |
 
 The authoritative list is not this page — it is the directory. `GET /api/catalog` returns
 every spec the running server has loaded, with the category groupings the palette uses,

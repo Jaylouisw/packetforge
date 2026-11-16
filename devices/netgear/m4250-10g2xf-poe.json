@@ -1,0 +1,193 @@
+{
+  "vendor": "netgear",
+  "model": "M4250-10G2XF-PoE+",
+  "label": "Netgear M4250-10G2XF-PoE+ (GSM4212PX)",
+  "category": "l3-switch",
+  "description": "Netgear AV Line 1U switch: 8x 1G PoE+ (240 W) + 2x 1G RJ45 + 2x 1G/10G SFP+, 1G out-of-band management port, RJ45 RS232 and USB-C console. 60 Gbps fabric, 440 x 200 x 43.2 mm.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli",
+    "http-server",
+    "poe-pse",
+    "802.3af",
+    "802.3at"
+  ],
+  "interfaces": [
+    {
+      "name": "port1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "port2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "port3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "port4",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "port5",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "port6",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "port7",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "port8",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "port9",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "port10",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "sfp1",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "sfp2",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "mgmt",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "console",
+      "type": "console"
+    }
+  ],
+  "icon": "switch",
+  "color": "#64748b",
+  "sourceUrl": "https://www.downloads.netgear.com/files/GDC/M4250/M4250_Datasheet.pdf",
+  "fabric": {
+    "capacityMbps": 60000,
+    "kind": "switching fabric",
+    "note": "Vendor 60 Gbps non-blocking fabric across 12 ports (10 x 1G + 2 x 10G = 30 Gbit/s each way); forwarding rate 44.64 Mpps, line rate."
+  },
+  "poe": {
+    "budgetW": 240,
+    "sourceUrl": "https://www.downloads.netgear.com/files/GDC/M4250/M4250_Datasheet.pdf",
+    "note": "240 W across the 8 PoE+ ports - nearly twice the 125 W of the M4250-10G2F-PoE+ on the same eight-port copper block, because this model carries a 10G uplink pair and was given the larger supply."
+  },
+  "notes": "M4250 series common platform: 16K MAC addresses, 4K ARP/NDP entries, 4K VLANs, static routes (894 IPv4 / 126 IPv6) plus RIP (32 IPv4), DHCP server (2K leases), sFlow, SNMP, console/telnet/SSH CLI and the AV web GUI. Rack model with the ports at the rear and a black display panel at the front; reversed mounting with the ports at the front is supported. Same 8 PoE+ / 2 copper / 2 SFP+ census as the M4250-10G2XF-PoE++, which swaps the 802.3at PSEs for Ultra90 802.3bt and a 720 W budget. Console: RJ45 RS232 plus USB-C, both at the rear. Sources: datasheet https://www.downloads.netgear.com/files/GDC/M4250/M4250_Datasheet.pdf and https://kb.netgear.com/000064904/NETGEAR-AV-Line-of-Fully-Managed-Switches-M4250-Series."
+}
