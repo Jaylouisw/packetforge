@@ -379,9 +379,10 @@ C   10.0.1.0       /24  is directly connected, Gi0/0
 C   10.0.2.0       /24  is directly connected, Gi0/1
 R1# ping 10.0.1.10
 Type escape sequence to abort.
-Sending 4, 100-byte ICMP Echos to 10.0.1.10, timeout is 2 seconds:
-!!!!
-Success rate is 100 percent (4/4), round-trip min/avg/max = 0.002/0.002/0.002 ms
+Sending 5, 100-byte ICMP Echos to 10.0.1.10, timeout is 2 seconds:
+!!!!!
+Success rate is 100 percent (5/5), round-trip min/avg/max = 0.002/0.002/0.002 ms
+Reply from 10.0.1.10: bytes=100 time=0.002 ms
 Reply from 10.0.1.10: bytes=100 time=0.002 ms
 Reply from 10.0.1.10: bytes=100 time=0.002 ms
 Reply from 10.0.1.10: bytes=100 time=0.002 ms
@@ -743,7 +744,9 @@ answer can quote what was typed instead of the field name the validator uses int
 `ping <address|name> [<count 1-50>] [at <ms>]` — an address or a name, how many echoes, and optionally the instant to
 ask at. The count is a whole number from 1 to 50: `ping 10.0.0.1 51` is refused rather than sent, because the count
 is a loop bound and fifty is what one console answer is sized for. A stray word is refused too, with the usage
-attached, and `at` must be followed by a number.
+attached, and `at` must be followed by a number. With no count, a ping sends **five** echoes — the repeat count an
+IOS-style box prompts with (`Repeat count [5]:`) and sends itself — so a bare `ping <address>` here and on real gear
+send the same five and print the same `Sending 5 ...` header (research/ping-default-repeat-count.md).
 
 ```
 r1> ping 10.0.0.1 51
@@ -762,9 +765,9 @@ h1> ping r1.lab
 Type escape sequence to abort.
 Translating "r1.lab"...domain server (10.0.0.1) [OK]
   r1.lab -> 10.0.0.1
-Sending 4, 100-byte ICMP Echos to 10.0.0.1, timeout is 2 seconds:
-!!!!
-Success rate is 100 percent (4/4), round-trip min/avg/max = 0.002/0.002/0.002 ms
+Sending 5, 100-byte ICMP Echos to 10.0.0.1, timeout is 2 seconds:
+!!!!!
+Success rate is 100 percent (5/5), round-trip min/avg/max = 0.002/0.002/0.002 ms
 Reply from 10.0.0.1: bytes=100 time=0.002 ms
 ```
 

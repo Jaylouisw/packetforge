@@ -61,9 +61,9 @@ console.log('A literal IPv6 address is an address:');
   const before = L.sim.events.length;
   const out = L.run('ping ' + V6_ROUTER);
   const text = out.join('\n');
-  ok(/Sending 4, 100-byte ICMP Echos to 2001:db8:1::1/.test(text), 'it is echoed, not resolved', text.split('\n')[1]);
-  ok(/!!!!/.test(text), 'all four replies arrive', text);
-  ok(/Success rate is 100 percent \(4\/4\)/.test(text), 'and the rate says so', text);
+  ok(/Sending 5, 100-byte ICMP Echos to 2001:db8:1::1/.test(text), 'it is echoed, not resolved', text.split('\n')[1]);
+  ok(/!!!!!/.test(text), 'all five replies arrive', text);
+  ok(/Success rate is 100 percent \(5\/5\)/.test(text), 'and the rate says so', text);
   ok(/Reply from 2001:db8:1::1: bytes=100 time=/.test(text), 'each reply names the address', text);
   ok(text.indexOf('Could not resolve') === -1, 'no resolver was asked', text);
   ok(text.indexOf('SERVFAIL') === -1, 'and no DNS status is reported about an address', text);
@@ -145,7 +145,7 @@ console.log('');
 console.log('IPv4 and names behave exactly as before:');
 {
   const L = lab();
-  ok(/Success rate is 100 percent \(4\/4\)/.test(L.joined('ping ' + V4_ROUTER)), 'IPv4 still answers', '');
+  ok(/Success rate is 100 percent \(5\/5\)/.test(L.joined('ping ' + V4_ROUTER)), 'IPv4 still answers', '');
   ok(/% Invalid ping target: 10\.0\.0\.999/.test(L.joined('ping 10.0.0.999')),
     'a v4 typo still gets the v4 sentence', L.joined('ping 10.0.0.999'));
   const name = L.joined('ping nosuchname.lab');
@@ -161,8 +161,8 @@ console.log('An address nobody owns times out, and says so:');
 {
   const L = lab();
   const text = L.joined('ping 2001:db8:1::99');
-  ok(/Success rate is 0 percent \(0\/4\)/.test(text), 'nothing answers', text.split('\n')[2]);
-  ['0', '1', '2', '3'].forEach(function (seq) {
+  ok(/Success rate is 0 percent \(0\/5\)/.test(text), 'nothing answers', text.split('\n')[2]);
+  ['0', '1', '2', '3', '4'].forEach(function (seq) {
     ok(new RegExp('Request timed out \\(seq ' + seq + '\\)').test(text), 'seq ' + seq + ' says it timed out', '');
   });
 }

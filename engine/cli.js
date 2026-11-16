@@ -2826,7 +2826,9 @@ class CliSession {
   _ping(tokens) {
     const out = [];
     const ip = tokens[0];
-    let count = 4;
+    // The repeat count the box itself uses when nobody names one: five, the vendor's own default, so a bare
+    // `ping <address>` here and on real gear send the same number of echoes (research/ping-default-repeat-count.md).
+    let count = require('./simulator').PING_COUNT_DEFAULT;
     let requestedCount = null;
     let atMs = null;
     let strayToken = null;

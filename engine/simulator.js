@@ -24,7 +24,13 @@ const dhcpLib = require('./dhcp');
 
 // How many echoes one ping may ask for. The default is what a box sends when you type `ping <address>`, and the
 // ceiling is what keeps a single call bounded; `PING_COUNT_DEFAULT` and `PING_COUNT_MAX` are the whole rule.
-const PING_COUNT_DEFAULT = 4;
+//
+// Five, because that is the repeat count an IOS-style box prompts with (`Repeat count [5]:`) and sends when nobody
+// overrides it: `Sending 5, 100-byte ICMP Echos to 192.168.7.27, timeout is 2 seconds:` - Cisco's `ping` command
+// reference lists "Repeat count [5]: Number of ping packets that will be sent to the destination address. Default: 5"
+// (research/ping-default-repeat-count.md). This console sent four and printed "Sending 4" in its own header, so every
+// transcript compared against a real box was one echo short.
+const PING_COUNT_DEFAULT = 5;
 const PING_COUNT_MAX = 50;
 
 // Discard reasons that mean a traceroute probe was *stopped*, not merely unanswered: the frame
@@ -2241,7 +2247,8 @@ class Simulator {
   // --- public: IPv6 ping ---
   ping6(srcId, dstIp6, opts) {
     opts = opts || {};
-    const count = opts.count || 4;
+    // The same default as the IPv4 echo - one box, one repeat count (research/ping-default-repeat-count.md).
+    const count = opts.count || PING_COUNT_DEFAULT;
     this.reset();
     this.computeStp();
     this.computePoe();

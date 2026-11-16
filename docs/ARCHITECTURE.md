@@ -869,9 +869,9 @@ the resolver, and prints the report both families share:
 ```
 p> ping 2001:db8:1::1
 Type escape sequence to abort.
-Sending 4, 100-byte ICMP Echos to 2001:db8:1::1, timeout is 2 seconds:
-!!!!
-Success rate is 100 percent (4/4), round-trip min/avg/max = 0.103/0.103/0.103 ms
+Sending 5, 100-byte ICMP Echos to 2001:db8:1::1, timeout is 2 seconds:
+!!!!!
+Success rate is 100 percent (5/5), round-trip min/avg/max = 0.103/0.103/0.103 ms
 Reply from 2001:db8:1::1: bytes=100 time=0.103 ms
 ```
 

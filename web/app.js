@@ -2429,7 +2429,7 @@
       '<label>Destination address or name</label>' +
       '<input id="ping-dst" placeholder="e.g. 192.168.1.20 or server.lab" spellcheck="false">' +
       '<label>Count</label>' +
-      '<input id="ping-count" type="number" min="1" max="50" value="4">' +
+      '<input id="ping-count" type="number" min="1" max="50" value="5">' +
       '<button id="ping-run" class="btn ping-run">▶ Send Ping</button>' +
       '</div>' +
       '<div id="ping-result" class="ping-result"></div>' +
@@ -2554,9 +2554,9 @@
     const problem = pingTargetProblem(dst);
     if (problem) { toast(problem); return; }
     const countField = $('#ping-count').value.trim();
-    const countProblem = pingCountProblem(countField === '' ? '4' : countField);
+    const countProblem = pingCountProblem(countField === '' ? '5' : countField);
     if (countProblem) { toast(countProblem); return; }
-    const count = Number(countField === '' ? 4 : countField);
+    const count = Number(countField === '' ? 5 : countField);
     $('#ping-result').innerHTML = 'Sending ' + count + ' ICMP echos to ' + dst + '…';
     $('#event-log').innerHTML = '';
     try {

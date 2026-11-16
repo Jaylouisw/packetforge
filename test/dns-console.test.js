@@ -66,7 +66,7 @@ console.log('ping takes a name, and says how it resolved:');
   ok(/Translating "r1\.lab"\.\.\.domain server \(10\.0\.0\.1\) \[OK\]/.test(text),
     'the translation names the server that answered, by address', text.split('\n')[1]);
   ok(/r1\.lab -> 10\.0\.0\.1/.test(text), 'and the address it resolved to', text);
-  ok(/Success rate is 100 percent \(4\/4\)/.test(text), 'and the ping actually happens', text);
+  ok(/Success rate is 100 percent \(5\/5\)/.test(text), 'and the ping actually happens', text);
   ok(/Reply from 10\.0\.0\.1/.test(text), 'replies name the address, not the name');
 
   // A CNAME resolves to its target's address through the engine, and the console prints what came back.

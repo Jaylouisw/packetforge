@@ -102,7 +102,9 @@ console.log('The engine bounds itself, and says what it did:');
   ok(normal.count === 3 && normal.requestedCount === 3, 'and reported back', JSON.stringify([normal.count, normal.requestedCount]));
 
   const absent = pingWith('ABSENT');
-  ok(absent.replies.length === 4, 'no count is four', String(absent.replies.length));
+  // Five, because that is the repeat count a box itself uses when nobody names one
+  // (research/ping-default-repeat-count.md).
+  ok(absent.replies.length === 5, 'no count is five, the vendor default', String(absent.replies.length));
   ok(absent.requestedCount === null, 'and nothing is claimed to have been asked for');
 
   const huge = pingWith(1000000000);
@@ -114,7 +116,7 @@ console.log('The engine bounds itself, and says what it did:');
   // Values that are not a count at all fall back to the default instead of producing an empty, healthy-looking list.
   for (const bad of [0, -5, 'abc', null, '']) {
     const r = pingWith(bad);
-    ok(r.replies.length === 4, 'count ' + JSON.stringify(bad) + ' falls back to four replies',
+    ok(r.replies.length === 5, 'count ' + JSON.stringify(bad) + ' falls back to the five-echo default',
       String(r.replies.length));
   }
   const frac = pingWith(1.9);
@@ -209,7 +211,7 @@ console.log('The dialog and the console refuse the same values:');
       ok(good, 'count ' + JSON.stringify(bad) + ' is a 400 naming the range', String(r.status) + ' ' + JSON.stringify(r.body));
     }
     const nulled = await request('POST', '/api/topologies/default/ping', { src: devId, dst: '10.0.0.1', count: null });
-    ok(nulled.status === 200 && nulled.body.replies.length === 4,
+    ok(nulled.status === 200 && nulled.body.replies.length === 5,
       'an explicit null is treated as no count at all, not as an error',
       String(nulled.status) + ' ' + JSON.stringify(nulled.body && nulled.body.replies && nulled.body.replies.length));
     const fifty = await request('POST', '/api/topologies/default/ping', { src: devId, dst: '10.0.0.1', count: 50 });
@@ -217,8 +219,8 @@ console.log('The dialog and the console refuse the same values:');
     ok(fifty.body.replies.length === 50 && fifty.body.count === 50,
       'and 50 replies come back, with the count reported', JSON.stringify([fifty.body.replies.length, fifty.body.count]));
     const absent = await request('POST', '/api/topologies/default/ping', { src: devId, dst: '10.0.0.1' });
-    ok(absent.body.replies.length === 4 && absent.body.count === 4,
-      'no count means four, and the answer says four',
+    ok(absent.body.replies.length === 5 && absent.body.count === 5,
+      'no count means five, and the answer says five',
       JSON.stringify([absent.body.replies.length, absent.body.count]));
   } finally {
     child.kill();
