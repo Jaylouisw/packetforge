@@ -1082,10 +1082,13 @@ Four decisions worth keeping:
 * **Everything that worked is untouched.** `10, 20` with spaces, `40 - 42` ranges, `all`, `no switchport trunk allowed
   vlan`, and the bare command's `% Incomplete command` all behave exactly as before.
 
-After every edit the engine state, `show running-config`, `show interfaces <port>` and `show vlan brief` are compared
-against each other, and the line the config prints is typed back in to prove it is a no-op.
+After every edit the engine state, `show running-config` and `show interfaces <port>` are compared against each other,
+and the line the config prints is typed back in to prove it is a no-op. `show vlan brief` is deliberately **not** one of
+them: it is a view of the VLAN database, not of a trunk's allowed list. A VLAN the list names but nobody created has no
+row, and a trunk appears in no row even when the VLAN does exist, so the test asserts that absence instead of agreement
+(#1638, `research/vlan-brief-trunk-ports.md`).
 
-`test/trunk-allowed-add-remove.test.js` pins it, 42 checks.
+`test/trunk-allowed-add-remove.test.js` pins it, 45 checks.
 
 ### The request that was answered with nothing
 
