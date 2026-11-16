@@ -8,7 +8,10 @@
 // been wrong for months.
 const fs = require('fs');
 const path = require('path');
-const { loadCatalog } = require(path.join(__dirname, '..', 'devices', 'registry.js'));
+const { loadCatalog, effectiveInterfaces } = require(path.join(__dirname, '..', 'devices', 'registry.js'));
+// The same shape rule the sweep in test/faceplate-catalogue.test.js uses, so "distinct port shapes"
+// means one thing in the page, in that test's printed line, and here.
+const { shapeOf } = require(path.join(__dirname, '..', 'scripts', 'catalogue-shapes.js'));
 // One rule for "what does this row mean", shared with the writer, so a label the writer can resolve
 // cannot be silently skipped by the reader. This is how the point-to-point row stopped being checked:
 // its label resolves to `ptp`, the lookup asked for `point-to-point`, found nothing, and skipped.
@@ -30,7 +33,11 @@ for (const s of real) {
   byVendor[s.vendor] = (byVendor[s.vendor] || 0) + 1;
   byCategory[s.category] = (byCategory[s.category] || 0) + 1;
 }
-const counts = { total: real.length, vendors: realVendors.size, byVendor: byVendor, byCategory: byCategory };
+let sockets = 0;
+const shapes = new Set();
+for (const s of real) { sockets += effectiveInterfaces(s).length; shapes.add(shapeOf(s)); }
+const counts = { total: real.length, vendors: realVendors.size, byVendor: byVendor, byCategory: byCategory,
+  sockets: sockets, shapes: shapes.size };
 const doc = fs.readFileSync(path.join(ROOT, 'docs', 'DEVICE_REGISTRY.md'), 'utf8');
 
 console.log('The document states the size of the catalogue:');
@@ -89,6 +96,66 @@ ok(regenerated.changes.length === 0,
     'and rewritten to the counts printed from the catalogue');
   ok(fixed.doc.split('\n').length === stale.split('\n').length,
     'without adding or removing a line (a count page acquires stray characters when it is rebuilt by regex)');
+}
+
+// README and docs/CONNECTORS.md state the same totals, and neither was written by anything. Both went
+// stale on 2026-11-16: two device pull requests landed, only the registry page was regenerated, and the
+// front page spent the rest of the day claiming 4 fewer models and 164 fewer sockets than the catalogue
+// held. A number a reader trusts has to be a number something checks.
+console.log('\nREADME states the same sentence the registry page does:');
+const readme = fs.readFileSync(path.join(ROOT, 'README.md'), 'utf8');
+const rStated = /\*\*([\d,]+) models across ([\d,]+) vendors\*\*/.exec(readme);
+ok(!!rStated, 'the sentence is still on the page');
+ok(rStated ? Number(rStated[1].replace(/,/g, '')) === real.length : false,
+  'README models match the directory (' + real.length + ')',
+  'README says ' + (rStated ? rStated[1] : 'nothing'));
+ok(rStated ? Number(rStated[2].replace(/,/g, '')) === realVendors.size : false,
+  'README vendors match the directory (' + realVendors.size + ')',
+  'README says ' + (rStated ? rStated[2] : 'nothing'));
+
+console.log('\nCONNECTORS states the model count, the socket count and the shape count:');
+const connectors = fs.readFileSync(path.join(ROOT, 'docs', 'CONNECTORS.md'), 'utf8');
+const cProse = /\*\*([\d,]+) models built from ([\d,]+) distinct\s+port shapes\*\*/.exec(connectors);
+ok(!!cProse, 'the prose sentence is still on the page');
+ok(cProse ? Number(cProse[1].replace(/,/g, '')) === real.length : false,
+  'the prose model count matches (' + real.length + ')', cProse ? cProse[1] : 'nothing');
+ok(cProse ? Number(cProse[2].replace(/,/g, '')) === shapes.size : false,
+  'the prose shape count matches (' + shapes.size + ')', cProse ? cProse[2] : 'nothing');
+// This block is pasted output: test/faceplate-catalogue.test.js prints exactly this line, so a stale
+// paste is a page quoting a number the suite no longer prints.
+const cBlock = /\(([\d,]+) models, ([\d,]+) sockets, ([\d,]+) distinct port shapes\)/.exec(connectors);
+ok(!!cBlock, 'the pasted test output is still on the page');
+ok(cBlock ? Number(cBlock[1].replace(/,/g, '')) === real.length : false,
+  'the pasted model count matches (' + real.length + ')', cBlock ? cBlock[1] : 'nothing');
+ok(cBlock ? Number(cBlock[2].replace(/,/g, '')) === sockets : false,
+  'the pasted socket count matches (' + sockets + ')', cBlock ? cBlock[2] : 'nothing');
+ok(cBlock ? Number(cBlock[3].replace(/,/g, '')) === shapes.size : false,
+  'the pasted shape count matches (' + shapes.size + ')', cBlock ? cBlock[3] : 'nothing');
+
+console.log('\nEvery page that states a total is what the generator would write:');
+const regen = require(path.join(__dirname, '..', 'scripts', 'regen-registry-doc.js'));
+for (const page of regen.PAGES) {
+  const before = fs.readFileSync(page.path, 'utf8');
+  const out = page.rewrite(before, counts);
+  ok(out.changes.length === 0, page.file + ' is current', out.changes.join('; '));
+}
+{
+  // And the gate bites: a page with a plausible-looking wrong number is reported and repaired, on both
+  // kinds of page, without reflowing either.
+  const staleReadme = readme.replace(/\*\*[\d,]+ models across [\d,]+ vendors\*\*/,
+    '**2,210 models across 252 vendors**');
+  const fixedReadme = regen.rewriteReadme(staleReadme, counts);
+  ok(fixedReadme.changes.length === 1, 'a stale README is noticed (' + fixedReadme.changes[0] + ')');
+  ok(fixedReadme.doc.split('\n').length === staleReadme.split('\n').length,
+    'and repaired in place, without adding a line');
+
+  const staleConn = connectors
+    .replace(/\(([\d,]+) models, ([\d,]+) sockets, ([\d,]+) distinct port shapes\)/,
+      '(2210 models, 25016 sockets, 867 distinct port shapes)');
+  const fixedConn = regen.rewriteConnectors(staleConn, counts);
+  ok(fixedConn.changes.length === 1, 'a stale pasted block is noticed (' + fixedConn.changes[0] + ')');
+  ok(fixedConn.doc.split('\n').length === staleConn.split('\n').length,
+    'and repaired in place, without reflowing the paragraph');
 }
 
   console.log('\n' + passed + ' passed, ' + failed + ' failed');

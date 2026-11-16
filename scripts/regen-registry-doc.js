@@ -1,24 +1,34 @@
 #!/usr/bin/env node
 /**
- * Rewrite the counts in `docs/DEVICE_REGISTRY.md` from the catalogue.
+ * Rewrite the catalogue totals in the pages that state them, from the catalogue.
  *
- * The page states "**N models across M vendors**" and carries a small table of the largest vendors and
- * the categories. Those numbers are prose about a directory, so they go stale every time a device
- * lands — and they went stale in a way that is worse than untidy: `test/doc-catalog-counts.test.js`
- * fails on `main` while every open pull request is branched from a commit that predates the drift, so
- * one stale sentence turns the whole merge queue red. Correcting it by hand has gone wrong three
- * documented ways (a title-case label leaving the old number in place, a backreference regex writing
- * `\x01` over the number, and a plausible-looking count nobody printed).
+ * Three pages in this tree claim how big the catalogue is, and until now only one of them was written
+ * by this script:
  *
- * So the numbers are computed here, once, from `loadCatalog()`, and written into the page:
+ *   docs/DEVICE_REGISTRY.md   "**N models across M vendors**" plus the largest-vendor/category table
+ *   README.md                 the same sentence, in the vendors row of the feature table
+ *   docs/CONNECTORS.md        "**N models built from S distinct port shapes**", and the pasted
+ *                             output of `test/faceplate-catalogue.test.js` underneath it
+ *   docs/wiki/Home.md         "**N device models from M vendors**"
+ *   scripts/build-wiki.js     the template that page is built from, which carries the same sentence
  *
- *   node scripts/regen-registry-doc.js           # rewrite the page
- *   node scripts/regen-registry-doc.js --check   # exit 1 if the page is stale, write nothing
+ * The hand-typed copies went stale within hours of each other on 2026-11-16: the registry page was
+ * regenerated to 2,214 models while README, CONNECTORS and the wiki still said 2,210 / 25,016 sockets
+ * / 867 shapes, because two device pull requests had landed in between and only ran the generator - and
+ * a later repair had to touch four pages and a template by hand to catch up. That is
+ * the same failure the registry page had before it got a writer: prose about a directory, corrected by
+ * hand, drifts faster than anyone reads it. So every page that states the number is written here, once,
+ * and `--check` reports all of them:
  *
- * The label-to-key rule is exported, because the test asserting the page has to use the same one —
+ *   node scripts/regen-registry-doc.js           # rewrite the pages
+ *   node scripts/regen-registry-doc.js --check   # exit 1 if any page is stale, write nothing
+ *
+ * The label-to-key rule is exported, because the test asserting the table has to use the same one -
  * two copies of "what does this row mean" is how the `point-to-point` row stopped being checked at
  * all (its label resolves to `ptp` in the catalogue, not to `point-to-point`, so the test looked up a
- * category that does not exist, found zero models, and skipped the row).
+ * category that does not exist, found zero models, and skipped the row). The port-shape rule lives in
+ * `scripts/catalogue-shapes.js` for the same reason: the sweep in `test/faceplate-catalogue.test.js`
+ * and the `--check` here must count the same thing, or the pasted block is always wrong.
  */
 'use strict';
 
@@ -27,6 +37,13 @@ const path = require('path');
 
 const ROOT = path.join(__dirname, '..');
 const DOC = path.join(ROOT, 'docs', 'DEVICE_REGISTRY.md');
+const README = path.join(ROOT, 'README.md');
+const CONNECTORS = path.join(ROOT, 'docs', 'CONNECTORS.md');
+const WIKI_HOME = path.join(ROOT, 'docs', 'wiki', 'Home.md');
+// The wiki page is built from a template that lives in the builder itself, so the number a human edits is
+// in a .js file. Both are rewritten: the template so the build keeps producing the right page, the page so
+// a publish that has not run yet is not quoting yesterday's catalogue.
+const WIKI_BUILDER = path.join(ROOT, 'scripts', 'build-wiki.js');
 
 // A row's label is written for a reader; the catalogue's key is an identifier. Where the two differ,
 // say so here rather than letting the lookup fail quietly.
@@ -43,14 +60,23 @@ function keyForLabel(label) {
 
 function catalogueCounts(devicesDir) {
   // Required lazily so `--check` can run from anywhere without a catalogue on disk in tests.
-  const { loadCatalog } = require(path.join(ROOT, 'devices', 'registry.js'));
+  const { loadCatalog, effectiveInterfaces } = require(path.join(ROOT, 'devices', 'registry.js'));
+  const { shapeOf } = require(path.join(ROOT, 'scripts', 'catalogue-shapes.js'));
   const specs = loadCatalog(devicesDir || path.join(ROOT, 'devices')).filter(function (s) { return !s.error; });
   const byVendor = {}, byCategory = {};
+  const shapes = new Set();
+  let sockets = 0;
   for (const s of specs) {
     byVendor[s.vendor] = (byVendor[s.vendor] || 0) + 1;
     byCategory[s.category] = (byCategory[s.category] || 0) + 1;
+    sockets += effectiveInterfaces(s).length;
+    shapes.add(shapeOf(s));
   }
-  return { total: specs.length, vendors: Object.keys(byVendor).length, byVendor, byCategory };
+  return {
+    total: specs.length, vendors: Object.keys(byVendor).length,
+    sockets: sockets, shapes: shapes.size,
+    byVendor, byCategory
+  };
 }
 
 // What a row should say. Returns null when the row names nothing the catalogue holds, which is a row
@@ -62,15 +88,20 @@ function expectedCount(label, counts) {
   return null;
 }
 
-function rewrite(doc, counts) {
+// "**N models across M vendors**" - the sentence on the registry page and in README.
+function rewriteHeadline(doc, counts) {
   const changes = [];
-  let out = doc.replace(/\*\*([\d,]+) models across ([\d,]+) vendors\*\*/, function (m, models, vendors) {
+  const out = doc.replace(/\*\*([\d,]+) models across ([\d,]+) vendors\*\*/, function (m, models, vendors) {
     const next = '**' + fmt(counts.total) + ' models across ' + fmt(counts.vendors) + ' vendors**';
     if (m !== next) changes.push('headline: ' + m + ' -> ' + next);
     return next;
   });
+  return { doc: out, changes: changes };
+}
 
-  out = out.split('\n').map(function (line) {
+function rewriteTables(doc, counts) {
+  const changes = [];
+  const out = doc.split('\n').map(function (line) {
     if (!/^\|/.test(line)) return line;
     const cells = line.split('|');
     // | vendor | models | | category | models |   -> ["", " vendor ", " models ", " ", " category ", " models ", ""]
@@ -93,9 +124,71 @@ function rewrite(doc, counts) {
       return c.startsWith(' ') ? c : ' ' + c;
     }).join('|');
   }).join('\n');
+  return { doc: out, changes: changes };
+}
+
+// The registry page: the headline sentence and the table.
+function rewrite(doc, counts) {
+  const head = rewriteHeadline(doc, counts);
+  const table = rewriteTables(head.doc, counts);
+  return { doc: table.doc, changes: head.changes.concat(table.changes) };
+}
+
+// README states the same sentence; its other tables are not catalogue counts, so only the sentence is
+// touched.
+function rewriteReadme(doc, counts) {
+  return rewriteHeadline(doc, counts);
+}
+
+// CONNECTORS states the model count and shape count in prose, then pastes the line
+// `test/faceplate-catalogue.test.js` prints - which carries models, sockets and shapes.
+function rewriteConnectors(doc, counts) {
+  const changes = [];
+  // A caller that only asked for the model counts (a fixture, an older harness) cannot be served the
+  // shape sentence: it needs the sweep's numbers, not the directory's. Leave the page alone rather than
+  // writing `undefined` into it.
+  if (counts.shapes === undefined || counts.sockets === undefined) return { doc: doc, changes: [] };
+  // The sentence wraps mid-phrase on the page, so the gap between "distinct" and "port shapes" is
+  // matched and put back rather than normalised - rewriting it to a space would join two lines and
+  // reflow the paragraph every time this runs.
+  let out = doc.replace(/\*\*([\d,]+) models built from ([\d,]+) distinct(\s+)port shapes\*\*/,
+    function (m, models, shapes, gap) {
+      const next = '**' + fmt(counts.total) + ' models built from ' + fmt(counts.shapes) +
+        ' distinct' + gap + 'port shapes**';
+      if (m !== next) changes.push('prose: ' + m.replace(/\s+/g, ' ') + ' -> ' + next.replace(/\s+/g, ' '));
+      return next;
+    });
+
+  out = out.replace(/\(([\d,]+) models, ([\d,]+) sockets, ([\d,]+) distinct port shapes\)/,
+    function (m, models, sockets, shapes) {
+      const next = '(' + counts.total + ' models, ' + counts.sockets + ' sockets, ' + counts.shapes +
+        ' distinct port shapes)';
+      if (m !== next) changes.push('pasted output: ' + m + ' -> ' + next);
+      return next;
+    });
 
   return { doc: out, changes: changes };
 }
+
+// The wiki states it as "**N device models from M vendors**".
+function rewriteWiki(doc, counts) {
+  const changes = [];
+  const out = doc.replace(/\*\*([\d,]+) device models from ([\d,]+) vendors\*\*/,
+    function (m, models, vendors) {
+      const next = '**' + fmt(counts.total) + ' device models from ' + fmt(counts.vendors) + ' vendors**';
+      if (m !== next) changes.push('wiki headline: ' + m + ' -> ' + next);
+      return next;
+    });
+  return { doc: out, changes: changes };
+}
+
+const PAGES = [
+  { file: 'docs/DEVICE_REGISTRY.md', path: DOC, rewrite: rewrite },
+  { file: 'README.md', path: README, rewrite: rewriteReadme },
+  { file: 'docs/CONNECTORS.md', path: CONNECTORS, rewrite: rewriteConnectors },
+  { file: 'docs/wiki/Home.md', path: WIKI_HOME, rewrite: rewriteWiki },
+  { file: 'scripts/build-wiki.js', path: WIKI_BUILDER, rewrite: rewriteWiki }
+];
 
 function fmt(n) {
   return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
@@ -104,24 +197,38 @@ function fmt(n) {
 function main(argv) {
   const check = argv.indexOf('--check') !== -1;
   const counts = catalogueCounts();
-  const before = fs.readFileSync(DOC, 'utf8');
-  const { doc, changes } = rewrite(before, counts);
+  let stale = 0, written = 0, pages = 0;
 
-  if (changes.length === 0) {
-    console.log('docs/DEVICE_REGISTRY.md is current: ' + fmt(counts.total) + ' models across ' +
-      counts.vendors + ' vendors.');
+  for (const page of PAGES) {
+    const before = fs.readFileSync(page.path, 'utf8');
+    const { doc, changes } = page.rewrite(before, counts);
+    if (changes.length === 0) continue;
+    stale += changes.length;
+    pages += 1;
+    console.log(page.file + ':');
+    for (const c of changes) console.log('  ' + c);
+    if (!check) { fs.writeFileSync(page.path, doc); written += changes.length; }
+  }
+
+  if (stale === 0) {
+    console.log('The catalogue pages are current: ' + fmt(counts.total) + ' models across ' +
+      counts.vendors + ' vendors, ' + fmt(counts.sockets) + ' sockets, ' + counts.shapes +
+      ' distinct port shapes.');
     return 0;
   }
-  for (const c of changes) console.log('  ' + c);
   if (check) {
-    console.error('\ndocs/DEVICE_REGISTRY.md is stale (' + changes.length + ' value(s)). Run: npm run regen:registry-doc');
+    console.error('\n' + stale + ' stale value(s) in ' + pages +
+      ' page(s). Run: npm run regen:registry-doc');
     return 1;
   }
-  fs.writeFileSync(DOC, doc);
-  console.log('\nWrote ' + changes.length + ' value(s) to docs/DEVICE_REGISTRY.md.');
+  console.log('\nWrote ' + written + ' value(s) across ' + pages + ' page(s): ' + fmt(counts.total) +
+    ' models, ' + fmt(counts.sockets) + ' sockets, ' + counts.shapes + ' distinct port shapes.');
   return 0;
 }
 
 if (require.main === module) process.exit(main(process.argv.slice(2)));
 
-module.exports = { keyForLabel, catalogueCounts, expectedCount, rewrite, LABEL_ALIASES };
+module.exports = {
+  keyForLabel, catalogueCounts, expectedCount, rewrite, rewriteHeadline, rewriteReadme,
+  rewriteConnectors, rewriteWiki, PAGES, LABEL_ALIASES
+};

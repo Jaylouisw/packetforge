@@ -24,6 +24,11 @@ const path = require('path');
 const vm = require('vm');
 const { Topology } = require('../engine');
 const { loadCatalog } = require('../devices/registry');
+// A shape is the thing the renderer actually has to cope with: the socket sequence, or the template that
+// generates one. Two models sharing a shape are drawn by the same code path. The rule is shared with the
+// generator that writes this sweep's numbers into docs/, so the page and the test cannot disagree about
+// what was counted.
+const { shapeOf } = require('../scripts/catalogue-shapes');
 
 let passed = 0, failed = 0;
 function ok(cond, msg, detail) {
@@ -39,14 +44,6 @@ const FP = sandbox.window.PFFaceplate;
 
 const specs = loadCatalog(path.join(ROOT, 'devices')).filter(function (s) { return !s.error; });
 
-// A shape is the thing the renderer actually has to cope with: the socket sequence, or the template that
-// generates one. Two models sharing a shape are drawn by the same code path.
-function shapeOf(spec) {
-  const ifs = spec.interfaces || [];
-  return (spec.category || '?') + '|' +
-    (spec.portTemplate ? 'template:' + JSON.stringify(spec.portTemplate) : '') + '|' +
-    ifs.map(function (i) { return i.connector + '/' + i.type; }).join(',');
-}
 
 console.log('');
 console.log('Every catalogued model draws as a front panel:');
