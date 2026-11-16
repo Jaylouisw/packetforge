@@ -12,13 +12,61 @@ const CLOSE_PROTOCOL = 0x03EA;  // 1002
 const CLOSE_TOO_BIG = 0x03F1;   // 1009
 const CLOSE_BAD_DATA = 0x03EF;  // 1007
 
+// RFC 6455 10.2: a server should compare `Origin` with `Host`, because the browser is the only thing that can
+// speak for a page's origin and the upgrade request is otherwise just a socket. Until this existed, any page Jay
+// visited could open ws://127.0.0.1:8000/ and be handed the whole board before it had asked for anything (#1527).
+//
+// An absent `Origin` is allowed: curl, a native client and every suite in test/ send none, and a page cannot make
+// the browser omit it. A present one is allowed only when it names the same host and port the request was
+// addressed to, or when it is listed in `extra` - which is how a page served from somewhere else is let in on
+// purpose (PF_ALLOWED_ORIGINS in server/index.js).
+function allowOrigin(req, extra) {
+  const headers = (req && req.headers) || {};
+  const raw = headers.origin;
+  if (raw === undefined || raw === null || raw === '') return true;
+  let origin;
+  try { origin = new URL(raw); } catch (e) { return false; }
+  // `file:`, a data: URL, and the literal `null` a sandboxed iframe sends: a page, but one that names no host.
+  if (origin.protocol !== 'http:' && origin.protocol !== 'https:') return false;
+  const list = Array.isArray(extra) ? extra : (extra ? [extra] : []);
+  for (const entry of list) {
+    let named;
+    try { named = new URL(String(entry).trim()); } catch (e) { continue; }
+    if (named.protocol !== origin.protocol) continue;
+    if (named.host.toLowerCase() === origin.host.toLowerCase()) return true;
+  }
+  const host = String(headers.host || '').toLowerCase();
+  return !!host && origin.host.toLowerCase() === host;
+}
+
+// A refusal has to happen before the 101, or the caller has already been handed the protocol and everything that
+// comes with it. The body names both headers, so a person looking at a browser console can see what to change.
+function refuseUpgrade(socket, req) {
+  const headers = (req && req.headers) || {};
+  const body = 'Cross-origin WebSocket upgrade refused: Origin ' + (headers.origin || '(none)') +
+    ' does not match Host ' + (headers.host || '(none)') + '.' +
+    ' Set PF_ALLOWED_ORIGINS to allow that origin.' + String.fromCharCode(10);
+  const head = ['HTTP/1.1 403 Forbidden', 'Connection: close', 'Content-Type: text/plain; charset=utf-8',
+    'Content-Length: ' + Buffer.byteLength(body), '', ''].join(String.fromCharCode(13, 10));
+  try { socket.write(head + body); } catch (e) { /* the peer may already be gone */ }
+  try { socket.end(); } catch (e) { /* ignore */ }
+  setTimeout(function () { try { socket.destroy(); } catch (e) { /* already gone */ } }, 2000).unref();
+}
+
 class WebSocketServer {
   constructor() {
     this.clients = new Set();
   }
 
   // Handle an HTTP upgrade request on a raw socket. Returns the client handle.
-  handleUpgrade(req, socket) {
+  //
+  // `opts.allowOrigin`, when given, is asked before the handshake is answered: a request it refuses gets a 403 and
+  // no socket, so a page that is not allowed to be here never reaches the point where the board is pushed.
+  handleUpgrade(req, socket, opts) {
+    if (opts && typeof opts.allowOrigin === 'function' && !opts.allowOrigin(req)) {
+      refuseUpgrade(socket, req);
+      return null;
+    }
     const key = req.headers['sec-websocket-key'];
     if (!key) { socket.destroy(); return null; }
 
@@ -178,4 +226,4 @@ function safeSendClose(client, code, reason) {
   sendFrame(client, payload, 0x8);
 }
 
-module.exports = { WebSocketServer };
+module.exports = { WebSocketServer, allowOrigin };

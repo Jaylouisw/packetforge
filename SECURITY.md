@@ -41,3 +41,8 @@ considerations are:
   trusted network or localhost if you expose it beyond your machine.
 - Topologies are kept in memory and are not authenticated; do not expose the
   server directly to the internet.
+- The WebSocket upgrade refuses a page served from another origin: its `Origin`
+  must name the same host and port as `Host`, unless it is listed in
+  `PF_ALLOWED_ORIGINS`. The REST API still answers with a wildcard
+  `Access-Control-Allow-Origin`, so a page can still *read* a board over HTTP;
+  that is the next change, not a claim this posture makes.

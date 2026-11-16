@@ -360,6 +360,12 @@ Frames that are not allowed are refused with the code that says which rule broke
 from this app is a JSON object naming a board, so the ceiling costs nothing and stops one client from asking the
 process to buffer as much as it likes.
 
+**A page from another origin does not get a socket.** A WebSocket handshake is not subject to the same-origin policy, so
+before the `101` the upgrade asks `allowOrigin()` (`server/ws.js`, #1527): an absent `Origin` is allowed (curl, a native
+client, the test suites), one that names the same host and port as `Host` is allowed, one listed in `PF_ALLOWED_ORIGINS` is
+allowed, and anything else - including the literal `null` a sandboxed iframe sends - is answered `403` with a line
+naming both headers, before the board is pushed. By the time the handshake is answered it is too late to refuse.
+
 **A closed client is a closed client.** An upgraded socket has `allowHalfOpen = true`, so when the peer goes away it
 emits `end` and *stops there* — `close` never fires. Removing the client only on `close` would leave a half-open
 socket holding the entry for the life of the process; `end` and `error` count as gone too. `broadcast()` then only

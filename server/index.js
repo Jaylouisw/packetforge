@@ -14,7 +14,7 @@ const { loadCatalog, groupByCategory } = require('../devices/registry');
 const { validateTopology } = require('../engine/validation');
 const media = require('../engine/media');
 const stpLib = require('../engine/stp');
-const { WebSocketServer } = require('./ws');
+const { WebSocketServer, allowOrigin } = require('./ws');
 const { formatStartupError } = require('./startup-error');
 const { createRequestCache } = require('./requests');
 
@@ -24,6 +24,14 @@ const { createRequestCache } = require('./requests');
 const requestCache = createRequestCache({});
 
 const PORT = parseInt(process.env.PORT || '8000', 10);
+
+// Which pages may open a socket. The UI is served by this process, so its own page is same-origin and needs no
+// entry here; the list is for a page served from somewhere else - a second port, a dev server, a front end on
+// another host - and is empty unless an operator asks for it. A browser page cannot forge `Origin`, which is what
+// makes this a check rather than a suggestion (#1527).
+const ALLOWED_ORIGINS = String(process.env.PF_ALLOWED_ORIGINS || '')
+  .split(',').map(function (s) { return s.trim(); }).filter(Boolean);
+const upgradeAllowed = function (req) { return allowOrigin(req, ALLOWED_ORIGINS); };
 const WEB_DIR = path.join(__dirname, '..', 'web');
 const DEVICES_DIR = path.join(__dirname, '..', 'devices');
 
@@ -1417,7 +1425,7 @@ const server = http.createServer(function (req, res) {
 
 server.on('upgrade', function (req, socket) {
   try {
-    const client = wss.handleUpgrade(req, socket);
+    const client = wss.handleUpgrade(req, socket, { allowOrigin: upgradeAllowed });
     if (client) {
       // Every message gets an answer. Until this, a `subscribe` naming a topology that does not exist was a silent
       // no-op: the client waited for a board that was never coming and could not tell that from an empty one, and a
