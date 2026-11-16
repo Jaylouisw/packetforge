@@ -1,8 +1,10 @@
 # Plan: the default posture is 0.0.0.0, a star, and no Origin check
 
 Status: partly landed. Step 2 - the `Origin` check on the WebSocket upgrade - is in `server/ws.js`
-(`allowOrigin()`, `refuseUpgrade()`) with `test/ws-origin.test.js` behind it. Steps 1 and 3-5 are still
-a plan, and 2 and 3 must not land in one commit. Answers #1527, which is the stated precondition for
+(`allowOrigin()`, `refuseUpgrade()`) with `test/ws-origin.test.js` behind it. Step 1 - the loopback
+default - is in `server/index.js` (`PF_HOST`, `DEFAULT_HOST`) with `test/server-bind.test.js` behind it,
+and the `Dockerfile` sets `PF_HOST=0.0.0.0` so the image keeps answering on its published port. Steps 3-5
+are still a plan, and 2 and 3 must not land in one commit. Answers #1527, which is the stated precondition for
 storing any real device credential. Touches `server/index.js`, `server/ws.js`, `web/app.js`, `Dockerfile`, `test/`,
 `SECURITY.md`, `ARCHITECTURE.md`, `README.md`. The bearer-token half of #1527 is deliberately not
 here (see "Deliberately left out"): it needs a credential surface to protect, and that surface does
@@ -53,7 +55,7 @@ not exist yet.
 
 | # | step | size | closes |
 |---|---|---|---|
-| 1 | `PF_HOST` in `server/index.js`, default `127.0.0.1`, validated through the same startup-error path as `PORT` (`formatStartupError`); listen on it and log `server.address().address` instead of the hard-coded `Local:` line at `:1493`. `Dockerfile` gains `PF_HOST=0.0.0.0` next to `PORT=8000`, so the published image keeps working. New `test/server-bind.test.js` (below). | S | #1527 (bind) |
+| 1 | `PF_HOST` in `server/index.js`, default `127.0.0.1`, validated through the same startup-error path as `PORT` (`formatStartupError`); listen on it and log `server.address().address` instead of the hard-coded `Local:` line at `:1493`. `Dockerfile` gains `PF_HOST=0.0.0.0` next to `PORT=8000`, so the published image keeps working. New `test/server-bind.test.js` (below). | S | #1527 (bind) - landed |
 | 2 | An `allowOrigin(req)` helper in `server/ws.js`, injected into `handleUpgrade` as an option the way `onMessage` is already assigned from `index.js`, wired at `server/index.js:1426`: an absent `Origin` is allowed (curl and the tests send none), a same-origin `Origin` (scheme+host+port equal to `Host`) is allowed, `PF_ALLOWED_ORIGINS` (comma list) is allowed, anything else is refused with `403` **before** the `101` and the socket destroyed. New `test/ws-origin.test.js`. | S/M | #1527 (WS) - landed |
 | 3 | Narrow CORS: keep the wildcard for the two immutable, public endpoints (`/api/catalog`, `/api/media`), which `sendImmutableJSON` serves and which carry no board; for every other `/api/` path echo the caller's `Origin` only when `allowOrigin()` says yes, and send no ACAO header otherwise. Preflight at `:1408` follows the same rule. Test the three cases against a real server: allowed origin gets the echo, foreign origin gets no header, no `Origin` is unaffected. | M | #1527 (HTTP half) |
 | 4 | Delete the unsolicited push at `:1459`; the `onopen` handler at `web/app.js:3063` gains `{"type":"subscribe","topologyId":TOPO}`, which the server already answers at `:1443`. Drop the "a new connection" row from the message table at `ARCHITECTURE.md:344-357`. | S | - |

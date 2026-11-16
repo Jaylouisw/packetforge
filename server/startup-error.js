@@ -21,11 +21,16 @@ const REPORT_URL = REPO + '/issues/new?title=' + encodeURIComponent(REPORT_TITLE
     '<!-- e.g. npm start / docker run / npm run dev, and the operating system -->\n\n'
   );
 
-// Errors worth translating: these are the two a normal person actually hits, and
-// both have an obvious remedy that a stack trace does not mention.
-function describeListenError(err, port) {
+// Errors worth translating: these are the ones a normal person actually hits, and each has an obvious
+// remedy that a stack trace does not mention.
+//
+// `host` is the address the server was told to bind (PF_HOST, or its loopback default). It is here
+// because EADDRNOTAVAIL and ENOTFOUND are about that value and nothing else: a reader who is shown
+// only the port goes looking in PORT, which is not where the mistake is (#1527).
+function describeListenError(err, port, host) {
   const code = (err && err.code) || '';
   const p = String(port);
+  const h = (typeof host === 'string' && host.trim()) ? host.trim() : '';
 
   if (code === 'EADDRINUSE') {
     return {
@@ -59,15 +64,37 @@ function describeListenError(err, port) {
     };
   }
 
-  if (code === 'EADDRNOTAVAIL') {
+  // The address the server was told to bind does not exist here: either nothing on this machine owns
+  // it (EADDRNOTAVAIL) or the name does not resolve at all (ENOTFOUND). Both name the value tried,
+  // because "port 8000 is unusable" would be a lie - the port was never the problem.
+  if (code === 'EADDRNOTAVAIL' || code === 'ENOTFOUND' || code === 'EAI_AGAIN') {
+    const named = h || 'localhost';
+    const unresolvable = code === 'ENOTFOUND' || code === 'EAI_AGAIN';
+    const lines = [
+      'PF_HOST names the address to listen on, and it is set to ' + JSON.stringify(named) + '.',
+      unresolvable
+        ? 'That name does not resolve on this machine, and an address has to be one this host owns.'
+        : 'No interface on this machine has that address.',
+      '',
+      'Leave PF_HOST unset to listen on 127.0.0.1 only, or name an interface this machine owns:',
+      '',
+      '    PORT=8080 npm start                   (this machine only - the default)',
+      '    PF_HOST=0.0.0.0 PORT=8080 npm start   (every interface)',
+      '',
+      '    $env:PF_HOST="0.0.0.0"; $env:PORT="8080"; npm start     (PowerShell)'
+    ];
+    // The mistake this actually catches: a host and a port in one variable, copied from a URL.
+    const portInHost = named.indexOf(':') !== -1 && named.indexOf('::') === -1 &&
+      named.slice(-(p.length + 1)) === ':' + p;
+    if (portInHost) {
+      lines.push('', 'An address with a port on the end is the usual cause - the port belongs in PORT.');
+    }
+    // Appending the port to a value that already carries one would print `[127.0.0.1:8000]:8000`,
+    // which names a thing that cannot exist and hides the mistake the reader has to see.
+    const label = portInHost ? named : urlAuthority(named, p);
     return {
-      headline: 'This machine has no address that can listen on port ' + p + '.',
-      lines: [
-        'That usually means PORT is set to an address this host does not own.',
-        'Leave PORT unset to listen on all interfaces, or set it to a port number only:',
-        '',
-        '    PORT=8080 npm start'
-      ],
+      headline: 'Cannot listen on ' + label + ': this machine has no such address.',
+      lines: lines,
       reportable: false
     };
   }
@@ -83,10 +110,17 @@ function describeListenError(err, port) {
   };
 }
 
+// `host:port`, with brackets when the host is an IPv6 literal - the form the operator typed and the
+// form a message has to name for it to be actionable.
+function urlAuthority(host, port) {
+  const h = String(host);
+  return (h.indexOf(':') !== -1 ? '[' + h + ']' : h) + ':' + String(port);
+}
+
 // The block a person actually reads, as an array of lines, so callers decide where
 // it goes (stderr, a log, a test) without re-deriving the wording.
-function formatStartupError(err, port) {
-  const d = describeListenError(err, port);
+function formatStartupError(err, port, host) {
+  const d = describeListenError(err, port, host);
   const out = ['', '  ' + d.headline];
   for (const line of d.lines) out.push('  ' + line);
   if (d.reportable) {

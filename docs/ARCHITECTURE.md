@@ -89,6 +89,13 @@ pending queue until the reply arrives).
 - upgrades connections to WebSocket for live multi-client topology sync
   (`server/ws.js` is a minimal, hand-rolled RFC 6455 implementation).
 
+**The socket is on loopback unless an operator asks otherwise.** `PF_HOST` names the address to listen
+on; unset it is `127.0.0.1`. The banner prints what `server.address()` reports and whether that is this
+machine only or reachable from other hosts - it used to say `localhost` whatever had been bound, while
+`listen(PORT)` with no host put the socket on every interface (#1527). The container image sets
+`PF_HOST=0.0.0.0`, because a published port has to be reachable from the host. A `PF_HOST` this machine
+does not own exits `1` with a message naming that address and the variable, not a stack trace.
+
 Topologies are kept in memory (one "default" topology, plus named ones on
 demand). All state is JSON-serializable, which is what makes import/export and
 the "New" button trivial.

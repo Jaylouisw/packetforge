@@ -25,6 +25,18 @@ const requestCache = createRequestCache({});
 
 const PORT = parseInt(process.env.PORT || '8000', 10);
 
+// Which address to listen on. Until #1527 there was no choice: `listen(PORT)` with no host binds
+// every interface, so a simulator on a cafe network, or behind a reverse proxy, was reachable from
+// anything that could route to it - and nothing in the log said where it was answering. Loopback is
+// what one person on one machine needs; being reachable from elsewhere is something an operator asks
+// for, explicitly:
+//
+//   PORT=8080 npm start                       this machine only (the default)
+//   PF_HOST=0.0.0.0 PORT=8080 npm start       every interface - the published image sets this
+//   PF_HOST=192.168.1.10 npm start            one interface
+const DEFAULT_HOST = '127.0.0.1';
+const HOST = String(process.env.PF_HOST || '').trim() || DEFAULT_HOST;
+
 // Which pages may open a socket. The UI is served by this process, so its own page is same-origin and needs no
 // entry here; the list is for a page served from somewhere else - a second port, a dev server, a front end on
 // another host - and is empty unless an operator asks for it. A browser page cannot forge `Origin`, which is what
@@ -1490,17 +1502,39 @@ process.on('exit', function () { try { flushSaves(); } catch (e) {} });
 // stack trace never mentions the obvious remedy - nor that the web UI, and with it
 // the "Report a bug" button, is exactly what is missing.
 server.on('error', function (err) {
-  for (const line of formatStartupError(err, PORT)) console.error(line);
+  // The host is passed with the port because a mistyped PF_HOST produces EADDRNOTAVAIL, and a message
+  // that names only the port would send the reader looking at the wrong variable.
+  for (const line of formatStartupError(err, PORT, HOST)) console.error(line);
   process.exit(1);
 });
 
-server.listen(PORT, function () {
+// A URL needs brackets around an IPv6 literal, and `server.address()` is the authority on what was
+// actually bound - not the string that was asked for, because `localhost` and `0.0.0.0` are not both
+// addresses a browser can be pointed at, and a bind to one interface is not a bind to another.
+function urlHost(address) {
+  if (!address || typeof address !== 'string') return DEFAULT_HOST;
+  return address.indexOf(':') >= 0 ? '[' + address + ']' : address;
+}
+
+server.listen(PORT, HOST, function () {
+  const bound = server.address();
+  const address = bound && typeof bound === 'object' && bound.address ? bound.address : HOST;
+  const everyInterface = address === '0.0.0.0' || address === '::';
+  const localOnly = !everyInterface &&
+    (address === '127.0.0.1' || address === '::1' || address === 'localhost');
+  // 0.0.0.0 is not a place to send a browser; the machine it means is this one.
+  const reachable = everyInterface ? 'localhost' : urlHost(address);
   console.log('');
   console.log('  PacketForge — open-source, vendor-agnostic network simulator');
   console.log('  ------------------------------------------------------------');
-  console.log('  Local:   http://localhost:' + PORT);
+  console.log('  Local:   http://' + reachable + ':' + PORT);
+  // Said out loud because it used to be the other way round without anyone being told (#1527): where
+  // the socket is, in the words that decide whether it is on the network or only on this desk.
+  console.log('  Bind:    ' + urlHost(address) + ':' + PORT + '  ' +
+    (localOnly ? '(this machine only; PF_HOST=0.0.0.0 npm start to serve other hosts)'
+      : '(reachable from other hosts - see SECURITY.md)'));
   console.log('  Devices: ' + catalog.length + ' models across ' +
     new Set(catalog.map(function (s) { return s.vendor; })).size + ' vendors');
-  console.log('  WebSocket sync: ws://localhost:' + PORT + ' (live multi-client)');
+  console.log('  WebSocket sync: ws://' + reachable + ':' + PORT + ' (live multi-client)');
   console.log('');
 });

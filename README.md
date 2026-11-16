@@ -43,13 +43,18 @@ node server/index.js
 
 Open **http://localhost:8000**.
 
+The server listens on `127.0.0.1` only, so nothing else on the network can reach it. To use it from
+another machine, start it with `PF_HOST=0.0.0.0 npm start` (`$env:PF_HOST='0.0.0.0'; npm start` in
+PowerShell) — there is no authentication, so only on a network you trust.
+
 ### With Docker
 
 ```bash
 docker run --rm -p 8000:8000 ghcr.io/jaylouisw/packetforge:latest
 ```
 
-Then open **http://localhost:8000**.
+Then open **http://localhost:8000**. The image sets `PF_HOST=0.0.0.0` so the published port reaches
+the container; a bare `npm start` stays on loopback.
 
 ### First lab
 

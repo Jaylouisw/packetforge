@@ -37,8 +37,11 @@ What to include:
 PacketForge is a simulator intended for education and lab use. The main security
 considerations are:
 
-- The server is a local tool and binds to `0.0.0.0` by default — bind it to a
-  trusted network or localhost if you expose it beyond your machine.
+- The server listens on `127.0.0.1` by default, so only this machine can reach
+  it. `PF_HOST=0.0.0.0` puts it on every interface (the container image sets
+  that, which is what makes `docker run -p 8000:8000` work); everything this
+  server serves is unauthenticated, so do that only on a network you trust, and
+  never directly on the internet.
 - Topologies are kept in memory and are not authenticated; do not expose the
   server directly to the internet.
 - The WebSocket upgrade refuses a page served from another origin: its `Origin`

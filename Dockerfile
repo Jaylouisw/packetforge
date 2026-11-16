@@ -8,8 +8,12 @@ WORKDIR /app
 # Copy sources (see .dockerignore for what's excluded).
 COPY . .
 
+# The image is published on a port, so the process has to be reachable from the host: `docker run -p
+# 8000:8000` cannot work against a socket bound to the container's own loopback. A bare
+# `node server/index.js` outside the image listens on 127.0.0.1 only (#1527).
 ENV NODE_ENV=production \
-    PORT=8000
+    PORT=8000 \
+    PF_HOST=0.0.0.0
 
 EXPOSE 8000
 

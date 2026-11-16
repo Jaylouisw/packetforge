@@ -132,6 +132,19 @@
 - `mikrotik/CRS812`'s 50G ports were named `SFP28-n` while being SFP56; renamed, and the description
   check learned that `SFP56` is not `SFP`.
 
+### Security
+
+- **The server listens on loopback, and the banner says where** (#1527). `server.listen(PORT)` with no
+  host binds every interface, so a simulator started on a laptop in a cafe - or behind a reverse proxy -
+  was reachable from anything that could route to it, and the banner printed `localhost` either way, so
+  nothing in the log disagreed with the reader's assumption. `PF_HOST` now names the address and
+  defaults to `127.0.0.1`; the banner prints what `server.address()` reports and whether that is this
+  machine only or reachable from other hosts. The Docker image sets `PF_HOST=0.0.0.0`, because a
+  published port has to be reachable from the host. A `PF_HOST` this machine does not own - or a
+  `host:port` copied out of a URL - now exits `1` with a message naming that value, instead of the old
+  `EADDRNOTAVAIL` text that blamed `PORT` and told the reader to leave it "unset to listen on all
+  interfaces". `test/server-bind.test.js` covers all four cases against a real server.
+
 # Changelog
 
 All notable changes to this project will be documented in this file.
