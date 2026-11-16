@@ -396,9 +396,19 @@ and a port with no address has no method at all:
 
 | What the port holds | IP-Address | Method |
 |---|---|---|
-| an address from `ip address <a> <mask>` | the address | `manual` |
+| an address from `ip address <a> <mask>` | the address, bare | `manual` |
 | `ip address dhcp`, no lease yet | `unassigned` | `DHCP` |
 | nothing | `unassigned` | `unset` |
+
+The **IP-Address** cell is the bare dotted quad - `10.0.0.1`, never `10.0.0.1/24`. IOS's field list defines
+the column as "IP address assigned to the interface", and every sample output in the command reference prints
+it without a mask: the IOS reference (`Ethernet0 10.108.00.5 YES NVRAM up up`), the Catalyst 2960 command
+reference's interface summary (`Vlan1 172.20.135.202 YES NVRAM up up`), the CPT and 4000-series ISR guides, and
+a practitioner transcript of a DHCP lease (`Ethernet0/1 192.168.12.2 YES DHCP up up`). The mask is not lost:
+`show interfaces` prints `ip: 10.0.0.1/24` and `show running-config` prints
+`ip address 10.0.0.1 255.255.255.0`, which are the two views a box prints it in. This console added `/24` of
+its own, so a row pasted into a ticket carried a string the hardware cannot produce;
+`test/interface-brief-address-cell.test.js` pins the cell against those samples.
 
 `unassigned` beside `unset` is what a real IOS prints, and the pairing is the point: this table used to say
 `manual` beside `unassigned`, which claims a person configured an address the port does not have. `DHCP` is

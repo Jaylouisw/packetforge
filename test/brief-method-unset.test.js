@@ -53,7 +53,9 @@ console.log('The method changes with the configuration, and back:');
   env.s.run('interface Gi0/0');
   env.s.run('ip address 10.0.0.1 255.255.255.0');
   env.s.run('end');
-  ok(/^Gi0\/0\s+10\.0\.0\.1\/24\s+YES\s+manual(\s|$)/.test(env.row('Gi0/0')),
+  // The address cell is the bare address: IOS never prints the mask in this table (see
+  // test/interface-brief-address-cell.test.js).
+  ok(/^Gi0\/0\s+10\.0\.0\.1\s+YES\s+manual(\s|$)/.test(env.row('Gi0/0')),
     'a static address is `manual`', env.row('Gi0/0'));
 
   env.s.run('configure terminal');

@@ -3770,7 +3770,12 @@ class CliSession {
       }
       out.push(briefLine(BRIEF_COLUMNS.map(function (c) { return c.head; })));
       for (const i of dev.interfaces.values()) {
-        const ip = i.ip ? i.ip + '/' + net.prefixOf(i.mask) : 'unassigned';
+        // The IP-Address cell is the bare dotted quad. IOS's own samples never print the mask here - the
+        // field list defines the column as "IP address assigned to the interface" - and a reader comparing a
+        // simulator's table against a box's would find a string the box cannot produce (research note:
+        // research/interface-brief-address-cell.md). The mask is still printed where a box prints it:
+        // `show interfaces` ("ip: 10.0.0.1/24") and `show running-config` ("ip address 10.0.0.1 255.255.255.0").
+        const ip = i.ip || 'unassigned';
         // Status is whether the port can carry a frame, not merely whether someone shut it (#1237).
         // The topology has to be passed in: it is the only thing that knows a cable is missing.
         const link = dev.ifaceStatus(i, this.topo);
