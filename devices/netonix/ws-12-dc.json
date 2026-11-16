@@ -1,0 +1,136 @@
+{
+  "vendor": "netonix",
+  "model": "WS-12-DC",
+  "category": "switch",
+  "label": "Netonix WS-12-DC WISP Switch",
+  "description": "Managed passive-PoE WISP switch for sites that already have conditioned 48 V: 12x 1G RJ45 plus 2x 1G SFP, 37-54 VDC in, PoE passed through from the input supply. No DC-DC conversion, 4-10 W of self-consumption.",
+  "capabilities": [
+    "l2-forward",
+    "cli",
+    "http-server",
+    "vlan",
+    "lacp",
+    "stp",
+    "poe-pse"
+  ],
+  "interfaces": [
+    {
+      "name": "Port 1",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "rj45",
+      "poeOut": true
+    },
+    {
+      "name": "Port 2",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "rj45",
+      "poeOut": true
+    },
+    {
+      "name": "Port 3",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "rj45",
+      "poeOut": true
+    },
+    {
+      "name": "Port 4",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "rj45",
+      "poeOut": true
+    },
+    {
+      "name": "Port 5",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "rj45",
+      "poeOut": true
+    },
+    {
+      "name": "Port 6",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "rj45",
+      "poeOut": true
+    },
+    {
+      "name": "Port 7",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "rj45",
+      "poeOut": true
+    },
+    {
+      "name": "Port 8",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "rj45",
+      "poeOut": true
+    },
+    {
+      "name": "Port 9",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "rj45",
+      "poeOut": true
+    },
+    {
+      "name": "Port 10",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "rj45",
+      "poeOut": true
+    },
+    {
+      "name": "Port 11",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "rj45",
+      "poeOut": true
+    },
+    {
+      "name": "Port 12",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "rj45",
+      "poeOut": true
+    },
+    {
+      "name": "sfp1",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        1000
+      ]
+    },
+    {
+      "name": "sfp2",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        1000
+      ]
+    },
+    {
+      "name": "console",
+      "type": "console"
+    }
+  ],
+  "poe": {
+    "budgetUnknown": true,
+    "sourceUrl": "https://netonix.com/ws-12-dc.html",
+    "note": "No PoE budget is published, and none can be: the spec sheet says the 48 V PoE output is a pass-through of the input voltage (37-54 VDC) and the unit itself only draws 4-10 W excluding PoE, so the power available to radios is whatever the upstream supply can deliver. Modelling it as a number would be inventing the supply."
+  },
+  "fabric": {
+    "capacityMbps": 14000,
+    "kind": "switching fabric",
+    "note": "Netonix publishes 'Total Non-Blocking Line Rate' as the sum of one-directional port bandwidth (12x1G + 2x1G = 14 Gbps; 24x1G + 2x1G = 26 Gbps), not the duplex-doubled figure other vendors print as 'switching capacity'. Like for like with a FortiSwitch's 128 Gbps for 24x1G + 4x10G, these are half the number: 28 Gbps and 52 Gbps duplex."
+  },
+  "sourceUrl": "https://netonix.com/ws-12-dc.html",
+  "notes": "Store page: 'Managed passive POE Switch (12) Gbps POE Ports (2) SFP Uplink Ports ... This unit is NOT our \"SMART\" DC to DC so it expects conditioned 48V-52V DC input ... not designed to operate on negative 48V sites, using -48V DC will damage the switch'. Spec sheet: 223 x 122 x 44 mm, 1 kg, 37-54 VDC positive DC only, 4-10 W excluding PoE, forced-air cooling, Vitesse core, MIPS 24K 416 MHz, 128 MB RAM, 16 MB flash, -25 to 55 C, CE/FCC/IC. 24VH on ports 1-2, 48VH on ports 1-4. The 122 mm depth is the tell that this is the shallow, supply-less chassis in the family. Passive PoE, software-configurable per port in the UI/CLI, not 802.3af/at: 24V and 48V at 1 A on pins 4,5(+)/7,8(-), 24VH and 48VH at 2 A on pins 1,2,4,5(+)/3,6,7,8(-) pairs. Current sensor per port. A port's wattage is therefore set by the voltage and current limit a human picks, which is why the port carries no wattage class here - only the unit's published ceiling does. Software from the same spec sheet: LACP/static LAG, STP/RSTP/MSTP/ERPS, port mirroring, VLAN dot1Q/QinQ/port trunking, SNMP, SMTP alerts, per-port bandwidth limiting, QoS, per-port ping watchdog, scheduled port bouncing, cable diagnostics, loop protection, DHCP snooping, IGMP snooping, flow control, storm control, multicast filtering, port isolation, auto TFTP backup on config change, UDP (Ubiquiti discovery), CDP and LLDP, ACLs plus login tarpit. Nothing in the sheet routes IP between VLANs, so this is l2-forward only. Management is HTTPS on 192.168.1.20 (admin/admin) with the host on 192.168.1.0/24, and a RS-232 serial console at 115200 8-N-1, no parity, XON/XOFF flow control, null-modem cable."
+}

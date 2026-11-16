@@ -1,0 +1,77 @@
+{
+  "vendor": "netonix",
+  "model": "WS-6-MINI",
+  "category": "switch",
+  "label": "Netonix WS-6-MINI WISP Switch",
+  "description": "Palm-sized managed PoE switch that is itself PoE-powered: 6x 1G RJ45, ports 2-6 source passive 24V/48V, port 1 takes 48VH in on all four pairs (48-56 V, up to 2 A) or a barrel supply, 100 W total.",
+  "capabilities": [
+    "l2-forward",
+    "cli",
+    "http-server",
+    "vlan",
+    "lacp",
+    "stp",
+    "poe-pse",
+    "poe-pd"
+  ],
+  "interfaces": [
+    {
+      "name": "Port 1",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "rj45",
+      "poeIn": 100
+    },
+    {
+      "name": "Port 2",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "rj45",
+      "poeOut": true
+    },
+    {
+      "name": "Port 3",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "rj45",
+      "poeOut": true
+    },
+    {
+      "name": "Port 4",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "rj45",
+      "poeOut": true
+    },
+    {
+      "name": "Port 5",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "rj45",
+      "poeOut": true
+    },
+    {
+      "name": "Port 6",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "rj45",
+      "poeOut": true
+    },
+    {
+      "name": "console",
+      "type": "console"
+    }
+  ],
+  "poe": {
+    "budgetW": 100,
+    "sourceUrl": "https://netonix.com/ws-6-mini.html",
+    "note": "100 W total power input capacity; the switch itself takes 4 W of that, so the five PoE ports share about 96 W. Vendor's own warning: port 1 wants passive 48VH on all four pairs, and a standard passive 48 V adapter that only feeds two pairs must not be used."
+  },
+  "fabric": {
+    "capacityMbps": 6000,
+    "kind": "switching fabric",
+    "note": "6 Gbps: six gigabit ports, the family's one-directional sum, not duplex-doubled."
+  },
+  "sourceUrl": "https://netonix.com/ws-6-mini.html",
+  "notes": "Store page: 'Managed 6 Port passive POE Switch, 100 Watt power input capacity - power adapter (POE or Barrel) NOT included, (5) Gbps POE Ports, (1) Gbps Uplink Port. Can be powered from: 48VH passive POE port up to 2A from another WISP Switch into port 1; 48-54V DC POE adapter up to 2A into port 1; 48-54V DC barrel connector up to 2A ... Port 1 will accept passive 48VH (48-56V) using all 4 pairs like a POE injector used to power an airFIBER 24 GHz. DO NOT power the WS-6-MINI with a standard passive POE adapter that only supplies 48V power on 2 pairs. If powering the WS-6-MINI with a 48-56V barrel connector power supply port 1 has no POE options, it is just a standard Ethernet port.' Spec sheet: 127 x 118 x 32 mm, 1 kg, 37-54 VDC, 4 W without PoE, 100 W max, Vitesse core, MIPS 24K 416 MHz, 128 MB RAM, 16 MB flash, -25 to 55 C. PoE out on ports 2-6 at 24V/48V 0.75 A, with 24VH/48VH only on port 2. This is the one box in the family that is a powered device as well as a PSE, which is why it declares poe-pd: chaining one off a WS-26 port is how a small tower gets a switch without a mains feed. Software from the same spec sheet: LACP/static LAG, STP/RSTP/MSTP/ERPS, port mirroring, VLAN dot1Q/QinQ/port trunking, SNMP, SMTP alerts, per-port bandwidth limiting, QoS, per-port ping watchdog, scheduled port bouncing, cable diagnostics, loop protection, DHCP snooping, IGMP snooping, flow control, storm control, multicast filtering, port isolation, auto TFTP backup on config change, UDP (Ubiquiti discovery), CDP and LLDP, ACLs plus login tarpit. Nothing in the sheet routes IP between VLANs, so this is l2-forward only. Management is HTTPS on 192.168.1.20 (admin/admin) with the host on 192.168.1.0/24, and a RS-232 serial console at 115200 8-N-1, no parity, XON/XOFF flow control, null-modem cable."
+}

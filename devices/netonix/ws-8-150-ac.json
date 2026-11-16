@@ -1,0 +1,85 @@
+{
+  "vendor": "netonix",
+  "model": "WS-8-150-AC",
+  "category": "switch",
+  "label": "Netonix WS-8-150-AC WISP Switch",
+  "description": "Small managed passive-PoE switch: 8x 1G RJ45, every port a configurable 24V/48V source, 150 W AC supply, no SFP. Desktop or DIN-rail, -25 to 55 C.",
+  "capabilities": [
+    "l2-forward",
+    "cli",
+    "http-server",
+    "vlan",
+    "lacp",
+    "stp",
+    "poe-pse"
+  ],
+  "interfaces": [
+    {
+      "name": "Port 1",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "rj45",
+      "poeOut": true
+    },
+    {
+      "name": "Port 2",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "rj45",
+      "poeOut": true
+    },
+    {
+      "name": "Port 3",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "rj45",
+      "poeOut": true
+    },
+    {
+      "name": "Port 4",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "rj45",
+      "poeOut": true
+    },
+    {
+      "name": "Port 5",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "rj45",
+      "poeOut": true
+    },
+    {
+      "name": "Port 6",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "rj45",
+      "poeOut": true
+    },
+    {
+      "name": "Port 7",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "rj45",
+      "poeOut": true
+    },
+    {
+      "name": "Port 8",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "rj45",
+      "poeOut": true
+    },
+    {
+      "name": "console",
+      "type": "console"
+    }
+  ],
+  "poe": {
+    "budgetW": 150,
+    "sourceUrl": "https://netonix.com/ws-8-150-ac.html",
+    "note": "150 W maximum power consumption for the whole unit, including the switch's own draw - the only ceiling Netonix publishes."
+  },
+  "sourceUrl": "https://netonix.com/ws-8-150-ac.html",
+  "notes": "Store page: '110 / 220 VAC 150 Watt Power Supply, (8) Gbps passive POE Ports'. Spec sheet: 206 x 165 x 44 mm, 2 kg, forced-air cooling, Vitesse core, MIPS 24K 416 MHz, 128 MB RAM, 16 MB flash, -25 to 55 C, CE/FCC/IC, 24 kV ESD. 8x 10/100/1000 and no SFP cages - the store page says so, the PoE table agrees ('Ports 01-08'), and the faceplate art shows port pairs 1/2 through 7/8 with nothing beside them. 24V/48V on ports 1-8, but 48VH on port 1 only and no 24VH at all, so this is the family member that can feed one 2 A load. Its spec-sheet 'Total Non-Blocking Line Rate 14 Gbps' is a copy of the 12-port row: eight gigabit ports cannot exceed 8 Gbps, so no fabric figure is claimed here. Passive PoE, software-configurable per port in the UI/CLI, not 802.3af/at: 24V and 48V at 1 A on pins 4,5(+)/7,8(-), 24VH and 48VH at 2 A on pins 1,2,4,5(+)/3,6,7,8(-) pairs. Current sensor per port. A port's wattage is therefore set by the voltage and current limit a human picks, which is why the port carries no wattage class here - only the unit's published ceiling does. Software from the same spec sheet: LACP/static LAG, STP/RSTP/MSTP/ERPS, port mirroring, VLAN dot1Q/QinQ/port trunking, SNMP, SMTP alerts, per-port bandwidth limiting, QoS, per-port ping watchdog, scheduled port bouncing, cable diagnostics, loop protection, DHCP snooping, IGMP snooping, flow control, storm control, multicast filtering, port isolation, auto TFTP backup on config change, UDP (Ubiquiti discovery), CDP and LLDP, ACLs plus login tarpit. Nothing in the sheet routes IP between VLANs, so this is l2-forward only. Management is HTTPS on 192.168.1.20 (admin/admin) with the host on 192.168.1.0/24, and a RS-232 serial console at 115200 8-N-1, no parity, XON/XOFF flow control, null-modem cable."
+}

@@ -1,85 +1,136 @@
 {
   "vendor": "netonix",
   "model": "WS-12-250-AC",
-  "label": "Netonix WS-12-250-AC WISP Switch",
   "category": "switch",
-  "description": "Managed WISP PoE switch: 12x 1G RJ45 with per-port passive PoE (24 V/48 V, 1-2 A, current sensing, 250 W total budget) plus 2x 1G SFP uplinks, 14 Gbps non-blocking. AC powered, fan-cooled, -25 to 55 C.",
+  "label": "Netonix WS-12-250-AC WISP Switch",
+  "description": "Managed passive-PoE WISP switch: 12x 1G RJ45, every port a software-selectable 24V/48V/24VH/48VH PoE source with a per-port current sensor, plus 2x 1G SFP uplinks. 110/220 VAC, 250 W ceiling, fan-cooled, -25 to 55 C.",
   "capabilities": [
     "l2-forward",
     "cli",
-    "http-server"
+    "http-server",
+    "vlan",
+    "lacp",
+    "stp",
+    "poe-pse"
   ],
   "interfaces": [
     {
       "name": "Port 1",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "rj45",
+      "poeOut": true
     },
     {
       "name": "Port 2",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "rj45",
+      "poeOut": true
     },
     {
       "name": "Port 3",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "rj45",
+      "poeOut": true
     },
     {
       "name": "Port 4",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "rj45",
+      "poeOut": true
     },
     {
       "name": "Port 5",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "rj45",
+      "poeOut": true
     },
     {
       "name": "Port 6",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "rj45",
+      "poeOut": true
     },
     {
       "name": "Port 7",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "rj45",
+      "poeOut": true
     },
     {
       "name": "Port 8",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "rj45",
+      "poeOut": true
     },
     {
       "name": "Port 9",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "rj45",
+      "poeOut": true
     },
     {
       "name": "Port 10",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "rj45",
+      "poeOut": true
     },
     {
       "name": "Port 11",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "rj45",
+      "poeOut": true
     },
     {
       "name": "Port 12",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "rj45",
+      "poeOut": true
     },
     {
       "name": "sfp1",
       "type": "ethernet",
-      "speed": "1G"
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        1000
+      ]
     },
     {
       "name": "sfp2",
       "type": "ethernet",
-      "speed": "1G"
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        1000
+      ]
+    },
+    {
+      "name": "console",
+      "type": "console"
     }
   ],
-  "sourceUrl": "https://netonix.com/ws-12-250-ac.html"
+  "poe": {
+    "budgetW": 250,
+    "sourceUrl": "https://netonix.com/ws-12-250-ac.html",
+    "note": "250 W ceiling. Netonix publishes no separate PoE budget, only the unit's maximum power consumption, and the switch's own draw comes out of it. 250 W across 12 ports is 20.8 W per port if all are loaded, so the 48VH 2 A (about 96 W) mode on ports 1-4 is a per-port capability that the budget cannot honour twelve times over."
+  },
+  "fabric": {
+    "capacityMbps": 14000,
+    "kind": "switching fabric",
+    "note": "Netonix publishes 'Total Non-Blocking Line Rate' as the sum of one-directional port bandwidth (12x1G + 2x1G = 14 Gbps; 24x1G + 2x1G = 26 Gbps), not the duplex-doubled figure other vendors print as 'switching capacity'. Like for like with a FortiSwitch's 128 Gbps for 24x1G + 4x10G, these are half the number: 28 Gbps and 52 Gbps duplex."
+  },
+  "sourceUrl": "https://netonix.com/ws-12-250-ac.html",
+  "notes": "Store page: 'Managed Passive POE Switch, 110 / 220 VAC 250 Watt Power Supply, (12) Gbps POE Ports, (2) SFP Uplink Ports, Powers airFIBER / Mimosa / SAF'. Spec sheet (https://netonix.com/media/wysiwyg/ws-specsheet.pdf): 223 x 181 x 44 mm, 2 kg, 210-230 and 110-120 VAC, 250 W maximum consumption, forced-air cooling with fan RPM monitoring, Vitesse switch core, MIPS 24K 416 MHz, 128 MB RAM, 16 MB flash, -25 to 55 C, 5-95% non-condensing, CE/FCC/IC, 24 kV air and contact ESD, chassis earth ground lug. 12x 10/100/1000 plus 2 SFP; the faceplate silkscreens the cages 13/14 and the PoE port pairs 1/2 through 11/12. 24V/48V on all 12 ports, 24VH on ports 1-2 and 48VH on ports 1-4 only. Desktop or wall mount, 19 inch rack and DIN kits sold separately. Earlier catalogue versions of this entry carried no PoE budget and no PSE flag, so the simulator believed the box supplied no power at all; the datasheet says every copper port is a PoE source. Passive PoE, software-configurable per port in the UI/CLI, not 802.3af/at: 24V and 48V at 1 A on pins 4,5(+)/7,8(-), 24VH and 48VH at 2 A on pins 1,2,4,5(+)/3,6,7,8(-) pairs. Current sensor per port. A port's wattage is therefore set by the voltage and current limit a human picks, which is why the port carries no wattage class here - only the unit's published ceiling does. Software from the same spec sheet: LACP/static LAG, STP/RSTP/MSTP/ERPS, port mirroring, VLAN dot1Q/QinQ/port trunking, SNMP, SMTP alerts, per-port bandwidth limiting, QoS, per-port ping watchdog, scheduled port bouncing, cable diagnostics, loop protection, DHCP snooping, IGMP snooping, flow control, storm control, multicast filtering, port isolation, auto TFTP backup on config change, UDP (Ubiquiti discovery), CDP and LLDP, ACLs plus login tarpit. Nothing in the sheet routes IP between VLANs, so this is l2-forward only. Management is HTTPS on 192.168.1.20 (admin/admin) with the host on 192.168.1.0/24, and a RS-232 serial console at 115200 8-N-1, no parity, XON/XOFF flow control, null-modem cable."
 }

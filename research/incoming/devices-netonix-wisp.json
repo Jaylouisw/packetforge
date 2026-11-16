@@ -1,0 +1,1232 @@
+[
+  {
+    "vendor": "netonix",
+    "model": "WS-12-250-DC",
+    "category": "switch",
+    "label": "Netonix WS-12-250-DC WISP Switch",
+    "description": "Managed passive-PoE WISP switch: 12x 1G RJ45, every port a configurable 24V/48V/24VH/48VH PoE source, plus 2x 1G SFP uplinks. 9-72 VDC input (positive DC only) so it can run straight off a battery bank; 250 W ceiling.",
+    "capabilities": [
+      "l2-forward",
+      "cli",
+      "http-server",
+      "vlan",
+      "lacp",
+      "stp",
+      "poe-pse"
+    ],
+    "interfaces": [
+      {
+        "name": "Port 1",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "poeOut": true
+      },
+      {
+        "name": "Port 2",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "poeOut": true
+      },
+      {
+        "name": "Port 3",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "poeOut": true
+      },
+      {
+        "name": "Port 4",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "poeOut": true
+      },
+      {
+        "name": "Port 5",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "poeOut": true
+      },
+      {
+        "name": "Port 6",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "poeOut": true
+      },
+      {
+        "name": "Port 7",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "poeOut": true
+      },
+      {
+        "name": "Port 8",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "poeOut": true
+      },
+      {
+        "name": "Port 9",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "poeOut": true
+      },
+      {
+        "name": "Port 10",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "poeOut": true
+      },
+      {
+        "name": "Port 11",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "poeOut": true
+      },
+      {
+        "name": "Port 12",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "poeOut": true
+      },
+      {
+        "name": "sfp1",
+        "type": "ethernet",
+        "connector": "sfp",
+        "speed": "1G",
+        "speedCaps": [
+          1000
+        ]
+      },
+      {
+        "name": "sfp2",
+        "type": "ethernet",
+        "connector": "sfp",
+        "speed": "1G",
+        "speedCaps": [
+          1000
+        ]
+      },
+      {
+        "name": "console",
+        "type": "console"
+      }
+    ],
+    "poe": {
+      "budgetW": 250,
+      "sourceUrl": "https://netonix.com/ws-12-250-dc.html",
+      "note": "250 W ceiling. Netonix publishes no separate PoE budget, only the unit's maximum power consumption - and the store page for this model is explicit that the PoE budget is a function of input voltage: 250 W above 12 V in, 200 W above 11 V, 150 W below 10 V. The switch's own draw comes out of that figure, so treat 250 W as the ceiling and not as headroom."
+    },
+    "fabric": {
+      "capacityMbps": 14000,
+      "kind": "switching fabric",
+      "note": "Netonix publishes 'Total Non-Blocking Line Rate' as the sum of one-directional port bandwidth (12x1G + 2x1G = 14 Gbps; 24x1G + 2x1G = 26 Gbps), not the duplex-doubled figure other vendors print as 'switching capacity'. Like for like with a FortiSwitch's 128 Gbps for 24x1G + 4x10G, these are half the number: 28 Gbps and 52 Gbps duplex."
+    },
+    "sourceUrl": "https://netonix.com/ws-12-250-dc.html",
+    "notes": "Spec sheet (https://netonix.com/media/wysiwyg/ws-specsheet.pdf): 223 x 181 x 44 mm, 2 kg, 9-72 VDC positive-ground-only input, 250 W maximum consumption, forced-air cooling with fan RPM monitoring, Vitesse switch core, MIPS 24K 416 MHz, 128 MB RAM, 16 MB flash, -25 to 55 C, 5-95% non-condensing, CE/FCC/IC, 24 kV air and contact ESD. Ports: 12x 10/100/1000 plus 2 SFP; the faceplate labels the cages 13/14. 24VH is available on ports 1-2 and 48VH on ports 1-4 only - the high-current mode is a property of those ports, not of the whole box. 48 V output can be set to pass the input voltage through. The vendor warns these units are not for negative 48 V plant: using -48 V damages the switch (no isolated input/output); the WS-26-400-IDC is the isolated model. Passive PoE, software-configurable per port in the UI/CLI, not 802.3af/at: 24V and 48V at 1 A on pins 4,5(+)/7,8(-), 24VH and 48VH at 2 A on pins 1,2,4,5(+)/3,6,7,8(-) pairs. Current sensor per port. A port's wattage is therefore set by the voltage and current limit a human picks, which is why the port carries no wattage class here - only the unit's published ceiling does. Software from the same spec sheet: LACP/static LAG, STP/RSTP/MSTP/ERPS, port mirroring, VLAN dot1Q/QinQ/port trunking, SNMP, SMTP alerts, per-port bandwidth limiting, QoS, per-port ping watchdog, scheduled port bouncing, cable diagnostics, loop protection, DHCP snooping, IGMP snooping, flow control, storm control, multicast filtering, port isolation, auto TFTP backup on config change, UDP (Ubiquiti discovery), CDP and LLDP, ACLs plus login tarpit. Nothing in the sheet routes IP between VLANs, so this is l2-forward only. Management is HTTPS on 192.168.1.20 (admin/admin) with the host on 192.168.1.0/24, and a RS-232 serial console at 115200 8-N-1, no parity, XON/XOFF flow control, null-modem cable."
+  },
+  {
+    "vendor": "netonix",
+    "model": "WS-12-400-AC",
+    "category": "switch",
+    "label": "Netonix WS-12-400-AC WISP Switch",
+    "description": "Managed passive-PoE WISP switch: 12x 1G RJ45 PoE sources plus 2x 1G SFP uplinks, 110/220 VAC input with a 400 W supply, enough to power 24 GHz airFIBER and Mimosa radios from the tower.",
+    "capabilities": [
+      "l2-forward",
+      "cli",
+      "http-server",
+      "vlan",
+      "lacp",
+      "stp",
+      "poe-pse"
+    ],
+    "interfaces": [
+      {
+        "name": "Port 1",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "poeOut": true
+      },
+      {
+        "name": "Port 2",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "poeOut": true
+      },
+      {
+        "name": "Port 3",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "poeOut": true
+      },
+      {
+        "name": "Port 4",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "poeOut": true
+      },
+      {
+        "name": "Port 5",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "poeOut": true
+      },
+      {
+        "name": "Port 6",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "poeOut": true
+      },
+      {
+        "name": "Port 7",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "poeOut": true
+      },
+      {
+        "name": "Port 8",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "poeOut": true
+      },
+      {
+        "name": "Port 9",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "poeOut": true
+      },
+      {
+        "name": "Port 10",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "poeOut": true
+      },
+      {
+        "name": "Port 11",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "poeOut": true
+      },
+      {
+        "name": "Port 12",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "poeOut": true
+      },
+      {
+        "name": "sfp1",
+        "type": "ethernet",
+        "connector": "sfp",
+        "speed": "1G",
+        "speedCaps": [
+          1000
+        ]
+      },
+      {
+        "name": "sfp2",
+        "type": "ethernet",
+        "connector": "sfp",
+        "speed": "1G",
+        "speedCaps": [
+          1000
+        ]
+      },
+      {
+        "name": "console",
+        "type": "console"
+      }
+    ],
+    "poe": {
+      "budgetW": 400,
+      "sourceUrl": "https://netonix.com/ws-12-400-ac.html",
+      "note": "400 W is the power supply rating the vendor quotes; the spec sheet prints 'N/A' for maximum power consumption, so there is no published box-plus-PoE ceiling to subtract from. 400 W is the only figure either source gives and is used as the PoE ceiling."
+    },
+    "fabric": {
+      "capacityMbps": 14000,
+      "kind": "switching fabric",
+      "note": "Netonix publishes 'Total Non-Blocking Line Rate' as the sum of one-directional port bandwidth (12x1G + 2x1G = 14 Gbps; 24x1G + 2x1G = 26 Gbps), not the duplex-doubled figure other vendors print as 'switching capacity'. Like for like with a FortiSwitch's 128 Gbps for 24x1G + 4x10G, these are half the number: 28 Gbps and 52 Gbps duplex."
+    },
+    "sourceUrl": "https://netonix.com/ws-12-400-ac.html",
+    "notes": "Store page: '110 / 220 VAC 400 Watt Power Supply, (12) Gbps POE Ports, (2) SFP Uplink Ports', explicitly marketed as powering airFIBER / Mimosa / SAF radios. Spec sheet: 330 x 228 x 44 mm, 3 kg, forced-air cooling, Vitesse core, MIPS 24K 416 MHz, 128 MB RAM, 16 MB flash, -25 to 55 C, CE/FCC/IC, 24 kV ESD. 24VH on ports 1-2 and 48VH on ports 1-6. Same 44 mm height as the 250 W model but 107 mm deeper and 1 kg heavier - the bigger supply is the difference, and it is the reason the 400 W unit is a 330 mm box. Passive PoE, software-configurable per port in the UI/CLI, not 802.3af/at: 24V and 48V at 1 A on pins 4,5(+)/7,8(-), 24VH and 48VH at 2 A on pins 1,2,4,5(+)/3,6,7,8(-) pairs. Current sensor per port. A port's wattage is therefore set by the voltage and current limit a human picks, which is why the port carries no wattage class here - only the unit's published ceiling does. Software from the same spec sheet: LACP/static LAG, STP/RSTP/MSTP/ERPS, port mirroring, VLAN dot1Q/QinQ/port trunking, SNMP, SMTP alerts, per-port bandwidth limiting, QoS, per-port ping watchdog, scheduled port bouncing, cable diagnostics, loop protection, DHCP snooping, IGMP snooping, flow control, storm control, multicast filtering, port isolation, auto TFTP backup on config change, UDP (Ubiquiti discovery), CDP and LLDP, ACLs plus login tarpit. Nothing in the sheet routes IP between VLANs, so this is l2-forward only. Management is HTTPS on 192.168.1.20 (admin/admin) with the host on 192.168.1.0/24, and a RS-232 serial console at 115200 8-N-1, no parity, XON/XOFF flow control, null-modem cable."
+  },
+  {
+    "vendor": "netonix",
+    "model": "WS-12-DC",
+    "category": "switch",
+    "label": "Netonix WS-12-DC WISP Switch",
+    "description": "Managed passive-PoE WISP switch for sites that already have conditioned 48 V: 12x 1G RJ45 plus 2x 1G SFP, 37-54 VDC in, PoE passed through from the input supply. No DC-DC conversion, 4-10 W of self-consumption.",
+    "capabilities": [
+      "l2-forward",
+      "cli",
+      "http-server",
+      "vlan",
+      "lacp",
+      "stp",
+      "poe-pse"
+    ],
+    "interfaces": [
+      {
+        "name": "Port 1",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "poeOut": true
+      },
+      {
+        "name": "Port 2",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "poeOut": true
+      },
+      {
+        "name": "Port 3",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "poeOut": true
+      },
+      {
+        "name": "Port 4",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "poeOut": true
+      },
+      {
+        "name": "Port 5",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "poeOut": true
+      },
+      {
+        "name": "Port 6",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "poeOut": true
+      },
+      {
+        "name": "Port 7",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "poeOut": true
+      },
+      {
+        "name": "Port 8",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "poeOut": true
+      },
+      {
+        "name": "Port 9",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "poeOut": true
+      },
+      {
+        "name": "Port 10",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "poeOut": true
+      },
+      {
+        "name": "Port 11",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "poeOut": true
+      },
+      {
+        "name": "Port 12",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "poeOut": true
+      },
+      {
+        "name": "sfp1",
+        "type": "ethernet",
+        "connector": "sfp",
+        "speed": "1G",
+        "speedCaps": [
+          1000
+        ]
+      },
+      {
+        "name": "sfp2",
+        "type": "ethernet",
+        "connector": "sfp",
+        "speed": "1G",
+        "speedCaps": [
+          1000
+        ]
+      },
+      {
+        "name": "console",
+        "type": "console"
+      }
+    ],
+    "poe": {
+      "budgetUnknown": true,
+      "sourceUrl": "https://netonix.com/ws-12-dc.html",
+      "note": "No PoE budget is published, and none can be: the spec sheet says the 48 V PoE output is a pass-through of the input voltage (37-54 VDC) and the unit itself only draws 4-10 W excluding PoE, so the power available to radios is whatever the upstream supply can deliver. Modelling it as a number would be inventing the supply."
+    },
+    "fabric": {
+      "capacityMbps": 14000,
+      "kind": "switching fabric",
+      "note": "Netonix publishes 'Total Non-Blocking Line Rate' as the sum of one-directional port bandwidth (12x1G + 2x1G = 14 Gbps; 24x1G + 2x1G = 26 Gbps), not the duplex-doubled figure other vendors print as 'switching capacity'. Like for like with a FortiSwitch's 128 Gbps for 24x1G + 4x10G, these are half the number: 28 Gbps and 52 Gbps duplex."
+    },
+    "sourceUrl": "https://netonix.com/ws-12-dc.html",
+    "notes": "Store page: 'Managed passive POE Switch (12) Gbps POE Ports (2) SFP Uplink Ports ... This unit is NOT our \"SMART\" DC to DC so it expects conditioned 48V-52V DC input ... not designed to operate on negative 48V sites, using -48V DC will damage the switch'. Spec sheet: 223 x 122 x 44 mm, 1 kg, 37-54 VDC positive DC only, 4-10 W excluding PoE, forced-air cooling, Vitesse core, MIPS 24K 416 MHz, 128 MB RAM, 16 MB flash, -25 to 55 C, CE/FCC/IC. 24VH on ports 1-2, 48VH on ports 1-4. The 122 mm depth is the tell that this is the shallow, supply-less chassis in the family. Passive PoE, software-configurable per port in the UI/CLI, not 802.3af/at: 24V and 48V at 1 A on pins 4,5(+)/7,8(-), 24VH and 48VH at 2 A on pins 1,2,4,5(+)/3,6,7,8(-) pairs. Current sensor per port. A port's wattage is therefore set by the voltage and current limit a human picks, which is why the port carries no wattage class here - only the unit's published ceiling does. Software from the same spec sheet: LACP/static LAG, STP/RSTP/MSTP/ERPS, port mirroring, VLAN dot1Q/QinQ/port trunking, SNMP, SMTP alerts, per-port bandwidth limiting, QoS, per-port ping watchdog, scheduled port bouncing, cable diagnostics, loop protection, DHCP snooping, IGMP snooping, flow control, storm control, multicast filtering, port isolation, auto TFTP backup on config change, UDP (Ubiquiti discovery), CDP and LLDP, ACLs plus login tarpit. Nothing in the sheet routes IP between VLANs, so this is l2-forward only. Management is HTTPS on 192.168.1.20 (admin/admin) with the host on 192.168.1.0/24, and a RS-232 serial console at 115200 8-N-1, no parity, XON/XOFF flow control, null-modem cable."
+  },
+  {
+    "vendor": "netonix",
+    "model": "WS-26-400-AC",
+    "category": "switch",
+    "label": "Netonix WS-26-400-AC WISP Switch",
+    "description": "1 RU managed passive-PoE WISP switch: 24x 1G RJ45 all PoE sources plus 2x 1G SFP uplinks, 110/220 VAC with a 400 W supply, 26 Gbps non-blocking.",
+    "capabilities": [
+      "l2-forward",
+      "cli",
+      "http-server",
+      "vlan",
+      "lacp",
+      "stp",
+      "poe-pse"
+    ],
+    "interfaces": [
+      {
+        "name": "Port 1",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "poeOut": true
+      },
+      {
+        "name": "Port 2",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "poeOut": true
+      },
+      {
+        "name": "Port 3",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "poeOut": true
+      },
+      {
+        "name": "Port 4",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "poeOut": true
+      },
+      {
+        "name": "Port 5",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "poeOut": true
+      },
+      {
+        "name": "Port 6",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "poeOut": true
+      },
+      {
+        "name": "Port 7",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "poeOut": true
+      },
+      {
+        "name": "Port 8",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "poeOut": true
+      },
+      {
+        "name": "Port 9",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "poeOut": true
+      },
+      {
+        "name": "Port 10",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "poeOut": true
+      },
+      {
+        "name": "Port 11",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "poeOut": true
+      },
+      {
+        "name": "Port 12",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "poeOut": true
+      },
+      {
+        "name": "Port 13",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "poeOut": true
+      },
+      {
+        "name": "Port 14",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "poeOut": true
+      },
+      {
+        "name": "Port 15",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "poeOut": true
+      },
+      {
+        "name": "Port 16",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "poeOut": true
+      },
+      {
+        "name": "Port 17",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "poeOut": true
+      },
+      {
+        "name": "Port 18",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "poeOut": true
+      },
+      {
+        "name": "Port 19",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "poeOut": true
+      },
+      {
+        "name": "Port 20",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "poeOut": true
+      },
+      {
+        "name": "Port 21",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "poeOut": true
+      },
+      {
+        "name": "Port 22",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "poeOut": true
+      },
+      {
+        "name": "Port 23",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "poeOut": true
+      },
+      {
+        "name": "Port 24",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "poeOut": true
+      },
+      {
+        "name": "sfp1",
+        "type": "ethernet",
+        "connector": "sfp",
+        "speed": "1G",
+        "speedCaps": [
+          1000
+        ]
+      },
+      {
+        "name": "sfp2",
+        "type": "ethernet",
+        "connector": "sfp",
+        "speed": "1G",
+        "speedCaps": [
+          1000
+        ]
+      },
+      {
+        "name": "console",
+        "type": "console"
+      }
+    ],
+    "poe": {
+      "budgetW": 400,
+      "sourceUrl": "https://netonix.com/ws-26-400-ac.html",
+      "note": "400 W maximum power consumption for the whole unit, which is the only ceiling either vendor source publishes; the switch's own draw comes out of it, so the radios get slightly less than 400 W."
+    },
+    "fabric": {
+      "capacityMbps": 26000,
+      "kind": "switching fabric",
+      "note": "Netonix publishes 'Total Non-Blocking Line Rate' as the sum of one-directional port bandwidth (12x1G + 2x1G = 14 Gbps; 24x1G + 2x1G = 26 Gbps), not the duplex-doubled figure other vendors print as 'switching capacity'. Like for like with a FortiSwitch's 128 Gbps for 24x1G + 4x10G, these are half the number: 28 Gbps and 52 Gbps duplex."
+    },
+    "sourceUrl": "https://netonix.com/ws-26-400-ac.html",
+    "notes": "Spec sheet: 343 x 273 x 44 mm, under 4 kg, 110-240 VAC 50-60 Hz, 400 W maximum consumption, forced-air cooling with fan RPM monitoring, Vitesse core, MIPS 24K 416 MHz, 128 MB RAM, 16 MB flash, -25 to 55 C, CE/FCC/IC, 24 kV ESD. 24x 10/100/1000 plus 2 SFP, cages silkscreened 25/26. 24VH on ports 1-2 and 48VH on ports 1-6. 400 W across 24 ports is 16.6 W per port if every port is loaded at once - fine for the 8-24 W airMAX/Mimosa class this box exists for, and not enough to run 24 x 2 A 48VH loads. Passive PoE, software-configurable per port in the UI/CLI, not 802.3af/at: 24V and 48V at 1 A on pins 4,5(+)/7,8(-), 24VH and 48VH at 2 A on pins 1,2,4,5(+)/3,6,7,8(-) pairs. Current sensor per port. A port's wattage is therefore set by the voltage and current limit a human picks, which is why the port carries no wattage class here - only the unit's published ceiling does. Software from the same spec sheet: LACP/static LAG, STP/RSTP/MSTP/ERPS, port mirroring, VLAN dot1Q/QinQ/port trunking, SNMP, SMTP alerts, per-port bandwidth limiting, QoS, per-port ping watchdog, scheduled port bouncing, cable diagnostics, loop protection, DHCP snooping, IGMP snooping, flow control, storm control, multicast filtering, port isolation, auto TFTP backup on config change, UDP (Ubiquiti discovery), CDP and LLDP, ACLs plus login tarpit. Nothing in the sheet routes IP between VLANs, so this is l2-forward only. Management is HTTPS on 192.168.1.20 (admin/admin) with the host on 192.168.1.0/24, and a RS-232 serial console at 115200 8-N-1, no parity, XON/XOFF flow control, null-modem cable."
+  },
+  {
+    "vendor": "netonix",
+    "model": "WS-26-400-IDC",
+    "category": "switch",
+    "label": "Netonix WS-26-400-IDC WISP Switch",
+    "description": "1 RU managed passive-PoE WISP switch with an ISOLATED DC input: 32-72 VDC so it runs on telecom -48 V plant, 24x 1G RJ45 PoE sources plus 2x 1G SFP, 400 W.",
+    "capabilities": [
+      "l2-forward",
+      "cli",
+      "http-server",
+      "vlan",
+      "lacp",
+      "stp",
+      "poe-pse"
+    ],
+    "interfaces": [
+      {
+        "name": "Port 1",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "poeOut": true
+      },
+      {
+        "name": "Port 2",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "poeOut": true
+      },
+      {
+        "name": "Port 3",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "poeOut": true
+      },
+      {
+        "name": "Port 4",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "poeOut": true
+      },
+      {
+        "name": "Port 5",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "poeOut": true
+      },
+      {
+        "name": "Port 6",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "poeOut": true
+      },
+      {
+        "name": "Port 7",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "poeOut": true
+      },
+      {
+        "name": "Port 8",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "poeOut": true
+      },
+      {
+        "name": "Port 9",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "poeOut": true
+      },
+      {
+        "name": "Port 10",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "poeOut": true
+      },
+      {
+        "name": "Port 11",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "poeOut": true
+      },
+      {
+        "name": "Port 12",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "poeOut": true
+      },
+      {
+        "name": "Port 13",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "poeOut": true
+      },
+      {
+        "name": "Port 14",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "poeOut": true
+      },
+      {
+        "name": "Port 15",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "poeOut": true
+      },
+      {
+        "name": "Port 16",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "poeOut": true
+      },
+      {
+        "name": "Port 17",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "poeOut": true
+      },
+      {
+        "name": "Port 18",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "poeOut": true
+      },
+      {
+        "name": "Port 19",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "poeOut": true
+      },
+      {
+        "name": "Port 20",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "poeOut": true
+      },
+      {
+        "name": "Port 21",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "poeOut": true
+      },
+      {
+        "name": "Port 22",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "poeOut": true
+      },
+      {
+        "name": "Port 23",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "poeOut": true
+      },
+      {
+        "name": "Port 24",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "poeOut": true
+      },
+      {
+        "name": "sfp1",
+        "type": "ethernet",
+        "connector": "sfp",
+        "speed": "1G",
+        "speedCaps": [
+          1000
+        ]
+      },
+      {
+        "name": "sfp2",
+        "type": "ethernet",
+        "connector": "sfp",
+        "speed": "1G",
+        "speedCaps": [
+          1000
+        ]
+      },
+      {
+        "name": "console",
+        "type": "console"
+      }
+    ],
+    "poe": {
+      "budgetW": 400,
+      "sourceUrl": "https://netonix.com/ws-26-400-idc.html",
+      "note": "400 W maximum power consumption, DC in to DC out isolated supply. Input may be negative or positive voltage, which is the whole point of the -IDC suffix; the 9-72 VDC non-isolated siblings must not be fed -48 V."
+    },
+    "fabric": {
+      "capacityMbps": 26000,
+      "kind": "switching fabric",
+      "note": "Netonix publishes 'Total Non-Blocking Line Rate' as the sum of one-directional port bandwidth (12x1G + 2x1G = 14 Gbps; 24x1G + 2x1G = 26 Gbps), not the duplex-doubled figure other vendors print as 'switching capacity'. Like for like with a FortiSwitch's 128 Gbps for 24x1G + 4x10G, these are half the number: 28 Gbps and 52 Gbps duplex."
+    },
+    "sourceUrl": "https://netonix.com/ws-26-400-idc.html",
+    "notes": "Store page: '400 Watt ISOLATED DC power supply accepts 32V to 72V DC variable input while providing uninterrupted 24V and 48V POE, (24) Gbps POE Ports, (2) SFP Uplink Ports'. Spec sheet: 343 x 248 x 44 mm, under 4 kg, forced-air cooling, Vitesse core, MIPS 24K 416 MHz, 128 MB RAM, 16 MB flash, -25 to 55 C, CE/FCC/IC. 24VH on ports 1-2, 48VH on ports 1-6. This is the model the other DC units' warnings point at: 'if you need negative DC input look at the WS-26-400-IDC'. Passive PoE, software-configurable per port in the UI/CLI, not 802.3af/at: 24V and 48V at 1 A on pins 4,5(+)/7,8(-), 24VH and 48VH at 2 A on pins 1,2,4,5(+)/3,6,7,8(-) pairs. Current sensor per port. A port's wattage is therefore set by the voltage and current limit a human picks, which is why the port carries no wattage class here - only the unit's published ceiling does. Software from the same spec sheet: LACP/static LAG, STP/RSTP/MSTP/ERPS, port mirroring, VLAN dot1Q/QinQ/port trunking, SNMP, SMTP alerts, per-port bandwidth limiting, QoS, per-port ping watchdog, scheduled port bouncing, cable diagnostics, loop protection, DHCP snooping, IGMP snooping, flow control, storm control, multicast filtering, port isolation, auto TFTP backup on config change, UDP (Ubiquiti discovery), CDP and LLDP, ACLs plus login tarpit. Nothing in the sheet routes IP between VLANs, so this is l2-forward only. Management is HTTPS on 192.168.1.20 (admin/admin) with the host on 192.168.1.0/24, and a RS-232 serial console at 115200 8-N-1, no parity, XON/XOFF flow control, null-modem cable."
+  },
+  {
+    "vendor": "netonix",
+    "model": "WS-26-500-DC",
+    "category": "switch",
+    "label": "Netonix WS-26-500-DC WISP Switch",
+    "description": "1 RU managed passive-PoE WISP switch for battery sites: 9-72 VDC in (positive DC only), 24x 1G RJ45 PoE sources plus 2x 1G SFP uplinks, 500 W ceiling, 26 Gbps.",
+    "capabilities": [
+      "l2-forward",
+      "cli",
+      "http-server",
+      "vlan",
+      "lacp",
+      "stp",
+      "poe-pse"
+    ],
+    "interfaces": [
+      {
+        "name": "Port 1",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "poeOut": true
+      },
+      {
+        "name": "Port 2",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "poeOut": true
+      },
+      {
+        "name": "Port 3",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "poeOut": true
+      },
+      {
+        "name": "Port 4",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "poeOut": true
+      },
+      {
+        "name": "Port 5",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "poeOut": true
+      },
+      {
+        "name": "Port 6",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "poeOut": true
+      },
+      {
+        "name": "Port 7",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "poeOut": true
+      },
+      {
+        "name": "Port 8",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "poeOut": true
+      },
+      {
+        "name": "Port 9",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "poeOut": true
+      },
+      {
+        "name": "Port 10",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "poeOut": true
+      },
+      {
+        "name": "Port 11",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "poeOut": true
+      },
+      {
+        "name": "Port 12",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "poeOut": true
+      },
+      {
+        "name": "Port 13",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "poeOut": true
+      },
+      {
+        "name": "Port 14",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "poeOut": true
+      },
+      {
+        "name": "Port 15",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "poeOut": true
+      },
+      {
+        "name": "Port 16",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "poeOut": true
+      },
+      {
+        "name": "Port 17",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "poeOut": true
+      },
+      {
+        "name": "Port 18",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "poeOut": true
+      },
+      {
+        "name": "Port 19",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "poeOut": true
+      },
+      {
+        "name": "Port 20",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "poeOut": true
+      },
+      {
+        "name": "Port 21",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "poeOut": true
+      },
+      {
+        "name": "Port 22",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "poeOut": true
+      },
+      {
+        "name": "Port 23",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "poeOut": true
+      },
+      {
+        "name": "Port 24",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "poeOut": true
+      },
+      {
+        "name": "sfp1",
+        "type": "ethernet",
+        "connector": "sfp",
+        "speed": "1G",
+        "speedCaps": [
+          1000
+        ]
+      },
+      {
+        "name": "sfp2",
+        "type": "ethernet",
+        "connector": "sfp",
+        "speed": "1G",
+        "speedCaps": [
+          1000
+        ]
+      },
+      {
+        "name": "console",
+        "type": "console"
+      }
+    ],
+    "poe": {
+      "budgetW": 500,
+      "sourceUrl": "https://netonix.com/ws-26-500-dc.html",
+      "note": "500 W maximum power consumption, non-isolated DC supply. The store page credits the box with the ability to shed lower-priority PoE ports as a battery drops and restore them when solar or wind charging resumes, so the practical budget moves with the site's state of charge."
+    },
+    "fabric": {
+      "capacityMbps": 26000,
+      "kind": "switching fabric",
+      "note": "Netonix publishes 'Total Non-Blocking Line Rate' as the sum of one-directional port bandwidth (12x1G + 2x1G = 14 Gbps; 24x1G + 2x1G = 26 Gbps), not the duplex-doubled figure other vendors print as 'switching capacity'. Like for like with a FortiSwitch's 128 Gbps for 24x1G + 4x10G, these are half the number: 28 Gbps and 52 Gbps duplex."
+    },
+    "sourceUrl": "https://netonix.com/ws-26-500-dc.html",
+    "notes": "Store page: '500 Watt non-isolated DC power supply, (24) Gbps POE Ports, (2) SFP Uplink Ports ... hook directly to battery bank'. Spec sheet: 343 x 248 x 44 mm, under 3 kg, 9-72 VDC positive only, forced-air cooling, Vitesse core, MIPS 24K 416 MHz, 128 MB RAM, 16 MB flash, -25 to 55 C, CE/FCC/IC. 24VH on ports 1-2, 48VH on ports 1-6. Same depth and port map as the -IDC; the difference is the non-isolated 9-72 V input and the 500 W supply. Passive PoE, software-configurable per port in the UI/CLI, not 802.3af/at: 24V and 48V at 1 A on pins 4,5(+)/7,8(-), 24VH and 48VH at 2 A on pins 1,2,4,5(+)/3,6,7,8(-) pairs. Current sensor per port. A port's wattage is therefore set by the voltage and current limit a human picks, which is why the port carries no wattage class here - only the unit's published ceiling does. Software from the same spec sheet: LACP/static LAG, STP/RSTP/MSTP/ERPS, port mirroring, VLAN dot1Q/QinQ/port trunking, SNMP, SMTP alerts, per-port bandwidth limiting, QoS, per-port ping watchdog, scheduled port bouncing, cable diagnostics, loop protection, DHCP snooping, IGMP snooping, flow control, storm control, multicast filtering, port isolation, auto TFTP backup on config change, UDP (Ubiquiti discovery), CDP and LLDP, ACLs plus login tarpit. Nothing in the sheet routes IP between VLANs, so this is l2-forward only. Management is HTTPS on 192.168.1.20 (admin/admin) with the host on 192.168.1.0/24, and a RS-232 serial console at 115200 8-N-1, no parity, XON/XOFF flow control, null-modem cable."
+  },
+  {
+    "vendor": "netonix",
+    "model": "WS-8-150-AC",
+    "category": "switch",
+    "label": "Netonix WS-8-150-AC WISP Switch",
+    "description": "Small managed passive-PoE switch: 8x 1G RJ45, every port a configurable 24V/48V source, 150 W AC supply, no SFP. Desktop or DIN-rail, -25 to 55 C.",
+    "capabilities": [
+      "l2-forward",
+      "cli",
+      "http-server",
+      "vlan",
+      "lacp",
+      "stp",
+      "poe-pse"
+    ],
+    "interfaces": [
+      {
+        "name": "Port 1",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "poeOut": true
+      },
+      {
+        "name": "Port 2",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "poeOut": true
+      },
+      {
+        "name": "Port 3",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "poeOut": true
+      },
+      {
+        "name": "Port 4",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "poeOut": true
+      },
+      {
+        "name": "Port 5",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "poeOut": true
+      },
+      {
+        "name": "Port 6",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "poeOut": true
+      },
+      {
+        "name": "Port 7",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "poeOut": true
+      },
+      {
+        "name": "Port 8",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "poeOut": true
+      },
+      {
+        "name": "console",
+        "type": "console"
+      }
+    ],
+    "poe": {
+      "budgetW": 150,
+      "sourceUrl": "https://netonix.com/ws-8-150-ac.html",
+      "note": "150 W maximum power consumption for the whole unit, including the switch's own draw - the only ceiling Netonix publishes."
+    },
+    "sourceUrl": "https://netonix.com/ws-8-150-ac.html",
+    "notes": "Store page: '110 / 220 VAC 150 Watt Power Supply, (8) Gbps passive POE Ports'. Spec sheet: 206 x 165 x 44 mm, 2 kg, forced-air cooling, Vitesse core, MIPS 24K 416 MHz, 128 MB RAM, 16 MB flash, -25 to 55 C, CE/FCC/IC, 24 kV ESD. 8x 10/100/1000 and no SFP cages - the store page says so, the PoE table agrees ('Ports 01-08'), and the faceplate art shows port pairs 1/2 through 7/8 with nothing beside them. 24V/48V on ports 1-8, but 48VH on port 1 only and no 24VH at all, so this is the family member that can feed one 2 A load. Its spec-sheet 'Total Non-Blocking Line Rate 14 Gbps' is a copy of the 12-port row: eight gigabit ports cannot exceed 8 Gbps, so no fabric figure is claimed here. Passive PoE, software-configurable per port in the UI/CLI, not 802.3af/at: 24V and 48V at 1 A on pins 4,5(+)/7,8(-), 24VH and 48VH at 2 A on pins 1,2,4,5(+)/3,6,7,8(-) pairs. Current sensor per port. A port's wattage is therefore set by the voltage and current limit a human picks, which is why the port carries no wattage class here - only the unit's published ceiling does. Software from the same spec sheet: LACP/static LAG, STP/RSTP/MSTP/ERPS, port mirroring, VLAN dot1Q/QinQ/port trunking, SNMP, SMTP alerts, per-port bandwidth limiting, QoS, per-port ping watchdog, scheduled port bouncing, cable diagnostics, loop protection, DHCP snooping, IGMP snooping, flow control, storm control, multicast filtering, port isolation, auto TFTP backup on config change, UDP (Ubiquiti discovery), CDP and LLDP, ACLs plus login tarpit. Nothing in the sheet routes IP between VLANs, so this is l2-forward only. Management is HTTPS on 192.168.1.20 (admin/admin) with the host on 192.168.1.0/24, and a RS-232 serial console at 115200 8-N-1, no parity, XON/XOFF flow control, null-modem cable."
+  },
+  {
+    "vendor": "netonix",
+    "model": "WS-6-MINI",
+    "category": "switch",
+    "label": "Netonix WS-6-MINI WISP Switch",
+    "description": "Palm-sized managed PoE switch that is itself PoE-powered: 6x 1G RJ45, ports 2-6 source passive 24V/48V, port 1 takes 48VH in on all four pairs (48-56 V, up to 2 A) or a barrel supply, 100 W total.",
+    "capabilities": [
+      "l2-forward",
+      "cli",
+      "http-server",
+      "vlan",
+      "lacp",
+      "stp",
+      "poe-pse",
+      "poe-pd"
+    ],
+    "interfaces": [
+      {
+        "name": "Port 1",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "poeIn": 100
+      },
+      {
+        "name": "Port 2",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "poeOut": true
+      },
+      {
+        "name": "Port 3",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "poeOut": true
+      },
+      {
+        "name": "Port 4",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "poeOut": true
+      },
+      {
+        "name": "Port 5",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "poeOut": true
+      },
+      {
+        "name": "Port 6",
+        "type": "ethernet",
+        "speed": "1G",
+        "connector": "rj45",
+        "poeOut": true
+      },
+      {
+        "name": "console",
+        "type": "console"
+      }
+    ],
+    "poe": {
+      "budgetW": 100,
+      "sourceUrl": "https://netonix.com/ws-6-mini.html",
+      "note": "100 W total power input capacity; the switch itself takes 4 W of that, so the five PoE ports share about 96 W. Vendor's own warning: port 1 wants passive 48VH on all four pairs, and a standard passive 48 V adapter that only feeds two pairs must not be used."
+    },
+    "fabric": {
+      "capacityMbps": 6000,
+      "kind": "switching fabric",
+      "note": "6 Gbps: six gigabit ports, the family's one-directional sum, not duplex-doubled."
+    },
+    "sourceUrl": "https://netonix.com/ws-6-mini.html",
+    "notes": "Store page: 'Managed 6 Port passive POE Switch, 100 Watt power input capacity - power adapter (POE or Barrel) NOT included, (5) Gbps POE Ports, (1) Gbps Uplink Port. Can be powered from: 48VH passive POE port up to 2A from another WISP Switch into port 1; 48-54V DC POE adapter up to 2A into port 1; 48-54V DC barrel connector up to 2A ... Port 1 will accept passive 48VH (48-56V) using all 4 pairs like a POE injector used to power an airFIBER 24 GHz. DO NOT power the WS-6-MINI with a standard passive POE adapter that only supplies 48V power on 2 pairs. If powering the WS-6-MINI with a 48-56V barrel connector power supply port 1 has no POE options, it is just a standard Ethernet port.' Spec sheet: 127 x 118 x 32 mm, 1 kg, 37-54 VDC, 4 W without PoE, 100 W max, Vitesse core, MIPS 24K 416 MHz, 128 MB RAM, 16 MB flash, -25 to 55 C. PoE out on ports 2-6 at 24V/48V 0.75 A, with 24VH/48VH only on port 2. This is the one box in the family that is a powered device as well as a PSE, which is why it declares poe-pd: chaining one off a WS-26 port is how a small tower gets a switch without a mains feed. Software from the same spec sheet: LACP/static LAG, STP/RSTP/MSTP/ERPS, port mirroring, VLAN dot1Q/QinQ/port trunking, SNMP, SMTP alerts, per-port bandwidth limiting, QoS, per-port ping watchdog, scheduled port bouncing, cable diagnostics, loop protection, DHCP snooping, IGMP snooping, flow control, storm control, multicast filtering, port isolation, auto TFTP backup on config change, UDP (Ubiquiti discovery), CDP and LLDP, ACLs plus login tarpit. Nothing in the sheet routes IP between VLANs, so this is l2-forward only. Management is HTTPS on 192.168.1.20 (admin/admin) with the host on 192.168.1.0/24, and a RS-232 serial console at 115200 8-N-1, no parity, XON/XOFF flow control, null-modem cable."
+  }
+]
