@@ -12,7 +12,7 @@ The short version:
 | Commits, branches, tags | **Yes, fully, one way** | Forgejo → GitHub push mirror |
 | Pull requests | **No — bridge instead** | A job mirrors GitHub PR heads into Forgejo PRs |
 | Issues and comments | **No — pick one tracker** | Forgejo is the tracker; GitHub issues point at it |
-| CI / CD | **Forgejo only, authoritative** | GitHub gets a courtesy subset at most |
+| CI / CD | **Forgejo only, authoritative** | Nothing: the GitHub workflows were deleted in #1059 |
 | Wiki | Follows the code | Regenerate on Forgejo; mirrors with the repo |
 
 ## The rule: one writer, one reader
@@ -93,15 +93,19 @@ disable new ones (Settings → Features → uncheck Issues). Blunter, but it can
 
 ## 4. CI and CD: Forgejo only
 
-The workflows in `.github/workflows/` are currently gated with
-`if: github.server_url == 'https://github.com'`, which means they **do** run on GitHub — a second,
-competing CI whose results gate nothing. For a mirror that is backwards.
+The repository has no GitHub workflows. Six of them lived in `.github/workflows/` until
+2026-11-08, each carrying `if: github.server_url == 'https://github.com'` in the belief that the
+guard kept them off this host. It does not: a Forgejo runner reads `.github/` as readily as
+GitHub's, so they ran here as a second, competing CI and failed every time — CodeQL needs
+github.com, and the docker job ran a bare `docker build` in an image that had no docker binary.
+They were deleted in #1059, and `docs/CI.md` records the reasoning; `.forgejo/workflows/` is the
+only pipeline in the repository.
 
 - `.forgejo/workflows/` is the authoritative pipeline: tests, syntax, examples, server smoke, the
   invariants.
-- On GitHub, keep at most a **courtesy subset** (`npm test` + syntax) so a GitHub contributor sees
-  red or green before the bridge picks their PR up. It must never be a merge gate, and the README
-  says so.
+- If Actions is ever re-enabled on the mirror, keep at most a **courtesy subset** (`npm test` +
+  syntax) so a GitHub contributor sees red or green before the bridge picks their PR up. It must
+  never be a merge gate, and the README should say so.
 - Releases and images are built on Forgejo and pushed to a registry both sides can pull from. GitHub
   Releases are not mirrored; the mirror's tags are enough.
 
