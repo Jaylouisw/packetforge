@@ -261,7 +261,8 @@ jobs:
       # The syntax check used to be its own step in the middle of the static checks, and
       # it sat in front of the suite for no reason. It is one `node --check` process per file, 339 of them, one
       # after another: measured in the runner image on this host (node:20-bookworm,
-      # 2026-11-16) 18.6 s, against 46.4 s for the suite at PF_TEST_CONCURRENCY=4. Two
+      # 2026-11-16) 18.6 s, against 46.4 s for the suite at PF_TEST_CONCURRENCY=4 (33-36 s
+      # at the 6 this file runs now, see the note on that step). Two
       # costs with nothing in common - process spawns against actual tests - run end to
       # end in every leg, so every leg paid 65.0 s where 51.9 s does the same work.
       #
@@ -283,11 +284,25 @@ jobs:
         #
         # Measured on the same working copy, same 257 suites, same 9387 assertions, same
         # single pre-existing failure (main's spec-vs-description, see the note on the pull
-        # request): 340 s serial, 148 s at 4, 118 s at 6. Four here rather than six because
-        # the matrix runs two legs at once on one host - six would be twelve concurrent
-        # node processes fighting for the same cores, and the curve is already flat there.
+        # request): 340 s serial, 148 s at 4, 118 s at 6. Those numbers come from the
+        # serial harness this step replaced, and they are why 4 was chosen: the guess was
+        # that two legs sharing one host would fight for the same cores at 6.
+        #
+        # Re-measured on 2026-11-16 against the harness that actually runs now (281
+        # suites, 10063 assertions), in the runner's own node:20-bookworm image on a
+        # docker volume on odin - the same runtime and the same filesystem class as a real
+        # leg - with two legs started at the same second and both halves of this step
+        # (syntax check and suite) running at once, exactly as below:
+        #   4: 48 s, 48 s  (48 s for one leg alone, so no measurable contention penalty)
+        #   6: 36, 36, 35, 35 s
+        # All of them green: 281 suites / 10063 assertions in every leg, which is the
+        # coverage the matrix already had. The guess above was wrong for this harness: the
+        # cost being overlapped is 281 process spawns, not 10063 CPU-bound assertions, and
+        # 12 node processes on the 40 cores this host has is not a fight. Hence 6, which is
+        # 13 s less per leg - 39 s of runner time per pull request, and 13 s off each of the
+        # two waves a three-leg matrix costs the queue.
         env:
-          PF_TEST_CONCURRENCY: 4
+          PF_TEST_CONCURRENCY: 6
         run: |
           # Actions runs this file as `bash -e`, and that is the default this step has to
           # leave: without it the first non-zero exit - `npm test` failing, which is the
