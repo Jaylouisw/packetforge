@@ -276,9 +276,21 @@ jobs:
     if: needs.changes.outputs.data_only != 'true' && needs.changes.outputs.live != 'false'
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
+      # No setup-node here: this job already runs on Node 20, and downloading Node 20
+      # onto Node 20 was most of a 48 s job. Measured through the actions API on
+      # 2026-11-16 over the 22 successful smoke jobs between 06:37 and 08:17 (tasks
+      # 7312-7608): median 48.5 s, range 39-63 s, against a median 22 s for the `docker`
+      # job that does strictly more work and downloads no runtime. The `Test (Node *)`
+      # legs already dropped the same step (run 3122, task 6833: the setup-node clone and
+      # tarball were 25 s of a 229 s leg) and still assert their runtime in-job.
+      #
+      # The runtime that matters here is "the one the smoke script was written against",
+      # and the three-leg matrix is what holds that line - it runs the suite on 18, 20 and
+      # 22. This job's job is the HTTP surface, so the version is printed rather than
+      # asserted: an image bump that changes the runtime should be visible in the log, not
+      # a red check on a pull request that never touched the server.
+      - name: Which runtime is running this
+        run: node --version && npm --version
       - name: Drive the API end to end
         run: node scripts/smoke-http.js
 
