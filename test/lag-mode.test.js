@@ -160,18 +160,19 @@ console.log('The summary names the protocol and the mode, in the operator\'s wor
   say(env, 'end');
   const summary = (env.s.run('show etherchannel summary').output || []).map(String);
   const row = summary.filter(function (l) { return /^1\s/.test(l); })[0] || '';
-  ok(/LACP \(active\)/.test(row), 'the row reads LACP (active)', row);
+  ok(/LACP/.test(row), 'the row names the protocol, LACP', row);
+  ok(!/LACP \(/.test(row), 'and not a mode in brackets, which no box prints', row);
   ok(/Fa0\/1\(P\)/.test(row), 'and both members are bundled, because both cables are in', row);
-  // The columns must not run together - the failure `show lldp` had.
-  ok(/^Group\s+Protocol\s+Ports$/.test(summary[0] || ''), 'the header names three columns', summary[0]);
-  const protoAt = (summary[0] || '').indexOf('Protocol');
-  const portsAt = (summary[0] || '').indexOf('Ports');
-  ok(protoAt >= 0 && portsAt > protoAt, 'with Ports to the right of Protocol', summary[0]);
-  const rowProtoEnd = row.indexOf('LACP (active)') + 'LACP (active)'.length;
-  ok(row.slice(rowProtoEnd).indexOf(' ') === 0 || rowProtoEnd === portsAt,
-    'and the mode never touches the port list', row);
+  ok(/Po1\(SU\)/.test(row), 'the port-channel cell carries the bundle flags: L2, in use', row);
+  // The columns must not run together - the failure `show lldp` had. The header is the device's own, which
+  // puts `Protocol` two columns left of the values under it; the member list starts where `Ports` does.
+  const head = summary.filter(function (l) { return /^Group/.test(l); })[0] || '';
+  ok(head === 'Group  Port-channel  Protocol    Ports', "the header is the one a Catalyst prints, column for column", head);
+  const portsAt = head.indexOf('Ports');
+  ok(row.indexOf('Fa0/1(P)') === portsAt, 'and the member list starts under Ports', row);
+  ok(row.indexOf('LACP') === 23, 'the protocol sits in its own column', row);
 
-  // Static is spelled the way the operator spelled it.
+  // The mode is not a protocol. `mode on` negotiates nothing, and the box shows that as `-`.
   const env2 = lab();
   for (const p of [env2.pa[0].name, env2.pa[1].name]) {
     say(env2, 'interface ' + p);
@@ -180,7 +181,12 @@ console.log('The summary names the protocol and the mode, in the operator\'s wor
   say(env2, 'end');
   const row2 = ((env2.s.run('show etherchannel summary').output) || []).map(String)
     .filter(function (l) { return /^1\s/.test(l); })[0] || '';
-  ok(/Static/.test(row2), 'mode on reads Static', row2);
+  ok(/\s-\s/.test(row2), 'mode on reads `-`, because no negotiation protocol is running', row2);
+  ok(!/Static/.test(row2), 'and not `Static`, which named a protocol that is not there', row2);
+  // The mode is still readable where a box keeps it.
+  ok(config(env2).some(function (l) { return /channel-group 1 mode on/.test(l); }),
+    'the mode is in `show running-config`, where it is set',
+    JSON.stringify(config(env2).filter(function (l) { return /channel-group/.test(l); })));
 }
 
 console.log('');

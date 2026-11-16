@@ -110,7 +110,9 @@ console.log('`show port-channel …` is the other spelling of the etherchannel v
   const s1 = L.c('s1');
   const run = function (cmd) { return s1.run(cmd).output; };
   const real = run('show etherchannel summary');
-  ok(real.length > 1 && /Group/.test(real[0]), 'the etherchannel table has a group row', JSON.stringify(real.slice(0, 2)));
+  const headAt = real.findIndex(function (l) { return /^Group  Port-channel/.test(l); });
+  ok(headAt > 0 && /^1\s+Po1\(/.test(real[headAt + 2] || ''),
+    'the etherchannel table has a header and a group row', JSON.stringify(real.slice(headAt, headAt + 3)));
   ok(eq(run('show port-channel summary'), real), '`show port-channel summary` prints exactly that table');
   ok(eq(run('show port-channel'), real), '`show port-channel` alone prints it too');
   ok(eq(run('show port-channel brief'), run('show etherchannel brief')), 'and so does every known sub-word',

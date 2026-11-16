@@ -1146,8 +1146,9 @@ The other half of the same defect, one word away:
 s1> show port-channel summary
 % Invalid show command: port-channel summary
 s1> show etherchannel summary                            <- the same table, other name
-Group  Protocol          Ports
-1      LACP              Fa0/1(P) Fa0/2(P)
+Group  Port-channel  Protocol    Ports
+------+-------------+-----------+-----------------------------------------------
+1      Po1(SU)         LACP      Fa0/1(P) Fa0/2(P)
 ```
 
 `show port-channel` is how most of the world spells this table, and the console knew the word from

@@ -196,7 +196,7 @@ test('the bundle table is ordered by number, not as strings', () => {
   run('end');
   const summary = run('show etherchannel summary');
   const order = summary.split('\n')
-    .map(function (l) { return /^(\d+)\s+(Static|LACP)/.exec(l); })
+    .map(function (l) { return /^(\d+)\s+Po\d+\(S[UD]\)\s+(LACP|-)/.exec(l); })
     .filter(Boolean)
     .map(function (m) { return Number(m[1]); });
   assert.deepStrictEqual(order, [2, 10, 100], 'the groups read 2, 10, 100: ' + summary);

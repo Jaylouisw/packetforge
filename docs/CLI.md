@@ -26,7 +26,7 @@ Modes and their prompts:
 | `show mac address-table` | MAC table (switches), per VLAN, with an age per entry and stale entries marked, titled and ruled as the device prints it and closed by `Total Mac Addresses for this criterion: N` |
 | `show vlan` / `show vlan brief` | VLAN table: one row per VLAN, with the ports that actually carry it, and the four reserved defaults (1002-1005) a switch has from boot |
 | `show spanning-tree` | per-port STP role and state, the bridge priority and the elected root, or "not measured" when nothing has run |
-| `show etherchannel summary` | LAG members, `(P)` bundled or `(D)` unbundled with the reason |
+| `show etherchannel summary` | the device's own summary: the nine-line flag key, both counts, `Po<N>(SU)` per group, LAG members `(P)` bundled or `(D)` unbundled with the reason |
 | `show lldp` | LLDP neighbours, with the local port marked when it can no longer carry |
 | `show access-lists` | ACL rules, bindings, and how many packets each rule has matched |
 | `show ip bgp` / `show ip bgp summary` | BGP neighbours with their state and reason, and the prefixes installed |
@@ -1148,16 +1148,37 @@ declared loop-free before anyone has looked at it.
 ### Reading `show etherchannel summary`
 
 ```
-Group  Protocol          Ports
-1      LACP (active)     Fa0/2(P) Fa0/3(D)
+Flags:  D - down        P - bundled in port-channel
+        I - stand-alone s - suspended
+        H - Hot-standby (LACP only)
+        R - Layer3      S - Layer2
+        U - in use      f - failed to allocate aggregator
+        M - not in use, minimum links not met
+        u - unsuitable for bundling
+        w - waiting to be aggregated
+        d - default port
+Number of channel-groups in use: 1
+Number of aggregators:           1
+Group  Port-channel  Protocol    Ports
+------+-------------+-----------+-----------------------------------------------
+1      Po1(SU)         LACP      Fa0/2(P) Fa0/3(D)
   Fa0/3     not bundled (down: link down)
   bundle 1 is running on 1 of 2 members: Fa0/2
 ```
 
-The Protocol column names the protocol and the mode **in the words the mode is configured in** — `LACP
-(active)`, `LACP (passive)`, `Static` for `mode on`. It used to print the model's internal spelling
-(`lacp-active`), which no command accepts, while the console accepted `active` and then warned that it was an
-unknown mode:
+The key, the two counts, the header and the rule are the device's, character for character — including the
+place where the device is **not** self-consistent: the header spends 14 columns on `Port-channel` and 12 on
+`Protocol`, a row spends 16 and 10, so `Protocol` sits two columns left of `LACP` while `Ports` and the member
+list both start at column 33. That drift is the box's, and lining it up would be tidier than the box.
+
+`Po1(SU)` is the bundle's own flags: `S` Layer2, and `U` in use or `D` down — `Po1(SD)` when no member can
+carry a frame, which is the row above saying the same thing about the group as `(D)` says about a member.
+
+The Protocol column names a protocol and nothing else: `LACP` for `active`/`passive`, `-` for `mode on`,
+because `on` negotiates nothing and there is no protocol to name (Cisco's own lab transcripts print `-` there).
+It used to read `LACP (active)` and `Static`, strings no box produces; the mode is still readable in
+`show running-config`, where the device keeps it, and the internal spelling (`lacp-active`) no longer leaks
+into the table either, while the console accepted `active` and then warned that it was an unknown mode:
 
 ```
 sw1(config-if)#channel-group 1 mode active

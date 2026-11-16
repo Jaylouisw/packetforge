@@ -79,6 +79,36 @@ function vlanLine(cells) {
   }).join('');
 }
 
+// What surrounds `show etherchannel summary`: a fixed legend, two counts, and a four-column table.
+//
+// None of it was printed. The table started at a three-column header this console invented
+// (`Group  Protocol  Ports`), so a pasted summary answered none of the questions a real one answers: which
+// port-channel the group is, whether the bundle is up, and what the flags in the member list mean. The
+// device's legend is fixed text - a box prints every flag it can use, not only the ones this table happens
+// to contain - and the `Po1(SU)` cell is two flags in one word: S for a Layer2 port-channel, U for one in
+// use, D for one no member can carry. The Protocol column names the protocol and nothing else, so a bundle
+// built with `mode on`, which negotiates nothing, reads `-` there (research/etherchannel-summary-layout.md).
+const ETHERCHANNEL_FLAGS = [
+  'Flags:  D - down        P - bundled in port-channel',
+  '        I - stand-alone s - suspended',
+  '        H - Hot-standby (LACP only)',
+  '        R - Layer3      S - Layer2',
+  '        U - in use      f - failed to allocate aggregator',
+  '        M - not in use, minimum links not met',
+  '        u - unsuitable for bundling',
+  '        w - waiting to be aggregated',
+  '        d - default port'
+];
+// The rule is the device's, character for character: 6 dashes, '+', 13, '+', 11, '+', 47.
+const ETHERCHANNEL_RULE = '------+-------------+-----------+-----------------------------------------------';
+// The header is the device's, character for character - including the two columns it puts `Protocol` left of
+// its own values. A row reads `Port-channel` as 16 wide and `Protocol` as 10 (so the protocol starts at column
+// 23 and the member list at 33); the header says `Port-channel` in 14 and `Protocol` in 12, which is why every
+// Catalyst transcript has `Protocol` two columns left of the words under it. Lining the header up with the
+// rows would be tidier than the box, and wrong.
+const ETHERCHANNEL_HEADER = 'Group  Port-channel  Protocol    Ports';
+const ETHERCHANNEL_COLUMNS = { group: 7, 'port-channel': 16, protocol: 10 };
+
 // The rule line under the header: each column draws its own width in dashes, one short of the field because
 // the space between columns is not a column. The Ports window is the last one, so it runs to the end of the line.
 function vlanRule() {
@@ -4092,7 +4122,16 @@ class CliSession {
         out.push('% No link aggregation groups configured');
       } else {
         const lagLib = require('./lag');
-        out.push(pad('Group', 7) + pad('Protocol', 18) + 'Ports');
+        // The key comes before the table, and the two counts after it, because a summary without them is a
+        // table of numbers with no legend and no total (#1620).
+        for (const line of ETHERCHANNEL_FLAGS) out.push(line);
+        // Both counts are the number of groups: this model builds one aggregator per port-channel, so the two
+        // figures cannot differ here - on a box they can, when an aggregator outlives the group that made it.
+        const countsLabel = 'Number of channel-groups in use: ';
+        out.push(countsLabel + ids.length);
+        out.push(pad('Number of aggregators:', countsLabel.length) + ids.length);
+        out.push(ETHERCHANNEL_HEADER);
+        out.push(ETHERCHANNEL_RULE);
         for (const id of ids) {
           const l = lags[id] || {};
           const raw = Array.isArray(l.members) ? l.members : [];
@@ -4118,11 +4157,18 @@ class CliSession {
           const shown = raw.map(function (m) {
             return m + (live.indexOf(m) === -1 ? '(D)' : '(P)');
           });
-          // The column is the protocol, so it names the protocol and the mode the operator chose, in the
-          // words the operator chose them in.
-          const modeWord = lagLib.cliMode(l.mode);
-          const proto = modeWord === 'on' ? 'Static' : 'LACP (' + modeWord + ')';
-          out.push(pad(id, 7) + pad(proto, 18) + shown.join(' '));
+          // The Port-channel cell carries the bundle's own flags, which say what the member list cannot: S is a
+          // Layer2 bundle (R would be Layer3, which this model does not build) and U is a bundle in use, D one
+          // with no member that can carry - the state the `bundle N is down` sentence below describes.
+          const bundleFlags = 'S' + (live.length ? 'U' : 'D');
+          // The column is the protocol. The *mode* is not in it: `LACP (active)` is a string no box prints, and
+          // `Static` for `mode on` named a protocol that is not running - the operator chose no negotiation, and
+          // the box shows that as `-`. The mode is still readable, in `show running-config`, where a box keeps
+          // it, and in the `channel-group ... mode ...` line that put the port here (#1620).
+          const proto = lagLib.cliMode(l.mode) === 'on' ? '-' : 'LACP';
+          out.push(pad(id, ETHERCHANNEL_COLUMNS.group) +
+            pad('Po' + id + '(' + bundleFlags + ')', ETHERCHANNEL_COLUMNS['port-channel']) +
+            pad(proto, ETHERCHANNEL_COLUMNS.protocol) + shown.join(' '));
           // Why a member is not carrying, in the same words `show interfaces` uses, and what that means for
           // the bundle as a whole.
           for (const m of raw) {
