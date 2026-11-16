@@ -1,0 +1,91 @@
+{
+  "vendor": "moxa",
+  "model": "NPort 6650-16",
+  "label": "NPort 6650-16 16-port secure terminal server",
+  "category": "host",
+  "description": "16-port RS-232/422/485 terminal server with one 10/100BaseT(X) RJ45 uplink, a dedicated RS-232 console port, and secure operation modes (SSHv2, TLS 1.2, RADIUS/TACACS+) for attaching terminals, modems and console cables to the network.",
+  "capabilities": [
+    "host",
+    "cli",
+    "http-server",
+    "dhcp-client"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M"
+    },
+    {
+      "name": "console",
+      "type": "console"
+    },
+    {
+      "name": "serial1",
+      "type": "console"
+    },
+    {
+      "name": "serial2",
+      "type": "console"
+    },
+    {
+      "name": "serial3",
+      "type": "console"
+    },
+    {
+      "name": "serial4",
+      "type": "console"
+    },
+    {
+      "name": "serial5",
+      "type": "console"
+    },
+    {
+      "name": "serial6",
+      "type": "console"
+    },
+    {
+      "name": "serial7",
+      "type": "console"
+    },
+    {
+      "name": "serial8",
+      "type": "console"
+    },
+    {
+      "name": "serial9",
+      "type": "console"
+    },
+    {
+      "name": "serial10",
+      "type": "console"
+    },
+    {
+      "name": "serial11",
+      "type": "console"
+    },
+    {
+      "name": "serial12",
+      "type": "console"
+    },
+    {
+      "name": "serial13",
+      "type": "console"
+    },
+    {
+      "name": "serial14",
+      "type": "console"
+    },
+    {
+      "name": "serial15",
+      "type": "console"
+    },
+    {
+      "name": "serial16",
+      "type": "console"
+    }
+  ],
+  "sourceUrl": "https://www.moxa.com/getmedia/b095a7b4-9c06-4dca-8732-1411687e81d7/moxa-nport-6400-6600-series-datasheet-v1.7.pdf",
+  "notes": "Moxa NPort 6400/6600 Series datasheet v1.7: 'Ethernet Interface - 10/100BaseT(X) Ports (RJ45 connector): 1, Auto MDI/MDI-X connection'; 'Serial Interface - Connector: NPort 6600 models: 8-pin RJ45; No. of Ports: NPort 6600-16 models: 16'; 'Console Port: NPort 6600 models: RS-232 (TxD, RxD, GND), 8-pin RJ45 (19200, n, 8, 1)'. Secure modes include Secure Real COM, Secure TCP client/server, Reverse SSH and Secure Pair Connection, with RADIUS/TACACS+ authentication and AES-256/HMAC - the difference from the 5650-16, which has a local database only. Extra Ethernet ports on this family come from NM-TX01/NM-TX02 expansion modules (1 or 2 further 10/100 ports) and are deliberately not modelled: they are an option, and the notes on this catalogue's other parts follow the same rule of only modelling what ships by default. 6600-32 models exist with 32 serial ports but were not added; the 16-port unit is the one that matches a standard 19-inch patch-panel build."
+}

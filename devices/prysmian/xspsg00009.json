@@ -1,0 +1,44 @@
+{
+  "vendor": "prysmian",
+  "model": "XSPSG00009",
+  "label": "1x16 PLC splitter, SC/APC, pre-connectorised",
+  "category": "splitter",
+  "description": "1x16 balanced planar-lightwave-circuit splitter with SC/APC connectors on the input and all sixteen output legs, 1260-1600 nm. Insertion loss <=14.1 dB (pre-connectorised), uniformity <=1.2 dB, PDL <=0.30 dB, return loss >=55 dB. Fully passive: it carries GPON and XGS-PON wavelengths transparently and has no table to learn into.",
+  "capabilities": [],
+  "splitRatio": "1:16",
+  "insertionLossDb": 14.1,
+  "technology": "PLC",
+  "wavelengthRangeNm": "1260-1600",
+  "uniformityDb": 1.2,
+  "pdlDb": 0.3,
+  "returnLossDb": 55,
+  "maxInputPowerMw": 500,
+  "portTemplate": {
+    "prefix": "out",
+    "start": 1,
+    "count": 16,
+    "type": "pon",
+    "speed": "10G",
+    "connector": "sc-apc",
+    "speedCaps": [
+      1244,
+      2488,
+      9953
+    ]
+  },
+  "interfaces": [
+    {
+      "name": "in",
+      "type": "pon",
+      "speed": "10G",
+      "connector": "sc-apc",
+      "speedCaps": [
+        1244,
+        2488,
+        9953
+      ]
+    }
+  ],
+  "sourceUrl": "https://www.prysmian.com/sites/default/files/business_markets/markets/downloads/datasheets/AC005-06_PLC_Splitters.pdf",
+  "notes": "Prysmian AC005 issue 06, pre-connectorised table: 1x16 insertion loss <=14.1 dB, uniformity <=1.2, PDL <=0.30, RL/directivity >=55 dB, 1260-1600 nm, max input 500 mW, pigtails 1.5 m. Part number XSPSG00009 is the SC/APC input-and-output variant; the same splitter is XSPSG00004 unconnectorised (<=13.5 dB - the connectors cost 0.6 dB, which is the number to look at when someone asks why pre-terminated costs budget). Design note: the simulator's PON budget charges the ratio's worst-case catalogue figure (14.2 dB for 1:16) rather than this part's 14.1 dB, so a plan built on this splitter is 0.1 dB pessimistic, never optimistic."
+}

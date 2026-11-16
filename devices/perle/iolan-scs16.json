@@ -1,0 +1,93 @@
+{
+  "vendor": "perle",
+  "model": "IOLAN SCS16",
+  "label": "IOLAN SCS16 secure console server, 16 x RS232, dual GbE",
+  "category": "host",
+  "description": "16-port secure console server: sixteen RJ45 RS232 (EIA232, IOLAN pinout) serial ports and two independent 10/100/1000Base-T Ethernet ports, with a PCI slot for an optional V.92 modem card. Redundant network paths to the same serial estate.",
+  "capabilities": [
+    "host",
+    "cli",
+    "http-server",
+    "dhcp-client"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "serial1",
+      "type": "console"
+    },
+    {
+      "name": "serial2",
+      "type": "console"
+    },
+    {
+      "name": "serial3",
+      "type": "console"
+    },
+    {
+      "name": "serial4",
+      "type": "console"
+    },
+    {
+      "name": "serial5",
+      "type": "console"
+    },
+    {
+      "name": "serial6",
+      "type": "console"
+    },
+    {
+      "name": "serial7",
+      "type": "console"
+    },
+    {
+      "name": "serial8",
+      "type": "console"
+    },
+    {
+      "name": "serial9",
+      "type": "console"
+    },
+    {
+      "name": "serial10",
+      "type": "console"
+    },
+    {
+      "name": "serial11",
+      "type": "console"
+    },
+    {
+      "name": "serial12",
+      "type": "console"
+    },
+    {
+      "name": "serial13",
+      "type": "console"
+    },
+    {
+      "name": "serial14",
+      "type": "console"
+    },
+    {
+      "name": "serial15",
+      "type": "console"
+    },
+    {
+      "name": "serial16",
+      "type": "console"
+    }
+  ],
+  "sourceUrl": "https://store.perle.com/iolanscs16",
+  "notes": "Perle product page: 'IOLAN SCS16 Secure Console Server: 16 x RJ45 RS232 ports with IOLAN pinout, EIA232 interface, Dual 10/100/1000Base-T Ethernet, PCI slot for V.92 modem card'. Dual gigabit is the point of this entry: the Moxa NPort 6650-16 has one 10/100 uplink, so a console server pair here can be cabled to two switches and survive a single link or switch failure - the actual reason people pay for this class of box. The V.92 modem card and the SCS16C-DSFP variant (two SFP slots instead of the copper pair, per Perle's launch note) are options and are not modelled; only what ships as the base unit is. RS232 only - unlike the Moxa 5650/6650 family there is no RS-422/485 mode on this SKU, which matters if a lab needs to console an industrial device."
+}

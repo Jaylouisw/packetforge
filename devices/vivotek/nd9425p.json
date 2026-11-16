@@ -1,0 +1,143 @@
+{
+  "vendor": "vivotek",
+  "model": "ND9425P",
+  "label": "ND9425P 16-channel PoE NVR",
+  "category": "nvr",
+  "description": "16-channel 4K NVR with one gigabit RJ45 LAN port and sixteen embedded 802.3at/af PoE camera ports totalling 200 W, two internal 3.5-inch drive bays with RAID 0/1, HDMI and VGA output.",
+  "capabilities": [
+    "host",
+    "dhcp-client",
+    "dhcp-server",
+    "http-server",
+    "l2-forward"
+  ],
+  "interfaces": [
+    {
+      "name": "LAN",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "PoE 1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M",
+      "poeOut": 30
+    },
+    {
+      "name": "PoE 2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M",
+      "poeOut": 30
+    },
+    {
+      "name": "PoE 3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M",
+      "poeOut": 30
+    },
+    {
+      "name": "PoE 4",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M",
+      "poeOut": 30
+    },
+    {
+      "name": "PoE 5",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M",
+      "poeOut": 30
+    },
+    {
+      "name": "PoE 6",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M",
+      "poeOut": 30
+    },
+    {
+      "name": "PoE 7",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M",
+      "poeOut": 30
+    },
+    {
+      "name": "PoE 8",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M",
+      "poeOut": 30
+    },
+    {
+      "name": "PoE 9",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M",
+      "poeOut": 30
+    },
+    {
+      "name": "PoE 10",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M",
+      "poeOut": 30
+    },
+    {
+      "name": "PoE 11",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M",
+      "poeOut": 30
+    },
+    {
+      "name": "PoE 12",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M",
+      "poeOut": 30
+    },
+    {
+      "name": "PoE 13",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M",
+      "poeOut": 30
+    },
+    {
+      "name": "PoE 14",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M",
+      "poeOut": 30
+    },
+    {
+      "name": "PoE 15",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M",
+      "poeOut": 30
+    },
+    {
+      "name": "PoE 16",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M",
+      "poeOut": 30
+    }
+  ],
+  "poe": {
+    "budgetW": 200,
+    "sourceUrl": "https://www.vivotek.com/products/network-video-recorder-and-appliance/core+-series-nvr/nd9425p?tab=spec",
+    "note": "VIVOTEK specification: 802.3at/af compliant PoE ports x 16, total max 200 W."
+  },
+  "icon": "nvr",
+  "color": "#6366f1",
+  "sourceUrl": "https://www.vivotek.com/products/network-video-recorder-and-appliance/core+-series-nvr/nd9425p?tab=spec",
+  "notes": "VIVOTEK lists the PoE ports as 802.3at/af without a per-port wattage, so they are modelled at the 802.3at Type 2 ceiling of 30 W while the aggregate stays at the published 200 W - the aggregate is what runs out first in a sixteen-camera build. One gigabit RJ45 only, 88 Mbps total network throughput, two internal 3.5-inch bays with RAID 0/1, recording throughput 64 Mbps."
+}

@@ -1,0 +1,25 @@
+{
+  "vendor": "screenbeam",
+  "model": "ECB6250",
+  "label": "ScreenBeam ECB6250 MoCA 2.5 adapter (1G Ethernet)",
+  "category": "powerline",
+  "description": "MoCA 2.5 network adapter that bridges one gigabit RJ45 port onto existing coaxial cabling: up to 2.5 Gbps on the coax, 1 Gbps where the Ethernet port is the limit. Backwards compatible with MoCA 2.0/1.1/1.0 and supports up to 16 nodes on one coax segment.",
+  "capabilities": [
+    "host"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "coax0",
+      "type": "coax",
+      "speed": "2.5G"
+    }
+  ],
+  "sourceUrl": "https://www.screenbeam.com/products/screenbeam-ecb6250/",
+  "notes": "ScreenBeam product page: 'MoCA 2.5 Network Adapter with 1.0Gbps Ethernet Port', throughput 'up to 2.5 Gbps' over the MoCA network but 'up to 1.0Gbps for devices with 1.0Gbps Ethernet', MoCA Protected Setup (MPS) pairing, up to 16 MoCA nodes, backward compatible with MoCA 2.0/1.1/1.0. The asymmetry is the whole point of this model in a lab: the coax segment can carry 2.5G while the Ethernet port caps a host at 1G - which is exactly the gap the ECB7250 (2.5GbE) closes, and why both belong in the catalogue."
+}

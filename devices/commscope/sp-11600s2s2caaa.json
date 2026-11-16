@@ -1,0 +1,43 @@
+{
+  "vendor": "commscope",
+  "model": "SP-11600S2S2CAAA",
+  "label": "1x16 PLC splitter, SC/APC, grade C bare splitter",
+  "category": "splitter",
+  "description": "1x16 symmetrical PLC bare splitter, SC/APC on the 1 m input pigtail and on all sixteen 1 m output pigtails, 0.25 mm fibre, 1260-1650 nm. Grade C parts are the value end of the range: insertion loss <=14.3 dB, uniformity <=1.6 dB, PDL <=0.3 dB, return loss >=50 dB.",
+  "capabilities": [],
+  "splitRatio": "1:16",
+  "insertionLossDb": 14.3,
+  "technology": "PLC",
+  "wavelengthRangeNm": "1260-1650",
+  "uniformityDb": 1.6,
+  "pdlDb": 0.3,
+  "returnLossDb": 50,
+  "portTemplate": {
+    "prefix": "out",
+    "start": 1,
+    "count": 16,
+    "type": "pon",
+    "speed": "10G",
+    "connector": "sc-apc",
+    "speedCaps": [
+      1244,
+      2488,
+      9953
+    ]
+  },
+  "interfaces": [
+    {
+      "name": "in",
+      "type": "pon",
+      "speed": "10G",
+      "connector": "sc-apc",
+      "speedCaps": [
+        1244,
+        2488,
+        9953
+      ]
+    }
+  ],
+  "sourceUrl": "https://www.commscope.com/product-type/hubs-closures-terminals-boxes/fiber-closures/fiber-splitterwdm-components/itemsp-11600s2s2caaa/",
+  "notes": "CommScope product specification: 1 x 16 symmetrical PLC, SC/APC in and out, G.657.A2, insertion loss max 14.3 dB, uniformity max 1.6 dB, PDL max 0.3 dB, directivity min 55 dB, return loss min 50 dB, 1260-1650 nm, 4 x 5 x 45 mm, 1 m pigtails at 0.25 mm, -40 to +70 C. Worth knowing: 14.3 dB is 0.1 dB worse than the simulator's worst-case figure for a 1:16 (14.2 dB), so a grade C part used in a 20 km class B+ plan is marginally over what the budget engine assumes - the 50 dB return loss (against 55 on the Prysmian part) is the other sign that this is the cheaper grade."
+}

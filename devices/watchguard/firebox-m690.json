@@ -1,0 +1,110 @@
+{
+  "vendor": "watchguard",
+  "model": "Firebox M690",
+  "label": "WatchGuard Firebox M690 firewall",
+  "category": "firewall",
+  "description": "1U UTM firewall with twelve data ports: eight 10/100/1000BASE-T RJ45, two 10G SFP+ cages and two 10/2.5/1G RJ45 ports, dual 150 W PSUs, 512 GB m.2 and 16 GB ECC RAM. The only model in the family that offers multi-gigabit copper as well as fibre.",
+  "capabilities": [
+    "cli",
+    "dhcp-client",
+    "dhcp-server",
+    "firewall",
+    "http-server",
+    "l3-forward",
+    "nat"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "eth2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "eth3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "eth4",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "eth5",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "eth6",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "eth7",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "sfp0",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "sfp1",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "eth8",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        2500,
+        10000
+      ]
+    },
+    {
+      "name": "eth9",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        2500,
+        10000
+      ]
+    }
+  ],
+  "sourceUrl": "https://www.watchguard.com/help/docs/help-center/en-US/Content/en-US/Hardware-Guides/firebox-m290-390-590-690-hardware-guide.html",
+  "notes": "Hardware guide, interface specification: M690 = '8 x 1000 Base-TX (10/100/1000Mbps) RJ45 connector, 2 x 10G SFP+ interfaces, 2 x 10GbE (1000/2500/10000 Mbps) RJ45 Connector', I/O '2 x USB 3.0, 1 x RJ45 RS232 console'. The two multi-gig copper ports are modelled with speedCaps 1000/2500/10000 because the guide gives that ladder explicitly - a 2.5G link on copper is real here, unlike on the M290/M390. NXP LX2160A, 512 GB m.2, 16 GB ECC, dual 150 W PSUs, 4.6 kg."
+}

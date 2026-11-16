@@ -1,0 +1,25 @@
+{
+  "vendor": "comtrend",
+  "model": "PG-9172",
+  "label": "Comtrend PG-9172 G.hn powerline adapter",
+  "category": "powerline",
+  "description": "G.hn powerline adapter with one 10/100/1000BASE-T RJ45 port on the Ethernet side and up to 1200 Mbit/s on the mains wiring. HomeGrid Forum certified, bridges 802.1D, filters by 802.1Q VLAN and snoops IGMP/MLD, so multicast video does not flood every outlet.",
+  "capabilities": [
+    "host"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "plc0",
+      "type": "powerline",
+      "speed": "1G"
+    }
+  ],
+  "sourceUrl": "https://us.comtrend.com/wp-content/uploads/2016/05/DS_PG-9172_V1.0.3.pdf",
+  "notes": "Comtrend datasheet DS_PG-9172_V1.0.3: 'RJ-45 X 1 for Ethernet Connection', '10/100/1000Mbps BaseT Ethernet Port', 'PHY Rate: Up to 1200Mbps', 802.1D Ethernet bridge, 802.1Q VLAN, IGMP (IPv4) and MLD (IPv6) snooping, AES 128-bit, HTTP management with TFTP firmware and TR-069, up to 16 nodes per G.hn network, max 0.5 W standby, HomeGrid Forum certified. This is the catalogue's first G.hn mains part - the others are HomePlug AV/AV2 - so it does not interoperate with them at all (Comtrend say so explicitly on the newer kits), which is exactly the sort of thing a lab should be able to discover. Rate note: the mains port is declared at 1G because the engine's powerline ladder is 200/1000/1700/2500 Mbps and has no 1200 rung; the datasheet's 1200 Mbit/s is the G.hn PHY rate. Adding 1200 and 2400 rungs is the correct fix and is written up in research/incoming/devices-powerline-moca.json."
+}

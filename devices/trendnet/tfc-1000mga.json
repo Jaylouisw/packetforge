@@ -1,0 +1,35 @@
+{
+  "vendor": "trendnet",
+  "model": "TFC-1000MGA",
+  "label": "TFC-1000MGA 100/1000BASE-T to SFP media converter",
+  "category": "switch",
+  "description": "Media converter with one 10/100/1000BASE-T RJ45 port and one mini-GBIC (SFP) slot that accepts both 100BASE-FX and 1000BASE-SX/LX modules, with DIP switches for forced fibre speed and link-loss carry-forward. Standalone or in a TFC-1600 chassis.",
+  "capabilities": [
+    "l2-forward"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "sfp0",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        100,
+        1000
+      ]
+    }
+  ],
+  "sourceUrl": "https://www.trendnet.com/products/gigabit-fiber-converter/TFC-1000MGA",
+  "notes": "TRENDnet specifications: 'Ports: 1 x 10/100/1000Mbps Gigabit port, 1 x 100/1000Base-SX/LX Mini-GBIC slot for optional Mini-GBIC modules'; 'Dip Switch: Fiber (forced/auto-negotiation), LLCF (enable/disable)'; 5V DC 1A external adapter. This is the case the TP-Link MC220L does not cover: the cage here accepts 100BASE-FX as well as gigabit optics, so an FX module gives a 100M link - and the forced/auto DIP is why two converters at different settings refuse to come up while each looks fine on its own. LLCF (link-loss carry-forward) is worth knowing about in a lab: it propagates the far-end failure so the near switch drops the link instead of black-holing traffic. TRENDnet mark v1.0R discontinued and replaced by v2.0R; the port list is unchanged between revisions."
+}

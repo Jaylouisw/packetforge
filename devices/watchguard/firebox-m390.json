@@ -1,0 +1,68 @@
+{
+  "vendor": "watchguard",
+  "model": "Firebox M390",
+  "label": "WatchGuard Firebox M390 firewall",
+  "category": "firewall",
+  "description": "1U UTM firewall with eight 10/100/1000BASE-T RJ45 ports, a single 150 W PSU, 128 GB m.2 storage and 8 GB ECC RAM; the console is an RJ45 RS232 port and the two USB 3.0 ports are not network interfaces. No SFP cages on this model.",
+  "capabilities": [
+    "cli",
+    "dhcp-client",
+    "dhcp-server",
+    "firewall",
+    "http-server",
+    "l3-forward",
+    "nat"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "eth2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "eth3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "eth4",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "eth5",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "eth6",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "eth7",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    }
+  ],
+  "sourceUrl": "https://www.watchguard.com/help/docs/help-center/en-US/Content/en-US/Hardware-Guides/firebox-m290-390-590-690-hardware-guide.html",
+  "notes": "WatchGuard M290/390/590/690 hardware guide, interface specification as shipped: M390 = '8 x 1000 Base-TX (10/100/1000Mbps) RJ45 connector', I/O '2 x USB 3.0, 1 x RJ45 RS232 console'. This is the model where the family splits: the M290 is identical on ports (8x1G, single 65 W PSU, 4 GB RAM) while the M590 adds 2x 10G SFP+ and the M690 adds 2x 10G SFP+ plus 2x 10/2.5/10G RJ45. NXP LS2084A, 128 GB m.2, 8 GB ECC, single 150 W PSU, 3.65 kg. Ports are labelled 0-7 in Fireware, so they are modelled as eth0-eth7; the console is not a network port and is deliberately absent."
+}

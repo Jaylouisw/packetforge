@@ -1,0 +1,28 @@
+{
+  "vendor": "fujitsu",
+  "model": "PRIMERGY TX1310 M5",
+  "label": "PRIMERGY TX1310 M5 tower server",
+  "category": "server",
+  "description": "Mono-socket tower server with two onboard gigabit RJ45 ports as standard, four 3.5-inch drive bays, four PCIe slots and iRMC S6 management shared on the onboard LAN rather than on a dedicated port.",
+  "capabilities": [
+    "host",
+    "http-server",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    }
+  ],
+  "sourceUrl": "https://sp.ts.fujitsu.com/dmsp/Publications/public/ds-py-tx1310-m5.pdf",
+  "notes": "Fujitsu data sheet: 'LAN / Ethernet: 2' and 'onboard dual Gigabit LAN as standard'. Unlike the RX1330 M5 there is no dedicated management port in the interface table - iRMC S6 runs over the shared onboard LAN - so this model has two RJ45 ports, not three, and is the useful contrast when teaching out-of-band versus in-band management. Xeon E-2300/Pentium, 4 DIMMs to 128 GB ECC at 3200 MT/s, 4x 3.5-inch drives, RDX backup support, 4x PCIe (one Gen4). Data sheet is the maximum-component specification, so optional cards are not modelled."
+}

@@ -1,0 +1,87 @@
+{
+  "vendor": "uniview",
+  "model": "NVR301-08X-P8",
+  "label": "NVR301-08X-P8 8-channel PoE NVR",
+  "category": "nvr",
+  "description": "8-channel 4K NVR with one 10/100 RJ45 LAN uplink, eight 10/100 RJ45 PoE camera ports (802.3af/at, 30 W per port, 75 W aggregate), one SATA bay up to 8 TB and simultaneous HDMI/VGA output.",
+  "capabilities": [
+    "host",
+    "dhcp-client",
+    "dhcp-server",
+    "http-server",
+    "l2-forward"
+  ],
+  "interfaces": [
+    {
+      "name": "LAN",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M"
+    },
+    {
+      "name": "PoE 1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M",
+      "poeOut": 30
+    },
+    {
+      "name": "PoE 2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M",
+      "poeOut": 30
+    },
+    {
+      "name": "PoE 3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M",
+      "poeOut": 30
+    },
+    {
+      "name": "PoE 4",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M",
+      "poeOut": 30
+    },
+    {
+      "name": "PoE 5",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M",
+      "poeOut": 30
+    },
+    {
+      "name": "PoE 6",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M",
+      "poeOut": 30
+    },
+    {
+      "name": "PoE 7",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M",
+      "poeOut": 30
+    },
+    {
+      "name": "PoE 8",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M",
+      "poeOut": 30
+    }
+  ],
+  "poe": {
+    "budgetW": 75,
+    "sourceUrl": "https://global.uniview.com/us/res/202303/23/20230323_1877444_UNV%E3%80%90Datasheet%E3%80%91NVR301-08X-P8%20V1.10-EN_967969_241637_0.pdf",
+    "note": "Uniview datasheet: max 30 W single port, max 75 W in total, IEEE 802.3af/at."
+  },
+  "icon": "nvr",
+  "color": "#0ea5e9",
+  "sourceUrl": "https://global.uniview.com/us/res/202303/23/20230323_1877444_UNV%E3%80%90Datasheet%E3%80%91NVR301-08X-P8%20V1.10-EN_967969_241637_0.pdf",
+  "notes": "Vendor figures: 1 RJ45 10M/100M LAN, 8 RJ45 10M/100M PoE ports, 1 SATA up to 8 TB, 80 Mbps incoming bandwidth. The LAN port is 100M only - on a 4K camera fleet that uplink is the bottleneck, and it is modelled that way rather than being quietly given gigabit. The eight PoE ports form an internal camera subnet with their own DHCP service, so the recorder carries l2-forward."
+}

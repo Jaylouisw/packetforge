@@ -1,0 +1,122 @@
+{
+  "vendor": "dahua",
+  "model": "NVR5232-16P-4KS2E",
+  "label": "NVR5232-16P-4KS2E 32-channel NVR with 16-port PoE",
+  "category": "nvr",
+  "description": "32-channel 1U 4K NVR with two HDD bays, one gigabit uplink and sixteen 10/100 PoE camera ports (ports 1-8 also carry Dahua ePoE/EoC). Same 1U 16PoE chassis as the NVR5216-16P-4KS2E, with 32 recording channels rather than 16: 802.3af/at at 25.5 W per port and a 130 W total rated PoE budget.",
+  "capabilities": [
+    "host",
+    "dhcp-client",
+    "http-server",
+    "dhcp-server",
+    "l2-forward"
+  ],
+  "interfaces": [
+    {
+      "name": "LAN",
+      "type": "ethernet",
+      "speed": "1G"
+    },
+    {
+      "name": "PoE 1",
+      "type": "ethernet",
+      "speed": "100M",
+      "poeOut": 25.5
+    },
+    {
+      "name": "PoE 2",
+      "type": "ethernet",
+      "speed": "100M",
+      "poeOut": 25.5
+    },
+    {
+      "name": "PoE 3",
+      "type": "ethernet",
+      "speed": "100M",
+      "poeOut": 25.5
+    },
+    {
+      "name": "PoE 4",
+      "type": "ethernet",
+      "speed": "100M",
+      "poeOut": 25.5
+    },
+    {
+      "name": "PoE 5",
+      "type": "ethernet",
+      "speed": "100M",
+      "poeOut": 25.5
+    },
+    {
+      "name": "PoE 6",
+      "type": "ethernet",
+      "speed": "100M",
+      "poeOut": 25.5
+    },
+    {
+      "name": "PoE 7",
+      "type": "ethernet",
+      "speed": "100M",
+      "poeOut": 25.5
+    },
+    {
+      "name": "PoE 8",
+      "type": "ethernet",
+      "speed": "100M",
+      "poeOut": 25.5
+    },
+    {
+      "name": "PoE 9",
+      "type": "ethernet",
+      "speed": "100M",
+      "poeOut": 25.5
+    },
+    {
+      "name": "PoE 10",
+      "type": "ethernet",
+      "speed": "100M",
+      "poeOut": 25.5
+    },
+    {
+      "name": "PoE 11",
+      "type": "ethernet",
+      "speed": "100M",
+      "poeOut": 25.5
+    },
+    {
+      "name": "PoE 12",
+      "type": "ethernet",
+      "speed": "100M",
+      "poeOut": 25.5
+    },
+    {
+      "name": "PoE 13",
+      "type": "ethernet",
+      "speed": "100M",
+      "poeOut": 25.5
+    },
+    {
+      "name": "PoE 14",
+      "type": "ethernet",
+      "speed": "100M",
+      "poeOut": 25.5
+    },
+    {
+      "name": "PoE 15",
+      "type": "ethernet",
+      "speed": "100M",
+      "poeOut": 25.5
+    },
+    {
+      "name": "PoE 16",
+      "type": "ethernet",
+      "speed": "100M",
+      "poeOut": 25.5
+    }
+  ],
+  "poe": {
+    "budgetW": 130
+  },
+  "sourceUrl": "https://www.dahuasecurity.com/asset/upload/product/20180201/DHI-NVR5216_5232-16P-4KS2E_Datasheet_20180201.pdf",
+  "notes": "Dahua datasheet DHI-NVR5216/32-16P-4KS2E covers both SKUs on one sheet: Ordering Information lists DHI-NVR5216-16P-4KS2E as 16 channel and DHI-NVR5232-16P-4KS2E as 32 channel, both 1U 16PoE 4K&H.265 Pro NVRs. Network section: 1 x RJ-45 10/100/1000 Mbps, PoE 16 ports IEEE 802.3af/at with ports 1-8 supporting ePoE & EoC; Storage: 2 SATA III up to 10 TB each; 1 rear USB 3.0 + 1 front USB 2.0; RS232. The port hardware is therefore identical to the 5216 already in the catalogue - the only difference is channel count, which is a recording-capacity fact rather than a cabling one, so both are modelled with the same interfaces and only the label and description differ."
+}

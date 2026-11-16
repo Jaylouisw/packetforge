@@ -1,0 +1,80 @@
+{
+  "vendor": "checkpoint",
+  "model": "Quantum 6200",
+  "label": "Check Point Quantum 6200 security gateway",
+  "category": "firewall",
+  "description": "1U enterprise security gateway: eight 10/100/1000BASE-T data ports plus a separate 1G management port and a 1G sync port, one empty network expansion slot, RJ45 and USB-C console. 9 Gbps firewall / 3.72 Gbps NGFW throughput. No PoE.",
+  "capabilities": [
+    "cli",
+    "dhcp-client",
+    "dhcp-server",
+    "firewall",
+    "http-server",
+    "l3-forward",
+    "nat"
+  ],
+  "interfaces": [
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "eth2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "eth3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "eth4",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "eth5",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "eth6",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "eth7",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "eth8",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "Mgmt",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "Sync",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    }
+  ],
+  "sourceUrl": "https://www.checkpoint.com/downloads/products/6200-security-gateway-datasheet.pdf",
+  "notes": "Datasheet (August 2023): base model 10x 1GbE copper - eight 10/100/1000BASE-T data ports, one management 10/100/1000BASE-T port and one sync 10/100/1000BASE-T port - in 1RU, with one network expansion slot, 2x USB 3.0, RJ45 and USB-C console, 8 GB RAM and a single PSU. The Plus package adds 4x 1GbE fibre and redundant PSUs; the datasheet's max capacity is 18 copper + 4 fibre + 4x 10GbE. None of the optional modules are fitted here, because a spec that ships empty slots as ports invents hardware. 9 Gbps firewall, 3.72 Gbps NGFW, 1.8 Gbps threat prevention."
+}

@@ -1,0 +1,44 @@
+{
+  "vendor": "prysmian",
+  "model": "XSPSG00054",
+  "label": "1x64 PLC splitter, SC/APC, pre-connectorised",
+  "category": "splitter",
+  "description": "1x64 balanced planar-lightwave-circuit splitter with SC/APC connectors on the input and all sixty-four output legs, 1260-1600 nm. Insertion loss <=21.0 dB (pre-connectorised), uniformity <=1.8 dB, PDL <=0.40 dB, return loss >=55 dB. The largest split a GPON ODN normally carries, and the one that eats most of the class B+ budget.",
+  "capabilities": [],
+  "splitRatio": "1:64",
+  "insertionLossDb": 21.0,
+  "technology": "PLC",
+  "wavelengthRangeNm": "1260-1600",
+  "uniformityDb": 1.8,
+  "pdlDb": 0.4,
+  "returnLossDb": 55,
+  "maxInputPowerMw": 500,
+  "portTemplate": {
+    "prefix": "out",
+    "start": 1,
+    "count": 64,
+    "type": "pon",
+    "speed": "10G",
+    "connector": "sc-apc",
+    "speedCaps": [
+      1244,
+      2488,
+      9953
+    ]
+  },
+  "interfaces": [
+    {
+      "name": "in",
+      "type": "pon",
+      "speed": "10G",
+      "connector": "sc-apc",
+      "speedCaps": [
+        1244,
+        2488,
+        9953
+      ]
+    }
+  ],
+  "sourceUrl": "https://www.prysmian.com/sites/default/files/business_markets/markets/downloads/datasheets/AC005-06_PLC_Splitters.pdf",
+  "notes": "Prysmian AC005 issue 06, pre-connectorised table: 1x64 insertion loss <=21.0 dB, uniformity <=1.8, PDL <=0.40, RL >=55 dB, 1260-1600 nm, 12 x 4 x 58 mm package. XSPSG00054 is the SC/APC variant; unconnectorised is XSPSG00044 at <=20.4 dB. This part's 21.0 dB is exactly the simulator's worst-case figure for a 1:64, so the modelled budget matches the datasheet rather than flattering it."
+}

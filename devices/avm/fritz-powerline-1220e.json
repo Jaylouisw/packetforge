@@ -1,0 +1,31 @@
+{
+  "vendor": "avm",
+  "model": "FRITZ!Powerline 1220E",
+  "label": "FRITZ!Powerline 1220E powerline adapter",
+  "category": "powerline",
+  "description": "HomePlug AV2 powerline adapter with two gigabit RJ45 ports and an integrated 230 V socket with line filter, so it does not cost the wall outlet it uses. Up to 1200 Mbit/s on the mains wiring; no radios.",
+  "capabilities": [
+    "host"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "eth1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "plc0",
+      "type": "powerline",
+      "speed": "1G"
+    }
+  ],
+  "sourceUrl": "https://en.avm.de/products/fritzpowerline/fritzpowerline-1220e/technical-specifications",
+  "notes": "AVM technical specifications: '2 x gigabit LAN (10/100/1000 Base-T, RJ45 port)', 'Up to 1200 Mbit/s powerline data throughput ... according to the powerline standard HomePlug AV2', integrated 230 V socket with line filter, 128-bit AES link encryption, IGMP multicast, 3 LEDs, ~1 W standby / ~3 W operating, 59 x 132 x 41 mm, 220 g. Backwards compatible with 1200/500/200 Mbit/s adapters and IEEE P1901 - which is why a 500M adapter on the same mains segment drags the link down to 500M, a behaviour the simulator models by negotiating the powerline medium down rather than up. Rate note: AVM's 1200 Mbit/s is the HomePlug AV2 PHY rate; the simulator's mains medium ladder for powerline ports is 200/1000/1700/2500 Mbps with no 1200 rung, so this port is declared at 1G - the HomePlug AV2 figure the engine can carry - rather than inventing a rate the cage rejects."
+}
