@@ -1,0 +1,63 @@
+{
+  "vendor": "cisco",
+  "model": "C1000-16FP-2G-L",
+  "label": "Cisco Catalyst 1000 C1000-16FP-2G-L",
+  "category": "switch",
+  "description": "Cisco Catalyst 1000 C1000-16FP-2G-L - 16x 1G RJ-45 all PoE+ (802.3af/at, 30 W a port, 240 W budget), 2x 1G SFP uplink cages, 36 Gbps switching bandwidth, 26.78 Mpps at 64 bytes, fanless 1U Cisco IOS L2 access switch.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli",
+    "http-server",
+    "vlan",
+    "lacp",
+    "stp",
+    "poe-pse",
+    "802.3af",
+    "802.3at"
+  ],
+  "icon": "switch",
+  "color": "#1d4ed8",
+  "portTemplate": {
+    "prefix": "Gi1/0/",
+    "start": 1,
+    "count": 16,
+    "type": "ethernet",
+    "connector": "rj45",
+    "speed": "1G",
+    "speedCaps": [
+      10,
+      100,
+      1000
+    ],
+    "poeOut": true,
+    "poeOutClass": "PoE+"
+  },
+  "interfaces": [
+    {
+      "name": "Gi1/0/17",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        1000
+      ]
+    },
+    {
+      "name": "Gi1/0/18",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        1000
+      ]
+    }
+  ],
+  "poe": {
+    "budgetW": 240,
+    "sourceUrl": "https://www.cisco.com/c/en/us/products/collateral/switches/catalyst-1000-series-switches/nb-06-cat1k-ser-switch-ds-cte-en.html",
+    "note": "240 W PoE budget across 16 PoE+ ports, IEEE 802.3af/802.3at PSE, 30 W maximum a port. Perpetual PoE holds power on the PD across a reload. The budget, not the port count, is the ceiling: 15 Class-3 (15.4 W) PDs or 8 30 W PDs fit (15 x 15.4 W = 231.0 W, 8 x 30 W = 240 W)."
+  },
+  "sourceUrl": "https://www.cisco.com/c/en/us/products/collateral/switches/catalyst-1000-series-switches/nb-06-cat1k-ser-switch-ds-cte-en.html",
+  "notes": "Datasheet Table 1 and Table 2: 16 copper ports, 2x 1G SFP uplink cages, 240 W PoE budget, fanless, 10.56 x 12.14 x 1.73 in deep, 2.49 kg; single internal autoranging 100-240 VAC supply; 26.78 Mpps forwarding rate; 16,000 unicast MAC entries, 256 active VLANs, 4094 VLAN IDs, 64 STP instances, 9198-byte L3 MTU, 10,240-byte jumbo frame. The switching bandwidth is the sum of every port at line rate, so no port group is oversubscribed. RJ-45 console (EIA/TIA-232) at 9600 baud, 8 data bits, 1 stop bit, no parity, no flow control; a USB Type A port takes a FAT-formatted flash drive for image and configuration recovery. Cisco calls the series Layer 2, but Table 2 budgets 542 IPv4 direct and 256 indirect routes (414/128 for IPv6), so static inter-VLAN routing is modelled as l3-forward, not a full L3 feature set. No 802.3bt anywhere in the series: 30 W a port is the ceiling. 240 W buys fifteen Class-3 PDs, or eight 30 W ones, on sixteen ports. The chassis is fanless, so the PoE budget is also a thermal limit."
+}

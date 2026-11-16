@@ -1,0 +1,723 @@
+[
+  {
+    "vendor": "cisco",
+    "model": "C1000-8P-2G-L",
+    "label": "Cisco Catalyst 1000 C1000-8P-2G-L",
+    "category": "switch",
+    "description": "Cisco Catalyst 1000 C1000-8P-2G-L - 8x 1G RJ-45 all PoE+ (802.3af/at, 30 W a port, 67 W budget), 2 combo uplinks that are 1G SFP or 1G RJ-45, one of the two at a time, 20 Gbps switching bandwidth, 14.88 Mpps at 64 bytes, fanless 1U Cisco IOS L2 access switch.",
+    "capabilities": [
+      "l2-forward",
+      "l3-forward",
+      "cli",
+      "http-server",
+      "vlan",
+      "lacp",
+      "stp",
+      "poe-pse",
+      "802.3af",
+      "802.3at"
+    ],
+    "icon": "switch",
+    "color": "#1d4ed8",
+    "portTemplate": {
+      "prefix": "Gi1/0/",
+      "start": 1,
+      "count": 8,
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    "interfaces": [
+      {
+        "name": "Gi1/0/9",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "comboWith": "Gi1/0/9-sfp",
+        "comboRole": "rj45"
+      },
+      {
+        "name": "Gi1/0/9-sfp",
+        "type": "ethernet",
+        "connector": "sfp",
+        "speed": "1G",
+        "speedCaps": [
+          1000
+        ],
+        "comboWith": "Gi1/0/9",
+        "comboRole": "sfp"
+      },
+      {
+        "name": "Gi1/0/10",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "comboWith": "Gi1/0/10-sfp",
+        "comboRole": "rj45"
+      },
+      {
+        "name": "Gi1/0/10-sfp",
+        "type": "ethernet",
+        "connector": "sfp",
+        "speed": "1G",
+        "speedCaps": [
+          1000
+        ],
+        "comboWith": "Gi1/0/10",
+        "comboRole": "sfp"
+      }
+    ],
+    "poe": {
+      "budgetW": 67,
+      "sourceUrl": "https://www.cisco.com/c/en/us/products/collateral/switches/catalyst-1000-series-switches/nb-06-cat1k-ser-switch-ds-cte-en.html",
+      "note": "67 W PoE budget across 8 PoE+ ports, IEEE 802.3af/802.3at PSE, 30 W maximum a port. Perpetual PoE holds power on the PD across a reload. The budget, not the port count, is the ceiling: 4 Class-3 (15.4 W) PDs or 2 30 W PDs fit (4 x 15.4 W = 61.6 W, 2 x 30 W = 60 W)."
+    },
+    "sourceUrl": "https://www.cisco.com/c/en/us/products/collateral/switches/catalyst-1000-series-switches/nb-06-cat1k-ser-switch-ds-cte-en.html",
+    "notes": "Datasheet Table 1 and Table 2: 8 copper ports, 2 combo uplinks that are 1G SFP or 1G RJ-45, one of the two at a time, 67 W PoE budget, fanless, 10.56 x 12.73 x 1.73 in deep, 1.55 kg; single internal autoranging 100-240 VAC supply; 14.88 Mpps forwarding rate; 16,000 unicast MAC entries, 256 active VLANs, 4094 VLAN IDs, 64 STP instances, 9198-byte L3 MTU, 10,240-byte jumbo frame. The switching bandwidth is the sum of every port at line rate, so no port group is oversubscribed. RJ-45 console (EIA/TIA-232) at 9600 baud, 8 data bits, 1 stop bit, no parity, no flow control; a USB Type A port takes a FAT-formatted flash drive for image and configuration recovery. Cisco calls the series Layer 2, but Table 2 budgets 542 IPv4 direct and 256 indirect routes (414/128 for IPv6), so static inter-VLAN routing is modelled as l3-forward, not a full L3 feature set. No 802.3bt anywhere in the series: 30 W a port is the ceiling. The 8P-2G-L is the deeper chassis of the pair (12.73 in deep against the -E variant 7.28 in) because the PoE supply sits inside. The chassis is fanless, so the PoE budget is also a thermal limit."
+  },
+  {
+    "vendor": "cisco",
+    "model": "C1000-8FP-2G-L",
+    "label": "Cisco Catalyst 1000 C1000-8FP-2G-L",
+    "category": "switch",
+    "description": "Cisco Catalyst 1000 C1000-8FP-2G-L - 8x 1G RJ-45 all PoE+ (802.3af/at, 30 W a port, 120 W budget), 2 combo uplinks that are 1G SFP or 1G RJ-45, one of the two at a time, 20 Gbps switching bandwidth, 14.88 Mpps at 64 bytes, fanless 1U Cisco IOS L2 access switch.",
+    "capabilities": [
+      "l2-forward",
+      "l3-forward",
+      "cli",
+      "http-server",
+      "vlan",
+      "lacp",
+      "stp",
+      "poe-pse",
+      "802.3af",
+      "802.3at"
+    ],
+    "icon": "switch",
+    "color": "#1d4ed8",
+    "portTemplate": {
+      "prefix": "Gi1/0/",
+      "start": 1,
+      "count": 8,
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    "interfaces": [
+      {
+        "name": "Gi1/0/9",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "comboWith": "Gi1/0/9-sfp",
+        "comboRole": "rj45"
+      },
+      {
+        "name": "Gi1/0/9-sfp",
+        "type": "ethernet",
+        "connector": "sfp",
+        "speed": "1G",
+        "speedCaps": [
+          1000
+        ],
+        "comboWith": "Gi1/0/9",
+        "comboRole": "sfp"
+      },
+      {
+        "name": "Gi1/0/10",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "comboWith": "Gi1/0/10-sfp",
+        "comboRole": "rj45"
+      },
+      {
+        "name": "Gi1/0/10-sfp",
+        "type": "ethernet",
+        "connector": "sfp",
+        "speed": "1G",
+        "speedCaps": [
+          1000
+        ],
+        "comboWith": "Gi1/0/10",
+        "comboRole": "sfp"
+      }
+    ],
+    "poe": {
+      "budgetW": 120,
+      "sourceUrl": "https://www.cisco.com/c/en/us/products/collateral/switches/catalyst-1000-series-switches/nb-06-cat1k-ser-switch-ds-cte-en.html",
+      "note": "120 W PoE budget across 8 PoE+ ports, IEEE 802.3af/802.3at PSE, 30 W maximum a port. Perpetual PoE holds power on the PD across a reload. The budget, not the port count, is the ceiling: 7 Class-3 (15.4 W) PDs or 4 30 W PDs fit (7 x 15.4 W = 107.8 W, 4 x 30 W = 120 W)."
+    },
+    "sourceUrl": "https://www.cisco.com/c/en/us/products/collateral/switches/catalyst-1000-series-switches/nb-06-cat1k-ser-switch-ds-cte-en.html",
+    "notes": "Datasheet Table 1 and Table 2: 8 copper ports, 2 combo uplinks that are 1G SFP or 1G RJ-45, one of the two at a time, 120 W PoE budget, fanless, 10.56 x 12.73 x 1.73 in deep, 2.7 kg; single internal autoranging 100-240 VAC supply; 14.88 Mpps forwarding rate; 16,000 unicast MAC entries, 256 active VLANs, 4094 VLAN IDs, 64 STP instances, 9198-byte L3 MTU, 10,240-byte jumbo frame. The switching bandwidth is the sum of every port at line rate, so no port group is oversubscribed. RJ-45 console (EIA/TIA-232) at 9600 baud, 8 data bits, 1 stop bit, no parity, no flow control; a USB Type A port takes a FAT-formatted flash drive for image and configuration recovery. Cisco calls the series Layer 2, but Table 2 budgets 542 IPv4 direct and 256 indirect routes (414/128 for IPv6), so static inter-VLAN routing is modelled as l3-forward, not a full L3 feature set. No 802.3bt anywhere in the series: 30 W a port is the ceiling. Eight full-power 802.3at PDs would need 240 W; the 120 W budget buys four. The chassis is fanless, so the PoE budget is also a thermal limit."
+  },
+  {
+    "vendor": "cisco",
+    "model": "C1000-16P-2G-L",
+    "label": "Cisco Catalyst 1000 C1000-16P-2G-L",
+    "category": "switch",
+    "description": "Cisco Catalyst 1000 C1000-16P-2G-L - 16x 1G RJ-45 all PoE+ (802.3af/at, 30 W a port, 120 W budget), 2x 1G SFP uplink cages, 36 Gbps switching bandwidth, 26.78 Mpps at 64 bytes, fanless 1U Cisco IOS L2 access switch.",
+    "capabilities": [
+      "l2-forward",
+      "l3-forward",
+      "cli",
+      "http-server",
+      "vlan",
+      "lacp",
+      "stp",
+      "poe-pse",
+      "802.3af",
+      "802.3at"
+    ],
+    "icon": "switch",
+    "color": "#1d4ed8",
+    "portTemplate": {
+      "prefix": "Gi1/0/",
+      "start": 1,
+      "count": 16,
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    "interfaces": [
+      {
+        "name": "Gi1/0/17",
+        "type": "ethernet",
+        "connector": "sfp",
+        "speed": "1G",
+        "speedCaps": [
+          1000
+        ]
+      },
+      {
+        "name": "Gi1/0/18",
+        "type": "ethernet",
+        "connector": "sfp",
+        "speed": "1G",
+        "speedCaps": [
+          1000
+        ]
+      }
+    ],
+    "poe": {
+      "budgetW": 120,
+      "sourceUrl": "https://www.cisco.com/c/en/us/products/collateral/switches/catalyst-1000-series-switches/nb-06-cat1k-ser-switch-ds-cte-en.html",
+      "note": "120 W PoE budget across 16 PoE+ ports, IEEE 802.3af/802.3at PSE, 30 W maximum a port. Perpetual PoE holds power on the PD across a reload. The budget, not the port count, is the ceiling: 7 Class-3 (15.4 W) PDs or 4 30 W PDs fit (7 x 15.4 W = 107.8 W, 4 x 30 W = 120 W)."
+    },
+    "sourceUrl": "https://www.cisco.com/c/en/us/products/collateral/switches/catalyst-1000-series-switches/nb-06-cat1k-ser-switch-ds-cte-en.html",
+    "notes": "Datasheet Table 1 and Table 2: 16 copper ports, 2x 1G SFP uplink cages, 120 W PoE budget, fanless, 10.56 x 11.69 x 1.73 in deep, 2.38 kg; single internal autoranging 100-240 VAC supply; 26.78 Mpps forwarding rate; 16,000 unicast MAC entries, 256 active VLANs, 4094 VLAN IDs, 64 STP instances, 9198-byte L3 MTU, 10,240-byte jumbo frame. The switching bandwidth is the sum of every port at line rate, so no port group is oversubscribed. RJ-45 console (EIA/TIA-232) at 9600 baud, 8 data bits, 1 stop bit, no parity, no flow control; a USB Type A port takes a FAT-formatted flash drive for image and configuration recovery. Cisco calls the series Layer 2, but Table 2 budgets 542 IPv4 direct and 256 indirect routes (414/128 for IPv6), so static inter-VLAN routing is modelled as l3-forward, not a full L3 feature set. No 802.3bt anywhere in the series: 30 W a port is the ceiling. The 120 W budget over 16 ports is the widest gap in the family: sixteen Class-3 PDs want 246.4 W. The chassis is fanless, so the PoE budget is also a thermal limit."
+  },
+  {
+    "vendor": "cisco",
+    "model": "C1000-16FP-2G-L",
+    "label": "Cisco Catalyst 1000 C1000-16FP-2G-L",
+    "category": "switch",
+    "description": "Cisco Catalyst 1000 C1000-16FP-2G-L - 16x 1G RJ-45 all PoE+ (802.3af/at, 30 W a port, 240 W budget), 2x 1G SFP uplink cages, 36 Gbps switching bandwidth, 26.78 Mpps at 64 bytes, fanless 1U Cisco IOS L2 access switch.",
+    "capabilities": [
+      "l2-forward",
+      "l3-forward",
+      "cli",
+      "http-server",
+      "vlan",
+      "lacp",
+      "stp",
+      "poe-pse",
+      "802.3af",
+      "802.3at"
+    ],
+    "icon": "switch",
+    "color": "#1d4ed8",
+    "portTemplate": {
+      "prefix": "Gi1/0/",
+      "start": 1,
+      "count": 16,
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    "interfaces": [
+      {
+        "name": "Gi1/0/17",
+        "type": "ethernet",
+        "connector": "sfp",
+        "speed": "1G",
+        "speedCaps": [
+          1000
+        ]
+      },
+      {
+        "name": "Gi1/0/18",
+        "type": "ethernet",
+        "connector": "sfp",
+        "speed": "1G",
+        "speedCaps": [
+          1000
+        ]
+      }
+    ],
+    "poe": {
+      "budgetW": 240,
+      "sourceUrl": "https://www.cisco.com/c/en/us/products/collateral/switches/catalyst-1000-series-switches/nb-06-cat1k-ser-switch-ds-cte-en.html",
+      "note": "240 W PoE budget across 16 PoE+ ports, IEEE 802.3af/802.3at PSE, 30 W maximum a port. Perpetual PoE holds power on the PD across a reload. The budget, not the port count, is the ceiling: 15 Class-3 (15.4 W) PDs or 8 30 W PDs fit (15 x 15.4 W = 231.0 W, 8 x 30 W = 240 W)."
+    },
+    "sourceUrl": "https://www.cisco.com/c/en/us/products/collateral/switches/catalyst-1000-series-switches/nb-06-cat1k-ser-switch-ds-cte-en.html",
+    "notes": "Datasheet Table 1 and Table 2: 16 copper ports, 2x 1G SFP uplink cages, 240 W PoE budget, fanless, 10.56 x 12.14 x 1.73 in deep, 2.49 kg; single internal autoranging 100-240 VAC supply; 26.78 Mpps forwarding rate; 16,000 unicast MAC entries, 256 active VLANs, 4094 VLAN IDs, 64 STP instances, 9198-byte L3 MTU, 10,240-byte jumbo frame. The switching bandwidth is the sum of every port at line rate, so no port group is oversubscribed. RJ-45 console (EIA/TIA-232) at 9600 baud, 8 data bits, 1 stop bit, no parity, no flow control; a USB Type A port takes a FAT-formatted flash drive for image and configuration recovery. Cisco calls the series Layer 2, but Table 2 budgets 542 IPv4 direct and 256 indirect routes (414/128 for IPv6), so static inter-VLAN routing is modelled as l3-forward, not a full L3 feature set. No 802.3bt anywhere in the series: 30 W a port is the ceiling. 240 W buys fifteen Class-3 PDs, or eight 30 W ones, on sixteen ports. The chassis is fanless, so the PoE budget is also a thermal limit."
+  },
+  {
+    "vendor": "cisco",
+    "model": "C1000-24P-4G-L",
+    "label": "Cisco Catalyst 1000 C1000-24P-4G-L",
+    "category": "switch",
+    "description": "Cisco Catalyst 1000 C1000-24P-4G-L - 24x 1G RJ-45 all PoE+ (802.3af/at, 30 W a port, 195 W budget), 4x 1G SFP uplink cages, 56 Gbps switching bandwidth, 41.67 Mpps at 64 bytes, fanless 1U Cisco IOS L2 access switch.",
+    "capabilities": [
+      "l2-forward",
+      "l3-forward",
+      "cli",
+      "http-server",
+      "vlan",
+      "lacp",
+      "stp",
+      "poe-pse",
+      "802.3af",
+      "802.3at"
+    ],
+    "icon": "switch",
+    "color": "#1d4ed8",
+    "portTemplate": {
+      "prefix": "Gi1/0/",
+      "start": 1,
+      "count": 24,
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    "interfaces": [
+      {
+        "name": "Gi1/0/25",
+        "type": "ethernet",
+        "connector": "sfp",
+        "speed": "1G",
+        "speedCaps": [
+          1000
+        ]
+      },
+      {
+        "name": "Gi1/0/26",
+        "type": "ethernet",
+        "connector": "sfp",
+        "speed": "1G",
+        "speedCaps": [
+          1000
+        ]
+      },
+      {
+        "name": "Gi1/0/27",
+        "type": "ethernet",
+        "connector": "sfp",
+        "speed": "1G",
+        "speedCaps": [
+          1000
+        ]
+      },
+      {
+        "name": "Gi1/0/28",
+        "type": "ethernet",
+        "connector": "sfp",
+        "speed": "1G",
+        "speedCaps": [
+          1000
+        ]
+      }
+    ],
+    "poe": {
+      "budgetW": 195,
+      "sourceUrl": "https://www.cisco.com/c/en/us/products/collateral/switches/catalyst-1000-series-switches/nb-06-cat1k-ser-switch-ds-cte-en.html",
+      "note": "195 W PoE budget across 24 PoE+ ports, IEEE 802.3af/802.3at PSE, 30 W maximum a port. Perpetual PoE holds power on the PD across a reload. The budget, not the port count, is the ceiling: 12 Class-3 (15.4 W) PDs or 6 30 W PDs fit (12 x 15.4 W = 184.8 W, 6 x 30 W = 180 W)."
+    },
+    "sourceUrl": "https://www.cisco.com/c/en/us/products/collateral/switches/catalyst-1000-series-switches/nb-06-cat1k-ser-switch-ds-cte-en.html",
+    "notes": "Datasheet Table 1 and Table 2: 24 copper ports, 4x 1G SFP uplink cages, 195 W PoE budget, fanless, 17.48 x 11.76 x 1.73 in deep, 3.53 kg; single internal autoranging 100-240 VAC supply; 41.67 Mpps forwarding rate; 16,000 unicast MAC entries, 256 active VLANs, 4094 VLAN IDs, 64 STP instances, 9198-byte L3 MTU, 10,240-byte jumbo frame. The switching bandwidth is the sum of every port at line rate, so no port group is oversubscribed. RJ-45 console (EIA/TIA-232) at 9600 baud, 8 data bits, 1 stop bit, no parity, no flow control; a USB Type A port takes a FAT-formatted flash drive for image and configuration recovery. Cisco calls the series Layer 2, but Table 2 budgets 542 IPv4 direct and 256 indirect routes (414/128 for IPv6), so static inter-VLAN routing is modelled as l3-forward, not a full L3 feature set. No 802.3bt anywhere in the series: 30 W a port is the ceiling. 195 W is twelve Class-3 PDs on a 24-port box, and the fanless chassis is what caps the budget. The chassis is fanless, so the PoE budget is also a thermal limit."
+  },
+  {
+    "vendor": "cisco",
+    "model": "C1000-24FP-4G-L",
+    "label": "Cisco Catalyst 1000 C1000-24FP-4G-L",
+    "category": "switch",
+    "description": "Cisco Catalyst 1000 C1000-24FP-4G-L - 24x 1G RJ-45 all PoE+ (802.3af/at, 30 W a port, 370 W budget), 4x 1G SFP uplink cages, 56 Gbps switching bandwidth, 41.67 Mpps at 64 bytes, fan-cooled 1U Cisco IOS L2 access switch.",
+    "capabilities": [
+      "l2-forward",
+      "l3-forward",
+      "cli",
+      "http-server",
+      "vlan",
+      "lacp",
+      "stp",
+      "poe-pse",
+      "802.3af",
+      "802.3at"
+    ],
+    "icon": "switch",
+    "color": "#1d4ed8",
+    "portTemplate": {
+      "prefix": "Gi1/0/",
+      "start": 1,
+      "count": 24,
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    "interfaces": [
+      {
+        "name": "Gi1/0/25",
+        "type": "ethernet",
+        "connector": "sfp",
+        "speed": "1G",
+        "speedCaps": [
+          1000
+        ]
+      },
+      {
+        "name": "Gi1/0/26",
+        "type": "ethernet",
+        "connector": "sfp",
+        "speed": "1G",
+        "speedCaps": [
+          1000
+        ]
+      },
+      {
+        "name": "Gi1/0/27",
+        "type": "ethernet",
+        "connector": "sfp",
+        "speed": "1G",
+        "speedCaps": [
+          1000
+        ]
+      },
+      {
+        "name": "Gi1/0/28",
+        "type": "ethernet",
+        "connector": "sfp",
+        "speed": "1G",
+        "speedCaps": [
+          1000
+        ]
+      }
+    ],
+    "poe": {
+      "budgetW": 370,
+      "sourceUrl": "https://www.cisco.com/c/en/us/products/collateral/switches/catalyst-1000-series-switches/nb-06-cat1k-ser-switch-ds-cte-en.html",
+      "note": "370 W PoE budget across 24 PoE+ ports, IEEE 802.3af/802.3at PSE, 30 W maximum a port. Perpetual PoE holds power on the PD across a reload. The budget, not the port count, is the ceiling: 24 Class-3 (15.4 W) PDs or 12 30 W PDs fit (24 x 15.4 W = 369.6 W, 12 x 30 W = 360 W)."
+    },
+    "sourceUrl": "https://www.cisco.com/c/en/us/products/collateral/switches/catalyst-1000-series-switches/nb-06-cat1k-ser-switch-ds-cte-en.html",
+    "notes": "Datasheet Table 1 and Table 2: 24 copper ports, 4x 1G SFP uplink cages, 370 W PoE budget, one fan, 34.8 dB sound pressure, 17.48 x 13.59 x 1.73 in deep, 4.6 kg; single internal autoranging 100-240 VAC supply; 41.67 Mpps forwarding rate; 16,000 unicast MAC entries, 256 active VLANs, 4094 VLAN IDs, 64 STP instances, 9198-byte L3 MTU, 10,240-byte jumbo frame. The switching bandwidth is the sum of every port at line rate, so no port group is oversubscribed. RJ-45 console (EIA/TIA-232) at 9600 baud, 8 data bits, 1 stop bit, no parity, no flow control; a USB Type A port takes a FAT-formatted flash drive for image and configuration recovery. Cisco calls the series Layer 2, but Table 2 budgets 542 IPv4 direct and 256 indirect routes (414/128 for IPv6), so static inter-VLAN routing is modelled as l3-forward, not a full L3 feature set. No 802.3bt anywhere in the series: 30 W a port is the ceiling. 370 W is the one budget in the family that covers all 24 ports at Class 3 (369.6 W), or twelve at 30 W."
+  },
+  {
+    "vendor": "cisco",
+    "model": "C1000-48P-4G-L",
+    "label": "Cisco Catalyst 1000 C1000-48P-4G-L",
+    "category": "switch",
+    "description": "Cisco Catalyst 1000 C1000-48P-4G-L - 48x 1G RJ-45 all PoE+ (802.3af/at, 30 W a port, 370 W budget), 4x 1G SFP uplink cages, 104 Gbps switching bandwidth, 77.38 Mpps at 64 bytes, fan-cooled 1U Cisco IOS L2 access switch.",
+    "capabilities": [
+      "l2-forward",
+      "l3-forward",
+      "cli",
+      "http-server",
+      "vlan",
+      "lacp",
+      "stp",
+      "poe-pse",
+      "802.3af",
+      "802.3at"
+    ],
+    "icon": "switch",
+    "color": "#1d4ed8",
+    "portTemplate": {
+      "prefix": "Gi1/0/",
+      "start": 1,
+      "count": 48,
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    "interfaces": [
+      {
+        "name": "Gi1/0/49",
+        "type": "ethernet",
+        "connector": "sfp",
+        "speed": "1G",
+        "speedCaps": [
+          1000
+        ]
+      },
+      {
+        "name": "Gi1/0/50",
+        "type": "ethernet",
+        "connector": "sfp",
+        "speed": "1G",
+        "speedCaps": [
+          1000
+        ]
+      },
+      {
+        "name": "Gi1/0/51",
+        "type": "ethernet",
+        "connector": "sfp",
+        "speed": "1G",
+        "speedCaps": [
+          1000
+        ]
+      },
+      {
+        "name": "Gi1/0/52",
+        "type": "ethernet",
+        "connector": "sfp",
+        "speed": "1G",
+        "speedCaps": [
+          1000
+        ]
+      }
+    ],
+    "poe": {
+      "budgetW": 370,
+      "sourceUrl": "https://www.cisco.com/c/en/us/products/collateral/switches/catalyst-1000-series-switches/nb-06-cat1k-ser-switch-ds-cte-en.html",
+      "note": "370 W PoE budget across 48 PoE+ ports, IEEE 802.3af/802.3at PSE, 30 W maximum a port. Perpetual PoE holds power on the PD across a reload. The budget, not the port count, is the ceiling: 24 Class-3 (15.4 W) PDs or 12 30 W PDs fit (24 x 15.4 W = 369.6 W, 12 x 30 W = 360 W)."
+    },
+    "sourceUrl": "https://www.cisco.com/c/en/us/products/collateral/switches/catalyst-1000-series-switches/nb-06-cat1k-ser-switch-ds-cte-en.html",
+    "notes": "Datasheet Table 1 and Table 2: 48 copper ports, 4x 1G SFP uplink cages, 370 W PoE budget, one fan, 36.1 dB sound pressure, 17.48 x 13.78 x 1.73 in deep, 5.43 kg; single internal autoranging 100-240 VAC supply; 77.38 Mpps forwarding rate; 16,000 unicast MAC entries, 256 active VLANs, 4094 VLAN IDs, 64 STP instances, 9198-byte L3 MTU, 10,240-byte jumbo frame. The switching bandwidth is the sum of every port at line rate, so no port group is oversubscribed. RJ-45 console (EIA/TIA-232) at 9600 baud, 8 data bits, 1 stop bit, no parity, no flow control; a USB Type A port takes a FAT-formatted flash drive for image and configuration recovery. Cisco calls the series Layer 2, but Table 2 budgets 542 IPv4 direct and 256 indirect routes (414/128 for IPv6), so static inter-VLAN routing is modelled as l3-forward, not a full L3 feature set. No 802.3bt anywhere in the series: 30 W a port is the ceiling. Discrepancy: the 24/48-port Hardware Installation Guide model table describes the 48P-4G-L as 48 ports with 12 PoE+ ports (370 W budget) and 36 Ethernet ports, while the datasheet configuration and ordering tables both give 48 PoE+ ports at 370 W, and the 15.2(7)E release notes agree with the datasheet. 48 PoE+ ports is modelled; the HIG line is the outlier and reads like the 48PP-4G-L (12 PoE+ ports, 180 W), a different SKU."
+  },
+  {
+    "vendor": "cisco",
+    "model": "C1000-48FP-4G-L",
+    "label": "Cisco Catalyst 1000 C1000-48FP-4G-L",
+    "category": "switch",
+    "description": "Cisco Catalyst 1000 C1000-48FP-4G-L - 48x 1G RJ-45 all PoE+ (802.3af/at, 30 W a port, 740 W budget), 4x 1G SFP uplink cages, 104 Gbps switching bandwidth, 77.38 Mpps at 64 bytes, fan-cooled 1U Cisco IOS L2 access switch.",
+    "capabilities": [
+      "l2-forward",
+      "l3-forward",
+      "cli",
+      "http-server",
+      "vlan",
+      "lacp",
+      "stp",
+      "poe-pse",
+      "802.3af",
+      "802.3at"
+    ],
+    "icon": "switch",
+    "color": "#1d4ed8",
+    "portTemplate": {
+      "prefix": "Gi1/0/",
+      "start": 1,
+      "count": 48,
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    "interfaces": [
+      {
+        "name": "Gi1/0/49",
+        "type": "ethernet",
+        "connector": "sfp",
+        "speed": "1G",
+        "speedCaps": [
+          1000
+        ]
+      },
+      {
+        "name": "Gi1/0/50",
+        "type": "ethernet",
+        "connector": "sfp",
+        "speed": "1G",
+        "speedCaps": [
+          1000
+        ]
+      },
+      {
+        "name": "Gi1/0/51",
+        "type": "ethernet",
+        "connector": "sfp",
+        "speed": "1G",
+        "speedCaps": [
+          1000
+        ]
+      },
+      {
+        "name": "Gi1/0/52",
+        "type": "ethernet",
+        "connector": "sfp",
+        "speed": "1G",
+        "speedCaps": [
+          1000
+        ]
+      }
+    ],
+    "poe": {
+      "budgetW": 740,
+      "sourceUrl": "https://www.cisco.com/c/en/us/products/collateral/switches/catalyst-1000-series-switches/nb-06-cat1k-ser-switch-ds-cte-en.html",
+      "note": "740 W PoE budget across 48 PoE+ ports, IEEE 802.3af/802.3at PSE, 30 W maximum a port. Perpetual PoE holds power on the PD across a reload. The budget, not the port count, is the ceiling: 48 Class-3 (15.4 W) PDs or 24 30 W PDs fit (48 x 15.4 W = 739.2 W, 24 x 30 W = 720 W)."
+    },
+    "sourceUrl": "https://www.cisco.com/c/en/us/products/collateral/switches/catalyst-1000-series-switches/nb-06-cat1k-ser-switch-ds-cte-en.html",
+    "notes": "Datasheet Table 1 and Table 2: 48 copper ports, 4x 1G SFP uplink cages, 740 W PoE budget, one fan, 47.6 dB sound pressure, 17.48 x 13.78 x 1.73 in deep, 5.82 kg; single internal autoranging 100-240 VAC supply; 77.38 Mpps forwarding rate; 16,000 unicast MAC entries, 256 active VLANs, 4094 VLAN IDs, 64 STP instances, 9198-byte L3 MTU, 10,240-byte jumbo frame. The switching bandwidth is the sum of every port at line rate, so no port group is oversubscribed. RJ-45 console (EIA/TIA-232) at 9600 baud, 8 data bits, 1 stop bit, no parity, no flow control; a USB Type A port takes a FAT-formatted flash drive for image and configuration recovery. Cisco calls the series Layer 2, but Table 2 budgets 542 IPv4 direct and 256 indirect routes (414/128 for IPv6), so static inter-VLAN routing is modelled as l3-forward, not a full L3 feature set. No 802.3bt anywhere in the series: 30 W a port is the ceiling. 740 W covers all 48 ports at Class 3 (739.2 W) or 24 at 30 W, and 47.6 dB is the loudest box in the series."
+  },
+  {
+    "vendor": "cisco",
+    "model": "C1000-24FP-4X-L",
+    "label": "Cisco Catalyst 1000 C1000-24FP-4X-L",
+    "category": "switch",
+    "description": "Cisco Catalyst 1000 C1000-24FP-4X-L - 24x 1G RJ-45 all PoE+ (802.3af/at, 30 W a port, 370 W budget), 4x 10G SFP+ uplink cages that also take a 1G SFP, 128 Gbps switching bandwidth, 95.23 Mpps at 64 bytes, fan-cooled 1U Cisco IOS L2 access switch.",
+    "capabilities": [
+      "l2-forward",
+      "l3-forward",
+      "cli",
+      "http-server",
+      "vlan",
+      "lacp",
+      "stp",
+      "poe-pse",
+      "802.3af",
+      "802.3at"
+    ],
+    "icon": "switch",
+    "color": "#1d4ed8",
+    "portTemplate": {
+      "prefix": "Gi1/0/",
+      "start": 1,
+      "count": 24,
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    "interfaces": [
+      {
+        "name": "Gi1/0/25",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "Gi1/0/26",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "Gi1/0/27",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "Gi1/0/28",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      }
+    ],
+    "poe": {
+      "budgetW": 370,
+      "sourceUrl": "https://www.cisco.com/c/en/us/products/collateral/switches/catalyst-1000-series-switches/nb-06-cat1k-ser-switch-ds-cte-en.html",
+      "note": "370 W PoE budget across 24 PoE+ ports, IEEE 802.3af/802.3at PSE, 30 W maximum a port. Perpetual PoE holds power on the PD across a reload. The budget, not the port count, is the ceiling: 24 Class-3 (15.4 W) PDs or 12 30 W PDs fit (24 x 15.4 W = 369.6 W, 12 x 30 W = 360 W)."
+    },
+    "sourceUrl": "https://www.cisco.com/c/en/us/products/collateral/switches/catalyst-1000-series-switches/nb-06-cat1k-ser-switch-ds-cte-en.html",
+    "notes": "Datasheet Table 1 and Table 2: 24 copper ports, 4x 10G SFP+ uplink cages that also take a 1G SFP, 370 W PoE budget, one fan, 34.8 dB sound pressure, 17.48 x 13.59 x 1.73 in deep, 4.6 kg; single internal autoranging 100-240 VAC supply; 95.23 Mpps forwarding rate; 16,000 unicast MAC entries, 256 active VLANs, 4094 VLAN IDs, 64 STP instances, 9198-byte L3 MTU, 10,240-byte jumbo frame. The switching bandwidth is the sum of every port at line rate, so no port group is oversubscribed. RJ-45 console (EIA/TIA-232) at 9600 baud, 8 data bits, 1 stop bit, no parity, no flow control; a USB Type A port takes a FAT-formatted flash drive for image and configuration recovery. Cisco calls the series Layer 2, but Table 2 budgets 542 IPv4 direct and 256 indirect routes (414/128 for IPv6), so static inter-VLAN routing is modelled as l3-forward, not a full L3 feature set. No 802.3bt anywhere in the series: 30 W a port is the ceiling. The four uplink cages are SFP+ and take a 1G SFP as well as a 10G module. Cisco renames the cage with the module: the HIG port-mapping table maps Gi1/0/25-28 to Ten1/0/1-4, and says a 10G module in a 1G slot, or the reverse, needs default-interface run on the mapped port before it carries traffic. The 128 Gbps switching figure covers a 10G module in all four cages; with 1G modules it is 56 Gbps, as on the -4G models."
+  }
+]

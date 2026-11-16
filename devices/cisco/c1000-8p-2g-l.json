@@ -1,0 +1,93 @@
+{
+  "vendor": "cisco",
+  "model": "C1000-8P-2G-L",
+  "label": "Cisco Catalyst 1000 C1000-8P-2G-L",
+  "category": "switch",
+  "description": "Cisco Catalyst 1000 C1000-8P-2G-L - 8x 1G RJ-45 all PoE+ (802.3af/at, 30 W a port, 67 W budget), 2 combo uplinks that are 1G SFP or 1G RJ-45, one of the two at a time, 20 Gbps switching bandwidth, 14.88 Mpps at 64 bytes, fanless 1U Cisco IOS L2 access switch.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli",
+    "http-server",
+    "vlan",
+    "lacp",
+    "stp",
+    "poe-pse",
+    "802.3af",
+    "802.3at"
+  ],
+  "icon": "switch",
+  "color": "#1d4ed8",
+  "portTemplate": {
+    "prefix": "Gi1/0/",
+    "start": 1,
+    "count": 8,
+    "type": "ethernet",
+    "connector": "rj45",
+    "speed": "1G",
+    "speedCaps": [
+      10,
+      100,
+      1000
+    ],
+    "poeOut": true,
+    "poeOutClass": "PoE+"
+  },
+  "interfaces": [
+    {
+      "name": "Gi1/0/9",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "comboWith": "Gi1/0/9-sfp",
+      "comboRole": "rj45"
+    },
+    {
+      "name": "Gi1/0/9-sfp",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        1000
+      ],
+      "comboWith": "Gi1/0/9",
+      "comboRole": "sfp"
+    },
+    {
+      "name": "Gi1/0/10",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "comboWith": "Gi1/0/10-sfp",
+      "comboRole": "rj45"
+    },
+    {
+      "name": "Gi1/0/10-sfp",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        1000
+      ],
+      "comboWith": "Gi1/0/10",
+      "comboRole": "sfp"
+    }
+  ],
+  "poe": {
+    "budgetW": 67,
+    "sourceUrl": "https://www.cisco.com/c/en/us/products/collateral/switches/catalyst-1000-series-switches/nb-06-cat1k-ser-switch-ds-cte-en.html",
+    "note": "67 W PoE budget across 8 PoE+ ports, IEEE 802.3af/802.3at PSE, 30 W maximum a port. Perpetual PoE holds power on the PD across a reload. The budget, not the port count, is the ceiling: 4 Class-3 (15.4 W) PDs or 2 30 W PDs fit (4 x 15.4 W = 61.6 W, 2 x 30 W = 60 W)."
+  },
+  "sourceUrl": "https://www.cisco.com/c/en/us/products/collateral/switches/catalyst-1000-series-switches/nb-06-cat1k-ser-switch-ds-cte-en.html",
+  "notes": "Datasheet Table 1 and Table 2: 8 copper ports, 2 combo uplinks that are 1G SFP or 1G RJ-45, one of the two at a time, 67 W PoE budget, fanless, 10.56 x 12.73 x 1.73 in deep, 1.55 kg; single internal autoranging 100-240 VAC supply; 14.88 Mpps forwarding rate; 16,000 unicast MAC entries, 256 active VLANs, 4094 VLAN IDs, 64 STP instances, 9198-byte L3 MTU, 10,240-byte jumbo frame. The switching bandwidth is the sum of every port at line rate, so no port group is oversubscribed. RJ-45 console (EIA/TIA-232) at 9600 baud, 8 data bits, 1 stop bit, no parity, no flow control; a USB Type A port takes a FAT-formatted flash drive for image and configuration recovery. Cisco calls the series Layer 2, but Table 2 budgets 542 IPv4 direct and 256 indirect routes (414/128 for IPv6), so static inter-VLAN routing is modelled as l3-forward, not a full L3 feature set. No 802.3bt anywhere in the series: 30 W a port is the ceiling. The 8P-2G-L is the deeper chassis of the pair (12.73 in deep against the -E variant 7.28 in) because the PoE supply sits inside. The chassis is fanless, so the PoE budget is also a thermal limit."
+}
