@@ -1,0 +1,27 @@
+[
+  {
+    "vendor": "ubiquiti",
+    "model": "AFi-P-HD",
+    "label": "Ubiquiti AmpliFi HD MeshPoint (AFi-P-HD, EU / UK)",
+    "category": "wireless",
+    "description": "AmpliFi HD MeshPoint: a wall-plug 802.11ac mesh node with no Ethernet ports - two radios (450 Mbps 2.4 GHz + 1300 Mbps 5 GHz), an adjustable tri-polarity antenna, a magnetic base and a reset button; 9 W maximum power consumption.",
+    "capabilities": [
+      "wireless",
+      "l2-forward"
+    ],
+    "interfaces": [
+      {
+        "name": "radio-2g",
+        "type": "wireless",
+        "speed": "450M"
+      },
+      {
+        "name": "radio-5g",
+        "type": "wireless",
+        "speed": "1300M"
+      }
+    ],
+    "sourceUrl": "https://amplifi.com/docs/AmpliFi_Datasheet.pdf",
+    "notes": "Zero Ethernet ports, from three Ubiquiti documents that agree. (1) The AmpliFi datasheet (https://amplifi.com/docs/AmpliFi_Datasheet.pdf) prints a labelled hardware diagram for each unit: the Router callout names 'Gigabit LAN Ports', 'WAN Port' and 'Power Port', while the MeshPoint callout names only 'Signal LEDs', 'Magnetic Connector', 'MeshPoint Base' and 'Adjustable Antenna'; the MeshPoint Specifications table on the same sheet lists Dimensions 243.83 x 54 x 57.75 mm, Weight 224 g, Max. TX Power 26 dBm, Radios 2, MIMO Chains 6, Speed 1750 Mbps, ESD/EMP +-24kV Air/Contact, Buttons Reset, Antennas (1) Dual-Band Tri-Polarity, Wi-Fi Standards 802.11ac, Power Save, WPA2-PSK AES/TKIP, 14 to 131 F, 5 to 95% noncondensing, FCC/CE/IC and Max. Power Consumption 9W - there is no Networking Interface row at all, although the same table gives one for the Router ((1) WAN, (4) LAN). (2) The Quick Start Guide (https://amplifi.com/docs/AFi-P-HD_QSG.pdf, MODEL: AFi-P-HD) draws the MeshPoint Overview as Signal LEDs / Magnetic Connector / MeshPoint Base / Adjustable Antenna with no jack, and its install step is 'Plug the MeshPoint into a power outlet', pairing over Bluetooth and Wi-Fi. (3) The Ubiquiti store page for the product (https://eu.store.ui.com/eu/en/category/all-amplifi-mesh/products/amplifi-hd-meshpoint, EU and UK variants of one SKU page, so AFi-P-HD and AFi-P-HD-UK) repeats the same Hardware table with no Networking Interface row. Reseller tables that quote '(1) WAN, (1) LAN' for AFi-P-HD-UK match the AFi-R router row verbatim and are therefore copies, not readings - the vendor wins. Radios: 802.11ac 13 Mbps to 1300 Mbps (MCS0-MCS9, VHT 20/40/80) on 5 GHz and 802.11n 6.5 Mbps to 450 Mbps (MCS0-MCS23, HT 20/40) on 2.4 GHz per the datasheet's Supported Data Rates table; 'Speed 1750 Mbps' is the sum of the two bands. The unit is a multi-hop mesh node, so it carries l2-forward over its radios; it has no WAN port, no PoE, no console and no management interface beyond the app. AFi-HD is this MeshPoint pair plus one AFi-R router, catalogued separately as devices/ubiquiti/afi-r.json."
+  }
+]

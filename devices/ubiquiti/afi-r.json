@@ -80,5 +80,5 @@
       "speed": "1300M"
     }
   ],
-  "notes": "Vendor figures from Ubiquiti's AmpliFi datasheet: **Wi-Fi/Gigabit Ethernet, (1) WAN, (4) LAN**, 802.11ac **13 Mbps to 1300 Mbps** (MCS0-MCS9, VHT 20/40/80) on 5 GHz and 802.11n **6.5 to 450 Mbps** on 2.4 GHz, with a touchscreen on the front. **Five copper ports, no PoE anywhere** - the router is a mesh controller first and a switch second. The **AFi-HD kit is this router plus two AFi-P-HD MeshPoints**, and the NVIDIA Gamer's Edition is this hardware in another shell; the MeshPoint's own port count is not stated in this datasheet, which is why it has no entry of its own yet."
+  "notes": "Vendor figures from Ubiquiti's AmpliFi datasheet: **Wi-Fi/Gigabit Ethernet, (1) WAN, (4) LAN**, 802.11ac **13 Mbps to 1300 Mbps** (MCS0-MCS9, VHT 20/40/80) on 5 GHz and 802.11n **6.5 to 450 Mbps** on 2.4 GHz, with a touchscreen on the front. **Five copper ports, no PoE anywhere** - the router is a mesh controller first and a switch second. The **AFi-HD kit is this router plus two AFi-P-HD MeshPoints**, and the NVIDIA Gamer's Edition is this hardware in another shell; the MeshPoint has no Ethernet port of its own - the same datasheet's MeshPoint diagram and specification table carry no Networking Interface row - so it is catalogued separately as devices/ubiquiti/afi-p-hd.json with two radios and no cabled ports."
 }
