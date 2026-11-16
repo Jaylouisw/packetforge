@@ -15,6 +15,7 @@ const path = require('path');
 const { Topology, Simulator, runCommands } = require('../engine');
 const { CliSession } = require('../engine/cli');
 const { loadCatalog } = require('../devices/registry');
+const net = require('../engine/net');
 
 let passed = 0, failed = 0;
 function ok(cond, msg, detail) {
@@ -85,7 +86,8 @@ console.log('Every learned neighbour is listed, and the Interface column holds s
   ok(rowFor('10.0.0.10')[4] === portOf('10.0.0.10'), 'for the other neighbour too');
 
   // The MAC column is the data plane's, not a decoration.
-  ok(rowFor('10.0.0.9')[3] === env.r.arp.get('10.0.0.9'),
+  // The value is the table's, printed the way the device prints a hardware address: 0200.0000.0900.
+  ok(rowFor('10.0.0.9')[3] === net.formatMac(env.r.arp.get('10.0.0.9')),
     'the hardware address matches the table the engine uses',
     JSON.stringify({ printed: rowFor('10.0.0.9')[3], engine: env.r.arp.get('10.0.0.9') }));
 

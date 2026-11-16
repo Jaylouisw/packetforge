@@ -8,7 +8,7 @@
 //      VLAN 20 - indefinitely, and with no mark of any kind:
 //
 //        Vlan    Mac Address         Type        Ports
-//        1       02:00:00:00:02:00   DYNAMIC     Fa0/2      <- Fa0/2 is VLAN 20 now
+//        1       0200.0000.0200      DYNAMIC     Fa0/2      <- Fa0/2 is VLAN 20 now
 //
 //   2. Every row looked identical whether its port was up, shut, or uncabled, so a stale entry read as a
 //      live forwarding decision.
@@ -136,7 +136,8 @@ console.log('A row whose port is gone, or carries another VLAN, is marked:');
     ['02:00:00:00:cc:00', 'Fa9/9']       // a port this device does not have
   ]));
   const out = table(env);
-  const mismatch = out.fields.filter(function (f) { return f[1] === '02:00:00:00:bb:00'; })[0] || [];
+  // The printed cell is dotted (test/mac-address-format.test.js); the table is keyed colon-separated.
+  const mismatch = out.fields.filter(function (f) { return f[1] === '0200.0000.bb00'; })[0] || [];
   ok(/vlan mismatch/.test(out.body.join(' ')), 'an entry in a VLAN its port does not carry says so',
     out.body.join(' | '));
   ok(mismatch[PORT] === 'Fa0/1', 'and still names the port', JSON.stringify(mismatch));

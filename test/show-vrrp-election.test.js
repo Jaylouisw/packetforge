@@ -13,6 +13,7 @@ const path = require('path');
 const { Topology, Simulator, runCommands } = require('../engine');
 const { CliSession } = require('../engine/cli');
 const { loadCatalog } = require('../devices/registry');
+const net = require('../engine/net');
 const vrrp = require('../engine/vrrp');
 
 let passed = 0, failed = 0;
@@ -86,7 +87,8 @@ console.log('The highest priority wins, and everyone says so:');
   const f3 = fieldsFor(show(env, env.r3), 42);
   ok(f3[3] === 'Master', 'R3 (250) is the master', f3.join(' '));
   ok(f3[4] === '10.0.0.3', 'naming its own address', f3.join(' '));
-  ok(f3[6] === vrrp.virtualMac(42), 'with the group virtual MAC', f3.join(' '));
+  // Printed dotted, like every hardware address this console shows: 0000.5e00.012a.
+  ok(f3[6] === net.formatMac(vrrp.virtualMac(42)), 'with the group virtual MAC', f3.join(' '));
   ok(env.r3.vrrpClaims.length === 1 && env.r1.vrrpClaims.length === 0,
     'and the data plane gave the claim to R3 alone',
     JSON.stringify({ r1: env.r1.vrrpClaims.length, r3: env.r3.vrrpClaims.length }));

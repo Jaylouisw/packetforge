@@ -17,6 +17,7 @@ const { Topology } = require('../engine/topology');
 const { Simulator } = require('../engine/simulator');
 const { loadCatalog } = require('../devices/registry');
 const deviceModule = require('../engine/device');
+const net = require('../engine/net');
 const MAC_AGE_MS = deviceModule.MAC_AGE_MS;
 
 let passed = 0, failed = 0;
@@ -152,6 +153,8 @@ console.log('The data plane reads the same age as the report');
 }
 
 console.log('');
+// The address cell prints dotted, so a row is matched against net.formatMac() of the stored key, not
+// against the key itself.
 console.log('An entry nothing dated is not aged, and says so');
 {
   const env = lab();
@@ -159,7 +162,7 @@ console.log('An entry nothing dated is not aged, and says so');
   env.sw.macTables.set(20, new Map([['02:00:00:00:bb:00', '1/1/2']]));
   env.sim.setRunTime(900000);
   const rows = table(env);
-  const manually = rows.filter(function (r) { return r.mac === '02:00:00:00:aa:00'; })[0];
+  const manually = rows.filter(function (r) { return r.mac === net.formatMac('02:00:00:00:aa:00'); })[0];
   ok(!!manually, 'a hand-written entry survives any amount of time', JSON.stringify(rows));
   ok(manually.age === '-', 'and reports no age rather than inventing one', manually.age);
   ok(env.sw.macLookup(1, '02:00:00:00:aa:00', 900000) === '1/1/1',

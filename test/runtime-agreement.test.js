@@ -86,8 +86,9 @@ function cli(t, dev, cmd) {
       if (mac.note) { withNote++; noted.push(mac.note); } else withoutNote++;
       // The console must say exactly what the row says - not a second sentence that happens to be similar.
       const macOut = cli(x.t, x.sw, 'show mac address-table');
-      const line = macOut.split('\n').filter(function (l) { return l.indexOf(MAC1) !== -1; })[0] || '';
+      const line = macOut.split('\n').filter(function (l) { return l.indexOf(require('../engine/net').formatMac(MAC1)) !== -1; })[0] || '';
       const wanted = mac.port + (mac.note ? ' ' + mac.note : '');
+      // The MAC cell is printed dotted, so the row is found by the form the console writes.
       if (line.indexOf(wanted) === -1) wrong.push(label + ': console prints ' + JSON.stringify(line.trim()) + ', row wants ' + JSON.stringify(wanted));
       // The same fact about the same port, in the two other tables.
       const arpOut = cli(x.t, x.sw, 'show arp');

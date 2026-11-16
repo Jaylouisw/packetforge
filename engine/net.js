@@ -123,6 +123,30 @@ function isMulticastMac(mac) {
 
 function normalizeMac(mac) { return intToMac(macToInt(mac)); }
 
+// How a hardware address is *printed*: `0200.0000.000a`.
+//
+// IOS-family consoles write a MAC as three dotted quartets - the Catalyst command reference spells the
+// argument "the valid format is H.H.H." and every sample table it prints is `0002.4b28.c482` - while this
+// engine stores, compares and hashes them colon-separated. The two forms are the same 48 bits, so the split
+// is storage versus display: `intToMac()` stays the canonical form, and every table that shows a hardware
+// address to a reader goes through here.
+//
+// `show ip arp` (Cisco's own sample: `0000.0c59.f892`) and `show mac address-table` both use it, and so
+// does the VRRP virtual MAC (`0000.5e00.010a`). It is not universal across every Cisco CLI: the small-business
+// CBS220 prints `00:03:6D:00:01:20`, so this is a statement about the IOS family this console imitates, not
+// about "Cisco" as a whole.
+function intToMacDotted(n) {
+  const hex = ('000000000000' + Math.floor(n).toString(16)).slice(-12);
+  return hex.slice(0, 4) + '.' + hex.slice(4, 8) + '.' + hex.slice(8, 12);
+}
+
+// Anything macToInt() understands, printed the way the device prints it. A cell that is not a hardware
+// address at all - a placeholder, an empty field - is passed through rather than turned into 0000.0000.0000,
+// which would be a claim about the address instead of a missing one.
+function formatMac(mac) {
+  try { return intToMacDotted(macToInt(mac)); } catch (e) { return String(mac); }
+}
+
 // --- Ethernet / IP / ICMP constants ---
 const ETH_ARP = 'arp';
 const ETH_IPV4 = 'ipv4';
@@ -140,7 +164,7 @@ module.exports = {
   ipToInt, intToIp, maskToInt, prefixOf, prefixOfInt, isContiguousMask, maskFromPrefix,
   networkOf, broadcastOf,
   sameSubnet, ipInSubnet, isIp,
-  macToInt, intToMac, isBroadcastMac, isMulticastMac, normalizeMac,
+  macToInt, intToMac, intToMacDotted, formatMac, isBroadcastMac, isMulticastMac, normalizeMac,
   ETH_ARP, ETH_IPV4, ETH_IPV6, ETH_ND, ICMP_ECHO_REQUEST, ICMP_ECHO_REPLY,
   ICMP_DEST_UNREACH, ICMP_TIME_EXCEEDED
 };

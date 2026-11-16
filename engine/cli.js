@@ -2315,12 +2315,15 @@ class CliSession {
         state = claim ? 'Master' : 'Backup';
         master = claim ? (dev.name || dev.id) : '-';
       }
+      // The virtual MAC is a hardware address, so it prints in the same dotted form as every other one this
+      // console shows, and in the form the device's own `show vrrp detail` uses: 0000.5e00.010a.
+      const virtualMac = (verdict && verdict.mac) || (claim && claim.mac) || null;
       out.push(pad(String(g.interface), 14) + pad(String(g.vrid), 7) +
         pad(String(g.priority === undefined ? 100 : g.priority), 5) +
         pad(state, 11) +
         pad(master, 18) +
         pad((g.ips || []).join(','), 16) +
-        ((verdict && verdict.mac) || (claim && claim.mac) || '-'));
+        (virtualMac ? net.formatMac(virtualMac) : '-'));
     }
     // The old note fired whenever this device held no claim, and told you to run a simulation even when
     // one had just run. Two different situations, two different sentences.
@@ -4221,7 +4224,10 @@ class CliSession {
         // Minutes, or '-' for an entry nothing dated: a device prints '-' for what it cannot age, and so does
         // this one (#1397).
         const age = (r.age === null || r.age === undefined) ? '-' : String(r.age);
-        rows.push([ip, mac, age, note]);
+        // Dotted, because that is how the device writes a hardware address in this table: the sample in
+        // Cisco's ARP guide is `001b.53e1.7201`, never a colon-separated one. The rows are formatted from the
+        // engine's own values, so the table cannot disagree with the engine about who holds the address.
+        rows.push([ip, net.formatMac(mac), age, note]);
       }
       rows.sort(function (a, b) { return String(a[0]).localeCompare(String(b[0]), undefined, { numeric: true }); });
       for (const r of rows) {
@@ -4236,7 +4242,7 @@ class CliSession {
         if (!clash || !clash.macs || clash.macs.length < 2) continue;
         out.push('');
         out.push(r.ip + ' is claimed by ' + clash.macs.length + ' hardware addresses on ' +
-          (clash.port || 'this segment') + ': ' + clash.macs.join(', '));
+          (clash.port || 'this segment') + ': ' + clash.macs.map(function (m) { return net.formatMac(m); }).join(', '));
         out.push('  this row shows the one that answered last; traffic to ' + r.ip +
           ' goes to whichever answers next');
       }
@@ -4291,7 +4297,7 @@ class CliSession {
         // Where the entry points, and whether that is still somewhere a frame for this VLAN can go. A MAC learned
         // before its port was shut or moved says why it cannot be the way to that address (#1255).
         const age = (r.age === null || r.age === undefined) ? '-' : (r.age + 's');
-        out.push(pad(r.vlan, 8) + pad(r.mac, 20) + pad('DYNAMIC', 12) + pad(age, 8) +
+        out.push(pad(r.vlan, 8) + pad(net.formatMac(r.mac), 20) + pad('DYNAMIC', 12) + pad(age, 8) +
           r.port + (r.note ? ' ' + r.note : ''));
       }
       // The count is of the rows this view just printed - which is what the device's sentence counts: "for this
@@ -4375,7 +4381,7 @@ class CliSession {
         }
       }
       for (const i of shown) {
-        out.push(i.name + ' (' + i.type + ', ' + i.speed + '), MAC ' + i.mac);
+        out.push(i.name + ' (' + i.type + ', ' + i.speed + '), MAC ' + net.formatMac(i.mac));
         // The reason travels with the status: this block used to print `status: up` directly above
         // `peer: disconnected`, which is two halves of the same output disagreeing (#1237).
         const link = dev.ifaceStatus(i, this.topo);

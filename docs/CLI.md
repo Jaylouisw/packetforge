@@ -429,7 +429,7 @@ answer (`up` unless shut). The command cannot know about a cable it was never to
 Each port block also carries what has crossed it:
 
 ```
-Gi0 (ethernet, 1G), MAC 02:00:00:00:00:00
+Gi0 (ethernet, 1G), MAC 0200.0000.0000   
   status: up, protocol: up
   ip: 10.0.0.1/24
   peer: sw/Fa0/1
@@ -513,25 +513,25 @@ Each block carries one switchport line, because the command an operator opens fi
 say what the port does with a frame:
 
 ```
-Gi0/0.10 (subinterface, 1G), MAC 02:00:00:00:00:00
+Gi0/0.10 (subinterface, 1G), MAC 0200.0000.0000   
   ...
   ip: 10.9.9.1/24
   ...
                     <- no switchport line: a routed port does not switch
 
-Fa0/1 (ethernet, 1G), MAC 02:00:00:00:00:00
+Fa0/1 (ethernet, 1G), MAC 0200.0000.0000   
   ...
   switchport: access VLAN 20
 
-Fa0/3 (ethernet, 1G), MAC 02:00:00:00:00:02
+Fa0/3 (ethernet, 1G), MAC 0200.0000.0002   
   ...
   switchport: access VLAN 1 · trunk staged: native 20 (not in use)
 
-Fa0/2 (ethernet, 1G), MAC 02:00:00:00:00:01
+Fa0/2 (ethernet, 1G), MAC 0200.0000.0001   
   ...
   switchport: trunk · native 30 · allowed 10,20
 
-Fa0/4 (ethernet, 1G), MAC 02:00:00:00:00:03
+Fa0/4 (ethernet, 1G), MAC 0200.0000.0003   
   ...
   switchport: trunk · native 1 · allowed none
 ```
@@ -1036,8 +1036,8 @@ table.
 
 ```
 Vlan    Mac Address         Type        Age     Ports
-1       02:00:00:00:01:00   DYNAMIC     0s      1/1/1
-1       02:00:00:00:02:00   DYNAMIC     140s    1/1/2
+1       0200.0000.0100      DYNAMIC     0s      1/1/1
+1       0200.0000.0200      DYNAMIC     140s    1/1/2
 ```
 
 The age is **silence, not a lifetime**: a frame from that address resets it, and a busy host never ages out. The
@@ -1368,9 +1368,14 @@ sentence `show arp` and `show mac address-table` use — `(down: link down)`, `(
 ```
 R1#show arp
 Protocol  Address          Age (min)  Hardware Addr     Interface
-Internet  10.0.0.9         20         02:00:00:00:02:00 Gi0
-Internet  10.0.0.10        -          02:00:00:00:03:00 Gi0 (down: link down)
+Internet  10.0.0.9         20         0200.0000.0200    Gi0
+Internet  10.0.0.10        -          0200.0000.0300    Gi0 (down: link down)
 ```
+
+A hardware address prints the way an IOS-family device prints one: three dotted quartets, `0200.0000.0300`,
+not the colon-separated form the engine stores, compares and hashes them in. The same rule covers the
+`Mac Address` column of `show mac address-table`, the `MAC` on a `show interfaces <port>` block, and the
+virtual MAC in `show vrrp` (`0000.5e00.010a`).
 
 * **Interface** is the port the neighbour was heard on — where to look next.
 * **Age** is the minutes since this neighbour was last **heard**, and it ages out: past four hours of silence
@@ -1402,9 +1407,9 @@ SW1#show mac address-table
 
 Vlan    Mac Address         Type        Age     Ports
 ----    -----------         --------    ---     -----
-1       02:00:00:00:01:00   DYNAMIC     0s      Fa0/1
-1       02:00:00:00:02:00   DYNAMIC     140s    Fa0/2 (administratively down)
-20      02:00:00:00:09:00   DYNAMIC     -       Fa0/1 (vlan mismatch)
+1       0200.0000.0100      DYNAMIC     0s      Fa0/1
+1       0200.0000.0200      DYNAMIC     140s    Fa0/2 (administratively down)
+20      0200.0000.0900      DYNAMIC     -       Fa0/1 (vlan mismatch)
 Total Mac Addresses for this criterion: 3
 ```
 
@@ -1430,7 +1435,7 @@ Total Mac Addresses for this criterion: 3
 
   Vlan    Mac Address         Type        Age     Ports
   ----    -----------         --------    ---     -----
-  1       02:00:00:00:01:00   DYNAMIC     0s      Port 1
+  1       0200.0000.0100      DYNAMIC     0s      Port 1
   Total Mac Addresses for this criterion: 1
   ```
 
@@ -1721,7 +1726,7 @@ segment, and each answers only on its own wire.
 ```
 R1#show vrrp
 Interface     Group  Pri  State      Master            Virtual IP      Virtual MAC
-Gi0/0         10     150  Master     10.0.0.1          10.0.0.254      00:00:5e:00:01:0a
+Gi0/0         10     150  Master     10.0.0.1          10.0.0.254      0000.5e00.010a   
 ```
 
 * **State** is this router's own role: `Master`, `Backup`, or `Init` when it is not taking part at all

@@ -844,7 +844,7 @@ Success rate is 100 percent (4/4), round-trip min/avg/max = 0.103/0.103/0.103 ms
 
 r1> show ip arp
 Protocol  Address          Age (min)  Hardware Addr     Interface
-Internet  10.0.0.10        -          02:00:00:00:03:00 Gi0/0/1
+Internet  10.0.0.10        -          0200.0000.0300    Gi0/0/1
 ```
 
 Nothing in that output is a lie and nothing in it is the whole truth. Two boxes hold the address; the table shows one
@@ -864,7 +864,7 @@ fact went nowhere. The router is the only place both answers exist, so that is w
 * **`show ip arp` says it in a sentence**, under the table it contradicts:
 
   ```
-  10.0.0.10 is claimed by 2 hardware addresses on Gi0/0/1: 02:00:00:00:02:00, 02:00:00:00:03:00
+  10.0.0.10 is claimed by 2 hardware addresses on Gi0/0/1: 0200.0000.0200   , 0200.0000.0300   
     this row shows the one that answered last; traffic to 10.0.0.10 goes to whichever answers next
   ```
 
@@ -1173,7 +1173,7 @@ s1> show ip arp
 % Invalid show command: ip arp
 s1> show arp                                     <- the view was here the whole time
 Protocol  Address          Age (min)  Hardware Addr     Interface
-Internet  10.7.0.2         -          02:00:00:00:02:00 eth0
+Internet  10.7.0.2         -          0200.0000.0200    eth0
 ```
 
 Thirty years of IOS put `show ip arp`, `show ip interface`, `show ip access-lists` and `show ip vrrp` in operators'

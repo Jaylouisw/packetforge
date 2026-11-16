@@ -109,7 +109,8 @@ t('The election runs over the segment, and the highest priority wins');
   const mid = new Simulator(L.topo);
   const r1Show = runCommands(L.r1, L.topo, mid, ['enable', 'show vrrp']).lines.join('\n');
   ok(/Master/.test(r1Show), 'show vrrp reports Master on R1');
-  ok(/00:00:5e:00:01:0a/.test(r1Show), 'with the group\'s virtual MAC');
+  // Printed dotted, as the device prints it: 0000.5e00.010a for VRID 10.
+  ok(/0000.5e00.010a/.test(r1Show), 'with the group\'s virtual MAC');
 }
 
 // ---------------------------------------------------------------------------

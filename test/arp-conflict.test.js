@@ -87,7 +87,9 @@ console.log('A second box answering for an address is recorded, and the table sa
   const table = show(lab.t, lab.sim, 'r1', 'show ip arp');
   ok(/is claimed by 2 hardware addresses on Gi0\/0\/1/.test(table),
     'the view says it in a sentence, not only in the data', table);
-  ok(table.indexOf(lab.macOf('p1')) !== -1 && table.indexOf(lab.macOf('p2')) !== -1,
+  // Both MACs print dotted, in the same form as the rows above them.
+  const fmt = require('../engine/net').formatMac;
+  ok(table.indexOf(fmt(lab.macOf('p1'))) !== -1 && table.indexOf(fmt(lab.macOf('p2'))) !== -1,
     'both addresses are named in the note');
   ok(/goes to whichever answers next/.test(table), 'and the consequence is spelled out');
   ok(/^Internet\s+10\.0\.0\.10/m.test(table), 'the ordinary row is still there to read');
@@ -166,7 +168,9 @@ console.log('The answer itself is unchanged - the note is added, nothing is repl
     'the binding is one of the two claimants, as it always was', mac);
   const table = show(lab.t, lab.sim, 'r1', 'show ip arp');
   const rowLine = table.split('\n').find(function (l) { return /^Internet\s+10\.0\.0\.10/.test(l); });
-  ok(!!rowLine && rowLine.indexOf(mac) !== -1, 'and the row shows the binding it holds', rowLine);
+  // Printed dotted, like every hardware address this console shows; the table itself is keyed colon-separated.
+  ok(!!rowLine && rowLine.indexOf(require('../engine/net').formatMac(mac)) !== -1,
+    'and the row shows the binding it holds', rowLine);
   ok(/^Protocol\s+Address/m.test(table), 'the table header is intact');
 }
 
