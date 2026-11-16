@@ -701,7 +701,9 @@ Two things this deliberately does **not** invent:
 Save → load → save is byte-identical: the announcement touches the run's counters, and the document carries neither the
 announcement nor the neighbours.
 
-`test/neighbours-on-load.test.js` pins it, 20 checks; reverting `engine/` fails 7. Neighbours green: `lldp` 27,
+`test/neighbours-on-load.test.js` pins it, 27 checks (#1521 added the reopened-board cases, taking it from 20);
+reverting the two engine halves it covers — `Topology.fromJSON()`'s neighbour hydration and the announce-on-load in
+the `Simulator` constructor — fails 12. Neighbours green: `lldp` 27,
 `show-lldp` 23, `lldp-across-trunk` 32, `flows-survive-save-load` 16, `spec-survives-load` 32,
 `dhcp-leases-survive-save` 32, `state-payload-complete` 16, `examples-generated` 21, `counters-agreement` 32,
 `interface-counters`, `link-state` 69, `stp-port-state` 31, `counter-payload`, `poe` 18, `poe-agreement`,
