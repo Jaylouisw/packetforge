@@ -18,7 +18,10 @@
 //   4. traceroute reports the hops in order, and the destination as reached;
 //   5. a destination one hop away is one hop, not two;
 //   6. an unreachable network stops the trace with a refusal rather than a timeout;
-//   7. ping is unchanged by any of it.
+//   7. ping is unchanged by any of it;
+//   8. a probe stopped by a cable or a port that is down ends the walk, and the hop that was
+//      stopped says which it was - a trace is not allowed to be more optimistic than the ping
+//      beside it, and thirty identical stars are not a report (#1516).
 const path = require('path');
 const { Topology, Simulator, runCommands } = require('../engine');
 const net = require('../engine/net');
@@ -123,6 +126,8 @@ section('4. Traceroute walks the path in order');
   eq(res.hops[2].address, '10.0.3.9', 'hop 3 is the destination');
   eq(res.hops[2].reason, 'echo-reply', 'which answers the echo');
   eq(res.success, true, 'and the trace succeeds');
+  ok(res.hops.every(function (h) { return h.dropped === undefined; }),
+    'no hop that answered is marked as a drop');
 }
 
 section('5. A destination one hop away is one hop');
@@ -169,6 +174,52 @@ section('8. Ping is unaffected, and still explains a failure');
   const b2 = bench();
   const out = runCommands(b2.pc, b2.topo, b2.sim, ['enable', 'ping 198.51.100.7 1']);
   ok(/Success rate is 0 percent/.test(out.lines.join('\n')), 'and the CLI reports it honestly');
+}
+
+section('9. A cable that is down stops the trace, and the hop says so');
+{
+  const b = bench();
+  const cable = [...b.topo.links.values()].filter(function (l) {
+    return l.endpoint(b.r1.id, 'Gi0/1') && l.endpoint(b.r2.id, 'Gi0/0');
+  })[0];
+  ok(!!cable, 'the R1-R2 cable is the one being pulled');
+  b.sim.setLinkState(cable.id, 'down');
+  const p = b.sim.ping(b.pc.id, '10.0.3.9', { count: 1 });
+  eq(p.success, false, 'the data plane refuses a ping across the pulled cable');
+
+  const res = b.sim.traceroute(b.pc.id, '10.0.3.9');
+  eq(res.success, false, 'and the trace does not claim the destination was reached');
+  eq(res.hops.length, 2, 'the walk stops at the silent hop instead of probing to the ceiling');
+  eq(res.hops[0].dropped, undefined, 'the hop that answered is not marked as a drop');
+  ok(/link down/.test(String(res.hops[1].dropped)),
+    'the silent hop names the cable that is down (' + res.hops[1].dropped + ')');
+  ok(res.hops.every(function (h) { return !h.reached; }), 'and no hop claims to be the destination');
+}
+
+section('10. A shut port is named the same way');
+{
+  const b = bench();
+  cfg(b.r2, ['interface Gi0/0', 'shutdown', 'exit'], b.topo, b.sim);
+  const res = b.sim.traceroute(b.pc.id, '10.0.3.9');
+  eq(res.success, false, 'the trace fails at the shut port');
+  eq(res.hops.length, 2, 'and stops there rather than repeating itself');
+  ok(/peer port shut/.test(String(res.hops[1].dropped)),
+    'naming the shut port, not silence (' + res.hops[1].dropped + ')');
+}
+
+section('11. The console prints the reason beside the star');
+{
+  const b = bench();
+  const cable = [...b.topo.links.values()].filter(function (l) {
+    return l.endpoint(b.r1.id, 'Gi0/1') && l.endpoint(b.r2.id, 'Gi0/0');
+  })[0];
+  b.sim.setLinkState(cable.id, 'down');
+  const text = runCommands(b.pc, b.topo, b.sim, ['enable', 'traceroute 10.0.3.9']).lines.join('\n');
+  ok(/ 2  \*  no reply  \(link down/.test(text),
+    'hop 2 reads "*  no reply  (link down ...)"', text);
+  ok(!/^ 3  /m.test(text), 'and there is no hop 3, so the output ends where the wire did');
+  ok(/% destination not reached after 2 hops/.test(text), 'the summary counts what was probed');
+  ok(/Tracing the route to 10\.0\.3\.9/.test(text), 'and the trace still announces its target');
 }
 
 console.log('\n' + passed + ' passed, ' + failed + ' failed');

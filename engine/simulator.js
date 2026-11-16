@@ -27,6 +27,12 @@ const dhcpLib = require('./dhcp');
 const PING_COUNT_DEFAULT = 4;
 const PING_COUNT_MAX = 50;
 
+// Discard reasons that mean a traceroute probe was *stopped*, not merely unanswered: the frame
+// reached a port or a wire that could not carry it, so probing further along the path would only
+// repeat the same answer. `no ARP reply from` is deliberately absent - that is a conclusion drawn
+// from silence, and a lab that is still converging can resolve it on the next probe (#1516).
+const FINAL_DROP = /^(peer port shut|link administratively down|link down|no egress ports|ACL |VLAN not allowed)/;
+
 // "The path is not up yet" is not packet loss, and three surfaces had three ways of saying it: the console printed
 // the sentence, the browser drew `Success rate 0%` as if every echo had been lost, and the instant printed with it
 // came from the command rather than from the answer. One sentence, written here, used by the console and mirrored
@@ -742,8 +748,31 @@ class Simulator {
         if (err.errorType === net.ICMP_DEST_UNREACH) break;
         continue;
       }
-      // Nothing came back: a silent hop, or the very first router had no route at all.
-      hops.push({ ttl: ttl, address: null, dev: null, reached: false, reason: 'no-reply' });
+      // Nothing came back, and that is two different statements the engine can tell apart:
+      // the probe was *dropped* for a reason it recorded (a cable that is down, a port that is
+      // shut, an ACL that refused it), or it walked off into silence. Reporting both as thirty
+      // identical stars hides a pulled cable behind the same output as a firewall that eats
+      // probes - and the trace is the evidence an operator pastes into a ticket, so it must not
+      // say less than the `ping` running beside it (#1516).
+      const slice = this.events.slice(evStart);
+      // A probe that was stopped by a wire or a port outranks a conclusion drawn from the silence
+      // that followed it: `_lastDiscard` ranks "no ARP reply from X" above an unranked "link down",
+      // which is the right reading for a ping but hides the cause from a trace. So the structural
+      // causes are looked for first here, and only then does the ranking decide.
+      let hard = null;
+      for (let i = 0; i < slice.length; i++) {
+        const cause = this._discardReason(slice[i]);
+        if (cause && FINAL_DROP.test(String(cause))) { hard = { why: String(cause), ev: slice[i] }; break; }
+      }
+      const why = hard ? this._sayWhoDropped(hard.why, hard.ev, srcId) : this._lastDiscard(slice, srcId);
+      hops.push({
+        ttl: ttl, address: null, dev: null, reached: false, reason: 'no-reply',
+        dropped: why || null
+      });
+      // A recorded drop is final for this path: the probe never crossed that link, so a larger TTL
+      // cannot take a different road. Stop where the wire stopped instead of printing the same
+      // star twenty-eight more times.
+      if (why && FINAL_DROP.test(why)) break;
       const sent = this.events.slice(evStart).some(function (e) { return e.type === 'forward'; });
       if (!sent) break;
     }

@@ -2794,7 +2794,7 @@ class CliSession {
       if (hop.reached) out.push(' ' + hop.ttl + '  ' + addr + '  destination reached');
       else if (hop.reason === 'time-exceeded') out.push(' ' + hop.ttl + '  ' + addr);
       else if (hop.reason === 'unreachable') out.push(' ' + hop.ttl + '  ' + addr + '  !H  host unreachable');
-      else out.push(' ' + hop.ttl + '  *  no reply');
+      else out.push(' ' + hop.ttl + '  *  no reply' + (hop.dropped ? '  (' + hop.dropped + ')' : ''));
     }
     if (!res.success) out.push('% destination not reached after ' + res.hops.length + ' hops');
     return out;
