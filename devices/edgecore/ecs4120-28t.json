@@ -1,0 +1,334 @@
+{
+  "vendor": "edgecore",
+  "model": "ECS4120-28T",
+  "label": "Edgecore ECS4120-28T (24x 1G, 4x 10G SFP+)",
+  "category": "switch",
+  "description": "Edgecore ECS4120-28T: 24x 10/100/1000BASE-T RJ-45, 4x 10G SFP+ uplinks that also take 1G modules, 1x RJ-45 console, 128 Gbps switching capacity, 95 Mpps, fanless 1RU, no PoE.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "dhcp-server",
+    "cli",
+    "http-server",
+    "vlan",
+    "lacp",
+    "stp"
+  ],
+  "interfaces": [
+    {
+      "name": "Eth1/1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "Eth1/2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "Eth1/3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "Eth1/4",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "Eth1/5",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "Eth1/6",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "Eth1/7",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "Eth1/8",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "Eth1/9",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "Eth1/10",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "Eth1/11",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "Eth1/12",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "Eth1/13",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "Eth1/14",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "Eth1/15",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "Eth1/16",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "Eth1/17",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "Eth1/18",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "Eth1/19",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "Eth1/20",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "Eth1/21",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "Eth1/22",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "Eth1/23",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "Eth1/24",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "Eth1/25",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "Eth1/26",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "Eth1/27",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "Eth1/28",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "console",
+      "type": "console"
+    }
+  ],
+  "sourceUrl": "https://www.edge-core.com/product/ecs4120-28t/",
+  "fabric": {
+    "capacityMbps": 128000,
+    "kind": "switching fabric",
+    "note": "ECS4120 Series datasheet R16 (EC-DS-0324-R16, 2024-03-12) prints 128 Gbps switching capacity and 95 Mpps forwarding rate for the ECS4120-28T: 24x 1G + 4x 10G = 64 Gbps of port rate, so the quoted capacity is the full-duplex aggregate, not a cap. https://www.edge-core.com/download/ecs4120-series-ds-r16/?wpdmdl=1696"
+  },
+  "notes": "Port census from ECS4120 Series datasheet R16 (EC-DS-0324-R16, 2024-03-12) (https://www.edge-core.com/download/ecs4120-series-ds-r16/?wpdmdl=1696): RJ-45 10/100/1000BASE-T 24, SFP+ 10 Gigabit uplink 4, GE out-of-band management port No, RJ-45 console port 1. The four SFP+ cages also take 1G modules (the datasheet lists 1000BASE-SX/LX/LHX/ZX support there), so each carries speedCaps [1000, 10000]. Flash 256 MB, DRAM 512 MB, MAC table 16 K, jumbo 9 KB, max system power 20 W, 100-240 VAC, 44 x 22 x 4.4 cm, 2.35 kg, fanless. No PoE on any port: the datasheet prints No for 802.3af, 802.3at, dynamic power allocation and PoE budget. Routing is IPv4/IPv6 static route plus RIP v1/v2, and the DHCP server (8 pools, 512 addresses) is what the dhcp-server capability rests on. Software: ECS4120 FW V1.2.2.30, posted with the ECS4120 series R16 datasheet on the product download list; the u-boot upgrade v2.0.0.2 is a separate image. CLI reference, port naming Eth 1/1 - Eth 1/28: https://www.edge-core.com/wp-content/uploads/2025/12/ECS4120-Series_CLI-R06_20251014.pdf."
+}

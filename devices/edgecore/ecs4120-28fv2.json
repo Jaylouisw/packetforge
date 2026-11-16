@@ -1,0 +1,381 @@
+{
+  "vendor": "edgecore",
+  "model": "ECS4120-28Fv2",
+  "label": "Edgecore ECS4120-28Fv2 (fibre, 20x 1G SFP + 4 combo + 4x 10G SFP+)",
+  "category": "switch",
+  "description": "Edgecore ECS4120-28Fv2: 20x 100/1000BASE-X SFP, 4 dual-personality positions that are either 10/100/1000BASE-T RJ-45 or 100/1000BASE-X SFP, 4x 10G SFP+ uplinks, 1x 1G RJ-45 out-of-band management port, 1x RJ-45 console, 128 Gbps switching capacity, 95 Mpps, AC plus -48 to -60 V DC input, 0 to 50 C operation.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "dhcp-server",
+    "cli",
+    "http-server",
+    "vlan",
+    "lacp",
+    "stp"
+  ],
+  "interfaces": [
+    {
+      "name": "Eth1/1",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "Eth1/2",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "Eth1/3",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "Eth1/4",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "Eth1/5",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "Eth1/6",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "Eth1/7",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "Eth1/8",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "Eth1/9",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "Eth1/10",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "Eth1/11",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "Eth1/12",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "Eth1/13",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "Eth1/14",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "Eth1/15",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "Eth1/16",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "Eth1/17",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "Eth1/18",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "Eth1/19",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "Eth1/20",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "Eth1/21",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "comboWith": "Eth1/21-sfp",
+      "comboRole": "rj45"
+    },
+    {
+      "name": "Eth1/21-sfp",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        100,
+        1000
+      ],
+      "comboWith": "Eth1/21",
+      "comboRole": "sfp"
+    },
+    {
+      "name": "Eth1/22",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "comboWith": "Eth1/22-sfp",
+      "comboRole": "rj45"
+    },
+    {
+      "name": "Eth1/22-sfp",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        100,
+        1000
+      ],
+      "comboWith": "Eth1/22",
+      "comboRole": "sfp"
+    },
+    {
+      "name": "Eth1/23",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "comboWith": "Eth1/23-sfp",
+      "comboRole": "rj45"
+    },
+    {
+      "name": "Eth1/23-sfp",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        100,
+        1000
+      ],
+      "comboWith": "Eth1/23",
+      "comboRole": "sfp"
+    },
+    {
+      "name": "Eth1/24",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "comboWith": "Eth1/24-sfp",
+      "comboRole": "rj45"
+    },
+    {
+      "name": "Eth1/24-sfp",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        100,
+        1000
+      ],
+      "comboWith": "Eth1/24",
+      "comboRole": "sfp"
+    },
+    {
+      "name": "Eth1/25",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "Eth1/26",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "Eth1/27",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "Eth1/28",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "mgmt0",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "console",
+      "type": "console"
+    }
+  ],
+  "sourceUrl": "https://www.edge-core.com/download/ecs4120-series-ds-r16/?wpdmdl=1696",
+  "fabric": {
+    "capacityMbps": 128000,
+    "kind": "switching fabric",
+    "note": "ECS4120 Series datasheet R16 (EC-DS-0324-R16, 2024-03-12) prints 128 Gbps switching capacity and 95 Mpps for both fibre members; a combo position carries one medium at a time, so its 1G counts once. https://www.edge-core.com/download/ecs4120-series-ds-r16/?wpdmdl=1696"
+  },
+  "notes": "Port census from ECS4120 Series datasheet R16 (EC-DS-0324-R16, 2024-03-12) (https://www.edge-core.com/download/ecs4120-series-ds-r16/?wpdmdl=1696): 100/1000BASE-X SFP ports 20, Combo Gigabit (RJ-45/SFP) ports 4, SFP+ 10 Gigabit uplink ports 4, GE out-of-band management port Yes, RJ-45 console port 1. The CLI reference fixes both ends of the numbering - \"Ports 1-24 (1000BASE SFP) support 1000sfp or 100fx\" and \"Ports 25-28 (10G SFP+) support 1000sfp\" (https://www.edge-core.com/wp-content/uploads/2025/12/ECS4120-Series_CLI-R06_20251014.pdf) - so the 20 fibre ports are Eth 1/1-20 and the four 10G uplinks Eth 1/25-28; the four combo positions are written as the 21-24 positions that remain, following the datasheet port order of 20 SFP then 4 combo. Edgecore prints no full 28F port map, so that placement is the one part of this census read from order rather than from a printed per-port list. Flash 256 MB, DRAM 512 MB, MAC table 16 K, jumbo 9 KB, max system power 60 W, 44 x 22 x 4.4 cm, 3.32 kg, 100-240 VAC plus a -48 to -60 VDC input, dying gasp supported (28Fv2 members only). Each combo pair is two ports sharing one position (comboWith / comboRole), the RJ-45 side at 10/100/1000 and the SFP side at 100/1000, as the datasheet prints. No PoE. Software ECS4120 FW V1.2.2.30, posted with the ECS4120 series R16 datasheet on the product download list."
+}
