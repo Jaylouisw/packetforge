@@ -112,5 +112,48 @@ section('4. `vlan 42 name ?` creates nothing and renames nothing');
   ok(/^\s*vlan 42 lab$/m.test(config(e)), 'and prints as `vlan 42 lab`', config(e).split('\n').filter(function (l) { return /vlan 42/.test(l); }).join(' | '));
 }
 
+section('5. `description ?` does not describe the port as "?"');
+{
+  const e = env('Catalyst2960');
+  e.say('configure terminal');
+  e.say('interface Fa0/1');
+  const good = e.say('description uplink to core');
+  ok(/Description set: uplink to core/.test(good), 'a real description is still set and reported', good);
+  const said = e.say('description ?');
+  ok(/^\s*%/.test(said), 'the answer is a refusal, not "Description set: ?"', said);
+  ok(/help key/.test(said) && /description <text>/.test(said), 'it names the key and the syntax that wanted text', said);
+  ok(/unchanged/.test(said), 'and says the description did not change', said);
+  const iface = function () { return Array.from(e.dev.interfaces.values())[0]; };
+  ok(iface().description === 'uplink to core', 'the port still carries the description it had', String(iface().description));
+  ok(!/^\s*description \?$/m.test(config(e)), 'nothing described as "?" reached the running-config',
+    config(e).split('\n').filter(function (l) { return /description/.test(l); }).join(' | '));
+  const shown = ((e.run('show interfaces Fa0/1').output) || []).join('\n');
+  ok(!/desc: \?/.test(shown), 'and `show interfaces` does not print "desc: ?"',
+    shown.split('\n').filter(function (l) { return /desc:/.test(l); }).join(' | '));
+  const inner = e.say('description edge?1');
+  ok(!/^\s*%/.test(inner), 'a question mark inside a longer description is still part of it', inner);
+  ok(iface().description === 'edge?1', 'and it is stored as typed', String(iface().description));
+}
+
+section('6. `ip nat pool ?` creates no pool called "?"');
+{
+  const e = env('ISR 4331');
+  e.say('configure terminal');
+  const said = e.say('ip nat pool ? 1.1.1.1 1.1.1.2 netmask 255.255.255.0');
+  ok(/^\s*%/.test(said), 'the answer is a refusal, not "NAT pool \"?\" 1.1.1.1 - 1.1.1.2"', said);
+  ok(/help key/.test(said) && /ip nat pool <name>/.test(said), 'it names the key and the syntax that wanted a name', said);
+  ok(/nothing was created/.test(said), 'and says nothing was created', said);
+  const pools = function () { return (e.dev.config.nat && e.dev.config.nat.pools) || {}; };
+  ok(!Object.prototype.hasOwnProperty.call(pools(), '?'), 'no pool called "?" exists', JSON.stringify(Object.keys(pools())));
+  ok(!/^\s*ip nat pool \?/m.test(config(e)), 'and the running-config has no `ip nat pool ?` line',
+    config(e).split('\n').filter(function (l) { return /nat/.test(l); }).join(' | '));
+  const stats = ((e.run('show ip nat statistics').output) || []).join('\n');
+  ok(!/Address pools:.*\?/.test(stats), 'and `show ip nat statistics` lists no pool called "?"',
+    stats.split('\n').filter(function (l) { return /Address pools/.test(l); }).join(' | '));
+  const inner = e.say('ip nat pool pool?1 1.1.1.1 1.1.1.2 netmask 255.255.255.0');
+  ok(!/^\s*%/.test(inner), 'a question mark inside a longer pool name is still part of the name', inner);
+  ok(Object.prototype.hasOwnProperty.call(pools(), 'pool?1'), 'and the pool is created under that name', JSON.stringify(Object.keys(pools())));
+}
+
 console.log('\n' + (failed ? 'FAILED' : 'OK') + ' \u2014 ' + passed + ' passed, ' + failed + ' failed');
 process.exit(failed ? 1 : 0);

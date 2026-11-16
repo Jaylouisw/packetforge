@@ -554,9 +554,10 @@ class CliSession {
   // named "?". Every typed position already refuses the key by quoting it (`% Invalid VLAN id "?"`), because a
   // value that will not parse can be corrected; a name will take any string, so the key became the name. Only
   // the whole value is the key: a question mark inside a longer name (`edge?1`) is still part of the name.
-  _helpKeyRefusal(value, syntax, consequence) {
+  _helpKeyRefusal(value, syntax, consequence, what) {
     if (String(value === undefined || value === null ? '' : value).trim() !== '?') return null;
-    return '% "?" is the help key, not a name: `' + syntax + '`' + (consequence ? ' - ' + consequence : '');
+    return '% "?" is the help key, not ' + (what || 'a name') + ': `' + syntax + '`' +
+      (consequence ? ' - ' + consequence : '');
   }
 
   // What is left for the shared validator to say is about the number, not the caller's word for it: the messages
@@ -1323,6 +1324,12 @@ class CliSession {
       if (tokens.length < 2) {
         return ['% Incomplete command: description <text> (use `no description` to clear it)'];
       }
+      // The fourth free-text position, and the same defect as #1685 (#1691): `description ?` set the port's
+      // description to "?" and answered "Description set: ?" - a receipt shaped exactly like the one
+      // `description lab` gives, for text nobody wrote, over whatever description the port already had.
+      const keyed = this._helpKeyRefusal(tokens.slice(1).join(' '), 'description <text>',
+        'the description of ' + iface.name + ' is unchanged', 'a description');
+      if (keyed) return [keyed];
       iface.description = tokens.slice(1).join(' ');
       out.push('Description set: ' + iface.description);
     } else if (head === 'no' && tokens[1] === 'description') {
@@ -3547,6 +3554,14 @@ class CliSession {
       const end = args[3];
       const maskKw = String(args[4] || '').toLowerCase();
       const mask = args[5];
+      // A pool name is free text, so the help key passed as one and made a pool called "?" (#1691): the
+      // running-config printed `ip nat pool ? ...`, `show ip nat statistics` listed `(? 1.1.1.1-1.1.1.2)`, and
+      // a later `pool ?` would have resolved through it. Refused before the pool exists.
+      if (name) {
+        const keyed = this._helpKeyRefusal(name, 'ip nat pool <name> <start> <end> netmask <mask>',
+          'nothing was created');
+        if (keyed) return [keyed];
+      }
       if (name) {
         // A pool address that cannot exist is a typo with one obvious answer; a usage line leaves the operator
         // reading the whole syntax to find it (#1411).
