@@ -554,7 +554,9 @@ function ospfChain() {
   ok(toPc3 !== null, 'R1 learns the far stub through OSPF');
   eq(toPc3 ? toPc3.nextHop : null, '10.0.12.2', 'the route points at the adjacent OSPF router');
   eq(toPc3 ? toPc3.iface : null, 'Gi0/0', 'the route leaves through the interface facing it');
-  eq(toPc3 ? toPc3.cost : null, 40, 'the cost accumulates across both transit links (20 + 20)');
+  // Two gigabit transit links against IOS's default 100 Mbps reference: each port costs 1, so each
+  // link costs 1 + 1 = 2. This asserted 40 when the engine divided by 10 Gbps (10 + 10 per link).
+  eq(toPc3 ? toPc3.cost : null, 4, 'the cost accumulates across both transit links (2 + 2)');
 
   const toPc1 = ospfRouteOf(res[lab.r3.id], '10.0.1.0');
   ok(toPc1 !== null && toPc1.nextHop === '10.0.23.2', 'R3 learns the stub behind R1 symmetrically');
@@ -655,7 +657,7 @@ function ospfTriangle() {
   const stub = ospfRouteOf(res[b.id], '10.0.1.0');
   ok(stub !== null,
     'a passive interface network is still advertised as a stub (#43)');
-  eq(stub ? stub.cost : null, 20,
+  eq(stub ? stub.cost : null, 2,
     'and costs a single hop to the router that owns it (#43)');
   eq(stub ? stub.nextHop : null, '10.0.12.1',
     'with the active interface as the next hop, not the passive one (#43)');

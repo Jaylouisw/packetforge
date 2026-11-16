@@ -1263,15 +1263,10 @@ class Simulator {
   // OSPF route installation
   // ---------------------------------------------------------------------
 
-  // Default OSPF interface cost from the link rate (reference bandwidth 100 Mbps).
+  // Default OSPF interface cost from the link rate. The arithmetic lives in ospf.costForSpeed() so the
+  // console, the SPF and a unit test all divide by the same reference bandwidth (100 Mbps, IOS's default).
   _ospfCost(iface) {
-    const s = String(iface && iface.speed || '').toUpperCase();
-    if (s === '100M') return 100;
-    if (s === '1G') return 10;
-    if (s === '2.5G') return 4;
-    if (s === '5G') return 2;
-    if (s === '10G' || s === '25G' || s === '40G' || s === '100G') return 1;
-    return ospfLib.DEFAULT_COST;
+    return ospfLib.costForSpeed(iface && iface.speed);
   }
 
   // Run OSPF over the live topology and install the resulting routes on each

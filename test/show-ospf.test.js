@@ -134,7 +134,10 @@ console.log('The interface table says what cost, and where it came from:');
   ok(/\b25\b/.test(configured) && /configured/.test(configured),
     'a typed cost reads 25 and says it was configured', configured);
   ok(/link rate/.test(derived), 'a port nobody set a cost on says the link rate decided it', derived);
-  ok(/10/.test(derived), 'and prints the derived number', derived);
+  // A gigabit port against IOS's default 100 Mbps reference bandwidth is cost 1, not 10 (the engine
+  // used a 10 Gbps reference, which no default box produces; research is cited in
+  // test/ospf-default-cost.test.js). Parse the Cost column, because the port name also contains "1".
+  ok(derived.split(/\s+/)[3] === '1', 'and prints the derived number (1 on a gigabit port)', derived);
   ok(/yes/.test(configured), 'a port with a neighbour reads adjacent', configured);
   ok(/10\.0\.0\.0|10\.1\.0\.0/.test(table) || /10\.1\.0\.1\/24/.test(table),
     'the address is printed with its prefix length as well as the mask', table);

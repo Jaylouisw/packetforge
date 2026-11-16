@@ -23,10 +23,19 @@
 // routers, interfaces or links in.
 
 const net = require('./net');
+const media = require('./media');
 
 const OSPF_PROTOCOL = 89;        // IP protocol number carried in the header
 const OSPF_ADMIN_DISTANCE = 110; // Cisco-style administrative distance
 const DEFAULT_COST = 10;
+// The reference bandwidth OSPF divides by when no `ip ospf cost` is configured. Cisco's default is
+// 10^8 bps (100 Mbps) - `auto-cost reference-bandwidth` changes it, and this console does not model that
+// command, so the default is the only honest number: "the OSPF metric is calculated as the mbps value
+// divided by bandwidth, with mbps equal to 10^8 by default ... the default path cost is 1 for any
+// interface that has a link bandwidth of 100 Mbps or higher" (Cisco IOS XR OSPF command reference,
+// auto-cost (OSPF), http://www.cisco.com/c/en/us/td/docs/ios_xr_sw/iosxr_r3-7/routing/command/reference/rr37ospf.pdf;
+// the same formula for IOS: https://community.cisco.com/t5/networking-knowledge-base/how-to-configure-ospf-cost/ta-p/3133153).
+const OSPF_REFERENCE_MBPS = 100;
 const DEFAULT_HELLO_SEC = 10;
 const DEFAULT_DEAD_SEC = 40;
 
@@ -100,6 +109,28 @@ function ifaceCost(v) {
   if (!Number.isFinite(n) || !Number.isInteger(n)) return null;
   if (n < 1 || n > MAX_COST) return null;
   return n;
+}
+
+// The cost OSPF derives from a link rate under the default reference bandwidth: reference / bandwidth,
+// truncated to a whole number, and never less than 1 (a cost is an integer, so a gigabit link against a
+// 100 Mbps reference is 1, not 0.1).
+//
+// Measured against the vendor's own arithmetic: 10 Mbps -> 10, 100 Mbps -> 1, 1 Gbps -> 1,
+// 1.544 Mbps (T1) -> 64. The engine used a 10 Gbps reference instead (100M -> 100, 1G -> 10), which no
+// box with the default configuration produces, and which moved SPF onto a slower path whenever a lab
+// mixed, say, a 100 Mbps port with a gigabit one (they are equal-cost on a real default box).
+function costForSpeedMbps(mbps) {
+  const rate = Number(mbps);
+  if (!Number.isFinite(rate) || rate <= 0) return DEFAULT_COST;
+  return Math.max(1, Math.floor(OSPF_REFERENCE_MBPS / rate));
+}
+
+// Accepts the terse speed strings the device files use ("100M", "1G", "2.5G"), and anything the media
+// helper cannot read falls back to DEFAULT_COST rather than inventing a rate.
+function costForSpeed(speed) {
+  const mbps = media.parseSpeedMbps(speed);
+  if (mbps === null || mbps === undefined || !Number.isFinite(Number(mbps))) return DEFAULT_COST;
+  return costForSpeedMbps(mbps);
 }
 
 function timerValue(v, fallback) {
@@ -654,6 +685,9 @@ module.exports = {
   OSPF_PROTOCOL,
   OSPF_ADMIN_DISTANCE,
   DEFAULT_COST,
+  OSPF_REFERENCE_MBPS,
+  costForSpeed,
+  costForSpeedMbps,
   DEFAULT_HELLO_SEC,
   DEFAULT_DEAD_SEC,
   validateRouter,

@@ -957,12 +957,15 @@ Neighbor ID     Address          Interface   State
 r1> show ip ospf interface
 Interface   IP Address       Area  Cost  Cost from   Adjacent  Passive
 Gi0/0/0     10.1.0.1/24      0     25    configured  yes       no
-Gi0/0/1     192.168.1.1/24   0     10    link rate   no        yes
+Gi0/0/1     192.168.1.1/24   0     1     link rate   no        yes
 ```
 
 `Cost from` answers the question the two numbers alone cannot: **25** because somebody typed `ip ospf cost 25`, or
-**10** because the wire is 100 Mbps and nothing was typed (the derived cost uses a 100 Mbps reference bandwidth:
-100 Mbps → 100, 1 Gbps → 10, 2.5 Gbps → 4, 5 Gbps → 2, 10 Gbps and above → 1). A cost that came from the link
+**1** because the wire is 100 Mbps and nothing was typed. The derived cost is IOS's own arithmetic -
+`10^8 / bandwidth`, truncated, minimum 1, against the default 100 Mbps reference bandwidth - so 10 Mbps → 10,
+100 Mbps and anything faster → 1, and a 1.544 Mbps T1 → 64. (A 10 Gbps reference, which is what
+`auto-cost reference-bandwidth 10000` selects, would make a 100 Mbps port cost 100; this console does not model
+that command, so it does not apply its arithmetic either.) A cost that came from the link
 rate changes when the link renegotiates; a configured one does not.
 
 Every number here is what `computeOspf()` recorded, so the report and `show ip route` cannot disagree about the
