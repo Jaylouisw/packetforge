@@ -66,7 +66,7 @@ console.log('\nsingle bridge is the root, all ports designated');
     'every port is designated');
   ok(Object.keys(res.ports.sw1).every(function (p) { return res.ports.sw1[p].state === 'forwarding'; }),
     'every port forwards');
-  ok(res.ports.sw1['Gi0/1'].cost === 20000, 'default port cost is 20000');
+  ok(res.ports.sw1['Gi0/1'].cost === 4, 'default port cost is 4 - the short path-cost of a 1 Gb/s port');
 }
 
 // ---------------------------------------------------------------------------

@@ -149,16 +149,14 @@ function portPvid(iface) {
   return Number(iface.vlan.accessVlan) || 1;
 }
 
-// STP path cost from a link's negotiated speed.
-function speedToCost(mbps) {
-  if (!mbps) return 20000;
-  if (mbps >= 100000) return 200;
-  if (mbps >= 40000) return 400;
-  if (mbps >= 25000) return 800;
-  if (mbps >= 10000) return 2000;
-  if (mbps >= 1000) return 20000;
-  return 200000;
-}
+// STP path cost: `costForSpeedMbps()` in engine/stp.js, and nowhere else. This file kept a second table beside
+// the one in `portCost()`, and they disagreed - no row for 100 Mb/s (a Fast Ethernet cable cost the 10 Mb/s
+// figure, 200,000) and 400 for a 40 Gb/s port where the published table says 500 - so a port could cost one
+// thing in the election and another in the report. One table now, short path-cost method (100 / 19 / 4 / 2 / 1
+// as the link gets faster), because that is the method the switch defaults to: research/stp-path-cost.md.
+//
+// The blank-line count here is load-bearing: docs/SIMULATION.md cites this file by line number, and a
+// net line shift silently repoints sixty-six of them.
 
 class Simulator {
   constructor(topology, opts) {
@@ -801,7 +799,7 @@ class Simulator {
         const first = members[0];
         const peerDev = this.topo.getDevice(first.peer.deviceId);
         const link = this._linkAt(dev.id, first.name);
-        let cost = speedToCost(link ? link.speedMbps : null);
+        let cost = stpLib.costForSpeedMbps(link ? link.speedMbps : null);
         if (members.length > 1) cost = Math.round(cost / members.length); // aggregate
         ports.push({
           name: key,
@@ -4343,5 +4341,5 @@ class Simulator {
   }
 }
 
-module.exports = { Simulator, ethFrame, arpRequest, arpReply, portPvid, speedToCost,
+module.exports = { Simulator, ethFrame, arpRequest, arpReply, portPvid,
   pingConvergenceSentence, pingLossSentence, dropsSentence, PING_COUNT_DEFAULT, PING_COUNT_MAX };

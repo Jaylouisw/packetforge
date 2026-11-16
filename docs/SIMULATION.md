@@ -132,9 +132,9 @@ on an access port it is stored and reported as staged, not in use. | `engine/vla
 
 | Verdict | Behaviour | Where |
 |---|---|---|
-| **Modelled** | Root election (lowest bridge ID), root path cost, root/designated/alternate roles, forwarding/blocking states, blocked-port list. | `engine/stp.js:119`, `engine/simulator.js:306` |
+| **Modelled** | Root election (lowest bridge ID), root path cost, root/designated/alternate roles, forwarding/blocking states, blocked-port list. | `engine/stp.js:143`, `engine/simulator.js:306` |
 | **Modelled** | Blocked ports drop **both** ingress and egress traffic (`stp-block` events). This is what turns a physical loop into a working topology instead of a storm. | `engine/simulator.js:1758`, `engine/simulator.js:1959-1963` |
-| **Modelled** | Path cost derived from the negotiated link rate, and divided by member count for an aggregate. | `engine/simulator.js:81-89`, `engine/simulator.js:326-327` |
+| **Modelled** | Path cost derived from the negotiated link rate by the vendor's **short** path-cost table (10 Mb 100, 100 Mb 19, 1 Gb 4, 10 Gb 2, faster 1), and divided by member count for an aggregate. A rate with no row of its own takes the next slower row's cost, so cost never rises with speed. | `engine/stp.js:47`, `engine/simulator.js:802-803` |
 | **Approximate** | Only the **converged result** is computed: no BPDUs, no hello/max-age/forward-delay timers, no listening or learning states, no topology-change notifications. The tree is correct, the convergence is instantaneous and free. | `engine/stp.js:1-17` |
 | **Approximate** | It runs for **every** `l2-forward` device regardless of whether the spec claims `stp`, and there is no way to disable it — `show spanning-tree` exists, `no spanning-tree` does not. | `engine/simulator.js:309` |
 | **Absent** | RSTP/MSTP/PVST/PVRST, PortFast, BPDU guard/filter, root guard, loop guard, per-VLAN trees. | — |

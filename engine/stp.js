@@ -18,17 +18,42 @@
 //   5. edge ports (to: null) are always designated + forwarding
 
 const STP_DEFAULT_PRIORITY = 32768;
-const DEFAULT_PORT_COST = 20000; // 802.1D short cost for a 1G link
+const DEFAULT_PORT_COST = 4; // short path-cost of a 1 Gb/s port
 
-// 802.1D short path costs keyed by link speed in Mbps.
-const SPEED_COST = {
-  10: 2000000,
-  100: 200000,
-  1000: 20000,
-  10000: 2000,
-  40000: 500,
-  100000: 200
-};
+// Cisco's **short** path-cost method, which is the default on Catalyst and NX-OS switches: a port's cost is a
+// small number set by its rated speed, and a whole hop costs at most 100. The table is the vendor's own default
+// table - 10 Mb: 100, 100 Mb: 19, 1 Gb: 4, 10 Gb: 2, 25 Gb: 1, 40 Gb: 1, 100 Gb: 1 - and it is the *short*
+// method, not the 32-bit one (2,000,000 / 200,000 / 20,000 / 2,000 / 800 / 500 / 200). This file used the long
+// numbers under a comment that called them short: a 1 Gb port cost 20,000 here and 4 on the switch it is meant
+// to imitate, and a ring of 1 Gb links elected a different root port than the real box would (research/
+// stp-path-cost.md).
+//
+// Speeds with no row of their own take the cost of the next *slower* documented speed, so 2.5 Gb and 5 Gb cost
+// what 1 Gb costs, and anything over 100 Gb costs what 100 Gb costs. Every cost this returns is therefore a
+// number the vendor publishes, and cost never rises as a link gets faster.
+const SHORT_PATH_COST = [
+  [10, 100],
+  [100, 19],
+  [1000, 4],
+  [10000, 2],
+  [25000, 1],
+  [40000, 1],
+  [100000, 1]
+];
+
+// The default cost of a port at `mbps`, by the short path-cost method. A port whose speed is unknown - a link
+// that has not negotiated one - costs like a 1 Gb/s port, which is what the vendor's own default for an
+// unconfigured port works out to on the hardware this simulator draws.
+function costForSpeedMbps(mbps) {
+  const sp = Number(mbps);
+  if (!Number.isFinite(sp) || sp <= 0) return DEFAULT_PORT_COST;
+  let cost = SHORT_PATH_COST[0][1];
+  for (const row of SHORT_PATH_COST) {
+    if (sp < row[0]) break;
+    cost = row[1];
+  }
+  return cost;
+}
 
 // ---------------------------------------------------------------------------
 // bridge IDs
@@ -75,8 +100,7 @@ function portCost(port) {
       const n = Number(raw);
       if (Number.isFinite(n) && n >= 0) return n;
     }
-    const sp = Number(port.speedMbps);
-    if (Number.isFinite(sp) && sp > 0 && SPEED_COST[sp] !== undefined) return SPEED_COST[sp];
+    return costForSpeedMbps(port.speedMbps);
   }
   return DEFAULT_PORT_COST;
 }
@@ -291,6 +315,9 @@ function stpPortText(state) {
 
 module.exports = {
   STP_DEFAULT_PRIORITY,
+  DEFAULT_PORT_COST,
+  SHORT_PATH_COST,
+  costForSpeedMbps,
   validateBridgePriority,
   stpPortText,
   runStp
