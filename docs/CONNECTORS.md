@@ -23,8 +23,8 @@ All of it lives in two files:
 
 | Term | Meaning | Where it is defined |
 |------|---------|---------------------|
-| **Cage** | The physical socket fitted to the box: `rj45`, `sfp+`, `qsfpdd`, `sc-apc`, `coax`, `antenna`… A cage is hardware, not a protocol. | `CAGES` (18 entries) |
-| **Medium** | The cable, optic, DAC or radio band that goes *in* the cage: `10gbase-lr`, `dac-100g`, `gpon-sc-apc`, `wireless-5`. | `MEDIA` (53 entries) |
+| **Cage** | The physical socket fitted to the box: `rj45`, `sfp+`, `qsfpdd`, `sc-apc`, `coax`, `antenna`… A cage is hardware, not a protocol. | `CAGES` (28 entries) |
+| **Medium** | The cable, optic, DAC or radio band that goes *in* the cage: `10gbase-lr`, `dac-100g`, `gpon-sc-apc`, `wireless-5`. | `MEDIA` (90 entries) |
 | **Mate** | Two cages are physically able to accept each other. | `CAGE_MATE` / `cagesMate()` |
 | **Ferrule** | The precision ceramic sleeve at the end of a fibre connector. Has a *shape* (SC, LC, MPO) and a *polish* (UPC flat, APC angled 8°). | `FERRULE` / `ferrule()` |
 | **Port hardware** | The derived descriptor hung on every interface: `{ cage, cageName, family, media[], speedCaps[], maxSpeedMbps, poeOut, poeIn }`. | `derivePortHardware()` |
@@ -1015,14 +1015,14 @@ the optic is XFP or SFP+.
 
 The faceplate is the view that has to be readable where the canvas is not: on a 48-port switch the drawing is 48
 indistinguishable dots whose labels appear only on selection, so the front panel is the tool an operator reaches for
-when the question is "which socket is this". The catalogue at this tree is **2,128 models built from 827 distinct
+when the question is "which socket is this". The catalogue at this tree is **2,159 models built from 851 distinct
 port shapes**, every one of which can be dragged onto a board.
 
 `test/faceplate.test.js` checks two devices in detail. `test/faceplate-catalogue.test.js` checks the other axis —
 breadth — and takes about a second for the whole catalogue:
 
 ```
-(2128 models, 23160 sockets, 827 distinct port shapes)
+(2159 models, 24006 sockets, 851 distinct port shapes)
 ```
 
 Per model it requires: it renders without throwing, twice-gives-the-same-panel; every port the engine knows about
