@@ -168,8 +168,62 @@ jobs:
       # while 6833 and 6835 ran the identical 260-suite suite to completion - the run
       # went red on a tree that was green, and the pull request it belonged to cannot
       # merge while it stays red. Two clones can collide instead of three.
-      - uses: actions/setup-node@v4
+      # The runtime for a leg that is not Node 20, downloaded rather than installed by
+      # an action. Two reasons, measured separately.
+      #
+      # Cost. The Node 20 leg does not run this step at all and every other step of the
+      # three legs is identical, so the gap between the legs of one run is the cost of
+      # getting a runtime. Over the 24 successful runs 3521-3614 (/actions/tasks), same
+      # commit, same two-slot host, medians: Node 20 82 s, Node 18 94 s (+12.5 s),
+      # Node 22 102 s (+18.5 s). That is 6-34 s per leg depending on how busy the host is
+      # when the two legs clone the action at the same second - and it is paid twice per
+      # pull request, because three legs run two at a time.
+      #
+      # Reliability, and this is the part that matters more. act keeps one cache
+      # directory per action revision under /data/.cache/act, so the 18 and 22 legs clone
+      # setup-node into the same path within seconds of each other. Run 3122, task 6834
+      # died 22 s in with
+      #   Unable to checkout 49933ea5288caeca8642d1e84afbd3f7d6820020:
+      #   remove /data/.cache/act/e5/877e.../.gitignore: no such file or directory
+      # while tasks 6833 and 6835 ran the identical suite to completion - a red X on a
+      # green tree, on a pull request that then cannot merge. A tarball has no shared
+      # cache to collide in.
+      #
+      # Pinned for the same reason DOCKER_CLI_VERSION in the `docker` job is: `node-version:
+      # 18` resolves to whatever 18.x was newest that morning, so the gate silently
+      # changes what it tests between runs. These move only when this file does.
+      #
+      # The download is not allowed to cost the gate: if the fetch or the unpack fails the
+      # step is marked failed, `continue-on-error` keeps the leg alive, and the fallback
+      # below installs the runtime the old way and says so in the log. The next step
+      # asserts the running major either way, so a wrong-arch tarball cannot pass as
+      # coverage.
+      - name: Provide the runtime this leg is named for
+        id: node_runtime
         if: matrix.node != 20
+        continue-on-error: true
+        env:
+          MAJOR: ${{ matrix.node }}
+        run: |
+          set -eu
+          case "$MAJOR" in
+            18) DIST=v18.20.8 ;;
+            22) DIST=v22.23.5 ;;
+            *) echo "::error title=Test (Node ${MAJOR})::no pinned Node release for major ${MAJOR} - add it to this step"; exit 1 ;;
+          esac
+          dest="/opt/node-${DIST}"
+          url="https://nodejs.org/dist/${DIST}/node-${DIST}-linux-x64.tar.gz"
+          echo "fetching ${url} for Node ${MAJOR}"
+          curl -fsSL --retry 3 --retry-delay 2 --retry-connrefused --connect-timeout 10 --max-time 180 -o "${dest}.tar.gz" "$url"
+          mkdir -p "$dest"
+          tar -xzf "${dest}.tar.gz" -C "$dest" --strip-components=1
+          # Over the image's own Node 20, not beside it: the assertion below reads
+          # `node --version`, and a second runtime earlier on PATH would let it pass while
+          # `npm test` still ran on the runtime the image shipped.
+          for b in node npm npx; do ln -sf "${dest}/bin/${b}" "/usr/local/bin/${b}"; done
+          echo "installed $(command -v node): $(node --version) / npm $(npm --version)"
+      - uses: actions/setup-node@v4
+        if: matrix.node != 20 && steps.node_runtime.outcome != 'success'
         with:
           node-version: ${{ matrix.node }}
       # The saving above is only a saving if the runtime really is the version the leg
