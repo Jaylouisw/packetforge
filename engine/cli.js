@@ -3042,11 +3042,34 @@ class CliSession {
       out.push('% Nothing in this lab runs a control plane that converges over time');
       return out;
     }
-    out.push('Process   Device                 Ready   Basis');
-    for (const e of sched.entries) {
-      const mark = (atMs !== null && Number.isFinite(atMs) && e.readyAtMs > atMs) ? '  (pending)' : '';
-      out.push(pad(e.process, 10) + pad(String(e.device.name || e.deviceId), 23) +
-        pad(e.readyAtMs + ' ms', 10) + (e.basis || '') + mark);
+    // Column widths come from the data, for the reason `show lldp neighbors` does (#1265): the three fixed widths
+    // here were 10/23/10, and `pad` right-pads without truncating, so any name longer than 22 characters ran into
+    // the instant - `ospf      ISR 4331 branch router-r116000 ms` reads as 'r116000 ms' on a device called
+    // 'router-r1'. That is the *default* catalogue name (label, a dash, four characters of the id) for 1475 of the
+    // 2329 specs in devices/, so an untouched lab printed a table that could not be read field by field. The header
+    // and the rows are built from the same widths so they cannot drift apart.
+    const cells = sched.entries.map(function (e) {
+      return {
+        process: String(e.process),
+        device: String(e.device.name || e.deviceId),
+        ready: e.readyAtMs + ' ms',
+        basis: String(e.basis || ''),
+        pending: atMs !== null && Number.isFinite(atMs) && e.readyAtMs > atMs
+      };
+    });
+    // The floors are the widths this table has always had, so a lab of short names prints exactly what it printed
+    // before; a longer name widens its column instead of running into the next one.
+    const width = function (key, floor, gap) {
+      return Math.max(floor, cells.reduce(function (max, c) { return Math.max(max, c[key].length); }, 0) + gap);
+    };
+    const wProcess = width('process', 10, 3);
+    const wDevice = width('device', 23, 3);
+    const wReady = width('ready', 10, 2);
+    out.push(pad('Process', wProcess) + pad('Device', wDevice) + pad('Ready', wReady) + 'Basis');
+    for (const c of cells) {
+      const mark = c.pending ? '  (pending)' : '';
+      out.push((pad(c.process, wProcess) + pad(c.device, wDevice) + pad(c.ready, wReady) + c.basis + mark)
+        .replace(/\s+$/, ''));
     }
     out.push('');
     out.push('Fully converged at ' + sched.convergedAtMs + ' ms.' +

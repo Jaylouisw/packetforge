@@ -85,9 +85,9 @@ R1#ping 10.0.0.2
 
 ```
 R1#converge 20000
-Process   Device                 Ready   Basis
-change    (change)               10000 ms the link state changed
-stp       SW1                    40000 ms forwarding delay after a topology change (after the change at 10000 ms)
+Process   Device                 Ready     Basis
+change    (change)               10000 ms  the link state changed
+stp       SW1                    40000 ms  forwarding delay after a topology change (after the change at 10000 ms)
 ...
 Fully converged at 40000 ms. (re-based at the link change at 10000 ms)
 ```

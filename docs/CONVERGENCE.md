@@ -5,11 +5,13 @@ the interval between *power on* and *working*, where the link lights are green a
 
 ```
 SW1#converge
-Process   Device                 Ready   Basis
+Process   Device                 Ready     Basis
 stp       SW1                    30000 ms  listening + learning (15 s forward-delay each)
 
 Fully converged at 30000 ms.
 ```
+
+The `Device` column is as wide as the longest name in the answer, so a device nobody renamed - the default name is the catalogue label plus the id - widens the column instead of running into the instant beside it.
 
 ```
 SW1#ping 10.0.0.2 1 at 5000
