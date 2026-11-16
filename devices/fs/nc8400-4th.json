@@ -1,0 +1,1307 @@
+{
+  "vendor": "fs",
+  "model": "NC8400-4TH",
+  "label": "NC8400-4TH (4x NC8400-32C)",
+  "category": "l3-switch",
+  "description": "FS NC8400-4TH - 4U 4-slot data-centre chassis, populated here with 4x NC8400-32C line cards: 128x 100G QSFP28 cages that also take 40G, 25.6 Tbps switching capacity, PFC/ECN/RoCEv2, FSOS with one management port, one console port and one USB 2.0 port.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "HundredGigabitEthernet1/1",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000,
+        40000
+      ]
+    },
+    {
+      "name": "HundredGigabitEthernet1/2",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000,
+        40000
+      ]
+    },
+    {
+      "name": "HundredGigabitEthernet1/3",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000,
+        40000
+      ]
+    },
+    {
+      "name": "HundredGigabitEthernet1/4",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000,
+        40000
+      ]
+    },
+    {
+      "name": "HundredGigabitEthernet1/5",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000,
+        40000
+      ]
+    },
+    {
+      "name": "HundredGigabitEthernet1/6",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000,
+        40000
+      ]
+    },
+    {
+      "name": "HundredGigabitEthernet1/7",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000,
+        40000
+      ]
+    },
+    {
+      "name": "HundredGigabitEthernet1/8",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000,
+        40000
+      ]
+    },
+    {
+      "name": "HundredGigabitEthernet1/9",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000,
+        40000
+      ]
+    },
+    {
+      "name": "HundredGigabitEthernet1/10",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000,
+        40000
+      ]
+    },
+    {
+      "name": "HundredGigabitEthernet1/11",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000,
+        40000
+      ]
+    },
+    {
+      "name": "HundredGigabitEthernet1/12",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000,
+        40000
+      ]
+    },
+    {
+      "name": "HundredGigabitEthernet1/13",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000,
+        40000
+      ]
+    },
+    {
+      "name": "HundredGigabitEthernet1/14",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000,
+        40000
+      ]
+    },
+    {
+      "name": "HundredGigabitEthernet1/15",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000,
+        40000
+      ]
+    },
+    {
+      "name": "HundredGigabitEthernet1/16",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000,
+        40000
+      ]
+    },
+    {
+      "name": "HundredGigabitEthernet1/17",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000,
+        40000
+      ]
+    },
+    {
+      "name": "HundredGigabitEthernet1/18",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000,
+        40000
+      ]
+    },
+    {
+      "name": "HundredGigabitEthernet1/19",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000,
+        40000
+      ]
+    },
+    {
+      "name": "HundredGigabitEthernet1/20",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000,
+        40000
+      ]
+    },
+    {
+      "name": "HundredGigabitEthernet1/21",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000,
+        40000
+      ]
+    },
+    {
+      "name": "HundredGigabitEthernet1/22",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000,
+        40000
+      ]
+    },
+    {
+      "name": "HundredGigabitEthernet1/23",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000,
+        40000
+      ]
+    },
+    {
+      "name": "HundredGigabitEthernet1/24",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000,
+        40000
+      ]
+    },
+    {
+      "name": "HundredGigabitEthernet1/25",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000,
+        40000
+      ]
+    },
+    {
+      "name": "HundredGigabitEthernet1/26",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000,
+        40000
+      ]
+    },
+    {
+      "name": "HundredGigabitEthernet1/27",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000,
+        40000
+      ]
+    },
+    {
+      "name": "HundredGigabitEthernet1/28",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000,
+        40000
+      ]
+    },
+    {
+      "name": "HundredGigabitEthernet1/29",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000,
+        40000
+      ]
+    },
+    {
+      "name": "HundredGigabitEthernet1/30",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000,
+        40000
+      ]
+    },
+    {
+      "name": "HundredGigabitEthernet1/31",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000,
+        40000
+      ]
+    },
+    {
+      "name": "HundredGigabitEthernet1/32",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000,
+        40000
+      ]
+    },
+    {
+      "name": "HundredGigabitEthernet2/1",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000,
+        40000
+      ]
+    },
+    {
+      "name": "HundredGigabitEthernet2/2",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000,
+        40000
+      ]
+    },
+    {
+      "name": "HundredGigabitEthernet2/3",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000,
+        40000
+      ]
+    },
+    {
+      "name": "HundredGigabitEthernet2/4",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000,
+        40000
+      ]
+    },
+    {
+      "name": "HundredGigabitEthernet2/5",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000,
+        40000
+      ]
+    },
+    {
+      "name": "HundredGigabitEthernet2/6",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000,
+        40000
+      ]
+    },
+    {
+      "name": "HundredGigabitEthernet2/7",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000,
+        40000
+      ]
+    },
+    {
+      "name": "HundredGigabitEthernet2/8",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000,
+        40000
+      ]
+    },
+    {
+      "name": "HundredGigabitEthernet2/9",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000,
+        40000
+      ]
+    },
+    {
+      "name": "HundredGigabitEthernet2/10",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000,
+        40000
+      ]
+    },
+    {
+      "name": "HundredGigabitEthernet2/11",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000,
+        40000
+      ]
+    },
+    {
+      "name": "HundredGigabitEthernet2/12",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000,
+        40000
+      ]
+    },
+    {
+      "name": "HundredGigabitEthernet2/13",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000,
+        40000
+      ]
+    },
+    {
+      "name": "HundredGigabitEthernet2/14",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000,
+        40000
+      ]
+    },
+    {
+      "name": "HundredGigabitEthernet2/15",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000,
+        40000
+      ]
+    },
+    {
+      "name": "HundredGigabitEthernet2/16",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000,
+        40000
+      ]
+    },
+    {
+      "name": "HundredGigabitEthernet2/17",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000,
+        40000
+      ]
+    },
+    {
+      "name": "HundredGigabitEthernet2/18",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000,
+        40000
+      ]
+    },
+    {
+      "name": "HundredGigabitEthernet2/19",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000,
+        40000
+      ]
+    },
+    {
+      "name": "HundredGigabitEthernet2/20",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000,
+        40000
+      ]
+    },
+    {
+      "name": "HundredGigabitEthernet2/21",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000,
+        40000
+      ]
+    },
+    {
+      "name": "HundredGigabitEthernet2/22",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000,
+        40000
+      ]
+    },
+    {
+      "name": "HundredGigabitEthernet2/23",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000,
+        40000
+      ]
+    },
+    {
+      "name": "HundredGigabitEthernet2/24",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000,
+        40000
+      ]
+    },
+    {
+      "name": "HundredGigabitEthernet2/25",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000,
+        40000
+      ]
+    },
+    {
+      "name": "HundredGigabitEthernet2/26",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000,
+        40000
+      ]
+    },
+    {
+      "name": "HundredGigabitEthernet2/27",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000,
+        40000
+      ]
+    },
+    {
+      "name": "HundredGigabitEthernet2/28",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000,
+        40000
+      ]
+    },
+    {
+      "name": "HundredGigabitEthernet2/29",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000,
+        40000
+      ]
+    },
+    {
+      "name": "HundredGigabitEthernet2/30",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000,
+        40000
+      ]
+    },
+    {
+      "name": "HundredGigabitEthernet2/31",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000,
+        40000
+      ]
+    },
+    {
+      "name": "HundredGigabitEthernet2/32",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000,
+        40000
+      ]
+    },
+    {
+      "name": "HundredGigabitEthernet3/1",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000,
+        40000
+      ]
+    },
+    {
+      "name": "HundredGigabitEthernet3/2",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000,
+        40000
+      ]
+    },
+    {
+      "name": "HundredGigabitEthernet3/3",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000,
+        40000
+      ]
+    },
+    {
+      "name": "HundredGigabitEthernet3/4",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000,
+        40000
+      ]
+    },
+    {
+      "name": "HundredGigabitEthernet3/5",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000,
+        40000
+      ]
+    },
+    {
+      "name": "HundredGigabitEthernet3/6",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000,
+        40000
+      ]
+    },
+    {
+      "name": "HundredGigabitEthernet3/7",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000,
+        40000
+      ]
+    },
+    {
+      "name": "HundredGigabitEthernet3/8",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000,
+        40000
+      ]
+    },
+    {
+      "name": "HundredGigabitEthernet3/9",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000,
+        40000
+      ]
+    },
+    {
+      "name": "HundredGigabitEthernet3/10",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000,
+        40000
+      ]
+    },
+    {
+      "name": "HundredGigabitEthernet3/11",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000,
+        40000
+      ]
+    },
+    {
+      "name": "HundredGigabitEthernet3/12",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000,
+        40000
+      ]
+    },
+    {
+      "name": "HundredGigabitEthernet3/13",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000,
+        40000
+      ]
+    },
+    {
+      "name": "HundredGigabitEthernet3/14",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000,
+        40000
+      ]
+    },
+    {
+      "name": "HundredGigabitEthernet3/15",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000,
+        40000
+      ]
+    },
+    {
+      "name": "HundredGigabitEthernet3/16",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000,
+        40000
+      ]
+    },
+    {
+      "name": "HundredGigabitEthernet3/17",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000,
+        40000
+      ]
+    },
+    {
+      "name": "HundredGigabitEthernet3/18",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000,
+        40000
+      ]
+    },
+    {
+      "name": "HundredGigabitEthernet3/19",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000,
+        40000
+      ]
+    },
+    {
+      "name": "HundredGigabitEthernet3/20",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000,
+        40000
+      ]
+    },
+    {
+      "name": "HundredGigabitEthernet3/21",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000,
+        40000
+      ]
+    },
+    {
+      "name": "HundredGigabitEthernet3/22",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000,
+        40000
+      ]
+    },
+    {
+      "name": "HundredGigabitEthernet3/23",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000,
+        40000
+      ]
+    },
+    {
+      "name": "HundredGigabitEthernet3/24",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000,
+        40000
+      ]
+    },
+    {
+      "name": "HundredGigabitEthernet3/25",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000,
+        40000
+      ]
+    },
+    {
+      "name": "HundredGigabitEthernet3/26",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000,
+        40000
+      ]
+    },
+    {
+      "name": "HundredGigabitEthernet3/27",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000,
+        40000
+      ]
+    },
+    {
+      "name": "HundredGigabitEthernet3/28",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000,
+        40000
+      ]
+    },
+    {
+      "name": "HundredGigabitEthernet3/29",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000,
+        40000
+      ]
+    },
+    {
+      "name": "HundredGigabitEthernet3/30",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000,
+        40000
+      ]
+    },
+    {
+      "name": "HundredGigabitEthernet3/31",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000,
+        40000
+      ]
+    },
+    {
+      "name": "HundredGigabitEthernet3/32",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000,
+        40000
+      ]
+    },
+    {
+      "name": "HundredGigabitEthernet4/1",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000,
+        40000
+      ]
+    },
+    {
+      "name": "HundredGigabitEthernet4/2",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000,
+        40000
+      ]
+    },
+    {
+      "name": "HundredGigabitEthernet4/3",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000,
+        40000
+      ]
+    },
+    {
+      "name": "HundredGigabitEthernet4/4",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000,
+        40000
+      ]
+    },
+    {
+      "name": "HundredGigabitEthernet4/5",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000,
+        40000
+      ]
+    },
+    {
+      "name": "HundredGigabitEthernet4/6",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000,
+        40000
+      ]
+    },
+    {
+      "name": "HundredGigabitEthernet4/7",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000,
+        40000
+      ]
+    },
+    {
+      "name": "HundredGigabitEthernet4/8",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000,
+        40000
+      ]
+    },
+    {
+      "name": "HundredGigabitEthernet4/9",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000,
+        40000
+      ]
+    },
+    {
+      "name": "HundredGigabitEthernet4/10",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000,
+        40000
+      ]
+    },
+    {
+      "name": "HundredGigabitEthernet4/11",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000,
+        40000
+      ]
+    },
+    {
+      "name": "HundredGigabitEthernet4/12",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000,
+        40000
+      ]
+    },
+    {
+      "name": "HundredGigabitEthernet4/13",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000,
+        40000
+      ]
+    },
+    {
+      "name": "HundredGigabitEthernet4/14",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000,
+        40000
+      ]
+    },
+    {
+      "name": "HundredGigabitEthernet4/15",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000,
+        40000
+      ]
+    },
+    {
+      "name": "HundredGigabitEthernet4/16",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000,
+        40000
+      ]
+    },
+    {
+      "name": "HundredGigabitEthernet4/17",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000,
+        40000
+      ]
+    },
+    {
+      "name": "HundredGigabitEthernet4/18",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000,
+        40000
+      ]
+    },
+    {
+      "name": "HundredGigabitEthernet4/19",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000,
+        40000
+      ]
+    },
+    {
+      "name": "HundredGigabitEthernet4/20",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000,
+        40000
+      ]
+    },
+    {
+      "name": "HundredGigabitEthernet4/21",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000,
+        40000
+      ]
+    },
+    {
+      "name": "HundredGigabitEthernet4/22",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000,
+        40000
+      ]
+    },
+    {
+      "name": "HundredGigabitEthernet4/23",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000,
+        40000
+      ]
+    },
+    {
+      "name": "HundredGigabitEthernet4/24",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000,
+        40000
+      ]
+    },
+    {
+      "name": "HundredGigabitEthernet4/25",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000,
+        40000
+      ]
+    },
+    {
+      "name": "HundredGigabitEthernet4/26",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000,
+        40000
+      ]
+    },
+    {
+      "name": "HundredGigabitEthernet4/27",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000,
+        40000
+      ]
+    },
+    {
+      "name": "HundredGigabitEthernet4/28",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000,
+        40000
+      ]
+    },
+    {
+      "name": "HundredGigabitEthernet4/29",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000,
+        40000
+      ]
+    },
+    {
+      "name": "HundredGigabitEthernet4/30",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000,
+        40000
+      ]
+    },
+    {
+      "name": "HundredGigabitEthernet4/31",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000,
+        40000
+      ]
+    },
+    {
+      "name": "HundredGigabitEthernet4/32",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        100000,
+        40000
+      ]
+    },
+    {
+      "name": "console",
+      "type": "console"
+    }
+  ],
+  "fabric": {
+    "capacityMbps": 12800000,
+    "kind": "switching capacity",
+    "note": "FS states 25.6 Tbps for the NC8400-4TH (data sheet Table 4; the earlier datasheet prints the same box as 19.05 Bpps forwarding, and this one as 19050 Mpps). 25.6 Tbps is the duplex aggregate; per direction it is 12.8 Tbps, which is exactly what 4x NC8400-32C offers as 128x 100G, so a full 32C load is line-rate rather than oversubscribed. Recorded per direction because the fabric audit compares it with the sum of the ports."
+  },
+  "icon": "switch",
+  "color": "#dc2626",
+  "sourceUrl": "https://resource.fs.com/mall/resource/nc8400-series-switches-data-sheet.pdf",
+  "notes": "Stated configuration, not a fixed chassis figure: the NC8400-4TH ships unloaded with 4 line-card slots (\"NC8400-4TH, 4-Slot 4U Ethernet L3 Data Center Chassis Switch Unloaded\"), so the port list is 4x NC8400-32C (32x 100G QSFP28 per card, \"offering line-rate forwarding from all ports\"), which is the load the data sheet itself leads with (\"can be loaded with line card NC8400-32C and supports a maximum of 128x 40G/100G\"). A different fill is a different box: 4x NC8400-16CD is 64x 40/100G plus 16x 400G QSFP-DD (Table 2 gives the 16CD as 16x 40G, 16x 100G, 4x 400G), and a mixed fill is anywhere in between, so the 400G configuration needs its own spec rather than a reuse of this one.\n\nPort names follow the NC8400 CLI reference guide (img-en.fs.com/file/user_manual/nc8400-series-switches-cli-reference-guide.pdf), whose examples are \"interface HundredGigabitEthernet 1/1\" and \"int hundredGigabitEthernet 2/49\" on this platform, and the 4-slot frame numbers its bays 1-4. The line card numbers its QSFP28 cages 1-32 (40G port density 32 / 100G port density 32), so each bay is modelled as /1 through /32.\n\nRates come from the data sheet port notes: \"QSFP28 can be used for 40G/100G or 4x 10G/4x 25G connection\", so a 100G cage also accepts 40G (speedCaps 40000/100000). Breakout is not modelled as extra ports because it costs ports: \"When configuring port breakout, Ports 1, 2, 3, and 4 form a single port group ... only the port marked with a fine black line supports breakout, the other three ports in the same port group will be unavailable\", and Table 2 reports no 40G/100G port density with breakout cable for the 32C at all. A lab that wants 4x25G breakout needs a spec that models the groups, not this one.\n\nChassis ports: 1 management port, 1 console port, 1 USB port (Table 1). The management port is out-of-band and the data sheet states no rate for it, so only the console is modelled as a console port; the USB 2.0 socket is not a network port.\n\nNo PoE anywhere: the earlier datasheet lists IEEE 802.3af in its L2 protocol list, but the only line card carries QSFP28 cages, Table 1 declares no PoE and the data sheet states no budget, so no poe-pse and no wattage. Power is 4x hot-swap AC (2+2 redundancy) at 1950 W maximum consumption, 100-240VAC. MLAG, VRRP, GR, BFD, PFC/ECN, RoCEv2, NETCONF and OpenFlow are software features and are not modelled as port capabilities.\n\nNote on the source: the current data sheet is headed \"FS NC8400 SERIES SWITCHES DATA SHEET\" but several interior page headers still read \"FS NC8200 SERIES SWITCHES DATA SHEET\" - a copy-paste artefact in FS's own PDF. Every table under those headers carries NC8400 P/Ns (NC8400-4TH, NC8400-32C, NC8400-16CD), and the older NC8400 datasheet (img-en.fs.com/file/datasheet/nc8400-series-switch-datasheet.pdf) agrees on 4 slots, 128x 40G/100G, 128 management/console/USB counts, 25.6 Tbps and <1950W."
+}
