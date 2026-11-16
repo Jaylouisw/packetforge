@@ -46,6 +46,14 @@ considerations are:
   server directly to the internet.
 - The WebSocket upgrade refuses a page served from another origin: its `Origin`
   must name the same host and port as `Host`, unless it is listed in
-  `PF_ALLOWED_ORIGINS`. The REST API still answers with a wildcard
-  `Access-Control-Allow-Origin`, so a page can still *read* a board over HTTP;
-  that is the next change, not a claim this posture makes.
+  `PF_ALLOWED_ORIGINS`.
+- JSON answers that carry a board follow the same rule, so refusing the socket
+  is not undone by the HTTP door beside it: `sendJSON` echoes the caller's own
+  `Origin` back only when that check accepts it, and sends no
+  `Access-Control-Allow-Origin` at all otherwise, which is what makes a browser
+  withhold the body. `/api/catalog` and `/api/media` are the exception and keep
+  the wildcard: they are fixed catalogues of hardware, carry no board, and are
+  read from other origins on purpose.
+- None of this is authentication, and none of it protects a server an operator
+  put on `0.0.0.0`. It protects the default case: a simulator on this machine
+  that a page in another tab should not be able to read.

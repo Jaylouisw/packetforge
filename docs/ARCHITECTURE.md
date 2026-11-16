@@ -373,6 +373,15 @@ client, the test suites), one that names the same host and port as `Host` is all
 allowed, and anything else - including the literal `null` a sandboxed iframe sends - is answered `403` with a line
 naming both headers, before the board is pushed. By the time the handshake is answered it is too late to refuse.
 
+**Board data over HTTP follows the same rule.** Every JSON answer used to carry `Access-Control-Allow-Origin: *`,
+which made the socket check a formality: a page that had just been refused an upgrade could call
+`fetch('/api/topologies/default')` and read the whole board anyway (#1527, step 3 of
+`docs/plans/server-exposure.md`). `sendJSON` now echoes the caller's own `Origin` only when `allowOrigin()` accepts
+it, sends no `Access-Control-Allow-Origin` otherwise, and every answer varies by `Origin` so a cache cannot hand one
+page's echo to another; the `OPTIONS` preflight is answered by the same rule. `/api/catalog` and `/api/media` keep the
+wildcard, because `sendImmutableJSON` serves fixed catalogues of hardware that carry no board and that other origins
+read deliberately. `test/server-cors.test.js` asserts all of it against a real server.
+
 **A closed client is a closed client.** An upgraded socket has `allowHalfOpen = true`, so when the peer goes away it
 emits `end` and *stops there* — `close` never fires. Removing the client only on `close` would leave a half-open
 socket holding the entry for the life of the process; `end` and `error` count as gone too. `broadcast()` then only

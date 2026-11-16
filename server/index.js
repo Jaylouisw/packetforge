@@ -44,6 +44,30 @@ const HOST = String(process.env.PF_HOST || '').trim() || DEFAULT_HOST;
 const ALLOWED_ORIGINS = String(process.env.PF_ALLOWED_ORIGINS || '')
   .split(',').map(function (s) { return s.trim(); }).filter(Boolean);
 const upgradeAllowed = function (req) { return allowOrigin(req, ALLOWED_ORIGINS); };
+
+// Which pages may *read* an API answer (#1527, docs/plans/server-exposure.md step 3).
+//
+// The upgrade check above closed the socket door and left the cheaper one open: sendJSON stamped
+// `Access-Control-Allow-Origin: *` on every answer, so the page that had just been refused a socket could
+// `fetch('http://127.0.0.1:8000/api/topologies/default')` and read the whole board over HTTP. A wildcard is
+// the one value a browser will not narrow and the server cannot qualify - it says "any page" and means it.
+// Echoing the caller's own Origin, and only after allowOrigin() has accepted it, says what was meant.
+//
+// What stays public is deliberate: /api/catalog and /api/media are served by sendImmutableJSON, are fixed
+// catalogues of hardware, carry no board, and are read from other origins on purpose. Everything that names a
+// topology goes through sendJSON and follows the rule below.
+//
+// Returns the value for the header, or null when the answer must carry none - which is what makes a browser
+// withhold the body from a page that is not allowed to have it.
+function allowedOriginHeader(req) {
+  const headers = (req && req.headers) || {};
+  const origin = headers.origin;
+  // No Origin: a same-origin navigation, a native client, curl, every suite in test/. There is no CORS
+  // conversation to hold, and a header here would only invite a cache to key on something absent.
+  if (!origin) return null;
+  return allowOrigin(req, ALLOWED_ORIGINS) ? String(origin) : null;
+}
+
 const WEB_DIR = path.join(__dirname, '..', 'web');
 const DEVICES_DIR = path.join(__dirname, '..', 'devices');
 
@@ -484,11 +508,14 @@ function sendJSON(res, code, obj) {
   const req = res.pfReq || null;
   const headers = {
     'Content-Type': 'application/json; charset=utf-8',
-    'Access-Control-Allow-Origin': '*',
     'Cache-Control': 'no-cache',
     'ETag': '"' + crypto.createHash('sha1').update(body).digest('base64').replace(/=+$/, '') + '"',
-    'Vary': 'Accept-Encoding'
+    // The answer now depends on Origin: a foreign page gets no Access-Control-Allow-Origin at all. A cache
+    // that kept one caller's echo and handed it to another would undo the rule, so Origin is part of the key.
+    'Vary': 'Origin, Accept-Encoding'
   };
+  const allowedOrigin = allowedOriginHeader(req);
+  if (allowedOrigin) headers['Access-Control-Allow-Origin'] = allowedOrigin;
 
   // Revalidation: a client that already has this exact body gets no body at all.
   const inm = req && req.headers ? String(req.headers['if-none-match'] || '') : '';
@@ -538,6 +565,8 @@ function sendImmutableJSON(req, res, key, build) {
     };
     immutableCache.set(key, entry);
   }
+  // The wildcard stays here on purpose (#1527): these two answers are fixed catalogues of hardware that
+  // carry no board - the wiki, the palette in another tab and third-party tools read them from other origins.
   const headers = {
     'Content-Type': 'application/json; charset=utf-8',
     'Access-Control-Allow-Origin': '*',
@@ -1426,7 +1455,14 @@ const server = http.createServer(function (req, res) {
   catch (e) { res.writeHead(400); res.end('Bad request'); return; }
 
   if (req.method === 'OPTIONS') {
-    res.writeHead(204, { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Methods': 'GET,POST,DELETE,OPTIONS', 'Access-Control-Allow-Headers': 'Content-Type' });
+    const preflight = {
+      'Access-Control-Allow-Methods': 'GET,POST,DELETE,OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type',
+      'Vary': 'Origin'
+    };
+    const allowedOrigin = allowedOriginHeader(req);
+    if (allowedOrigin) preflight['Access-Control-Allow-Origin'] = allowedOrigin;
+    res.writeHead(204, preflight);
     res.end();
     return;
   }

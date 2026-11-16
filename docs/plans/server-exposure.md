@@ -1,10 +1,12 @@
 # Plan: the default posture is 0.0.0.0, a star, and no Origin check
 
-Status: partly landed. Step 2 - the `Origin` check on the WebSocket upgrade - is in `server/ws.js`
-(`allowOrigin()`, `refuseUpgrade()`) with `test/ws-origin.test.js` behind it. Step 1 - the loopback
-default - is in `server/index.js` (`PF_HOST`, `DEFAULT_HOST`) with `test/server-bind.test.js` behind it,
-and the `Dockerfile` sets `PF_HOST=0.0.0.0` so the image keeps answering on its published port. Steps 3-5
-are still a plan, and 2 and 3 must not land in one commit. Answers #1527, which is the stated precondition for
+Status: steps 1-3 landed, 4-5 still a plan. Step 2 - the `Origin` check on the WebSocket upgrade - is in
+`server/ws.js` (`allowOrigin()`, `refuseUpgrade()`) with `test/ws-origin.test.js` behind it. Step 1 - the
+loopback default - is in `server/index.js` (`PF_HOST`, `DEFAULT_HOST`) with `test/server-bind.test.js` behind
+it, and the `Dockerfile` sets `PF_HOST=0.0.0.0` so the image keeps answering on its published port. Step 3 -
+narrowing the CORS wildcard - is `allowedOriginHeader()` in `server/index.js`, with
+`test/server-cors.test.js` behind it, landed in its own commit so a broken Origin rule and a broken CORS rule
+stay distinguishable in a bisect. Answers #1527, which is the stated precondition for
 storing any real device credential. Touches `server/index.js`, `server/ws.js`, `web/app.js`, `Dockerfile`, `test/`,
 `SECURITY.md`, `ARCHITECTURE.md`, `README.md`. The bearer-token half of #1527 is deliberately not
 here (see "Deliberately left out"): it needs a credential surface to protect, and that surface does
@@ -16,11 +18,11 @@ not exist yet.
   `:1497` calls `server.listen(PORT, function () {...})` with no host argument, so Node listens on
   `::`/`0.0.0.0`. Nothing prints which address was taken - `server.address()` is never read - so a
   laptop on a cafe network and a container behind a proxy look identical in the log.
-* **CORS is a wildcard on every JSON answer.** The header is set in `sendJSON` (`:467`), in
-  `sendImmutableJSON` (`:523`), and on the preflight (`:1408-1412`, which answers `204` with
-  `Access-Control-Allow-Methods: GET,POST,DELETE,OPTIONS`). Any page Jay visits can therefore
-  `fetch('http://127.0.0.1:8000/api/topologies/default')` and read the whole board without a
-  WebSocket at all. #1527 names only the WebSocket; the REST door is wider and easier to use.
+* ~~**CORS is a wildcard on every JSON answer**~~ - landed. `sendJSON` sets `Access-Control-Allow-Origin`
+  only when `allowedOriginHeader()` (`allowOrigin()` against `PF_ALLOWED_ORIGINS`) accepts the caller's
+  `Origin`, and the preflight answers by the same rule; both now say `Vary: Origin,` so a cache cannot
+  reuse one page's echo for another. `sendImmutableJSON` - `/api/catalog` and `/api/media` - keeps the
+  wildcard on purpose: fixed catalogues, no board, read from other origins deliberately.
 * **The WebSocket upgrade now checks `Origin`.** Until step 2 it checked one header,
   `sec-websocket-key`, and no `Origin` either, so any page Jay visited was handed the board. Now
   `server/index.js:1426` passes `{ allowOrigin }` into `wss.handleUpgrade` (`server/ws.js:23`): absent
@@ -43,9 +45,9 @@ not exist yet.
 
 1. **Listening on every interface by default** (`:1497`). The common case is one person on one
    machine; the safe default is loopback, and exposure should be something you ask for.
-2. **A wildcard `Access-Control-Allow-Origin` on topology data** (`:467`, `:523`). This is the
-   cheapest read path for a hostile page, and #1527 does not mention it. It can be narrowed without
-   touching the public, immutable endpoints.
+2. ~~**A wildcard `Access-Control-Allow-Origin` on topology data**~~ - landed. This was the cheapest
+   read path for a hostile page, and #1527 does not mention it. It was narrowed without touching the
+   public, immutable endpoints.
 3. ~~**An upgrade with no `Origin` check**~~ - landed. What is left of this item is the unsolicited dump
    of the default board (`:1459`), which step 4 removes.
 4. **No regression net.** Nothing in `test/` would notice if any of the above came back.
@@ -57,7 +59,7 @@ not exist yet.
 |---|---|---|---|
 | 1 | `PF_HOST` in `server/index.js`, default `127.0.0.1`, validated through the same startup-error path as `PORT` (`formatStartupError`); listen on it and log `server.address().address` instead of the hard-coded `Local:` line at `:1493`. `Dockerfile` gains `PF_HOST=0.0.0.0` next to `PORT=8000`, so the published image keeps working. New `test/server-bind.test.js` (below). | S | #1527 (bind) - landed |
 | 2 | An `allowOrigin(req)` helper in `server/ws.js`, injected into `handleUpgrade` as an option the way `onMessage` is already assigned from `index.js`, wired at `server/index.js:1426`: an absent `Origin` is allowed (curl and the tests send none), a same-origin `Origin` (scheme+host+port equal to `Host`) is allowed, `PF_ALLOWED_ORIGINS` (comma list) is allowed, anything else is refused with `403` **before** the `101` and the socket destroyed. New `test/ws-origin.test.js`. | S/M | #1527 (WS) - landed |
-| 3 | Narrow CORS: keep the wildcard for the two immutable, public endpoints (`/api/catalog`, `/api/media`), which `sendImmutableJSON` serves and which carry no board; for every other `/api/` path echo the caller's `Origin` only when `allowOrigin()` says yes, and send no ACAO header otherwise. Preflight at `:1408` follows the same rule. Test the three cases against a real server: allowed origin gets the echo, foreign origin gets no header, no `Origin` is unaffected. | M | #1527 (HTTP half) |
+| 3 | Narrow CORS: keep the wildcard for the two immutable, public endpoints (`/api/catalog`, `/api/media`), which `sendImmutableJSON` serves and which carry no board; for every other `/api/` path echo the caller's `Origin` only when `allowOrigin()` says yes, and send no ACAO header otherwise. Preflight at `:1408` follows the same rule. Test the three cases against a real server: allowed origin gets the echo, foreign origin gets no header, no `Origin` is unaffected. | M | #1527 (HTTP half) - landed, `test/server-cors.test.js` |
 | 4 | Delete the unsolicited push at `:1459`; the `onopen` handler at `web/app.js:3063` gains `{"type":"subscribe","topologyId":TOPO}`, which the server already answers at `:1443`. Drop the "a new connection" row from the message table at `ARCHITECTURE.md:344-357`. | S | - |
 | 5 | Docs in the same series: `SECURITY.md:35-43` rewritten to the new default plus the two knobs; `ARCHITECTURE.md` "The server" gains one paragraph on bind, Origin and CORS; `README.md:44` and `:49` say what the container sets and what a bare `npm start` exposes. | S | #1527 (docs) |
 
@@ -103,5 +105,5 @@ cited by line from other pages.
 
 ## Open issues this would close
 
-#1527 - items 1 and 2, plus the documentation it asks for. The token item stays open on purpose, and
-the plan says so in a sentence a reader can quote.
+#1527 - items 1 and 2, the HTTP half behind item 2 (step 3), plus the documentation it asks for. The token
+item stays open on purpose, and the plan says so in a sentence a reader can quote.

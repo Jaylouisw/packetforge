@@ -145,6 +145,19 @@
   `EADDRNOTAVAIL` text that blamed `PORT` and told the reader to leave it "unset to listen on all
   interfaces". `test/server-bind.test.js` covers all four cases against a real server.
 
+### Security
+
+- **The REST API stops handing the board to any page that asks** (#1527, `docs/plans/server-exposure.md`
+  step 3). The WebSocket upgrade already refused a page from another origin, but every JSON answer carried
+  `Access-Control-Allow-Origin: *`, so the page that had just been refused a socket could
+  `fetch('/api/topologies/default')` and read every device and cable over HTTP - the cheaper door the issue
+  never named. `sendJSON` now echoes the caller's own `Origin` only when `allowOrigin()` accepts it (same host
+  and port as `Host`, or listed in `PF_ALLOWED_ORIGINS`), sends no such header otherwise, and every answer
+  varies by `Origin` so a cache cannot pass one page's echo to another; the `OPTIONS` preflight follows the
+  same rule. `/api/catalog` and `/api/media` keep the wildcard - fixed hardware catalogues, no board, read
+  from other origins on purpose. `test/server-cors.test.js` covers same-origin, foreign, `Origin: null`, an
+  absent `Origin`, both catalogues, the preflight and the allow-list against a real server.
+
 # Changelog
 
 All notable changes to this project will be documented in this file.
