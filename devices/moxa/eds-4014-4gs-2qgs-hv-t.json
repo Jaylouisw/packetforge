@@ -1,0 +1,158 @@
+{
+  "vendor": "moxa",
+  "model": "EDS-4014-4GS-2QGS-HV-T",
+  "label": "Moxa EDS-4014-4GS-2QGS-HV-T",
+  "category": "switch",
+  "description": "Moxa EDS-4014-4GS-2QGS-HV-T - 14-port managed industrial Fast Ethernet switch: eight 10/100BaseT(X) RJ45 access ports, four 100/1000BaseSFP cages and two 1000/2500BaseSFP cages, Layer 2 with Turbo Ring/Turbo Chain, -40 to 75 C, 14.44 W maximum consumption, powered by the PWR-105-HV-I module.",
+  "capabilities": [
+    "l2-forward",
+    "cli",
+    "http-server",
+    "dhcp-client",
+    "dhcp-server"
+  ],
+  "interfaces": [
+    {
+      "name": "1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M",
+      "speedCaps": [
+        10,
+        100
+      ]
+    },
+    {
+      "name": "2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M",
+      "speedCaps": [
+        10,
+        100
+      ]
+    },
+    {
+      "name": "3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M",
+      "speedCaps": [
+        10,
+        100
+      ]
+    },
+    {
+      "name": "4",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M",
+      "speedCaps": [
+        10,
+        100
+      ]
+    },
+    {
+      "name": "5",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M",
+      "speedCaps": [
+        10,
+        100
+      ]
+    },
+    {
+      "name": "6",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M",
+      "speedCaps": [
+        10,
+        100
+      ]
+    },
+    {
+      "name": "7",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M",
+      "speedCaps": [
+        10,
+        100
+      ]
+    },
+    {
+      "name": "8",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M",
+      "speedCaps": [
+        10,
+        100
+      ]
+    },
+    {
+      "name": "sfp9",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "sfp10",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "sfp11",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "sfp12",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "sfp13",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "2.5G",
+      "speedCaps": [
+        1000,
+        2500
+      ]
+    },
+    {
+      "name": "sfp14",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "2.5G",
+      "speedCaps": [
+        1000,
+        2500
+      ]
+    }
+  ],
+  "sourceUrl": "https://www.moxa.com/getmedia/5646bcc3-31c6-478d-aaf0-9357355126ec/moxa-eds-4014-series-datasheet-v1.7.pdf",
+  "notes": "Datasheet EDS-4014 Series v1.7 (2026-06-02). The port split comes from the ordering table, which lists exactly four models, and the model name spells the split out: 4GS is four 1 Gbps SFP cages, 2QGS is two 2.5 Gbps SFP cages, on an 8-port 10/100 copper chassis. There is no copper uplink and no PoE anywhere in the sheet - the standards list stops at 802.1X with no 802.3af/at/bt - so the 2.5 Gbps cages are 25 times the access rate rather than a matched uplink. Switch properties: 16 K MAC table, 9.216 KB jumbo frames, 256 VLANs (VID 1 to 4094), 512 IGMP groups, 4 priority queues, 1 MB packet buffer. Console is a front-panel RS-232 8-pin RJ45 at 115200 n 8 1 (TxD, RxD, GND), not modelled as an interface because it carries no frames. One alarm relay (1 A @ 24 VDC), one digital input, a USB Type A port marked Reserved, four Turbo Ring DIP switches, IP40 metal case 55 x 140 x 122.5 mm at 846 g on DIN rail (wall kit optional). The datasheet publishes no switching-capacity or forwarding-rate figure at all, so no fabric is declared here rather than a number derived from the port count. Power comes from a removable module, which is why the ordering name carries it (PWR-105-HV-I: 88 to 300 VDC or 85 to 264 VAC on a single 110/220 VDC/VAC input); maximum consumption 14.44 W and MTBF 489,769 h. The power section names a bare EDS-4014-4GS-2QGS-T chassis as the base the module is fitted to, but the ordering table sells only the four module-fitted models, so only those four are catalogued. The -HV variants take a single mains/DC feed rather than the redundant pair, and the datasheet grants them neither the marine nor the hazardous-location approvals. Switch OS is Moxa next-generation v4.x: firmware v4.2 for EDS-4000/EDS-G4000, released 2026-03-20 (https://www.moxa.com/en/support/product-support/software-and-documentation?psid=121506). Recovery is Turbo Ring/Chain < 20 ms at 250 switches, < 50 ms once a link runs at 1 Gbps or above. 802.1Q VLAN, LACP and RSTP/STP are implemented on the box, but the engine retired those capability tokens, so they are described here and not declared."
+}
