@@ -102,8 +102,12 @@ the "New" button trivial.
 
 ### What is on the disk
 
-One JSON file per board, in `PF_DATA/topologies/` (`~/.packetforge` unless the environment says otherwise). No
-database, no dependency. Five rules, each of which a bug taught:
+One JSON file per board, in `PF_DATA/topologies/` — by default `data/topologies/` beside the checkout, which is
+what `server/index.js` resolves (`path.join(__dirname, '..', 'data')`) and what the `/data/` entry in
+`.gitignore` keeps out of the repository; set `PF_DATA` to put the boards somewhere else. This page used to say
+`~/.packetforge`, a path nothing in the code has ever written — a server started with no environment at all
+creates `data/topologies/` and no home directory of that name. No database, no dependency. Five rules, each of
+which a bug taught:
 
 * **a change is saved before the answer is sent.** `broadcast()` is the one place that knows a board changed, and it
   saves synchronously. There is no debounce: on Windows a kill calls `TerminateProcess`, so no signal handler and no
