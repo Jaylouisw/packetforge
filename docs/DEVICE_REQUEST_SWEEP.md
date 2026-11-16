@@ -105,7 +105,7 @@ explicit enough to trust.
 
 ## Operating notes
 
-- **`--close` needs the same `--limit` as the report.** The default scan is 250 issues; a
+- **`--close` needs the same `--limit` as the report.** The default scan is 200 issues; a
   backlog of 400 will report matches you cannot then close. This bit once: a `--close 20` run
   closed 0 of 0 while the report showed 14.
 - **`--close` posts a comment first**, naming the catalogue file, then closes. Never silently.
