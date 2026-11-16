@@ -506,7 +506,14 @@ class CliSession {
     const host = this.device.config.hostname || this.device.hostname || this.device.name;
     if (this.mode === MODE_CONFIG) return host + '(config)#';
     if (this.mode === MODE_IFACE) return host + '(config-if)#';
-    if (this.mode === MODE_DHCP_POOL) return host + '(config-dhcp)#';
+    // DHCP pool mode is the one prompt that does not follow the `(config-<thing>)#` shape: an IOS box
+    // prints `Router(dhcp-config)#`, the words in the other order, and it is the only sub-mode here
+    // whose prompt the vendor states in a sentence rather than printing in a capture. Three session
+    // transcripts settle it - the 12.4T server guide, the IOS XE 16/17 server guide, and the 3SE
+    // Catalyst 3650 guide - and so does every operator paste found; the `(config-dhcp)#` spelling
+    // exists in Cisco's own command reference prose and on the CBS350 (a different OS).
+    // research/dhcp-pool-prompt.md records both spellings and which one is a capture.
+    if (this.mode === MODE_DHCP_POOL) return host + '(dhcp-config)#';
     if (this.mode === MODE_ENABLE) return host + '#';
     return host + '>';
   }

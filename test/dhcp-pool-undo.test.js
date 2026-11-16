@@ -39,7 +39,7 @@ function config(env) {
 
 function apply(env, cmds) {
   const out = runCommands(env.d, env.t, env.sim, ['configure terminal'].concat(cmds).concat(['end']));
-  // Each line arrives with the console prompt in front of it ("r1(config-dhcp)#Network cleared..."). Strip
+  // Each line arrives with the console prompt in front of it ("r1(dhcp-config)#Network cleared..."). Strip
   // the prompt rather than slicing from the first interesting word, which used to cut the message in half
   // and make every assertion read as a mismatch.
   return ((out && out.lines) || []).map(String).map(function (l) {

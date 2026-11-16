@@ -7,7 +7,7 @@
 //   Router#?                        -> the whole index
 //   Router(config)#?                -> % Unrecognized config command: ?
 //   Router(config-if)#?             -> % Unrecognized interface command: ?
-//   Router(config-dhcp)#?           -> (fell through to the interface error path)
+//   Router(dhcp-config)#?           -> (fell through to the interface error path)
 //
 // So the one key that means "I do not know what I can type here" was reported as though the
 // key itself were a mistake. The index already labels every row with the mode it belongs to
@@ -48,7 +48,7 @@ const PROMPTS = [
   {
     label: 'dhcp pool',
     setup: ['enable', 'configure terminal', 'ip dhcp pool P1'],
-    prompt: '(config-dhcp)#'
+    prompt: '(dhcp-config)#'
   }
 ];
 

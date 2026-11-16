@@ -12,6 +12,7 @@ Modes and their prompts:
 | enable | `Hostname#` | `enable` (or `en`) |
 | config | `Hostname(config)#` | `configure terminal`, or any unique abbreviation of both words (`config t`, `conf term`, `configure term`) |
 | interface | `Hostname(config-if)#` | `interface <name>` (from config) |
+| dhcp pool | `Hostname(dhcp-config)#` | `ip dhcp pool <name>` (from config) |
 
 ## Global / exec commands
 
@@ -1891,8 +1892,8 @@ sub-mode is left — `network` before `range` is the second keystroke, not an er
 
 ```
 R1(config)#ip dhcp pool lan
-R1(config-dhcp)#network 10.0.0.0 255.255.255.0
-R1(config-dhcp)#exit
+R1(dhcp-config)#network 10.0.0.0 255.255.255.0
+R1(dhcp-config)#exit
 % E_DHCP_BAD_RANGE: DHCP pool lan: both rangeStart and rangeEnd are required.
 ```
 
@@ -2197,7 +2198,7 @@ Router(config)#vrrp 1 ip 10.0.0.254
 `test/missing-argument-is-not-a-value.test.js` holds all of it: fifteen bare commands, the `hostname` and `description` receipts, the three missing-not-invalid messages, the whitespace sweep, and the leniency that is deliberate. 29 checks; with the old handler, 13 passed / 16 failed.
 ## `?` is a keypress in every prompt, and `exit` walks one level at a time
 
-The console prints the mode in its prompt — `>`, `#`, `(config)#`, `(config-if)#`, `(config-dhcp)#` — and two keys that a technician uses to find their way around only worked in some of them.
+The console prints the mode in its prompt — `>`, `#`, `(config)#`, `(config-if)#`, `(dhcp-config)#` — and two keys that a technician uses to find their way around only worked in some of them.
 
 `?` printed the whole index at `>` and `#`, and was a **syntax error** in the other three:
 
