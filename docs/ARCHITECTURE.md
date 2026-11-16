@@ -1178,10 +1178,11 @@ local device, and it was false.
 The suffix never moves the ranking of causes: with both a shut port at the source and an unreachable
 gateway, the local shut port still wins and the gateway is not blamed for a frame that never left.
 
-`test/reason-names-the-box.test.js` pins it, 18 checks: the host prints a default route and is still
-not blamed; the gateway names itself nowhere in its own counters; a source with no route gets a bare
-reason; a far switch is named exactly once; the flow door uses the same sentence; a successful run
-invents no reason; and the ranking is unchanged.
+`test/reason-names-the-box.test.js` pins it, 19 checks: the host names its default gateway — it has no
+routing table to print — and is still not blamed; the gateway it sent to has no default of its own;
+the gateway names itself nowhere in its own counters; a source with no route gets a bare reason; a far
+switch is named exactly once; the flow door uses the same sentence; a successful run invents no reason;
+and the ranking is unchanged.
 
 ### The answer that names a port nobody asked about
 
