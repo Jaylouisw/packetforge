@@ -322,8 +322,23 @@ jobs:
         # 12 node processes on the 40 cores this host has is not a fight. Hence 6, which is
         # 13 s less per leg - 39 s of runner time per pull request, and 13 s off each of the
         # two waves a three-leg matrix costs the queue.
+        #
+        # Re-measured again on 2026-11-16 (285 suites, 10234 assertions, node:20-bookworm on
+        # odin, commit eb172083) because the suite has grown past what 6 was chosen for:
+        #   6:  31.9 s     10: 21.9 s     12: 20.6 s     (one leg, nothing else running)
+        # Three legs started at the same second, each with its own working copy - what the
+        # matrix actually does on this host:
+        #   6:  60.5, 60.1, 60.6 s         10: 38.3, 38.2, 38.3 s
+        # Same 285 suites and the same ~10230 assertions in every leg; the only failure in
+        # any of the six runs was canonical-urls' "the tree is clean again" probe, which
+        # fails identically at 6 and at 10 and only in the benchmark copies, never in a
+        # real leg (runs 3987, 3983, 3979 are green on this commit).
+        #
+        # So 10, not 12: 12 buys 1.3 s over 10 on an idle host and allocates a fifth more
+        # processes under the three-leg contention where the real cost is paid. The bound
+        # that matters is the harness's own cap of 16 and the 40 cores underneath.
         env:
-          PF_TEST_CONCURRENCY: 6
+          PF_TEST_CONCURRENCY: 10
         run: |
           # Actions runs this file as `bash -e`, and that is the default this step has to
           # leave: without it the first non-zero exit - `npm test` failing, which is the
