@@ -68,7 +68,7 @@ Four scenarios, one change each, same lab (probe `E_failover_matrix`):
 | `iface.enabled = false` on wan1 | *nothing* | `drop: no usable egress interface`, while a valid second default sits in `config.routes` |
 | ISP A unplugged (no IP) | `wan1` | silence: ARP is never answered, no switch to wan2 |
 
-`_deliver()` (`simulator.js:2908`) checks `iface.enabled` and `iface.peer`; it
+`_deliver()` (`simulator.js:2976`) checks `iface.enabled` and `iface.peer`; it
 never asks whether the *link* is up. `web/app.js:921` prints a State field in the
 link inspector that the engine ignores.
 
@@ -439,7 +439,7 @@ Nothing above is **required**, so all 878 existing specs load unchanged (C5).
 
 | Field | Type | Default | Serialized |
 |---|---|---|---|
-| `service` | object \| null | `null` | yes — `serialize()` at `link.js:56` |
+| `service` | object \| null | `null` | yes — `serialize()` at `link.js:112` |
 | `state` | `'up' \| 'down' \| 'blocked'` | `'up'` | yes (already) — **now means something** |
 
 `state` becomes authoritative in the data path, which is a behaviour change:
@@ -818,7 +818,7 @@ will not fail over.
    for UI grouping and dual-role cages (`test/port-roles.test.js` must keep
    passing untouched).
 3. **Is `service` editable after `connect()`?** Recommendation: yes, via a
-   generalised `setLinkLength()` (`topology.js:592` → `patchLink`), because
+   generalised `setLinkLength()` (`topology.js:687` → `patchLink`), because
    "I bought a faster line" is the most common change a lab needs.
 4. **Where does `E_NAT_EGRESS_MISMATCH` live before NAT is egress-aware?** It can
    only be a *prediction* while `_forwardL3` translates before routing.

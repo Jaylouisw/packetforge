@@ -83,6 +83,17 @@ function documentationFiles() {
     }));
 }
 
+// Does any line in the cited range call `sym`? One-based range, both ends inclusive. Plain string
+// search on purpose: the symbol name needs no escaping, and a regex built from it once ate itself.
+function callsSymbolOn(srcLines, a, b, sym) {
+  const bare = sym + '(', spaced = sym + ' (';
+  for (let i = Math.max(0, a - 1); i < Math.min(srcLines.length, b); i++) {
+    const line = srcLines[i];
+    if (line.indexOf(bare) !== -1 || line.indexOf(spaced) !== -1) return true;
+  }
+  return false;
+}
+
 // Judge one line of documentation. Returns null when the line cannot be judged, or { ok, ... }.
 function judgeLine(line, readFile) {
   REF.lastIndex = 0;
@@ -99,8 +110,14 @@ function judgeLine(line, readFile) {
   const def = definitionLine(src, calls[0]);
   if (!def) return null;
   const a = Number(refs[0][2]), b = refs[0][3] ? Number(refs[0][3]) : a;
-  const ok = def >= a - DRIFT && def <= b + DRIFT;
-  return { ok: ok, sym: calls[0], def: def, cited: refs[0][0], a: a, b: b, distance: Math.abs(def - a) };
+  // A citation may name a *call site* rather than the definition: `test/bgp.test.js:452` is the line
+  // that calls `mkPath()`, which is defined at line 49, so judging it against the definition called a
+  // correct citation 403 lines of drift and kept `--strict` permanently red. If the cited line itself
+  // calls the symbol, the position is right even though the symbol lives elsewhere.
+  const atCallSite = callsSymbolOn(src, a, b, calls[0]);
+  const ok = atCallSite || (def >= a - DRIFT && def <= b + DRIFT);
+  return { ok: ok, sym: calls[0], def: def, cited: refs[0][0], a: a, b: b,
+    distance: atCallSite ? 0 : Math.abs(def - a), callSite: atCallSite };
 }
 
 function run(opts) {
