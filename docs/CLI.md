@@ -312,30 +312,43 @@ autoconfigure and reports why: addresses on that network come from DHCPv6.
 
 ## Example session (two-subnet router)
 
+`Gi0/0` and `Gi0/1` are patched to a host on each subnet — `10.0.1.10` and `10.0.2.10` — and every change
+the console accepts prints what it did:
+
 ```
 Router> enable
 Router# configure terminal
 Router(config)# hostname R1
 R1(config)# interface Gi0/0
 R1(config-if)# ip address 10.0.1.1 255.255.255.0
+IP address set on Gi0/0: 10.0.1.1/24
 R1(config-if)# no shutdown
+Gi0/0 up
 R1(config-if)# exit
 R1(config)# interface Gi0/1
 R1(config-if)# ip address 10.0.2.1 255.255.255.0
+IP address set on Gi0/1: 10.0.2.1/24
 R1(config-if)# exit
 R1(config)# exit
 R1# show ip route
 Codes: C - connected, S - static, O - OSPF, B - BGP
-Gateway of last resort is 10.0.0.1 to network 0.0.0.0
 C   10.0.1.0       /24  is directly connected, Gi0/0
 C   10.0.2.0       /24  is directly connected, Gi0/1
-S*  0.0.0.0        /0  [254/0] via 10.0.0.1
 R1# ping 10.0.1.10
 Type escape sequence to abort.
 Sending 4, 100-byte ICMP Echos to 10.0.1.10, timeout is 2 seconds:
 !!!!
 Success rate is 100 percent (4/4)
+Reply from 10.0.1.10: bytes=100 time=0.002 ms
+Reply from 10.0.1.10: bytes=100 time=0.002 ms
+Reply from 10.0.1.10: bytes=100 time=0.002 ms
+Reply from 10.0.1.10: bytes=100 time=0.002 ms
 ```
+
+Only the two connected subnets are in the table because no default has been configured yet; `ip
+default-gateway` and `ip route 0.0.0.0 0.0.0.0` are the two ways to add one, and their rows — plus the
+`(down: no cable)` a port with nothing plugged into it prints beside its subnet — are in
+[Reading `show ip route`](#reading-show-ip-route).
 
 ### Reading `show ip interface brief`
 
