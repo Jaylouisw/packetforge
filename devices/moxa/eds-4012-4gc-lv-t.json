@@ -1,0 +1,201 @@
+{
+  "vendor": "moxa",
+  "model": "EDS-4012-4GC-LV-T",
+  "label": "Moxa EDS-4012-4GC-LV-T",
+  "category": "switch",
+  "description": "Moxa EDS-4012-4GC-LV-T - 12-port managed Fast Ethernet switch: eight 10/100BaseT(X) RJ45 ports plus four combo positions that take either a 10/100/1000BaseT(X) RJ45 port or a 100/1000BaseSFP cage. Layer 2 with Turbo Ring/Turbo Chain, 10.7 W maximum consumption.",
+  "capabilities": [
+    "l2-forward",
+    "vlan",
+    "lacp",
+    "stp",
+    "cli",
+    "http-server",
+    "dhcp-client",
+    "dhcp-server"
+  ],
+  "interfaces": [
+    {
+      "name": "1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M",
+      "speedCaps": [
+        10,
+        100
+      ]
+    },
+    {
+      "name": "2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M",
+      "speedCaps": [
+        10,
+        100
+      ]
+    },
+    {
+      "name": "3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M",
+      "speedCaps": [
+        10,
+        100
+      ]
+    },
+    {
+      "name": "4",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M",
+      "speedCaps": [
+        10,
+        100
+      ]
+    },
+    {
+      "name": "5",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M",
+      "speedCaps": [
+        10,
+        100
+      ]
+    },
+    {
+      "name": "6",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M",
+      "speedCaps": [
+        10,
+        100
+      ]
+    },
+    {
+      "name": "7",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M",
+      "speedCaps": [
+        10,
+        100
+      ]
+    },
+    {
+      "name": "8",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M",
+      "speedCaps": [
+        10,
+        100
+      ]
+    },
+    {
+      "name": "9",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "comboWith": "9-sfp",
+      "comboRole": "rj45"
+    },
+    {
+      "name": "9-sfp",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        100,
+        1000
+      ],
+      "comboWith": "9",
+      "comboRole": "sfp"
+    },
+    {
+      "name": "10",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "comboWith": "10-sfp",
+      "comboRole": "rj45"
+    },
+    {
+      "name": "10-sfp",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        100,
+        1000
+      ],
+      "comboWith": "10",
+      "comboRole": "sfp"
+    },
+    {
+      "name": "11",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "comboWith": "11-sfp",
+      "comboRole": "rj45"
+    },
+    {
+      "name": "11-sfp",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        100,
+        1000
+      ],
+      "comboWith": "11",
+      "comboRole": "sfp"
+    },
+    {
+      "name": "12",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "comboWith": "12-sfp",
+      "comboRole": "rj45"
+    },
+    {
+      "name": "12-sfp",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        100,
+        1000
+      ],
+      "comboWith": "12",
+      "comboRole": "sfp"
+    }
+  ],
+  "sourceUrl": "https://moxa.com/getmedia/cce69c26-4e70-4501-a297-37c022cf685a/moxa-eds-4012-series-datasheet-v1.7.pdf",
+  "notes": "Switch properties, from the same datasheet: 16 K MAC table, 9.216 KB jumbo frames, 256 VLANs (VID 1 to 4094), 512 IGMP groups, 4 priority queues, 1 MB packet buffer. Console is a front-panel RS-232 8-pin RJ45 at 115200 n 8 1 (TxD, RxD, GND) - not modelled as an interface, because a console carries no frames. One alarm relay (1 A @ 24 VDC) and one digital input, a USB Type A port marked Reserved, IP40 metal case on DIN rail, wall-mount kit optional. Power comes from a removable module: PWR-100-LV (9.6 to 60 VDC, redundant dual inputs on the -LV models) or PWR-105-HV-I (88 to 300 VDC / 85 to 264 VAC, single input), which is why the ordering name carries the module (-LV/-HV) and the chassis name does not. The datasheet publishes no switching-capacity or forwarding-rate figure at all, so no fabric is declared here rather than a number guessed from the port count. Each of the four combo positions is one cage: a copper RJ45 and an SFP socket that share a single port number (9 to 12), so only one half can be cabled at a time. Consumption 10.7 W maximum, 827 g, 55 x 140 x 120 mm, -40 to 75 C on this -T model. Firmware for the whole EDS-4000/EDS-G4000 family is Moxa's next-generation switch OS v4.x, listed as firmware v4.2 (2026-03-20) on the series download page (https://www.moxa.com/en/products/industrial-network-infrastructure/ethernet-switches/layer-2-managed-switches/eds-4012-series)."
+}

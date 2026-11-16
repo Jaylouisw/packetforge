@@ -1,0 +1,163 @@
+{
+  "vendor": "moxa",
+  "model": "EDS-4012-8P-4GS-LVA-T",
+  "label": "Moxa EDS-4012-8P-4GS-LVA-T",
+  "category": "switch",
+  "description": "Moxa EDS-4012-8P-4GS-LVA-T - 12-port managed Fast Ethernet PoE switch: eight 10/100BaseT(X) PoE ports (802.3af/at/bt, 90 W each, 240 W total budget) and four 100/1000BaseSFP cages. 13.34 W without PoE load, 48 VDC input.",
+  "capabilities": [
+    "l2-forward",
+    "vlan",
+    "lacp",
+    "stp",
+    "cli",
+    "http-server",
+    "dhcp-client",
+    "dhcp-server",
+    "poe-pse"
+  ],
+  "interfaces": [
+    {
+      "name": "1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M",
+      "speedCaps": [
+        10,
+        100
+      ],
+      "poeOut": true,
+      "poeOutClass": "PoE++"
+    },
+    {
+      "name": "2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M",
+      "speedCaps": [
+        10,
+        100
+      ],
+      "poeOut": true,
+      "poeOutClass": "PoE++"
+    },
+    {
+      "name": "3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M",
+      "speedCaps": [
+        10,
+        100
+      ],
+      "poeOut": true,
+      "poeOutClass": "PoE++"
+    },
+    {
+      "name": "4",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M",
+      "speedCaps": [
+        10,
+        100
+      ],
+      "poeOut": true,
+      "poeOutClass": "PoE++"
+    },
+    {
+      "name": "5",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M",
+      "speedCaps": [
+        10,
+        100
+      ],
+      "poeOut": true,
+      "poeOutClass": "PoE++"
+    },
+    {
+      "name": "6",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M",
+      "speedCaps": [
+        10,
+        100
+      ],
+      "poeOut": true,
+      "poeOutClass": "PoE++"
+    },
+    {
+      "name": "7",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M",
+      "speedCaps": [
+        10,
+        100
+      ],
+      "poeOut": true,
+      "poeOutClass": "PoE++"
+    },
+    {
+      "name": "8",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M",
+      "speedCaps": [
+        10,
+        100
+      ],
+      "poeOut": true,
+      "poeOutClass": "PoE++"
+    },
+    {
+      "name": "sfp9",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "sfp10",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "sfp11",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "sfp12",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        100,
+        1000
+      ]
+    }
+  ],
+  "poe": {
+    "budgetW": 240,
+    "sourceUrl": "https://moxa.com/getmedia/cce69c26-4e70-4501-a297-37c022cf685a/moxa-eds-4012-series-datasheet-v1.7.pdf",
+    "note": "The -LVA build declares 240 W for total PD power consumption at 48 VDC input; the -LVB build declares 180 W at 48 V, 150 W at 24 V (120 W on the -T build) and 62 W at 12 V. This spec is the -LVA, so 240 W. Every PoE port is an 802.3af (PoE), 802.3at (PoE+) and 802.3bt (PoE++) PSE port rated 90 W maximum per port on the datasheet, so 8 ports declare 720 W of port capability against a 240 W budget - the budget is the binding number, not the port count. PoE+ output wants more than 52 VDC on the input; the -LVA module takes 44 to 57 VDC, the -LVB module 12 to 57 VDC."
+  },
+  "sourceUrl": "https://moxa.com/getmedia/cce69c26-4e70-4501-a297-37c022cf685a/moxa-eds-4012-series-datasheet-v1.7.pdf",
+  "notes": "Switch properties, from the same datasheet: 16 K MAC table, 9.216 KB jumbo frames, 256 VLANs (VID 1 to 4094), 512 IGMP groups, 4 priority queues, 1 MB packet buffer. Console is a front-panel RS-232 8-pin RJ45 at 115200 n 8 1 (TxD, RxD, GND) - not modelled as an interface, because a console carries no frames. One alarm relay (1 A @ 24 VDC) and one digital input, a USB Type A port marked Reserved, IP40 metal case on DIN rail, wall-mount kit optional. Power comes from a removable module: PWR-100-LV (9.6 to 60 VDC, redundant dual inputs on the -LV models) or PWR-105-HV-I (88 to 300 VDC / 85 to 264 VAC, single input), which is why the ordering name carries the module (-LV/-HV) and the chassis name does not. The datasheet publishes no switching-capacity or forwarding-rate figure at all, so no fabric is declared here rather than a number guessed from the port count. All eight copper ports are PSE ports; the four SFP cages are not. Consumption 13.34 W with no PoE load (15.32 W for -LVB). 827 g, 55 x 140 x 120 mm, -40 to 75 C. Firmware for the whole EDS-4000/EDS-G4000 family is Moxa's next-generation switch OS v4.x, listed as firmware v4.2 (2026-03-20) on the series download page (https://www.moxa.com/en/products/industrial-network-infrastructure/ethernet-switches/layer-2-managed-switches/eds-4012-series)."
+}
