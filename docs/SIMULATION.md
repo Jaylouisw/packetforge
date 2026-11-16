@@ -71,10 +71,13 @@ first.
   wall clock. An entry that nothing dated — written by a fixture — never ages.
   See §3.2 and [CLI.md](CLI.md#what-the-mac-table-remembers-and-for-how-long).
 - The capability list at `engine/device.js:85-98` advertises more than the
-  engine consumes: `vlan`, `lacp`, `stp`, `poe-pse`, `poe-pd`, `firewall`,
-  `wireless`, `dhcp-server`, `dhcp-client` are never read by the forwarding
-  path. VLANs and STP apply to any `l2-forward` device whether or not it claims
-  them; see [§2](#2-ethernet-and-l2) and [§5.1](#51-dhcp--absent-from-the-data-path).
+  forwarding path consumes: `poe-pse`, `poe-pd`, `firewall`, `wireless`,
+  `dhcp-server`, `dhcp-client` are never read there. VLANs, LAGs and STP apply to
+  any `l2-forward` device whether or not it claims them, which is why `vlan`,
+  `lacp` and `stp` are no longer in the vocabulary at all (#1526) — the datasheet
+  fact stays in the spec, but nothing advertises it as behaviour. See
+  [DEVICE_SCHEMA.md](DEVICE_SCHEMA.md#capabilities), [§2](#2-ethernet-and-l2) and
+  [§5.1](#51-dhcp--absent-from-the-data-path).
 
 **Absent**
 
@@ -578,7 +581,7 @@ i.e. configuring them is decoration:
 - LAG `mode` (`engine/lag.js:217`) — validated, then ignored.
 - `voiceVlan` (`engine/vlan.js:13`).
 - `iface.dhcp` (`engine/cli.js:307`).
-- Capabilities `firewall`, `wireless`, `dhcp-server`, `dhcp-client`, and the tokens `vlan`/`lacp`/`stp` (`engine/device.js:85-98`).
+- Capabilities `firewall`, `wireless`, `dhcp-server` and `dhcp-client` (`engine/device.js:85-98`). The tokens `vlan`/`lacp`/`stp` used to be listed here and are no longer capabilities at all (#1526).
 - RA valid/preferred lifetimes (`engine/simulator.js:1054`).
 
 ---

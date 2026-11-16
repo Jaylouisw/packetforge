@@ -102,18 +102,27 @@ class Interface {
   }
 }
 
+// A capability is a promise the engine keeps: every token here is read somewhere in `engine/`
+// (hasCap, _capabilityRefusal, a capability indexOf, or a SERVICE_PORTS entry). `test/capability-vocabulary.test.js`
+// holds that line, so a token cannot be advertised and then honoured by nobody.
+//
+// `vlan`, `lacp` and `stp` used to sit here, documented as behaviour ("supports 802.1Q") while no code
+// read them: VLANs, LAGs and spanning tree run on every `l2-forward` box, so the token was true for 125 specs
+// and false for 1,143 that behave identically (#1526). The datasheet facts are still kept in those specs - the
+// importer names an unknown token and preserves it (#1522) - they are simply no longer advertised as engine
+// behaviour. Gating the features on them instead would have switched VLANs off for almost the whole catalogue.
+//
+// `dhcp-client`, `firewall` and `wireless` are the remaining documented-but-unread tokens, each waiting on its
+// own decision (#1526). They are listed in that test as pending rather than concealed.
 const CAPABILITIES = [
   'host',         // end device: terminates packets, responds to ARP/ICMP
   'l2-forward',   // bridge/switch: MAC learning + flooding
   'l3-forward',   // router: IP forwarding between subnets
   'cli',          // exposes a management console
   'dhcp-server', 'dhcp-client', 'nat', 'firewall', 'wireless', 'http-server',
-  // physical / L2 feature tokens
+  // physical feature tokens
   'poe-pse',      // can source PoE
-  'poe-pd',       // is powered by PoE
-  'vlan',         // supports 802.1Q
-  'lacp',         // supports link aggregation
-  'stp'           // participates in spanning tree
+  'poe-pd'        // is powered by PoE
 ];
 
 // The physical facts a device was built from, minus the ones the document already states at the top level.

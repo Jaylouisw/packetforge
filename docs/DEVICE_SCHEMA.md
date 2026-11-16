@@ -48,7 +48,10 @@ optical splits — a different device with a different failure mode.
 ### Capabilities
 
 The list is `CAPABILITIES` in `engine/device.js`, and the importer imports it rather than
-keeping a copy — so what follows is the set of tokens the simulator actually branches on.
+keeping a copy — so what follows is the vocabulary the engine honours. Every token in it is read
+somewhere under `engine/`; `test/capability-vocabulary.test.js` is what keeps that true. Three
+tokens are still declared without a reader — `dhcp-client`, `firewall` and `wireless` — and that
+test names them as pending decisions (#1526) rather than letting them pass for behaviour.
 
 | capability | means |
 |---|---|
@@ -63,9 +66,6 @@ keeping a copy — so what follows is the set of tokens the simulator actually b
 | `host` | is an endpoint: it can originate and terminate traffic |
 | `poe-pse` | can source power on its ports |
 | `poe-pd` | is powered by PoE |
-| `vlan` | speaks 802.1Q |
-| `lacp` | aggregates links |
-| `stp` | participates in spanning tree |
 
 A token that is not in that list is **kept**, exactly as the source declared it, and named in
 the run:
@@ -73,7 +73,7 @@ the run:
 ```
 1 spec(s) had warnings (still imported):
   - aruba/2540-48g-poe
-      capability "802.3at" is not one of the 15 capabilities engine/device.js implements;
+      capability "802.3at" is not one of the 12 capabilities engine/device.js implements;
       kept as declared, so the simulator ignores it
 ```
 
@@ -81,8 +81,12 @@ Kept, because the spec is a record of the hardware and a token the datasheet dec
 — dropping it is data loss, and it used to happen without a word (#1522). Named, because the
 engine will not honour it and the run must not call that clean. `802.3af`, `802.3at`, `802.3bt`,
 `poe-injector`, `passive-poe` and `midspan` are in this class today: real power facts with no
-behaviour behind them. If one of them should grant behaviour, it belongs in `CAPABILITIES` and
-in the code that branches on it, not in a second list here.
+behaviour behind them. `vlan`, `lacp` and `stp` joined them (#1526): 125 specs state 802.1Q,
+LACP or STP because their datasheets do, but the engine runs VLANs, LAGs and spanning tree on
+any `l2-forward` box, so the token is a hardware fact rather than behaviour — gating the
+features on it would have switched VLANs off for almost the whole catalogue. If one of these
+should grant behaviour, it belongs in `CAPABILITIES` and in the code that branches on it, not
+in a second list here.
 
 A capability that is not in that list but is within edit distance 2 of one is refused with
 `capability "x" looks like a typo of "y"` rather than silently dropped, because a misspelt

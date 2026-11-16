@@ -4,6 +4,11 @@ Status: forward plan, no code. Closes #1526. Touches `docs/DEVICE_SCHEMA.md`, `e
 `scripts/import-devices.js`, `devices/ruijie/*`, tests. No engine behaviour change is proposed
 without its own PR.
 
+**Landed 2026-11-16:** step 5's `vlan`/`lacp`/`stp` decision — the three are out of
+`CAPABILITIES` and documented as descriptive facts, guarded by `test/capability-vocabulary.test.js`.
+The catalogue is larger than this plan assumed: 125 specs declare the three, not six, and their
+declarations are kept (the importer names an unknown token rather than dropping it, #1522).
+
 ## What exists today
 
 `CAPABILITIES` is a single literal array of 15 tokens at `engine/device.js:104-118`, exported

@@ -9,7 +9,9 @@
 //
 //   1. The vocabulary is the engine's. Not an equal-looking copy: the engine's own list, so a
 //      change there reaches this script without anyone remembering to edit a second copy.
-//   2. A token the engine implements survives the import, including the three it used to eat.
+//   2. A token the engine implements survives the import, and a datasheet fact the engine does
+//      not implement - which is what `vlan`, `lacp` and `stp` became in #1526, the three it used
+//      to eat - is kept and named rather than dropped.
 //   3. A token the engine does not implement is named, with its model, rather than counted as
 //      a "minor warning" and forgotten - and it is kept, because dropping it is data loss.
 //
@@ -91,12 +93,12 @@ console.log('The importer does not own the capability vocabulary:');
     'a researcher\'s word for it still maps onto the engine\'s word for it');
 }
 
-console.log('\nA switch that says it does 802.1Q, LACP and STP keeps saying it:');
+console.log('\nA switch that declares capabilities the engine honours keeps every one of them:');
 {
-  const declared = ['l2-forward', 'l3-forward', 'cli', 'vlan', 'lacp', 'stp'];
+  const declared = ['l2-forward', 'l3-forward', 'cli', 'poe-pse', 'dhcp-client'];
   const dir = fixture('stacked-switch', [{
     vendor: 'acme', model: 'SW-24G', label: 'Acme SW-24G', category: 'switch',
-    description: '24-port managed gigabit switch with 802.1Q, LACP and STP',
+    description: '24-port managed gigabit switch with PoE and a DHCP client',
     capabilities: declared, interfaces: PORTS
   }]);
   const r = run(dir, ['--apply']);
@@ -109,6 +111,29 @@ console.log('\nA switch that says it does 802.1Q, LACP and STP keeps saying it:'
   ok(got.length === declared.length, 'and nothing was added to it (' + got.length + ' of ' + declared.length + ')');
   ok(!spec || spec.role === undefined, 'no capability was moved into role');
   ok(!/warnings|REFUSED/.test(r.out), 'and the run does not report a capability problem');
+}
+
+console.log('\nA datasheet fact outside the vocabulary is kept and named, not stripped:');
+{
+  // `vlan`, `lacp` and `stp` were the three the importer's own smaller copy used to eat (#1522).
+  // They are now descriptive tokens (#1526) - the same class as `802.3at` - so what has to hold
+  // is that the declaration survives and is named on the way in, not that it is honoured.
+  const declared = ['l2-forward', 'vlan', 'lacp', 'stp'];
+  const dir = fixture('retired-tokens', [{
+    vendor: 'acme', model: 'SW-48G', label: 'Acme SW-48G', category: 'switch',
+    description: '48-port managed gigabit switch with 802.1Q, LACP and STP',
+    capabilities: declared, interfaces: PORTS
+  }]);
+  const r = run(dir, ['--apply']);
+  const spec = written(dir, 'acme', 'sw-48g');
+  ok(r.code === 0, 'the import succeeds');
+  const got = (spec && spec.capabilities) || [];
+  const missing = declared.filter(function (c) { return got.indexOf(c) === -1; });
+  ok(missing.length === 0, 'every declared token is still in the file, honoured or not', missing.join(','));
+  ok(!spec || spec.role === undefined, 'none of them was moved into role');
+  ok(['vlan', 'lacp', 'stp'].every(function (t) { return new RegExp(t).test(r.out); }),
+    'and the run names all three as tokens the engine does not implement');
+  ok(!/REFUSED/.test(r.out), 'without refusing the device');
 }
 
 console.log('\nA token the engine does not implement is named, not counted and forgotten:');
@@ -168,10 +193,10 @@ console.log('\nNothing is allowed to leave the importer less capable than it arr
   // write path has something honest to compare against.
   const spec = {
     vendor: 'acme', model: 'SW-8', category: 'switch', description: 'switch',
-    capabilities: ['l2-forward', 'vlan', 'lacp', 'stp', '802.3at'], interfaces: PORTS
+    capabilities: ['l2-forward', 'cli', 'poe-pse', 'poe-pd', '802.3at'], interfaces: PORTS
   };
   const v = importer.validateSpec(JSON.parse(JSON.stringify(spec)));
-  ok(v.ok, 'a spec declaring the stripped three validates');
+  ok(v.ok, 'a spec declaring an unknown power token validates');
   ok(v.declared.length === 5 && spec.capabilities.every(function (c) { return v.declared.indexOf(c) !== -1; }),
     'declared is all five tokens, unknown one included', v.declared.join(','));
   ok(v.described.join(',') === '802.3at', 'and only the token the engine lacks is marked as described');
