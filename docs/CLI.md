@@ -1748,12 +1748,14 @@ Lists every process on every device with the instant it finishes, and the lab's 
 time. With an instant — a bare number of milliseconds, `converge 10000` — anything still pending is
 marked `(pending)`.
 
-The instant has **no `at` keyword**, unlike `link down <id> at <ms>`. This page and `help` both said
-`converge [at <ms>]`; `_converge()` (`engine/cli.js:2719`) reads `Number(tokens[0])` and nothing
-else, so `converge at 10000` hands it the word `at`, `NaN` suppresses the pending mark on every row,
-and the answer is the one you get with no instant at all - the `(pending)` column is missing rather
-than the command failing, which is why the wrong form stayed in the text. The fix belongs in the
-parser (take `at` the way `link` does); until it lands, this line names the spelling that works.
+The instant has **no `at` keyword**, unlike `link down <id> at <ms>`. This page said `converge [at
+<ms>]` too; `_converge()` (`engine/cli.js:2820`) reads `Number(tokens[0])` and nothing else, so
+`converge at 10000` hands it the word `at`, `NaN` suppresses the pending mark on every row, and the
+answer is the one you get with no instant at all - the `(pending)` column is missing rather than the
+command failing, which is why the wrong form stayed in the text. The index still carries it: the
+`help` output advertises `converge [at <ms>]` (engine/cli.js:4978), so a reader who asks the box
+instead of this page is taught the spelling that quietly does nothing. The fix belongs in the parser
+(take `at` the way `link` does); until it lands, this line names the spelling that works.
 
 ## DHCP server
 
