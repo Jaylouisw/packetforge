@@ -187,8 +187,6 @@ jobs:
           esac
           echo "::error title=Test (Node ${want})::this leg is running ${got} - it would report coverage for a runtime it never tested"
           exit 1
-      - name: Syntax check (all JS)
-        run: node scripts/syntax-check.js
       - name: No control bytes in source
         run: node scripts/check-control-bytes.js
       - name: No API newer than the Node 18 floor
@@ -206,7 +204,23 @@ jobs:
         # full" - it refused pushes with `couldn't set 'refs/heads/...'` and stopped creating the
         # jobs that carry `needs:`, so pull requests sat armed against checks that did not exist.
         run: node scripts/check-ci-disk-hygiene.js
-      - name: Full test suite
+      # The syntax check used to be its own step in the middle of the static checks, and
+      # it sat in front of the suite for no reason. It is one `node --check` process per file, 339 of them, one
+      # after another: measured in the runner image on this host (node:20-bookworm,
+      # 2026-11-16) 18.6 s, against 46.4 s for the suite at PF_TEST_CONCURRENCY=4. Two
+      # costs with nothing in common - process spawns against actual tests - run end to
+      # end in every leg, so every leg paid 65.0 s where 51.9 s does the same work.
+      #
+      # They now run at once and the step waits for both. Coverage is identical: every
+      # file is still syntax-checked, in all three legs, on the runtime that leg is named
+      # for. The cost is that a syntax error is reported when the suite finishes rather
+      # than in the first two seconds - the leg is red either way, and it is the second
+      # red that a pull request actually waits for.
+      #
+      # Both exit codes are collected before either is acted on: a `set -e` here would
+      # let the first failure hide the other check's result, which is the difference
+      # between "the syntax is broken" and "the syntax is broken and the suite is too".
+      - name: Full test suite and syntax check, together
         # 200 s per leg, three legs, two runner slots: the suite is the whole wall clock of
         # a pull request, and it was running 257 separate processes one at a time on one
         # core. The runner now takes `PF_TEST_CONCURRENCY` (default 1, so a local `npm
@@ -220,7 +234,26 @@ jobs:
         # node processes fighting for the same cores, and the curve is already flat there.
         env:
           PF_TEST_CONCURRENCY: 4
-        run: npm test
+        run: |
+          set -u
+          # Outside the working tree: a log file in the repo root is one more thing a
+          # later step might trip over, and nothing here needs to read it back.
+          out="${RUNNER_TEMP:-/tmp}/syntax-check.log"
+          node scripts/syntax-check.js > "$out" 2>&1 &
+          syntax_pid=$!
+          npm test
+          test_rc=$?
+          wait "$syntax_pid"
+          syntax_rc=$?
+          echo "--- node scripts/syntax-check.js ---"
+          cat "$out"
+          if [ "$syntax_rc" -ne 0 ]; then
+            echo "::error title=Syntax check (all JS)::node scripts/syntax-check.js exited ${syntax_rc}"
+          fi
+          if [ "$test_rc" -ne 0 ]; then
+            echo "::error title=Full test suite::npm test exited ${test_rc}"
+          fi
+          [ "$test_rc" -eq 0 ] && [ "$syntax_rc" -eq 0 ]
       - name: Build & verify example labs
         run: node examples/build-examples.js
       - name: Every lab model exists in the catalogue
