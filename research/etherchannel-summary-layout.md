@@ -16,6 +16,7 @@ was missing or invented:
 | Port-channel cell | `Po1(SU)` (L2 + in use), `Po1(SD)` when down | absent | `Po<N>(SU)` / `Po<N>(SD)` |
 | Protocol cell | `LACP`, `PAgP`, or `-` for `mode on` | `LACP (active)`, `Static` | `LACP`, or `-` |
 | Member cells | `(P)`, `(D)`, `(H)`, `(w)` | `(P)`, `(D)` | unchanged |
+| No group at all | the key, two zeros, the header, the rule, no rows | `% No link aggregation groups configured` | the same table with no rows |
 
 ## What the device prints
 
@@ -129,16 +130,55 @@ static bundles and, on the same page, a bundle with no live member reading `Po26
 
 ## What is unresolved, and what would settle it
 
-- **A device with no channel group.** This model prints `% No link aggregation groups configured`. No
-  transcript was found for `show etherchannel summary` on a box with zero groups: some releases print the
-  key and two zeros with an empty table, some print nothing at all. A capture from a factory-default
-  Catalyst 9200/9300 would settle it. Until then the existing sentence stays — it is honest about what the
-  box knows, where an empty table would be an invention.
 - **`show etherchannel <n> summary`.** A real box accepts a group number, and this console refuses any
   argument (`show etherchannel 1` answers `does not take "1"`). That is a separate question about which
   arguments the view takes, and it is not answered here.
 - **`brief`, `detail`, `port`, `load-balance`.** All of them print the summary. On a box they are different
   views. Not this question.
+
+## A device with no channel group — settled, and it contradicted what this note first said
+
+The first version of this note left the zero-group case unresolved and kept
+`% No link aggregation groups configured`, on the argument that an empty table would be an invention. Two
+transcripts later, that sentence looks like the invention.
+
+**Cisco, "Recover Errdisable Port State on Cisco IOS Platforms"** — its EtherChannel counterexample is a
+Catalyst 6500 whose channel group has been torn down, so `show etherchannel summary` finds none in use
+(<https://www.cisco.com/c/en/us/support/docs/lan-switching/spanning-tree-protocol/69980-errdisable-recovery.html>):
+
+```
+cat6k# show etherchannel summary
+Flags: D - down P - in port-channel
+I - stand-alone s - suspended
+H - Hot-standby (LACP only)
+R - Layer3 S - Layer2
+U - in use f - failed to allocate aggregator
+u - unsuitable for bundling
+Number of channel-groups in use: 0
+Number of aggregators: 0
+Group Port-channel Protocol Ports
+------+-------------+-----------+-----------------------------------------------
+```
+
+The key is printed, both counts read 0, the header and the rule follow — and there is no row. The command
+answers with a table that has nothing in it, not with an error.
+
+**A community thread on Cisco's own forum** shows the same shape on a second switch, again with no rows
+(`ICC#sh ether summary`, both counts 0, then `Group Port-channel Protocol Ports`) — in a post otherwise
+about a working two-member bundle, which makes it a real capture rather than a paraphrase
+(<https://community.cisco.com/t5/switching/understanding-port-channeling/td-p/2290842>).
+
+A search for `"% No link aggregation groups configured"` returns no Cisco document, no transcript and no
+forum post: the sentence this console printed has no source.
+
+**Adopted:** the key, the two counts (`0` and `0`), the header and the rule are printed whether or not
+there are groups; only the rows are conditional. The legend wording stays the model's own (`P - bundled in
+port-channel`, the IOS XE form rather than the older `P - in port-channel` the 6500 transcript uses), since
+that choice was already made for the populated table and a platform model should not print two keys.
+
+**Still unaccounted for:** the note cannot say how a platform with no EtherChannel support at all answers
+(an invalid-input error rather than an empty table). Every device in the catalogue that offers this view
+offers channel groups too, so the question does not arise here yet.
 
 ## What changed in the engine
 

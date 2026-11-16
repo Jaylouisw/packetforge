@@ -4276,9 +4276,7 @@ class CliSession {
       // Bundle ids are numbers and a technician reads that column as a list; `sort()` on the keys gave
       // `10, 100, 2`. `show access-lists` already sorts with a numeric comparator (#1510).
       const ids = Object.keys(lags).sort(function (a, b) { return Number(a) - Number(b); });
-      if (!ids.length) {
-        out.push('% No link aggregation groups configured');
-      } else {
+      {
         const lagLib = require('./lag');
         // The key comes before the table, and the two counts after it, because a summary without them is a
         // table of numbers with no legend and no total (#1620).
@@ -4288,6 +4286,13 @@ class CliSession {
         const countsLabel = 'Number of channel-groups in use: ';
         out.push(countsLabel + ids.length);
         out.push(pad('Number of aggregators:', countsLabel.length) + ids.length);
+        // A box with no groups prints the key, two zeros, the header and the rule, and stops: the furniture
+        // is not part of the answer that has nothing in it. This console used to answer
+        // `% No link aggregation groups configured` - a sentence no IOS prints - which hid the view behind an
+        // error and disagreed with a real empty box (research/etherchannel-summary-layout.md). Cisco's own
+        // errdisable recovery document opens its port-channel example with exactly this empty table
+        // (cat6k# show etherchannel summary, both counts 0, no rows), as does the community transcript
+        // quoted in the note.
         out.push(ETHERCHANNEL_HEADER);
         out.push(ETHERCHANNEL_RULE);
         for (const id of ids) {

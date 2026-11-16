@@ -195,14 +195,32 @@ console.log('Two groups, counted:');
 }
 
 console.log('');
-console.log('A device with no bundle says so, and prints no table of nothing:');
+// A box with no channel groups still prints the view. Cisco's errdisable recovery document opens its
+// port-channel example with a 6500 that has no groups in use - the nine-line key, both counts at 0, the
+// header and the rule - and no rows under it (cat6k# show etherchannel summary,
+// <https://www.cisco.com/c/en/us/support/docs/lan-switching/spanning-tree-protocol/69980-errdisable-recovery.html>).
+// The community transcript in research/etherchannel-summary-layout.md shows the same table on a second
+// switch. This console answered `% No link aggregation groups configured` instead: an error sentence no IOS
+// prints, which reported an empty view as a refusal.
+console.log('A device with no bundle prints the view with nothing in it, not an error sentence:');
 {
   const t = new Topology();
   const sw = t.addDevice(SWITCH, 'lonely');
   const s = new CliSession(sw, t, new Simulator(t));
   const lines = ((s.run('show etherchannel summary').output) || []).map(String);
-  ok(lines.length === 1 && lines[0].indexOf('% No link aggregation groups configured') === 0,
-    'one sentence, on the same pattern as the other empty views', JSON.stringify(lines));
+  ok(lines.length === 13, 'the key, the two counts, the header and the rule - thirteen lines, no rows',
+    JSON.stringify(lines));
+  ok(lines[0] === 'Flags:  D - down        P - bundled in port-channel' && lines[8] === '        d - default port',
+    'the key is the same nine lines it prints over a populated table', JSON.stringify(lines.slice(0, 9)));
+  ok(lines[9] === 'Number of channel-groups in use: 0', 'the first count is zero', lines[9]);
+  ok(/^Number of aggregators: +0$/.test(lines[10]) && lines[10].length === lines[9].length,
+    'and so is the second, ending in the same column', JSON.stringify(lines[10]));
+  ok(lines[11] === 'Group  Port-channel  Protocol    Ports', 'the header is printed with no row under it',
+    lines[11]);
+  ok(lines[12] === '------+-------------+-----------+-----------------------------------------------',
+    'and the rule under the header', lines[12]);
+  ok(lines.every(function (l) { return l.indexOf('% ') !== 0; }), 'no line reports the view as an error',
+    JSON.stringify(lines));
 }
 
 console.log('');

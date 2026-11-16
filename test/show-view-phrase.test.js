@@ -135,8 +135,15 @@ console.log('A device with no bundle answers both spellings the same way:');
   const s = session(ROUTER);
   ok(eq(s.cli.run('show port-channel summary').output, s.cli.run('show etherchannel summary').output),
     'an empty answer is the same sentence under both names', s.cli.run('show port-channel summary').output.join(' | '));
-  ok(/No link aggregation groups configured/.test(s.cli.run('show port-channel summary').output[0]),
-    'and it says what it means', s.cli.run('show port-channel summary').output[0]);
+  // The empty answer is the device's own empty table, not an error sentence (see
+  // research/etherchannel-summary-layout.md): a box with no channel groups prints the key, two zeros, the
+  // header and the rule, and stops.
+  const empty = s.cli.run('show port-channel summary').output.map(String);
+  ok(empty.join(' ').indexOf('Number of channel-groups in use: 0') !== -1 &&
+    /------\+-+\+-+\+-+$/.test(empty[empty.length - 1]),
+    'and it is an empty table that ends at the rule', empty.join(' | '));
+  ok(empty.every(function (l) { return l.indexOf('% ') !== 0; }),
+    'with nothing in it reported as an error', empty.join(' | '));
 }
 
 console.log('');

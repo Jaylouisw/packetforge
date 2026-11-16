@@ -1239,6 +1239,12 @@ place where the device is **not** self-consistent: the header spends 14 columns 
 `Protocol`, a row spends 16 and 10, so `Protocol` sits two columns left of `LACP` while `Ports` and the member
 list both start at column 33. That drift is the box's, and lining it up would be tidier than the box.
 
+With no channel groups the same four pieces print and nothing follows them: both counts read `0`, then the
+header and the rule, and no row. This console used to answer `% No link aggregation groups configured` — a
+sentence no IOS prints, and one that turned an empty view into an error. A device with nothing in a view still
+answers with the view: Cisco's errdisable recovery document opens its port-channel example with a 6500 that has
+no groups in use and prints exactly this empty table (`research/etherchannel-summary-layout.md`).
+
 `Po1(SU)` is the bundle's own flags: `S` Layer2, and `U` in use or `D` down — `Po1(SD)` when no member can
 carry a frame, which is the row above saying the same thing about the group as `(D)` says about a member.
 
