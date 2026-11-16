@@ -1,0 +1,408 @@
+[
+  {
+    "vendor": "huawei",
+    "model": "netengine-8000-m4",
+    "label": "Huawei NetEngine 8000 M4 (CR8PM4BASDC6)",
+    "category": "router",
+    "description": "NetEngine 8000 M4 2U fixed-port metro aggregation router, quoted in its default port mode: 36 service cages - 4x 100GE/50GE/40GE QSFP28 (0-3, the only ports that break out to 4x25GE or 4x10GE), 16x GE SFP28 (4-19) and 16x 25GE/10GE SFP28 (20-35) - plus four DC PIC slots that are empty in this entry. 1.2 Tbit/s system capacity per the M4 datasheet, 283.4 W typical.",
+    "capabilities": [
+      "l3-forward",
+      "l2-forward",
+      "cli",
+      "http-server",
+      "nat",
+      "firewall",
+      "dhcp-server"
+    ],
+    "interfaces": [
+      {
+        "name": "100ge0",
+        "type": "ethernet",
+        "connector": "qsfp28",
+        "speed": "100G",
+        "speedCaps": [
+          100000,
+          50000,
+          40000
+        ]
+      },
+      {
+        "name": "100ge1",
+        "type": "ethernet",
+        "connector": "qsfp28",
+        "speed": "100G",
+        "speedCaps": [
+          100000,
+          50000,
+          40000
+        ]
+      },
+      {
+        "name": "100ge2",
+        "type": "ethernet",
+        "connector": "qsfp28",
+        "speed": "100G",
+        "speedCaps": [
+          100000,
+          50000,
+          40000
+        ]
+      },
+      {
+        "name": "100ge3",
+        "type": "ethernet",
+        "connector": "qsfp28",
+        "speed": "100G",
+        "speedCaps": [
+          100000,
+          50000,
+          40000
+        ]
+      },
+      {
+        "name": "ge4",
+        "type": "ethernet",
+        "connector": "sfp28",
+        "speed": "1G",
+        "speedCaps": [
+          25000,
+          10000,
+          1000
+        ]
+      },
+      {
+        "name": "ge5",
+        "type": "ethernet",
+        "connector": "sfp28",
+        "speed": "1G",
+        "speedCaps": [
+          25000,
+          10000,
+          1000
+        ]
+      },
+      {
+        "name": "ge6",
+        "type": "ethernet",
+        "connector": "sfp28",
+        "speed": "1G",
+        "speedCaps": [
+          25000,
+          10000,
+          1000
+        ]
+      },
+      {
+        "name": "ge7",
+        "type": "ethernet",
+        "connector": "sfp28",
+        "speed": "1G",
+        "speedCaps": [
+          25000,
+          10000,
+          1000
+        ]
+      },
+      {
+        "name": "ge8",
+        "type": "ethernet",
+        "connector": "sfp28",
+        "speed": "1G",
+        "speedCaps": [
+          25000,
+          10000,
+          1000
+        ]
+      },
+      {
+        "name": "ge9",
+        "type": "ethernet",
+        "connector": "sfp28",
+        "speed": "1G",
+        "speedCaps": [
+          25000,
+          10000,
+          1000
+        ]
+      },
+      {
+        "name": "ge10",
+        "type": "ethernet",
+        "connector": "sfp28",
+        "speed": "1G",
+        "speedCaps": [
+          25000,
+          10000,
+          1000
+        ]
+      },
+      {
+        "name": "ge11",
+        "type": "ethernet",
+        "connector": "sfp28",
+        "speed": "1G",
+        "speedCaps": [
+          25000,
+          10000,
+          1000
+        ]
+      },
+      {
+        "name": "ge12",
+        "type": "ethernet",
+        "connector": "sfp28",
+        "speed": "1G",
+        "speedCaps": [
+          25000,
+          10000,
+          1000
+        ]
+      },
+      {
+        "name": "ge13",
+        "type": "ethernet",
+        "connector": "sfp28",
+        "speed": "1G",
+        "speedCaps": [
+          25000,
+          10000,
+          1000
+        ]
+      },
+      {
+        "name": "ge14",
+        "type": "ethernet",
+        "connector": "sfp28",
+        "speed": "1G",
+        "speedCaps": [
+          25000,
+          10000,
+          1000
+        ]
+      },
+      {
+        "name": "ge15",
+        "type": "ethernet",
+        "connector": "sfp28",
+        "speed": "1G",
+        "speedCaps": [
+          25000,
+          10000,
+          1000
+        ]
+      },
+      {
+        "name": "ge16",
+        "type": "ethernet",
+        "connector": "sfp28",
+        "speed": "1G",
+        "speedCaps": [
+          25000,
+          10000,
+          1000
+        ]
+      },
+      {
+        "name": "ge17",
+        "type": "ethernet",
+        "connector": "sfp28",
+        "speed": "1G",
+        "speedCaps": [
+          25000,
+          10000,
+          1000
+        ]
+      },
+      {
+        "name": "ge18",
+        "type": "ethernet",
+        "connector": "sfp28",
+        "speed": "1G",
+        "speedCaps": [
+          25000,
+          10000,
+          1000
+        ]
+      },
+      {
+        "name": "ge19",
+        "type": "ethernet",
+        "connector": "sfp28",
+        "speed": "1G",
+        "speedCaps": [
+          25000,
+          10000,
+          1000
+        ]
+      },
+      {
+        "name": "25ge20",
+        "type": "ethernet",
+        "connector": "sfp28",
+        "speed": "25G",
+        "speedCaps": [
+          25000,
+          10000
+        ]
+      },
+      {
+        "name": "25ge21",
+        "type": "ethernet",
+        "connector": "sfp28",
+        "speed": "25G",
+        "speedCaps": [
+          25000,
+          10000
+        ]
+      },
+      {
+        "name": "25ge22",
+        "type": "ethernet",
+        "connector": "sfp28",
+        "speed": "25G",
+        "speedCaps": [
+          25000,
+          10000
+        ]
+      },
+      {
+        "name": "25ge23",
+        "type": "ethernet",
+        "connector": "sfp28",
+        "speed": "25G",
+        "speedCaps": [
+          25000,
+          10000
+        ]
+      },
+      {
+        "name": "25ge24",
+        "type": "ethernet",
+        "connector": "sfp28",
+        "speed": "25G",
+        "speedCaps": [
+          25000,
+          10000
+        ]
+      },
+      {
+        "name": "25ge25",
+        "type": "ethernet",
+        "connector": "sfp28",
+        "speed": "25G",
+        "speedCaps": [
+          25000,
+          10000
+        ]
+      },
+      {
+        "name": "25ge26",
+        "type": "ethernet",
+        "connector": "sfp28",
+        "speed": "25G",
+        "speedCaps": [
+          25000,
+          10000
+        ]
+      },
+      {
+        "name": "25ge27",
+        "type": "ethernet",
+        "connector": "sfp28",
+        "speed": "25G",
+        "speedCaps": [
+          25000,
+          10000
+        ]
+      },
+      {
+        "name": "25ge28",
+        "type": "ethernet",
+        "connector": "sfp28",
+        "speed": "25G",
+        "speedCaps": [
+          25000,
+          10000
+        ]
+      },
+      {
+        "name": "25ge29",
+        "type": "ethernet",
+        "connector": "sfp28",
+        "speed": "25G",
+        "speedCaps": [
+          25000,
+          10000
+        ]
+      },
+      {
+        "name": "25ge30",
+        "type": "ethernet",
+        "connector": "sfp28",
+        "speed": "25G",
+        "speedCaps": [
+          25000,
+          10000
+        ]
+      },
+      {
+        "name": "25ge31",
+        "type": "ethernet",
+        "connector": "sfp28",
+        "speed": "25G",
+        "speedCaps": [
+          25000,
+          10000
+        ]
+      },
+      {
+        "name": "25ge32",
+        "type": "ethernet",
+        "connector": "sfp28",
+        "speed": "25G",
+        "speedCaps": [
+          25000,
+          10000
+        ]
+      },
+      {
+        "name": "25ge33",
+        "type": "ethernet",
+        "connector": "sfp28",
+        "speed": "25G",
+        "speedCaps": [
+          25000,
+          10000
+        ]
+      },
+      {
+        "name": "25ge34",
+        "type": "ethernet",
+        "connector": "sfp28",
+        "speed": "25G",
+        "speedCaps": [
+          25000,
+          10000
+        ]
+      },
+      {
+        "name": "25ge35",
+        "type": "ethernet",
+        "connector": "sfp28",
+        "speed": "25G",
+        "speedCaps": [
+          25000,
+          10000
+        ]
+      }
+    ],
+    "notes": "Huawei figures for the NetEngine 8000 M4 chassis (CR8PM4BASDC2/CR8PM4BASDC6 DC, CR8PM4BASAC2/CR8PM4BASAC6 AC). Ports on the M4 panel, from the V800R024C10SPC500 hardware description: 0-3 are QSFP28 carrying 100GE/50GE/40GE and are the only ports that break out (4x25GE or 4x10GE per port); 4-19 are SFP28 for 25GE/10GE/GE; 20-35 are SFP28 for 25GE/10GE only (no 1GE mode). The port list here is the datasheet's DEFAULT combination, 'Type 1': 4x100GE/50GE/40GE + 16xGE + 16x25GE/10GE. The fixed panel is re-partitioned by port group, not per port - four groups of one QSFP28 plus four SFP28 whose mode changes together (group 1 = ports 0/4/6/8/10, group 2 = 1/5/7/9/11, group 3 = 2/12/14/16/18, group 4 = 3/13/15/17/19) - so the same hardware is also 16x25GE breakout + 16xGE + 16x25GE/10GE (Type 2), 4x50GE or 4x40GE + 16x10GE/GE + 16x25GE/10GE (Types 3 and 4), 16x10GE breakout + 16x10GE/GE + 16x25GE/10GE (Type 5) or 32x25GE/10GE (Type 6). The 36 fixed cages are the whole panel; the DC chassis adds four PIC slots (AC: two) which are empty in this entry, so the catalogue's 36 ports are the fixed ports and not the device maximum of 116 physical ports / 12x100GE / 12x50GE that the hardware description quotes for a fully loaded chassis. PIC options at V800R022: 1x400GE QSFP-DD, 2x100GE/50GE, 2x50GE, 4x25GE/10GE, 10x10GE/GE, 10xGE/FE, plus a VSUP-100 CGNAT/IPSec card. Management is separate from the data ports: ETH/OAM RJ45 (10M/100M, doubles as the console), CLK/TOD/RS-485 RJ45, ALMI alarm-in RJ45 and a reserved USB Type-C - none modelled here. Clock (1588v2, G.8275.1, 1588 ACR, SyncE) is supported on the fixed ports only. Capacity discrepancy worth stating: the M4 datasheet and brochure give the system capacity as 1.2 Tbit/s, while Huawei's current NetEngine 8000 series specification table lists the M4 at 2.4 Tbit/s switching / 405 Mpps. Both are Huawei documents and they disagree; no fabric is declared here because the two figures differ by 2x. Chassis: 2U, 442 x 220 x 88.4 mm (220 mm deep), 10.4 kg fully configured, 283.4 W typical, 2 power modules 1+1, first supported version V800R022C00SPC600.",
+    "sourceUrl": "https://support.huawei.com/enterprise/en/doc/EDOC1100465701/ed7ab88b/netengine-8000-m4",
+    "aliases": [
+      "NE8000 M4",
+      "CR8PM4BASDC0",
+      "CR8PM4BASDC6",
+      "CR8PM4BASAC6"
+    ]
+  }
+]
