@@ -27,7 +27,7 @@ could never pass.
 
 ## What a pull request goes through
 
-Five checks, all required before a merge:
+Five checks on a code change, all required before a merge. A **data-only** diff is gated on the three test legs only — `smoke` and `docker` are skipped for it (*What runs, and why a device PR runs less of it*, below):
 
 | Check | Catches |
 |---|---|
@@ -267,15 +267,24 @@ empty block.
 `ci.yml` starts with a **`Classify the change`** job. It diffs the pull request against its
 base and answers one question: can this diff change runtime behaviour?
 
-| the diff touches | Node matrix | smoke test | Docker build |
+| the diff touches | `Test (Node 18/20/22)` | `Server smoke test` | `Docker build` |
 |---|---|---|---|
-| only `devices/**/*.json`, `docs/*.md`, `research/*.json`, top-level `*.md` | **Node 20 only** | skipped | skipped |
-| anything else (scripts, tests, workflows, server, engine, web, config) | 18 / 20 / 22 | yes | yes |
+| only `devices/**/*.json`, `docs/*.md`, `research/*.json`, top-level `*.md` | three legs | skipped | skipped |
+| anything else (scripts, tests, workflows, server, engine, web, config) | three legs | yes | yes |
 
-`npm test` still runs for a data-only change, so every catalogue invariant is still checked —
-once instead of three times. A device spec cannot change how the server boots or whether the
-image builds, and paying five runner slots to learn that is how a two-runner host ends up with a
-queue that never reaches the next pull request.
+Only the last two columns differ, and that is deliberate: there is no such thing as a data-only
+test leg.
+
+`npm test` still runs for a data-only change, and on **all three** Node versions: the diff
+teaches the suite nothing, so cutting the matrix would buy speed with coverage the leg never had.
+The `test` job carries that history in its own comment — a data-only `if:` that read
+`matrix.node` was evaluated before the matrix existed, so every leg died about two seconds in (runs
+1398, 1401, 1402), and a matrix built from an expression collapses to a single unnamed leg that
+runs the suite once and reports it three times. Three versions, always. What the classifier still
+saves is the pair of jobs where the slots were actually going: `smoke` and `docker` skip a
+JSON-only diff entirely, ten minutes each against roughly a minute for the suite. A device spec
+cannot change how the server boots or whether the image builds, and paying those two jobs to learn
+that is how a two-runner host ends up with a queue that never reaches the next pull request.
 
 The classifier is deliberately hostile to the "skip" answer (`scripts/classify-change.js`):
 
