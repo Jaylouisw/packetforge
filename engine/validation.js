@@ -318,6 +318,11 @@ function completeHardware(port, iface) {
     cageName: src.cageName || cageDef.name,
     family: src.family || cageDef.family,
     media: Array.isArray(src.media) ? src.media.slice() : [],
+    // Did the install name the fitted modules, or is `media` just what the cage could hold? A copper
+    // SFP module only turns an optical cage into an RJ45 socket when it is actually fitted (#1514), so
+    // the distinction has to survive normalisation. Absent means "the cage repertoire", because a port
+    // that never said which module is in it is an empty slot.
+    mediaDeclared: src.mediaDeclared === true,
     speedCaps: speeds,
     maxSpeedMbps: src.maxSpeedMbps !== undefined && src.maxSpeedMbps !== null
       ? numOrNull(src.maxSpeedMbps)
@@ -447,8 +452,17 @@ function validateConnection(input) {
   if (typeof specA === 'string') specA = lookupIface(devA, specA);
   if (typeof specB === 'string') specB = lookupIface(devB, specB);
 
-  const portA = normalizePort(specA, ifaceA, devA);
-  const portB = normalizePort(specB, ifaceB, devB);
+  let portA = normalizePort(specA, ifaceA, devA);
+  let portB = normalizePort(specB, ifaceB, devB);
+
+  // The caller can state which module is in the cage, and `mediaId` is where it says so: naming
+  // 1000base-t-sfp on the cable is the same claim a spec makes with `media`. Applied here, before any
+  // rule runs, so the mating rule sees a loaded cage rather than an empty slot (#1514).
+  const requestedModule = inp.mediaId ? String(inp.mediaId) : null;
+  if (requestedModule && portA && portB) {
+    portA = mediaModel.portWithModule(portA, requestedModule);
+    portB = mediaModel.portWithModule(portB, requestedModule);
+  }
 
   // -- E_NO_PORT ------------------------------------------------------------
   if (!portA || !portB) {

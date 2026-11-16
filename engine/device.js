@@ -1271,6 +1271,10 @@ class Device {
           // 1,499 ports that declared their own PoE came back looking as if the engine had guessed it (#1321).
           maxSpeedMbps: i.hardware.maxSpeedMbps,
           poeOutDeclared: i.hardware.poeOutDeclared,
+          // Whether `media` above is the modules fitted in this port or just what its cage could hold (#1514).
+          // Written only when the spec named them - the same optional-field rule as the rest of this block -
+          // so a document that says nothing about it reads back as the empty slot it describes.
+          mediaDeclared: i.hardware.mediaDeclared === true ? true : undefined,
           duplex: i.duplex,
           vlan: (function () {
             // The voice VLAN is written only when it is set, for the same reason the optional hardware fields
@@ -1476,7 +1480,10 @@ class Device {
               media: Array.isArray(is.media) ? is.media.slice() : derived.media,
               speedCaps: Array.isArray(is.speedCaps) ? is.speedCaps.slice() : derived.speedCaps,
               poeOut: ('poeOut' in is) ? is.poeOut : derived.poeOut,
-              poeIn: ('poeIn' in is) ? is.poeIn : derived.poeIn
+              poeIn: ('poeIn' in is) ? is.poeIn : derived.poeIn,
+              // A restored port keeps the answer to "is the module list the fitted modules or the cage
+              // repertoire", because `media` alone cannot say and the mating rule reads it (#1514).
+              mediaDeclared: is.mediaDeclared === true
             });
           }
           // What announced itself on this port. `serialize()` has written this record since LLDP existed and

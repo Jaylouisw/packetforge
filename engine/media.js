@@ -1019,8 +1019,15 @@ function derivePortHardware(ifaceSpec, deviceSpec) {
   if (cage === 'antenna') media = wirelessBands(spec, maxMbps, dev);
 
   // Explicit overrides.
-  if (Array.isArray(spec.media)) media = spec.media.slice();
-  if (Array.isArray(spec.supportedMedia)) media = spec.supportedMedia.slice();
+  //
+  // Which modules a cage COULD hold is a property of the cage (the table above); which module is
+  // actually fitted is a property of the install, and a spec states it with `media` / `supportedMedia`.
+  // The two answer different questions - an empty SFP+ slot offers a 1000BASE-T module as one of eleven
+  // things it might hold, and is still not an RJ45 socket - so the difference is kept, not flattened
+  // (#1514).
+  let mediaDeclared = false;
+  if (Array.isArray(spec.media)) { media = spec.media.slice(); mediaDeclared = true; }
+  if (Array.isArray(spec.supportedMedia)) { media = spec.supportedMedia.slice(); mediaDeclared = true; }
 
   // A radio's media list is not a place for a patch lead.
   //
@@ -1045,6 +1052,10 @@ function derivePortHardware(ifaceSpec, deviceSpec) {
     cageName: cageDef.name,
     family: cageDef.family,
     media: media,
+    // `media` above is what the cage offers unless the spec named the fitted modules; this says which
+    // of the two it is. A copper SFP module only converts the cage to RJ45 when the port says it is
+    // there, so the flag has to survive derivation.
+    mediaDeclared: mediaDeclared,
     // A port that stated its rate - in speedCaps or in baud - keeps it. Falling back to the cage
     // ladder here is what silently widened a 9600-baud console into a 115200 one.
     speedCaps: (hw.speedCaps || (capMbps.length ? capMbps : speeds)).slice(),
@@ -1144,8 +1155,64 @@ function isPoePd(dev) {
 // its own - it enters only through its complement, as the run the pair actually makes
 // ('1000base-bx'). Everything that is not a half is still reflexive and still comes
 // straight out of the intersection, in the order the A port lists it.
+// A copper SFP module is the converter (#1514).
+//
+// An SFP+ cage does not mate an RJ45 socket, and that is right for the cage: it is a module slot, and
+// without a module in it there is nothing on the outside but the slot itself. Fit a 1000BASE-T module
+// and the socket on the outside of that module IS an RJ45 - which is how a 10G port is commonly fed
+// from a 1G copper run, and why `CAGE_MEDIA['sfp+']` has always listed the module. The media table
+// offered the part while the mating rule refused every cable it could make.
+//
+// Two conditions, both of them facts about the install rather than about the catalogue:
+//   * the port says the module is fitted (`mediaDeclared`, i.e. the spec or the caller named it) - "the
+//     cage could hold one" is not "one is in there";
+//   * the cage can actually hold that module, so a spec that writes a copper SFP on an SC/APC PON port
+//     is a spec error and does not become a licence to cable copper into a fibre port.
+function copperSfpModuleOf(port) {
+  if (!port || port.mediaDeclared !== true) return null;
+  const fitted = (port.media || []).filter(function (id) {
+    const m = MEDIA[id];
+    return !!(m && m.family === 'copper' && m.connector === 'sfp');
+  })[0];
+  if (!fitted) return null;
+  const table = CAGE_MEDIA[port.cage];
+  if (typeof table !== 'function') return null;
+  let held = [];
+  try { held = table(port.maxSpeedMbps || 1000) || []; } catch (e) { held = []; }
+  return held.indexOf(fitted) !== -1 ? fitted : null;
+}
+
+// The medium a copper SFP module provides across a pair of ports, or null when neither port is holding
+// one against a real RJ45 socket.
+function copperSfpBridge(pa, pb) {
+  if (!pa || !pb) return null;
+  const aSocket = pa.cage === 'rj45' || pa.cage === 'combo';
+  const bSocket = pb.cage === 'rj45' || pb.cage === 'combo';
+  if (aSocket === bSocket) return null;         // two copper sockets, or two module slots
+  const id = aSocket ? copperSfpModuleOf(pb) : copperSfpModuleOf(pa);
+  return id || null;
+}
+
+// The port as it is once the module the caller named is fitted: same port, the module list narrowed to
+// that one part. Returns the port untouched when the id is not a module this cage can hold, so a caller
+// cannot use `mediaId` to declare an optic into a socket that has no room for it.
+function portWithModule(port, mediaId) {
+  if (!port || !mediaId) return port;
+  const m = MEDIA[mediaId];
+  if (!m || m.family !== 'copper' || m.connector !== 'sfp') return port;
+  const table = CAGE_MEDIA[port.cage];
+  if (typeof table !== 'function') return port;
+  let held = [];
+  try { held = table(port.maxSpeedMbps || 1000) || []; } catch (e) { held = []; }
+  if (held.indexOf(mediaId) === -1) return port;
+  return Object.assign({}, port, { media: [mediaId], mediaDeclared: true });
+}
+
 function commonMedia(pa, pb) {
-  if (!cagesMate(pa.cage, pb.cage)) return [];
+  if (!cagesMate(pa.cage, pb.cage)) {
+    const bridged = copperSfpBridge(pa, pb);
+    return bridged ? [bridged] : [];
+  }
   const setB = {};
   for (const m of pb.media) setB[m] = true;
 
@@ -1332,10 +1399,16 @@ function canMate(pa, pb) {
           '). They are not intermateable - forcing it costs about 3 dB and can chip the endface.'
       };
     }
-    return {
-      ok: false, code: 'E_CONNECTOR_MISMATCH',
-      message: 'Cannot mate ' + pa.cageName + ' to ' + pb.cageName + ' (incompatible connectors).'
-    };
+    // The one way an optical cage meets an RJ45 socket: a copper SFP module in the cage, which is
+    // itself the converter (#1514). Everything downstream - the medium, the negotiated rate, the
+    // reach - is then decided exactly as it is for any other pair, which is why this falls through
+    // rather than returning a verdict of its own.
+    if (!copperSfpBridge(pa, pb)) {
+      return {
+        ok: false, code: 'E_CONNECTOR_MISMATCH',
+        message: 'Cannot mate ' + pa.cageName + ' to ' + pb.cageName + ' (incompatible connectors).'
+      };
+    }
   }
   // Two console ports that share no baud rate: the cable fits, both ends are consoles, and every
   // character arrives as noise. Asked of the ports' declared rates rather than of commonMedia(),
@@ -1476,6 +1549,7 @@ module.exports = {
   MEDIA_MATE, mediaMate, isPairedHalf, biDiRefusal,
   parseSpeedMbps, formatSpeedMbps, parsePoeBudget, mediaById,
   cagesMate, derivePortHardware, commonMedia, commonMediaBridged, negotiateSpeed, canMate, preferredMedia,
+  copperSfpModuleOf, copperSfpBridge, portWithModule,
   FERRULE, ferrule, polishMismatch,
   inferCage, isPoePse, isPoePd
 };
