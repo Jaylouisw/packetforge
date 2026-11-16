@@ -1,0 +1,1942 @@
+[
+  {
+    "vendor": "dlink",
+    "model": "DGS-1520-28",
+    "label": "D-Link DGS-1520-28",
+    "category": "l3-switch",
+    "description": "D-Link DGS-1520-28 (A1) - 28-port Layer 3 stackable smart managed switch: 24x 10/100/1000BASE-T RJ-45, 2x 10GBASE-T RJ-45 and 2x 10G SFP+ uplinks or stacking ports, 128 Gbps switching capacity, 95.24 Mpps, RJ-45 console, 1U, no PoE.",
+    "capabilities": [
+      "l2-forward",
+      "l3-forward",
+      "cli",
+      "http-server"
+    ],
+    "interfaces": [
+      {
+        "name": "ge1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "ge2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "ge3",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "ge4",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "ge5",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "ge6",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "ge7",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "ge8",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "ge9",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "ge10",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "ge11",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "ge12",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "ge13",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "ge14",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "ge15",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "ge16",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "ge17",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "ge18",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "ge19",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "ge20",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "ge21",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "ge22",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "ge23",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "ge24",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "xgt1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "10G",
+        "speedCaps": [
+          100,
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "xgt2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "10G",
+        "speedCaps": [
+          100,
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "sfp+1",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "sfp+2",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "console",
+        "type": "console"
+      }
+    ],
+    "fabric": {
+      "capacityMbps": 128000,
+      "kind": "switching fabric",
+      "note": "Vendor switching capacity of 128 Gbps with a 95.24 Mpps maximum forwarding rate, from the A1 datasheet specification table. 128 Gbps is exactly the full-duplex aggregate of the port census: 24 gigabit ports x 2 Gbps plus four ten-gigabit ports x 20 Gbps (48 + 80). 95.24 Mpps matches 24 x 1.488 Mpps plus 4 x 14.88 Mpps, so the two vendor figures agree with each other and with the port count."
+    },
+    "notes": "Ports, per the D-Link DGS-1520 Series A1 datasheet: 24 x 10/100/1000Base-T, 2 x 10GBase-T, 2 x 10G SFP+. That is 28 front-panel ports, and the four ten-gigabit ports double as stacking ports. No PoE on this model - the PoE standard and PoE budget rows read N/A. Power 100-240 VAC, maximum consumption 30.4 W, standby 20.9 W at 100 V / 21.5 W at 240 V, heat 103.7 BTU/hr, 51.8 dB(A), MTBF 468,252 hours, 441 x 207.4 x 44 mm, 2.33 kg. The chassis takes the DPS-520 redundant power supply, which the datasheet restricts to non-PoE models. The datasheet publishes the census and the media but not a front-panel port index, so the ports are named by media (ge / xgt / sfp+) rather than by a number this document does not state. Vendor software, same document: physical stacking of up to 8 units over 10GBase-T and/or SFP+ at up to 80 Gbps in ring or chain, virtual stacking (Single IP Management) of up to 32 units, 16,384 MAC entries (512 static), jumbo frames to 12,288 bytes, 32 LACP groups of 8 ports, 802.1D/802.1w/802.1s STP with BPDU filtering, root guard and loop guard, ERPS v1/v2, RSPAN, 4K VLAN groups (VID 1-4094) including selective Q-in-Q and VLAN translation, IGMP v1/v2/v3 snooping, MLD v1/v2 snooping, and L3 routing - static routes, RIP/RIPng, OSPF, VRRP v2/v3, PIM-SM/DM/SSM, 1024 hardware routing entries and 4096 L3 forwarding entries shared by IPv4/IPv6, 16 IP interfaces. Management: web GUI over IPv4/IPv6 with HTTPS, CLI, Telnet, SSH/SFTP, SNMP v1/v2c/v3, sFlow, RMON, LLDP/LLDP-MED, dual images and dual configuration files, ZTP and DHCP auto-configuration. Green: EEE, per-port power saving, time-based PoE (PoE models). Hardware Rev A1, 19-inch 1U, 100-240 VAC, operating range -5 to 50 C, EMI Class A.",
+    "sourceUrl": "https://www.dlink.com/us/en/-/media/business_products/dgs/dgs-1520/datasheet/dgs1520seriesa1datasheetv104ww.pdf"
+  },
+  {
+    "vendor": "dlink",
+    "model": "DGS-1520-28MP",
+    "label": "D-Link DGS-1520-28MP",
+    "category": "l3-switch",
+    "description": "D-Link DGS-1520-28MP (A1) - 28-port PoE Layer 3 stackable smart managed switch: 20x 10/100/1000BASE-T PoE RJ-45 plus 4x 2.5GBASE-T PoE RJ-45 on a 370 W budget (740 W with the DPS-700), 2x 10GBASE-T RJ-45 and 2x 10G SFP+ uplinks, 140 Gbps, 104.16 Mpps, RJ-45 console, 1U.",
+    "capabilities": [
+      "l2-forward",
+      "l3-forward",
+      "cli",
+      "http-server",
+      "poe-pse"
+    ],
+    "interfaces": [
+      {
+        "name": "ge1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "ge2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "ge3",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "ge4",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "ge5",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "ge6",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "ge7",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "ge8",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "ge9",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "ge10",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "ge11",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "ge12",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "ge13",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "ge14",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "ge15",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "ge16",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "ge17",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "ge18",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "ge19",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "ge20",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "mg1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "2.5G",
+        "speedCaps": [
+          100,
+          1000,
+          2500
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "mg2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "2.5G",
+        "speedCaps": [
+          100,
+          1000,
+          2500
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "mg3",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "2.5G",
+        "speedCaps": [
+          100,
+          1000,
+          2500
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "mg4",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "2.5G",
+        "speedCaps": [
+          100,
+          1000,
+          2500
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "xgt1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "10G",
+        "speedCaps": [
+          100,
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "xgt2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "10G",
+        "speedCaps": [
+          100,
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "sfp+1",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "sfp+2",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "console",
+        "type": "console"
+      }
+    ],
+    "poe": {
+      "budgetW": 370,
+      "sourceUrl": "https://www.dlink.com/us/en/-/media/business_products/dgs/dgs-1520/datasheet/dgs1520seriesa1datasheetv104ww.pdf",
+      "note": "IEEE 802.3af/at on all 24 copper ports (the datasheet lists the 10/100/1000Base-T PoE ports and the 2.5GBase-T PoE ports under one PoE standard row). Budget 370 W on the internal supply and 740 W with the optional DPS-700 redundant power supply fitted - the datasheet footnote says the DPS-700 only supports A2/B1 hardware, so on this A1 unit the 740 W figure is an upgrade path rather than a shipping number. 802.3af on every port is 369.6 W, which just fits inside 370 W, by 0.4 W. The per-port ceiling is the 802.3at Type-2 PSE figure of 30 W; the datasheet states the standard and the budget rather than a per-port wattage, and the budget, not the port count, is what binds."
+    },
+    "fabric": {
+      "capacityMbps": 140000,
+      "kind": "switching fabric",
+      "note": "Vendor switching capacity of 140 Gbps with a 104.16 Mpps maximum forwarding rate. The arithmetic checks out on a mixed-rate chassis: 20 gigabit plus 4 x 2.5G plus 2 x 10GBase-T plus 2 x 10G SFP+ is 20 x 2 + 4 x 5 + 4 x 20 = 140 Gbps full duplex."
+    },
+    "notes": "Ports, per the D-Link DGS-1520 Series A1 datasheet: 20 x 10/100/1000Base-T PoE, 4 x 2.5GBase-T PoE, 2 x 10GBase-T, 2 x 10G SFP+. All 24 copper ports are PoE at 802.3af/at - the 2.5G ports are not a separate PoE zone. The 2.5GBase-T ports are the reason this model exists: they take a Wi-Fi 6 access point above gigabit without a 10G run, and 802.3bz is in the standards list. The four ten-gigabit ports serve as stack links or uplinks. Maximum consumption 453.3 W with PoE on and 45.2 W with PoE off, standby 37.2 W at 100 V / 37.3 W at 240 V, heat 1545.8 BTU/hr, 57.1 dB(A), MTBF 333,946 hours, 441 x 308.5 x 44 mm (deeper than the non-PoE models because of the PoE supply), 4.29 kg. Takes the DPS-700 redundant AC supply for the 740 W figure. The datasheet does not publish a front-panel port index, so the ports are named by media (ge / mg / xgt / sfp+). Vendor software, same document: physical stacking of up to 8 units over 10GBase-T and/or SFP+ at up to 80 Gbps in ring or chain, virtual stacking (Single IP Management) of up to 32 units, 16,384 MAC entries (512 static), jumbo frames to 12,288 bytes, 32 LACP groups of 8 ports, 802.1D/802.1w/802.1s STP with BPDU filtering, root guard and loop guard, ERPS v1/v2, RSPAN, 4K VLAN groups (VID 1-4094) including selective Q-in-Q and VLAN translation, IGMP v1/v2/v3 snooping, MLD v1/v2 snooping, and L3 routing - static routes, RIP/RIPng, OSPF, VRRP v2/v3, PIM-SM/DM/SSM, 1024 hardware routing entries and 4096 L3 forwarding entries shared by IPv4/IPv6, 16 IP interfaces. Management: web GUI over IPv4/IPv6 with HTTPS, CLI, Telnet, SSH/SFTP, SNMP v1/v2c/v3, sFlow, RMON, LLDP/LLDP-MED, dual images and dual configuration files, ZTP and DHCP auto-configuration. Green: EEE, per-port power saving, time-based PoE (PoE models). Hardware Rev A1, 19-inch 1U, 100-240 VAC, operating range -5 to 50 C, EMI Class A.",
+    "sourceUrl": "https://www.dlink.com/us/en/-/media/business_products/dgs/dgs-1520/datasheet/dgs1520seriesa1datasheetv104ww.pdf"
+  },
+  {
+    "vendor": "dlink",
+    "model": "DGS-1520-52",
+    "label": "D-Link DGS-1520-52",
+    "category": "l3-switch",
+    "description": "D-Link DGS-1520-52 (A1) - 52-port Layer 3 stackable smart managed switch: 48x 10/100/1000BASE-T RJ-45, 2x 10GBASE-T RJ-45 and 2x 10G SFP+, 176 Gbps switching capacity, 130.95 Mpps, RJ-45 console, 1U, no PoE.",
+    "capabilities": [
+      "l2-forward",
+      "l3-forward",
+      "cli",
+      "http-server"
+    ],
+    "interfaces": [
+      {
+        "name": "ge1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "ge2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "ge3",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "ge4",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "ge5",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "ge6",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "ge7",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "ge8",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "ge9",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "ge10",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "ge11",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "ge12",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "ge13",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "ge14",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "ge15",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "ge16",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "ge17",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "ge18",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "ge19",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "ge20",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "ge21",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "ge22",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "ge23",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "ge24",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "ge25",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "ge26",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "ge27",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "ge28",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "ge29",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "ge30",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "ge31",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "ge32",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "ge33",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "ge34",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "ge35",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "ge36",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "ge37",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "ge38",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "ge39",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "ge40",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "ge41",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "ge42",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "ge43",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "ge44",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "ge45",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "ge46",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "ge47",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "ge48",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "xgt1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "10G",
+        "speedCaps": [
+          100,
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "xgt2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "10G",
+        "speedCaps": [
+          100,
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "sfp+1",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "sfp+2",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "console",
+        "type": "console"
+      }
+    ],
+    "fabric": {
+      "capacityMbps": 176000,
+      "kind": "switching fabric",
+      "note": "Vendor switching capacity of 176 Gbps with a 130.95 Mpps maximum forwarding rate. 48 gigabit ports plus four ten-gigabit ports is 48 x 2 + 4 x 20 = 176 Gbps full duplex, and 130.95 Mpps is 48 x 1.488 plus 4 x 14.88, so the vendor forwarding rate follows the port count exactly."
+    },
+    "notes": "Ports, per the D-Link DGS-1520 Series A1 datasheet: 48 x 10/100/1000Base-T, 2 x 10GBase-T, 2 x 10G SFP+. No PoE - the PoE rows are N/A for this model. Maximum consumption 51.2 W, standby 25.5 W at 100 V / 26.8 W at 240 V, heat 174.6 BTU/hr, 56.8 dB(A), MTBF 364,888 hours, 441 x 207.4 x 44 mm, 2.78 kg. Takes the DPS-520 redundant supply, for non-PoE models only. Ports are named by media because the datasheet publishes the census, not a front-panel index. Vendor software, same document: physical stacking of up to 8 units over 10GBase-T and/or SFP+ at up to 80 Gbps in ring or chain, virtual stacking (Single IP Management) of up to 32 units, 16,384 MAC entries (512 static), jumbo frames to 12,288 bytes, 32 LACP groups of 8 ports, 802.1D/802.1w/802.1s STP with BPDU filtering, root guard and loop guard, ERPS v1/v2, RSPAN, 4K VLAN groups (VID 1-4094) including selective Q-in-Q and VLAN translation, IGMP v1/v2/v3 snooping, MLD v1/v2 snooping, and L3 routing - static routes, RIP/RIPng, OSPF, VRRP v2/v3, PIM-SM/DM/SSM, 1024 hardware routing entries and 4096 L3 forwarding entries shared by IPv4/IPv6, 16 IP interfaces. Management: web GUI over IPv4/IPv6 with HTTPS, CLI, Telnet, SSH/SFTP, SNMP v1/v2c/v3, sFlow, RMON, LLDP/LLDP-MED, dual images and dual configuration files, ZTP and DHCP auto-configuration. Green: EEE, per-port power saving, time-based PoE (PoE models). Hardware Rev A1, 19-inch 1U, 100-240 VAC, operating range -5 to 50 C, EMI Class A.",
+    "sourceUrl": "https://www.dlink.com/us/en/-/media/business_products/dgs/dgs-1520/datasheet/dgs1520seriesa1datasheetv104ww.pdf"
+  },
+  {
+    "vendor": "dlink",
+    "model": "DGS-1520-52MP",
+    "label": "D-Link DGS-1520-52MP",
+    "category": "l3-switch",
+    "description": "D-Link DGS-1520-52MP (A1) - 52-port PoE Layer 3 stackable smart managed switch: 44x 10/100/1000BASE-T PoE RJ-45 plus 4x 2.5GBASE-T PoE RJ-45 on a 370 W budget (740 W with the DPS-700), 2x 10GBASE-T RJ-45 and 2x 10G SFP+, 188 Gbps, 139.88 Mpps, RJ-45 console, 1U.",
+    "capabilities": [
+      "l2-forward",
+      "l3-forward",
+      "cli",
+      "http-server",
+      "poe-pse"
+    ],
+    "interfaces": [
+      {
+        "name": "ge1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "ge2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "ge3",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "ge4",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "ge5",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "ge6",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "ge7",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "ge8",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "ge9",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "ge10",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "ge11",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "ge12",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "ge13",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "ge14",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "ge15",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "ge16",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "ge17",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "ge18",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "ge19",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "ge20",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "ge21",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "ge22",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "ge23",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "ge24",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "ge25",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "ge26",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "ge27",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "ge28",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "ge29",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "ge30",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "ge31",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "ge32",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "ge33",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "ge34",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "ge35",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "ge36",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "ge37",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "ge38",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "ge39",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "ge40",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "ge41",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "ge42",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "ge43",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "ge44",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "mg1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "2.5G",
+        "speedCaps": [
+          100,
+          1000,
+          2500
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "mg2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "2.5G",
+        "speedCaps": [
+          100,
+          1000,
+          2500
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "mg3",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "2.5G",
+        "speedCaps": [
+          100,
+          1000,
+          2500
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "mg4",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "2.5G",
+        "speedCaps": [
+          100,
+          1000,
+          2500
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "xgt1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "10G",
+        "speedCaps": [
+          100,
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "xgt2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "10G",
+        "speedCaps": [
+          100,
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "sfp+1",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "sfp+2",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          1000,
+          10000
+        ]
+      },
+      {
+        "name": "console",
+        "type": "console"
+      }
+    ],
+    "poe": {
+      "budgetW": 370,
+      "sourceUrl": "https://www.dlink.com/us/en/-/media/business_products/dgs/dgs-1520/datasheet/dgs1520seriesa1datasheetv104ww.pdf",
+      "note": "IEEE 802.3af/at on all 48 copper ports (the datasheet lists the 10/100/1000Base-T PoE ports and the 2.5GBase-T PoE ports under one PoE standard row). Budget 370 W on the internal supply and 740 W with the optional DPS-700 redundant power supply fitted - the datasheet footnote says the DPS-700 only supports A2/B1 hardware, so on this A1 unit the 740 W figure is an upgrade path rather than a shipping number. 802.3af on every port is 739.2 W, which does not fit: 48 x 15.4 W is 739.2 W against a 370 W budget, so roughly half the ports can be powered at 802.3af and only twelve at 802.3at 30 W. The per-port ceiling is the 802.3at Type-2 PSE figure of 30 W; the datasheet states the standard and the budget rather than a per-port wattage, and the budget, not the port count, is what binds."
+    },
+    "fabric": {
+      "capacityMbps": 188000,
+      "kind": "switching fabric",
+      "note": "Vendor switching capacity of 188 Gbps with a 139.88 Mpps maximum forwarding rate: 44 x 2 + 4 x 5 + 4 x 20 = 188 Gbps full duplex, and 139.88 Mpps is 44 x 1.488 + 4 x 2.976 + 4 x 14.88, so the forwarding rate follows the mixed line rates."
+    },
+    "notes": "Ports, per the D-Link DGS-1520 Series A1 datasheet: 44 x 10/100/1000Base-T PoE, 4 x 2.5GBase-T PoE, 2 x 10GBase-T, 2 x 10G SFP+. All 48 copper ports are PoE at 802.3af/at. Maximum consumption 459.5 W with PoE on and 66.3 W with PoE off, standby 39.8 W at 100 V / 40.7 W at 240 V, heat 1635.1 BTU/hr, 56.7 dB(A), MTBF 328,174 hours, 441 x 308.5 x 44 mm, 4.80 kg. A datasheet footnote restricts the DEM-410T 10GBASE-T SFP+ module to A2 hardware on this model and to ambient temperatures at or below 40 C - that is a transceiver restriction, not a port restriction. Ports are named by media; the datasheet does not print a front-panel index. Vendor software, same document: physical stacking of up to 8 units over 10GBase-T and/or SFP+ at up to 80 Gbps in ring or chain, virtual stacking (Single IP Management) of up to 32 units, 16,384 MAC entries (512 static), jumbo frames to 12,288 bytes, 32 LACP groups of 8 ports, 802.1D/802.1w/802.1s STP with BPDU filtering, root guard and loop guard, ERPS v1/v2, RSPAN, 4K VLAN groups (VID 1-4094) including selective Q-in-Q and VLAN translation, IGMP v1/v2/v3 snooping, MLD v1/v2 snooping, and L3 routing - static routes, RIP/RIPng, OSPF, VRRP v2/v3, PIM-SM/DM/SSM, 1024 hardware routing entries and 4096 L3 forwarding entries shared by IPv4/IPv6, 16 IP interfaces. Management: web GUI over IPv4/IPv6 with HTTPS, CLI, Telnet, SSH/SFTP, SNMP v1/v2c/v3, sFlow, RMON, LLDP/LLDP-MED, dual images and dual configuration files, ZTP and DHCP auto-configuration. Green: EEE, per-port power saving, time-based PoE (PoE models). Hardware Rev A1, 19-inch 1U, 100-240 VAC, operating range -5 to 50 C, EMI Class A.",
+    "sourceUrl": "https://www.dlink.com/us/en/-/media/business_products/dgs/dgs-1520/datasheet/dgs1520seriesa1datasheetv104ww.pdf"
+  }
+]
