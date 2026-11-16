@@ -1,0 +1,67 @@
+{
+  "vendor": "dlink",
+  "model": "DGS-1210-10P",
+  "label": "D-Link DGS-1210-10P",
+  "category": "l3-switch",
+  "description": "D-Link DGS-1210-10P (Rev F) smart managed PoE switch: 8x 10/100/1000BASE-T PoE+ RJ-45 on a 65 W budget, 2x 100/1000 Mbps SFP cages, 20 Gbps, 14.88 Mpps, fanless, external 54 V DC adapter.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli",
+    "http-server",
+    "vlan",
+    "lacp",
+    "stp",
+    "poe-pse",
+    "802.3af",
+    "802.3at"
+  ],
+  "portTemplate": {
+    "prefix": "port",
+    "start": 1,
+    "count": 8,
+    "type": "ethernet",
+    "speed": "1G",
+    "connector": "rj45",
+    "speedCaps": [
+      10,
+      100,
+      1000
+    ],
+    "poeOut": 30
+  },
+  "interfaces": [
+    {
+      "name": "port9",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "port10",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        100,
+        1000
+      ]
+    }
+  ],
+  "fabric": {
+    "capacityMbps": 20000,
+    "kind": "switching fabric",
+    "note": "20 Gbps switching capacity and 14.88 Mpps maximum 64-byte forwarding rate for the DGS-1210-10P, from the DGS-1210 Series Rev F datasheet specification table (https://www.dlink.com/us/en/-/media/business_products/dgs/dgs-1210/datasheet/dgs1210seriesrevfdatasheet211enus.pdf). 10 ports x 2 Gbps full duplex, so an RJ45/SFP combo pair counts once whichever medium is in use."
+  },
+  "notes": "Ports, per the DGS-1210 Series Rev F datasheet (hardware Rev. F, 2.11 EN US, 05-SEP-2018): 8 x 10/100/1000BASE-T PoE (802.3af/at) on ports 1-8 plus 2 x 100/1000 Mbps SFP cages. 8K MAC entries, 256 static MAC entries, 4.1 Mbits packet buffer, DDR3 128 MB CPU memory, 32 MB flash, 256 static VLAN groups (VID 1-4094), 802.1D/802.1w/802.1s STP, 802.3ad LACP (8 groups of up to 8 ports), jumbo frames to 10,000 bytes, and 124 IPv4 / 50 IPv6 static routes over 4 IP interfaces - static routing, not a routing protocol, which is what puts this in the L3-lite class. Management is web GUI, compact CLI over Telnet, SNMP v1/v2c/v3 and D-Link Network Assistant; no model in the line has a serial console port (the console row in the datasheet is an LED, not a port). Dual software images and dual configuration files. Fanless (0 dB(A), Fans: No), 280 x 126 x 44 mm, 0.95 kg, 81.9 W at 100 V with PoE enabled, 2.03 W standby. The only model in the Rev F line powered by an external 54.0 V DC power adapter rather than an internal supply, which is why its maximum draw is quoted per mains voltage. Time-based PoE scheduling is supported. Source: https://www.dlink.com/us/en/-/media/business_products/dgs/dgs-1210/datasheet/dgs1210seriesrevfdatasheet211enus.pdf",
+  "sourceUrl": "https://www.dlink.com/us/en/-/media/business_products/dgs/dgs-1210/datasheet/dgs1210seriesrevfdatasheet211enus.pdf",
+  "poe": {
+    "budgetW": 65,
+    "sourceUrl": "https://www.dlink.com/us/en/-/media/business_products/dgs/dgs-1210/datasheet/dgs1210seriesrevfdatasheet211enus.pdf",
+    "note": "65 W PoE power budget for ports 1-8, all 802.3af/802.3at capable, from the Rev F specification table and ordering information. An earlier revision of the same series datasheet (Rev C) prints 78 W for the DGS-1210-10P, so the two revisions disagree by 13 W and the current Rev F figure is recorded. 8 x 30 W of 802.3at cannot be delivered at once: 65 W is 4 ports at 30 W or 4 at 15.4 W, so the budget binds, not the port."
+  }
+}

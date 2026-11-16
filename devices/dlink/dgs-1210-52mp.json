@@ -1,0 +1,147 @@
+{
+  "vendor": "dlink",
+  "model": "DGS-1210-52MP",
+  "label": "D-Link DGS-1210-52MP",
+  "category": "l3-switch",
+  "description": "D-Link DGS-1210-52MP (Rev F) smart managed PoE switch: 48x 10/100/1000BASE-T PoE+ RJ-45 on a 370 W budget, 4x 1G RJ45/SFP combo ports, 104 Gbps, 77.4 Mpps, three fans.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli",
+    "http-server",
+    "vlan",
+    "lacp",
+    "stp",
+    "poe-pse",
+    "802.3af",
+    "802.3at"
+  ],
+  "portTemplate": {
+    "prefix": "port",
+    "start": 1,
+    "count": 48,
+    "type": "ethernet",
+    "speed": "1G",
+    "connector": "rj45",
+    "speedCaps": [
+      10,
+      100,
+      1000
+    ],
+    "poeOut": 30
+  },
+  "interfaces": [
+    {
+      "name": "port49",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "comboWith": "port49-sfp",
+      "comboRole": "rj45"
+    },
+    {
+      "name": "port49-sfp",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        100,
+        1000
+      ],
+      "comboWith": "port49",
+      "comboRole": "sfp"
+    },
+    {
+      "name": "port50",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "comboWith": "port50-sfp",
+      "comboRole": "rj45"
+    },
+    {
+      "name": "port50-sfp",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        100,
+        1000
+      ],
+      "comboWith": "port50",
+      "comboRole": "sfp"
+    },
+    {
+      "name": "port51",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "comboWith": "port51-sfp",
+      "comboRole": "rj45"
+    },
+    {
+      "name": "port51-sfp",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        100,
+        1000
+      ],
+      "comboWith": "port51",
+      "comboRole": "sfp"
+    },
+    {
+      "name": "port52",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "comboWith": "port52-sfp",
+      "comboRole": "rj45"
+    },
+    {
+      "name": "port52-sfp",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        100,
+        1000
+      ],
+      "comboWith": "port52",
+      "comboRole": "sfp"
+    }
+  ],
+  "fabric": {
+    "capacityMbps": 104000,
+    "kind": "switching fabric",
+    "note": "104 Gbps switching capacity and 77.4 Mpps maximum 64-byte forwarding rate for the DGS-1210-52MP, from the DGS-1210 Series Rev F datasheet specification table (https://www.dlink.com/us/en/-/media/business_products/dgs/dgs-1210/datasheet/dgs1210seriesrevfdatasheet211enus.pdf). 52 ports x 2 Gbps full duplex, so an RJ45/SFP combo pair counts once whichever medium is in use."
+  },
+  "notes": "Ports, per the DGS-1210 Series Rev F datasheet (hardware Rev. F, 2.11 EN US, 05-SEP-2018): 48 x 10/100/1000BASE-T PoE (802.3af/at) on ports 1-48 plus 4 x 10/100/1000 or 100/1000 SFP combo ports (one port, two cages, one medium at a time). 8K MAC entries, 256 static MAC entries, 12 Mbits packet buffer, DDR3 128 MB CPU memory, 32 MB flash, 256 static VLAN groups (VID 1-4094), 802.1D/802.1w/802.1s STP, 802.3ad LACP (8 groups of up to 8 ports), jumbo frames to 10,000 bytes, and 124 IPv4 / 50 IPv6 static routes over 4 IP interfaces - static routing, not a routing protocol, which is what puts this in the L3-lite class. Management is web GUI, compact CLI over Telnet, SNMP v1/v2c/v3 and D-Link Network Assistant; no model in the line has a serial console port (the console row in the datasheet is an LED, not a port). Dual software images and dual configuration files. 3 fans, 440 x 430 x 44 mm, 6.26 kg, 478.9 W at 100 V with PoE enabled, 54 W with PoE disabled. Three fans at 52.4 dB(A) high / 47.6 dB(A) low, and the deepest chassis in the family at 440 x 430 x 44 mm, 6.26 kg. Source: https://www.dlink.com/us/en/-/media/business_products/dgs/dgs-1210/datasheet/dgs1210seriesrevfdatasheet211enus.pdf",
+  "sourceUrl": "https://www.dlink.com/us/en/-/media/business_products/dgs/dgs-1210/datasheet/dgs1210seriesrevfdatasheet211enus.pdf",
+  "poe": {
+    "budgetW": 370,
+    "sourceUrl": "https://www.dlink.com/us/en/-/media/business_products/dgs/dgs-1210/datasheet/dgs1210seriesrevfdatasheet211enus.pdf",
+    "note": "370 W PoE budget over ports 1-48, from the Rev F specification table and ordering information; combo ports 49-52 are not PoE capable. 48 x 15.4 W = 739.2 W is twice the budget, so a fully 802.3af-populated 48-port chassis is impossible: 370 W is 24 ports at 15.4 W or 12 at 30 W."
+  }
+}

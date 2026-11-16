@@ -1,0 +1,58 @@
+{
+  "vendor": "dlink",
+  "model": "DGS-1210-26",
+  "label": "D-Link DGS-1210-26",
+  "category": "l3-switch",
+  "description": "D-Link DGS-1210-26 (Rev F) smart managed switch: 24x 10/100/1000BASE-T RJ-45, 2x 100/1000 Mbps SFP cages, 52 Gbps switching capacity, 38.7 Mpps, fanless 1U.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli",
+    "http-server",
+    "vlan",
+    "lacp",
+    "stp"
+  ],
+  "portTemplate": {
+    "prefix": "port",
+    "start": 1,
+    "count": 24,
+    "type": "ethernet",
+    "speed": "1G",
+    "connector": "rj45",
+    "speedCaps": [
+      10,
+      100,
+      1000
+    ]
+  },
+  "interfaces": [
+    {
+      "name": "port25",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "port26",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        100,
+        1000
+      ]
+    }
+  ],
+  "fabric": {
+    "capacityMbps": 52000,
+    "kind": "switching fabric",
+    "note": "52 Gbps switching capacity and 38.7 Mpps maximum 64-byte forwarding rate for the DGS-1210-26, from the DGS-1210 Series Rev F datasheet specification table (https://www.dlink.com/us/en/-/media/business_products/dgs/dgs-1210/datasheet/dgs1210seriesrevfdatasheet211enus.pdf). 26 ports x 2 Gbps full duplex, so an RJ45/SFP combo pair counts once whichever medium is in use."
+  },
+  "notes": "Ports, per the DGS-1210 Series Rev F datasheet (hardware Rev. F, 2.11 EN US, 05-SEP-2018): 24 x 10/100/1000BASE-T plus 2 x 100/1000 Mbps SFP cages. 8K MAC entries, 256 static MAC entries, 4.1 Mbits packet buffer, DDR3 128 MB CPU memory, 32 MB flash, 256 static VLAN groups (VID 1-4094), 802.1D/802.1w/802.1s STP, 802.3ad LACP (8 groups of up to 8 ports), jumbo frames to 10,000 bytes, and 124 IPv4 / 50 IPv6 static routes over 4 IP interfaces - static routing, not a routing protocol, which is what puts this in the L3-lite class. Management is web GUI, compact CLI over Telnet, SNMP v1/v2c/v3 and D-Link Network Assistant; no model in the line has a serial console port (the console row in the datasheet is an LED, not a port). Dual software images and dual configuration files. Fanless (0 dB(A), Fans: No), 440 x 140 x 44 mm, 2.06 kg, 15.22 W at 100 V. The non-combo 24-port model: 24 x 10/100/1000BASE-T plus 2 dedicated 100/1000 Mbps SFP cages, where the -28 class carries 4 RJ45/SFP combos instead. 52 Gbps is 26 ports x 2 Gbps full duplex, i.e. the two SFP cages count as 1G each. Source: https://www.dlink.com/us/en/-/media/business_products/dgs/dgs-1210/datasheet/dgs1210seriesrevfdatasheet211enus.pdf",
+  "sourceUrl": "https://www.dlink.com/us/en/-/media/business_products/dgs/dgs-1210/datasheet/dgs1210seriesrevfdatasheet211enus.pdf"
+}

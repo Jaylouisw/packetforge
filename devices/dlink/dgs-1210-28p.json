@@ -1,0 +1,147 @@
+{
+  "vendor": "dlink",
+  "model": "DGS-1210-28P",
+  "label": "D-Link DGS-1210-28P",
+  "category": "l3-switch",
+  "description": "D-Link DGS-1210-28P (Rev F) smart managed PoE switch: 24x 10/100/1000BASE-T PoE+ RJ-45 on a 193 W budget, 4x 1G RJ45/SFP combo ports, 56 Gbps, 41.7 Mpps, two fans.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli",
+    "http-server",
+    "vlan",
+    "lacp",
+    "stp",
+    "poe-pse",
+    "802.3af",
+    "802.3at"
+  ],
+  "portTemplate": {
+    "prefix": "port",
+    "start": 1,
+    "count": 24,
+    "type": "ethernet",
+    "speed": "1G",
+    "connector": "rj45",
+    "speedCaps": [
+      10,
+      100,
+      1000
+    ],
+    "poeOut": 30
+  },
+  "interfaces": [
+    {
+      "name": "port25",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "comboWith": "port25-sfp",
+      "comboRole": "rj45"
+    },
+    {
+      "name": "port25-sfp",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        100,
+        1000
+      ],
+      "comboWith": "port25",
+      "comboRole": "sfp"
+    },
+    {
+      "name": "port26",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "comboWith": "port26-sfp",
+      "comboRole": "rj45"
+    },
+    {
+      "name": "port26-sfp",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        100,
+        1000
+      ],
+      "comboWith": "port26",
+      "comboRole": "sfp"
+    },
+    {
+      "name": "port27",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "comboWith": "port27-sfp",
+      "comboRole": "rj45"
+    },
+    {
+      "name": "port27-sfp",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        100,
+        1000
+      ],
+      "comboWith": "port27",
+      "comboRole": "sfp"
+    },
+    {
+      "name": "port28",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "comboWith": "port28-sfp",
+      "comboRole": "rj45"
+    },
+    {
+      "name": "port28-sfp",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        100,
+        1000
+      ],
+      "comboWith": "port28",
+      "comboRole": "sfp"
+    }
+  ],
+  "fabric": {
+    "capacityMbps": 56000,
+    "kind": "switching fabric",
+    "note": "56 Gbps switching capacity and 41.7 Mpps maximum 64-byte forwarding rate for the DGS-1210-28P, from the DGS-1210 Series Rev F datasheet specification table (https://www.dlink.com/us/en/-/media/business_products/dgs/dgs-1210/datasheet/dgs1210seriesrevfdatasheet211enus.pdf). 28 ports x 2 Gbps full duplex, so an RJ45/SFP combo pair counts once whichever medium is in use."
+  },
+  "notes": "Ports, per the DGS-1210 Series Rev F datasheet (hardware Rev. F, 2.11 EN US, 05-SEP-2018): 24 x 10/100/1000BASE-T PoE (802.3af/at) on ports 1-24 plus 4 x 10/100/1000 or 100/1000 SFP combo ports (one port, two cages, one medium at a time). 8K MAC entries, 256 static MAC entries, 4.1 Mbits packet buffer, DDR3 128 MB CPU memory, 32 MB flash, 256 static VLAN groups (VID 1-4094), 802.1D/802.1w/802.1s STP, 802.3ad LACP (8 groups of up to 8 ports), jumbo frames to 10,000 bytes, and 124 IPv4 / 50 IPv6 static routes over 4 IP interfaces - static routing, not a routing protocol, which is what puts this in the L3-lite class. Management is web GUI, compact CLI over Telnet, SNMP v1/v2c/v3 and D-Link Network Assistant; no model in the line has a serial console port (the console row in the datasheet is an LED, not a port). Dual software images and dual configuration files. 2 fans, 440 x 250 x 44 mm, 3.75 kg, 263.9 W at 100 V with PoE enabled, 30.6 W with PoE disabled. Two fans at 51.7 dB(A) high / 44.9 dB(A) low. A combo port is one port with two cages and only one medium active at a time, which is why 56 Gbps = 28 ports x 2 Gbps rather than 32. Source: https://www.dlink.com/us/en/-/media/business_products/dgs/dgs-1210/datasheet/dgs1210seriesrevfdatasheet211enus.pdf",
+  "sourceUrl": "https://www.dlink.com/us/en/-/media/business_products/dgs/dgs-1210/datasheet/dgs1210seriesrevfdatasheet211enus.pdf",
+  "poe": {
+    "budgetW": 193,
+    "sourceUrl": "https://www.dlink.com/us/en/-/media/business_products/dgs/dgs-1210/datasheet/dgs1210seriesrevfdatasheet211enus.pdf",
+    "note": "193 W PoE budget for ports 1-24, from the Rev F specification table and ordering information; the four combo RJ45 ports 25-28 are not PoE capable. 24 x 15.4 W = 369.6 W of 802.3af exceeds the budget too, so at full 802.3af load the budget is the limit: 193 W covers about 12 ports at 15.4 W or 6 at 30 W."
+  }
+}

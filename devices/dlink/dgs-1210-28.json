@@ -3,95 +3,138 @@
   "model": "DGS-1210-28",
   "label": "D-Link DGS-1210-28",
   "category": "l3-switch",
-  "description": "D-Link DGS-1210-28 - 24x 1G RJ45 plus 4x Gigabit RJ45/SFP combo ports (ports 25-28, one medium per cage). Smart managed with L2+ static routing, fanless, 56 Gbps.",
+  "description": "D-Link DGS-1210-28 (Rev F) smart managed switch: 24x 10/100/1000BASE-T RJ-45, 4x 1G RJ45/SFP combo ports (one medium per cage), 56 Gbps switching capacity, 41.7 Mpps, fanless 1U, no PoE.",
   "capabilities": [
     "l2-forward",
     "l3-forward",
     "cli",
-    "http-server"
+    "http-server",
+    "vlan",
+    "lacp",
+    "stp"
   ],
   "portTemplate": {
     "prefix": "port",
     "start": 1,
     "count": 24,
     "type": "ethernet",
-    "speed": "1G"
+    "speed": "1G",
+    "connector": "rj45",
+    "speedCaps": [
+      10,
+      100,
+      1000
+    ]
   },
   "interfaces": [
     {
-      "name": "25",
+      "name": "port25",
       "type": "ethernet",
+      "connector": "rj45",
       "speed": "1G",
-      "comboWith": "25-sfp",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "comboWith": "port25-sfp",
       "comboRole": "rj45"
     },
     {
-      "name": "25-sfp",
+      "name": "port25-sfp",
       "type": "ethernet",
-      "speed": "1G",
       "connector": "sfp",
+      "speed": "1G",
       "speedCaps": [
+        100,
         1000
       ],
-      "comboWith": "25",
+      "comboWith": "port25",
       "comboRole": "sfp"
     },
     {
-      "name": "26",
+      "name": "port26",
       "type": "ethernet",
+      "connector": "rj45",
       "speed": "1G",
-      "comboWith": "26-sfp",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "comboWith": "port26-sfp",
       "comboRole": "rj45"
     },
     {
-      "name": "26-sfp",
+      "name": "port26-sfp",
       "type": "ethernet",
-      "speed": "1G",
       "connector": "sfp",
+      "speed": "1G",
       "speedCaps": [
+        100,
         1000
       ],
-      "comboWith": "26",
+      "comboWith": "port26",
       "comboRole": "sfp"
     },
     {
-      "name": "27",
+      "name": "port27",
       "type": "ethernet",
+      "connector": "rj45",
       "speed": "1G",
-      "comboWith": "27-sfp",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "comboWith": "port27-sfp",
       "comboRole": "rj45"
     },
     {
-      "name": "27-sfp",
+      "name": "port27-sfp",
       "type": "ethernet",
-      "speed": "1G",
       "connector": "sfp",
+      "speed": "1G",
       "speedCaps": [
+        100,
         1000
       ],
-      "comboWith": "27",
+      "comboWith": "port27",
       "comboRole": "sfp"
     },
     {
-      "name": "28",
+      "name": "port28",
       "type": "ethernet",
+      "connector": "rj45",
       "speed": "1G",
-      "comboWith": "28-sfp",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "comboWith": "port28-sfp",
       "comboRole": "rj45"
     },
     {
-      "name": "28-sfp",
+      "name": "port28-sfp",
       "type": "ethernet",
-      "speed": "1G",
       "connector": "sfp",
+      "speed": "1G",
       "speedCaps": [
+        100,
         1000
       ],
-      "comboWith": "28",
+      "comboWith": "port28",
       "comboRole": "sfp"
     }
   ],
+  "fabric": {
+    "capacityMbps": 56000,
+    "kind": "switching fabric",
+    "note": "56 Gbps switching capacity and 41.7 Mpps maximum 64-byte forwarding rate for the DGS-1210-28, from the DGS-1210 Series Rev F datasheet specification table (https://www.dlink.com/us/en/-/media/business_products/dgs/dgs-1210/datasheet/dgs1210seriesrevfdatasheet211enus.pdf). 28 ports x 2 Gbps full duplex, so an RJ45/SFP combo pair counts once whichever medium is in use."
+  },
+  "notes": "Corrected against the DGS-1210 Series Rev F datasheet (2.11 EN US, 05-SEP-2018): this entry declared only l2-forward, l3-forward, cli and http-server and carried no source-linked notes, while the datasheet software table adds 802.1Q VLAN (256 static groups, VID 1-4094), 802.1D/802.1w/802.1s spanning tree and 802.3ad LACP (8 groups of up to 8 ports), so vlan, lacp and stp are now declared. Port names were also made uniform with the rest of the family: the 24 copper ports are port1-port24 and the four combo ports are port25-port28 with port25-sfp-port28-sfp as their fibre halves, rather than bare numbers sitting beside a port template prefix. Ports, per the DGS-1210 Series Rev F datasheet (hardware Rev. F, 2.11 EN US, 05-SEP-2018): 24 x 10/100/1000BASE-T plus 4 x 10/100/1000 or 100/1000 SFP combo ports (one port, two cages, one medium at a time). 8K MAC entries, 256 static MAC entries, 4.1 Mbits packet buffer, DDR3 128 MB CPU memory, 32 MB flash, 256 static VLAN groups (VID 1-4094), 802.1D/802.1w/802.1s STP, 802.3ad LACP (8 groups of up to 8 ports), jumbo frames to 10,000 bytes, and 124 IPv4 / 50 IPv6 static routes over 4 IP interfaces - static routing, not a routing protocol, which is what puts this in the L3-lite class. Management is web GUI, compact CLI over Telnet, SNMP v1/v2c/v3 and D-Link Network Assistant; no model in the line has a serial console port (the console row in the datasheet is an LED, not a port). Dual software images and dual configuration files. Fanless (0 dB(A), Fans: No), 440 x 140 x 44 mm, 2.15 kg, 17.32 W at 100 V. Source: https://www.dlink.com/us/en/-/media/business_products/dgs/dgs-1210/datasheet/dgs1210seriesrevfdatasheet211enus.pdf",
+  "sourceUrl": "https://www.dlink.com/us/en/-/media/business_products/dgs/dgs-1210/datasheet/dgs1210seriesrevfdatasheet211enus.pdf",
   "icon": "switch",
-  "color": "#0ea5e9",
-  "sourceUrl": "https://www.dlink.com/us/en/products/dgs-1210-28mp-28-port-gigabit-smart-managed-poe-switch"
+  "color": "#0ea5e9"
 }
