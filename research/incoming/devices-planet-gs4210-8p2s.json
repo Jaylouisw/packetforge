@@ -1,0 +1,39 @@
+[
+  {
+    "vendor": "planet",
+    "model": "GS-4210-8P2S",
+    "label": "PLANET GS-4210-8P2S (hardware version 3)",
+    "category": "switch",
+    "description": "PLANET GS-4210-8P2S managed Gigabit PoE+ switch (hardware version 3): 8x 10/100/1000BASE-T 802.3af/at PoE+ RJ45 (30 W a port), 2x 100/1000BASE-X SFP uplinks, 140 W PoE budget at 25 C and 120 W at 50 C, 20 Gbps non-blocking fabric, 14.88 Mpps, fanless metal case.",
+    "capabilities": ["l2-forward", "cli", "http-server", "vlan", "lacp", "stp", "poe-pse", "802.3af", "802.3at"],
+    "icon": "switch",
+    "color": "#0e7490",
+    "portTemplate": {
+      "prefix": "port",
+      "start": 1,
+      "count": 8,
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "rj45",
+      "speedCaps": [10, 100, 1000],
+      "poeOut": 30
+    },
+    "interfaces": [
+      { "name": "port9", "type": "ethernet", "connector": "sfp", "speed": "1G", "speedCaps": [100, 1000] },
+      { "name": "port10", "type": "ethernet", "connector": "sfp", "speed": "1G", "speedCaps": [100, 1000] },
+      { "name": "console", "type": "console" }
+    ],
+    "poe": {
+      "budgetW": 140,
+      "sourceUrl": "https://www.planet.com.tw/en/product/gs-4210-8p2s-v3",
+      "note": "140 W max at 25 degrees C and 120 W max at 50 degrees C. 802.3af/802.3at PSE, end-span, 1/2(+) 3/6(-), 30 W max a port at 56 V DC. The datasheet budgets 8 PDs at 7 W, 5 at 15.4 W and 5 at 30 W, so 140 W is the ceiling rather than 8 x 30 W."
+    },
+    "fabric": {
+      "capacityMbps": 20000,
+      "kind": "switching fabric",
+      "note": "20 Gbps non-blocking switch fabric, 14.88 Mpps at 64 bytes, 8K MAC table, 4.1 Mbit shared buffer, 10K jumbo frames."
+    },
+    "sourceUrl": "https://www.planet.com.tw/en/product/gs-4210-8p2s-v3",
+    "notes": "Hardware version 3 datasheet. Ports 1-8 are copper PoE+, 9-10 are SFP cages, then the console. The console is a single RS-232-to-RJ45 port at 115200 8-N-1 that drops into the CLI, so cli is declared. No PoE on the SFP cages. 280 x 180 x 44 mm, 1.6 kg, fanless, 170 W max with full PoE load. Discrepancy: the GS-4210 Series Quick Installation Guide v1.5 says the console interface is not available on the GS-4210-8P2S, which holds for the hardware v1/v2 board; the current hardware v3 datasheet lists the RJ45 console port and that is what is modelled."
+  }
+]

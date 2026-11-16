@@ -1,0 +1,428 @@
+[
+  {
+    "vendor": "planet",
+    "model": "GS-4210-24PL4C",
+    "label": "PLANET GS-4210-24PL4C (hardware version 4)",
+    "category": "switch",
+    "description": "PLANET GS-4210-24PL4C managed Gigabit PoE+ switch (hardware version 4): 24x 10/100/1000BASE-T 802.3af/at PoE+ RJ45, 4x Gigabit TP/SFP combo ports (ports 25-28, one medium per cage), 650 W PoE budget, 56 Gbps non-blocking fabric, 41.67 Mpps, 1U.",
+    "capabilities": [
+      "l2-forward",
+      "cli",
+      "http-server",
+      "vlan",
+      "lacp",
+      "stp",
+      "poe-pse",
+      "802.3af",
+      "802.3at"
+    ],
+    "icon": "switch",
+    "color": "#0e7490",
+    "interfaces": [
+      {
+        "name": "port1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "port2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "port3",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "port4",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "port5",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "port6",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "port7",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "port8",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "port9",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "port10",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "port11",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "port12",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "port13",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "port14",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "port15",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "port16",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "port17",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "port18",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "port19",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "port20",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "port21",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "port22",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "port23",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "port24",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "poeOut": 30
+      },
+      {
+        "name": "port25",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "comboWith": "port25-sfp",
+        "comboRole": "rj45"
+      },
+      {
+        "name": "port25-sfp",
+        "type": "ethernet",
+        "connector": "sfp",
+        "speed": "1G",
+        "speedCaps": [
+          100,
+          1000
+        ],
+        "comboWith": "port25",
+        "comboRole": "sfp"
+      },
+      {
+        "name": "port26",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "comboWith": "port26-sfp",
+        "comboRole": "rj45"
+      },
+      {
+        "name": "port26-sfp",
+        "type": "ethernet",
+        "connector": "sfp",
+        "speed": "1G",
+        "speedCaps": [
+          100,
+          1000
+        ],
+        "comboWith": "port26",
+        "comboRole": "sfp"
+      },
+      {
+        "name": "port27",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "comboWith": "port27-sfp",
+        "comboRole": "rj45"
+      },
+      {
+        "name": "port27-sfp",
+        "type": "ethernet",
+        "connector": "sfp",
+        "speed": "1G",
+        "speedCaps": [
+          100,
+          1000
+        ],
+        "comboWith": "port27",
+        "comboRole": "sfp"
+      },
+      {
+        "name": "port28",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ],
+        "comboWith": "port28-sfp",
+        "comboRole": "rj45"
+      },
+      {
+        "name": "port28-sfp",
+        "type": "ethernet",
+        "connector": "sfp",
+        "speed": "1G",
+        "speedCaps": [
+          100,
+          1000
+        ],
+        "comboWith": "port28",
+        "comboRole": "sfp"
+      },
+      {
+        "name": "console",
+        "type": "console"
+      }
+    ],
+    "poe": {
+      "budgetW": 650,
+      "sourceUrl": "https://www.planet.com.tw/en/product/gs-4210-24p4c_gs-4210-24pl4c-v4",
+      "note": "650 W (max.) on the hardware version 4 datasheet - the same 24 PoE+ ports as the 24P4C behind a larger supply. 802.3af/802.3at PSE, 30 W max a port at 54 V DC. PoE is port 1-24 only - the four TP/SFP combo cages are data-only. PD budget: 24 units at 7 W and at 15.4 W, 21 units at 30 W, so 650 W still cannot run 24 x 30 W."
+    },
+    "fabric": {
+      "capacityMbps": 56000,
+      "kind": "switching fabric",
+      "note": "56 Gbps non-blocking fabric and 41.67 Mpps at 64 bytes, 16K MAC table, 4.1 Mbit buffer, 12K jumbo frames. 28 physical ports x 2 Gbps full duplex, counting each TP/SFP combo pair once whichever medium is fitted."
+    },
+    "sourceUrl": "https://www.planet.com.tw/en/product/gs-4210-24p4c_gs-4210-24pl4c-v4",
+    "notes": "Hardware version 4 datasheet (GS-4210-24P4C/24PL4C, v4). Ports 1-24 are PoE+ RJ45; ports 25-28 are Gigabit TP/SFP combo cages, modelled as an RJ45 and an SFP sharing one physical cage. RJ45 console at 115200 8-N-1. 3 smart fans, 440 x 330 x 44 mm, 4.3 kg, 760 W max fully loaded, 12 A max input. Discrepancy: earlier revisions of this model quote a 440 W budget (C-GS-4210-24P4C_GS-4210-24PL4C_s.pdf) where the current hardware v4 datasheet quotes 650 W. The v4 figure is modelled."
+  }
+]
