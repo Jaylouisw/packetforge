@@ -4612,7 +4612,13 @@ class CliSession {
           // whose cable is out used to read (P), i.e. "this port is carrying traffic", while it was
           // dropping everything hashed to it (#1263).
           const why = {};
-          const canCarry = (function (self, reasons) {
+          // A member whose two ends never negotiated is not a member - but it is not a dead port either: the
+          // hardware puts it into an independent state and it goes on carrying traffic as an ordinary single
+          // link (Cisco, Configuring EtherChannels). That is a third state, so it gets the flag a box uses for
+          // it, `(s)` suspended, rather than `(D)` down, which would claim the cable is out when it is not
+          // (#fidelity: LACP passive/passive).
+          const suspended = {};
+          const canCarry = (function (self, reasons, held) {
             return function (name) {
               const iface = dev.interfaces.get(name);
               if (!iface) { reasons[name] = '(no such port)'; return false; }
@@ -4623,11 +4629,16 @@ class CliSession {
               // The same sentence `show interfaces` and `show arp` use for the same fact.
               const note = self._staleNote(iface);
               if (note) { reasons[name] = note; return false; }
+              // Negotiation is asked last, of a port that could otherwise carry: a suspended port may still
+              // forward, so "suspended" must not hide "the cable is out".
+              const heldMember = lagLib.memberSuspension(dev, name, self.topo);
+              if (heldMember) { held[name] = heldMember; reasons[name] = '(suspended: ' + heldMember.why + ')'; return false; }
               return true;
             };
-          })(this, why);
+          })(this, why, suspended);
           const live = lagLib.eligibleMembers(raw, canCarry);
           const shown = raw.map(function (m) {
+            if (suspended[m]) return m + '(s)';
             return m + (live.indexOf(m) === -1 ? '(D)' : '(P)');
           });
           // The Port-channel cell carries the bundle's own flags, which say what the member list cannot: S is a
@@ -4645,7 +4656,12 @@ class CliSession {
           // Why a member is not carrying, in the same words `show interfaces` uses, and what that means for
           // the bundle as a whole.
           for (const m of raw) {
-            if (live.indexOf(m) === -1) {
+            if (suspended[m]) {
+              // The port is not lost, and saying "traffic is dropped" here would send an operator looking for
+              // a cable fault that is not there.
+              out.push('  ' + pad(m, 10) + 'is suspended ' + why[m].replace('(suspended: ', '(') +
+                ' - the port still carries traffic, as a single link rather than as a member of Po' + id);
+            } else if (live.indexOf(m) === -1) {
               out.push('  ' + pad(m, 10) + 'not bundled ' + (why[m] || '(cannot carry a frame)'));
             }
           }
@@ -4656,7 +4672,18 @@ class CliSession {
             out.push('  group ' + id + ' has 1 member: a bundle needs at least 2 ports');
           }
           if (!live.length && raw.length) {
-            out.push('  bundle ' + id + ' is down: no member can carry a frame (traffic is dropped)');
+            // An empty bundle has three different answers, and only one of them is "traffic is dropped": a
+            // suspended member went on forwarding on its own, so a bundle of suspended members still carries
+            // traffic - as two single links - while a bundle of dead members carries nothing.
+            const carrying = raw.filter(function (m) { return !!suspended[m]; });
+            if (carrying.length === raw.length) {
+              out.push('  bundle ' + id + ' is down: no member joined it (each one carries traffic as a single link)');
+            } else if (carrying.length) {
+              out.push('  bundle ' + id + ' is down: no member is in it (' + carrying.join(', ') +
+                ' still carry traffic as single links)');
+            } else {
+              out.push('  bundle ' + id + ' is down: no member can carry a frame (traffic is dropped)');
+            }
           } else if (live.length < raw.length) {
             out.push('  bundle ' + id + ' is running on ' + live.length + ' of ' + raw.length +
               ' members: ' + live.join(', '));

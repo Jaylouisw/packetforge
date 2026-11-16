@@ -810,9 +810,17 @@ class Simulator {
   }
 
   // Logical port name for a physical port: LAG members collapse into one port.
+  //
+  // A member whose two ends never negotiated is not in the bundle, so the spanning tree has to see the ordinary
+  // port it has become: the hardware puts an unnegotiated member into an independent state and it "continues to
+  // carry data traffic as would any other single link" (Cisco, Configuring EtherChannels). Grouping it under
+  // `lag-N` while the data plane sends its frames as itself is two answers to one question - and it hides the
+  // loop the two parallel links make, so the tree would block neither of them (#fidelity: LACP passive/passive).
   _logicalPortName(dev, ifaceName) {
     const lag = dev.lagFor ? dev.lagFor(ifaceName) : null;
-    return lag ? ('lag-' + lag.id) : ifaceName;
+    if (!lag) return ifaceName;
+    if (lagLib.memberSuspension(dev, ifaceName, this.topo)) return ifaceName;
+    return 'lag-' + lag.id;
   }
 
   // Build the STP graph and mark blocking ports on each device.
@@ -3371,7 +3379,13 @@ class Simulator {
     const egresses = [];
     for (const name of usable) {
       const lag = dev.lagFor ? dev.lagFor(name) : null;
-      if (!lag) { egresses.push(name); continue; }
+      // A member whose two ends never negotiated is not in the bundle - and, on the hardware, is not lost
+      // either: the port falls back to being an ordinary link ("Incompatible ports are put into an independent
+      // state and continue to carry data traffic as would any other single link" - Cisco, Configuring
+      // EtherChannels). Treating it as a normal egress port is exactly that, and it is why the spanning tree
+      // then sees two parallel links instead of one bundle. Before this a passive/passive pair with two cables
+      // hashed traffic across "Po1(SU)" - a bundle no box would have built (#fidelity: LACP passive/passive).
+      if (!lag || lagLib.memberSuspension(dev, name, this.topo)) { egresses.push(name); continue; }
       if (!byLag[lag.id]) byLag[lag.id] = [];
       byLag[lag.id].push(name);
     }

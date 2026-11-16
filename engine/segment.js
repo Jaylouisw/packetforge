@@ -63,7 +63,11 @@ function portLive(dev, iface, topo) {
   }
   if (dev.stp && dev.stp.blocked && dev.stp.blocked.has(iface.name)) return false;
   if (dev.stp && dev.stp.states) {
-    const logical = (dev.lagFor && dev.lagFor(iface.name)) ? ('lag-' + dev.lagFor(iface.name).id) : iface.name;
+    // The same logical port the spanning tree grouped this member under - and a member whose two ends never
+    // negotiated was never in the bundle, so it is its own port (engine/simulator.js `_logicalPortName`).
+    const lagFor = (dev.lagFor && dev.lagFor(iface.name)) || null;
+    const suspended = lagFor ? require('./lag').memberSuspension(dev, iface.name, topo) : null;
+    const logical = (lagFor && !suspended) ? ('lag-' + lagFor.id) : iface.name;
     const st = dev.stp.states[logical];
     if (st && st !== 'forwarding') return false;      // Listening/Learning drop everything
   }

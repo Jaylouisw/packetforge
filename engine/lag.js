@@ -238,6 +238,53 @@ function eligibleMembers(members, canCarry) {
   return out.sort(function (a, b) { return a < b ? -1 : (a > b ? 1 : 0); });
 }
 
+// Does this member's mode negotiate with the mode at the far end of its cable?
+//
+// One rule, because it is the one the vendor states in as many words: "A port in the passive mode cannot form
+// an EtherChannel with another port that is also in the passive mode because neither port starts LACP
+// negotiation" (Cisco, Configuring EtherChannels, LACP modes). A passive port answers LACP and never starts
+// it, so two passive ends wait for a partner neither of them sends:
+//
+//   active  + active   -> bundle
+//   active  + passive  -> bundle
+//   passive + passive  -> no bundle
+//   on      + on       -> bundle (no protocol at all)
+//
+// `on` against a negotiating end is deliberately NOT decided here: the real pair is asymmetric - the `on` side
+// shows a bundle while the LACP side suspends, and the two ends disagree about the same cable - and this model
+// has one opinion per member, not one per end. research/lacp-passive-both-ends.md names that as unresolved.
+function negotiationVerdict(myMode, peerMode) {
+  const mine = canonicalMode(myMode);
+  const theirs = canonicalMode(peerMode);
+  if (mine === 'lacp-passive' && theirs === 'lacp-passive') {
+    return { bundled: false, why: 'both ends are passive: neither starts LACP' };
+  }
+  return { bundled: true, why: null };
+}
+
+// A member that never negotiated is not in the bundle - but it is not dead either. The vendor's own sentence:
+// "Incompatible ports are put into an independent state and continue to carry data traffic as would any other
+// single link. The port configuration does not change, but the port does not participate in the EtherChannel"
+// (Cisco, Configuring EtherChannels). So this is a suspension: the port forwards as itself instead of as a
+// member, and `show etherchannel summary` marks it `(s)`.
+//
+// Only decided when BOTH ends name a channel group. A far end in no group at all is a different question, and
+// one this model does not answer yet (research/lacp-passive-both-ends.md).
+function memberSuspension(dev, ifaceName, topo) {
+  if (!dev || !topo || typeof dev.lagFor !== 'function') return null;
+  const iface = dev.interfaces ? dev.interfaces.get(ifaceName) : null;
+  if (!iface || !iface.peer) return null;
+  const mine = dev.lagFor(ifaceName);
+  if (!mine) return null;
+  const peerDev = typeof topo.getDevice === 'function' ? topo.getDevice(iface.peer.deviceId) : null;
+  if (!peerDev || typeof peerDev.lagFor !== 'function') return null;
+  const theirs = peerDev.lagFor(iface.peer.iface);
+  if (!theirs) return null;
+  const verdict = negotiationVerdict(mine.mode, theirs.mode);
+  if (verdict.bundled) return null;
+  return { why: verdict.why, mode: mine.mode, peerMode: theirs.mode, peer: iface.peer };
+}
+
 // ---------------------------------------------------------------------------
 // validation
 // ---------------------------------------------------------------------------
@@ -367,5 +414,7 @@ module.exports = {
   hashFrame,
   selectMember,
   eligibleMembers,
+  negotiationVerdict,
+  memberSuspension,
   validateLag
 };
