@@ -367,6 +367,62 @@ const STP_UNMODELLED = ['portfast', 'edge', 'bpduguard', 'bpdufilter', 'cost', '
 // and not true (#1509). `vlan` is not a verb, which is why hoisting the unmodelled verbs in #1501 missed it.
 const STP_ONE_TREE = 'This device runs one spanning tree, not one per VLAN';
 
+// `no` reads only the tokens it needs and ignores the rest, so a `?` typed at the end of a `no` line where the
+// operator expected help was read as *another token to ignore* and the line acted (#1694): `no vlan 42 name ?`
+// removed VLAN 42, `no hostname ?` cleared the name, `no description ?` cleared the port. The key is not a
+// value (#1685, #1691) and it is not a trailing word either. Each entry is the branch the line would have run,
+// in its own words, so the refusal names the syntax that wanted the answer instead of only complaining.
+const NO_FORMS = [
+  { modes: ['config'], match: ['hostname'], syntax: 'no hostname', effect: 'clears the hostname', undo: 'cleared' },
+  { modes: ['config'], match: ['vlan'], syntax: 'no vlan <id>', effect: 'removes a VLAN', undo: 'removed' },
+  { modes: ['config'], match: ['interface'], syntax: 'no interface <name>', effect: 'removes a subinterface', undo: 'removed' },
+  { modes: ['config'], match: ['access-list'], syntax: 'no access-list <number>', effect: 'removes an access list', undo: 'removed' },
+  { modes: ['config'], match: ['spanning-tree'], syntax: 'no spanning-tree', effect: 'clears the bridge priority', undo: 'cleared' },
+  { modes: ['config'], match: ['ip', 'route'], syntax: 'no ip route <prefix> <mask> <gateway>', effect: 'removes a static route', undo: 'removed' },
+  { modes: ['config'], match: ['ip', 'default-gateway'], syntax: 'no ip default-gateway', effect: 'clears the default gateway', undo: 'cleared' },
+  { modes: ['config'], match: ['ip', 'name-server'], syntax: 'no ip name-server <address>', effect: 'removes a name server', undo: 'removed' },
+  { modes: ['config'], match: ['ip', 'nat', 'pool'], syntax: 'no ip nat pool <name>', effect: 'removes a NAT pool', undo: 'removed' },
+  { modes: ['config'], match: ['ip', 'nat'], syntax: 'no ip nat pool <name> | no ip nat inside source', effect: 'removes a NAT pool or the last NAT rule', undo: 'removed' },
+  { modes: ['config'], match: ['ip', 'dhcp', 'pool'], syntax: 'no ip dhcp pool <name>', effect: 'removes a DHCP pool', undo: 'removed' },
+  { modes: ['config'], match: ['dns', 'zone'], syntax: 'no dns zone <name>', effect: 'removes a DNS zone', undo: 'removed' },
+  { modes: ['config'], match: ['router', 'bgp'], syntax: 'no router bgp <as>', effect: 'removes the BGP process', undo: 'removed' },
+  { modes: ['config'], match: ['neighbor'], syntax: 'no neighbor <address>', effect: 'removes a BGP neighbour', undo: 'removed' },
+  { modes: ['config'], match: ['ospf'], syntax: 'no ospf <process>', effect: 'removes the OSPF process', undo: 'removed' },
+  { modes: ['iface'], match: ['description'], syntax: 'no description', effect: 'clears the description on this port', undo: 'cleared' },
+  { modes: ['iface'], match: ['ip', 'address'], syntax: 'no ip address', effect: 'clears the address on this port', undo: 'cleared' },
+  { modes: ['iface'], match: ['ip', 'nat'], syntax: 'no ip nat inside | no ip nat outside', effect: "clears this port's NAT role", undo: 'cleared' },
+  { modes: ['iface'], match: ['vrrp'], syntax: 'no vrrp <vrid>', effect: 'removes a VRRP group from this port', undo: 'removed' },
+  { modes: ['iface'], match: ['shutdown'], syntax: 'no shutdown', effect: 'opens this port', undo: 'changed' },
+  { modes: ['iface'], match: ['switchport'], syntax: 'no switchport', effect: "resets this port's switching", undo: 'changed' },
+  { modes: ['iface'], match: ['channel-group'], syntax: 'no channel-group <id>', effect: 'removes this port from its LAG', undo: 'removed' },
+  { modes: ['iface'], match: ['speed'], syntax: 'no speed', effect: 'returns this port to auto-negotiation', undo: 'changed' },
+  { modes: ['iface'], match: ['duplex'], syntax: 'no duplex', effect: 'returns this port to auto-duplex', undo: 'changed' },
+  { modes: ['dhcp-pool'], match: ['pool'], syntax: 'no pool', effect: 'removes this whole DHCP pool', undo: 'removed' },
+  { modes: ['dhcp-pool'], match: ['network'], syntax: 'no network', effect: "clears the pool's network", undo: 'cleared' },
+  { modes: ['dhcp-pool'], match: ['default-router'], syntax: 'no default-router', effect: "clears the pool's default router", undo: 'cleared' },
+  { modes: ['dhcp-pool'], match: ['dns-server'], syntax: 'no dns-server', effect: "clears the pool's DNS servers", undo: 'cleared' },
+  { modes: ['dhcp-pool'], match: ['range'], syntax: 'no range', effect: "clears the pool's address range", undo: 'cleared' },
+  { modes: ['dhcp-pool'], match: ['lease'], syntax: 'no lease', effect: "clears the pool's lease time", undo: 'cleared' },
+  { modes: ['dhcp-pool'], match: ['excluded-address'], syntax: 'no excluded-address <address>', effect: 'removes excluded addresses from the pool', undo: 'removed' },
+  { modes: ['dhcp-pool'], match: ['host'], syntax: 'no host <address> [<mac>]', effect: 'removes a reservation', undo: 'removed' }
+];
+
+// The longest match wins, so `no ip nat pool <name>` is named rather than the shorter `no ip nat` beside it.
+function noFormFor(words, mode) {
+  const typed = words.map(function (w) { return String(w).toLowerCase(); });
+  let best = null;
+  for (const f of NO_FORMS) {
+    if (f.modes.indexOf(mode) === -1) continue;
+    if (f.match.length > typed.length) continue;
+    let hit = true;
+    for (let k = 0; k < f.match.length; k++) {
+      if (f.match[k] !== typed[k]) { hit = false; break; }
+    }
+    if (hit && (!best || f.match.length > best.match.length)) best = f;
+  }
+  return best;
+}
+
 // The clause a real IOS appends to a ping's success-rate line, and the rule for when it cannot be printed.
 //
 // `Success rate is 80 percent (4/5)` is a sentence IOS never finishes there: when at least one echo comes back the
@@ -594,6 +650,30 @@ class CliSession {
       (consequence ? ' - ' + consequence : '');
   }
 
+  // The same key, one word earlier (#1694): at the end of a `no` line it is not a question and not a value -
+  // the branches read the tokens they need and ignore what follows, so `no vlan 42 name ?` removed VLAN 42,
+  // `no hostname ?` cleared the name and `no description ?` cleared the port - each with a receipt shaped like
+  // success, which is the defect #1497 and #1685 removed one door over. The damage is done by the words
+  // *before* the key, so the check runs before any `no` branch acts, and the refusal is written in the words
+  // of the branch it stopped, which is the answer the operator was asking for.
+  _noHelpKeyRefusal(tokens) {
+    if (!tokens.length || String(tokens[0]).toLowerCase() !== 'no') return null;
+    if (String(tokens[tokens.length - 1]).trim() !== '?') return null;
+    // `no ?` is the one line where the key really is a question: the word it wanted is missing, so the answer
+    // is where the index is rather than a syntax for a branch that was never named.
+    if (tokens.length === 2) {
+      return '% Incomplete command: `no` needs the command it undoes, e.g. `no vlan <id>`; type `?` on its own' +
+        ' for the index - nothing was changed';
+    }
+    const form = noFormFor(tokens.slice(1), this.mode);
+    if (!form) {
+      return '% "?" is the help key, not a value: a `no` line undoes a command that is already configured ' +
+        '- nothing was changed';
+    }
+    return '% "?" is the help key, not a value: `' + form.syntax + '` ' + form.effect +
+      ' - nothing was ' + (form.undo || 'changed');
+  }
+
   // What is left for the shared validator to say is about the number, not the caller's word for it: the messages
   // are written for whoever validated a port object ("accessVlan 1002 is reserved..."), and the operator typed
   // `switchport access vlan 1002`. Only the field name is swapped; the reason is the validator's.
@@ -631,6 +711,8 @@ class CliSession {
     // "Unrecognized config command: ?" and implied the key itself was the mistake (#1503). The index
     // already labels each row with the mode it belongs in, so the same list is the right answer here.
     if (head === 'help' || head === '?') return this._help();
+    const noKeyed = this._noHelpKeyRefusal(tokens);
+    if (noKeyed) return [noKeyed];
     if (head === 'ip' && tokens[1] && tokens[1].toLowerCase() === 'nat' &&
         tokens[2] && /^(inside|outside)$/i.test(String(tokens[2])) && tokens[3] === undefined) {
       // The keyword belongs to a port, not to the box. Saying so beats printing the pool/rule usage, which does
@@ -1182,6 +1264,8 @@ class CliSession {
     const iface = this.device.interfaces.get(this.iface);
     const head = tokens[0].toLowerCase();
     if (head === 'help' || head === '?') return this._help();
+    const noKeyed = this._noHelpKeyRefusal(tokens);
+    if (noKeyed) return [noKeyed];
 
     // IOS treats a new `interface <name>` line inside interface mode as a mode switch, not as an
     // error. Configs copied out before #1230 rely on exactly this, because they have no `exit`
@@ -2546,6 +2630,8 @@ class CliSession {
     const dhcpLib = require('./dhcp');
     const head = tokens[0].toLowerCase();
     if (head === 'help' || head === '?') return this._help();
+    const noKeyed = this._noHelpKeyRefusal(tokens);
+    if (noKeyed) return [noKeyed];
     const pools = (this.device.config && this.device.config.dhcpPools) || [];
     const pool = pools.filter(function (p) {
       return p.name === this.pool;
