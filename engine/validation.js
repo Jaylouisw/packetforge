@@ -136,7 +136,7 @@ const RULES = [
   },
   {
     code: 'W_SPEED_DOWNGRADE', severity: 'warning',
-    description: 'The link runs below the maximum speed of both ports.'
+    description: 'The link runs below the maximum speed of a port on it (both ends, or one end facing a slower peer).'
   },
   {
     code: 'W_POE_DRAW', severity: 'warning',
@@ -853,15 +853,50 @@ function validateConnection(input) {
   }
 
   // -- W_SPEED_DOWNGRADE ----------------------------------------------------
-  if (speed !== null &&
-      portA.maxSpeedMbps !== null && portB.maxSpeedMbps !== null &&
-      speed < portA.maxSpeedMbps && speed < portB.maxSpeedMbps) {
+  //
+  // One code for two shapes of the same fact: the link runs slower than a port on it.
+  //
+  //  * Both ends above the negotiated rate. Nothing in the link can go faster, so a rate was forced
+  //    or a slow module sits between two fast cages. This is what the code was written for, and its
+  //    wording is unchanged.
+  //  * One end above it. This is the common case - a 10G RJ45 port meeting a 1G RJ45 port negotiates
+  //    1000 - and it said nothing at all, because the old condition required the rate to be below
+  //    BOTH maxima. A capability check like "a 10G-capable link never negotiates 1G" cannot be built
+  //    on a predicate that is blind exactly where an operator cares (#1523).
+  //
+  // The single-ended warning is withheld when the ceiling is an installed pluggable. A 1G optic or a
+  // 1G copper module in a 10G cage is a part somebody chose on purpose, and the link runs at what
+  // that part does; telling them their 10G port is at 1G because they fitted a GLC-LX is noise. It
+  // is the chosen medium's own rate, not the port's, that a person would have to change.
+  const capA = portA.maxSpeedMbps;
+  const capB = portB.maxSpeedMbps;
+  if (speed !== null && capA !== null && capB !== null && speed < capA && speed < capB) {
     warnings.push({
       code: 'W_SPEED_DOWNGRADE',
       message: 'Link ' + lblA + ' <-> ' + lblB + ' runs at ' + speedLabel(speed) +
-        ', below the ' + speedLabel(portA.maxSpeedMbps) + ' of ' + portA.name +
-        ' and the ' + speedLabel(portB.maxSpeedMbps) + ' of ' + portB.name + '.'
+        ', below the ' + speedLabel(capA) + ' of ' + portA.name +
+        ' and the ' + speedLabel(capB) + ' of ' + portB.name + '.'
     });
+  } else if (speed !== null) {
+    const ends = [
+      { label: lblA, cap: capA, peer: lblB, peerCap: capB },
+      { label: lblB, cap: capB, peer: lblA, peerCap: capA }
+    ];
+    const overCap = ends.filter(function (e) { return e.cap !== null && speed < e.cap; });
+    // A pluggable whose own line rate is the negotiated rate: the operator picked that part, so the
+    // rate is a decision, not a downgrade.
+    const pluggableCeiling = !!(chosen && chosen.connector && chosen.connector !== 'rj45' &&
+      typeof chosen.speedMbps === 'number' && chosen.speedMbps === speed);
+    const fast = overCap.length === 1 ? overCap[0] : null;
+    if (fast && !pluggableCeiling && fast.peerCap !== null && fast.peerCap <= speed) {
+      warnings.push({
+        code: 'W_SPEED_DOWNGRADE',
+        message: 'Link ' + lblA + ' <-> ' + lblB + ' runs at ' + speedLabel(speed) + ': ' +
+          fast.label + ' is a ' + speedLabel(fast.cap) + ' port and ' + fast.peer +
+          ' tops out at ' + speedLabel(fast.peerCap) + ', so this cable cannot carry more than ' +
+          speedLabel(fast.peerCap) + '.'
+      });
+    }
   }
 
   // -- W_SWITCHPORT_MISMATCH ------------------------------------------------

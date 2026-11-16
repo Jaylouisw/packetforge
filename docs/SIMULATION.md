@@ -443,7 +443,7 @@ layer exists in `engine/bgp.js` today.
 |---|---|---|
 | **Modelled** | Wired links run at the highest **common** rate, then clamped to what the chosen medium can carry. | `engine/media.js:736-741`, `engine/validation.js:610-619` |
 | **Modelled** | A 10G SFP+ cabled to a 1G SFP negotiates 1000BASE-X at 1 Gbps — correct, because the cage accepts a 1G optic. | `engine/media.js:211-219` |
-| **Modelled** | `W_SPEED_DOWNGRADE` warns when the link runs below **both** ports' maximum. | `engine/validation.js:751-761` |
+| **Modelled** | `W_SPEED_DOWNGRADE` warns when the link runs below **either** port's maximum — both ends (two 10G cages with a 1G module), or one end against a slower peer (10G RJ45 into 1G RJ45 negotiates 1000). A link running at an installed module's own rate is exempt, because the part was chosen. | `engine/validation.js:855-899` |
 | **Modelled** | `E_NO_COMMON_SPEED` blocks a pair with no shared rate. | `engine/validation.js:126` |
 | **Approximate** | A radio association deliberately does **not** require an exact match: the client takes the best rate both sides and the band can sustain. | `engine/media.js:709-734` |
 | **Absent** | Autonegotiation as a process (no FLP bursts, no parallel detection), forced speed/duplex from the CLI (`speed`/`duplex` are not commands), half-duplex collisions, duplex mismatch as anything but a warning. | `engine/validation.js:743-749` |

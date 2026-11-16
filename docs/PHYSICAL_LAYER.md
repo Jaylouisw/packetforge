@@ -196,7 +196,7 @@ physically correct, because the SFP+ cage accepts a 1G optic.
 |------|---------|
 | `W_DISTANCE` | Cable longer than the medium's reach |
 | `W_DUPLEX_MISMATCH` | Ends configured with different duplex |
-| `W_SPEED_DOWNGRADE` | Link runs below both ports' maximum |
+| `W_SPEED_DOWNGRADE` | Link runs below a port's maximum (both ends, or one end facing a slower peer); module-capped links are exempt |
 | `W_POE_DRAW` | PoE-powered device on a port that cannot supply power |
 | `W_COPPER_LONGRUN` | Copper run longer than the 90 m horizontal limit |
 

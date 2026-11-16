@@ -339,9 +339,13 @@ port unable to accept the 100G optic most labs actually own.
 The consequence is that **the link runs at the module's rate, not the cage's
 maximum**. A 200G `qsfpdd` port against a 100G `qsfp28` port negotiates the
 highest common rate, picks `100gbase-sr4`, and reports `speedMbps: 100000`. It
-does **not** raise `W_SPEED_DOWNGRADE`, because that warning fires only when the
-rate is below the maximum of *both* ports and here one of them is a 100G port.
-Do not read "no warning" as "ran at full speed" — read `speedMbps`.
+does **not** raise `W_SPEED_DOWNGRADE`, because the ceiling is the installed
+module: the chosen medium's own line rate is the rate the link negotiated, so
+the rate is a part somebody fitted rather than a port that cannot keep up.
+`W_SPEED_DOWNGRADE` fires when the rate is below the maximum of *either* port
+(§5), but a module-capped link is exempt — a 1G optic in a 10G cage is a
+decision, not a fault. Do not read "no warning" as "ran at full speed" —
+read `speedMbps`.
 
 The other direction is not automatic: `qsfpdd` does **not** mate with `sfp28`,
 and `qsfp28` does **not** mate with `sfp+`. A 100G uplink cabled to a 25G uplink
@@ -511,7 +515,7 @@ Everything the rules engine can emit, and where it comes from:
 | `W_DISTANCE` | warning | validation | Length exceeds the medium's reach |
 | `W_COPPER_LONGRUN` | warning | validation | Copper past the 90 m horizontal limit |
 | `W_DUPLEX_MISMATCH` | warning | validation | Ends disagree on duplex (set with `duplex half` / `duplex full`) |
-| `W_SPEED_DOWNGRADE` | warning | validation | Link below the maximum of *both* ports |
+| `W_SPEED_DOWNGRADE` | warning | validation | Link below the maximum of a port on it — both ends, or one end facing a slower peer. Module-capped links are exempt |
 | `W_POE_DRAW` | warning | validation | Powered device on a port that supplies no PoE |
 | `W_HYBRID_CORD` | warning | validation | Hybrid UPC/APC cord joining two polishes; legal, costs its IL |
 
@@ -873,10 +877,15 @@ Stated so nobody debugs a limitation as a bug:
 - **An unrecognised connector is reported as unknown, not guessed.** No media, no
   rates, no mates, `family: 'unknown'` — a refusal you can act on instead of a
   copper port that refuses every lead. Add the cage to `CAGES` if it is real.
-- **`W_SPEED_DOWNGRADE` needs both ports to be faster than the link.** A 400G
-  port on a 100G link produces no warning if the other port is 100G. Read
-  `speedMbps` and `mediaId` instead of inferring rate from the absence of
-  warnings.
+- **`W_SPEED_DOWNGRADE` has two shapes, and one exemption.** It fires when the
+  negotiated rate is below *both* ports' maximum (two 10G cages with a 1G module
+  between them), and when it is below *one* of them (a 10G RJ45 port meeting a 1G
+  RJ45 port, which negotiates 1000 — the common case, and until #1523 it said
+  nothing at all). It does **not** fire when the negotiated rate is the chosen
+  medium's own rate and that medium is a pluggable: a 1G optic or 1G copper
+  module in a 10G cage is a part somebody chose, so a 400G port on a 100G module
+  stays quiet. Either way, read `speedMbps` and `mediaId` rather than inferring
+  rate from the absence of warnings.
 - **Verdicts can depend on argument order.** Where `CAGE_MATE` is one-sided (the
   `usb`/`console` pair), swapping `portA` and `portB` changes the code from
   `E_CONNECTOR_MISMATCH` to `E_NO_COMMON_MEDIA`. Pass the ports in the order the
