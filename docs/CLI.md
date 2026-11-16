@@ -361,6 +361,25 @@ down)`, `status: down (link down)` — because `status: up` printed directly abo
 was two halves of one output disagreeing. A cable that was pulled with `link down` is not the same fault
 as a socket with nothing in it, and the two need different fixes. A wireless radio has no cable to miss, so it is up when its radio is.
 
+The **Method** column answers the other half of the question — how the port came by the address it holds —
+and a port with no address has no method at all:
+
+| What the port holds | IP-Address | Method |
+|---|---|---|
+| an address from `ip address <a> <mask>` | the address | `manual` |
+| `ip address dhcp`, no lease yet | `unassigned` | `DHCP` |
+| nothing | `unassigned` | `unset` |
+
+`unassigned` beside `unset` is what a real IOS prints, and the pairing is the point: this table used to say
+`manual` beside `unassigned`, which claims a person configured an address the port does not have. `DHCP` is
+kept before a lease arrives because asking is a method — a client that has not been answered still reads
+`unassigned YES DHCP` on hardware. `NVRAM` — the spelling a real IOS uses for an address it read back from
+the saved configuration — is not distinct here: this model keeps one configuration, so a static address reads
+`manual` whether or not the board has been saved.
+
+The header is padded from the same widths as the rows, so a heading cannot sit one column to the right of the
+values beneath it — `Method` above `manual`, `Status` above `down`.
+
 A device that is **not part of a topology** has no cables to report on, so its ports keep their old
 answer (`up` unless shut). The command cannot know about a cable it was never told about, and inventing
 `down` for every port of a bare device would be a different wrong answer.
@@ -1742,7 +1761,7 @@ Every `do show …` in every configuration session failed that way, echoing the 
 ```
 sw1(config)#do show ip interface brief
 Interface              IP-Address      OK? Method Status                Protocol
-Fa0/1                 unassigned      YES  manual  down                  down
+Fa0/1                  unassigned      YES unset  down                  down
 sw1(config)#do ping 10.0.0.1
 % `do` runs a show command from config mode here: `do show <command>` (for anything else, leave config mode with `end`)
 ```

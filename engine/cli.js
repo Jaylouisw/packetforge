@@ -25,6 +25,43 @@ const vlanLib = require('./vlan');
 
 function pad(s, w) { s = String(s); return s + ' '.repeat(Math.max(0, w - s.length)); }
 
+// `show ip interface brief` is one table with six columns, and its header is the table's first row - padded
+// from the same widths, so the two cannot drift apart. They had drifted: the header put `OK?` in four columns
+// while every row put `YES  ` in five, so `Method` sat one column right of the word `Method` above it and every
+// row was off by one from `Status` onwards. A table an operator cannot read down is a table they have to re-parse
+// by eye, and this one already gets pasted into bug reports. The widths are IOS's own.
+const BRIEF_COLUMNS = [
+  { head: 'Interface', width: 23 },
+  { head: 'IP-Address', width: 16 },
+  { head: 'OK?', width: 4 },
+  { head: 'Method', width: 7 },
+  { head: 'Status', width: 22 },
+  { head: 'Protocol', width: 0 }
+];
+
+function briefLine(cells) {
+  return cells.map(function (c, i) {
+    const w = BRIEF_COLUMNS[i] ? BRIEF_COLUMNS[i].width : 0;
+    const text = String(c === null || c === undefined ? '' : c);
+    if (!w) return text;
+    // A value wider than its column shifts the rest of the row rather than running into it, which is what a
+    // real table does with a name it will not shorten.
+    return text.length >= w ? text + ' ' : pad(text, w);
+  }).join('');
+}
+
+// The Method column answers one question - how did this port come by the address it holds - so a port with no
+// address has no method at all. IOS prints `unset` there, beside `unassigned` in the IP-Address column; this
+// console printed `manual` beside `unassigned`, which claims somebody configured an address that is not there.
+// `DHCP` stays even before a lease arrives: asking is a method, and a client that has not been answered
+// yet still read `unassigned YES DHCP` on real hardware.
+function briefMethod(iface) {
+  if (iface.dhcp) return 'DHCP';
+  if (iface.ip) return 'manual';
+  return 'unset';
+}
+
+
 // A `show` command that does not take an argument says so, and names the command that answers the question asked.
 //
 // The alternative - and what eight of these did - is to drop the words and print the whole table. That is not a
@@ -3611,7 +3648,7 @@ class CliSession {
         return showNoTail('show ip interface brief', tokens.slice(3), 'every interface is listed',
           'use `show interfaces ' + want + '` for one port');
       }
-      out.push('Interface              IP-Address      OK? Method Status                Protocol');
+      out.push(briefLine(BRIEF_COLUMNS.map(function (c) { return c.head; })));
       for (const i of dev.interfaces.values()) {
         const ip = i.ip ? i.ip + '/' + net.prefixOf(i.mask) : 'unassigned';
         // Status is whether the port can carry a frame, not merely whether someone shut it (#1237).
@@ -3620,9 +3657,9 @@ class CliSession {
         // Method names where the address came from, and `unset` is an answer: a port with no address has no
         // method, so printing `manual` beside `unassigned` claims a configuration nobody typed. Cisco's field
         // list includes `unset - Unset`, and its sample output pairs `unassigned  YES unset  ...`.
-        const method = i.dhcp ? 'DHCP' : (i.ip ? 'manual' : 'unset');
-        out.push(pad(i.name, 22) + pad(ip, 16) + 'YES  ' + pad(method, 8) +
-          pad(link.status, 22) + link.protocol);
+        // briefMethod() is that rule, and briefLine() is what lands the row under its heading; the fixed-width
+        // pad() chain put every row a column off because the header and the rows were counted separately (#1521).
+        out.push(briefLine([i.name, ip, 'YES', briefMethod(i), link.status, link.protocol]));
       }
     } else if (what === 'ip' && tokens[1] === 'route') {
       // There is no `show ip route <prefix>` here, and the command used to answer as though there were: it printed
