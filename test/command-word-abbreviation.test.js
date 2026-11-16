@@ -136,5 +136,96 @@ console.log('A word that is no command here is refused exactly as before, and ne
   ok(/No interface Fa/.test(p.said), 'a port name is not resolved by prefix either', p.said);
 })();
 
+// ---- the same rule at `(config)#` ----
+//
+// A real box accepts a shortened config word: the transcript on connecteddots.online prints
+// `Router(config)#int gi0/1` opening the port and `do sh run` running the view, and Cisco's CLI chapter states the
+// rule for "commands and keywords" without limiting it to one mode
+// (https://www.connecteddots.online/resources/cisco/invalid-input-detected-at-marker). This console accepted
+// exactly one of them - `int`, as a hard-coded alternative - and refused `host r1`, `vla 20`, `sp priority 4096`
+// and `do sh ver`. The rule now applies to the first word of a config line, resolved against the dispatcher's own
+// vocabulary, and to the EXEC word after `do`.
+console.log('');
+console.log('A shortened config word reaches the door it names, and prints what the whole spelling prints:');
+
+function inConfig(cmd) {
+  const top = new Topology();
+  top.addDevice(SWITCH, 'sw1');
+  const s = new CliSession(top.getDevice('sw1'), top, new Simulator(top));
+  s.run('enable');
+  s.run('configure terminal');
+  const res = s.run(cmd);
+  return { mode: s.mode, out: res.output, said: res.output.join('\n'), dev: top.getDevice('sw1') };
+}
+const ETH = (function () {
+  const top = new Topology();
+  top.addDevice(SWITCH, 'sw1');
+  const d = top.getDevice('sw1');
+  return [...d.interfaces.values()].filter(function (i) { return i.type === 'ethernet'; })[0].name;
+})();
+const CONFIG_REFUSAL = /^%( Unrecognized config| Ambiguous config| Incomplete)/;
+
+(function () {
+  const short = inConfig('host r1'), long = inConfig('hostname r1');
+  ok(short.dev.config.hostname === 'r1', '`host r1` sets the hostname', String(short.dev.config.hostname));
+  ok(short.said === long.said, '`host r1` answers exactly as `hostname r1`', short.said);
+  ok(!CONFIG_REFUSAL.test(short.said), '`host r1` is not a refusal', short.said);
+})();
+[['in ' + ETH, 'int ' + ETH], ['int ' + ETH, 'interface ' + ETH]].forEach(function (pair) {
+  const r = inConfig(pair[0]);
+  ok(r.mode === 'iface', '`' + pair[0] + '` opens the port', 'mode=' + r.mode);
+  ok(r.said === inConfig(pair[1]).said, '`' + pair[0] + '` answers exactly as `' + pair[1] + '`', r.said);
+});
+[['vla 20 name lab', 'vlan 20 name lab'], ['sp priority 4096', 'spanning-tree priority 4096'],
+  ['do sh ver', 'do show version'], ['do sh run', 'do show running-config']].forEach(function (pair) {
+  const short = inConfig(pair[0]), long = inConfig(pair[1]);
+  ok(short.said === long.said, '`' + pair[0] + '` answers exactly as `' + pair[1] + '`',
+    short.said.split('\n')[0] + ' | ' + long.said.split('\n')[0]);
+  ok(!CONFIG_REFUSAL.test(short.said), '`' + pair[0] + '` is not a refusal', short.said);
+});
+(function () {
+  const r = inConfig('sp priority 4096');
+  ok(r.dev.config.stpPriority === 4096, '`sp priority 4096` sets the bridge priority', String(r.dev.config.stpPriority));
+  const v = inConfig('vla 20 name lab');
+  const vlans = v.dev.config.vlans;
+  ok(JSON.stringify(vlans).indexOf('20') !== -1 && /lab/.test(v.said), '`vla 20 name lab` creates VLAN 20', v.said);
+})();
+
+console.log('');
+console.log('A prefix two config doors share is refused, and the mode it would have left is left alone:');
+[['i', ['interface', 'ip', 'ipv6']], ['e', ['exit', 'end']], ['d', ['dns', 'do']], ['n', ['no', 'name']],
+  ['s', ['show', 'spanning-tree']]].forEach(function (pair) {
+  const r = inConfig(pair[0]);
+  ok(/^% Ambiguous config command "/.test(r.said), '"' + pair[0] + '" is refused as ambiguous', r.said);
+  pair[1].forEach(function (word) {
+    ok(r.said.indexOf(word) !== -1, '"' + pair[0] + '" names ' + word, r.said);
+  });
+  ok(r.mode === 'config', '"' + pair[0] + '" leaves the session in config mode', 'mode=' + r.mode);
+  ok(r.out.length === 1, '"' + pair[0] + '" prints nothing alongside the refusal', JSON.stringify(r.out));
+});
+
+console.log('');
+console.log('A word that is no config command is refused exactly as before, and the boundary holds:');
+[['flurbish', /^% Unrecognized config command: flurbish$/],
+  ['x', /^% Unrecognized config command: x$/],
+  ['enabl', /^% Unrecognized config command: enabl$/],
+  ['sh flurbish', /^% Invalid show command: flurbish$/]].forEach(function (pair) {
+  const r = inConfig(pair[0]);
+  ok(pair[1].test(r.said), '"' + pair[0] + '" keeps its refusal', r.said);
+  ok(r.mode === 'config', '"' + pair[0] + '" leaves the mode alone', 'mode=' + r.mode);
+});
+// The boundary, asserted so it stays a decision: the second word of a config line has no complete table here -
+// `ip ro` is `ip route` on a box, but this console cannot enumerate the words after `ip` - so it is left alone,
+// and a keyword after the door keeps its own spelling in the refusal.
+(function () {
+  const r = inConfig('ip ro 10.0.0.0 255.0.0.0 1.1.1.1');
+  ok(/^% Unrecognized config command: ip ro 10\.0\.0\.0/.test(r.said), 'the words after `ip` are not resolved', r.said);
+  const n = inConfig('no vla 20');
+  ok(/^% Unrecognized config command: no vla 20$/.test(n.said), 'the word after `no` is not resolved either', n.said);
+  const p = inConfig('sp portfast');
+  ok(/^% spanning-tree portfast is not modelled/.test(p.said),
+    'the word after the door is answered by the door, in its own spelling', p.said);
+})();
+
 console.log('\ncommand-word-abbreviation: ' + passed + ' passed, ' + failed + ' failed');
 if (failed) process.exit(1);

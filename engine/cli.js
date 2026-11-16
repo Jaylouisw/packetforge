@@ -37,8 +37,10 @@ function pad(s, w) { s = String(s); return s + ' '.repeat(Math.max(0, w - s.leng
 // 9000 CLI guide, which prints `switch# config t` accepted and `config ?` listing `terminal`:
 // https://www.cisco.com/en/US/docs/storage/san_switches/mds9000/sw/rel_1_x/1_1_1a/san-os/configuration/guide/BforBgin.html)
 // An alias list is not the rule; the rule is a prefix match against the words the console actually has, so it is
-// applied here at the two positions where this console keeps a *complete* table of what may stand there: the first
-// word of an EXEC line, and the view word after `show`.
+// applied here at the three positions where this console keeps a *complete* table of what may stand there: the
+// first word of an EXEC line, the view word after `show`, and the first word of a config line (`host r1`,
+// `sp priority 4096`) - the last one added after a real box transcript showed `int gi0/1` accepted at `(config)#`
+// while this console refused every shortened config word (research/command-word-abbreviation.md).
 //
 // Everywhere else - the words after `show ip`, a value such as a port name, `brief` after `interface` - there is
 // no complete table, so a short word cannot be told from an ambiguous one and is left exactly as it was. Guessing
@@ -85,6 +87,37 @@ const SHOW_VIEW_WORDS = [
   { word: 'arp', spellings: ['arp'] },
   { word: 'mac', spellings: ['mac'] },
   { word: 'power', spellings: ['power'] }
+];
+
+// The first word of a `(config)#` line, one entry per door `_configMode()` can open, plus the two words that are
+// there to redirect the operator (`show` and `name`). The table is the dispatcher's own vocabulary: a word in it
+// that the dispatcher did not handle would be a door the console promised and refused, so each `word` below is a
+// `head ===` the dispatcher compares against. `int` is the second spelling of `interface` here for the same reason
+// it is in `_ifaceMode()` - a box accepts it, and it must not become a rival of `ip`/`ipv6`; because resolution
+// counts *entries* and not spellings, `in` is unique to `interface` while `i` is ambiguous between three doors,
+// which is what a box says too. `host` reaches `hostname`, `sp` reaches `spanning-tree`, and `vl` reaches `vlan`.
+const CONFIG_WORDS = [
+  { word: 'hostname', spellings: ['hostname'] },
+  { word: 'vlan', spellings: ['vlan'] },
+  { word: 'interface', spellings: ['interface', 'int'] },
+  { word: 'ip', spellings: ['ip'] },
+  { word: 'ipv6', spellings: ['ipv6'] },
+  { word: 'scion', spellings: ['scion'] },
+  { word: 'router', spellings: ['router'] },
+  { word: 'neighbor', spellings: ['neighbor'] },
+  { word: 'bgp', spellings: ['bgp'] },
+  { word: 'dns', spellings: ['dns'] },
+  { word: 'ospf', spellings: ['ospf'] },
+  { word: 'access-list', spellings: ['access-list'] },
+  { word: 'vrrp', spellings: ['vrrp'] },
+  { word: 'spanning-tree', spellings: ['spanning-tree'] },
+  { word: 'no', spellings: ['no'] },
+  { word: 'exit', spellings: ['exit'] },
+  { word: 'end', spellings: ['end'] },
+  { word: 'show', spellings: ['show'] },
+  { word: 'do', spellings: ['do'] },
+  { word: 'name', spellings: ['name'] },
+  { word: 'help', spellings: ['help'] }
 ];
 
 // The word a typed spelling means, or the words it could mean. An exact spelling wins over a longer one that
@@ -705,7 +738,13 @@ class CliSession {
 
   _configMode(tokens) {
     const out = [];
-    const head = tokens[0].toLowerCase();
+    // A config command word may be shortened to what is still unique, exactly as an EXEC one may: `host r1` is
+    // `hostname r1`, `sp priority 4096` is `spanning-tree priority 4096`. A box accepts all of these - the
+    // transcript on connecteddots.online prints `Router(config)#int gi0/1` accepted and `do sh run` running the
+    // view - while this console refused every shortened config word but `int`. Resolved against the dispatcher's
+    // own vocabulary, so a shortening can only reach a door the whole spelling reaches, and a prefix two words
+    // share is refused in the same sentence EXEC uses rather than guessed at.
+    let head = tokens[0].toLowerCase();
     // `?` and `help` are the console's index. They answered at `>` and `#`, and in the three modes that
     // print a mode in the prompt they were a syntax error - so the one key pressed when unsure said
     // "Unrecognized config command: ?" and implied the key itself was the mistake (#1503). The index
@@ -713,6 +752,11 @@ class CliSession {
     if (head === 'help' || head === '?') return this._help();
     const noKeyed = this._noHelpKeyRefusal(tokens);
     if (noKeyed) return [noKeyed];
+    const spelled = resolveCommandWord(head, CONFIG_WORDS);
+    if (spelled.rivals.length) {
+      return ['% Ambiguous config command "' + head + '": ' + spelled.rivals.join(' | ') + ' (type more characters)'];
+    }
+    if (spelled.word) head = spelled.word;
     if (head === 'ip' && tokens[1] && tokens[1].toLowerCase() === 'nat' &&
         tokens[2] && /^(inside|outside)$/i.test(String(tokens[2])) && tokens[3] === undefined) {
       // The keyword belongs to a port, not to the box. Saying so beats printing the pool/rule usage, which does
@@ -1247,7 +1291,15 @@ class CliSession {
       // `do` runs an EXEC command from config mode. This passed `tokens.slice(1)` to `_show()`, which expects the
       // words *after* `show` - so every `do show ...` in every config session answered
       // `% Invalid show command: show vlan`, echoing the command it had just failed to run (#1493).
-      const inner = tokens.slice(1);
+      // The word after `do` is an EXEC word, so the EXEC table resolves it: a box runs `do sh run`, and `do sh`
+      // is what a hand types. `do` itself takes only a `show` here, so a resolved word that is not `show` keeps
+      // the refusal below rather than running an EXEC command this console only reaches from `#`.
+      const inner = tokens.slice(1).slice();
+      const innerSpelled = inner.length ? resolveCommandWord(inner[0], EXEC_WORDS) : { word: null, rivals: [] };
+      if (innerSpelled.rivals.length) {
+        return ['% Ambiguous command "' + inner[0] + '": ' + innerSpelled.rivals.join(' | ') + ' (type more characters)'];
+      }
+      if (innerSpelled.word) inner[0] = innerSpelled.word;
       if (inner.length && String(inner[0]).toLowerCase() === 'show') {
         out.push.apply(out, this._show(inner.slice(1)));
       } else {

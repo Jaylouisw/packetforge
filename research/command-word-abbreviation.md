@@ -102,13 +102,73 @@ later refusal names: `sh port-c 1` answers `% show port-c does not take "1"`, no
   colon inside the quotes and the double space are stable across releases) is a separate question about message
   text, not about which commands are accepted.
 
+## Second pass: the same rule at `(config)#`
+
+The bullet below said config mode was a larger question than that run's. It was answered the next run, against one
+transcript that settles both halves at once. Connected Dots' CLI-error page prints a real box doing exactly this:
+
+```
+Router(config)#int gi0/1
+Router(config-if)#ip adress 10.100.100.1. 255.255.255.0
+```
+
+and, three paragraphs later, the same page showing why a shortened *view* needs `do` inside config mode:
+
+```
+Router(config)#sh run
+Router(config)#s^
+% Invalid input detected at '^' marker.
+Router(config)#do sh run
+Building configuration...
+```
+
+https://www.connecteddots.online/resources/cisco/invalid-input-detected-at-marker
+
+A Cisco community thread prints the same two lines from four different boxes
+(`D11(config)#do sh run int g0/1`, `SW1(config)#do sh run int gi0/1`), and a guide page prints
+`SW1(config)#interface gi0/1` accepted:
+
+* https://community.cisco.com/t5/routing/hsrp-standby-router-is-unknow/td-p/4602792
+* https://www.connecteddots.online/resources/cisco/switchport-trunk-native-vlan
+
+So: a box accepts a shortened **first word** of a config line, accepts a shortened EXEC word after `do`, and does
+**not** accept a bare `show` at `(config)#` - the third fact is a divergence this console already had and this run
+did not change (`show version` is accepted at `(config)#` here; a box wants `do show version`).
+
+`engine/cli.js` now resolves the first word of a config line against `CONFIG_WORDS`, a 21-entry table whose every
+`word` is a `head ===` the config dispatcher already compares against - so a shortening can only reach a door the
+whole spelling reaches - and the word after `do` against `EXEC_WORDS`. A shared prefix is refused in the console's
+existing sentence, with the mode left alone:
+
+```
+sw1(config)#i     -> % Ambiguous config command "i": interface | ip | ipv6 (type more characters)
+sw1(config)#e     -> % Ambiguous config command "e": exit | end (type more characters)
+sw1(config)#host r1   -> r1(config)#       (was: % Unrecognized config command: host r1)
+sw1(config)#vla 20 name lab   -> VLAN 20 created (name: lab)
+sw1(config)#sp priority 4096  -> Bridge priority set to 4096
+sw1(config)#do sh ver         -> the version banner
+```
+
+`test/command-word-abbreviation.test.js` pins 54 new assertions: each shortened line answers byte-for-byte as its
+whole spelling, the ambiguity refuses and leaves `mode === 'config'`, a word no door has (`enabl`) keeps its old
+refusal, and the second word of a config line is still not resolved (`ip ro ...`, `no vla 20`) - asserted so it
+stays a decision.
+
 ## What remains unresolved
 
-* **Config mode is not resolved.** `int Gi0/1` and `host r1` are still refused, though a box accepts both. Config
-  mode has its own keyword table and its own sub-modes (`interface` opens a mode, so a wrong resolution changes
-  state rather than printing a table), which is a larger question than this run's.
-* **`do sh ver`.** `do` accepts only the whole word `show` today, so the same abbreviation that works at `#` does
-  not work inside `(config)#`. One line, but it belongs with the config-mode question above.
+* **Sub-modes have no table yet.** `(config-if)#` still refuses `ip add 10.0.0.1 255.255.255.0`, `sw mo acc`,
+  `desc uplink` and `do sh run`, and `(config-if)#` is where an operator spends most of their typing. It is the
+  same shape of work as this pass - an `IFACE_WORDS` table built from `_ifaceMode()`'s own `head ===` comparisons -
+  but it is a different dispatcher and was not attempted here. The transcript above (`do sh run int g0/1` at
+  `(config-if)#`) is the evidence it would be built on.
+* **`sh run` at `(config)#` is accepted here and refused by a box.** Pre-existing, unchanged by this pass: this
+  console answers `show` at `(config)#` where a box prints `% Invalid input detected at '^' marker`. Because the
+  `show` door is in the table, `sh ver` reaches it too - consistent within the console, divergent from a box. What
+  would settle it: whether the console should refuse `show` at config (a behaviour change with its own test) rather
+  than teaching config mode to abbreviate a door a box does not open.
+* **`en` at `(config)#` is `end` here.** A 2960 also has `enable password`/`enable secret` at config, so a box
+  would call `en` ambiguous. This console has neither command, so `enable` cannot be a rival without inventing a
+  door - the word set is this console's, as the first pass already stated for short prefixes.
 * **Words after `show ip`.** `show ip int br` needs a table for `interface` and for `brief`, and each further
   `show ip <x> <y>` form needs its own. Not attempted.
 * **Whether IOS's uniqueness is per mode or across the whole image.** `co` is ambiguous at EXEC on a box
