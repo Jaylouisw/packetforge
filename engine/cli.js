@@ -1326,6 +1326,50 @@ class CliSession {
   }
 
   // ---------- interface mode ----------
+  // A port cannot hold a primary address that lands in a subnet another port on the same box already holds.
+  //
+  // IOS refuses the command and names the interface that owns the subnet it collided with:
+  //
+  //     R4(config-if)#ip address 192.168.254.32 255.255.255.192
+  //     % 192.168.254.0 overlaps with FastEthernet0/0
+  //
+  // Three public transcripts print the same sentence with the network of the address being typed - `10.1.0.0`
+  // for `10.1.1.2/16` beside `10.1.1.1/16`, and `192.168.254.0` for `.32/26` beside `.1/26` - so the number in
+  // the message is the *attempted* network under the *attempted* mask, not the incumbent's:
+  //   * https://learningnetwork.cisco.com/s/question/0D53i00000Kt12sCAB/can-one-subnet-be-on-opposite-sides-of-a-router
+  //     (`% 192.168.254.0 overlaps with FastEthernet0/0`, and the second port is still `unassigned` afterwards)
+  //   * https://learningnetwork.cisco.com/s/question/0D53i00000Ksv3lCAB/two-interfaces-on-the-same-subnet
+  //     (`% 10.1.0.0 overlaps with GigabitEthernet0/0`)
+  //   * https://community.cisco.com/t5/switching/why-ip-overlapping/m-p/2817656
+  //
+  // The refusal is the vendor's alone: nothing here explains, because a box says one line and changes nothing -
+  // the address is not set, the port keeps what it had. Overlap is asked of the two ranges rather than of "same
+  // subnet", because 10.1.1.1/16 and 10.1.2.1/24 are different subnets that still cover the same host, and a
+  // box refuses those too.
+  //
+  // Two things this deliberately does not decide, and says so rather than guessing:
+  //   * an interface that is administratively down still blocks the subnet here. One operator reports IOS
+  //     allowing the overlap once the incumbent is shut; no vendor page or capture confirms it, so this model
+  //     keeps the rule it can cite. research/ip-address-overlap.md records that.
+  //   * an address learned by DHCP at run time is not compared, because the check happens while the address is
+  //     typed and the lease does not exist yet.
+  _ipOverlapRefusal(iface, ip, dotted) {
+    const netLib = require('./net');
+    const start = netLib.networkOf(ip, dotted);
+    const end = netLib.broadcastOf(ip, dotted);
+    for (const other of this.device.interfaces.values()) {
+      if (other === iface) continue;
+      if (!other.ip || !other.mask) continue;
+      if (!netLib.isContiguousMask(other.mask)) continue;
+      const oStart = netLib.networkOf(other.ip, other.mask);
+      const oEnd = netLib.broadcastOf(other.ip, other.mask);
+      if (start <= oEnd && oStart <= end) {
+        return '% ' + netLib.intToIp(start) + ' overlaps with ' + other.name;
+      }
+    }
+    return null;
+  }
+
   _ifaceMode(tokens) {
     const out = [];
     const iface = this.device.interfaces.get(this.iface);
@@ -1411,6 +1455,10 @@ class CliSession {
         // Store the dotted form whichever way it was typed: a port left holding "24" reads as /2 to
         // anything that parses a dotted mask, the front panel included.
         const dotted = net.maskFromPrefix(net.prefixOf(mask));
+        // A subnet this box already holds on another port is refused, in the vendor's one line, with the port
+        // keeping whatever it had. See `_ipOverlapRefusal()` for the transcripts and the two open questions.
+        const overlap = this._ipOverlapRefusal(iface, ip, dotted);
+        if (overlap) return [overlap];
         // The other half of the same rule: a static address displaces the DHCP client, and says so, rather
         // than quietly changing the port's method.
         const wasDhcp = iface.dhcp === true;
