@@ -1,13 +1,17 @@
 {
   "vendor": "h3c",
   "model": "S5130S-28P-EI",
-  "label": "S5130S-28P-EI",
+  "label": "H3C S5130S-28P-EI",
   "category": "switch",
-  "description": "H3C S5130S-28P-EI - 24x 10/100/1000BASE-T ports + 4x 1000BASE-X SFP uplinks, fanless EI access switch.",
+  "description": "H3C S5130S-28P-EI: 24x 10/100/1000BASE-T plus 4x 1000BASE-X SFP, no PoE, 56 Gbps port switching capacity, 42 Mpps, fanless 1U with a serial console port.",
   "capabilities": [
     "l2-forward",
     "l3-forward",
-    "cli"
+    "cli",
+    "http-server",
+    "vlan",
+    "lacp",
+    "stp"
   ],
   "portTemplate": {
     "prefix": "GigabitEthernet1/0/",
@@ -52,8 +56,19 @@
       "speedCaps": [
         1000
       ]
+    },
+    {
+      "name": "console",
+      "type": "console"
     }
   ],
   "icon": "switch",
-  "color": "#2563eb"
+  "color": "#2563eb",
+  "fabric": {
+    "capacityMbps": 56000,
+    "kind": "switching fabric",
+    "note": "Port switching capacity 56 Gbps (24 x 1G copper + 4 x 1G SFP, full duplex), forwarding capacity 42 Mpps."
+  },
+  "sourceUrl": "https://www.h3c.com/en/Products_and_Solutions/InterConnect/Switches/Products/Campus_Network/Access/S5130/H3C_S5130S_EI/",
+  "notes": "S5130S-EI common platform (Comware 7): box switching capacity 336 Gbps, 256 MB flash / 512 MB SDRAM, IRF2 stacking of up to 9 units, static routes plus RIP and OSPF, 802.1Q VLAN, LACP, STP/RSTP/MSTP, DHCP server, SNMPv1/v2c/v3, NETCONF/gRPC, web UI and CLI. Fanless, 440 x 160 x 43.6 mm, <= 2.5 kg, 9 W minimum / 23 W maximum draw, 16 Gbps maximum stacking bandwidth, one serial console port only. The four uplinks are 1G SFP, not SFP+ - the 10G uplink variants are S5130S-28S-EI (SFP+) and S5130S-28ST-EI (2 x 10G SFP+ plus 2 x 10GBASE-T). Current software line is Comware 7 CMW710, release R6381 (https://www.h3c.com/en/Support/Resource_Center/EN/Switches/Catalog/S5130S/S5130S-EI/default.htm). Sources: https://www.h3c.com/en/Products_and_Solutions/InterConnect/Switches/Products/Campus_Network/Access/S5130/H3C_S5130S_EI/ and https://www.h3c.com/en/Support/Resource_Center/EN/Switches/Catalog/S5130S/S5130S-EI/Technical_Documents/Product_Literature/Hardware_Information___Specifications/H3C_S5130S-EI_IG/202306/1867335_294551_0.htm"
 }

@@ -1,0 +1,699 @@
+{
+  "vendor": "h3c",
+  "model": "S5130S-52P-PWR-EI-AC",
+  "label": "H3C S5130S-52P-PWR-EI-AC",
+  "category": "switch",
+  "description": "H3C S5130S-52P-PWR-EI-AC: 48x 10/100/1000BASE-T 802.3af/at PoE+ (30 W a port), 4x 1000BASE-X SFP, 370 W PoE budget on AC and 740 W on DC input, 104 Gbps port switching capacity, 78 Mpps.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli",
+    "http-server",
+    "vlan",
+    "lacp",
+    "stp",
+    "poe-pse",
+    "802.3af",
+    "802.3at"
+  ],
+  "interfaces": [
+    {
+      "name": "GigabitEthernet1/0/1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "GigabitEthernet1/0/2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "GigabitEthernet1/0/3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "GigabitEthernet1/0/4",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "GigabitEthernet1/0/5",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "GigabitEthernet1/0/6",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "GigabitEthernet1/0/7",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "GigabitEthernet1/0/8",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "GigabitEthernet1/0/9",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "GigabitEthernet1/0/10",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "GigabitEthernet1/0/11",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "GigabitEthernet1/0/12",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "GigabitEthernet1/0/13",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "GigabitEthernet1/0/14",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "GigabitEthernet1/0/15",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "GigabitEthernet1/0/16",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "GigabitEthernet1/0/17",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "GigabitEthernet1/0/18",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "GigabitEthernet1/0/19",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "GigabitEthernet1/0/20",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "GigabitEthernet1/0/21",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "GigabitEthernet1/0/22",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "GigabitEthernet1/0/23",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "GigabitEthernet1/0/24",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "GigabitEthernet1/0/25",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "GigabitEthernet1/0/26",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "GigabitEthernet1/0/27",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "GigabitEthernet1/0/28",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "GigabitEthernet1/0/29",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "GigabitEthernet1/0/30",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "GigabitEthernet1/0/31",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "GigabitEthernet1/0/32",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "GigabitEthernet1/0/33",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "GigabitEthernet1/0/34",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "GigabitEthernet1/0/35",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "GigabitEthernet1/0/36",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "GigabitEthernet1/0/37",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "GigabitEthernet1/0/38",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "GigabitEthernet1/0/39",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "GigabitEthernet1/0/40",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "GigabitEthernet1/0/41",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "GigabitEthernet1/0/42",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "GigabitEthernet1/0/43",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "GigabitEthernet1/0/44",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "GigabitEthernet1/0/45",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "GigabitEthernet1/0/46",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "GigabitEthernet1/0/47",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "GigabitEthernet1/0/48",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "poeOut": 30,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "GigabitEthernet1/0/49",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        1000
+      ]
+    },
+    {
+      "name": "GigabitEthernet1/0/50",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        1000
+      ]
+    },
+    {
+      "name": "GigabitEthernet1/0/51",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        1000
+      ]
+    },
+    {
+      "name": "GigabitEthernet1/0/52",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        1000
+      ]
+    },
+    {
+      "name": "console",
+      "type": "console"
+    }
+  ],
+  "icon": "switch",
+  "color": "#2563eb",
+  "poe": {
+    "budgetW": 370,
+    "sourceUrl": "https://www.h3c.com/en/Support/Resource_Center/EN/Switches/Catalog/S5130S/S5130S-EI/Technical_Documents/Product_Literature/Hardware_Information___Specifications/H3C_S5130S-EI_IG/202306/1867335_294551_0.htm",
+    "note": "370 W total PoE power on AC and 740 W on a DC feed, 30 W maximum a port. 370 W runs 24 ports at 15.4 W (802.3af) or 12 at 30 W (802.3at) per the vendor PoE table - not 48 x 30 W."
+  },
+  "fabric": {
+    "capacityMbps": 104000,
+    "kind": "switching fabric",
+    "note": "Port switching capacity 104 Gbps (48 x 1G copper + 4 x 1G SFP, full duplex), forwarding capacity 78 Mpps."
+  },
+  "sourceUrl": "https://www.h3c.com/en/Products_and_Solutions/InterConnect/Switches/Products/Campus_Network/Access/S5130/H3C_S5130S_EI/",
+  "notes": "S5130S-EI common platform (Comware 7): box switching capacity 336 Gbps, 256 MB flash / 512 MB SDRAM, IRF2 stacking of up to 9 units, static routes plus RIP and OSPF, 802.1Q VLAN, LACP, STP/RSTP/MSTP, DHCP server, SNMPv1/v2c/v3, NETCONF/gRPC, web UI and CLI. Port layout and PoE totals from the vendor hardware-information page (https://www.h3c.com/en/Support/Resource_Center/EN/Switches/Catalog/S5130S/S5130S-EI/Technical_Documents/Product_Literature/Hardware_Information___Specifications/H3C_S5130S-EI_IG/202306/1867335_294551_0.htm); switching and forwarding figures from the vendor product page (https://www.h3c.com/en/Products_and_Solutions/InterConnect/Switches/Products/Campus_Network/Access/S5130/H3C_S5130S_EI/). Current software line is Comware 7 CMW710, release R6381 listed on the H3C resource centre for this series (https://www.h3c.com/en/Support/Resource_Center/EN/Switches/Catalog/S5130S/S5130S-EI/default.htm). One fan, 440 x 400 x 43.6 mm, <= 6 kg, 36 W minimum / 467 W maximum draw (PoE 370 W), 16 Gbps maximum stacking bandwidth, serial console only. The -AC suffix denotes the fixed AC supply; the four cages stay 1G SFP."
+}

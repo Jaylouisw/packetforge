@@ -1,0 +1,164 @@
+{
+  "vendor": "h3c",
+  "model": "S5130S-10MS-UPWR-EI",
+  "label": "H3C S5130S-10MS-UPWR-EI",
+  "category": "switch",
+  "description": "H3C S5130S-10MS-UPWR-EI: 8x 1G/2.5GBASE-T 802.3bt UPoE (90 W a port), 2x 1G/10G SFP+ uplinks, 370 W PoE budget on AC and 740 W on DC, 80 Gbps port switching capacity, 60 Mpps.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli",
+    "http-server",
+    "vlan",
+    "lacp",
+    "stp",
+    "poe-pse",
+    "802.3af",
+    "802.3at",
+    "802.3bt"
+  ],
+  "interfaces": [
+    {
+      "name": "GigabitEthernet1/0/1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "2.5G",
+      "speedCaps": [
+        100,
+        1000,
+        2500
+      ],
+      "poeOut": 90,
+      "poeOutClass": "PoE++"
+    },
+    {
+      "name": "GigabitEthernet1/0/2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "2.5G",
+      "speedCaps": [
+        100,
+        1000,
+        2500
+      ],
+      "poeOut": 90,
+      "poeOutClass": "PoE++"
+    },
+    {
+      "name": "GigabitEthernet1/0/3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "2.5G",
+      "speedCaps": [
+        100,
+        1000,
+        2500
+      ],
+      "poeOut": 90,
+      "poeOutClass": "PoE++"
+    },
+    {
+      "name": "GigabitEthernet1/0/4",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "2.5G",
+      "speedCaps": [
+        100,
+        1000,
+        2500
+      ],
+      "poeOut": 90,
+      "poeOutClass": "PoE++"
+    },
+    {
+      "name": "GigabitEthernet1/0/5",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "2.5G",
+      "speedCaps": [
+        100,
+        1000,
+        2500
+      ],
+      "poeOut": 90,
+      "poeOutClass": "PoE++"
+    },
+    {
+      "name": "GigabitEthernet1/0/6",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "2.5G",
+      "speedCaps": [
+        100,
+        1000,
+        2500
+      ],
+      "poeOut": 90,
+      "poeOutClass": "PoE++"
+    },
+    {
+      "name": "GigabitEthernet1/0/7",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "2.5G",
+      "speedCaps": [
+        100,
+        1000,
+        2500
+      ],
+      "poeOut": 90,
+      "poeOutClass": "PoE++"
+    },
+    {
+      "name": "GigabitEthernet1/0/8",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "2.5G",
+      "speedCaps": [
+        100,
+        1000,
+        2500
+      ],
+      "poeOut": 90,
+      "poeOutClass": "PoE++"
+    },
+    {
+      "name": "Ten-GigabitEthernet1/0/9",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "Ten-GigabitEthernet1/0/10",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "console",
+      "type": "console"
+    }
+  ],
+  "icon": "switch",
+  "color": "#2563eb",
+  "poe": {
+    "budgetW": 370,
+    "sourceUrl": "https://www.h3c.com/en/Support/Resource_Center/EN/Switches/Catalog/S5130S/S5130S-EI/Technical_Documents/Product_Literature/Hardware_Information___Specifications/H3C_S5130S-EI_IG/202306/1867335_294551_0.htm",
+    "note": "370 W total PoE power on AC (maximum draw 447 W) and 740 W on DC (maximum draw 794.2 W), 90 W maximum a port. The vendor PoE table rates all eight copper ports at 15.4 W, 30 W and 60 W, which a 370 W AC budget cannot hold at 90 W a port - four ports at 90 W is the AC ceiling."
+  },
+  "fabric": {
+    "capacityMbps": 80000,
+    "kind": "switching fabric",
+    "note": "Port switching capacity 80 Gbps (8 x 2.5G + 2 x 10G, full duplex), forwarding capacity 60 Mpps."
+  },
+  "sourceUrl": "https://www.h3c.com/en/Products_and_Solutions/InterConnect/Switches/Products/Campus_Network/Access/S5130/H3C_S5130S_EI/",
+  "notes": "S5130S-EI common platform (Comware 7): box switching capacity 336 Gbps, 256 MB flash / 512 MB SDRAM, IRF2 stacking of up to 9 units, static routes plus RIP and OSPF, 802.1Q VLAN, LACP, STP/RSTP/MSTP, DHCP server, SNMPv1/v2c/v3, NETCONF/gRPC, web UI and CLI. Port layout and PoE totals from the vendor hardware-information page (https://www.h3c.com/en/Support/Resource_Center/EN/Switches/Catalog/S5130S/S5130S-EI/Technical_Documents/Product_Literature/Hardware_Information___Specifications/H3C_S5130S-EI_IG/202306/1867335_294551_0.htm); switching and forwarding figures from the vendor product page (https://www.h3c.com/en/Products_and_Solutions/InterConnect/Switches/Products/Campus_Network/Access/S5130/H3C_S5130S_EI/). Current software line is Comware 7 CMW710, release R6381 listed on the H3C resource centre for this series (https://www.h3c.com/en/Support/Resource_Center/EN/Switches/Catalog/S5130S/S5130S-EI/default.htm). Three fans, 300 x 260 x 43.6 mm, <= 3.5 kg, 22.2 W minimum draw. The eight copper ports are 1G/2.5GBASE-T UPoE (the vendor calls the scheme UPoE at 90 W), so this is a multi-gig access box rather than a gigabit one; uplinks are 1G/10G SFP+. Serial console plus micro USB console, 16 Gbps maximum stacking bandwidth."
+}
