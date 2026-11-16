@@ -10,7 +10,7 @@ The short version:
 | Thing | Syncable? | How |
 |---|---|---|
 | Commits, branches, tags | **Yes, fully, one way** | Forgejo → GitHub push mirror |
-| Pull requests | **No — bridge instead** | A job mirrors GitHub PR heads into Forgejo PRs |
+| Pull requests | **No — bridge instead** | `scripts/gh-bridge.js --prs` pushes the head as `gh/<n>` and opens a Forgejo PR |
 | Issues and comments | **No — pick one tracker** | Forgejo is the tracker; GitHub issues point at it |
 | CI / CD | **Forgejo only, authoritative** | Nothing: the GitHub workflows were deleted in #1059 |
 | Wiki | Follows the code | Regenerate on Forgejo; mirrors with the repo |
@@ -50,29 +50,39 @@ whichever syncs second wins, and on a force-push they can ping-pong indefinitely
 
 ## 2. Pull requests: bridged, not mirrored
 
-Neither platform mirrors PRs, and there is no setting that makes it happen. A bot does it:
+Neither platform mirrors PRs, and there is no setting that makes it happen. `scripts/gh-bridge.js --prs`
+does it:
 
 1. Poll GitHub for open PRs (`GET /repos/:owner/:repo/pulls?state=open`).
-2. For each, fetch the head: `git fetch https://github.com/... refs/pull/<n>/head:gh-pr/<n>`.
-   This works for fork PRs on a public repo.
-3. Push `gh-pr/<n>` to Forgejo and open (or update) a PR titled `[gh#<n>] <title>`, body linking the
-   original and crediting the author.
+2. For each, fetch the head into a local branch called `gh/<n>`:
+   `git fetch https://github.com/... refs/pull/<n>/head:refs/heads/gh/<n>`. This works for fork PRs on a
+   public repo.
+3. Force-push `gh/<n>` to Forgejo and open a PR **with the GitHub title unchanged**. The body is the
+   original description, then a credit line — `Opened by **@<author>** on the GitHub mirror: <github url>` —
+   the head SHA, and `<!-- gh-pr: <n> -->`.
 4. **Forgejo CI runs and is the gate.** Review happens on the Forgejo PR.
-5. On merge, the push mirror updates GitHub, and the bot comments the outcome on the GitHub PR and
-   closes it: `Landed as <forgejo PR url>`.
+5. On merge, the push mirror updates GitHub, and `--report` comments once on the GitHub PR:
+   `Merged on the forge as <forgejo PR url> (commit <sha>).`
 
-Keyed on the **head SHA**, so it is idempotent: a contributor pushing twice updates one Forgejo PR
-rather than opening a second. Closing the GitHub PR closes the Forgejo one; a force-push updates it.
+The marker is the identity, not the head SHA: a later run finds `<!-- gh-pr: <n> -->` in the Forgejo PR
+bodies and skips that PR, so nothing is imported twice. What the script does **not** do is keep the two in
+step after the first push — it never updates an imported PR and never closes one. A force-push on GitHub
+therefore leaves the Forgejo PR on the old head, and closing the GitHub PR leaves the Forgejo one open;
+both are resolved on the forge, where the merge happens anyway.
 
-What the GitHub contributor sees: they open a PR the way they always do, a bot replies within a few
-minutes with a link to where the discussion is, and their commits are already there.
+What the GitHub contributor sees: they open a PR the way they always do; once the bridge is run, their PR
+is answered with a link to where the discussion is, and their commits are already on the branch under
+review.
 
 What they cannot do: press "Merge" on GitHub. That button is meaningless on a mirror — the mirror is
 a copy, and merging there creates a commit that the next mirror sync will not contain.
 
-> **Status: not built yet.** `docs/MIRRORING.md` describes the contract; the bridge script and the
-> Forgejo job that runs it are the next piece of work. Until it exists, a GitHub PR is invisible to
-> this project, which is exactly the problem it is meant to solve.
+> **Status: written, not scheduled.** `scripts/gh-bridge.js` has been in the tree since #1074, with
+> `--issues`, `--prs`, `--report`, `--all`, `--dry-run` and `--limit`, and `CONTRIBUTING.md` already sends
+> contributors down this path. What is still missing is the job that runs it: nothing in
+> `.forgejo/workflows/` invokes the script, so a GitHub PR stays invisible until a maintainer runs
+> `node scripts/gh-bridge.js --all` from a clone (`PF_CLONE`) with `PF_FORGEJO_TOKEN`, `GH_TOKEN` and the
+> `PF_*` settings in the script's header.
 
 ## 3. Issues: one tracker, not two
 

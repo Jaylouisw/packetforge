@@ -17,11 +17,12 @@ public to read. Accounts there are not open to the public — the maintainer is 
 | Send a fix or a new device | Fork and open a pull request on GitHub |
 | Review, run CI, merge | The forge (maintainer only) |
 
-Pull requests opened on GitHub are carried across to the forge automatically by
-`scripts/gh-bridge.js`: the contributor's commits are pushed as a `gh/<number>` branch, verbatim and
-with authorship intact, and a pull request is opened there so CI and review happen in one place. A
-maintainer replies on your GitHub thread. You never need an account on the forge, and the forge never
-needs one of your keys.
+Pull requests opened on GitHub are carried across to the forge by
+`scripts/gh-bridge.js`, which a maintainer runs: the contributor's commits are pushed as a `gh/<number>`
+branch, verbatim and with authorship intact, and a pull request is opened there so CI and review happen
+in one place. Nothing schedules the script yet, so the crossing happens when someone checks, not within
+minutes of the PR being opened (`docs/MIRRORING.md` §2). A maintainer replies on your GitHub thread.
+You never need an account on the forge, and the forge never needs one of your keys.
 
 The direction of travel is **forge → GitHub for code, GitHub → forge for contributions**. The mirror
 pushes automatically on every commit; the bridge pulls contributions in. Neither side is a fork of
