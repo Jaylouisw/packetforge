@@ -1,0 +1,1518 @@
+[
+  {
+    "vendor": "opengear",
+    "model": "CM8116",
+    "label": "Opengear CM8116 console manager (16 serial, 2x 1GbE)",
+    "category": "host",
+    "description": "Opengear CM8100-series console manager: 16 RJ45 RS-232 serial console ports (Cisco straight X2 pinout, 50-230.4 kbps) for direct console access to routers, switches and servers, plus 2x 10/100/1000 RJ45 network ports. 1RU, dual AC or dual DC, under 15 W typical, TPM 2.0.",
+    "capabilities": [
+      "host",
+      "cli",
+      "http-server",
+      "dhcp-client",
+      "firewall"
+    ],
+    "interfaces": [
+      {
+        "name": "serial1",
+        "type": "console"
+      },
+      {
+        "name": "serial2",
+        "type": "console"
+      },
+      {
+        "name": "serial3",
+        "type": "console"
+      },
+      {
+        "name": "serial4",
+        "type": "console"
+      },
+      {
+        "name": "serial5",
+        "type": "console"
+      },
+      {
+        "name": "serial6",
+        "type": "console"
+      },
+      {
+        "name": "serial7",
+        "type": "console"
+      },
+      {
+        "name": "serial8",
+        "type": "console"
+      },
+      {
+        "name": "serial9",
+        "type": "console"
+      },
+      {
+        "name": "serial10",
+        "type": "console"
+      },
+      {
+        "name": "serial11",
+        "type": "console"
+      },
+      {
+        "name": "serial12",
+        "type": "console"
+      },
+      {
+        "name": "serial13",
+        "type": "console"
+      },
+      {
+        "name": "serial14",
+        "type": "console"
+      },
+      {
+        "name": "serial15",
+        "type": "console"
+      },
+      {
+        "name": "serial16",
+        "type": "console"
+      },
+      {
+        "name": "console",
+        "type": "console"
+      },
+      {
+        "name": "net1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "net2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      }
+    ],
+    "sourceUrl": "https://resources.opengear.com/cm/datasheets/cm8100/cm8100-datasheet.pdf",
+    "notes": "This SKU: 16 serial ports on the Cisco straight X2 pinout, dual AC, 2x 10/100/1000 RJ45. Opengear CM8100 datasheet, 6 Nov 2026 revision: 1RU, 440 x 235 x 44 mm, 4.5 kg, passive cooling, rackable front or reversed. CPU 1.6 GHz dual-core ARM Cortex-A9 (Marvell 88F6820), 2 GB DDR4 SDRAM, 32 GB eMMC, TPM 2.0. Power is dual IEC C14 inlets at 100-240 V AC (the -DDC SKUs take dual DC at +/-40-72 V instead), under 15 W typical (51 BTU/h), with the two supplies monitored independently. Operating 5-50 C, storage -30 to +60 C, 5-90% RH non-condensing, MTBF 150,000 h. Every serial port is Cisco straight X2 pinout at 50-230,400 bps, so a straight RJ45 patch lead reaches a device console with no adapter (DB9F-RJ45 adapters 319014/319015/319016 cover X2 DTE/DCE). The admin console port is a single RJ45 RS-232 on the Cisco rolled X1 pinout at 9600 baud - a different pinout from every serial port beside it, which is the one cabling mistake this box invites. Management and security: web UI with built-in web terminal, SSH direct to consoles, console keystroke logging, text-pattern alerts, AAA via TACACS+/RADIUS/Active Directory/OpenLDAP with local fallback, embedded firewall, IPSec and OpenVPN, ZTP, Docker, Python/Perl/bash, SNMP standard MIBs. Firmware: the CM81xx image is Opengear OS and is shared with the Operations Manager OM1200/OM1300/OM2200 - the CM8100 download tree carried release notes 26.08.2 (dated 2026-11-04), whose supported-products list is OM1200, OM1300, OM2200, CM8000 and CM8100. Sources: https://resources.opengear.com/cm/datasheets/cm8100/cm8100-datasheet.pdf and https://resources.opengear.com/cm/datasheets/cm8100/; firmware https://ftp.opengear.com/download/opengear_appliances/CM/CM8100/current/ and https://ftp.opengear.com/download/opengear_appliances/CM/CM8100/current/CM81xx-Release-Notes-26.08.2.pdf."
+  },
+  {
+    "vendor": "opengear",
+    "model": "CM8132",
+    "label": "Opengear CM8132 console manager (32 serial, 2x 1GbE)",
+    "category": "host",
+    "description": "Opengear CM8100-series console manager: 32 RJ45 RS-232 serial console ports (Cisco straight X2 pinout, 50-230.4 kbps) for direct console access to routers, switches and servers, plus 2x 10/100/1000 RJ45 network ports. 1RU, dual AC or dual DC, under 15 W typical, TPM 2.0.",
+    "capabilities": [
+      "host",
+      "cli",
+      "http-server",
+      "dhcp-client",
+      "firewall"
+    ],
+    "interfaces": [
+      {
+        "name": "serial1",
+        "type": "console"
+      },
+      {
+        "name": "serial2",
+        "type": "console"
+      },
+      {
+        "name": "serial3",
+        "type": "console"
+      },
+      {
+        "name": "serial4",
+        "type": "console"
+      },
+      {
+        "name": "serial5",
+        "type": "console"
+      },
+      {
+        "name": "serial6",
+        "type": "console"
+      },
+      {
+        "name": "serial7",
+        "type": "console"
+      },
+      {
+        "name": "serial8",
+        "type": "console"
+      },
+      {
+        "name": "serial9",
+        "type": "console"
+      },
+      {
+        "name": "serial10",
+        "type": "console"
+      },
+      {
+        "name": "serial11",
+        "type": "console"
+      },
+      {
+        "name": "serial12",
+        "type": "console"
+      },
+      {
+        "name": "serial13",
+        "type": "console"
+      },
+      {
+        "name": "serial14",
+        "type": "console"
+      },
+      {
+        "name": "serial15",
+        "type": "console"
+      },
+      {
+        "name": "serial16",
+        "type": "console"
+      },
+      {
+        "name": "serial17",
+        "type": "console"
+      },
+      {
+        "name": "serial18",
+        "type": "console"
+      },
+      {
+        "name": "serial19",
+        "type": "console"
+      },
+      {
+        "name": "serial20",
+        "type": "console"
+      },
+      {
+        "name": "serial21",
+        "type": "console"
+      },
+      {
+        "name": "serial22",
+        "type": "console"
+      },
+      {
+        "name": "serial23",
+        "type": "console"
+      },
+      {
+        "name": "serial24",
+        "type": "console"
+      },
+      {
+        "name": "serial25",
+        "type": "console"
+      },
+      {
+        "name": "serial26",
+        "type": "console"
+      },
+      {
+        "name": "serial27",
+        "type": "console"
+      },
+      {
+        "name": "serial28",
+        "type": "console"
+      },
+      {
+        "name": "serial29",
+        "type": "console"
+      },
+      {
+        "name": "serial30",
+        "type": "console"
+      },
+      {
+        "name": "serial31",
+        "type": "console"
+      },
+      {
+        "name": "serial32",
+        "type": "console"
+      },
+      {
+        "name": "console",
+        "type": "console"
+      },
+      {
+        "name": "net1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "net2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      }
+    ],
+    "sourceUrl": "https://resources.opengear.com/cm/datasheets/cm8100/cm8100-datasheet.pdf",
+    "notes": "This SKU: 32 serial ports on the Cisco straight X2 pinout, dual AC, 2x 10/100/1000 RJ45. Opengear CM8100 datasheet, 6 Nov 2026 revision: 1RU, 440 x 235 x 44 mm, 4.5 kg, passive cooling, rackable front or reversed. CPU 1.6 GHz dual-core ARM Cortex-A9 (Marvell 88F6820), 2 GB DDR4 SDRAM, 32 GB eMMC, TPM 2.0. Power is dual IEC C14 inlets at 100-240 V AC (the -DDC SKUs take dual DC at +/-40-72 V instead), under 15 W typical (51 BTU/h), with the two supplies monitored independently. Operating 5-50 C, storage -30 to +60 C, 5-90% RH non-condensing, MTBF 150,000 h. Every serial port is Cisco straight X2 pinout at 50-230,400 bps, so a straight RJ45 patch lead reaches a device console with no adapter (DB9F-RJ45 adapters 319014/319015/319016 cover X2 DTE/DCE). The admin console port is a single RJ45 RS-232 on the Cisco rolled X1 pinout at 9600 baud - a different pinout from every serial port beside it, which is the one cabling mistake this box invites. Management and security: web UI with built-in web terminal, SSH direct to consoles, console keystroke logging, text-pattern alerts, AAA via TACACS+/RADIUS/Active Directory/OpenLDAP with local fallback, embedded firewall, IPSec and OpenVPN, ZTP, Docker, Python/Perl/bash, SNMP standard MIBs. Firmware: the CM81xx image is Opengear OS and is shared with the Operations Manager OM1200/OM1300/OM2200 - the CM8100 download tree carried release notes 26.08.2 (dated 2026-11-04), whose supported-products list is OM1200, OM1300, OM2200, CM8000 and CM8100. Sources: https://resources.opengear.com/cm/datasheets/cm8100/cm8100-datasheet.pdf and https://resources.opengear.com/cm/datasheets/cm8100/; firmware https://ftp.opengear.com/download/opengear_appliances/CM/CM8100/current/ and https://ftp.opengear.com/download/opengear_appliances/CM/CM8100/current/CM81xx-Release-Notes-26.08.2.pdf."
+  },
+  {
+    "vendor": "opengear",
+    "model": "CM8148",
+    "label": "Opengear CM8148 console manager (48 serial, 2x 1GbE)",
+    "category": "host",
+    "description": "Opengear CM8100-series console manager: 48 RJ45 RS-232 serial console ports (Cisco straight X2 pinout, 50-230.4 kbps) for direct console access to routers, switches and servers, plus 2x 10/100/1000 RJ45 network ports. 1RU, dual AC or dual DC, under 15 W typical, TPM 2.0.",
+    "capabilities": [
+      "host",
+      "cli",
+      "http-server",
+      "dhcp-client",
+      "firewall"
+    ],
+    "interfaces": [
+      {
+        "name": "serial1",
+        "type": "console"
+      },
+      {
+        "name": "serial2",
+        "type": "console"
+      },
+      {
+        "name": "serial3",
+        "type": "console"
+      },
+      {
+        "name": "serial4",
+        "type": "console"
+      },
+      {
+        "name": "serial5",
+        "type": "console"
+      },
+      {
+        "name": "serial6",
+        "type": "console"
+      },
+      {
+        "name": "serial7",
+        "type": "console"
+      },
+      {
+        "name": "serial8",
+        "type": "console"
+      },
+      {
+        "name": "serial9",
+        "type": "console"
+      },
+      {
+        "name": "serial10",
+        "type": "console"
+      },
+      {
+        "name": "serial11",
+        "type": "console"
+      },
+      {
+        "name": "serial12",
+        "type": "console"
+      },
+      {
+        "name": "serial13",
+        "type": "console"
+      },
+      {
+        "name": "serial14",
+        "type": "console"
+      },
+      {
+        "name": "serial15",
+        "type": "console"
+      },
+      {
+        "name": "serial16",
+        "type": "console"
+      },
+      {
+        "name": "serial17",
+        "type": "console"
+      },
+      {
+        "name": "serial18",
+        "type": "console"
+      },
+      {
+        "name": "serial19",
+        "type": "console"
+      },
+      {
+        "name": "serial20",
+        "type": "console"
+      },
+      {
+        "name": "serial21",
+        "type": "console"
+      },
+      {
+        "name": "serial22",
+        "type": "console"
+      },
+      {
+        "name": "serial23",
+        "type": "console"
+      },
+      {
+        "name": "serial24",
+        "type": "console"
+      },
+      {
+        "name": "serial25",
+        "type": "console"
+      },
+      {
+        "name": "serial26",
+        "type": "console"
+      },
+      {
+        "name": "serial27",
+        "type": "console"
+      },
+      {
+        "name": "serial28",
+        "type": "console"
+      },
+      {
+        "name": "serial29",
+        "type": "console"
+      },
+      {
+        "name": "serial30",
+        "type": "console"
+      },
+      {
+        "name": "serial31",
+        "type": "console"
+      },
+      {
+        "name": "serial32",
+        "type": "console"
+      },
+      {
+        "name": "serial33",
+        "type": "console"
+      },
+      {
+        "name": "serial34",
+        "type": "console"
+      },
+      {
+        "name": "serial35",
+        "type": "console"
+      },
+      {
+        "name": "serial36",
+        "type": "console"
+      },
+      {
+        "name": "serial37",
+        "type": "console"
+      },
+      {
+        "name": "serial38",
+        "type": "console"
+      },
+      {
+        "name": "serial39",
+        "type": "console"
+      },
+      {
+        "name": "serial40",
+        "type": "console"
+      },
+      {
+        "name": "serial41",
+        "type": "console"
+      },
+      {
+        "name": "serial42",
+        "type": "console"
+      },
+      {
+        "name": "serial43",
+        "type": "console"
+      },
+      {
+        "name": "serial44",
+        "type": "console"
+      },
+      {
+        "name": "serial45",
+        "type": "console"
+      },
+      {
+        "name": "serial46",
+        "type": "console"
+      },
+      {
+        "name": "serial47",
+        "type": "console"
+      },
+      {
+        "name": "serial48",
+        "type": "console"
+      },
+      {
+        "name": "console",
+        "type": "console"
+      },
+      {
+        "name": "net1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      },
+      {
+        "name": "net2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          10,
+          100,
+          1000
+        ]
+      }
+    ],
+    "sourceUrl": "https://resources.opengear.com/cm/datasheets/cm8100/cm8100-datasheet.pdf",
+    "notes": "This SKU: 48 serial ports on the Cisco straight X2 pinout, dual AC, 2x 10/100/1000 RJ45. Opengear CM8100 datasheet, 6 Nov 2026 revision: 1RU, 440 x 235 x 44 mm, 4.5 kg, passive cooling, rackable front or reversed. CPU 1.6 GHz dual-core ARM Cortex-A9 (Marvell 88F6820), 2 GB DDR4 SDRAM, 32 GB eMMC, TPM 2.0. Power is dual IEC C14 inlets at 100-240 V AC (the -DDC SKUs take dual DC at +/-40-72 V instead), under 15 W typical (51 BTU/h), with the two supplies monitored independently. Operating 5-50 C, storage -30 to +60 C, 5-90% RH non-condensing, MTBF 150,000 h. Every serial port is Cisco straight X2 pinout at 50-230,400 bps, so a straight RJ45 patch lead reaches a device console with no adapter (DB9F-RJ45 adapters 319014/319015/319016 cover X2 DTE/DCE). The admin console port is a single RJ45 RS-232 on the Cisco rolled X1 pinout at 9600 baud - a different pinout from every serial port beside it, which is the one cabling mistake this box invites. Management and security: web UI with built-in web terminal, SSH direct to consoles, console keystroke logging, text-pattern alerts, AAA via TACACS+/RADIUS/Active Directory/OpenLDAP with local fallback, embedded firewall, IPSec and OpenVPN, ZTP, Docker, Python/Perl/bash, SNMP standard MIBs. Firmware: the CM81xx image is Opengear OS and is shared with the Operations Manager OM1200/OM1300/OM2200 - the CM8100 download tree carried release notes 26.08.2 (dated 2026-11-04), whose supported-products list is OM1200, OM1300, OM2200, CM8000 and CM8100. Sources: https://resources.opengear.com/cm/datasheets/cm8100/cm8100-datasheet.pdf and https://resources.opengear.com/cm/datasheets/cm8100/; firmware https://ftp.opengear.com/download/opengear_appliances/CM/CM8100/current/ and https://ftp.opengear.com/download/opengear_appliances/CM/CM8100/current/CM81xx-Release-Notes-26.08.2.pdf."
+  },
+  {
+    "vendor": "opengear",
+    "model": "CM8116-10G",
+    "label": "Opengear CM8116-10G console manager (16 serial, 2x 10G SFP+, 2x 1GbE)",
+    "category": "host",
+    "description": "Opengear CM8100-10G-series console manager: 16 RJ45 RS-232 serial console ports with software-selectable straight or rollover pinout, 2x 10G SFP+ uplinks plus 2x 1000BASE-T copper, for high-density out-of-band access at the top of a rack. 1RU. TPM 2.0, FIPS 140-2, dual AC or dual DC.",
+    "capabilities": [
+      "host",
+      "cli",
+      "http-server",
+      "dhcp-client",
+      "firewall"
+    ],
+    "interfaces": [
+      {
+        "name": "serial1",
+        "type": "console"
+      },
+      {
+        "name": "serial2",
+        "type": "console"
+      },
+      {
+        "name": "serial3",
+        "type": "console"
+      },
+      {
+        "name": "serial4",
+        "type": "console"
+      },
+      {
+        "name": "serial5",
+        "type": "console"
+      },
+      {
+        "name": "serial6",
+        "type": "console"
+      },
+      {
+        "name": "serial7",
+        "type": "console"
+      },
+      {
+        "name": "serial8",
+        "type": "console"
+      },
+      {
+        "name": "serial9",
+        "type": "console"
+      },
+      {
+        "name": "serial10",
+        "type": "console"
+      },
+      {
+        "name": "serial11",
+        "type": "console"
+      },
+      {
+        "name": "serial12",
+        "type": "console"
+      },
+      {
+        "name": "serial13",
+        "type": "console"
+      },
+      {
+        "name": "serial14",
+        "type": "console"
+      },
+      {
+        "name": "serial15",
+        "type": "console"
+      },
+      {
+        "name": "serial16",
+        "type": "console"
+      },
+      {
+        "name": "console",
+        "type": "console"
+      },
+      {
+        "name": "net1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000
+        ]
+      },
+      {
+        "name": "net2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000
+        ]
+      },
+      {
+        "name": "sfp1",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          10000
+        ]
+      },
+      {
+        "name": "sfp2",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          10000
+        ]
+      }
+    ],
+    "sourceUrl": "https://resources.opengear.com/cm/datasheets/cm8100-10G/cm8100-10g-datasheet.pdf",
+    "notes": "This SKU: 16 software-selectable serial ports, 2x 10G SFP+ and 2x 1000BASE-T, dual AC, 1RU at 440 x 265 x 44 mm / 3.5 kg. The datasheet gives no power-consumption figure for this SKU. Opengear CM8100-10G datasheet, 22 Oct 2026 revision. Network side is 2 x 10G SFP+ fibre plus 2 x 1000BASE-T; that sheet names the copper pair as 1000BASE-T only, so the RJ45 ports are recorded as 1G with no 10/100 fallback rather than as the 10/100/1000 ports the copper CM8100 carries. Serial ports are RJ45 RS-232 with software-selectable straight or rollover pinout per port at 50-230,400 bps, which removes the X1/X2 pinout trap the copper models have. Admin console is one RJ45 RS-232 X1 rolled port at 9600 baud; 2 x USB 3.0 Type-A host ports at 900 mA, and the -USB SKUs add 8 x USB-C 2.0 serial ports at 150 mA each. 1RU at 440 x 265 x 44 mm and 3.5 kg, passive cooling; the 96-port CM8196-10G is 2RU, 440 x 265 x 87 mm and 4.5 kg. CPU 1.6 GHz dual-core ARM Cortex-A9 SoC, 2 GB DDR4, 32 GB eMMC, TPM 2.0, FIPS 140-2 compliant; operating 5-50 C. Power: dual C14 100-240 V AC 50/60 Hz, or dual DC at +/-40-72 V, 1.5-0.75 A. The sheet states consumption for only four SKUs - CM8148-10G 20 W typical / 39 W maximum, CM8196-10G 30 W / 41 W, CM8148-10G-USB 21 W / 48 W, CM8148-10G-C 28 W / 40 W - and gives no figure for CM8116-10G or CM8132-10G, so none is recorded here. The -C SKUs add a Sierra Wireless EM9291 5G NR Sub-6 / LTE Cat 20 modem. The 10G sheet lists AAA, IPSec/OpenVPN, FIPS and TPM but does not repeat the embedded-firewall line the copper sheet carries; the firewall capability is declared from the Opengear OS release notes 26.08.2, which document firewall zones and IPv4/IPv6 interzone policies for all Console Manager products. Sources: https://resources.opengear.com/cm/datasheets/cm8100-10G/cm8100-10g-datasheet.pdf and https://resources.opengear.com/cm/datasheets/cm8100-10G/; firmware https://ftp.opengear.com/download/opengear_appliances/CM/CM8100/current/CM81xx-Release-Notes-26.08.2.pdf."
+  },
+  {
+    "vendor": "opengear",
+    "model": "CM8132-10G",
+    "label": "Opengear CM8132-10G console manager (32 serial, 2x 10G SFP+, 2x 1GbE)",
+    "category": "host",
+    "description": "Opengear CM8100-10G-series console manager: 32 RJ45 RS-232 serial console ports with software-selectable straight or rollover pinout, 2x 10G SFP+ uplinks plus 2x 1000BASE-T copper, for high-density out-of-band access at the top of a rack. 1RU. TPM 2.0, FIPS 140-2, dual AC or dual DC.",
+    "capabilities": [
+      "host",
+      "cli",
+      "http-server",
+      "dhcp-client",
+      "firewall"
+    ],
+    "interfaces": [
+      {
+        "name": "serial1",
+        "type": "console"
+      },
+      {
+        "name": "serial2",
+        "type": "console"
+      },
+      {
+        "name": "serial3",
+        "type": "console"
+      },
+      {
+        "name": "serial4",
+        "type": "console"
+      },
+      {
+        "name": "serial5",
+        "type": "console"
+      },
+      {
+        "name": "serial6",
+        "type": "console"
+      },
+      {
+        "name": "serial7",
+        "type": "console"
+      },
+      {
+        "name": "serial8",
+        "type": "console"
+      },
+      {
+        "name": "serial9",
+        "type": "console"
+      },
+      {
+        "name": "serial10",
+        "type": "console"
+      },
+      {
+        "name": "serial11",
+        "type": "console"
+      },
+      {
+        "name": "serial12",
+        "type": "console"
+      },
+      {
+        "name": "serial13",
+        "type": "console"
+      },
+      {
+        "name": "serial14",
+        "type": "console"
+      },
+      {
+        "name": "serial15",
+        "type": "console"
+      },
+      {
+        "name": "serial16",
+        "type": "console"
+      },
+      {
+        "name": "serial17",
+        "type": "console"
+      },
+      {
+        "name": "serial18",
+        "type": "console"
+      },
+      {
+        "name": "serial19",
+        "type": "console"
+      },
+      {
+        "name": "serial20",
+        "type": "console"
+      },
+      {
+        "name": "serial21",
+        "type": "console"
+      },
+      {
+        "name": "serial22",
+        "type": "console"
+      },
+      {
+        "name": "serial23",
+        "type": "console"
+      },
+      {
+        "name": "serial24",
+        "type": "console"
+      },
+      {
+        "name": "serial25",
+        "type": "console"
+      },
+      {
+        "name": "serial26",
+        "type": "console"
+      },
+      {
+        "name": "serial27",
+        "type": "console"
+      },
+      {
+        "name": "serial28",
+        "type": "console"
+      },
+      {
+        "name": "serial29",
+        "type": "console"
+      },
+      {
+        "name": "serial30",
+        "type": "console"
+      },
+      {
+        "name": "serial31",
+        "type": "console"
+      },
+      {
+        "name": "serial32",
+        "type": "console"
+      },
+      {
+        "name": "console",
+        "type": "console"
+      },
+      {
+        "name": "net1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000
+        ]
+      },
+      {
+        "name": "net2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000
+        ]
+      },
+      {
+        "name": "sfp1",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          10000
+        ]
+      },
+      {
+        "name": "sfp2",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          10000
+        ]
+      }
+    ],
+    "sourceUrl": "https://resources.opengear.com/cm/datasheets/cm8100-10G/cm8100-10g-datasheet.pdf",
+    "notes": "This SKU: 32 software-selectable serial ports, 2x 10G SFP+ and 2x 1000BASE-T, dual AC, 1RU at 440 x 265 x 44 mm / 3.5 kg. The datasheet gives no power-consumption figure for this SKU. Opengear CM8100-10G datasheet, 22 Oct 2026 revision. Network side is 2 x 10G SFP+ fibre plus 2 x 1000BASE-T; that sheet names the copper pair as 1000BASE-T only, so the RJ45 ports are recorded as 1G with no 10/100 fallback rather than as the 10/100/1000 ports the copper CM8100 carries. Serial ports are RJ45 RS-232 with software-selectable straight or rollover pinout per port at 50-230,400 bps, which removes the X1/X2 pinout trap the copper models have. Admin console is one RJ45 RS-232 X1 rolled port at 9600 baud; 2 x USB 3.0 Type-A host ports at 900 mA, and the -USB SKUs add 8 x USB-C 2.0 serial ports at 150 mA each. 1RU at 440 x 265 x 44 mm and 3.5 kg, passive cooling; the 96-port CM8196-10G is 2RU, 440 x 265 x 87 mm and 4.5 kg. CPU 1.6 GHz dual-core ARM Cortex-A9 SoC, 2 GB DDR4, 32 GB eMMC, TPM 2.0, FIPS 140-2 compliant; operating 5-50 C. Power: dual C14 100-240 V AC 50/60 Hz, or dual DC at +/-40-72 V, 1.5-0.75 A. The sheet states consumption for only four SKUs - CM8148-10G 20 W typical / 39 W maximum, CM8196-10G 30 W / 41 W, CM8148-10G-USB 21 W / 48 W, CM8148-10G-C 28 W / 40 W - and gives no figure for CM8116-10G or CM8132-10G, so none is recorded here. The -C SKUs add a Sierra Wireless EM9291 5G NR Sub-6 / LTE Cat 20 modem. The 10G sheet lists AAA, IPSec/OpenVPN, FIPS and TPM but does not repeat the embedded-firewall line the copper sheet carries; the firewall capability is declared from the Opengear OS release notes 26.08.2, which document firewall zones and IPv4/IPv6 interzone policies for all Console Manager products. Sources: https://resources.opengear.com/cm/datasheets/cm8100-10G/cm8100-10g-datasheet.pdf and https://resources.opengear.com/cm/datasheets/cm8100-10G/; firmware https://ftp.opengear.com/download/opengear_appliances/CM/CM8100/current/CM81xx-Release-Notes-26.08.2.pdf."
+  },
+  {
+    "vendor": "opengear",
+    "model": "CM8148-10G",
+    "label": "Opengear CM8148-10G console manager (48 serial, 2x 10G SFP+, 2x 1GbE)",
+    "category": "host",
+    "description": "Opengear CM8100-10G-series console manager: 48 RJ45 RS-232 serial console ports with software-selectable straight or rollover pinout, 2x 10G SFP+ uplinks plus 2x 1000BASE-T copper, for high-density out-of-band access at the top of a rack. 1RU. TPM 2.0, FIPS 140-2, dual AC or dual DC.",
+    "capabilities": [
+      "host",
+      "cli",
+      "http-server",
+      "dhcp-client",
+      "firewall"
+    ],
+    "interfaces": [
+      {
+        "name": "serial1",
+        "type": "console"
+      },
+      {
+        "name": "serial2",
+        "type": "console"
+      },
+      {
+        "name": "serial3",
+        "type": "console"
+      },
+      {
+        "name": "serial4",
+        "type": "console"
+      },
+      {
+        "name": "serial5",
+        "type": "console"
+      },
+      {
+        "name": "serial6",
+        "type": "console"
+      },
+      {
+        "name": "serial7",
+        "type": "console"
+      },
+      {
+        "name": "serial8",
+        "type": "console"
+      },
+      {
+        "name": "serial9",
+        "type": "console"
+      },
+      {
+        "name": "serial10",
+        "type": "console"
+      },
+      {
+        "name": "serial11",
+        "type": "console"
+      },
+      {
+        "name": "serial12",
+        "type": "console"
+      },
+      {
+        "name": "serial13",
+        "type": "console"
+      },
+      {
+        "name": "serial14",
+        "type": "console"
+      },
+      {
+        "name": "serial15",
+        "type": "console"
+      },
+      {
+        "name": "serial16",
+        "type": "console"
+      },
+      {
+        "name": "serial17",
+        "type": "console"
+      },
+      {
+        "name": "serial18",
+        "type": "console"
+      },
+      {
+        "name": "serial19",
+        "type": "console"
+      },
+      {
+        "name": "serial20",
+        "type": "console"
+      },
+      {
+        "name": "serial21",
+        "type": "console"
+      },
+      {
+        "name": "serial22",
+        "type": "console"
+      },
+      {
+        "name": "serial23",
+        "type": "console"
+      },
+      {
+        "name": "serial24",
+        "type": "console"
+      },
+      {
+        "name": "serial25",
+        "type": "console"
+      },
+      {
+        "name": "serial26",
+        "type": "console"
+      },
+      {
+        "name": "serial27",
+        "type": "console"
+      },
+      {
+        "name": "serial28",
+        "type": "console"
+      },
+      {
+        "name": "serial29",
+        "type": "console"
+      },
+      {
+        "name": "serial30",
+        "type": "console"
+      },
+      {
+        "name": "serial31",
+        "type": "console"
+      },
+      {
+        "name": "serial32",
+        "type": "console"
+      },
+      {
+        "name": "serial33",
+        "type": "console"
+      },
+      {
+        "name": "serial34",
+        "type": "console"
+      },
+      {
+        "name": "serial35",
+        "type": "console"
+      },
+      {
+        "name": "serial36",
+        "type": "console"
+      },
+      {
+        "name": "serial37",
+        "type": "console"
+      },
+      {
+        "name": "serial38",
+        "type": "console"
+      },
+      {
+        "name": "serial39",
+        "type": "console"
+      },
+      {
+        "name": "serial40",
+        "type": "console"
+      },
+      {
+        "name": "serial41",
+        "type": "console"
+      },
+      {
+        "name": "serial42",
+        "type": "console"
+      },
+      {
+        "name": "serial43",
+        "type": "console"
+      },
+      {
+        "name": "serial44",
+        "type": "console"
+      },
+      {
+        "name": "serial45",
+        "type": "console"
+      },
+      {
+        "name": "serial46",
+        "type": "console"
+      },
+      {
+        "name": "serial47",
+        "type": "console"
+      },
+      {
+        "name": "serial48",
+        "type": "console"
+      },
+      {
+        "name": "console",
+        "type": "console"
+      },
+      {
+        "name": "net1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000
+        ]
+      },
+      {
+        "name": "net2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000
+        ]
+      },
+      {
+        "name": "sfp1",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          10000
+        ]
+      },
+      {
+        "name": "sfp2",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          10000
+        ]
+      }
+    ],
+    "sourceUrl": "https://resources.opengear.com/cm/datasheets/cm8100-10G/cm8100-10g-datasheet.pdf",
+    "notes": "This SKU: 48 software-selectable serial ports, 2x 10G SFP+ and 2x 1000BASE-T, dual AC, 1RU at 440 x 265 x 44 mm / 3.5 kg. Datasheet consumption: 20 W typical, 39 W maximum. Opengear CM8100-10G datasheet, 22 Oct 2026 revision. Network side is 2 x 10G SFP+ fibre plus 2 x 1000BASE-T; that sheet names the copper pair as 1000BASE-T only, so the RJ45 ports are recorded as 1G with no 10/100 fallback rather than as the 10/100/1000 ports the copper CM8100 carries. Serial ports are RJ45 RS-232 with software-selectable straight or rollover pinout per port at 50-230,400 bps, which removes the X1/X2 pinout trap the copper models have. Admin console is one RJ45 RS-232 X1 rolled port at 9600 baud; 2 x USB 3.0 Type-A host ports at 900 mA, and the -USB SKUs add 8 x USB-C 2.0 serial ports at 150 mA each. 1RU at 440 x 265 x 44 mm and 3.5 kg, passive cooling; the 96-port CM8196-10G is 2RU, 440 x 265 x 87 mm and 4.5 kg. CPU 1.6 GHz dual-core ARM Cortex-A9 SoC, 2 GB DDR4, 32 GB eMMC, TPM 2.0, FIPS 140-2 compliant; operating 5-50 C. Power: dual C14 100-240 V AC 50/60 Hz, or dual DC at +/-40-72 V, 1.5-0.75 A. The sheet states consumption for only four SKUs - CM8148-10G 20 W typical / 39 W maximum, CM8196-10G 30 W / 41 W, CM8148-10G-USB 21 W / 48 W, CM8148-10G-C 28 W / 40 W - and gives no figure for CM8116-10G or CM8132-10G, so none is recorded here. The -C SKUs add a Sierra Wireless EM9291 5G NR Sub-6 / LTE Cat 20 modem. The 10G sheet lists AAA, IPSec/OpenVPN, FIPS and TPM but does not repeat the embedded-firewall line the copper sheet carries; the firewall capability is declared from the Opengear OS release notes 26.08.2, which document firewall zones and IPv4/IPv6 interzone policies for all Console Manager products. Sources: https://resources.opengear.com/cm/datasheets/cm8100-10G/cm8100-10g-datasheet.pdf and https://resources.opengear.com/cm/datasheets/cm8100-10G/; firmware https://ftp.opengear.com/download/opengear_appliances/CM/CM8100/current/CM81xx-Release-Notes-26.08.2.pdf."
+  },
+  {
+    "vendor": "opengear",
+    "model": "CM8196-10G",
+    "label": "Opengear CM8196-10G console manager (96 serial, 2x 10G SFP+, 2x 1GbE, 2RU)",
+    "category": "host",
+    "description": "Opengear CM8100-10G-series console manager: 96 RJ45 RS-232 serial console ports with software-selectable straight or rollover pinout, 2x 10G SFP+ uplinks plus 2x 1000BASE-T copper, for high-density out-of-band access at the top of a rack. 2RU. TPM 2.0, FIPS 140-2, dual AC or dual DC.",
+    "capabilities": [
+      "host",
+      "cli",
+      "http-server",
+      "dhcp-client",
+      "firewall"
+    ],
+    "interfaces": [
+      {
+        "name": "serial1",
+        "type": "console"
+      },
+      {
+        "name": "serial2",
+        "type": "console"
+      },
+      {
+        "name": "serial3",
+        "type": "console"
+      },
+      {
+        "name": "serial4",
+        "type": "console"
+      },
+      {
+        "name": "serial5",
+        "type": "console"
+      },
+      {
+        "name": "serial6",
+        "type": "console"
+      },
+      {
+        "name": "serial7",
+        "type": "console"
+      },
+      {
+        "name": "serial8",
+        "type": "console"
+      },
+      {
+        "name": "serial9",
+        "type": "console"
+      },
+      {
+        "name": "serial10",
+        "type": "console"
+      },
+      {
+        "name": "serial11",
+        "type": "console"
+      },
+      {
+        "name": "serial12",
+        "type": "console"
+      },
+      {
+        "name": "serial13",
+        "type": "console"
+      },
+      {
+        "name": "serial14",
+        "type": "console"
+      },
+      {
+        "name": "serial15",
+        "type": "console"
+      },
+      {
+        "name": "serial16",
+        "type": "console"
+      },
+      {
+        "name": "serial17",
+        "type": "console"
+      },
+      {
+        "name": "serial18",
+        "type": "console"
+      },
+      {
+        "name": "serial19",
+        "type": "console"
+      },
+      {
+        "name": "serial20",
+        "type": "console"
+      },
+      {
+        "name": "serial21",
+        "type": "console"
+      },
+      {
+        "name": "serial22",
+        "type": "console"
+      },
+      {
+        "name": "serial23",
+        "type": "console"
+      },
+      {
+        "name": "serial24",
+        "type": "console"
+      },
+      {
+        "name": "serial25",
+        "type": "console"
+      },
+      {
+        "name": "serial26",
+        "type": "console"
+      },
+      {
+        "name": "serial27",
+        "type": "console"
+      },
+      {
+        "name": "serial28",
+        "type": "console"
+      },
+      {
+        "name": "serial29",
+        "type": "console"
+      },
+      {
+        "name": "serial30",
+        "type": "console"
+      },
+      {
+        "name": "serial31",
+        "type": "console"
+      },
+      {
+        "name": "serial32",
+        "type": "console"
+      },
+      {
+        "name": "serial33",
+        "type": "console"
+      },
+      {
+        "name": "serial34",
+        "type": "console"
+      },
+      {
+        "name": "serial35",
+        "type": "console"
+      },
+      {
+        "name": "serial36",
+        "type": "console"
+      },
+      {
+        "name": "serial37",
+        "type": "console"
+      },
+      {
+        "name": "serial38",
+        "type": "console"
+      },
+      {
+        "name": "serial39",
+        "type": "console"
+      },
+      {
+        "name": "serial40",
+        "type": "console"
+      },
+      {
+        "name": "serial41",
+        "type": "console"
+      },
+      {
+        "name": "serial42",
+        "type": "console"
+      },
+      {
+        "name": "serial43",
+        "type": "console"
+      },
+      {
+        "name": "serial44",
+        "type": "console"
+      },
+      {
+        "name": "serial45",
+        "type": "console"
+      },
+      {
+        "name": "serial46",
+        "type": "console"
+      },
+      {
+        "name": "serial47",
+        "type": "console"
+      },
+      {
+        "name": "serial48",
+        "type": "console"
+      },
+      {
+        "name": "serial49",
+        "type": "console"
+      },
+      {
+        "name": "serial50",
+        "type": "console"
+      },
+      {
+        "name": "serial51",
+        "type": "console"
+      },
+      {
+        "name": "serial52",
+        "type": "console"
+      },
+      {
+        "name": "serial53",
+        "type": "console"
+      },
+      {
+        "name": "serial54",
+        "type": "console"
+      },
+      {
+        "name": "serial55",
+        "type": "console"
+      },
+      {
+        "name": "serial56",
+        "type": "console"
+      },
+      {
+        "name": "serial57",
+        "type": "console"
+      },
+      {
+        "name": "serial58",
+        "type": "console"
+      },
+      {
+        "name": "serial59",
+        "type": "console"
+      },
+      {
+        "name": "serial60",
+        "type": "console"
+      },
+      {
+        "name": "serial61",
+        "type": "console"
+      },
+      {
+        "name": "serial62",
+        "type": "console"
+      },
+      {
+        "name": "serial63",
+        "type": "console"
+      },
+      {
+        "name": "serial64",
+        "type": "console"
+      },
+      {
+        "name": "serial65",
+        "type": "console"
+      },
+      {
+        "name": "serial66",
+        "type": "console"
+      },
+      {
+        "name": "serial67",
+        "type": "console"
+      },
+      {
+        "name": "serial68",
+        "type": "console"
+      },
+      {
+        "name": "serial69",
+        "type": "console"
+      },
+      {
+        "name": "serial70",
+        "type": "console"
+      },
+      {
+        "name": "serial71",
+        "type": "console"
+      },
+      {
+        "name": "serial72",
+        "type": "console"
+      },
+      {
+        "name": "serial73",
+        "type": "console"
+      },
+      {
+        "name": "serial74",
+        "type": "console"
+      },
+      {
+        "name": "serial75",
+        "type": "console"
+      },
+      {
+        "name": "serial76",
+        "type": "console"
+      },
+      {
+        "name": "serial77",
+        "type": "console"
+      },
+      {
+        "name": "serial78",
+        "type": "console"
+      },
+      {
+        "name": "serial79",
+        "type": "console"
+      },
+      {
+        "name": "serial80",
+        "type": "console"
+      },
+      {
+        "name": "serial81",
+        "type": "console"
+      },
+      {
+        "name": "serial82",
+        "type": "console"
+      },
+      {
+        "name": "serial83",
+        "type": "console"
+      },
+      {
+        "name": "serial84",
+        "type": "console"
+      },
+      {
+        "name": "serial85",
+        "type": "console"
+      },
+      {
+        "name": "serial86",
+        "type": "console"
+      },
+      {
+        "name": "serial87",
+        "type": "console"
+      },
+      {
+        "name": "serial88",
+        "type": "console"
+      },
+      {
+        "name": "serial89",
+        "type": "console"
+      },
+      {
+        "name": "serial90",
+        "type": "console"
+      },
+      {
+        "name": "serial91",
+        "type": "console"
+      },
+      {
+        "name": "serial92",
+        "type": "console"
+      },
+      {
+        "name": "serial93",
+        "type": "console"
+      },
+      {
+        "name": "serial94",
+        "type": "console"
+      },
+      {
+        "name": "serial95",
+        "type": "console"
+      },
+      {
+        "name": "serial96",
+        "type": "console"
+      },
+      {
+        "name": "console",
+        "type": "console"
+      },
+      {
+        "name": "net1",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000
+        ]
+      },
+      {
+        "name": "net2",
+        "type": "ethernet",
+        "connector": "rj45",
+        "speed": "1G",
+        "speedCaps": [
+          1000
+        ]
+      },
+      {
+        "name": "sfp1",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          10000
+        ]
+      },
+      {
+        "name": "sfp2",
+        "type": "ethernet",
+        "connector": "sfp+",
+        "speed": "10G",
+        "speedCaps": [
+          10000
+        ]
+      }
+    ],
+    "sourceUrl": "https://resources.opengear.com/cm/datasheets/cm8100-10G/cm8100-10g-datasheet.pdf",
+    "notes": "This SKU: 96 software-selectable serial ports, 2x 10G SFP+ and 2x 1000BASE-T, dual AC, 2RU at 440 x 265 x 87 mm / 4.5 kg. Datasheet consumption: 30 W typical, 41 W maximum. This is the only 96-port model in the family. Opengear CM8100-10G datasheet, 22 Oct 2026 revision. Network side is 2 x 10G SFP+ fibre plus 2 x 1000BASE-T; that sheet names the copper pair as 1000BASE-T only, so the RJ45 ports are recorded as 1G with no 10/100 fallback rather than as the 10/100/1000 ports the copper CM8100 carries. Serial ports are RJ45 RS-232 with software-selectable straight or rollover pinout per port at 50-230,400 bps, which removes the X1/X2 pinout trap the copper models have. Admin console is one RJ45 RS-232 X1 rolled port at 9600 baud; 2 x USB 3.0 Type-A host ports at 900 mA, and the -USB SKUs add 8 x USB-C 2.0 serial ports at 150 mA each. 1RU at 440 x 265 x 44 mm and 3.5 kg, passive cooling; the 96-port CM8196-10G is 2RU, 440 x 265 x 87 mm and 4.5 kg. CPU 1.6 GHz dual-core ARM Cortex-A9 SoC, 2 GB DDR4, 32 GB eMMC, TPM 2.0, FIPS 140-2 compliant; operating 5-50 C. Power: dual C14 100-240 V AC 50/60 Hz, or dual DC at +/-40-72 V, 1.5-0.75 A. The sheet states consumption for only four SKUs - CM8148-10G 20 W typical / 39 W maximum, CM8196-10G 30 W / 41 W, CM8148-10G-USB 21 W / 48 W, CM8148-10G-C 28 W / 40 W - and gives no figure for CM8116-10G or CM8132-10G, so none is recorded here. The -C SKUs add a Sierra Wireless EM9291 5G NR Sub-6 / LTE Cat 20 modem. The 10G sheet lists AAA, IPSec/OpenVPN, FIPS and TPM but does not repeat the embedded-firewall line the copper sheet carries; the firewall capability is declared from the Opengear OS release notes 26.08.2, which document firewall zones and IPv4/IPv6 interzone policies for all Console Manager products. Sources: https://resources.opengear.com/cm/datasheets/cm8100-10G/cm8100-10g-datasheet.pdf and https://resources.opengear.com/cm/datasheets/cm8100-10G/; firmware https://ftp.opengear.com/download/opengear_appliances/CM/CM8100/current/CM81xx-Release-Notes-26.08.2.pdf."
+  }
+]

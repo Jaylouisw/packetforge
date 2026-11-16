@@ -1,0 +1,108 @@
+{
+  "vendor": "opengear",
+  "model": "CM8116",
+  "label": "Opengear CM8116 console manager (16 serial, 2x 1GbE)",
+  "category": "host",
+  "description": "Opengear CM8100-series console manager: 16 RJ45 RS-232 serial console ports (Cisco straight X2 pinout, 50-230.4 kbps) for direct console access to routers, switches and servers, plus 2x 10/100/1000 RJ45 network ports. 1RU, dual AC or dual DC, under 15 W typical, TPM 2.0.",
+  "capabilities": [
+    "host",
+    "cli",
+    "http-server",
+    "dhcp-client",
+    "firewall"
+  ],
+  "interfaces": [
+    {
+      "name": "serial1",
+      "type": "console"
+    },
+    {
+      "name": "serial2",
+      "type": "console"
+    },
+    {
+      "name": "serial3",
+      "type": "console"
+    },
+    {
+      "name": "serial4",
+      "type": "console"
+    },
+    {
+      "name": "serial5",
+      "type": "console"
+    },
+    {
+      "name": "serial6",
+      "type": "console"
+    },
+    {
+      "name": "serial7",
+      "type": "console"
+    },
+    {
+      "name": "serial8",
+      "type": "console"
+    },
+    {
+      "name": "serial9",
+      "type": "console"
+    },
+    {
+      "name": "serial10",
+      "type": "console"
+    },
+    {
+      "name": "serial11",
+      "type": "console"
+    },
+    {
+      "name": "serial12",
+      "type": "console"
+    },
+    {
+      "name": "serial13",
+      "type": "console"
+    },
+    {
+      "name": "serial14",
+      "type": "console"
+    },
+    {
+      "name": "serial15",
+      "type": "console"
+    },
+    {
+      "name": "serial16",
+      "type": "console"
+    },
+    {
+      "name": "console",
+      "type": "console"
+    },
+    {
+      "name": "net1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "net2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
+    }
+  ],
+  "sourceUrl": "https://resources.opengear.com/cm/datasheets/cm8100/cm8100-datasheet.pdf",
+  "notes": "This SKU: 16 serial ports on the Cisco straight X2 pinout, dual AC, 2x 10/100/1000 RJ45. Opengear CM8100 datasheet, 6 Nov 2026 revision: 1RU, 440 x 235 x 44 mm, 4.5 kg, passive cooling, rackable front or reversed. CPU 1.6 GHz dual-core ARM Cortex-A9 (Marvell 88F6820), 2 GB DDR4 SDRAM, 32 GB eMMC, TPM 2.0. Power is dual IEC C14 inlets at 100-240 V AC (the -DDC SKUs take dual DC at +/-40-72 V instead), under 15 W typical (51 BTU/h), with the two supplies monitored independently. Operating 5-50 C, storage -30 to +60 C, 5-90% RH non-condensing, MTBF 150,000 h. Every serial port is Cisco straight X2 pinout at 50-230,400 bps, so a straight RJ45 patch lead reaches a device console with no adapter (DB9F-RJ45 adapters 319014/319015/319016 cover X2 DTE/DCE). The admin console port is a single RJ45 RS-232 on the Cisco rolled X1 pinout at 9600 baud - a different pinout from every serial port beside it, which is the one cabling mistake this box invites. Management and security: web UI with built-in web terminal, SSH direct to consoles, console keystroke logging, text-pattern alerts, AAA via TACACS+/RADIUS/Active Directory/OpenLDAP with local fallback, embedded firewall, IPSec and OpenVPN, ZTP, Docker, Python/Perl/bash, SNMP standard MIBs. Firmware: the CM81xx image is Opengear OS and is shared with the Operations Manager OM1200/OM1300/OM2200 - the CM8100 download tree carried release notes 26.08.2 (dated 2026-11-04), whose supported-products list is OM1200, OM1300, OM2200, CM8000 and CM8100. Sources: https://resources.opengear.com/cm/datasheets/cm8100/cm8100-datasheet.pdf and https://resources.opengear.com/cm/datasheets/cm8100/; firmware https://ftp.opengear.com/download/opengear_appliances/CM/CM8100/current/ and https://ftp.opengear.com/download/opengear_appliances/CM/CM8100/current/CM81xx-Release-Notes-26.08.2.pdf."
+}

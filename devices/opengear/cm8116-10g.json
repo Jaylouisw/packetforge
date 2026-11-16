@@ -1,0 +1,122 @@
+{
+  "vendor": "opengear",
+  "model": "CM8116-10G",
+  "label": "Opengear CM8116-10G console manager (16 serial, 2x 10G SFP+, 2x 1GbE)",
+  "category": "host",
+  "description": "Opengear CM8100-10G-series console manager: 16 RJ45 RS-232 serial console ports with software-selectable straight or rollover pinout, 2x 10G SFP+ uplinks plus 2x 1000BASE-T copper, for high-density out-of-band access at the top of a rack. 1RU. TPM 2.0, FIPS 140-2, dual AC or dual DC.",
+  "capabilities": [
+    "host",
+    "cli",
+    "http-server",
+    "dhcp-client",
+    "firewall"
+  ],
+  "interfaces": [
+    {
+      "name": "serial1",
+      "type": "console"
+    },
+    {
+      "name": "serial2",
+      "type": "console"
+    },
+    {
+      "name": "serial3",
+      "type": "console"
+    },
+    {
+      "name": "serial4",
+      "type": "console"
+    },
+    {
+      "name": "serial5",
+      "type": "console"
+    },
+    {
+      "name": "serial6",
+      "type": "console"
+    },
+    {
+      "name": "serial7",
+      "type": "console"
+    },
+    {
+      "name": "serial8",
+      "type": "console"
+    },
+    {
+      "name": "serial9",
+      "type": "console"
+    },
+    {
+      "name": "serial10",
+      "type": "console"
+    },
+    {
+      "name": "serial11",
+      "type": "console"
+    },
+    {
+      "name": "serial12",
+      "type": "console"
+    },
+    {
+      "name": "serial13",
+      "type": "console"
+    },
+    {
+      "name": "serial14",
+      "type": "console"
+    },
+    {
+      "name": "serial15",
+      "type": "console"
+    },
+    {
+      "name": "serial16",
+      "type": "console"
+    },
+    {
+      "name": "console",
+      "type": "console"
+    },
+    {
+      "name": "net1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        1000
+      ]
+    },
+    {
+      "name": "net2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        1000
+      ]
+    },
+    {
+      "name": "sfp1",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        10000
+      ]
+    },
+    {
+      "name": "sfp2",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        10000
+      ]
+    }
+  ],
+  "sourceUrl": "https://resources.opengear.com/cm/datasheets/cm8100-10G/cm8100-10g-datasheet.pdf",
+  "notes": "This SKU: 16 software-selectable serial ports, 2x 10G SFP+ and 2x 1000BASE-T, dual AC, 1RU at 440 x 265 x 44 mm / 3.5 kg. The datasheet gives no power-consumption figure for this SKU. Opengear CM8100-10G datasheet, 22 Oct 2026 revision. Network side is 2 x 10G SFP+ fibre plus 2 x 1000BASE-T; that sheet names the copper pair as 1000BASE-T only, so the RJ45 ports are recorded as 1G with no 10/100 fallback rather than as the 10/100/1000 ports the copper CM8100 carries. Serial ports are RJ45 RS-232 with software-selectable straight or rollover pinout per port at 50-230,400 bps, which removes the X1/X2 pinout trap the copper models have. Admin console is one RJ45 RS-232 X1 rolled port at 9600 baud; 2 x USB 3.0 Type-A host ports at 900 mA, and the -USB SKUs add 8 x USB-C 2.0 serial ports at 150 mA each. 1RU at 440 x 265 x 44 mm and 3.5 kg, passive cooling; the 96-port CM8196-10G is 2RU, 440 x 265 x 87 mm and 4.5 kg. CPU 1.6 GHz dual-core ARM Cortex-A9 SoC, 2 GB DDR4, 32 GB eMMC, TPM 2.0, FIPS 140-2 compliant; operating 5-50 C. Power: dual C14 100-240 V AC 50/60 Hz, or dual DC at +/-40-72 V, 1.5-0.75 A. The sheet states consumption for only four SKUs - CM8148-10G 20 W typical / 39 W maximum, CM8196-10G 30 W / 41 W, CM8148-10G-USB 21 W / 48 W, CM8148-10G-C 28 W / 40 W - and gives no figure for CM8116-10G or CM8132-10G, so none is recorded here. The -C SKUs add a Sierra Wireless EM9291 5G NR Sub-6 / LTE Cat 20 modem. The 10G sheet lists AAA, IPSec/OpenVPN, FIPS and TPM but does not repeat the embedded-firewall line the copper sheet carries; the firewall capability is declared from the Opengear OS release notes 26.08.2, which document firewall zones and IPv4/IPv6 interzone policies for all Console Manager products. Sources: https://resources.opengear.com/cm/datasheets/cm8100-10G/cm8100-10g-datasheet.pdf and https://resources.opengear.com/cm/datasheets/cm8100-10G/; firmware https://ftp.opengear.com/download/opengear_appliances/CM/CM8100/current/CM81xx-Release-Notes-26.08.2.pdf."
+}
