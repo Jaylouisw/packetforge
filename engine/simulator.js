@@ -3238,17 +3238,12 @@ class Simulator {
     const usable = [];
     const refused = [];
     for (const name of candidates) {
-      if (this._isBlocked(dev, name)) {
-        this._emit({ type: 'stp-block', dev: dev.id, iface: name, vlan: vid, reason: 'STP blocking' });
-        refused.push({ iface: name, why: 'stp' });
-        continue;
-      }
-      const iface = dev.interfaces.get(name);
-      if (!iface) continue;
-      const lag = dev.lagFor ? dev.lagFor(name) : null;
-      if (inLagId && lag && lag.id === inLagId) { refused.push({ iface: name, why: 'bundle' }); continue; }
-      if (vlanLib.classifyEgress(iface.vlan, vid).action === 'drop') { // not a member of this VLAN
-        refused.push({ iface: name, why: 'vlan' });
+      const why = this._egressRefusal(dev, name, vid, inLagId);
+      if (why) {
+        if (why === 'stp') {
+          this._emit({ type: 'stp-block', dev: dev.id, iface: name, vlan: vid, reason: 'STP blocking' });
+        }
+        refused.push({ iface: name, why: why });
         continue;
       }
       usable.push(name);
@@ -3264,8 +3259,19 @@ class Simulator {
       byLag[lag.id].push(name);
     }
     for (const id of Object.keys(byLag)) {
-      const members = byLag[id].slice().sort();
       const cfg = (dev.config.lags && dev.config.lags[id]) || {};
+      // The bundle is one logical port, so which member the frame arrived by - or which one the MAC table
+      // happens to name - does not decide which member carries it next. The pool is every member of the
+      // bundle that may leave in this VLAN, not just the members this particular frame happened to nominate.
+      //
+      // It used to be the nominated members only, which is invisible while the frames are floods (a flood
+      // nominates every member) and wrong the moment the table names a single one: a switch that had learned
+      // a MAC on member Fa0/3 kept sending to Fa0/3 after that cable was pulled, while member Fa0/2 sat idle,
+      // because the pool was the one dead port and the hash had nothing else to choose from (#1515).
+      const pool = ((cfg.members && cfg.members.length ? cfg.members.slice() : byLag[id].slice())
+        .filter((name) => this._egressRefusal(dev, name, vid, inLagId) === null))
+        .sort();
+      const members = pool.length ? pool : byLag[id].slice().sort();
       // A member whose cable is out, whose link is down, or whose far port is shut cannot carry a frame, so
       // it is not a candidate: the hash is taken over the members that can. Before this the hash landed on
       // the dead member for a share of the traffic and dropped it while a healthy member sat idle (#1263).
@@ -3277,8 +3283,10 @@ class Simulator {
         };
       })(this);
       const live = lagLib.eligibleMembers(members, canCarry);
+      // With no member able to carry, one is still attempted so the frame is dropped with a reason a counter
+      // can print, rather than disappearing into a bundle that looks healthy (#1258).
       const picked = lagLib.selectMember(members, frame, cfg.hashPolicy || 'l2', { canCarry }) ||
-        members[0];
+        live[0] || members[0];
       egresses.push(picked);
       if (members.length > 1 || live.length !== members.length) {
         this._emit({
@@ -3319,6 +3327,22 @@ class Simulator {
   // different places: the VLAN one has them re-checking membership that was never wrong, while the tree one points
   // at the port `show spanning-tree` already prints as "blocking (traffic dropped)". So the tree is named first,
   // ahead of a VLAN refusal, because a refusal by the tree holds however the ports are configured.
+  // Why this port may not carry a frame out in this VLAN, or null if it may.
+  //
+  // One predicate, read twice: once over the ports the forwarding decision nominated, and once over every
+  // member of a bundle whose members are one logical port (#1515). Two copies would be two chances to drift,
+  // and the copy that drifted would be the one deciding whether a LAG member can carry.
+  _egressRefusal(dev, name, vid, inLagId) {
+    if (this._isBlocked(dev, name)) return 'stp';
+    const iface = dev.interfaces.get(name);
+    if (!iface) return 'missing';
+    const lag = dev.lagFor ? dev.lagFor(name) : null;
+    if (inLagId && lag && lag.id === inLagId) return 'bundle';
+    // not a member of this VLAN
+    if (vlanLib.classifyEgress(iface.vlan, vid).action === 'drop') return 'vlan';
+    return null;
+  }
+
   _noEgressReason(vid, refused, mismatch) {
     const list = refused || [];
     const portsFor = function (why) {

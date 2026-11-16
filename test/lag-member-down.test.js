@@ -67,6 +67,7 @@ function picks(env, count) {
   return {
     ok: r.replies.every(function (x) { return x.success; }),
     replies: r.replies,
+    events: r.events,
     picks: r.events.filter(function (e) { return e.type === 'lag' && e.dev === 's1'; })
       .map(function (e) { return e.picked; })
   };
@@ -102,6 +103,42 @@ console.log('One member loses its cable: the bundle keeps working, on the member
   ok(/Fa0\/2\(P\) Fa0\/3\(D\)/.test(text), 'the table marks the dead member (D)', text);
   ok(/not bundled \(down: link down\)/.test(text), 'and says why, in the same words show interfaces uses', text);
   ok(/running on 1 of 2 members: Fa0\/2/.test(text), 'and reports what the bundle is running on', text);
+}
+
+console.log('');
+console.log('A MAC the table learned on the member that then died moves to a live member (#1515):');
+{
+  // A flood nominates every member, so a bundle survives a cable loss while every frame is a flood. A known
+  // unicast nominates one port - the one the MAC table names - and if that member is the one that died, the
+  // pool used to be that single dead port and the hash had nothing else to choose from:
+  //
+  //   both links up, table says Fa0/3
+  //   Fa0/3 cable pulled   -> frame forwarded to Fa0/3, dropped "link down", Fa0/2 idle
+  //
+  // The bundle is one logical port, so the member a MAC was learned on cannot decide the member that carries
+  // the next frame.
+  const env = lab();
+  picks(env, 2);                                  // let the table learn b behind the bundle
+  env.sim.setLinkState(linkOn(env, 'Fa0/3').id, 'down');
+  // What the table held from before the cable died: b reachable by Fa0/3.
+  env.s1.learnMac(1, env.b.interfaces.get('eth0').mac, 'Fa0/3', null);
+  ok(env.s1.macLookup(1, env.b.interfaces.get('eth0').mac, env.sim._nowMs()) === 'Fa0/3',
+    'the table names the dead member, as it would have before the cable was pulled');
+
+  const r = picks(env, 4);
+  ok(r.ok, 'the ping is answered - a known unicast is re-hashed onto a live member',
+    r.replies.map(function (x) { return x.success; }).join(','));
+  ok(r.picks.length > 0 && r.picks.every(function (p) { return p === 'Fa0/2'; }),
+    'and no frame leaves by the dead member', r.picks.join(','));
+
+  // The pulled cable is still billed for what genuinely tried to cross it - the LLDP probes - but the
+  // exchange itself is never charged to it.
+  const from = r.events.findIndex(function (e) { return e.type === 'ping'; });
+  const afterPing = from === -1 ? [] : r.events.slice(from);
+  ok(afterPing.every(function (e) { return e.type !== 'drop'; }),
+    'and the exchange is never billed to the pulled cable',
+    afterPing.filter(function (e) { return e.type === 'drop'; })
+      .map(function (e) { return e.dev + ' ' + e.iface + ': ' + e.reason; }).join(', '));
 }
 
 console.log('');
