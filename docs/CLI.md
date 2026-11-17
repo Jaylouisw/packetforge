@@ -2319,13 +2319,13 @@ network converges again. See [LINK-STATE.md](LINK-STATE.md).
 
 A row here is a promise an operator relies on before they ever open the app. `test/docs-show-commands.test.js` reads
 this file, splits the alternatives (`show vlan [brief] | spanning-tree`), fills the placeholders with real values from
-a real lab, and types each form at a router and a switch — 53 forms, 106 commands today, including the
+a real lab, and types each form at a router and a switch — 54 forms, 108 commands today, including the
 `show ?` and `show ipv6 ?` examples in the section on the help key — and fails on the three answers that mean the
 documentation and the parser disagree: `% Invalid show command`, `% Unrecognized …`, or a throw.
 
 A *legitimate* refusal is not a failure, and the distinction is the whole point: a box with no OSPF configured has no
 `show ip ospf` to give and says so in a sentence (`% OSPF is not enabled (use "ospf router-id <ip>" in config mode)`),
-which means this page is right and the box is the wrong one to ask. Sixty-four of the 106 answers are refusals of
+which means this page is right and the box is the wrong one to ask. Sixty-six of the 108 answers are refusals of
 that kind today, and none of them complains about the command itself.
 
 The check is real in the direction that matters: rename `show spanning-tree` to one letter off and the suite fails,
