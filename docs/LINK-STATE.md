@@ -46,8 +46,16 @@ canvas, on the front panel and in the inspector:
 | nothing plugged in | `down` / `down` | `notconnect`, `down (no cable)` |
 | `link down` on the cable | `down` / `down` | `down (link down)` |
 | the far port is shut | `down` / `down` | `down (peer shut down)` |
+| a subinterface's parent is down | `down` / `down` | no socket to draw |
+| a subinterface's parent is shut down | `administratively down` / `down` | no socket to draw |
 
-The rule behind those four sentences lives in one place — `Device.ifaceStatus()` for the CLI and
+The last two rows are the subinterface case: it has no line of its own, so it wears its parent's.
+A `shutdown` typed on the subinterface itself still holds it down, and that is the only thing that
+does; the block names the parent (`status: administratively down (parent Gi0/0 is shut down)`) so
+the sentence cannot be read as a fault of the subinterface. A subinterface is not a socket, which is
+why no panel or canvas cell stands for one. Evidence: research/subinterface-state.md.
+
+The rule behind those sentences lives in one place — `Device.ifaceStatus()` for the CLI and
 `portState()` in `web/faceplate.js` for the UI, which the canvas and the inspector both call — and
 `test/port-state-agreement.test.js` asserts the two agree, case for case, because a second
 implementation of a rule is a second chance to disagree.

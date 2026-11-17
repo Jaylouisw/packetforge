@@ -300,7 +300,12 @@ class Device {
     );
     iface.mac = parent.mac;          // subinterfaces borrow the physical MAC
     iface.hardware = parent.hardware; // and its media capabilities
-    iface.enabled = parent.enabled;
+    // A subinterface is administratively up unless somebody shuts it: `interface Gi0/0.10` has no
+    // `shutdown` line of its own. Copying the parent's flag here froze it at creation, so a subinterface
+    // made while the physical port was down read `administratively down` for ever - the parent's later
+    // `no shutdown` could not reach a flag that was already set, and a saved config grew a shutdown
+    // nobody typed on the subinterface.
+    iface.enabled = true;
 
     const vlanLib = require('./vlan');
     parent.vlan = vlanLib.normalizePortConfig(Object.assign({}, parent.vlan, { mode: 'trunk' }));
@@ -399,6 +404,24 @@ class Device {
     const port = typeof iface === 'string' ? this.interfaces.get(iface) : iface;
     if (!port) return { status: 'down', protocol: 'down', reason: 'no such port' };
     if (!port.enabled) return { status: 'administratively down', protocol: 'down', reason: 'shut down' };
+    // A subinterface has no link of its own: it wears its parent's. Cisco states the rule for
+    // router-on-a-stick plainly - the subinterface state "cannot be better than the state of the matching
+    // physical interface": unplug the cable and the physical port and every subinterface on it go
+    // down/down, and `shutdown` on the parent turns the subinterfaces `administratively down` with it
+    // (Cisco Press, "VLAN Routing with Router 802.1Q Trunks", Example 17-4). A subinterface's own
+    // `shutdown` still wins, and that is the check above. The reason names the parent, because the
+    // words "shut down" would accuse the subinterface of a shutdown nobody typed on it.
+    // Evidence: research/subinterface-state.md.
+    if (port.parent) {
+      const parent = this.interfaces.get(port.parent);
+      if (!parent) return { status: 'down', protocol: 'down', reason: 'no parent port ' + port.parent };
+      const inherited = this.ifaceStatus(parent, topo);
+      if (inherited.status === 'up') return { status: 'up', protocol: 'up', reason: null };
+      const why = inherited.status === 'administratively down'
+        ? 'parent ' + parent.name + ' is shut down'
+        : 'parent ' + parent.name + (inherited.reason ? ': ' + inherited.reason : '');
+      return { status: inherited.status, protocol: 'down', reason: why };
+    }
     // A port whose access VLAN is no longer in the database is inactive whatever the cable says. Asked before
     // the cable tests for the same reason the device reports it that way: the port has nothing to forward in,
     // so a cable cannot make it up.
