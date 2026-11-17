@@ -76,8 +76,9 @@ function isLldp(frame) {
 // The TTL it does carry is the sender's own word on how long it may be kept. IEEE 802.1AB defines the Time To Live
 // TLV as "the number of seconds that the recipient LLDP agent is to regard the information associated with this
 // MSAP identifier to be valid" (8.5.4), and the information is discarded when that lapses without a refresh; Cisco
-// ships the same rule as `lldp timer` 30 s and `lldp holdtime` 120 s, and prints what is left of it in the
-// `Hold-time` column of `show lldp neighbors`.
+// ships the same rule as `lldp timer` 30 s and `lldp holdtime` 120 s, and its `Hold-time` column repeats that
+// advertised number. The countdown is a different field - `Time remaining` in the detail view - and the
+// evidence for that split is in research/lldp-hold-time-column.md.
 //
 // A TTL of 0 is not "unset": 802.1AB-2016 §8.5.4.1 uses it to say the whole MSAP identifier is no longer valid
 // (the port is shutting down), so it is kept as 0 rather than replaced by the default, and the table drops the

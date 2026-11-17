@@ -7,7 +7,9 @@
 // A real switch drops that record when the TTL the host advertised runs out. IEEE 802.1AB defines the Time To
 // Live TLV as "the number of seconds that the recipient LLDP agent is to regard the information associated with
 // this MSAP identifier to be valid" (8.5.4), and Cisco's defaults are `lldp timer` 30 s and `lldp holdtime`
-// 120 s, with the `Hold-time` column of `show lldp neighbors` counting what is left of it down. This console had
+// 120 s; the `Hold-time` column of `show lldp neighbors` repeats that advertised number rather than
+// counting down - the countdown is `Time remaining`, a field of the detail view, not of the table
+// (research/lldp-hold-time-column.md). This console had
 // no instant on the record at all, so `show lldp neighbors` named a device that had been silent for as long as
 // you cared to ask - at 600 s, five TTLs later, the row was still there.
 //
