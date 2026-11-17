@@ -224,6 +224,42 @@ function parseVlanList(spec) {
   return out;
 }
 
+// A list already in the shape parseVlanList() would produce: integers, in range,
+// none of the reserved block, strictly ascending. Recognising it is one pass of
+// integer comparisons, where parsing it is a string conversion, a regex and a
+// sort per entry. That difference is the whole of #1809: a trunk built by
+// `switchport trunk allowed vlan remove 2` allows 4,089 ids, and every frame on
+// it asked a yes/no question that cost a full tokenisation to answer.
+function isCanonicalVlanArray(list) {
+  if (!Array.isArray(list) || list.length === 0) return false;
+  let prev = 0;                       // VLAN_MIN is 1, so the first id must exceed it
+  for (let i = 0; i < list.length; i++) {
+    const v = list[i];
+    // v <= prev also rejects duplicates and any unsorted list, both of which have
+    // to keep going through the parser so they normalise to one answer.
+    if (typeof v !== 'number' || !Number.isInteger(v) || v <= prev) return false;
+    if (v > VLAN_MAX || isReservedVlan(v)) return false;   // v >= VLAN_MIN follows from v > prev >= 0
+    prev = v;
+  }
+  return true;
+}
+
+// Membership in a list isCanonicalVlanArray() accepted: strictly ascending, so a
+// binary search. Correctness against a linear scan is pinned by
+// test/vlan-membership-lookup.test.js for every id 1-4094.
+function canonicalVlanIncludes(sorted, v) {
+  let lo = 0;
+  let hi = sorted.length - 1;
+  while (lo <= hi) {
+    const mid = (lo + hi) >> 1;
+    const cur = sorted[mid];
+    if (cur === v) return true;
+    if (cur < v) lo = mid + 1;
+    else hi = mid - 1;
+  }
+  return false;
+}
+
 // True when vid is a member of the given list spec ('all' covers every
 // assignable VLAN). Malformed specs and out-of-range ids yield false.
 function vlanListIncludes(listSpec, vid) {
@@ -233,6 +269,7 @@ function vlanListIncludes(listSpec, vid) {
   if (isReservedVlan(v)) return false;
   if (listSpec === 'all') return true;
   if (typeof listSpec === 'string' && listSpec.trim().toLowerCase() === 'all') return true;
+  if (isCanonicalVlanArray(listSpec)) return canonicalVlanIncludes(listSpec, v);
   const parsed = parseVlanList(listSpec);
   if (!parsed.ok) return false;
   return parsed.vlans.indexOf(v) !== -1;
@@ -271,9 +308,14 @@ function normalizePortConfig(cfg) {
   } else if (raw.allowedVlans === undefined || raw.allowedVlans === null) {
     allowedVlans = (mode === 'trunk') ? 'all' : [];
   } else if (Array.isArray(raw.allowedVlans)) {
+    // A list that is already canonical parses to itself, so the copy is the only
+    // work left to do. Copying it anyway is deliberate: the returned config owns
+    // its array, and a caller must not be able to edit the input through it.
     allowedVlans = raw.allowedVlans.length === 0
       ? []
-      : parseVlanList(raw.allowedVlans).vlans.slice();
+      : (isCanonicalVlanArray(raw.allowedVlans)
+        ? raw.allowedVlans.slice()
+        : parseVlanList(raw.allowedVlans).vlans.slice());
   } else if (typeof raw.allowedVlans === 'string') {
     allowedVlans = parseVlanList(raw.allowedVlans).vlans.slice();
   } else {
