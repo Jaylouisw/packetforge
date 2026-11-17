@@ -2510,12 +2510,12 @@ interface Gi0/0
 ```
 
 **`no` reads the vrid and nothing after it.** The interface-mode handler matches `no vrrp <vrid>`
-before it looks at the rest of the line — `_ifaceMode()`, `engine/cli.js:1651` — so any `no` that
+before it looks at the rest of the line — `_ifaceMode()`, `engine/cli.js:1705` — so any `no` that
 names a group removes that group, whatever follows the vrid:
 
 ```
 R1(config-if)#no vrrp 10 preempt
-VRRP group 10 removed from Gi0
+VRRP group 10 removed from Gi0/0
 ```
 
 `no vrrp 10 priority`, `no vrrp 10 advertise` and `no vrrp 10 wibble` are answered by the same line.
@@ -2529,9 +2529,9 @@ hosts on its wire. Anything else is refused and no group is created:
 
 ```
 R1(config-if)#vrrp 42 ip 10.0.0.254
-% 10.0.0.254 is not in the subnet of Gi0 (10.9.9.1/24)
+% 10.0.0.254 is not in the subnet of Gi0/0 (10.9.9.1/24)
 R1(config-if)#vrrp 42 ip 10.9.9.254
-VRRP group 42 on Gi0 owns 10.9.9.254
+VRRP group 42 on Gi0/0 owns 10.9.9.254
 ```
 
 An interface with no address cannot host a group at all, and says so. The election enforces the same rule
