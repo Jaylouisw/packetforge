@@ -7,7 +7,7 @@
 // `scripts/check-closed-issues.js` walks the other side of the ledger. These tests pin the part
 // that decides, because a false "answered" here is exactly the mistake it exists to detect.
 const path = require('path');
-const { buildIndex, matchClosedIssue, auditClosedIssue, hasEvidence } = require(path.join(__dirname, '..', 'scripts', 'check-closed-issues.js'));
+const { buildIndex, matchClosedIssue, auditClosedIssue, blockedRequestNumbers, loadCatalogueFiles, closedIssuesUrl, hasEvidence } = require(path.join(__dirname, '..', 'scripts', 'check-closed-issues.js'));
 
 let passed = 0, failed = 0;
 function ok(cond, msg, detail) {
@@ -85,6 +85,59 @@ try {
   ok(misses.length === 0, 'all six resolve against the live catalogue', misses.map(function (m) { return '#' + m[0]; }).join(', '));
 } catch (e) {
   ok(false, 'the catalogue loads', e.message);
+}
+
+console.log('');
+console.log('A close that contradicts our own blocked-request record is a finding:');
+// #742 and #743 were closed by the merges of #1873 and #1867 on 2026-11-17, seconds after each
+// issue's own last comment said "the issue stays open". Nothing was built: the vendor still
+// publishes no port value for either. Forgejo parses `<keyword> #N` anywhere in a PR body, so
+// "Does **not** close #743" and "## What would close #742" both read as instructions to close.
+// The catalogue cannot catch that - there is no device to match - so the record that can is
+// research/open-device-requests.json, which declared both of them blocked at the time.
+const MIRROR = { note: 'x', requests: [{ issue: 742, models: 'Huawei OceanProtect E8000' }, { issue: 743, models: 'OceanProtect X8100/X9100' }] };
+const BLOCKED = blockedRequestNumbers(MIRROR);
+ok(BLOCKED && BLOCKED.has(742) && BLOCKED.has(743), 'the mirror yields its issue numbers', JSON.stringify(Array.from(BLOCKED || [])));
+ok(blockedRequestNumbers(null).size === 0, 'a missing mirror blocks nothing rather than throwing');
+ok(blockedRequestNumbers({ requests: [{ models: 'no number' }] }).size === 0, 'an entry without an issue number is ignored');
+const closed742 = auditClosedIssue({ number: 742, title: '[Device]: Huawei OceanProtect E8000 Backup Storage' }, INDEX, [{ body: 'Still blocked on the same field - the issue stays open.' }], BLOCKED);
+ok(closed742.verdict === 'blocked', '#742 closed while still declared blocked is a finding', JSON.stringify(closed742));
+ok(auditClosedIssue({ number: 900, title: '[Device]: Some Unreleased Thing 9000' }, INDEX, [], BLOCKED).verdict === 'unmatched',
+  'an issue outside the mirror keeps its old verdict');
+ok(auditClosedIssue({ number: 387, title: '[Device]: Teltonika RUTX12 Dual LTE 4G CAT6' }, INDEX, null, new Set([387])).verdict === 'blocked',
+  'a blocked entry the catalogue now has is still a contradiction, not an answer');
+ok(auditClosedIssue({ number: 387, title: '[Device]: Teltonika RUTX12 Dual LTE 4G CAT6' }, INDEX, [{ body: 'done' }]).verdict === 'silent',
+  'without a mirror the old verdicts are unchanged');
+try {
+  const fs = require('fs');
+  const file = path.join(__dirname, '..', 'research', 'open-device-requests.json');
+  const real = blockedRequestNumbers(JSON.parse(fs.readFileSync(file, 'utf8')));
+  ok(real.has(742) && real.has(743), 'the live mirror still lists #742 and #743', JSON.stringify(Array.from(real)));
+} catch (e) {
+  ok(false, 'research/open-device-requests.json parses', e.message);
+}
+
+console.log('');
+console.log('The window has to contain the newest close, not the newest number:');
+const U = closedIssuesUrl('http://odin:3000/api/v1', 'jaylouisw/packetforge', 1);
+ok(U.indexOf('state=closed') !== -1 && U.indexOf('type=issues') !== -1, 'the audit reads closed issues, not pulls', U);
+ok(/[?&]sort=recentupdate(&|$)/.test(U), 'sorted by most recent update, so a fresh close is on page 1', U);
+ok(closedIssuesUrl('b', 'r', 3) !== closedIssuesUrl('b', 'r', 2), 'pages differ');
+
+console.log('');
+console.log('A finding has to name the file it found - the catalogue loader drops the path:');
+try {
+  const FILES = loadCatalogueFiles(path.join(__dirname, '..', 'devices')).map(function (f) { return f; });
+  const rutx = FILES.find(function (f) { return /^RUTX12$/i.test(String(f.model)); });
+  ok(rutx && rutx.file === 'devices/teltonika/rutx12.json', 'the RUTX12 spec keeps its path', rutx && rutx.file);
+  const bad = FILES.filter(function (f) { return !/^devices\/[^\/]+\/[^\/]+\.json$/.test(String(f.file)); });
+  ok(bad.length === 0, 'every entry carries a repo-relative posix path', bad.slice(0, 3).map(function (f) { return f.model; }).join(', '));
+  const fileIndex = buildIndex(FILES);
+  const found = auditClosedIssue({ number: 804, title: '[Device]: OptiXtrans E6608T' }, fileIndex, []);
+  ok(found.verdict === 'silent' && found.file === 'devices/huawei/optixtrans-e6608t.json',
+    'a silent finding names the spec, not null', JSON.stringify(found));
+} catch (e) {
+  ok(false, 'the catalogue files load', e.message);
 }
 
 console.log('\n' + passed + ' passed, ' + failed + ' failed');

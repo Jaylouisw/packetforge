@@ -136,6 +136,19 @@ Use a plain imperative subject line, e.g.:
 
 No trailing period, no scope prefixes.
 
+### What a pull request body closes
+
+The tracker reads a close keyword followed by an issue number — `close`, `closes`, `closed`, `fix`,
+`fixes`, `fixed`, `resolve`, `resolves`, `resolved` — anywhere in a pull request's body, and it does
+not read the sentence around it. A sentence disclaiming the close, with the keyword and the number
+adjacent, closes the issue. So does a heading asking what *would* close it. Both shapes shipped on
+2026-11-17 and closed two device requests that had nothing built behind them.
+
+When the work records evidence and the issue must stay open, write `Refs #N`, and keep the number
+away from those nine words everywhere else in the body — including headings, tables and quoted
+issue comments. `scripts/check-closed-issues.js` reports a close that contradicts
+`research/open-device-requests.json`, but only after it has happened; nothing prevents it.
+
 ## Review process
 
 1. A maintainer reviews the PR.

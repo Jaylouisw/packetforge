@@ -29,10 +29,18 @@ while their devices were already in `devices/`. The sweeper only looks at **open
 close - right or wrong - leaves every automated view at once.
 
 `scripts/check-closed-issues.js` reads the other side of the ledger: closed requests matched against
-the catalogue, with the closing comments checked for the file they name. It prints three counts —
-answered with evidence, possibly answered with none, and nothing in the catalogue — and lists the
-middle group, because that is the shape a wrong close has. It never reopens, closes or fails a
-build: it is a report, and the workflow that runs it on every push to `main` is
+the catalogue, with the closing comments checked for the file they name. It prints four counts —
+answered with evidence, possibly answered with none, closed while still listed in
+`research/open-device-requests.json`, and nothing in the catalogue — and lists the two middle
+groups, because those are the shapes a wrong close has. The third is the sharper one: that file is
+this project's own record of the requests the vendor will not let us model, so a close there
+contradicts the ledger instead of answering it. Two requests, #742 and #743, closed that way on
+2026-11-17 with nothing built — the tracker reads a close keyword followed by a number anywhere in a
+pull request body, so a sentence disclaiming the close and a heading naming what *would* close the
+issue were both executed as instructions to close it. The audit reads the closed list
+most-recently-updated first for the same reason: the tracker's default order is by issue number, and
+a close on an old request sits a thousand rows below any practical window. It never reopens, closes
+or fails a build: it is a report, and the workflow that runs it on every push to `main` is
 `.forgejo/workflows/closed-audit.yml`.
 
 A close whose comment names no file is not automatically wrong. It is *uncheckable*, which for the
