@@ -411,6 +411,7 @@ R1(config-if)# exit
 R1(config)# exit
 R1# show ip route
 Codes: C - connected, S - static, O - OSPF, B - BGP, * - candidate default
+Gateway of last resort is not set
 C   10.0.1.0       /24  is directly connected, Gi0/0
 C   10.0.2.0       /24  is directly connected, Gi0/1
 R1# ping 10.0.1.10
@@ -434,7 +435,8 @@ trip to average. Both halves are the vendor's own: the 4/5 ping in Cisco's NAT c
 and would print `0/0/0 ms` for this path beside `time=0.002 ms`, which is two answers to one question.
 `test/ping-round-trip-clause.test.js` pins both halves of the rule.
 
-Only the two connected subnets are in the table because no default has been configured yet; `ip
+Only the two connected subnets are in the table because no default has been configured yet, and the console
+says so between the legend and the first row (`Gateway of last resort is not set`); `ip
 default-gateway` and `ip route 0.0.0.0 0.0.0.0` are the two ways to add one, and their rows — plus the
 `(down: no cable)` a port with nothing plugged into it prints beside its subnet — are in
 [Reading `show ip route`](#reading-show-ip-route).
