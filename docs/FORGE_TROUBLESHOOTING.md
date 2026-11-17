@@ -111,16 +111,33 @@ is waiting for — on a 48 MB repository, a dozen merge attempts is a few hundre
 megabytes of half-clones. **Do not sit in a retry loop against a full volume.**
 One attempt tells you the answer; the tenth only makes the wait longer.
 
-On the host, in this order:
+On the host, in this order. The container's mount point is not a host path: `/data` exists only
+inside the container, and on the host `df -h /data` errors while a `du` there prints its miss - so ask
+at the bind source, and say `absent` rather than print an empty line:
 
 ```bash
-df -h /data                          # is it actually full, and how full?
-# What the failed attempts left behind. Safe to delete while the service is stopped:
-du -sh /data/gitea/data/tmp/local-repo/* 2>/dev/null | sort -h | tail -20
+docker inspect forgejo --format '{{range .Mounts}}{{.Type}} {{.Source}} -> {{.Destination}}{{println}}{{end}}'
+
+for base in /mnt/cache/appdata/forgejo/data /mnt/user/appdata/forgejo/data; do
+  tmp="$base/gitea/data/tmp/local-repo"
+  if [ -d "$tmp" ]; then
+    df -h "$base"                    # is it actually full, and how full?
+    # What the failed attempts left behind. Safe to delete while the service is stopped:
+    du -sh "$tmp"/* 2>/dev/null | sort -h | tail -20
+  else
+    echo "absent: $tmp"
+  fi
+done
+
 # The image cache the CI docker job writes, on the same volume:
 docker system df
 docker builder prune -f --keep-storage 2GB
 ```
+
+Only one of those two bases is usually real, and `absent` on both means the container is bound
+somewhere this page does not name - the `docker inspect` above says where. A `/mnt/user/...` bind is
+the FUSE view, so its `df` reports the shfs pool rather than the disk; the `/mnt/cache/...` line is
+the filesystem itself (see "Diagnosing which path the database is actually on").
 
 Then restart Forgejo — the action queue does not recover by itself: after this
 incident, jobs without `needs:` still ran while every dependent job was never

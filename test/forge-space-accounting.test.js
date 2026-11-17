@@ -94,5 +94,40 @@ ok(section.indexOf('[lfs]') !== -1 && /STORAGE_TYPE/.test(section),
 ok(!/`\/data\/gitea\/lfs` or/.test(section),
   'the "container path is the host path" phrasing is gone');
 
+// The same defect sits one section earlier, in the first-instructions block headed "On the host, in
+// this order:". It still opened with `df -h /data` and a `du` at `/data/gitea/data/tmp/local-repo/*`
+// with `2>/dev/null`. `/data` is the container's mount point (the page's own bind is
+// `.../forgejo/data -> /data`), so on a host `df` errors to stderr and the `du` prints nothing at all -
+// a reader concludes "the failed attempts left nothing behind" and goes hunting for space that is
+// sitting in half-clones. Neither the block nor any test covered it: `section` starts at
+// "### Which repository owns the space", which is *below* this block.
+// Two sections open with "On the host, in this order"; anchor on the disk-full one, whose
+// preceding paragraph is unique to it, or the assertions below read the wrong block.
+const triageFrom = doc.indexOf('One attempt tells you the answer');
+const hostStart = triageFrom === -1 ? -1 : doc.indexOf('On the host, in this order', triageFrom);
+ok(hostStart !== -1, 'the page still has the first host-side triage block');
+const hostEnd = hostStart === -1 ? -1 : doc.indexOf('Then restart Forgejo', hostStart);
+const hostBlock = hostStart === -1 ? '' : doc.slice(hostStart, hostEnd === -1 ? doc.length : hostEnd);
+ok(hostBlock.length > 150, 'and the triage block is instructions, not a sentence', String(hostBlock.length) + ' chars');
+ok(hostBlock.indexOf('local-repo') !== -1,
+  'and it is the disk-full triage block, not the other section that opens the same way');
+ok(hostBlock.indexOf('/mnt/cache/appdata/forgejo/data') !== -1
+  && hostBlock.indexOf('du -sh "$tmp"/*') !== -1,
+  'its measurements run at the bind sources, where a host shell can actually see /data');
+ok(hostBlock.indexOf('echo "absent: $tmp"') !== -1,
+  'a bind path that is not there is reported in words, not as an empty line');
+// A path argument that starts at the root: `gitea/data/tmp/...` is a host path and must not trip this.
+const hostLines = hostBlock.split(String.fromCharCode(10));
+const containerPathLines = hostLines.filter((l) => {
+  const i = l.indexOf('/data/');
+  if (i === -1) return false;
+  const before = i === 0 ? '' : l.charAt(i - 1);
+  return !/[A-Za-z]/.test(before);
+});
+ok(containerPathLines.every((l) => l.indexOf('docker exec') !== -1 || l.trim().indexOf('#') === 0),
+  'no line in the triage block sends a host shell to a /data/ path');
+ok(hostBlock.indexOf('2>/dev/null') === -1 || hostBlock.indexOf('[ -d "$tmp" ]') !== -1,
+  'the only silenced command is one whose directory was already proved to exist');
+
 console.log((failed ? '\u2717 ' : '') + passed + ' passed, ' + failed + ' failed');
 process.exit(failed ? 1 : 0);
