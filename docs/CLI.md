@@ -1378,11 +1378,10 @@ Rules are checked by the model's own `validateRule()`, so a rule the console acc
 apply. The refusals are specific:
 
 ```
-% PAT overloads one address; pool "TWO" holds more than one. Use a single-address pool for overload,
-  or drop `overload` for a dynamic pool
-% 10 is an ACL number: this model takes the inside local addresses here, e.g. `list 192.168.1.0/24`
+% PAT overloads one address; pool "TWO" holds more than one. Use a single-address pool for overload, or drop `overload` for a dynamic pool
+% 10 is an ACL number: this model takes the inside local addresses here, e.g. `list 192.168.1.0/24` or `list any`
 % Gi0/0/3 has no address: there is nothing for NAT to translate to
-% NAT pool "WAN" ends before it starts (203.0.113.9 - 203.0.113.1)
+% Pool "WAN" ends before it starts (203.0.113.9 - 203.0.113.1)
 ```
 
 `no ip nat inside source` removes the most recent rule and **names the rule it removed**; `no ip nat pool <name>`
