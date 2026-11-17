@@ -90,6 +90,54 @@ function compareBridgeIds(a, b) {
 }
 
 // ---------------------------------------------------------------------------
+// port IDs
+// ---------------------------------------------------------------------------
+
+// A port ID is two bytes: an 8-bit port priority in front of the port's number, and the number is the
+// last thing that decides between two BPDUs whose root IDs, root costs and sender bridge IDs are all
+// equal. Cisco states the order plainly - "if there is a tie with respect to the root path cost, the
+// port on the local switch which receives the BPDU with the lowest sender bridge ID is selected as root
+// port", and where both paths come from the same neighbour, "by the configured port priority and port
+// ID of the neighboring attached ports" (research/stp-root-port-tiebreak.md) - so this file compares
+// port IDs, and compares them as numbers.
+//
+// Per-port priority (`spanning-tree port-priority`) is not modelled: every port is at the default 128,
+// so the priority byte is the same on both sides of every comparison and the number alone decides.
+//
+// The number has to be read out of the name the catalogue uses, and the name is not one field: `Fa0/9`
+// is 9, `Gi1/0/10` is module 1, port 10, `Port 3` is 3, `Po1` is 1. Comparing those names as strings put
+// `Fa0/10` *before* `Fa0/9` - the one place in this file where a sort said a higher-numbered port was the
+// better one - so the comparison below splits each name into digit runs and text runs and compares the
+// digit runs as numbers, in order. That is the same order an ifIndex follows: Gi1/0/10 sits ahead of
+// Gi2/0/1, which a comparison of the *last* number in the name would get backwards.
+function portIdParts(name) {
+  const s = String(name === undefined || name === null ? '' : name).toLowerCase();
+  return s.match(/\d+|\D+/g) || [];
+}
+
+// Negative when a's port ID is better (lower) than b's. Names with no number at all fall back to the
+// text comparison, which keeps the answer stable whatever order the ports were listed in.
+function comparePortIds(a, b) {
+  const pa = portIdParts(a);
+  const pb = portIdParts(b);
+  const n = Math.min(pa.length, pb.length);
+  for (let i = 0; i < n; i++) {
+    const x = pa[i];
+    const y = pb[i];
+    const xNum = x.charCodeAt(0) >= 48 && x.charCodeAt(0) <= 57;
+    const yNum = y.charCodeAt(0) >= 48 && y.charCodeAt(0) <= 57;
+    if (xNum && yNum) {
+      const d = Number(x) - Number(y);
+      if (d !== 0) return d;
+    } else if (x !== y) {
+      return x < y ? -1 : 1;
+    }
+  }
+  if (pa.length !== pb.length) return pa.length - pb.length;
+  return 0;
+}
+
+// ---------------------------------------------------------------------------
 // ports
 // ---------------------------------------------------------------------------
 
@@ -205,8 +253,16 @@ function runStp(input) {
   }
 
   // --- 3. root port per non-root bridge -----------------------------------
-  // Cheapest (dist(peer) + own port cost); ties by neighbour bridge ID, then
-  // by port name so the result is stable regardless of listing order.
+  // The vector 802.1D compares, in its order: cheapest (dist(peer) + own port cost), then the lowest
+  // sender bridge ID, then the lowest **sender** port ID, and only then this bridge's own port ID.
+  //
+  // The third term was missing here, and the fourth compared names as strings. Two parallel links to the
+  // same neighbour have identical root cost *and* identical sender bridge ID, so the sender port ID is the
+  // one field that decides between them - and the old chain skipped straight to the local name, which picks
+  // the local port rather than the link. With `Fa0/9` and `Fa0/10` both cabled to the root it then also
+  // preferred `Fa0/10`, because '1' < '9' compares true, so the tree blocked the lower-numbered port and
+  // forwarded the frame on the higher one - the opposite of what the box does
+  // (research/stp-root-port-tiebreak.md).
   const rootPortOf = new Map();
   for (const key of order) {
     if (key === root.key) continue;
@@ -227,8 +283,16 @@ function runStp(input) {
         better = cand < bestCost;
       } else if (compareBridgeIds(peer, bestPeer) < 0) {
         better = true;
-      } else if (compareBridgeIds(peer, bestPeer) === 0 && p.name < bestPort.name) {
-        better = true;
+      } else if (compareBridgeIds(peer, bestPeer) === 0) {
+        // Same sender bridge: the BPDUs differ only in the port they left by. Only when even that is
+        // equal (two logical ports onto one neighbour port, which a box can only produce on an
+        // aggregator) does the receiving port decide.
+        const sender = comparePortIds(p.to.port, bestPort.to.port);
+        if (sender !== 0) {
+          better = sender < 0;
+        } else {
+          better = comparePortIds(p.name, bestPort.name) < 0;
+        }
       }
       if (better) {
         bestPort = p;
@@ -320,5 +384,6 @@ module.exports = {
   costForSpeedMbps,
   validateBridgePriority,
   stpPortText,
+  comparePortIds,
   runStp
 };
