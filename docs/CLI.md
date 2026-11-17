@@ -339,9 +339,31 @@ is the normal case and is untouched. What the refusal does *not* decide — an i
 down, and an address a DHCP client holds at run time — is recorded in
 [research/ip-address-overlap.md](../research/ip-address-overlap.md).
 
+An address that is not a host address is refused before any of that is asked. Under the mask it was typed
+with, the all-zeros host part names the subnet itself and the all-ones host part is its broadcast address;
+neither may sit on a port, and IOS answers either one with the same line, naming the prefix length and echoing
+what was typed:
+
+```
+R1(config-if)#ip address 192.168.0.0 255.255.255.0
+Bad mask /24 for address 192.168.0.0
+R1(config-if)#ip address 192.168.1.255 255.255.255.0
+Bad mask /24 for address 192.168.1.255
+```
+
+The line carries no `%`: four raw transcripts print it bare, and the sibling refusal from the same parser
+(`Not a valid host address - 0.0.0.1`) is bare too, so a marker here would be this console's addition rather
+than the device's. A **/31** is the exception — RFC 3021 gives both of its addresses to the two ends of the
+link, which Cisco's configuration guide states in as many words and demonstrates with `ip address 192.168.1.0
+255.255.255.254` — so `192.168.1.0/31` and `192.168.1.1/31` are both accepted, one per end. A `/32` and a
+`/0` are left exactly as they were: the one thread in hand says a physical port refused `192.168.2.1
+255.255.255.255` while the same mask was taken on a loopback, and no second transcript settles it. What is
+known, what is inferred and what would settle the rest is in
+[research/ip-address-not-a-host.md](../research/ip-address-not-a-host.md).
+
 | Command | Effect |
 |---------|--------|
-| `ip address <ip> <mask>` | assign an IP (e.g. `192.168.1.1 255.255.255.0`); the mask must be a run of ones then zeros, and may be written as a prefix length (`24`) |
+| `ip address <ip> <mask>` | assign an IP (e.g. `192.168.1.1 255.255.255.0`); the mask must be a run of ones then zeros and may be written as a prefix length (`24`), and the address must be a host address of that subnet (not its network or broadcast address, except on a `/31`) |
 | `no ip address` | remove the IP |
 | `clock rate <bps>` | (serial only) make this end the DCE and clock the line, e.g. `clock rate 64000`. Refused on a non-serial port, and for a rate the port cannot clock |
 | `no clock rate` | drop the clock, leaving this end as DTE |
@@ -2225,7 +2247,7 @@ interface Gi0/0
 ```
 
 **`no` reads the vrid and nothing after it.** The interface-mode handler matches `no vrrp <vrid>`
-before it looks at the rest of the line (`engine/cli.js:1517`), so any `no` that names a group
+before it looks at the rest of the line (`engine/cli.js:1609`), so any `no` that names a group
 removes that group, whatever follows the vrid:
 
 ```

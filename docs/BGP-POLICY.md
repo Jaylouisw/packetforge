@@ -71,9 +71,9 @@ The anchors:
 | `bgp.js:304-317` `pathIsLoopFree` | correct already (AS_SET members included) | keep, no change |
 | `simulator.js:1833-1877` advertisement loop | `if (e.from === adj.peer.dev.id) continue;` (line 1839), prepend at 1845, the next hop at 1850, and the iBGP→iBGP suppression at 1844 (landed with #41, §6.3) | call `advertise()`/`applyRouteMap()` instead of re-deriving AS path and next hop; keep the iBGP→iBGP suppression |
 | `cli.js:1288-1306` config-mode BGP dispatch | `router bgp` / `no router bgp` / `neighbor` / `bgp` | add `route-map`, `match`, `set` branches |
-| `cli.js:1975` `_bgp(tokens)` | `as`, `router-id`, `<ip> remote-as` | add `always-compare-med`, `default local-preference`, `<ip> route-map`, `<ip> next-hop-self` |
-| `cli.js:2044` `this._dnsZone` | sticky "current zone" context, no new prompt mode | same pattern for the current route-map (§9.2) |
-| `cli.js:5715` `_help()` | command list | add the new lines |
+| `cli.js:2074` `_bgp(tokens)` | `as`, `router-id`, `<ip> remote-as` | add `always-compare-med`, `default local-preference`, `<ip> route-map`, `<ip> next-hop-self` |
+| `cli.js:2143` `this._dnsZone` | sticky "current zone" context, no new prompt mode | same pattern for the current route-map (§9.2) |
+| `cli.js:5882` `_help()` | command list | add the new lines |
 
 Design invariants that must survive the change, because every existing test
 relies on them:
@@ -821,7 +821,7 @@ duplicates" behaviour already required of `neighbor ... remote-as`
 
 ### 9.4 `_help()` additions
 
-Append these lines to `_help()` (`cli.js:5715`), keeping the existing column
+Append these lines to `_help()` (`cli.js:5882`), keeping the existing column
 alignment:
 
 ```

@@ -1508,6 +1508,62 @@ class CliSession {
   //     keeps the rule it can cite. research/ip-address-overlap.md records that.
   //   * an address learned by DHCP at run time is not compared, because the check happens while the address is
   //     typed and the lease does not exist yet.
+  // An address is also refused for what it *is*, before the box compares it with anything it already holds.
+  // Under the mask it was typed with, the all-zeros host part is the subnet's network address and the all-ones
+  // host part is its broadcast address; neither is a host address, and a port may hold neither. IOS says the
+  // same one line for both, printing the prefix length and echoing the address that was typed:
+  //
+  //     Router(config-if)#ip address 192.168.1.255 255.255.255.0
+  //     Bad mask /24 for address 192.168.1.255
+  //     Router(config-if)#ip address 192.168.0.0 255.255.255.0
+  //     Bad mask /24 for address 192.168.0.0
+  //
+  // Four independent raw transcripts print that sentence without a leading `%`:
+  //   * https://community.cisco.com/t5/switching/why-not-use-broadcast-subnet/td-p/2137545
+  //     (`ip address 192.168.1.255 255.255.255.0` -> `Bad mask /24 for address 192.168.1.255`)
+  //   * https://community.cisco.com/t5/switching/bad-mask/td-p/1972424
+  //     (HTTS-C6K1, `ip addr 172.30.0.0 255.255.255.0` -> `Bad mask /24 for address 172.30.0.0`)
+  //   * https://learningnetwork.cisco.com/s/question/0D53i00000KsxldCAB/ip-address
+  //     (four network addresses in a row, each answered `Bad mask /24 for address <what was typed>`)
+  //   * https://community.cisco.com/t5/switching/bad-mask-24/m-p/2128552
+  //     (`192.168.4.0/24` on `interface vlan 603`, same line)
+  // One teaching page prints it with the marker - `% Bad mask /30 for address 172.20.100.96` - and says why
+  // the command exists at all: "A Cisco router will only allow a host address to be configured on a Layer 3
+  // interface. (The only exception is a /31 Subnet Mask ...)":
+  //   * https://www.connecteddots.online/resources/cisco/bad-mask-for-address
+  // The unmarked form is the vendor's: the sibling refusal from the same address parser is unmarked too
+  // ("Not a valid host address - 0.0.0.1", https://community.cisco.com/t5/switching/
+  // what-is-the-lowest-prefix-possible-and-the-lowest-ip/td-p/1214384), so a marker on one and not the other
+  // would be this console's invention. research/ip-address-not-a-host.md records the disagreement.
+  //
+  // **/31 is the exception, and it is documented rather than inferred.** RFC 3021 gives both addresses of a
+  // 31-bit prefix to the two ends of a point-to-point link, and Cisco's own configuration guide says it in as
+  // many words - "the use of a 31-bit prefix ... allows the all-zeros and all-ones IP addresses to be assigned
+  // as host addresses" - with `ip address 192.168.100.4 255.255.255.254` as the worked example:
+  //   * https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/ipaddr_ipv4/configuration/15-s/ipv4-15-s-book/configuring_ipv4_addresses.html
+  //   * https://www.cisco.com/c/en/us/support/docs/ip/routing-information-protocol-rip/13788-3.html
+  //     (`R1(config-if)#ip address 192.168.1.0 255.255.255.254` - the all-zeros address of its /31, accepted)
+  // The same guide says classless addressing must be on first; it is the default in every IOS this model
+  // speaks for, and no `ip classless` command exists here to turn it on, so the exemption is unconditional.
+  //
+  // Two things this deliberately leaves alone, rather than guessing:
+  //   * a /32. One thread reports a physical port refusing `192.168.2.1 255.255.255.255` with
+  //     `Bad mask /32 for address 192.168.2.1` while the same mask was taken on a loopback
+  //     (https://learningnetwork.cisco.com/s/question/0D53i00000KswrtCAB/subnet-mask-255255255255), and no
+  //     second transcript confirms which prefix lengths a physical port refuses. A /32 is unchanged here.
+  //   * a /0, where the network address and the broadcast address are the same address and nothing in hand
+  //     says which sentence a box prints. Unchanged.
+  _ipHostRefusal(ip, dotted) {
+    const netLib = require('./net');
+    const bits = netLib.prefixOf(dotted);
+    if (!(bits >= 1 && bits <= 30)) return null;
+    if (netLib.ipToInt(ip) === netLib.networkOf(ip, dotted) ||
+        netLib.ipToInt(ip) === netLib.broadcastOf(ip, dotted)) {
+      return 'Bad mask /' + bits + ' for address ' + ip;
+    }
+    return null;
+  }
+
   _ipOverlapRefusal(iface, ip, dotted) {
     const netLib = require('./net');
     const start = netLib.networkOf(ip, dotted);
@@ -1612,6 +1668,13 @@ class CliSession {
         const dotted = net.maskFromPrefix(net.prefixOf(mask));
         // A subnet this box already holds on another port is refused, in the vendor's one line, with the port
         // keeping whatever it had. See `_ipOverlapRefusal()` for the transcripts and the two open questions.
+        // What the address *is* comes before what the box already holds: a network or broadcast address is not
+        // a host address under the mask it was typed with, so nothing is applied and the subnet is not
+        // compared. (Which of the two validations a real box runs first is not witnessed by anything in hand;
+        // the order is invisible unless a command is both, e.g. `ip address 10.0.0.0 255.255.255.0` while
+        // 10.0.0.1/24 sits on another port, and there the address is wrong on its own terms.)
+        const notHost = this._ipHostRefusal(ip, dotted);
+        if (notHost) return [notHost];
         const overlap = this._ipOverlapRefusal(iface, ip, dotted);
         if (overlap) return [overlap];
         // The other half of the same rule: a static address displaces the DHCP client, and says so, rather
