@@ -1027,6 +1027,34 @@ printed on the failure path too, without `[OK]`: it is the half of that output w
 Digits and dots that are not a valid address (`ping 10.0.0.999`) are refused as an address rather than looked up as
 a name.
 
+### Pinging this box
+
+An address the device itself holds is answered by its own IP stack: the echo is never built into a frame, so nothing
+ARPs for the box's own address and the round trip is the empty path's. The rule is the IP layer's, not the console's -
+RFC 1812 §5.2.3 delivers a packet locally when its destination "exactly matches one of the router's IP addresses", and
+§4.3.3.6 requires the echo server to answer what is sent to the router; RFC 1122 §3.2.2.6 puts the same duty on a host
+(research/ping-own-address.md).
+
+```
+r1> ping 10.0.0.1
+Type escape sequence to abort.
+Sending 5, 100-byte ICMP Echos to 10.0.0.1, timeout is 2 seconds:
+!!!!!
+Success rate is 100 percent (5/5), round-trip min/avg/max = 0.000/0.000/0.000 ms
+Reply from 10.0.0.1: bytes=100 time=0.000 ms
+Reply from 10.0.0.1: bytes=100 time=0.000 ms
+Reply from 10.0.0.1: bytes=100 time=0.000 ms
+Reply from 10.0.0.1: bytes=100 time=0.000 ms
+Reply from 10.0.0.1: bytes=100 time=0.000 ms
+```
+
+`0.000 ms` is the model being literal: the echo crossed no link, so the latency model has nothing to add, and a figure
+copied from a vendor timer would be an invented measurement. The same rule covers IPv6 (a configured address and the
+EUI-64 link-local each port forms for itself) and a `traceroute` to the box's own address, which is one hop. An
+address on an administratively disabled port is not answered locally - that port's address goes the routing way and
+fails there, which is the state the operator asked for. A neighbour's address is untouched by this: a ping to an
+address nobody owns still loses every echo, for `no ARP reply from <address>`.
+
 `show ip dns` reads the zones back — the records that are actually answered, in zone-file shape:
 
 ```

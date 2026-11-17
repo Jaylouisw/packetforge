@@ -179,6 +179,7 @@ Two different questions, and the forwarding path has to ask the first one first:
 |---|---|---|
 | **Modelled** | A router serves any of its own addresses on any of its ports. Ping the far-side address of your own gateway and it answers — previously it forwarded the packet, decremented the TTL and died, so the host saw silence while the router held the address. | `engine/device.js` `ownsIpOn`, `holdsIp` |
 | **Modelled** | A reply leaves by the port the request arrived on, not the port that owns the address. The second half matters as much as the first: a router that accepts the packet and replies into an uncabled port has answered and still looks dead to the host. A tagged subinterface is the exception and sends the reply tagged. | `engine/simulator.js` `_handleLocalIp` |
+| **Modelled** | An echo to an address the box holds is answered by its own stack: the request is never built into a frame, so nothing ARPs for the box's own address and the modelled round trip is the empty path's (`0.000 ms`). RFC 1812 §5.2.3 makes local delivery the rule when the destination "exactly matches one of the router's IP addresses", and §4.3.3.6 requires the echo server to answer it. `holdsIp()` only names an enabled port, so an address on a disabled one still fails the routing way. | `engine/simulator.js` `_sendIcmp`, `_sendIcmp6`; `engine/device.js` `holdsIp` |
 | **Modelled** | The interface-scoped rules still outrank stack ownership: WAN/LAN role separation, L2 VLAN isolation, bridge-group membership. | `engine/device.js` |
 
 ### 3.2 ARP

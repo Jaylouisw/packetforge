@@ -2021,6 +2021,16 @@ class Simulator {
   }
 
   _sendIcmp6(src, dstIp6, icmp6) {
+    // The same rule in the other address family: an echo to one of this box's IPv6 addresses (a configured
+    // one or the EUI-64 link-local it formed for itself) is answered by its own stack, off the wire.
+    const mine6 = typeof src.interfaceWithIp6 === 'function' ? src.interfaceWithIp6(dstIp6) : null;
+    if (mine6) {
+      const vid6 = portPvid(mine6);
+      this._emit({ type: 'icmp6-echo', dev: src.id, iface: mine6.name, from: dstIp6, seq: icmp6.seq, vlan: vid6 });
+      this.icmp6Replies.push({ dst: src.id, id: icmp6.id, seq: icmp6.seq, step: this.step });
+      this._emit({ type: 'icmp6-received', dev: src.id, from: dstIp6, seq: icmp6.seq, vlan: vid6 });
+      return;
+    }
     let route = src.route6To(dstIp6);
     // A link-local destination has no prefix in the routing table; it is
     // reachable on whichever interface owns a link-local address.
@@ -2867,6 +2877,22 @@ class Simulator {
   // ---------------------------------------------------------------------
 
   _sendIcmp(src, dstIp, icmp, ttlOpt) {
+    // An echo to an address this box holds is answered by its own stack: the request is never built into a
+    // frame, because a host does not ARP for an address it owns. Asking the wire instead made every device
+    // in the lab unable to reach itself - a router could not ping its own interface address, and the console
+    // explained the silence with `no ARP reply from 10.0.0.1` about the box it was typed into.
+    //
+    // The reply carries no link, and the round trip computed from this run's events says exactly that: zero,
+    // because the echo crossed no wire. `holdsIp()` only answers for an enabled interface, so an address on
+    // an administratively disabled port still goes the routing way and fails there.
+    const mine = typeof src.holdsIp === 'function' ? src.holdsIp(dstIp) : null;
+    if (mine) {
+      const vid = portPvid(mine);
+      this._emit({ type: 'icmp-echo', dev: src.id, iface: mine.name, from: dstIp, seq: icmp.seq, vlan: vid });
+      this.icmpReplies.push({ dst: src.id, id: icmp.id, seq: icmp.seq, step: this.step });
+      this._emit({ type: 'icmp-received', dev: src.id, from: dstIp, seq: icmp.seq, vlan: vid });
+      return;
+    }
     const route = src.routeTo(dstIp);
     if (!route) {
       this._emit({ type: 'drop', reason: 'no route to ' + dstIp, dev: src.id, summary: 'No route to ' + dstIp });
