@@ -172,15 +172,81 @@ jobs:
       # number. What it removes is the second advertisement of 792 refs per tick and a
       # `--prune` that had nothing left to prune, and it leaves the loop fetching exactly the
       # one ref it reasons about (it already fetched each branch by name before rebasing it).
+      # Most ticks have nothing to do, and the tick only learned that after paying for a
+      # checkout. Measured on 2026-11-17 over the 25 auto-rebase runs created between
+      # 10:20Z and 12:28Z (/actions/tasks, pages 1-6): median 16 s per tick, ~282 a day, and
+      # every one of the sampled logs answered `no mergeable open pull requests`. That answer
+      # comes from the API alone - `fetch_pages` below reads `/pulls?state=open` and keeps the
+      # ones whose `mergeable` is already true - so the working tree is never read before the
+      # question is answered. Run 5154, 12:20:39 -> 12:20:56: the room guard prints at
+      # 12:20:45.6, `git fetch --prune ... +refs/heads/*` runs 12:20:47.5 -> 12:20:54.7 (7.2 s),
+      # the checkout completes at 12:20:55.7, and the next line of the log is
+      # `no mergeable open pull requests`. Add the ~3.8 s the runner spends cloning
+      # `actions/checkout` into `/data/.cache/act` before step one and it is ~12 s of a 17 s
+      # tick spent fetching 792 refs for a decision that did not look at them.
+      #
+      # So the question is asked first, for one bounded call, and the checkout stands down
+      # when the answer is "nothing mergeable is open". Nothing gets weaker: only a positive
+      # answer switches the batch off - an empty list of open pull requests, or a page of them
+      # with no `mergeable === true`. A missing token, an unreadable body, something that is
+      # not an array, or a full first page (50 open pull requests, where the mergeable one
+      # could be on page two and the reader below would keep paging for it) all leave
+      # `work=true`, which is exactly the path that ran before.
+      - name: Is there anything to rebase?
+        id: queue
+        env:
+          TOKEN: ${{ secrets.FORGEJO_TOKEN || secrets.GITHUB_TOKEN || github.token }}
+        run: |
+          set -u
+          api="${GITHUB_API_URL:-http://10.0.10.20:3000/api/v1}"
+          repo="${GITHUB_REPOSITORY}"
+          # Run the batch unless the API positively says there is nothing to run it for.
+          work=true
+          if [ -z "${TOKEN:-}" ]; then
+            echo "no token to ask the API with; running the batch"
+          else
+            body=$(curl -sS --connect-timeout 5 --max-time 20 --retry 2 --retry-delay 1                      --retry-connrefused -H "Authorization: token ${TOKEN}"                      "$api/repos/$repo/pulls?state=open&limit=50" 2>/dev/null || true)
+            verdict=$(printf '%s' "${body:-}" | node -e '
+              let d = "";
+              process.stdin.on("data", (c) => { d += c; }).on("end", () => {
+                let j; try { j = JSON.parse(d); } catch (e) { console.log("unreadable"); return; }
+                if (!Array.isArray(j)) { console.log("unreadable"); return; }
+                // A full page may hide a mergeable pull request on the next one, and the
+                // reader below pages until a short one: let it do that rather than answer
+                // "nothing" from the first page alone.
+                if (j.length >= 50) { console.log("more:" + j.length); return; }
+                const open = j.filter((p) => p.state === "open");
+                const live = open.filter((p) => p.mergeable === true).length;
+                console.log(live ? "work:" + live : "idle:" + open.length);
+              });' 2>/dev/null || true)
+            case "${verdict:-}" in
+              idle:*)
+                work=false
+                echo "no mergeable open pull requests (${verdict#idle:} open, none mergeable)"
+                echo "standing the checkout down: it would spend ~12 s fetching refs that this"
+                echo "answer did not need. The next tick asks again, and a push to main asks sooner."
+                ;;
+              work:*) echo "${verdict#work:} mergeable open pull request(s) - running the batch" ;;
+              more:*) echo "the first page of open pull requests is full (${verdict#more:}) - running the batch rather than reading only page one" ;;
+              *)      echo "could not read the open pull requests (${verdict:-no answer}); running the batch" ;;
+            esac
+          fi
+          if [ -n "${GITHUB_OUTPUT:-}" ]; then
+            echo "work=$work" >> "$GITHUB_OUTPUT"
+          else
+            echo "::set-output name=work::$work"
+          fi
+          exit 0
+
       - name: Check out the queue
-        if: steps.room.outputs.room == 'true'
+        if: steps.room.outputs.room == 'true' && steps.queue.outputs.work == 'true'
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
           persist-credentials: false
 
       - name: Rebase and arm
-        if: steps.room.outputs.room == 'true'
+        if: steps.room.outputs.room == 'true' && steps.queue.outputs.work == 'true'
         # No env here that reads github.event.inputs.
         #
         # This workflow has produced twenty runs and started none of them. Not on
