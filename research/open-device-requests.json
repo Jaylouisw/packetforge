@@ -84,13 +84,16 @@
     {
       "issue": 810,
       "models": "Huawei OptiXtrans E9624",
-      "missing": "the same client board chapter (TNG1N*/TNG1M*), plus the protection mode, which decides the port count: 1:1 gives 12 large or 24 small slots, 1:3 gives 10 or 20, and IU6/IU7/IU18/IU19 are unusable in 1:3. The frame arithmetic is settled and vendor-sourced (`TNG2DAP` section 1.9 and the E9600 family brochure); the board chapters are absent from the vendor sitemap, so this is an access problem, not a search problem.",
-      "unblock": "one client board chapter plus the protection mode to model (1:1 or 1:3). With both, the product is a stated card complement - `E9624 (24x <board>)` - and needs no guessing.",
+      "missing": "the same client board chapter (TNG1N*/TNG1M*), plus the protection mode, which decides the port count: 1:1 gives 12 large or 24 small slots, 1:3 gives 10 or 20, and IU6/IU7/IU18/IU19 are unusable in 1:3. The frame arithmetic is settled and vendor-sourced (`TNG2DAP` section 1.9 and the E9600 family brochure); the board chapters are absent from the vendor sitemap, so this is an access problem, not a search problem. Correction (2026-11-17): the E9600 family is FOUR subracks, not three - `OptiXtrans E9624X` is a separate product with its own page and is absent from the family spec table (`E9624X` occurs zero times in the 344,531 B family page). It shares only the 12/24 slot count: 825 mm vs 747.2 mm tall, cross-connect SDH/OTN/fgOTN/PKT vs ODUk/PKT/VC, 10 Gbit/s OTN+TDM and 400 Gbit/s ponder vs 1.2 Tbit/s per channel, and -48/-60 V DC only vs DC/AC/HVDC. TNG2DAP section 1.9 lists it (IU1-IU24) and section 1.6 gives the functional split (`Opticallayer ASON: E9605/E9612/E9624 supported, E9624X subrack: Not supported`), so modelling #810 from the E9624X page would be the E6608-from-E6608T error again. Its own board datasheet (`EDOC1100214449`) is behind the same wall as `EDOC1100163901` (302 -> /view/notFound), so the wall now covers two named board datasheets. See `research/optixtrans-e9624x-fourth-subrack.md`.",
+      "unblock": "one client board chapter plus the protection mode to model (1:1 or 1:3) - `TNG1N206` (6 x 10 Gbit/s line), `TNG1N210` (10 x 10 Gbit/s line) or `TNG1N401` (1 x 100 Gbit/s line), which `TNG2DAP` section 1.9 shows is valid in all four subracks. With both, the product is a stated card complement - `E9624 (24x TNG1N210)` - and needs no guessing. Readable copies of `EDOC1100163901` or `EDOC1100214449` would also do it.",
       "checked": "2026-11-17",
       "sources": [
         "https://support.huawei.com/enterprise/en/optical-transmission/optixtrans-e9624-pid-250733004",
         "https://e-file.huawei.com/marketingcloud/pep/asset/20000001/Material/e75c775ac71144e6b522d7cef1601604/M3T1A669N1188254864652623965/TNG2DAP%20-.pdf",
-        "https://e.huawei.com/sitemap-ebg-x-default.xml"
+        "https://e.huawei.com/sitemap-ebg-x-default.xml",
+        "https://e.huawei.com/en/products/optical-transmission/optixtrans-e9624x",
+        "https://support.huawei.com/enterprise/en/optical-transmission/optixtrans-e9624x-pid-251792361",
+        "https://e.huawei.com/en/products/optical-transmission/optixtrans-e9600"
       ]
     }
   ]
