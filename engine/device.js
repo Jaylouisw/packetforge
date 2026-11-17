@@ -10,6 +10,11 @@ const MAC_AGE_MS = 300000;
 // say the age could not be modelled because "the simulator has steps, not minutes" - that stopped being true
 // when convergence gave the model an instant in milliseconds (#1397).
 const ARP_AGE_MS = 14400000;
+
+// The TTL an LLDPDU carries when nobody said otherwise: `lldp timer` 30 s times the hold multiplier 4, which is
+// 802.1AB's recommended default and the number Cisco's `lldp holdtime` defaults to. Used only for a record that
+// arrived without a TTL, so the table can still age it. See `lldpRows()`.
+const LLDP_DEFAULT_TTL_S = 120;
 // device.js -- Device + Interface model (vendor-agnostic).
 const net = require('./net');
 const { resolvePortName } = require('./iface-name');
@@ -207,6 +212,10 @@ class Device {
     // real hardware answers "what is plugged in here", and it is filled from frames
     // that actually crossed the link rather than from the topology file.
     this.lldp = new Map();
+    // Our port name -> when the last LLDPDU on it was heard, in milliseconds. Kept beside the record rather than
+    // in it, because the record is what the far end advertised and this is a reading of our own clock: a saved
+    // lab must not carry one (`arpSeenAt` is here for the same reason). An entry with no instant is not aged.
+    this.lldpSeenAt = new Map();
     this.pending = new Map();    // nextHopIp -> [ {egress, frame} ] awaiting ARP
 
     // STP state, populated by Simulator.computeStp()
@@ -733,15 +742,37 @@ class Device {
   }
 
   // `show lldp`, as data: a neighbour is not "here" because it was once heard.
-  lldpRows(topo) {
+  //
+  // A neighbour survives silence only as long as the TTL it advertised. IEEE 802.1AB's Time To Live TLV is "the
+  // number of seconds that the recipient LLDP agent is to regard the information associated with this MSAP
+  // identifier to be valid" (8.5.4), and a sender that stops announcing is dropped when it lapses; Cisco's
+  // defaults are `lldp timer` 30 s and `lldp holdtime` 120 s, and its `show lldp neighbors` prints the time left
+  // as `Hold-time`. This table had no instant at all, so a neighbour whose port was shut stayed listed for ever -
+  // at any instant asked of it, five times its TTL later, it still named a device that had not announced itself
+  // since. `nowMs` is the instant the question is asked at; when the caller has no clock, or the entry carries no
+  // reception instant, the row is printed unaged rather than aged against a guess, which is the rule
+  // `macLookup()` and `arpRows()` already follow (#1395, #1397).
+  //
+  // A TTL of 0 is 802.1AB's "this MSAP identifier is no longer valid", so that entry is dropped whatever the
+  // clock says, and `ttl` is read as advertised rather than defaulted.
+  lldpRows(topo, nowMs) {
     const rows = [];
     for (const [portName, nb] of this.lldp.entries()) {
+      const seen = this.lldpSeenAt ? this.lldpSeenAt.get(portName) : undefined;
+      const at = Number.isFinite(seen) ? seen : null;
+      const ttlS = (nb && Number.isFinite(nb.ttl)) ? nb.ttl : LLDP_DEFAULT_TTL_S;
+      if (ttlS <= 0) continue;                                    // withdrawn, not "never advertised"
+      if (at !== null && Number.isFinite(nowMs) && (nowMs - at) > ttlS * 1000) continue;
       const iface = this.resolveIface(portName);
       rows.push({
         port: iface ? iface.name : portName,
         systemName: (nb && nb.systemName) || '?',
         portId: (nb && nb.portId) || '?',
         mgmtIp: (nb && nb.mgmtIp) || '-',
+        // How long the sender said the record is good for, and when it was heard, so a caller with a clock can
+        // print what is left of it instead of a constant.
+        holdTimeS: ttlS,
+        heardAtMs: at,
         note: iface ? this.portCarrierNote(iface, topo) : '(gone)'
       });
     }

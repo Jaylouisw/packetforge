@@ -29,7 +29,7 @@ Modes and their prompts:
 | `show vlan` / `show vlan brief` | VLAN table: one row per VLAN in the VLAN database, with the **access** ports in it - a trunk port carries the VLAN and appears in no row - and the four reserved defaults (1002-1005) a switch has from boot. `show vlan` is the full view: it then prints the media table (`Type`, `SAID`, `MTU`, `Stp`, `Trans1/2`), the empty `Remote SPAN VLANs` section and the empty private-VLAN table; `brief` stops after the first table |
 | `show spanning-tree` | per-port STP role and state, the bridge priority and the elected root, or "not measured" when nothing has run |
 | `show etherchannel summary` | the device's own summary: the nine-line flag key, both counts, `Po<N>(SU)` per group, LAG members `(P)` bundled, `(s)` suspended or `(D)` unbundled, with the reason |
-| `show lldp` | LLDP neighbours, with the local port marked when it can no longer carry |
+| `show lldp` | LLDP neighbours, with the local port marked when it can no longer carry, and each row listed only for as long as the hold time its neighbour advertised |
 | `show access-lists` | ACL rules, bindings, and how many packets each rule has matched |
 | `show ip bgp` / `show ip bgp summary` | BGP neighbours with their state and reason, and the prefixes installed |
 | `show interfaces` | per-interface detail incl. MAC, peer, link state and what has crossed the port |
@@ -1658,10 +1658,23 @@ The table is filled from LLDPDUs that actually crossed a link, not from the topo
 means nothing has announced itself. Column widths come from the data — a fixed 20-character Neighbour column
 ran a 55-character router name into the Local port column, which made the row unreadable field by field.
 
-A neighbour is **not** deleted when its link goes down: real switches hold the entry until its hold time
-expires, and LLDP expiry is not modelled. Instead the Local port is marked with the reason, in the same
-sentence `show arp` and `show mac address-table` use — `(down: link down)`, `(down: peer shut down)`,
-`(administratively down)` — and the mark clears when the link comes back.
+A neighbour is **not** deleted the moment its link goes down: real switches hold the entry until the
+hold time it advertised runs out, and that is what happens here. The box notes the instant it heard each
+neighbour (`lldpSeenAt`, beside the record rather than in it, because a clock reading is not something the far
+end advertised) and a row older than its own TTL is dropped, so a host that is unplugged or shut stops being
+listed about two minutes later — the default 120 s: `lldp timer` 30 s times the hold multiplier 4, which is
+IEEE 802.1AB's Time To Live TLV and Cisco's `lldp holdtime` default. Until then the Local port is marked with
+the reason, in the same sentence `show arp` and `show mac address-table` use — `(down: link down)`,
+`(down: peer shut down)`, `(administratively down)` — and a fresh LLDPDU from the far end puts the row back and
+restarts its clock.
+
+Two empty tables are two different answers. `(none - no LLDP has been heard on any port)` is a lab where
+nothing ever announced itself; `(none - every neighbour has gone past the hold-time it advertised without a
+fresh LLDPDU)` is one whose neighbours have all gone silent, which is the state you are looking at when a link
+has just died. An entry with no reception instant — written by a fixture or carried in from an imported lab — is
+printed unaged and is never dropped, and neither is anything on a session with no clock (a run at `Infinity`),
+because an age for it would be a guess. A received TTL of 0 is 802.1AB's "this information is no longer valid",
+so that entry is dropped at once rather than read as a missing value and defaulted to 120 s.
 
 ### Reading `show arp`
 

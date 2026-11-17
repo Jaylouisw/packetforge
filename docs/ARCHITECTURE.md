@@ -266,7 +266,7 @@ whether that port can still carry a frame — `(administratively down)`, `(down:
 `(gone)`. That note is written once, in `Device.portCarrierNote()`, which reads `ifaceStatus()` (the same rule the
 front panel and the console use for a port's state).
 
-`Device.macRows(topo)`, `arpRows(topo)` and `lldpRows(topo)` return those rows as data, and both surfaces read them:
+`Device.macRows(topo)`, `arpRows(topo)` and `lldpRows(topo, nowMs)` return those rows as data, and both surfaces read them:
 the console prints them, and `fullState()` publishes them as `runtime[d].mac`, `runtime[d].arpRows` and
 `runtime[d].lldp`. The bare maps `runtime[d].macTable` and `runtime[d].arp` remain, and they are what they are — MAC
 to port, address to MAC — because a client that only needs "which port" should not have to read rows. A stale entry

@@ -3242,6 +3242,14 @@ class Simulator {
     if (lldp.isLldp(f)) {
       if (dev.lldp && inIface) {
         const nb = lldp.neighbourFrom(f, inIface);
+        // When it was heard, so the record can be dropped once the TTL it advertised lapses: a neighbour that
+        // stops announcing is not a neighbour for ever (`Device.lldpRows()`). A run asked at Infinity has no
+        // clock, and writes nothing - the same reading `learnArp()` takes of its own instant.
+        const heardAt = this._nowMs();
+        if (dev.lldpSeenAt) {
+          if (Number.isFinite(heardAt)) dev.lldpSeenAt.set(inIface, heardAt);
+          else dev.lldpSeenAt.delete(inIface);
+        }
         dev.lldp.set(inIface, nb);
         this._emit({
           type: 'lldp', dev: dev.id, iface: inIface,

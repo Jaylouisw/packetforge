@@ -422,7 +422,7 @@ layer exists in `engine/bgp.js` today.
 |---|---|---|
 | **Modelled** | One LLDPDU per cabled port at the start of each run; the receiver stores a neighbour record keyed by port. | `engine/simulator.js:1196-1209`, `engine/lldp.js:18` |
 | **Modelled** | Terminated at the nearest bridge and **never flooded**, so the simulator cannot invent neighbours two switches away. | `engine/simulator.js:1766-1776`, `engine/lldp.js:10-12` |
-| **Approximate** | No transmit timer: one announcement per run, not every 30 s. TTL is carried as 120 and never counted down, so a neighbour never ages out. | `engine/lldp.js:15` |
+| **Approximate** | No transmit timer: one announcement per run, not every 30 s. The record carries its TTL (120 s by default) and the device notes the instant it was heard (`lldpSeenAt`, runtime state, not part of the record a save writes), and `lldpRows(topo, nowMs)` drops it once that TTL has lapsed at the instant the session asks at, so a neighbour that stops announcing does age out; but nothing re-announces between runs, so a live neighbour is only as fresh as the last run that announced it, and a record heard with no clock is never aged. A received TTL of 0 drops the entry immediately. | `engine/lldp.js:15`, `engine/device.js` `lldpRows()` |
 | **Absent** | LLDP-MED, DCBX, CDP, per-TLV config, shutdown-on-neighbour. | — |
 
 ---

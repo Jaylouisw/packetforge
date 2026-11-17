@@ -4618,10 +4618,19 @@ class CliSession {
       // because it is filled from LLDPDUs that actually crossed the link rather than
       // from the topology file. An empty table means nothing has announced itself.
       out.push('LLDP neighbours on ' + dev.name + ':');
-      const rows = dev.lldpRows(this.topo);
+      // A neighbour is listed for as long as the TTL it advertised. The instant comes from the attached
+      // simulator, whose `runAtMs` is Infinity until a caller names one - and Infinity is "no clock", in which
+      // case nothing is aged rather than everything guessed stale (`device.lldpRows()`).
+      const lldpNowMs = (this.sim && Number.isFinite(this.sim.runAtMs)) ? this.sim.runAtMs : null;
+      const rows = dev.lldpRows(this.topo, lldpNowMs);
       if (!rows.length) {
         out.push('  ' + pad('Neighbour', 20) + pad('Local port', 16) + pad('Port ID', 16) + 'Mgmt address');
-        out.push('  (none - no LLDP has been heard on any port)');
+        // Two empty tables, two answers. "No LLDP has been heard" is history and would be false about a box that
+        // heard a neighbour and then watched its hold-time run out - which is exactly the state an operator
+        // checking a link that just died is looking at.
+        out.push(dev.lldp && dev.lldp.size
+          ? '  (none - every neighbour has gone past the hold-time it advertised without a fresh LLDPDU)'
+          : '  (none - no LLDP has been heard on any port)');
       } else {
         // Column widths come from the data. A fixed 20-character Neighbour column ran a 55-character router
         // name into the Local port column, so the row could not be read field by field - and the one thing

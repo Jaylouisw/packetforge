@@ -68,9 +68,23 @@ function isLldp(frame) {
 }
 
 // The neighbour record a receiving port stores. Deliberately a plain object so it
-// serializes straight into the topology state and reaches the UI unchanged.
+// serializes straight into the topology state and reaches the UI unchanged - which is also why the instant it was
+// heard is *not* one of its fields: a clock reading is not something the far end advertised, and a saved lab that
+// carried one would age a neighbour against a clock that has since started again. The receiving device keeps that
+// instant beside the record (`Device.lldpSeenAt`), the way `arpSeenAt` sits beside the ARP cache.
+//
+// The TTL it does carry is the sender's own word on how long it may be kept. IEEE 802.1AB defines the Time To Live
+// TLV as "the number of seconds that the recipient LLDP agent is to regard the information associated with this
+// MSAP identifier to be valid" (8.5.4), and the information is discarded when that lapses without a refresh; Cisco
+// ships the same rule as `lldp timer` 30 s and `lldp holdtime` 120 s, and prints what is left of it in the
+// `Hold-time` column of `show lldp neighbors`.
+//
+// A TTL of 0 is not "unset": 802.1AB-2016 §8.5.4.1 uses it to say the whole MSAP identifier is no longer valid
+// (the port is shutting down), so it is kept as 0 rather than replaced by the default, and the table drops the
+// entry at once. `|| DEFAULT_TTL_S` turned that signal into a 120-second claim, which is the opposite meaning.
 function neighbourFrom(frame, receivedOn) {
   const l = frame.lldp || {};
+  const ttl = Number(l.ttl);
   return {
     chassisId: l.chassisId || frame.srcMac || null,
     portId: l.portId || null,
@@ -80,7 +94,7 @@ function neighbourFrom(frame, receivedOn) {
     mgmtIp: l.mgmtIp || null,
     cage: l.cage || null,
     speedMbps: l.speedMbps || null,
-    ttl: l.ttl || DEFAULT_TTL_S,
+    ttl: (l.ttl === undefined || l.ttl === null || !Number.isFinite(ttl)) ? DEFAULT_TTL_S : ttl,
     // Which of *our* ports heard it. Kept on the record so a table can be printed
     // without walking the device.
     localPort: receivedOn || null,
