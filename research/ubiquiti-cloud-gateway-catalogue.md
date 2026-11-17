@@ -75,3 +75,53 @@ correctly, and the box that does not exist cannot be.
 Until one of those arrives, writing `UDW-PRO` from UDW's numbers is the family-sibling error this
 project has corrected three times (a phantom UDM PoE draw, a phantom console port on two i-MO kits,
 invented copper uplinks on three MA5801s). The request stays open.
+
+## The last three "maybe it is sold somewhere" surfaces, checked and empty (2026-11-17)
+
+Sections above settle that `udw-pro` is absent from Ubiquiti's own gateway index, that
+`techspecs.ui.com/unifi/cloud-gateways/udw-pro` redirects to the site root and that
+`store.ui.com/us/en/products/udw-pro` is a 404. That leaves three ways a real product could still
+be hiding: sold in another region, certified but not listed, or once listed and since removed. All
+three were checked this pass, and all three are empty.
+
+**1. The EU store lists one Dream Wall, and it is the UDW.**
+`https://eu.store.ui.com/eu/en/category/all-cloud-gateways` - HTTP 200, 487,282 B, crawler
+user-agent, server-rendered. The cloud-gateway grid carries `Dream Wall UDW (420W)` with SKU
+`udw-eu`; the string `udw-pro` occurs **zero** times in those 487,282 bytes (the only `udw` tokens
+are `udw`, `UDW`, `udw-eu`, `UDW-EU`, `uDWa-d` from a CSS class). So the Pro is not a regional SKU
+either - the one non-US variant the storefront publishes is the 420 W PoE build of the UDW.
+
+**2. No FCC certification record exists for any Pro variant.**
+Ubiquiti's grantee prefix is `SWX`, so a shipping console must hold a grant there:
+
+| FCC ID | `fccid.io` result |
+|---|---|
+| `SWX-UDW` | **200**, 83,318 B - *UDW, Digital Transmission Radio, Ubiquiti Inc* |
+| `SWX-UDWPRO` | **303** (no such grant) |
+| `SWX-UDW-PRO` | **303** |
+| `SWX-UDW2` | **303** |
+
+A radio device that has never been certified cannot have been sold, which is the mechanism behind
+the empty techspecs and store surfaces rather than a separate fact. (`fcc.report/FCC-ID/SWX-UDW`
+answers 403 to a crawler; `fccid.io` is the readable mirror and is a mirror, so this is strong
+evidence, not the Commission's own index.)
+
+**3. No archived Ubiquiti page can be recovered either.**
+`http://archive.org/wayback/available` returns `"archived_snapshots": {}` for all four URLs that
+would have carried the Pro: `techspecs.ui.com/unifi/cloud-gateways/udw-pro`,
+`store.ui.com/us/en/products/udw-pro`, `store.ui.com/products/udw-pro` and
+`ui.com/unifi/cloud-gateways/udw-pro`. Nothing was ever crawled, so there is no withdrawn page to
+read.
+
+**The one vendor-authored sentence that names a Pro, and what it does not say.** Ubiquiti's
+early-access store copy, quoted on
+`https://ubiquiti-networks-forum.de/board/thread/4925-ea-store-eu-dream-wall-early-access/`, reads
+*"The Dream Wall and Dream Wall Pro (UDW/UDW Pro) are wall-mounted UniFi OS Consoles that serve as
+standalone, space-saving deployment hosting solutions."* It names the pair and nothing else: the
+feature list printed immediately below it is the **UDW's** (17 GbE RJ45 with 4 PoE++/4 PoE+/4 PoE,
+2.5 GbE WAN, 10G SFP+ WAN and LAN), and the same post shows *"Dream Wall Pro - Coming Soon"*. So
+the Pro was announced, never listed, and has no port census anywhere - which is a different and
+stronger statement than "Ubiquiti has not published the layout yet".
+
+This changes nothing about the blocker and closes three avenues: **#130** stays open, and the next
+pass should not re-check the EU storefront, the FCC grant index or Wayback.

@@ -4,11 +4,13 @@
     {
       "issue": 130,
       "models": "Ubiquiti UniFi Dream Wall Pro (UDW-PRO)",
-      "missing": "the whole port layout: the SKU is not in Ubiquiti's own cloud-gateway index (sixteen cards, `udw-pro` occurs zero times), `techspecs.ui.com/unifi/cloud-gateways/udw-pro` redirects to the site root and `store.ui.com/.../udw-pro` answers 404. The published datasheet `dl.ui.com/ds/udw_ds.pdf` is the non-Pro Dream Wall.",
-      "unblock": "a Ubiquiti page, datasheet or quick-start guide that names UDW-PRO's ports and PoE budget. Modelling it from the non-Pro numbers is the family-sibling error this catalogue has already corrected.",
+      "missing": "the whole port layout, and the product itself: the SKU is not in Ubiquiti's cloud-gateway index (`udw-pro` occurs zero times in 610,409 B of it), `techspecs.ui.com/unifi/cloud-gateways/udw-pro` redirects to the site root, and `store.ui.com/.../udw-pro` is a 404. Three further surfaces were checked and are empty (2026-11-17): the EU storefront publishes only `udw-eu`, the 420 W UDW; no FCC grant exists under `SWX-UDWPRO`, `SWX-UDW-PRO` or `SWX-UDW2` (all 303, against 200 for `SWX-UDW`); and Wayback holds no capture of any of the four `udw-pro` URLs. Ubiquiti's early-access copy names \"the Dream Wall and Dream Wall Pro (UDW/UDW Pro)\" and then lists only the UDW's ports, beside \"Dream Wall Pro - Coming Soon\". The published datasheet `dl.ui.com/ds/udw_ds.pdf` is the non-Pro Dream Wall.",
+      "unblock": "a Ubiquiti page, datasheet, FCC exhibit or quick-start guide that names UDW-PRO's ports and PoE budget, or the requester confirming they meant the UDW (already catalogued as `devices/ubiquiti/udw.json`). Modelling it from the non-Pro numbers is the family-sibling error this catalogue has already corrected.",
       "checked": "2026-11-17",
       "sources": [
         "https://techspecs.ui.com/unifi/cloud-gateways",
+        "https://eu.store.ui.com/eu/en/category/all-cloud-gateways",
+        "https://fccid.io/SWX-UDW",
         "https://dl.ui.com/ds/udw_ds.pdf"
       ]
     },
