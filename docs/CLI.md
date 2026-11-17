@@ -2383,7 +2383,7 @@ Router#show ip ?
 
 So the operator unsure of the *first* word of a `show` line was told the key was invalid, while the one unsure of the second was handed the list. `show ?` now answers from `SHOW_VIEW_WORDS` — the same table the dispatcher resolves `sh ver` against, so the list cannot name a view that `show` then refuses — and every row it prints is a completion of `show `, which is why `mac address-table` and `power inline` appear with the words they need and the whole list can be typed back. `ip` and `ipv6` are words that take a view of their own, so they are named on their own line, and `show ipv6 ?` names its one view (`nd`) where it used to be the same invalid-command report.
 
-`test/help-key-works-in-every-prompt.test.js` holds it: nine checks over all five prompts (the index from `?` and from `help`, the prompt unchanged afterwards, a command still working after asking for help), plus the full `exit` ladder and the unknown-word reports. With the old handler: 4 passed / 5 failed.
+`test/help-key-works-in-every-prompt.test.js` holds it: ten checks — the index at each of the five prompts (from `?` and from `help`, with the prompt unchanged afterwards), a command still working after asking for help, the full `exit` ladder, the unknown-word reports, and the `show ?` listing described above. The first nine of them — everything except the `show ?` check, which #1679 added — scored 4 passed / 5 failed against the old handler.
 
 ## A `no` that names one thing must not remove another
 
