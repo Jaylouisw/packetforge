@@ -112,7 +112,11 @@ try {
   const fs = require('fs');
   const file = path.join(__dirname, '..', 'research', 'open-device-requests.json');
   const real = blockedRequestNumbers(JSON.parse(fs.readFileSync(file, 'utf8')));
-  ok(real.has(742) && real.has(743), 'the live mirror still lists #742 and #743', JSON.stringify(Array.from(real)));
+  ok(real.has(742), 'the live mirror still lists the E8000 request', JSON.stringify(Array.from(real)));
+  // #743 left the mirror on 2026-11-17 when PR #1902 landed its two specs: a close there is now an
+  // answer, not a contradiction. Keeping it listed would make this audit's one real signal - a close
+  // against our own record - permanently noisy, which is how a real wrong close gets ignored.
+  ok(!real.has(743), 'an answered request has left the mirror, so its close is not a finding', JSON.stringify(Array.from(real)));
 } catch (e) {
   ok(false, 'research/open-device-requests.json parses', e.message);
 }
