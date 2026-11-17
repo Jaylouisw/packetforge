@@ -81,8 +81,15 @@ console.log('');
 console.log('Members with different duplex settings are named:');
 {
   const env = lab();
+  // Half duplex exists only at 10/100, so both members are forced to 100 first: the one difference
+  // between them is then the duplex mode, which is what this check is about
+  // (research/half-duplex-is-10-100.md).
   say(env, 'interface ' + env.pa[0].name);
+  say(env, 'speed 100');
   say(env, 'duplex half');
+  say(env, 'interface ' + env.pa[1].name);
+  say(env, 'speed 100');
+  say(env, 'interface ' + env.pa[0].name);
   const out = [].concat(say(env, 'channel-group 1 mode active'),
     say(env, 'interface ' + env.pa[1].name),
     say(env, 'channel-group 1 mode active'));

@@ -665,6 +665,14 @@ the port cannot do is refused, naming the port, the rate and what it *does* supp
 connector rules were written, but nothing could set duplex, so the warning was unreachable. Force one end to
 half against a full-duplex peer and it fires, naming both ends.
 
+Half duplex is a 10/100 setting, and the order of the two commands matters as it does on a real box: a port
+whose ladder reaches Gigabit refuses `duplex half` outright, and `speed 100` first makes it legal. The refusal
+names the rate that is in the way, because the fix is the rate. The other direction is refused too — a port in
+half duplex cannot be forced to 1G, and `speed auto` is refused while the port is half, since auto would
+negotiate the Gigabit back. A port that stops at 100 Mb/s (a Fast Ethernet router, say) takes `duplex half` at
+auto with no argument. Both refusals and the vendor transcripts behind them are in
+`research/half-duplex-is-10-100.md`.
+
 Both halves of this setting survive a save: `duplex` always did, and `speed` did not — a lab saved with
 `speed 100` came back negotiating, with the command gone from `show running-config` too, so nothing put it back
 (#1405). The forced rate is written to the port document only when it is set, so a port that negotiates its own

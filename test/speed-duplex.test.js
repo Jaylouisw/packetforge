@@ -22,6 +22,9 @@ const catalog = loadCatalog(path.join(__dirname, '..', 'devices')).filter(functi
 const ROUTER = catalog.filter(function (s) { return /ASR 1001-X/.test(s.model); })[0];
 const SWITCH = catalog.filter(function (s) { return s.model === 'generic-switch'; })[0];
 const PC = catalog.filter(function (s) { return s.model === 'generic-pc'; })[0];
+// A router whose Ethernet ports stop at 100 Mb/s: the control for the half-duplex rule, because the
+// rule is about the rate and not about the word.
+const SLOW_ROUTER = catalog.filter(function (s) { return s.model === '2811'; })[0];
 const eth = function (d) {
   return [...d.interfaces.values()].filter(function (i) { return i.type === 'ethernet'; });
 };
@@ -124,8 +127,12 @@ console.log('');
 console.log('Duplex is reachable, and the rule that was waiting for it fires:');
 {
   const env = lab();
+  // Half duplex exists only at 10/100, so the rate is forced first - which is the only order a real
+  // box accepts (research/half-duplex-is-10-100.md) - and the peer is brought down to 100 with it so
+  // the one difference between the ends is the duplex mode.
   const half = runCommands(env.r, env.t, env.sim, ['configure terminal',
-    'interface ' + env.port, 'duplex half', 'end']);
+    'interface ' + env.port, 'speed 100', 'duplex half', 'end']);
+  runCommands(env.sw, env.t, env.sim, ['configure terminal', 'interface Fa0/2', 'speed 100', 'end']);
   ok(/Duplex half/.test(half.output), 'the command is accepted', half.output);
   ok(env.r.interfaces.get(env.port).duplex === 'half', 'the port records it',
     env.r.interfaces.get(env.port).duplex);
@@ -282,6 +289,61 @@ console.log('The re-check helper knows which end it is being asked from:');
     JSON.stringify((wrong.errors || []).map(function (e) { return e.code; })));
   ok(right.ok, 'and the right one re-checks the existing cable', JSON.stringify((right.errors || []).map(function (e) { return e.code; })));
   ok(validation.CODES !== undefined || true, 'the code registry is reachable for the docs it publishes');
+}
+
+console.log('');
+console.log('Half duplex is a 10/100 setting: a Gigabit port refuses the command and says why:');
+{
+  const env = lab();
+  const gige = env.r.interfaces.get(env.port);
+  const refused = runCommands(env.r, env.t, env.sim, ['configure terminal',
+    'interface ' + env.port, 'duplex half', 'end']);
+  ok(/%/.test(refused.output), 'a port whose ladder reaches 1G refuses `duplex half` at auto', refused.output);
+  ok(/half duplex exists only at 10 and 100 Mb\/s/.test(refused.output), 'naming the rule', refused.output);
+  ok(/speed 100/.test(refused.output), 'and the command that makes it legal', refused.output);
+  ok(gige.duplex === 'full', 'nothing is left half-set', gige.duplex);
+  ok(/duplex: full/.test(block(env).join(' ')), 'and show interfaces still says full', block(env).join(' | '));
+
+  // Forcing the rate first is the way the box allows it: 100 is in the ladder, 1G is not.
+  runCommands(env.r, env.t, env.sim, ['configure terminal', 'interface ' + env.port, 'speed 100', 'end']);
+  const allowed = runCommands(env.r, env.t, env.sim, ['configure terminal',
+    'interface ' + env.port, 'duplex half', 'end']);
+  ok(/Duplex half/.test(allowed.output) && gige.duplex === 'half',
+    '`speed 100` first, and the same command is accepted', allowed.output);
+  ok(/speed: 100Mb\/s \(forced\), duplex: half/.test(block(env).join(' ')),
+    'a 100 Mb/s half-duplex link is what show interfaces prints', block(env).join(' | '));
+
+  // ...and the other direction is refused: a half-duplex port cannot be forced above 100 Mb/s.
+  const fast = runCommands(env.r, env.t, env.sim, ['configure terminal',
+    'interface ' + env.port, 'speed 1000', 'end']);
+  ok(/%/.test(fast.output), '`speed 1000` on that port is refused', fast.output);
+  ok(/half duplex exists only at 10 and 100 Mb\/s/.test(fast.output),
+    'with the same rule, not a different complaint', fast.output);
+  ok(gige.speedMbps === 100 && gige.duplex === 'half', 'the rate and the duplex both stay put',
+    JSON.stringify({ speed: gige.speedMbps, duplex: gige.duplex }));
+
+  // Auto would let the port negotiate a Gigabit again, so it is refused while the port is half.
+  const auto = runCommands(env.r, env.t, env.sim, ['configure terminal',
+    'interface ' + env.port, 'speed auto', 'end']);
+  ok(/%/.test(auto.output) && gige.speedMbps === 100, '`speed auto` is refused while half duplex is set',
+    auto.output);
+  const back = runCommands(env.r, env.t, env.sim, ['configure terminal',
+    'interface ' + env.port, 'duplex full', 'speed auto', 'end']);
+  ok(!/%/.test(back.output) && gige.speedMbps === null && gige.duplex === 'full',
+    '`duplex full` first, and auto-negotiation is available again', back.output);
+}
+
+console.log('');
+console.log('The rule is the rate, not the word: a 10/100-only port still takes half duplex:');
+{
+  const t2 = new Topology();
+  const r2 = t2.addDevice(SLOW_ROUTER, 'r2');
+  const port = [...r2.interfaces.keys()][0];
+  const caps = r2.interfaces.get(port).hardware.speedCaps;
+  ok(caps.every(function (n) { return n <= 100; }), 'the control port tops out at 100 Mb/s',
+    JSON.stringify(caps));
+  const out = runCommands(r2, t2, null, ['configure terminal', 'interface ' + port, 'duplex half', 'end']);
+  ok(r2.interfaces.get(port).duplex === 'half', 'so `duplex half` at auto is accepted on it', out.output);
 }
 
 console.log('\n' + passed + ' passed, ' + failed + ' failed');

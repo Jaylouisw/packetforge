@@ -32,6 +32,20 @@ function parseSpeedMbps(s) {
   }
 }
 
+// The fastest rate at which half duplex can be configured, in Mbps.
+//
+// Half duplex is a 10/100 setting on an IOS-like box. Cisco's command reference for `duplex` states it in the
+// option description — "Enables half-duplex mode (only for interfaces operating at 10 or 100 Mb/s). You cannot
+// configure half-duplex mode for interfaces operating at 1000 or 10,000 Mb/s." — and the vendor's own transcript
+// shows both directions of the refusal (a 25G port refusing `duplex half`, then `speed 1000` refused while the
+// port is in half duplex). Note this is a vendor rule, not a property of the standard: 802.3z does define
+// half-duplex Gigabit Ethernet, and Cisco's own TAC note says so ("While Cisco devices only support full-duplex,
+// the IEEE 802.3z standard does have support for half-duplex GigabitEthernet"). An IOS-like console therefore
+// refuses the command; a hypothetical non-Cisco box could accept it.
+//
+// Source: research/half-duplex-is-10-100.md.
+const HALF_DUPLEX_MAX_MBPS = 100;
+
 // Render Mbps back to the short form used in the specs/UI.
 // A rate, in the unit a person would use for it.
 //
@@ -1547,7 +1561,7 @@ module.exports = {
   CAGE_ALIAS,
   MEDIA, CAGES, CAGE_MATE, CAGE_MEDIA, CAGE_SPEEDS,
   MEDIA_MATE, mediaMate, isPairedHalf, biDiRefusal,
-  parseSpeedMbps, formatSpeedMbps, parsePoeBudget, mediaById,
+  parseSpeedMbps, formatSpeedMbps, HALF_DUPLEX_MAX_MBPS, parsePoeBudget, mediaById,
   cagesMate, derivePortHardware, commonMedia, commonMediaBridged, negotiateSpeed, canMate, preferredMedia,
   copperSfpModuleOf, copperSfpBridge, portWithModule,
   FERRULE, ferrule, polishMismatch,

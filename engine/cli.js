@@ -2141,6 +2141,17 @@ class CliSession {
       return ['% ' + iface.name + ' has no line rate to set (type ' + iface.type + ')'];
     }
     if (want === 'auto') {
+      // A port in half duplex can only ever run at 10 or 100 Mb/s, so handing it back to
+      // autonegotiation would let it negotiate a Gigabit and undo the duplex that was just set. The
+      // box keeps the duplex and refuses the rate, which is the second half of the vendor transcript
+      // in research/half-duplex-is-10-100.md.
+      if (iface.duplex === 'half') {
+        const ladderTop = this._portLadderTopMbps(iface);
+        if (ladderTop !== null && ladderTop > mediaLib.HALF_DUPLEX_MAX_MBPS) {
+          return ['% ' + iface.name + ' is in half duplex, and half duplex exists only at 10 and 100 Mb/s: ' +
+            'use `duplex full` before `speed auto`'];
+        }
+      }
       iface.speedMbps = null;
       this._renegotiate(iface);
       return ['Speed auto-negotiation on ' + iface.name];
@@ -2153,20 +2164,40 @@ class CliSession {
     if (mbps === null || !(mbps > 0)) {
       return ['% Invalid rate "' + tokens[0] + '" - give a number of Mbps or auto'];
     }
-    if (!caps.length) {
-      // Nothing in the catalogue states this port's ladder, so a rate cannot be refused honestly - but it
-      // can be stored, and the link verdict will say what it negotiated to.
-      iface.speedMbps = mbps;
-      this._renegotiate(iface);
-      return ['Speed ' + mediaLib.formatSpeedMbps(mbps) + ' on ' + iface.name];
-    }
-    if (caps.indexOf(mbps) === -1) {
+    if (caps.length && caps.indexOf(mbps) === -1) {
       return ['% ' + iface.name + ' does not support ' + mediaLib.formatSpeedMbps(mbps) +
         ' - it supports ' + caps.map(function (c) { return mediaLib.formatSpeedMbps(c); }).join(', ')];
     }
+    // "Cannot change speed to 1000Mbps when in half duplex" - the vendor's own sentence. The refusal
+    // comes after the ladder check so a rate the port cannot do at all is answered as that, not as a
+    // duplex problem.
+    if (iface.duplex === 'half' && mbps > mediaLib.HALF_DUPLEX_MAX_MBPS) {
+      return ['% ' + iface.name + ' is in half duplex, and half duplex exists only at 10 and 100 Mb/s: ' +
+        'use `duplex full` (or `duplex auto`) before forcing ' + mediaLib.formatSpeedMbps(mbps)];
+    }
+    // Nothing in the catalogue states this port's ladder, so a rate cannot be refused honestly - but it
+    // can be stored, and the link verdict will say what it negotiated to.
     iface.speedMbps = mbps;
     this._renegotiate(iface);
     return ['Speed ' + mediaLib.formatSpeedMbps(mbps) + ' on ' + iface.name];
+  }
+
+  // The fastest rate this port's own ladder offers, whatever is forced right now. `null` when the
+  // catalogue states neither a ladder nor a nominal rate, in which case no rate rule can be asserted
+  // honestly - the same caution `_speed` takes when `speedCaps` is empty.
+  _portLadderTopMbps(iface) {
+    const caps = (iface && iface.hardware && Array.isArray(iface.hardware.speedCaps))
+      ? iface.hardware.speedCaps.map(Number).filter(function (n) { return n > 0; }) : [];
+    if (caps.length) return Math.max.apply(null, caps);
+    const nominal = mediaLib.parseSpeedMbps(iface && iface.speed ? iface.speed : '');
+    return (nominal && nominal > 0) ? nominal : null;
+  }
+
+  // The fastest rate this port can run at *now*: the forced rate when one is set, otherwise the top of
+  // its ladder, because an autonegotiating port may reach it.
+  _portTopRateMbps(iface) {
+    if (iface && Number.isFinite(iface.speedMbps) && iface.speedMbps > 0) return iface.speedMbps;
+    return this._portLadderTopMbps(iface);
   }
 
   _duplex(tokens, iface) {
@@ -2176,6 +2207,17 @@ class CliSession {
     }
     if (iface.type !== 'ethernet') {
       return ['% ' + iface.name + ' has no duplex setting (type ' + iface.type + ')'];
+    }
+    // Half duplex is a 10/100 setting. A port whose ladder reaches Gigabit refuses the command - the
+    // vendor's "% Duplex cannot be set to half when speed autonegotiation subset contains 1Gbps..." -
+    // and the refusal says which rate is in the way, because the fix is `speed 100`, not a different
+    // duplex. research/half-duplex-is-10-100.md carries both transcripts and the command reference.
+    if (want === 'half') {
+      const top = this._portTopRateMbps(iface);
+      if (top !== null && top > mediaLib.HALF_DUPLEX_MAX_MBPS) {
+        return ['% ' + iface.name + ' runs at up to ' + mediaLib.formatSpeedMbps(top) +
+          ', and half duplex exists only at 10 and 100 Mb/s: force `speed 100` first, or use `duplex full`'];
+      }
     }
     // `auto` means "let the link decide", and what a link decides in this engine is full duplex.
     iface.duplex = (want === 'auto') ? 'full' : want;
