@@ -1,0 +1,51 @@
+{
+  "vendor": "huawei",
+  "model": "oceanprotect-x8100",
+  "label": "Huawei OceanProtect X8100 Backup Storage (2U, 2 controllers, no interface modules fitted)",
+  "category": "nas",
+  "description": "Huawei OceanProtect X8100 all-flash backup-storage node: one 2 U controller enclosure with 36 palm-sized NVMe slots and two controllers (A and B), each with two GE management/maintenance ports and one serial port. Modelled as the node the vendor describes when no interface module is fitted - every front-end port on this array comes from the 12 hot-swappable interface modules (six per controller), whose per-module port counts Huawei does not publish in any reachable book - so the cableable ports here are the management plane: 4 x 1GbE, two per controller, no PoE.",
+  "capabilities": [
+    "host",
+    "http-server",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "A-MGMT0",
+      "type": "ethernet",
+      "speed": "1G",
+      "speedCaps": [
+        1000
+      ]
+    },
+    {
+      "name": "A-MGMT1",
+      "type": "ethernet",
+      "speed": "1G",
+      "speedCaps": [
+        1000
+      ]
+    },
+    {
+      "name": "B-MGMT0",
+      "type": "ethernet",
+      "speed": "1G",
+      "speedCaps": [
+        1000
+      ]
+    },
+    {
+      "name": "B-MGMT1",
+      "type": "ethernet",
+      "speed": "1G",
+      "speedCaps": [
+        1000
+      ]
+    }
+  ],
+  "sourceUrl": "https://e.huawei.com/marketingcloud/pep/asset/20000001/Material/eded1b265ecc4dfba2fbf8669b0b8213/M3T1A590N1323345335641751810/Huawei%20OceanProtect%20X%20Series%20Backup%20Appliance%20Technical%20White%20Paper.pdf",
+  "notes": "Every field traces to Huawei documentation read 2026-11-17. PORT CENSUS: 'Each controller has two GE management/maintenance ports and one serial port', in a chapter that also says the X8100 'uses a 2 U controller enclosure that has two controllers and 36 (palm-sized) NVMe disk slots' and 'Each controller enclosure supports up to 12 hot-swappable interface modules' - Huawei OceanProtect X Series Backup Appliance Technical White Paper, Issue 01 (2026-09-29), section 3.1.4 OceanProtect X8100 (https://e.huawei.com/marketingcloud/pep/asset/20000001/Material/eded1b265ecc4dfba2fbf8669b0b8213/M3T1A590N1323345335641751810/Huawei%20OceanProtect%20X%20Series%20Backup%20Appliance%20Technical%20White%20Paper.pdf). Two controllers at two ports each is the node's 4 x 1GbE management plane. Two things the vendor does not print, and that are therefore not asserted: the individual port names (A-/B-MGMT0/1 are structural, not vendor labels) and the connector (omitted rather than guessed as RJ45). The two serial ports - one per controller - are recorded here rather than in interfaces, per docs/DEVICE_SCHEMA.md 'Serial consoles, USB, FXS'. FRAME AND CAPACITY, same node, from the model table: 2 controllers per node and 4 per system, usable capacity 1 PiB or 2 PiB per node, 36 NVMe disk slots, node 86.1 x 447 x 920 mm, <= 45 kg, 10% to 90% RH, IEC 60320 C13 or C19 feed - https://e.huawei.com/en/products/storage/oceanprotect/x100-series (single-node and system specification table). WHY THE FRONT-END IS ABSENT, deliberately: Huawei publishes front-end port TYPES only ('16/32/64 Gbit/s Fibre Channel; 10/25/40/100GE', same page) and lists the interface-module kinds - GE electrical, 10GE electrical, 40GE optical, 100GE optical, SmartIO 8/16/32 Gbit/s FC and 10/25 Gbit/s, 4-port 25 Gbit/s RDMA - without a ports-per-module count anywhere in the white paper's 6,458 lines; its section 2.3.2 'Rules for Installing Interface Modules' gives the slot preference order (IOM 0 > IOM 1 > IOM 3 > IOM 4 > IOM 5 > IOM 2) and the six-slots-per-controller layout but never says how many ports a module carries. The books that would carry that count - Product Description EDOC1100368229 and Hardware Installation Guide EDOC1100305240, both listed for this model on https://support.huawei.com/enterprise/en/data-protection/oceanprotect-x8100-pid-268353477 - answer HTTP 302 with header X-ALB-HIT: req-hd-bl (measured 2026-11-17), so no stated build of interface modules can be written from a vendor source. An array with an invented IOM population would be a fabricated census; this entry instead models exactly what the node itself exposes and names the missing field. NOT MODELLED: the 12 interface-module slots and any front-end port, the 36 NVMe disk slots, the back-end SAS and 25 Gbit/s RDMA scale-out links (internal or inter-enclosure, no cable to an application server), the two USB ports, and PoE (none). Research trail: research/oceanprotect-x-series-port-census.md.",
+  "aliases": [
+    "X8100"
+  ]
+}

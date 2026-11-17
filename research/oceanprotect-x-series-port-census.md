@@ -631,3 +631,65 @@ browser - the vendor defers the answer to it by name; (b) any rendered section o
 shape `X8100 node, 2 controllers, 4-port 10GE electrical module in IOM 0 and IOM 1`, which converts in one step
 using §5's slot rules. No spec is written from this file: a 2 U frame with an unpublished IOM population would be
 an empty array, not a census.
+
+## 14. The management plane *is* published per model, and that is enough for X8100 and X9100
+
+Measured 2026-11-17. Every earlier section looked for the front-end census and stopped there. The vendor
+publishes a second port list on the same array - the management/maintenance plane - per model, in a document
+that is not on `support.huawei.com` at all and therefore never hit the ALB: the **Huawei OceanProtect X Series
+Backup Appliance Technical White Paper, Issue 01 (2026-09-29)**, 16,574,915 B, material page
+`https://e.huawei.com/en/documents/products/storage/eded1b265ecc4dfba2fbf8669b0b8213` (200 with a crawler UA;
+a desktop UA gets an Akamai `Access Denied`), asset
+`.../Material/eded1b265ecc4dfba2fbf8669b0b8213/M3T1A590N1323345335641751810/Huawei OceanProtect X Series Backup Appliance Technical White Paper.pdf`.
+`pdftotext -layout` gives 6,458 lines, and Chapter 3 goes model by model:
+
+| model | what the white paper states (verbatim) |
+|---|---|
+| X6000 | "Each controller has two GE management/maintenance ports and one serial port"; enclosure supports six hot-swappable I/O modules |
+| X8000 | same sentence; "Each controller enclosure supports up to 12 hot-swappable interface modules" |
+| X8100 | same sentence; "a 2 U controller enclosure that has two controllers and 36 (palm-sized) NVMe disk slots"; "up to 12 hot-swappable interface modules" |
+| X9000 / X9100 | "Each controller enclosure has two management modules. Each management module has three GE ports (management/maintenance network ports), one USB port, and one serial port", and the note "The management module provides one serial port, one maintenance network port, and two management network ports"; "Each controller enclosure supports 28 interface modules ... shared among all controllers" |
+
+So the two models in #743 convert into specs the same way the X8000 did, with a different build: **no interface
+modules fitted**. X8100 = 2 controllers x 2 GE = 4 x 1GbE management ports (plus two serial, which
+`docs/DEVICE_SCHEMA.md` puts in `notes`); X9100 = 2 management modules x 3 GE = 6 x 1GbE. The frame facts stay
+where they were (X8100 2 U 86.1 x 447 x 920 mm <= 45 kg, X9100 4 U 175 x 447 x 865 mm <= 89 kg; 2 / 4
+controllers per node, 4 / 8 per system, from `.../x100-series`).
+
+**The front-end is still not published, and the white paper does not close it either.** Section 2.3.2 gives the
+six-slots-per-controller layout and a *preference* order for front-end modules - "IOM 0 > IOM 1 > IOM 3 > IOM 4 >
+IOM 5 > IOM 2" - where the 1.3.0 X6000/X8000 guide gave a *restriction* ("can be installed only in slots IOM 0, IOM 1, and
+IOM 4"). A preference is not a slot rule, and §3.1.5-3.1.6 list the module kinds (8/16/32/64 Gbit/s FC, 10GE,
+25GE, 40GE, 100GE, 100 Gbit/s RDMA scale-out, 12 Gbit/s SAS) with no ports-per-module count. So no stated
+front-end build can be written from a vendor source even now.
+
+## 15. E8000: the one document that publishes this field for the X series excludes the E8000
+
+Same white paper, same 6,458-line dump: the strings `E8000` and `E6000` occur **zero** times. That is the
+decisive negative for #742 - Huawei has published per-model management-port counts for X3000, X6000, X8000,
+X8100, X9000 and X9100 and did not publish them for the E series. Its own sources were re-read today:
+
+- **Datasheet** (PowerPoint, 2,407,538 B, all four slides' text extracted, not just slide 3): the port rows are
+  `Front-End Port Types | 16/32/64 Gbit/s Fibre Channel; 10/25/40/100GE` and `Number of Controllers per Node | 2`.
+  No management row, no port count, no slot count. New detail from the electrical table: it prices two
+  enclosures - "NVMe controller enclosure: 86.1 mm x 447 mm x 920 mm" and "Controller enclosure:
+  86.1 mm x 447 mm x 820 mm" - and still publishes no port list for either.
+- **Product page** `https://e.huawei.com/en/products/storage/oceanprotect/oceanprotect-e8000` (200, 343,723 B):
+  port types and protocols only; its only document link is the datasheet above.
+- **Its three books** - Product Description `EDOC1100486186`, Hardware Installation Guide `EDOC1100486185`, and
+  the Quick Installation Guide `EDOC1100486182` (id newly recorded; all three listed for the model on
+  `https://support.huawei.com/enterprise/en/data-protection/oceanprotect-e8000-pid-261860234`) - answer HTTP 302
+  with `X-ALB-HIT: req-hd-bl`. `info.support.huawei.com` and `support.huawei.cn` give the same bounce.
+
+**The one route to an E8000 census, recorded and not taken.** The E8000-applicable *OceanProtect Backup Storage
+1.x and V200R001 Parts Replacement* (`EDOC1100305200`) groups the hardware explicitly: its CRU/FRU table reads
+"Fan module (2 U controller enclosure and smart disk enclosure of OceanProtect X6000/X8000/E8000)" and it carries
+a section titled "Replacing a Controller (OceanProtect X6000/X8000/E8000)" that says "The procedures for
+replacing controllers of this model are the same". So the E8000's 2 U controller enclosure is the X6000/X8000
+one, which would make X8000's six slots per controller and 4-port 10GE electrical module apply to it. That is a
+family transfer - the exact move §4 and §5 record as an error - and the book itself is ALB-bounced (302), so
+even the grouping above comes from a search-engine snippet rather than a fetched page. It is written down so the
+next reader does not have to re-derive the temptation; it is not used as a source.
+
+Status after this pass: X8100 and X9100 are modelled as the management-plane build the white paper states; the
+E8000 stays open on the same field, now with the negative measured rather than assumed.

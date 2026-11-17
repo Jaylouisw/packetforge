@@ -1,0 +1,67 @@
+{
+  "vendor": "huawei",
+  "model": "oceanprotect-x9100",
+  "label": "Huawei OceanProtect X9100 Backup Storage (4U, 4 controllers, no interface modules fitted)",
+  "category": "nas",
+  "description": "Huawei OceanProtect X9100 high-end backup-storage node: one 4 U controller enclosure without disks, holding four controllers and 28 shared interface-module slots. Modelled as the enclosure the vendor describes when no interface module is fitted - every front-end port comes from those interface modules, whose per-module port counts Huawei does not publish in any reachable book - so the cableable ports here are the management plane: two management modules, three GE management/maintenance ports each, 6 x 1GbE in all, no PoE.",
+  "capabilities": [
+    "host",
+    "http-server",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "MM0-MGMT0",
+      "type": "ethernet",
+      "speed": "1G",
+      "speedCaps": [
+        1000
+      ]
+    },
+    {
+      "name": "MM0-MGMT1",
+      "type": "ethernet",
+      "speed": "1G",
+      "speedCaps": [
+        1000
+      ]
+    },
+    {
+      "name": "MM0-MAINT",
+      "type": "ethernet",
+      "speed": "1G",
+      "speedCaps": [
+        1000
+      ]
+    },
+    {
+      "name": "MM1-MGMT0",
+      "type": "ethernet",
+      "speed": "1G",
+      "speedCaps": [
+        1000
+      ]
+    },
+    {
+      "name": "MM1-MGMT1",
+      "type": "ethernet",
+      "speed": "1G",
+      "speedCaps": [
+        1000
+      ]
+    },
+    {
+      "name": "MM1-MAINT",
+      "type": "ethernet",
+      "speed": "1G",
+      "speedCaps": [
+        1000
+      ]
+    }
+  ],
+  "sourceUrl": "https://e.huawei.com/marketingcloud/pep/asset/20000001/Material/eded1b265ecc4dfba2fbf8669b0b8213/M3T1A590N1323345335641751810/Huawei%20OceanProtect%20X%20Series%20Backup%20Appliance%20Technical%20White%20Paper.pdf",
+  "notes": "Every field traces to Huawei documentation read 2026-11-17. PORT CENSUS: 'Each controller enclosure has two management modules. Each management module has three GE ports (management/maintenance network ports), one USB port, and one serial port.' The same chapter's note gives the split - 'The management module provides one serial port, one maintenance network port, and two management network ports' - which is why the six GE ports here are named MM0/MM1 with two MGMT and one MAINT apiece - Huawei OceanProtect X Series Backup Appliance Technical White Paper, Issue 01 (2026-09-29), section 3.1.6 OceanProtect X9100 (https://e.huawei.com/marketingcloud/pep/asset/20000001/Material/eded1b265ecc4dfba2fbf8669b0b8213/M3T1A590N1323345335641751810/Huawei%20OceanProtect%20X%20Series%20Backup%20Appliance%20Technical%20White%20Paper.pdf). 2 modules x 3 ports = 6 x 1GbE, which is the node's whole management plane; the port names are structural (the vendor numbers the modules '0' and '1' in its own UI text and does not name the individual ports), and the connector is not published, so it is omitted rather than guessed as RJ45. The two serial ports and two USB ports are recorded here rather than in interfaces, per docs/DEVICE_SCHEMA.md 'Serial consoles, USB, FXS'. FRAME AND CAPACITY, same node, from the model table: 4 controllers per node and 8 per system, usable capacity 2 PiB or 3 PiB per node, 28 interface modules shared among all controllers, node 175 x 447 x 865 mm (4 U), <= 89 kg, 10% to 90% RH, IEC 60320 C13 or C19 feed - https://e.huawei.com/en/products/storage/oceanprotect/x100-series (single-node and system specification table). This is a different box from the X8100 it is requested with: 4 U and four controllers against 2 U and two, so they are two catalogue entries on purpose. WHY THE FRONT-END IS ABSENT, deliberately: Huawei publishes front-end port TYPES only ('16/32/64 Gbit/s Fibre Channel; 10/25/40/100GE') and lists the module kinds - 8/16/32/64 Gbit/s FC, 10GE, 25GE, 40GE, 100GE, plus a 100 Gbit/s RDMA scale-out module and a 12 Gbit/s SAS back-end module - with no ports-per-module count and no per-quadrant slot rule in any reachable document. The Product Description that would carry it, EDOC1100368230, answers HTTP 302 with header X-ALB-HIT: req-hd-bl (measured 2026-11-17), as does the Hardware Installation Guide EDOC1100305243. NOT MODELLED: the 28 interface-module slots and any front-end port, the 100 Gbit/s RDMA scale-out links and 12 Gbit/s SAS back-end links (inter-enclosure), the two USB ports, and PoE (none). Research trail: research/oceanprotect-x-series-port-census.md.",
+  "aliases": [
+    "X9100"
+  ]
+}
