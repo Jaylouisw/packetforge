@@ -79,9 +79,81 @@ The catalogue can express a flat port list, so each of these needs one stated co
   node, 2 controllers, 2 x 4-port 25GE IOM per controller") or the Product Description's interface
   module table plus its per-controller slot count.
 - **X8000 / X9000 (#741)** — the same two numbers for a 2-controller and a 4-controller node.
-- **E8000 (#742)** — the E8000 page publishes no interface table at all, so its Product Description
-  (EDOC1100486186) is the only route.
+- **E8000 (#742)** — no interface table on the page and none in the datasheet (both read below), so
+  its Product Description (EDOC1100486186) is still the only route.
 
 Until then these stay open. This note converts none of them; it removes the "login wall" explanation
 that has been standing in for a real diagnosis three times, and names the exact document a reader has
 to open.
+
+## E8000: the primary datasheet was readable, and it stops at port *types* too (2026-11-17)
+
+The E8000 request has one source the other two do not: a downloadable datasheet. It was fetched and
+transcribed this pass, and it settles the E8000 half of the question without unblocking it.
+
+Product page `https://e.huawei.com/en/products/storage/oceanprotect/oceanprotect-e8000` (HTTP 200,
+343,723 bytes) links a datasheet through `https://e.huawei.com/en/documents/products/storage/597eb7d1363f4b5da0d4ad663da1f7b6`
+(HTTP 200, HTML wrapper), whose `attachmentUrl` is a **PowerPoint**, not a PDF:
+
+```
+https://e.huawei.com/marketingcloud/pep/asset/20000001/Material/597eb7d1363f4b5da0d4ad663da1f7b6/M3T1A590N1325408746781700176/Huawei%20OceanProtect%20E8000%20Backup%20and%20Archiving%20Converged%20Storage%20V200R001C20%20-%20Data%20Sheet.pptx
+```
+HTTP 200, 2,407,538 bytes, `application/vnd.openxmlformats-officedocument.presentationml.presentation`.
+Slide 3 is the technical specification table. Its port rows, verbatim:
+
+> **Number of Controllers per Node** | 2
+> **Front-End Port Types** | 16/32/64 Gbit/s Fibre Channel ; 10/25/40/100GE
+> **Front-End Storage Protocols** | NFS, SMB/CIFS, FC, iSCSI, S3, FTP/SFTP, NDMP
+
+No port-count row, no interface-module table, no slot count. The page adds one number that is *not*
+a port count and should not be read as one: "2 U 36-slot high-density hardware" — that is the **disk**
+slot count of the NVMe node.
+
+Two Huawei documents disagree on this model's bandwidth, and neither is a port census, so both are
+recorded rather than resolved: the page gives 53 TB/hour physical / 115 logical / 55 recovery, the
+datasheet gives "Up to 55" physical / "Up to 110" logical / "Up to 46 (all-flash), 15 (hybrid flash)"
+per node. The datasheet also adds NL-SAS disks (8/10/16/20/24 TB) to the NVMe-only list on the page.
+The stale figures in #742 (6.2/19/55 TB/hour, 8 nodes, 16 PB) come from neither: they are the X-series
+tier table.
+
+## The doc-navigation API is login-gated, so a section URL remains the only door
+
+`https://support.huawei.com/hedex/api/navi/EDOC1100486186/first-level-tree` answers
+`401 {"status":401,"message":"NOT LOGIN!","data":{"loginUrl":...}}`. The viewer is a SPA; its JSON
+navigation endpoints are the one part of the site that really is gated (the SSR section pages are not).
+
+The SSR pages do, however, carry the whole document: the section page for
+`https://support.huawei.com/enterprise/en/doc/EDOC1100318730/ce945100/cabinet-layout-and-connection-planning`
+(HTTP 200, 567,916 bytes) embeds 31 `href` links, one per section of that document. So the earlier
+conclusion stands and is now stronger: **one indexed section of the V200R001 E8000 set is enough** to
+open the entire set, and no such section is indexed. `EDOC1100486186` and `EDOC1100486185` both still
+answer HTTP 404 at the doc root (`/view/notFound`), and the one E8000-relevant section that used to be
+indexed - `EDOC1100305200/6cc495b9/replacing-a-controller-oceanprotect-x6000-x8000-e8000` - now answers
+HTTP 404 as well; that 1.x document has been superseded.
+
+## The nearby slot rule belongs to X6000/X8000 1.3.0 and does not transfer
+
+The accessible 1.3.0 installation guide does state a census-shaped rule:
+
+> Controllers A and B each provide six interface module slots ... Interface modules for the front-end
+> network connection can be installed only in slots IOM 0, IOM 1, and IOM 4.
+> — `EDOC1100318730/ce945100`, *OceanProtect X6000, X8000 1.3.0 Installation Guide (with Data Backup Feature)*
+
+Tempting for E8000 (also a 2 U, 2-controller node) and not usable: the document is titled X6000/X8000,
+the E8000 is a different enclosure (86.1 x 447 x 820 mm NVMe controller enclosure on the datasheet,
+against 488-790 mm enclosures in that guide), and no Huawei document read this pass says the two share
+a controller. Importing six IOM slots into the E8000 would be the same family-sibling error as Table 6-1
+of the Dorado 8000 guide above.
+
+## Exact missing field for E8000, restated after the datasheet
+
+Front-end ports exist only as interface modules, so the missing field is: **interface modules per
+controller, which of the controller's slots accept front-end modules, and the port count of each
+module.** Equivalently, one base ordering line - e.g. "E8000 node, 2 controllers, 2 x 4-port 25GE
+interface module per controller" - which the catalogue can express as a flat port list today.
+
+**What would unblock it:** any indexed section of `EDOC1100486186` (Product Description) or
+`EDOC1100486185` (Installation Guide), both of which are published but unreachable at the doc root; or
+a Huawei ordering guide pinning per-model ports; or the interface-module chapter of either document
+pasted by a reader with support access. Until then #742 stays open: the datasheet proves the field is
+unpublished, not that this pass could not find it.
