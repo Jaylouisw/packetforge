@@ -143,6 +143,40 @@ console.log('The Admin column is the PoE administration mode, not the link state
 }
 
 console.log('');
+console.log('Shutting a PoE port stops the power it was supplying; the mode is untouched:');
+{
+  // The vendor's own worked example pins both halves at once. Catalyst 3850, IOS XE 16.9,
+  // `show power inline police` (Interface and Hardware Commands, "show power inline"):
+  //
+  //   Gi1/0/1   auto   off         none       n/a        n/a    0.0
+  //   Gi1/0/4   off    off         none       n/a        n/a    0.0
+  //
+  // and the note under it says "The Gi1/0/1 port is shut down, and policing is not configured" while
+  // "Device detection is disabled on the Gi1/0/4 port". So shutting a port that was powering a device
+  // removes the power - Oper `off`, nothing allocated - and leaves `Admin` at the configured mode,
+  // `auto`. `off` is `power inline never`, a different command.
+  //   https://www.cisco.com/c/en/us/td/docs/switches/lan/catalyst3850/software/release/16-9/command_reference/b_169_3850_cr/interface_and_hardware_commands.html
+  //
+  // This lab has a powered device cabled to a port that is then shut, which is the case the engine's
+  // allocation walk has to get right: the port is not in `activeInterfaces()`, so it must drop out of
+  // the allocation rather than keep drawing a budget it can no longer use.
+  const env = lab({ budget: 370, disable: ['1/1/1'], cable: [{ port: '1/1/1', pd: 'a' }] });
+  const sim = new Simulator(env.t);
+  const engine = sim.computePoe()[0];
+  const out = cliOf(env, sim).run('show power inline').output;
+  const row = out.filter(function (l) { return l.indexOf('1/1/1 ') === 0; })[0] || '';
+  ok(/^1\/1\/1\s+auto\s+off\s+-\s+administratively down/.test(row),
+    'a shut port with a powered device cabled to it reads `auto / off`, draws nothing, and says why', row);
+  const stillAllocated = (engine.ports || []).some(function (p) { return p.iface === '1/1/1'; });
+  ok(engine.used === 0 && !stillAllocated,
+    'and the engine allocates no watts to it: the shut port supplies nothing',
+    JSON.stringify({ used: engine.used, ports: engine.ports }));
+  const total = out.filter(function (l) { return /^Total:/.test(l); })[0] || '';
+  ok(/^Total: 0 W of 370 W in use, 370 W left/.test(total),
+    'so the device total is the budget it has, not power nobody is drawing', total);
+}
+
+console.log('');
 console.log('A wall of idle ports is summarised, not printed one per line:');
 {
   const env = twoPDs();

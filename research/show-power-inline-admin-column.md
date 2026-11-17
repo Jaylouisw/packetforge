@@ -67,13 +67,12 @@ mode reachable here because this model has no `power inline` command. The test
 
 ## What is inferred
 
-* That a shut port keeps `auto` in the Admin column. No transcript in hand shows `show power inline` for a
-  port that is shut but whose PoE mode is untouched. The inference is that the two are separate settings -
-  the 3750 PoE troubleshooting guide says *"Most Cisco switches turn off port power when the port shutdowns"*
-  (https://www.cisco.com/c/en/us/td/docs/switches/lan/catalyst3750/software/troubleshooting/g_power_over_ethernet.html),
-  which is about *power*, i.e. `Oper`, not about the configured mode - and that `Admin` mirrors the `power
-  inline` line in the running config. If it turns out a shut port prints `off`, this is a one-line change in
-  `_poeAdminMode()` and one assertion.
+* That a shut port keeps `auto` in the Admin column. **Settled on 2026-11-17** - see "The shut-port row,
+  settled" below. The 3750 PoE troubleshooting guide's *"Most Cisco switches turn off port power when the port is
+  shut"*
+  (https://www.cisco.com/c/en/us/td/docs/switches/lan/catalyst3750/software/troubleshooting/g_power_over_ethernet.html)
+  is about *power*, i.e. `Oper`, not about the configured mode, and that is exactly how the vendor's own example
+  reads.
 * That `power inline never` displays as `off` rather than `never`. The field table lists `off` among the three
   words and `never` among none of them, and a 2960 transcript in a Cisco community thread shows
   `Fa0/24 off off 0.0 n/a n/a 15.4` right after `power inline never`
@@ -87,11 +86,57 @@ mode reachable here because this model has no `power inline` command. The test
 
 ## What remains unresolved
 
-* **A shut port's Admin word** (above). One `show power inline <port>` capture from a box with `shutdown` on a
-  PoE port and no `power inline` line would settle it in one line.
 * **Whether the model should ever say `static` or `off`.** It cannot today: there is no `power inline` command,
   so there is no configuration path to those modes. Adding the command is a feature, and out of scope for a
   fidelity pass.
 * **The summary block.** A 2960-X prints `Module Available Used Remaining` above the table (a 2960+ does not),
   where this console prints one `Total:` line below it. That is a layout question, deliberately answered with
   a sentence rather than a table, and it was not touched here.
+
+## The shut-port row, settled
+
+**Question.** A PoE port that is administratively shut, with no `power inline` line configured: does `Admin`
+still read `auto`, and what happens to the power it was supplying?
+
+**Verdict: known. `Admin` stays `auto`; the power goes.** The vendor's own worked example of
+`show power inline police` on a stacking-capable Catalyst 3850, IOS XE 16.9, lists thirteen ports and then
+explains each one in turn
+(<https://www.cisco.com/c/en/us/td/docs/switches/lan/catalyst3850/software/release/16-9/command_reference/b_169_3850_cr/interface_and_hardware_commands.html>,
+"show power inline", Examples):
+
+```
+Admin  Oper        Admin      Oper       Cutoff Oper
+Interface State  State       Police     Police     Power  Power
+--------- ------ ----------- ---------- ---------- ------ ------
+Gi1/0/1   auto   off         none       n/a        n/a    0.0
+Gi1/0/2   auto   off         log        n/a        5.4    0.0
+Gi1/0/3   auto   off         errdisable n/a        5.4    0.0
+Gi1/0/4   off    off         none       n/a        n/a    0.0
+Gi1/0/5   off    off         log        n/a        5.4    0.0
+Gi1/0/6   off    off         errdisable n/a        5.4    0.0
+```
+
+with the notes: *"The Gi1/0/1 port is shut down, and policing is not configured."* ... *"Device detection is
+disabled on the Gi1/0/4 port, power is not applied to the port, and policing is disabled."*
+
+So the two words come from two different facts, and this example separates them:
+
+| Port state | `Admin State` | `Oper State` | `Oper Power` |
+|---|---|---|---|
+| shut, `power inline` untouched | `auto` | `off` | 0.0 |
+| `power inline never` (not shut) | `off` | `off` | 0.0 |
+| up, PD detected | `auto` | `on` | non-zero |
+
+`Admin` is the configured mode - shutting the link does not configure PoE - while `Oper` and the allocation
+follow the link: a shut port supplies nothing. `off` in `Admin` is reachable only through `power inline never`.
+
+That is what this model already does, and it is now pinned rather than inferred: the engine's allocation walk
+iterates `activeInterfaces()`, so a shut PSE port drops out of `sim.poe` and its powered device loses its
+allocation; `show power inline` then prints the port from the fallback branch as `auto / off`, draw `-`,
+reason `administratively down`. `test/show-power-inline.test.js` gained three assertions for exactly the case
+this note called unresolved - a PD cabled to a port that is then shut: the row reads `auto / off`, the engine
+allocates no watts to the port, and the device total stays the whole budget
+(`Total: 0 W of 370 W in use, 370 W left ...`).
+
+Nothing in `engine/cli.js` changed for this: the question was asked, the vendor answered it, and the answer
+matched the code.
