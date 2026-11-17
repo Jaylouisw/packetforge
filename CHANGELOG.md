@@ -1,5 +1,19 @@
 ## Unreleased
 
+### Fixed
+
+- **The interface type has four spellings, and the long one is the one people paste** (#1769).
+  `interface Gi1/0/1` opened a Catalyst port; `interface GigabitEthernet1/0/1` - the spelling every
+  Cisco document writes and every real `show running-config` prints - was refused with `% Interface not
+  found`. Cisco states the rule in one sentence ("you can specify either gigabitethernet 0/1,
+  gigabitethernet0/1, gi 0/1, or gi0/1"), and `engine/iface-name.js` now folds every spelling of a type
+  onto the type, with or without the space, so `interface`, `show interfaces`, subinterface creation, the
+  API and saved labs all resolve through the one table. Folding onto the *type* rather than onto Cisco's
+  `gi` is what lets the long name reach a Huawei port the catalogue calls `GE0/0/1`. A name the table does
+  not know is untouched (`SFP+1` is still not `SFP1`), the fold cannot invent a socket (a UniFi `Port 1`
+  is not reachable as `Po1`), and partial spellings (`Gig1/0/1`) stay refused rather than guessed - see
+  [research/interface-type-spellings.md](research/interface-type-spellings.md).
+
 ### Added
 
 - **Link state is real, and a pulled cable re-converges** (#1057). `Link` has carried

@@ -285,6 +285,15 @@ copies of one naming rule drift. Ambiguity is refused rather than guessed: if tw
 spelling, that spelling resolves to nothing and the command says the port does not exist. Whatever you
 type, everything printed afterwards uses the panel spelling.
 
+The interface **type** is folded the same way, because every vendor spells it more than one way. Cisco
+states the four forms in one sentence - "you can specify either gigabitethernet 0/1, gigabitethernet0/1,
+gi 0/1, or gi0/1" - so `interface GigabitEthernet1/0/1`, `interface GigabitEthernet 1/0/1` and
+`interface gi1/0/1` all open the port the panel calls `Gi1/0/1`. The long form is the one
+`show running-config` prints on real gear, so it is also the form most likely to be pasted here. The fold
+is onto the *type* rather than onto one vendor's abbreviation, which is what lets
+`interface GigabitEthernet0/0/1` reach a Huawei port the catalogue names `GE0/0/1`. Partial spellings
+(`Gig1/0/1`) are not folded; see [research/interface-type-spellings.md](../research/interface-type-spellings.md).
+
 A netmask has to be a run of ones followed by zeros — `255.0.255.0` is a valid IPv4 *address* and not a
 netmask, because it has no prefix length, and every rule stated as a prefix length would describe something
 other than what the device does. It is refused, and the refusal names the mask rather than the address:
