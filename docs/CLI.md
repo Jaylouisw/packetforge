@@ -1142,12 +1142,20 @@ sw1> show ip dhcp binding
 
 OSPF has been configurable since it was modelled — `ospf router-id`, `ospf area`, and per interface
 `ip ospf cost | area | passive` — and the engine turns those into adjacencies, an SPF tree and installed routes.
+
+An **area id is a 32-bit number** and is written either way: a decimal value (0-4294967295) or a dotted
+quad. `ospf area 0.0.0.1` is area 1, not area 0 — it used to be read with `parseInt`, which stops at the
+first dot, so every dotted area became area 0 and two routers in *different* areas formed a full adjacency
+(`test/ospf-area-id.test.js`). The id is kept in the form it was configured with, so the console echoes
+`0.0.0.1` back in `show running-config` and in the `Area` column; what decides an adjacency is the 32-bit
+value the Hello carries (RFC 2328 §9), so `0.0.0.1` and `1` are one area. A dotted area makes the `Area`
+column wider rather than running into `Cost`.
 Until now the console could not report any of it: the only place OSPF appeared was an `O` in `show ip route`. You
 could set a cost and had no way to find out whether the engine used it.
 
 ```
 r1> show ip ospf
-Routing Process "ospf 0" with ID 1.1.1.1
+Routing Process with ID 1.1.1.1
   Areas: 0
   Interfaces: 2 (1 passive)
   Neighbours: 1

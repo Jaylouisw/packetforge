@@ -1458,7 +1458,11 @@ class Simulator {
       // record of why for exactly the same reason. The outcome is unchanged here - same-area endpoints
       // only - but the refusal is recorded so the console can name the disagreement instead of blaming a
       // box that is running OSPF perfectly well in another area.
-      if (String(ai.area) !== String(bi.area)) {
+      // The wire field is 32 bits, so the comparison is the value, not the text: a router configured
+      // `area 0.0.0.1` and one configured `area 1` put the same number in their Hellos and do become
+      // adjacent. Comparing the strings said they disagreed (#1843), and because the console used to store
+      // every dotted area as 0, the same string compare then made two *different* areas look identical.
+      if (ospfLib.areaOf(ai.area) !== ospfLib.areaOf(bi.area)) {
         a.dev.ospfRejected.push({
           reason: 'area', iface: l.a.iface, peerIface: l.b.iface, peer: b.dev.id, peerAddress: bi.ip,
           area: ai.area, peerArea: bi.area

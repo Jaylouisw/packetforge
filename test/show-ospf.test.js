@@ -80,7 +80,10 @@ console.log('The process summary counts what the engine computed:');
   const dev = t.getDevice('r1');
 
   const summary = show(t, sim, 'r1', 'show ip ospf');
-  ok(/Routing Process "ospf 0" with ID 1\.1\.1\.1/.test(summary), 'the process summary names the router id',
+  // The line used to read `Routing Process "ospf 0"` - the *area* id wearing a process-id label, because this
+  // console has no `router ospf <process-id>`. It now names the router id alone, so a dotted area cannot make
+  // the process line read `"ospf 0.0.0.1"` (test/ospf-area-id.test.js).
+  ok(/^Routing Process with ID 1\.1\.1\.1$/m.test(summary), 'the process summary names the router id',
     summary.split('\n')[0]);
   // r3's Gi0/0/1 is passive in this lab, so the direct r1-r3 link forms no adjacency and r1 has exactly one.
   ok(/Neighbours: 1/.test(summary), 'and counts the adjacency that formed (the passive end forms none)', summary);

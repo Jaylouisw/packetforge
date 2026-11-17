@@ -21,6 +21,9 @@ const mediaLib = require('./media');
 // VLAN membership is decided by one rule (engine/vlan.js), so a table that lists members uses it rather
 // than re-deriving what a port carries.
 const vlanLib = require('./vlan');
+// Area ids are parsed by the library that compares them, so the console and the adjacency check
+// cannot disagree about what `0.0.0.1` means (#1843).
+const ospfLib = require('./ospf');
 
 
 function pad(s, w) { s = String(s); return s + ' '.repeat(Math.max(0, w - s.length)); }
@@ -2117,11 +2120,35 @@ class CliSession {
       return ['OSPF enabled, router-id ' + ip + ' area ' + (cfg.areaId || 0)];
     }
     if (t[0] === 'area') {
-      const id = parseInt(t[1], 10);
-      if (!(id >= 0 && id <= 2147483647)) return ['% Invalid area id "' + (t[1] || '') + '"'];
-      cfg.areaId = id;
+      // An OSPF area id is a 32-bit number and the box takes it written either way: as a decimal number
+      // (0-4294967295) or as a dotted quad. `parseInt` on the typed word kept everything before the first
+      // dot, so `ospf area 0.0.0.1` was stored as area 0 - two routers in *different* areas then formed a
+      // full adjacency and exchanged routes - and `ospf area 0.0.0.999` was accepted as area 0, because
+      // parseInt stops at the dot and never looks at the last octet. The ceiling was also wrong by half the
+      // range: `area 4294967295` is a valid id (Cisco IOS XE, `ip ospf area`: "A decimal value in the range
+      // from 0 to 4294967295, or an IP address in the dotted-decimal format",
+      // https://www.cisco.com/c/en/us/td/docs/routers/sdwan/command/iosxe/qualified-cli-command-reference-guide/m-ip-ospf-commands.html)
+      // and this console refused it. The field itself is "A 32 bit number identifying the area that this
+      // packet belongs to" (RFC 2328 section 9, https://www.rfc-editor.org/rfc/rfc2328).
+      //
+      // The id is stored as it was written, because the box echoes the form it was given: a switch
+      // configured with area 0.0.0.1 prints "Area 0.0.0.1" in `show ip ospf interface`, and one configured
+      // with 0 prints "Area 0" (Dell OS9 9.14 `show ip ospf interface` keeps the dotted form in its sample,
+      // https://www.dell.com/support/manuals/en-gb/dell-emc-os-9/s6000-9.14.2.6-cli-pub/show-ip-ospf-interface).
+      // What decides an adjacency is the 32-bit value on the wire, not the spelling, so
+      // `engine/simulator.js` compares areaOf() of the two ends rather than the strings - "0.0.0.1" and "1"
+      // are one area. (IOS XR's command reference warns that its *area objects* match by format only, which
+      // is a config-identity rule, not what a Hello carries:
+      // https://cisco.com/c/en/us/td/docs/iosxr/cisco8000/routing/cumulative/command/reference/b-routing-cr-cisco8000/m-ospf-commands.html.)
+      const raw = t[1] || '';
+      const id = ospfLib.parseAreaId(raw);
+      if (id === null) {
+        return ['% Invalid area id "' + raw + '": an OSPF area is a 32-bit number (0-4294967295) or a ' +
+          'dotted quad such as 0.0.0.1'];
+      }
+      cfg.areaId = /^\d+$/.test(raw) ? String(id) : raw;
       dev.config.ospf = cfg;
-      return ['OSPF area ' + id];
+      return ['OSPF area ' + cfg.areaId];
     }
     return ['% Usage: ospf router-id <ip> | ospf area <id>'];
   }
@@ -2149,10 +2176,19 @@ class CliSession {
     }
     if (rest[0] === 'area') {
       if (negate) { delete ov.area; return ['OSPF area reset on ' + iface.name]; }
-      const id = parseInt(rest[1], 10);
-      if (!(id >= 0 && id <= 2147483647)) return ['% Invalid area id'];
-      ov.area = id;
-      return ['OSPF area ' + id + ' on ' + iface.name];
+      // The same rule the router-level command uses, from the same function: an area is a 32-bit number,
+      // written decimal or dotted (`ip ospf area`: "A decimal value in the range from 0 to 4294967295, or an
+      // IP address in the dotted-decimal format", Cisco IOS XE command reference, URL above). A dotted id
+      // used to be read with parseInt and became area 0, so an interface put in area 0.0.2.0 formed an
+      // adjacency with a router in the backbone.
+      const raw = rest[1] || '';
+      const id = ospfLib.parseAreaId(raw);
+      if (id === null) {
+        return ['% Invalid area id "' + raw + '": an OSPF area is a 32-bit number (0-4294967295) or a ' +
+          'dotted quad such as 0.0.0.2'];
+      }
+      ov.area = /^\d+$/.test(raw) ? String(id) : raw;
+      return ['OSPF area ' + ov.area + ' on ' + iface.name];
     }
     if (rest[0] === 'passive') {
       ov.passive = !negate;
@@ -3898,9 +3934,14 @@ class CliSession {
     };
 
     if (sub === '' || sub === 'process') {
-      out.push('Routing Process "ospf ' + (cfg.areaId || 0) + '" with ID ' + cfg.routerId);
+      // `ospf <areaId>` here put the *area* where a process id belongs: a real box prints the process it was
+      // given in `router ospf <process-id>`. This console has no process id, so the line names the router id
+      // only rather than reading `Routing Process "ospf 0.0.0.1"` to anyone who configured a dotted area.
+      out.push('Routing Process with ID ' + cfg.routerId);
+      // Sorted by the 32-bit value, not by the text: `0.0.0.1` and `1` are the same area and
+      // `'0.0.0.1' - 0` is NaN, which would leave the list in whatever order the ports were walked in.
       const areas = Array.from(new Set(ifaces.map(function (i) { return i.area; })))
-        .sort(function (a, b) { return a - b; });
+        .sort(function (a, b) { return ospfLib.areaOf(a) - ospfLib.areaOf(b); });
       out.push('  Areas: ' + (areas.length ? areas.join(', ') : String(cfg.areaId || 0)));
       const passive = ifaces.filter(function (i) { return i.passive; }).length;
       out.push('  Interfaces: ' + ifaces.length + (passive ? ' (' + passive + ' passive)' : ''));
@@ -3999,13 +4040,18 @@ class CliSession {
         }
         return out;
       }
-      out.push(pad('Interface', 12) + pad('IP Address', 17) + pad('Area', 6) + pad('Cost', 6) + pad('Cost from', 12) +
+      // The Area column was six characters wide, which fits `0` and not `0.0.0.1`: an area configured in
+      // dotted form ran into the Cost column and printed as `0.0.0.11` - the area, the cost and the start of
+      // the next field read as one number. Widths come from the data here, as they do in `show lldp
+      // neighbors` (#1265), with the old six as the floor so every decimal-only lab is unchanged.
+      const areaWidth = rows.reduce(function (w, i) { return Math.max(w, String(i.area).length + 2); }, 6);
+      out.push(pad('Interface', 12) + pad('IP Address', 17) + pad('Area', areaWidth) + pad('Cost', 6) + pad('Cost from', 12) +
         pad('Adjacent', 10) + 'Passive');
       for (const i of rows) {
         const netLib = require('./net');
         const len = netLib.prefixOf(i.mask);
         out.push(pad(i.name, 12) + pad(i.ip + (len === null ? ' ' + i.mask : '/' + len), 17) +
-          pad(String(i.area), 6) + pad(String(i.cost), 6) + pad(i.costSource === 'configured' ? 'configured' : 'link rate', 12) +
+          pad(String(i.area), areaWidth) + pad(String(i.cost), 6) + pad(i.costSource === 'configured' ? 'configured' : 'link rate', 12) +
           pad(i.adjacent ? 'yes' : 'no', 10) + (i.passive ? 'yes' : 'no'));
       }
       out.push('');

@@ -724,6 +724,8 @@ module.exports = {
   DEFAULT_DEAD_SEC,
   validateRouter,
   maskPrefix,
+  parseAreaId,
+  areaOf,
   buildGraph,
   adjacencies,
   spf,
