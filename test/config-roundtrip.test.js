@@ -285,4 +285,51 @@ console.log('Nothing configurable is left out of the config (#1232):');
 }
 
 console.log('\n' + passed + ' passed, ' + failed + ' failed');
+console.log('');
+console.log('The config prints what a port references before the port that references it (#1507):');
+{
+  // An interface block is allowed to name an object defined elsewhere - `switchport access vlan 10`,
+  // `ip access-group 101 in` - and both parsers refuse a name that does not exist yet:
+  // `% Access VLAN does not exist.` and `% Access list 101 does not exist`. The printer used to write the
+  // interface blocks first and the VLAN and ACL tables afterwards, so a saved config did not replay: the
+  // ACL binding was rejected outright and the restored port filtered nothing, silently. Replayability of
+  // the printed text is the property; here it is the reference that decides where the tables go.
+  const a = session(spec(/WS-C3560CX-8PC-S/));
+  const configured = a.run([
+    'enable', 'configure terminal',
+    'hostname SW1',
+    'vlan 10 name sales',
+    'access-list 101 permit tcp any any eq 443',
+    'access-list 101 deny ip any any',
+    'interface Gi1/0/9',
+    'switchport mode access',
+    'switchport access vlan 10',
+    'ip access-group 101 in',
+    'exit',
+    'end'
+  ]);
+  ok(rejections(configured).length === 0, 'the switch accepts the reference and the objects it names',
+    JSON.stringify(rejections(configured).slice(0, 3)));
+  const rc = runningConfig(a);
+  const text = rc.join('\n');
+  const vlanLine = rc.indexOf('vlan 10 sales');
+  const bindsVlanLine = rc.indexOf('  switchport access vlan 10');
+  ok(vlanLine !== -1 && bindsVlanLine !== -1 && vlanLine < bindsVlanLine,
+    'the VLAN is defined above the port that names it', vlanLine + ' vs ' + bindsVlanLine);
+  const aclLine = rc.indexOf('access-list 101 permit tcp any any eq 443');
+  const bindsAclLine = rc.indexOf('  ip access-group 101 in');
+  ok(aclLine !== -1 && bindsAclLine !== -1 && aclLine < bindsAclLine,
+    'the access list is defined above the port that binds it', aclLine + ' vs ' + bindsAclLine);
+
+  const b = session(spec(/WS-C3560CX-8PC-S/));
+  const replayOut = b.run(['enable', 'configure terminal'].concat(rc).concat(['end']));
+  ok(rejections(replayOut).length === 0, 'and nothing in it is rejected on the way back in',
+    JSON.stringify(rejections(replayOut).slice(0, 3)));
+  ok(JSON.stringify(a.dev.aclBindings) !== '{}' &&
+    JSON.stringify(b.dev.aclBindings) === JSON.stringify(a.dev.aclBindings),
+    'the ACL binding survives the restore, in and out',
+    JSON.stringify(a.dev.aclBindings) + ' vs ' + JSON.stringify(b.dev.aclBindings));
+  ok(runningConfig(b).join('\n') === text, 'and the config reproduces itself byte for byte');
+}
+
 process.exit(failed ? 1 : 0);

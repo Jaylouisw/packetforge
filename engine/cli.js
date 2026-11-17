@@ -5167,6 +5167,25 @@ class CliSession {
           }
         }
       }
+      // Definitions before the blocks that name them. An interface line is allowed to reference an
+      // object - `switchport access vlan 10`, `ip access-group 101 in` - and the parser refuses the
+      // reference when the object does not exist yet: `% Access VLAN does not exist.` and
+      // `% Access list 101 does not exist`. Printed after the interfaces, a saved config therefore did
+      // not replay: the ACL binding was dropped outright, so a restore silently un-filtered the port.
+      // Both tables are plain config-mode lines with no sub-mode, so they can go first.
+      //
+      // The VLAN table: the ids exist because someone typed `vlan <id> <name>`, and without these
+      // lines a restored config has ports in VLAN 42 with no VLAN 42 (#1232).
+      const vlans = dev.config.vlans || {};
+      for (const id of Object.keys(vlans).sort(function (a, b) { return Number(a) - Number(b); })) {
+        const v = vlans[id] || {};
+        out.push('vlan ' + id + (v.name ? ' ' + v.name : ''));
+      }
+      // The access lists, for the same reason: a port's binding is printed inside its interface block.
+      const allAcls = dev.config.acls || {};
+      for (const id of Object.keys(allAcls).sort(function (a, b) { return parseInt(a, 10) - parseInt(b, 10); })) {
+        for (const e of allAcls[id]) out.push('access-list ' + id + ' ' + (e.line || e.action));
+      }
       for (const i of dev.interfaces.values()) {
         out.push('interface ' + i.name);
         if (i.description) out.push('  description ' + i.description);
@@ -5264,14 +5283,6 @@ class CliSession {
         // applies its addresses and shutdowns to whichever interface was current (#1230).
         out.push('exit');
       }
-      // The VLAN table: the ids exist because someone typed `vlan <id> <name>`, and without these
-      // lines a restored config has ports in VLAN 42 with no VLAN 42 (#1232).
-      const vlans = dev.config.vlans || {};
-      for (const id of Object.keys(vlans).sort(function (a, b) { return Number(a) - Number(b); })) {
-        const v = vlans[id] || {};
-        out.push('vlan ' + id + (v.name ? ' ' + v.name : ''));
-      }
-
       // DHCP pools. A pool is a sub-mode, so each one closes with `exit` before the next begins.
       for (const pool of (dev.config.dhcpPools || [])) {
         if (!pool || !pool.name) continue;
@@ -5310,10 +5321,6 @@ class CliSession {
         }
       }
 
-      const allAcls = dev.config.acls || {};
-      for (const id of Object.keys(allAcls).sort(function (a, b) { return parseInt(a, 10) - parseInt(b, 10); })) {
-        for (const e of allAcls[id]) out.push('access-list ' + id + ' ' + (e.line || e.action));
-      }
       for (const r of dev.config.routes) {
         // Three shapes, each of which the parser takes back: via a next hop (optionally out a port), out a
         // port alone (the directly-connected form), or bare. The old line printed an empty field for a
