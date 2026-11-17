@@ -6004,12 +6004,25 @@ class CliSession {
         } else if (pool.leaseSec) {
           // Seconds back to the days/hours/minutes the command takes. Only whole minutes survive the
           // round trip, which is every value the command itself can express.
+          //
+          // The fields are optional in IOS's syntax (`lease {days [hours [minutes]] | infinite}`), and a box
+          // prints only the ones the duration needs: a 12-hour pool reads back as `lease 0 12`, a 20-minute one
+          // as `lease 0 0 20`, a one-day one as `lease 1`. This printed all three every time, so a saved config
+          // carried `lease 0 12 0` - a line no box produces (research/dhcp-lease-running-config-form.md).
+          // Trailing zeros go; the leading ones stay, because minutes cannot be printed without the hours and
+          // days that hold their place.
           const sec = Number(pool.leaseSec);
           if (Number.isFinite(sec) && sec > 0) {
-            const days = Math.floor(sec / 86400);
-            const hours = Math.floor((sec % 86400) / 3600);
-            const mins = Math.floor((sec % 3600) / 60);
-            out.push('  lease ' + days + ' ' + hours + ' ' + mins);
+            const fields = [
+              Math.floor(sec / 86400),
+              Math.floor((sec % 86400) / 3600),
+              Math.floor((sec % 3600) / 60)
+            ];
+            while (fields.length > 1 && fields[fields.length - 1] === 0) fields.pop();
+            // A sub-minute duration has no command that can set it (the CLI takes whole minutes only), so this
+            // is reachable only through a hand-edited lab file. Keep the old three-field form there instead of
+            // printing a bare `lease 0`, which no box accepts and which would not replay.
+            out.push('  lease ' + (fields.length === 1 && fields[0] === 0 ? '0 0 0' : fields.join(' ')));
           }
         }
         // `reservations` is keyed by hardware address and holds the address it is pinned to, while the

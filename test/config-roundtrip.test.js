@@ -225,7 +225,7 @@ console.log('Nothing configurable is left out of the config (#1232):');
     ['its gateway', 'default-router 10.70.0.1'],
     ['its DNS server', 'dns-server 10.70.0.53'],
     ['its excluded address', 'excluded-address 10.70.0.20'],
-    ['its lease', 'lease 0 12 0'],
+    ['its lease', 'lease 0 12'],
     ['its reservation', 'host 10.70.0.99 00:11:22:33:44:55'],
     ['the DNS zone', 'dns zone omitcheck.test'],
     ['its A record', 'dns add www A 10.1.2.50'],
