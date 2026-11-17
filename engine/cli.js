@@ -3140,11 +3140,11 @@ class CliSession {
       this.sim.setRunTime(atMs);
     }
     try {
-    out.push('Type escape sequence to abort.');
     let shownTarget = target;
     // ICMPv6 echo, when the target is a literal IPv6 address. The report is the same report - same marks line, same
     // success rate, same per-reply lines - because an operator reading a ping should not have to learn two shapes.
     if (literal6) {
+      out.push('Type escape sequence to abort.');
       const shown6 = ipv6Lib.formatIpv6(literal6.groups) || target;
       out.push('Sending ' + count + ', 100-byte ICMP Echos to ' + shown6 + ', timeout is 2 seconds:' +
         (atMs !== null ? '  (at t=' + atMs + ' ms)' : ''));
@@ -3152,31 +3152,43 @@ class CliSession {
       return this._pingReplyLines(out, shown6, count, res6.replies || []);
     }
     if (namedTarget) {
-      // Resolve first, the way a box prints it: Translating "server.lab"...domain server (10.0.0.53) [OK]
+      // Resolve first, and print the lookup in the order and shape a box prints it: the query line comes
+      // BEFORE "Type escape sequence to abort.", and the address in parentheses is the server the query was
+      // sent to - the configured name server, or 255.255.255.255 when none is configured, because that is the
+      // broadcast address an unconfigured box sends the lookup to (Cisco 46253, "Prevent Domain Translation
+      // Messages after an Invalid Command Is Entered on a Router").
       const probe = this.sim.resolveName ? this.sim.resolveName(this.device, target) : null;
-      const serverLabel = function (pr) {
-        if (!pr) return 'none';
-        if (pr.serverIp) return pr.serverIp;
-        return pr.serverId || pr.server || 'none';
-      };
+      const asked = this._domainServersFor(probe);
+      const queryLine = 'Translating "' + target + '"...domain server ' +
+        asked.map(function (a) { return '(' + a + ')'; }).join(' ');
       if (probe && probe.ok) {
-        out.push('Translating "' + target + '"...domain server (' +
-          serverLabel(probe) + ') [OK]');
-        out.push('  ' + target + ' -> ' + probe.address);
+        out.push(queryLine + ' [OK]');
+        // No "name -> address" line: a box does not print one, and the address is on the next line anyway
+        // ("Sending 5, 100-byte ICMP Echos to <address>").
         shownTarget = probe.address;
       } else if (probe) {
+        // The query line is printed even when nothing came back - that is the half of the output that says
+        // *what was asked and where* - but the trailing [OK] only appears when a name resolved.
+        out.push(queryLine);
         const status = String(probe.status || 'unknown').toUpperCase();
         const why = {
           NXDOMAIN: 'no zone any server here hosts contains that name',
-          NODATA: 'the name exists on ' + serverLabel(probe) + ' but has no A record',
+          NODATA: 'the name exists on ' + ((probe && probe.serverIp) || asked[0]) + ' but has no A record',
           SERVFAIL: 'no device in this lab hosts a DNS zone, or no listed server answered'
         }[status] || 'the resolver did not answer';
-        return ['% Could not resolve "' + target + '": ' + status + ' - ' + why,
-          '% Nothing was sent. ' + (status === 'NODATA'
-            ? 'Add an A record: dns add ' + target + ' A <address>'
-            : 'Check the zone on ' + serverLabel(probe) + ', or the name servers this device asks.')];
+        out.push('% Could not resolve "' + target + '": ' + status + ' - ' + why);
+        // The advice has to match the address on the line above: telling an operator carrying no name server to
+        // "check the zone on 255.255.255.255" points at a host that cannot be one.
+        out.push('% Nothing was sent. ' + (status === 'NODATA'
+          ? 'Add an A record: dns add ' + target + ' A <address>'
+          : (asked[0] === '255.255.255.255'
+            ? 'No name server is configured, so the lookup went to the broadcast address - add a zone on a device ' +
+              'in this lab, or configure `ip name-server <address>`.'
+            : 'Check the zone on ' + asked.join(' ') + ', or the name servers this device asks.')));
+        return out;
       }
     }
+    out.push('Type escape sequence to abort.');
     out.push('Sending ' + count + ', 100-byte ICMP Echos to ' + shownTarget + ', timeout is 2 seconds:' +
       (atMs !== null ? '  (at t=' + atMs + ' ms)' : ''));
     const res = this.sim.ping(this.device.id, namedTarget ? target : ip, { count: count });
@@ -3197,6 +3209,21 @@ class CliSession {
       // Whatever the ping did or failed to do, the session is left at the instant it arrived with.
       this.sim.runAtMs = priorRunAtMs;
     }
+  }
+
+  // The addresses a `ping <name>` query names on its `Translating "x"...domain server (a) (b)` line. One answer
+  // names the server that gave it; a lookup that came back with nothing names the servers it was sent to, in the
+  // order the box would query them; a device with no `ip name-server` at all has one address to name, the
+  // broadcast address its resolver sends to. Never a device label and never "none": a console that prints a
+  // name where a box prints an address is inventing a format (#1375), and `(none)` named nothing at all.
+  _domainServersFor(probe) {
+    const dev = this.device || {};
+    const configured = (dev.config && Array.isArray(dev.config.dnsServers)) ? dev.config.dnsServers : [];
+    // No `ip name-server` at all: whatever answered did so because the query went to the broadcast address,
+    // so that is the address the line names - not the address of whoever chose to reply to it.
+    if (!configured.length) return ['255.255.255.255'];
+    if (probe && probe.ok && probe.serverIp && configured.indexOf(probe.serverIp) !== -1) return [probe.serverIp];
+    return configured.slice();
   }
 
   // What this port holds in the other address family: the address (typed or learned, marked), and the link-local

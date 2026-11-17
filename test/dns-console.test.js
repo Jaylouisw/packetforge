@@ -65,13 +65,22 @@ console.log('ping takes a name, and says how it resolved:');
   const text = show(t, 'h1', sim, 'ping r1.lab');
   ok(/Translating "r1\.lab"\.\.\.domain server \(10\.0\.0\.1\) \[OK\]/.test(text),
     'the translation names the server that answered, by address', text.split('\n')[1]);
-  ok(/r1\.lab -> 10\.0\.0\.1/.test(text), 'and the address it resolved to', text);
+  // A box prints the lookup line BEFORE its own "Type escape sequence to abort.", and prints no
+  // "name -> address" line: the address it resolved to is the ping target on the next line.
+  ok(text.indexOf('Translating') < text.indexOf('Type escape sequence to abort.'),
+    'the lookup line precedes "Type escape sequence to abort."');
+  ok(text.indexOf('r1.lab -> ') === -1, 'no invented name-to-address line', text);
+  ok(text.indexOf('Echos to 10.0.0.1, timeout') !== -1,
+    'the address it resolved to is the ping target', text);
   ok(/Success rate is 100 percent \(5\/5\)/.test(text), 'and the ping actually happens', text);
   ok(/Reply from 10\.0\.0\.1/.test(text), 'replies name the address, not the name');
 
   // A CNAME resolves to its target's address through the engine, and the console prints what came back.
   const cname = show(t, 'h1', sim, 'ping alias.lab');
-  ok(/alias\.lab -> 10\.0\.0\.50/.test(cname), 'a CNAME chain resolves to the target address', cname);
+  ok(cname.indexOf('Translating "alias.lab"') === 0,
+    'a CNAME is translated like any other name', cname);
+  ok(cname.indexOf('Echos to 10.0.0.50') !== -1,
+    'and the target address is the ping target', cname);
 
   // An address still works, and prints no translation.
   const byIp = show(t, 'h1', sim, 'ping 10.0.0.1');
@@ -87,6 +96,11 @@ console.log('Each way a name can fail is named, and nothing is sent:');
 
   const nx = show(t, 'h1', sim, 'ping nope.lab');
   ok(/% Could not resolve "nope\.lab": NXDOMAIN/.test(nx), 'a name in no zone is NXDOMAIN', nx);
+  // The query was still made, and a box still says where it sent it - without the [OK], which is
+  // the only part of that line that reports an answer.
+  ok(nx.indexOf('Translating "nope.lab"...domain server (10.0.0.1)') === 0,
+    'the failed lookup names the server it asked, first and with no [OK]', nx);
+  ok(nx.indexOf('[OK]') === -1, 'and nothing claims it succeeded');
   ok(/no zone any server here hosts contains that name/.test(nx), 'with the reason spelled out');
   ok(/Nothing was sent/.test(nx), 'and an explicit statement that no packet went anywhere');
   ok(!/Sending /.test(nx), 'no echo was attempted');
@@ -101,6 +115,28 @@ console.log('Each way a name can fail is named, and nothing is sent:');
   const servfail = show(noServer, 'h1', new Simulator(noServer), 'ping r1.lab');
   ok(/SERVFAIL/.test(servfail), 'a lab with no DNS server at all is SERVFAIL', servfail);
   ok(/no device in this lab hosts a DNS zone/.test(servfail), 'and says so');
+  // A configured name server is named even when it never answered: that is where the query went.
+  ok(servfail.indexOf('domain server (10.0.0.1)') !== -1,
+    'the lookup names the server it asked even though it never answered', servfail);
+  ok(servfail.indexOf('(none)') === -1, 'no server is ever rendered as the word "none"', servfail);
+
+  // No `ip name-server` at all: the lookup goes to the broadcast address, and that is the address the
+  // line names - not whichever device in the lab happened to answer a broadcast it was never sent to.
+  const bc = lab({ noResolver: true });
+  const bcast = show(bc, 'h1', new Simulator(bc), 'ping r1.lab');
+  ok(bcast.indexOf('domain server (255.255.255.255) [OK]') !== -1,
+    'an unconfigured resolver is shown as the broadcast address it queried', bcast);
+  ok(bcast.indexOf('domain server (10.0.0.1)') === -1,
+    'and not as the device that happened to answer the broadcast');
+
+  const bcNone = lab({ noResolver: true, noServer: true });
+  const bcFail = show(bcNone, 'h1', new Simulator(bcNone), 'ping r1.lab');
+  ok(bcFail.indexOf('domain server (255.255.255.255)') !== -1,
+    'the broadcast address is named on failure too', bcFail);
+  ok(bcFail.indexOf('No name server is configured') !== -1,
+    'and the advice matches: there is nothing configured to check', bcFail);
+  ok(bcFail.indexOf('Check the zone on 255.255.255.255') === -1,
+    'it never tells an operator to check a zone on the broadcast address');
 
   // A malformed address is a typo, not a name to look up.
   const bad = show(t, 'h1', sim, 'ping 10.0.0.999');

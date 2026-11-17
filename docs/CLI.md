@@ -882,13 +882,16 @@ r1> ping 10.0.0.1 5 at later
 ```
 
 A name is resolved through the lab's DNS servers before a packet is sent, and
-the console prints the resolution the way a box does:
+the console prints the resolution the way a box does: the lookup line comes
+first, names the server the query went to in parentheses, and carries `[OK]`
+only when a name came back. The resolved address is the ping target, so there
+is no second "name -> address" line to read. A device with no `ip name-server`
+sends the lookup to `255.255.255.255`, and the line says so:
 
 ```
 h1> ping r1.lab
-Type escape sequence to abort.
 Translating "r1.lab"...domain server (10.0.0.1) [OK]
-  r1.lab -> 10.0.0.1
+Type escape sequence to abort.
 Sending 5, 100-byte ICMP Echos to 10.0.0.1, timeout is 2 seconds:
 !!!!!
 Success rate is 100 percent (5/5), round-trip min/avg/max = 0.002/0.002/0.002 ms
@@ -900,15 +903,19 @@ because they have different causes and different fixes:
 
 ```
 h1> ping nope.lab
+Translating "nope.lab"...domain server (10.0.0.1)
 % Could not resolve "nope.lab": NXDOMAIN - no zone any server here hosts contains that name
 % Nothing was sent. Check the zone on 10.0.0.1, or the name servers this device asks.
 h1> ping only-txt.lab
+Translating "only-txt.lab"...domain server (10.0.0.1)
 % Could not resolve "only-txt.lab": NODATA - the name exists on 10.0.0.1 but has no A record
 % Nothing was sent. Add an A record: dns add only-txt.lab A <address>
 ```
 
-and `SERVFAIL` when no device in the lab hosts a zone at all, or when no listed server answers. Digits and dots
-that are not a valid address (`ping 10.0.0.999`) are refused as an address rather than looked up as a name.
+and `SERVFAIL` when no device in the lab hosts a zone at all, or when no listed server answers. The lookup line is
+printed on the failure path too, without `[OK]`: it is the half of that output which says what was asked and where.
+Digits and dots that are not a valid address (`ping 10.0.0.999`) are refused as an address rather than looked up as
+a name.
 
 `show ip dns` reads the zones back — the records that are actually answered, in zone-file shape:
 
