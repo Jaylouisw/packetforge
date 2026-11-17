@@ -91,10 +91,18 @@ console.log('Against the real catalogue:');
   const m1d = filterDevices('M1D-B', specs, { vendor: 'huawei' });
   ok(m1d[0] && /M1D-B/.test(m1d[0].model), 'M1D-B finds the NetEngine', m1d[0] && m1d[0].model);
 
-  const board = filterDevices('B1LDCD', specs, {});
-  ok(board.length === 2, 'B1LDCD finds both shelves that take the board', String(board.length));
+  // Three shelves take the board now, not two: the E6608T is filled with 7x TMB1LDCD, and the
+  // alias matches inside that name. Named rather than counted, so the fourth shelf that takes a
+  // B1LDCD is a catalogue addition instead of a red suite.
+  const board = filterDevices('B1LDCD', specs, {}).map(function (h) { return h.model; });
+  const boardShelves = ['OptiXtrans E6608 (6x B1LDCD, DC chassis)', 'OptiXtrans E6616 (14x B1LDCD)',
+    'OptiXtrans E6608T (7x TMB1LDCD, DC chassis)'];
+  ok(boardShelves.every(function (m) { return board.indexOf(m) !== -1; }),
+    'B1LDCD finds every shelf that takes the board', board.join(' | '));
 
-  const multi = filterDevices('b1ldcd 14x', specs, {});
+  // '14x' used to name one shelf; the 7x TMB1LDCD shelf also has 14x 200G line, so it matches on a
+  // label word and ties on rank. '56x' is the E6616's client count and still discriminates.
+  const multi = filterDevices('b1ldcd 56x', specs, {});
   ok(multi.length >= 1 && /E6616/.test(multi[0].model), 'a multi-token query can mix an alias with a model word', multi[0] && multi[0].model);
 
   ok(filterDevices('E6616', specs, {}).every(function (h) { return h.vendor === 'huawei'; }) ||

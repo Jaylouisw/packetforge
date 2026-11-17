@@ -1,0 +1,273 @@
+{
+  "vendor": "huawei",
+  "model": "OptiXtrans E6608T (7x TMB1LDCD, DC chassis)",
+  "label": "OptiXtrans E6608T OTN terminal shelf, DC chassis, 7x TMB1LDCD (28x 100GE client, 14x 200G line)",
+  "category": "switch",
+  "description": "Huawei OptiXtrans E6608T - 2U OTN-only terminal shelf (no cross-connect) with a 1-to-9-degree ROADM optical layer. Modelled as the DC chassis with one system control board and all 7 service slots filled with TMB1LDCD transponders: 28x 100GE client ports and 14x 200G line ports, none of them groomable between boards because the T has no cross-connect.",
+  "capabilities": [
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "c100g1",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28"
+    },
+    {
+      "name": "c100g2",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28"
+    },
+    {
+      "name": "c100g3",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28"
+    },
+    {
+      "name": "c100g4",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28"
+    },
+    {
+      "name": "c100g5",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28"
+    },
+    {
+      "name": "c100g6",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28"
+    },
+    {
+      "name": "c100g7",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28"
+    },
+    {
+      "name": "c100g8",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28"
+    },
+    {
+      "name": "c100g9",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28"
+    },
+    {
+      "name": "c100g10",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28"
+    },
+    {
+      "name": "c100g11",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28"
+    },
+    {
+      "name": "c100g12",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28"
+    },
+    {
+      "name": "c100g13",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28"
+    },
+    {
+      "name": "c100g14",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28"
+    },
+    {
+      "name": "c100g15",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28"
+    },
+    {
+      "name": "c100g16",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28"
+    },
+    {
+      "name": "c100g17",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28"
+    },
+    {
+      "name": "c100g18",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28"
+    },
+    {
+      "name": "c100g19",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28"
+    },
+    {
+      "name": "c100g20",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28"
+    },
+    {
+      "name": "c100g21",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28"
+    },
+    {
+      "name": "c100g22",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28"
+    },
+    {
+      "name": "c100g23",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28"
+    },
+    {
+      "name": "c100g24",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28"
+    },
+    {
+      "name": "c100g25",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28"
+    },
+    {
+      "name": "c100g26",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28"
+    },
+    {
+      "name": "c100g27",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28"
+    },
+    {
+      "name": "c100g28",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28"
+    },
+    {
+      "name": "line1",
+      "type": "ethernet",
+      "speed": "200G",
+      "connector": "cfp2"
+    },
+    {
+      "name": "line2",
+      "type": "ethernet",
+      "speed": "200G",
+      "connector": "cfp2"
+    },
+    {
+      "name": "line3",
+      "type": "ethernet",
+      "speed": "200G",
+      "connector": "cfp2"
+    },
+    {
+      "name": "line4",
+      "type": "ethernet",
+      "speed": "200G",
+      "connector": "cfp2"
+    },
+    {
+      "name": "line5",
+      "type": "ethernet",
+      "speed": "200G",
+      "connector": "cfp2"
+    },
+    {
+      "name": "line6",
+      "type": "ethernet",
+      "speed": "200G",
+      "connector": "cfp2"
+    },
+    {
+      "name": "line7",
+      "type": "ethernet",
+      "speed": "200G",
+      "connector": "cfp2"
+    },
+    {
+      "name": "line8",
+      "type": "ethernet",
+      "speed": "200G",
+      "connector": "cfp2"
+    },
+    {
+      "name": "line9",
+      "type": "ethernet",
+      "speed": "200G",
+      "connector": "cfp2"
+    },
+    {
+      "name": "line10",
+      "type": "ethernet",
+      "speed": "200G",
+      "connector": "cfp2"
+    },
+    {
+      "name": "line11",
+      "type": "ethernet",
+      "speed": "200G",
+      "connector": "cfp2"
+    },
+    {
+      "name": "line12",
+      "type": "ethernet",
+      "speed": "200G",
+      "connector": "cfp2"
+    },
+    {
+      "name": "line13",
+      "type": "ethernet",
+      "speed": "200G",
+      "connector": "cfp2"
+    },
+    {
+      "name": "line14",
+      "type": "ethernet",
+      "speed": "200G",
+      "connector": "cfp2"
+    }
+  ],
+  "icon": "switch",
+  "color": "#dc2626",
+  "sourceUrl": "https://e.huawei.com/en/documents/others/a80f5e49b6d74beaa368b57673bc4c85",
+  "notes": "Port list is a stated card complement, not a fixed chassis figure: the E6608T is a 2U shelf whose DC backplane takes 7 service boards when one system control board is fitted, so 28 client + 14 line is what \"7x TMB1LDCD\" means. One system control board also means no system control/clock 1+1 protection; with two system control boards the DC chassis has 6 service slots, and the AC chassis has 5 (single SCC) or 4 (two SCC) - all different boxes, so model them separately rather than reusing this entry.\n\nThe T is not an E6608 with a smaller name. Huawei's datasheet describes it as \"OTN equipment supporting only OTN services\", and the family specification table gives its cross-connect capacity as N/A: Huawei's own one-line description of the model is \"7 slot @ 2U, Ponder + Optical\" - transponder and optical-layer boards only, with no cross-connect board in the shelf - so the seven boards are independent transponders that cannot groom client traffic between each other, and there is no packet or SDH switching path at all. That is why capabilities is cli only - not the OTN/PKT/SDH unified switching the request template assumed, which belongs to the E6608. It is also why this entry carries no fabric block: the same reason devices/huawei/optixtrans-e6608.json has one and this does not.\n\nPer board, TMB1LDCD (Huawei's B1LDCD) is 4x 100GE client (QSFP28, LR4/SR4/CLR4 or OTU4) into 2x programmable 100G/200G line (CFP2, 50 GHz spacing). The line side is a CFP2 cage and takes CFP2 optics only: a 200G QSFP56 module carries the same rate and will not seat, which the link validator refuses by name (E_CONNECTOR_MISMATCH). The datasheet's pluggable module list (SFP/eSFP, XFP, SFP+, QSFP+, QSFP28, CFP, CFP2) is what makes both the QSFP28 client and the CFP2 line cage legitimate on this shelf.\n\nLine rate spans 2.5/10/100/200/400 Gbit/s with a 400 Gbit/s maximum single-channel rate, and the optical layer is a 1-to-9-degree ROADM over up to 96 DWDM wavelengths - so a shelf carrying OA/ROADM boards instead of transponders presents no client cages at all and is a different configuration. FEC, PRBS, ALS, 1588v2, G.8275.1 and AES-256 client encryption are board features and are not modelled as port capabilities.",
+  "aliases": [
+    "E6608T",
+    "OptiXtrans E6608T",
+    "TMB1LDCD"
+  ]
+}
