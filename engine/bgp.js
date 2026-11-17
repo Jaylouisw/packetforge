@@ -28,6 +28,7 @@
 // hop however many AS numbers it holds).
 
 const net = require('./net');
+const ifaceName = require('./iface-name');
 
 const BGP_PORT = 179;
 
@@ -379,6 +380,53 @@ function routerIdInt(v) {
   }
 }
 
+// The address a box elects as its own router identifier when `bgp router-id` is not configured.
+//
+// Cisco, IP Routing: BGP Command Reference, `bgp router-id` - Command Default:
+//   "If a loopback interface is configured, the router ID is set to the IP address of the loopback
+//    interface. If multiple loopback interfaces are configured, the router ID is set to the IP address of
+//    the loopback interface with the highest IP address. If no loopback interface is configured, the
+//    router ID is set to the highest IP address on a physical interface."
+// `show ip bgp`'s own field description says it in one line: "In order of precedence and availability,
+// the router identifier specified by the bgp router-id command, a loopback address, or the highest IP
+// address."
+//
+// Two things follow, and neither is "the first address the interface table happens to yield" - which is
+// what this engine used to elect, so `show ip bgp` named whichever port the catalogue listed first. The
+// set is chosen by KIND first (a 10.0.1.1 loopback outranks a 192.168.1.1 port) and the winner within a
+// kind is the numerically greatest address, not the lexicographically greatest string.
+//
+// ifaces: anything with { name, type, ip } - a Device's interfaces, in any order.
+// Returns a dotted quad, or null when no interface holds an IPv4 address: a box with no address has no
+// identifier to elect, and `show ip bgp` prints 0.0.0.0 for it.
+function deriveRouterId(ifaces) {
+  const loopbacks = [];
+  const others = [];
+  for (const i of (Array.isArray(ifaces) ? ifaces : [])) {
+    if (!i) continue;
+    const n = routerIdInt(i.ip);
+    if (n === null) continue;
+    // The catalogue names the kind in `type`; a hand-written or imported lab may only have the name, so
+    // the same spelling table `interface Loopback0` is resolved with answers that case too.
+    let isLoop = String(i.type || '').trim().toLowerCase() === 'loopback';
+    if (!isLoop) {
+      // `foldInterfaceType('Loopback0')` is `loopback0`: the fold keeps the number, so the type is the
+      // word before it.
+      try { isLoop = /^loopback\d/.test(ifaceName.foldInterfaceType(i.name)); } catch (e) { isLoop = false; }
+    }
+    (isLoop ? loopbacks : others).push(n);
+  }
+  const greatest = function (list) {
+    let best = null;
+    for (const n of list) if (best === null || n > best) best = n;
+    return best;
+  };
+  const chosen = greatest(loopbacks);
+  if (chosen !== null) return net.intToIp(chosen);
+  const fallback = greatest(others);
+  return fallback === null ? null : net.intToIp(fallback);
+}
+
 // Lower router ID wins. A path with no router ID sorts last.
 function compareRouterId(a, b) {
   const x = routerIdInt(a);
@@ -611,6 +659,7 @@ module.exports = {
   normalizePeer,
   sessionType,
   nextState,
+  deriveRouterId,
   comparePaths,
   bestPath,
   advertise,

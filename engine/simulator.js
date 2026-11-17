@@ -1639,10 +1639,16 @@ class Simulator {
       }
       if (!configured.length) continue;
 
+      // The identifier the box elects when no `bgp router-id` was typed: the highest address on a
+      // loopback, else the highest address on a port (research/bgp-router-id-selection.md). It used to be
+      // `addrs[0].ip` - the first address the interface table yielded - so the ID shown by `show ip bgp`
+      // was a fact about catalogue order and a 192.168.1.1 port lost to a 10.0.0.1 port on the same box.
+      const electedId = bgpLib.deriveRouterId(Array.from(dev.interfaces.values()));
+
       speakers.push({
         dev: dev,
         as: Number(cfg.as),
-        routerId: cfg.routerId || (addrs[0] && addrs[0].ip) || configured[0].ip,
+        routerId: cfg.routerId || electedId || (addrs[0] && addrs[0].ip) || configured[0].ip,
         addrs: addrs,
         configured: configured,
         neighbors: (cfg.neighbors || []).slice(),

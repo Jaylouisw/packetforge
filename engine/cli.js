@@ -3781,7 +3781,11 @@ class CliSession {
     if (!cfg || !cfg.as) { out.push('% BGP is not enabled'); return out; }
 
     const rows = dev.bgpNeighbors || [];
-    out.push('BGP router identifier ' + (dev.bgpRouterId || cfg.routerId || '0.0.0.0') +
+    // The election again, for the case where no pass has run over this device: `show ip bgp` printed
+    // 0.0.0.0 for a box holding addresses simply because nothing had computed the identifier yet.
+    const electedId = (dev.bgpRouterId || cfg.routerId ||
+      require('./bgp').deriveRouterId(Array.from(dev.interfaces.values())) || '0.0.0.0');
+    out.push('BGP router identifier ' + electedId +
       ', local AS number ' + cfg.as);
     out.push('');
     out.push(pad('Neighbor', 17) + pad('V', 3) + pad('AS', 8) + pad('State', 16) + 'Reason');

@@ -1540,6 +1540,11 @@ and went on installing the prefixes it had learned over it — a `B` route whose
 Now the reason names the real fault: `cannot carry a frame (link down)`, `(peer shut down)`,
 `(down: no cable)`, or `administratively down` for a port someone shut.
 
+The header names the identifier the box elected for itself. With no `bgp router-id` typed, that is the
+highest address on a loopback interface, or - when there is none - the highest address on a port, which is
+what a real router reports (`research/bgp-router-id-selection.md`). It is a maximum over the addresses the
+box holds, not the first port the catalogue lists, so `192.168.1.1` on Gi0/1 outranks `10.0.0.1` on Gi0/0.
+
 When prefixes are installed, the table below says which ones:
 
 ```
