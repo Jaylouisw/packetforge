@@ -128,13 +128,12 @@ console.log('A trunk still refuses, because that half of the question is unresol
 }
 
 console.log('');
-console.log('...and so does a staged voice VLAN, which is a reference too (#1701):');
+console.log('...and so does a voice VLAN, which is a reference too (#1701):');
 {
-  // `switchport voice vlan 22` on a port that is not a trunk is *stored* - the console says so in the receipt -
-  // and read by nothing until the port is a trunk (`classifyEgress` only asks the voice VLAN once the mode is
-  // trunk). That makes it the same kind of reference as a staged native VLAN or allowed list, and it was the one
-  // reference `no vlan` did not look at: the VLAN went, the port kept `switchport voice vlan 22`, and one
-  // `switchport mode trunk` later the switch carried voice traffic in a VLAN it did not have.
+  // `switchport voice vlan 22` on an access port is live - the port carries tagged frames in 22 - so deleting
+  // VLAN 22 would leave the port pointing at a VLAN that no longer exists. It was the one reference `no vlan`
+  // did not look at: the VLAN went and the port kept `switchport voice vlan 22`
+  // (research/voice-vlan-port-mode.md).
   const t = new Topology();
   const sw = t.addDevice(SW(), 'sw1');
   const sim = new Simulator(t);
@@ -145,15 +144,15 @@ console.log('...and so does a staged voice VLAN, which is a reference too (#1701
   say('vlan 22');
   say('interface Fa0/3');
   const stored = say('switchport voice vlan 22');
-  ok(/stored/.test(stored.join(' ')), 'the voice VLAN is stored, not carried, on a port that is not a trunk',
+  ok(!/stored/.test(stored.join(' ')), 'the voice VLAN is taken into use on an access port, with no storage note',
     JSON.stringify(stored));
   cli.run('end');
 
   cli.run('configure terminal');
   const out = say('no vlan 22');
   cli.run('end');
-  ok(out.some(function (l) { return /still referenced by 1 port\(s\): Fa0\/3 \(voice, stored\)/.test(l); }),
-    'the staged voice VLAN refuses the removal, and is named', JSON.stringify(out));
+  ok(out.some(function (l) { return /still referenced by 1 port\(s\): Fa0\/3 \(voice\)/.test(l); }),
+    'the voice VLAN refuses the removal, and is named', JSON.stringify(out));
   ok(/clear that first/.test(out.join(' ')), 'with the instruction rather than the carried-port one', JSON.stringify(out));
   ok(!out.some(function (l) { return /VLAN 22 removed/.test(l); }), 'and the VLAN is not removed', JSON.stringify(out));
   ok(sw.config.vlans && sw.config.vlans[22], 'so the VLAN is still there', JSON.stringify(sw.config.vlans || {}));

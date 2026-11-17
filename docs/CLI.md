@@ -235,13 +235,13 @@ Two of those refusals are there for more than tidiness:
   names it, and says which:
   * **carried by a trunk** — asked of the data plane's own rule, not a second copy of it, so a trunk allowing
     all VLANs counts (`still carried by 1 port(s): Fa0/4`) and a native VLAN is marked `(native)`;
-  * **referenced** — a VLAN stored on a port that is not in trunk mode yet: a native VLAN, an allowed list, or
-    the **voice VLAN** (`switchport voice vlan 20` on an access port is stored and read by nothing until the port
-    is a trunk), and the refusal names every field it found
-    (`still referenced by 1 port(s): Fa0/3 (trunk native, trunk allowed, voice, stored) - clear that first`).
-    The voice VLAN was the reference this check did not look at, so `no vlan 20` removed a VLAN the port was
-    staged for and left `switchport voice vlan 20` in the running config — one `switchport mode trunk` later the
-    switch carried voice traffic in a VLAN it did not have (#1701).
+  * **referenced** — a VLAN named on a port that does not carry it as its data VLAN: a native VLAN or an allowed
+    list stored on a port that is not in trunk mode yet, or the **voice VLAN**, which an access port carries
+    tagged and a trunk only stores (the name says which: `(voice)` against `(voice, no effect)`). The refusal
+    names every field it found
+    (`still referenced by 1 port(s): Fa0/3 (trunk native, stored, trunk allowed, stored, voice, no effect) -
+    clear that first`). The voice VLAN was the reference this check did not look at, so `no vlan 20` removed a
+    VLAN a port was configured with and left `switchport voice vlan 20` in the running config (#1701).
 
   Removing a VLAN cleared a port's staged native VLAN in silence and left `show running-config` printing no
   `vlan 20` while `show vlan` still listed it from the member ports — two descriptions of one switch that
@@ -1363,8 +1363,8 @@ sw1> show ip ospf
 
 ```
 interface Gi1/0/5
- switchport trunk allowed vlan 10
- switchport mode trunk
+ switchport access vlan 10
+ switchport mode access
  switchport voice vlan 20
 ```
 
@@ -1372,22 +1372,33 @@ The lines come out in the order a real switch writes them - the VLAN parameters,
 then the voice line - rather than the order this project happened to hold them in
 (`research/running-config-switchport-order.md` has the vendor output that fixes it).
 
-A phone on that port talks on VLAN 20 and the PC behind it on VLAN 10. The voice VLAN is carried by the trunk
-**whether or not it appears in the allowed list** — that field is how the switch is told which VLAN voice traffic
-arrives on — so the port above carries 10 (native data) and 20 (tagged voice) and nothing else.
+A phone on that port talks on VLAN 20 and the PC behind it on VLAN 10. The phone tags its own frames with the
+voice VLAN; the PC's frames pass through the phone untagged and land in the access VLAN. The port does not become
+a trunk - it carries exactly one tagged VLAN - and `show vlan` prints it under both, because it is a member of
+both (`research/voice-vlan-port-mode.md`):
 
-The parameter needs a trunk, because voice traffic is tagged. On an access port it is accepted and **stored, not
-in use**:
+```
+sw1# show vlan brief
+VLAN Name                             Status    Ports
+---- -------------------------------- --------- -------------------------------
+10   VOICE-DATA                       active    Gi1/0/5
+20   VOICE                            active    Gi1/0/5
+```
+
+`switchport voice vlan` is an access-port feature: Cisco's prerequisite is that voice VLAN configuration "is only
+supported on device access ports; ... not supported on trunk ports", and the note beside it says a trunk "can
+carry any number of voice VLANs, similar to regular VLANs". So on a trunk the command is accepted, stored and
+**has no effect** - the allowed list alone decides what the trunk carries:
 
 ```
 sw1(config-if)# switchport voice vlan 20
-Voice VLAN 20 on Gi1/0/5 (stored; the port is in access mode - set "switchport mode trunk" to use it)
+Voice VLAN 20 on Gi1/0/5 (stored; a trunk carries VLANs by its allowed list, so the voice VLAN has no effect until the port is in access mode)
 ```
 
 `show interfaces <port>` says the same thing in one sentence, and the inspector panel prints the same sentence:
 
 ```
-switchport: trunk · native 10 · allowed 10 · voice 20
+switchport: access VLAN 10 · voice 20 (tagged)
 ```
 
 `no switchport voice vlan` removes it and names the value that was in force; `switchport voice vlan none` does the

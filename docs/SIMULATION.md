@@ -113,10 +113,12 @@ first.
 | **Modelled** | MAC tables are per VLAN; VLAN 1 keeps the flat legacy table. Flooding is scoped to the VLAN. A dynamically learned entry ages out after `MAC_AGE_MS` (300 s) of silence, and the same aged lookup decides forwarding: an entry the table only remembers is not a port a frame may be sent to. | `engine/device.js` `learnMac()`, `macLookup()`, `macRows()`; `engine/simulator.js` |
 | **Modelled** | VLANs 1–4094; 1002–1005 are rejected as reserved. | `engine/vlan.js:24-26` |
 | **Approximate** | Router-on-a-stick via subinterfaces works (`Gi0/0.10` creates a tagged logical interface), and `portPvid()` falls back to the parent's VLAN when no tag is present. | `engine/simulator.js:72-78`, `engine/cli.js:187-199` |
-| **Modelled** | The voice VLAN. `switchport voice vlan <id>` stores it, `classifyEgress`/`classifyIngress` carry
-that VLAN on the trunk whether or not it is in the allowed list, `switchportSentence()` and the panel name it,
-`show running-config` prints it and a save restores it. It requires a trunk because voice traffic is tagged;
-on an access port it is stored and reported as staged, not in use. | `engine/vlan.js:classifyEgress` |
+| **Modelled** | The voice VLAN. On an access port `switchport voice vlan <id>` is live: `classifyEgress` sends that
+VLAN tagged while the access VLAN goes untagged, `classifyIngress` accepts a tagged frame in it and still refuses
+every other tag, and `show vlan` lists the port under both VLANs. On a trunk the parameter is stored and not
+consulted - the allowed list is the whole answer - because Cisco's voice VLAN "is only supported on device access
+ports" ([research/voice-vlan-port-mode.md](../research/voice-vlan-port-mode.md)).
+`switchportSentence()`, the panel and `show running-config` all agree, and a save restores it. | `engine/vlan.js:classifyEgress`, `classifyIngress` |
 | **Absent** | QinQ / 802.1ad, private VLANs, VTP, VLAN pruning negotiation. | — |
 
 ### 2.3 Link aggregation (LAG)
@@ -592,7 +594,7 @@ changed what a lab does, which is why the pointer is here rather than in a chang
 |---|---|
 | `Link.state` | a frame crossing a down cable is dropped with `reason: 'link down'` and the link id (`engine/simulator.js:3099`), and the switch logic in `engine/segment.js` will not carry a frame over one ([LINK-STATE.md](LINK-STATE.md)) |
 | LAG `mode` | `negotiationVerdict()` through `memberSuspension()`: two `passive` ends never form a bundle (`test/lacp-passive-both-ends.test.js`, 22 assertions) |
-| `voiceVlan` | `classifyEgress()` and `classifyIngress()` carry it on a trunk even when it is outside the allowed list (`engine/vlan.js:361`, #1368) |
+| `voiceVlan` | `classifyEgress()` and `classifyIngress()` carry it on an access port as one tagged VLAN beside the untagged access VLAN, and ignore it on a trunk (`engine/vlan.js`, #1368) |
 | `iface.dhcp` | `Simulator.computeDhcp()` collects every port carrying the flag as a client and applies the lease it is given (`engine/simulator.js:1172`) |
 | RA valid/preferred lifetimes | written into the prefix information option the router advertises (`engine/ra.js:210`), and read back out of it on arrival |
 
@@ -681,8 +683,6 @@ Places where the code does not answer the question, stated rather than guessed:
   comment says what `'down'` should do.
 - Whether a LAG below `minLinks` was meant to shut the bundle or merely stop
   forwarding.
-- What `voiceVlan` was for, given that access ports reject tagged frames and the
-  forwarder never consults it.
 - Whether RA valid/preferred lifetimes were meant to age during a run (they are
   stored and displayed; nothing decrements them).
 - Whether the `firewall` capability was meant to imply default-deny. Today a

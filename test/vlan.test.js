@@ -341,8 +341,13 @@ check('duplicate VLAN in the allowed list warns (not an error)', function () {
   assert.strictEqual(r.errors.length, 0);
   assert.strictEqual(hasCode(r.warnings, 'W_DUP_VLAN_IN_LIST'), true);
 });
-check('voiceVlan on an access port warns', function () {
+check('voiceVlan on an access port is the supported case, with no warning', function () {
   const r = vlan.validatePortConfig({ mode: 'access', accessVlan: 10, voiceVlan: 20 });
+  assert.strictEqual(r.ok, true);
+  assert.strictEqual(r.warnings.length, 0);
+});
+check('voiceVlan on a trunk warns that it has no effect there', function () {
+  const r = vlan.validatePortConfig({ mode: 'trunk', nativeVlan: 10, allowedVlans: '10,20', voiceVlan: 20 });
   assert.strictEqual(r.ok, true);
   assert.strictEqual(hasCode(r.warnings, 'E_VOICE_VLAN_UNSUPPORTED'), true);
 });

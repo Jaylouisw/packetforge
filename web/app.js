@@ -2006,11 +2006,15 @@
       allowed = raw.allowedVlans.trim();
     }
     const voiceVlan = (raw.voiceVlan === undefined || raw.voiceVlan === null) ? null : Number(raw.voiceVlan);
-    const voiceText = voiceVlan === null ? '' : ' · voice ' + voiceVlan;
+    // Same two rules the engine keeps: the voice VLAN is live on an access port (two VLANs, tagged voice) and
+    // stored but inert on a trunk, which carries VLANs by its allowed list alone
+    // (research/voice-vlan-port-mode.md).
     if (mode === 'trunk') {
-      return 'trunk · native ' + nativeVlan + ' · allowed ' + allowed + voiceText;
+      return 'trunk · native ' + nativeVlan + ' · allowed ' + allowed +
+        (voiceVlan === null ? '' : ' · voice ' + voiceVlan + ' (no effect on a trunk)');
     }
     let line = 'access VLAN ' + accessVlan;
+    if (voiceVlan !== null && voiceVlan !== accessVlan) line += ' · voice ' + voiceVlan + ' (tagged)';
     const staged = [];
     if (raw.nativeVlan !== undefined && raw.nativeVlan !== null && Number(raw.nativeVlan) !== 1) {
       staged.push('native ' + Number(raw.nativeVlan));
@@ -2021,7 +2025,6 @@
       raw.allowedVlans.trim().toLowerCase() !== 'all') {
       staged.push('allowed ' + raw.allowedVlans.trim());
     }
-    if (voiceVlan !== null) staged.push('voice ' + voiceVlan);
     if (staged.length) line += ' · trunk staged: ' + staged.join(', ') + ' (not in use)';
     return line;
   }

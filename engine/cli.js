@@ -1229,7 +1229,11 @@ class CliSession {
         if (!i.vlan) continue;
         const verdict = vlanLib.classifyEgress(i.vlan, id);
         const action = (verdict && verdict.action) || 'drop';
-        if (action !== 'drop') {
+        // A non-trunk port carries exactly one data VLAN, its access VLAN. The voice VLAN it carries as well is a
+        // reference but not a data membership: the port is not "inactive" in the voice VLAN, so deleting that VLAN
+        // is refused below rather than reported as a port that lost its VLAN.
+        const isAccessVlan = i.vlan.mode !== 'trunk' && Number(i.vlan.accessVlan) === id;
+        if (action !== 'drop' && (i.vlan.mode === 'trunk' || isAccessVlan)) {
           if (i.vlan.mode === 'trunk') {
             trunkCarriers.push(i.name + (action === 'untagged' ? ' (native)' : ''));
           } else {
@@ -1238,17 +1242,19 @@ class CliSession {
           continue;
         }
         const where = [];
-        if (Number(i.vlan.nativeVlan) === id) where.push('trunk native');
-        if (Array.isArray(i.vlan.allowedVlans) && i.vlan.allowedVlans.indexOf(id) !== -1) where.push('trunk allowed');
-        // The third staged reference, and the one this guard did not look at (#1701). `switchport voice vlan 20`
-        // on a port that is not a trunk is *stored* - the receipt says so - and `classifyEgress` reads it only once
-        // the mode is trunk, so nothing carried the VLAN and nothing stopped the deletion: `no vlan 20` removed it
-        // and left `switchport voice vlan 20` in the running config, and one `switchport mode trunk` later the
-        // switch was carrying voice traffic in a VLAN it did not have. A reference is a reference, whichever
-        // command stored it, so it is named here with the other two.
+        if (Number(i.vlan.nativeVlan) === id) where.push('trunk native, stored');
+        if (Array.isArray(i.vlan.allowedVlans) && i.vlan.allowedVlans.indexOf(id) !== -1) {
+          where.push('trunk allowed, stored');
+        }
+        // The third reference, and the one this guard did not look at (#1701). `switchport voice vlan 20` names a
+        // VLAN the port is configured with, live on an access port and stored on a trunk, so deleting the VLAN
+        // would leave the port pointing at one that does not exist. The name says which of the two it is, because
+        // the two are different states of the same field.
         const voice = i.vlan.voiceVlan;
-        if (voice !== null && voice !== undefined && Number(voice) === id) where.push('voice');
-        if (where.length) staged.push(i.name + ' (' + where.join(', ') + ', stored)');
+        if (voice !== null && voice !== undefined && Number(voice) === id) {
+          where.push(i.vlan.mode === 'trunk' ? 'voice, no effect' : 'voice');
+        }
+        if (where.length) staged.push(i.name + ' (' + where.join(', ') + ')');
       }
       const list = function (arr) {
         return arr.slice(0, 5).join(', ') + (arr.length > 5 ? ' (+' + (arr.length - 5) + ' more)' : '');
@@ -2646,7 +2652,15 @@ class CliSession {
       // refusal has to be about the number the operator just typed.
       const chk = vlanLib.validatePortConfig({ voiceVlan: id });
       if (!chk.ok) return [this._vlanRefusal(chk, 'voice VLAN')];
-      const note = modeNote(this, iface, 'trunk');
+      // A voice VLAN is live on an access port and inert on a trunk, which is the reverse of what this console
+      // used to say. Cisco's voice VLAN is an access-port feature - the phone tags its own frames, the PC behind
+      // it stays untagged in the access VLAN - while on a trunk the parameter is accepted and stored and has no
+      // effect, because a trunk carries any number of VLANs as ordinary VLANs
+      // (research/voice-vlan-port-mode.md, Catalyst 9200 VLAN Configuration Guide, Configuring Voice VLANs).
+      const currentMode = (iface.vlan && iface.vlan.mode) || 'access';
+      const note = currentMode === 'access' ? ''
+        : ' (stored; a trunk carries VLANs by its allowed list, so the voice VLAN has no effect until the port ' +
+          'is in access mode)';
       iface.vlan = vlanLib.normalizePortConfig(Object.assign({}, iface.vlan, { voiceVlan: id }));
       this.device.flushMacsOnPort(iface.name);
       return ['Voice VLAN ' + id + ' on ' + iface.name + note];

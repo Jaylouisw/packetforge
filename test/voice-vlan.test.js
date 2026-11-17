@@ -53,7 +53,9 @@ console.log('The command, and what it says:');
   const set = env.cfg('switchport voice vlan 20');
   ok(/Voice VLAN 20 on/.test(set), 'setting a voice VLAN names it back', set.split('\n')[0]);
   ok(port(env).vlan.voiceVlan === 20, 'and stores it', String(port(env).vlan.voiceVlan));
-  ok(!/stored/.test(set), 'a trunk in use says nothing about staging');
+  // A trunk is the one place the parameter does nothing, so that is the one place the console has to say so.
+  ok(/stored/.test(set) && /no effect/.test(set) && /access mode/.test(set),
+    'a trunk says the parameter has no effect there', set.split(String.fromCharCode(10))[0]);
 
   const cleared = env.cfg('no switchport voice vlan');
   ok(/Voice VLAN 20 removed/.test(cleared), 'removing it names the value that was in force', cleared.split('\n')[0]);
@@ -70,33 +72,44 @@ console.log('The command, and what it says:');
 
   // One command changes one stored fact: setting the voice VLAN must not move the port into trunk mode.
   const access = sw();
-  const staged = access.cfg('switchport voice vlan 20');
+  const live = access.cfg('switchport voice vlan 20');
   ok(port(access).vlan.mode === 'access', 'setting it on an access port does not change the mode',
     String(port(access).vlan.mode));
-  ok(port(access).vlan.voiceVlan === 20, 'the parameter is stored anyway', String(port(access).vlan.voiceVlan));
-  ok(/stored/.test(staged) && /set "switchport mode trunk"/.test(staged),
-    'and the console says it is stored, not in use', staged.split('\n')[0]);
+  ok(port(access).vlan.voiceVlan === 20, 'the parameter is stored', String(port(access).vlan.voiceVlan));
+  ok(!/stored/.test(live),
+    'and an access port takes it into use at once, with no note about another mode',
+    live.split(String.fromCharCode(10))[0]);
 }
 
 console.log('');
 console.log('The classifier carries the voice VLAN:');
 {
-  // A trunk that allows 10 and nothing else, with voice on 20.
-  const cfg = { mode: 'trunk', nativeVlan: 10, allowedVlans: [10], voiceVlan: 20 };
-  const voice = vlanLib.classifyEgress(cfg, 20);
-  ok(voice.action === 'tagged', 'voice VLAN 20 leaves the trunk tagged', voice.action);
+  // The voice VLAN is live on an access port: untagged data in VLAN 10, tagged voice in VLAN 20.
+  const accessCfg = { mode: 'access', accessVlan: 10, voiceVlan: 20 };
+  const voice = vlanLib.classifyEgress(accessCfg, 20);
+  ok(voice.action === 'tagged', 'voice VLAN 20 leaves an access port tagged', voice.action);
   ok(voice.voice === true, 'and is marked as voice', String(voice.voice));
-  ok(vlanLib.classifyEgress(cfg, 30).action === 'drop', 'VLAN 30, allowed by neither, is still dropped');
-  ok(vlanLib.classifyEgress(cfg, 10).action === 'untagged', 'the native VLAN is still untagged');
+  ok(vlanLib.classifyEgress(accessCfg, 10).action === 'untagged', 'the access VLAN is still untagged');
+  ok(vlanLib.classifyEgress(accessCfg, 30).action === 'drop', 'a third VLAN is still dropped');
 
-  const inVoice = vlanLib.classifyIngress(cfg, { tagged: true, vid: 20 });
+  const inVoice = vlanLib.classifyIngress(accessCfg, { tagged: true, vid: 20 });
   ok(inVoice.action === 'accept' && inVoice.vlanId === 20, 'a tagged voice frame arrives into VLAN 20',
     JSON.stringify(inVoice));
-  ok(vlanLib.classifyIngress(cfg, { tagged: true, vid: 30 }).reason === 'vlan-not-allowed',
-    'a tagged frame in a VLAN nobody named is still refused');
+  ok(vlanLib.classifyIngress(accessCfg, { tagged: true, vid: 30 }).reason === 'tagged-frame-on-access',
+    'a tagged frame in any other VLAN is still refused by an access port');
 
-  // Without a voice VLAN the same trunk must behave exactly as before.
-  const plain = { mode: 'trunk', nativeVlan: 10, allowedVlans: [10] };
+  // On a trunk the parameter is stored and not consulted: the allowed list decides, in both directions.
+  const trunkCfg = { mode: 'trunk', nativeVlan: 10, allowedVlans: [10], voiceVlan: 20 };
+  ok(vlanLib.classifyEgress(trunkCfg, 20).action === 'drop',
+    'a trunk whose allowed list omits the voice VLAN does not carry it');
+  ok(vlanLib.classifyIngress(trunkCfg, { tagged: true, vid: 20 }).reason === 'vlan-not-allowed',
+    'and refuses it on ingress for the same reason');
+  const trunkCarries = { mode: 'trunk', nativeVlan: 10, allowedVlans: [10, 20], voiceVlan: 20 };
+  ok(vlanLib.classifyEgress(trunkCarries, 20).action === 'tagged',
+    'when the allowed list names it, the trunk carries it as an ordinary VLAN');
+
+  // Without a voice VLAN an access port behaves exactly as before.
+  const plain = { mode: 'access', accessVlan: 10 };
   ok(vlanLib.classifyEgress(plain, 20).action === 'drop', 'with no voice VLAN, VLAN 20 is dropped as before');
   ok(vlanLib.classifyIngress(plain, { tagged: true, vid: 20 }).action === 'drop',
     'and refused on ingress as before');
@@ -105,14 +118,16 @@ console.log('The classifier carries the voice VLAN:');
 console.log('');
 console.log('One sentence, two surfaces:');
 {
-  const state = { mode: 'trunk', nativeVlan: 10, allowedVlans: [10], voiceVlan: 20 };
-  const sentence = vlanLib.switchportSentence(state);
-  ok(/voice 20/.test(sentence), 'the console sentence names the voice VLAN', sentence);
+  const accessState = { mode: 'access', accessVlan: 10, voiceVlan: 20 };
+  const sentence = vlanLib.switchportSentence(accessState);
+  ok(/access VLAN 10 . voice 20 \(tagged\)/.test(sentence), 'the console sentence names both VLANs', sentence);
   const app = require('fs').readFileSync(ROOT + '/web/app.js', 'utf8');
-  ok(/voiceVlan/.test(app) && /voiceText/.test(app), 'and the panel computes it from the same field');
-  const accessState = { mode: 'access', accessVlan: 1, voiceVlan: 20 };
-  ok(/trunk staged: voice 20 \(not in use\)/.test(vlanLib.switchportSentence(accessState)),
-    'an access port reports it as staged', vlanLib.switchportSentence(accessState));
+  ok(/voiceVlan/.test(app), 'and the panel computes it from the same field');
+  const trunkState = { mode: 'trunk', nativeVlan: 10, allowedVlans: [10], voiceVlan: 20 };
+  ok(vlanLib.switchportSentence(trunkState).indexOf('no effect on a trunk') !== -1,
+    'a trunk says the parameter has no effect there', vlanLib.switchportSentence(trunkState));
+  ok(vlanLib.switchportSentence({ mode: 'access', accessVlan: 1 }).indexOf('voice') === -1,
+    'a port with no voice VLAN says nothing about one');
 }
 
 console.log('');
@@ -145,19 +160,45 @@ console.log('show running-config prints it, and a reload keeps it:');
 console.log('');
 console.log('A phone and a PC on one port:');
 {
-  // The data plane reads the classifier, so a voice-tagged frame must actually cross the trunk.
+  // The data plane reads the classifier, so the phone VLAN and the PC VLAN both have to work from one port.
   const env = sw();
-  env.cfg('switchport mode trunk');
-  env.cfg('switchport trunk allowed vlan 10');
+  env.cfg('switchport access vlan 10');
   env.cfg('switchport voice vlan 20');
   env.cfg('end');
   const cfg = port(env).vlan;
-  const verdict = vlanLib.classifyEgress(cfg, 20);
-  ok(verdict.action === 'tagged', 'the port in the lab carries VLAN 20 even though only 10 is allowed',
-    verdict.action);
+  ok(cfg.mode === 'access', 'the port is still an access port', String(cfg.mode));
+  ok(vlanLib.classifyEgress(cfg, 20).action === 'tagged', 'a frame for VLAN 20 leaves it tagged',
+    String(cfg.voiceVlan));
+  ok(vlanLib.classifyIngress(cfg, { tagged: true, vid: 20 }).action === 'accept',
+    'and a voice frame arriving on it lands in VLAN 20');
+  ok(vlanLib.classifyIngress(cfg, { tagged: false, vid: null }).vlanId === 10,
+    'while the PC behind the phone stays in VLAN 10');
   ok(vlanLib.classifyEgress(cfg, 11).action === 'drop', 'and still drops VLAN 11');
 }
 
 console.log('');
+console.log('');
+console.log('show vlan lists the port in both VLANs:');
+{
+  // The observable an operator checks: a voice port is a member of the data VLAN and of the voice VLAN, and the
+  // vendor table prints it in both rows. This table listed it in the data VLAN only, because the voice VLAN was
+  // treated as a stored parameter that was not in use.
+  const env = sw();
+  env.cfg('exit');
+  env.cfg('vlan 20');
+  env.cfg('end');
+  env.cfg('configure terminal');
+  env.cfg('interface ' + PORT);
+  env.cfg('switchport access vlan 10');
+  env.cfg('switchport voice vlan 20');
+  env.cfg('end');
+  const rows = env.run('show vlan brief').split(String.fromCharCode(10));
+  const row = function (id) {
+    return rows.filter(function (l) { return new RegExp('^' + id + '\\s').test(l); })[0] || '';
+  };
+  ok(row(10).indexOf(PORT) !== -1, 'VLAN 10 lists the port', row(10));
+  ok(row(20).indexOf(PORT) !== -1, 'VLAN 20 lists it too', row(20));
+}
+
 console.log(passed + ' passed, ' + failed + ' failed');
 if (failed) process.exit(1);

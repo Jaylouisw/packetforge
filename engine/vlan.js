@@ -409,12 +409,23 @@ function switchportSentence(portConfig) {
   // as `none`, not as `all`. Only the unset field means all.
   const allowed = (cfg.allowedVlans === 'all' || !Array.isArray(cfg.allowedVlans))
     ? 'all' : (cfg.allowedVlans.length ? formatVlanList(cfg.allowedVlans) : 'none');
-  const voiceText = cfg.voiceVlan !== null && cfg.voiceVlan !== undefined
-    ? ' · voice ' + Number(cfg.voiceVlan) : '';
+  const voice = cfg.voiceVlan !== null && cfg.voiceVlan !== undefined ? Number(cfg.voiceVlan) : null;
   if (mode === 'trunk') {
-    return 'trunk · native ' + cfg.nativeVlan + ' · allowed ' + allowed + voiceText;
+    // A trunk stores this parameter and never consults it. Cisco voice VLAN is an access-port feature and its
+    // configuration is not supported on trunk ports - a trunk carries any number of VLANs similar to regular
+    // VLANs, so the allowed list alone decides what it carries (Catalyst 9200 VLAN guide, Configuring Voice
+    // VLANs). The parameter is still printed: it is still in the configuration an operator would copy back.
+    return 'trunk · native ' + cfg.nativeVlan + ' · allowed ' + allowed +
+      (voice === null ? '' : ' · voice ' + voice + ' (no effect on a trunk)');
   }
   let line = 'access VLAN ' + cfg.accessVlan;
+  // The voice VLAN is in force on an access port: the phone tags its own frames with it and the PC behind the
+  // phone sends untagged frames into the access VLAN, so the port carries two VLANs without becoming a trunk.
+  // The same vendor note rules the other way - voice VLAN configuration is only supported on device access
+  // ports - which is the reverse of what this console used to say (research/voice-vlan-port-mode.md).
+  // A voice VLAN equal to the access VLAN adds a second name for the VLAN the port already carries, so the
+  // sentence stays short: the classifier files a tagged frame there as the access VLAN, which is untagged.
+  if (voice !== null && voice !== cfg.accessVlan) line += ' · voice ' + voice + ' (tagged)';
   // "Staged" is read from the stored fields, not from the normalised ones: the normaliser derives a native VLAN
   // from the access VLAN when the field is absent, so asking it would report a staged parameter on every access
   // port in a non-default VLAN.
@@ -431,10 +442,8 @@ function switchportSentence(portConfig) {
     staged.push('allowed ' + rawAllowed.trim());
   }
   // Stored, not in force. Saying "access VLAN 1" alone would leave the operator believing the trunk settings
-  // they typed a moment ago had gone somewhere.
-  if (cfg.voiceVlan !== null && cfg.voiceVlan !== undefined) {
-    staged.push('voice ' + Number(cfg.voiceVlan));
-  }
+  // they typed a moment ago had gone somewhere. The voice VLAN is not one of them any more: on an access port
+  // it is live, and it is printed above as the second VLAN the port carries.
   if (staged.length) line += ' · trunk staged: ' + staged.join(', ') + ' (not in use)';
   return line;
 }
@@ -444,17 +453,25 @@ function classifyEgress(portConfig, vlanId) {
   const vid = typeof vlanId === 'number' ? vlanId : parseInt(vlanId, 10);
   if (!isValidVlan(vid)) return { action: 'drop', vid: Number.isInteger(vid) ? vid : null };
 
+  const voice = cfg.voiceVlan !== null && cfg.voiceVlan !== undefined ? Number(cfg.voiceVlan) : null;
+
   if (cfg.mode === 'access') {
+    // An access port with a voice VLAN is a two-VLAN port: untagged data in the access VLAN and tagged voice in
+    // the voice VLAN. It is still not a trunk, so every other VLAN is dropped - the parameter adds one VLAN to
+    // an access port rather than letting it carry an arbitrary set.
+    if (voice !== null && vid === voice && vid !== cfg.accessVlan) {
+      return { action: 'tagged', vid: vid, voice: true };
+    }
     if (vid !== cfg.accessVlan) return { action: 'drop', vid: vid };
     return { action: 'untagged', vid: vid };
   }
 
   // trunk
-  // The voice VLAN is carried by the trunk whether or not it appears in the allowed list: that field is how the
-  // switch is told which VLAN voice traffic arrives on, and `validatePortConfig` already insists it be a trunk
-  // because voice traffic is tagged. It was stored, validated, printed - and read by nothing (#1368).
-  const voice = cfg.voiceVlan !== null && cfg.voiceVlan !== undefined ? Number(cfg.voiceVlan) : null;
-  if (!vlanListIncludes(cfg.allowedVlans, vid) && !(voice !== null && vid === voice)) {
+  // The allowed list is the whole answer. A voice VLAN on a trunk is stored and never consulted: the vendor note
+  // is that a trunk can carry any number of voice VLANs similar to regular VLANs, while the configuration of
+  // voice VLANs is not supported on trunk ports - so the parameter neither adds a VLAN to the trunk nor exempts
+  // one from the allowed list (research/voice-vlan-port-mode.md).
+  if (!vlanListIncludes(cfg.allowedVlans, vid)) {
     return { action: 'drop', vid: vid };
   }
   if (vid === cfg.nativeVlan) return { action: 'untagged', vid: vid };
@@ -474,7 +491,14 @@ function classifyIngress(portConfig, frame) {
 
   if (cfg.mode === 'access') {
     if (frame.tagged) {
-      // Strict 802.1Q: an access port has no tag awareness at all.
+      // The one tag an access port understands is its voice VLAN: a phone tags its own traffic and the switch
+      // puts that traffic in the voice VLAN. Every other tagged frame is still refused - that is what keeps the
+      // port an access port and not a trunk.
+      const voiceIn = cfg.voiceVlan === null || cfg.voiceVlan === undefined ? null : Number(cfg.voiceVlan);
+      const vid = typeof frame.vid === 'number' ? frame.vid : parseInt(frame.vid, 10);
+      if (voiceIn !== null && Number.isInteger(vid) && vid === voiceIn && vid !== cfg.accessVlan) {
+        return { action: 'accept', vlanId: vid, voice: true };
+      }
       return { action: 'drop', vlanId: null, reason: 'tagged-frame-on-access' };
     }
     return { action: 'accept', vlanId: cfg.accessVlan };
@@ -491,10 +515,12 @@ function classifyIngress(portConfig, frame) {
   if (!isValidVlan(vid)) {
     return { action: 'drop', vlanId: null, reason: 'invalid-vid' };
   }
-  const voiceIn = cfg.voiceVlan !== null && cfg.voiceVlan !== undefined ? Number(cfg.voiceVlan) : null;
-  if (!vlanListIncludes(cfg.allowedVlans, vid) && !(voiceIn !== null && vid === voiceIn)) {
+  // No voice exemption here either: a trunk is told what to carry by its allowed list, and a voice VLAN in the
+  // configuration without a matching entry in that list is not carried - the parameter has no effect on a trunk.
+  if (!vlanListIncludes(cfg.allowedVlans, vid)) {
     return { action: 'drop', vlanId: null, reason: 'vlan-not-allowed' };
   }
+  const voiceIn = cfg.voiceVlan !== null && cfg.voiceVlan !== undefined ? Number(cfg.voiceVlan) : null;
   const accepted = { action: 'accept', vlanId: vid };
   if (voiceIn !== null && vid === voiceIn) accepted.voice = true;
   return accepted;
@@ -628,9 +654,14 @@ function validatePortConfig(cfg, ctx) {
   }
 
   // ---- voice VLAN ----
-  if (norm.voiceVlan !== null && norm.mode === 'access') {
+  // A voice VLAN is an access-port feature: the phone tags its own frames and the PC behind it stays untagged in
+  // the access VLAN. On a trunk the parameter is accepted and stored - the vendor note says the configuration is
+  // allowed there - but it has no effect, because a trunk carries any number of VLANs as ordinary VLANs. This
+  // check said the opposite in both directions: it refused the feature on an access port, the one place it
+  // works, and said nothing on a trunk, the one place it does not.
+  if (norm.voiceVlan !== null && norm.mode === 'trunk') {
     warn('E_VOICE_VLAN_UNSUPPORTED',
-      'voiceVlan ' + norm.voiceVlan + ' needs a trunk (voice traffic is tagged)');
+      'voiceVlan ' + norm.voiceVlan + ' has no effect on a trunk port: a voice VLAN applies to access ports');
   }
 
   return { ok: errors.length === 0, errors: errors, warnings: warnings };
@@ -647,7 +678,11 @@ function framesCompatible(cfgA, cfgB) {
   const b = normalizePortConfig(cfgB);
   if (a.mode !== b.mode) return false;
 
-  if (a.mode === 'access') return a.accessVlan === b.accessVlan;
+  if (a.mode === 'access') {
+    // Two access ports in the same data VLAN still file a phone tagged frame differently when their voice VLANs
+    // differ, so a LAG needs the voice VLAN to match as well.
+    return a.accessVlan === b.accessVlan && a.voiceVlan === b.voiceVlan;
+  }
 
   if (a.nativeVlan !== b.nativeVlan) return false;
   if (a.allowedVlans === 'all' || b.allowedVlans === 'all') {
@@ -683,7 +718,11 @@ function mismatchReason(cfgA, cfgB) {
     const label = function (mode) { return mode === 'access' ? 'an access port' : 'a trunk port'; };
     return 'one end is ' + label(a.mode) + ' and the other is ' + label(b.mode);
   }
-  if (a.mode === 'access') return pair(a.accessVlan, b.accessVlan, 'access VLAN');
+  if (a.mode === 'access') {
+    if (a.accessVlan !== b.accessVlan) return pair(a.accessVlan, b.accessVlan, 'access VLAN');
+    const voiceName = function (v) { return v === null || v === undefined ? 'none' : String(v); };
+    return 'different voice VLANs (' + voiceName(a.voiceVlan) + ' against ' + voiceName(b.voiceVlan) + ')';
+  }
   if (a.nativeVlan !== b.nativeVlan) return pair(a.nativeVlan, b.nativeVlan, 'native VLAN') + ' on a trunk';
   const lists = [describeAllowed(a.allowedVlans), describeAllowed(b.allowedVlans)].sort();
   return 'different allowed VLAN lists (' + lists[0] + ' against ' + lists[1] + ')';

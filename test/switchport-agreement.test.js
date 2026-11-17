@@ -136,14 +136,15 @@ console.log('The sentence agrees with the data plane about every VLAN it mention
     if (/^trunk /.test(sentence)) {
       // A trunk's sentence is a claim about the allowed list, so the allowed list has to match the data plane
       // exactly - including `none`.
-      // The voice clause is a claim too: the port carries that VLAN whatever the allowed list says, and if the
-      // sentence names it the classifier had better agree in both directions.
+      // The voice clause on a trunk is a claim of the opposite kind: the parameter is stored and not consulted,
+      // so it must neither add a VLAN to the trunk nor exempt one from the allowed list, and the sentence has to
+      // say so rather than leave the reader believing the trunk carries it (research/voice-vlan-port-mode.md).
       const voiceMatch = /· voice (\d+)/.exec(sentence);
       const voiceVid = voiceMatch ? Number(voiceMatch[1]) : null;
-      if (voiceVid !== null && !carried(cfg, voiceVid)) {
-        bad.push('names voice ' + voiceVid + ' but drops it: ' + JSON.stringify(cfg));
+      if (voiceVid !== null && sentence.indexOf('no effect on a trunk') === -1) {
+        bad.push('names voice ' + voiceVid + ' without saying it is inert: ' + JSON.stringify(cfg));
       }
-      const voiceCarried = voiceVid !== null && carried(cfg, voiceVid);
+      const voiceCarried = false;
       if (/allowed all/.test(sentence)) {
         for (const vid of probes) if (!carried(cfg, vid)) bad.push('all but drops ' + vid + ': ' + JSON.stringify(cfg));
       } else if (/allowed none/.test(sentence)) {
@@ -161,23 +162,46 @@ console.log('The sentence agrees with the data plane about every VLAN it mention
           }
         }
       }
-      // And a voice VLAN outside the allowed list must actually be the one the clause names - a clause that
-      // named the wrong VLAN would pass the check above.
+      // And the voice VLAN a trunk stores is carried exactly when the allowed list names it - not because the
+      // clause named it. Untagged is right when it is also the native VLAN; the frame still leaves the port.
       if (voiceVid !== null) {
         const outro = vlanLib.classifyEgress(cfg, voiceVid);
-        // Untagged is right when the voice VLAN is also the native VLAN - the frame still leaves the port.
-        if (outro.action === 'drop') bad.push('voice ' + voiceVid + ' is dropped: ' + JSON.stringify(cfg));
+        let allowed = /allowed all/.test(sentence);
+        if (!allowed) {
+          const list = /allowed ([\d,]+)/.exec(sentence);
+          allowed = !!list && list[1].split(',').map(Number).indexOf(voiceVid) !== -1;
+        }
+        if (allowed && outro.action === 'drop') {
+          bad.push('voice ' + voiceVid + ' is allowed but dropped: ' + JSON.stringify(cfg));
+        }
+        if (!allowed && outro.action !== 'drop') {
+          bad.push('voice ' + voiceVid + ' is carried outside the allowed list: ' + JSON.stringify(cfg));
+        }
       }
     } else {
       // An access port's sentence is a claim about one VLAN - and, in its staged clause, an explicit claim that
       // the rest are NOT in use. So the access VLAN must be carried, and every staged VLAN must not be.
       const access = Number(/^access VLAN (\d+)/.exec(sentence)[1]);
       if (!carried(cfg, access)) bad.push('access says ' + access + ' but drops it: ' + JSON.stringify(cfg));
+      // A voice clause on an access port is a live claim: the VLAN leaves the port tagged and a tagged frame in
+      // it is accepted, because that is the whole of the feature (a phone tags, the PC does not).
+      const voiceAccess = /· voice (\d+) \(tagged\)/.exec(sentence);
+      const liveVoice = voiceAccess ? Number(voiceAccess[1]) : null;
+      if (liveVoice !== null) {
+        const egress = vlanLib.classifyEgress(cfg, liveVoice);
+        if (egress.action !== 'tagged') {
+          bad.push('says voice ' + liveVoice + ' is tagged but it is ' + egress.action + ': ' + JSON.stringify(cfg));
+        }
+        const ingress = vlanLib.classifyIngress(cfg, { tagged: true, vid: liveVoice });
+        if (ingress.action !== 'accept' || ingress.vlanId !== liveVoice) {
+          bad.push('says voice ' + liveVoice + ' is live but a tagged frame in it is refused: ' + JSON.stringify(cfg));
+        }
+      }
       const staged = /trunk staged: ([^(]+)/.exec(sentence);
       if (staged) {
         const nums = (staged[1].match(/\d+/g) || []).map(Number);
         for (const vid of nums) {
-          if (vid !== access && carried(cfg, vid)) {
+          if (vid !== access && vid !== liveVoice && carried(cfg, vid)) {
             bad.push('calls ' + vid + ' staged but carries it: ' + JSON.stringify(cfg));
           }
         }
