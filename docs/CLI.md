@@ -2327,8 +2327,8 @@ interface Gi0/0
 ```
 
 **`no` reads the vrid and nothing after it.** The interface-mode handler matches `no vrrp <vrid>`
-before it looks at the rest of the line (`engine/cli.js:1609`), so any `no` that names a group
-removes that group, whatever follows the vrid:
+before it looks at the rest of the line — `_ifaceMode()`, `engine/cli.js:1651` — so any `no` that
+names a group removes that group, whatever follows the vrid:
 
 ```
 R1(config-if)#no vrrp 10 preempt
