@@ -112,7 +112,7 @@ try {
   const fs = require('fs');
   const file = path.join(__dirname, '..', 'research', 'open-device-requests.json');
   const real = blockedRequestNumbers(JSON.parse(fs.readFileSync(file, 'utf8')));
-  ok(real.has(742) && real.has(743), 'the live mirror still lists #742 and #743', JSON.stringify(Array.from(real)));
+  ok(real.has(742), 'the live mirror still lists the E8000 request', JSON.stringify(Array.from(real)));
 } catch (e) {
   ok(false, 'research/open-device-requests.json parses', e.message);
 }
@@ -138,6 +138,52 @@ try {
     'a silent finding names the spec, not null', JSON.stringify(found));
 } catch (e) {
   ok(false, 'the catalogue files load', e.message);
+}
+
+console.log('');
+console.log('The open-request ledger must not name hardware the catalogue already holds:');
+// #743 was closed on 2026-11-17 by the merge of #1902, which landed `devices/huawei/oceanprotect-x8100.json`
+// and `-x9100.json` - the management plane, with the front-end census still unmodelled and named in each
+// spec's own notes. The row stayed in `research/open-device-requests.json` anyway, so docs/DEVICE_REGISTRY.md
+// counted a closed issue among "hardware requests are open" and `scripts/check-closed-issues.js` printed a
+// contradiction for it on every merge. Nothing mechanical compared the two files: the mirror is keyed on the
+// issue number, the catalogue on the model, and the only join was a human reading both. This is that join.
+//
+// A mirror entry's model list is prose with a slash in it ("OceanProtect X8100 / X9100") and the catalogue
+// keys on `model` plus `aliases`, so the comparison splits the prose and checks both fields, case- and
+// punctuation-insensitively. A row for hardware already in `devices/` is not an open request: the remaining
+// gap belongs in the spec's notes or in a new request, not in a table of what is waiting on a vendor.
+try {
+  const fs = require('fs');
+  const { norm: normName } = require(path.join(__dirname, '..', 'scripts', 'sweep-device-requests.js'));
+  const { loadCatalog } = require(path.join(__dirname, '..', 'devices', 'registry'));
+  const specs = loadCatalog(path.join(__dirname, '..', 'devices'));
+  const byName = new Map();
+  for (const spec of specs) {
+    if (!spec) continue;
+    if (spec.model) byName.set(normName(spec.model), spec.model);
+    for (const alias of spec.aliases || []) byName.set(normName(alias), spec.model);
+  }
+  const ledger = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'research', 'open-device-requests.json'), 'utf8'));
+  const requests = Array.isArray(ledger.requests) ? ledger.requests : [];
+  const stale = [];
+  for (const request of requests) {
+    const tokens = String(request.models || '')
+      .split(/[\/&,]| and /i)
+      .map(function (t) { return t.trim(); })
+      .filter(Boolean);
+    for (const token of tokens) {
+      const hit = byName.get(normName(token));
+      if (hit) stale.push('#' + request.issue + ' -> ' + hit);
+    }
+  }
+  ok(stale.length === 0, 'no open-request row names a model the catalogue holds', stale.join(', '));
+  ok(!requests.some(function (r) { return Number(r.issue) === 743; }),
+    '#743 is out of the ledger - #1902 answered it with the X8100/X9100 specs');
+  ok(requests.some(function (r) { return Number(r.issue) === 742; }),
+    'the E8000 request is still in the ledger, which is what proves the check can see a live row');
+} catch (e) {
+  ok(false, 'the ledger and the catalogue can be compared', e.message);
 }
 
 console.log('\n' + passed + ' passed, ' + failed + ' failed');
