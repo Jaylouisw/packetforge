@@ -15,6 +15,31 @@
       ]
     },
     {
+      "issue": 742,
+      "models": "Huawei OceanProtect E8000",
+      "missing": "front-end port count per node - the interface-module slots per controller and the ports on each module type. The V200R001C20 data sheet (4-slide pptx, 2,407,538 B, re-read 2026-11-17: `slot` 0, `interface module` 0, `port` 1 occurrence) and the product page both stop at port *types* - `16/32/64 Gb FC, 10/25/40/100 GbE` - because the count is a function of the controllers and interface modules ordered.",
+      "unblock": "one rendered section of the E8000 V200R001 set - Product Description `EDOC1100486186`, Quick Installation Guide `EDOC1100485347` or Installation Guide `EDOC1100486185` - pasted by a reader with a support session; or a stated configuration such as \"E8000 node, 2 controllers, 2 x 4-port 25GE IOM per controller\". Both cheaper routes are now measured dead ends: the document tree's catalogue endpoint (`/supportgateway/view/v1/enterprise/doc/catalogue?nid=EDOC1100486186`) answers 401 `support-view-020003` \"need login.\", and Spare Parts Query issues a CSRF token anonymously but answers 401 with an empty body on `/storageinfogw/storage-gw/rest/itcms/getDataList?appId=spare`. The same field is missing for #743, whose Specifications Query sits behind the same gateway.",
+      "checked": "2026-11-17",
+      "sources": [
+        "https://e.huawei.com/en/products/storage/oceanprotect/oceanprotect-e8000",
+        "https://e.huawei.com/en/documents/products/storage/597eb7d1363f4b5da0d4ad663da1f7b6",
+        "https://support.huawei.com/supportgateway/view/v1/enterprise/doc/catalogue?nid=EDOC1100486186",
+        "https://info.support.huawei.com/storage/spareparts/",
+        "https://info.support.huawei.com/storageinfogw/csrf-gw/rest/csrf/getCsrfToken"
+      ]
+    },
+    {
+      "issue": 743,
+      "models": "Huawei OceanProtect X8100 / X9100",
+      "missing": "per-model interface-module configuration: which slots take front-end modules and how many ports each module type has. The slot half is vendor-sourced (white paper: twelve hot-swappable IOMs per enclosure, six slots per controller); the port half is not. The books that carry it (`EDOC1100368229` / `EDOC1100368230` Product Description, `EDOC1100305240` / `EDOC1100305243` Hardware Installation Guide) are only served section-by-section and their section slugs are not indexed.",
+      "unblock": "one section URL from either Product Description, or a stated configuration (e.g. \"X8100 with a 4-port 10GE electrical module in IOM 0 and IOM 1\"). X8100 and X9100 are different enclosures and get separate specs.",
+      "checked": "2026-11-17",
+      "sources": [
+        "https://e.huawei.com/en/products/storage/oceanprotect/x100-series",
+        "https://support.huawei.com/enterprise/en/data-protection/oceanprotect-x8100-pid-268353477"
+      ]
+    },
+    {
       "issue": 803,
       "models": "Huawei OptiXtrans E6616X",
       "missing": "the service-board part number valid in an E6616X subrack, and that board's front-panel census. Correction (2026-11-17): the E6600 board documentation is not confined to the closed hedex tree - it is published one chapter per PDF on `e-file.huawei.com`, anonymous, and two board chapters were fetched and read today: `(6)-UXCME` (TMK5UXCME system control, 590,457 B) and `(21)-TMB3AUX` (auxiliary board, 482,177 B). Neither is a client board, and neither carries a `Valid Slots` table (zero occurrences), unlike the E9600 board chapters - so even a client-board chapter may not state which subrack accepts it. The 27-part numbered bundle those chapters belong to is now enumerated exhaustively and holds no client board. The E6616 chassis chapter (20 pp, `(2)-OptiXtrans E6616-Datasheet`) remains slot layout plus per-system-board capacity, with no port table.",
