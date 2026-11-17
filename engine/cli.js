@@ -268,6 +268,93 @@ function vlanRule() {
   }).join('');
 }
 
+// `show vlan` is TWO tables, and only the first one is `show vlan brief`.
+//
+//   VLAN Type  SAID       MTU   Parent RingNo BridgeNo Stp  BrdgMode Trans1 Trans2
+//   ---- ----- ---------- ----- ------ ------ -------- ---- -------- ------ ------
+//   1    enet  100001     1500  -      -      -        -    -        0      0
+//   1005 trnet 101005     1500  -      -      -        ibm  -        0      0
+//
+// This console sent both words to the same printer, so `show vlan` answered with the brief view and a reader
+// asking which media type a VLAN is, or what its SAID is, got no column that holds the answer. The vendor's
+// command reference describes `brief` as "only a single line for each VLAN, naming the VLAN, status, and
+// ports" - i.e. brief is the subset, and the full view appends the media table (research/show-vlan-media-table.md).
+//
+// The widths are the device's: every row is 73 characters with the trailing padding trimmed, the header and
+// rule are 78, and each rule run is one dash shorter than its field - the same rule the name table follows.
+const VLAN_MEDIA_COLUMNS = [
+  { head: 'VLAN', width: 5, dashes: 4 },
+  { head: 'Type', width: 6, dashes: 5 },
+  { head: 'SAID', width: 11, dashes: 10 },
+  { head: 'MTU', width: 6, dashes: 5 },
+  { head: 'Parent', width: 7, dashes: 6 },
+  { head: 'RingNo', width: 7, dashes: 6 },
+  { head: 'BridgeNo', width: 9, dashes: 8 },
+  { head: 'Stp', width: 5, dashes: 4 },
+  { head: 'BrdgMode', width: 9, dashes: 8 },
+  { head: 'Trans1', width: 7, dashes: 6 },
+  { head: 'Trans2', width: 0, dashes: 6 }
+];
+
+// The four reserved VLANs are the only rows whose media is not Ethernet, and the device gives each one a
+// type, a bridge number and a spanning-tree flavour from the medium it came from: FDDI, Token Ring (tr), the
+// FDDI-to-Ethernet translation bridge (fdnet, IEEE STP) and the Token Ring bridge relay function (trnet, IBM
+// STP). `Stp` reads `-` for enet rows even though the box's own default stp-type for an Ethernet VLAN is
+// `ieee` - the table prints the field as configured for the media, and the vendor's samples show `-`
+// (research/show-vlan-media-table.md).
+const VLAN_MEDIA_FIXED = {
+  1002: { type: 'fddi', stp: '-', brdgMode: '-' },
+  1003: { type: 'tr', stp: '-', brdgMode: '-' },
+  1004: { type: 'fdnet', stp: 'ieee', brdgMode: '-' },
+  1005: { type: 'trnet', stp: 'ibm', brdgMode: '-' }
+};
+// Ethernet MTU. A translational-bridge VLAN can carry another medium's MTU (the 6500 sample shows 4472 for
+// its token-ring rows); nothing in this model bridges media, so every row it prints is an Ethernet row.
+const VLAN_MEDIA_MTU = 1500;
+// A VLAN's SAID is 100000 plus its id for Ethernet, and the four reserved rows keep their own (101002-101005).
+const VLAN_SAID_BASE = 100000;
+
+function vlanMediaCells(id) {
+  const fixed = VLAN_MEDIA_FIXED[id];
+  return [
+    String(id),
+    fixed ? fixed.type : 'enet',
+    String(VLAN_SAID_BASE + id),
+    String(VLAN_MEDIA_MTU),
+    '-', '-', '-',
+    fixed ? fixed.stp : '-',
+    fixed ? fixed.brdgMode : '-',
+    '0', '0'
+  ];
+}
+
+function vlanMediaLine(cells) {
+  return cells.map(function (c, i) {
+    const col = VLAN_MEDIA_COLUMNS[i];
+    const w = col ? col.width : 0;
+    const text = String(c === null || c === undefined ? '' : c);
+    if (!w) return text;
+    return text.length >= w ? text + ' ' : pad(text, w);
+  }).join('');
+}
+
+function vlanMediaRule() {
+  return VLAN_MEDIA_COLUMNS.map(function (c) {
+    const dashes = '-'.repeat(c.dashes);
+    return c.width ? pad(dashes, c.width) : dashes;
+  }).join('');
+}
+
+// The two sections the full view ends with. Both are printed whether or not they have contents - the box
+// prints the heading and the rule and leaves the space under them empty - and neither has a model here: this
+// console cannot configure an RSPAN VLAN or a private VLAN, so both sections are always empty. The RSPAN rule
+// is 78 dashes on the platforms whose samples this console follows (2960-XR, 2960-L, 9200, Catalyst 1000);
+// the older Supervisor-engine sample draws it 17 long, the length of the words above it.
+const VLAN_RSPAN_HEADING = 'Remote SPAN VLANs';
+const VLAN_SECTION_RULE = '-'.repeat(78);
+const VLAN_PVLAN_HEADER = 'Primary Secondary Type              Ports';
+const VLAN_PVLAN_RULE = '------- --------- ----------------- ------------------------------------------';
+
 // The Method column answers one question - how did this port come by the address it holds - so a port with no
 // address has no method at all. IOS prints `unset` there, beside `unassigned` in the IP-Address column; this
 // console printed `manual` beside `unassigned`, which claims somebody configured an address that is not there.
@@ -4692,6 +4779,21 @@ class CliSession {
         const name = (named[id] && named[id].name)
           || (id === 1 ? 'default' : 'VLAN' + String(id).padStart(4, '0'));
         out.push.apply(out, vlanRows([id, name, 'active', members]));
+      }
+      // `brief` is the subset: the vendor's syntax description says it prints "only a single line for each
+      // VLAN", so the media table and the two trailing sections belong to the full view alone. A console that
+      // printed them for both words would make the two commands differ in name only.
+      if (!(tokens.length > 1 && String(tokens[1]).toLowerCase() === 'brief')) {
+        out.push('');
+        out.push(vlanMediaLine(VLAN_MEDIA_COLUMNS.map(function (c) { return c.head; })));
+        out.push(vlanMediaRule());
+        for (const id of ids) out.push(vlanMediaLine(vlanMediaCells(id)));
+        out.push('');
+        out.push(VLAN_RSPAN_HEADING);
+        out.push(VLAN_SECTION_RULE);
+        out.push('');
+        out.push(VLAN_PVLAN_HEADER);
+        out.push(VLAN_PVLAN_RULE);
       }
     } else if (what === 'spanning-tree') {
       if (tokens.length > 1) {

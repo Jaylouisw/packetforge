@@ -46,10 +46,16 @@ function rows(env, cmd) {
   // Row 0 is the header and row 1 is the rule line the device draws under it (`---- ---- ----- -----`),
   // so the rows start at 2. The rule is skipped by its shape rather than by its index, so a table whose
   // header grew a line cannot silently parse the rule as a VLAN.
-  const body = lines.slice(1).filter(function (l) { return l.trim() && !/^-{4}/.test(l); });
+  // The first table ends at the blank line the device leaves before whatever follows it: the media table on
+  // `show vlan`, and nothing at all on `show vlan brief`, which stops after these rows
+  // (research/show-vlan-media-table.md). Without the cut the media table's own id column parses as VLAN rows.
+  const end = lines.findIndex(function (l, i) { return i > 0 && l.trim() === ''; });
+  const first = end === -1 ? lines : lines.slice(0, end);
+  const body = first.slice(1).filter(function (l) { return l.trim() && !/^-{4}/.test(l); });
   return {
     header: lines[0] || '',
     lines: lines,
+    table: first,
     body: body,
     // Read by the column positions the device prints in (`VLAN` 4 wide, `Name` 32, `Status` 9, Ports from
     // column 48), not by whitespace runs: a four-character id leaves a single space before the name, and a
@@ -206,13 +212,20 @@ console.log('The table follows the port when it moves:');
 }
 
 console.log('');
-console.log('`show vlan brief` is the same answer, and an empty VLAN says nothing rather than everything:');
+console.log('`show vlan brief` is the first table of the full answer, and an empty VLAN says nothing rather than everything:');
 {
   const env = lab();
   const brief = rows(env, 'show vlan brief');
   const full = rows(env, 'show vlan');
+  // `brief` is the subset, not a synonym: the vendor's syntax description calls it "only a single line for
+  // each VLAN, naming the VLAN, status, and ports", and the full view appends the media table
+  // (research/show-vlan-media-table.md). The rows must therefore agree while the outputs do not.
+  ok(JSON.stringify(full.table) === JSON.stringify(brief.lines),
+    'brief is exactly the first table of the full view, line for line', full.table.length + ' vs ' + brief.lines.length);
+  ok(full.lines.length > brief.lines.length,
+    'and the full form goes on past it', full.lines.length + ' vs ' + brief.lines.length);
   ok(JSON.stringify(brief.fields) === JSON.stringify(full.fields),
-    'brief and the full form agree row for row');
+    'so the VLAN rows themselves still agree row for row');
   runCommands(env.sw, env.t, env.sim, ['configure terminal', 'vlan 99 ninetynine', 'end']);
   const with99 = rows(env).fields.filter(function (f) { return f.vlan === '99'; })[0];
   // Nothing is *configured* into VLAN 99, so no port is a member of it - not even the trunk that

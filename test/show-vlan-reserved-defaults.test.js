@@ -45,8 +45,11 @@ function say(dev, t, sim, cmds) {
 function table(lines) {
   const start = lines.findIndex(function (l) { return /^VLAN\s+Name\s+Status\s+Ports/.test(l); });
   if (start === -1) return null;
-  // The header is followed by the device's rule line, which is not a row.
-  const body = lines.slice(start + 1).filter(function (l) { return l.trim() && !/^-{4}/.test(l); });
+  // The header is followed by the device's rule line, which is not a row, and the table ends at the blank line
+  // the device leaves before the media table `show vlan` prints next (research/show-vlan-media-table.md).
+  const end = lines.findIndex(function (l, i) { return i > start + 1 && l.trim() === ''; });
+  const first = end === -1 ? lines : lines.slice(0, end);
+  const body = first.slice(start + 1).filter(function (l) { return l.trim() && !/^-{4}/.test(l); });
   // A wrapped Ports list continues on the next line indented to column 48 with no comma at the break
   // (research/show-vlan-columns.md); a row is one or more printed lines, rejoined here with ", ".
   const folded = [];
@@ -130,7 +133,7 @@ console.log('They sort into place rather than being glued to the end:');
 }
 
 console.log('');
-console.log('`show vlan brief` is the same table, and a router is not given a VLAN database it does not have:');
+console.log('`show vlan brief` prints that table and stops, and a router is not given a VLAN database it does not have:');
 {
   const t = new Topology();
   const sw = t.addDevice(SWITCH, 'sw');
@@ -139,7 +142,8 @@ console.log('`show vlan brief` is the same table, and a router is not given a VL
   const sim = new Simulator(t);
   const full = table(say(sw, t, sim, ['show vlan']));
   const brief = table(say(sw, t, sim, ['show vlan brief']));
-  ok(JSON.stringify(full) === JSON.stringify(brief), 'brief and the full form agree row for row');
+  ok(JSON.stringify(full) === JSON.stringify(brief),
+    'brief and the full form agree row for row - the media table and the trailing sections sit below the blank line that ends this table');
   ok(brief.filter(function (r) { return r.status === 'act/unsup'; }).length === 4,
     'and brief carries the four act/unsup rows too');
   if (ROUTER) {

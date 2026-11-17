@@ -26,7 +26,7 @@ Modes and their prompts:
 | `show ip route` | routing table: connected, static, OSPF, BGP, and the default - or `Gateway of last resort is not set` when there is none; a box that does not route prints `Default gateway is ...` over the host/redirect cache instead |
 | `show arp` | ARP cache, with an age per neighbour, the port it was learned on, and whether that port can still carry a frame |
 | `show mac address-table` | MAC table (switches), per VLAN, with an age per entry and stale entries marked, titled and ruled as the device prints it and closed by `Total Mac Addresses for this criterion: N` |
-| `show vlan` / `show vlan brief` | VLAN table: one row per VLAN in the VLAN database, with the **access** ports in it - a trunk port carries the VLAN and appears in no row - and the four reserved defaults (1002-1005) a switch has from boot |
+| `show vlan` / `show vlan brief` | VLAN table: one row per VLAN in the VLAN database, with the **access** ports in it - a trunk port carries the VLAN and appears in no row - and the four reserved defaults (1002-1005) a switch has from boot. `show vlan` is the full view: it then prints the media table (`Type`, `SAID`, `MTU`, `Stp`, `Trans1/2`), the empty `Remote SPAN VLANs` section and the empty private-VLAN table; `brief` stops after the first table |
 | `show spanning-tree` | per-port STP role and state, the bridge priority and the elected root, or "not measured" when nothing has run |
 | `show etherchannel summary` | the device's own summary: the nine-line flag key, both counts, `Po<N>(SU)` per group, LAG members `(P)` bundled, `(s)` suspended or `(D)` unbundled, with the reason |
 | `show lldp` | LLDP neighbours, with the local port marked when it can no longer carry |
@@ -716,7 +716,63 @@ refusal quotes. A device that is not a bridge is not given the reserved rows, be
 (`test/show-vlan-reserved-defaults.test.js`, 30 checks) — though a router still answers `show vlan` with VLAN 1,
 which a real router refuses outright; that is a separate fault, recorded and not fixed here.
 
-`show vlan brief` prints the same table; there is no short form that disagrees with the long one.
+### `show vlan` is two tables, and `brief` is only the first
+
+The vendor's syntax description for `show vlan brief` says it prints "only a single line for each VLAN, naming
+the VLAN, status, and ports" — the first table, and nothing else. The full view goes on:
+
+```
+VLAN Type  SAID       MTU   Parent RingNo BridgeNo Stp  BrdgMode Trans1 Trans2
+---- ----- ---------- ----- ------ ------ -------- ---- -------- ------ ------
+1    enet  100001     1500  -      -      -        -    -        0      0
+20   enet  100020     1500  -      -      -        -    -        0      0
+1002 fddi  101002     1500  -      -      -        -    -        0      0
+1003 tr    101003     1500  -      -      -        -    -        0      0
+1004 fdnet 101004     1500  -      -      -        ieee -        0      0
+1005 trnet 101005     1500  -      -      -        ibm  -        0      0
+
+Remote SPAN VLANs
+------------------------------------------------------------------------------
+
+Primary Secondary Type              Ports
+------- --------- ----------------- ------------------------------------------
+```
+
+The header and its rule are 78 columns; every row is 73, because the box trims the padding after the last
+value. Each column's rule run is one dash shorter than its field — the same rule the name table follows — and
+the widths are declared once (`VLAN_MEDIA_COLUMNS` in `engine/cli.js`), so the header, the rule and the rows
+cannot drift apart (`test/show-vlan-media-table.test.js`, 56 checks).
+
+What the columns say, and how sure it is:
+
+* **`Type` is `enet` for every VLAN you can configure, and the media for the four reserved ones** — `fddi`,
+  `tr`, `fdnet`, `trnet` — with `fdnet` under IEEE spanning tree and `trnet` under IBM's. Documented: the
+  2960-XR `show vlan` sample prints exactly those five words
+  (<https://www.cisco.com/c/en/us/td/docs/switches/lan/catalyst2960xr/software/15-2_5_e/command_reference/b_1525e_consolidated_2960xr_cr/m_vlan_cr.html>),
+  a live 3850 prints the same
+  (<https://community.cisco.com/t5/switching/show-vlan-command-does-not-show-all-vlans/m-p/3918577>), and the
+  `vlan` command's own defaults section states the media, the SAID, the MTU and the stp-type
+  (<https://www.cisco.com/c/en/us/td/docs/switches/lan/catalyst9200/software/release/16-10/command_reference/b_1610_9200_cr/b_1610_9200_cr_chapter_010010.pdf>).
+* **`SAID` is 100000 + the VLAN id** for an Ethernet VLAN, and `101002`-`101005` for the reserved rows — the
+  same page: "The default said-value is 100000 plus the VLAN ID".
+* **`Stp` reads `-` on an Ethernet row even though that default is `ieee`.** That is what every published
+  sample prints; the field shows the media's spanning-tree flavour, not the value the box would accept.
+* **`Parent`, `RingNo`, `BridgeNo`, `BrdgMode`, `Trans1`/`Trans2` are `-`/`-`/`-`/`-`/`0`/`0` here** because
+  nothing in this model bridges between media: there is no source-route bridging and no translational bridge
+  to name. A 6500 sample prints a non-zero `Trans1` for a VLAN that has one; this console cannot configure
+  one, so it never invents the number.
+* **The MTU is 1500 on every row.** The 6500 sample gives its Token Ring rows 4472, and the 2960-XR/9200/L
+  samples give all four reserved rows 1500; the difference is the platform's media, and every VLAN this
+  console can create is an Ethernet one.
+* **The two trailing sections are printed whether or not they have contents**, as the box prints them, and
+  both are always empty here: this console cannot configure an RSPAN VLAN or a private VLAN. Adopting the
+  headings without the model behind them is the same bet the MAC table makes with its closing count — the
+  device's furniture belongs in the answer.
+* **The RSPAN rule is 78 dashes**, as the 2960-XR/2960-L/9200/Catalyst 1000 pages and the 3850 transcript
+  print it. The older Supervisor-engine sample draws it 17 long, the width of the words above it; that
+  platform is not the one this console follows.
+* **`show vlan brief` prints the first table and stops.** The two words used to print the same thing, which
+  made `brief` a synonym rather than a narrower question.
 
 ### An address is an address
 
