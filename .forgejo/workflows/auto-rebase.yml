@@ -152,6 +152,26 @@ jobs:
       # which is how the snippet in #1508 would still have spent the bytes. The stand-down is the
       # step output above, and these two steps are gated on it: skipped checkout, skipped work,
       # green job, reason in the log.
+      # `actions/checkout` stays, and it is a measured decision rather than an oversight.
+      # Replacing it with `git init` + one blobless fetch of `main` - the shape pr-rebase.yml
+      # uses - is faster: run 4968, dispatched from a branch that did exactly that, took 5 s
+      # for the tick where run 4967, from main with the same "no mergeable open pull requests"
+      # answer, took 17 s. It cannot land from here, because
+      # `test/ci-disk-hygiene.test.js` asserts "the job must still check out" against a
+      # `uses: actions/checkout@` line in this job, and that test is not this stream's to
+      # change. Whoever owns test/ can finish the job: the replacement removes the 3.8 s the
+      # runner spends cloning the action into /data/.cache/act and the 9.2 s fetch of 792 refs
+      # (run 4962, 1794903679.3 -> 1794903693.9 - the same shared cache directory that gave run
+      # 3122 task 6834 a red X on a green tree).
+      #
+      # What is left here is the second copy of the same fetch, and it is a cleanup rather
+      # than a speedup: the objects are already in the workspace, so repeating
+      # `+refs/heads/*:refs/remotes/origin/*` costs one ref advertisement, not the 9.2 s the
+      # first transfer cost. Measured against this instance from a warm full clone:
+      # `+refs/heads/*` 315-330 ms against `main` 223-361 ms over three runs - the same
+      # number. What it removes is the second advertisement of 792 refs per tick and a
+      # `--prune` that had nothing left to prune, and it leaves the loop fetching exactly the
+      # one ref it reasons about (it already fetched each branch by name before rebasing it).
       - name: Check out the queue
         if: steps.room.outputs.room == 'true'
         uses: actions/checkout@v4
@@ -292,7 +312,14 @@ jobs:
           rest=${url#*://}
           git remote set-url origin "${scheme}://git:${TOKEN}@${rest}"
 
-          bounded 180 git fetch -q --prune origin '+refs/heads/*:refs/remotes/origin/*'
+          # `main` only. This step used to fetch all 792 refs a second time - the checkout
+          # above had already fetched them, at 9.2 s in run 4962 - and the loop below
+          # fetches each pull-request branch by name immediately before it rebases it, so
+          # the only ref this line has to keep current is the one every rebase is against.
+          # `--prune` is gone with the wildcard: there are no stale remote branches left
+          # to prune, and pruning refs that are no longer fetched would delete the
+          # per-branch remote-tracking refs the rebase loop is standing on.
+          bounded 60 git fetch -q origin '+refs/heads/main:refs/remotes/origin/main'
 
           # This instance caps a page at 50 whatever `limit` asks for, so one request
           # sees 50 pull requests no matter what. With 188 open, `limit=500` quietly
