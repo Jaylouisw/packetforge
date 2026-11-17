@@ -2028,7 +2028,7 @@ SW1#show mac address-table
 Vlan    Mac Address         Type        Age     Ports
 ----    -----------         --------    ---     -----
 1       0200.0000.0100      DYNAMIC     0s      Fa0/1
-1       0200.0000.0200      DYNAMIC     140s    Fa0/2 (administratively down)
+1       0200.0000.0200      DYNAMIC     140s    Fa0/2 (down: peer shut down)
 20      0200.0000.0900      DYNAMIC     -       Fa0/1 (vlan mismatch)
 Total Mac Addresses for this criterion: 3
 ```
@@ -2043,8 +2043,12 @@ Total Mac Addresses for this criterion: 3
   same aged lookup decides forwarding — an entry the table only remembers is not a port a frame may be sent to. `-`
   is an entry nothing dated (a fixture's, an imported lab's), which is never aged.
 * A port that can no longer carry a frame is named **with its reason**, the same sentence `show arp` uses.
-  The entry is not deleted by the port going down: a real switch holds it until the age runs out, so the mark is
-  what tells you the row is stale.
+  A port that goes down stops being the way to an address, and the entries go with it: `shutdown` and an
+  unplugged cable both drop what was learned on that port at the moment it stops carrying, as a real switch does
+  (research/mac-table-link-down-flush.md). Closing a port with a learned address on it says so —
+  `Fa0/2 administratively down (1 learned address on it dropped)` — and reopening it does not bring the entry
+  back; the host has to speak again. The mark still earns its place for a row a fixture or an imported lab
+  wrote, and for a port whose **far** end went away, which nothing here observes as an event.
 * **`interface <name>` filters to one port**, and the name is the rest of the line, as everywhere else:
 
   ```

@@ -740,11 +740,16 @@ addDevice(spec, id) {
       // Forget what LLDP learned on that port. The far end is gone, so a neighbour
       // entry left behind would be a lie the UI then shows as fact.
       if (a.lldp) a.lldp.delete(link.a.iface);
+      // And the addresses it learned there, for the same reason. Pulling the cable takes the port down, and a
+      // port that is down is not the way to anything: the switch removes its dynamic MAC entries at that
+      // moment rather than at the end of the ageing timer (research/mac-table-link-down-flush.md).
+      if (typeof a.flushMacsOnPort === 'function') a.flushMacsOnPort(link.a.iface);
     }
     if (b) {
       const i = b.interfaces.get(link.b.iface);
       if (i) i.peer = null;
       if (b.lldp) b.lldp.delete(link.b.iface);
+      if (typeof b.flushMacsOnPort === 'function') b.flushMacsOnPort(link.b.iface);
     }
     this.links.delete(linkId);
     return true;

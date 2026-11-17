@@ -1827,10 +1827,17 @@ class CliSession {
         ' (the word "' + tokens.slice(1).join(' ') + '" was not used)'];
     } else if (head === 'shutdown') {
       iface.enabled = false;
+      // A closed port cannot be the way to an address. A real switch removes the dynamic entries it learned on
+      // a port as soon as that port goes down, instead of leaving them until the ageing timer lapses
+      // (research/mac-table-link-down-flush.md); this one left them, so `show mac address-table` went on naming
+      // a socket nothing can be sent out of, and the row was only marked, never dropped. The count is printed
+      // because a flush that quietly removed addresses would be the same kind of silence as one that kept them.
+      const forgotten = this.device.flushMacsOnPort(iface.name);
       // A port coming up or going down makes STP, OSPF and VRRP do their timers again. The clock only moved for a
       // cable before this, so a board that had already converged said it still was (#1331).
       this._controlPlaneChanged();
-      out.push(iface.name + ' administratively down');
+      out.push(iface.name + ' administratively down' +
+        (forgotten ? ' (' + forgotten + ' learned address' + (forgotten === 1 ? '' : 'es') + ' on it dropped)' : ''));
     } else if (head === 'no' && tokens[1] === 'shutdown') {
       iface.enabled = true;
       this._controlPlaneChanged();

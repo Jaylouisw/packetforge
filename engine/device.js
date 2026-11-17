@@ -899,10 +899,16 @@ class Device {
 
   // Forget every MAC learned on one port, in every VLAN.
   //
-  // A port that changes VLAN membership cannot still be the way to a MAC it learned in the old VLAN, and a
-  // table that keeps saying so is a table that lies - `show mac address-table` went on listing a VLAN-1
-  // entry on a port that had been moved to VLAN 20, indefinitely, because nothing ages entries out here
-  // (#1255). Real switches flush a port's dynamic entries when its membership changes; this is that rule.
+  // Two things make a port stop being the way to an address, and both are the same rule: it left the set of
+  // ports that carry frames. One is a membership change - a port moved to VLAN 20 cannot still lead to a MAC
+  // it learned in VLAN 1, and `show mac address-table` went on listing it indefinitely (#1255). The other is
+  // the port going down at all, which the table used to treat as no event whatsoever: an entry learned on a
+  // shut port stayed until the 300 s ageing timer expired, and one written on a port after the cable was
+  // pulled stayed for ever. A real switch removes the dynamic entries the moment the port goes down rather
+  // than waiting out ageing (research/mac-table-link-down-flush.md) - 802.1D's filtering database is told to
+  // remove all entries for a Port that leaves the active topology (17.19.7), and Aruba states the observable
+  // in one line: a dynamically learned address is removed "if the entry ages out, the link goes down, or the
+  // system resets".
   flushMacsOnPort(portName) {
     if (!portName) return 0;
     const name = (function (self, x) {

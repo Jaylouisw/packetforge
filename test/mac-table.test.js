@@ -114,17 +114,47 @@ console.log('Moving a port to another VLAN drops what it learned there:');
 }
 
 console.log('');
-console.log('A membership change is the only thing that flushes:');
+console.log('A port that goes down is not the way to an address:');
 {
+  // This block used to assert the opposite - "shutting a port does NOT empty the table - real switches age
+  // entries out" - and print the surviving row with an `(administratively down)` note instead. The claim about
+  // real switches is not true. A switch removes the dynamic entries it learned on a port as soon as the port
+  // leaves the active topology, and Aruba states the observable in one line: a dynamically learned address is
+  // removed "if the entry ages out, the link goes down, or the system resets" (Instant On 1930 Management and
+  // Configuration Guide, "Port security"). 802.1D says the same to the filtering database: remove all entries
+  // for a Port that is no longer part of the active topology (17.19.7), and learning is conditional on the
+  // Port State (7.4). See research/mac-table-link-down-flush.md.
   const env = lab();
-  runCommands(env.sw, env.t, env.sim, ['configure terminal', 'interface Fa0/2', 'shutdown', 'end']);
+  const closed = runCommands(env.sw, env.t, env.sim,
+    ['configure terminal', 'interface Fa0/2', 'shutdown', 'end']).output;
+  ok(closed.indexOf('Fa0/2 administratively down (1 learned address on it dropped)') !== -1,
+    'the port is closed and the console says how many addresses went with it', closed);
   const out = table(env);
-  ok(out.body.length === 2, 'shutting a port does NOT empty the table - real switches age entries out',
+  ok(out.body.length === 1, 'and the address it had learned is gone from the table, not aged out later',
     String(out.body.length));
-  ok(/administratively down/.test(out.body.join(' ')), 'but the row says the port cannot carry a frame',
-    out.body.join(' | '));
-  ok(!/shut down/.test(out.body.join(' ')),
-    'and does not repeat the reason the status already gives', out.body.join(' | '));
+  ok(out.fields[0][PORT] === 'Fa0/1', 'while the other port keeps its entry', out.fields[0][PORT]);
+
+  // The entry does not come back when the port does. The switch has to hear from the host again, which is why
+  // a reconnected machine floods until it speaks - and why a table that resurrected the address would be
+  // forwarding out of a port on the strength of something nobody re-announced.
+  runCommands(env.sw, env.t, env.sim, ['configure terminal', 'interface Fa0/2', 'no shutdown', 'end']);
+  const reopened = table(env);
+  ok(reopened.body.length === 1, 'reopening the port does not resurrect the address',
+    String(reopened.body.length));
+
+  // The same rule, from the other event that takes a port down: the cable being unplugged. Both ends lose the
+  // entries they learned on that port, because both ports stopped carrying frames.
+  const pulled = lab();
+  const cable = [...pulled.t.links.values()].filter(function (l) { return l.touches(pulled.b.id); })[0];
+  ok(!!cable, 'the lab has a cable to pull', cable && cable.id);
+  pulled.t.disconnect(cable.id);
+  const after = table(pulled);
+  ok(after.body.length === 1, 'unplugging it drops the entry the switch learned on that port',
+    String(after.body.length));
+  ok(after.fields[0][PORT] === 'Fa0/1', 'and leaves the other port alone', after.fields[0][PORT]);
+  const onHost = new CliSession(pulled.b, pulled.t, pulled.sim).run('show mac address-table').output.join(' ');
+  ok(onHost.indexOf('0200.0000.0100') === -1, "and the host at the far end lost the switch's address too",
+    onHost);
 }
 
 console.log('');
