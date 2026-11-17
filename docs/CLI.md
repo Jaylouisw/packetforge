@@ -1996,11 +1996,18 @@ LLDP neighbours on Switch (L2)-sw:
   Neighbour                                  Local port  Port ID  Mgmt address
   ASR 1001-X aggregation services router-r1  Fa0/1       Gi0      10.0.0.1
   PC-pc                                      Fa0/2       eth0     -
+Total entries displayed: 2
 ```
 
 The table is filled from LLDPDUs that actually crossed a link, not from the topology file, so an empty table
 means nothing has announced itself. Column widths come from the data — a fixed 20-character Neighbour column
 ran a 55-character router name into the Local port column, which made the row unreadable field by field.
+
+The closing `Total entries displayed: N` is the vendor's sentence, and `N` is the rows the view printed, not
+the number of neighbours the box has ever heard. A Catalyst ends its own table with exactly that line, at the
+left margin under the last row; so do NX-OS and IOS XR. `show mac address-table` closes its table the same
+way. An empty table prints no count, because no vendor page in hand shows one and inventing a `0` would be a
+claim about a view nobody has seen (research/lldp-total-entries.md).
 
 A neighbour is **not** deleted the moment its link goes down: real switches hold the entry until the
 hold time it advertised runs out, and that is what happens here. The box notes the instant it heard each

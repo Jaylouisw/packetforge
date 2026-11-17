@@ -2,6 +2,19 @@
 
 ### Fixed
 
+- **`show lldp neighbors` ends with `Total entries displayed: N`, and the count is the rows it printed.** The
+  table was the whole answer and the view stopped at its last row, so a pasted neighbour list gave a reader no
+  way to tell how many entries were in it without counting - the question the command is opened with when a
+  link stops working. The sentence is the vendor's, at the left margin directly under the last row, and the
+  number is the rows this view printed rather than every neighbour ever heard: a Catalyst 3750 configuration
+  example ends four rows with `Total entries displayed: 4`, and a filtered Nexus detail view ends its one row
+  with `1`. An empty table prints no count, because no vendor page in hand shows one - the empty case is the
+  half left open in [research/lldp-total-entries.md](research/lldp-total-entries.md), which also says why the
+  capability-codes legend was *not* taken with it. `test/lldp-total-entries.test.js` pins 17 checks: the
+  wording and position, the count against the rows, the plural for a single row, a row aged past its TTL leaving
+  the count, a row for a downed port still counting, the empty table printing none, and all three accepted
+  spellings agreeing.
+
 - **A Catalyst does not route until somebody types `ip routing`, and now neither does this one.** The console has
   printed two `show ip route` shapes since the host table landed - the codes legend over a routing table, and
   `Default gateway is not set` over the Host/Gateway cache - and which one a device got was decided by the
