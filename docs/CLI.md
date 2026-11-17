@@ -37,7 +37,7 @@ Modes and their prompts:
 | `show vrrp` | the group, its state (`Master`/`Backup`/`Init` with the reason), and the master the election chose |
 | `show running-config` | full configuration |
 | `ping <ip> [count]` | ICMP echo from this device |
-| `traceroute <ip>` (`tracert`) | TTL-limited probes, one hop at a time, **three probes per hop**; each router that expires a probe answers with ICMP time exceeded, the destination with an echo reply, and every hop prints its address and a round trip per probe in `msec`; a hop stopped by a down cable, a shut port or an ACL says why and ends the walk |
+| `traceroute <ip>` (`tracert`) | TTL-limited probes, one hop at a time, **three probes per hop**; each router that expires a probe answers with ICMP time exceeded, the destination with an echo reply, and every hop prints its address and a round trip per probe in `msec`; a probe refused with an ICMP destination-unreachable prints the letter for its code in that probe's column (`!N` network, `!H` host, `!P` protocol, `!U` port, `!A` administratively prohibited); a hop stopped by a down cable, a shut port or an ACL says why and ends the walk |
 | `exit` / `logout` | leave the session |
 
 ## A command word can be shortened, down to what is still unique
@@ -1100,11 +1100,28 @@ The three figures of one hop agree to the last digit, and that is the model bein
 in it jitters or queues a frame (`engine/latency.js` says so at the top), so three identical probes on an unchanged
 path do take the same time. Inventing a spread would be inventing the number the command exists to report.
 
-Two things this page does **not** claim. A hop that answered nothing prints three stars in the address column -
-` 2  *  *  *  (link down)` - because there is no address to print. A destination-unreachable keeps its words
-(` 2  10.0.0.1  !H  host unreachable`) and gains no probe columns: the vendor puts a letter where a probe's time
-would go, but how three probes against an unreachable destination are spelled is not settled by the evidence this
-change rests on, so it is not asserted here. `research/traceroute-hop-line.md` records both.
+A probe that was **refused** rather than answered is a letter where its time would go, and the three columns are
+still three columns - a router with no route replies to each of the three probes with ICMP type 3 code 0, and a box
+prints that as `!N`, three times:
+
+```
+MPLS-FW-01#traceroute 172.30.1.126
+Type escape sequence to abort.
+Tracing the route to 172.30.1.126
+1 10.3.133.2 0 msec 0 msec 0 msec
+2 172.30.91.8 0 msec 0 msec 0 msec
+3 172.30.91.8 10 msec 0 msec 0 msec
+4 172.30.36.131 !N !N !N
+```
+
+The letter is the ICMP code's, from the vendor's own table (`N` network unreachable, `H` host, `P` protocol, `U`
+port, `A` administratively prohibited, `?` any other), and it is per probe: `2 10.10.20.2 !H * !H` is one refused
+probe, one that went missing and one refused again. A code that table does not name keeps `?`. This console sends
+code 0 - a router with no route - so its refusal is `!N`, which is the letter a box prints for that code.
+`research/traceroute-hop-line.md` carries the transcripts and the table.
+
+The other silence is a hop that answered nothing at all: it prints three stars in the address column -
+` 2  *  *  *  (link down)` - because there is no address to print.
 
 ### Reading DHCP
 

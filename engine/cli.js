@@ -619,9 +619,27 @@ function roundTripClause(replies) {
 // probe that timed out. The unit is the vendor's - IOS prints `msec` on a hop line while `ping` prints `ms` - and
 // the figures are formatted by the same `formatRttMs` the echo reply lines use, so a hop and the ping beside it
 // cannot spell the same measurement two ways.
+// The letter a destination-unreachable puts where a probe's time would go. Cisco's traceroute
+// output table names N (network unreachable), H (host unreachable), P (protocol unreachable),
+// U (port unreachable) and A (administratively prohibited), and the same page's ICMP type-3
+// table gives the codes behind them: 0 net, 1 host, 2 protocol, 3 port (Cisco 12778, "Understand
+// Ping and Traceroute Commands"). A code that table does not name keeps `?`, its own word for
+// "any other ICMP message", rather than a letter this console cannot attest.
+const UNREACH_CODE_LETTER = { 0: 'N', 1: 'H', 2: 'P', 3: 'U', 13: 'A' };
+function unreachLetter(code) {
+  return '!' + (UNREACH_CODE_LETTER[Number(code)] || '?');
+}
+
+// One result per probe, in the order the probes were sent. A probe that came back as an ICMP
+// destination-unreachable is a letter, not a time: a box prints `4 172.30.36.131 !N !N !N` for
+// three refused probes and `2 10.10.20.2 !H * !H` when one of the three went missing
+// (research/traceroute-hop-line.md), so the error frame's own round trip is not what the column
+// shows.
 function probeCells(probes) {
   return (probes || []).map(function (p) {
-    if (!p || !p.answered) return '*';
+    if (!p) return '*';
+    if (p.errorType === net.ICMP_DEST_UNREACH) return unreachLetter(p.code);
+    if (!p.answered) return '*';
     if (typeof p.rttMs !== 'number' || !isFinite(p.rttMs)) return '*';
     return formatRttMs(p.rttMs) + ' msec';
   }).join('  ');
@@ -3624,15 +3642,13 @@ class CliSession {
     const res = this.sim.traceroute(this.device.id, ip);
     for (const hop of res.hops) {
       // A hop that answered prints its address and then one result per probe, in `msec` - the vendor's own
-      // shape (`1 172.16.12.2 4 msec 4 msec 4 msec`). A hop that answered nothing has no address to print, so
-      // the three stars stand in the address column, which is what a real trace prints for a silent hop.
-      if (hop.reason === 'unreachable') {
-        // An ICMP destination-unreachable ends the walk, and the vendor spells it with a letter where a probe's
-        // time would go. Which letter, and how three probes against an unreachable destination are spelled, is
-        // not settled by the evidence behind this change, so the letter stands with the words rather than
-        // being repeated into three columns this console cannot attest (`research/traceroute-hop-line.md`).
-        out.push(' ' + hop.ttl + '  ' + hop.address + '  !H  host unreachable');
-      } else if (hop.address) out.push(' ' + hop.ttl + '  ' + hop.address + '  ' + probeCells(hop.probes));
+      // shape (`1 172.16.12.2 4 msec 4 msec 4 msec`). A destination-unreachable is one of those results and not
+      // a sentence: the letter for the ICMP code stands in the probe's column, one per probe, with no words
+      // beside it - a box prints `4 172.30.36.131 !N !N !N` for three refused probes and `2 10.10.20.2 !H *
+      // !H` when one of the three timed out (`research/traceroute-hop-line.md`). A hop that answered nothing has
+      // no address to print, so the three stars stand in the address column, which is what a real trace prints
+      // for a silent hop.
+      if (hop.address) out.push(' ' + hop.ttl + '  ' + hop.address + '  ' + probeCells(hop.probes));
       else out.push(' ' + hop.ttl + '  ' + probeCells(hop.probes) +
         (hop.dropped ? '  (' + hop.dropped + ')' : ''));
     }

@@ -18,7 +18,10 @@
 //   4. a hop that answered nothing prints three stars and no address, and keeps the reason the drop
 //      recorded in brackets;
 //   5. the figures are the model's, so three identical probes agree to the last digit - no jitter is
-//      invented to make the columns look livelier than the model is.
+//      invented to make the columns look livelier than the model is;
+//   6. a probe refused with an ICMP destination-unreachable prints the letter for its code in that probe's
+//      column - `!N` for network unreachable, `!H` for host unreachable - so a refused hop is a run of
+//      letters, not a sentence with a time missing from it.
 const path = require('path');
 const { Topology, Simulator, runCommands } = require('../engine');
 const { loadCatalog } = require('../devices/registry');
@@ -154,19 +157,55 @@ section('6. A silent hop prints three stars, and the reason it recorded');
   ok(/% destination not reached after 2 hops/.test(lines.join('\n')), 'the walk ends where the wire did');
 }
 
-section('7. A destination-unreachable is still a refusal with words');
+section('7. A destination-unreachable prints a letter in every probe column');
 {
   const b = bench();
   const lines = trace(b, '198.51.100.7');
   const hop2 = hopLine(lines, 2);
-  ok(/!H  host unreachable/.test(hop2), 'hop 2 keeps the refusal: "' + hop2 + '"');
-  ok(!/msec/.test(hop2),
-    'and invents no probe columns for it: how three probes against an unreachable destination are ' +
-    'spelled is not settled by the evidence this change rests on');
+  // R1 has no route to 198.51.100.7, so it answers all three probes with ICMP type 3 code 0 - network
+  // unreachable - and a box's word for that is `!N` in the probe's column. The transcript this follows is
+  // `4 172.30.36.131 !N !N !N` (community.cisco.com/t5/network-security/trace-route-n-n-n/td-p/3025719);
+  // `2 10.10.20.2 !H * !H` is the same rule when one of the three probes went missing.
+  eq(hop2, ' 2  10.0.1.254  !N  !N  !N', 'hop 2 is three letters, one per refused probe');
+  eq((hop2.match(/!N/g) || []).length, 3, 'one letter per probe');
+  ok(!/msec/.test(hop2), 'and no time in any column: an error frame is not an echo');
+  ok(!/unreachable/i.test(hop2), 'the letter is the whole answer - no words are printed beside it');
   ok(/% destination not reached/.test(lines.join('\n')), 'the trace does not claim success');
+  eq(b.sim.traceroute(b.pc.id, '198.51.100.7').hops.length, 2, 'and it stops at the refusal');
 }
 
-section('8. The probe count is the caller\'s, and defaults to three');
+section('8. The letter follows the ICMP code; a code with no letter keeps `?`');
+{
+  const b = bench();
+  const { CliSession } = require('../engine/cli');
+  const sess = new CliSession(b.topo.getDevice(b.pc.id), b.topo, b.sim);
+  const saved = b.sim.traceroute;
+  function probe(code) {
+    return { answered: true, reached: false, address: '10.0.1.254', errorType: 3, code: code,
+      rttMs: 0.5, sent: true, dropped: null };
+  }
+  function refusedWith(code) {
+    return { events: [], success: false, target: '198.51.100.7', hops: [{
+      ttl: 1, address: '10.0.1.254', dev: null, reached: false, reason: 'unreachable',
+      errorType: 3, code: code, rttMs: 0.5, probes: [probe(code), probe(code), probe(code)]
+    }] };
+  }
+  const letters = [0, 1, 2, 3, 13, 99].map(function (code) {
+    b.sim.traceroute = function () { return refusedWith(code); };
+    return sess.run('traceroute 198.51.100.7').output[2];
+  });
+  b.sim.traceroute = saved;
+  // Codes 0-3 are the four the vendor's own ICMP type-3 table names, 13 is administratively prohibited,
+  // and 99 is a code no table this console has seen names - `?` is that table's word for it, not a guess.
+  eq(letters[0], ' 1  10.0.1.254  !N  !N  !N', 'code 0 is network unreachable: !N');
+  eq(letters[1], ' 1  10.0.1.254  !H  !H  !H', 'code 1 is host unreachable: !H');
+  eq(letters[2], ' 1  10.0.1.254  !P  !P  !P', 'code 2 is protocol unreachable: !P');
+  eq(letters[3], ' 1  10.0.1.254  !U  !U  !U', 'code 3 is port unreachable: !U');
+  eq(letters[4], ' 1  10.0.1.254  !A  !A  !A', 'code 13 is administratively prohibited: !A');
+  eq(letters[5], ' 1  10.0.1.254  !?  !?  !?', 'an unnamed code is ? rather than a letter');
+}
+
+section('9. The probe count is the caller\'s, and defaults to three');
 {
   const b = bench();
   eq(b.sim.traceroute(b.pc.id, '10.0.3.9').hops[0].probes.length, 3, 'the default is three probes a hop');
