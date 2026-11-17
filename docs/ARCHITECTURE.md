@@ -1246,6 +1246,35 @@ a device with no bundle answers both spellings with the device's own empty table
 zeros, the header and the rule, with no `% ` error line in it; and all thirteen view words are still
 views.
 
+### The view word after the port
+
+```
+s1# show interfaces Fa0/1 counters
+% No interface Fa0/1 counters on Switch (L2)-s1          <- the port is right there
+s1# show interfaces Fa0/1 counters
+% `show interfaces Fa0/1 counters` is a view of Fa0/1, not a port name: this console has no
+  `show interfaces Fa0/1 counters`. `show interfaces Fa0/1` prints that port's packet and byte
+  counters; `show interfaces` prints them for every port.                   <- the corrected answer
+```
+
+`show interfaces [<port>] switchport` and `show interfaces [<port>] counters` are both IOS forms, so the
+port-first spelling is the keyword form with a port named. The keyword half was fixed (#1443/#1449) and the
+port half was not: the name lookup consumed the whole line, so `Fa0/1 counters` became a port name that
+does not exist and the answer was the sentence a typo gets — one word after the door that had just been
+made honest.
+
+The prefix is now resolved by the same table `interface Fa0/1` uses, and only a tail the view table knows
+(or the `?` key) is read as a view, so `show interfaces Fa0/99 counters` and `show interfaces Fa0/1
+nonsense` still answer as missing ports. The whole phrase is still looked up as a port **first**, so a
+device with a port genuinely called `counters` keeps it. The advice reuses the keyword form's sentence
+with the port substituted, and where that sentence names no port (four entries do not), the answer ends
+on the port's own block, so the command it prints is the one for the socket the operator asked about.
+
+`test/show-interfaces-view-keywords.test.js` pins it, 97 checks: five tails are reported as views of the
+named port and name that port's own command; the command they point at runs and prints the counters;
+`?` after a port is a usage line, not a port called `Fa0/1 ?`; an absent port and an unknown tail keep
+the port sentence; and all thirteen view words still answer the keyword form.
+
 ### The spellings IOS taught, on a console that has the views under other names
 
 ```

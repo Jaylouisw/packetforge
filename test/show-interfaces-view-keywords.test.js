@@ -8,6 +8,11 @@
 //
 // The refusal now names the view, and points at the command that does answer the question - and every command it
 // points at is run here, because advice that does not run is another way of wasting the reader's time.
+//
+// The port-first spelling was left behind (#1834): `show interfaces Fa0/1 counters` is `show interfaces counters`
+// with the port named, and it answered `% No interface Fa0/1 counters on <box>` - the missing-port sentence, about a
+// socket that exists. A trailing word from the same table, after a prefix that resolves to a real port, is now the
+// view it is; the prefix goes through the port table first, so a port genuinely named like a keyword still wins.
 const fs = require('fs');
 const path = require('path');
 const { Topology, Simulator } = require('../engine');
@@ -89,6 +94,47 @@ ok(!/No interface \?/.test(q), 'and never claims a port called "?" is missing', 
 ok(q.indexOf('show interfaces <port>') !== -1, 'the usage says how to ask about one port', q);
 const h = out('show interfaces help');
 ok(/^% Usage:/.test(h), '`show interfaces help` answers the same way', h);
+
+console.log('');
+console.log('A view word AFTER a real port is the same view, not a missing port (#1834):');
+// `show interfaces [<port>] switchport` and `show interfaces [<port>] counters` are both IOS forms, so the
+// port-first spelling asks about a socket that is right there. The port lookup read the whole line as a
+// name and answered with the sentence a misspelt port gets, one word after the keyword form was fixed.
+const portFirst = [
+  ['switchport', /switchport line/],
+  ['counters', /packet and byte counters/],
+  ['counters errors', /packet and byte counters/],
+  ['status detail', /status and protocol/],
+  ['trunk', /trunk settings/]
+];
+portFirst.forEach(function (pair) {
+  const cmd = 'show interfaces ' + SWPORT + ' ' + pair[0];
+  const text = out(cmd);
+  ok(text.indexOf('No interface') === -1,
+    '`' + cmd + '` does not claim port ' + SWPORT + ' is missing', text);
+  ok(text.indexOf('is a view of ' + SWPORT) !== -1,
+    'and says the phrase is a view of ' + SWPORT, text);
+  ok(pair[1].test(text), 'with the answer the keyword form gives for `' + pair[0] + '`', text);
+  ok(text.indexOf('`show interfaces ' + SWPORT + '`') !== -1,
+    'naming the command that prints it for that port', text);
+});
+// The advice has to run: it is the port's own block, counters included.
+const advised = out('show interfaces ' + SWPORT + ' counters');
+const offered = (advised.match(/`(show interfaces [^`]+)`/g) || [])
+  .map(function (m) { return m.slice(1, -1); });
+ok(offered.indexOf('show interfaces ' + SWPORT) !== -1,
+  'the port it points at is the one that was typed', offered.join(' | '));
+ok(/packets input/.test(out('show interfaces ' + SWPORT)),
+  'and that command really prints the counters it was asked for');
+// The `?` key after a port is a question, not a port name with a question mark in it.
+const portQ = out('show interfaces ' + SWPORT + ' ?');
+ok(!/No interface/.test(portQ), '`show interfaces <port> ?` does not claim that port is missing', portQ);
+ok(/is the whole command/.test(portQ), 'it says the port name is the whole command', portQ);
+// A port that is not there still gets the port sentence, and a genuine typo in the tail is not a view.
+ok(/^% No interface Fa0\/99 counters on /.test(out('show interfaces Fa0/99 counters')),
+  'a port that does not exist still gets the port sentence', out('show interfaces Fa0/99 counters'));
+ok(/^% No interface Fa0\/1 nonsense on /.test(out('show interfaces Fa0/1 nonsense')),
+  'a word the view table does not know is still a missing port', out('show interfaces Fa0/1 nonsense'));
 
 console.log('');
 console.log('Case and the near-misses behave:');

@@ -404,6 +404,39 @@ const INTERFACES_VIEW_KEYWORDS = {
   brief: '`show ip interface brief` is the one-line-per-port view: address, method, status and protocol.'
 };
 
+// The port-first spelling of those keywords (#1834). `show interfaces [<port>] switchport` and
+// `show interfaces [<port>] counters` are IOS forms, so the port comes first and the view word follows it -
+// and the port lookup read the whole line as a name, so `show interfaces Fa0/1 counters` claimed a socket
+// called "Fa0/1 counters" was missing, one word after the keyword form was taught to answer honestly.
+//
+// The prefix is resolved by the same table `interface Fa0/1` uses, and only a tail this table knows (or the
+// help key) is read as a view: `show interfaces Fa0/99 counters` and `show interfaces Fa0/1 nonsense` keep
+// the missing-port sentence. The whole phrase is looked up as a port *before* this runs, so a device with a
+// port genuinely called `counters` still shows its port.
+function viewAfterPort(dev, typed) {
+  const parts = String(typed).split(/\s+/);
+  for (let i = parts.length - 1; i >= 1; i--) {
+    const resolved = ifaceName.resolvePortName(dev, parts.slice(0, i).join(' '));
+    if (!resolved || !dev.interfaces.get(resolved)) continue;
+    const tail = parts.slice(i).join(' ');
+    if (tail === '?' || /^help$/i.test(tail)) {
+      return '% `show interfaces ' + resolved + '` is the whole command: nothing goes after a port name ' +
+        "here, and it prints that port's status, address, switchport line and counters.";
+    }
+    const rest = INTERFACES_VIEW_KEYWORDS[tail.toLowerCase()] ||
+      INTERFACES_VIEW_KEYWORDS[tail.split(/\s+/)[0].toLowerCase()];
+    if (!rest) continue;
+    // The table's advice is written for the keyword form, where no port is named, so four of its entries
+    // (`status`, `summary`, `flowcontrol`, `brief`) name none. The reader named one: end on its own block.
+    const answer = rest.split('<port>').join(resolved);
+    const namesPort = answer.indexOf('`show interfaces ' + resolved + '`') !== -1;
+    return '% `show interfaces ' + typed + '` is a view of ' + resolved + ', not a port name: this console ' +
+      'has no `show interfaces ' + typed + '`. ' + answer +
+      (namesPort ? '' : " The port's own block is `show interfaces " + resolved + '`.');
+  }
+  return null;
+}
+
 // `show ip <view>` spellings (#1447).
 //
 // An operator's fingers say `show ip arp`, `show ip interface`, `show ip access-lists`, `show ip vrrp` - the spellings
@@ -5267,6 +5300,10 @@ class CliSession {
             return ['% `' + typed + '` is a view, not a port: this console has no `show interfaces ' + typed +
               '`. ' + keyword];
           }
+          // ...and the port-first spelling of the same question (#1834): `show interfaces Fa0/1 counters` is
+          // `show interfaces counters` with the port named, and it got the sentence a misspelt port name gets.
+          const afterPort = viewAfterPort(dev, typed);
+          if (afterPort) return [afterPort];
           // `show interfaces ?` is how a reader asks what can go here, and `% No interface ? on <box>` is the
           // worst possible answer to that question.
           if (String(wanted).trim() === '?' || /^help$/i.test(String(wanted).trim())) {
