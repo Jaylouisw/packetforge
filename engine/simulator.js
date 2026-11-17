@@ -903,7 +903,15 @@ class Simulator {
         const peerDev = this.topo.getDevice(first.peer.deviceId);
         const link = this._linkAt(dev.id, first.name);
         let cost = stpLib.costForSpeedMbps(link ? link.speedMbps : null);
-        if (members.length > 1) cost = Math.round(cost / members.length); // aggregate
+        // Members are counted only while their own link is up, which is what the vendor means by the sum of
+        // the *active* member interfaces. The number itself is this model's inference, not a published one:
+        // the rule Cisco documents is that a bundle's cost comes from the port-channel bandwidth (the sum of
+        // its members), and dividing a member's cost is not that rule - it is what happens to agree with the
+        // one measured pair (2 x 1 Gb = half of 1 Gb) and then falls to the table floor of 1 at three members,
+        // which no vendor table could print for a 3 Gb/s bundle. The short-method arithmetic is unresolved and
+        // no source gives a number to adopt, so it is left as it is and pinned as an inference rather than a
+        // fact (research/port-channel-path-cost.md).
+        if (members.length > 1) cost = Math.round(cost / members.length);
         ports.push({
           name: key,
           cost: cost,
