@@ -189,12 +189,34 @@ rewrite is the right tool only when `count-objects -vH` climbs *with* the API's 
 small - then the bytes are reachable history, and `--invert-paths` followed by `gc --prune=now` is the
 reclaim.
 
-LFS lives on the host, under the app data path (default `lfs/`; `/data/gitea/lfs` or
-`/data/gitea/data/lfs` on this instance):
+Container path, host path. LFS lives under the app data path, and `/data` exists only *inside* the
+container - the bind recorded a section below reads `/mnt/user/appdata/forgejo/data -> /data`. So a host
+shell that runs a `du` against a container path matches nothing, exits 0, and with `2>/dev/null` prints
+nothing, which reads exactly like "there is no LFS here". Ask from the host, at the mapped paths:
 
 ```bash
-du -sh /data/gitea/lfs /data/gitea/data/lfs 2>/dev/null   # whichever exists is the one holding the GiBs
+for p in /mnt/user/appdata/forgejo/data/gitea/data/lfs /mnt/user/appdata/forgejo/data/gitea/lfs; do
+  if [ -d "$p" ]; then du -sh "$p"; else echo "absent: $p"; fi
+done
 ```
+
+`absent` for both is not the answer yet either - it only becomes one once you know which directory the
+server was told to use, because `2>/dev/null` and a real "nothing there" look identical from outside:
+
+```bash
+# the container half: what /data/gitea actually is on this host
+docker inspect forgejo --format '{{range .Mounts}}{{.Destination}} <- {{.Source}}{{println}}{{end}}'
+
+# the server half: the [lfs] section of app.ini, PATH and STORAGE_TYPE
+sed -n '/^\[lfs\]/,/^\[/p' /mnt/user/appdata/forgejo/data/gitea/app.ini
+```
+
+`STORAGE_TYPE = local` means the bytes are on disk at the directory `PATH` names, resolved against the
+server's working directory - `/data/gitea` in the container, `/mnt/user/appdata/forgejo/data/gitea` on
+this host - so if both candidates above read `absent`, `PATH` names one of them differently rather than
+being empty.
+Anything else - a bucket, object storage - means the GiBs are **not on this volume at all**, `df -h` on
+this host can never see them, and deleting LFS objects is not the repair.
 
 Deleting those objects, moving LFS storage to the array, or growing the volume are decisions about content
 rather than cleanup, and none should be done to a live repository unasked - they are tracked in `#1507`.

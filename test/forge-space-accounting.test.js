@@ -62,5 +62,24 @@ ok(/filter-repo[^.]{0,200}(cannot|does not|would not|frees nothing|free nothing|
 ok(section.indexOf('6.4 MB') === -1 && section.indexOf('7,400') === -1,
   'the withdrawn "6.4 MB tip against 46.2 GiB stored" reading is gone');
 
+// Locating the bytes is the last step, and it is the one that was wrong: the page sent the reader to
+// `du -sh /data/gitea/lfs` on the *host*, but `/data` only exists inside the container (the page's own
+// bind, `docker inspect forgejo` a section later, reads `/mnt/user/appdata/forgejo/data -> /data`). On
+// the host that command matches nothing and, with `2>/dev/null`, exits 0 printing nothing - an empty
+// answer indistinguishable from "there is no LFS here", which is the very confusion this section is
+// fixing.
+ok(section.indexOf('/mnt/user/appdata/forgejo/data/gitea') !== -1,
+  'the LFS locate command uses the host path the bind maps to, not the container path');
+ok(section.indexOf('du -sh /data/gitea') === -1,
+  'and no longer points the reader at a container path that does not exist on the host');
+ok(section.toLowerCase().indexOf('absent') !== -1,
+  'a directory that is not there says so in words rather than printing nothing');
+// LFS is not necessarily on the volume being cleaned at all - STORAGE_TYPE decides that, and a bucket
+// means the 46 GiB is somewhere `df -h` on this host cannot see.
+ok(section.indexOf('[lfs]') !== -1 && /STORAGE_TYPE/.test(section),
+  'it checks [lfs] STORAGE_TYPE, which can put the objects off this volume entirely');
+ok(!/`\/data\/gitea\/lfs` or/.test(section),
+  'the "container path is the host path" phrasing is gone');
+
 console.log((failed ? '\u2717 ' : '') + passed + ' passed, ' + failed + ' failed');
 process.exit(failed ? 1 : 0);
