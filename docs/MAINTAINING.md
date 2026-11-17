@@ -152,11 +152,13 @@ npm run check:citations -- --strict   # exit 1 on a judged suspect, for a script
 ```
 
 It judges a citation only when the sentence names exactly one function (written as a call, `routeTo()`), gives exactly
-one citation, and that function has exactly one definition in the cited file; a citation may sit up to 40 lines away.
-Everything else it lists as unjudged — currently 15 of 348 are judged, which is the honest coverage of a mechanical
-rule.
+one citation, and that function has exactly one definition in the cited file; a citation may sit up to 40 lines away,
+or any distance at all when the cited line is itself the *call site* — `test/bgp.test.js:452` calls `mkPath()`, defined
+403 lines above it, and a pointer to a call site is right even though the symbol lives elsewhere. Everything else it
+lists as unjudged — at this tree 16 of 348 citations are judged, the honest coverage of a mechanical rule.
 
-**It is a diagnostic, not a CI gate**, and its own output shows why: today's single suspect is
-`docs/BGP-POLICY.md:1090` citing `test/bgp.test.js:452`, which is a *test body*, while the sentence mentions
-`mkPath()` — a helper defined 400 lines above. A rule that flagged that would be wrong, and a rule narrow enough to be
-right judges almost nothing. Judging the rest needs a reader, so the tool narrows the search and a human decides.
+**It is a diagnostic, not a CI gate**, and its coverage is the reason: judging one citation in twenty-two leaves the
+tool naming suspects — with the distance, the symbol and the line it found — for a reader to settle. A rule wide
+enough to judge the rest would be wrong in both directions, flagging a pointer to a call site and a sentence that
+mentions a helper defined in another file. Judging the rest needs a reader, so the tool narrows the search and a human
+decides.
