@@ -95,3 +95,12 @@ One of:
 No spec is added by this file: the frame arithmetic is public, the card arithmetic is public in the
 product documentation Huawei withholds, and a `Y`/`NA` matrix from a partner mirror is a lead, not a
 source.
+
+## 6. Superseded in part (2026-11-17): the census is public, one PDF per board
+
+`EDOC1100163901` is still 404 on every anonymous route probed here, but it is not the only place the
+matrix lives. Huawei publishes the same *OptiXtrans E9600 Product Documentation* as one PDF per board
+on `e-file.huawei.com`, and each chapter's §"Valid Slots" table names the subrack (`OptiXtrans E9605`
+IU1–IU5, `E9612` IU1–IU13, `E9624` IU1–IU24) and the 1:3-mode exclusions. So the blocker is now "no
+client-port board chapter is indexed yet", not "the matrix is behind a partner login". Evidence and the
+route: `research/optixtrans-board-chapters-public.md`.
