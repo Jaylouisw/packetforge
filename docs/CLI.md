@@ -2186,10 +2186,24 @@ interface Gi0/0
   vrrp <vrid> ip <virtual-address>
   vrrp <vrid> priority <1-255>        # 255 = address owner; 100 default
   vrrp <vrid> advertise <seconds>
-  vrrp <vrid> preempt                 # default on
-  no vrrp <vrid> preempt
-  no vrrp <vrid>                      # remove the group
+  vrrp <vrid> preempt                 # the default, and the only value there is
+  no vrrp <vrid>                      # remove the group - the only `no` form
 ```
+
+**`no` reads the vrid and nothing after it.** The interface-mode handler matches `no vrrp <vrid>`
+before it looks at the rest of the line (`engine/cli.js:1517`), so any `no` that names a group
+removes that group, whatever follows the vrid:
+
+```
+R1(config-if)#no vrrp 10 preempt
+VRRP group 10 removed from Gi0
+```
+
+`no vrrp 10 priority`, `no vrrp 10 advertise` and `no vrrp 10 wibble` are answered by the same line.
+Two consequences are worth knowing before typing it. There is no command that turns preemption off:
+the sub-command parser has a `no` branch for it, but the dispatcher has already removed the group
+by the time it would run, so every group that exists preempts. And a line written to switch one
+option off deletes the virtual gateway instead - check `show vrrp` afterwards.
 
 The virtual address has to be **in the interface's own subnet** — a gateway address is only a gateway for
 hosts on its wire. Anything else is refused and no group is created:
