@@ -1,0 +1,147 @@
+name: Close merged issues
+
+# Jay's question: "why are the issues still open if the pr that addresses them is merged? there
+# should be a workflow closing out the issues."
+#
+# The mechanism works - #1635 closed #1526 by writing "Fixes #1526" in its body, which Forgejo
+# honours on merge - but it only fires when somebody remembers the keyword, and it can never fire
+# for a `[Device]:` request whose device lands in a later, unrelated pull request. Seven requests
+# are open right now (#130, #742, #743, #803, #807, #808, #810) after two months of merges, and
+# nothing was watching them.
+#
+# So this closes both kinds, and only those: an issue a closing keyword in this push cites, or a
+# `[Device]:` request the catalogue demonstrably answers. It never reopens anything, never closes
+# an issue a keyword did not cite and `devices/` does not have, and never posts the same comment
+# twice - `scripts/close-merged-issues.js` carries the rules and `test/close-merged-issues.test.js`
+# proves them, including the case that matters: a number merely mentioned is not a claim.
+#
+# It is the opposite side of `closed-audit.yml`, which catches a close the catalogue contradicts.
+# Between the two, a wrong close is visible and a forgotten one is not permanent.
+#
+# Triggered on push to `main` because `schedule:` never reaches a runner on this instance (see
+# docs/FORGE_TROUBLESHOOTING.md): a run is created, its job row stays at `started` epoch 0, and
+# nothing is ever handed to a runner. Every merge is exactly when the question "did this close
+# anything?" is worth asking anyway.
+#
+# A manual dispatch defaults to `dry_run: true`, so the safe thing is what you get unless you
+# type `false`. The push run applies, because that is the whole point of the file.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Report what would be closed, and close nothing'
+        required: false
+        default: 'true'
+      issues:
+        description: 'How many open [Device] requests to check'
+        required: false
+        default: '300'
+
+concurrency:
+  group: close-merged-issues-${{ github.sha }}
+  cancel-in-progress: false
+
+jobs:
+  close:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      # No `actions/checkout`, for the reason closed-audit.yml documents at length: the runner
+      # pre-clones every `uses:` action into /data/.cache/act on the volume Forgejo stores its own
+      # data on, per action revision, and two jobs cloning the same revision at the same second is
+      # what turned run 3122 task 6834 red on a green tree. `git` is in the image and this job
+      # needs one commit - the tree it reads is `devices/`.
+      #
+      # The keyword sweep does not need the tree at all: the pushed commits come from the compare
+      # API, which is the only range that means "this merge". The device sweep does, because the
+      # catalogue is the answer to the question it asks.
+      - name: Check out this commit, from git
+        env:
+          TOKEN: ${{ secrets.GITHUB_TOKEN || github.token }}
+        run: |
+          set -eu
+          server="${GITHUB_SERVER_URL:-}"
+          if [ -z "$server" ]; then
+            api="${GITHUB_API_URL:-http://10.0.10.20:3000/api/v1}"
+            server="${api%/api/v1}"
+          fi
+          url="${server}/${GITHUB_REPOSITORY}.git"
+          sha="${{ github.sha }}"
+          git init -q .
+          git remote add origin "$url"
+          # Credentials per command, through an inline credential helper that reads the token from
+          # the environment - not `http.extraheader`, which this repository's other workflows write
+          # as the literal string `***` and which this instance rejects as a bad token even for a
+          # repository anybody can read (measured: `ls-remote` with that header answers
+          # "Credentials are incorrect or have expired"; with no header, or with this helper, it
+          # succeeds). Nothing is written into .git/config, so the token cannot outlive the step.
+          if [ -n "${TOKEN:-}" ]; then
+            timeout 120 git -c credential.helper='!f() { echo username=pf-ci; echo "password=${TOKEN}"; }; f' \
+              -c http.lowSpeedLimit=1000 -c http.lowSpeedTime=30 fetch -q --depth=1 origin "$sha"
+          else
+            timeout 120 git -c http.lowSpeedLimit=1000 -c http.lowSpeedTime=30 fetch -q --depth=1 origin "$sha"
+          fi
+          git checkout -q -f --detach FETCH_HEAD
+          git clean -qfdx
+          echo "checked out $(git rev-parse HEAD) of ${url} with git - no action cache involved"
+
+      # Printed, not asserted - the matrix in ci.yml is what pins the Node 18/20/22 floor, and a
+      # bumped image should be visible in a log rather than a red check on an unrelated merge.
+      - name: Which runtime is running this
+        run: node --version
+
+      - name: Close what this merge answered
+        # The run's own token, never a literal. `github.token` is the automatic Actions token;
+        # `secrets.GITHUB_TOKEN` is the same value under the name Forgejo also exposes. Nothing is
+        # hardcoded here and there is no second secret to keep in step.
+        #
+        # If that token cannot write issues on this instance the script says so, prints the HTTP
+        # status, and closes nothing - reported as a warning, not as a red build on main. See
+        # docs/CI.md, "The automation token", for the remedy (the same FORGEJO_TOKEN secret the
+        # rebase workflows already use).
+        env:
+          TOKEN: ${{ secrets.GITHUB_TOKEN || github.token }}
+          PUSH_BEFORE: ${{ github.event.before }}
+          PUSH_SHA: ${{ github.sha }}
+          DRY_RUN: ${{ github.event.inputs.dry_run || 'false' }}
+          ISSUE_LIMIT: ${{ github.event.inputs.issues || '300' }}
+        run: |
+          if [ -z "${TOKEN:-}" ]; then
+            echo "no token available - skipping the issue sweep; nothing was closed and nothing was checked"
+            exit 0
+          fi
+          dry="${DRY_RUN}"
+          if [ "${dry}" = "true" ]; then
+            echo "dry run requested: this will report what it would close and close nothing"
+          fi
+          args="--explain --issues ${ISSUE_LIMIT}"
+          if [ -n "${PUSH_BEFORE:-}" ] && [ "${PUSH_BEFORE}" != "0000000000000000000000000000000000000000" ] && [ -n "${PUSH_SHA:-}" ]; then
+            args="$args --from ${PUSH_BEFORE} --to ${PUSH_SHA}"
+          fi
+          # `timeout-minutes: 10` is not a bound this runner enforces (ci.yml documents three tasks
+          # that ran 12-15 minutes past it), and this script makes one API call per cited issue plus
+          # one per open request, so 240 s is the outside limit that at least leaves a log saying
+          # why it stopped rather than a container killed from outside.
+          set +e
+          if [ "${dry}" = "true" ]; then
+            timeout --signal=TERM --kill-after=15 240 env FORGEJO_TOKEN="${TOKEN}" node scripts/close-merged-issues.js $args
+          else
+            timeout --signal=TERM --kill-after=15 240 env FORGEJO_TOKEN="${TOKEN}" node scripts/close-merged-issues.js $args --apply
+          fi
+          rc=$?
+          set -e
+          if [ "$rc" -eq 124 ] || [ "$rc" -eq 137 ]; then
+            echo "::warning title=Close merged issues::the sweep was still running after 240 s and was stopped - it has never taken more than a few seconds"
+            exit 0
+          fi
+          # A red check on `main` means "this tree is broken". An issue that would not close is not
+          # that, and the ones this job could not close are exactly the ones a human must look at -
+          # so it says so here and leaves the build alone, the rule every maintenance job in this
+          # repository follows (docs/CI.md, "Why a maintenance job never fails a pull request").
+          if [ "$rc" -ne 0 ]; then
+            echo "::warning title=Close merged issues::the sweep exited ${rc} - nothing was reopened, see the log above for which issues it could not handle"
+          fi
+          exit 0
