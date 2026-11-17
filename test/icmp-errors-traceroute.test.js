@@ -162,8 +162,14 @@ section('7. The CLI prints the hops the way an operator reads them');
   ok(/ 3  10\.0\.3\.9  [0-9.]+ msec  [0-9.]+ msec  [0-9.]+ msec/.test(text),
     'and the destination, with a figure for each of its three probes');
 
+  // `not-an-ip` is a name, not a bad address (#1484): the target goes to the resolver, and a lookup
+// that comes back with nothing is refused in the resolver's words rather than as an address that never was.
   const bad = runCommands(b.pc, b.topo, b.sim, ['enable', 'traceroute not-an-ip']);
-  ok(/% Invalid traceroute target/.test(bad.lines.join('\n')), 'a nonsense target is refused');
+  ok(/% Could not resolve "not-an-ip"/.test(bad.lines.join('\n')),
+    'a nonsense target is refused by the resolver', bad.lines.join('\n'));
+  const notAddr = runCommands(b.pc, b.topo, b.sim, ['enable', 'traceroute 10.0.3.999']);
+  ok(/% Invalid traceroute target: 10\.0\.3\.999/.test(notAddr.lines.join('\n')),
+    'and digits that are not an address are still refused as an address', notAddr.lines.join('\n'));
 }
 
 section('8. Ping is unaffected, and still explains a failure');

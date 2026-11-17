@@ -37,7 +37,7 @@ Modes and their prompts:
 | `show vrrp` | the group, its state (`Master`/`Backup`/`Init` with the reason), and the master the election chose |
 | `show running-config` | full configuration |
 | `ping <ip> [count]` | ICMP echo from this device |
-| `traceroute <ip>` (`tracert`) | TTL-limited probes, one hop at a time, **three probes per hop**; each router that expires a probe answers with ICMP time exceeded, the destination with an echo reply, and every hop prints its address and a round trip per probe in `msec`; a probe refused with an ICMP destination-unreachable prints the letter for its code in that probe's column (`!N` network, `!H` host, `!P` protocol, `!U` port, `!A` administratively prohibited); a hop stopped by a down cable, a shut port or an ACL says why and ends the walk |
+| `traceroute <address|name>` (`tracert`) | TTL-limited probes, one hop at a time, **three probes per hop**; each router that expires a probe answers with ICMP time exceeded, the destination with an echo reply, and every hop prints its address and a round trip per probe in `msec`; a probe refused with an ICMP destination-unreachable prints the letter for its code in that probe's column (`!N` network, `!H` host, `!P` protocol, `!U` port, `!A` administratively prohibited); a hop stopped by a down cable, a shut port or an ACL says why and ends the walk |
 | `exit` / `logout` | leave the session |
 
 ## A command word can be shortened, down to what is still unique
@@ -989,6 +989,61 @@ if it were live. A device with no zones says it is not a DNS server, and names t
 
 A resolver list is optional, and the report says what happens without one: a lookup asks *any* server in the lab,
 which is what `Simulator.resolveName()` does for a small lab.
+
+### Tracing a name
+
+`traceroute <address|name>` — the same walk, and a name is resolved through the lab's DNS before the first probe
+goes out. The lookup is announced the way `ping` announces it, and the target line carries both names the box now
+holds: the name it was given first, the address it resolved to in parentheses after it.
+
+```
+h1> traceroute srv.lab
+Translating "srv.lab"...domain server (10.0.2.2) [OK]
+Type escape sequence to abort.
+Tracing the route to srv.lab (10.0.9.9)
+ 1  10.0.1.1  0.002 msec  0.002 msec  0.002 msec
+ 2  10.0.2.2  0.103 msec  0.103 msec  0.103 msec
+ 3  10.0.9.9  0.205 msec  0.205 msec  0.205 msec
+```
+
+The order is the vendor's, and it is not the obvious one: the lookup line precedes `Type escape sequence to abort.`,
+exactly as it does for `ping`, and the resolved address is on the target line rather than on a line of its own.
+Cisco pastes of `traceroute google.com` show the same three lines in the same order
+(`research/traceroute-name-target.md`).
+
+The hops are the hops the address form walks. `traceroute 10.0.9.9` prints the same three lines under a target line
+with no parentheses:
+
+```
+h1> traceroute 10.0.9.9
+Type escape sequence to abort.
+Tracing the route to 10.0.9.9
+ 1  10.0.1.1  0.002 msec  0.002 msec  0.002 msec
+ 2  10.0.2.2  0.103 msec  0.103 msec  0.103 msec
+ 3  10.0.9.9  0.205 msec  0.205 msec  0.205 msec
+```
+
+so naming a host cannot change the path a trace reports — the two answers differ only in the lines that name the
+question.
+
+A name that does not resolve sends nothing, and the failure is named rather than traced. These are the two sentences
+`ping` prints, from the same resolver helper, so the echo and the trace in one ticket cannot describe one failure two
+ways:
+
+```
+h1> traceroute nope.lab
+Translating "nope.lab"...domain server (10.0.2.2)
+% Could not resolve "nope.lab": NXDOMAIN - no zone any server here hosts contains that name
+% Nothing was sent. Check the zone on 10.0.2.2, or the name servers this device asks.
+h1> traceroute only-txt.lab
+Translating "only-txt.lab"...domain server (10.0.2.2)
+% Could not resolve "only-txt.lab": NODATA - the name exists on 10.0.2.2 but has no A record
+% Nothing was sent. Add an A record: dns add only-txt.lab A <address>
+```
+
+Digits and dots that are not an address (`traceroute 10.0.9.999`) are refused as an address rather than looked up as
+a name, which is the rule `ping` already applies: a typo sent to the resolver comes back as a name that does not
+exist, and sends the operator looking in the wrong place.
 
 ### Why an echo never came back
 
@@ -2383,12 +2438,12 @@ All of them were documented in `docs/CLI.md` and reachable at the console; the i
 
 The opposite direction is a hand-written list on purpose: it has to describe modes as well as words (`['clock rate <bps>', 'iface', ROUTER]`), and parsing the index's prose to recover modes would be testing a prose parser. Every row in it is typed at a real device and must be accepted — 100 of them now: the fourteen added here, plus one more in each of the two groups that name the pool's sub-mode, because `lease` became two rows (`lease <days> <hours> <minutes>` and `lease infinite`) when the pool learned the word (#1776).
 
-One of those index rows is larger than the command behind it: the traceroute row in `help` reads
-`traceroute|tracert <address|name> [max <n>]`, and the parser takes neither: a name is refused
-(`traceroute r1.lab` -> `% Invalid traceroute target: r1.lab`, because the target goes through `net.isIp()`), and
-there is no hop limit — `_traceroute()` reads `tokens[0]` and nothing else, so
-`traceroute 10.0.0.1 max 5` runs the default 30-hop walk (`Simulator.traceroute()`'s `opts.maxHops` is never
-passed) and swallows `max 5` without a word. The verb is indexed; the form is not real yet.
+One of those index rows is still larger than the command behind it: the traceroute row in `help` reads
+`traceroute|tracert <address|name> [max <n>]`. The name half is real now — `traceroute srv.lab` resolves through
+the lab's DNS and prints the lookup and the double target line a box prints ("Tracing a name"). The hop limit is
+not: `_traceroute()` reads `tokens[0]` and nothing else, so `traceroute 10.0.0.1 max 5` runs the default 30-hop walk
+(`Simulator.traceroute()`'s `opts.maxHops` is never passed) and swallows `max 5` without a word. That half is still
+indexed and not implemented.
 
 ## Three commands that answered a question nobody asked
 

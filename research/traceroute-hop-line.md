@@ -109,14 +109,14 @@ mapping for all six cases; nothing here is asserted that the transcripts above d
 * **The first probe after a cold ARP.** Real traces often show the first probe several times slower than the second
   and third while address resolution runs. ARP is explicitly not modelled in the latency figures, so no such
   pattern appears here - the model is not wrong, it is narrower, and this is where that shows.
-* **Names in the target.** A real trace resolves `traceroute ABA.NYC.mil` and prints `Tracing the route to ABA.NYC.mil
-  (26.0.0.73)`. This console refuses a name (`% Invalid traceroute target`) although `ping` resolves one; the help
-  index claims `address|name` for both. That is a separate question with its own evidence to gather.
+* **Names in the target.** Settled since this note was written: `traceroute <name>` resolves through the lab's DNS
+  and prints the lookup line and the `name (address)` target line a box prints -
+  `research/traceroute-name-target.md` carries the transcripts and the rule.
 * **Column width for two-digit hops.** No transcript found shows hop 10 beside hop 9, so whether the number is
   right-aligned is not settled; the columns here are single-space separated and were left as they were.
 
 ## What evidence would settle them
 
 A capture of a two-digit hop number (hop 10 beside hop 9) to settle whether the number is right-aligned; and a
-`traceroute <name>` transcript along with the `Translating ...` line that precedes it, which would let this console
-accept a name the way `ping` already does.
+`traceroute <unresolvable-name>` transcript, to settle which `%` sentence a box prints when the lookup itself
+fails - the successful name path is implemented, and `research/traceroute-name-target.md` records it.

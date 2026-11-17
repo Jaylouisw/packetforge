@@ -401,6 +401,14 @@ function showNoTail(cmd, tail, whole, instead) {
     (instead ? ' - ' + instead : '')];
 }
 
+// Is this string an IPv4 address, or merely the shape of one? `net.isIp()` is the shape check - three dots and
+// one to three digits - so `10.0.0.999` passes it and the engine throws on the first packet. Every command that
+// takes an address asks this question, so it is asked in one place: `net.ipToInt()` rejects an octet out of range.
+// (A literal IPv6 address is a different question, and `ipv6.parseIpv6()` answers it.)
+function isIpv4Literal(x) {
+  try { net.ipToInt(String(x)); return true; } catch (e) { return false; }
+}
+
 // The words that are views under `show interfaces` in IOS, and the answer this console can give instead (#1443).
 //
 // Every one of these used to answer `% No interface <word> on <box>` - the same sentence a mistyped port name gets -
@@ -3342,11 +3350,6 @@ class CliSession {
       return ['% Count must be a whole number from 1 to 50 (asked for ' + requestedCount + ')'];
     }
     if (atProblem !== null) return ['% ' + atProblem];
-    // `net.isIp()` is a shape check (three dots, one to three digits), so 10.0.0.999 passes it and the engine
-    // throws "Invalid IPv4 address" at the first packet. Ask the question properly here: is every octet in range?
-    const strictIp = function (x) {
-      try { net.ipToInt(x); return true; } catch (e) { return false; }
-    };
     // A literal IPv6 address is an address, not a name (#1461). The IPv4 test above cannot see one, so
     // `ping 2001:db8:1::1` went to the resolver and came back as a DNS failure about a "name" that is an address -
     // while the engine has had an IPv6 echo path (`Simulator.ping6`) that this console could not reach at all.
@@ -3360,7 +3363,7 @@ class CliSession {
       }
       literal6 = parsed6;
     }
-    const namedTarget = !strictIp(target) && !literal6;
+    const namedTarget = !isIpv4Literal(target) && !literal6;
     // Digits and dots that are not an address are a typo, not a hostname: resolving 10.0.0.999 as a name would
     // answer NXDOMAIN and send the operator looking in the wrong place.
     if (namedTarget && /^[0-9.]+$/.test(target)) {
@@ -3396,8 +3399,7 @@ class CliSession {
       // Messages after an Invalid Command Is Entered on a Router").
       const probe = this.sim.resolveName ? this.sim.resolveName(this.device, target) : null;
       const asked = this._domainServersFor(probe);
-      const queryLine = 'Translating "' + target + '"...domain server ' +
-        asked.map(function (a) { return '(' + a + ')'; }).join(' ');
+      const queryLine = this._translationLine(target, asked);
       if (probe && probe.ok) {
         out.push(queryLine + ' [OK]');
         // No "name -> address" line: a box does not print one, and the address is on the next line anyway
@@ -3407,21 +3409,7 @@ class CliSession {
         // The query line is printed even when nothing came back - that is the half of the output that says
         // *what was asked and where* - but the trailing [OK] only appears when a name resolved.
         out.push(queryLine);
-        const status = String(probe.status || 'unknown').toUpperCase();
-        const why = {
-          NXDOMAIN: 'no zone any server here hosts contains that name',
-          NODATA: 'the name exists on ' + ((probe && probe.serverIp) || asked[0]) + ' but has no A record',
-          SERVFAIL: 'no device in this lab hosts a DNS zone, or no listed server answered'
-        }[status] || 'the resolver did not answer';
-        out.push('% Could not resolve "' + target + '": ' + status + ' - ' + why);
-        // The advice has to match the address on the line above: telling an operator carrying no name server to
-        // "check the zone on 255.255.255.255" points at a host that cannot be one.
-        out.push('% Nothing was sent. ' + (status === 'NODATA'
-          ? 'Add an A record: dns add ' + target + ' A <address>'
-          : (asked[0] === '255.255.255.255'
-            ? 'No name server is configured, so the lookup went to the broadcast address - add a zone on a device ' +
-              'in this lab, or configure `ip name-server <address>`.'
-            : 'Check the zone on ' + asked.join(' ') + ', or the name servers this device asks.')));
+        Array.prototype.push.apply(out, this._resolveFailureLines(target, probe, asked));
         return out;
       }
     }
@@ -3461,6 +3449,35 @@ class CliSession {
     if (!configured.length) return ['255.255.255.255'];
     if (probe && probe.ok && probe.serverIp && configured.indexOf(probe.serverIp) !== -1) return [probe.serverIp];
     return configured.slice();
+  }
+
+  // The lookup line a box prints before it sends anything: `Translating "x"...domain server (a) (b)`.
+  // The addresses are the servers the query went to, in the order it asked them (#1375). `[OK]` is not part of
+  // the line - it reports that an answer came back - so the caller appends it only where one did.
+  _translationLine(target, asked) {
+    return 'Translating "' + target + '"...domain server ' +
+      asked.map(function (a) { return '(' + a + ')'; }).join(' ');
+  }
+
+  // Why a lookup produced nothing, in the resolver's own verdict rather than as zero percent packet loss: the
+  // three failures have different causes and different fixes. Shared by `ping` and `traceroute`, because they
+  // ask the same resolver the same question and two renderings of one answer would eventually disagree.
+  _resolveFailureLines(target, probe, asked) {
+    const status = String(probe.status || 'unknown').toUpperCase();
+    const why = {
+      NXDOMAIN: 'no zone any server here hosts contains that name',
+      NODATA: 'the name exists on ' + ((probe && probe.serverIp) || asked[0]) + ' but has no A record',
+      SERVFAIL: 'no device in this lab hosts a DNS zone, or no listed server answered'
+    }[status] || 'the resolver did not answer';
+    // The advice has to match the address on the line above: telling an operator carrying no name server to
+    // "check the zone on 255.255.255.255" points at a host that cannot be one.
+    return ['% Could not resolve "' + target + '": ' + status + ' - ' + why,
+      '% Nothing was sent. ' + (status === 'NODATA'
+        ? 'Add an A record: dns add ' + target + ' A <address>'
+        : (asked[0] === '255.255.255.255'
+          ? 'No name server is configured, so the lookup went to the broadcast address - add a zone on a device ' +
+            'in this lab, or configure `ip name-server <address>`.'
+          : 'Check the zone on ' + asked.join(' ') + ', or the name servers this device asks.'))];
   }
 
   // What this port holds in the other address family: the address (typed or learned, marked), and the link-local
@@ -3660,14 +3677,60 @@ class CliSession {
     return (dev ? dev.name : end.deviceId) + ':' + end.iface;
   }
 
+  // `traceroute <address>` and `traceroute <name>` - the same command, because a box resolves the name before it
+  // sends the first probe (#1484's index row promised `<address|name>` while the parser took an address only,
+  // through `net.isIp()`, so `traceroute www.lab` was refused as an invalid target).
+  //
+  // The shape is the vendor's, and it is three lines longer than the address form, in this order:
+  //
+  //   Router#traceroute google.com
+  //   Translating "google.com"...domain server (8.8.8.8) [OK]
+  //   Type escape sequence to abort.
+  //   Tracing the route to google.com (173.194.38.167)
+  //   1 59.90.253.1 16 msec 16 msec 12 msec
+  //
+  // The lookup line comes before the abort line, exactly as `ping`'s does, and the target line carries **both**
+  // names the box now holds - the name it was given and the address it resolved to, in that order
+  // (`research/traceroute-name-target.md`). The hop lines name addresses only: this lab holds no PTR records, so
+  // there is no second name for a hop to print.
+  //
+  // A name that does not resolve sends nothing, and says why in the resolver's verdict rather than in a trace of
+  // zero hops - the same two sentences `ping` prints, from the same helper.
   _traceroute(tokens) {
     const out = [];
-    const ip = tokens[0];
-    if (!ip || !net.isIp(ip)) return ['% Invalid traceroute target: ' + (ip || '(none)')];
+    const typed = String(tokens[0] === undefined || tokens[0] === null ? '' : tokens[0]);
+    if (!typed) return ['% Invalid traceroute target: (none)'];
+    const literal = isIpv4Literal(typed);
+    // Digits and dots that are not an address are a typo, not a hostname - the rule `ping` already applies.
+    if (!literal && /^[0-9.]+$/.test(typed)) {
+      return ['% Invalid traceroute target: ' + typed +
+        ' (not an IPv4 address, and not a name that could resolve)'];
+    }
+    // An IPv6 literal is an address, and this walk is IPv4 only - `ping` has an IPv6 path (#1461) and
+    // `traceroute` does not, so handing `2001:db8::1` to the resolver would answer a DNS question about a name
+    // that is an address, and read as SERVFAIL rather than as the limit it is.
+    if (!literal && typed.indexOf(':') !== -1) {
+      return ['% Invalid traceroute target: ' + typed + ' (this console traces IPv4 paths only)'];
+    }
     if (!this.sim) return ['% Simulator not attached'];
+    let target = typed;
+    let shown = typed;
+    if (!literal) {
+      const probe = this.sim.resolveName ? this.sim.resolveName(this.device, typed) : null;
+      if (!probe) return ['% Invalid traceroute target: ' + typed];
+      const asked = this._domainServersFor(probe);
+      if (!probe.ok) {
+        out.push(this._translationLine(typed, asked));
+        Array.prototype.push.apply(out, this._resolveFailureLines(typed, probe, asked));
+        return out;
+      }
+      out.push(this._translationLine(typed, asked) + ' [OK]');
+      target = probe.address;
+      shown = typed + ' (' + probe.address + ')';
+    }
     out.push('Type escape sequence to abort.');
-    out.push('Tracing the route to ' + ip);
-    const res = this.sim.traceroute(this.device.id, ip);
+    out.push('Tracing the route to ' + shown);
+    const res = this.sim.traceroute(this.device.id, target);
     for (const hop of res.hops) {
       // A hop that answered prints its address and then one result per probe, in `msec` - the vendor's own
       // shape (`1 172.16.12.2 4 msec 4 msec 4 msec`). A destination-unreachable is one of those results and not

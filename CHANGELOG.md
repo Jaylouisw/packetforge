@@ -2,6 +2,17 @@
 
 ### Fixed
 
+- **`traceroute` takes a name, and prints the lookup a box prints** (#1484). The `help` index has claimed
+  `traceroute|tracert <address|name>` since the command landed, and `_traceroute()` put its one argument through
+  `net.isIp()`, so `traceroute srv.lab` was refused as an invalid target while `ping srv.lab` - two lines above it
+  in the same ticket - resolved. A name now goes through the lab's DNS before a probe is sent: the
+  `Translating "srv.lab"...domain server (10.0.2.2) [OK]` line comes before `Type escape sequence to abort.`,
+  the target line reads `Tracing the route to srv.lab (10.0.9.9)`, and the hops are the hops the address form
+  walks, figure for figure. A name that does not resolve sends nothing and prints the NXDOMAIN/NODATA/SERVFAIL
+  sentences `ping` prints, from the same helper. `max <n>` is still swallowed - that half of the index row is
+  still unimplemented - and the evidence, including what is not settled, is in
+  [research/traceroute-name-target.md](research/traceroute-name-target.md).
+
 - **The interface type has four spellings, and the long one is the one people paste** (#1769).
   `interface Gi1/0/1` opened a Catalyst port; `interface GigabitEthernet1/0/1` - the spelling every
   Cisco document writes and every real `show running-config` prints - was refused with `% Interface not
