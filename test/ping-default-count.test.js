@@ -114,12 +114,63 @@ console.log('The browser dialog sends the same default:');
     'and the number actually sent from an emptied field is 5', '');
 }
 
+// Narrowed guard for the CLI reference: a `Sending N,` line is justified when the command echoed above it
+// types N explicitly, or when it types no count at all and N is the documented default of five. Returns the
+// offending lines, empty when the reference is honest. A fragment with no command above it may only show the
+// default, because an explicit count with nothing typing it is unreproducible.
+function unjustifiedSendings(text) {
+  const lines = String(text).split(/\r?\n/);
+  const bad = [];
+  lines.forEach(function (line, i) {
+    const sent = /^Sending (\d+),/.exec(line);
+    if (!sent) return;
+    const n = Number(sent[1]);
+    let cmd = null;
+    for (let j = i - 1; j >= 0 && j >= i - 8; j--) {
+      if (/(^|\s)\S*[>#]\s*ping\b/i.test(lines[j])) { cmd = lines[j]; break; }
+    }
+    let typed = null;
+    if (cmd) {
+      const argv = /[>#]\s*ping\s+(\S+)(?:\s+(\d+))?/i.exec(cmd);
+      typed = argv && argv[2] ? Number(argv[2]) : null;
+    }
+    if (typed !== n && !(typed === null && n === 5)) bad.push(line.trim());
+  });
+  return bad;
+}
+
+console.log('');
+console.log('The default-count guard reads a transcript instead of grepping for a number:');
+{
+  ok(unjustifiedSendings('R1# ping 10.0.1.10\nSending 5, 100-byte x').length === 0,
+    'a bare ping showing five is accepted', '');
+  ok(unjustifiedSendings('R1# ping 10.0.1.10\nSending 4, 100-byte x').length === 1,
+    'a bare ping showing four is still rejected, which is the bug the guard exists for', '');
+  ok(unjustifiedSendings('r1> ping 10.0.0.10 4\nType escape sequence to abort.\nSending 4, 100-byte x').length === 0,
+    'a typed count of four is accepted, across the console filler line', '');
+  ok(unjustifiedSendings('r1> ping 10.0.0.10 5 at later\nSending 5, 100-byte x').length === 0,
+    'a typed count of five with `at` after it is accepted', '');
+  ok(unjustifiedSendings('r1> ping 10.0.0.10 4\nSending 5, 100-byte x').length === 1,
+    'and a header disagreeing with the typed count is rejected, so the guard is not vacuous', '');
+  ok(unjustifiedSendings('Sending 4, 100-byte x').length === 1,
+    'a fragment showing four with no command above it is rejected', '');
+  ok(unjustifiedSendings('Sending 5, 100-byte x').length === 0,
+    'a fragment showing the default five is accepted', '');
+}
+
 console.log('');
 console.log('The CLI reference shows the default it documents:');
 {
   const doc = fs.readFileSync(path.join(ROOT, 'docs', 'CLI.md'), 'utf8');
   ok(doc.indexOf('Sending 5, 100-byte ICMP Echos to 10.0.1.10') !== -1, 'the worked example sends five', '');
-  ok(doc.indexOf('Sending 4,') === -1, 'and no example still shows four', '');
+  // The guard means "no example shows four as the default", not "the string four never appears": a transcript
+  // may type a count on purpose (`ping 10.0.0.10 4`), and #1845 is that example landing in docs/CLI.md and
+  // being rejected by a bare substring test. So each `Sending N,` line is read against the command echoed above
+  // it - it must type N, or type no count and send the documented default of five.
+  const unjustified = unjustifiedSendings(doc);
+  ok(unjustified.length === 0,
+    'and no example shows four as the default - every `Sending N,` types its count or sends five',
+    unjustified.join(' | '));
   ok(/a ping sends \*\*five\*\* echoes/.test(doc), 'the prose names the default and its source', '');
 }
 
