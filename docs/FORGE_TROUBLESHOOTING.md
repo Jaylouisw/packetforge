@@ -137,7 +137,7 @@ cause.
 repository. Ask the API, which reports each repository's size on disk in kilobytes:
 
 ```bash
-curl -sS -H "Authorization: token $TOKEN" 'http://odin:3000/api/v1/repos/search?limit=50&sort=size&order=desc' | node -e 'let d="";process.stdin.on("data",c=>d+=c).on("end",()=>{JSON.parse(d).data.forEach(x=>console.log((x.size/1048576).toFixed(1)+" GiB  "+x.full_name))})'
+curl -sS -H "Authorization: token ***" 'http://odin:3000/api/v1/repos/search?limit=50&sort=size&order=desc' | node -e 'let d="";process.stdin.on("data",c=>d+=c).on("end",()=>{JSON.parse(d).data.forEach(x=>console.log((x.size/1048576).toFixed(1)+" GiB  "+x.full_name))})'
 ```
 
 Measured on 2026-11-12, when that volume filled:
@@ -156,25 +156,49 @@ Measured on 2026-11-12, when that volume filled:
 du -sh /data/git/repositories/*/*.git | sort -h | tail -5
 ```
 
-A large repository is not the same as a large *tree*, and the difference decides what reclaims it. In a
-bare clone of the suspect:
+That `du` is not the whole answer either: a repository's API `size` counts **its git repository and its LFS
+objects**, which are reclaimed by different things. So split the number three ways - pack, tree, LFS -
+rather than two. In a full clone of the suspect:
 
 ```bash
-git count-objects -vH      # size-pack: every reachable object, plus anything unreachable but uncollected
+git count-objects -vH      # the git side: every reachable object, plus anything unreachable but uncollected
 git ls-tree -r -l HEAD | awk '{s+=$4} END {print sprintf("%.1f MB across %d blobs", s/1048576, NR)}'
+git grep -l '^version https://git-lfs.github.com/spec/v1' HEAD -- | wc -l  # blobs that are LFS pointers
+git grep -h '^size [0-9]*$' HEAD -- | awk '{s+=$2} END {print sprintf("%.1f GiB declared by %d pointers", s/1073741824, NR)}'
+git grep -h '^oid sha256:' HEAD -- | sort -u | wc -l                       # distinct LFS objects
 ```
 
-On `packetforge-firmware` those two answers disagreed by a factor of about 7,400: **46.2 GiB stored
-against a tip of 6.4 MB across 396 blobs**, one branch, no tags, no releases. Nothing there was dangling.
-The dumps had been committed to `main` and deleted afterwards, so the commits that added them - and every
-blob underneath - are still in the graph, and **`git gc` cannot reclaim a reachable object**. That is why
-`git_gc_repos`, `repo_health_check` and the rest of the housekeeping tasks could all answer `204` and free
-nothing: they were asked to collect garbage, and there was none.
+On `packetforge-firmware`, measured 2026-11-17, those four answers were:
 
-When the split looks like that, the ways out are a history rewrite (`git filter-repo --path firmware
---invert-paths`, then `gc --prune=now`), moving that repository off the volume, or deleting it - tracked
-in `#1507`, because every one of those is a decision about content rather than a cleanup, and none of them
-should be done to a live repository unasked.
+```
+size-pack 4.21 MiB           26 commits, 19,604 objects, largest blob in history 3.9 MB
+15.5 MB across 5891 blobs    the tip tree
+5816                         blobs in that tree that are LFS pointers, about 130 bytes each
+56.5 GiB declared by 5816 pointers, 5,345 distinct objects, ~47 GiB deduplicated
+```
+
+The API said 46.2 GiB. That is the **LFS object store**, not the history: everything git holds - all 26
+commits, every version of every manifest - packs into 4.2 MiB, and the largest object ever committed is
+3.9 MB. Nothing was dangling and nothing was deleted-then-kept; the images were never in git, they are LFS
+objects the tip's pointers still reference.
+
+Which makes the obvious repair both plausible and useless: **`git gc` cannot reclaim an LFS object, and
+neither can a history rewrite.** `git filter-repo --path firmware --invert-paths` would delete 5,816
+130-byte pointer files, break the manifests that name them, and cannot reclaim a single LFS byte. The
+rewrite is the right tool only when `count-objects -vH` climbs *with* the API's number while the tip stays
+small - then the bytes are reachable history, and `--invert-paths` followed by `gc --prune=now` is the
+reclaim.
+
+LFS lives on the host, under the app data path (default `lfs/`; `/data/gitea/lfs` or
+`/data/gitea/data/lfs` on this instance):
+
+```bash
+du -sh /data/gitea/lfs /data/gitea/data/lfs 2>/dev/null   # whichever exists is the one holding the GiBs
+```
+
+Deleting those objects, moving LFS storage to the array, or growing the volume are decisions about content
+rather than cleanup, and none should be done to a live repository unasked - they are tracked in `#1507`.
+What this page can settle is which of the three numbers owns the volume.
 
 ## When a restart fixes it for ten minutes and then it happens again
 
