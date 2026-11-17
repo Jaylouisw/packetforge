@@ -1149,11 +1149,12 @@ Two decisions worth keeping:
 * **The client line names the server.** A client cannot know why a server stayed silent; a lab can. The line says
   whose sentence it is (`from <server>`) rather than putting the server's private reasoning in the client's mouth.
 
-`test/dhcp-refusal-visible.test.js` pins it, 32 checks: the refused request is counted once and named in all three
-views; all three carry the engine's sentence verbatim, and the log holds exactly one such event; the two clients that
-did get leases have no line to explain; a pool that does not cover the subnet is refused with no lease to hide behind,
-and says so instead of "nothing has asked"; and a lab where everybody got an address keeps every old answer word for
-word, including the server nobody has asked.
+`test/dhcp-refusal-visible.test.js` pins it, 33 checks: the refused request is counted once and named in all three
+views; all three carry the engine's sentence verbatim, and the log holds exactly one such event; the exhausted pool's
+next index reads `0.0.0.0`, which capacity alone did not say; the two clients that did get leases have no line to
+explain; a pool that does not cover the subnet is refused with no lease to hide behind, and says so instead of
+"nothing has asked"; and a lab where everybody got an address keeps every old answer word for word, including the
+server nobody has asked.
 
 ### A reason read on one console described another box
 
@@ -1421,7 +1422,8 @@ So: lease state lives on the **topology** (`topo.dhcpStates`), exactly like the 
   membership in the pool, so `Leased addresses` is a fact and not `0 of 41` while two leases stand —
   and never prints `undefined` for a pool that cannot serve yet.
 
-`test/dhcp-lease-one-answer.test.js` pins all of it, 23 checks, against a real server.
+`test/dhcp-lease-one-answer.test.js` pins all of it, 24 checks, against a real server — including the
+`Leased/Excluded/Total` row (`2 / 213 / 254`) and the index of the address it would offer next.
 ### A conversation cannot outlive its path
 
 The flow table belongs to the topology, and nothing told it when the topology changed. With
