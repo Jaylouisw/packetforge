@@ -12,6 +12,7 @@ Modes and their prompts:
 | enable | `Hostname#` | `enable` (or `en`) |
 | config | `Hostname(config)#` | `configure terminal`, or any unique abbreviation of both words (`config t`, `conf term`, `configure term`) |
 | interface | `Hostname(config-if)#` | `interface <name>` (from config) |
+| subinterface | `Hostname(config-subif)#` | `interface <port>.<vlan>` (from config, or from another interface) |
 | dhcp pool | `Hostname(dhcp-config)#` | `ip dhcp pool <name>` (from config) |
 
 ## Global / exec commands
@@ -265,6 +266,7 @@ default VLAN and cannot be created or deleted", and a real IOS XE switch answers
 | `hostname <name>` | set device hostname |
 | `no hostname` | clear it, restoring the device's previous name |
 | `interface <name>` | enter interface config mode |
+| `interface <port>.<vlan>` | create a subinterface, or open an existing one, on that parent port - the prompt is `(config-subif)#`, as a box prints it (`research/subinterface-prompt.md`) |
 | `ip route <dest> <mask> <gw> [iface]` | add static route |
 | `no ip route <dest> <mask> [gw]` | remove static route |
 | `ip default-gateway <gw>` | set default gateway (hosts) |

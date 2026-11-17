@@ -505,7 +505,18 @@ class CliSession {
   prompt() {
     const host = this.device.config.hostname || this.device.hostname || this.device.name;
     if (this.mode === MODE_CONFIG) return host + '(config)#';
-    if (this.mode === MODE_IFACE) return host + '(config-if)#';
+    if (this.mode === MODE_IFACE) {
+      // A subinterface is its own mode on a box, and says so in the prompt: `interface Gi0/0.10` answers
+      // `Router(config-subif)#`, while its parent answers `Router(config-if)#`. This console called both
+      // one mode and printed `(config-if)#` inside a `Gi0/0.10`, so a pasted router-on-a-stick transcript -
+      // the one place subinterfaces are used - came back with a prompt no box prints. The question is asked
+      // of the interface object the mode was entered on, not of the typed string, so a dotted name that is
+      // not a subinterface cannot borrow the spelling.
+      // Evidence: research/subinterface-prompt.md.
+      const cur = this.iface ? this.device.interfaces.get(this.iface) : null;
+      if (cur && cur.type === 'subinterface') return host + '(config-subif)#';
+      return host + '(config-if)#';
+    }
     // DHCP pool mode is the one prompt that does not follow the `(config-<thing>)#` shape: an IOS box
     // prints `Router(dhcp-config)#`, the words in the other order, and it is the only sub-mode here
     // whose prompt the vendor states in a sentence rather than printing in a capture. Three session

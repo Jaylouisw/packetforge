@@ -70,8 +70,9 @@ router prompting `(config-dhcp)#`.
   inference into an observation; the change is a single string if it goes the other way.
 * **The other sub-mode prompts are not modelled.** IOS has `(config-router)#` for `router bgp`/`router
   ospf`, `(config-vlan)#` for `vlan <id>` and `(config-subif)#` for a subinterface. This console enters
-  one flat config mode for all of them (and `interface Gi0/0.10` stays in `(config-if)#`), so those
-  prompts cannot be checked here — a different question, and a much larger one.
+  one flat config mode for the first two, so those prompts cannot be checked here — a different question,
+  and a much larger one. The subinterface prompt has since been pinned separately and now reads
+  `(config-subif)#` (`research/subinterface-prompt.md`).
 * **Version spread.** All the captures above are 12.4T or later IOS XE. A 12.0/12.1 guide was not found
   in full text; if DHCP pool mode ever prompted differently it would be that far back and no public
   capture shows it.
