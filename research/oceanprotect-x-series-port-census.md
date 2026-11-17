@@ -577,3 +577,57 @@ interface modules on X8100 (2 U, 2 controllers) and on X9100 (4 U, 4 controllers
 Spare Parts Query output for the model (the Product Description defers the per-model module list to it); or a
 stated configuration of the shape `X8100 node, 2 controllers, 4-port 10GE electrical module in IOM 0 and IOM 1`,
 which converts in one step using the slot rules already transcribed above.
+
+## 13. Fourth pass: the books are absent under a UA that renders their siblings, and the vendor names the tool that holds the answer
+
+Measured 2026-11-17. §12 established *which* books render; this pass fixes the **probe method**, because a wrong
+probe makes an unavailable book look available and an available one look unavailable.
+
+**The shell trap.** The doc viewer answers every `/doc/...` URL with the same 3,800-byte SPA shell to a default
+`curl` user-agent - including a section that is present. One user-agent switch apart:
+
+| URL | default `curl` UA | Googlebot UA |
+|---|---|---|
+| `.../EDOC1100318730/ce945100/cabinet-layout-and-connection-planning` | 200, **3,800 B**, no text | 200, **567,916 B**, renders |
+| `.../EDOC1100318733/4f560405/cabinet-layout-and-connection-planning` | 200, **3,800 B**, no text | 200, **517,177 B**, renders |
+
+So `200 + shell` carries **no** information about whether a section exists. Read a 200 from a non-crawler client
+as "not measured", never as "reachable". The discriminator that does work is `404` (with the `/view/notFound`
+body, 383,570-452,479 B) against a rendered page.
+
+**The X8100/X9100 books are absent, not bounced.** Same session, same Googlebot UA that renders both books above:
+
+| URL | result |
+|---|---|
+| `.../EDOC1100368229` (bare root) | **404**, 452,479 B |
+| `.../EDOC1100368229/interface-module` (slug, no hash) | **404**, 383,570 B |
+| `.../EDOC1100368229/a9dbbf6/interface-module` (X8000's topic hash) | **404**, 452,479 B |
+| `.../EDOC1100368230/a9dbbf6/interface-module` (X9000, X9100) | **404**, 452,479 B |
+| `.../EDOC1100305240/216dcdb5/cabinet-layout-and-connection-planning` (the Wayback hash) | **404**, 452,479 B |
+
+Topic hashes are revision-scoped and do not carry across books, and no slug-without-hash form resolves, so there
+is no enumeration entry point: §12's conclusion holds with the probe now controlled for user-agent.
+
+**The frame census is vendor-sourced and does not need those books.**
+`https://e.huawei.com/en/products/storage/oceanprotect/x100-series` (200, rendered spec table) publishes, per
+model: **2 controllers** (X8100) and **4** (X9100), max 4 / 8 per system, front-end port **types**
+`16/32/64 Gbit/s Fibre Channel; 10/25/40/100GE`, node enclosure `86.1 x 447 x 920 mm` (X8100, 2 U) and
+`175 x 447 x 865 mm` (X9100, 4 U), node weight <= 45 / <= 89 kg, `10% to 90% RH`. It publishes no IOM slot
+count and no per-module port count - so it confirms the thread's frame figures and still stops at the census.
+
+**The vendor names the one artefact that would finish it.** The Interface Module chapter of the readable
+generation (`.../EDOC1100319420/a9dbbf6/interface-module`) says, in its own text: *"For details about the types
+of hot-swappable interface modules supported by each product model, see Spare Parts Query"* - linked as
+`https://info.support.huawei.com/storage/spareparts/#/home`. That is a public page. It is a JavaScript app
+(`main-ZCQDDWQH.js`, 2,605,430 B) whose product/module data loads from an endpoint not present in the shell
+bundle, so it needs a browser session rather than a fetch; recorded here as **the** next route, ahead of re-trying
+the books.
+
+**Field still missing (#743), unchanged:** the IOM slots that accept front-end interface modules on X8100 (2 U,
+2 controllers) and X9100 (4 U, 4 controllers), plus the port count of each 10/25/40/100GE and 16/32/64 Gbit/s FC
+module as fitted to those two models. **What unblocks it, in order:** (a) Spare Parts Query for the model, in a
+browser - the vendor defers the answer to it by name; (b) any rendered section of `EDOC1100368229`,
+`EDOC1100368230` or `EDOC1100305240` pasted by a reader with a support session; (c) a stated configuration of the
+shape `X8100 node, 2 controllers, 4-port 10GE electrical module in IOM 0 and IOM 1`, which converts in one step
+using §5's slot rules. No spec is written from this file: a 2 U frame with an unpublished IOM population would be
+an empty array, not a census.
