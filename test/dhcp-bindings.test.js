@@ -83,14 +83,22 @@ console.log('The pool view is the pool the server answers from:');
     'dns-server 1.1.1.1', 'range 192.168.10.100 192.168.10.110', 'lease 0 0 1',
     'host 192.168.10.105 aa:bb:cc:00:00:99', 'excluded-address 192.168.10.102', 'exit']);
   const text = show(t, null, 'show ip dhcp pool lan');
-  ok(/Pool lan:/.test(text), 'the pool is named');
-  ok(/192\.168\.10\.100 - 192\.168\.10\.110/.test(text), 'the range is printed as a range', text);
-  ok(/192\.168\.10\.1$|192\.168\.10\.1/m.test(text), 'the default router is printed');
-  ok(/1\.1\.1\.1/.test(text), 'the DNS server is printed');
-  ok(/60s/.test(text), 'the lease time is the configured one, in seconds');
-  ok(/192\.168\.10\.102/.test(text), 'the exclusion is printed');
-  ok(/192\.168\.10\.105 \(aa:bb:cc:00:00:99\)/.test(text), 'the reservation is printed with its owner',
-    text.split('\n').filter(function (l) { return /Reservations/.test(l); })[0]);
+  // What the pool is *configured* with is `show running-config`'s answer, and this view is IOS's answer to
+  // "how much of the subnet is left" (research/show-ip-dhcp-pool-layout.md). It does not restate the config.
+  const cfg = show(t, null, 'show running-config');
+  ok(/Pool lan :/.test(text), 'the pool is named, with the space IOS prints before the colon');
+  ok(/range 192\.168\.10\.100 192\.168\.10\.110/.test(cfg), 'the range is in the saved configuration', cfg);
+  ok(/default-router 192\.168\.10\.1/.test(cfg), 'and so is the default router');
+  ok(/dns-server 1\.1\.1\.1/.test(cfg), 'and the DNS server');
+  ok(/lease 0 0 1/.test(cfg), 'and the lease time');
+  ok(/excluded-address 192\.168\.10\.102/.test(cfg), 'and the exclusion');
+  ok(/host 192\.168\.10\.105 aa:bb:cc:00:00:99/.test(cfg), 'and the reservation, with its owner');
+  // The counts are the subnet's, not the range's: a /24 has 254 usable addresses however narrow the range is,
+  // and the eleven addresses the range leaves out plus the one exclusion are what IOS calls excluded.
+  ok(/Total addresses\s+: 254/.test(text), 'the total is the subnet, not the range', text);
+  ok(/Excluded addresses\s+: 244/.test(text), '244 of them are excluded: the rest of the /24', text);
+  ok(/192\.168\.10\.1 - 192\.168\.10\.254/.test(text), 'the row spans the subnet');
+  ok(/0.0.0.0/.test(text) === false, 'and the index is an address, not the exhausted marker', text);
 
   // Capacity is counted the way allocation counts: 11 addresses, one excluded.
   const p = dhcp.normalizePool({ name: 'lan', network: '192.168.10.0', mask: '255.255.255.0',
@@ -98,9 +106,9 @@ console.log('The pool view is the pool the server answers from:');
     reservations: {}, excluded: [{ start: '192.168.10.102', end: '192.168.10.102' }], leaseSec: 60 });
   ok(dhcp.poolCapacity(p) === 10, 'capacity is 10: eleven addresses less the exclusion',
     String(dhcp.poolCapacity(p)));
-  ok(/In use:\s+not measured/.test(text),
+  ok(/Leased addresses\s+: not measured/.test(text),
     'without a simulation it says the usage is not measured rather than 0 of 10',
-    text.split('\n').slice(-2)[0]);
+    text.split('\n').filter(function (l) { return /Leased addresses/.test(l); })[0]);
 
   const unknown = show(t, null, 'show ip dhcp pool nosuch');
   ok(/No DHCP pool named nosuch/.test(unknown), 'an unknown pool is named, not silently empty', unknown);

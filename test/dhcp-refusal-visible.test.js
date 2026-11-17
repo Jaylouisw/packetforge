@@ -6,7 +6,7 @@
 // So an operator whose host had no address had three views that were each individually true and collectively useless:
 //
 //   * `show ip dhcp binding` listed only the successes, so the table looked complete;
-//   * `show ip dhcp pool` said `In use: 2 of 2 address(es)`, which is what a pool nobody has asked also says;
+//   * `show ip dhcp pool` counted the same two leases a pool nobody has asked would not have;
 //   * the host's own `show interfaces eth0` said `ip: unassigned`, which is what a host with DHCP switched off says.
 //
 // A pool at capacity and a pool nobody asked are the same line. A request answered with silence is a different fact,
@@ -74,13 +74,17 @@ console.log('');
 console.log('The pool it happened in says so too:');
 {
   const pools = run(L, 'r1', 'show ip dhcp pool');
-  const inUse = lineWith(pools, /In use:/);
-  ok(/2 of 2 address\(es\)/.test(inUse), 'the pool is at capacity', inUse);
-  const refused = lineWith(pools, /Refused:/);
-  ok(refused !== '', 'and carries a Refused line, which capacity alone did not tell a reader', pools.join(' | '));
-  ok(/1 request\(s\)/.test(refused) && /pool LAN has no address left to offer/.test(refused),
+  const leased = lineWith(pools, /Leased addresses/);
+  ok(/:\s+2$/.test(leased.trim()), 'the pool has handed out both the addresses it has', leased);
+  // A pool with nothing left prints 0.0.0.0 where the next address it would allocate goes - what IOS prints for an
+  // exhausted pool - which is a different fact from "nobody has asked".
+  const exhausted = lineWith(pools, /0\.0\.0\.0/);
+  ok(exhausted !== '', 'and its index reads 0.0.0.0, so it has nothing left to offer', pools.join(' | '));
+  const refused = lineWith(pools, /refused:/i);
+  ok(refused !== '', 'and carries a refusal line, which the counts alone did not tell a reader', pools.join(' | '));
+  ok(/^% 1 request\(s\) refused:/.test(refused) && /pool LAN has no address left to offer/.test(refused),
     'with the same sentence the binding table gave', refused);
-  ok(run(L, 'r1', 'show ip dhcp pool LAN').join('\n').indexOf('Refused:') !== -1,
+  ok(run(L, 'r1', 'show ip dhcp pool LAN').join('\n').indexOf('request(s) refused') !== -1,
     'the named form of the view says it as well');
 }
 
@@ -102,7 +106,7 @@ console.log('One sentence, three views: they cannot describe the failure differe
 {
   const detail = 'pool LAN has no address left to offer';
   const binding = lineWith(run(L, 'r1', 'show ip dhcp binding'), /request\(s\) refused/);
-  const pool = lineWith(run(L, 'r1', 'show ip dhcp pool'), /Refused:/);
+  const pool = lineWith(run(L, 'r1', 'show ip dhcp pool'), /refused:/i);
   const client = lineWith(run(L, 'c', 'show interfaces eth0'), /^\s+dhcp:/);
   ok(binding.indexOf(detail) !== -1 && pool.indexOf(detail) !== -1 && client.indexOf(detail) !== -1,
     'all three carry the engine\u2019s own sentence, verbatim',
@@ -159,7 +163,7 @@ console.log('A lab where every client got an address keeps the old answers, word
   const bindings = clean.c('r1').run('show ip dhcp binding').output.join('\n');
   ok(bindings.indexOf('refused') === -1, 'no refusal line in the binding table', bindings);
   const pools = clean.c('r1').run('show ip dhcp pool').output.join('\n');
-  ok(pools.indexOf('Refused:') === -1, 'and none in the pool view', pools);
+  ok(pools.indexOf('refused') === -1, 'and none in the pool view', pools);
   ok(clean.c('a').run('show interfaces eth0').output.join('\n').indexOf('dhcp:') === -1,
     'and the clients have no line to explain');
   // A server nobody has asked still says exactly what it used to.

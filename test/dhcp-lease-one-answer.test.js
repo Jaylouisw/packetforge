@@ -151,9 +151,13 @@ function request(port, method, urlPath, body) {
       const pool = await poolText('r1', 'LAN');
       // The leases live on the topology now, so a request that ran no exchange still sees them - the count is a fact
       // about the lab, not about this request (#1429).
-      ok(/In use:\s+2 of 41/.test(pool), 'and the pool counts both leases', pool.split('\n').filter(function (l) { return /In use/.test(l); })[0]);
-      ok(pool.indexOf(ipA) !== -1 && pool.indexOf(ipB) !== -1, 'naming both addresses',
-        pool.split('\n').slice(-2).join(' | '));
+      // `show ip dhcp pool` counts, it does not list: the addresses themselves are the binding table's answer.
+      ok(/Leased addresses\s+: 2/.test(pool), 'and the pool counts both leases',
+        pool.split('\n').filter(function (l) { return /Leased addresses/.test(l); })[0]);
+      // The pool's subnet is a /24 with a 41-address range, and IOS calls everything the range leaves out
+      // "excluded", so the row is 2 leased of 41 offerable, 213 excluded, 254 in the subnet.
+      ok(/ 2 \/ 213 \/ 254/.test(pool), '2 leased, 213 excluded, 254 in the subnet', pool);
+      ok(/10\.91\.0\.12/.test(pool), 'and the index is the address it would offer next', pool);
     }
 
     console.log('');

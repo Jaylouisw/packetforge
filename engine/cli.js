@@ -3637,55 +3637,61 @@ class CliSession {
       }
       for (const p of chosen) {
         const check = dhcpLib.validatePool(p);
-        out.push('Pool ' + p.name + ':');
-        out.push('  Network:        ' + p.network + ' ' + p.mask);
-        out.push('  Range:          ' + (p.rangeStart || '-') + ' - ' + (p.rangeEnd || '-'));
-        out.push('  Default router: ' + (p.gateway || 'none'));
-        out.push('  DNS servers:    ' + ((p.dns && p.dns.length) ? p.dns.join(', ') : 'none'));
-        // `lease infinite` is a duration with no end, and `Number('infinite')` is NaN - so the cell printed
-        // `default`, the one answer that is certainly wrong about a pool whose lease is unlimited
-        // (#fidelity: lease infinite).
-        out.push('  Lease:          ' + (dhcpLib.isInfiniteLease(p) ? 'Infinite (never expires)'
-          : (Number.isFinite(Number(p.leaseSec)) ? Number(p.leaseSec) + 's' : 'default')));
-        const excl = Array.isArray(p.excluded) ? p.excluded : [];
-        out.push('  Excluded:       ' + (excl.length
-          ? excl.map(function (r) { return r.start + (r.end && r.end !== r.start ? '-' + r.end : ''); }).join(', ')
-          : 'none'));
-        const res = p.reservations || {};
-        const resKeys = Object.keys(res).sort();
-        out.push('  Reservations:   ' + (resKeys.length
-          ? resKeys.map(function (m) { return res[m] + ' (' + m + ')'; }).join(', ')
-          : 'none'));
+        // Counted by membership, not by the recorded name: a lease row's pool is the pool it was granted from,
+        // and a row without one still has an address that is inside this pool (#1429).
+        const mine = bindings === null ? null : bindings.filter(function (r) {
+          if (r.state === 'expired') return false;
+          return r.pool === p.name || dhcpLib.ipInPool(p, r.ip);
+        });
+        const summary = dhcpLib.poolSummary(p, mine === null ? null : mine.map(function (r) { return r.ip; }));
+        // The block a real box prints, in its own order and with its own labels, the colons in one column
+        // (research/show-ip-dhcp-pool-layout.md). The console adds no field of its own here: what a pool is
+        // *configured* with is `show running-config`'s answer (`network`, `range`, `default-router`,
+        // `dns-server`, `lease`, `host`), and this view is IOS's answer to "how much of the subnet is left".
+        const field = function (label, value) { return ' ' + pad(label, 31) + ': ' + value; };
+        out.push('Pool ' + p.name + ' :');
+        // `utilization mark` and `subnet size` drive on-demand address pools, which this console does not
+        // model - so every pool prints the pair every published non-ODAP capture prints.
+        out.push(field('Utilization mark (high/low)', '100 / 0'));
+        out.push(field('Subnet size (first/next)', '0 / 0'));
+        out.push(field('Total addresses', summary.total === null
+          ? 'unknown (the pool has no usable subnet)' : summary.total));
+        // `Leased addresses` is a measurement, and the engine only makes it when it is asked at an instant
+        // (#1465): with no simulation there is no instant, so the line says that rather than printing a zero
+        // that would read as "nobody has asked".
+        out.push(field('Leased addresses', mine === null
+          ? 'not measured (no simulation has run)' : mine.length));
+        // Printed only when there is one, which is what the captures show: a /24 pool with nothing excluded
+        // has no `Excluded addresses` line, one with 62 excluded does.
+        if (summary.excluded) out.push(field('Excluded addresses', summary.excluded));
+        out.push(field('Pending event', 'none'));
+        out.push(' 1 subnet is currently in the pool :');
+        if (check.ok && summary.range) {
+          out.push(' ' + pad('Current index', 21) + pad('IP address range', 37) + 'Leased/Excluded/Total');
+          // `Current index` reads 0.0.0.0 when the pool has nothing left to offer - the address that would be
+          // allocated next, which a full pool does not have.
+          const index = (summary.capacity === null) ? 'not measured'
+            : (summary.index === null ? '0.0.0.0' : summary.index);
+          out.push(' ' + pad(index, 21) +
+            pad(summary.range.start + ' - ' + summary.range.end, 37) +
+            (mine === null ? 'not measured' : mine.length) + ' / ' + summary.excluded + ' / ' + summary.total);
+        }
         if (!check.ok) {
           // A pool that is not serving yet says why. It used to print `undefined`, because the verdict carries an
           // `errors` array and this read `check.error` (#1429).
           const why = (check.errors && check.errors[0] && check.errors[0].message) || check.error ||
             'this pool is not serving yet';
-          out.push('  In use:         no - ' + why);
-        } else if (bindings === null) {
-          out.push('  In use:         not measured (no simulation has run)');
-        } else {
-          // Counted by membership, not by the recorded name: a lease row's pool is the pool it was granted from, and a
-          // row without one still has an address that is inside this pool (#1429).
-          const mine = bindings.filter(function (r) {
-            if (r.state === 'expired') return false;
-            return r.pool === p.name || dhcpLib.ipInPool(p, r.ip);
-          });
-          const cap = dhcpLib.poolCapacity ? dhcpLib.poolCapacity(p) : null;
-          out.push('  In use:         ' + mine.length + (cap === null ? ' lease(s)' : ' of ' + cap + ' address(es)'));
-          if (mine.length) {
-            out.push('                  ' + mine.map(function (r) { return r.ip + ' (' + r.mac + ')'; }).join(', '));
-          }
+          out.push('% this pool is not serving yet: ' + why);
         }
-        // Requests this pool turned away, with the sentence the engine recorded for the last one (#1453): a pool at
-        // 2 of 2 addresses and a pool nobody has asked are both "full" on the In use line, and only one of them has
-        // clients standing in the dark.
+        // Requests this pool turned away, with the sentence the engine recorded for the last one (#1453): a pool
+        // that has handed out every address it has and a pool nobody has asked both show a `Leased addresses`
+        // count, and only one of them has clients standing in the dark.
         const refusedHere = (this._dhcpFailures().asServer || []).filter(function (e) {
           return e.pool === p.name;
         });
         if (refusedHere.length) {
-          out.push('  Refused:        ' + refusedHere.length + ' request(s) - ' + (refusedHere[refusedHere.length - 1].detail ||
-            'no address left to offer'));
+          out.push('% ' + refusedHere.length + ' request(s) refused: ' +
+            (refusedHere[refusedHere.length - 1].detail || 'no address left to offer'));
         }
         out.push('');
       }

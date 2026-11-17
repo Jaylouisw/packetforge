@@ -1103,14 +1103,17 @@ IP address      Client identifier / MAC       Pool              Expires in
 2 active binding(s)…
 
 r1> show ip dhcp pool
-  In use:         2 of 2 address(es)
+  Leased addresses               : 2
+  Current index        IP address range                     Leased/Excluded/Total
+  0.0.0.0              10.20.0.1 - 10.20.0.254              2 / 252 / 254
 
 c> show interfaces eth0
   ip:  unassigned (dhcp)
 ```
 
 Three views, each individually true, collectively useless. The binding table listed only the successes, so it looked
-complete. `In use: 2 of 2` is what a pool nobody has asked also says. And `unassigned` is what a host with DHCP
+complete. `Leased addresses : 2` is what a pool that handed out two addresses says, and what a pool whose two
+leases came and went also said. And `unassigned` is what a host with DHCP
 switched off says. The one fact an operator needs — a client asked and was answered with silence, for a stated reason —
 was in the event log the whole time, because the exchange has recorded every failure since it was written:
 
@@ -1125,7 +1128,7 @@ The three views now read that log, so there is exactly one sentence and three pl
 | --- | --- | --- |
 | `show ip dhcp binding` (server) | only successes | `1 request(s) refused: pool LAN has no address left to offer (02:…:04:00, step 0)` |
 | — and with no leases at all | `no leases: nothing has asked this server for an address yet` | `no leases: 1 request(s) were refused, none granted` — because "nothing has asked" stops being true the moment something asks |
-| `show ip dhcp pool` (server) | `In use: 2 of 2 address(es)` | plus `Refused: 1 request(s) - pool LAN has no address left to offer` |
+| `show ip dhcp pool` (server) | `Leased addresses : 2`, index `0.0.0.0` | plus `% 1 request(s) refused: pool LAN has no address left to offer` |
 | `show interfaces eth0` (client) | `ip: unassigned (dhcp)` | plus `dhcp: 1 request(s), no address - pool LAN has no address left to offer (from ISR 4331 branch router-r1) (step 0)` |
 
 Two decisions worth keeping:
@@ -1404,7 +1407,7 @@ So: lease state lives on the **topology** (`topo.dhcpStates`), exactly like the 
 - a deleted server device forgets its lease table (`Simulator.forgetDhcpState`), so a
   re-created id does not inherit the dead one's bindings;
 - `leaseTable()` rows always carry their `pool`, and `show ip dhcp pool` counts a lease by
-  membership in the pool, so `In use:` is a fact and not `0 of 41` while two leases stand —
+  membership in the pool, so `Leased addresses` is a fact and not `0 of 41` while two leases stand —
   and never prints `undefined` for a pool that cannot serve yet.
 
 `test/dhcp-lease-one-answer.test.js` pins all of it, 23 checks, against a real server.

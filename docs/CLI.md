@@ -1063,23 +1063,36 @@ IP address      Client identifier / MAC          Pool              Expires in
 `Expires in` is the lease time counted from the instant it was granted, not from the last time you looked. The
 `(reserved)` marker means the address is the one that MAC is pinned to, so it will get it back after any lapse.
 
+`show ip dhcp pool` is the block a real box prints, field for field — the size of the subnet the pool serves, how
+much of it the pool will offer, and the address it would hand out next — over the one-row subnet table
+([research/show-ip-dhcp-pool-layout.md](../research/show-ip-dhcp-pool-layout.md)):
+
 ```
 r1> show ip dhcp pool
-Pool lan:
-  Network:        192.168.10.0 255.255.255.0
-  Range:          192.168.10.100 - 192.168.10.110
-  Default router: 192.168.10.1
-  DNS servers:    1.1.1.1
-  Lease:          60s
-  Excluded:       192.168.10.102
-  Reservations:   192.168.10.105 (aa:bb:cc:00:00:99)
-  In use:         2 of 10 address(es)
-                  192.168.10.100 (02:00:00:00:01:00), 192.168.10.105 (02:00:00:00:00:0a)
+Pool lan :
+ Utilization mark (high/low)    : 100 / 0
+ Subnet size (first/next)       : 0 / 0
+ Total addresses                : 254
+ Leased addresses               : 2
+ Excluded addresses             : 244
+ Pending event                  : none
+ 1 subnet is currently in the pool :
+ Current index        IP address range                     Leased/Excluded/Total
+ 192.168.10.101       192.168.10.1 - 192.168.10.254        2 / 244 / 254
 ```
 
-The capacity in `In use` is counted the way allocation counts: the range endpoints included, exclusions removed,
-network and broadcast removed, and the gateway removed when it sits inside the range. A reservation is counted,
-because it is allocatable to its owner.
+`Total addresses` is the subnet's, not the range's: a /24 has 254 usable addresses however narrow the range is.
+`Excluded addresses` is everything the pool will not offer — the addresses the `range` leaves out, the
+`excluded-address` entries, and the gateway — so leased + excluded + free add up to the total, which is the
+arithmetic the IOS XE captures print. `Current index` is the address the server would allocate next, skipping the
+leases, the exclusions and the reservations; it reads `0.0.0.0` once the pool has nothing left, which is what IOS
+prints for an exhausted pool. `Utilization mark` and `Subnet size` drive on-demand address pools, which this console
+does not model, so every pool prints the pair every published non-ODAP capture prints.
+
+What the pool is *configured* with is `show running-config`'s answer — `network`, `range`, `default-router`,
+`dns-server`, `excluded-address`, `lease`, `host` — and this view no longer restates it. With no simulation behind
+the session, `Leased addresses` reads `not measured (no simulation has run)` and the table's lease cell the same:
+the engine only counts leases at an instant, and a zero it has not observed would read as "nobody has asked".
 
 A binding can be asked for by address or by MAC, and an unknown one is reported rather than shown as an empty
 table:
@@ -2045,8 +2058,8 @@ ip dhcp pool <name>
 `lease` takes the two forms the vendor's own reference states — `lease {days [hours [minutes]] | infinite}`, where
 `infinite` means "the duration of the lease is unlimited"
 ([Cisco IOS IP Addressing Services Command Reference, `lease`](https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/ipaddr/command/ipaddr-cr-book/ipaddr-l1.html)).
-A pool given the word carries the word: `show running-config` prints `lease infinite` back, `show ip dhcp pool`
-reports the lease as `Infinite (never expires)`, and a binding granted from that pool never lapses — the handshake
+A pool given the word carries the word: `show running-config` prints `lease infinite` back, and a binding granted
+from that pool never lapses — the handshake
 carries `0xffffffff`, the value [RFC 2131 §3.3](https://www.rfc-editor.org/rfc/rfc2131) reserves to represent
 "infinity", and `show ip dhcp binding` prints `Infinite` in the `Expires in` column, which is the vendor word for a
 static binding's lease expiration. The numeric form is unchanged, and `lease 0` is still refused as a zero-length

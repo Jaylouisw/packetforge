@@ -252,6 +252,73 @@ function poolCapacity(p) {
   return count;
 }
 
+// What `show ip dhcp pool` states about one pool: how big the subnet it serves is, how much of that
+// subnet the pool can hand out, and the address the allocator would try next. IOS's words for the three
+// are `Total addresses`, `Excluded addresses` and `Current index` (research/show-ip-dhcp-pool-layout.md).
+//
+// Only one of them is stored. The other two are derived here, once, so the console cannot compute them a
+// second way:
+//   total    - the subnet's usable addresses, network and broadcast removed: 254 for a /24, which is what
+//              every published capture of a /24 pool prints, whatever its exclusions.
+//   excluded - what is left of the subnet after `poolCapacity()`. A configured `range` narrower than the
+//              subnet leaves addresses the server will never offer, and IOS counts "excluded" as exactly
+//              that: an address the server will not offer. With the gateway (not allocatable either) that
+//              makes leased + excluded + free add up to the subnet, the arithmetic the IOS XE capture
+//              prints (`61 / 62 / 254`).
+//   index    - the first address in the subnet the server would hand out next, skipping the endpoints,
+//              exclusions, the gateway, the reservations and the leases the caller can see. `null` when
+//              there is none left - IOS prints that as `0.0.0.0`.
+//
+// `taken` is the addresses already leased, or null when that is not known yet, so the console can say
+// "not measured" instead of a zero it did not observe.
+function poolSummary(pool, taken) {
+  const p = normalizePool(pool);
+  const maskInt = maskIntOf(p);
+  const netInt = networkIntOf(p);
+  const range = rangeInts(p);
+  const capacity = poolCapacity(p);
+  if (maskInt === null || netInt === null) {
+    return { total: null, capacity: capacity, excluded: null, index: null, range: null };
+  }
+  const bcast = (netInt | (~maskInt >>> 0)) >>> 0;
+  const size = (bcast - netInt + 1) >>> 0;
+  // A /31 and a /32 have no network or broadcast address to lose (RFC 3021); every wider mask loses two.
+  const total = size > 2 ? size - 2 : size;
+  const first = size > 2 ? netInt + 1 : netInt;
+  const last = size > 2 ? bcast - 1 : bcast;
+
+  // Everything the server will not offer from this subnet, on top of what poolCapacity() already removed.
+  const excluded = (capacity === null) ? null : total - capacity;
+
+  const held = {};
+  for (const ip of (Array.isArray(taken) ? taken : [])) held[ip] = true;
+  for (const mac of Object.keys(p.reservations || {})) {
+    if (typeof p.reservations[mac] === 'string') held[p.reservations[mac]] = true;
+  }
+
+  let index = null;
+  if (range !== null && capacity !== null) {
+    for (let n = first; n <= last; n++) {
+      // Outside the configured range is the same fact as an exclusion: the server will not offer it.
+      if (n < range.start || n > range.end) continue;
+      if (isEndpointInt(p, n)) continue;
+      if (isExcludedInt(p, n)) continue;
+      const ip = net.intToIp(n);
+      if (p.gateway !== null && ip === p.gateway) continue;
+      if (held[ip]) continue;
+      index = ip;
+      break;
+    }
+  }
+  return {
+    total: total,
+    capacity: capacity,
+    excluded: excluded,
+    index: index,
+    range: { start: net.intToIp(first), end: net.intToIp(last) }
+  };
+}
+
 function maskIntOf(p) { return parseMask(p.mask); }
 function networkIntOf(p) { return parseIp(p.network); }
 function rangeInts(p) {
@@ -876,5 +943,6 @@ module.exports = {
   releaseLease,
   expireLeases,
   leaseTable,
-  poolCapacity
+  poolCapacity,
+  poolSummary
 };

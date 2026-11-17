@@ -82,9 +82,10 @@ console.log('The word is a value, and the config gives it back:');
   ok(/^\s+lease infinite$/m.test(text), 'the pool keeps `lease infinite` as the word it was given', text);
   ok(!/^\s+lease \d/m.test(text), 'and does not invent a number for it', text);
   const pool = ((env.s.run('show ip dhcp pool lan') || {}).output || []).join('\n');
-  ok(/Lease:\s+Infinite \(never expires\)/.test(pool), 'the pool view says the lease never expires', pool);
-  ok(!/Lease:\s+default/.test(pool), 'it no longer reads as an unset lease', pool);
-  ok(!/E_DHCP_BAD_LEASE/.test(pool), 'and the pool is not reported as invalid', pool);
+  // `show ip dhcp pool` is IOS's usage view and has no lease field at all, so the word is checked where a real
+  // box keeps it - the saved configuration above - and here only that the pool is otherwise healthy.
+  ok(!/E_DHCP_BAD_LEASE/.test(pool), 'the pool is not reported as invalid', pool);
+  ok(/Total addresses\s+: 254/.test(pool), 'and it prints the subnet it serves', pool);
 }
 
 console.log('');
@@ -94,8 +95,11 @@ console.log('`no lease` puts the default back:');
   env.s.run('end');
   const cfg = ((env.s.run('show running-config') || {}).output || []).join('\n');
   ok(!/lease infinite/.test(cfg), 'the line is gone from the saved configuration', cfg);
-  const pool = ((env.s.run('show ip dhcp pool lan') || {}).output || []).join('\n');
-  ok(/Lease:\s+86400s/.test(pool), 'and the pool is back on the 1-day default', pool);
+  // The default is a lease the box would hand out, not a line it prints: `no lease` removes the line, and the
+  // pool falls back to the 24 hours the command's own default states.
+  const normalised = dhcp.normalizePool(env.t.getDevice('r1').config.dhcpPools[0]);
+  ok(normalised.leaseSec === 86400, 'and the pool is back on the 1-day default',
+    String(normalised.leaseSec));
 }
 
 console.log('');
