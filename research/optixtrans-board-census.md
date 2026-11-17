@@ -85,3 +85,18 @@ stream is explicitly not allowed to make. So the family is blocked on **two** fi
 
 No spec is added by this file: the frame arithmetic and the card arithmetic are both public, the port type
 is not, and a mislabelled port is worse than a missing device.
+
+## Update, later on 2026-11-17: the board datasheet has a document ID, and the engine objection is wrong
+
+Two corrections, both recorded in `research/optixtrans-e9600-board-datasheet.md`:
+
+1. **The vendor names the board document.** The E9605/E9612/E9624 product pages list, under
+   *Datasheet*, "OptiXtrans E9600 Board Datasheet" → `EDOC1100163901`. It is a real vendor document
+   with a real vendor link; every anonymous route to it answers 404 (`view/notFound`) while a control
+   section URL on the same host returns 200, so the matrix is *withheld*, not *unpublished*. That is a
+   narrower ask than "find the board list somewhere".
+2. **§2's port-type blocker does not survive the catalogue.** `ciena/6500-s14`, `adva/fsp-3000`,
+   `nokia/1830-pss-24x` and `packetlight/pl-2000m` all file their WDM/OTN line sides as
+   `type: ethernet` with a QSFP28 cage and a "modelled at this engine's 100G ceiling" caveat. An
+   E9605 as `5 x TNG1N210` can be written in exactly that house style; the remaining missing field is
+   the board→subrack matrix alone.
