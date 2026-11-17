@@ -4988,7 +4988,18 @@ class CliSession {
           continue;
         }
         const members = [];
-        for (const i of dev.interfaces.values()) {
+        // A port is only ever a member of a VLAN if the box switches frames at all. A router's ports are
+        // routed ports - `show interfaces switchport` refuses them with "is not a switchable port" - so they
+        // belong to no VLAN, and a router with a switch module lists only the module's ports in this command
+        // (`Router# show vlan-switch brief` -> `1 default active Fa0/2, Fa0/9, Fa0/14, Gi0/0`, Cisco, "EtherSwitch
+        // Network Module"). This table used to walk every interface on every device, so a router's `show vlan`
+        // printed its own routed sockets as members of VLAN 1 - a membership the hardware cannot have
+        // (research/vlan-on-a-router.md).
+        //
+        // The same predicate guards `inactiveVlan()` on Device: a box that does not bridge has no VLAN for a
+        // port to be inactive in either.
+        const bridgePorts = (typeof dev.isL2 !== 'function') || dev.isL2();
+        for (const i of (bridgePorts ? dev.interfaces.values() : [])) {
           // A trunk port is in no row: it carries the VLAN, it is not a member of it, and the vendor's
           // table lists access ports only. Emitting it in every VLAN its allowed list names made a trunk
           // read as an access member of half the database.

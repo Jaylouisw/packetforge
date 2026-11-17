@@ -738,8 +738,22 @@ VLAN nothing carries prints an empty Ports column rather than an invented port.
 configuration: `show running-config` never prints them, and they keep their place in the sort, so a hand-made
 VLAN 2000 appears after 1005. The names are `RESERVED_VLANS` in `engine/vlan.js`, the same list the reserved-range
 refusal quotes. A device that is not a bridge is not given the reserved rows, because it has no VLAN database
-(`test/show-vlan-reserved-defaults.test.js`, 30 checks) — though a router still answers `show vlan` with VLAN 1,
-which a real router refuses outright; that is a separate fault, recorded and not fixed here.
+(`test/show-vlan-reserved-defaults.test.js`, 30 checks).
+
+The Ports column of such a device is empty, because a routed port is not in a VLAN: `show interfaces switchport`
+refuses it with "is not a switchable port", and a router's VLAN table lists its switch module's ports only
+(Cisco, *EtherSwitch Network Module*: the router's own view, `vlan-switch brief`, prints
+`1 default active Fa0/2, Fa0/9, Fa0/14, Gi0/0`).
+This table used to walk every interface on every box, so a router printed `1 default active Gi0/0, Gi0/1, Gi0/2`
+- its own routed sockets offered as members of VLAN 1, which the hardware cannot produce. Membership now uses the
+same predicate `Device.inactiveVlan()` uses; a switch is untouched
+(`test/show-vlan-router-ports.test.js`, 15 checks, `research/vlan-on-a-router.md`).
+
+A router still answers `show vlan` with a table at all, and that remains the open half: some IOS routers refuse
+the command (`% Invalid input detected at '^' marker.`), some reach a VLAN database only through privileged
+`vlan database ... apply`, and routers with integrated switch ports take `vlan` in global config. Whether the
+command exists is per platform, and the catalogue has no "has a switch module" flag to ask, so the table stays
+rather than being replaced by a refusal the model cannot justify.
 
 ### `show vlan` is two tables, and `brief` is only the first
 
