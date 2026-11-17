@@ -986,13 +986,15 @@ Four echoes are one statement about the path, not four; the count lives in the s
 
 ```
 r1> ping 10.0.0.10 4
-!!!!
+Type escape sequence to abort.
+Sending 4, 100-byte ICMP Echos to 10.0.0.10, timeout is 2 seconds:
+....
 Success rate is 0 percent (0/4)
 Request timed out (seq 0)
 Request timed out (seq 1)
 Request timed out (seq 2)
 Request timed out (seq 3)
-% Echoes lost: 4 drops (peer port shut (R1 Gi0/0/0) x4)
+% Echoes lost: 4 drops ("peer port shut (r2 Gi0/0/0)" x4)
 ```
 
 The phrasing is the one the port counters already used — `3 drops (no route to 10.0.0.99 x2, link down)`, longest
