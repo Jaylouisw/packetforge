@@ -152,17 +152,32 @@ function renderOpenRequests() {
   }
   const requests = Array.isArray(data.requests) ? data.requests : [];
   const lines = [OPEN_START, '## What is left open, and why', ''];
-  lines.push('Seven hardware requests are open and cannot be modelled yet. Not one of them is blocked on');
-  lines.push('research effort: in every case the vendor publishes the field *type* and not its *value*,');
-  lines.push('and the value is what a spec needs. This table is generated from');
-  lines.push('`research/open-device-requests.json` - `npm run regen:registry-doc` after editing it, and the');
-  lines.push('issue threads stay the place where each one is argued.');
-  lines.push('');
-  lines.push('| issue | model(s) | the field the vendor does not publish | what would unblock it |');
-  lines.push('|---:|---|---|---|');
-  for (const r of requests) {
-    const cells = [String(r.issue), r.models, r.missing, r.unblock].map(mdCell);
-    lines.push('| ' + cells.join(' | ') + ' |');
+  // The count is derived, not typed: the sentence said "Seven" for as long as it took two of the
+  // seven to be closed by other work, and a page about staleness must not go stale about its own
+  // length. Numbers up to ten are spelled out because the page reads as prose.
+  const WORDS = ['No', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine', 'Ten'];
+  const n = requests.length;
+  const count = n < WORDS.length ? WORDS[n] : String(n);
+  if (n === 0) {
+    lines.push('The queue is clear: no device request is open and unbuildable today. The table below');
+    lines.push('is generated from `research/open-device-requests.json` and is empty when nothing is');
+    lines.push('waiting on a vendor.');
+  } else {
+    lines.push(count + (n === 1 ? ' hardware request is open' : ' hardware requests are open') +
+      ' and cannot be modelled yet.');
+    lines.push('Not one of them is blocked on research effort: in every case the vendor publishes the');
+    lines.push('field *type* and not its *value*, and the value is what a spec needs. This table is');
+    lines.push('generated from `research/open-device-requests.json` - `npm run regen:registry-doc` after');
+    lines.push('editing it, and the issue threads stay the place where each one is argued. Every row');
+    lines.push('below carries the `blocked-on-build` label on its issue, which is what stops');
+    lines.push('`node scripts/request-queue.js` from counting it ready.');
+    lines.push('');
+    lines.push('| issue | model(s) | the field the vendor does not publish | what would unblock it |');
+    lines.push('|---:|---|---|---|');
+    for (const r of requests) {
+      const cells = [String(r.issue), r.models, r.missing, r.unblock].map(mdCell);
+      lines.push('| ' + cells.join(' | ') + ' |');
+    }
   }
   if (requests.length) {
     lines.push('');

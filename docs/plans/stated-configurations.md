@@ -1,9 +1,11 @@
 # Plan: seven of the ten open requests are one decision away, and the queue calls them ready
 
-Status: forward plan. Measured on `99c2dee6`, 2026-11-17. Steps 1 and 2 have since landed
-(`docs/DEVICE_SCHEMA.md` § "A port list may be a stated build"; the E6608, E6608T and E6616 now carry
-their complement in `label`), so the "What exists today" table below is the state before them. Steps 4-5 close #797 and #799;
-step 6 unblocks #807, #808 and #810. Nothing here changes an engine rule, a test or a workflow.
+Status: forward plan. Measured on `99c2dee6`, 2026-11-17. Steps 1-2 have since landed
+(`docs/DEVICE_SCHEMA.md` section "A port list may be a stated build"; the E6608, E6608T and E6616 now
+carry their complement in `label`), and step 3 landed the same day, so the "What exists today" table
+below is the state before all three. Steps 4-5 closed #797 and #799. Step 6 is the one that unblocks
+#807, #808 and #810, and it is the only remaining step that needs an engine change.
+Nothing here changes an engine rule, a test or a workflow.
 
 Every open device request carries the same maintainer sentence - *"blocked on a stated
 configuration"* (#799, #804 on 2026-11-10; #743 twice). The project already knows the answer: name
@@ -75,10 +77,14 @@ the invented ports.
    and `optixtrans-e6616` into `label`, leave the port lists alone. Their `aliases` already carry
    the bare names (`E6616`, `OptiXtrans E6616`), so nothing becomes unfindable - that is the check
    to run, not a change to make.
-3. **S - The queue reads the blocker.** `scripts/forgejo-api.js` has `listOpenIssues` and
-   `scanRequests` but no comments read; add one, and have `request-queue.js` report a request whose
-   latest maintainer comment says "blocked on" as `blocked-on-build` with the research page,
-   instead of `ready`. Target: `ready: 10` becomes `ready: 2  blocked-on-build: 8`.
+3. **S - LANDED. The queue reads the blocker.** `scripts/forgejo-api.js` gained
+   `listIssueComments`, and `request-queue.js` reports any request carrying the `blocked-on-build`
+   label as its own group, quoting the newest comment that names the block. The verdict is a label
+   applied by hand, not a regex over prose - a match on "blocked" would re-classify a request the
+   moment someone wrote "blocked on the bench" - and the extra comments call is paid only for
+   labelled requests. Measured on the live queue, 2026-11-17: `open: 5  ready: 5` became
+   `open: 5  ready: 0  blocked-on-build: 5`, which is the true state of #130, #803, #807, #808 and
+   #810. `--skeleton` still runs on a blocked request, but warns that the stub is a one-port box.
 4. **M - NetEngine 8000 M8.** `devices/huawei/netengine-8000-m8.json`, label
    `NetEngine 8000 M8 (8x CR5D00LAXF90, 80x 10GE)`, notes quoting the `PIC 1-8` row and the card's
    printed port count. Closes **#797**.

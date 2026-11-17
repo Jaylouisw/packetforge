@@ -28,7 +28,13 @@ If you already have the JSON, skip the form and open a PR — see
    tell you the datasheet link is blank.
 2. **Triage.** `node scripts/request-queue.js` lists every open request, checks
    each against the catalog (so duplicates are caught), and separates "ready to
-   implement" from "waiting on the requester".
+   implement" from "waiting on the requester" and from "blocked on a field the
+   vendor does not publish". The last group is the one where every form field is
+   answered and the device still cannot be written honestly - a chassis whose
+   port count is a function of the cards ordered, for instance. Those carry the
+   `blocked-on-build` label, and the queue quotes the maintainer's own sentence
+   from the thread rather than summarising it, so the reason is always the
+   evidence rather than a paraphrase of it.
 3. **The device is written** as `devices/<vendor>/<model>.json`. No code changes
    are needed for a new model, ever.
 4. **CI checks it** — `test/hardware-invariants.test.js` runs over the whole
@@ -80,6 +86,13 @@ The skeleton command prints a stub with the vendor, model, category and source
 URL already filled from the issue, plus the path it should be written to. Paste in
 the real interfaces from the datasheet, run `npm test`, and the invariants will
 tell you if the ports and the description disagree.
+
+A request labelled `blocked-on-build` is never counted ready and never listed under
+"ready to implement". `--skeleton` still runs on one, but it warns first: the stub
+is an empty chassis written as a one-port box, and filling it from the datasheet's
+maxima is how a spec ends up promising ports the hardware does not carry. State the
+build instead - see [DEVICE_SCHEMA.md](DEVICE_SCHEMA.md) § "A port list may be a
+stated build".
 
 ### What hardware is missing? Ask the labs
 

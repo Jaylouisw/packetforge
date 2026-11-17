@@ -112,6 +112,49 @@ async function listOpenIssues(opts) {
 }
 
 /**
+ * Every comment on one issue, oldest first.
+ *
+ * The request queue needs this for one reason: a request labelled `blocked-on-build` carries its
+ * reason in prose, in the thread, and the tool quotes that sentence instead of inventing a
+ * summary. Reading it costs a second request per *blocked* issue only - a healthy queue makes none.
+ */
+async function listIssueComments(number, opts) {
+  const o = opts || {};
+  const params = new URLSearchParams();
+  params.set('limit', String(o.limit || 100));
+
+  const url = API + '/repos/' + OWNER + '/' + NAME + '/issues/' +
+    encodeURIComponent(String(Number(number))) + '/comments?' + params.toString();
+  const res = await fetch(url, {
+    headers: {
+      Authorization: 'token ' + token(),
+      Accept: 'application/json'
+    }
+  });
+
+  if (!res.ok) {
+    const err = new Error('tracker returned HTTP ' + res.status + ' for ' + url);
+    err.code = 'E_HTTP';
+    throw err;
+  }
+
+  const body = await res.json();
+  if (!Array.isArray(body)) {
+    const err = new Error('tracker returned something other than a list of comments');
+    err.code = 'E_SHAPE';
+    throw err;
+  }
+
+  return body.map(function (c) {
+    return {
+      author: (c.user && (c.user.login || c.user.username)) || null,
+      createdAt: c.created_at || null,
+      body: c.body || ''
+    };
+  });
+}
+
+/**
  * The shape both triage scripts expect: `{available, reason, count, requests}`.
  *
  * A missing token is reported as unavailable *with a reason*, never as an empty queue - a script
@@ -143,5 +186,6 @@ module.exports = {
   availability: availability,
   listIssuesPage: listIssuesPage,
   listOpenIssues: listOpenIssues,
+  listIssueComments: listIssueComments,
   scanRequests: scanRequests
 };

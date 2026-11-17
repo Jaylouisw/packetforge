@@ -3,7 +3,7 @@
 // device, and the maintainer loop reads that queue. If the parsing is wrong, a
 // complete request looks empty and a well-formed one gets told it is missing
 // fields - so the parsing itself is tested.
-const { field, slug, CATEGORY_MAP } = require('../scripts/request-queue');
+const { field, slug, CATEGORY_MAP, blockerLine, BLOCKED_LABEL } = require('../scripts/request-queue');
 
 let passed = 0, failed = 0;
 function ok(cond, msg) {
@@ -76,6 +76,36 @@ console.log('\nFilenames are derived safely from user text:');
   ok(slug('../../etc/passwd') === 'etc-passwd',
     'a path traversal attempt cannot escape the vendor directory');
   ok(slug('x'.repeat(200)).length <= 60, 'absurdly long names are truncated');
+}
+
+console.log('\nA blocked request quotes the thread, it does not summarise it:');
+{
+  ok(BLOCKED_LABEL === 'blocked-on-build', 'the label name is the one applied by hand');
+  ok(blockerLine([]) === null, 'no comments means no quote, not an empty string');
+  ok(blockerLine(null) === null, 'a failed read is safe');
+
+  const thread = [
+    { body: 'Opening status: **blocked on a stated configuration.**\n\nWhat would close it: a board.' },
+    { body: '**Re-checked. Still blocked, on one named file.** PR #1893 records it.' }
+  ];
+  ok(/^Re-checked\. Still blocked, on one named file\./.test(blockerLine(thread)),
+    'the newest comment that mentions the block is the one quoted');
+  ok(/\*\*/.test(blockerLine(thread)) === false, 'markdown emphasis is stripped');
+
+  const newerOffTopic = thread.concat([{ body: 'Merged in #1900, thanks!' }]);
+  ok(/Still blocked/.test(blockerLine(newerOffTopic)),
+    'a later comment that does not mention a block does not hide the verdict');
+
+  ok(blockerLine([{ body: 'Can you add the 10G model as well?' }]) ===
+    'Can you add the 10G model as well?',
+    'with no verdict line, the newest comment is quoted rather than nothing');
+
+  ok(blockerLine([{ body: '> **Blocked:** the vendor publishes slots, not ports.' }]) ===
+    'Blocked: the vendor publishes slots, not ports.',
+    'a quoted line loses its quote marker');
+
+  ok(blockerLine([{ body: 'x'.repeat(500) }]).length === 220,
+    'a long comment is capped, so one paragraph cannot flood the queue');
 }
 
 console.log('\n' + passed + ' passed, ' + failed + ' failed');
