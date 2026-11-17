@@ -1058,9 +1058,9 @@ h1> traceroute srv.lab
 Translating "srv.lab"...domain server (10.0.2.2) [OK]
 Type escape sequence to abort.
 Tracing the route to srv.lab (10.0.9.9)
- 1  10.0.1.1  0.002 msec  0.002 msec  0.002 msec
- 2  10.0.2.2  0.103 msec  0.103 msec  0.103 msec
- 3  10.0.9.9  0.205 msec  0.205 msec  0.205 msec
+  1  10.0.1.1  0.002 msec  0.002 msec  0.002 msec
+  2  10.0.2.2  0.103 msec  0.103 msec  0.103 msec
+  3  10.0.9.9  0.205 msec  0.205 msec  0.205 msec
 ```
 
 The order is the vendor's, and it is not the obvious one: the lookup line precedes `Type escape sequence to abort.`,
@@ -1075,9 +1075,9 @@ with no parentheses:
 h1> traceroute 10.0.9.9
 Type escape sequence to abort.
 Tracing the route to 10.0.9.9
- 1  10.0.1.1  0.002 msec  0.002 msec  0.002 msec
- 2  10.0.2.2  0.103 msec  0.103 msec  0.103 msec
- 3  10.0.9.9  0.205 msec  0.205 msec  0.205 msec
+  1  10.0.1.1  0.002 msec  0.002 msec  0.002 msec
+  2  10.0.2.2  0.103 msec  0.103 msec  0.103 msec
+  3  10.0.9.9  0.205 msec  0.205 msec  0.205 msec
 ```
 
 so naming a host cannot change the path a trace reports — the two answers differ only in the lines that name the
@@ -1169,7 +1169,7 @@ ends where the wire did instead of printing the same star thirty times:
 PC1#traceroute 10.0.3.9
 Type escape sequence to abort.
 Tracing the route to 10.0.3.9
- 1  *  *  *  (link down)
+  1  *  *  *  (link down)
 % destination not reached after 1 hops
 ```
 
@@ -1198,8 +1198,8 @@ each, so a hop is the address followed by three columns in `msec`:
 r1#traceroute 10.0.1.2
 Type escape sequence to abort.
 Tracing the route to 10.0.1.2
- 1  10.0.0.1  0.103 msec  0.103 msec  0.103 msec
- 2  10.0.1.2  0.205 msec  0.205 msec  0.205 msec
+  1  10.0.0.1  0.103 msec  0.103 msec  0.103 msec
+  2  10.0.1.2  0.205 msec  0.205 msec  0.205 msec
 ```
 
 The engine really does send three probes per hop, and each column is that probe's own round trip: the outbound legs
@@ -1207,6 +1207,14 @@ are the echo request's, and the return legs are the reply's - for a hop that exp
 is an ICMP time-exceeded, which carries the original sequence number but its own id, so the two halves are measured
 separately. A figure here and the figure `ping` prints for the same address are the same measurement: `ping 10.0.1.2`
 in that lab reports `0.205 ms`, and a hop that took 0.205 ms says so.
+
+The hop number is a fixed field: three characters, right-aligned, so `  1` and ` 10` start their address in the
+same column and a trace that crosses ten routers still reads as a table. Two captured IOS-XE traces print it that
+way - hops 1-15 (`  1 192.168.173.43` above ` 10 108.224.66.161`) and hops 1-12 (`  1 10.1.1.4 [AS 65515]` above
+` 10 10.1.1.4 [AS 65515]`) - and this console used to print one space and then the number, so every hop from 10 on
+moved its address, and every probe column behind it, one character right. The separator after the number is still
+this console's two spaces where the box prints one; `research/traceroute-hop-line.md` carries both captures and
+says why only the field width was changed.
 
 The three figures of one hop agree to the last digit, and that is the model being honest rather than lazy: nothing
 in it jitters or queues a frame (`engine/latency.js` says so at the top), so three identical probes on an unchanged

@@ -660,6 +660,20 @@ function unreachLetter(code) {
 // three refused probes and `2 10.10.20.2 !H * !H` when one of the three went missing
 // (research/traceroute-hop-line.md), so the error frame's own round trip is not what the column
 // shows.
+// The hop-number field of a trace line: three characters wide, right-aligned.
+//
+// A real box prints hop 1 and hop 10 with the address in the same column - `  1 192.168.173.43` above
+// ` 10 108.224.66.161` - because the number is a fixed three-character field and not "a space and the number".
+// Two captured IOS-XE traces print exactly that, hops 1-15 and 1-12, with one leading space at 10 where a
+// single digit carries two (research/traceroute-hop-line.md cites both). This console printed one space and
+// then the number, so every hop from 10 onwards pushed its address - and the probe columns behind it - one
+// character to the right: a trace long enough to cross ten routers stopped lining up in the one view a table
+// is read down.
+function hopNumberField(ttl) {
+  const s = String(ttl);
+  return s.length >= 3 ? s : ' '.repeat(3 - s.length) + s;
+}
+
 function probeCells(probes) {
   return (probes || []).map(function (p) {
     if (!p) return '*';
@@ -3838,8 +3852,11 @@ class CliSession {
       // !H` when one of the three timed out (`research/traceroute-hop-line.md`). A hop that answered nothing has
       // no address to print, so the three stars stand in the address column, which is what a real trace prints
       // for a silent hop.
-      if (hop.address) out.push(' ' + hop.ttl + '  ' + hop.address + '  ' + probeCells(hop.probes));
-      else out.push(' ' + hop.ttl + '  ' + probeCells(hop.probes) +
+      //
+      // The number goes in the fixed field: this line was `' ' + hop.ttl`, so hop 10 was one character wider than
+      // hop 9 and moved everything after it.
+      if (hop.address) out.push(hopNumberField(hop.ttl) + '  ' + hop.address + '  ' + probeCells(hop.probes));
+      else out.push(hopNumberField(hop.ttl) + '  ' + probeCells(hop.probes) +
         (hop.dropped ? '  (' + hop.dropped + ')' : ''));
     }
     if (!res.success) out.push('% destination not reached after ' + res.hops.length + ' hops');

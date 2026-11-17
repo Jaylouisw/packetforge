@@ -94,12 +94,42 @@ Two things follow, and both are now in the engine rather than inferred by a read
    probes and already stored each probe's own `code`, so this needed no new measurement - only the printer.
 
 ```
- 1  10.0.1.254  0.002 msec  0.002 msec  0.002 msec
- 2  10.0.1.254  !N  !N  !N
+  1  10.0.1.254  0.002 msec  0.002 msec  0.002 msec
+  2  10.0.1.254  !N  !N  !N
 ```
 
 `test/traceroute-hop-line.test.js` locks the shape (`!N  !N  !N`, three letters, no `msec`, no words) and the
 mapping for all six cases; nothing here is asserted that the transcripts above do not show.
+
+## The hop-number field: settled, and it was wrong here
+
+This note used to leave the field width open - "no transcript found shows hop 10 beside hop 9, so whether the
+number is right-aligned is not settled". Two captured IOS-XE traces settle it: the hop number is a fixed
+**three-character field, right-aligned**, so a single digit carries two leading spaces and a two-digit hop one,
+and the address begins in the same column on both.
+
+| Source | The lines that settle it |
+| --- | --- |
+| [Tachashi/ansible_ios_traceroute_module, sample result](https://github.com/Tachashi/ansible_ios_traceroute_module) (raw `README.md`, JSON strings, so the spaces are the device's) | `"  1 192.168.173.43 186 msec 16 msec 13 msec 11 msec"` ... `" 10 108.224.66.161 62 msec"` ... `" 15 172.174.88.165 77 msec 60 msec 61 msec 63 msec"`; a second path in a multipath hop is a continuation line beginning `"    18.232.93.1 63 msec"` - four spaces, which is where the first line's address starts |
+| [malgebary/Azure-Route-Server-MicroHack, README](https://github.com/malgebary/Azure-Route-Server-MicroHack) (raw `README.md`, lines 2377-2388) | `  1 10.1.1.4 [AS 65515] 3 msec 2 msec 3 msec` through ` 12 10.1.1.4 [AS 65515] 25 msec 30 msec 27 msec` - hops 1-9 carry two leading spaces, hops 10-12 carry one |
+
+Both are code/JSON text rather than rendered HTML, so a page's whitespace collapsing cannot explain the pattern,
+and the two captures agree on it independently. The second also shows the IOS-XE `[AS ...]` annotation between the
+address and the first time; that is a separate, unmodelled detail.
+
+**What changed.** `engine/cli.js` printed `' ' + hop.ttl + '  '` - a space and then the number - so hop 10 was one
+character wider than hop 9 and pushed its address, and every probe column behind it, one character right: a trace
+long enough to cross ten routers stopped lining up in the one view that is read down a column. The number now goes
+through `hopNumberField()`, a three-character right-aligned field, which is exactly `'  1'` and `' 10'`.
+`test/traceroute-hop-line.test.js` section 10 builds an eleven-router chain (with return routes, or the hops past
+the first are silent) and asserts that hops 9, 10 and 11 put their addresses at the same column; the earlier
+sections' expected lines were re-spaced to the new field, and `docs/CLI.md`'s transcripts likewise.
+
+**What is deliberately unchanged.** The separator *after* the number, and the two spaces between the address and
+the first time and between probe cells, stay as they were. Both captures print one space after the number and one
+between probe cells, but a single-space shape is the one this console has locked since the hop-line work (the
+`2 10.10.20.2 !H * !H` transcript in the evidence table above is single-spaced too), and re-spacing every column
+is a second question with its own evidence trail. Only the field width was asked here.
 
 ## What remains unresolved
 
@@ -112,11 +142,12 @@ mapping for all six cases; nothing here is asserted that the transcripts above d
 * **Names in the target.** Settled since this note was written: `traceroute <name>` resolves through the lab's DNS
   and prints the lookup line and the `name (address)` target line a box prints -
   `research/traceroute-name-target.md` carries the transcripts and the rule.
-* **Column width for two-digit hops.** No transcript found shows hop 10 beside hop 9, so whether the number is
-  right-aligned is not settled; the columns here are single-space separated and were left as they were.
+* **Column width for two-digit hops.** Settled in November 2026 by two captured traces (see "The hop-number
+  field" above): the number is a three-character right-aligned field, and the engine now prints it that way. What
+  is still open is the separator *inside* the line - one space on the device, two here.
 
 ## What evidence would settle them
 
-A capture of a two-digit hop number (hop 10 beside hop 9) to settle whether the number is right-aligned; and a
+The two-digit hop capture is no longer outstanding - "The hop-number field" above carries two. Still outstanding: a
 `traceroute <unresolvable-name>` transcript, to settle which `%` sentence a box prints when the lookup itself
 fails - the successful name path is implemented, and `research/traceroute-name-target.md` records it.
