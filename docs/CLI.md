@@ -139,7 +139,7 @@ The output is a restorable backup, and that is a tested invariant rather than an
 (`test/config-roundtrip.test.js`): paste it into a fresh device of the same model at the config prompt
 and you get the same configuration, on the same ports.
 
-Three properties make that work, all of them load-bearing:
+Four properties make that work, all of them load-bearing:
 
 * **Every interface block closes with `exit`.** Without it a reader never leaves interface mode, and
   every following line — including global ones like `ip route` — is parsed as an interface command. The
@@ -149,6 +149,12 @@ Three properties make that work, all of them load-bearing:
   header the printer writes itself.
 * **An interface name is the rest of the line**, because some contain spaces — Ubiquiti's `Port 1`,
   `SFP+ 1`. Splitting on whitespace and taking one token made those devices' configs unreplayable.
+* **The file ends with `end`.** That is the line a real config closes with, and its job is the paste: read
+  in global configuration mode it leaves configuration mode, so a pasted backup finishes instead of leaving
+  the operator at `(config)#`. The number of bare `!` lines a box puts above it varies by release — one in
+  the IOS 11.2 command reference, two in the ISR 4400 guide — so only `end` is copied. `end` typed at
+  privileged EXEC, where a paste usually starts, is accepted and says nothing
+  (`research/running-config-end.md`, `test/running-config-end.test.js`).
 
 Configs copied out before this was fixed (block after block, no `exit`) still replay: the parser treats
 a new `interface` line inside interface mode as a mode switch, and falls through to global config

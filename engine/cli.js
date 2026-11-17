@@ -596,6 +596,15 @@ class CliSession {
           out.push.apply(out, this._links());
         } else if (head === 'traceroute') {
           out.push.apply(out, this._traceroute(tokens.slice(1)));
+        } else if (head === 'end' && this.mode === MODE_ENABLE) {
+          // The line the printer now puts at the end of a config file, read back where a paste usually starts.
+          // Cisco's CLI guide says `end` "will always take you back to EXEC mode regardless of which
+          // configuration mode or configuration submode you are in", and NX-OS lists its mode as "any command
+          // mode"; IOS's own `end` reference only describes it from config modes, so accepting it at `#` (and
+          // saying nothing - it is already there) is inference from what the printer needs, not a captured
+          // transcript. What it buys is concrete: a file pasted over an enabled session, and the `end` a
+          // script appends after one, no longer answer the closing line with `% Unrecognized command: end`
+          // (research/running-config-end.md).
         } else if (head === 'exit' || head === 'logout' || head === 'quit') {
           // `exit` at `>` stays at `>` - there is no login to leave. At `#` it used to do nothing at all,
           // so the prompt kept its `#` and typing it again did not help: one level up from privileged EXEC
@@ -5329,6 +5338,14 @@ class CliSession {
           (r.gw ? ' ' + r.gw + (r.iface ? ' ' + r.iface : '') : (r.iface ? ' ' + r.iface : '')));
       }
       if (dev.config.defaultGateway) out.push('ip default-gateway ' + dev.config.defaultGateway);
+      // The file's last line, which every Cisco `show running-config` ends with: restoring a lab is a
+      // paste into a config prompt, and on a real box the paste leaves configuration mode when the `end`
+      // line is read - the config *file* carries the exit. This printer stopped at the last configured
+      // value, so a pasted backup left the session at `(config)#` with nothing saying the paste was
+      // finished (and a scripted restore kept typing at the wrong prompt). The vendor samples differ in
+      // how many `!` lines sit above it - one in the IOS 11.2 command reference, two in the ISR 4400
+      // guide - so only the line every one of them has is printed (research/running-config-end.md).
+      out.push('end');
     } else {
       out.push('% Invalid show command: ' + (tokens.join(' ') || '(empty)'));
     }
