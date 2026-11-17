@@ -169,7 +169,7 @@ takes back.
 | Section | Printed as |
 |---|---|
 | hostname | `hostname <name>` |
-| interfaces | `interface <name>` block: description, `speed`, `duplex`, `ip address`, switchport VLAN/trunk, `channel-group`, `ip access-group`, `shutdown`, `vrrp <vrid> …` |
+| interfaces | `interface <name>` block: description, `speed`, `duplex`, `encapsulation dot1q <vlan>` (a subinterface), `ip address`, switchport VLAN/trunk, `channel-group`, `ip access-group`, `shutdown`, `vrrp <vrid> …` |
 | VLAN table | `vlan <id> [name] <text>` |
 | DHCP pools | `ip dhcp pool <name>` block: network, range, default-router, dns-server, excluded-address, lease, `host <addr> <mac>` |
 | DNS zones | `dns zone <apex>` followed by `dns add <name> <type> <value>` |
@@ -337,9 +337,17 @@ down, and an address a DHCP client holds at run time — is recorded in
 | `clock rate <bps>` | (serial only) make this end the DCE and clock the line, e.g. `clock rate 64000`. Refused on a non-serial port, and for a rate the port cannot clock |
 | `no clock rate` | drop the clock, leaving this end as DTE |
 | `ip address dhcp` | make the port a DHCP client; the address it ends up with is the outcome of the exchange, not part of the configuration |
+| `encapsulation dot1q <vlan>` | subinterface only: tag the subinterface's frames with `<vlan>`, and make the parent port a trunk. Refused on a physical port, for a VLAN outside 1-4094, and for any other encapsulation |
 | `shutdown` / `no shutdown` | administratively disable / enable |
 | `description <text>` | set a description |
 | `exit` | back to config mode |
+
+**A subinterface is a VLAN tag, so the tag is in its config.** `interface Gi0/0.20` prints `encapsulation dot1q 20`
+in `show running-config` even when the line was never typed, because the VLAN in the name is the tag; naming a
+different one (`encapsulation dot1q 30` inside `Gi0/0.20`) stores what was typed and prints that. The command is
+refused on a physical port (`% encapsulation dot1q is only valid on a subinterface (e.g. Gi0/0.10)`) and for a VLAN
+outside 1-4094, anything but `dot1q` is refused as an unsupported encapsulation, and the parent port is made a
+trunk - which is the router-on-a-stick pairing a saved config has to carry.
 
 **A port has one method.** `ip address dhcp` displaces a static address and says which one it removed;
 `ip address <ip> <mask>` displaces the DHCP client and says so. One port holding both was three lies at once —
