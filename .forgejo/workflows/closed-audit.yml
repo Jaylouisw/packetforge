@@ -33,7 +33,54 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
+      # No `actions/checkout`. The runner pre-clones every `uses:` action into
+      # /data/.cache/act before a job's first step - one directory per action revision,
+      # not reused between runs - so this job, which fires on every push to main, paid
+      # for a clone of the same revision ~150 times a day on the volume Forgejo stores
+      # its own data on. ci.yml and pr-rebase.yml dropped the action for that reason and
+      # for the second one: two jobs cloning the same revision at the same second is
+      # what gave run 3122 task 6834 a red X on a green tree (`Unable to checkout ...:
+      # remove /data/.cache/act/.../.gitignore: no such file or directory`) while its
+      # two siblings ran the identical commit to completion. This is the last workflow
+      # job that still paid it on every merge.
+      #
+      # Measured over the 150 successful audit jobs in the 24 h to 2026-11-17 20:20
+      # (/actions/tasks): median 13 s, p10 11 s, p90 16 s - for one API read and one
+      # catalogue match, a few seconds of work. In ci.yml's legs the clone alone was
+      # 4.7-10.2 s of the job, before the action's own fetch of the tree; `git` is in
+      # the runner image and this job needs exactly one commit.
+      #
+      # Coverage is unchanged: the same commit is checked out, depth 1, because that is
+      # what the action checked out for this job too (it has no fetch-depth). The tree
+      # is what the audit reads, and the credentials are passed per command with `-c`
+      # rather than written into .git/config.
+      #
+      # A fetch that fails stops the job here instead of letting the audit read an empty
+      # tree and print "no bad closes" - the one answer this check exists to disprove.
+      - name: Check out this commit, from git
+        env:
+          TOKEN: ${{ secrets.FORGEJO_TOKEN || secrets.GITHUB_TOKEN || github.token }}
+        run: |
+          set -eu
+          server="${GITHUB_SERVER_URL:-}"
+          if [ -z "$server" ]; then
+            api="${GITHUB_API_URL:-http://10.0.10.20:3000/api/v1}"
+            server="${api%/api/v1}"
+          fi
+          url="${server}/${GITHUB_REPOSITORY}.git"
+          sha="${{ github.sha }}"
+          git init -q .
+          git remote add origin "$url"
+          if [ -n "${TOKEN:-}" ]; then
+            timeout 120 git -c "http.extraheader=Authorization: token ${TOKEN}" -c http.lowSpeedLimit=1000 -c http.lowSpeedTime=30 fetch -q --depth=1 origin "$sha"
+          else
+            timeout 120 git -c http.lowSpeedLimit=1000 -c http.lowSpeedTime=30 fetch -q --depth=1 origin "$sha"
+          fi
+          git checkout -q -f --detach FETCH_HEAD
+          # The runner may leave files of its own in the workspace; after this line the
+          # tree is the commit's own files and nothing else.
+          git clean -qfdx
+          echo "checked out $(git rev-parse HEAD) of ${url} with git - no action cache involved"
 
       # No setup-node here, for the reason ci.yml already removed it from the `smoke` job and
       # from the `Test (Node *)` legs: every job in this repository already runs on Node 20,
@@ -71,4 +118,18 @@ jobs:
             echo "no token available - skipping the closed-request audit"
             exit 0
           fi
-          FORGEJO_TOKEN="${TOKEN}" node scripts/check-closed-issues.js --limit "${LIMIT}" --max-age-days 400
+          # `timeout-minutes: 10` at the top of this job is not a bound this runner
+          # enforces (ci.yml documents three tasks that ran 12-15 minutes past it), and
+          # this script makes one API read per closed request, so a stalled reply holds
+          # the slot until something outside the runner kills the container - and then
+          # there is no log to say why. The script itself is a few seconds' work in a
+          # 13 s job, so 240 s is roughly twenty times its slowest observed run. A
+          # timeout is reported as a timeout, not as a clean audit.
+          set +e
+          timeout --signal=TERM --kill-after=15 240             env FORGEJO_TOKEN="${TOKEN}" node scripts/check-closed-issues.js --limit "${LIMIT}" --max-age-days 400
+          rc=$?
+          if [ "$rc" -eq 124 ] || [ "$rc" -eq 137 ]; then
+            echo "::error title=Closed request audit::the audit was still running after 240 s and was stopped - it has never taken more than a few seconds"
+            exit 1
+          fi
+          exit "$rc"
