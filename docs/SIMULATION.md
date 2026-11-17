@@ -644,7 +644,7 @@ so the next reader does not have to rediscover them.
 | `docs/BGP-POLICY.md` | A full policy design — local-pref, MED, communities, route-maps | A design document. Only the decision-order subset in `engine/bgp.js` exists. |
 
 Six rows have left this table since it was written. Two were the README's counts, which now match the
-tree — **90** media types across **ten** families and **28** connector cages, and **2,348 models across
+tree — **90** media types across **ten** families and **28** connector cages, and **2,351 models across
 258 vendors** in 25 categories:
 
 ```bash
@@ -662,7 +662,8 @@ and none of the commands behind `access-list`, `ip access-group`, `switchport`, 
 `router bgp`/`neighbor`, `ospf`, `dns` or `scion` — that the CLI reference was behind the CLI. All nine
 families are in the reference now (its "What the config contains" table gives the printed form of each),
 and the gap is no longer invisible: `test/help-completeness.test.js` fails when a mechanism it enumerates
-is missing from `help` or from `docs/CLI.md` (eighteen mechanisms today), and
+is missing from `help` or from `docs/CLI.md` (nineteen mechanisms today — the guard prints the count it
+ran), and
 `test/docs-show-commands.test.js` types every `show` form the page prints.
 
 The fifth was the capability table this page was quoting. It called `nat`, `firewall`, `wireless` and
