@@ -273,5 +273,36 @@ so one slot is empty in it. It is deliberately not folded into the AC entry; an 
 row quoted as its own build.
 
 What this does **not** settle: which card sits in which PIC slot (the vendor does not print an order, so the
-spec's port names are flat rather than slot-numbered), and the M14, whose own datasheet was not read this
-pass - #799 stays open until it is.
+spec's port names are flat rather than slot-numbered). The M14 was read on a later pass - see below.
+
+## The M14, read 2026-11-17: the build exists, but no M14 build fills its chassis
+
+`https://e-file.huawei.com/marketingcloud/pep/asset/20000001/Material/f4f1a7b9424a44ff9770b75a19eb5d2e/M3T1A590N1267221252983996547/NetEngine%208000%20M14%20Universal%20Service%20Router%20Datasheet.pdf`
+(HTTP 200, `application/pdf`, 446,839 B) prints the M14 specification table: `Service Slots 14 (DC) / 10 (4AC) /
+12 (2AC)`, `442 mm x 220 mm x 222 mm (5U)`, switching `2.4 / 4 / 7.2 Tbps` for IPU-1T2 / IPU-2T / IPU-3T6,
+typical power `486 W / 968 W / 931 W`, and the headline `64K~400GE full-rate interfaces`. It prints **no card
+list**, so as on the M8 the build has to come from the chassis page's power row.
+
+The DC chassis `CR8B0BKPDCC1` (02353ABJ) states:
+
+> `[IPU-2T/IPU-2T-B]DC: 1*fan+2*DC power+2*IPU+2*CR5DE2NE4X14+1*CR5D00E8XM25+3*CR5D00LAXF91+1*CR5D00EAGF95=905.6 W`
+
+Seven PICs against **fourteen** PIC slots. The difference from the M8 is worth stating plainly: on the M8 the
+stated build happened to fill all six AC service slots, which is why it needed no judgement call. On the M14
+**no published build fills the chassis** - the same seven cards are stated for the 10-slot 4*AC chassis
+(`CR8B0BKPACC2`, 02353ABK, 968.36 W) and a seven-card variant for the 12-slot 2*AC chassis
+(`CR8B0BKPACC1`/`ACC6`, 935.81 W). So the choice is not "which build fills it" but "which chassis the build is
+measured on", and the DC chassis wins because it is the one #799 names (`14 service slots`) - the request's
+figure is confirmed as a slot count, not a socket count, by the datasheet's own `14 (DC)`.
+
+Ports follow from the card names exactly: `CR5DE2NE4X14` "2-Port 100GBase/50GBase-QSFP28 FlexE MACsec Interface
+Card(PIC)" x2, `CR5D00E8XM25` "8-Port 25GE(SFP28)/10GE(SFP+) MACsec Physical Interface Card (PIC)" x1,
+`CR5D00LAXF91` "10-Port 10GE/GE LAN/WAN-SFP+ MACsec Physical Interface Card(PIC)" x3, `CR5D00EAGF95`
+"10-port 100/1000Base-X-SFP MACsec Physical Interface Card(PIC)" x1 => 4x 100GE, 8x 25GE, 30x 10GE, 10x GE = **52
+ports**, in 7 of 14 slots. `devices/huawei/netengine-8000-m14.json` closes #799.
+
+The newer IPU-3T6 chassis codes are a **separate population** on the same 10/12-slot field:
+`CR8B0BKPACM1` (2*AC, 02355VUR) and `CR8B0BKPDCM1` (DC, 02355VUS) state
+`2*CR8DE1KB00M1(1*400GE)+2*CR8DE4NB00M1(4*100GE)+2*CR5D00LAXF91(10*10GE)+2*CR5D00EAGF95(10*GE)=931.67 W` -
+eight cards, 50 ports. They are recorded, not merged: different forwarding units (7.2 Tbit/s), different port
+population.

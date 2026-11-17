@@ -1,0 +1,542 @@
+{
+  "vendor": "huawei",
+  "model": "netengine-8000-m14",
+  "label": "Huawei NetEngine 8000 M14 DC (2x CR5DE2NE4X14, 1x CR5D00E8XM25, 3x CR5D00LAXF91, 1x CR5D00EAGF95)",
+  "category": "router",
+  "description": "Huawei NetEngine 8000 M14 DC 5U service router chassis (CR8B0BKPDCC1, 14 service slots), modelled as the build the vendor states in its own typical-configuration row: 2x CR5DE2NE4X14 100GE/50GE QSFP28, 1x CR5D00E8XM25 25GE/10GE SFP28, 3x CR5D00LAXF91 10GE/GE SFP+ and 1x CR5D00EAGF95 100/1000Base-X SFP - 4x 100G QSFP28, 8x 25G SFP28, 30x 10G SFP+ and 10x GE SFP, 52 ports in all, in 7 of the chassis's 14 PIC slots. 4 Tbit/s switching with IPU-2T forwarding units, 905.6 W typical, 28.5 kg configured, 222 x 442 x 220 mm.",
+  "capabilities": [
+    "l3-forward",
+    "l2-forward",
+    "cli",
+    "nat",
+    "dhcp-server"
+  ],
+  "interfaces": [
+    {
+      "name": "100ge0",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        100000,
+        50000
+      ]
+    },
+    {
+      "name": "100ge1",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        100000,
+        50000
+      ]
+    },
+    {
+      "name": "100ge2",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        100000,
+        50000
+      ]
+    },
+    {
+      "name": "100ge3",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        100000,
+        50000
+      ]
+    },
+    {
+      "name": "25ge4",
+      "type": "ethernet",
+      "connector": "sfp28",
+      "speed": "25G",
+      "speedCaps": [
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "25ge5",
+      "type": "ethernet",
+      "connector": "sfp28",
+      "speed": "25G",
+      "speedCaps": [
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "25ge6",
+      "type": "ethernet",
+      "connector": "sfp28",
+      "speed": "25G",
+      "speedCaps": [
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "25ge7",
+      "type": "ethernet",
+      "connector": "sfp28",
+      "speed": "25G",
+      "speedCaps": [
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "25ge8",
+      "type": "ethernet",
+      "connector": "sfp28",
+      "speed": "25G",
+      "speedCaps": [
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "25ge9",
+      "type": "ethernet",
+      "connector": "sfp28",
+      "speed": "25G",
+      "speedCaps": [
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "25ge10",
+      "type": "ethernet",
+      "connector": "sfp28",
+      "speed": "25G",
+      "speedCaps": [
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "25ge11",
+      "type": "ethernet",
+      "connector": "sfp28",
+      "speed": "25G",
+      "speedCaps": [
+        25000,
+        10000
+      ]
+    },
+    {
+      "name": "10ge12",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        10000,
+        1000
+      ]
+    },
+    {
+      "name": "10ge13",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        10000,
+        1000
+      ]
+    },
+    {
+      "name": "10ge14",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        10000,
+        1000
+      ]
+    },
+    {
+      "name": "10ge15",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        10000,
+        1000
+      ]
+    },
+    {
+      "name": "10ge16",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        10000,
+        1000
+      ]
+    },
+    {
+      "name": "10ge17",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        10000,
+        1000
+      ]
+    },
+    {
+      "name": "10ge18",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        10000,
+        1000
+      ]
+    },
+    {
+      "name": "10ge19",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        10000,
+        1000
+      ]
+    },
+    {
+      "name": "10ge20",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        10000,
+        1000
+      ]
+    },
+    {
+      "name": "10ge21",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        10000,
+        1000
+      ]
+    },
+    {
+      "name": "10ge22",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        10000,
+        1000
+      ]
+    },
+    {
+      "name": "10ge23",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        10000,
+        1000
+      ]
+    },
+    {
+      "name": "10ge24",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        10000,
+        1000
+      ]
+    },
+    {
+      "name": "10ge25",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        10000,
+        1000
+      ]
+    },
+    {
+      "name": "10ge26",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        10000,
+        1000
+      ]
+    },
+    {
+      "name": "10ge27",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        10000,
+        1000
+      ]
+    },
+    {
+      "name": "10ge28",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        10000,
+        1000
+      ]
+    },
+    {
+      "name": "10ge29",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        10000,
+        1000
+      ]
+    },
+    {
+      "name": "10ge30",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        10000,
+        1000
+      ]
+    },
+    {
+      "name": "10ge31",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        10000,
+        1000
+      ]
+    },
+    {
+      "name": "10ge32",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        10000,
+        1000
+      ]
+    },
+    {
+      "name": "10ge33",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        10000,
+        1000
+      ]
+    },
+    {
+      "name": "10ge34",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        10000,
+        1000
+      ]
+    },
+    {
+      "name": "10ge35",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        10000,
+        1000
+      ]
+    },
+    {
+      "name": "10ge36",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        10000,
+        1000
+      ]
+    },
+    {
+      "name": "10ge37",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        10000,
+        1000
+      ]
+    },
+    {
+      "name": "10ge38",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        10000,
+        1000
+      ]
+    },
+    {
+      "name": "10ge39",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        10000,
+        1000
+      ]
+    },
+    {
+      "name": "10ge40",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        10000,
+        1000
+      ]
+    },
+    {
+      "name": "10ge41",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        10000,
+        1000
+      ]
+    },
+    {
+      "name": "ge42",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100
+      ]
+    },
+    {
+      "name": "ge43",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100
+      ]
+    },
+    {
+      "name": "ge44",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100
+      ]
+    },
+    {
+      "name": "ge45",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100
+      ]
+    },
+    {
+      "name": "ge46",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100
+      ]
+    },
+    {
+      "name": "ge47",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100
+      ]
+    },
+    {
+      "name": "ge48",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100
+      ]
+    },
+    {
+      "name": "ge49",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100
+      ]
+    },
+    {
+      "name": "ge50",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100
+      ]
+    },
+    {
+      "name": "ge51",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100
+      ]
+    }
+  ],
+  "sourceUrl": "https://e-file.huawei.com/marketingcloud/pep/asset/20000001/Material/f4f1a7b9424a44ff9770b75a19eb5d2e/M3T1A590N1267221252983996547/NetEngine%208000%20M14%20Universal%20Service%20Router%20Datasheet.pdf",
+  "notes": "Port census is a stated build, not a chassis figure: the NetEngine 8000 M14 has no fixed-interface slot (Hardware Description V800R024C10SPC500 Table 1-25: PIC DC 1-14, IPU 15,16, PIU DC 17,18, FAN 19), so an empty M14 chassis has no cableable port at all and the 14 slots the request quotes are slots, not sockets. The build modelled here is Huawei's own measurement configuration, quoted verbatim from the DC chassis power row (CR8B0BKPDCC1): \"[IPU-2T/IPU-2T-B]DC: 1*fan+2*DC power+2*IPU+2*CR5DE2NE4X14+1*CR5D00E8XM25+3*CR5D00LAXF91+1*CR5D00EAGF95=905.6 W\" - seven PICs in the 14 the DC chassis has. Unlike the M8, no published M14 build fills every PIC slot (the 4*AC chassis states the same seven cards against 10 slots, the 2*AC chassis against 12), so the DC chassis is modelled because it is the one the request names (\"14 service slots\") and because it is the chassis whose specification row this build is measured on; the seven unpopulated slots are empty in Huawei's own configuration and are not filled here with invented cards. Card port counts and sockets come from the vendor's own card names on the interface-card page of the same document: CR5DE2NE4X14 \"03033GDS: 2-Port 100GBase/50GBase-QSFP28 FlexE MACsec Interface Card(PIC)\"; CR5D00E8XM25 \"03033BLM: 8-Port 25GE(SFP28)/10GE(SFP+) MACsec Physical Interface Card (PIC)\"; CR5D00LAXF91 \"03033BLN: 10-Port 10GE/GE LAN/WAN-SFP+ MACsec Physical Interface Card(PIC)\"; CR5D00EAGF95 \"03033FXE: 10-port 100/1000Base-X-SFP MACsec Physical Interface Card(PIC)\". So 2 x 2 = 4 x 100GE/50GE QSFP28, 8 x 25GE/10GE SFP28, 3 x 10 = 30 x 10GE/GE SFP+ and 10 x 100/1000Base-X SFP = 52 ports. Port names are flat (100ge0 .. ge51) because the vendor does not publish which PIC sits in which slot for this configuration; NetEngine 8000 names ports slot/subcard/port, so slot-numbered names would assert an ordering the datasheet never prints. DC chassis figures, from the same table: 222 x 442 x 220 mm (5U), 10.1 kg bare / 28.5 kg in this configuration, 19 slots of which 14 are service board slots, switching capacity 4 Tbit/s with IPU-2T (2.4 Tbit/s with IPU-1T2), maximum 280 physical ports on the whole device, MTBF 147.1 years, MTTR 0.5 h, availability 0.999999612, redundant IPUs 1:1, redundant power 1+1, fans 3+1, airflow left to right, < 72 dB(A), -20 to +55 C long term. Deliberately absent: any management/OAM, console, TOD or alarm port (listed in the hardware description as components, with no cableable count published); PoE (none published for a carrier router); and the per-rate maxima on this chassis (280 physical ports, 20 x 100GE, 28 x 50GE, 80 x 25GE, 140 x 10GE, 280 x GE) - those are maxima across fourteen fitted cards, not this build. The AC chassis codes (CR8B0BKPACC2 4*AC, 02353ABK; CR8B0BKPACC1/ACC6 2*AC, 02353VMM/02356AQM; CR8B0BKPACM1 2*AC, 02355VUR) and the newer IPU-3T6 build \"2*CR8DE1KB00M1(1*400GE)+2*CR8DE4NB00M1(4*100GE)+2*CR5D00LAXF91(10*10GE)+2*CR5D00EAGF95(10*GE)=931.67 W\" are separate populations and are recorded here rather than folded in. Capabilities: the datasheet feature table lists \"DHCP Relay, DHCP Server\" and \"BNG/BRAS (IPoE/PPPoE), NAT/CGN, IPsec, MACsec, service awareness (SA)\", which is why \"nat\" and \"dhcp-server\" are declared; MPLS (LDP, RSVP-TE, SR MPLS, MPLS-TP), SRv6, EVPN/VXLAN, FlexE, MACsec, IPsec, 1588v2/G.8275.1 and the firewall/IPsec policy set are recorded here, not declared, because no engine capability token covers them. Sources read 2026-11-17: https://e-file.huawei.com/marketingcloud/pep/asset/20000001/Material/f4f1a7b9424a44ff9770b75a19eb5d2e/M3T1A590N1267221252983996547/NetEngine%208000%20M14%20Universal%20Service%20Router%20Datasheet.pdf (canonical; service slots 14 DC / 10 4AC / 12 2AC, 442 x 220 x 222 mm 5U, typical power 486/968/931 W, feature table); https://support.huawei.com/enterprise/en/doc/EDOC1100465701/f446cf6d/netengine-8000-m14 (Hardware Description V800R024C10SPC500, Table 1-24 chassis codes and Table 1-25 slot layout, read with a crawler user-agent because a browser user-agent gets HTTP 403); https://support.huawei.com/enterprise/en/doc/EDOC1100465701/af1a855b/interface-card (every card part number with its port count and socket in the name); https://e.huawei.com/en/products/routers/ne8000 (per-model switching, forwarding, line-card-slot, power table).",
+  "aliases": [
+    "NE8000 M14",
+    "NetEngine 8000 M14 DC"
+  ]
+}
