@@ -1213,6 +1213,27 @@ class CliSession {
       if (id === vlanLib.VLAN_DEFAULT) {
         return ['% VLAN 1 is the default VLAN: every access port starts in it and it cannot be deleted'];
       }
+      // The other four default VLANs are un-deletable for the same reason, and this branch answered
+      // "% VLAN 1002 does not exist" about the one row `show vlan` prints before anybody configures
+      // anything - a refusal that contradicted the table beside it. The vendor's range table states the rule
+      // and the reason in one line: "1002-1005 | Normal | Cisco defaults for FDDI and Token Ring. You cannot
+      // delete VLANs 1002-1005." (Catalyst 6500 15.4SY software configuration guide, Table 26-1; the
+      // Catalyst 3560 12.2(25)SEA guide carries the same table, Table 17-1), and the VLAN chapters put it
+      // twice more: "VLAN IDs 1 and 1002 to 1005 are automatically created and cannot be removed" and "You
+      // cannot delete the default VLANs for the different media types: Ethernet VLAN 1 and FDDI or Token Ring
+      // VLANs 1002 to 1005" (Catalyst 2960-CX/3560-CX 15.2(4)E and Catalyst 3850 3.2.0SE, "Configuring
+      // VLANs"). So they are not "reserved by IEEE 802.1Q" - the same table files 0 and 4095 under Reserved
+      // and these four under Normal - they are Cisco's defaults for media no port here can join.
+      //
+      // What a real box prints for the attempt is not settled: the guides give the rule, not the console
+      // transcript, so this answers in this console's own words, like the VLAN 1 line above.
+      const mediaDefault = vlanLib.RESERVED_VLANS.filter(function (r) { return r.id === id; })[0];
+      if (mediaDefault) {
+        return ['% VLAN ' + id + ' is the ' + mediaDefault.name + ' VLAN: it is one of the four FDDI and ' +
+          'Token Ring defaults (' + vlanLib.RESERVED_VLANS[0].id + '-' +
+          vlanLib.RESERVED_VLANS[vlanLib.RESERVED_VLANS.length - 1].id + '), created at boot, and cannot ' +
+          'be deleted'];
+      }
       const have = this.device.config.vlans && this.device.config.vlans[id];
       // It used to print "VLAN 42 removed" whether or not there was one - the same sentence for work done and
       // work not done - and it would remove a VLAN that ports still carried: `show running-config` then

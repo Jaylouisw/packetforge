@@ -31,7 +31,7 @@ const RESERVED_VLANS = Object.freeze([
   { id: 1004, name: 'fddinet-default' },
   { id: 1005, name: 'trnet-default' }
 ]);
-const VLAN_RESERVED_MIN = RESERVED_VLANS[0].id;                        // IEEE 802.1Q reserved range ...
+const VLAN_RESERVED_MIN = RESERVED_VLANS[0].id;                        // Cisco's media defaults: FDDI ...
 const VLAN_RESERVED_MAX = RESERVED_VLANS[RESERVED_VLANS.length - 1].id; // ... Token Ring / FDDI / ATM-FUNI defaults
 
 // ---------------------------------------------------------------------------
@@ -205,10 +205,10 @@ function parseVlanList(spec) {
     rawRanges.push([sp.lo, sp.hi]);
     for (let v = lo; v <= hi; v++) {
       if (isReservedVlan(v)) {
-        // 'all' is a shorthand, not an explicit request for the IEEE block.
+        // 'all' is a shorthand, not an explicit request for the four media defaults.
         if (!sp.all) {
-          fail('E_VLAN_RESERVED', 'VLAN ' + v + ' is reserved by IEEE 802.1Q (' +
-            VLAN_RESERVED_MIN + '-' + VLAN_RESERVED_MAX + ')');
+          fail('E_VLAN_RESERVED', 'VLAN ' + v + ' is reserved: it is one of the four FDDI and ' +
+            'Token Ring defaults (' + VLAN_RESERVED_MIN + '-' + VLAN_RESERVED_MAX + ')');
         }
         continue;
       }
@@ -274,7 +274,7 @@ function canonicalVlanIncludes(sorted, v) {
 function vlanListIncludes(listSpec, vid) {
   const v = typeof vid === 'number' ? vid : parseInt(vid, 10);
   if (!isValidVlan(v)) return false;
-  // The IEEE reserved block is never assignable, 'all' included.
+  // The four media defaults are never assignable, 'all' included.
   if (isReservedVlan(v)) return false;
   if (listSpec === 'all') return true;
   if (typeof listSpec === 'string' && listSpec.trim().toLowerCase() === 'all') return true;
@@ -314,7 +314,7 @@ function formatVlanList(ids) {
 }
 
 // Every assignable VLAN except the ones named - what `switchport trunk allowed vlan remove <list>` means on
-// a trunk that still allows the default "all". The reserved IEEE block is not in the answer: it is not
+// a trunk that still allows the default "all". The four media defaults are not in the answer: they are not
 // assignable, and `parseVlanList` drops it from every list for the same reason.
 function allVlansExcept(removed) {
   const gone = Object.create(null);
@@ -595,8 +595,8 @@ function validatePortConfig(cfg, ctx) {
       return;
     }
     if (isReservedVlan(id)) {
-      err('E_VLAN_RESERVED', field + ' ' + id + ' is reserved by IEEE 802.1Q (' +
-        VLAN_RESERVED_MIN + '-' + VLAN_RESERVED_MAX + ')');
+      err('E_VLAN_RESERVED', field + ' ' + id + ' is reserved: it is one of the four FDDI and ' +
+        'Token Ring defaults (' + VLAN_RESERVED_MIN + '-' + VLAN_RESERVED_MAX + ')');
     }
   };
 

@@ -264,6 +264,22 @@ to 1005 "are automatically created and cannot be removed", the Nexus 3548 layer 
 default VLAN and cannot be created or deleted", and a real IOS XE switch answers `no vlan 1` with
 `%Default VLAN 1 may not be deleted.`
 
+**The other four default VLANs are refused by the same rule.** `no vlan 1002` answered `% VLAN 1002 does not
+exist` — about a row `show vlan` prints before anybody configures anything, in the same session — while the
+vendor's range table files them as normal VLANs that simply cannot be removed: "1002-1005 | Normal | Cisco
+defaults for FDDI and Token Ring. You cannot delete VLANs 1002-1005." (Catalyst 6500 15.4SY guide, Table 26-1;
+Catalyst 3560 12.2(25)SEA guide, Table 17-1), and the VLAN chapters add "You cannot delete the default VLANs
+for the different media types: Ethernet VLAN 1 and FDDI or Token Ring VLANs 1002 to 1005". Each is now refused
+by name — `% VLAN 1002 is the fddi-default VLAN: it is one of the four FDDI and Token Ring defaults
+(1002-1005), created at boot, and cannot be deleted` — and the table is unchanged afterwards
+(`research/vlan-media-defaults.md`).
+
+The same table corrects a reason this console and its port validator both gave. `vlan 1002` and
+`switchport access vlan 1002` said the id was "reserved by IEEE 802.1Q (1002-1005)", but the standard's
+reserved VIDs are 0 and 4095 — the vendor's own table puts those two under **Reserved, for system use only**
+and 1002-1005 under **Normal**. The refusal names the four media defaults and no longer attributes them to
+the standard.
+
 
 ## Config-mode commands
 
@@ -953,7 +969,7 @@ sw1(config)#vlan 1.5
 sw1(config)#vlan 4095
 % VLAN id 4095 is outside 1-4094
 sw1(config)#vlan 1002
-% VLAN id 1002 is reserved by IEEE 802.1Q (1002-1005)
+% VLAN id 1002 is reserved: it is one of the four FDDI and Token Ring defaults (1002-1005)
 sw1(config-if)#switchport access vlan WORD
 % Invalid VLAN id "WORD": an access VLAN is a whole number from 1 to 4094
 sw1(config-if)#switchport voice vlan banana
