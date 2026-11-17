@@ -95,8 +95,9 @@ console.log('Cached and uncached results are the same results:');
   ok(warm[3].length > 0 && warm[3][0].indexOf('CRS326') === 0, 'and CRS326 still lands its own model first', warm[3][0]);
   // Every shelf that takes the board, not a fixed count: the E6608, the E6616, and the E6608T
   // whose 7x TMB1LDCD boards carry the alias inside their own name.
-  const boardShelves = ['OptiXtrans E6608 (6x B1LDCD, DC chassis)', 'OptiXtrans E6616 (14x B1LDCD)',
-    'OptiXtrans E6608T (7x TMB1LDCD, DC chassis)'];
+  // The complement now lives in the label, not the model, so these are the bare model strings the
+  // search has to return; the board name reaches them through `aliases`.
+  const boardShelves = ['OptiXtrans E6608', 'OptiXtrans E6616', 'OptiXtrans E6608T'];
   ok(boardShelves.every(function (m) { return warm[7].indexOf(m) !== -1; }),
     'the B1LDCD alias still finds every shelf that takes the board', String(warm[7].length));
   ok(warm[10].length === 0, 'a query that matches nothing still matches nothing');

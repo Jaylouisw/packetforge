@@ -1,6 +1,8 @@
 # Plan: seven of the ten open requests are one decision away, and the queue calls them ready
 
-Status: forward plan, no code. Measured on `99c2dee6`, 2026-11-17. Steps 4-5 close #797 and #799;
+Status: forward plan. Measured on `99c2dee6`, 2026-11-17. Steps 1 and 2 have since landed
+(`docs/DEVICE_SCHEMA.md` § "A port list may be a stated build"; the E6608, E6608T and E6616 now carry
+their complement in `label`), so the "What exists today" table below is the state before them. Steps 4-5 close #797 and #799;
 step 6 unblocks #807, #808 and #810. Nothing here changes an engine rule, a test or a workflow.
 
 Every open device request carries the same maintainer sentence - *"blocked on a stated

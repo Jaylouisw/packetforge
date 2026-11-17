@@ -36,6 +36,27 @@ importer's to state, and is taken from `engine/device.js` (`CAPABILITIES`).
 | `aliases` | optional | names people actually type: `["E6616", "B1LDCD"]`. An alias ranks with a model prefix in the palette search and is shown in the inspector. It may not equal another device's model name - that would shadow it - and `test/device-aliases.test.js` enforces that across the whole catalogue. |
 | `fabric` | optional | `{ "capacityMbps": number, "kind": string, "excludes": ["line*"] }` — the switching or cross-connect capacity the vendor states. Declare it only when the capacity genuinely caps what the ports can do together; the palette shows the ratio, the invariant refuses a fabric slower than one of its own ports, and an `excludes` glob that matches no port is reported rather than silently obeyed. |
 
+### A port list may be a stated build
+
+A chassis shelf has no ports of its own. The ports belong to the cards fitted in it, so any spec of a
+modular shelf states a **card complement** and the port list that complement produces. The rule for
+where that complement lives:
+
+- the complement goes in `label`, never in `model`. `model` is the variant and the filename, and a
+  complement there makes the same box unfindable under its own name when the reader is holding a
+  `E6616` and the catalogue says `OptiXtrans E6616 (14x B1LDCD)`. Precedent: `devices/arista/7504r.json`
+  put `(4x 36CQ)` in `label` and left `model` as `7504R`; `devices/huawei/netengine-8000-x4.json` does
+  the same with `(4x LPUI-4T, 32x 400GE)`.
+- `aliases` carries the bare names people type (`E6616`, `OptiXtrans E6616`, `B1LDCD`), which is what
+  keeps search working after the complement leaves `model` — `test/device-aliases.test.js` is the check.
+- `notes` must state the slot count, the card part number and **the table the count came from**. A
+  "fully populated" figure read off a datasheet maximum is not a build: `docs/MAINTAINING.md:110-118`
+  already forbids treating "up to 16x10GE" as a port list, and a stated build is safe only because the
+  card's own name carries its count.
+- when the cited document does **not** carry the card census, `notes` says so and names the document
+  that does. A citation that stops short of the claim it is attached to is the error this project has
+  corrected most often; `research/optixtrans-e6600-xt-census.md` §5 is the worked case.
+
 ### Categories
 
 `router` `switch` `l3-switch` `firewall` `ont` `host` `server` `wireless` `ptp` `cloud` `olt`

@@ -2,7 +2,7 @@
 // Device aliases: the names people actually type, which are not the model string.
 //
 // The catalogue has three conventions that make names long and unlike what anyone says out loud:
-// a card complement in the model (`OptiXtrans E6616 (14x B1LDCD)`), a family name that everybody
+// a card complement in the label (`OptiXtrans E6616 (14x B1LDCD)` on model `OptiXtrans E6616`), a family name that everybody
 // shortens (`NetEngine 8000 M1D-B` -> "M1D-B"), and a board name that identifies the shelf to the
 // person holding the optic (`B1LDCD`).
 //
@@ -95,8 +95,9 @@ console.log('Against the real catalogue:');
   // alias matches inside that name. Named rather than counted, so the fourth shelf that takes a
   // B1LDCD is a catalogue addition instead of a red suite.
   const board = filterDevices('B1LDCD', specs, {}).map(function (h) { return h.model; });
-  const boardShelves = ['OptiXtrans E6608 (6x B1LDCD, DC chassis)', 'OptiXtrans E6616 (14x B1LDCD)',
-    'OptiXtrans E6608T (7x TMB1LDCD, DC chassis)'];
+  // The complement now lives in the label, not the model, so these are the bare model strings the
+  // search has to return; the board name reaches them through `aliases`.
+  const boardShelves = ['OptiXtrans E6608', 'OptiXtrans E6616', 'OptiXtrans E6608T'];
   ok(boardShelves.every(function (m) { return board.indexOf(m) !== -1; }),
     'B1LDCD finds every shelf that takes the board', board.join(' | '));
 
