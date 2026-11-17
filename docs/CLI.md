@@ -851,12 +851,12 @@ that are not a valid address (`ping 10.0.0.999`) are refused as an address rathe
 ```
 r1> show ip dns
 Zone lab (default TTL 3600) - 4 record(s)
-  r1.lab                             3600    IN A        10.0.0.1
-  www.lab                            3600    IN A        10.0.0.50
-  alias.lab                          3600    IN CNAME    www.lab
-  only-txt.lab                       3600    IN TXT      hello
+  r1.lab                            3600    IN A      10.0.0.1
+  www.lab                           3600    IN A      10.0.0.50
+  alias.lab                         3600    IN CNAME  www.lab
+  only-txt.lab                      3600    IN TXT    hello
 
-% No name servers configured (use "ip name-server <address>" in config mode)
+Name servers this device asks: none configured - a lookup falls back to any server in the lab
 ```
 
 `show ip dns zone <name>` narrows to one zone; an unknown name lists the zones that do exist. A zone the server
