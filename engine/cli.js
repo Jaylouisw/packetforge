@@ -3800,6 +3800,28 @@ class CliSession {
       return name ? { name: name, unknown: false } : { name: rest.join(' '), unknown: true };
     };
 
+    // Why a link both ends address produced no adjacency. The engine records the field that disagreed
+    // (`dev.ospfRejected`, filled by `computeOspf()`); without it the only thing this table could say about
+    // such a port was "nothing on the other end runs OSPF", which is false - the far end is running it,
+    // with a different Hello/Dead pair or in another area.
+    const refusalWhy = function (r) {
+      if (!r) return '';
+      if (r.reason === 'timers') {
+        return r.peer + ' runs OSPF with Hello ' + r.peerHellSec + ' s / Dead ' + r.peerDeadSec +
+          ' s and this box with Hello ' + r.helloSec + ' s / Dead ' + r.deadSec +
+          ' s: a Hello whose intervals differ from the received port is dropped (RFC 2328 10.5),' +
+          ' so no adjacency forms until they match';
+      }
+      if (r.reason === 'area') {
+        return r.peer + ' runs OSPF in area ' + r.peerArea + ' and this box in area ' + r.area +
+          ': a Hello from another area is not accepted, so no adjacency forms';
+      }
+      return 'the link was refused';
+    };
+    const refusalOn = function (name) {
+      return (dev.ospfRejected || []).filter(function (r) { return r.iface === name; })[0] || null;
+    };
+
     if (sub === '' || sub === 'process') {
       out.push('Routing Process "ospf ' + (cfg.areaId || 0) + '" with ID ' + cfg.routerId);
       const areas = Array.from(new Set(ifaces.map(function (i) { return i.area; })))
@@ -3808,6 +3830,8 @@ class CliSession {
       const passive = ifaces.filter(function (i) { return i.passive; }).length;
       out.push('  Interfaces: ' + ifaces.length + (passive ? ' (' + passive + ' passive)' : ''));
       out.push('  Neighbours: ' + neighbours.length);
+      const refused = (dev.ospfRejected || []).length;
+      if (refused) out.push('  Links refused: ' + refused + ' (see `show ip ospf neighbor <port>`)');
       const installed = (dev.ospfRoutes || []).length;
       out.push('  Routes installed from OSPF: ' + installed +
         (dev.ospfConverged ? '' : ' (withheld: still converging)'));
@@ -3846,8 +3870,15 @@ class CliSession {
           } else if (iface.passive) {
             out.push('% ' + wanted.name + ' is passive: it advertises its prefix and forms no adjacency');
           } else {
-            out.push('% no neighbour on ' + wanted.name + ' (nothing on the other end runs OSPF here)');
+            const why = refusalOn(wanted.name);
+            out.push(why
+              ? '% no neighbour on ' + wanted.name + ': ' + refusalWhy(why)
+              : '% no neighbour on ' + wanted.name + ' (nothing on the other end runs OSPF here)');
           }
+        } else if ((dev.ospfRejected || []).length) {
+          const rejected = dev.ospfRejected;
+          out.push('% no adjacencies: ' + rejected.length + ' link(s) were offered and refused');
+          for (const r of rejected) out.push('  ' + r.iface + ': ' + refusalWhy(r));
         } else {
           out.push('% no adjacencies: nothing on the other end of an OSPF interface is running OSPF');
         }

@@ -180,10 +180,15 @@ console.log('Dead Time counts the Router Dead Interval down between Hellos:');
   ok(cell(10000) === '00:00:40', 'a Hello at t=10 s restarts it', cell(10000));
   ok(cell(14000) === '00:00:36', 'so the countdown is periodic, not monotonic from power-on', cell(14000));
 
-  // The interval is the box's own, so a lab that carries other timers sees them.
+  // The interval is the box's own, so a lab that carries other timers sees them. It has to be put on
+  // every box on the segment, not just this one: the pair travels in the Hello and a receiving port
+  // drops one whose intervals differ from its own (RFC 2328 10.5, test/ospf-timer-mismatch.test.js),
+  // so a neighbour left at 10/40 would stop being a neighbour to count down for.
   const dev = t.getDevice('r1');
-  dev.config.ospf.helloSec = 30;
-  dev.config.ospf.deadSec = 120;
+  ['r1', 'r2', 'r3'].forEach(function (id) {
+    t.getDevice(id).config.ospf.helloSec = 30;
+    t.getDevice(id).config.ospf.deadSec = 120;
+  });
   sim.setRunTime(Infinity);   // back to the converged answer, the instant with no count started
   ok(cell() === '00:02:00', 'a 120 s dead interval over a 30 s hello reads 00:02:00', cell());
   ok(cell(45000) === '00:01:45', 'and 15 s after the Hello at t=30 s, 00:01:45', cell(45000));

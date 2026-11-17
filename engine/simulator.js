@@ -1358,6 +1358,10 @@ class Simulator {
       // port" at all - the engine's own conclusions were reachable only through `show ip route` (#1371).
       dev.ospfNeighbors = [];
       dev.ospfInterfaces = [];
+      // A link both ends address that still produced no adjacency: which port, which neighbour, and the
+      // field that disagreed. Without this the console could only say "nothing on the other end runs
+      // OSPF" about a box that does - the engine knew the link was refused and threw the reason away.
+      dev.ospfRejected = [];
       dev.ospfConverged = false;
       const cfg = dev.config && dev.config.ospf;
       if (!cfg || !cfg.routerId) continue;
@@ -1427,6 +1431,44 @@ class Simulator {
       // A misconfigured router is exactly what the subnet check exists to catch (#240).
       if (String(ai.mask) !== String(bi.mask)) continue;
       if (net.networkOf(ai.ip, ai.mask) !== net.networkOf(bi.ip, bi.mask)) continue;
+      // A Hello carries its sender's HelloInterval and RouterDeadInterval, and the receiving port checks
+      // both against its own: "the values of the Network Mask, HelloInterval, and RouterDeadInterval
+      // fields in the received Hello packet must be checked against the values configured for the
+      // receiving interface. Any mismatch causes processing to stop and the packet to be dropped"
+      // (RFC 2328 10.5). Two ends running different intervals therefore never leave Down - the only
+      // trace a real box leaves is `OSPF: Mismatched hello parameters from <nbr> / Dead R 40 C 60,
+      // Hello R 10 C 15` under `debug ip ospf hello` - yet this model formed the adjacency and installed
+      // routes across it, because the timers arrive as two independent per-device settings and nothing
+      // compared them. The two interval pairs are compared as the pair they are sent as: equal hello and
+      // unequal dead is still a mismatch (the C/R pair above).
+      const tA = convergenceLib.ospfTimers(a.dev);
+      const tB = convergenceLib.ospfTimers(b.dev);
+      if (tA.helloSec !== tB.helloSec || tA.deadSec !== tB.deadSec) {
+        a.dev.ospfRejected.push({
+          reason: 'timers', iface: l.a.iface, peerIface: l.b.iface, peer: b.dev.id, peerAddress: bi.ip,
+          helloSec: tA.helloSec, deadSec: tA.deadSec, peerHellSec: tB.helloSec, peerDeadSec: tB.deadSec
+        });
+        b.dev.ospfRejected.push({
+          reason: 'timers', iface: l.b.iface, peerIface: l.a.iface, peer: a.dev.id, peerAddress: ai.ip,
+          helloSec: tB.helloSec, deadSec: tB.deadSec, peerHellSec: tA.helloSec, peerDeadSec: tA.deadSec
+        });
+        continue;
+      }
+      // Areas are compared where the adjacency is built (`ospf.buildGraph`), which drops the link with no
+      // record of why for exactly the same reason. The outcome is unchanged here - same-area endpoints
+      // only - but the refusal is recorded so the console can name the disagreement instead of blaming a
+      // box that is running OSPF perfectly well in another area.
+      if (String(ai.area) !== String(bi.area)) {
+        a.dev.ospfRejected.push({
+          reason: 'area', iface: l.a.iface, peerIface: l.b.iface, peer: b.dev.id, peerAddress: bi.ip,
+          area: ai.area, peerArea: bi.area
+        });
+        b.dev.ospfRejected.push({
+          reason: 'area', iface: l.b.iface, peerIface: l.a.iface, peer: a.dev.id, peerAddress: ai.ip,
+          area: bi.area, peerArea: ai.area
+        });
+        continue;
+      }
       // The half of the State cell the console prints after the slash: which role the *neighbour*
       // holds on this segment. A broadcast segment elects a DR and a BDR - highest interface
       // priority first, then highest router ID, every port here at the default priority 1 - so with
