@@ -76,8 +76,12 @@ stream is explicitly not allowed to make. So the family is blocked on **two** fi
   model WDM line ports as a distinct non-Ethernet port). Stated configuration ready to write:
   `E9605 (5x TNG1N210)` = 50 x 10G OTU2 line ports.
 - **#810 E9624** — same, plus the protection mode in the label (`1:1` 12/24 slots vs `1:3` 10/20).
-- **#803 E6616X / #804 E6608T** — the E6600 matrix has not been read against the board documentation yet;
-  same two-blocker shape expected, DC vs AC slot count still to be carried into the label.
+- **#803 E6616X / #804 E6608T** — the E6600 matrix **has now been read** against the board documentation:
+  `research/optixtrans-e6600-xt-census.md`. Same shape as the E9600 side, one notch worse: the E6600
+  generation publishes no board list anywhere an anonymous reader can reach (the boards-overview chapter
+  lives in the closed hedex tree), and the E6608T turns out to have `Cross-connect Capacity: NA`, so it is a
+  photonic shelf rather than a small E6608. Missing field: the service-board part number valid in each
+  subrack, plus that board’s front-panel census.
 
 No spec is added by this file: the frame arithmetic and the card arithmetic are both public, the port type
 is not, and a mislabelled port is worse than a missing device.
