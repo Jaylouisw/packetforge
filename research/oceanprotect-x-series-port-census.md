@@ -408,3 +408,58 @@ modules *from an OceanProtect book*, plus one stated configuration - the shape
 `devices/huawei/oceanprotect-x8000.json` was built from ("a 4-port 10GE electrical interface module in
 IOM 0 and another in IOM 1 on each controller"). The slot half is now vendor-sourced from the white paper;
 the port half is not, and the only sentences that state it belong to another product family.
+
+## 8. The Dorado port table, second instance: `EDOC1100214756` is OceanStor Dorado V6
+
+A search for an OceanProtect module port count answers with
+`https://info.support.huawei.com/hedex/api/pages/EDOC1100214756/YEK0928G/12/resources/plan_plan_all.html`
+("Connection Planning Between the Storage System and Application Server"), whose Table 1 is exactly the census
+these issues ask for: `GE electrical interface module | 1 | 4`, `10GE electrical | 10 | 4`,
+`40GE interface module | 40 | 2`, `100GE interface module | 100 | 2`, `25 Gbit/s RoCE | 25 | 4`,
+`100 Gbit/s RoCE | 100 | 2`, `8/16/32/64 Gbit/s FC | ... | 4`, `10GE or 25GE | ... | 4`,
+`25 Gbit/s NoF | 25 | 4`, `100 Gbit/s NoF | 100 | 2`.
+
+It is not an OceanProtect book. Read off the same EDOC: the sibling topic
+`.../YEK0928G/12/resources/disk_encryt_general.html` opens "This document describes the disk encryption feature of
+OceanStor Dorado storage systems"; other topics in the set are named `dorado_18000_021.html` (Quick Installation
+Guide) and `dorado_18000_091.html` (Container User Guide); and the set's own attachment
+`.../YEK0928G/13/resources/en-us_attachment_0000001207425401.pdf` states "OceanStor Dorado V6 series" with
+Dorado 3000 V6 through Dorado 18000 V6 as its applicable models. This is the Dorado 8000/18000 Table 6-1 hazard
+recorded above, one document set further out - and it is what a module-count search returns first.
+
+Fetching any of those topics, the attachment PDF included, answers HTTP 200 with the 91,294-byte support index
+(`https://support.huawei.com/supportindex/`) - the silent rewrite of section 6. Only the search index has the text,
+and the text is the wrong product family.
+
+## 9. The E8000 books: an id for the Quick Installation Guide, and a doc root that ignores `?idPath`
+
+`https://support.huawei.com/enterprise/en/data-protection/oceanprotect-storage-x-series-pid-262802350`
+(HTTP 200, 472,195 B, crawler UA) lists the E8000 set with links carrying the idPath the page itself uses:
+
+| book | id |
+|---|---|
+| OceanProtect E8000 V200R001 Product Description | `EDOC1100486186` |
+| OceanProtect E8000 V200R001 Quick Installation Guide | `EDOC1100485347` |
+| OceanProtect E8000 V200R001 Hardware Installation Guide | `EDOC1100486185` |
+
+The QIG id is new here. All three still answer 302 to `https://support.huawei.com/view/notFound` - a 452,479-byte
+shell containing no document links - and so do `EDOC1100486186?lang=en` and the zh-locale doc root. `idPath` is
+site-navigation context, not a resolver: a doc root with no section hash yields nothing, so the book still needs
+one indexed section to open.
+
+## 10. The 167-page X Series white paper contains no E8000 at all
+
+The book quoted in section 7 was re-counted after the read, because a 167-page hardware chapter is the natural place
+for an E8000 rear view: `E8000` occurs **0** times and `E6000` 0, against `X6000` 24, `X8000` 27, `X8100` 11,
+`X9000` 29, `X9100` 22. It is X-series only, so it cannot answer #742 under any reading; its
+`36 (palm-sized) NVMe disk slots` sentence belongs to the X8100 enclosure, not to the E8000's "2 U 36-slot" body.
+
+What it settles for #743 is unchanged from section 7: X8100 is a 2 U enclosure with two controllers and up to 12
+hot-swappable interface modules, each controller contributing two GE management/maintenance ports and one serial
+port; X9100 is an independent controller enclosure with 28 interface modules shared by four controllers and two
+management modules of three GE ports each. Ports per module remain absent from every OceanProtect document read.
+
+**Still missing, unchanged:** for #742, the E8000's interface-module slots per controller and the port count of each
+front-end module type; for #743, the ports per module for the 10/25/40/100GE and 16/32/64 Gbit/s FC modules from an
+OceanProtect book. One indexed section of `EDOC1100486186`, `EDOC1100485347` or `EDOC1100486185`, or a stated
+ordering configuration, unblocks them; the Dorado tables do not.
