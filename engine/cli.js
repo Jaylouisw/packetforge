@@ -2301,7 +2301,8 @@ class CliSession {
         // possible to go back to a trunk later without retyping them.
         return written({ mode: 'access' },
           iface.name + ' back to access mode (trunk settings kept: native ' + cur.nativeVlan + ', allowed ' +
-          (cur.allowedVlans === 'all' ? 'all' : (Array.isArray(cur.allowedVlans) ? cur.allowedVlans.join(',') : 'all')) +
+          (cur.allowedVlans === 'all' ? 'all'
+            : (Array.isArray(cur.allowedVlans) ? vlanLib.formatVlanList(cur.allowedVlans) : 'all')) +
           ')');
       }
       return ['% Unrecognized switchport command: no ' + leaf.join(' ')];
@@ -2394,8 +2395,12 @@ class CliSession {
       }
       const parsed = vlanLib.parseVlanList(spec);
       if (!parsed.ok) {
-        // A word where a list belongs is a question about the command, not a VLAN token to complain about.
-        if (/^[a-z]/i.test(String(rest[0]))) return refuseWord();
+        // A word where a list belongs is a question about the command, not a VLAN token to complain about -
+        // but the verb `add`/`remove` is not that word. `remove 1-4094` names a real list that the parser
+        // refused on its contents (the reserved block), and it was answered `% Unrecognized "remove"`: a
+        // refusal of the one word in the line that was certainly correct, hiding the reason the list was
+        // refused.
+        if (!editing && /^[a-z]/i.test(String(rest[0]))) return refuseWord();
         return ['% ' + (parsed.message || 'invalid VLAN list')];
       }
       const bad = parsed.vlans.filter(function (v) { return v < 1 || v > 4094; });
@@ -2403,7 +2408,7 @@ class CliSession {
       if (!editing) {
         iface.vlan = vlanLib.normalizePortConfig(Object.assign({}, iface.vlan, { allowedVlans: parsed.vlans }));
         this.device.flushMacsOnPort(iface.name);
-        return ['Trunk on ' + iface.name + ' allows VLANs ' + parsed.vlans.join(',') + allowedNote];
+        return ['Trunk on ' + iface.name + ' allows VLANs ' + vlanLib.formatVlanList(parsed.vlans) + allowedNote];
       }
       const cur = iface.vlan ? iface.vlan.allowedVlans : 'all';
       const curAll = (cur === 'all' || cur === undefined || cur === null || cur === '');
@@ -2417,24 +2422,36 @@ class CliSession {
         const added = parsed.vlans.filter(function (v) { return current.indexOf(v) === -1; });
         const next = current.concat(added).sort(function (a, b) { return a - b; });
         if (!added.length) {
-          return ['Trunk on ' + iface.name + ' already allows VLANs ' + parsed.vlans.join(',') +
-            ': the list is unchanged (' + next.join(',') + ')' + allowedNote];
+          return ['Trunk on ' + iface.name + ' already allows VLANs ' + vlanLib.formatVlanList(parsed.vlans) +
+            ': the list is unchanged (' + vlanLib.formatVlanList(next) + ')' + allowedNote];
         }
         iface.vlan = vlanLib.normalizePortConfig(Object.assign({}, iface.vlan, { allowedVlans: next }));
         this.device.flushMacsOnPort(iface.name);
-        return ['Trunk on ' + iface.name + ' allows VLANs ' + next.join(',') +
-          ' (added ' + added.join(',') + ')' + allowedNote];
+        return ['Trunk on ' + iface.name + ' allows VLANs ' + vlanLib.formatVlanList(next) +
+          ' (added ' + vlanLib.formatVlanList(added) + ')' + allowedNote];
       }
       if (curAll) {
-        // "all minus 10" is 4,093 ids. A console that stores that has written a line no operator would type and no
-        // diff would survive; naming the list they want says the same thing in a form that fits.
-        return ['% this trunk allows all VLANs: name the list it should allow instead ' +
-          '(switchport trunk allowed vlan <list>)' + allowedNote];
+        // A trunk still allowing the default "all" accepts `remove`: the box subtracts the named VLANs from
+        // the list it is already carrying and starts printing the remainder. A Catalyst does exactly this -
+        // c3550, `switchport trunk allowed vlan remove 5-10,12` then `add 7`, `show interfaces fa0/2 trunk`
+        // prints `1-4,7,11,13-4094` (research/trunk-allowed-remove-from-all.md). This console used to refuse
+        // ("name the list it should allow instead") because the remainder is 4,090 ids; printed the way a
+        // switch prints it that is one short line, so the refusal has no reason left to exist.
+        const next = vlanLib.allVlansExcept(parsed.vlans);
+        if (!next.length) {
+          return ['% that would leave the trunk allowing no VLANs: name what it should carry instead ' +
+            '(switchport trunk allowed vlan <list>) or restore it with "no switchport trunk allowed vlan"' +
+            allowedNote];
+        }
+        iface.vlan = vlanLib.normalizePortConfig(Object.assign({}, iface.vlan, { allowedVlans: next }));
+        this.device.flushMacsOnPort(iface.name);
+        return ['Trunk on ' + iface.name + ' allows VLANs ' + vlanLib.formatVlanList(next) +
+          ' (removed ' + vlanLib.formatVlanList(parsed.vlans) + ')' + allowedNote];
       }
       const gone = parsed.vlans.filter(function (v) { return current.indexOf(v) !== -1; });
       if (!gone.length) {
-        return ['% VLANs ' + parsed.vlans.join(',') + ' are not allowed on ' + iface.name +
-          ': the list is unchanged (' + (current.length ? current.join(',') : 'none') + ')' + allowedNote];
+        return ['% VLANs ' + vlanLib.formatVlanList(parsed.vlans) + ' are not allowed on ' + iface.name +
+          ': the list is unchanged (' + (current.length ? vlanLib.formatVlanList(current) : 'none') + ')' + allowedNote];
       }
       const next = current.filter(function (v) { return gone.indexOf(v) === -1; });
       if (!next.length) {
@@ -2443,8 +2460,8 @@ class CliSession {
       }
       iface.vlan = vlanLib.normalizePortConfig(Object.assign({}, iface.vlan, { allowedVlans: next }));
       this.device.flushMacsOnPort(iface.name);
-      return ['Trunk on ' + iface.name + ' allows VLANs ' + next.join(',') +
-        ' (removed ' + gone.join(',') + ')' + allowedNote];
+      return ['Trunk on ' + iface.name + ' allows VLANs ' + vlanLib.formatVlanList(next) +
+        ' (removed ' + vlanLib.formatVlanList(gone) + ')' + allowedNote];
     }
     return ['% Unrecognized switchport command: ' + t.join(' ')];
   }
@@ -5396,8 +5413,13 @@ class CliSession {
           // An empty list is the engine's "unset", not a configuration: no command can produce it
           // (`switchport trunk allowed vlan` with no list is `% Incomplete command`), so printing it would
           // emit a line the console cannot read back - which is what `no switchport` used to leave behind.
+          // Printed the way a switch prints an allowed list: ranges folded together (`1,3-1001,1006-4094`),
+          // not one number per VLAN. A number-per-line backup of a trunk that removed one VLAN would be a
+          // 4,090-entry wall no operator wrote and no diff would survive, and a real box does not write it
+          // either - a Catalyst prints `switchport trunk allowed vlan 1-3,100`
+          // (research/trunk-allowed-remove-from-all.md).
           const spAllowedText = (spAllowed === 'all' || !Array.isArray(spAllowed) || spAllowed.length === 0)
-            ? null : spAllowed.join(',');
+            ? null : vlanLib.formatVlanList(spAllowed);
           // The lines come out in the order a real switch writes them, not the order this file happens to
           // know them in: the VLAN parameters first, then the mode they select, then the phone-facing voice
           // line. Two Cisco-published `show running-config` samples settle it

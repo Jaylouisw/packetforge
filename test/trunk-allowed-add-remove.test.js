@@ -154,10 +154,16 @@ console.log('The two footguns are refused, not committed:');
   const addToAll = all.put('switchport trunk allowed vlan add 30');
   ok(/already allows all VLANs/.test(addToAll[0]), 'adding to "all" changes nothing and says so', addToAll[0]);
   ok(all.allowed() === 'all', 'and does not explode into 4,094 ids', JSON.stringify(all.allowed()));
+  // A trunk that allows the default "all" accepts `remove` - the box subtracts from the list it is carrying
+  // (research/trunk-allowed-remove-from-all.md). The remainder is 4,090 ids, which is exactly why the list is
+  // printed as ranges rather than as a number per VLAN; see test/trunk-allowed-remove-from-all.test.js.
   const remFromAll = all.put('switchport trunk allowed vlan remove 10');
-  ok(/^%/.test(remFromAll[0]) && /name the list/.test(remFromAll[0]),
-    'removing from "all" points at the form that says what is wanted', remFromAll[0]);
-  ok(all.allowed() === 'all', 'and leaves the port alone', JSON.stringify(all.allowed()));
+  ok(!/^%/.test(remFromAll[0]), 'removing a VLAN from "all" is accepted, as the device accepts it', remFromAll[0]);
+  ok(/removed 10/.test(remFromAll[0]) && /1-9,11-1001,1006-4094/.test(remFromAll[0]),
+    'and the answer is the remainder, printed as ranges', remFromAll[0]);
+  // 4,090 assignable ids (1-4094 less the four reserved media defaults), one of them taken away.
+  ok(Array.isArray(all.allowed()) && all.allowed().length === 4089 && all.allowed().indexOf(10) === -1,
+    'the trunk now carries all but VLAN 10', Array.isArray(all.allowed()) ? all.allowed().length + ' ids' : String(all.allowed()));
 }
 
 console.log('');
@@ -186,7 +192,9 @@ console.log('What already worked still works, word for word:');
     'a list with spaces after the commas parses', JSON.stringify(L.put('switchport trunk allowed vlan 10, 20')));
   ok(JSON.stringify(L.allowed()) === '[10,20]', 'to 10,20', JSON.stringify(L.allowed()));
   const range = L.put('switchport trunk allowed vlan 40 - 42');
-  ok(/40,41,42/.test(range[0]), 'a spaced range still expands', range[0]);
+  // The reply echoes the list in the form the box prints one (`40-42`), which is also how the backup writes it.
+  ok(/40-42/.test(range[0]), 'a spaced range still expands', range[0]);
+  ok(JSON.stringify(L.allowed()) === '[40,41,42]', 'to 40,41,42 in the engine', JSON.stringify(L.allowed()));
   const all = L.put('switchport trunk allowed vlan all');
   ok(/allows all VLANs/.test(all[0]), '`all` is still accepted', all[0]);
   ok(L.allowed() === 'all', 'and means all', JSON.stringify(L.allowed()));

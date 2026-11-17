@@ -1073,10 +1073,15 @@ Four decisions worth keeping:
 * **An edit that changes nothing says so.** `add 10` when 10 is already allowed prints `already allows VLANs 10: the list
   is unchanged (10,20)`, and `remove 99` when 99 was never allowed is refused with the list it left alone. A silent
   success on a no-op teaches an operator that the command worked when nothing moved.
-* **Two footguns are refused, not committed.** Removing the last VLAN would leave a trunk carrying nothing, so it is
-  refused with both ways out named; and `remove 10` on a trunk that allows **all** would have to store 4,093 ids — a line
-  no operator would type and no diff would survive — so it points at `switchport trunk allowed vlan <list>` instead.
-  `add 30` on an all-trunk is already true and says so.
+* **One footgun is refused, not committed.** Removing the last VLAN would leave a trunk carrying nothing, so it is
+  refused with both ways out named. `add 30` on an all-trunk is already true and says so.
+* **`remove 10` on a trunk that allows all is the device's arithmetic, not an error.** It used to be refused because
+  the remainder is 4,090 ids — "a line no operator would type and no diff would survive". That was a fact about this
+  console's *printing*, not about the command: a switch prints an allowed list with runs folded into ranges, so the same
+  configuration is one short line, and a Catalyst accepts the removal on a default trunk
+  (`research/trunk-allowed-remove-from-all.md`). `switchport trunk allowed vlan remove 10` now answers
+  `Trunk on Fa0/1 allows VLANs 1-9,11-1001,1006-4094 (removed 10)`, the backup writes that same line, and
+  `show interfaces` says `allowed 1-9,11-1001,1006-4094` — a sentence and a backup that are now shaped like the box's.
 * **A word is named as a word.** `except 20` prints `% Unrecognized "except": this console takes a list (10,20), a range
   (10-20), "all", "add <list>" or "remove <list>"` — not the glued `except20`. A genuinely malformed numeric list still
   gets the library's own message.
@@ -1089,7 +1094,13 @@ them: it is a view of the VLAN database, not of a trunk's allowed list. A VLAN t
 row, and a trunk appears in no row even when the VLAN does exist, so the test asserts that absence instead of agreement
 (#1638, `research/vlan-brief-trunk-ports.md`).
 
-`test/trunk-allowed-add-remove.test.js` pins it, 45 checks.
+A list that long is classified once per frame per port, so the parser is not allowed in the data plane either:
+`normalizePortConfig()` copies an array that is already sorted, unique and assignable instead of re-parsing it, and
+`vlanListIncludes()` keeps the membership set per array. The test's loose cost bound (2,000 frames, well under three
+seconds) fails if that ever regresses.
+
+`test/trunk-allowed-add-remove.test.js` pins the verbs, 47 checks; `test/trunk-allowed-remove-from-all.test.js` pins the
+removal from the default list and the shape it is printed in, 45 checks.
 
 ### The request that was answered with nothing
 

@@ -1958,6 +1958,29 @@
     return known[c] || String(c || '').toUpperCase();
   }
 
+  // Mirror of engine/vlan.js `formatVlanList()`: consecutive ids fold into a range, so a trunk that allows
+  // everything but one VLAN reads `1,3-1001,1006-4094` rather than 4,090 numbers. A switch prints its allowed
+  // list this way (`1-4,7,11,13-4094` in a c3550 transcript), and the console sentence carries the same list,
+  // so the panel has to print it the same way or the two views of one port disagree.
+  function vlanListText(ids) {
+    const list = Array.isArray(ids) ? ids.slice() : [];
+    list.sort(function (a, b) { return Number(a) - Number(b); });
+    const out = [];
+    let lo = null;
+    let hi = null;
+    for (let i = 0; i < list.length; i++) {
+      const v = Number(list[i]);
+      if (!Number.isInteger(v)) continue;
+      if (lo === null) { lo = v; hi = v; continue; }
+      if (v === hi) continue;
+      if (v === hi + 1) { hi = v; continue; }
+      out.push(lo === hi ? String(lo) : lo + '-' + hi);
+      lo = v; hi = v;
+    }
+    if (lo !== null) out.push(lo === hi ? String(lo) : lo + '-' + hi);
+    return out.join(',');
+  }
+
   // Mirror of engine/vlan.js `switchportSentence()`, which the console prints after "switchport: " in
   // `show interfaces <port>`. The browser cannot require the engine, so the rule exists twice on purpose and
   // test/switchport-agreement.test.js compares the two across a matrix of port states. They had already
@@ -1977,7 +2000,7 @@
     // gives. Only an unset field means all.
     let allowed = 'all';
     if (Array.isArray(raw.allowedVlans)) {
-      allowed = raw.allowedVlans.length ? raw.allowedVlans.join(',') : 'none';
+      allowed = raw.allowedVlans.length ? vlanListText(raw.allowedVlans) : 'none';
     } else if (typeof raw.allowedVlans === 'string' && raw.allowedVlans.trim() &&
       raw.allowedVlans.trim().toLowerCase() !== 'all') {
       allowed = raw.allowedVlans.trim();
@@ -1993,7 +2016,7 @@
       staged.push('native ' + Number(raw.nativeVlan));
     }
     if (Array.isArray(raw.allowedVlans) && raw.allowedVlans.length) {
-      staged.push('allowed ' + raw.allowedVlans.join(','));
+      staged.push('allowed ' + vlanListText(raw.allowedVlans));
     } else if (typeof raw.allowedVlans === 'string' && raw.allowedVlans.trim() &&
       raw.allowedVlans.trim().toLowerCase() !== 'all') {
       staged.push('allowed ' + raw.allowedVlans.trim());

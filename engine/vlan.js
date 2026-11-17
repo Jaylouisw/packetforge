@@ -276,6 +276,50 @@ function vlanListIncludes(listSpec, vid) {
 }
 
 // ---------------------------------------------------------------------------
+// formatVlanList / allVlansExcept
+// ---------------------------------------------------------------------------
+// A VLAN list as the box prints it: consecutive ids fold into a range.
+//
+// A Catalyst prints a trunk's allowed list as `1-4,7,11,13-4094`, not one number per VLAN - the allowed list
+// in a c3550 transcript of `switchport trunk allowed vlan remove 5-10,12` plus `add 7`
+// (research/trunk-allowed-remove-from-all.md). Keeping that shape matters once a list can be "all but one
+// VLAN": the same configuration is one short line (`1,3-1001,1006-4094`) instead of 4,090 numbers, which is
+// what makes it something an operator can read, diff and type back.
+function formatVlanList(ids) {
+  const list = Array.isArray(ids) ? ids.slice() : [];
+  list.sort(function (a, b) { return Number(a) - Number(b); });
+  const out = [];
+  let lo = null;
+  let hi = null;
+  for (let i = 0; i < list.length; i++) {
+    const v = Number(list[i]);
+    if (!Number.isInteger(v)) continue;
+    if (lo === null) { lo = v; hi = v; continue; }
+    if (v === hi) continue;
+    if (v === hi + 1) { hi = v; continue; }
+    out.push(lo === hi ? String(lo) : lo + '-' + hi);
+    lo = v; hi = v;
+  }
+  if (lo !== null) out.push(lo === hi ? String(lo) : lo + '-' + hi);
+  return out.join(',');
+}
+
+// Every assignable VLAN except the ones named - what `switchport trunk allowed vlan remove <list>` means on
+// a trunk that still allows the default "all". The reserved IEEE block is not in the answer: it is not
+// assignable, and `parseVlanList` drops it from every list for the same reason.
+function allVlansExcept(removed) {
+  const gone = Object.create(null);
+  const list = Array.isArray(removed) ? removed : [];
+  for (let i = 0; i < list.length; i++) gone[Number(list[i])] = true;
+  const out = [];
+  for (let v = VLAN_MIN; v <= VLAN_MAX; v++) {
+    if (isReservedVlan(v) || gone[v]) continue;
+    out.push(v);
+  }
+  return out;
+}
+
+// ---------------------------------------------------------------------------
 // normalizePortConfig
 // ---------------------------------------------------------------------------
 // Coerces a loosely-specified port config into the canonical six-field shape.
@@ -355,7 +399,7 @@ function switchportSentence(portConfig) {
   // An empty list is a trunk that allows nothing - `classifyEgress` drops every VLAN on it - so it is printed
   // as `none`, not as `all`. Only the unset field means all.
   const allowed = (cfg.allowedVlans === 'all' || !Array.isArray(cfg.allowedVlans))
-    ? 'all' : (cfg.allowedVlans.length ? cfg.allowedVlans.join(',') : 'none');
+    ? 'all' : (cfg.allowedVlans.length ? formatVlanList(cfg.allowedVlans) : 'none');
   const voiceText = cfg.voiceVlan !== null && cfg.voiceVlan !== undefined
     ? ' · voice ' + Number(cfg.voiceVlan) : '';
   if (mode === 'trunk') {
@@ -372,7 +416,7 @@ function switchportSentence(portConfig) {
   }
   const rawAllowed = raw.allowedVlans;
   if (Array.isArray(rawAllowed) && rawAllowed.length) {
-    staged.push('allowed ' + rawAllowed.join(','));
+    staged.push('allowed ' + formatVlanList(rawAllowed));
   } else if (typeof rawAllowed === 'string' && rawAllowed.trim() &&
       rawAllowed.trim().toLowerCase() !== 'all') {
     staged.push('allowed ' + rawAllowed.trim());
@@ -640,7 +684,7 @@ function mismatchReason(cfgA, cfgB) {
 function describeAllowed(allowed) {
   if (allowed === 'all') return 'all';
   if (!Array.isArray(allowed)) return String(allowed);
-  return allowed.length ? allowed.join(',') : 'none';
+  return allowed.length ? formatVlanList(allowed) : 'none';
 }
 
 module.exports = {
@@ -650,6 +694,8 @@ module.exports = {
   VLAN_MAX,
   VLAN_DEFAULT,
   parseVlanList,
+  formatVlanList,
+  allVlansExcept,
   vlanListIncludes,
   normalizePortConfig,
   classifyEgress,
