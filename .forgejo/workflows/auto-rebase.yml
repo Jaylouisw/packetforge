@@ -232,6 +232,35 @@ jobs:
               });'
           }
 
+          # A rebase cannot fix a red check, and a red check cannot merge, so force-pushing
+          # a branch that is already failing buys nothing and costs a whole five-job matrix.
+          #
+          # Measured on 2026-11-17 over the six hours from 22:27 to 04:28 UTC (/actions/tasks,
+          # 11007 entries): #1749 was force-pushed 33 times - runs 4321, 4323, 4342 ... 4719,
+          # 33 distinct heads - and all 99 of its test legs failed; #1739 30 times, runs 4256
+          # ... 4717; #1743 14 times. Those 77 matrices are 14,041 s of `Test (Node n)` alone,
+          # 3.9 runner-hours, spent on branches that could not merge whatever the rebase
+          # produced: the failure is in each branch's own test file, which no rebase touches.
+          #
+          # Only a definite failure counts. A head whose checks are still reporting is left
+          # alone by this test and rebased exactly as before, because `pending` is the case
+          # where a decision would be premature - and a branch wrongly skipped here would sit
+          # behind main for no reason.
+          checks_failed() {   # $1 = head sha
+            st=$(http -H "Authorization: token $TOKEN" "$api/repos/$repo/commits/$1/status" 2>/dev/null || true)
+            [ -z "$st" ] && return 1
+            printf '%s' "$st" | node -e '
+              let d = "";
+              process.stdin.on("data", (c) => { d += c; });
+              process.stdin.on("end", () => {
+                let j; try { j = JSON.parse(d); } catch (e) { process.exit(1); }
+                // The status of this job is not a check on the change.
+                const s = (j.statuses || []).filter((x) => !/^Auto-rebase \//.test(x.context || ""));
+                const bad = s.filter((x) => x.status === "failure" || x.status === "error");
+                process.exit(bad.length ? 0 : 1);
+              });'
+          }
+
           head_of() {   # $1 = pull number
             http -H "Authorization: token $TOKEN" "$api/repos/$repo/pulls/$1" 2>/dev/null               | node -e 'let d="";process.stdin.on("data",c=>d+=c).on("end",()=>{try{process.stdout.write(JSON.parse(d).head.sha||"")}catch(e){process.stdout.write("")}})'
           }
@@ -293,7 +322,12 @@ jobs:
                 prs
                   .filter(p => p.state === "open" && p.mergeable === true)
                   .sort((a, b) => a.number - b.number)
-                  .slice(0, Number(process.env.BATCH || 5))
+                  // Four candidates per rebase slot. The queue is ordered oldest first,
+                  // and the oldest pull requests are exactly the ones most likely to be
+                  // stuck red, so a window of `batch` was 2 useful rebases and 3 skipped
+                  // ones per tick. The per-run ceiling below is still `batch` actual
+                  // rebases, so the matrix count a tick can enqueue is unchanged.
+                  .slice(0, Number(process.env.BATCH || 5) * 4)
                   .forEach(p => console.log(p.number + " " + p.head.ref));
               });' 2>/dev/null || true)
 
@@ -302,12 +336,31 @@ jobs:
             exit 0
           fi
 
-          rebased=0; current=0; conflicted=0; dupes=0; armed=0
+          rebased=0; current=0; conflicted=0; dupes=0; armed=0; red=0; looked=0
 
           # Here-string, not a pipe: `echo ... | while` would run the loop in a
           # subshell and the counters on the summary line would always read zero.
+          # `looked`, not a count of candidates: a pull request skipped because it is
+          # already failing costs nothing and must not consume a slot, or the same red
+          # branches at the head of the queue would starve the rest of it forever. The
+          # ceiling on actual rebases per run is unchanged, so this cannot enqueue more
+          # matrices than before - it only stops enqueueing them for branches that
+          # cannot use them.
           while read -r n ref; do
             [ -z "${n:-}" ] && continue
+            [ "$looked" -ge "$batch" ] && break
+
+            # A branch whose checks have already failed cannot merge from a rebase, and a
+            # rebase is what re-runs the matrix that failed. Leave it to its author:
+            # pr-rebase.yml rebases the moment a fix is pushed, which is the only event
+            # that can turn it green.
+            head_sha=$(head_of "$n")
+            if [ -n "$head_sha" ] && checks_failed "$head_sha"; then
+              red=$((red+1))
+              echo "PR #$n: checks already failing on ${head_sha} - not rebasing it"
+              continue
+            fi
+            looked=$((looked+1))
 
             if ! bounded 60 git fetch -q origin "+refs/heads/$ref:refs/remotes/origin/$ref"; then
               echo "PR #$n: branch $ref is gone"; continue
@@ -410,4 +463,4 @@ jobs:
             esac
           done
 
-          echo "batch=$batch rebased=$rebased current=$current conflicts=$conflicted duplicates=$dupes armed=$armed rearmed=$rearmed"
+          echo "batch=$batch rebased=$rebased current=$current conflicts=$conflicted duplicates=$dupes armed=$armed rearmed=$rearmed red=$red"
