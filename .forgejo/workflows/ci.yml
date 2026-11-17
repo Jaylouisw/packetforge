@@ -597,8 +597,44 @@ jobs:
       # a red check on a pull request that never touched the server.
       - name: Which runtime is running this
         run: node --version && npm --version
+      # The smoke client is the one thing in this job that can wait forever, and it is
+      # the only step in this workflow with no bound of any kind.
+      #
+      # `scripts/smoke-http.js` drives the server over plain `http.request`, and its
+      # `req()` settles on the response's `end` or on `error`. A connection that is
+      # accepted and then never answered is neither: the promise never settles, the event
+      # loop has nothing to do, and Node exits only when something outside it kills the
+      # process. That is what three failures on 2026-11-17 look like - all on pull
+      # requests whose three test legs passed the same commit in 52-67 s:
+      #   run 4832 (pull #1798), task 11669 - failed after 676 s;
+      #   run 4688 (pull #1784), task 11193 - failed after 872 s;
+      #   run 4373 (pull #1755), task 10082 - failed after 792 s.
+      # Each held one of the host's two runner slots for 11-15 minutes, and each left no
+      # evidence at all: because the process was killed instead of exiting, the runner
+      # has no log for the task and answers
+      #   dbfs open "actions_log/.../11669.log.zst": file does not exist.
+      # A red gate nobody can diagnose, for 2,340 s of a two-slot runner on one day.
+      #
+      # `timeout-minutes: 10` above is not the bound anyone thinks it is: this runner does
+      # not enforce it (see the note in the `changes` job), and 676 s, 792 s and 872 s all
+      # exceed it. So the bound lives in the step, at 180 s, and is deliberately generous:
+      # the whole job is 11 s median and 30 s at its slowest green run in the last 24 h
+      # (469 task records), and the script's own wait for the server is capped at 20 s, so
+      # 180 s is six times the worst green run and nine times the median. A slow but
+      # working smoke test still passes. A hung one is still red - it just stops holding
+      # the slot for a quarter of an hour, and it now keeps its log, because Node is
+      # signalled and the step exits with its own status instead of being killed from
+      # outside. Nothing is skipped, retried or weakened: the assertions the script makes
+      # are the same assertions, on the same commit.
       - name: Drive the API end to end
-        run: node scripts/smoke-http.js
+        run: |
+          set +e
+          timeout --signal=TERM --kill-after=15 180 node scripts/smoke-http.js
+          rc=$?
+          if [ "$rc" -eq 124 ] || [ "$rc" -eq 137 ]; then
+            echo "::error title=Server smoke test::scripts/smoke-http.js was still running after 180 s and was stopped - a green job takes ~11 s here and the slowest green job in the last 24 h took 30 s, so this is a request that never answered, not a slow server"
+          fi
+          exit "$rc"
 
   docker:
     name: Docker build
