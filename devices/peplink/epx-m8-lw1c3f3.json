@@ -1,0 +1,459 @@
+{
+  "vendor": "peplink",
+  "model": "EPX-M8-LW1C3F3",
+  "label": "Peplink EPX-M8-LW1C3F3 (EPX Wired SD-WAN Powerhouse)",
+  "category": "router",
+  "description": "Peplink EPX (EPX-M8-LW1C3F3): the 7-slot FlexModule chassis filled as 12x 10G SFP+, 24x 1G RJ45 with PoE+ and 3 LTE-A modems - all 7 slots used, 30 Gbps router, 330 W PoE+ budget.",
+  "capabilities": [
+    "l3-forward",
+    "nat",
+    "firewall",
+    "dhcp-server",
+    "dhcp-client",
+    "cli",
+    "http-server",
+    "poe-pse",
+    "802.3at"
+  ],
+  "interfaces": [
+    {
+      "name": "ge1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100
+      ],
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "ge2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100
+      ],
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "ge3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100
+      ],
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "ge4",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100
+      ],
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "ge5",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100
+      ],
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "ge6",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100
+      ],
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "ge7",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100
+      ],
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "ge8",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100
+      ],
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "ge9",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100
+      ],
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "ge10",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100
+      ],
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "ge11",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100
+      ],
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "ge12",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100
+      ],
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "ge13",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100
+      ],
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "ge14",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100
+      ],
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "ge15",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100
+      ],
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "ge16",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100
+      ],
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "ge17",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100
+      ],
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "ge18",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100
+      ],
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "ge19",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100
+      ],
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "ge20",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100
+      ],
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "ge21",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100
+      ],
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "ge22",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100
+      ],
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "ge23",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100
+      ],
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "ge24",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100
+      ],
+      "poeOut": true,
+      "poeOutClass": "PoE+"
+    },
+    {
+      "name": "sfp1",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "sfp2",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "sfp3",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "sfp4",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "sfp5",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "sfp6",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "sfp7",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "sfp8",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "sfp9",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "sfp10",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "sfp11",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "sfp12",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "wwan1",
+      "type": "wireless",
+      "speed": "300M",
+      "speedCaps": [
+        300000
+      ]
+    },
+    {
+      "name": "wwan2",
+      "type": "wireless",
+      "speed": "300M",
+      "speedCaps": [
+        300000
+      ]
+    },
+    {
+      "name": "wwan3",
+      "type": "wireless",
+      "speed": "300M",
+      "speedCaps": [
+        300000
+      ]
+    }
+  ],
+  "poe": {
+    "budgetW": 330,
+    "sourceUrl": "https://download.peplink.com/resources/peplink_epx_datasheet.pdf",
+    "note": "EPX datasheet rev 2404-v15, EPX-M8 spec table: \"LAN Interface 8-56x GE Ports with PoE+ Output\" and \"330W PoE+ Power Budget\"; FlexModule datasheet ref 2507-v26: EXM-8C is \"15 W (Max. 240W, 30W / PoE+ port, total 8 PoE+ ports)\". Three EXM-8C therefore deliver 24 PoE+ GE ports (8 per module), all drawing on the chassis 330 W budget - the module's own 240 W ceiling is per-module headroom the chassis cannot fund three times over. The flat \"PoE Output 8x 802.3at PoE+ Output\" row on the same table is the one-module base figure: the LAN row's 8-56 range cannot be reached otherwise."
+  },
+  "sourceUrl": "https://web.archive.org/web/20200421214219/https://download.peplink.com/resources/peplink_epx_datasheet.pdf",
+  "notes": "Peplink EPX datasheet, ordering table (Product Code / Description) - the row this model is built from:\n  \"EPX-M8-LW1C3F3  Wired SD-WAN Powerhouse: EPX with LCD Module, 12x 10G SFP+, 24x GE, and 3x LTE-A (Worldwide).\"\nThe same table names its Asia-Pacific twin EPX-M8-LP1C3F3 with an identical port census, so only the worldwide SKU is modelled here;\nthe region is a modem-band difference and no interface list records it (the same treatment the LW5C1F1 / LW2C1F1 twins got).\n\nThe census decomposes into the datasheet's own FlexModules and the tech-spec sheet's slot count (\"Module Expansion: Yes (7 slots for FlexModule Plus)\"):\n  3x EXM-4F  -> 12x SFP+ ports  (FlexModule datasheet: \"Interface 4x SFP+ Ports*\", 11 W)\n  3x EXM-8C  -> 24x 10/100/1000M Ethernet, each port capable of PoE+  (\"8x 10/100/1000M Ethernet Ports*, Capable of PoE+\")\n  1x EXM-3LTEA -> 3x LTE-A Cat-6 modems, 300/50 Mbps down/up, 6x SMA + 1x GPS\nwhich is 7 modules in 7 slots - the ordering table's port figures, the module table and the slot count agree, which is the check that the code decodes correctly.\n\nPoE, and why this SKU is catalogued now. Three documents used to disagree about this build:\n  - EPX datasheet rev 2404-v15, EPX-M8 spec table: \"PoE Output 8x 802.3at PoE+ Output\" and \"330W PoE+ Power Budget\",\n    but the same table's LAN row reads \"8-56x GE Ports with PoE+ Output\", and the at-a-glance page reads \"8-56x* / Ethernet LAN (Gigabit Ethernet)\" with\n    \"* With Expansion Module: EXM-4F, EXM-8C\" - a range whose top end (56) is only reachable at 8 GE ports per module across 7 slots,\n    so the flat \"8x\" row is the one-module base figure, not a chassis ceiling.\n  - FlexModule datasheet ref 2507-v26 states the EXM-8C as \"15 W (Max. 240W, 30W / PoE+ port, total 8 PoE+ ports)\" - eight PoE+ ports *per module*,\n    with a 240 W per-module ceiling and 30 W per port.\n  - The 2019 revision (ref EPX-201910-v7) footnote \"^ The EPX-8M can support a maximum of 2 modules delivering PoE\" does not appear in either\n    current document; 2507-v26 replaces it with \"^This FlexModule with HW2 is not compatible with SDX (HW1 - HW3) and FlexModule Slot 2 of EPX\".\nSo: 3 x EXM-8C = 24 PoE+ GE ports, and the 330 W chassis budget is the governing ceiling (the module ceiling is 240 W each, i.e. per-module headroom\nthe chassis cannot fund for three modules at once). Recorded as 330 W, the figure the current datasheet prints for the chassis.\nThe slot-2 restriction does not bite on this build: three PoE modules fit in slots 1, 3-7, and the 8-56 range allows up to seven.\nThe residual inconsistency is logged rather than smoothed: 7 slots x 8 = 56 PoE+ ports in the range row, while six is the most the slot-2 restriction\npermits. That is an extreme-case contradiction inside Peplink's own two documents and it does not touch a 3-module build.\n\nOther vendor figures used: Router throughput 30 Gbps; PepVPN/SpeedFusion 4 Gbps no-encryption and 4 Gbps 256-bit AES (2404-v15);\n5000-20000+ recommended users; 4000 SpeedFusion peers; 1000 IPsec tunnels; 1024 VLANs; 2000 APs; \"Serial Interface: No\", \"USB WAN: No\", \"Wi-Fi AP: No\",\n\"External Storage via USB Port: Yes\"; two AC inputs 100-240 V with two hot-swappable PSUs; 18.9 x 21.7 x 3.6 in / 480 x 550 x 90 mm; 31.3 lb / 14.2 kg without modules.\nNo console port is published, so none is modelled.\n\nSources: https://web.archive.org/web/20200421214219/https://download.peplink.com/resources/peplink_epx_datasheet.pdf (ordering table row for EPX-M8-LW1C3F3) ; https://download.peplink.com/resources/peplink_epx_datasheet.pdf (rev 2404-v15: WAN/LAN 8-56x ranges, PoE row, 330 W budget) ; https://download.peplink.com/resources/peplink_flexmodule_datasheet.pdf (ref 2507-v26: EXM-8C 8 PoE+ ports/240 W, EXM-4F 4x SFP+) ; https://www.peplink.com/compare/tech-specs/epx.pdf (7 FlexModule Plus slots, 30 Gbps) ; https://download.peplink.com/manual/peplink-balance-and-mediafast-firmware-manual-8.1.3.pdf (EXM-8C \"LAN Interface 8x GE; 802.3at PoE Output\")."
+}
