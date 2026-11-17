@@ -93,4 +93,62 @@ matrix in which `TNG1N206`/`TNG1N210` and `TNG1N401` are valid in all three subr
 `TNG1Txxx`/`TNV*` tributary boards are E9624-only. That is the right shape to *test* against a chapter;
 it is not admissible as the census.
 
-**One search hit per board is all that stands between this family and three closed issues.**
+**One search hit per board is all that stands between this family and three closed issues** — or so this
+note claimed on 2026-11-17. Section 5 below tests that claim by crawling the whole public graph, and it
+does not hold: the OA chapters are the complete public set.
+
+## 5. The document graph is exhausted: the client-board chapter is not published (2026-11-17)
+
+The closing claim of section 4 — that one more search hit per board would convert #807/#808/#810 — was
+tested this pass and does not hold. Three independent routes were walked to their end, and each one
+stops at the same place: Huawei publishes *OA* board chapters and nothing else.
+
+### 5.1 The "related materials" carousel is a graph, and it was crawled to exhaustion
+
+Every `https://e.huawei.com/en/documents/others/<32-hex>` material page lists its siblings. Treated as a
+graph and crawled breadth-first from the fourteen hashes already named on this thread, it drains in **52
+material pages** — after that the frontier is empty, so the list below is the whole of it, not a sample:
+
+| class | count | documents (52 pages in total) |
+|--|--|--|
+| OptiXtrans subrack/frame chapters | 4 | E9600 family brochure (`0f9e00e3…`), E9612 (`1df5f097…`), E9605 (`cc7356212e…`), E6608T (`a80f5e49…`) |
+| OptiXtrans **board** chapters | 3 (4 pages) | `TNG2DAP` (`e75c775a…`, plus a second `TNG2DAP` page `e1834b3d…`), `TNG2SRAPXF` (`08ed3c9a…`), `TNG3SRAPXF` (`6677fd88…`) — all three are OA (amplifier) boards |
+| transceiver datasheets | 6 | `SFP+ 2.5G/11.1G 80 km`, `SFP+ 1310 nm 10 km`, `eSFP 1310 nm 1.25G`, `eSFP 125M–2.67G 120 km`, `eSFP 1550.12 nm 120 km`, `SFP+ 1550.12 nm 80 km` |
+| unrelated product lines on the same hub | 38 | OceanStor / Dorado / Pacific, CloudEngine, AirEngine, IdeaHub, FusionCube, eSpace UC (A220/A320/A350/C408S/DAG1000/MTG2000/SBC1000/TUC1000), eSDK … |
+
+**Zero `TNG1N*`, `TNG1T*`, `TNG1M*` or `TNV*` chapters exist anywhere in that graph.** The absence is a
+property of the content hub, not of this crawler: the OA chapters arrived in the graph through the same
+edges a client-board chapter would have to use.
+
+### 5.2 The 50-page `TNG3SRAPXF` chapter does not leak the client boards either
+
+The previous pass listed `TNG3SRAPXF` as "indexed; not re-fetched". It was fetched this pass: `HTTP 200`,
+`application/pdf`, **1,228,914 B, 50 pp**, same cover (*OptiXtrans E9600 V100R024C00 Product Documentation*,
+2025-09-24). Its §1.3 *Mappings and Substitution Relationships* — the one table in the public set that
+names boards other than its own subject — pairs only OA and CXP items: `TNG2SRAPXF01`, `TNG3SRAPX`,
+`TNG1CXP`, `TNG3CXP`, `TNG1HCXP`, `TNG2HSOCXP`, `TNG3CXCS02/03`, `TNG3OACE101-108`, `TNG3OBCE106`.
+Text-extracted occurrences of `TNG1N`, `TNG1T`, `TNG1M` and `TNV`: **0, 0, 0, 0**.
+
+### 5.3 Two more routes, closed so nobody re-walks them
+
+| route | result |
+|--|--|
+| `e.huawei.com` site search — `/en/search?q=`, `/en/search-result?keyword=`, `/en/searchcenter/search?keyword=`, `/en/documents?keyword=` | all four answer **200 with the same 336 KB client-rendered shell** and contain **0** occurrences of the query string. There is no server-side index to page through; the only index that resolves these hashes is an external search engine, which is exactly where the three OA chapters came from. |
+| `info.support.huawei.com` document viewer / Info-Finder *Hardware Center* — `/hedex/api/pages/<EDOC>/…`, `/hedex/api/navi/<EDOC>`, `/hedex/api/book/<EDOC>`, `/hedex/api/menu/<EDOC>`, and `/info-finder/search-center/en/enterprise/…-pid-250732995/hardwarecenter` | every `hedex` path returns the same **91,294 B** Vue shell regardless of the EDOC (including the control URL that once served the Dorado connection-planning table), and the Hardware Center is a **5,804 B** shell whose bundle (`/info-finder/vue/assets/index-aac0aaf9.js`) sets `axios.create({baseURL:"/info-finder"})` and sends an `X-Csrf-Token` cookie. A browser user-agent gets **403** on both hosts. Neither is readable without a session. |
+
+### 5.4 A certification record was checked as a possible second source, and is not one
+
+`https://certification.enisa.europa.eu/document/download/e4a5ea1c-266b-4847-a8da-bf114e8dc6ff_en?filename=EUCC-3089-2026-004-CR.pdf`
+— ENISA **EUCC-3089-2026-004**, *Certification Report*, 544,246 B, 25 pp, text layer extracted. It names
+`OptiXtrans E9600 Series (E9605/E9612/E9624/E9624X)` and the product-documentation packages, i.e. it
+confirms the document set exists — but it certifies software: **0** occurrences of `TNG`, **0** of
+`board`. It cannot stand in for the board census.
+
+### 5.5 What this changes
+
+The exact missing field is unchanged — a `TNG1N*`/`TNG1M*` board's own *Front Panel* + *Port
+Specifications*, one file. What changes is the next step. Searching again is not it: the public set is
+complete for OA boards and empty for every board class an E9605/E9612/E9624 can actually carry service
+on. The two routes that remain are a **stated configuration from the requester** (the label shape in
+section 4), or a **Huawei support/partner login** for `EDOC1100163901` *OptiXtrans E9600 Board Datasheet*
+— the one document that carries the board→subrack matrix and is withheld from anonymous readers.
