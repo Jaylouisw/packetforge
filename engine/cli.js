@@ -492,6 +492,18 @@ function roundTripClause(replies) {
   return ', round-trip min/avg/max = ' + f(min) + '/' + f(avg) + '/' + f(max) + ' ms';
 }
 
+// One traceroute probe, as the column a real trace puts it in: the round trip in `msec`, or a single `*` for a
+// probe that timed out. The unit is the vendor's - IOS prints `msec` on a hop line while `ping` prints `ms` - and
+// the figures are formatted by the same `formatRttMs` the echo reply lines use, so a hop and the ping beside it
+// cannot spell the same measurement two ways.
+function probeCells(probes) {
+  return (probes || []).map(function (p) {
+    if (!p || !p.answered) return '*';
+    if (typeof p.rttMs !== 'number' || !isFinite(p.rttMs)) return '*';
+    return formatRttMs(p.rttMs) + ' msec';
+  }).join('  ');
+}
+
 
 class CliSession {
   constructor(device, topology, simulator) {
@@ -3281,11 +3293,18 @@ class CliSession {
     out.push('Tracing the route to ' + ip);
     const res = this.sim.traceroute(this.device.id, ip);
     for (const hop of res.hops) {
-      const addr = hop.address || '*';
-      if (hop.reached) out.push(' ' + hop.ttl + '  ' + addr + '  destination reached');
-      else if (hop.reason === 'time-exceeded') out.push(' ' + hop.ttl + '  ' + addr);
-      else if (hop.reason === 'unreachable') out.push(' ' + hop.ttl + '  ' + addr + '  !H  host unreachable');
-      else out.push(' ' + hop.ttl + '  *  no reply' + (hop.dropped ? '  (' + hop.dropped + ')' : ''));
+      // A hop that answered prints its address and then one result per probe, in `msec` - the vendor's own
+      // shape (`1 172.16.12.2 4 msec 4 msec 4 msec`). A hop that answered nothing has no address to print, so
+      // the three stars stand in the address column, which is what a real trace prints for a silent hop.
+      if (hop.reason === 'unreachable') {
+        // An ICMP destination-unreachable ends the walk, and the vendor spells it with a letter where a probe's
+        // time would go. Which letter, and how three probes against an unreachable destination are spelled, is
+        // not settled by the evidence behind this change, so the letter stands with the words rather than
+        // being repeated into three columns this console cannot attest (`research/traceroute-hop-line.md`).
+        out.push(' ' + hop.ttl + '  ' + hop.address + '  !H  host unreachable');
+      } else if (hop.address) out.push(' ' + hop.ttl + '  ' + hop.address + '  ' + probeCells(hop.probes));
+      else out.push(' ' + hop.ttl + '  ' + probeCells(hop.probes) +
+        (hop.dropped ? '  (' + hop.dropped + ')' : ''));
     }
     if (!res.success) out.push('% destination not reached after ' + res.hops.length + ' hops');
     return out;

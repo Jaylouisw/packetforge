@@ -37,7 +37,7 @@ Modes and their prompts:
 | `show vrrp` | the group, its state (`Master`/`Backup`/`Init` with the reason), and the master the election chose |
 | `show running-config` | full configuration |
 | `ping <ip> [count]` | ICMP echo from this device |
-| `traceroute <ip>` (`tracert`) | TTL-limited probes, one hop at a time; each router that expires a probe answers with ICMP time exceeded, the destination with an echo reply, and a hop stopped by a down cable, a shut port or an ACL says why and ends the walk |
+| `traceroute <ip>` (`tracert`) | TTL-limited probes, one hop at a time, **three probes per hop**; each router that expires a probe answers with ICMP time exceeded, the destination with an echo reply, and every hop prints its address and a round trip per probe in `msec`; a hop stopped by a down cable, a shut port or an ACL says why and ends the walk |
 | `exit` / `logout` | leave the session |
 
 ## A command word can be shortened, down to what is still unique
@@ -914,7 +914,7 @@ ends where the wire did instead of printing the same star thirty times:
 PC1#traceroute 10.0.3.9
 Type escape sequence to abort.
 Tracing the route to 10.0.3.9
- 1  *  no reply  (link down)
+ 1  *  *  *  (link down)
 % destination not reached after 1 hops
 ```
 
@@ -931,6 +931,37 @@ One silence is deliberately **not** final: `no ARP reply from <ip>` alone is not
 is still converging can resolve it on the next probe, so that hop prints its reason and the walk continues. When the
 drop was recorded on a router in the path rather than on the box you are standing at, the clause says so, so a trace
 from a PC does not read as though the PC dropped its own probe.
+
+### The hop line: three probes, and a time for each
+
+A trace is read for one number - how long the path takes to a hop - and this console used to print the address and
+no figure at all, while `ping`, over the same latency model and the same wire, printed the round trip one command
+earlier. A Cisco-style `traceroute` sends three probes at every TTL (`Probe count [3]`) and prints a result for
+each, so a hop is the address followed by three columns in `msec`:
+
+```
+r1#traceroute 10.0.1.2
+Type escape sequence to abort.
+Tracing the route to 10.0.1.2
+ 1  10.0.0.1  0.103 msec  0.103 msec  0.103 msec
+ 2  10.0.1.2  0.205 msec  0.205 msec  0.205 msec
+```
+
+The engine really does send three probes per hop, and each column is that probe's own round trip: the outbound legs
+are the echo request's, and the return legs are the reply's - for a hop that expired the probe, the returning frame
+is an ICMP time-exceeded, which carries the original sequence number but its own id, so the two halves are measured
+separately. A figure here and the figure `ping` prints for the same address are the same measurement: `ping 10.0.1.2`
+in that lab reports `0.205 ms`, and a hop that took 0.205 ms says so.
+
+The three figures of one hop agree to the last digit, and that is the model being honest rather than lazy: nothing
+in it jitters or queues a frame (`engine/latency.js` says so at the top), so three identical probes on an unchanged
+path do take the same time. Inventing a spread would be inventing the number the command exists to report.
+
+Two things this page does **not** claim. A hop that answered nothing prints three stars in the address column -
+` 2  *  *  *  (link down)` - because there is no address to print. A destination-unreachable keeps its words
+(` 2  10.0.0.1  !H  host unreachable`) and gains no probe columns: the vendor puts a letter where a probe's time
+would go, but how three probes against an unreachable destination are spelled is not settled by the evidence this
+change rests on, so it is not asserted here. `research/traceroute-hop-line.md` records both.
 
 ### Reading DHCP
 

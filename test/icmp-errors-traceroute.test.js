@@ -107,9 +107,10 @@ section('3. An ICMP error never provokes another ICMP error');
   const b = bench();
   b.sim.traceroute(b.pc.id, '10.0.3.9', { maxHops: 3 });
   const errors = b.sim.events.filter(function (e) { return e.type === 'icmp-error'; });
-  // Two hops expire the probe; the third reaches the host. A router answering an error with
-  // an error would show up here as extra events, and in a real loop as a storm.
-  ok(errors.length <= 2, 'no error was raised in response to an error (' + errors.length + ' sent)');
+  // Two hops expire the probe - three probes each, so six errors - and the third hop reaches the
+  // host. A router answering an error with an error would show up here as extra events, and in a
+  // real loop as a storm.
+  eq(errors.length, 6, 'two hops expire three probes each, and no error is raised about an error');
   ok(errors.every(function (e) { return e.aboutDst === '10.0.3.9'; }),
     'and every error is about the original probe, not about another error');
 }
@@ -158,7 +159,8 @@ section('7. The CLI prints the hops the way an operator reads them');
   ok(/Tracing the route to 10\.0\.3\.9/.test(text), 'it announces the target');
   ok(/ 1  10\.0\.1\.254/.test(text), 'hop 1 with its address');
   ok(/ 2  10\.0\.2\.2/.test(text), 'hop 2 with its address');
-  ok(/ 3  10\.0\.3\.9  destination reached/.test(text), 'and the destination, marked reached');
+  ok(/ 3  10\.0\.3\.9  [0-9.]+ msec  [0-9.]+ msec  [0-9.]+ msec/.test(text),
+    'and the destination, with a figure for each of its three probes');
 
   const bad = runCommands(b.pc, b.topo, b.sim, ['enable', 'traceroute not-an-ip']);
   ok(/% Invalid traceroute target/.test(bad.lines.join('\n')), 'a nonsense target is refused');
@@ -215,8 +217,8 @@ section('11. The console prints the reason beside the star');
   })[0];
   b.sim.setLinkState(cable.id, 'down');
   const text = runCommands(b.pc, b.topo, b.sim, ['enable', 'traceroute 10.0.3.9']).lines.join('\n');
-  ok(/ 2  \*  no reply  \(link down/.test(text),
-    'hop 2 reads "*  no reply  (link down ...)"', text);
+  ok(/ 2  \*  \*  \*  \(link down/.test(text),
+    'hop 2 reads "*  *  *  (link down ...)"', text);
   ok(!/^ 3  /m.test(text), 'and there is no hop 3, so the output ends where the wire did');
   ok(/% destination not reached after 2 hops/.test(text), 'the summary counts what was probed');
   ok(/Tracing the route to 10\.0\.3\.9/.test(text), 'and the trace still announces its target');

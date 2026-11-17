@@ -396,7 +396,10 @@ class Simulator {
       const e = events[i];
       if (e.type !== 'frame' || !e.frame || !e.frame.icmp) continue;
       const icmp = e.frame.icmp;
-      if (icmp.type !== icmpType || icmp.id !== id || icmp.seq !== seq) continue;
+      // `id` null means "any id": an ICMP error quotes the sequence number of the datagram it is about, but
+      // carries its own freshly stamped id, so a time-exceeded leg can only be found by type and sequence.
+      if (icmp.type !== icmpType || icmp.seq !== seq) continue;
+      if (id !== null && icmp.id !== id) continue;
       const link = this._linkAt(e.from, e.fromIface);
       const mediaId = link ? link.mediaId : null;
       const media = mediaId ? mediaModel.mediaById(mediaId) : null;
@@ -715,12 +718,18 @@ class Simulator {
   // that reaches the destination comes back as an ordinary echo reply. A probe that produces
   // neither is reported as '*', the way the real command prints a silent hop.
   //
-  // No per-hop latency: timing a frame is done for echo request/reply pairs by
-  // _roundTripFor, and an ICMP error is a different kind of frame. Hops are reported with
-  // their address and the device that sent the error, which is what a lab is asking about.
+  // Three probes per hop, not one (#1755). A Cisco-style `traceroute` sends `Probe count [3]` probes at every
+  // TTL and prints a figure for each - `1 172.16.12.2 4 msec 4 msec 4 msec` - so a hop line is the address
+  // followed by three results. This command used to send one probe and print one hop, which meant a trace
+  // carried no time at all: the one number a trace exists to produce was the one the answer left out, while
+  // `ping`, running on the same latency model, printed it. Each probe is timed here from the frames it really
+  // put on the wire (`_traceProbe`), so the three figures are three measurements, not one figure copied.
+  // A deterministic model gives the same path delay to three identical probes, so in a settled lab the three
+  // figures agree to the last digit; that is stated in the docs rather than dressed up with invented jitter.
   traceroute(srcId, dstIp, opts) {
     opts = opts || {};
     const maxHops = Math.min(Math.max(parseInt(opts.maxHops, 10) || 30, 1), 64);
+    const probeCount = Math.min(Math.max(parseInt(opts.probes, 10) || 3, 1), 10);
     this.reset();
     this.computeStp();
     this.computePoe();
@@ -732,68 +741,109 @@ class Simulator {
     const src = this.topo.getDevice(srcId);
     if (!src) throw new Error('Unknown device: ' + srcId);
     const target = String(dstIp);
-    const id = this._icmpId++;
+    const bits = latencyLib.pingFrameBits();
     const hops = [];
     let reached = false;
 
     for (let ttl = 1; ttl <= maxHops; ttl++) {
-      const evStart = this.events.length;
-      const errStart = this.icmpErrors.length;
-      this._emit({ type: 'traceroute-probe', src: srcId, dst: target, ttl: ttl });
-      this._sendIcmp(src, target, { type: net.ICMP_ECHO_REQUEST, code: 0, id: id, seq: ttl }, ttl);
-      this._run();
-
-      const replied = this.icmpReplies.filter(function (r) {
-        return r.dst === srcId && r.id === id && r.seq === ttl;
-      })[0];
-      if (replied) {
-        hops.push({ ttl: ttl, address: target, dev: null, reached: true, reason: 'echo-reply' });
+      const probes = [];
+      for (let p = 0; p < probeCount; p++) probes.push(this._traceProbe(src, srcId, target, ttl, bits));
+      const answered = probes.filter(function (p) { return p.reached; })[0];
+      const errProbe = probes.filter(function (p) { return p.errorType; })[0];
+      const silent = probes.filter(function (p) { return !p.reached && !p.errorType; })[0] || {};
+      if (answered) {
+        hops.push({
+          ttl: ttl, address: target, dev: null, reached: true, reason: 'echo-reply',
+          rttMs: answered.rttMs, probes: probes
+        });
         reached = true;
         break;
       }
-      const errors = this.icmpErrors.slice(errStart).filter(function (e) {
-        return e.dst === srcId && e.seq === ttl;
-      });
-      const err = errors[0];
-      if (err) {
+      if (errProbe) {
         hops.push({
-          ttl: ttl, address: err.from, dev: null, reached: false,
-          reason: err.errorType === net.ICMP_TIME_EXCEEDED ? 'time-exceeded' : 'unreachable',
-          errorType: err.errorType, code: err.code
+          ttl: ttl, address: errProbe.address, dev: null, reached: false,
+          reason: errProbe.errorType === net.ICMP_TIME_EXCEEDED ? 'time-exceeded' : 'unreachable',
+          errorType: errProbe.errorType, code: errProbe.code,
+          rttMs: errProbe.rttMs, probes: probes
         });
-        if (err.errorType === net.ICMP_DEST_UNREACH) break;
+        if (errProbe.errorType === net.ICMP_DEST_UNREACH) break;
         continue;
       }
-      // Nothing came back, and that is two different statements the engine can tell apart:
-      // the probe was *dropped* for a reason it recorded (a cable that is down, a port that is
-      // shut, an ACL that refused it), or it walked off into silence. Reporting both as thirty
-      // identical stars hides a pulled cable behind the same output as a firewall that eats
-      // probes - and the trace is the evidence an operator pastes into a ticket, so it must not
-      // say less than the `ping` running beside it (#1516).
-      const slice = this.events.slice(evStart);
-      // A probe that was stopped by a wire or a port outranks a conclusion drawn from the silence
-      // that followed it: `_lastDiscard` ranks "no ARP reply from X" above an unranked "link down",
-      // which is the right reading for a ping but hides the cause from a trace. So the structural
-      // causes are looked for first here, and only then does the ranking decide.
-      let hard = null;
-      for (let i = 0; i < slice.length; i++) {
-        const cause = this._discardReason(slice[i]);
-        if (cause && FINAL_DROP.test(String(cause))) { hard = { why: String(cause), ev: slice[i] }; break; }
-      }
-      const why = hard ? this._sayWhoDropped(hard.why, hard.ev, srcId) : this._lastDiscard(slice, srcId);
       hops.push({
         ttl: ttl, address: null, dev: null, reached: false, reason: 'no-reply',
-        dropped: why || null
+        dropped: silent.dropped || null, probes: probes
       });
       // A recorded drop is final for this path: the probe never crossed that link, so a larger TTL
       // cannot take a different road. Stop where the wire stopped instead of printing the same
       // star twenty-eight more times.
-      if (why && FINAL_DROP.test(why)) break;
-      const sent = this.events.slice(evStart).some(function (e) { return e.type === 'forward'; });
-      if (!sent) break;
+      if (silent.dropped && FINAL_DROP.test(silent.dropped)) break;
+      if (!silent.sent) break;
     }
 
     return { events: this.events, hops: hops, step: this.step, success: reached, target: target };
+  }
+
+  // One traceroute probe at one TTL, and what came back for it.
+  //
+  // Nothing came back, and that is two different statements the engine can tell apart: the probe was
+  // *dropped* for a reason it recorded (a cable that is down, a port that is shut, an ACL that refused it),
+  // or it walked off into silence. Reporting both as thirty identical stars hides a pulled cable behind the
+  // same output as a firewall that eats probes - and the trace is the evidence an operator pastes into a
+  // ticket, so it must not say less than the `ping` running beside it (#1516).
+  _traceProbe(src, srcId, target, ttl, bits) {
+    const id = this._icmpId++;
+    const evStart = this.events.length;
+    const errStart = this.icmpErrors.length;
+    this._emit({ type: 'traceroute-probe', src: srcId, dst: target, ttl: ttl });
+    this._sendIcmp(src, target, { type: net.ICMP_ECHO_REQUEST, code: 0, id: id, seq: ttl }, ttl);
+    this._run();
+    const win = this.events.slice(evStart);
+
+    const replied = this.icmpReplies.filter(function (r) {
+      return r.dst === srcId && r.id === id && r.seq === ttl;
+    })[0];
+    if (replied) {
+      const detail = this._roundTripFor(win, net.ICMP_ECHO_REQUEST, net.ICMP_ECHO_REPLY, id, ttl, bits);
+      return {
+        answered: true, reached: true, address: target,
+        rttMs: detail ? detail.totalMs : null, sent: true, dropped: null
+      };
+    }
+
+    const errors = this.icmpErrors.slice(errStart).filter(function (e) {
+      return e.dst === srcId && e.seq === ttl;
+    });
+    const err = errors[0];
+    if (err) {
+      // An ICMP error is a different frame, so the two halves of the round trip are measured separately: the
+      // outbound legs are the echo request's, and the return legs are the error's own. An error quotes the
+      // original sequence number but carries a fresh id (`_icmpErrorTo` stamps one), which is why the id is
+      // not part of the return-leg match - a match on id there would find no leg and report no time.
+      const forward = this._echoLegs(win, net.ICMP_ECHO_REQUEST, id, ttl, bits);
+      const reverse = this._echoLegs(win, err.errorType, null, ttl, bits);
+      const detail = latencyLib.roundTripDetail(forward, reverse);
+      return {
+        answered: true, reached: false, address: err.from,
+        errorType: err.errorType, code: err.code,
+        rttMs: detail ? detail.totalMs : null, sent: true, dropped: null
+      };
+    }
+
+    // A probe that was stopped by a wire or a port outranks a conclusion drawn from the silence
+    // that followed it: `_lastDiscard` ranks "no ARP reply from X" above an unranked "link down",
+    // which is the right reading for a ping but hides the cause from a trace. So the structural
+    // causes are looked for first here, and only then does the ranking decide.
+    let hard = null;
+    for (let i = 0; i < win.length; i++) {
+      const cause = this._discardReason(win[i]);
+      if (cause && FINAL_DROP.test(String(cause))) { hard = { why: String(cause), ev: win[i] }; break; }
+    }
+    const why = hard ? this._sayWhoDropped(hard.why, hard.ev, srcId) : this._lastDiscard(win, srcId);
+    const sent = win.some(function (e) { return e.type === 'forward'; });
+    return {
+      answered: false, reached: false, address: null, rttMs: null,
+      errorType: null, sent: sent, dropped: why || null
+    };
   }
 
   // ---------------------------------------------------------------------
