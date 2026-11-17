@@ -87,10 +87,59 @@ jobs:
       # every way this can go wrong - an unfetchable base, a missing depth, an unreadable
       # diff - still lands on the conservative answer, `code=true`, which runs the full
       # five-job matrix exactly as before.
-      - uses: actions/checkout@v4
+      # `uses: actions/checkout@v4` is gone from this workflow, and from the three jobs
+      # below. The runner pre-clones every `uses:` action into /data/.cache/act - one
+      # directory per action revision - at dispatch time, before the first step of the job,
+      # and it does not reuse that clone between runs. So every job paid for the clone, and
+      # it paid on the same volume Forgejo's own data lives on.
+      #
+      # Measured on 2026-11-17 through the leg logs of the ten most recent green
+      # pull-request runs (4248, 4245, 4243, 4240, ...), from `git clone
+      # 'https://data.forgejo.org/actions/checkout'` to `Run Main actions/checkout@v4`:
+      # 4.7 s in the Node 18 leg, 7.8 s in Node 20, 10.2 s in Node 22 - three legs clone
+      # the same revision within seconds of each other, so each waits for the ones ahead
+      # of it - and then 4.2 s more for the action's own fetch of the tree. Whole pre-test
+      # overhead per leg, task received to suite start: 17.4 s / 15.9 s / 25.3 s median.
+      #
+      # The same shared directory is also the one failure in this pipeline that has put a
+      # red X on a green tree: run 3122, task 6834, `Unable to checkout
+      # 49933ea5288caeca8642d1e84afbd3f7d6820020: remove /data/.cache/act/e5/877e.../
+      # .gitignore: no such file or directory`, while tasks 6833 and 6835 ran the
+      # identical suite to completion on the identical commit.
+      #
+      # `git` is in the image already and the job needs one commit, so the fetch is done
+      # directly: same commit, same tree, detached and read-only, and no credentials left
+      # in .git/config because the header is passed with `-c` rather than persisted. The
+      # conservative fallback is unchanged - if the fetch fails, the job fails loudly here
+      # instead of starting a run that would test nothing.
+      - name: Check out this commit, from git
         if: github.event_name == 'pull_request'
-        with:
-          fetch-depth: 1
+        env:
+          TOKEN: ${{ secrets.FORGEJO_TOKEN || secrets.GITHUB_TOKEN || github.token }}
+        run: |
+          set -eu
+          # The runner's working directory is the repository root. Derive the git URL from
+          # the instance URL the runner itself is configured with, never a hardcoded host.
+          server="${GITHUB_SERVER_URL:-}"
+          if [ -z "$server" ]; then
+            api="${GITHUB_API_URL:-http://10.0.10.20:3000/api/v1}"
+            server="${api%/api/v1}"
+          fi
+          url="${server}/${GITHUB_REPOSITORY}.git"
+          sha="${{ github.sha }}"
+          git init -q .
+          git remote add origin "$url"
+          if [ -n "${TOKEN:-}" ]; then
+            git -c "http.extraheader=Authorization: token ${TOKEN}" fetch -q --depth=1 origin "$sha"
+          else
+            git fetch -q --depth=1 origin "$sha"
+          fi
+          git checkout -q -f --detach FETCH_HEAD
+          # The action emptied the directory before it checked out; this is the same
+          # guarantee, applied to whatever the runner left in the workspace: after this
+          # line the tree is the commit's own files and nothing else.
+          git clean -qfdx
+          echo "checked out $(git rev-parse HEAD) of ${url} with git - no action cache involved"
       - id: classify
         env:
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
@@ -187,7 +236,36 @@ jobs:
       matrix:
         node: [18, 20, 22]
     steps:
-      - uses: actions/checkout@v4
+      # Same git checkout as the `changes` job - see the measured note there: 4.7-10.2 s of
+      # every job in this workflow was the checkout action's clone, and the three test legs
+      # clone that action into one shared directory within seconds of each other.
+      - name: Check out this commit, from git
+        env:
+          TOKEN: ${{ secrets.FORGEJO_TOKEN || secrets.GITHUB_TOKEN || github.token }}
+        run: |
+          set -eu
+          # The runner's working directory is the repository root. Derive the git URL from
+          # the instance URL the runner itself is configured with, never a hardcoded host.
+          server="${GITHUB_SERVER_URL:-}"
+          if [ -z "$server" ]; then
+            api="${GITHUB_API_URL:-http://10.0.10.20:3000/api/v1}"
+            server="${api%/api/v1}"
+          fi
+          url="${server}/${GITHUB_REPOSITORY}.git"
+          sha="${{ github.sha }}"
+          git init -q .
+          git remote add origin "$url"
+          if [ -n "${TOKEN:-}" ]; then
+            git -c "http.extraheader=Authorization: token ${TOKEN}" fetch -q --depth=1 origin "$sha"
+          else
+            git fetch -q --depth=1 origin "$sha"
+          fi
+          git checkout -q -f --detach FETCH_HEAD
+          # The action emptied the directory before it checked out; this is the same
+          # guarantee, applied to whatever the runner left in the workspace: after this
+          # line the tree is the commit's own files and nothing else.
+          git clean -qfdx
+          echo "checked out $(git rev-parse HEAD) of ${url} with git - no action cache involved"
       # Every job in this workflow already runs on Node 20: the runner's image for
       # `ubuntu-latest` is `node:20-bookworm`, which is the `Start image=` line at the
       # top of every job log and the reason the `changes` job has never needed a setup
@@ -414,7 +492,36 @@ jobs:
     # data-only diff this job reports success without taking a runner for ten minutes.
     if: needs.changes.outputs.data_only != 'true' && needs.changes.outputs.live != 'false'
     steps:
-      - uses: actions/checkout@v4
+      # Same git checkout as the `changes` job - see the measured note there: 4.7-10.2 s of
+      # every job in this workflow was the checkout action's clone, and the three test legs
+      # clone that action into one shared directory within seconds of each other.
+      - name: Check out this commit, from git
+        env:
+          TOKEN: ${{ secrets.FORGEJO_TOKEN || secrets.GITHUB_TOKEN || github.token }}
+        run: |
+          set -eu
+          # The runner's working directory is the repository root. Derive the git URL from
+          # the instance URL the runner itself is configured with, never a hardcoded host.
+          server="${GITHUB_SERVER_URL:-}"
+          if [ -z "$server" ]; then
+            api="${GITHUB_API_URL:-http://10.0.10.20:3000/api/v1}"
+            server="${api%/api/v1}"
+          fi
+          url="${server}/${GITHUB_REPOSITORY}.git"
+          sha="${{ github.sha }}"
+          git init -q .
+          git remote add origin "$url"
+          if [ -n "${TOKEN:-}" ]; then
+            git -c "http.extraheader=Authorization: token ${TOKEN}" fetch -q --depth=1 origin "$sha"
+          else
+            git fetch -q --depth=1 origin "$sha"
+          fi
+          git checkout -q -f --detach FETCH_HEAD
+          # The action emptied the directory before it checked out; this is the same
+          # guarantee, applied to whatever the runner left in the workspace: after this
+          # line the tree is the commit's own files and nothing else.
+          git clean -qfdx
+          echo "checked out $(git rev-parse HEAD) of ${url} with git - no action cache involved"
       # No setup-node here: this job already runs on Node 20, and downloading Node 20
       # onto Node 20 was most of a 48 s job. Measured through the actions API on
       # 2026-11-16 over the 22 successful smoke jobs between 06:37 and 08:17 (tasks
@@ -442,7 +549,36 @@ jobs:
     # data-only diff this job reports success without taking a runner for ten minutes.
     if: needs.changes.outputs.data_only != 'true' && needs.changes.outputs.live != 'false'
     steps:
-      - uses: actions/checkout@v4
+      # Same git checkout as the `changes` job - see the measured note there: 4.7-10.2 s of
+      # every job in this workflow was the checkout action's clone, and the three test legs
+      # clone that action into one shared directory within seconds of each other.
+      - name: Check out this commit, from git
+        env:
+          TOKEN: ${{ secrets.FORGEJO_TOKEN || secrets.GITHUB_TOKEN || github.token }}
+        run: |
+          set -eu
+          # The runner's working directory is the repository root. Derive the git URL from
+          # the instance URL the runner itself is configured with, never a hardcoded host.
+          server="${GITHUB_SERVER_URL:-}"
+          if [ -z "$server" ]; then
+            api="${GITHUB_API_URL:-http://10.0.10.20:3000/api/v1}"
+            server="${api%/api/v1}"
+          fi
+          url="${server}/${GITHUB_REPOSITORY}.git"
+          sha="${{ github.sha }}"
+          git init -q .
+          git remote add origin "$url"
+          if [ -n "${TOKEN:-}" ]; then
+            git -c "http.extraheader=Authorization: token ${TOKEN}" fetch -q --depth=1 origin "$sha"
+          else
+            git fetch -q --depth=1 origin "$sha"
+          fi
+          git checkout -q -f --detach FETCH_HEAD
+          # The action emptied the directory before it checked out; this is the same
+          # guarantee, applied to whatever the runner left in the workspace: after this
+          # line the tree is the commit's own files and nothing else.
+          git clean -qfdx
+          echo "checked out $(git rev-parse HEAD) of ${url} with git - no action cache involved"
       # node:20-bookworm ships no docker binary. The runner mounts the host
       # /var/run/docker.sock into the job (config `docker_host: automount`), so
       # installing the CLI is enough to build against the host daemon. The Dockerfile is
