@@ -129,24 +129,70 @@ jobs:
           sha="${{ github.sha }}"
           git init -q .
           git remote add origin "$url"
+          # A fetch that never returns is not a slow job, it is a held slot. The
+          # `timeout-minutes: 5` above is not enforced by this runner: on 2026-11-17 task
+          # 12980 (run 5238, pull #1851) reported "Failing after 13m48s", task 10860 (run
+          # 4596) 12m45s, task 2694 (run 1342) 27,702 s - and for every second of each,
+          # all five jobs of that pull request read "Blocked by required conditions".
+          # So the bound lives in the step: 120 s of wall clock, plus a git abort after
+          # 30 s below 1 kB/s - the same pair that fixed the stuck fetch in the demo
+          # deploy script. A stalled server costs two minutes, not an afternoon.
+          ok=no
           if [ -n "${TOKEN:-}" ]; then
-            git -c "http.extraheader=Authorization: token ${TOKEN}" fetch -q --depth=1 origin "$sha"
+            timeout 120 git -c "http.extraheader=Authorization: token ${TOKEN}" -c http.lowSpeedLimit=1000 -c http.lowSpeedTime=30 fetch -q --depth=1 origin "$sha" && ok=yes || ok=no
           else
-            git fetch -q --depth=1 origin "$sha"
+            timeout 120 git -c http.lowSpeedLimit=1000 -c http.lowSpeedTime=30 fetch -q --depth=1 origin "$sha" && ok=yes || ok=no
           fi
-          git checkout -q -f --detach FETCH_HEAD
-          # The action emptied the directory before it checked out; this is the same
-          # guarantee, applied to whatever the runner left in the workspace: after this
-          # line the tree is the commit's own files and nothing else.
-          git clean -qfdx
-          echo "checked out $(git rev-parse HEAD) of ${url} with git - no action cache involved"
+          if [ "$ok" != "yes" ]; then
+            # No tree means no diff, and a diff nobody can read has exactly one honest
+            # answer - the one `classify-change.js` already prints for a base it cannot
+            # read: run everything. Published from here because the failure that matters
+            # is the one with no tree at all, and a step that needs a tree cannot answer
+            # it. Coverage cannot shrink: `data_only=true`, the only value that skips the
+            # smoke and Docker jobs, is never written without a diff, and `live` is
+            # untouched - the five jobs then run exactly as they do on a code change.
+            : > "${RUNNER_TEMP:-/tmp}/classify-fetch-failed"
+            echo "::warning title=Classify the change::${sha} could not be fetched (bounded at 120 s) - running the full matrix instead of blocking the pull request"
+          else
+            git checkout -q -f --detach FETCH_HEAD
+            # The action emptied the directory before it checked out; this is the same
+            # guarantee, applied to whatever the runner left in the workspace: after this
+            # line the tree is the commit's own files and nothing else.
+            git clean -qfdx
+            echo "checked out $(git rev-parse HEAD) of ${url} with git - no action cache involved"
+          fi
       - id: classify
         env:
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
         run: |
+          # The checkout above could not fetch the commit at all - see the note there.
+          # The conservative answer is published rather than a red job, because a red
+          # classify job is a pull request no check will ever look at.
+          if [ -f "${RUNNER_TEMP:-/tmp}/classify-fetch-failed" ]; then
+            {
+              echo "data_only=false"
+              echo "code=true"
+            } >> "${GITHUB_OUTPUT:-/dev/null}"
+            echo "the commit could not be fetched - treating this as a code change and running the full matrix"
+            exit 0
+          fi
           if [ -n "${BASE_SHA:-}" ]; then
-            git fetch -q --depth=1 origin "$BASE_SHA" || true
-            node scripts/classify-change.js --base "$BASE_SHA" --head HEAD
+            timeout 60 git -c http.lowSpeedLimit=1000 -c http.lowSpeedTime=30 fetch -q --depth=1 origin "$BASE_SHA" || true
+            # The classifier is the other thing on this path that can hang: it walks the
+            # diff of the two commits. Bounded for the same reason as the fetch, and a
+            # classifier that cannot answer publishes the answer it gives for a base it
+            # cannot read - run everything - instead of leaving the pull request
+            # unmergeable. Nothing is skipped by this: `data_only=true`, the only value
+            # that lets smoke and Docker stand down, is written by the script, not here.
+            if timeout 120 node scripts/classify-change.js --base "$BASE_SHA" --head HEAD; then
+              :
+            else
+              {
+                echo "data_only=false"
+                echo "code=true"
+              } >> "${GITHUB_OUTPUT:-/dev/null}"
+              echo "::warning title=Classify the change::the diff could not be classified within 120 s - running the full matrix"
+            fi
           else
             # No base: the answer is a constant, and a clone cannot change it.
             {
@@ -256,9 +302,9 @@ jobs:
           git init -q .
           git remote add origin "$url"
           if [ -n "${TOKEN:-}" ]; then
-            git -c "http.extraheader=Authorization: token ${TOKEN}" fetch -q --depth=1 origin "$sha"
+            timeout 300 git -c "http.extraheader=Authorization: token ${TOKEN}" -c http.lowSpeedLimit=1000 -c http.lowSpeedTime=30 fetch -q --depth=1 origin "$sha"
           else
-            git fetch -q --depth=1 origin "$sha"
+            timeout 300 git -c http.lowSpeedLimit=1000 -c http.lowSpeedTime=30 fetch -q --depth=1 origin "$sha"
           fi
           git checkout -q -f --detach FETCH_HEAD
           # The action emptied the directory before it checked out; this is the same
@@ -526,9 +572,9 @@ jobs:
           git init -q .
           git remote add origin "$url"
           if [ -n "${TOKEN:-}" ]; then
-            git -c "http.extraheader=Authorization: token ${TOKEN}" fetch -q --depth=1 origin "$sha"
+            timeout 300 git -c "http.extraheader=Authorization: token ${TOKEN}" -c http.lowSpeedLimit=1000 -c http.lowSpeedTime=30 fetch -q --depth=1 origin "$sha"
           else
-            git fetch -q --depth=1 origin "$sha"
+            timeout 300 git -c http.lowSpeedLimit=1000 -c http.lowSpeedTime=30 fetch -q --depth=1 origin "$sha"
           fi
           git checkout -q -f --detach FETCH_HEAD
           # The action emptied the directory before it checked out; this is the same
@@ -583,9 +629,9 @@ jobs:
           git init -q .
           git remote add origin "$url"
           if [ -n "${TOKEN:-}" ]; then
-            git -c "http.extraheader=Authorization: token ${TOKEN}" fetch -q --depth=1 origin "$sha"
+            timeout 300 git -c "http.extraheader=Authorization: token ${TOKEN}" -c http.lowSpeedLimit=1000 -c http.lowSpeedTime=30 fetch -q --depth=1 origin "$sha"
           else
-            git fetch -q --depth=1 origin "$sha"
+            timeout 300 git -c http.lowSpeedLimit=1000 -c http.lowSpeedTime=30 fetch -q --depth=1 origin "$sha"
           fi
           git checkout -q -f --detach FETCH_HEAD
           # The action emptied the directory before it checked out; this is the same
