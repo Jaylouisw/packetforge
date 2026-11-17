@@ -2219,6 +2219,14 @@ ip dhcp pool <name>
   exit
 ```
 
+`host` takes the address and the hardware address in either order, and the hardware address in any notation
+this console prints one in - `aa:bb:cc:00:00:99`, `aa-bb-cc-00-00-99`, or the dotted `aabb.cc00.0099` that
+`show mac address-table` and `show arp` use. All three fold onto the canonical form the pool stores, so a
+reservation is written once and `no host`, `show ip dhcp binding` and `show running-config` agree about it
+whichever spelling was typed. The console used to hold a colon-only shape of its own in each of those three
+places, so the dotted address it prints was refused as "neither" an address nor a MAC, and a lease held by
+exactly that address was answered "no lease holds that address".
+
 `lease` takes the two forms the vendor's own reference states — `lease {days [hours [minutes]] | infinite}`, where
 `infinite` means "the duration of the lease is unlimited"
 ([Cisco IOS IP Addressing Services Command Reference, `lease`](https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/ipaddr/command/ipaddr-cr-book/ipaddr-l1.html)).

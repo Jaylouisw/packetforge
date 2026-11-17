@@ -249,5 +249,70 @@ console.log('Reservations are marked, and a lapsed lease is still shown as lapse
 }
 
 console.log('');
+console.log('A hardware address is accepted in every notation this console prints it in:');
+{
+  // One MAC, three answers. `net.formatMac()` prints hardware addresses dotted - `0200.0000.000a`, the form
+  // `show mac address-table`, `show ip arp` and the VRRP virtual MAC all use - and `dhcp.normalizePool()` folds
+  // any spelling onto the canonical colon form (`AABB.CC00.0005` is accepted, test/dhcp.test.js pins it). The
+  // DHCP console, though, decided what a MAC is with three shapes of its own: a colon-only regex in `host`
+  // (engine/cli.js), a `/:/.test(...)` in `no host`, and a third copy in the `show ip dhcp binding` filter.
+  //
+  // So the address the box itself prints was refused as "neither" an address nor a MAC, and a lease held by
+  // exactly that MAC was reported as "no lease holds that address" - a claim about a different question than
+  // the one that was asked, and one the reader has no way to notice.
+  const t = lab(['ip dhcp pool lan', 'network 192.168.10.0 255.255.255.0',
+    'default-router 192.168.10.1', 'range 192.168.10.100 192.168.10.110',
+    'host 192.168.10.105 0200.0000.0001',      // dotted lower case, as show mac address-table prints it
+    'host 192.168.10.104 02-00-00-00-00-02',   // hyphenated
+    'host 0200.0000.0003 192.168.10.103',      // dotted, and MAC first rather than address first
+    'host 192.168.10.102 AABB.CC00.0005',      // dotted upper case
+    'exit']);
+  const res = t.getDevice('r1').config.dhcpPools[0].reservations || {};
+  ok(Object.keys(res).sort().join(' ') ===
+    '02:00:00:00:00:01 02:00:00:00:00:02 02:00:00:00:00:03 aa:bb:cc:00:00:05',
+    'each spelling is stored under the one canonical MAC', JSON.stringify(res));
+  ok(res['02:00:00:00:00:01'] === '192.168.10.105' && res['aa:bb:cc:00:00:05'] === '192.168.10.102',
+    'and keeps the address it is pinned to', JSON.stringify(res));
+
+  // The saved configuration is the place a reader copies a MAC from, so it must print one the command takes.
+  const cfg = show(t, null, 'show running-config');
+  ok(/host 192\.168\.10\.105 02:00:00:00:00:01/.test(cfg), 'the reservation is in the saved config', cfg);
+
+  // `no host` has to undo what `host` accepted, in the spelling it was accepted in.
+  const s = new CliSession(t.getDevice('r1'), t, null);
+  s.run('enable'); s.run('configure terminal'); s.run('ip dhcp pool lan');
+  const del = ((s.run('no host 192.168.10.105 0200.0000.0001') || {}).output || []).join(' ');
+  ok(/Reservation removed/.test(del), 'the dotted spelling removes the reservation it created', del);
+  ok(!Object.prototype.hasOwnProperty.call(res, '02:00:00:00:00:01'), 'and it is gone', JSON.stringify(res));
+  const miss = ((s.run('no host 0200.0000.000f') || {}).output || []).join(' ');
+  ok(/No reservation for 0200\.0000\.000f/.test(miss), 'a MAC with no reservation is named back', miss);
+
+  // A pair that really is neither is still refused - and the refusal now names the syntax it will take.
+  const bad = ((s.run('host 192.168.10.9 notamac') || {}).output || []).join(' ');
+  ok(/% Not a reservation/.test(bad), 'nonsense is still refused', bad);
+  ok(/aabb\.cc00\.0099|aa:bb:cc:00:00:99/.test(bad), 'and the refusal prints a MAC this command accepts', bad);
+}
+
+console.log('');
+console.log('A lease is found by the MAC the console prints elsewhere:');
+{
+  // `show ip dhcp binding` prints its MACs colon-separated, but the same address is printed dotted by
+  // `show mac address-table` and `show ip arp` on the same box. Asking for the lease with the dotted spelling
+  // used to fall through to the address branch and answer "no lease holds that address" - a MAC is not an
+  // address, and this lease was held by exactly that MAC.
+  const t = lab(POOL.concat(['exit']));
+  const sim = new Simulator(t);
+  sim.runAtMs = 1000;
+  sim.computeDhcp();
+  const dotted = show(t, sim, 'show ip dhcp binding 0200.0000.000a');
+  ok(/192\.168\.10\.100/.test(dotted), 'the dotted spelling finds the row the table prints', dotted);
+  ok(!/no lease holds that address/.test(dotted), 'and is not answered as an address lookup', dotted);
+  const colon = show(t, sim, 'show ip dhcp binding ' + MAC_A);
+  ok(/192\.168\.10\.100/.test(colon), 'the colon spelling still finds the same row', colon);
+  const none = show(t, sim, 'show ip dhcp binding 0200.0000.000f');
+  ok(/no lease is held by that MAC/.test(none), 'a MAC nobody holds says so, about the MAC', none);
+}
+
+console.log('');
 console.log(passed + ' passed, ' + failed + ' failed');
 if (failed) process.exit(1);

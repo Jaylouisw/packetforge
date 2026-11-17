@@ -28,6 +28,22 @@ const ospfLib = require('./ospf');
 
 function pad(s, w) { s = String(s); return s + ' '.repeat(Math.max(0, w - s.length)); }
 
+// One MAC, in every notation a console meets it in. A hardware address has three spellings - `aa:bb:cc:00:00:99`,
+// `aa-bb-cc-00-00-99`, and the IOS dotted `aabb.cc00.0099` that `net.formatMac()` prints on every table this
+// console shows - and `net.macToInt()` already folds all three onto the same 48 bits. "Is this token a hardware
+// address?" was answered three times in the DHCP console with a private shape each time (a colon-only regex in
+// `host`, a `/:/.test(...)` in `no host`, a third copy in the `show ip dhcp binding` filter), so the dotted
+// address the box prints itself was refused as "neither" an address nor a MAC, and a lease held by exactly that
+// address was reported as "no lease holds that address" - an answer to a question nobody asked.
+//
+// The canonical colon form comes back, or null when the token is not a hardware address at all. An IPv4 address
+// is never one, even where its digits would read as twelve hex characters (`100.100.100.100`).
+function macSpelling(token) {
+  const s = String(token === undefined || token === null ? '' : token).trim();
+  if (!s || net.isIp(s)) return null;
+  try { return net.intToMac(net.macToInt(s)); } catch (e) { return null; }
+}
+
 // IOS accepts an abbreviation down to "the number of characters that allow a unique abbreviation", and names
 // `configure terminal` as its own example: "you can abbreviate the configure terminal command to config t"
 // (Cisco IOS XE 16 Fundamentals Configuration Guide, Using the Cisco IOS Command-Line Interface).
@@ -3177,14 +3193,18 @@ class CliSession {
       // with "reservation key ... is not a valid MAC address" (#1373). A refusal at the point of the typo beats a
       // refusal three commands later that blames the pool.
       if (!tokens[1] || !tokens[2]) return incomplete('Incomplete command: host <address> <mac> | host <mac> <address>');
-      const isMacShaped = function (x) { return /^[0-9a-f]{2}(:[0-9a-f]{2}){5}$/i.test(String(x)); };
-      const isAddrShaped = function (x) { return net.isIp(String(x)); };
+      // The two tokens are told apart by the engine's own MAC rule, not a shape of this handler's own: the
+      // dotted address `show mac address-table` prints is the same 48 bits as its colon form, and a reservation
+      // keyed by a spelling the printer never emits would be a second copy of one address.
+      const one = macSpelling(tokens[1]), two = macSpelling(tokens[2]);
+      const addr1 = net.isIp(String(tokens[1])), addr2 = net.isIp(String(tokens[2]));
       let address = null, mac = null;
-      if (isAddrShaped(tokens[1]) && isMacShaped(tokens[2])) { address = tokens[1]; mac = tokens[2]; }
-      else if (isMacShaped(tokens[1]) && isAddrShaped(tokens[2])) { address = tokens[2]; mac = tokens[1]; }
+      if (addr1 && two) { address = tokens[1]; mac = two; }
+      else if (one && addr2) { address = tokens[2]; mac = one; }
       if (address === null || mac === null) {
         return ['% Not a reservation: give an address and a MAC, in either order ' +
-          '(host ' + tokens[1] + ' ' + tokens[2] + ' is neither). A MAC is six hex pairs, like aa:bb:cc:00:00:99.'];
+          '(host ' + tokens[1] + ' ' + tokens[2] + ' is neither). A MAC is six hex pairs, as aa:bb:cc:00:00:99, ' +
+          'aa-bb-cc-00-00-99 or aabb.cc00.0099.'];
       }
       if (!pool.reservations) pool.reservations = {};
       pool.reservations[mac] = address;
@@ -3238,17 +3258,25 @@ class CliSession {
         // host <address> [<mac>] - the address may be named alone when only one reservation holds it.
         // `no host <addr>` and `no host <mac>` are both legal: a MAC address and an IPv4 address are told
         // apart by shape, so the one-token form is not mistaken for an address it can never match.
-        const looksMac = function (x) { return /:/.test(String(x || '')); };
-        const addr = looksMac(tokens[2]) ? null : tokens[2];
-        const mac = looksMac(tokens[2]) ? tokens[2] : tokens[3];
+        // Same rule, same spellings: a reservation added dotted must be removable dotted, and the keys are
+        // canonical, so both sides are folded before they are compared.
+        const typedMac = macSpelling(tokens[2]);
+        const addr = typedMac ? null : tokens[2];
+        const mac = typedMac || tokens[3];
+        const wantMac = macSpelling(mac);
         const res = pool.reservations || {};
         const byMac = Object.keys(res).filter(function (m) {
-          if (mac) return m === mac;
+          if (mac) return macSpelling(m) === wantMac;
           return res[m] === addr;
         });
         if (!addr && !mac) return ['% Incomplete command: no host <address> [<mac>]'];
         if (!byMac.length) {
-          return ['% No reservation' + (addr ? ' for ' + addr : '') + ' in pool ' + pool.name];
+          // The token that was typed comes back, address or MAC: "no reservation in pool lan" leaves the reader
+          // unable to tell a typo from the wrong pool.
+          // The spelling that was typed, not the canonical form it folded to: a reader who typed the dotted
+          // address should see the dotted address come back.
+          const named = tokens[2] || tokens[3];
+          return ['% No reservation' + (named ? ' for ' + named : '') + ' in pool ' + pool.name];
         }
         const gone = byMac.map(function (m) { return res[m] + ' (' + m + ')'; });
         for (const m of byMac) delete res[m];
@@ -3797,14 +3825,16 @@ class CliSession {
       }
       let rows = this.sim.dhcpBindings ? this.sim.dhcpBindings(dev.id) : [];
       if (want) {
-        const needle = want.toLowerCase();
-        const looksMac = /^[0-9a-f]{2}(:[0-9a-f]{2}){5}$/.test(needle);
+        // A MAC in any of the three spellings, so the dotted address a neighbouring view prints finds its
+        // lease instead of being read as an address lookup - which answered "no lease holds that address"
+        // about a token that is not an address at all.
+        const wantedMac = macSpelling(want);
         const matched = rows.filter(function (r) {
-          return looksMac ? String(r.mac).toLowerCase() === needle : r.ip === want;
+          return wantedMac ? macSpelling(r.mac) === wantedMac : r.ip === want;
         });
         if (!matched.length) {
           out.push('% No binding for ' + want +
-            (looksMac ? ' (no lease is held by that MAC)' : ' (no lease holds that address)'));
+            (wantedMac ? ' (no lease is held by that MAC)' : ' (no lease holds that address)'));
           return out;
         }
         rows = matched;
