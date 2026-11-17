@@ -1350,14 +1350,17 @@ A dynamic or PAT translation lives for its protocol's timeout, and each packet t
 |---|---|
 | icmp | 60 s |
 | udp | 300 s |
-| tcp | 3600 s |
-| anything else | 300 s |
+| tcp | 86400 s (24 hours) |
+| anything else | 86400 s (24 hours) |
 
+These are Cisco's published defaults (`ip nat translation (timeout)`: `icmp-timeout` 60 s, `udp-timeout` 300 s,
+`tcp-timeout` 86400 s, general `timeout` 86400 s;
+<https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/ipaddr/command/ipaddr-cr-book/ipaddr-i4.html>).
 `config.nat.timeouts` overrides any of them, and `show ip nat statistics` prints the values in force rather than
 leaving the rule to be guessed:
 
 ```
-Timeouts (seconds): icmp 60, udp 300, tcp 3600, other 300
+Timeouts (seconds): icmp 60, udp 300, tcp 86400, other 86400
 ```
 
 The model has had `expireTranslations()` since it was written and nothing called it, so a translation was in force

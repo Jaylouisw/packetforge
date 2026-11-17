@@ -9,7 +9,7 @@
 //   t=60 s    h1 and h2 take both pool addresses; h3 is refused, pool exhausted   (correct)
 //   t=200 s   h3 succeeds, because the ICMP entries from t=60 s are 140 s idle    (impossible before)
 //
-// The timeout is the protocol's, in seconds: ICMP 60, UDP 300, TCP 3600, other 300.
+// The timeout is the protocol's, in seconds: ICMP 60, UDP 300, TCP 86400, other 86400 (Cisco's defaults).
 const { loadCatalog } = require('../devices/registry');
 const { Topology } = require('../engine/topology');
 const { Simulator } = require('../engine/simulator');
@@ -126,7 +126,7 @@ console.log('');
 console.log('Each protocol is held to its own timeout');
 {
   const t = lab();
-  t.getDevice('r1').config.nat.timeouts = { icmp: 10, udp: 300, tcp: 3600, other: 300 };
+  t.getDevice('r1').config.nat.timeouts = { icmp: 10, udp: 300, tcp: 86400, other: 86400 };
   const sim = new Simulator(t);
   sim.setRunTime(60000);
   sim.ping('h1', '203.0.113.9', { count: 1 });
@@ -158,7 +158,7 @@ console.log('The console reads the table at the instant it is asked');
 
   const stats = ((s.run('show ip nat statistics') || {}).output || []).join('\n');
   ok(/Active translations: 0/.test(stats), 'statistics agree: nothing is active', stats.split('\n').slice(-1)[0]);
-  ok(/Timeouts \(seconds\): icmp 60, udp 300, tcp 3600, other 300/.test(stats),
+  ok(/Timeouts \(seconds\): icmp 60, udp 300, tcp 86400, other 86400/.test(stats),
     'and the timeouts the table is held to are printed, not assumed', stats.split('\n').filter(function (l) {
       return /Timeouts/.test(l); })[0]);
 
@@ -185,7 +185,7 @@ console.log('The library keeps its own promise');
   ok(natLib.expireTranslations(tbl, null, 61) === 1, '61 s later the entry is gone');
   ok(tbl.translations.length === 0, 'and the table is empty');
   ok(natLib.timeoutFor(null, 'icmp') === 60 && natLib.timeoutFor(null, 'udp') === 300 &&
-    natLib.timeoutFor(null, 'tcp') === 3600, 'the defaults are the protocol timeouts');
+    natLib.timeoutFor(null, 'tcp') === 86400, 'the defaults are the protocol timeouts');
   ok(natLib.timeoutFor({ icmp: 5 }, 'icmp') === 5, 'and a configured value wins over the default');
 }
 

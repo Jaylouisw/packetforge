@@ -50,8 +50,19 @@ const LAST_PORT = 65535;
 // '10.0.0.0/8' cannot walk four billion hosts.
 const MAX_POOL = 1024;
 
-// Default translation ageing, in caller-supplied steps.
-const DEFAULT_TIMEOUTS = { icmp: 60, udp: 300, tcp: 3600, default: 300 };
+// Default translation ageing, in caller-supplied steps (one step == one second in the simulator).
+//
+// Cisco's command reference for `ip nat translation (timeout)` gives the defaults per protocol:
+//   icmp-timeout 60 s, udp-timeout 300 s, tcp-timeout 86400 s, and the general `timeout` 86400 s
+// (https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/ipaddr/command/ipaddr-cr-book/ipaddr-i4.html).
+// The IE9300 configuration guide states the same three headline values in prose - established TCP
+// 24 hours, UDP 5 minutes, ICMP 1 minute
+// (https://www.cisco.com/c/en/us/td/docs/switches/lan/cisco_ie9300/software/17_7/ip-addressing-config-ie93xx/g-ie93xx-l3-nat/t-config-address-translation-timeouts.html).
+// This model used to hold TCP for one hour and everything else for five minutes, which is neither
+// value. `default` is the general 24-hour timeout for protocols with no override.
+// FIN/RST and SYN shortening (60 s) and the DNS 60-second rule are not modelled here; see
+// research/nat-default-timeouts.md.
+const DEFAULT_TIMEOUTS = { icmp: 60, udp: 300, tcp: 86400, default: 86400 };
 
 const PROTO_BY_NUMBER = {
   1: 'icmp', 6: 'tcp', 17: 'udp', 47: 'gre', 50: 'esp', 51: 'ah', 58: 'icmpv6'
