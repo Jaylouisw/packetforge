@@ -335,3 +335,76 @@ Huawei sells for X8100 (2U, 2 controllers) and for X9100 (4U, 4 controllers).
 
 Until then #743 stays open with no spec file: the two models are different enclosures, and the only port
 statement Huawei publishes for either is a list of port *types*.
+
+## 6. The hedex topic pages are anonymous - and the ones readable today are OceanStor, not OceanProtect
+
+Second probe pass, 2026-11-17. The viewer route in section 4 needs an 8-hex section slug, and
+`hedex/hdx.do` answers with a 3,728-byte Vue shell. There is a third shape, and it is plain static HTML:
+
+```
+https://info.support.huawei.com/hedex/api/pages/<EDOC>/<viewer>/<issue>/resources/<topic>.html
+```
+
+One file per Product Description topic, no login, indexed by search engines - which is how they were found
+(`prod_desc_mid_interface_100G.html`, `prod_desc_mid_interface_RoCE_100G.html`,
+`prod_desc_mid_interface_12G.html`, `prod_desc_mid_evrmt_para.html`, ...). Read today:
+
+| topic page | sentence, verbatim |
+|---|---|
+| `prod_desc_mid_interface_100G.html` | "A 100GE interface module provides two 100 Gbit/s optical ports." |
+| `prod_desc_mid_interface_GE.html` | "A GE electrical interface module provides four 1 Gbit/s electrical ports." |
+
+That is exactly the per-module port census #743 has been missing - except that neither page belongs to an
+OceanProtect book. Both are topics of `EDOC1100233761` (`YEM05121`, issue 11), which is the **OceanStor
+5x10/6x10** Product Description: the ENISA EUCC-3096-2026-003 certification report cites that document as
+`support.huawei.com/hedex/hdx.do?docid=EDOC1100233761&id=oceanstor_5x10_031`, and its topics carry
+HyperMetro, SmartMobility and OceanStor Dorado subject matter. The `prod_desc_mid_*` prefix is the
+**OceanStor mid-range** topic family.
+
+**The rule this leaves:** an interface-module page found under `prod_desc_mid_*` is OceanStor's, not
+OceanProtect's, and must not be imported into an OceanProtect spec. This is the same family-sibling error
+as the Dorado 8000/18000 Table 6-1 recorded under "The trap" above, now with a second and more tempting
+source: hedex pages look like the answer, and the sentence itself never names the product.
+
+Access mechanics measured from this host (2026-11-17): plain `curl` with a Googlebot user-agent gets
+**403 Access Denied** on `support.huawei.com/hedex/...`, and a silent rewrite to
+`support.huawei.com/supportindex/` on `info.support.huawei.com/hedex/...`; `r.jina.ai` is rewritten the same
+way. A topic that does not exist falls back to the support index too, so "HTTP 200 + index chrome" means
+*no such topic* - which is how the guessed topic names for the OceanProtect books were ruled out.
+
+Still unread, for the same reason as section 4 (no slug): `EDOC1100305240` (X6000/X8000/X8100 1.x &
+V200R001 Hardware Installation Guide), `EDOC1100368229` (X6000/X8000/X8100 1.6.0-1.7.0 Product
+Description), `EDOC1100368230` / `EDOC1100305243` (X9000/X9100), `EDOC1100486186` (E8000 Product
+Description). All four answer `.../doc/<EDOC>?idPath=...` - the query the product page itself uses - with
+HTTP 404 on the 452,479-byte `/view/notFound`, so `idPath` does not open them either.
+
+## 7. Vendor fields read this pass, and the one that is still missing
+
+`https://e.huawei.com/en/products/storage/oceanprotect/x100-series` (HTTP 200, crawler UA) prints a
+single-node table for X8100/X9100 that is richer than the MKT datasheet: controllers per node 2 / 4, CPU
+2 x 2 x 48 or 64 cores at 2.6 GHz, memory 1 TB / 2 TB, physical/logical/recovery bandwidth, NVMe disk
+types, front-end port **types** (16/32/64 Gbit/s FC; 10/25/40/100GE), protocols, RAID levels, C13 vs C19
+power feed, node dimensions 86.1 x 447 x 920 mm (X8100) and 175 x 447 x 865 mm (X9100), weight <= 45 kg /
+<= 89 kg. Not one of those fields is a port count.
+
+`Huawei OceanProtect X Series Backup Appliance Technical White Paper`, Issue 01 (2026-09-29), read as a
+16,574,915-byte PDF resolved from the material page
+`https://e.huawei.com/en/documents/products/storage/eded1b265ecc4dfba2fbf8669b0b8213`, settles the
+enclosure side for X8100 and leaves the module side open: "Each controller enclosure supports up to 12
+hot-swappable interface modules" and, for the 2 U controller enclosure, "Controllers A and B separately
+provide six interface module slots"; each X8100 controller has only "two GE management/maintenance ports
+and one serial port" of its own, so every front-end port on this model comes from an IOM. The white paper
+lists IOM kinds (GE electrical, 10GE electrical, 40GE optical, 100GE optical, SmartIO 8/16/32 Gbit/s FC,
+10/25 Gbit/s, 4-port 25 Gbit/s RDMA) and never a ports-per-module count.
+
+`Huawei OceanProtect E8000 Backup and Archiving Converged Storage V200R001C20 - Data Sheet`, resolved from
+`https://e.huawei.com/en/documents/products/storage/597eb7d1363f4b5da0d4ad663da1f7b6` (2,407,538-byte
+pptx, 4 slides), was read end to end: the only port row is `Front-End Port Types 16/32/64 Gbit/s Fibre
+Channel; 10/25/40/100GE`. #742's blocker is unchanged, and now has one more vendor source that does not
+answer it.
+
+**What is still missing for #743:** the per-module port counts for the 10/25/40/100GE and 16/32/64 Gb FC
+modules *from an OceanProtect book*, plus one stated configuration - the shape
+`devices/huawei/oceanprotect-x8000.json` was built from ("a 4-port 10GE electrical interface module in
+IOM 0 and another in IOM 1 on each controller"). The slot half is now vendor-sourced from the white paper;
+the port half is not, and the only sentences that state it belong to another product family.
