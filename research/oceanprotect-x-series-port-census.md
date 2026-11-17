@@ -246,4 +246,92 @@ slug opens the set, as `ce945100` did for X6000/X8000), or one stated configurat
 node, 4 controllers, 4-port 25GE module in IOM H0/L0, ...".
 
 #743 (X8100/X9100) and #742 (E8000) are unchanged by this pass: no document read states whether X8100
-shares the X6000/X8000 controller enclosure, so its census stays unpublished rather than borrowed.
+shares the X6000/X8000 controller enclosure, so its census stays unpublished rather than borrowed. (The
+next section identifies the four books that would settle it - and shows the pair are different enclosures.)
+
+## The X8100 and X9100 books, identified by ID (2026-11-17, second pass)
+
+The previous pass stopped at "no document read states whether X8100 shares the X6000/X8000 controller
+enclosure". This pass found which books carry the answer and confirmed the two models in #743 are not one
+box. Nothing here closes #743; it removes the search step.
+
+### 1. The vendor page names the four books
+
+`https://support.huawei.com/enterprise/en/data-protection/oceanprotect-x8100-pid-268353477` — HTTP 200,
+420,838 bytes, crawler UA. Its documentation tree lists, under *Product Description* and *Hardware
+Installation Guide*, four documents that split the request down the middle:
+
+| book | document ID | covers |
+|---|---|---|
+| Product Description | `EDOC1100368229` | **X6000, X8000, X8100** Backup Storage 1.6.0-1.7.0 & V200R001 |
+| Product Description | `EDOC1100368230` | **X9000, X9100** Backup Storage 1.6.0-1.7.0 & V200R001 |
+| Hardware Installation Guide | `EDOC1100305240` | **X6000, X8000, X8100** Backup Storage 1.x & V200R001 |
+| Hardware Installation Guide | `EDOC1100305243` | **X9000, X9100** Backup Storage 1.x & V200R001 |
+
+(Quick Installation Guides are `EDOC1100305237` / `EDOC1100305238`; the downloadable package is
+`EDOC1100368651`.) So X8100 is documented *with* X6000/X8000 and X9100 *with* X9000 — the book boundary
+is a documentation grouping, not a statement that the subracks are identical: the same X6000/X8000 book
+also carries a 4 U SAS disk enclosure.
+
+### 2. The X8100/X9100 data sheet is a PowerPoint, and it still has no port count
+
+`https://e.huawei.com/en/documents/products/storage/78d3796f54df4f30a2f0cbd5d7b938e8` — HTTP 200,
+266,909 bytes — leads to `.../Material/78d3796f54df4f30a2f0cbd5d7b938e8/M3T1A590N1306219389672218650/
+Huawei OceanProtect X8100 X9100 Backup Storage Data Sheet V200R001C30.pptx`: HTTP 200, 5,265,602 bytes,
+`application/vnd.openxmlformats-officedocument.presentationml.presentation`, 5 slides.
+
+Slide 4, *Technical Specifications*, is the whole census, and its rows are: Number of Controllers (2 | 4),
+CPU, Memory, Physical/Logical Backup Bandwidth, Recovery Bandwidth, Usable Capacity, Maximum Number of
+Controllers, Data Disk Types, **Front-End Port Types** (16/32/64 Gbit/s FC; 10/25/40/100GE), Front-End
+Storage Protocols, RAID Levels, Main Software Functions, Data Reduction Ratio, System Management, Power
+Supply, Dimensions, Weight, Operating Temperature, Operating Humidity. Across all five slides the string
+counts are: `slot` 0, `IOM` 0, `interface module` 0, `port count` 0, `Front-End Port` 1 (the port-types
+row). This is the same shape as the E8000 data sheet, and the same lesson: Huawei storage data sheets are
+PowerPoint files, so a PDF hunt never finds them - and finding them does not yield a socket count.
+
+### 3. #743 asks for two enclosures, not one model
+
+From that slide:
+
+| field | X8100 | X9100 |
+|---|---|---|
+| Node (controller enclosure) | 86.1 x 447 x **920** mm, 2 U, <= 45 kg | 175 x 447 x **865** mm, 4 U, <= 89 kg |
+| Controllers per node / max | 2 / 4 | 4 / 8 |
+
+Different height, different depth, different controller count and a different book. Whatever census is
+found is **per model**; a single `oceanprotect-x8100` record cannot stand for the pair, and X9100 inherits
+nothing from X9000 for the same reason the X6000/X8000 slot rules did not transfer to it in the previous
+pass.
+
+### 4. What the four books answer to, measured
+
+| probe | result |
+|---|---|
+| `/enterprise/en/doc/EDOC1100368229` (and `.../305240`) | **302** -> `/view/notFound`, 100 bytes |
+| the same IDs on `support.huawei.cn` | **404** -> `/view/notFound` |
+| `hedex/hdx.do?docid=EDOC1100305240&lang=en` | **200**, 3,728 bytes - the viewer shell, no content |
+| `hedex/api/navi/EDOC1100305240/first-level-tree` | **401** `{"status":401,"message":"NOT LOGIN!"}` |
+| `/enterprise/en/doc/EDOC1100368229/5ee6c5f0/overview` and `.../ef1db5f6/product-specifications` | **302** -> `/view/notFound` |
+| control: `/enterprise/en/doc/EDOC1100319420/5ee6c5f0/overview` (1.3.0 book) | **200**, 501,601 bytes |
+
+The section hash is per document, so no `EDOC`/`case-hex`/`slug` triple transfers between books - the
+1.3.0 control parses while every borrowed hash on the 1.6.0-era ID lands on `/view/notFound`. None of the
+four books has an indexed section page, which is why the 1.3.0 generation (and only it) is what
+`devices/huawei/oceanprotect-x8000.json` was built from.
+
+### 5. Exact missing field, and what would unblock #743
+
+**Missing field, per model:** the controller-enclosure interface-module slot count, which of those slots
+accept *front-end* modules, and the per-module port count for the 10/25/40/100GE and 16/32/64 Gb FC modules
+Huawei sells for X8100 (2U, 2 controllers) and for X9100 (4U, 4 controllers).
+
+**What would unblock it:**
+
+- any one live section of `EDOC1100368229`, `EDOC1100305240`, `EDOC1100368230` or `EDOC1100305243` - one
+  slug opens the whole set, exactly as `ce945100` did for X6000/X8000;
+- or one stated configuration in the shape "X8100 node, 2 controllers, 4-port 25GE module in IOM 0 and
+  IOM 1 of each controller";
+- or a Huawei ordering guide that pins ports per base model.
+
+Until then #743 stays open with no spec file: the two models are different enclosures, and the only port
+statement Huawei publishes for either is a list of port *types*.
