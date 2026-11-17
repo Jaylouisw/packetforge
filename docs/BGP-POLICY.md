@@ -65,7 +65,7 @@ The anchors:
 | Anchor | Today | This design changes it to |
 |---|---|---|
 | `bgp.js:56-58` | `DEFAULT_LOCAL_PREF = 100`, `DEFAULT_WEIGHT = 0`, `DEFAULT_MED = 0` | keep; add `MED_MAX`, `LOCAL_PREF_MAX`, `WEIGHT_MAX`, `WELL_KNOWN_COMMUNITIES` |
-| `bgp.js:397-436` `comparePaths(a, b)` | 8 steps, MED compared unconditionally (declared simplification in the file header comment, lines 18-19) | 9 steps; MED only within a neighbouring AS; optional `opts` third argument; new peer-address step |
+| `bgp.js:490-521` `comparePaths(a, b)` | 9 steps — weight, `LOCAL_PREF`, locally originated, AS-path length, `ORIGIN`, MED, eBGP over iBGP, the advertising speaker's router ID, then the peer address (`fromIp`) — with MED compared unconditionally (declared simplification in the file header comment, lines 18-19) | MED only within a neighbouring AS; optional `opts` third argument |
 | `bgp.js:469-489` `compareForBest` / `bestPath` | sort with `comparePaths`, then router-id, then prefix | RFC 4271 §9.1.2.2 *elimination pipeline* (a sortable comparator cannot express the MED rule — see §4.5) |
 | `bgp.js:495-540` `advertise(routes, opts)` | prepends AS on eBGP, sets next hop, copies `localPreference` and `med` unconditionally | strip `LOCAL_PREF` on eBGP, apply the MED non-transitivity rule, apply community suppression, honour `nextHopSelf` |
 | `bgp.js:304-317` `pathIsLoopFree` | correct already (AS_SET members included) | keep, no change |
@@ -285,7 +285,7 @@ only way to catch this class of bug.
 | 7 | eBGP over iBGP | eBGP wins | — | §9.1.2.2(d) | |
 | — | *(interior cost to NEXT_HOP — skipped, §4.2)* | | | §9.1.2.2(e) | |
 | 8 | lowest BGP Identifier | lower wins | sort last if absent | §9.1.2.2(f) | The peer's `router-id`. |
-| 9 | lowest neighbour address | lower wins | sort last if absent | §9.1.2.2(g) | The peer address the route was received from. New step — `comparePaths()` stops at router-id today. |
+| 9 | lowest neighbour address | lower wins | sort last if absent | §9.1.2.2(g) | The peer address the route was received from: the candidate's `fromIp`, which `computeBgp()` stamps with the address the sending speaker holds on that session (`adj.localIp`). Compared as a number, so `10.0.0.9` beats `10.0.0.10`; absent sorts last, which is a locally originated path and settled at step 3. Applied since #1803 and asserted in `test/bgp-peer-tiebreak.test.js`. |
 
 After step 9 a **simulator-only** guard breaks what is left: lowest prefix
 string, then insertion order. It is not a BGP rule, it exists so `bestPath()`
@@ -323,7 +323,7 @@ function comparePaths(a, b, opts) {
   // 7. pathRank, eBGP(0) before iBGP(1)
   // 8. igpCost, lower wins                   -- only if opts.igpCost supplied
   // 9. routerId, lower wins; absent sorts last
-  // 10. peerAddress, lower wins; absent sorts last
+  // 10. fromIp (the peer address the route arrived from), lower wins; absent sorts last
   return 0;
 }
 ```
