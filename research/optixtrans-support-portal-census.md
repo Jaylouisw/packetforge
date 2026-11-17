@@ -1,0 +1,104 @@
+# The OptiXtrans support portal answers 146 of 174 documents with `notFound`, and the 28 that open carry no ports
+
+Follow-up to `research/optixtrans-client-board-chapters.md` and `research/optixtrans-e9600-board-datasheet.md`.
+Those notes closed the *vendor file host* (`e-file.huawei.com`) and the *vendor sitemap* (`e.huawei.com`,
+713 document pages, two board chapters, both optical-layer). This note closes the third surface, the
+support portal that hosts the numbered documents themselves — and records one vendor sentence that came
+out of it, because it is the only statement found so far that puts the E9600 subracks and the OSN 9800 M
+subracks in one family on Huawei's own site.
+
+Checked 2026-11-17 against vendor hosts only.
+
+## 1. The portal serves product pages to a crawler and 403s a browser
+
+`https://support.huawei.com/enterprise/en/optical-transmission/optix-osn-9800-m24-pid-22048459`
+
+| User-Agent | result |
+|--|--|
+| `Mozilla/5.0 (compatible; Googlebot/2.1; …)` | **200**, 442,970 B, server-rendered, full document list |
+| Chrome/131 | **403**, 472 B |
+| empty | **403**, 472 B |
+| `curl/8.4.0`, `python-requests/2.31.0` | 200, but 25,028 B — a shell with no document list |
+
+This is the same client fingerprint that `research/optixtrans-board-chapters-public.md` §5 recorded for
+`e-file.huawei.com` ("serves PDFs to an empty User-Agent while returning 403 to a browser UA"), now measured
+on the portal as well, in the opposite direction. It matters for the record rather than for the queue: a
+browser-UA probe of this host measures the WAF, not the catalogue, which is why earlier passes logged
+"unreachable" for pages that do render.
+
+## 2. Every document on that page, counted
+
+The rendered page links **174 unique document ids**. Each was requested with the crawler UA:
+
+| result | count |
+|--|--|
+| `302` → `https://support.huawei.com/view/notFound` (404) | **146** |
+| `200`, document body served | **28** |
+
+Of the 28 that open, **24 are videos** — `(Video) OSN 9800 M Series Product Introduction (Full Version)`,
+`(Video) OptiX OSN 9800 M Series Hardware Introduction`, the OSU-advantage set, and the twelve
+`【Optical Basics】` issues. The remaining **2** are documents, and this is the pair worth naming:
+
+- `EDOC1100605036` — *Huawei OptiX OSN 9800 & OptiXtrans E9600 User Guide*, 550,913 B;
+- `EDOC1100605336` — *Product Supplementary Cybersecurity Information (EUCC) - OptiX OSN 9800 & OptiXtrans E9600*, 462,529 B.
+
+Neither is hardware: in `EDOC1100605036` the strings `TNG1N`, `Port Specifications`, `IU1` and
+`line service processing` occur **zero** times, and `E9605`/`E9612`/`E9624` occur once each, inside the
+scope sentence quoted in §3. `EDOC1100605336` has `TNG1N` 0, `slot` 0, and one `E9605`, also in scope.
+So of the whole document set Huawei publishes beside this subrack, **zero readable documents carry a port
+table**, and the page's own Datasheet entry — *OptiX OSN 9800 Board Datasheet* → `EDOC1000074739` — is one
+of the 146, i.e. the 2014-era `EDOC1000…` numbering is as closed as the current `EDOC11006…` one.
+
+## 3. The one vendor sentence that does help, and its exact limit
+
+Both readable documents carry the same scope paragraph:
+
+> The hardware models covered by this guidance are: The OSN 9800 series (U64E/U32E/M24/M12/M05/P32/P32C)
+> and E9600 series (E9605/E9612/E9624/E9624X).
+
+and, describing the abbreviation: *"OSN Series is used to replace the OptiX OSN 9800 series … and E9600
+series (E9605/E9612/E9624/E9624X)."*
+
+Vendor-authored, on a Huawei host, naming all four subracks in the queue's family next to the OSN 9800 M
+subracks. What it establishes: Huawei treats the E9600 subracks as the **same hardware family** as the OSN
+9800 M subracks, so a board document filed under `OptiX OSN 9800` covers `E9605/E9612/E9624` rather than
+being a sibling product like the E9624X. What it does **not** establish: an individual `E9605 → M05`
+mapping. The two lists are printed in parallel, not pairwise, so this is supporting evidence for accepting
+an OSN 9800 board chapter when one turns up — it is **not** a licence to take the M05's or M24's census and
+call it an E9605. That distinction is the E6608-from-E6608T error this catalogue has already corrected.
+
+## 4. The carrier marketing host has no board document either
+
+`carrier.huawei.com` was not previously checked. It is not a candidate: its whole
+`~/media/cnbgv2/download/products/networks/` PDF folder holds **103** archived URLs (Wayback CDX), of which
+**8** are WDM/OTN, and every one is a brochure or a datasheet.
+
+- The OSN 9800 M datasheet (`…/networks/optix-osn-9800-m-en.pdf`, capture `20261016161322`, 308,946 B, 6 pp)
+  has a text layer of 14,161 characters with **0** occurrences of `TNG1N` and **0** of `N210`; it stops at
+  *"board slots … 12 large slots or 24 small slots"*, which is capacity, not a census.
+- The live host answers **403** (485 B) to both URL shapes under an empty UA and a browser UA.
+- The brochure capture (`…/wdm-otn/osn-9800-m-en.pdf`, `20221007014829`) arrives truncated at exactly
+  1,048,576 B and its xref is unreadable, so it is **not evidence either way** — recorded so the next pass
+  does not spend two fetches discovering that.
+
+`info.support.huawei.com` re-confirmed in passing: `hedex/hdx.do?docid=EDOC1100163901&lang=en`,
+`hedex/api/pages/EDOC1100163901/EN/01` and a product path all answer 200 with the identical **91,294 B**
+shell, crawler UA included.
+
+## 5. What is still missing, and what would unblock
+
+Unchanged, and now documented from three separate hosts: **one client-board chapter with a Port
+Specifications table** — `TNG1N206` (6 x 10 Gbit/s line), `TNG1N210` (10 x 10 Gbit/s line) or `TNG1N401`
+(1 x 100 Gbit/s line) — plus, for #808 the power option/layout and for #810 the protection mode that decide
+the usable slot count.
+
+What would unblock, in order:
+
+1. `EDOC1100163901` (*OptiXtrans E9600 Board Datasheet*) or `EDOC1100214449` (*OptiXtrans E9624X Board
+   Datasheet*), or any *OptiX OSN 9800 Board Datasheet* chapter, pasted by a reader with a support session —
+   §3 makes an OSN 9800 board chapter acceptable for this family;
+2. one board chapter as a published PDF on any host Huawei controls;
+3. a stated configuration from the requester ("E9605, 5 x TNG1N210") **plus** that board's port table.
+
+Then #807 becomes `OptiXtrans E9605 (5x TNG1N210)` — a stated card complement, the convention
+`devices/huawei/optixtrans-e6616.json` already uses — and no field is guessed.

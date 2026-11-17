@@ -58,14 +58,17 @@
     {
       "issue": 807,
       "models": "Huawei OptiXtrans E9605",
-      "missing": "the client board census - one TNG1N*/TNG1M* chapter with a Port Specifications table. The frame half is fully vendor-sourced: `TNG2DAP` section 1.9 gives E9605 = IU1-IU5, and the E9605 subrack chapter gives PIU/APIU IU100-IU101, EFI IU71-IU72 (`\"The EFI board offers maintenance and management interfaces\"`), fan IU90, five service boards in IU1-IU5, two CTU boards, 177 x 442 x 260 mm. What is missing is not findable by search: the vendor sitemap indexes 713 document pages and holds exactly two board chapters, both optical-layer (TNG2DAP EDFA, TNG3SRAPXF Raman+EDFA), with TNG1N*/TNG1M*/TNG1T*/TNV*/TNK*/TMB1* occurring zero times.",
+      "missing": "the client board census - one TNG1N*/TNG1M* chapter with a Port Specifications table. The frame half is fully vendor-sourced: `TNG2DAP` section 1.9 gives E9605 = IU1-IU5, and the E9605 subrack chapter gives PIU/APIU IU100-IU101, EFI IU71-IU72 (`\"The EFI board offers maintenance and management interfaces\"`), fan IU90, five service boards in IU1-IU5, two CTU boards, 177 x 442 x 260 mm. What is missing is not findable by search: the vendor sitemap indexes 713 document pages and holds exactly two board chapters, both optical-layer (TNG2DAP EDFA, TNG3SRAPXF Raman+EDFA), with TNG1N*/TNG1M*/TNG1T*/TNV*/TNK*/TMB1* occurring zero times. Census of the support portal (2026-11-17, `research/optixtrans-support-portal-census.md`): the OSN 9800 M24 page links 174 document ids and 146 of them answer 302 -> /view/notFound, including its own Datasheet entry (OptiX OSN 9800 Board Datasheet, EDOC1000074739) - so the 2014-era EDOC1000 numbering is as closed as the current one. Of the 28 that open, 24 are videos and the two documents are the User Guide and the EUCC statement, neither of which contains \"Port Specifications\", \"IU1\" or TNG1N (zero occurrences each). That pair does carry Huawei's scope sentence placing the E9600 series (E9605/E9612/E9624/E9624X) beside the OSN 9800 M subracks as one hardware family, which is why an OSN 9800 board chapter would be acceptable for this family - but it prints no E9605->M05 pairing, so it is not a licence to borrow the M05 census.",
       "unblock": "one TNG1N* or TNG1M* chapter PDF, or a stated configuration plus that board's Port Specifications table (e.g. \"E9605 with 5x TNG1N210\"). Access, not effort: the remaining routes are `EDOC1100621488` and `EDOC1100163901` behind the Huawei account wall.",
       "checked": "2026-11-17",
       "sources": [
         "https://support.huawei.com/enterprise/en/optical-transmission/optixtrans-e9605-pid-250732995",
         "https://e-file.huawei.com/marketingcloud/pep/asset/20000001/Material/e75c775ac71144e6b522d7cef1601604/M3T1A669N1188254864652623965/TNG2DAP%20-.pdf",
         "https://e-file.huawei.com/marketingcloud/pep/asset/20000001/Material/cc7356212e6146b58f38b74dd1102e08/M3T1A669N1188254859704168616/OptiXtrans%20E9605%20-.pdf",
-        "https://e.huawei.com/sitemap-ebg-x-default.xml"
+        "https://e.huawei.com/sitemap-ebg-x-default.xml",
+        "https://support.huawei.com/enterprise/en/optical-transmission/optix-osn-9800-m24-pid-22048459",
+        "https://support.huawei.com/enterprise/en/doc/EDOC1100605036",
+        "https://carrier.huawei.com/~/media/cnbgv2/download/products/networks/optix-osn-9800-m-en.pdf"
       ]
     },
     {
