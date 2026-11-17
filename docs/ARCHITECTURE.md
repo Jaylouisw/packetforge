@@ -713,6 +713,11 @@ s1> show interfaces switchport
   A port's own switchport line is in `show interfaces <port>`; VLAN membership is in `show vlan brief`.
 ```
 
+The table holds a thirteenth entry beside those twelve: `brief`. It is there from the other side —
+`show ip interface brief` is a view of its own, so the bare `interface` alias must not be rewritten into
+`show interfaces brief` — and `show interfaces brief` answers with the same keyword sentence, naming the
+command that does answer the question.
+
 Three rules the fix keeps:
 
 * **The port table is asked first.** A device with a port genuinely called `status` still prints
@@ -721,14 +726,15 @@ Three rules the fix keeps:
   of wasting the reader's time, so `show vlan brief`, `show version` and `show lldp neighbors`
   are executed and required to answer, not merely mentioned.
 * **A near-miss on a real port is still a missing port.** `show interfaces Fa0/9x` keeps the
-  `% No interface …` sentence: only the twelve view words take the new path, and `?`/`help` get
+  `% No interface …` sentence: only the view words in that table take the new path, and `?`/`help` get
   a usage line instead of an error.
 
-`test/show-interfaces-view-keywords.test.js` pins it, 71 checks: for each of the twelve words the
+`test/show-interfaces-view-keywords.test.js` pins it, 97 checks: for each of the twelve words the
 answer names it as a view, never as a missing port; the offered commands are executed; a bogus
 port and a real port answer exactly as before; `?` and `help` print usage; case does not matter;
 the words live in one named table and the console asks it; and the keyword check is after the
-port lookup in the source, so a port named like a keyword still wins.
+port lookup in the source, so a port named like a keyword still wins. The remaining 26 checks are the
+port-first spelling — `show interfaces <port> counters` — held to that same table.
 
 ### A reopened lab announced nothing
 
@@ -849,7 +855,7 @@ The rule is one sentence: **the config reports what was configured; the views re
 `test/ipv6-provenance.test.js` pins it, 33 checks; reverting `engine/` fails 16. Neighbours green: `ipv6` 235,
 `ipv6-slaac` 165, `ipv6-wire` 33, `ping-ipv6` 43, `config-roundtrip` 46, `config-completeness` 56,
 `state-payload-complete` 16, `examples-generated` 21, `flows-survive-save-load` 16, `show-interfaces-port` 38,
-`show-interfaces-view-keywords` 71, `spec-survives-load` 32.
+`show-interfaces-view-keywords` 97, `spec-survives-load` 32.
 
 ### The address that was read as a name
 
