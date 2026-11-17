@@ -1105,7 +1105,7 @@ A list that long is classified once per frame per port, so the parser is not all
 `vlanListIncludes()` keeps the membership set per array. The test's loose cost bound (2,000 frames, well under three
 seconds) fails if that ever regresses.
 
-`test/trunk-allowed-add-remove.test.js` pins the verbs, 47 checks; `test/trunk-allowed-remove-from-all.test.js` pins the
+`test/trunk-allowed-add-remove.test.js` pins the verbs, 57 checks; `test/trunk-allowed-remove-from-all.test.js` pins the
 removal from the default list and the shape it is printed in, 45 checks.
 
 ### The request that was answered with nothing
