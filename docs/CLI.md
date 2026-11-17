@@ -1962,13 +1962,17 @@ ip dhcp pool <name>
 
 A pool is a named object on the device, not a property of an interface: one server can hold several
 and a client picks by the subnet its own interface sits in. The pool is validated once, when the
-sub-mode is left — `network` before `range` is the second keystroke, not an error:
+sub-mode is left — `network` before `range` is the second keystroke, not an error. The verdict is
+phrased as a statement about the **pool**, not about the command just typed, because after `no range`
+the pool is incomplete and that is exactly the state that was asked for; the library's error code
+rides at the end in parentheses so it is greppable without being the message:
 
 ```
 R1(config)#ip dhcp pool lan
+Created DHCP pool lan
 R1(dhcp-config)#network 10.0.0.0 255.255.255.0
 R1(dhcp-config)#exit
-% E_DHCP_BAD_RANGE: DHCP pool lan: both rangeStart and rangeEnd are required.
+% Pool lan is incomplete - DHCP pool lan: both rangeStart and rangeEnd are required. (E_DHCP_BAD_RANGE)
 ```
 
 A client is configured with `ip address dhcp` on its interface. The exchange runs before the first
