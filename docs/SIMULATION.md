@@ -640,10 +640,9 @@ so the next reader does not have to rediscover them.
 | `README.md`, Features → "Physically accurate" | "impossible cables are refused, not drawn" | Accurate and well tested; just remember [§6.6](#66-cable-length) — length is otherwise cosmetic. |
 | `docs/ARCHITECTURE.md:61-71` | Routing order: connected, static, default gateway | Right, and incomplete: eBGP (20), OSPF (110) and iBGP (200) sit between static and the default gateway (`engine/device.js`, `routeTo` and `routeDistance`). |
 | `docs/ARCHITECTURE.md`, Throughput: two counts, one shape | Flow API and counters | Accurate. |
-| `docs/ROADMAP.md:7-15` | Lists VLANs, STP, OSPF/RIP, NAT, ACLs, wireless, DNS as unchecked TODOs | All of those except RIP and the wireless RF medium are implemented. A stale roadmap reads as a promise; here it reads as a warning that happens to be wrong in both directions. |
 | `docs/BGP-POLICY.md` | A full policy design — local-pref, MED, communities, route-maps | A design document. Only the decision-order subset in `engine/bgp.js` exists. |
 
-Five rows have left this table since it was written. Two were the README's counts, which now match the
+Six rows have left this table since it was written. Two were the README's counts, which now match the
 tree — **90** media types across **ten** families and **28** connector cages, and **2,348 models across
 258 vendors** in 25 categories:
 
@@ -672,6 +671,11 @@ without the token, and an `http-server` answers on TCP 80 and 443 — while `dhc
 becomes a client through `ip address dhcp`, which is a flag on the port, not the capability. The table
 now separates the tokens something reads from the three that are only declared, the same three
 `test/capability-vocabulary.test.js` lists as pending.
+
+The sixth was `docs/ROADMAP.md`, which listed DHCP, DNS, VLANs, STP, OSPF, ACLs and wireless as unchecked
+TODOs and NAT as the only thing that had shipped. Its engine section now states each subsystem's real state -
+**Modelled**, **Partial** or **Absent** - with the file behind it and the section of this page that describes
+it, so a stale promise and a stale apology cannot both be true again: a row that flips cites a file here.
 
 ---
 
