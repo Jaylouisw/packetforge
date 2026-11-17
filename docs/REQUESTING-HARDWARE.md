@@ -56,13 +56,17 @@ If you already have the JSON, skip the form and open a PR — see
 
 ## Categories
 
-`router` · `switch` · `l3-switch` · `firewall` · `wireless` · `ptp` · `olt` ·
-`ont` · `modem` · `powerline` · `server` · `nas` · `desktop` · `laptop` · `phone` ·
-`printer` · `camera` · `nvr` · `iot` · `host` · `cloud`
+`router` · `switch` · `l3-switch` · `firewall` · `ont` · `host` · `server` ·
+`wireless` · `ptp` · `cloud` · `olt` · `splitter` · `modem` · `powerline` · `nas` ·
+`desktop` · `laptop` · `phone` · `tablet` · `printer` · `camera` · `nvr` · `iot` · `tap`
 
 Anything that is internet-connected and networked is in scope: phones, laptops,
 servers, printers, cameras, recorders, powerline and MoCA adapters, cable modems,
 ONTs and OLTs, transceivers. If it has a port, a radio, or a cable, it belongs.
+
+`splitter` and `tap` count too, although neither holds an address: a passive
+optical split and a network tap are devices the physical layer models, so a
+request for one is worth filing like any other.
 
 ## For maintainers
 
