@@ -150,11 +150,25 @@ Measured on 2026-11-12, when that volume filled:
 0.0 GiB   jaylouisw/packetforge
 ```
 
-96% of the instance was one private repository. From the host, the same question from the other end:
+96% of the instance was one private repository. The other end of the same question is a `du` over the
+repository directories - but `/data` is the container's path, and on the host it matches nothing. Ask
+at the bind source instead, and report a candidate that is not there rather than printing nothing:
 
 ```bash
-du -sh /data/git/repositories/*/*.git | sort -h | tail -5
+for base in /mnt/cache/appdata/forgejo/data /mnt/user/appdata/forgejo/data; do
+  if [ -d "$base/git/repositories" ]; then
+    du -s "$base"/git/repositories/*/*.git 2>/dev/null | sort -h | tail -5
+  else
+    echo "absent: $base/git/repositories"
+  fi
+done
 ```
+
+Those two bases are the pool path and the FUSE view of the same directory; usually exactly one of
+them exists, and `absent:` on both means the container is bound somewhere this page does not name -
+ask it, with the `docker inspect` under "which path the database is actually on" below. Inside the
+container the same measurement is `docker exec forgejo du -s /data/git/repositories/*/*.git | sort -h
+| tail -5`, which is the form that is wrong to run on the host.
 
 That `du` is not the whole answer either: a repository's API `size` counts **its git repository and its LFS
 objects**, which are reclaimed by different things. So split the number three ways - pack, tree, LFS -
