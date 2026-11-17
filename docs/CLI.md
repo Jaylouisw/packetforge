@@ -439,23 +439,60 @@ attached to no interface.
 ```
 R1(config)# interface Gi0/0
 R1(config-if)# ipv6 address 2001:db8:aa::1/64
+IPv6 address 2001:db8:aa::1/64 on Gi0/0
 R1(config-if)# exit
 R1(config)# ipv6 nd ra enable
+IPv6 router advertisements enabled on R1
 R1(config)# ipv6 nd prefix 2001:db8:aa::/64 valid 2592000 preferred 604800
-R1(config)# exit
+IPv6 ND prefix 2001:db8:aa::/64 advertised (L=1 A=1, valid 2592000s, preferred 604800s)
+R1(config)# end
 R1# show ipv6 nd
+IPv6 router advertisements on R1:
+  Device      : generic-router  (l3-forward)
+  Advertise   : enabled
+  Flags       : M=0 O=0   router lifetime 1800s
+  Timers      : reachable 0ms, retrans 0ms, hop limit 64
+  Prefixes    : 1
+    prefix                    L  A  valid(s)    preferred(s)
+    2001:db8:aa::/64          1  1  2592000     604800
+  Interfaces  : Gi0/0 (2001:db8:aa::/64)
+  Autoconfig  : none
 
 PC1(config)# interface eth0
 PC1(config-if)# ipv6 address autoconfig
+IPv6 address autoconfig on eth0 (no address until a router advertisement arrives)
+PC1(config-if)# end
+PC1# ping 2001:db8:aa::1
+Type escape sequence to abort.
+Sending 5, 100-byte ICMP Echos to 2001:db8:aa::1, timeout is 2 seconds:
+!!!!!
+Success rate is 100 percent (5/5), round-trip min/avg/max = 0.002/0.002/0.002 ms
+Reply from 2001:db8:aa::1: bytes=100 time=0.002 ms
+Reply from 2001:db8:aa::1: bytes=100 time=0.002 ms
+Reply from 2001:db8:aa::1: bytes=100 time=0.002 ms
+Reply from 2001:db8:aa::1: bytes=100 time=0.002 ms
+Reply from 2001:db8:aa::1: bytes=100 time=0.002 ms
 PC1# show ipv6 nd
 IPv6 router advertisements on PC1:
-  Autoconfig  : eth0 -> 2001:db8:aa::ff:fe00:200/64 (from fe80::ff:fe00:0)
+  Device      : generic-pc  (no l3-forward)
+  Advertise   : unavailable - a device without l3-forward cannot route a prefix
+  Flags       : M=0 O=0   router lifetime 1800s
+  Timers      : reachable 0ms, retrans 0ms, hop limit 64
+  Prefixes    : none - hosts would learn a default router only
+  Autoconfig  : eth0 -> 2001:db8:aa::ff:fe00:100/64 (from fe80::ff:fe00:0)
+  Default gw  : fe80::ff:fe00:0 via eth0  (learned from a router advertisement)
 ```
 
 The host sends a router solicitation to `ff02::2`, the router answers to
 `ff02::1`, and the host splices its own EUI-64 identifier onto the advertised
 prefix. If the advertisement carries the M (managed) flag the host refuses to
 autoconfigure and reports why: addresses on that network come from DHCPv6.
+
+The host's line is a **derived** address, not a number the page can choose: the interface identifier is spliced
+from the port's own MAC, so the host in this lab — holding `02:00:00:00:01:00` — ends `::ff:fe00:100`, while the
+same host built in another order, or a second host on the cable, ends somewhere else. The solicitation and
+advertisement run before the first packet a host sends, which is why the `ping` above already finds its router;
+until they have, `show ipv6 nd` prints `(waiting for a router)`.
 
 ## Example session (two-subnet router)
 
