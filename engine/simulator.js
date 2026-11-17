@@ -1314,8 +1314,10 @@ class Simulator {
     }
 
     // normalizePool() already resolved the lease to seconds; taking it from there keeps the
-    // configured value instead of quietly reporting the library default.
-    const leaseSec = Number(chosen.pool.leaseSec);
+    // configured value instead of quietly reporting the library default. `Number('infinite')` is NaN, so the
+    // unlimited lease is asked for in the one place that knows what the word means - and the answer is the value
+    // the handshake carries, 0xffffffff (#fidelity: lease infinite).
+    const leaseSec = dhcpLib.leaseSeconds(chosen.pool);
     return {
       lease: {
         ip: ack.ip, mask: chosen.pool.mask,

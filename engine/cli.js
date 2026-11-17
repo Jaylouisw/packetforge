@@ -2850,12 +2850,28 @@ class CliSession {
       pool.excluded = (Array.isArray(pool.excluded) ? pool.excluded : []).concat(addrs);
     } else if (head === 'lease') {
       // Days by default, like IOS: `lease 0 12 0` is 12 hours.
-      const nums = tokens.slice(1).filter(function (x) { return /^\d+$/.test(x); }).map(Number);
-      if (!nums.length) return incomplete('Incomplete command: lease <days> [hours] [minutes]');
-      const days = nums[0] || 0, hours = nums[1] || 0, mins = nums[2] || 0;
-      const sec = days * 86400 + hours * 3600 + mins * 60;
-      if (sec <= 0) return incomplete('A lease must be longer than zero');
-      pool.leaseSec = String(sec);
+      //
+      // The vendor states two forms of this command and this console had one: `lease {days [hours [minutes]] |
+      // infinite}` (Cisco IOS IP Addressing Services Command Reference, ipaddr-l1). The word form was refused as
+      // `Incomplete command: lease <days> [hours] [minutes]` - which is the wrong diagnosis, since nothing was
+      // missing; the console simply did not know the word. An operator with a printer pool therefore could not
+      // ask for the lease that pool actually wants, and the refusal taught them to look for a missing number
+      // (#fidelity: lease infinite). Keywords are not abbreviated in a sub-mode (research/command-word-
+      // abbreviation.md states the boundary), so the whole word is what is accepted.
+      const word = String(tokens[1] || '').toLowerCase();
+      if (word === 'infinite') {
+        if (tokens.length > 2) {
+          return ['% Invalid input: "' + tokens.join(' ') + '" (lease <days> [hours] [minutes] | infinite)'];
+        }
+        pool.leaseSec = 'infinite';
+      } else {
+        const nums = tokens.slice(1).filter(function (x) { return /^\d+$/.test(x); }).map(Number);
+        if (!nums.length) return incomplete('Incomplete command: lease <days> [hours] [minutes] | infinite');
+        const days = nums[0] || 0, hours = nums[1] || 0, mins = nums[2] || 0;
+        const sec = days * 86400 + hours * 3600 + mins * 60;
+        if (sec <= 0) return incomplete('A lease must be longer than zero');
+        pool.leaseSec = String(sec);
+      }
     } else if (head === 'host') {
       // host <address> <hardware-address> - a reservation, which is how a printer keeps its address.
       //
@@ -3500,7 +3516,8 @@ class CliSession {
         out.push(pad(r.ip, 16) + pad(r.mac + (reserved ? ' (reserved)' : ''), 30) +
           pad(r.pool || '-', 18) +
           (isExpired ? 'lapsed (address free)'
-            : (r.state === undefined ? 'no clock' : human(r.remainingSec))));
+            : (r.state === undefined ? 'no clock'
+              : (r.remainingSec === Infinity ? 'Infinite' : human(r.remainingSec)))));
       }
       out.push('');
       if (clocked) {
@@ -3538,7 +3555,11 @@ class CliSession {
         out.push('  Range:          ' + (p.rangeStart || '-') + ' - ' + (p.rangeEnd || '-'));
         out.push('  Default router: ' + (p.gateway || 'none'));
         out.push('  DNS servers:    ' + ((p.dns && p.dns.length) ? p.dns.join(', ') : 'none'));
-        out.push('  Lease:          ' + (Number.isFinite(Number(p.leaseSec)) ? Number(p.leaseSec) + 's' : 'default'));
+        // `lease infinite` is a duration with no end, and `Number('infinite')` is NaN - so the cell printed
+        // `default`, the one answer that is certainly wrong about a pool whose lease is unlimited
+        // (#fidelity: lease infinite).
+        out.push('  Lease:          ' + (dhcpLib.isInfiniteLease(p) ? 'Infinite (never expires)'
+          : (Number.isFinite(Number(p.leaseSec)) ? Number(p.leaseSec) + 's' : 'default')));
         const excl = Array.isArray(p.excluded) ? p.excluded : [];
         out.push('  Excluded:       ' + (excl.length
           ? excl.map(function (r) { return r.start + (r.end && r.end !== r.start ? '-' + r.end : ''); }).join(', ')
@@ -5301,7 +5322,11 @@ class CliSession {
         if (pool.gateway) out.push('  default-router ' + pool.gateway);
         if (pool.dns) out.push('  dns-server ' + pool.dns);
         for (const ex of (Array.isArray(pool.excluded) ? pool.excluded : [])) out.push('  excluded-address ' + ex);
-        if (pool.leaseSec) {
+        if (typeof pool.leaseSec === 'string' && pool.leaseSec.toLowerCase() === 'infinite') {
+          // The word goes back out as the word: a pool saved as seconds would have to invent a number for
+          // "never", and the number it invented would be a lease that ends (#fidelity: lease infinite).
+          out.push('  lease infinite');
+        } else if (pool.leaseSec) {
           // Seconds back to the days/hours/minutes the command takes. Only whole minutes survive the
           // round trip, which is every value the command itself can express.
           const sec = Number(pool.leaseSec);
@@ -5471,7 +5496,7 @@ class CliSession {
       '  no ip access-group [<acl>] [in|out]        (interface mode)',
       '  no hostname | no vlan <id> | no ip dhcp pool <name> | no dns zone <name>',
       '  scion <isd-as> | no scion        the device SCION ISD-AS, e.g. 1-ff00:0:110  (config mode)',
-      '  network <net> <mask> | range <a> <b> | default-router <gw> | lease <s>' +
+      '  network <net> <mask> | range <a> <b> | default-router <gw> | lease <days> [hours] [minutes] | infinite' +
         '  (in a dhcp pool)',
       '  host <address> <mac> | excluded-address|excluded address <a> [<b>] | dns-server <address...>' +
         '  (in a dhcp pool)',

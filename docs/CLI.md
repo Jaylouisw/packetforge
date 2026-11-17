@@ -1955,10 +1955,21 @@ ip dhcp pool <name>
   dns-server <address...>
   range <start> <end>
   excluded-address <address[-address]>
-  lease <days> [hours] [minutes]
+  lease <days> [hours] [minutes] | infinite
   host <address> <mac>          # a reservation
   exit
 ```
+
+`lease` takes the two forms the vendor's own reference states — `lease {days [hours [minutes]] | infinite}`, where
+`infinite` means "the duration of the lease is unlimited"
+([Cisco IOS IP Addressing Services Command Reference, `lease`](https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/ipaddr/command/ipaddr-cr-book/ipaddr-l1.html)).
+A pool given the word carries the word: `show running-config` prints `lease infinite` back, `show ip dhcp pool`
+reports the lease as `Infinite (never expires)`, and a binding granted from that pool never lapses — the handshake
+carries `0xffffffff`, the value [RFC 2131 §3.3](https://www.rfc-editor.org/rfc/rfc2131) reserves to represent
+"infinity", and `show ip dhcp binding` prints `Infinite` in the `Expires in` column, which is the vendor word for a
+static binding's lease expiration. The numeric form is unchanged, and `lease 0` is still refused as a zero-length
+lease rather than read as a synonym — see
+[research/dhcp-infinite-lease.md](../research/dhcp-infinite-lease.md) for what the evidence does and does not settle.
 
 A pool is a named object on the device, not a property of an interface: one server can hold several
 and a client picks by the subnet its own interface sits in. The pool is validated once, when the

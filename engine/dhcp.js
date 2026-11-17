@@ -36,6 +36,12 @@ const DEFAULT_POOL_NAME = 'lan';
 const DEFAULT_MASK = '255.255.255.0';
 const DEFAULT_LEASE_SEC = 86400;
 const STEP_SECONDS = 1;
+// `lease infinite` is the vendor's own spelling for an unlimited lease (Cisco IOS IP Addressing Services Command
+// Reference, `lease {days [hours [minutes]] | infinite}`: "Specifies that the duration of the lease is
+// unlimited"). It is carried in a pool as the word itself, so no code downstream can mistake it for a number of
+// seconds; on the wire it is 0xffffffff, the value RFC 2131 §3.3 reserves to represent "infinity".
+const INFINITE_LEASE = 'infinite';
+const INFINITE_LEASE_SEC = 0xFFFFFFFF;
 
 // ---------------------------------------------------------------------------
 // small parsers -- never throw, return null on garbage
@@ -185,10 +191,16 @@ function normalizePool(spec) {
 
   const excluded = normalizeExcluded(s.excluded);
 
-  const rawLease = (s.leaseSec === undefined || s.leaseSec === null || s.leaseSec === '')
+  const leaseIn = (s.leaseSec === undefined || s.leaseSec === null || s.leaseSec === '')
     ? DEFAULT_LEASE_SEC
-    : Number(s.leaseSec);
-  const leaseSec = (Number.isFinite(rawLease) && rawLease > 0) ? Math.floor(rawLease) : rawLease;
+    : s.leaseSec;
+  // A word, not a duration: `infinite` survives normalisation as the word, so validatePool(), the
+  // running-config printer and the console's pool view all read one fact instead of three guesses.
+  const rawLease = (typeof leaseIn === 'string' && leaseIn.trim().toLowerCase() === INFINITE_LEASE)
+    ? INFINITE_LEASE
+    : Number(leaseIn);
+  const leaseSec = (rawLease === INFINITE_LEASE) ? INFINITE_LEASE
+    : ((Number.isFinite(rawLease) && rawLease > 0) ? Math.floor(rawLease) : rawLease);
 
   // The server identifier is not part of the pool shape, so derive one: an
   // explicit `server`, else the gateway, else the first usable address.
@@ -297,7 +309,17 @@ function reservationFor(p, mac) {
   return null;
 }
 
+// Is this pool's lease the unlimited one? Takes a raw spec or a normalised pool, because both shapes reach the
+// console and the console has to answer the same question about each.
+function isInfiniteLease(pool) {
+  const v = (pool && typeof pool === 'object') ? pool.leaseSec : pool;
+  if (v === undefined || v === null) return false;
+  return String(v).trim().toLowerCase() === INFINITE_LEASE;
+}
+
+// The lease time as the handshake carries it: seconds, or 0xffffffff for an unlimited lease (RFC 2131 §3.3).
 function leaseSeconds(p) {
+  if (isInfiniteLease(p)) return INFINITE_LEASE_SEC;
   const n = Number(p.leaseSec);
   if (!Number.isFinite(n) || n <= 0) return DEFAULT_LEASE_SEC;
   return Math.floor(n);
@@ -437,7 +459,7 @@ function validatePool(pool) {
 
   // --- lease --------------------------------------------------------------
   const lease = Number(p.leaseSec);
-  if (!Number.isFinite(lease) || lease <= 0) {
+  if (!isInfiniteLease(p) && (!Number.isFinite(lease) || lease <= 0)) {
     err('E_DHCP_BAD_LEASE', where + 'leaseSec "' + p.leaseSec + '" must be a positive number of seconds.');
   }
 
@@ -484,7 +506,8 @@ function leaseStateToJSON(state) {
       mac: mac, ip: l.ip,
       pool: l.pool === undefined ? null : l.pool,
       leaseSec: l.leaseSec === undefined ? null : l.leaseSec,
-      expiresStep: l.expiresStep === undefined ? null : l.expiresStep
+      expiresStep: l.expiresStep === Infinity ? INFINITE_LEASE
+        : (l.expiresStep === undefined ? null : l.expiresStep)
     });
   }
   return { leases: leases };
@@ -497,7 +520,8 @@ function leaseStateFromJSON(rec) {
     if (!raw || !raw.mac || !raw.ip) continue;
     const lease = {
       ip: raw.ip,
-      expiresStep: Number.isFinite(Number(raw.expiresStep)) ? Number(raw.expiresStep) : null,
+      expiresStep: raw.expiresStep === INFINITE_LEASE ? Infinity
+        : (Number.isFinite(Number(raw.expiresStep)) ? Number(raw.expiresStep) : null),
       pool: raw.pool === undefined ? null : raw.pool,
       leaseSec: Number.isFinite(Number(raw.leaseSec)) ? Number(raw.leaseSec) : null
     };
@@ -519,14 +543,18 @@ function stateOf(state) {
 
 // Commit a lease, keeping both maps consistent: a MAC holds at most one
 // address, an address belongs to at most one MAC.
-function recordLease(state, mac, ip, step, leaseSec, poolName) {
+function recordLease(state, mac, ip, step, leaseSec, poolName, infinite) {
   const prev = state.leases.get(mac);
   if (prev && prev.ip !== ip && state.byIp.get(prev.ip) === mac) state.byIp.delete(prev.ip);
 
   const holder = state.byIp.get(ip);
   if (holder && holder !== mac) state.leases.delete(holder);
 
-  const expiresStep = step + (Math.max(1, Math.floor(leaseSec)) * STEP_SECONDS);
+  // An unlimited lease never lapses: `expiresStep` is Infinity, an instant no run reaches and that
+  // expireLeases() therefore never collects. A saved document writes it as the word, because JSON has no
+  // Infinity (see leaseStateToJSON).
+  const expiresStep = infinite ? Infinity
+    : step + (Math.max(1, Math.floor(leaseSec)) * STEP_SECONDS);
   // The pool name is kept with the lease so the server can answer "which pool is this address from" without
   // re-deriving it, and so a lease can be explained when the pool it came from is later edited (#1373).
   state.leases.set(mac, { ip: ip, expiresStep: expiresStep, pool: poolName || null, leaseSec: leaseSec });
@@ -744,7 +772,7 @@ function handleRequest(pool, state, req) {
     return nakMessage(p, 'RESERVED', mac + ' must use its reserved address ' + reserved + '.');
   }
 
-  const expiresStep = recordLease(s, mac, ip, step, leaseSeconds(p), p.name);
+  const expiresStep = recordLease(s, mac, ip, step, leaseSeconds(p), p.name, isInfiniteLease(p));
   return ackMessage(p, ip, mac, expiresStep);
 }
 
@@ -809,8 +837,13 @@ function leaseTable(state, step) {
       const expiresStep = Number(lease.expiresStep);
       row.pool = lease.pool === undefined ? null : lease.pool;
       row.leaseSec = lease.leaseSec === undefined ? null : lease.leaseSec;
-      row.remainingSec = Number.isFinite(expiresStep) && Number.isFinite(now) ? expiresStep - now : null;
-      row.state = Number.isFinite(expiresStep) && Number.isFinite(now) && expiresStep <= now ? 'expired' : 'active';
+      // An unlimited lease has no "left": saying `null` would read as "not measured", and the console would print
+      // the same dash for a lease that never ends and one that no clock has been set for (#fidelity: lease
+      // infinite). Infinity is the fact, and the console prints the vendor's word for it.
+      row.remainingSec = lease.expiresStep === Infinity ? Infinity
+        : (Number.isFinite(expiresStep) && Number.isFinite(now) ? expiresStep - now : null);
+      row.state = lease.expiresStep === Infinity ? 'active'
+        : (Number.isFinite(expiresStep) && Number.isFinite(now) && expiresStep <= now ? 'expired' : 'active');
     }
     rows.push(row);
   }
@@ -827,6 +860,10 @@ function leaseTable(state, step) {
 
 module.exports = {
   DHCP_MESSAGE_TYPES,
+  INFINITE_LEASE,
+  INFINITE_LEASE_SEC,
+  isInfiniteLease,
+  leaseSeconds,
   validatePool,
   normalizePool,
   ipInPool,
