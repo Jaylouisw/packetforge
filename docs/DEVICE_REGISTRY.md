@@ -264,3 +264,34 @@ and `GET /api/requests` returns the hardware people have asked for that is not h
 
 If a number here disagrees with the directory, the directory is right; this section is
 prose and prose goes stale.
+
+<!-- open-requests:start -->
+## What is left open, and why
+
+Seven hardware requests are open and cannot be modelled yet. Not one of them is blocked on
+research effort: in every case the vendor publishes the field *type* and not its *value*,
+and the value is what a spec needs. This table is generated from
+`research/open-device-requests.json` - `npm run regen:registry-doc` after editing it, and the
+issue threads stay the place where each one is argued.
+
+| issue | model(s) | the field the vendor does not publish | what would unblock it |
+|---:|---|---|---|
+| 130 | Ubiquiti UniFi Dream Wall Pro (UDW-PRO) | the whole port layout: the SKU is not in Ubiquiti's own cloud-gateway index (sixteen cards, `udw-pro` occurs zero times), `techspecs.ui.com/unifi/cloud-gateways/udw-pro` redirects to the site root and `store.ui.com/.../udw-pro` answers 404. The published datasheet `dl.ui.com/ds/udw_ds.pdf` is the non-Pro Dream Wall. | a Ubiquiti page, datasheet or quick-start guide that names UDW-PRO's ports and PoE budget. Modelling it from the non-Pro numbers is the family-sibling error this catalogue has already corrected. |
+| 742 | Huawei OceanProtect E8000 | front-end port count per node. The V200R001C20 data sheet (4-slide pptx) and the product page both stop at port *types* - `16/32/64 Gb FC, 10/25/40/100 GbE` - because the count is a function of the controllers and interface cards ordered. | a controller/interface-card configuration, or an ordering guide that pins ports per base model. The same field is missing for #743. |
+| 743 | Huawei OceanProtect X8100 / X9100 | per-model interface-module configuration: which slots take front-end modules and how many ports each module type has. The slot half is vendor-sourced (white paper: twelve hot-swappable IOMs per enclosure, six slots per controller); the port half is not. The books that carry it (`EDOC1100368229` / `EDOC1100368230` Product Description, `EDOC1100305240` / `EDOC1100305243` Hardware Installation Guide) are only served section-by-section and their section slugs are not indexed. | one section URL from either Product Description, or a stated configuration (e.g. "X8100 with a 4-port 10GE electrical module in IOM 0 and IOM 1"). X8100 and X9100 are different enclosures and get separate specs. |
+| 803 | Huawei OptiXtrans E6616X | the service-board part number valid in an E6616X subrack, and that board's front-panel census. The E6600 generation publishes its board list only inside the closed hedex tree. | the board set to be modelled (e.g. "E6616X with two TN13LSC"), or one section URL from the E6600 board chapter. |
+| 807 | Huawei OptiXtrans E9605 | the board-to-subrack matrix. Every frame's support page links `OptiXtrans E9600 Board Datasheet` (`EDOC1100163901`) and every anonymous route to it answers `view/notFound`, while a control section URL on the same host returns 200 - so the matrix is withheld, not unpublished. | that one document. The frame arithmetic is already settled from vendor text, and the stated configuration is ready: E9605 (5x TNG1N210) = 50 x 10G. |
+| 808 | Huawei OptiXtrans E9612 | the same board-to-subrack matrix (`EDOC1100163901`), plus the cross-connect mode, which decides whether the frame is modelled with 13 service slots or fewer. | the board datasheet, and a stated cross-connect mode. |
+| 810 | Huawei OptiXtrans E9624 | the same board-to-subrack matrix (`EDOC1100163901`), plus the protection mode: 1:1 gives 12 large or 24 small slots, 1:3 gives 10 or 20, and slots IU6, IU7, IU18 and IU19 are unusable in 1:3 (read from `TNG2DAP`'s Valid Slots table). | the board datasheet plus the protection mode to model. |
+
+Sources last read for each, so the next pass starts from the end of this one rather than
+from the beginning:
+
+- **#130** (2026-11-17) - <https://techspecs.ui.com/unifi/cloud-gateways>, <https://dl.ui.com/ds/udw_ds.pdf>
+- **#742** (2026-11-17) - <https://e.huawei.com/en/products/storage/oceanprotect/oceanprotect-e8000>, <https://e.huawei.com/en/documents/products/storage/597eb7d1363f4b5da0d4ad663da1f7b6>
+- **#743** (2026-11-17) - <https://e.huawei.com/en/products/storage/oceanprotect/x100-series>, <https://support.huawei.com/enterprise/en/data-protection/oceanprotect-x8100-pid-268353477>
+- **#803** (2026-11-17) - <https://e.huawei.com/en/products/optical-transmission/optixtrans-e6600>
+- **#807** (2026-11-17) - <https://support.huawei.com/enterprise/en/optical-transmission/optixtrans-e9605-pid-250732995>
+- **#808** (2026-11-17) - <https://support.huawei.com/enterprise/en/optical-transmission/optixtrans-e9612-pid-250733000>
+- **#810** (2026-11-17) - <https://support.huawei.com/enterprise/en/optical-transmission/optixtrans-e9624-pid-250733004>, <https://e.huawei.com/marketingcloud/pep/asset/20000001/Material/e75c775ac71144e6b522d7cef1601604/M3T1A669N1188254864652623965/TNG2DAP%20-.pdf>
+<!-- open-requests:end -->

@@ -44,6 +44,14 @@ const WIKI_HOME = path.join(ROOT, 'docs', 'wiki', 'Home.md');
 // in a .js file. Both are rewritten: the template so the build keeps producing the right page, the page so
 // a publish that has not run yet is not quoting yesterday's catalogue.
 const WIKI_BUILDER = path.join(ROOT, 'scripts', 'build-wiki.js');
+// The registry page also states which hardware requests cannot be modelled yet and why. The issue
+// threads for those requests cite `docs/DEVICE_REGISTRY.md` section "What is left open, and why" as
+// the record - five separate threads did, and the section did not exist, because this page only ever
+// wrote catalogue totals. The data lives in JSON so that adding or closing a request is one edit plus a
+// regeneration, and the block below is regenerated rather than hand-corrected.
+const OPEN_REQUESTS = path.join(ROOT, 'research', 'open-device-requests.json');
+const OPEN_START = '<!-- open-requests:start -->';
+const OPEN_END = '<!-- open-requests:end -->';
 
 // A row's label is written for a reader; the catalogue's key is an identifier. Where the two differ,
 // say so here rather than letting the lookup fail quietly.
@@ -127,11 +135,74 @@ function rewriteTables(doc, counts) {
   return { doc: out, changes: changes };
 }
 
-// The registry page: the headline sentence and the table.
+// A table cell must not carry a pipe (it would split the row) or a line break (it would split the table).
+const BS_PIPE = String.fromCharCode(92) + '|';
+function mdCell(v) {
+  return String(v === undefined ? '' : v).split('|').join(BS_PIPE).split(String.fromCharCode(10)).join(' ').trim();
+}
+
+// The open-request block, rendered from research/open-device-requests.json. Wrapped in markers so the
+// section is replaced in place and never duplicated; a page without the markers gets it appended once.
+function renderOpenRequests() {
+  let data;
+  try {
+    data = JSON.parse(fs.readFileSync(OPEN_REQUESTS, 'utf8'));
+  } catch (e) {
+    return null; // no data file, no section - never write a half-empty table
+  }
+  const requests = Array.isArray(data.requests) ? data.requests : [];
+  const lines = [OPEN_START, '## What is left open, and why', ''];
+  lines.push('Seven hardware requests are open and cannot be modelled yet. Not one of them is blocked on');
+  lines.push('research effort: in every case the vendor publishes the field *type* and not its *value*,');
+  lines.push('and the value is what a spec needs. This table is generated from');
+  lines.push('`research/open-device-requests.json` - `npm run regen:registry-doc` after editing it, and the');
+  lines.push('issue threads stay the place where each one is argued.');
+  lines.push('');
+  lines.push('| issue | model(s) | the field the vendor does not publish | what would unblock it |');
+  lines.push('|---:|---|---|---|');
+  for (const r of requests) {
+    const cells = [String(r.issue), r.models, r.missing, r.unblock].map(mdCell);
+    lines.push('| ' + cells.join(' | ') + ' |');
+  }
+  if (requests.length) {
+    lines.push('');
+    lines.push('Sources last read for each, so the next pass starts from the end of this one rather than');
+    lines.push('from the beginning:');
+    lines.push('');
+    for (const r of requests) {
+      const urls = (r.sources || []).map(function (u) { return '<' + u + '>'; }).join(', ');
+      lines.push('- **#' + r.issue + '** (' + (r.checked || 'date not recorded') + ') - ' + urls);
+    }
+  }
+  lines.push(OPEN_END);
+  return lines.join(String.fromCharCode(10));
+}
+
+function rewriteOpenRequests(doc) {
+  const block = renderOpenRequests();
+  if (block === null) return { doc: doc, changes: [] };
+  const start = doc.indexOf(OPEN_START);
+  const end = doc.indexOf(OPEN_END);
+  if (start !== -1 && end !== -1 && end > start) {
+    const current = doc.slice(start, end + OPEN_END.length);
+    if (current === block) return { doc: doc, changes: [] };
+    return { doc: doc.slice(0, start) + block + doc.slice(end + OPEN_END.length),
+      changes: ['open requests: section rewritten from research/open-device-requests.json'] };
+  }
+  // Appended, not inserted: the catalogue-totals prose is the page's natural close and a reader who
+  // scrolls past it has finished with the counting rules.
+  const NL = String.fromCharCode(10);
+  const tail = doc.slice(-1) === NL ? doc : doc + NL;
+  return { doc: tail + NL + block + NL,
+    changes: ['open requests: section added from research/open-device-requests.json'] };
+}
+
+// The registry page: the headline sentence, the table, and the open-request block.
 function rewrite(doc, counts) {
   const head = rewriteHeadline(doc, counts);
   const table = rewriteTables(head.doc, counts);
-  return { doc: table.doc, changes: head.changes.concat(table.changes) };
+  const open = rewriteOpenRequests(table.doc);
+  return { doc: open.doc, changes: head.changes.concat(table.changes, open.changes) };
 }
 
 // README states the same sentence; its other tables are not catalogue counts, so only the sentence is
@@ -230,5 +301,5 @@ if (require.main === module) process.exit(main(process.argv.slice(2)));
 
 module.exports = {
   keyForLabel, catalogueCounts, expectedCount, rewrite, rewriteHeadline, rewriteReadme,
-  rewriteConnectors, rewriteWiki, PAGES, LABEL_ALIASES
+  rewriteConnectors, rewriteWiki, mdCell, renderOpenRequests, rewriteOpenRequests, PAGES, LABEL_ALIASES
 };
