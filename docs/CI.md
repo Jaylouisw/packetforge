@@ -91,9 +91,22 @@ it sounds: grouping pushes by branch instead, which is what `github.ref` gives y
 meant that a burst of merges cancelled its own verification and `main` went
 untested. See #1076.
 
-Every job also carries a `timeout-minutes` bound. A hung job on a single runner is
-not a slow job, it is a stopped queue — and indistinguishable from a merely busy
-one.
+Every job also carries a `timeout-minutes` bound — 5 in `changes` and `arm`, 15 in
+`test`, 10 in `smoke` and `docker` — but on this runner that bound is a label, not a
+bound. It is not enforced: measured on 2026-11-17, task 12980 (run 5238, pull #1851)
+reported `Failing after 13m48s` under the `changes` job's five minutes, task 10860
+(run 4596) 12m45s, and task 2694 (run 1342) 27,702 s — and for every second of each,
+all five jobs of that pull request read `Blocked by required conditions`. A hung job
+on a single runner is not a slow job, it is a stopped queue, and a queue held for an
+afternoon by a job the scheduler was supposed to have killed cannot be diagnosed
+afterwards either: a task killed from outside exits without a log.
+
+So the bound that holds is in the step, and there is one on the thing that can wait.
+Every fetch in `ci.yml` is wrapped in `timeout 120` (`timeout 300` in the test, smoke
+and docker jobs) with a git abort after 30 s below 1 kB/s; the smoke client gets
+`timeout 180`, because the whole job is 11 s median and 30 s at its slowest green run,
+so a slow-but-working run still passes and a hung one stops holding a slot. A stalled
+server costs two minutes, not an afternoon.
 
 ## Merging
 
