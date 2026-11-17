@@ -1,0 +1,728 @@
+{
+  "vendor": "huawei",
+  "model": "netengine-8000-f8",
+  "label": "Huawei NetEngine 8000 F8 (8x LPUC, 64x 100GE)",
+  "category": "router",
+  "description": "Huawei NetEngine 8000 F8 13U multi-service core/aggregation router, 6.4T build: 8 service slots carrying 8 LPUCs and up to 32 PICs, 28.86 Tbit/s switching, 800GE maximum board capability, 2362 W typical. Modelled as the vendor maximum 100GE configuration - every one of the 32 PIC positions filled with a CR8DE2NBMSF0 (2-port 100GBase/50GBase QSFP28) = 64 QSFP28 cages at 100GE, which is exactly the datasheet 6.4 Tbit/s port capacity and exactly 800 Gbit/s per service slot.",
+  "capabilities": [
+    "l3-forward",
+    "l2-forward",
+    "cli",
+    "nat",
+    "firewall",
+    "dhcp-server"
+  ],
+  "interfaces": [
+    {
+      "name": "100GE1/0/0",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        100000,
+        50000,
+        40000
+      ]
+    },
+    {
+      "name": "100GE1/0/1",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        100000,
+        50000,
+        40000
+      ]
+    },
+    {
+      "name": "100GE1/1/0",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        100000,
+        50000,
+        40000
+      ]
+    },
+    {
+      "name": "100GE1/1/1",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        100000,
+        50000,
+        40000
+      ]
+    },
+    {
+      "name": "100GE1/2/0",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        100000,
+        50000,
+        40000
+      ]
+    },
+    {
+      "name": "100GE1/2/1",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        100000,
+        50000,
+        40000
+      ]
+    },
+    {
+      "name": "100GE1/3/0",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        100000,
+        50000,
+        40000
+      ]
+    },
+    {
+      "name": "100GE1/3/1",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        100000,
+        50000,
+        40000
+      ]
+    },
+    {
+      "name": "100GE2/0/0",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        100000,
+        50000,
+        40000
+      ]
+    },
+    {
+      "name": "100GE2/0/1",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        100000,
+        50000,
+        40000
+      ]
+    },
+    {
+      "name": "100GE2/1/0",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        100000,
+        50000,
+        40000
+      ]
+    },
+    {
+      "name": "100GE2/1/1",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        100000,
+        50000,
+        40000
+      ]
+    },
+    {
+      "name": "100GE2/2/0",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        100000,
+        50000,
+        40000
+      ]
+    },
+    {
+      "name": "100GE2/2/1",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        100000,
+        50000,
+        40000
+      ]
+    },
+    {
+      "name": "100GE2/3/0",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        100000,
+        50000,
+        40000
+      ]
+    },
+    {
+      "name": "100GE2/3/1",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        100000,
+        50000,
+        40000
+      ]
+    },
+    {
+      "name": "100GE3/0/0",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        100000,
+        50000,
+        40000
+      ]
+    },
+    {
+      "name": "100GE3/0/1",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        100000,
+        50000,
+        40000
+      ]
+    },
+    {
+      "name": "100GE3/1/0",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        100000,
+        50000,
+        40000
+      ]
+    },
+    {
+      "name": "100GE3/1/1",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        100000,
+        50000,
+        40000
+      ]
+    },
+    {
+      "name": "100GE3/2/0",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        100000,
+        50000,
+        40000
+      ]
+    },
+    {
+      "name": "100GE3/2/1",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        100000,
+        50000,
+        40000
+      ]
+    },
+    {
+      "name": "100GE3/3/0",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        100000,
+        50000,
+        40000
+      ]
+    },
+    {
+      "name": "100GE3/3/1",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        100000,
+        50000,
+        40000
+      ]
+    },
+    {
+      "name": "100GE4/0/0",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        100000,
+        50000,
+        40000
+      ]
+    },
+    {
+      "name": "100GE4/0/1",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        100000,
+        50000,
+        40000
+      ]
+    },
+    {
+      "name": "100GE4/1/0",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        100000,
+        50000,
+        40000
+      ]
+    },
+    {
+      "name": "100GE4/1/1",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        100000,
+        50000,
+        40000
+      ]
+    },
+    {
+      "name": "100GE4/2/0",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        100000,
+        50000,
+        40000
+      ]
+    },
+    {
+      "name": "100GE4/2/1",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        100000,
+        50000,
+        40000
+      ]
+    },
+    {
+      "name": "100GE4/3/0",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        100000,
+        50000,
+        40000
+      ]
+    },
+    {
+      "name": "100GE4/3/1",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        100000,
+        50000,
+        40000
+      ]
+    },
+    {
+      "name": "100GE5/0/0",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        100000,
+        50000,
+        40000
+      ]
+    },
+    {
+      "name": "100GE5/0/1",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        100000,
+        50000,
+        40000
+      ]
+    },
+    {
+      "name": "100GE5/1/0",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        100000,
+        50000,
+        40000
+      ]
+    },
+    {
+      "name": "100GE5/1/1",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        100000,
+        50000,
+        40000
+      ]
+    },
+    {
+      "name": "100GE5/2/0",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        100000,
+        50000,
+        40000
+      ]
+    },
+    {
+      "name": "100GE5/2/1",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        100000,
+        50000,
+        40000
+      ]
+    },
+    {
+      "name": "100GE5/3/0",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        100000,
+        50000,
+        40000
+      ]
+    },
+    {
+      "name": "100GE5/3/1",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        100000,
+        50000,
+        40000
+      ]
+    },
+    {
+      "name": "100GE6/0/0",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        100000,
+        50000,
+        40000
+      ]
+    },
+    {
+      "name": "100GE6/0/1",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        100000,
+        50000,
+        40000
+      ]
+    },
+    {
+      "name": "100GE6/1/0",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        100000,
+        50000,
+        40000
+      ]
+    },
+    {
+      "name": "100GE6/1/1",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        100000,
+        50000,
+        40000
+      ]
+    },
+    {
+      "name": "100GE6/2/0",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        100000,
+        50000,
+        40000
+      ]
+    },
+    {
+      "name": "100GE6/2/1",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        100000,
+        50000,
+        40000
+      ]
+    },
+    {
+      "name": "100GE6/3/0",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        100000,
+        50000,
+        40000
+      ]
+    },
+    {
+      "name": "100GE6/3/1",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        100000,
+        50000,
+        40000
+      ]
+    },
+    {
+      "name": "100GE7/0/0",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        100000,
+        50000,
+        40000
+      ]
+    },
+    {
+      "name": "100GE7/0/1",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        100000,
+        50000,
+        40000
+      ]
+    },
+    {
+      "name": "100GE7/1/0",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        100000,
+        50000,
+        40000
+      ]
+    },
+    {
+      "name": "100GE7/1/1",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        100000,
+        50000,
+        40000
+      ]
+    },
+    {
+      "name": "100GE7/2/0",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        100000,
+        50000,
+        40000
+      ]
+    },
+    {
+      "name": "100GE7/2/1",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        100000,
+        50000,
+        40000
+      ]
+    },
+    {
+      "name": "100GE7/3/0",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        100000,
+        50000,
+        40000
+      ]
+    },
+    {
+      "name": "100GE7/3/1",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        100000,
+        50000,
+        40000
+      ]
+    },
+    {
+      "name": "100GE8/0/0",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        100000,
+        50000,
+        40000
+      ]
+    },
+    {
+      "name": "100GE8/0/1",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        100000,
+        50000,
+        40000
+      ]
+    },
+    {
+      "name": "100GE8/1/0",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        100000,
+        50000,
+        40000
+      ]
+    },
+    {
+      "name": "100GE8/1/1",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        100000,
+        50000,
+        40000
+      ]
+    },
+    {
+      "name": "100GE8/2/0",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        100000,
+        50000,
+        40000
+      ]
+    },
+    {
+      "name": "100GE8/2/1",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        100000,
+        50000,
+        40000
+      ]
+    },
+    {
+      "name": "100GE8/3/0",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        100000,
+        50000,
+        40000
+      ]
+    },
+    {
+      "name": "100GE8/3/1",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        100000,
+        50000,
+        40000
+      ]
+    }
+  ],
+  "sourceUrl": "https://e-file.huawei.com/marketingcloud/pep/asset/20000001/Material/bef1af2f1ab84500b9d92cd145abe4d3/M3T1A590N1269357726977233147/NetEngine%208000%20F8%20Datasheet%20V800R026C00.pdf",
+  "aliases": [
+    "NE8000 F8",
+    "NetEngine 8000 F8",
+    "NetEngine 8000E F8"
+  ],
+  "notes": "Port census is a stated build, not a fixed chassis figure. Huawei NetEngine 8000 F8 datasheet V800R026C00 (https://e-file.huawei.com/marketingcloud/pep/asset/20000001/Material/bef1af2f1ab84500b9d92cd145abe4d3/M3T1A590N1269357726977233147/NetEngine%208000%20F8%20Datasheet%20V800R026C00.pdf): \"The NetEngine 8000 F8 is 13 U high and 482.8 mm deep. It supports a maximum of 6.4 Tbit/s port capacity and 32 service slots.\"; property table, 6.4T column - switching capacity 28.86 Tbit/s, maximum board capability 800 GE, typical power consumption 2362 W; \"Service Slots: 8, supporting parent-child cards and combined line processing units, up to 32 PICs, 8 LPUCs\"; \"Main Control Board: 2, 1:1\"; dimensions 442 x 482.8 x 578.5 mm (13U); DC -40 V to -72 V, AC 90 V to 290 V, HVDC 190 V to 290 V; \"The maximum port configuration reaches 576 x GE, 576 x 10GE, 256 x 25GE, 64 x 50GE, 64 x 100GE, 64 x 400GE ports\".\n\nWhy 64 x 100GE is a census and not a maximum cabled into an empty frame: the PIC is CR8DE2NBMSF0, \"2-Port 100GBase/50GBase-QSFP28 Interface Card (PIC)\", part 03035EVC, silkscreen 2x100GE-QSFP28 (https://support.huawei.com/enterprise/en/doc/EDOC1100382061/af1a855b/interface-card). That page states of the PIC: \"Occupies one flexible interface card slot. Provides two 100GE/50GE interfaces for line-rate transmitting and receiving, and supports QSFP28 optical modules. FlexE and MACsec are supported.\"; port table \"OUT0 IN0-OUT1 IN1 | QSFP28 | Interface for inputting and outputting 50GE/100GE optical signals\"; and \"Interface rate auto-sensing supported: Supports 40GE/50GE/100GE auto-sensing\", hence speedCaps 100G/50G/40G. 32 PIC positions x 2 cages = 64 cages = the datasheet maximum of 64 x 100GE, and 4 x 2 x 100GE = 800 Gbit/s per service slot = the stated 800 GE maximum board capability. Chassis, card and vendor maximum close on the same number, which is the check that the decode is right. Four PICs per LPU is the datasheet figure of 32 PICs / 8 LPUCs, and the same hardware description restricts a subcard to \"PIC0 or PIC2 of the LPU\" when an SRU2T is fitted, so positions PIC0-PIC3 are named here.\n\nNot modelled: breakout. The PIC supports port split (\"Breakout supported: Yes. To enable the breakout function on a port, run the port split command\") and carries four breakout channel indicators (BREAKOUT 0-3), but the per-channel line rate is not printed on that page, so no 4x25GE or 4x10GE capability is claimed: a cage that splits is still one QSFP28 cage, and claiming the split would let the engine cable a rate the card has not been shown to carry. The other F8 interface cards (CR8D00E4XFD0 4x10GE, CR8D00LAXFD0 10x10GE, CR8DE4YBMSF0 4x25GE/10GE, CR8DE2V1NBD0 2x50GE/1x100GE, CR8D00E8GED0 8xGE RJ45, plus 16xE1, 4xSTM-1c and 8xSTM-1c/STM-4c PICs) give a different box; this entry is the 100GE build only, and the datasheet's 576 x GE / 576 x 10GE / 256 x 25GE figures are capacities across those cards, not a census of this one.\n\nNo PoE: a core/aggregation router sources no power over its Ethernet ports, which matches the request. No console or management port is published on the datasheet pages read here, so none is modelled. MPLS, SRv6, FlexE, BGP and EVPN are stated by the datasheet (\"Segment Routing MPLS (SR MPLS), Segment Routing IPv6 (SRv6)\", \"BGP, BGP4+\", \"EVPN\", \"Native FlexE\") but are not engine capability tokens, so they are recorded here rather than declared; the declared list names only capabilities the simulator branches on, the same treatment devices/huawei/ne40e-x8a.json gets."
+}
