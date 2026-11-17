@@ -220,6 +220,10 @@ only as the load used to measure power and heat, and configuration 2 leaves two 
 empty. Recorded here as the evidence a "state the configuration" answer should quote, not as a licence
 to build an M6 spec from a wattage table.
 
+(Later, 2026-11-17: #796 was in fact closed without one - the M6 prints a stated build in its AC
+specification table, the same shape as the M8's. See 'The M6 had a stated build too' at the end of this
+page.)
+
 ## What would close #796, #797, #799, #800, #801, #802
 
 One sentence naming the cards, in the form the vendor writes them — for the M6 the datasheet's own
@@ -306,3 +310,64 @@ The newer IPU-3T6 chassis codes are a **separate population** on the same 10/12-
 `2*CR8DE1KB00M1(1*400GE)+2*CR8DE4NB00M1(4*100GE)+2*CR5D00LAXF91(10*10GE)+2*CR5D00EAGF95(10*GE)=931.67 W` -
 eight cards, 50 ports. They are recorded, not merged: different forwarding units (7.2 Tbit/s), different port
 population.
+
+## The M6 had a stated build too, in its AC table: four cards against four AC service slots (2026-11-17)
+
+The note above turned #796 down with one sentence - "configuration 2 leaves two of the six PIC slots empty" -
+and that sentence is measured against the **DC** chassis. The row it rejects is not a DC row. The M6 hardware
+description prints two typical configurations, one per chassis, and the one that matters here is the AC pair
+(Table 1-31, technical specifications of `CR8BM6BKPAC1`, read 2026-11-17 from
+`https://support.huawei.com/enterprise/en/doc/EDOC1100382052/374d9a7/netengine-8000-m6`, HTTP 200, 526,382 B
+with a crawler user-agent):
+
+> [CXP-160/CXP-160-B]AC Typical configuration 2: 2\*CXP+1\*FAN+2\*AC power+2\*`CR8D00E1VBC0`+1\*`CR8D00L4XFC0`
+> + 1\*`CR8D00EAGFC0` =220.07 W
+
+The same document's own slot tables say how many service slots each chassis has: AC **9 slots, 4 service
+board slots** (Table 1-31), PIC slots **AC 2, 4-6** (Table 1-29) - four of them. Configuration 2 carries four
+PICs, 2 + 1 + 1. **It fills the AC chassis exactly**, which is the one property that made the M8's power row
+usable as a build rather than as a wattage: no slot is left silently empty, so no card-to-slot choice is
+being made on the vendor's behalf.
+
+Three details that make this the right row and not the left one:
+
+1. **The DC row is the same four cards against six slots.** `[CXP-160/CXP-160-B]DC Typical configuration 2`
+   (205.8 W) is `2*CR8D00E1VBC0+1*CR8D00L4XFC0+1*CR8D00EAGFC0` as well, on the 11-slot / 6-service-slot DC
+   chassis, so two PIC slots stay empty there. The card set is identical; only the chassis differs, and the
+   AC chassis is the one the set closes. That is why the entry is the AC variant, as with the M8.
+2. **An earlier datasheet revision prints 222.07 W for this same AC row** (the 12-page revision that still
+   carried Ordering Information). The current vendor datasheet, read the same day
+   (`https://e.huawei.com/marketingcloud/pep/asset/20000001/Material/b50df453e4bf4ca4b99ef855437e8cc9/M3T1A590N1140254128116289674/NetEngine%208000%20M6%20Universal%20Service%20Router%20Datasheet.pdf`,
+   HTTP 200, `application/pdf`, 340,235 B, 6 pp.), gives no wattage row at all - it dropped the ordering and
+   configuration sections - so the hardware description in force is the one quoted, and 220.07 W is the
+   figure recorded. The set of cards is the same in both revisions, so nothing in the port list turns on the
+   difference.
+3. **The card descriptions come from the cards' own vendor chapters, not from the mirror's ordering table.**
+   The `data.nag.wiki` BOM block recorded earlier is a third-party mirror and its BOM column is scrambled in
+   the text layer; the vendor Hardware Guide
+   (`https://support.huawei.com/enterprise/en/doc/EDOC1100264779`, Issue 05, 2023-03-31, read whole as HTML,
+   7,324,974 B) gives every card a chapter with its silkscreen and its port row:
+
+   | card | chapter | silkscreen | ports | connector |
+   |---|---|---|---|---|
+   | `CR8D00E1VBC0` | 3.4.5.42, p.903 | 1x50GE-QSFP28 | `OUT0 IN0` - "Provides one 50GE interface", breakout not supported | QSFP28 |
+   | `CR8D00L4XFC0` | 3.4.5.52, p.963 | 4x10GE-SFP+ | `OUT0 IN0 to OUT3 IN3` - "optical signal input and output of four 10GE/GE interfaces" | SFP+ |
+   | `CR8D00EAGFC0` | 3.4.5.56, p.965 | 10xFE/GE-SFP | `OUT0 IN0 to OUT9 IN9` | SFP |
+
+   So the build is 2 x 50GE QSFP28 + 4 x 10GE/GE SFP+ + 10 x GE/FE SFP = **16 ports**, and the AC chassis'
+   stated per-rate maxima (50GE 2, 10GE 14, GE 70, physical 70) are used only as a bound to check the build
+   against, never as counts.
+
+`devices/huawei/netengine-8000-m6.json` closes #796.
+
+What it deliberately does not assert, and why:
+
+- **Card-to-slot assignment.** The vendor prints the complement, not an order, so the port names are flat
+  (`50ge0 .. ge15`) rather than NetEngine's `slot/subcard/port` form. Slot-numbered names would claim a
+  population the document never prints.
+- **Any management port.** The CXP control board is listed with a console (the datasheet's
+  `/RS232/RS485`, "2, 1:1" rows), but neither page publishes a count of ETH management/maintenance ports
+  for this chassis, so none is modelled - the same call made for the M8.
+- **The other PICs the M6 can take** - 25GE `CR8D25E2XFC0`, 2-port 10GE `CR8D00E2XFC0`, 8-port RJ45
+  `CR8D00E8GEC1`, 20-port CSFP `CR8D00EEGFC0`, and the E1/cPOS/voice boards. A spec states one build; these
+  are what a second M6 build would be made of.

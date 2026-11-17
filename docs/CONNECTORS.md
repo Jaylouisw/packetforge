@@ -1020,14 +1020,14 @@ the optic is XFP or SFP+.
 
 The faceplate is the view that has to be readable where the canvas is not: on a 48-port switch the drawing is 48
 indistinguishable dots whose labels appear only on selection, so the front panel is the tool an operator reaches for
-when the question is "which socket is this". The catalogue at this tree is **2,350 models built from 967 distinct
+when the question is "which socket is this". The catalogue at this tree is **2,351 models built from 968 distinct
 port shapes**, every one of which can be dragged onto a board.
 
 `test/faceplate.test.js` checks two devices in detail. `test/faceplate-catalogue.test.js` checks the other axis —
 breadth — and takes about a second for the whole catalogue:
 
 ```
-(2350 models, 29245 sockets, 967 distinct port shapes)
+(2351 models, 29261 sockets, 968 distinct port shapes)
 ```
 
 Per model it requires: it renders without throwing, twice-gives-the-same-panel; every port the engine knows about

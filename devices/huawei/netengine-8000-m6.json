@@ -1,0 +1,180 @@
+{
+  "vendor": "huawei",
+  "model": "netengine-8000-m6",
+  "label": "Huawei NetEngine 8000 M6 AC (2x CR8D00E1VBC0, 1x CR8D00L4XFC0, 1x CR8D00EAGFC0)",
+  "category": "router",
+  "description": "Huawei NetEngine 8000 M6 AC 2U service router chassis, modelled as the build the vendor states in its own typical-configuration row: all four AC service slots filled with 2x CR8D00E1VBC0 50GE QSFP28, 1x CR8D00L4XFC0 10GE/GE SFP+ and 1x CR8D00EAGFC0 GE/FE SFP - 2x 50G QSFP28, 4x 10G SFP+ and 10x 1G SFP, 16 ports in all. 320 Gbit/s switching capacity, 220.07 W typical on the AC chassis, 11.35 kg fully configured, 88.9 x 442 x 220 mm.",
+  "capabilities": [
+    "l3-forward",
+    "l2-forward",
+    "cli",
+    "nat",
+    "dhcp-server"
+  ],
+  "interfaces": [
+    {
+      "name": "50ge0",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "50G",
+      "speedCaps": [
+        50000
+      ]
+    },
+    {
+      "name": "50ge1",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "50G",
+      "speedCaps": [
+        50000
+      ]
+    },
+    {
+      "name": "10ge2",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        10000,
+        1000
+      ]
+    },
+    {
+      "name": "10ge3",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        10000,
+        1000
+      ]
+    },
+    {
+      "name": "10ge4",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        10000,
+        1000
+      ]
+    },
+    {
+      "name": "10ge5",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        10000,
+        1000
+      ]
+    },
+    {
+      "name": "ge6",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100
+      ]
+    },
+    {
+      "name": "ge7",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100
+      ]
+    },
+    {
+      "name": "ge8",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100
+      ]
+    },
+    {
+      "name": "ge9",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100
+      ]
+    },
+    {
+      "name": "ge10",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100
+      ]
+    },
+    {
+      "name": "ge11",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100
+      ]
+    },
+    {
+      "name": "ge12",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100
+      ]
+    },
+    {
+      "name": "ge13",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100
+      ]
+    },
+    {
+      "name": "ge14",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100
+      ]
+    },
+    {
+      "name": "ge15",
+      "type": "ethernet",
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100
+      ]
+    }
+  ],
+  "sourceUrl": "https://support.huawei.com/enterprise/en/doc/EDOC1100382052/374d9a7/netengine-8000-m6",
+  "notes": "Port census is a stated build, not a fixed chassis figure: the NetEngine 8000 M6 has no fixed-interface slot (Hardware Description V800R023C10SPC500 Table 1-29 'Slots on the NetEngine 8000 M6': PIC DC 1-6 / AC 2, 4-6; CXP 7, 8; PIU DC 9, 10 / AC 1, 3; FAN 11 - no fixed-interface row), so every cableable port arrives on a PIC and the bare model's basic configuration, CR8PM6BASAC1 (02353HHG), carries none. The build modelled here is Huawei's own measurement configuration, quoted verbatim from the AC specification table of the same document (Table 1-31, technical specifications of the CR8BM6BKPAC1): '[CXP-160/CXP-160-B]AC Typical configuration 2: 2*CXP+1*FAN+2*AC power+2*CR8D00E1VBC0+1*CR8D00L4XFC0 + 1*CR8D00EAGFC0 =220.07 W' (https://support.huawei.com/enterprise/en/doc/EDOC1100382052/374d9a7/netengine-8000-m6). Four PICs against four service slots is what makes it usable as a build rather than as a wattage: the AC chassis has 9 slots of which 4 are service board slots (Table 1-31 'Number of slots 9', 'Number of service board slots 4'; the datasheet's own spec table reads 'Service Slots 6 (DC) / 4 (AC)'), so every service slot is occupied and no card-to-slot assignment has to be invented. The DC chassis' equivalent row (205.8 W) is a different population and is deliberately not folded in - it carries the same four cards against six DC service slots. Card port counts come from each card's own chapter in the vendor Hardware Guide (https://support.huawei.com/enterprise/en/doc/EDOC1100264779, Issue 05, 2023-03-31), not from a chassis maximum: CR8D00E1VBC0 (03033JUB, section 3.4.5.42, p.903) '1-port 50G Base (QSFP28) Physical Interface Card(PIC)', silkscreen 1x50GE-QSFP28, ports 'OUT0 IN0', connector QSFP28, 'Provides one 50GE interface', 'Breakout supported: No'; CR8D00L4XFC0 (03033MPJ, section 3.4.5.52, p.963) '4-Port 10GE(SFP+)/GE(SFP) MACsec Physical Interface Card(PIC)', silkscreen 4x10GE-SFP+, ports 'OUT0 IN0 to OUT3 IN3', connector SFP+, 'supporting optical signal input and output of four 10GE/GE interfaces'; CR8D00EAGFC0 (03033MPK, section 3.4.5.56, p.965) '10-port 100/1000Base-X-SFP MACsec Physical Interface Card(PIC)', silkscreen 10xFE/GE-SFP, ports 'OUT0 IN0 to OUT9 IN9', connector SFP. So 2 x 50GE QSFP28 + 4 x 10GE/GE SFP+ + 10 x GE/FE SFP = 16 ports, all inside the AC chassis' stated per-rate maxima (50GE 2, 10GE 14, GE 70, physical 70) - and those maxima are not used as port counts. Port names are flat (50ge0 .. ge15) because the vendor prints no card-to-slot assignment for this configuration; NetEngine 8000 names ports slot/subcard/port, so slot-numbered names here would assert an ordering the document never prints. Chassis figures, AC table (Table 1-31): 88.9 x 442 x 220 mm (2U), 6.4 kg unconfigured / 11.35 kg fully configured, switching capacity 320 Gbit/s, MTBF 116.61 years, MTTR 0.5 h, airflow left to right, < 55 dB(A), -20 to +55 C long term, 2 power modules 1+1, redundant CXPs 1:1, rated output 1500 W, 200-240 V / 100-127 V dual live wires with 240 V HVDC support, standard C13 cable. Deliberately absent: any management/OAM port (the CXP control board is listed with a console, but no ETH management port count is published for the M6 on either page read); PoE (a carrier router, none published); the 25GE, E1, cPOS, V.35/X.21 and FXS/FXO PICs, which this build does not carry; and the DC chassis 6-slot population. Research trail: research/huawei-netengine-8000-m-series-slots.md.",
+  "aliases": [
+    "NE8000 M6",
+    "NetEngine 8000 M6 AC"
+  ]
+}
