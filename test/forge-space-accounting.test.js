@@ -40,7 +40,20 @@ ok(section.indexOf('full_name') !== -1, 'and prints the repository name next to 
 // `size` is kilobytes; a divisor that is not 1048576 turns 46.2 GiB into 46.2 MB. The number has to
 // be right or the reader concludes the wrong repository is the problem.
 ok(section.indexOf('x.size/1048576') !== -1, 'the kilobytes are converted with 1048576, not 1000 or 1e6');
-ok(section.indexOf('du -sh /data/git/repositories/') !== -1, 'it offers the host-side measurement as a cross-check');
+// The cross-check is a *host* command, and `/data` is the container's own path. On the host a du at
+// `/data/git/repositories` matches nothing and prints its miss, while the same page records the bind
+// `.../forgejo/data -> /data` further down - so a reader who follows "from the host" here gets an
+// empty answer and reads it as "no repository owns the space". That is the empty-result-as-
+// measurement mistake the rest of this section exists to correct.
+const lines = section.split('\n');
+ok(section.indexOf('/mnt/cache/appdata/forgejo/data') !== -1
+  && section.indexOf('du -s "$base"/git/repositories') !== -1,
+  'the host-side cross-check runs at the bind source, not at the container path');
+ok(lines.filter((l) => l.indexOf('/data/git/repositories') !== -1)
+  .every((l) => l.indexOf('docker exec') !== -1 || l.trim().startsWith('#')),
+  'and a /data/ path is offered only inside the container, never as a host command');
+ok(section.indexOf('echo "absent: $base/git/repositories"') !== -1,
+  'a candidate path that is not there is reported, not silently empty');
 
 // Stored size versus tree size is the difference that decides what reclaims it.
 ok(section.indexOf('count-objects -vH') !== -1, 'it separates the pack size from the tip tree size');
