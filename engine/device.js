@@ -224,6 +224,11 @@ class Device {
     // persistent configuration
     this.config = {
       hostname: null,
+      // `ip routing` - whether this box forwards between networks at all. `null` is "nobody has said", and the
+      // default is asked of `routingDefault()` rather than stored here, because the default is a *platform* fact
+      // (a router routes out of the box, a Catalyst switch does not) and storing it would freeze today's answer
+      // into every saved lab. research/ip-routing-default.md holds the evidence and the open half.
+      ipRouting: null,
       routes: [],                // { dest, mask, gw, iface }
       defaultGateway: null,
       motd: null,
@@ -621,7 +626,42 @@ class Device {
     if (this.spec.passive === true) return true;
     return (this.spec.capabilities || []).length === 0;
   }
-  isL3() { return this.hasCap('l3-forward'); }
+  // Does this box route *right now*? Two facts, and IOS keeps them apart: the capability is what the hardware can
+  // do (the catalogue's `l3-forward`), and `ip routing` is the switch an operator turns off. A Catalyst 3560-class
+  // box is sold with L3 forwarding and still leaves the factory in Layer 2 mode:
+  //
+  //   "By default, the switch is in Layer 2 switching mode and IP routing is disabled."
+  //   - Catalyst 3560 Software Configuration Guide, Configuring IP Unicast Routing
+  //     https://www.cisco.com/c/en/us/td/docs/switches/lan/catalyst3560/software/release/15-0_2_se/configuration/guide/scg3560/swiprout.html
+  //
+  // `config.ipRouting` holds only what an operator said (`null` = nothing said); the factory answer is asked of
+  // `routingDefault()` below, so a board with no configuration in it cannot carry today's answer as if it were a
+  // setting. Everything that used to ask `hasCap('l3-forward')` about forwarding asks this instead, and the four
+  // answers - the routing table, the IPv6 router advertisements, the installed-route table and the data path -
+  // come from the one place.
+
+  // The state this platform leaves the factory in. Cisco documents it per family and the two families the
+  // catalogue models in quantity answer in opposite directions:
+  //
+  //   router   - `ip routing` command reference, Command Default: "IP routing is enabled."
+  //              https://www.cisco.com/c/en/us/td/docs/ios/iproute_pi/command/reference/iri_book/iri_pi1.html
+  //   Catalyst - IP Routing Configuration Guide (Catalyst 9300, IOS XE), defaults table: "IP routing | Disabled."
+  //              https://www.cisco.com/c/en/us/td/docs/switches/lan/catalyst9300/software/release/26-x/configuration_guide/rtng/b_26x_rtng_9300_cg/configuring_ip_unicast_routing.html
+  //              and the same sentence on the 3560: "the switch is in Layer 2 switching mode and IP routing is
+  //              disabled."
+  //
+  // Only the Cisco L3 switches are flipped: 264 catalogue entries carry `l3-switch`, and the documented default
+  // of a C9200 is not evidence for a Huawei S5720. Every other box answers `true`, which is what it answered
+  // before the command existed - so this cannot change a device whose vendor never said.
+  routingDefault() {
+    if (this.vendor === 'cisco' && this.category === 'l3-switch') return false;
+    return true;
+  }
+  ipRoutingEnabled() {
+    const said = this.config ? this.config.ipRouting : null;
+    return said === undefined || said === null ? this.routingDefault() : !!said;
+  }
+  isL3() { return this.hasCap('l3-forward') && this.ipRoutingEnabled(); }
 
   // MAC table for a given VLAN (VLAN 1 keeps the legacy flat map).
   // -- What the tables say ------------------------------------------------------------------------------
@@ -1406,6 +1446,12 @@ class Device {
     if (this.config.stpPriority !== null && this.config.stpPriority !== undefined) {
       out.config.stpPriority = this.config.stpPriority;
     }
+    // The routing switch. Written only when somebody set it, so a board whose boxes were never told anything
+    // does not grow a null per device - but a lab saved with `no ip routing` that came back routing would forward
+    // packets the operator had turned off, which is the one thing a save must never do.
+    if (this.config.ipRouting !== null && this.config.ipRouting !== undefined) {
+      out.config.ipRouting = !!this.config.ipRouting;
+    }
     // NAT: rules and the pools they name. A reloaded lab that kept its addresses but forgot its translations
     // would send the same packets somewhere else, which is the opposite of a save.
     if (this.config.nat && ((this.config.nat.rules || []).length || Object.keys(this.config.nat.pools || {}).length)) {
@@ -1462,6 +1508,10 @@ class Device {
         d.config.scionAs = state.config.scionAs || null;
         d.config.stpPriority = (state.config.stpPriority === 0 || state.config.stpPriority)
           ? Number(state.config.stpPriority) : null;
+        // `true`/`false` are the only two answers that mean anything; anything else is "the document said
+        // nothing", which is the platform default and not a state to adopt.
+        d.config.ipRouting = (state.config.ipRouting === true || state.config.ipRouting === false)
+          ? state.config.ipRouting : null;
         d.config.nat = state.config.nat
           ? JSON.parse(JSON.stringify(state.config.nat))
           : { rules: [], pools: {} };

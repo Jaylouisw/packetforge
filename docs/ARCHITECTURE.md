@@ -36,13 +36,19 @@ A `Device` has a list of **capabilities**:
 |------------|---------|
 | `host`     | terminates packets, answers ARP + ICMP |
 | `l2-forward` | bridge/switch: MAC learning + flooding |
-| `l3-forward` | router: forwards IP between subnets |
+| `l3-forward` | router: forwards IP between subnets - and only while `ip routing` is on, which is what `Device.isL3()` answers (capability **and** the operator's switch); a Cisco L3 switch leaves the factory with the switch off |
 | `cli`      | exposes the management console |
 | `dhcp-server` | **live** — `Simulator.computeDhcp()` runs the exchange before the first packet (#1051) |
 | `nat`, `http-server` | **live** — `_capabilityRefusal('nat', …)` refuses the `ip nat` commands on a box without the token and `engine/nat.js` translates in the data path; `SERVICE_PORTS` in `engine/flow.js` gives an `http-server` TCP 80 and 443 |
 | `dhcp-client`, `firewall`, `wireless` | declared, read by nothing — a port becomes a DHCP client through `ip address dhcp`, not through the token, and neither `firewall` nor `wireless` gates any code (`test/capability-vocabulary.test.js` lists all three as pending) |
 
-The forwarding logic branches on capabilities, never on `vendor` or `model`.
+The forwarding logic branches on capabilities, never on `vendor` or `model`. The one `vendor` in the engine is
+`Device.routingDefault()`, which answers the *factory state* of the `ip routing` switch: a Catalyst leaves the
+factory in Layer 2 mode ("the switch is in Layer 2 switching mode and IP routing is disabled") and a router does
+not ("Command Default: IP routing is enabled"), so a 3560 and an ASR disagree about a documented platform fact.
+That is a default, not a forwarding decision - the forwarding path still asks `isL3()`, which is the capability
+**and** whatever the operator has said - and `research/ip-routing-default.md` records the citations and the
+platforms whose defaults are still unclaimed.
 That's the entire trick that makes **any manufacturer work**: a Huawei router
 and a Cisco router differ only by their JSON spec.
 

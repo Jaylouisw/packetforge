@@ -97,7 +97,11 @@ const KEY_PRINTS = {
   gateway6Iface: { not: true, why: 'derived at run time from the address the gateway was reached on' },
   lags: { re: /channel-group /m, why: 'link aggregation' },
   vrrp: { re: /vrrp \d+/m, why: 'VRRP groups' },
-  motd: { not: true, why: 'no command sets it on this platform' }
+  motd: { not: true, why: 'no command sets it on this platform' },
+  // The switch that turns forwarding off. It is printed only when it differs from the platform default, so the
+  // line to look for is the `no` form; the default state prints nothing, exactly as a router's own
+  // `show running-config` prints no `ip routing` line.
+  ipRouting: { re: /^no ip routing$/m, why: 'the routing switch, when the box is not in its default state' }
 };
 
 console.log('');
@@ -201,7 +205,8 @@ console.log('Each feature is removable again, and the text returns:');
     ['BGP', ['router bgp 65001', 'neighbor 10.0.0.2 remote-as 65002'],
       ['no neighbor 10.0.0.2', 'no router bgp 65001']],
     ['IPv6 route', ['ipv6 route 2001:db8:2::/64 2001:db8:1::2'],
-      ['no ipv6 route 2001:db8:2::/64 2001:db8:1::2']]
+      ['no ipv6 route 2001:db8:2::/64 2001:db8:1::2']],
+    ['the routing switch', ['no ip routing'], ['ip routing']]
   ];
   for (const [name, on, off] of cases) {
     const env = build();

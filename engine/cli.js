@@ -560,6 +560,7 @@ const NO_FORMS = [
   { modes: ['config'], match: ['spanning-tree'], syntax: 'no spanning-tree', effect: 'clears the bridge priority', undo: 'cleared' },
   { modes: ['config'], match: ['ip', 'route'], syntax: 'no ip route <prefix> <mask> <gateway>', effect: 'removes a static route', undo: 'removed' },
   { modes: ['config'], match: ['ip', 'default-gateway'], syntax: 'no ip default-gateway', effect: 'clears the default gateway', undo: 'cleared' },
+  { modes: ['config'], match: ['ip', 'routing'], syntax: 'no ip routing', effect: 'stops this box forwarding between networks', undo: 'disabled' },
   { modes: ['config'], match: ['ip', 'name-server'], syntax: 'no ip name-server <address>', effect: 'removes a name server', undo: 'removed' },
   { modes: ['config'], match: ['ip', 'nat', 'pool'], syntax: 'no ip nat pool <name>', effect: 'removes a NAT pool', undo: 'removed' },
   { modes: ['config'], match: ['ip', 'nat'], syntax: 'no ip nat pool <name> | no ip nat inside source', effect: 'removes a NAT pool or the last NAT rule', undo: 'removed' },
@@ -938,6 +939,35 @@ class CliSession {
     const dev = this.device;
     if (!dev || typeof dev.hasCap !== 'function' || dev.hasCap(cap)) return null;
     return '% ' + dev.name + ' cannot ' + consequence + ': it has no ' + cap + ' capability';
+  }
+
+  // `ip routing` / `no ip routing` - the switch that turns forwarding between networks on and off (#fidelity:
+  // ip routing default).
+  //
+  // The console had the *consequences* of this command modelled and the command itself missing. `show ip route`
+  // prints two shapes - the codes legend over a routing table for a box that routes, and the
+  // "Default gateway is not set" / Host-Gateway table for one that does not - and which shape a box gets was
+  // decided by a catalogue capability no operator can change. So a Catalyst with L3 forwarding could not be put
+  // in the state Cisco documents it leaving the factory in ("the switch is in Layer 2 switching mode and IP
+  // routing is disabled", Catalyst 3560 Software Configuration Guide, Configuring IP Unicast Routing), and the
+  // second shape was reachable only on a box that has no L3 hardware at all.
+  //
+  // The capability still decides whether the *command* exists: a Catalyst 2960 has no `ip routing` line, so the
+  // refusal names the missing capability instead of pretending to store a setting. Everything the flag then
+  // changes is already modelled - `Device.isL3()` is what the routing table, the IPv6 router advertisements, the
+  // installed-route table and the L3 data path ask, so the four of them cannot disagree.
+  _ipRouting(on, rest) {
+    const dev = this.device;
+    const cannotRoute = this._capabilityRefusal('l3-forward', 'route between networks');
+    if (cannotRoute) return [cannotRoute];
+    const form = on ? 'ip routing' : 'no ip routing';
+    if (rest && rest.length) {
+      return ['% `' + form + '` takes no argument: it is the whole command'];
+    }
+    const before = dev.ipRoutingEnabled();
+    dev.config.ipRouting = on;
+    if (before === on) return ['IP routing is already ' + (on ? 'enabled' : 'disabled')];
+    return [on ? 'IP routing enabled' : 'IP routing disabled'];
   }
 
   _configMode(tokens) {
@@ -1406,6 +1436,10 @@ class CliSession {
       this.device.config.ospf = null;
       this.device.ospfRoutes = [];
       out.push('OSPF disabled');
+    } else if (head === 'ip' && tokens[1] === 'routing') {
+      out.push.apply(out, this._ipRouting(true, tokens.slice(2)));
+    } else if (head === 'no' && tokens[1] === 'ip' && tokens[2] === 'routing') {
+      out.push.apply(out, this._ipRouting(false, tokens.slice(3)));
     } else if (head === 'ip' && tokens[1] === 'route') {
       // ip route DEST MASK GW [iface]   and   ip route DEST MASK <iface>   (the directly-connected form)
       const dest = tokens[2], mask = tokens[3];
@@ -5882,6 +5916,17 @@ class CliSession {
           (r.gw ? ' ' + r.gw + (r.iface ? ' ' + r.iface : '') : (r.iface ? ' ' + r.iface : '')));
       }
       if (dev.config.defaultGateway) out.push('ip default-gateway ' + dev.config.defaultGateway);
+      // `ip routing` is printed when it differs from the platform default, in the direction it differs - the IOS
+      // rule for the whole file. It is also why a router's own `show running-config` never carried the line:
+      // "You can't see it with show running-config because it's enabled by default"
+      // (https://networklessons.com/ip-services/cisco-router-as-host-or-server), while a Catalyst, which leaves
+      // the factory in L2 mode, prints it as soon as somebody types it. A box that was never told anything
+      // prints neither line, whatever its platform.
+      const routingDefault = typeof dev.routingDefault === 'function' ? dev.routingDefault() : true;
+      if (dev.config.ipRouting !== null && dev.config.ipRouting !== undefined &&
+          !!dev.config.ipRouting !== routingDefault) {
+        out.push(dev.config.ipRouting ? 'ip routing' : 'no ip routing');
+      }
       // The file's last line, which every Cisco `show running-config` ends with: restoring a lab is a
       // paste into a config prompt, and on a real box the paste leaves configuration mode when the `end`
       // line is read - the config *file* carries the exit. This printer stopped at the last configured
@@ -5994,6 +6039,7 @@ class CliSession {
       '  enable / configure terminal / interface <name>',
       '  hostname <name>          ip address <ip> <mask>',
       '  ip route <dest> <mask> <gw> [iface]',
+      '  ip routing / no ip routing        forward between networks, or stop',
       '  show lldp neighbors               neighbours learned over the wire',
       '  show power inline [<port>]        PoE supplied, and why a port was denied',
       '  ip default-gateway <gw>  shutdown / no shutdown',

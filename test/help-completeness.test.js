@@ -112,6 +112,8 @@ console.log('Every command the console advertises is a command the console accep
     ['shutdown', 'iface', ROUTER],
     ['no shutdown', 'iface', ROUTER],
     ['ip route <dest> <mask> <gw> [iface]', 'config', ROUTER],
+    ['ip routing', 'config', ROUTER],
+    ['no ip routing', 'config', ROUTER],
     ['ipv6 address <addr>/<len>', 'iface', ROUTER],
     ['ipv6 address autoconfig', 'iface', ROUTER],
     ['ipv6 nd ra enable', 'iface', ROUTER],
@@ -301,6 +303,9 @@ console.log('Every mechanism the console implements is named in the console\'s i
   const mechanisms = [
     { name: 'interfaces', keyword: /interface/i, proof: ['ip address <ip> <mask>', 'iface', ROUTER] },
     { name: 'routes', keyword: /ip route/i, proof: ['ip route <dest> <mask> <gw>', 'config', ROUTER] },
+    // The switch that decides whether a box routes at all. Its keyword is the command, because a mechanism with
+    // no other name in the index would otherwise be the one thing the index cannot be checked for.
+    { name: 'ip routing', keyword: /ip routing/i, proof: ['ip routing', 'config', ROUTER] },
     { name: 'VRRP', keyword: /vrrp/i, proof: ['vrrp <vrid> ip <virtual-address>', 'vrrp', ROUTER] },
     { name: 'OSPF', keyword: /ospf/i, proof: ['ospf router-id <ip>', 'config', ROUTER] },
     { name: 'BGP', keyword: /bgp/i, proof: ['router bgp <as>', 'config', ROUTER] },

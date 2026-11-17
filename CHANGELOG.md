@@ -2,6 +2,26 @@
 
 ### Fixed
 
+- **A Catalyst does not route until somebody types `ip routing`, and now neither does this one.** The console has
+  printed two `show ip route` shapes since the host table landed - the codes legend over a routing table, and
+  `Default gateway is not set` over the Host/Gateway cache - and which one a device got was decided by the
+  catalogue's `l3-forward` capability, which no operator can change. So a 3560 printed a routing table from the
+  moment it was placed on the board, in the state Cisco says it does not ship in: "By default, the switch is in
+  Layer 2 switching mode and IP routing is disabled. To use the Layer 3 capabilities of the switch, you must
+  enable IP routing." (Catalyst 3560 *Configuring IP Unicast Routing*; the Catalyst 9300 defaults table says
+  `IP routing | Disabled`.) `ip routing` and `no ip routing` are now commands, gated on the hardware that can
+  honour them - a 2960 is told it "cannot route between networks: it has no l3-forward capability" - and
+  `Device.isL3()` is now the capability **and** the switch, so `show ip route`, the L3 data path, the IPv6 router
+  advertisements and the installed-route table cannot disagree about whether a packet is forwarded. A box with
+  routing off still answers for its own addresses, keeps its static routes in `show running-config`, and drops a
+  packet it would have routed, with the drop attributed to it. The default follows the platform: a Cisco
+  `l3-switch` leaves the factory in Layer 2 mode, every other box keeps the answer it gave before the command
+  existed, and `show running-config` prints the line only when it differs from the default - which is why a
+  router's own file never showed it. `test/ip-routing.test.js` (37 assertions) pins the platform defaults, both
+  table shapes, the data path, the printed line and the save/reload round trip;
+  [research/ip-routing-default.md](research/ip-routing-default.md) holds the citations and the four things still
+  unresolved, including the 216 non-Cisco `l3-switch` entries whose vendors' documentation was never read.
+
 - **`traceroute` takes a name, and prints the lookup a box prints** (#1484). The `help` index has claimed
   `traceroute|tracert <address|name>` since the command landed, and `_traceroute()` put its one argument through
   `net.isIp()`, so `traceroute srv.lab` was refused as an invalid target while `ping srv.lab` - two lines above it

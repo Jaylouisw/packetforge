@@ -174,7 +174,7 @@ takes back.
 | DHCP pools | `ip dhcp pool <name>` block: network, range, default-router, dns-server, excluded-address, lease, `host <addr> <mac>` |
 | DNS zones | `dns zone <apex>` followed by `dns add <name> <type> <value>` |
 | ACLs | `access-list <id> <rule>` |
-| routing | `ip route <dest> <mask> <gateway> [iface]`, `ip default-gateway <addr>` |
+| routing | `ip route <dest> <mask> <gateway> [iface]`, `ip default-gateway <addr>`, and `ip routing` when the box is not in its platform's default state |
 | name servers | `ip name-server <addr>` (one line each) |
 | SCION | `scion <isd-as>` |
 | OSPF | `ospf router-id <ip>`, `ospf area <id>`, and per interface `ip ospf cost <n>`, `ip ospf area <id>`, `ip ospf passive` |
@@ -2157,6 +2157,58 @@ gateway verbatim when one is. The route rows are absent because such a box build
 still appears in `show running-config` and still answers for management traffic. The host cache under the header
 is not modelled, so it is printed empty in the wording a box with nothing cached uses — see
 `research/show-ip-route-host-table.md`.
+
+#### Which of the two shapes a box prints: `ip routing`
+
+Both shapes above have always been printed here, but only one of them could be *chosen*: whether a device routes
+was decided by the `l3-forward` capability in its catalogue entry, so a Catalyst sold with L3 hardware printed a
+routing table from the moment it was placed on the board. That is not the state a Catalyst arrives in:
+
+> By default, the switch is in Layer 2 switching mode and IP routing is disabled. To use the Layer 3
+> capabilities of the switch, you must enable IP routing.
+>
+> — [Catalyst 3560 Software Configuration Guide, *Configuring IP Unicast Routing*](https://www.cisco.com/c/en/us/td/docs/switches/lan/catalyst3560/software/release/15-0_2_se/configuration/guide/scg3560/swiprout.html);
+> the [Catalyst 9300 defaults table](https://www.cisco.com/c/en/us/td/docs/switches/lan/catalyst9300/software/release/26-x/configuration_guide/rtng/b_26x_rtng_9300_cg/configuring_ip_unicast_routing.html)
+> states the same thing in one line: `IP routing | Disabled`
+
+`ip routing` and `no ip routing` are now commands, and the capability only decides whether the *command* exists:
+
+```
+sw1(config)#ip routing
+IP routing enabled
+sw1(config)#no ip routing
+IP routing disabled
+```
+
+A box with no L3 forwarding has no such line, and is refused in the words it uses for every other missing
+capability — `Catalyst 2960-sw2 cannot route between networks: it has no l3-forward capability` — while a word
+after the command is refused rather than ignored, because `ip routing fast` must not be read as `ip routing`.
+
+The flag is not a second copy of the answer: `show ip route`, the per-port L3 data path, the IPv6 router
+advertisements and the installed-route table all ask `Device.isL3()`, which is the capability **and** the switch.
+So a box cannot print a table it will not forward from, and one command moves all of them together:
+
+```
+pc1#ping 10.0.20.2
+!!!!!
+Success rate is 100 percent (5/5), round-trip min/avg/max = 0.103/0.103/0.103 ms
+sw1(config)#no ip routing
+pc1#ping 10.0.20.2
+.....
+Success rate is 0 percent (0/5)
+% Echoes lost: 5 drops ("packet not for us and not routable (dropped by sw1)" x5)
+```
+
+Static routes are configuration, not table entries, so `no ip routing` hides them from `show ip route` and keeps
+them in `show running-config`; the box's own addresses still answer, because owning an address is a host function
+and routing off does not make a device deaf. The printed line follows the rule the whole file follows — only what
+differs from the platform default is written — so a router (whose default is *on*) prints nothing for `ip routing`
+and `no ip routing` when it was turned off, while a Catalyst prints `ip routing` only after somebody typed it.
+
+The defaults are now a platform fact rather than a global one: a Cisco `l3-switch` category entry starts in Layer 2
+mode, and every other box keeps the answer it gave before the command existed, because the documented default of a
+C9200 is not evidence about a Huawei S5720. `research/ip-routing-default.md` records the citations, the two
+platforms, and which models still need their own `show running-config` before their default can be claimed.
 
 #### One prefix, one installed route
 
