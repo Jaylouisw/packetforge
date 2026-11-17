@@ -157,7 +157,7 @@ console.log('Every command the console advertises is a command the console accep
     ['no dns zone <name>', 'config', ROUTER],
     // protocols
     ['vrrp <vrid> ip <virtual-address>', 'vrrp', ROUTER],
-    ['vrrp <vrid> priority <1-255>', 'vrrp', ROUTER],
+    ['vrrp <vrid> priority <1-254>', 'vrrp', ROUTER],
     ['vrrp <vrid> preempt', 'vrrp', ROUTER],
     ['ospf router-id <ip>', 'config', ROUTER],
     ['ospf area <id>', 'config', ROUTER],
@@ -238,6 +238,7 @@ console.log('Every command the console advertises is a command the console accep
     '<vlan>': ['20'],
     '<vrid>': ['1'],
     '<virtual-address>': ['10.0.0.99'],
+    '<1-254>': ['120'],
     '<1-255>': ['120'],
     '<1-2699>': ['10'],
     '<acl>': ['10'],

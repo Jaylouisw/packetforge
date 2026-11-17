@@ -77,10 +77,12 @@ const CASES = [
     probes: [0, 1, 255, 256], states: /1-255/
   },
   {
-    name: 'vrrp <vrid> priority', range: '1-255', who: 'r',
+    // IOS's parser answers `<1-254>  Priority level(default 100)` for this keyword: 255 belongs to the
+    // address owner alone, so it is not a value an operator can type.
+    name: 'vrrp <vrid> priority', range: '1-254', who: 'r',
     setup: function (e) { return ON_ROUTER_PORT(e).concat(['vrrp 7 ip 10.99.0.2']); },
     cmd: function (v) { return 'vrrp 7 priority ' + v; },
-    probes: [0, 1, 255, 256], states: /1-255/
+    probes: [0, 1, 254, 255], states: /1-254/
   },
   {
     name: 'spanning-tree priority', range: '0-61440 in steps of 4096', who: 'sw',

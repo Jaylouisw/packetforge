@@ -3122,7 +3122,11 @@ class CliSession {
     } else if (what === 'priority') {
       if (!group) return ['% No VRRP group ' + vrid + ' on ' + this.iface + ': give it an address first'];
       const p = parseInt(tokens[3], 10);
-      if (!Number.isInteger(p) || p < 1 || p > 255) return ['% Invalid priority: ' + (tokens[3] || '(none)') + ' (1-255)'];
+      // 255 is not a configurable priority: on IOS the parser's own range for this keyword is 1-254
+      // (`vrrp 1 priority ?` answers `<1-254>  Priority level(default 100)`), and 255 is the value the
+      // group takes when this router owns the virtual address. Accepting it here let an operator type a
+      // priority that means "I am the address owner" on a box that is not one.
+      if (!Number.isInteger(p) || p < 1 || p > 254) return ['% Invalid priority: ' + (tokens[3] || '(none)') + ' (1-254)'];
       group.priority = p;
       out.push('VRRP group ' + vrid + ' priority ' + p);
     } else if (what === 'preempt') {
@@ -6204,7 +6208,7 @@ class CliSession {
       // Three protocol families were configurable and absent from this list: the console could do VRRP, OSPF
       // and BGP and the index that says what the console can do never mentioned any of them. `show vrrp` was
       // documented in prose and missing here and from the docs table.
-      '  vrrp <vrid> ip <addr> | priority <1-255> | preempt      (interface mode)',
+      '  vrrp <vrid> ip <addr> | priority <1-254> | preempt      (interface mode)',
       '  show vrrp                          the group, its state, and the master it elected',
       '  ospf router-id <ip> | area <id>                        (config mode)',
       '  ip ospf cost <n> | area <id> | passive                 (interface mode)',

@@ -2,6 +2,18 @@
 
 ### Fixed
 
+- **`vrrp <vrid> priority` accepts 1-254, because 255 belongs to the address owner alone.** The console took any
+  priority up to 255 and quoted "(1-255)" back at everything it refused, so an operator could type the one value
+  that means "I own this virtual address" on a router that does not - and the group then outranked the real owner
+  in every election the simulator ran. IOS's own parser answers `<1-254>  Priority level(default 100)` for this
+  keyword, Cisco's command reference gives the range as 1-254, and the RFC reserves 255 for the owner and 0 for a
+  master releasing the group; the engine already derives the owner's 255 by itself. The help index, `docs/CLI.md`
+  and the stated-range sweep now carry the same two numbers, and
+  [research/vrrp-priority-range.md](research/vrrp-priority-range.md) records the sources and the two questions
+  left open (the refusal's real wording, and what an owner's `show vrrp` prints). `test/vrrp-priority-ceiling.test.js`
+  pins 17 checks: both edges accepted, 255 refused with the range quoted and the group left untouched, 0 and 256
+  refused, `show vrrp` printing what was accepted, and the library still accepting 255 and 0 as protocol values.
+
 - **`show lldp neighbors` ends with `Total entries displayed: N`, and the count is the rows it printed.** The
   table was the whole answer and the view stopped at its last row, so a pasted neighbour list gave a reader no
   way to tell how many entries were in it without counting - the question the command is opened with when a

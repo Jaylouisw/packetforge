@@ -2503,7 +2503,7 @@ A group belongs to an interface, so the commands live inside `interface`:
 interface Gi0/0
   ip address 10.0.0.1 255.255.255.0
   vrrp <vrid> ip <virtual-address>
-  vrrp <vrid> priority <1-255>        # 255 = address owner; 100 default
+  vrrp <vrid> priority <1-254>        # 100 default; 255 is only ever the address owner's
   vrrp <vrid> advertise <seconds>
   vrrp <vrid> preempt                 # the default, and the only value there is
   no vrrp <vrid>                      # remove the group - the only `no` form
@@ -2976,7 +2976,7 @@ the low edge, the high edge, above the range — and requires refused, accepted,
 | `vlan <id>` | 1-4094 | 0, 1, 4094, 4095 |
 | `channel-group <id>` | 1-4096 | 0, 1, 4096, 4097 |
 | `vrrp <vrid>` | 1-255 | 0, 1, 255, 256 |
-| `vrrp <vrid> priority` | 1-255 | 0, 1, 255, 256 |
+| `vrrp <vrid> priority` | 1-254 | 0, 1, 254, 255 |
 | `spanning-tree priority` | 0-61440 in steps of 4096 | -1, 0, 61440, 61441 |
 | `ipv6 nd ra lifetime` | 0-65535 | 0, 65535, 65536 |
 | `ip ospf cost` | 1-65535 | 0, 1, 65535, 65536 |
