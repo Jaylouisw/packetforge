@@ -102,3 +102,60 @@ What would unblock, in order:
 
 Then #807 becomes `OptiXtrans E9605 (5x TNG1N210)` — a stated card complement, the convention
 `devices/huawei/optixtrans-e6616.json` already uses — and no field is guessed.
+
+## 6. The E9605's own page, counted document by document
+
+Every earlier note in this file measured a *neighbour's* page — the OSN 9800 M24's 174 ids. This pass
+measured the page the request is actually about, and the result is the same shape with a smaller set.
+
+`https://support.huawei.com/enterprise/en/optical-transmission/optixtrans-e9605-pid-250732995`
+(HTTP 200, 436,367 B, crawler user-agent, read 2026-11-17) links **149 unique document IDs**. Requested one
+at a time under the same user-agent:
+
+| result | count | what they are |
+|--|--|--|
+| `200` | **39** | 24 `(Video)` items, 12 `【Optical Basics】` issues, 3 documents |
+| `302 -> https://support.huawei.com/view/notFound` | **110** | everything else, including the Datasheet |
+
+The three public documents are `EDOC1100605036` (*OptiX OSN 9800 and OptiXtrans E9600 User Guide*),
+`EDOC1100605336` (EUCC supplementary cybersecurity statement) and `EDOC1100414468` (Smart Urban Rail
+all-optical solution page). A text census across all 39 bodies: `TNG1` **0** occurrences,
+`Port Specifications` **0**, `IU1` **0**. So the E9605's own support page does not print one board part
+number, in any document it publishes — the board set exists on this page only as `EDOC1100163901`,
+*OptiXtrans E9600 Board Datasheet* (2026-04-03), which is one of the 110.
+
+## 7. The article URL shape is not the reason for the 404s
+
+Two passes have wondered whether `…/en/doc/<ID>` 404s because the article-level URL form was wrong. It is
+not. Huawei serves publicly-published documentation root pages at exactly that shape:
+
+| URL | result |
+|--|--|
+| `…/enterprise/en/doc/EDOC1100400005` (*Optical Transmission Basics 01*, a guide listed on this same product page) | **200**, 492,157 B |
+| `…/enterprise/en/doc/EDOC1100400005/bec365f7/network-management` (one article inside it) | **200**, 484,645 B, 28 sibling article links |
+| `…/enterprise/en/doc/EDOC1100625542` (*E9600 V100R026C00 Hardware Description*) | **302 -> /view/notFound** |
+| `…/enterprise/en/doc/EDOC1100163901` (*E9600 Board Datasheet*) | **302 -> /view/notFound** |
+
+Same host, same user-agent, same minute. The difference is publication status, not URL grammar — which is
+what makes the withholding conclusion safe to state and stops the next pass retrying a URL shape.
+
+## 8. A tributary board is the cheaper artifact than a line board
+
+The three line boards named so far (`TNG1N206` 6x10G, `TNG1N210` 10x10G, `TNG1N401` 1x100G) all terminate
+on the **WDM side**: their ports are OTU2/OTUk optical interfaces, which `engine/media.js` cannot describe
+except as `ethernet`/`sfp+` — a wrong protocol claim on a real socket. A **tributary** board is different:
+its ports face the client, and the E9600 tributary/transponder set (`TNG1M*`, `TNG1A212`, `TNG1T2xx`) carries
+10GE LAN as a first-class client service, so `type: ethernet, speed: 10G, connector: sfp+` is the vendor's
+own claim rather than a translation.
+
+The candidate worth naming is **`TNG1A212`**, *12 x 10 Gbit/s any-rate service processing board* — each port
+usable as a tributary port or a line port. It is a **lead, not evidence**: the only statements that it fits
+an E9605 (`IU1-IU5`) and that it has 12 ports come from partner mirrors
+(`actfornet.com/solutions/solution/OptiXtrans_E9600_Boards_Overview`,
+`thunder-link.com/tng1m210d.html`), and this catalogue has already corrected three family-sibling errors.
+No Huawei-hosted chapter for `TNG1A212`, `TNG1T212` or `TNG1M210D` is indexed on `e-file.huawei.com` or
+`e.huawei.com` today (searched 2026-11-17).
+
+If that chapter surfaces, `#807` closes as `OptiXtrans E9605 (5x TNG1A212)` = 60 x 10G client ports plus
+that board's own published line ports, with the slot count from `TNG2DAP` §1.9 (`IU1-IU5`) and nothing
+guessed. That is a smaller ask than a whole Board Datasheet and it is the same one file for `#808`/`#810`.
