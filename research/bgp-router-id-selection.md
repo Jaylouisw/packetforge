@@ -65,9 +65,12 @@ if a lab ever had one, was never consulted.
 
 ## What remains unresolved
 
-* **The ID is not used by the best-path decision.** Step 11 of the algorithm (lowest router ID wins on a
-  tie after steps 1-10) is not implemented: candidate paths in `computeBgp()` carry no `routerId`, so
-  `bgpLib.comparePaths()` never sees one. Electing the right ID is necessary for that fix, not sufficient.
+* **The ID is now used by the best-path decision** (fixed since this note was written). Step 11 of the
+  algorithm - lowest router ID wins on a tie after steps 1-10 - was not implemented: candidate paths in
+  `computeBgp()` carried no `routerId`, so `bgpLib.comparePaths()` never saw one and every tie fell through
+  to insertion order. `computeBgp()` now stamps the advertising speaker's identifier and the peer address on
+  each candidate, and the comparison ends on them; `research/bgp-bestpath-tiebreak.md` has the sources and
+  the test. Electing the right ID was necessary for that fix and was already in place.
 * **"Elect once, then keep it."** IOS keeps the ID it chose until BGP restarts; this engine recomputes on every
   pass, so adding a loopback would renumber the router instantly. Modelling stickiness needs a per-device
   "chosen at" record the simulator does not have, and an answer to what happens when the elected address is

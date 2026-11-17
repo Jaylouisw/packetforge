@@ -18,9 +18,9 @@
 //   * MED is compared unconditionally -- real BGP only compares MED between
 //     paths learned from the same neighbour AS
 //   * paths are plain objects; the fields read are weight, localPreference,
-//     asPath, origin, med, type/peerType, routerId, nextHop and from. Missing
-//     fields take the documented defaults so two sparse paths still compare
-//     deterministically.
+//     asPath, origin, med, type/peerType, routerId, fromIp, nextHop and from.
+//     Missing fields take the documented defaults so two sparse paths still
+//     compare deterministically.
 //
 // Everything is deterministic: no clocks, no randomness, no I/O. Inputs are
 // never mutated -- advertise() and bestPath() work on copies. An AS_SET is
@@ -442,6 +442,34 @@ function compareRouterId(a, b) {
   return sign(x - y);
 }
 
+// The address the *peer* used for the session, which is the last thing the decision process looks at.
+//
+// RFC 4271 9.1.2.2, the two closing criteria of Phase 2, in order:
+//   f) Remove from consideration all routes other than the route that was advertised by the BGP speaker
+//      with the lowest BGP Identifier value.
+//   g) Prefer the route received from the lowest peer address.
+// Cisco states the same pair as steps 11 and 13 of "Select BGP-path Algorithm" (13753), with step 12 -
+// minimum cluster list length - between them: "If the originator or router ID is the same for multiple
+// paths, prefer the path with the minimum cluster list length ... Prefer the path that comes from the
+// lowest neighbor address. This address is the IP address that is used in the BGP `neighbor`
+// configuration."
+//
+// Cluster lists only exist in a route-reflector topology, which this model does not have (iBGP split
+// horizon means nothing here re-advertises an iBGP-learned route), so step 12 is not implemented and is
+// the only gap between this chain and the vendor's. Comparing the address numerically matters: string
+// order puts 10.0.0.10 before 10.0.0.9, which would pick the wrong neighbour on the ninth peer.
+//
+// A path with no peer address is a locally originated one, which step 3 already settled; it sorts after
+// any path that has one, mirroring compareRouterId's rule for a missing identifier.
+function comparePeerAddress(a, b) {
+  const x = routerIdInt(a);
+  const y = routerIdInt(b);
+  if (x === null && y === null) return 0;
+  if (x === null) return 1;
+  if (y === null) return -1;
+  return sign(x - y);
+}
+
 // comparePaths(a, b) -> negative | 0 | positive
 // Negative means a is better. Standard BGP decision order, one tie-break per
 // step, every field defaulted so sparse paths still rank deterministically:
@@ -452,7 +480,13 @@ function compareRouterId(a, b) {
 //   5. lower origin (IGP < EGP < INCOMPLETE)
 //   6. lower MED
 //   7. eBGP over iBGP
-//   8. lower router ID
+//   8. lower router ID of the advertising speaker (RFC 4271 9.1.2.2 f)
+//   9. lowest peer address (RFC 4271 9.1.2.2 g)
+//
+// Steps 8 and 9 were in this comment and not in the comparison: no candidate carried a `routerId`, so
+// the router-ID term compared undefined with undefined and every tie fell through to 0 - the winner
+// being whichever advertisement had been inserted first. `computeBgp()` now stamps the advertising
+// speaker's identifier and the peer address on every candidate (research/bgp-bestpath-tiebreak.md).
 function comparePaths(a, b) {
   const x = isObject(a) ? a : {};
   const y = isObject(b) ? b : {};
@@ -480,7 +514,10 @@ function comparePaths(a, b) {
   d = pathRank(x) - pathRank(y);
   if (d !== 0) return sign(d);
 
-  return compareRouterId(x.routerId, y.routerId);
+  d = compareRouterId(x.routerId, y.routerId);
+  if (d !== 0) return d;
+
+  return comparePeerAddress(x.fromIp, y.fromIp);
 }
 
 // --- prefix tie-breaking (bestPath only) ----------------------------------

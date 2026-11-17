@@ -1817,10 +1817,13 @@ class Simulator {
       for (const x of s.addrs) {
         const netAddr = net.intToIp(net.networkOf(x.ip, x.mask));
         const key = netAddr + '/' + net.prefixOf(x.mask);
+        // A locally originated path is settled by step 3 of the decision process, so it only carries its
+        // identifiers for completeness: this box's own BGP ID, and no peer address to compare.
         s.cands[key] = [{
           dest: netAddr, mask: x.mask, asPath: [], origin: bgpLib.BGP_ORIGIN.IGP,
           localPreference: bgpLib.DEFAULT_LOCAL_PREF, med: 0, weight: 0,
-          nextHop: null, ad: 0, from: 'local', iface: x.iface
+          nextHop: null, ad: 0, from: 'local', iface: x.iface,
+          routerId: s.routerId, fromIp: null
         }];
       }
     }
@@ -1863,7 +1866,13 @@ class Simulator {
                 origin: e.origin, localPreference: e.localPreference, med: e.med,
                 weight: 0, nextHop: nextHop,
                 ad: adj.type === 'ebgp' ? 20 : 200,
-                from: a.dev.id, session: adj.type
+                from: a.dev.id, session: adj.type,
+                // The two identifiers the decision process ends on, carried with the advertisement
+                // because the receiver cannot derive either: the *sender's* BGP ID (RFC 4271 9.1.2.2 f,
+                // Cisco best-path step 11) and the address this receiver has in its own `neighbor` line
+                // (9.1.2.2 g, step 13). Without them a tie between two peers fell through comparePaths to
+                // 0 and was decided by whatever order the peers happened to be walked in.
+                routerId: a.routerId, fromIp: adj.localIp
               }
             });
           }
