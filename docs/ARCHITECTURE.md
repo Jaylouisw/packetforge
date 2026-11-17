@@ -859,8 +859,8 @@ The rule is one sentence: **the config reports what was configured; the views re
   learned gateway as configuration.
 
 `test/ipv6-provenance.test.js` pins it, 33 checks; reverting `engine/` fails 16. Neighbours green: `ipv6` 235,
-`ipv6-slaac` 165, `ipv6-wire` 33, `ping-ipv6` 43, `config-roundtrip` 46, `config-completeness` 56,
-`state-payload-complete` 16, `examples-generated` 21, `flows-survive-save-load` 16, `show-interfaces-port` 38,
+`ipv6-slaac` 165, `ipv6-wire` 33, `ping-ipv6` 44, `config-roundtrip` 46, `config-completeness` 59,
+`state-payload-complete` 16, `examples-generated` 21, `flows-survive-save-load` 16, `show-interfaces-port` 40,
 `show-interfaces-view-keywords` 97, `spec-survives-load` 32.
 
 ### The address that was read as a name
@@ -949,9 +949,9 @@ Deliberately not done: the two hosts themselves stay quiet. A real stack detects
 box's ARP claim and logs it (`%IP-4-DUPADDR`), and modelling that is a new protocol behaviour rather than a view
 telling the truth about data it already had — so it is left for a decision, not smuggled in here.
 
-`test/arp-conflict.test.js` pins it, 26 checks; reverting `engine/` fails 10. Neighbours green: `show-arp` 28,
+`test/arp-conflict.test.js` pins it, 26 checks; reverting `engine/` fails 10. Neighbours green: `show-arp` 31,
 `arp-ageing` 31, `runtime-agreement` 10, `show-argument-refusal` 77, `show-ip-spellings` 70, `dhcp-bindings` 67,
-`lldp` 27, `vrrp` 94, `ping-ipv6` 43.
+`lldp` 27, `vrrp` 94, `ping-ipv6` 44.
 
 ### The log named a mechanism instead of saying what happened
 
