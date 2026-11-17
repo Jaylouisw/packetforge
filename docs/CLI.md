@@ -1245,6 +1245,62 @@ switchport: trunk · native 10 · allowed 10 · voice 20
 same. `show running-config` prints `switchport voice vlan 20` inside the interface block, and a saved board restores
 it, so a reloaded lab still separates voice from data.
 
+### A trunk's allowed list is edited in place: `add` and `remove`
+
+`switchport trunk allowed vlan <list>` replaces the list. `add <list>` and `remove <list>` edit the one the port
+already carries, so adding VLAN 41 to a forty-VLAN trunk does not mean retyping the other thirty-nine from memory:
+
+```
+sw1(config-if)#switchport mode trunk
+Switchport mode trunk on Fa0/1
+sw1(config-if)#switchport trunk allowed vlan 10,20
+Trunk on Fa0/1 allows VLANs 10,20
+sw1(config-if)#switchport trunk allowed vlan add 30
+Trunk on Fa0/1 allows VLANs 10,20,30 (added 30)
+sw1(config-if)#switchport trunk allowed vlan remove 10
+Trunk on Fa0/1 allows VLANs 20,30 (removed 10)
+```
+
+An edit that changes nothing says so instead of reporting a success that did not happen, and `no switchport trunk
+allowed vlan` puts the default back — VLAN 1 through 4094, as `all`:
+
+```
+sw1(config-if)#switchport trunk allowed vlan add 30
+Trunk on Fa0/1 already allows VLANs 30: the list is unchanged (20,30)
+sw1(config-if)#switchport trunk allowed vlan remove 99
+% VLANs 99 are not allowed on Fa0/1: the list is unchanged (20,30)
+sw1(config-if)#no switchport trunk allowed vlan
+Trunk on Fa0/1 allows all VLANs again
+```
+
+A `remove` that would empty the list is refused rather than committed, with both ways out named — a trunk carrying
+no VLAN is not something to arrive at by subtraction. A `remove` on a trunk that still allows the default `all` is
+not refused, because a switch subtracts from it; the remainder prints the way the box prints a list, runs folded
+into ranges and the reserved 1002-1005 block never in the answer:
+
+```
+sw1(config-if)#switchport trunk allowed vlan remove 10
+Trunk on Fa0/1 allows VLANs 1-9,11-1001,1006-4094 (removed 10)
+```
+
+The word in front of the list is read as a word. A list typed with spaces or with spaced ranges still parses
+(`10, 20` and `40 - 42` are `10,20` and `40-42`), and anything that is neither a verb nor a list is quoted back
+with the four forms the command takes:
+
+```
+sw1(config-if)#switchport trunk allowed vlan banana
+% Unrecognized "banana": this console takes a list (10,20), a range (10-20), "all", "add <list>" or "remove <list>"
+sw1(config-if)#switchport trunk allowed vlan add
+% Incomplete command: switchport trunk allowed vlan add <list>
+```
+
+`add` and `remove` used to be glued onto the list with no separator, so `add 30` arrived as the token `add30` and the
+console refused a word nobody had typed — the only way to add one VLAN was to retype the whole list
+([ARCHITECTURE.md](ARCHITECTURE.md), "A verb eaten by a join, and the token nobody typed"). What the list holds
+afterwards is what the backup and the inspector both print, so an edited trunk survives a save without retyping:
+`show running-config` writes the folded ranges `switchport trunk allowed vlan 1-9,11-1001,1006-4094`, and
+`show interfaces` repeats them as `switchport: trunk · native 1 · allowed 1-9,11-1001,1006-4094`.
+
 ### NAT: configuring it, and reading what it did
 
 ```
