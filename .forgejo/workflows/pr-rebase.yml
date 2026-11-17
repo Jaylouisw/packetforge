@@ -48,11 +48,74 @@ jobs:
     # already been merged or closed.
     if: github.event.pull_request.head.repo.full_name == github.repository
     steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.pull_request.head.sha }}
-          fetch-depth: 0
-          persist-credentials: false
+      # No `actions/checkout`. Two measured reasons, both paid by every one of this
+      # job's ~750 daily runs, most of which find "0 commit(s) behind main" and do
+      # nothing at all.
+      #
+      # Cost. The runner pre-clones every `uses:` action into /data/.cache/act before a
+      # job's first step, one directory per action revision, and does not reuse that
+      # clone between runs: run 4513, task 10575 - a run whose whole answer was "0
+      # commit(s) behind main" - spent 02:15:55.7 -> 02:16:01.8 (6.1 s) cloning
+      # actions/checkout and 02:16:04.3 -> 02:16:12.7 (8.4 s) in its
+      # `git fetch --prune ... +refs/heads/*:refs/remotes/origin/*`, which is 792 refs
+      # at full depth, for a job that reasons about exactly two commits. The two git
+      # commands that decide the outcome took 2.3 s. Out of a 22.0 s job, 14.5 s was
+      # getting ready to think. Across 24 h that is 752 tasks and ~3 runner-hours a day.
+      #
+      # Size. Measured against this instance from the same host class: all refs at full
+      # depth is 17.3 MiB / 19,155 objects; `main` plus one pull-request head with
+      # `--filter=blob:none` is 1.4 MiB, and `git rev-list --count` - the only thing the
+      # no-op path needs - answers identically on it, because it reads commits and
+      # nothing else. The file contents are fetched on demand, which only happens below
+      # when the branch really is behind and the rebase has to replay it.
+      #
+      # What does not change: the two commits are the same two commits, the count is the
+      # same count, and the credentials are passed per command with `-c` rather than
+      # written into .git/config. If the fetch fails the next step says so and exits 0,
+      # exactly as it did when the checkout action was what failed.
+      - name: Fetch the two commits this job reasons about
+        env:
+          TOKEN: ${{ secrets.FORGEJO_TOKEN || secrets.GITHUB_TOKEN || github.token }}
+        run: |
+          set -eu
+          server="${GITHUB_SERVER_URL:-}"
+          if [ -z "$server" ]; then
+            api="${GITHUB_API_URL:-http://10.0.10.20:3000/api/v1}"
+            server="${api%/api/v1}"
+          fi
+          url="${server}/${GITHUB_REPOSITORY}.git"
+          sha="${{ github.event.pull_request.head.sha }}"
+          ref="${{ github.event.pull_request.head.ref }}"
+          git init -q .
+          git remote add origin "$url"
+          # `blob:none` is a request, not a requirement: a server that does not know the
+          # filter answers with a warning and the full pack, and every command below
+          # still works. Sending everything is what the action did anyway.
+          fetch() {
+            if [ -n "${TOKEN:-}" ]; then
+              git -c "http.extraheader=Authorization: token ${TOKEN}" fetch -q --no-tags --filter=blob:none origin "$@"
+            else
+              git fetch -q --no-tags --filter=blob:none origin "$@"
+            fi
+          }
+          # The head by sha, and the branch name as the fallback for an instance that
+          # refuses a bare sha - this is the same pair ci.yml fetches per test leg.
+          #
+          # Fails open, like every other failure path in this workflow: a maintenance job
+          # must not be the reason a pull request looks broken. The next step fetches
+          # `main` again on its own and reports its own failure, so a transient error
+          # here costs one retry rather than a red X.
+          if ! fetch "+refs/heads/main:refs/remotes/origin/main" "$sha"; then
+            if ! fetch "+refs/heads/main:refs/remotes/origin/main" "refs/heads/${ref}"; then
+              echo "::warning title=Auto-rebase::could not fetch ${sha} or ${ref} - nothing was rebased and the branch is untouched."
+              exit 0
+            fi
+          fi
+          if ! git rev-parse --verify --quiet "${sha}^{commit}" >/dev/null; then
+            echo "::warning title=Auto-rebase::the fetch did not produce ${sha} - nothing was rebased and the branch is untouched."
+            exit 0
+          fi
+          echo "fetched main and ${sha} (blobless) - no working tree yet"
 
       - name: Rebase if behind, then arm
         env:
@@ -180,7 +243,8 @@ jobs:
           git config user.name  'packetforge-bot'
           git config user.email 'packetforge-bot@users.noreply.git.jayw.uk'
 
-          # checkout ran with persist-credentials: false, so origin is a bare URL.
+          # The fetch step above added origin as a bare URL and passes whatever
+          # credentials it had per command, so nothing is left in .git/config.
           # The token goes on the remote for this job only; the workspace is discarded
           # with the container.
           host="${server#http://}"; host="${host#https://}"
@@ -192,10 +256,20 @@ jobs:
             exit 0
           fi
 
-          behind=$(git rev-list --count "HEAD..refs/remotes/origin/main" || echo 0)
+          # No working tree, no HEAD: the count is a question about commits, so it is
+          # asked of the commits. This is also the whole of the no-op path - the branch
+          # that is already on top of main never checks anything out, which is what
+          # makes the common answer cheap.
+          behind=$(git rev-list --count "${head_sha}..refs/remotes/origin/main" || echo 0)
           echo "#${number}: ${behind} commit(s) behind main"
 
           if [ "$behind" -gt 0 ]; then
+            # Only now is a working tree needed, and only now is it paid for: the
+            # checkout pulls the file contents the replay needs, lazily, in one batch.
+            if ! bounded 120 git checkout -q -f --detach "${head_sha}"; then
+              warn "#${number}: could not check out ${head_sha}, so nothing was rebased and the branch is untouched. A runner or network problem, not a problem with the change."
+              exit 0
+            fi
             if git rebase refs/remotes/origin/main; then
               # force-with-lease against the exact head we checked out, so a push that
               # landed while this job was running is never overwritten.
