@@ -39,13 +39,17 @@
     {
       "issue": 803,
       "models": "Huawei OptiXtrans E6616X",
-      "missing": "the service-board part number valid in an E6616X subrack, and that board's front-panel census. The E6600 generation publishes its board list only inside the closed hedex tree. The E6616 chassis chapter (20 pp, `(2)-OptiXtrans E6616-Datasheet`) is slot layout plus 'Device Capacity' per system board (`TMK5SXCH`, `TMK5XCH`, `TMK6XCH`, `TMK5UXCME`, `TMK5XCS`) and no per-board port table, so reading it end to end settles that the count is not there.",
-      "unblock": "the board set to be modelled (e.g. \"E6616X with two TN13LSC\"), or one section URL from the E6600 board chapter. Not reachable by searching: the vendor sitemap enumerates every public document page (713) and the E6600 board chapters are not among them.",
+      "missing": "the service-board part number valid in an E6616X subrack, and that board's front-panel census. Correction (2026-11-17): the E6600 board documentation is not confined to the closed hedex tree - it is published one chapter per PDF on `e-file.huawei.com`, anonymous, and two board chapters were fetched and read today: `(6)-UXCME` (TMK5UXCME system control, 590,457 B) and `(21)-TMB3AUX` (auxiliary board, 482,177 B). Neither is a client board, and neither carries a `Valid Slots` table (zero occurrences), unlike the E9600 board chapters - so even a client-board chapter may not state which subrack accepts it. The 27-part numbered bundle those chapters belong to is now enumerated exhaustively and holds no client board. The E6616 chassis chapter (20 pp, `(2)-OptiXtrans E6616-Datasheet`) remains slot layout plus per-system-board capacity, with no port table.",
+      "unblock": "the board set to be modelled (e.g. `E6616X DC (12x <board>)`), or an E6600 ordering/configuration guide. Routes closed on 2026-11-17: the related-materials graph (40 pages, 27 numbered parts, enumerated in `research/optixtrans-e-file-numbered-bundle.md`), the vendor sitemap (713 pages, no E6600 board chapter), hedex (302/403 for every user-agent today, including the Dorado path that answered 200 this morning), and Wayback (no capture of the E6600 boards overview under three URL prefixes).",
       "checked": "2026-11-17",
       "sources": [
         "https://e.huawei.com/en/products/optical-transmission/optixtrans-e6600",
         "https://e.huawei.com/en/documents/others/621bfc22e8564cf69ae86581569a7594",
-        "https://e.huawei.com/sitemap-ebg-x-default.xml"
+        "https://e.huawei.com/sitemap-ebg-x-default.xml",
+        "https://e-file.huawei.com/marketingcloud/pep/asset/20000001/Material/104eb87894f1489dac28e58171dca5cc/M3T1A669N1304590990909157504/_21_-TMB3AUX.pdf",
+        "https://e-file.huawei.com/marketingcloud/pep/asset/20000001/Material/5fa3c10e4f454dfaa44f26447563718d/M3T1A669N1304588494599672043/_6_-UXCME.pdf",
+        "https://e-file.huawei.com/marketingcloud/pep/asset/20000001/Material/e650e67ac43a4b169fd5001518bd346d/M3T1A669N1178212931847860258/eSFP_1550_12nm_125M%20to%202_67Gbps_0%20to%204_0dBm_-28_0dBm_LC_120km.pdf",
+        "https://e.huawei.com/en/documents/others/104eb87894f1489dac28e58171dca5cc"
       ]
     },
     {
