@@ -116,6 +116,6 @@ explicit enough to trust.
 
 ## Where the tests are
 
-`test/sweep-requests.test.js` — 79 checks. Every guard above is pinned by at least one case
+`test/sweep-requests.test.js` — 94 checks. Every guard above is pinned by at least one case
 built from a real title, so a "simplification" that drops a guard fails the suite rather than
 quietly reopening (or mis-closing) requests.
