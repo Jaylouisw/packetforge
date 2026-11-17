@@ -1,4 +1,4 @@
-# NetEngine 8000 M8 and M14 are 8- and 14-card chassis with no fixed panel; the M4 is the exception
+# NetEngine 8000 M8, M14 and M6 are card chassis with no fixed panel; the M4 is the exception
 
 Seven open device requests (#789, #796, #797, #799, #800, #801, #802) ask for NetEngine 8000 models
 and were parked on the same sentence: Huawei publishes slots and per-slot capacity, not a port
@@ -65,8 +65,9 @@ maximum fitted is 8 cards' worth of ports, not "the device".
 The same test applied to the neighbours: the M6 datasheet
 (`data.nag.wiki` mirror of the Huawei PDF, "NetEngine 8000 M6 Service Router Datasheet", 2 U,
 "6 service slots") accounts for its 11 DC slots as 6 PIC + 2 fabric/IPU + 2 PIU + 1 FAN, with no
-fixed-interface row; the X4/X8/X16 are line-card chassis by definition. None of them is a
-fixed-panel box.
+fixed-interface row — and its *ordering table* says the same thing more bluntly, see
+"The M6, checked against its own ordering table" below. The X4/X8/X16 are line-card chassis by
+definition. None of them is a fixed-panel box.
 
 ## The card census
 
@@ -163,9 +164,66 @@ Two caveats on that table, both deliberate:
   `03034KEC` and `03035JVG`, the second marked "for SME"). The port count is identical; the BOM
   differs. Do not collapse the two codes in a spec that cites an order.
 
+## The M6, checked against its own ordering table
+
+#796 was the one member of the family whose "no fixed panel" claim rested on a datasheet summary
+rather than on the primary document. Checked 2026-11-17 against the M6's own pages:
+
+- `https://support.huawei.com/enterprise/en/doc/EDOC1100382052/374d9a7/netengine-8000-m6` —
+  *NetEngine 8000 M6, M1D, and M1C V800R023C10SPC500 Hardware Description*, read whole with a crawler
+  UA (HTTP 200, 526,382 bytes). Table 1-29 "Slots on the NetEngine 8000 M6": PIC **DC 1-6 / AC 2, 4-6**,
+  CXP 7, 8, PIU **DC 9, 10 / AC 1, 3**, FAN 11. **No fixed-interface row.**
+- Same page, Tables 1-30 and 1-31: DC chassis **11 slots / 6 service board slots**, AC chassis
+  **9 slots / 4 service board slots**, switching capacity 320 Gbit/s, and a maximum-port block reading
+  "Maximum number of physical ports on the entire device: **100**", "Maximum number of 25GE ports: 6",
+  "10GE ports: 16", "50GE ports: 2", "100GE ports: NA", "40GE ports: NA". Every one of those is a
+  maximum over six fitted cards, not a panel: an AC M6 has four service slots and cannot reach them.
+- `https://e.huawei.com/marketingcloud/pep/asset/20000001/Material/b50df453e4bf4ca4b99ef855437e8cc9/M3T1A590N1140254128116289674/NetEngine%208000%20M6%20Universal%20Service%20Router%20Datasheet.pdf`
+  — the current M6 datasheet (340 kB, HTTP 200): "supports up to 160G port capacity and 6 service
+  slots", spec table "Service Slots 6 (DC) / 4 (AC)". No port list, and this revision has **dropped**
+  the Ordering Information section entirely.
+- The ordering table survives in the earlier datasheet revision, e.g. the `data.nag.wiki` mirror
+  `https://data.nag.wiki/Huawei/Datasheet/NE8000/8000M6.pdf` (12 pages), "Ordering Information →
+  Basic Hardware Configurations → NetEngine 8000 M6 Basic Configurations":
+
+  | BOM | Order name | Contents |
+  |---|---|---|
+  | `02353HHB` | `CR8PM6BASDC1` | chassis, 2\*CXP-160, 2\*DC power, without software and document |
+  | `02353HHG` | `CR8PM6BASAC1` | chassis, 2\*CXP-160, 2\*AC power, … |
+  | `02353LKW` | `CR8PM6BASDC3` | chassis, 2\*CXP-160-B, 2\*DC power, … |
+  | `02353LKY` | `CR8PM6BASAC3` | chassis, 2\*CXP-160-B, 2\*AC power, … |
+
+  **No PIC.** Every interface card is a separate BOM line further down the same table — 1-port 50GE
+  `CR8D00E1VBC0`, 2-port 25G/2-ch 10G `CR8D25E2XFC0`, 4-port 10GE/GE MACsec `CR8D00L4XFC0`, 10-port
+  100/1000Base-X-SFP MACsec `CR8D00EAGFC0`, 8-port 100/1000Base-RJ45 `CR8D00E8GEC2`, 4-port 10GE-SFP+
+  `CR8D00L4XFC2`, a 20-port CSFP/10-port SFP combo `CR8D00EEGFC0` — alongside the E1, cPOS,
+  V.35/X.21 and FXS/FXO voice boards. (The BOM column of *that* block is scrambled in the PDF's text
+  layer, so pair a card to its `0303…`/`0305…` code off the rendered table, not off `pdftotext`; the
+  four basic-configuration codes in the table above are the ones that extract cleanly.)
+
+That turns the earlier inference into a statement about the goods: **an M6 as ordered has no cableable
+port.** #796 asks for the model, and the base model has none — which is why the issue is parked on a
+configuration rather than on research.
+
+The nearest thing Huawei publishes to a stated configuration is the "Typical configuration" pair the
+hardware description uses for its power and heat figures:
+
+> [CXP-160/CXP-160-B] DC Typical configuration 1: 2\*CXP + 1\*FAN + 2\*DC power + 2\*`CR8D00L4XFC0`
+> + 2\*`CR8D00EAGFC0` = 196.1 W
+>
+> DC Typical configuration 2: 2\*CXP + 1\*FAN + 2\*DC power + 2\*`CR8D00E1VBC0` +
+> 1\*`CR8D00L4XFC0` + 1\*`CR8D00EAGFC0` = 205.8 W
+
+These name real cards and a real chassis, and they are the two configurations a lab is most likely to
+have in front of it. They are still **not orders**: they carry no slot assignment, Huawei presents them
+only as the load used to measure power and heat, and configuration 2 leaves two of the six PIC slots
+empty. Recorded here as the evidence a "state the configuration" answer should quote, not as a licence
+to build an M6 spec from a wattage table.
+
 ## What would close #796, #797, #799, #800, #801, #802
 
-One sentence naming the cards, in the form the vendor writes them:
+One sentence naming the cards, in the form the vendor writes them — for the M6 the datasheet's own
+card part numbers are the ones to use, since it has just six DC (four AC) PIC slots:
 
 > NetEngine 8000 M8 (DC), slots 1-2 = `CR8D00EAXFC1`, slots 3-4 = `CR8D00E4YFC0`
 
