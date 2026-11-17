@@ -157,3 +157,93 @@ interface module per controller" - which the catalogue can express as a flat por
 a Huawei ordering guide pinning per-model ports; or the interface-module chapter of either document
 pasted by a reader with support access. Until then #742 stays open: the datasheet proves the field is
 unpublished, not that this pass could not find it.
+
+## X8000: the module sections do state port counts (read 2026-11-17)
+
+Supersedes the sentence three earlier passes repeated - "Huawei publishes port *types* and a controller
+count, never a port *count*". That is true of the datasheets and of the marketing spec tables, and false
+of the Product Description's interface-module chapters, which are ordinary indexed sections.
+
+| Document section | What it states | URL |
+|---|---|---|
+| 10GE Electrical Interface Module | "A 10GE electrical interface module provides **four** 10 Gbit/s electrical ports." Table 4-4 types the electrical module as SFP+. | `https://support.huawei.com/enterprise/en/doc/EDOC1100319420/7a0c3635/10ge-electrical-interface-module` |
+| 25 Gbit/s RoCE Interface Module | "provides **four** 25 Gbit/s optical ports", and is "used only for data forwarding inside the device" | `https://support.huawei.com/enterprise/en/doc/EDOC1100319420/378e8255/25-gbit-s-roce-interface-module` |
+| 25 Gbit/s RDMA Interface Module | "provides **four** 25 Gbit/s optical ports", used "to connect two controller enclosures" | `https://support.huawei.com/enterprise/en/doc/EDOC1100319420/c4d726f4/25-gbit-s-rdma-interface-module` |
+| SmartIO Interface Module | **no port count in prose** - five appearance figures and an optical-module table only | `https://support.huawei.com/enterprise/en/doc/EDOC1100319420/7c64209f/smartio-interface-module` |
+
+The SmartIO row is the one to leave alone. Its page says only that a 10GE electrical module "has the same
+appearance as a SmartIO interface module that uses a 10 Gbit/s optical module"; an identical faceplate is
+not a port census, so the X8000 spec models the electrical module, whose count is stated, and does not
+borrow four ports for the SmartIO family.
+
+Slot geometry, from the 1.3.0 Installation Guide (with Data Backup Feature), section *Cabinet Layout and
+Connection Planning* - `https://support.huawei.com/enterprise/en/doc/EDOC1100318730/ce945100/cabinet-layout-and-connection-planning`:
+
+> Each of controllers A and B provides six interface module slots.
+>
+> IOM 3 must house a 25 Gbit/s RoCE interface module, and no cable connection is required.
+>
+> Interface modules for the front-end network connection can be installed only in slots IOM 0, IOM 1, and IOM 4.
+>
+> IOM 0 … can house a 10GE electrical interface module or a SmartIO interface module with a 10 Gbit/s or
+> 25 Gbit/s optical module for replication and backup data transmission.
+>
+> IOM 1 can house a container front-end interface module, which can be a 10GE electrical interface module
+> or SmartIO interface module with a 10 Gbit/s or 25 Gbit/s optical module … Ports P0 and P1 are used for
+> transmitting backup and replication control signaling … Port P2 is used in archive scenarios … Port P3
+> is used for the SFTP service.
+
+Two versions of "Rules for Installing Interface Modules" are served on that one page and they disagree: the
+earlier block says "12 Gbit/s SAS interface modules can be installed in the following slots: IOM 5 > IOM 4 >
+IOM 3", the data-backup block says front-end modules may sit in IOM 4. **IOM 0 and IOM 1 are front-end
+slots under both readings**, so the modelled configuration uses exactly those two, and IOM 4 - optional in
+every version - is not fitted rather than guessed.
+
+### What was modelled
+
+`devices/huawei/oceanprotect-x8000.json`: one 2 U controller enclosure, two controllers, a 4-port 10GE
+electrical module in IOM 0 and another in IOM 1 on each controller - **16 x 10GbE SFP+**, no PoE.
+Deliberately absent, with the reason recorded in the spec's `notes`: IOM 4 (optional, and the two document
+versions disagree on it), the IOM 2 RDMA and IOM 3 RoCE modules (internal / inter-enclosure links, "no
+cable connection is required"), the 12 Gbit/s SAS modules (disk enclosures), and the management port whose
+count appears only in a figure.
+
+## X9000: the document that would settle it is not live (2026-11-17)
+
+The X8000 half of #741 is settled; the X9000 half is not, and the blocker is now a dead URL rather than an
+unindexed one.
+
+| URL tried | Result |
+|---|---|
+| `/enterprise/en/doc/EDOC1100337685/8ed1346b/overview` (X9000 1.5.0 PD) | Googlebot UA: 302 -> **404** `/view/notFound`; browser UA: **403** |
+| `/enterprise/en/doc/EDOC1100337685/67ea5a63/interface-module` | **404** |
+| `/enterprise/en/doc/EDOC1100337685/ad9f2760/component-description` | **404** |
+| `info.support.huawei.com/enterprise/en/doc/EDOC1100337685/8ed1346b/overview` | 200 but lands on `/supportindex/` (91,294 B) - not the document |
+| `/enterprise/{es,de}/doc/EDOC1100337685/8ed1346b/overview` | **404** (locale variants do not help) |
+| `/enterprise/en/doc/EDOC1100368229` (X9000, X9100 1.6.0-1.7.0 & V200R001 PD) | **404** - doc root, and no section slug of this set is indexed |
+| `/enterprise/en/doc/EDOC1100305237` (X9000, X9100 1.x Quick Installation Guide) | **404** - doc root, no slug |
+| `/enterprise/en/doc/EDOC1100368334` (X9000, X9100 1.x Hardware Installation Guide) | **404** - doc root, no slug |
+
+The search index still serves the 1.5.0 text - 4 U enclosure, IOM H0..H13 / L0..L13 (28 slots), back-end
+modules only in H5..H8, front-end slot rules per quadrant - but a cache snippet is not a URL a reader can
+open, and this project models from vendor pages, not from search results. It is recorded here as a lead,
+not as evidence.
+
+**Exact missing fields for X9000:** for a stated controller count (2 or 4), which of the 28 slots accept
+front-end modules, the module mix per quadrant, and the per-module port count for the modules Huawei sells
+for this node. The X6000/X8000 counts do **not** transfer silently: the module names are shared, the
+controller enclosure and slot numbering are not, and the X9000's own price catalogue lists modules the 2 U
+node does not have (2-port 40 GbE, 2-port 100 GbE, 4-port 1 GbE).
+
+**One trap, repeated:** the live page `https://info.support.huawei.com/enterprise/en/doc/EDOC1100484689/bb36e2c/connection-planning-between-the-storage-system-and-application-server`
+reads almost exactly like the X9000's cached slot rules - IOM H5..H8 for back-end, quadrant rules for
+front-end - and it is titled *OceanStor Dorado 8000 and Dorado 18000 V700R001 Site Planning Guide*. The 4 U
+28-slot geometry is shared hardware language between a Dorado array and an OceanProtect X9000; importing it
+would put Dorado's census on a backup appliance.
+
+**What would unblock #741's X9000 half:** any live section of `EDOC1100368229` or `EDOC1100368334` (one
+slug opens the set, as `ce945100` did for X6000/X8000), or one stated configuration in the shape "X9000
+node, 4 controllers, 4-port 25GE module in IOM H0/L0, ...".
+
+#743 (X8100/X9100) and #742 (E8000) are unchanged by this pass: no document read states whether X8100
+shares the X6000/X8000 controller enclosure, so its census stays unpublished rather than borrowed.
