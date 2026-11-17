@@ -297,8 +297,17 @@ gi 0/1, or gi0/1" - so `interface GigabitEthernet1/0/1`, `interface GigabitEther
 `interface gi1/0/1` all open the port the panel calls `Gi1/0/1`. The long form is the one
 `show running-config` prints on real gear, so it is also the form most likely to be pasted here. The fold
 is onto the *type* rather than onto one vendor's abbreviation, which is what lets
-`interface GigabitEthernet0/0/1` reach a Huawei port the catalogue names `GE0/0/1`. Partial spellings
-(`Gig1/0/1`) are not folded; see [research/interface-type-spellings.md](../research/interface-type-spellings.md).
+`interface GigabitEthernet0/0/1` reach a Huawei port the catalogue names `GE0/0/1`.
+
+A type may also be shortened to a prefix, which is what an operator actually types: `interface g1/0/1`,
+`interface f0/1`, `interface s0/0/0`. IOS abbreviates every keyword to the number of characters that keep it
+unique, and the type word is a keyword - a Cisco platform guide writes `interface g 0/1/0` and `show interface
+g0/1/0` in the same procedure. What a table cannot supply is *uniqueness*, so the prefix is expanded against
+the types **this** device has: `g` is `GigabitEthernet` on a switch that has no other G-type, and a prefix
+that could mean two of the device's types resolves to neither (`t` on a box with both TenGigabitEthernet and
+TwentyFiveGigE). A prefix that names no type the device has is refused as before, and the expansion never
+reaches a name the table does not know - a UniFi `Port 1` is not `p1`. Evidence and the open questions are in
+[research/interface-type-spellings.md](../research/interface-type-spellings.md).
 
 A netmask has to be a run of ones followed by zeros — `255.0.255.0` is a valid IPv4 *address* and not a
 netmask, because it has no prefix length, and every rule stated as a prefix length would describe something

@@ -17,8 +17,9 @@
 // prints the panel spelling afterwards, so the running-config it produces still replays; a
 // subinterface can be created through the long name; and the fold cannot invent a socket -
 // a Ubiquiti "Port 1" is not reachable as Po1, and a type that is not the port's type is
-// still refused. Partial spellings (Gig1/0/1) are deliberately left unresolved; see
-// research/interface-type-spellings.md.
+// still refused. Partial spellings (Gig1/0/1) are no longer one of them: a shortened type expands
+// against the types the device actually has, which is its own question and its own file -
+// test/iface-type-prefix.test.js (research/interface-type-spellings.md records the evidence).
 
 const { test } = require('node:test');
 const assert = require('node:assert');
@@ -149,9 +150,10 @@ test('a cable saved under the long name lands on the panel name', function () {
   assert.strictEqual(link.b.iface, 'Gi1/0/24');
 });
 
-test('a partial type spelling is still refused, because it is not the documented form', function () {
+test('a partial type spelling opens the port too, on the rule its own file holds', function () {
   const s = open(catalyst);
   s.run('enable');
   s.run('configure terminal');
-  assert.match(s.run('interface Gig1/0/1'), /% Interface not found: Gig1\/0\/1/);
+  assert.strictEqual(s.run('interface Gig1/0/1'), '', 'Gig1/0/1 is the documented long name, shortened');
+  assert.ok(s.cli.prompt().endsWith('(config-if)#'), 'and it is the interface prompt');
 });

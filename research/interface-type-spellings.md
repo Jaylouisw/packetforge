@@ -83,14 +83,74 @@ moment the key is computed, and `portKey()` is deliberately device-free (it is a
 link names are folded with). Refusing the word an operator typed in order to protect a vendor boundary
 seemed the worse error.
 
+## Partial spellings: settled (2026-11-17)
+
+This note left one question open in its first draft: `Gig1/0/1` and `g1/0/1` were refused, although a
+Cisco guide types `show interfaces g0/0`. It asked for a transcript of `interface ?` on one platform
+to say which keywords the box accepts. That transcript turned out not to be needed, because the
+answer is not specific to interface names - the type word is a *keyword*, and IOS states the rule for
+every keyword it parses:
+
+> You can abbreviate commands and keywords to the number of characters that allow a unique
+> abbreviation. For example, you can abbreviate the **configure terminal** command to **config t**.
+> Because the abbreviated form of the command is unique, the router will accept the abbreviated form
+> and execute the command.
+
+* Cisco IOS Configuration Fundamentals, *Using the Cisco IOS Command-Line Interface* (12.2SX) -
+  https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/fundamentals/configuration/12-2sx/cf-12-2sx-book/Using_the_Cisco_IOS_Command-Line_Interface.html
+
+Two vendor transcripts show the rule reaching the interface type, at the shortest possible prefix -
+one letter:
+
+```
+Router(config)# interface g 0/1/0
+Router(config-if)# switchport access vlan 4
+```
+
+> Use the **show run interface g0/1/0**, **show interface g0/1/0**, and **show vlan** commands to
+> verify the configuration.
+
+* Cisco Embedded Service 6300 Series Software Configuration Guide, *Configuring Ethernet Switch Ports* -
+  https://cisco.com/c/en/us/td/docs/IIOT/routers/embedded/6300/software/config/b_ESR6300_config/b_ESR6300_config_chapter_01111.html
+  (the same page writes the type out in full elsewhere - `interface GigabitEthernet0/1/0` - so the
+  shortened form is the operator's, not a typesetting accident)
+
+```
+Switch(config)# interface g0/12
+Switch(config-if)# switchport mode access
+Switch(config-if)# dot1x port-control auto
+```
+
+* Cisco support community, *Port-Security for mobile devices as laptops* -
+  https://community.cisco.com/t5/physical-security/port-security-for-mobile-devices-as-laptops/td-p/3774460
+  (Catalyst 6500, and `show dot1x interface g0/12` in the same paste)
+
+`g` is one character, so every longer prefix of the same word - `gi`, `gig`, `gigabit` - is accepted on
+the same rule; that is what the rule means.
+
+**What the rule needs that a table cannot supply is uniqueness**, and this is why the first draft was
+right to refuse to guess: `g` is unambiguous on a box whose only G-type is GigabitEthernet, and `t` is
+ambiguous on a box carrying both TenGigabitEthernet and TwentyFiveGigE. So the expansion is done at
+resolution time, against the types the device in front of the caller actually has, and only when
+exactly one of them matches:
+
+* a prefix that matches one type expands (`g1/0/1` -> `Gi1/0/1` on a 2960-X, `f0/1` -> `Fa0/1` and
+  `s0/0/0` -> `Se0/0/0` on a 2811);
+* a prefix that matches two types resolves to neither;
+* a prefix that matches no type the device carries is refused as it was before (`f1/0/1` on a
+  2960-X, which has no fastethernet port);
+* the space form is the same command (`interface g 1/0/2`), and a subinterface takes it too
+  (`interface g1/0/24.10` creates `Gi1/0/24.10`);
+* it is done in `resolvePortName()` and **not** in `portKey()`: the key is device-free (saved labs are
+  folded with it before any device exists), and a prefix rule there would reach names the table never
+  knew - `p1` would find a UniFi `Port 1`, which the table promises not to do. Only a type already in
+  `TYPE_SPELLINGS` can be reached this way, and only through a device.
+
+`engine/iface-name.js` carries `expandTypePrefix()` for this, and `test/iface-type-prefix.test.js`
+holds the rule; `test/iface-type-spelling.test.js` no longer asserts that `Gig1/0/1` is refused.
+
 ## Unresolved, and what would settle it
 
-* **Partial spellings.** `Gig1/0/1` and `g1/0/1` are still refused. IOS abbreviates any keyword to a
-  unique prefix, and one Cisco guide types `show interfaces g0/0`
-  (https://www.cisco.com/c/en/us/td/docs/routers/7300/install_and_upgrade/7301/7301_install_config_guide/7301icg/5418c.html),
-  so single letters do work there. A prefix rule cannot be written table-free: which prefixes stay unique
-  is per command, and a naive rule starts matching panel names (`Port 1`). Settling it needs a transcript
-  of `show interfaces ?` / `interface ?` on one platform, showing the accepted keywords.
 * **Types the table does not carry**: `TFGigabitEthernet` (Cisco 400G), `XGigabitEthernet` and `xge`
   (VRP 10G), `mge`, `hsgmii`, PON and DSL types. Each needs its vendor's own statement of the
   abbreviation before it is added; guessing would let `xge0/0/1` resolve to something it is not.
@@ -98,3 +158,7 @@ seemed the worse error.
   GigabitEthernet1/0/1`; this console prints the panel spelling `interface Gi1/0/1`. Both now resolve, so
   the round trip holds either way, and changing what the config prints is a separate question (it would
   touch every running-config test) rather than a consequence of this one.
+* **Which types a box without the port will still accept.** IOS answers `interface g0/1` on a box whose
+  ports are all fastethernet with `% Invalid input detected`, not with a prefix error, so the type is
+  parsed before it is resolved; this console refuses the name and names it. A transcript of that one
+  line would settle whether the refusal should read differently.

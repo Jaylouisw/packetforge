@@ -97,6 +97,55 @@ function portKey(name) {
   return foldInterfaceType(s);
 }
 
+// The interface TYPE may be shortened to a prefix, and on a real box it usually is: a Catalyst
+// operator types `interface g0/12` and a router operator types `interface s0/0/0`. IOS states the
+// rule for every keyword it parses - "You can abbreviate commands and keywords to the number of
+// characters that allow a unique abbreviation" (Cisco IOS Configuration Fundamentals, Using the
+// Command-Line Interface, 12.2SX) - and the type word in an interface name is one of those
+// keywords: a platform guide writes the command as `interface g 0/1/0` and the check as
+// `show interface g0/1/0` (Cisco Embedded Service 6300 Series Software Configuration Guide,
+// Configuring Ethernet Switch Ports), and a Catalyst 6500 configuration in Cisco's own support
+// library opens with `interface g0/12` (Port-Security for mobile devices as laptops). Those are
+// one-letter prefixes, so every longer prefix (`gi`, `gig`, `gigabit`) follows on the same rule.
+//
+// What that rule needs, and what a device-free table cannot supply, is *uniqueness*: `g` is
+// unambiguous on a switch whose only G-type is GigabitEthernet, and `t` is ambiguous on a box
+// that carries both TenGigabitEthernet and TwentyFiveGigE. So the prefix is expanded against the
+// types the device actually has, and only when exactly one of them matches - the alternative is a
+// guess, and a guessed port is worse than a refusal.
+//
+// It is deliberately not in `portKey()`. That key is device-free (saved labs are folded with it
+// before any device exists), and a prefix rule there would start matching names the table never
+// knew - `p1` would reach a UniFi `Port 1`, which is the one thing the naming table promises not
+// to do. Only a type already in TYPE_SPELLINGS can be reached this way, and only through a device.
+function deviceTypeSet(map) {
+  const types = new Set();
+  for (const name of map.keys()) {
+    const m = TYPE_AND_NUMBER.exec(String(name).toLowerCase());
+    if (!m) continue;
+    const type = TYPE_KEY.get(m[1]);
+    if (type) types.add(type);
+  }
+  return types;
+}
+
+// The name with its type word expanded to the one type the device has, or null when the word is
+// already a documented spelling, matches no type, or matches more than one.
+function expandTypePrefix(device, typed) {
+  const map = device && device.interfaces;
+  if (!map || !typed) return null;
+  const m = TYPE_AND_NUMBER.exec(String(typed).trim().toLowerCase());
+  if (!m) return null;
+  const word = m[1];
+  if (TYPE_KEY.has(word)) return null;                 // a documented spelling: portKey() owns it
+  const hits = [];
+  for (const type of deviceTypeSet(map)) {
+    if (type.length > word.length && type.indexOf(word) === 0) hits.push(type);
+  }
+  if (hits.length !== 1) return null;                  // none, or ambiguous: refuse rather than guess
+  return hits[0] + m[2];
+}
+
 // Resolve a name the caller used onto the device's own interface name. Returns null when
 // the device has no such port, so callers can say so rather than inventing one. Ambiguity
 // is refused: if two ports fold onto the same key, naming that key is not a guess worth
@@ -117,15 +166,29 @@ function resolvePortName(device, typed) {
     const wanted = parent ? parent + '.' + sub[2] : null;
     if (wanted && map.has(wanted)) return wanted;
   }
-  const key = portKey(t);
-  let alias = null;
-  for (const name of map.keys()) {
-    if (portKey(name) === key) {
-      if (alias === null) alias = name;
-      else if (alias !== name) return null;                     // ambiguous: refuse to guess
+  // One pass over the ports for one key: the port's name, null for "no port has this key", or
+  // false when two ports share it. "Ambiguous" and "absent" are different answers - the prefix
+  // pass below may only rescue the second, so a spelling that folds onto two ports cannot be
+  // rescued into one of them by a shorter type.
+  const matchKey = function (key) {
+    let found = null;
+    for (const name of map.keys()) {
+      if (portKey(name) !== key) continue;
+      if (found === null) found = name;
+      else if (found !== name) return false;                    // ambiguous: refuse to guess
     }
+    return found;
+  };
+  let alias = matchKey(portKey(t));
+  if (alias === false) return null;                             // ambiguous: still a refusal
+  // A shortened TYPE is the same port as the long one ('g0/12' -> 'Gi0/12'), and the expansion is
+  // done against this device's own ports so a prefix that could mean two types resolves to
+  // neither (see expandTypePrefix above).
+  if (alias === null) {
+    const expanded = expandTypePrefix(device, t);
+    if (expanded && expanded !== t.toLowerCase()) alias = matchKey(portKey(expanded));
   }
-  return alias;
+  return alias || null;
 }
 
 // Same question, but returning the INTERFACE object rather than its name.
@@ -135,4 +198,5 @@ function resolveInterface(device, typed) {
   return { name: name, iface: device.interfaces.get(name) || null };
 }
 
-module.exports = { PORT_NAME_RULES, TYPE_SPELLINGS, portKey, foldInterfaceType, resolvePortName, resolveInterface };
+module.exports = { PORT_NAME_RULES, TYPE_SPELLINGS, portKey, foldInterfaceType, expandTypePrefix,
+  resolvePortName, resolveInterface };
