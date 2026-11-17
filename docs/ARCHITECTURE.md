@@ -38,8 +38,9 @@ A `Device` has a list of **capabilities**:
 | `l2-forward` | bridge/switch: MAC learning + flooding |
 | `l3-forward` | router: forwards IP between subnets |
 | `cli`      | exposes the management console |
-| `dhcp-server`, `dhcp-client` | **live** — `Simulator.computeDhcp()` runs the exchange before the first packet (#1051) |
-| `nat`, `firewall`, `wireless`, `http-server` | reserved for future protocol support |
+| `dhcp-server` | **live** — `Simulator.computeDhcp()` runs the exchange before the first packet (#1051) |
+| `nat`, `http-server` | **live** — `_capabilityRefusal('nat', …)` refuses the `ip nat` commands on a box without the token and `engine/nat.js` translates in the data path; `SERVICE_PORTS` in `engine/flow.js` gives an `http-server` TCP 80 and 443 |
+| `dhcp-client`, `firewall`, `wireless` | declared, read by nothing — a port becomes a DHCP client through `ip address dhcp`, not through the token, and neither `firewall` nor `wireless` gates any code (`test/capability-vocabulary.test.js` lists all three as pending) |
 
 The forwarding logic branches on capabilities, never on `vendor` or `model`.
 That's the entire trick that makes **any manufacturer work**: a Huawei router

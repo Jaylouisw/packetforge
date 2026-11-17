@@ -625,14 +625,13 @@ so the next reader does not have to rediscover them.
 |---|---|---|
 | `README.md`, Features → "Real simulation, not canned animation" | "MAC learning, flooding, ARP, longest-prefix routing, default gateways, TTL decrement and ICMP echo/reply" | Accurate — and that is the whole list. It is a statement of scope, not an understatement. |
 | `README.md`, Features → "Physically accurate" | "impossible cables are refused, not drawn" | Accurate and well tested; just remember [§6.6](#66-cable-length) — length is otherwise cosmetic. |
-| `docs/ARCHITECTURE.md:42` | `nat`, `firewall`, `wireless`, `http-server` "reserved for future protocol support" | `nat` and the `http-server` listener table are live; `firewall` and `wireless` are still inert — nothing in `engine/` reads either capability. |
-| `docs/ARCHITECTURE.md:60-70` | Routing order: connected, static, default gateway | Right, and incomplete: eBGP (20), OSPF (110) and iBGP (200) sit between static and the default gateway (`engine/device.js`, `routeTo` and `routeDistance`). |
+| `docs/ARCHITECTURE.md:61-71` | Routing order: connected, static, default gateway | Right, and incomplete: eBGP (20), OSPF (110) and iBGP (200) sit between static and the default gateway (`engine/device.js`, `routeTo` and `routeDistance`). |
 | `docs/ARCHITECTURE.md`, Throughput: two counts, one shape | Flow API and counters | Accurate. |
 | `docs/ROADMAP.md:7-15` | Lists VLANs, STP, OSPF/RIP, NAT, ACLs, wireless, DNS as unchecked TODOs | All of those except RIP and the wireless RF medium are implemented. A stale roadmap reads as a promise; here it reads as a warning that happens to be wrong in both directions. |
 | `docs/BGP-POLICY.md` | A full policy design — local-pref, MED, communities, route-maps | A design document. Only the decision-order subset in `engine/bgp.js` exists. |
 
-Four rows have left this table since it was written. Two were the README's counts, which now match the
-tree — **90** media types across **ten** families and **28** connector cages, and **2,344 models across
+Five rows have left this table since it was written. Two were the README's counts, which now match the
+tree — **90** media types across **ten** families and **28** connector cages, and **2,345 models across
 258 vendors** in 25 categories:
 
 ```bash
@@ -652,6 +651,14 @@ families are in the reference now (its "What the config contains" table gives th
 and the gap is no longer invisible: `test/help-completeness.test.js` fails when a mechanism it enumerates
 is missing from `help` or from `docs/CLI.md` (eighteen mechanisms today), and
 `test/docs-show-commands.test.js` types every `show` form the page prints.
+
+The fifth was the capability table this page was quoting. It called `nat`, `firewall`, `wireless` and
+`http-server` "reserved for future protocol support", and listed `dhcp-client` beside `dhcp-server` as
+live. `nat` and `http-server` each have a reader in `engine/` — the `ip nat` commands are refused
+without the token, and an `http-server` answers on TCP 80 and 443 — while `dhcp-client` has none: a port
+becomes a client through `ip address dhcp`, which is a flag on the port, not the capability. The table
+now separates the tokens something reads from the three that are only declared, the same three
+`test/capability-vocabulary.test.js` lists as pending.
 
 ---
 
