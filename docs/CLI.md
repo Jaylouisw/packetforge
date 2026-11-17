@@ -1302,6 +1302,16 @@ sw1(config-if)#switchport trunk allowed vlan add
 % Incomplete command: switchport trunk allowed vlan add <list>
 ```
 
+A range is two ids, written low-to-high the way every Cisco `vlan-list` note writes one — "two VLAN numbers, the
+lower one first". A transposed pair is refused rather than read upside down, and the two ids are named back in
+the order that works, so a typo cannot quietly configure VLANs nobody asked for
+([research/vlan-range-order.md](../research/vlan-range-order.md)):
+
+```
+sw1(config-if)#switchport trunk allowed vlan 30-20
+% VLAN range 30-20 runs backwards: give the lower id first (20-30)
+```
+
 `add` and `remove` used to be glued onto the list with no separator, so `add 30` arrived as the token `add30` and the
 console refused a word nobody had typed — the only way to add one VLAN was to retype the whole list
 ([ARCHITECTURE.md](ARCHITECTURE.md), "A verb eaten by a join, and the token nobody typed"). What the list holds

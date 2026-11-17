@@ -170,9 +170,18 @@ function parseVlanList(spec) {
     }
     m = tok.match(/^([0-9]+)\s*-\s*([0-9]+)$/);
     if (m) {
-      let lo = parseInt(m[1], 10);
-      let hi = parseInt(m[2], 10);
-      if (lo > hi) { const t = lo; lo = hi; hi = t; }
+      const lo = parseInt(m[1], 10);
+      const hi = parseInt(m[2], 10);
+      // A range is written low-to-high, and a switch does not read `30-20` as `20-30` - Cisco's own
+      // vlan-list note says the range is "two VLAN numbers, the lower one first"
+      // (research/vlan-range-order.md). This parser used to swap the pair and carry on, so a transposed
+      // range silently configured the VLANs the operator had *not* named, and every view then reported
+      // the swap as if it were what was typed.
+      if (lo > hi) {
+        fail('E_VLAN_RANGE_ORDER', 'VLAN range ' + tok + ' runs backwards: give the lower id first (' +
+          hi + '-' + lo + ')');
+        continue;
+      }
       spans.push({ lo: lo, hi: hi, all: false, text: tok });
       continue;
     }

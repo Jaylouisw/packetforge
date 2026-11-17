@@ -68,12 +68,6 @@ check("string '10,20-30' expands to 12 ids and 2 ranges", function () {
   assert.strictEqual(r.vlans[11], 30);
   assert.deepStrictEqual(r.ranges, [[10, 10], [20, 30]]);
 });
-check("string '30-20' is normalised to 20-30", function () {
-  const r = vlan.parseVlanList('30-20');
-  assert.strictEqual(r.ok, true);
-  assert.deepStrictEqual(r.ranges, [[20, 30]]);
-  assert.strictEqual(r.vlans.length, 11);
-});
 check("'all' covers 1..4094 minus the reserved block", function () {
   const r = vlan.parseVlanList('all');
   assert.strictEqual(r.ok, true);
@@ -128,6 +122,26 @@ check('empty string / null / [] -> E_VLAN_EMPTY', function () {
   assert.strictEqual(vlan.parseVlanList('').error, 'E_VLAN_EMPTY');
   assert.strictEqual(vlan.parseVlanList(null).error, 'E_VLAN_EMPTY');
   assert.strictEqual(vlan.parseVlanList([]).error, 'E_VLAN_EMPTY');
+});
+// A range is two ids, the lower one first (research/vlan-range-order.md). The parser used to swap the
+// pair and carry on, so `switchport trunk allowed vlan 30-20` configured 20-30 - the VLANs nobody named.
+check("'30-20' -> E_VLAN_RANGE_ORDER, not a silent swap to 20-30", function () {
+  const r = vlan.parseVlanList('30-20');
+  assert.strictEqual(r.ok, false);
+  assert.strictEqual(r.error, 'E_VLAN_RANGE_ORDER');
+  assert.deepStrictEqual(r.vlans, []);
+  assert.ok(/30-20/.test(r.message), 'the message quotes the range that was typed: ' + r.message);
+  assert.ok(/20-30/.test(r.message), 'the message names the order that would work: ' + r.message);
+});
+check('a reversed range is refused wherever it sits in the list', function () {
+  assert.strictEqual(vlan.parseVlanList('10,30-20').error, 'E_VLAN_RANGE_ORDER');
+  assert.strictEqual(vlan.parseVlanList('30-20,40').error, 'E_VLAN_RANGE_ORDER');
+  assert.strictEqual(vlan.parseVlanList('100-200,50-40').error, 'E_VLAN_RANGE_ORDER');
+});
+check('a range with both ids the same is still a single VLAN', function () {
+  const r = vlan.parseVlanList('20-20');
+  assert.strictEqual(r.ok, true);
+  assert.deepStrictEqual(r.vlans, [20]);
 });
 
 // ---------------------------------------------------------------------------

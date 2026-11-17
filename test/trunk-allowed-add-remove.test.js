@@ -210,5 +210,32 @@ console.log('What already worked still works, word for word:');
 }
 
 console.log('');
+console.log('A range typed backwards is refused, and the list it would have edited is untouched:');
+{
+  const L = session();
+  L.put('switchport trunk allowed vlan 10,20');
+  const set = L.put('switchport trunk allowed vlan 30-20');
+  ok(/^%/.test(set[0]), 'the set form is a refusal', set[0]);
+  ok(/30-20/.test(set[0]), 'it quotes the range that was typed', set[0]);
+  ok(/20-30/.test(set[0]), 'and names the order that would work', set[0]);
+  ok(JSON.stringify(L.allowed()) === '[10,20]', 'the allowed list is unchanged', JSON.stringify(L.allowed()));
+
+  const add = L.put('switchport trunk allowed vlan add 40-30');
+  ok(/^%/.test(add[0]), 'the add form is a refusal', add[0]);
+  ok(JSON.stringify(L.allowed()) === '[10,20]', 'adding nothing leaves 10,20', JSON.stringify(L.allowed()));
+
+  const remove = L.put('switchport trunk allowed vlan remove 40-30');
+  ok(/^%/.test(remove[0]), 'the remove form is a refusal', remove[0]);
+  ok(JSON.stringify(L.allowed()) === '[10,20]', 'removing nothing leaves 10,20', JSON.stringify(L.allowed()));
+
+  // The same list, written the way a switch writes it, still works - the refusal is about the order of the
+  // two ids, not about ranges.
+  const fine = L.put('switchport trunk allowed vlan 30-40');
+  ok(/allows VLANs 30-40/.test(fine[0]), 'the ascending range is still accepted', fine[0]);
+  ok(JSON.stringify(L.allowed()) === '[30,31,32,33,34,35,36,37,38,39,40]',
+    'and configures 30 through 40', JSON.stringify(L.allowed()));
+}
+
+console.log('');
 console.log(passed + ' passed, ' + failed + ' failed');
 process.exitCode = failed ? 1 : 0;
