@@ -524,3 +524,56 @@ book, plus the IOM slots that accept front-end modules on X8100 (2 U) and X9100 
 live section of `EDOC1100305240`, `EDOC1100368229` or `EDOC1100368230` fetched from a network the ALB does not
 bounce, or a stated configuration of the shape `X8100 node, 2 controllers, 4-port 10GE electrical module in
 IOM 0 and IOM 1`.
+
+## 12. The host does not refuse this network - it renders one document generation and 302s the rest
+
+Measured 2026-11-17 (third pass), one crawler user-agent, one session, minutes apart. The point of the table is
+that §11(c)'s "the host that serves them refuses this network" names the wrong cause, and that mis-naming sends
+the next pass hunting a proxy instead of the actual gap.
+
+| URL | result |
+|---|---|
+| `support.huawei.com/enterprise/en/doc/EDOC1100318730/ce945100/cabinet-layout-and-connection-planning` | **200, 567,916 B** |
+| `support.huawei.com/enterprise/en/doc/EDOC1100319420/5ee6c5f0/overview` | **200, 501,601 B** |
+| `support.huawei.com/enterprise/en/doc/EDOC1100319420/a9dbbf6/interface-module` | **200, 485,245 B** |
+| `.../EDOC1100305240/216dcdb5/cabinet-layout-and-connection-planning` | 302 -> `/view/notFound` |
+| `.../EDOC1100305242/4dbe1160/replacing-an-interface-module` | 302 -> `/view/notFound` |
+| `.../EDOC1100305200/4bd9b2a1/replacing-an-electrical-module` | 302 -> `/view/notFound` |
+| `.../EDOC1100368229?idPath=7919749\|251366268\|261607408\|251366267\|268353477` | 302 -> `/view/notFound` |
+| `.../EDOC1100368230?idPath=...` (X9000, X9100 Product Description) | 302 -> `/view/notFound` |
+| `.../EDOC1100305237?idPath=...` (X6000, X8000, X8100 Quick Installation Guide) | 302 -> `/view/notFound` |
+
+So the discriminator is the **document**, not the host and not the source address: this host renders the whole
+`1.3.0 ... (with Data Backup Feature)` set (`EDOC1100318xxx` / `EDOC1100319xxx`) to an anonymous crawler and
+refuses every book outside it. Consequence for #743: an ALB bypass or a fetch from another network cannot
+produce `EDOC1100305240` / `EDOC1100368229` / `EDOC1100368230`, because the viewer has no renderable version of
+those three to bypass *to*. What is needed is a reader with a session, not a different route.
+
+**The readable generation cannot be borrowed for X8100.** `EDOC1100319420/a9dbbf6/interface-module` was re-read
+in full this pass: the string `X8100` occurs **0** times and `X9100` **0** times in its 485,245 bytes (the book
+is titled *OceanProtect X6000, X8000 1.3.0 Product Description (with Data Backup Features)*). Its Interface
+Module chapter links exactly four modules - `10GE Electrical`, `SmartIO`, `25 Gbit/s RoCE`, `25 Gbit/s RDMA` -
+i.e. the X8000 census already modelled, and nothing about X8100's IOM population.
+
+**The archive route is dead, and it was dead in a way that also invalidates every indexed hash.** Wayback CDX
+(`web.archive.org/cdx/search/cdx?url=support.huawei.com/enterprise/en/doc/<ID>*`) holds exactly one capture
+across all three ids: `.../EDOC1100305240/216dcdb5/cabinet-layout-and-connection-planning`, timestamp
+`20250906080606`, status 200. That capture is the **6,698-byte SPA shell** - empty `<title>`, no server-rendered
+text, only the Wayback banner and a `bundle-playback.js` include. And the hash it carries (`216dcdb5`) answers
+302 -> `/view/notFound` live today, which is the general rule this pass confirms: a section hash recovered from
+a search index or an archive is **revision-scoped**, so it is not a durable pointer to a readable page even when
+the book is later opened.
+
+**`info.support.huawei.com` is not a second door.** It reproduces the same path shape
+(`/enterprise/<lang>/doc/<EDOC>/<hash>/<slug>`) and answers **302, 355 bytes, `Location: https://support.huawei.com/`**
+for every variant tried under Chrome 131, Bingbot, Googlebot and `curl/8.4.0` - including through `r.jina.ai`,
+whose `Final URL` is `https://support.huawei.com/supportindex/`. Confirms §11(c) on that host, with the
+correction above on this one.
+
+**Field still missing (#743), restated without the network clause:** the IOM slots that accept front-end
+interface modules on X8100 (2 U, 2 controllers) and on X9100 (4 U, 4 controllers), plus the port count of each
+10/25/40/100GE and 16/32/64 Gbit/s FC module as fitted to those two models. **What unblocks it:** any section of
+`EDOC1100368229`, `EDOC1100368230` or `EDOC1100305240` pasted by a reader with a support session; Huawei's
+Spare Parts Query output for the model (the Product Description defers the per-model module list to it); or a
+stated configuration of the shape `X8100 node, 2 controllers, 4-port 10GE electrical module in IOM 0 and IOM 1`,
+which converts in one step using the slot rules already transcribed above.
