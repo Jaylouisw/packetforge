@@ -260,7 +260,18 @@ jobs:
   test:
     name: Test (Node ${{ matrix.node }})
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    # 15 -> 10 minutes. `timeout-minutes` is a hard kill by the runner, and a hard kill
+    # takes the job's log with it, so what this number buys is the cost of an unexplained
+    # red rather than a safety margin: task 14236 (run 5616, Test (Node 20), pull request,
+    # 2026-11-17T21:47:39Z) was killed at exactly 900 s and its log is the string
+    # `dbfs open "actions_log/.../14236.log.zst": file does not exist`, while its Node 18
+    # and Node 22 siblings finished the same commit in 51 s and 45 s. 10 min is still
+    # more than eight times the slowest green leg measured over the last 120 (69 s), and
+    # above the two inner bounds that can legitimately run long (a 300 s checkout fetch, a
+    # 300 s suite plus its shutdown), so a working leg is never cut - a hung one costs two
+    # thirds of what it did. The steps below that had no bound of their own now have one;
+    # see the note above the static checks.
+    timeout-minutes: 10
     needs: changes
     # Skipped only for a pull request the API positively reports as merged or closed
     # (see the `liveness` step): the job cannot change an outcome there, and on a
@@ -436,21 +447,33 @@ jobs:
       #
       # So the second invocation goes, and only it: the script, its arguments and its exit
       # status are unchanged, and it still runs in every leg of the matrix.
+      # The three steps below and the two after the suite were the only places left in this
+      # job with no bound of their own, and that is what a kill at the job timeout costs: run
+      # 5616, task 14236 - dead at 900 s, and its log does not exist, so a red gate could not
+      # name the step that hung. A step that gives up on its own keeps its log and prints its
+      # own name (the suite does this at 300 s, the syntax check at 120 s), which is strictly
+      # more than the runner's kill leaves behind.
+      #
+      # Green, these five take 0.3-1.3 s in total - run 5664, tasks 14388-14390: the three
+      # static checks 22:10:51.4 -> 22:10:52.7, the two example steps 22:11:36.2 ->
+      # 22:11:36.9 - so 60 s and 120 s are two orders of magnitude of headroom, and a slow
+      # host cannot turn one of them red on time alone. Nothing is skipped, softened or
+      # retried: a timeout here is a red leg that names the step and how long it ran.
       - name: No API newer than the Node 18 floor
         # A green suite on the newest Node means nothing for the oldest matrix job, and that
         # failure reads like a flaky runner rather than "you used a Node 20 API".
-        run: node scripts/check-node-surface.js
+        run: timeout --signal=TERM --kill-after=10 60 node scripts/check-node-surface.js
       - name: Every project URL points at Forgejo
         # The project moved and the links did not follow: the README said to clone from GitHub and
         # SECURITY.md sent reports to a GitHub advisory page. Nothing failed, because a stale URL
         # looks like every other string in the repo.
-        run: node scripts/check-canonical-urls.js
+        run: timeout --signal=TERM --kill-after=10 60 node scripts/check-canonical-urls.js
       - name: Every job that builds an image bounds what it writes
         # See the `docker` job below: it builds against the host daemon, on the same volume
         # Forgejo stores its data on. When that volume filled up, the forge did not say "disk
         # full" - it refused pushes with `couldn't set 'refs/heads/...'` and stopped creating the
         # jobs that carry `needs:`, so pull requests sat armed against checks that did not exist.
-        run: node scripts/check-ci-disk-hygiene.js
+        run: timeout --signal=TERM --kill-after=10 60 node scripts/check-ci-disk-hygiene.js
       # The syntax check used to be its own step in the middle of the static checks, and
       # it sat in front of the suite for no reason. It is one `node --check` process per file, 339 of them, one
       # after another: measured in the runner image on this host (node:20-bookworm,
@@ -524,12 +547,13 @@ jobs:
           # later step might trip over, and nothing here needs to read it back.
           out="${RUNNER_TEMP:-/tmp}/syntax-check.log"
           # The suite is the one thing in this job that can wait forever, and until now it
-          # had no bound of any kind. `timeout-minutes: 15` at the top of the job is not the
-          # bound anyone thinks it is - this runner does not enforce it (the `changes` and
-          # `smoke` jobs were fixed for exactly this, see their notes) - so a leg whose suite
-          # never finishes holds a runner slot until something outside the runner kills the
-          # container. Three legs did that in the 24 h to 2026-11-17 18:20, and every one of
-          # them left no log at all, because the process was killed instead of exiting:
+          # had no bound of any kind. `timeout-minutes` at the top of the job is not the bound
+          # anyone wants: it reads 10 now, and when it fires the runner kills the container and
+          # the log dies with it - task 14236 (run 5616) ran exactly 900 s against the old 15
+          # and its log is the string `dbfs open "actions_log/.../14236.log.zst": file does
+          # not exist`. So a leg whose suite never finishes holds a runner slot and then
+          # reports nothing at all. Three legs did that in the 24 h to 2026-11-17 18:20, and
+          # every one of them left no log, because the process was killed instead of exiting:
           #   task 13665 (run 5449, Test (Node 20), push), cancelled 178 s in, and the log is
           #     dbfs open "actions_log/.../13665.log.zst": file does not exist
           #     - its Node 18 and Node 22 siblings ran the same commit in 60 s and went green;
@@ -567,9 +591,9 @@ jobs:
           fi
           [ "$test_rc" -eq 0 ] && [ "$syntax_rc" -eq 0 ]
       - name: Build & verify example labs
-        run: node examples/build-examples.js
+        run: timeout --signal=TERM --kill-after=10 120 node examples/build-examples.js
       - name: Every lab model exists in the catalogue
-        run: node scripts/missing-devices.js examples --no-issues
+        run: timeout --signal=TERM --kill-after=10 120 node scripts/missing-devices.js examples --no-issues
 
   smoke:
     name: Server smoke test
