@@ -908,10 +908,14 @@ Status codes: > best, * valid, r RIB-failure
 Origin codes: i - IGP, e - EGP, ? - incomplete
 
    Network          Next Hop      Metric LocPrf Weight Path
-*> 10.0.3.0/24      10.0.12.2          0    100      0 65002 65003 i
-*  10.0.3.0/24      10.0.13.3        200    100      0 65004 65003 i
-*> 10.0.1.0/24      0.0.0.0            0    100      0 i
+*> 10.0.3.0/24      10.0.12.2          0              0 65002 65003 i
+*  10.0.3.0/24      10.0.13.3        200              0 65004 65003 i
+*> 10.0.1.0/24      0.0.0.0            0              0 i
 ```
+
+The `LocPrf` column is blank here on purpose: every path in this table was learned over eBGP, and local
+preference is not carried across an eBGP boundary, so a box prints no value rather than the default 100
+([Cisco, BGP and Local Preference](https://community.cisco.com/t5/routing/bgp-and-local-preference/td-p/1082270)).
 
 `show ip bgp neighbors <ip> advertised-routes` adds the two columns that make
 policy debuggable, `Community` and `MED source`, because "why did my
@@ -919,7 +923,7 @@ policy debuggable, `Community` and `MED source`, because "why did my
 
 ```
    Network          Next Hop      Metric LocPrf Path              Communities
-*> 10.0.3.0/24      10.0.12.1        400  100    65001 65002 65003 no-export
+*> 10.0.3.0/24      10.0.12.1        400        65001 65002 65003 no-export
 ```
 
 `show route-map [<name>]` echoes the stored entries in CLI form so that

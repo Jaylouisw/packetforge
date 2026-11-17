@@ -4038,7 +4038,17 @@ class CliSession {
           network: r.dest + (len === null ? ' ' + r.mask : '/' + len),
           nextHop: r.nextHop || '-',
           metric: '0',
-          locPrf: '100',
+          // LocPrf is the LOCAL_PREF attribute, and the attribute only exists on a route that crossed an
+          // iBGP session: eBGP does not carry it, and neither does a locally originated network. A box
+          // therefore prints 100 in this column for an iBGP-learned route and a blank cell for an
+          // eBGP-learned one - the blank is not "no preference", it is "the attribute is not here"
+          // (Cisco, BGP and Local Preference: "show ip bgp show values (100) for routes advertised via
+          // iBGP and no values (blank) for routes advertised via eBGP",
+          // https://community.cisco.com/t5/routing/bgp-and-local-preference/td-p/1082270; the sample in
+          // Cisco's BGP Case Studies prints `*> 192.208.10.0 192.208.10.5 0 <blank> 0 300 i` for an
+          // external route, http://www.cisco.com/c/en/us/support/docs/ip/border-gateway-protocol-bgp/26634-bgp-toc.html).
+          // This console printed 100 on every row, which is a value a box never puts beside an eBGP path.
+          locPrf: r.session === 'ibgp' ? '100' : '',
           weight: '0',
           path: (r.asPath && r.asPath.length ? r.asPath.join(' ') + ' ' : '') + 'i',
           via: r.iface || '-',

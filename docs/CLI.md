@@ -1709,8 +1709,16 @@ When prefixes are installed, the table below says which ones:
 
 ```
 Network          Next Hop  Metric  LocPrf  Weight  Path     Session
-10.0.0.0/24      10.0.0.1  0       100     0       65001 i  eBGP
+10.0.0.0/24      10.0.0.1  0               0       65001 i  eBGP
 ```
+
+The `LocPrf` cell is empty on an eBGP-learned route, and `100` only where the path arrived over an iBGP
+session: local preference is an attribute carried inside an AS, eBGP does not pass it, and so a box prints
+nothing there rather than a number it never received ([Cisco, BGP and Local Preference](https://community.cisco.com/t5/routing/bgp-and-local-preference/td-p/1082270);
+the [BGP Case Studies](http://www.cisco.com/c/en/us/support/docs/ip/border-gateway-protocol-bgp/26634-bgp-toc.html)
+print an external route as `*> 192.208.10.0 192.208.10.5 0 <blank> 0 300 i`). This console printed `100` on
+every row, which is a value a box never puts beside an eBGP path. The cell is blank, not missing: `Weight`,
+`Path` and `Session` stay in their columns, so a row still parses.
 
 The prefix list and `show ip route`'s `B` rows describe the same routes, with the same prefix lengths — they
 are read together when a route is not being used.
