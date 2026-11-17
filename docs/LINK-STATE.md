@@ -127,7 +127,7 @@ test would fail on it, which is how that was caught.
 
 ## Tests
 
-- `test/link-state.test.js` — 67 assertions: a down link carries nothing and says where the frame
+- `test/link-state.test.js` — 69 assertions: a down link carries nothing and says where the frame
   died, `setLinkState` refusals, the tree healing around a failure, a network with no second path
   staying broken, the re-based schedule (nothing works at 11 s, works at 41 s), MAC table flush, the
   DHCP segment walk refusing to cross a cut cable, save/load, and the CLI surface.
