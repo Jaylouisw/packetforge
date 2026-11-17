@@ -47,28 +47,30 @@
     {
       "issue": 807,
       "models": "Huawei OptiXtrans E9605",
-      "missing": "the board-to-subrack matrix. Every frame's support page links `OptiXtrans E9600 Board Datasheet` (`EDOC1100163901`) and every anonymous route to it answers `view/notFound`, while a control section URL on the same host returns 200 - so the matrix is withheld, not unpublished.",
-      "unblock": "that one document. The frame arithmetic is already settled from vendor text, and the stated configuration is ready: E9605 (5x TNG1N210) = 50 x 10G.",
+      "missing": "the client-side port census of a service board valid in the E9605. The frame-to-board matrix is no longer the gap: `TNG2DAP` section 1.9 \"Valid Slots\" (vendor PDF, read 2026-11-17) gives E9605 = IU1-IU5, E9612 = IU1-IU13, E9624 = IU1-IU24, with IU6/IU7/IU18/IU19 unusable in 1:3 mode. What is still missing is one CLIENT board chapter: every indexed e-file chapter is an optical-layer board (TNG2DAP is a 5x LC EDFA), and `TNG1N206` / `TNG1N210` / `TNG1M*` chapters are not indexed on e.huawei.com or e-file.huawei.com.",
+      "unblock": "one `TNG1N*` or `TNG1M*` chapter PDF, or a stated configuration plus that board's Port Specifications table (e.g. \"E9605 with 5x TNG1N210\"). The board names print their own port counts - \"TNG1N210: 10 x 10 Gbit/s line service processing board\" - so the board half is one document away while the frame half is already sourced.",
       "checked": "2026-11-17",
       "sources": [
-        "https://support.huawei.com/enterprise/en/optical-transmission/optixtrans-e9605-pid-250732995"
+        "https://support.huawei.com/enterprise/en/optical-transmission/optixtrans-e9605-pid-250732995",
+        "https://e-file.huawei.com/marketingcloud/pep/asset/20000001/Material/e75c775ac71144e6b522d7cef1601604/M3T1A669N1188254864652623965/TNG2DAP%20-.pdf"
       ]
     },
     {
       "issue": 808,
       "models": "Huawei OptiXtrans E9612",
-      "missing": "the same board-to-subrack matrix (`EDOC1100163901`), plus the cross-connect mode, which decides whether the frame is modelled with 13 service slots or fewer.",
-      "unblock": "the board datasheet, and a stated cross-connect mode.",
+      "missing": "the same client board chapter (`TNG1N*` / `TNG1M*`). The frame half is vendor-sourced: E9612 = IU1-IU13 in `TNG2DAP` section 1.9, and the family specification table gives 13 service slots with `Cross-connect Type: NA`, so the slot count is mode-independent for this frame - unlike its E9624 sibling.",
+      "unblock": "one client board chapter (`TNG1N*` / `TNG1M*` Port Specifications), or a stated configuration on a board whose chapter exists. No protection mode is needed: 13 slots either way.",
       "checked": "2026-11-17",
       "sources": [
-        "https://support.huawei.com/enterprise/en/optical-transmission/optixtrans-e9612-pid-250733000"
+        "https://support.huawei.com/enterprise/en/optical-transmission/optixtrans-e9612-pid-250733000",
+        "https://e-file.huawei.com/marketingcloud/pep/asset/20000001/Material/e75c775ac71144e6b522d7cef1601604/M3T1A669N1188254864652623965/TNG2DAP%20-.pdf"
       ]
     },
     {
       "issue": 810,
       "models": "Huawei OptiXtrans E9624",
-      "missing": "the same board-to-subrack matrix (`EDOC1100163901`), plus the protection mode: 1:1 gives 12 large or 24 small slots, 1:3 gives 10 or 20, and slots IU6, IU7, IU18 and IU19 are unusable in 1:3 (read from `TNG2DAP`'s Valid Slots table).",
-      "unblock": "the board datasheet plus the protection mode to model.",
+      "missing": "the same client board chapter (`TNG1N*` / `TNG1M*`), plus the protection mode, which decides the port count: 1:1 gives 12 large or 24 small slots, 1:3 gives 10 or 20, and IU6/IU7/IU18/IU19 are unusable in 1:3. The frame arithmetic itself is settled and vendor-sourced (`TNG2DAP` section 1.9 and the E9600 family brochure).",
+      "unblock": "one client board chapter plus the protection mode to model (1:1 or 1:3). With both, the product is a stated card complement - `E9624 (24x <board>)` - and needs no guessing.",
       "checked": "2026-11-17",
       "sources": [
         "https://support.huawei.com/enterprise/en/optical-transmission/optixtrans-e9624-pid-250733004",
