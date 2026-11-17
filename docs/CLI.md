@@ -712,12 +712,12 @@ r1(config)#ip name-server 300.1.1.1
 r1(config)#ip default-gateway 300.1.1.1
 % Invalid default gateway "300.1.1.1": not an IPv4 address
 r1(config)#ip route 300.1.1.0 255.255.255.0 10.1.1.9
-% Invalid destination "300.1.1.0": not an IPv4 address
+% Invalid destination "300.1.1.0": not an IPv4 address (the form is `ip route <dest> <mask> <next-hop|interface>`)
 r1(config)#ip route 192.0.2.0 255.255.255.0 300.1.1.9
 % 192.0.2.0/24: "300.1.1.9" is neither a next-hop address nor an interface on ISR 4331 branch router-r1
 r1(config)#ip nat pool NP 300.1.1.1 300.1.1.9 netmask 255.255.255.0
 % Invalid pool address "300.1.1.1": not an IPv4 address
-r1(config-router)#neighbor 300.1.1.1 remote-as 65002
+r1(config)#neighbor 300.1.1.1 remote-as 65002
 % Invalid neighbor address "300.1.1.1": not an IPv4 address
 r1(config)#ospf router-id 300.1.1.1
 % Invalid router-id "300.1.1.1": not an IPv4 address
@@ -727,6 +727,13 @@ r1(config)#ospf router-id 300.1.1.1
 addresses as far as every caller was concerned, while `ip address`, `vrrp 1 ip` and `ping` refused them because they
 went through `ipToInt()` instead. One predicate now, and it asks the parser: an address that cannot exist is refused
 by every door, with the value quoted back.
+
+`router bgp <as>` is a statement in config mode, not a mode of its own: the prompt stays `r1(config)#` and the
+`neighbor` and `bgp` lines are typed there. This page used to print `r1(config-router)#` over the neighbour
+refusal, a prompt `prompt()` never returns - the console has no router sub-mode, and
+[BGP-POLICY.md](BGP-POLICY.md) makes the same choice for route maps ("There is no `(config-route-map)#`
+prompt"). An operator pasting that line into a real session would have been looking for a prompt their box
+never shows.
 
 Two neighbours of that rule live here too, because they are the same mistake in different clothes:
 
