@@ -374,8 +374,22 @@ jobs:
           esac
           echo "::error title=Test (Node ${want})::this leg is running ${got} - it would report coverage for a runtime it never tested"
           exit 1
-      - name: No control bytes in source
-        run: node scripts/check-control-bytes.js
+      # `node scripts/check-control-bytes.js` used to run here as its own step, and this is
+      # the one place in the workflow where a check really was paid for twice: `npm test`
+      # is `node scripts/audit-port-types.js && node scripts/check-control-bytes.js && node
+      # scripts/run-tests.js` (package.json), so the byte scan already runs as the second
+      # command of the step further down - same tree, same leg, same exit status. The leg
+      # fails either way, and it names the offending file either way.
+      #
+      # Measured on run 4834, job 2 (`Test (Node 20)`, 44.2 s from image start to
+      # `Job succeeded`): the standalone scan printed "No control bytes in source." at
+      # 06:17:18.394 and the copy inside `npm test` printed the identical line at
+      # 06:17:21.067 - the same check, twice, 1.1 s apart, inside one leg. At three legs a
+      # run and ~200 pull-request runs a day that is roughly 11 minutes of runner time a
+      # day spent re-answering a question the previous step had answered.
+      #
+      # So the second invocation goes, and only it: the script, its arguments and its exit
+      # status are unchanged, and it still runs in every leg of the matrix.
       - name: No API newer than the Node 18 floor
         # A green suite on the newest Node means nothing for the oldest matrix job, and that
         # failure reads like a flaky runner rather than "you used a Node 20 API".
