@@ -2369,7 +2369,7 @@ Ungrammatical, no subject, and phrased as if the command had removed something. 
 
 Writing it a different way first — `Access list 101 is not applied in on Gi0/0`, which reads fine — failed an existing check in `test/config-undo.test.js`, which had already pinned the house shape for this refusal. The repo's own test caught the deviation, so the new wording follows the neighbours instead of the other way round.
 
-`test/no-command-touches-only-what-it-names.test.js` holds all three: seven checks covering the four destructive `no` forms, the two forms that really do clear the priority, the "nothing set" answer, the help row, the three speed spellings, and both access-group sentences. With the old handler: 3 passed / 4 failed.
+`test/no-command-touches-only-what-it-names.test.js` holds all three: twelve checks today, covering the four destructive `no` forms, the two forms that really do clear the priority, the "nothing set" answer, the help row, the three speed spellings, both access-group sentences, and the five added since - `no channel-group` naming the group it does not touch, a bare `no channel-group` still meaning the group the port is in, a second `channel-group` moving the port rather than adding it, the bundle table's numeric order, and the set and `no` directions agreeing about per-VLAN spanning tree. It shipped with seven checks, and against the old handler those seven scored 3 passed / 4 failed.
 
 ### `no vlan 42 name ?` removed the VLAN
 
