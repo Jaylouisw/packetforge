@@ -235,3 +235,43 @@ would be a question, and one with a representative card set would be an invented
 The flat port list the catalogue uses has no way to express "8 slots, card-dependent", so this is
 also the one thing a catalogue change could fix later: a slot list plus a card list would let these
 six requests be modelled as chassis rather than parked.
+
+## The M8 has a vendor-stated build after all: its own measurement configuration (2026-11-17)
+
+The conclusion above - "the bare model has no ports, and a representative card set would be an invented
+order" - was right about the bare model and wrong about the vendor. Huawei does print a card complement
+for the M8, in the row it uses to state power and heat, and the row is complete:
+
+> Typical power consumption (with configuration) [W]
+> [IPU-2T4-A/IPU-2T4-E-B] `2*CR8DE1KB00M1(1*400GE)+1*CR8DE4NB00M1(4*100GE)+1*CR8DE8YF0025(8*25GE)+2*CR5D00LAXF91(10*10GE)` = 774.3 W
+
+Read on 2026-11-17 from the AC specification table of the vendor datasheet
+`https://e.huawei.com/marketingcloud/pep/asset/20000001/Material/e9dd06e260b64df683f6221fc8442cbf/M3T1A590N1140253824460255266/NetEngine%208000%20M8%20Universal%20Service%20Router%20Datasheet.pdf`
+(HTTP 200, `application/pdf`, 514,517 B) and cross-read in the Hardware Description's M8 model page
+`https://support.huawei.com/enterprise/en/doc/EDOC1100465701/e4ccf4a0/netengine-8000-m8` (HTTP 200 with a
+crawler user-agent, Tables 1-19/1-20).
+
+Two things make this row usable where the M6's typical configurations were not:
+
+1. **It closes the slot count exactly.** The AC chassis has six PIC slots (HD Table 1-14: `PIC AC: 2, 4-8`;
+   datasheet: "Number of slots 11, Number of service board slots 6") and this build carries six cards -
+   2 + 1 + 1 + 2. Nothing is left to choose, so no slot is silently empty and no card-to-slot assignment
+   has to be guessed.
+2. **Every card states its own port count and socket in its name**, which is where the numbers come from
+   rather than from a maximum: `CR8DE1KB00M1` "1-Port 400GBase-QSFP-DD Single-layer Physical Interface
+   Card(PIC)", `CR8DE4NB00M1` "4-Port 100GBase/50GBase-QSFP28 Physical Interface Card(PIC)",
+   `CR8DE8YF0025` "8-Port 25GE(SFP28)/10GE(SFP+) MACsec Physical Interface Card (PIC)", `CR5D00LAXF91`
+   "10-Port 10GE/GE LAN/WAN-SFP+ MACsec Physical Interface Card(PIC)" - all on
+   `https://support.huawei.com/enterprise/en/doc/EDOC1100465701/af1a855b/interface-card`.
+
+That build is `devices/huawei/netengine-8000-m8.json`: 34 ports (2x 400GE QSFP-DD, 4x 100GE/50GE QSFP28,
+8x 25GE/10GE SFP28, 20x 10GE/GE SFP+), and it closes #797.
+
+The DC chassis has its own stated build and it is a different population - seven cards against eight
+service slots (`2*CR8DE1KB00M1+1*CR8DE4NB00M1+1*CR8DE8YF0025+2*CR5D00LAXF91+1*CR5D00EAGF95(10*GE)` = 739.1 W),
+so one slot is empty in it. It is deliberately not folded into the AC entry; an M8 DC spec would need that
+row quoted as its own build.
+
+What this does **not** settle: which card sits in which PIC slot (the vendor does not print an order, so the
+spec's port names are flat rather than slot-numbered), and the M14, whose own datasheet was not read this
+pass - #799 stays open until it is.
