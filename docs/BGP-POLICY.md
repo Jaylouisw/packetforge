@@ -64,16 +64,16 @@ The anchors:
 
 | Anchor | Today | This design changes it to |
 |---|---|---|
-| `bgp.js:56-58` | `DEFAULT_LOCAL_PREF = 100`, `DEFAULT_WEIGHT = 0`, `DEFAULT_MED = 0` | keep; add `MED_MAX`, `LOCAL_PREF_MAX`, `WEIGHT_MAX`, `WELL_KNOWN_COMMUNITIES` |
+| `bgp.js:57-59` | `DEFAULT_LOCAL_PREF = 100`, `DEFAULT_WEIGHT = 0`, `DEFAULT_MED = 0` | keep; add `MED_MAX`, `LOCAL_PREF_MAX`, `WEIGHT_MAX`, `WELL_KNOWN_COMMUNITIES` |
 | `bgp.js:490-521` `comparePaths(a, b)` | 9 steps — weight, `LOCAL_PREF`, locally originated, AS-path length, `ORIGIN`, MED, eBGP over iBGP, the advertising speaker's router ID, then the peer address (`fromIp`) — with MED compared unconditionally (declared simplification in the file header comment, lines 18-19) | MED only within a neighbouring AS; optional `opts` third argument |
-| `bgp.js:469-489` `compareForBest` / `bestPath` | sort with `comparePaths`, then router-id, then prefix | RFC 4271 §9.1.2.2 *elimination pipeline* (a sortable comparator cannot express the MED rule — see §4.5) |
-| `bgp.js:495-540` `advertise(routes, opts)` | prepends AS on eBGP, sets next hop, copies `localPreference` and `med` unconditionally | strip `LOCAL_PREF` on eBGP, apply the MED non-transitivity rule, apply community suppression, honour `nextHopSelf` |
-| `bgp.js:304-317` `pathIsLoopFree` | correct already (AS_SET members included) | keep, no change |
-| `simulator.js:1833-1877` advertisement loop | `if (e.from === adj.peer.dev.id) continue;` (line 1839), prepend at 1845, the next hop at 1850, and the iBGP→iBGP suppression at 1844 (landed with #41, §6.3) | call `advertise()`/`applyRouteMap()` instead of re-deriving AS path and next hop; keep the iBGP→iBGP suppression |
-| `cli.js:1288-1306` config-mode BGP dispatch | `router bgp` / `no router bgp` / `neighbor` / `bgp` | add `route-map`, `match`, `set` branches |
-| `cli.js:2074` `_bgp(tokens)` | `as`, `router-id`, `<ip> remote-as` | add `always-compare-med`, `default local-preference`, `<ip> route-map`, `<ip> next-hop-self` |
-| `cli.js:2143` `this._dnsZone` | sticky "current zone" context, no new prompt mode | same pattern for the current route-map (§9.2) |
-| `cli.js:5882` `_help()` | command list | add the new lines |
+| `bgp.js:554-574` `compareForBest` / `bestPath` | sort with `comparePaths`, then router-id, then prefix | RFC 4271 §9.1.2.2 *elimination pipeline* (a sortable comparator cannot express the MED rule — see §4.5) |
+| `bgp.js:588-625` `advertise(routes, opts)` | prepends AS on eBGP, sets next hop, copies `localPreference` and `med` unconditionally | strip `LOCAL_PREF` on eBGP, apply the MED non-transitivity rule, apply community suppression, honour `nextHopSelf` |
+| `bgp.js:305-318` `pathIsLoopFree` | correct already (AS_SET members included) | keep, no change |
+| `simulator.js:1887-1940` advertisement loop | `if (e.from === adj.peer.dev.id) continue;` (line 1896), prepend at 1902, the next hop at 1907, and the iBGP→iBGP suppression at 1901 (landed with #41, §6.3) | call `advertise()`/`applyRouteMap()` instead of re-deriving AS path and next hop; keep the iBGP→iBGP suppression |
+| `cli.js:1396-1414` config-mode BGP dispatch | `router bgp` / `no router bgp` / `neighbor` / `bgp` | add `route-map`, `match`, `set` branches |
+| `cli.js:2150` `_bgp(tokens)` | `as`, `router-id`, `<ip> remote-as` | add `always-compare-med`, `default local-preference`, `<ip> route-map`, `<ip> next-hop-self` |
+| `cli.js:2219` `this._dnsZone` | sticky "current zone" context, no new prompt mode | same pattern for the current route-map (§9.2) |
+| `cli.js:6036` `_help()` | command list | add the new lines |
 
 Design invariants that must survive the change, because every existing test
 relies on them:
@@ -278,7 +278,7 @@ only way to catch this class of bug.
 |---|---|---|---|---|---|
 | 1 | `weight` | higher wins | 0 | — (not in RFC 4271) | Router-local, never on the wire. Kept because `comparePaths()` already implements it and the existing tests depend on it (`test/bgp.test.js:388-396`). |
 | 2 | `LOCAL_PREF` | higher wins | 100 | §9.1.1 + §9.1.2 + §5.1.5 | **First attribute tiebreaker, before AS-path length.** For iBGP this is the Phase-1 degree of preference, not a §9.1.2.2 tie-break (§2.3). |
-| 3 | locally originated | wins | — | §5.1.2(b) (originated routes carry an empty AS_PATH to iBGP) | Vendor convention, implemented via `isLocalPath()` (`bgp.js:343-350`). Strictly it is subsumed by step 4 (length 0), so it can only matter against another zero-length path. |
+| 3 | locally originated | wins | — | §5.1.2(b) (originated routes carry an empty AS_PATH to iBGP) | Vendor convention, implemented via `isLocalPath()` (`bgp.js:346-352`). Strictly it is subsumed by step 4 (length 0), so it can only matter against another zero-length path. |
 | 4 | AS_PATH length | shorter wins | 0 | §9.1.2.2(a) | **An AS_SET counts as 1 hop regardless of size.** |
 | 5 | `ORIGIN` | lower wins | 2 (`INCOMPLETE`) | §9.1.2.2(b) | `IGP(0) < EGP(1) < INCOMPLETE(2)`, `BGP_ORIGIN`. |
 | 6 | `MED` | lower wins | 0 | §9.1.2.2(c) | **Only within one neighbouring AS** unless `always-compare-med`. Absent = 0. |
@@ -289,7 +289,7 @@ only way to catch this class of bug.
 
 After step 9 a **simulator-only** guard breaks what is left: lowest prefix
 string, then insertion order. It is not a BGP rule, it exists so `bestPath()`
-is a pure function of its input set (`bgp.js:469-475`, `comparePrefix`).
+is a pure function of its input set (`bgp.js:539-552`, `comparePrefix`).
 
 ### 4.2 Deliberately skipped RFC steps
 
@@ -494,7 +494,7 @@ included), the route is **not** eligible for Phase 2 and never reaches the RIB.
 > attribute), and checking that the autonomous system number of the local system
 > does not appear in the AS path."
 
-`pathIsLoopFree()` (`bgp.js:304-317`) already implements this correctly,
+`pathIsLoopFree()` (`bgp.js:305-318`) already implements this correctly,
 including AS_SET members and the "unparseable AS can never match" case. Reuse
 it; do not rewrite it. The check runs **after** the inbound route-map (policy
 cannot clear an AS_PATH in this grammar) and **before** the route enters
@@ -524,7 +524,7 @@ code comment, because a reader will otherwise delete it:
   would *not* catch it. There the `from` check is the only thing preventing a
   route from being handed straight back to the neighbour that sent it.
 
-This is exactly what `simulator.js:1839` does today
+This is exactly what `simulator.js:1896` does today
 (`if (e.from === adj.peer.dev.id) continue;`) and it must stay.
 
 ### 6.3 L3 — never re-advertise an iBGP-learned route to another iBGP peer
@@ -535,18 +535,18 @@ This is exactly what `simulator.js:1839` does today
 > acts as a BGP Route Reflector [RFC2796])."
 
 **`computeBgp()` implements this** — this paragraph used to say it did not.
-The Phase-3 loop at `simulator.js:1833-1877` advertises every best path to
+The Phase-3 loop at `simulator.js:1887-1940` advertises every best path to
 every adjacency except the one it came from, and asks the session type before
 it does:
 
 ```js
 // RFC 4271 9.2: a route learned over iBGP is not relayed to other iBGP peers
 // (no route reflectors in this layer).
-if (adj.type === 'ibgp' && e.session === 'ibgp') continue;   // engine/simulator.js:1844
+if (adj.type === 'ibgp' && e.session === 'ibgp') continue;   // engine/simulator.js:1901
 ```
 
 The rule landed with #41, together with the next-hop half of it (NH-1: an iBGP
-relay no longer points the route at itself, `simulator.js:1850`), and
+relay no longer points the route at itself, `simulator.js:1907`), and
 `test/protocol-regression.test.js:329-333` pins both: R3 must not see R1's
 prefix through R2, and the route R2 does hold names the originator as its next
 hop. Before #41 a route was relayed one iBGP hop further than the RFC allows,
@@ -571,8 +571,8 @@ L2 still has none of its own.
   as 1, no matter how many ASes are in the set.")
 - Loop detection: every member of an AS_SET is scanned, so an AS_SET containing
   the local AS is a loop.
-- Both are already correct in `asPathLength()` (`bgp.js:271-286`) and
-  `pathIsLoopFree()` (`bgp.js:308-317`).
+- Both are already correct in `asPathLength()` (`bgp.js:272-287`) and
+  `pathIsLoopFree()` (`bgp.js:305-318`).
 
 ### 6.5 L5 — what is explicitly *not* implemented
 
@@ -646,7 +646,7 @@ if (nh !== null && parseIp(nh) === parseIp(opts.peerIp)) nh = opts.localIp;
 
 `advertise(routes, opts)` is the single reference implementation of the export
 side. `computeBgp()` must call it instead of re-deriving the AS path at
-`simulator.js:1845` and the next hop at `:1850`. Order inside `advertise()`:
+`simulator.js:1902` and the next hop at `:1907`. Order inside `advertise()`:
 
 1. resolve session type (`ebgp` / `ibgp`) — from `opts.type`, else `peerAs`;
 2. **AS_PATH**: eBGP prepends the local AS (`[localAs].concat(path)`), iBGP does
@@ -725,7 +725,7 @@ Refusals are config-time CLI errors, not silent drops:
 | `match community <c>` | true if the route's community set **contains** `c` (subset semantics, RFC 1997 gives no ordering) |
 | `match community <c> [<c> ...]` | true if **any** listed community is present |
 | `match community <c> exact` | true only if the route's set is exactly the listed set |
-| `match community` with no operand | CLI error: `% Incomplete command` (matches existing style, `cli.js:1221`, `:1345`) |
+| `match community` with no operand | CLI error: `% Incomplete command` (matches existing style, `cli.js:1296`, `:1457`) |
 
 Prefix-list / as-path-list / `match ip address` are out of scope for this
 layer. `match ip address <acl>` is the obvious next addition because
@@ -745,7 +745,7 @@ exactly — no new prompt mode, no new tokenizer, no change to `prompt()`.
 ### 9.1 Config mode — dispatch additions
 
 ```js
-// in _configMode(), next to the existing BGP branches (cli.js:1288-1306)
+// in _configMode(), next to the existing BGP branches (cli.js:1396-1414)
 } else if (head === 'route-map') {
   out.push.apply(out, this._routeMap(tokens.slice(1)));
 } else if (head === 'no' && tokens[1] === 'route-map') {
@@ -758,7 +758,7 @@ exactly — no new prompt mode, no new tokenizer, no change to `prompt()`.
 ```
 
 `neighbor ...` never reaches these branches: `head === 'neighbor'` is already
-routed to `_bgp(tokens.slice(1))` at `cli.js:1303-1304`, so
+routed to `_bgp(tokens.slice(1))` at `cli.js:1411-1412`, so
 `neighbor <ip> route-map <name> in` is parsed inside `_bgp`, exactly like
 `neighbor <ip> remote-as <as>`.
 
@@ -767,7 +767,7 @@ routed to `_bgp(tokens.slice(1))` at `cli.js:1303-1304`, so
 There is no `(config-route-map)#` prompt. `route-map NAME permit 10` sets
 `this._routeMap = { name, seq, action }`, and subsequent bare `match` / `set`
 commands in config mode apply to it. This mirrors `this._dnsZone`
-(`cli.js:2044`), the existing precedent for a sticky sub-context, and keeps
+(`cli.js:2200`), the existing precedent for a sticky sub-context, and keeps
 `prompt()` and the four mode constants untouched. `this._routeMap` is cleared by
 `exit`/`end` (mode change to exec) and by `no route-map` on the same name.
 
@@ -821,7 +821,7 @@ duplicates" behaviour already required of `neighbor ... remote-as`
 
 ### 9.4 `_help()` additions
 
-Append these lines to `_help()` (`cli.js:5882`), keeping the existing column
+Append these lines to `_help()` (`cli.js:6036`), keeping the existing column
 alignment:
 
 ```
@@ -869,7 +869,7 @@ alignment:
 
 `bgp.js` must export the new helpers so they can be unit-tested without a
 topology, in the same flat style as the current export list
-(`bgp.js:601-619`):
+(`bgp.js:686-705`):
 
 ```
 DEFAULT_LOCAL_PREF, DEFAULT_MED, DEFAULT_WEIGHT,
@@ -884,7 +884,7 @@ advertise, nextHopFor, ingressPath, applyRouteMap
 ### 9.6 Observability
 
 `computeBgp()` already emits one `{type:'bgp'}` event per established session
-(`simulator.js:1796-1805`). Add, on `device.bgpPolicyStats`:
+(`simulator.js:1850-1858`). Add, on `device.bgpPolicyStats`:
 
 ```
 { deniedIn, deniedOut, localPrefIgnored, noExportSuppressed,
@@ -1098,8 +1098,8 @@ Named exactly, so the implementer does not have to hunt:
 | `test/bgp.test.js:351-353` | key list has 7 keys | 8 keys: add `communities` |
 | `test/bgp.test.js:452` | MED 900 eBGP vs MED 0 iBGP, `> 0` | **unchanged** — `mkPath()` gives both paths `asPath:[65001]`, so they share a neighbour AS and are comparable |
 | `test/bgp.test.js:439-442` | MED 10 vs 50 | **unchanged**, same reason |
-| `simulator.js:1845` / `:1850` | AS path and next hop derived inline; the next hop is already session-aware (NH-1, #41) | call `advertise()` — behaviour identical for eBGP |
-| `simulator.js:1833-1877` | suppresses iBGP→iBGP (line 1844, #41) | **nothing to change** — the §6.3 suppression landed with #41 and `test/protocol-regression.test.js:329-333` pins it |
+| `simulator.js:1902` / `:1907` | AS path and next hop derived inline; the next hop is already session-aware (NH-1, #41) | call `advertise()` — behaviour identical for eBGP |
+| `simulator.js:1887-1940` | suppresses iBGP→iBGP (line 1901, #41) | **nothing to change** — the §6.3 suppression landed with #41 and `test/protocol-regression.test.js:329-333` pins it |
 
 `test/bgp-wire.test.js` is all-eBGP and should pass untouched; that is the
 regression gate for "the policy layer did not break plain BGP".
