@@ -84,6 +84,9 @@ const CASES = [
   ['ip dhcp (config)', 'r', ['ip dhcp ' + WORD]],
   ['ip route', 'r', ['ip route ' + WORD]],
   ['ip name-server', 'r', ['ip name-server ' + WORD]],
+  // The word after a *valid* `ip address` line, which the sweep had no case for while the handler dropped
+  // it: `ip address 10.0.0.1 255.255.255.0 flurbish` set the address and never mentioned the word.
+  ['ip address (router)', 'r', ['interface {RP1}', 'ip address 10.0.0.1 255.255.255.0 ' + WORD]],
   ['scion', 'r', ['scion ' + WORD]],
   ['speed', 'r', ['interface {RP1}', 'speed ' + WORD]],
   ['speed (switch)', 's', ['interface {SP1}', 'speed ' + WORD]],

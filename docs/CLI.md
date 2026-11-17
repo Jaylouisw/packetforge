@@ -363,8 +363,10 @@ known, what is inferred and what would settle the rest is in
 
 | Command | Effect |
 |---------|--------|
-| `ip address <ip> <mask>` | assign an IP (e.g. `192.168.1.1 255.255.255.0`); the mask must be a run of ones then zeros and may be written as a prefix length (`24`), and the address must be a host address of that subnet (not its network or broadcast address, except on a `/31`) |
-| `no ip address` | remove the IP |
+| `ip address <ip> <mask>` | assign an IP (e.g. `192.168.1.1 255.255.255.0`); the mask must be a run of ones then zeros and may be written as a prefix length (`24`), and the address must be a host address of that subnet (not its network or broadcast address, except on a `/31`). No word may follow the mask: IOS's syntax is `ip address ip-address mask [secondary]`, and
+`secondary` adds a second address rather than replacing the primary - which this model, one address per port,
+cannot honour, so `secondary` is refused by name and every other word is refused with the word quoted |
+| `no ip address` | remove the IP; the line takes no argument, so `no ip address <word>` is refused and nothing is removed |
 | `clock rate <bps>` | (serial only) make this end the DCE and clock the line, e.g. `clock rate 64000`. Refused on a non-serial port, and for a rate the port cannot clock |
 | `no clock rate` | drop the clock, leaving this end as DTE |
 | `ip address dhcp` | make the port a DHCP client; the address it ends up with is the outcome of the exchange, not part of the configuration |
@@ -386,6 +388,18 @@ it held an address it did not own, `show ip interface brief` reported Method `DH
 `show running-config` printed only the static line, so restoring the backup lost the DHCP intent. `no ip
 address` now names what it removed (`IP address 10.0.0.9/24 removed`, `DHCP client removed`), or refuses when
 there is nothing to remove.
+
+**The line ends at the mask.** `ip address <ip> <mask>` reads one optional word after the mask, `secondary`, and
+nothing else. Cisco's reference gives that syntax and says what the word buys - "An interface can have one
+primary IP address and multiple secondary IP addresses" - and its worked example prints the primary beside two
+`secondary` lines, so the keyword adds an address instead of replacing one
+([`ip address` command reference](https://www.cisco.com/E-Learning/bulk/public/tac/cim/cib/using_cisco_ios_software/cmdrefs/ip_address.htm)).
+This console used to drop the word and set the address anyway, which made `ip address 10.0.0.2 255.255.255.0
+secondary` a *replacement* of the primary reported as `IP address set`. One port here holds one address, so the
+keyword cannot be honoured: it is refused by name (`% ip address <ip> <mask> secondary adds a second address to
+this port, which this console does not model: one address per port, and the address was not changed`), any other
+word is refused with the word quoted, and in both cases nothing is written. The same silence covered `ip address
+dhcp 5` and `no ip address foo`, which are refused the same way.
 
 `show running-config` prints the **method**, not the outcome: a host that has leased `10.0.0.100` prints `ip
 address dhcp`, because a backup that bakes in a leased address claims that address on any network it is

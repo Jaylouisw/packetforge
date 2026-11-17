@@ -1718,6 +1718,14 @@ class CliSession {
     }
     if (head === 'ip' && tokens[1] === 'address') {
       if (tokens[2] === 'dhcp') {
+        // `ip address dhcp` is the whole line. A word after it was swallowed and the port was still put
+        // into DHCP client mode, so `ip address dhcp 10.0.0.5` - a line somebody writes when they mean
+        // `ip address 10.0.0.5` - read as a request for a leased address and said nothing about the
+        // number it dropped.
+        if (tokens[3]) {
+          return ['% ip address dhcp takes no argument: the word "' + tokens.slice(3).join(' ') +
+            '" was not used, and the port was not changed'];
+        }
         // A port has one method, and this used to leave both: `ip address dhcp` set the DHCP flag while the
         // static address stayed on the interface. Three surfaces then disagreed - the port held an address it
         // did not own, `show ip interface brief` reported Method DHCP beside that address, and
@@ -1738,6 +1746,35 @@ class CliSession {
         // pointing at the wrong argument (#1249).
         if (!net.isContiguousMask(mask)) {
           return ['% Invalid mask: ' + mask + ' - a netmask is a run of ones then zeros (255.255.255.0, or 24)'];
+        }
+        // The line documents one optional word after the mask and no more: `ip address ip-address mask
+        // [secondary]` (Cisco, `ip address` command reference: "An interface can have one primary IP
+        // address and multiple secondary IP addresses",
+        // https://www.cisco.com/E-Learning/bulk/public/tac/cim/cib/using_cisco_ios_software/cmdrefs/ip_address.htm),
+        // and any other word is a parse error rather than a success - `% Invalid input detected at '^'
+        // marker.`, the message Cisco's CLI chapter defines as "you entered the command incorrectly",
+        // with the caret under the word it could not read
+        // (https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/fundamentals/configuration/xe-16-6/fundamentals-xe-16-6-book/cf-cli-basics.pdf).
+        //
+        // This console swallowed the word and applied the address anyway. For one word in particular
+        // that was the wrong change and not merely a silent one: `ip address 10.0.0.2 255.255.255.0
+        // secondary` on a box ADDS a second address and leaves the primary in place - Cisco's own
+        // worked example prints 131.108.1.27 as primary with two `secondary` lines beside it - while
+        // here it replaced the primary and reported "IP address set", so a port that had 10.0.0.1/24
+        // came back holding 10.0.0.2/24 and nothing said the first address was gone.
+        //
+        // A second address on one port is not modelled (one address per port, the same one the front
+        // panel and `show ip interface brief` print), so `secondary` cannot be honoured. It is refused
+        // by name and nothing is changed, which is the honest answer: the alternative - treating it as
+        // "set the primary" - is the bug this replaces.
+        if (tokens[4]) {
+          const extra = tokens.slice(4).join(' ');
+          if (String(tokens[4]).toLowerCase() === 'secondary') {
+            return ['% ip address <ip> <mask> secondary adds a second address to this port, which ' +
+              'this console does not model: one address per port, and the address was not changed'];
+          }
+          return ['% ip address takes an address and a mask, and then only "secondary": the word "' +
+            extra + '" was not used, and the address was not changed'];
         }
         // Store the dotted form whichever way it was typed: a port left holding "24" reads as /2 to
         // anything that parses a dotted mask, the front panel included.
@@ -1761,6 +1798,13 @@ class CliSession {
           (wasDhcp ? ' (DHCP client removed)' : ''));
       }
     } else if (head === 'no' && tokens[1] === 'ip' && tokens[2] === 'address') {
+      // `no ip address` takes no argument: it removes what the port holds. A word after it was dropped
+      // and the address was removed anyway, so a typo in a line meant to *remove a named secondary*
+      // address took the primary with it.
+      if (tokens[3]) {
+        return ['% no ip address takes no argument: it removes the address this port holds (the word "' +
+          tokens.slice(3).join(' ') + '" was not used, and nothing was removed)'];
+      }
       // "IP address removed" was the answer whether or not there was one to remove, and whether the port was
       // asking DHCP for one or not.
       const hadIp = iface.ip ? iface.ip + '/' + require('./net').prefixOf(iface.mask) : null;
