@@ -811,7 +811,7 @@ Now:
   lease was granted`. With a clock the same rows read `60s` and `lapsed (address free)` again, exactly as before.
 
 `test/dhcp-leases-survive-save.test.js` pins it, 32 checks; reverting `engine/` fails 12. Neighbours green: `dhcp` 134,
-`dhcp-bindings` 51, `dhcp-pool-undo` 51, `state-payload-complete` 16, `flows-survive-save-load` 16,
+`dhcp-bindings` 67, `dhcp-pool-undo` 51, `state-payload-complete` 16, `flows-survive-save-load` 16,
 `spec-survives-load` 32, `examples-generated` 21.
 
 ### A config that claimed lines nobody typed
@@ -944,7 +944,7 @@ box's ARP claim and logs it (`%IP-4-DUPADDR`), and modelling that is a new proto
 telling the truth about data it already had — so it is left for a decision, not smuggled in here.
 
 `test/arp-conflict.test.js` pins it, 26 checks; reverting `engine/` fails 10. Neighbours green: `show-arp` 28,
-`arp-ageing` 31, `runtime-agreement` 10, `show-argument-refusal` 77, `show-ip-spellings` 70, `dhcp-bindings` 51,
+`arp-ageing` 31, `runtime-agreement` 10, `show-argument-refusal` 77, `show-ip-spellings` 70, `dhcp-bindings` 67,
 `lldp` 27, `vrrp` 94, `ping-ipv6` 43.
 
 ### The log named a mechanism instead of saying what happened
