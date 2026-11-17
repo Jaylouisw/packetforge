@@ -523,18 +523,46 @@ jobs:
           # Outside the working tree: a log file in the repo root is one more thing a
           # later step might trip over, and nothing here needs to read it back.
           out="${RUNNER_TEMP:-/tmp}/syntax-check.log"
-          node scripts/syntax-check.js > "$out" 2>&1 &
+          # The suite is the one thing in this job that can wait forever, and until now it
+          # had no bound of any kind. `timeout-minutes: 15` at the top of the job is not the
+          # bound anyone thinks it is - this runner does not enforce it (the `changes` and
+          # `smoke` jobs were fixed for exactly this, see their notes) - so a leg whose suite
+          # never finishes holds a runner slot until something outside the runner kills the
+          # container. Three legs did that in the 24 h to 2026-11-17 18:20, and every one of
+          # them left no log at all, because the process was killed instead of exiting:
+          #   task 13665 (run 5449, Test (Node 20), push), cancelled 178 s in, and the log is
+          #     dbfs open "actions_log/.../13665.log.zst": file does not exist
+          #     - its Node 18 and Node 22 siblings ran the same commit in 60 s and went green;
+          #   task 12050 (run 4949, Test (Node 20), push), 180 s, the same missing-log line;
+          #   task 10661 (run 4536, Test (Node 18), push), 349 s, the same.
+          # That is a red gate nobody can diagnose, and ~12 minutes of a shared runner in a
+          # day. So the bound lives in the step, at 300 s. Green legs are 46-69 s over the last
+          # 120 (median 54 s) and the suite alone 44.6-47.5 s (runs 5439, 5456, same host), so
+          # 300 s is more than four times the slowest green leg: a slow but working suite still
+          # passes, and the 16-way harness cap means a leg cannot be slow because it queued.
+          # A hung one is still red - it just stops holding the slot, and it keeps its log,
+          # because Node is signalled and the step exits with its own status. `timeout` puts
+          # the child in its own process group, so npm's chain - and the suite that hung - dies
+          # with it, and --kill-after escalates if the suite ignores SIGTERM.
+          # The syntax check gets 120 s on the same argument (18.6 s measured for the whole
+          # tree). Nothing is skipped, retried or weakened: same suites, same commit, same exit
+          # status, and a timeout is reported as a timeout rather than as a failing assertion.
+          timeout --signal=TERM --kill-after=15 120 node scripts/syntax-check.js > "$out" 2>&1 &
           syntax_pid=$!
-          npm test
+          timeout --signal=TERM --kill-after=15 300 npm test
           test_rc=$?
           wait "$syntax_pid"
           syntax_rc=$?
           echo "--- node scripts/syntax-check.js ---"
           cat "$out"
-          if [ "$syntax_rc" -ne 0 ]; then
+          if [ "$syntax_rc" -eq 124 ] || [ "$syntax_rc" -eq 137 ]; then
+            echo "::error title=Syntax check (all JS)::node scripts/syntax-check.js was still running after 120 s and was stopped - a green run takes ~19 s"
+          elif [ "$syntax_rc" -ne 0 ]; then
             echo "::error title=Syntax check (all JS)::node scripts/syntax-check.js exited ${syntax_rc}"
           fi
-          if [ "$test_rc" -ne 0 ]; then
+          if [ "$test_rc" -eq 124 ] || [ "$test_rc" -eq 137 ]; then
+            echo "::error title=Full test suite::npm test was still running after 300 s and was stopped - a green leg takes 46-69 s here, so this is a hung suite, not a slow one; the suites that had already reported are above"
+          elif [ "$test_rc" -ne 0 ]; then
             echo "::error title=Full test suite::npm test exited ${test_rc}"
           fi
           [ "$test_rc" -eq 0 ] && [ "$syntax_rc" -eq 0 ]
