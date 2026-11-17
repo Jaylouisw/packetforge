@@ -463,3 +463,64 @@ management modules of three GE ports each. Ports per module remain absent from e
 front-end module type; for #743, the ports per module for the 10/25/40/100GE and 16/32/64 Gbit/s FC modules from an
 OceanProtect book. One indexed section of `EDOC1100486186`, `EDOC1100485347` or `EDOC1100486185`, or a stated
 ordering configuration, unblocks them; the Dorado tables do not.
+
+## 11. C33 is a PDF now and still has no port row; the V200R001 books are re-issues of the
+##     1.3.0 ids; and the host that serves them refuses this network
+
+Three things settled on 2026-11-17 (second pass). None of them close #743.
+
+**(a) The newest X8100/X9100 datasheet was read end to end and does not carry the census.**
+
+`https://e.huawei.com/en/documents/products/storage/7450a63331f44a35a6d85d42bc2b79ed` (HTTP 200, 337 KB) gives
+*Huawei OceanProtect X8100 X9100 Appliance Data Sheet V200R001C33 (2026 H2)*, asset
+`https://e-file.huawei.com/marketingcloud/pep/asset/20000001/Material/7450a63331f44a35a6d85d42bc2b79ed/M3T1A590N1319414983213645852/Huawei OceanProtect X8100 X9100 Appliance Data Sheet V200R001C33 _2026 H2_.pdf`
+- 743,373 B, PDF 1.6, **11 pages**. A PDF this time, where the C30 revision read earlier
+(`.../documents/products/storage/78d3796f54df4f30a2f0cbd5d7b938e8`, 200, 266,908 B) links a 5-slide pptx.
+
+Rows, in full: number of controllers, CPU, memory, physical/logical/recovery bandwidth per node and per system,
+usable capacity, data disk types, `Front-End Port Types | 16/32/64 Gbit/s Fibre Channel; 10/25/40/100GE`,
+front-end storage protocols, RAID levels, software functions, data reduction ratio, system management, power
+supply (C13 / C19), dimensions, weight, operating temperature and humidity. The string `slot` occurs **0** times
+and `IOM` **0** times in the file; `Front-End Port Types` occurs 3 times (one per spec-table rendering). Two
+datasheet revisions in a row publish port *types* and no port count.
+
+**(b) The book ids already in this thread are the right ones - the set was re-issued, not replaced.**
+
+`https://support.huawei.com/enterprise/en/data-protection/oceanprotect-x8100-pid-268353477` (200, 420,418 B,
+crawler UA) lists `OceanProtect X6000, X8000, X8100 Backup Storage 1.6.0-1.7.0 & V200R001 Product Description`
+-> `EDOC1100368229`, `OceanProtect X6000, X8000, X8100 Backup Storage 1.x & V200R001 Hardware Installation Guide`
+-> `EDOC1100305240`, package -> `EDOC1100368651`. The 1.3.0-era ids now carry "1.x and V200R001" titles over the
+same hardware: `EDOC1100305200` is titled *OceanProtect Backup Storage 1.x and V200R001 Parts Replacement*, and
+`EDOC1100305241`'s About This Document table reads
+`OceanProtect X3000 | 1.3.0 1.5.0 1.6.0 1.7.0 V200R001C10`. So `EDOC1100305240` is a multi-model HIG covering
+X8100's IOM rules - the id in the thread is correct and the missing item is one section slug.
+
+**(c) The block is an ALB header rule on `info.support.huawei.com`, not a login wall and not a 404.**
+
+This generation is served on `info.support.huawei.com` only. Measured today from this host, the section URLs the
+search index holds -
+
+- `https://info.support.huawei.com/enterprise/en/doc/EDOC1100305200/4bd9b2a1/replacing-an-electrical-module`
+- `https://info.support.huawei.com/enterprise/en/doc/EDOC1100305241/48cd803f/safety-precautions-for-operating-equipment`
+- `https://info.support.huawei.com/enterprise/en/doc/EDOC1100305241` (bare root, no section)
+
+- answer **HTTP 302, 355 bytes, `Location: https://support.huawei.com/`** with `X-ALB-HIT: req-hd-bl`, under
+Chrome 131, Googlebot, Bingbot and `curl/8.4.0` user agents, with and without `Referer`, `Accept`,
+`Accept-Language`, `Upgrade-Insecure-Requests` and `Sec-Fetch-*`. `r.jina.ai` sees the same bounce
+(`Final URL: https://support.huawei.com/supportindex/`). The same books on `support.huawei.com` answer **403,
+442-459 B** with a browser UA and **404 -> `/view/notFound`, 452,479 B** with a crawler UA - including with the
+page's own `?idPath=7919749|251366268|261607408|251366267|268353477`. `hedex/hdx.do?docid=` still returns the
+identical 3,728-byte SPA shell for `EDOC1100368229`, `EDOC1100305240` and `EDOC1100368651`, so no viewer/issue
+code can be recovered from it.
+
+**Lead, deliberately not imported.** `EDOC1100337685` (*OceanProtect X9000 1.5.0 Product Description*), section
+`8ed1346b/overview`, gives the 4 U controller enclosure's slot topology: management modules in `SMM 0`/`SMM 1`,
+upper interface slots `IOM H0`-`IOM H13`, lower `IOM L0`-`IOM L13`, back-end modules only in `H5/L5`, `H6/L6`,
+`H7/L7`, `H8/L8`, plus front-end installation sequences. #743's X9100 is the four-controller 4 U sibling, but
+that text names **X9000**, so it is a search shape, not an X9100 census - it is not written into any spec.
+
+**Still missing (#743):** ports per 10/25/40/100GE module and per 16/32/64 Gbit/s FC module from an OceanProtect
+book, plus the IOM slots that accept front-end modules on X8100 (2 U) and X9100 (4 U). **What closes it:** one
+live section of `EDOC1100305240`, `EDOC1100368229` or `EDOC1100368230` fetched from a network the ALB does not
+bounce, or a stated configuration of the shape `X8100 node, 2 controllers, 4-port 10GE electrical module in
+IOM 0 and IOM 1`.
