@@ -1,0 +1,308 @@
+{
+  "vendor": "huawei",
+  "model": "netengine-8000-x4",
+  "label": "Huawei NetEngine 8000 X4 (4x LPUI-4T, 32x 400GE)",
+  "category": "router",
+  "description": "Huawei NetEngine 8000 X4 9.8U carrier IP core/aggregation chassis: 173.15 Tbit/s switching, 24424 Mpps forwarding, 4 line-card slots, two MPUs (1:1) and eight SFUs (7+1). Modelled fully populated with 4 LPUI-4T integrated line processing units, each carrying eight 400GE QSFP-DD cages, for 32 x 400GE ports - 4 cards x 8 cages, which is also the X4 400G figure in the datasheet's own Port Density table. The port mix of a real frame follows whatever LPUs are ordered.",
+  "capabilities": [
+    "l3-forward",
+    "l2-forward",
+    "cli",
+    "nat"
+  ],
+  "interfaces": [
+    {
+      "name": "400GE1/0/0",
+      "type": "ethernet",
+      "connector": "qsfpdd",
+      "speed": "400G",
+      "speedCaps": [
+        400000
+      ]
+    },
+    {
+      "name": "400GE1/0/1",
+      "type": "ethernet",
+      "connector": "qsfpdd",
+      "speed": "400G",
+      "speedCaps": [
+        400000
+      ]
+    },
+    {
+      "name": "400GE1/0/2",
+      "type": "ethernet",
+      "connector": "qsfpdd",
+      "speed": "400G",
+      "speedCaps": [
+        400000
+      ]
+    },
+    {
+      "name": "400GE1/0/3",
+      "type": "ethernet",
+      "connector": "qsfpdd",
+      "speed": "400G",
+      "speedCaps": [
+        400000
+      ]
+    },
+    {
+      "name": "400GE1/0/4",
+      "type": "ethernet",
+      "connector": "qsfpdd",
+      "speed": "400G",
+      "speedCaps": [
+        400000
+      ]
+    },
+    {
+      "name": "400GE1/0/5",
+      "type": "ethernet",
+      "connector": "qsfpdd",
+      "speed": "400G",
+      "speedCaps": [
+        400000
+      ]
+    },
+    {
+      "name": "400GE1/0/6",
+      "type": "ethernet",
+      "connector": "qsfpdd",
+      "speed": "400G",
+      "speedCaps": [
+        400000
+      ]
+    },
+    {
+      "name": "400GE1/0/7",
+      "type": "ethernet",
+      "connector": "qsfpdd",
+      "speed": "400G",
+      "speedCaps": [
+        400000
+      ]
+    },
+    {
+      "name": "400GE2/0/0",
+      "type": "ethernet",
+      "connector": "qsfpdd",
+      "speed": "400G",
+      "speedCaps": [
+        400000
+      ]
+    },
+    {
+      "name": "400GE2/0/1",
+      "type": "ethernet",
+      "connector": "qsfpdd",
+      "speed": "400G",
+      "speedCaps": [
+        400000
+      ]
+    },
+    {
+      "name": "400GE2/0/2",
+      "type": "ethernet",
+      "connector": "qsfpdd",
+      "speed": "400G",
+      "speedCaps": [
+        400000
+      ]
+    },
+    {
+      "name": "400GE2/0/3",
+      "type": "ethernet",
+      "connector": "qsfpdd",
+      "speed": "400G",
+      "speedCaps": [
+        400000
+      ]
+    },
+    {
+      "name": "400GE2/0/4",
+      "type": "ethernet",
+      "connector": "qsfpdd",
+      "speed": "400G",
+      "speedCaps": [
+        400000
+      ]
+    },
+    {
+      "name": "400GE2/0/5",
+      "type": "ethernet",
+      "connector": "qsfpdd",
+      "speed": "400G",
+      "speedCaps": [
+        400000
+      ]
+    },
+    {
+      "name": "400GE2/0/6",
+      "type": "ethernet",
+      "connector": "qsfpdd",
+      "speed": "400G",
+      "speedCaps": [
+        400000
+      ]
+    },
+    {
+      "name": "400GE2/0/7",
+      "type": "ethernet",
+      "connector": "qsfpdd",
+      "speed": "400G",
+      "speedCaps": [
+        400000
+      ]
+    },
+    {
+      "name": "400GE3/0/0",
+      "type": "ethernet",
+      "connector": "qsfpdd",
+      "speed": "400G",
+      "speedCaps": [
+        400000
+      ]
+    },
+    {
+      "name": "400GE3/0/1",
+      "type": "ethernet",
+      "connector": "qsfpdd",
+      "speed": "400G",
+      "speedCaps": [
+        400000
+      ]
+    },
+    {
+      "name": "400GE3/0/2",
+      "type": "ethernet",
+      "connector": "qsfpdd",
+      "speed": "400G",
+      "speedCaps": [
+        400000
+      ]
+    },
+    {
+      "name": "400GE3/0/3",
+      "type": "ethernet",
+      "connector": "qsfpdd",
+      "speed": "400G",
+      "speedCaps": [
+        400000
+      ]
+    },
+    {
+      "name": "400GE3/0/4",
+      "type": "ethernet",
+      "connector": "qsfpdd",
+      "speed": "400G",
+      "speedCaps": [
+        400000
+      ]
+    },
+    {
+      "name": "400GE3/0/5",
+      "type": "ethernet",
+      "connector": "qsfpdd",
+      "speed": "400G",
+      "speedCaps": [
+        400000
+      ]
+    },
+    {
+      "name": "400GE3/0/6",
+      "type": "ethernet",
+      "connector": "qsfpdd",
+      "speed": "400G",
+      "speedCaps": [
+        400000
+      ]
+    },
+    {
+      "name": "400GE3/0/7",
+      "type": "ethernet",
+      "connector": "qsfpdd",
+      "speed": "400G",
+      "speedCaps": [
+        400000
+      ]
+    },
+    {
+      "name": "400GE4/0/0",
+      "type": "ethernet",
+      "connector": "qsfpdd",
+      "speed": "400G",
+      "speedCaps": [
+        400000
+      ]
+    },
+    {
+      "name": "400GE4/0/1",
+      "type": "ethernet",
+      "connector": "qsfpdd",
+      "speed": "400G",
+      "speedCaps": [
+        400000
+      ]
+    },
+    {
+      "name": "400GE4/0/2",
+      "type": "ethernet",
+      "connector": "qsfpdd",
+      "speed": "400G",
+      "speedCaps": [
+        400000
+      ]
+    },
+    {
+      "name": "400GE4/0/3",
+      "type": "ethernet",
+      "connector": "qsfpdd",
+      "speed": "400G",
+      "speedCaps": [
+        400000
+      ]
+    },
+    {
+      "name": "400GE4/0/4",
+      "type": "ethernet",
+      "connector": "qsfpdd",
+      "speed": "400G",
+      "speedCaps": [
+        400000
+      ]
+    },
+    {
+      "name": "400GE4/0/5",
+      "type": "ethernet",
+      "connector": "qsfpdd",
+      "speed": "400G",
+      "speedCaps": [
+        400000
+      ]
+    },
+    {
+      "name": "400GE4/0/6",
+      "type": "ethernet",
+      "connector": "qsfpdd",
+      "speed": "400G",
+      "speedCaps": [
+        400000
+      ]
+    },
+    {
+      "name": "400GE4/0/7",
+      "type": "ethernet",
+      "connector": "qsfpdd",
+      "speed": "400G",
+      "speedCaps": [
+        400000
+      ]
+    }
+  ],
+  "sourceUrl": "https://e.huawei.com/marketingcloud/pep/asset/20000001/Material/f274014bf341427ba955064d5919b2fe/M2T1A669N992206662674575488/NetEngine%208000%20X%20Series%20Universal%20Service%20Router%20Datasheet.pdf",
+  "aliases": [
+    "NE8000 X4"
+  ],
+  "notes": "Port census is a stated build, not a fixed chassis figure. Datasheet 'NetEngine 8000 X Series Router' (Port Density table): '400G | Maximum Number of Ports/Board 8 | X16 128 | X8 64 (4T SRU) | X4 32 (4T SRU)' - so 8 x 8 = 64 for the X8 and 8 x 4 = 32 for the X4, 8 x 16 = 128 for the X16, and this entry is that 8-cage card in every line-card slot. The same datasheet's board table lists the card as 'LPUI-4T/LPUI-4T-E/LPUI-4T-L: 8*400GE QSFP-DD + 8*100GE QSFP28', and the X Series brochure gives Service Slots 4 / 8 / 16 and Slot Capability 1T/2T/4T/14.4T/19.2T per slot. Chassis facts from the product page: 173.15 Tbit/s switching, 24424 Mpps forwarding, Main Control Board 2, 1:1, SFU 8, 7+1, Line Card 4, Power Module 6 power modules, N+1, Fan Module 6 fans, 5+1, 438 mm (9.8U) x 442 mm x 874 mm, typical power 5913 W, weight in full configuration 186.2 kg. Deliberately not claimed: the 8 x 100GE QSFP28 cages that each LPUI-4T also carries (their port numbers inside the mixed-rate card are a physical layout the datasheet does not print, and the hardware guide only works one mixed example - 25GE ports 0-35 then 100GE 36-45 - so a numbering here would be an inference); the 14.4T build (36 x 400GE per card, Port Density row '400G (14.4T SRU)' -> 576 / 288 / 144) and the 40-cage 100GE build (640 / 320 / 160) are different populations, not folded into this entry. Port names follow the hardware guide's rule that NetEngine 8000 X ports are 'slot ID/subcard ID/port number' with a fixed card's subcard ID 0; LPU slots are 1-4 on the X4. No PoE (matches the request) and no console port (none published). MPLS LDP/RSVP-TE/VPLS/L3VPN, SR-MPLS, SRv6, EVPN/VXLAN, FlexE, BNG, CGN, IPsec and 1588v2 are in the datasheet's Product Features but are not engine capability tokens, so they are recorded here rather than declared; CGN is why 'nat' is declared, and no firewall capability is claimed because the vendor's feature table does not list one. Sources read 2026-11-17: https://e.huawei.com/marketingcloud/pep/asset/20000001/Material/f274014bf341427ba955064d5919b2fe/M2T1A669N992206662674575488/NetEngine%208000%20X%20Series%20Universal%20Service%20Router%20Datasheet.pdf (canonical; Port Density + board tables, read via the identical PDF mirrored at https://www.ycict.net/wp-content/uploads/2023/09/NetEngine-8000-X-Series-Universal-Service-Router-Datasheet.pdf because Huawei's host answers 404 to a non-browser fetch); https://e-file.huawei.com/marketingcloud/pep/asset/20000001/Material/02d9fbd0807243b5b37d66759665d25a/M3T1A590N1069280707103375400/NetEngine%208000%20X%20Series%20Brochure.pdf (service slots, LPUI-4T rows, product features); https://e.huawei.com/en/products/routers/ne8000 (per-model switching/forwarding/MPU/SFU/power table); https://support.huawei.com/enterprise/en/doc/EDOC1100465699/67e2f8f8/board (port numbering)."
+}
