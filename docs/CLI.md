@@ -792,18 +792,24 @@ reproduces three published samples exactly: the Catalyst 2960-X 15.2(6)E `show v
 factory-reset procedure's 24-port table, and Cisco lab 5.5.1, whose indentation survives the PDF
 (`test/show-vlan-ports-wrap.test.js`, 13 checks; `research/show-vlan-columns.md`).
 
-One row per VLAN, in VLAN order. **Membership is decided by the same rule the switch forwards by** — a port
-appears under a VLAN if and only if a frame in that VLAN could leave by it:
+One row per VLAN, in VLAN order. **The Ports column is access membership**, and that is the vendor's rule rather
+than the data plane's — Cisco's `show vlan` usage guideline says "When displaying multiple VLANs only non-trunk
+ports are displayed", and `show vlan all-ports` exists precisely because the default view leaves trunks out
+(`research/vlan-brief-trunk-ports.md`):
 
-* an access port appears in its access VLAN and in no other;
-* a trunk appears in every VLAN its allowed list names — **and not in VLAN 1 unless VLAN 1 is allowed**. A
-  trunk whose allowed list is `20,30` is not "in VLAN 1" because it is a trunk; that belief is how people
-  chase a native-VLAN mismatch that the table was previously hiding;
-* a trunk with `allowedVlan all` appears in every row.
+* an access port appears under its access VLAN, and under any voice VLAN it tags for a phone (that VLAN needs a
+  row of its own to appear in, so it has to be in the database), and in no other row;
+* **a trunk appears in no row at all** — not in the VLANs its allowed list names, and not in VLAN 1. It carries
+  those VLANs; it is not a member of them, so a trunk that allows `20,30` is not "in VLAN 1" either. Listing
+  trunks was the older rule, which read membership out of `classifyEgress()`: the right answer about forwarding
+  and the wrong one for this table (#1638).
 
-A VLAN exists in this table if it is configured with `vlan <id> [name] [<text>]`, or if a port uses it, or if the
-box has it from boot — VLAN 1 is there from power-on, named `default`, before anybody types anything. A configured
-VLAN nothing carries prints an empty Ports column rather than an invented port.
+A VLAN has a row if it is in the VLAN database — configured with `vlan <id> [name] [<text>]`, created by
+`switchport access vlan <id>`, or held from boot (VLAN 1 is there from power-on, named `default`, before anybody
+types anything) — and no row otherwise. A trunk's allowed list creates nothing, and after `no vlan 22` the row
+goes even though the port that names 22 still points at it: `show interfaces` reports that port inactive and
+`vlan 22` is what brings it back. A configured VLAN nothing carries prints an empty Ports column rather than an
+invented port.
 
 **A switch has five VLANs before anything is configured**: 1, and the four reserved Token Ring / FDDI defaults,
 1002-1005. They belong to the VLAN database from power-on, no port may be assigned to one, and they print
