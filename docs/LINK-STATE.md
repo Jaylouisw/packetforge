@@ -87,10 +87,15 @@ R1#ping 10.0.0.2
 R1#converge 20000
 Process   Device                 Ready     Basis
 change    (change)               10000 ms  the link state changed
-stp       SW1                    40000 ms  forwarding delay after a topology change (after the change at 10000 ms)
-...
+stp       SW1                    40000 ms  listening + learning (15 s forward-delay each) (after the change at 10000 ms)  (pending)
+stp       SW2                    40000 ms  listening + learning (15 s forward-delay each) (after the change at 10000 ms)  (pending)
+
 Fully converged at 40000 ms. (re-based at the link change at 10000 ms)
 ```
+
+The `(pending)` marks are what the instant buys: at 20000 ms neither bridge has finished its two forward
+delays, and the `Basis` column repeats the arithmetic rather than describing the change in prose. One row per
+bridge, because both are in the tree the change rebuilt.
 
 A ping asked before the window closes fails with `reason: 'converging'` and names the processes that
 are not done — not "host unreachable", which would be a different and wrong diagnosis.
