@@ -577,13 +577,24 @@ actually true.
 And a short list of things that exist on the model but are **never read** —
 i.e. configuring them is decoration:
 
-- `Link.state` (`engine/link.js:41`) — `'up' | 'down' | 'blocked'` is serialised and never consulted; only `iface.enabled`, STP blocking and PoE gate a frame.
-- `minLinks` on a LAG (`engine/lag.js:55`).
-- LAG `mode` (`engine/lag.js:217`) — validated, then ignored.
-- `voiceVlan` (`engine/vlan.js:13`).
-- `iface.dhcp` (`engine/cli.js:307`).
-- Capabilities `firewall`, `wireless`, `dhcp-server` and `dhcp-client` (`engine/device.js:85-98`). The tokens `vlan`/`lacp`/`stp` used to be listed here and are no longer capabilities at all (#1526).
-- RA valid/preferred lifetimes (`engine/simulator.js:1054`).
+- `minLinks` on a LAG (`engine/lag.js:90`) — normalised and stored, and no verdict consults
+  it: a bundle's health is the members that can carry, not this threshold.
+- Capabilities `firewall`, `wireless` and `dhcp-client` (`engine/device.js:127`). Everything
+  else in that vocabulary has a reader: `nat`, `dhcp-server`, `l3-forward` and `l2-forward`
+  through `_capabilityRefusal()`, `http-server` through the listener table in
+  `engine/flow.js`. The tokens `vlan`/`lacp`/`stp` used to be listed here and are no longer
+  capabilities at all (#1526).
+
+Five fields have left this list, each when the code started reading them — and each of them
+changed what a lab does, which is why the pointer is here rather than in a changelog:
+
+| Field | What reads it now |
+|---|---|
+| `Link.state` | a frame crossing a down cable is dropped with `reason: 'link down'` and the link id (`engine/simulator.js:3099`), and the switch logic in `engine/segment.js` will not carry a frame over one ([LINK-STATE.md](LINK-STATE.md)) |
+| LAG `mode` | `negotiationVerdict()` through `memberSuspension()`: two `passive` ends never form a bundle (`test/lacp-passive-both-ends.test.js`, 22 assertions) |
+| `voiceVlan` | `classifyEgress()` and `classifyIngress()` carry it on a trunk even when it is outside the allowed list (`engine/vlan.js:361`, #1368) |
+| `iface.dhcp` | `Simulator.computeDhcp()` collects every port carrying the flag as a client and applies the lease it is given (`engine/simulator.js:1172`) |
+| RA valid/preferred lifetimes | written into the prefix information option the router advertises (`engine/ra.js:210`), and read back out of it on arrival |
 
 ---
 
