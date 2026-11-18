@@ -26,6 +26,18 @@ function ok(cond, name) {
 
 const ROOT = path.join(__dirname, '..');
 
+// `check()` answers for the whole tree. Every assertion that follows a planted probe has to ask
+// about its own probe, or a stale URL that was already in some other file makes the suite claim
+// the cleanup left residue - and prints that claim next to a byte-for-byte check that passes.
+// The whole-tree guard is the first assertion in the suite, and it reports what it finds with the
+// file and line to fix (#2030).
+function reportedFor(rel) {
+  return check().problems.filter(function (p) { return p.file === rel; });
+}
+function reportedCodes(code) {
+  return check().problems.filter(function (p) { return p.code === code; });
+}
+
 console.log('\nThe canonical home is defined in exactly one place');
 {
   ok(/^https:\/\//.test(canonical.BASE), 'the base is an absolute URL');
@@ -66,7 +78,34 @@ console.log('\nIt catches a stale repository URL');
   } finally {
     try { fs.unlinkSync(probe); } catch (e) { /* nothing to clean */ }
   }
-  ok(check().ok, 'and the tree is clean again once the probe is removed');
+  ok(reportedFor('docs/__drift_probe.md').length === 0,
+    'and the probe file is gone, so nothing is reported for it');
+}
+
+console.log('\nA stale URL somewhere else is that file\'s problem, and only its own');
+{
+  // #2030: one real stale URL used to report four failures - its own, plus three that said the
+  // probes had not been cleaned up. Triage read a broken cleanup into a red run whose only fault
+  // was one line of prose. Plant the URL away from every probe path and hold the suite to it.
+  const probe = path.join(ROOT, 'docs', '__elsewhere_stale.md');
+  try {
+    fs.writeFileSync(probe, 'Clone from ' + 'https://github.com/Jaylouisw/packetforge.git' + ' and be happy.\n');
+    const res = check();
+    const mine = res.problems.filter(function (p) { return p.file === 'docs/__elsewhere_stale.md'; });
+    ok(res.ok === false, 'the guard still fails the tree');
+    ok(mine.length === 1, 'the one problem is reported against the file that holds it');
+    ok(mine.length === 1 && mine[0].code === 'E_STALE_REPO_URL', 'with the code a reader can act on');
+    ok(mine.length === 1 && mine[0].line === 1, 'and its line number');
+    ok(reportedFor('docs/__drift_probe.md').length === 0,
+      'so the drift probe is still reported as gone');
+    ok(reportedCodes('E_BADGE_NO_WORKFLOW').length === 0, 'and no dead badge is invented');
+    ok(reportedCodes('E_NO_CANONICAL_CLONE').length === 0,
+      'and the README is not accused of losing its clone URL');
+  } finally {
+    try { fs.unlinkSync(probe); } catch (e) { /* nothing to clean */ }
+  }
+  ok(reportedFor('docs/__elsewhere_stale.md').length === 0,
+    'and nothing is reported for the plant once it is removed');
 }
 
 console.log('\nIt catches GitHub-only tooling instructions');
@@ -100,7 +139,9 @@ console.log('\nIt catches a README that lost the canonical clone URL');
   } finally {
     fs.writeFileSync(readme, original);
   }
-  ok(check().ok, 'and the README is restored');
+  ok(reportedCodes('E_NO_CANONICAL_CLONE').length === 0,
+    'and the README answers the clone check again');
+  ok(fs.readFileSync(readme, 'utf8') === original, 'and the README is restored byte for byte');
 }
 
 console.log('\nEvery exception says why');
@@ -181,7 +222,8 @@ console.log('\nA badge for a workflow that does not exist is caught');
   } finally {
     fs.writeFileSync(readmePath, original);
   }
-  ok(check().ok, 'and the tree is clean again once the probe is removed');
+  ok(reportedCodes('E_BADGE_NO_WORKFLOW').length === 0,
+    'and the dead badge is gone, so nothing is reported for it');
   ok(fs.readFileSync(readmePath, 'utf8') === original, 'and the README is restored byte for byte');
   ok(!fs.existsSync(path.join(ROOT, '.forgejo', 'workflows', 'codeql.yml')),
     'this repository genuinely has no codeql.yml, so the badge pointed at nothing');
