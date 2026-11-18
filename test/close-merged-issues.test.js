@@ -8,6 +8,7 @@
 // things that decide whether it helps or does damage: what counts as a closing claim, whether a
 // device is really in the catalogue, and whether a second run can repeat itself or reopen
 // something a human reopened on purpose.
+const fs = require('fs');
 const path = require('path');
 const {
   parseClosingKeywords,
@@ -300,24 +301,59 @@ const INDEX = buildDeviceIndex(SPECS);
   }
 
   console.log('');
-  console.log('Against the real catalogue - the queue Jay is looking at:');
+  console.log('Against the real catalogue - the open-request queue:');
   try {
     const index = loadDeviceIndex();
-    const queue = [
-      [803, '[Device]: OptiXtrans E6616X'],
-      [743, '[Device]: Huawei OceanProtect X8100/X9100 Backup Storage'],
-      [742, '[Device]: Huawei OceanProtect E8000 Backup Storage'],
-      [130, '[Device]: Ubiquiti UniFi Dream Wall Pro (UDW-PRO)']
-    ];
-    const proposed = queue.filter(function (q) { return deviceMatch(q[1], index); });
-    ok(proposed.length === 0,
-      'none of the five open requests is in the catalogue, so none is closed by this workflow',
-      proposed.map(function (p) { return '#' + p[0]; }).join(', '));
-    // A request the catalogue now answers is answered: #807's E9605, #808's E9612 and #810's E9624
-    // all landed on 2026-11-18, so the sweep would find them - which is why none is in the queue above.
-    const answered = deviceMatch('[Device]: OptiXtrans E9605', index);
-    ok(answered && answered.file === 'devices/huawei/optixtrans-e9605.json',
-      'and the E9605 request that has since been built resolves to its spec file', answered && answered.file);
+    // The queue is a file, not a literal in this test. `research/open-device-requests.json` is where
+    // an unmodelled `[Device]:` request is recorded (docs/DEVICE_REGISTRY.md is generated from it),
+    // so it is the only list that has to be kept current. Copying a snapshot of it in here made every
+    // PR that answers a request edit this test as well - #808's E9612 could not land until its entry
+    // was deleted from the literal - and the PR that answers a request is exactly where a stale
+    // entry hides. Which requests are still open is live state, so nothing below asserts that: what
+    // is pinned is what the matcher does with whichever requests the queue names.
+    const queueFile = path.join(__dirname, '..', 'research', 'open-device-requests.json');
+    const queue = JSON.parse(fs.readFileSync(queueFile, 'utf8')).requests;
+    ok(Array.isArray(queue) && queue.length > 0, 'the open-request queue parses and is not empty');
+
+    let malformed = null;
+    const numbers = {};
+    for (const r of queue) {
+      if (!r || !Number.isInteger(r.issue) ||
+          typeof r.models !== 'string' || !r.models.trim() ||
+          typeof r.missing !== 'string' || !r.missing.trim()) { malformed = r; break; }
+      if (numbers[r.issue]) { malformed = r; break; }
+      numbers[r.issue] = true;
+    }
+    ok(!malformed, 'every entry names an issue, the models asked for, and the field the vendor withholds',
+      malformed && '#' + malformed.issue);
+
+    function tokens(s) {
+      return new Set(String(s || '').toLowerCase().split(/[^a-z0-9-]+/).filter(Boolean));
+    }
+
+    // The invariant that survives a device PR: a request the catalogue answers is answered by a spec
+    // for that model, that file is on disk, and the sweep agrees it would close the request. When a
+    // device lands, both sides move together, so no hand edit is needed to keep the test honest.
+    const answered = [];
+    const drifted = [];
+    for (const r of queue) {
+      const entry = deviceMatch('[Device]: ' + r.models, index);
+      if (!entry) continue;
+      answered.push({ request: r, device: entry });
+      const wanted = tokens(r.models);
+      const codes = Array.from(tokens(entry.model)).filter(function (t) { return /[0-9]/.test(t); });
+      const sharesCode = !codes.length || codes.some(function (t) { return wanted.has(t); });
+      const onDisk = entry.file && fs.existsSync(path.join(__dirname, '..', entry.file));
+      if (!sharesCode || !onDisk) {
+        drifted.push('#' + r.issue + ' -> ' + entry.vendor + '/' + entry.model + (onDisk ? '' : ' (no ' + entry.file + ')'));
+      }
+    }
+    ok(drifted.length === 0,
+      'a request the catalogue answers is answered by its own spec file, never a neighbour',
+      drifted.join(', '));
+
+    // A near miss is a miss, and this is the near miss: E6616 is modelled, E6616X is not. Pinned only
+    // while it stays a near miss - the day E6616X is modelled its own request must resolve to it.
     // E9612 must not resolve to E9624's file or to the E6600 family: the near miss is the point.
     const e9612 = deviceMatch('[Device]: OptiXtrans E9612', index);
     ok(e9612 && e9612.file === 'devices/huawei/optixtrans-e9612.json',
@@ -333,10 +369,42 @@ const INDEX = buildDeviceIndex(SPECS);
     ok(deviceMatch('[Device]: OptiXtrans E6616', index) !== null, 'while E6616 itself is modelled');
     ok(deviceMatch('[Device]: OptiXtrans E6616', index).file === 'devices/huawei/optixtrans-e6616.json',
       'and matching it names the file', deviceMatch('[Device]: OptiXtrans E6616', index).file);
+    const e6616x = deviceMatch('[Device]: OptiXtrans E6616X', index);
+    if (!e6616x) {
+      ok(true, 'and E6616X, which is not modelled, is not answered by E6616');
+    } else {
+      ok(e6616x.file === 'devices/huawei/optixtrans-e6616x.json',
+        'and now that E6616X is modelled, its own request resolves to its own file', e6616x.file);
+    }
+
+    // A request that was answered stays answered: #807's E9605 landed on 2026-11-18.
+    const e9605 = deviceMatch('[Device]: OptiXtrans E9605', index);
+    ok(e9605 && e9605.file === 'devices/huawei/optixtrans-e9605.json',
+      'the E9605 request that has since been built resolves to its spec file', e9605 && e9605.file);
     // The positive case has to work against the real catalogue too, or a green pump is not one.
     const real = deviceMatch('[Device]: Teltonika RUTX12 Dual LTE 4G CAT6 Industrial Cellular Router', index);
     ok(real && real.file === 'devices/teltonika/rutx12.json',
       'a request the catalogue does answer resolves to its spec file', real && real.file);
+
+    // And the sweep has to act on exactly what the matcher answers - a dry run over the queue as it
+    // stands today writes nothing, and proposes exactly the requests that now resolve.
+    const pending = {};
+    for (const a of answered) {
+      pending[a.request.issue] = {
+        number: a.request.issue, title: '[Device]: ' + a.request.models, state: 'open', comments: []
+      };
+    }
+    const api = fakeTracker({ issues: pending });
+    const dry = await sweepDevices({
+      api: api, index: index, dryRun: true, log: function () {},
+      issues: Object.keys(pending).map(function (k) { return pending[k]; })
+    });
+    const swept = dry.wouldClose.map(function (w) { return w.number; }).sort(function (a, b) { return a - b; });
+    const matched = answered.map(function (a) { return a.request.issue; }).sort(function (a, b) { return a - b; });
+    ok(JSON.stringify(swept) === JSON.stringify(matched),
+      'and the sweep would close exactly the requests the matcher answers',
+      swept.join(',') + ' vs ' + matched.join(','));
+    ok(api.writes().length === 0, 'and a dry run closes nothing');
   } catch (e) {
     ok(false, 'the real catalogue loads', e.message);
   }
