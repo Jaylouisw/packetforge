@@ -81,6 +81,11 @@ rather than `M3T1` prefix) and is the older layout. Both print the same specific
 slots, 680G OTN / 680G OSU / 160G+20G SDH / 800G packet cross-connect, 100G grey per channel - and neither
 names a board.
 
+**Corrected 2026-11-18:** both halves of that sentence are wrong. Re-extracting the same two
+assets shows three of the four switching figures differ between them (OTN 780 vs 680 Gbit/s, OSU 620 vs
+680, packet 820 vs 800) and that the docx **does** name a board, `TM65UXCL`, in a licence footnote. See
+`research/optixtrans-e6616x-brochure-editions-disagree.md`.
+
 ## 5. A reseller catalogue names E6616X parts, and none of them is a census
 
 A price catalogue (`https://www.tanatel-comm.com/product/e6616/`) is indexed with rows that separate the
