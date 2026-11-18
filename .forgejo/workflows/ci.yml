@@ -309,7 +309,25 @@ jobs:
     # (see the `liveness` step): the job cannot change an outcome there, and on a
     # two-slot runner it is the difference between a live pull request waiting minutes
     # or hours. Every open pull request still gets all three Node versions.
-    if: needs.changes.outputs.live != 'false'
+    #
+    # `always()` because a job that needs a failed one is otherwise skipped, and a skipped
+    # test leg is not a failure - it is a run that reports nothing at all. Measured: task
+    # 15604 (run 6076, pull #1957, 2026-11-18T08:21:26Z) was the only task its run ever
+    # created - the classify job failed after 855 s, no log survived (`dbfs open
+    # "actions_log/jaylouisw/packetforge/f4/15604.log.zst": file does not exist`) and the
+    # five jobs below it were never created, so that pull request carried one red X and
+    # zero coverage of its diff. Reproduced deliberately: run 6201 (tasks 15979-15985,
+    # branch probe-classify-fail, a 4-line probe that makes the classify job `exit 1`)
+    # reported `skipped` on all three legs, on smoke, on Docker and on arm. With
+    # `always()` the matrix runs instead, which is the same conservative answer the
+    # classifier itself publishes whenever it cannot read a diff.
+    #
+    # Nothing is skipped by this. `live=false` and `data_only=true` still stand the legs
+    # down whenever the classify job *succeeded* and positively said so - both are outputs
+    # that only exist on success, and an absent output has always meant "run". A run that
+    # is cancelled still cancels its jobs; `always()` describes a failed dependency, not a
+    # cancelled run.
+    if: always() && needs.changes.outputs.live != 'false'
     # A data-only diff used to run one Node version instead of three. That saving was bought with
     # an `if:` that read `matrix.node`, which cannot work: the job condition is evaluated before
     # the matrix exists, so every leg died ~2 s after starting (runs 1398, 1401, 1402 - three red
@@ -669,7 +687,13 @@ jobs:
     needs: changes
     # A device spec cannot change how the server boots or how the image builds. For a
     # data-only diff this job reports success without taking a runner for ten minutes.
-    if: needs.changes.outputs.data_only != 'true' && needs.changes.outputs.live != 'false'
+    #
+    # `always()` for the reason the test job above measures: a classifier that dies must
+    # run the gate, not skip it. An absent `data_only` therefore means "run", and the only
+    # value that stands this job down is the `true` the classifier writes after reading a
+    # diff it could see. Reproduced in run 6201, where a deliberately failing classify job
+    # had both of these jobs report `skipped`; run 6076 is the same failure in the wild.
+    if: always() && needs.changes.outputs.data_only != 'true' && needs.changes.outputs.live != 'false'
     steps:
       # Same git checkout as the `changes` job - see the measured note there: 4.7-10.2 s of
       # every job in this workflow was the checkout action's clone, and the three test legs
@@ -797,7 +821,7 @@ jobs:
     needs: changes
     # A device spec cannot change how the server boots or how the image builds. For a
     # data-only diff this job reports success without taking a runner for ten minutes.
-    if: needs.changes.outputs.data_only != 'true' && needs.changes.outputs.live != 'false'
+    if: always() && needs.changes.outputs.data_only != 'true' && needs.changes.outputs.live != 'false'
     steps:
       # Same git checkout as the `changes` job - see the measured note there: 4.7-10.2 s of
       # every job in this workflow was the checkout action's clone, and the three test legs
