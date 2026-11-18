@@ -1806,7 +1806,7 @@ There are three states, and the header says which one you are in:
 A topology with **no bridges at all has no root**, and `engine/stp.js` answers `null` for it rather than a root
 object with a default priority and no identity. That object is how `root bridge undefined priority 32768` reached
 the console on the models in the catalogue that are not bridges — 1,026 of the 2,038 when #1399 was fixed,
-1,065 of the 2,353 today — the report was naming a hole.
+1,066 of the 2,354 today — the report was naming a hole.
 
 ### Setting the root
 
