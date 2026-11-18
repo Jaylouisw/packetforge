@@ -1,0 +1,216 @@
+{
+  "_comment": "Doc ids whose state decides whether the OptiXtrans E6600 / OSN 1800 V Pro board census is reachable anonymously. Probe with: node scripts/huawei-doc-gate-probe.js. States: 200 = anonymously readable, 401 = exists behind the Huawei account wall, 404 = no such document. 'state' is the baseline measured on 2026-11-18; the probe exits 1 when an id no longer matches it, which is the signal to go and harvest the chapter.",
+  "baseline": "2026-11-18",
+  "docs": [
+    {
+      "id": "EDOC1100625826",
+      "title": "OptiXtrans E6600 V100R026C00 Product Documentation 01",
+      "group": "e6600",
+      "state": "gated",
+      "note": "the 26H2 documentation package root - the newest edition of the set that holds the board chapters"
+    },
+    {
+      "id": "EDOC1100556468",
+      "title": "OptiXtrans E6600 V100R025C10 Product Documentation 01",
+      "group": "e6600",
+      "state": "gated",
+      "note": ""
+    },
+    {
+      "id": "EDOC1100526008",
+      "title": "OptiXtrans E6600 V100R025C00 Product Documentation 01",
+      "group": "e6600",
+      "state": "gated",
+      "note": ""
+    },
+    {
+      "id": "EDOC1100456079",
+      "title": "OptiXtrans E6600 V100R024C10 Product Documentation 03",
+      "group": "e6600",
+      "state": "gated",
+      "note": ""
+    },
+    {
+      "id": "EDOC1100366068",
+      "title": "OptiXtrans E6600 V100R023C10 Product Documentation 03",
+      "group": "e6600",
+      "state": "gated",
+      "note": ""
+    },
+    {
+      "id": "EDOC1100331258",
+      "title": "OptiXtrans E6600 V100R023C00 Product Documentation 01",
+      "group": "e6600",
+      "state": "gated",
+      "note": ""
+    },
+    {
+      "id": "EDOC1100300582",
+      "title": "OptiXtrans E6600 V100R022C10 Product Documentation 04",
+      "group": "e6600",
+      "state": "gated",
+      "note": ""
+    },
+    {
+      "id": "EDOC1100625831",
+      "title": "OptiXtrans E6600 V100R026C00 Feature Description 01",
+      "group": "e6600",
+      "state": "gated",
+      "note": ""
+    },
+    {
+      "id": "EDOC1100558553",
+      "title": "OptiXtrans E6600 V100R025C10 Feature Description 01",
+      "group": "e6600",
+      "state": "gated",
+      "note": ""
+    },
+    {
+      "id": "EDOC1100558558",
+      "title": "OptiXtrans E6600 V100R025C10 Product Description 01",
+      "group": "e6600",
+      "state": "gated",
+      "note": ""
+    },
+    {
+      "id": "EDOC1100558547",
+      "title": "OptiXtrans E6600 V100R025C10 Hardware Description 01",
+      "group": "e6600",
+      "state": "gated",
+      "note": "the document whose chapters carry the service-board census"
+    },
+    {
+      "id": "EDOC1100525982",
+      "title": "OptiXtrans E6600 V100R025C00 Hardware Description 01",
+      "group": "e6600",
+      "state": "gated",
+      "note": ""
+    },
+    {
+      "id": "EDOC1100456166",
+      "title": "OptiXtrans E6600 V100R024C10 Hardware Description 03",
+      "group": "e6600",
+      "state": "gated",
+      "note": "the English edition the anonymous-doc census counted as absent"
+    },
+    {
+      "id": "EDOC1100303425",
+      "title": "OptiXtrans E6600 V100R022C10 Hardware Description 01",
+      "group": "e6600",
+      "state": "gated",
+      "note": ""
+    },
+    {
+      "id": "EDOC1100299472",
+      "title": "OptiXtrans E6616X Quick Installation Guide 02",
+      "group": "e6600",
+      "state": "gated",
+      "note": "Quick Start class - measured, not a bypass of the gate"
+    },
+    {
+      "id": "EDOC1100299473",
+      "title": "OptiXtrans E6616X 快速安装指南 (ZH twin of EDOC1100299472)",
+      "group": "e6600",
+      "state": "gated",
+      "note": ""
+    },
+    {
+      "id": "EDOC1100625921",
+      "title": "OptiXtrans E6616X V100R026C00SPC100 release document",
+      "group": "e6600",
+      "state": "gated",
+      "note": ""
+    },
+    {
+      "id": "EDOC1100625925",
+      "title": "V100R026C00SPC100 OptiXtrans E6600 Upgrade Guide",
+      "group": "e6600",
+      "state": "gated",
+      "note": ""
+    },
+    {
+      "id": "EDOC1100163902",
+      "title": "OptiXtrans E6600 Brochure and Datasheet",
+      "group": "e6600",
+      "state": "gated",
+      "note": ""
+    },
+    {
+      "id": "EDOC1100621358",
+      "title": "OptiXtrans E6600 Heat Dissipation and Routine Maintenance",
+      "group": "e6600",
+      "state": "gated",
+      "note": ""
+    },
+    {
+      "id": "EDOC1100558550",
+      "title": "OptiX OSN 1800 V Pro Hardware Description (newest edition)",
+      "group": "osn1800v",
+      "state": "gated",
+      "note": "substitution route: TMB2DMS is an OSN 1800 V Pro board"
+    },
+    {
+      "id": "EDOC1100525975",
+      "title": "OptiX OSN 1800 V Pro Hardware Description (older edition)",
+      "group": "osn1800v",
+      "state": "gated",
+      "note": ""
+    },
+    {
+      "id": "EDOC1100456158",
+      "title": "OptiX OSN 1800 V Pro Hardware Description (older edition)",
+      "group": "osn1800v",
+      "state": "gated",
+      "note": ""
+    },
+    {
+      "id": "EDOC1100303420",
+      "title": "OptiX OSN 1800 V Pro Hardware Description (older edition)",
+      "group": "osn1800v",
+      "state": "gated",
+      "note": ""
+    },
+    {
+      "id": "EDOC1100249290",
+      "title": "OptiX OSN 1800 V Pro Hardware Description (older edition)",
+      "group": "osn1800v",
+      "state": "gated",
+      "note": ""
+    },
+    {
+      "id": "EDOC1100192279",
+      "title": "OptiX OSN 1800 V Pro Hardware Description (oldest edition)",
+      "group": "osn1800v",
+      "state": "gated",
+      "note": ""
+    },
+    {
+      "id": "EDOC1100558552",
+      "title": "OptiX OSN 1800 V Pro Product Description",
+      "group": "osn1800v",
+      "state": "gated",
+      "note": ""
+    },
+    {
+      "id": "EDOC1100605035",
+      "title": "Huawei OptiX OSN 1800 & OptiXtrans E6600 & DC908 User Guide",
+      "group": "control",
+      "state": "public",
+      "note": "public control: the web-UI manual, no board tables"
+    },
+    {
+      "id": "EDOC1100447312",
+      "title": "public control guide",
+      "group": "control",
+      "state": "public",
+      "note": ""
+    },
+    {
+      "id": "EDOC9999999999",
+      "title": "non-existent id control",
+      "group": "control",
+      "state": "absent",
+      "note": ""
+    }
+  ]
+}
