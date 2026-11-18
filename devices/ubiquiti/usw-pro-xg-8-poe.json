@@ -156,5 +156,10 @@
   ],
   "icon": "switch",
   "color": "#14b8a6",
+  "poe": {
+    "budgetW": 155,
+    "sourceUrl": "https://techspecs.ui.com/unifi/switching/usw-pro-xg-8-poe",
+    "note": "Total PoE Availability 155 W - a fixed figure, not derived from the 210 W adapter. Per-port PSE ceiling on all eight ports is PoE 15.4 W / PoE+ 30 W / PoE++ 60 W, so eight PoE++ sinks at 60 W would ask 480 W of a 155 W budget; the budget, not the port class, is what the switch can actually honour. Max. power consumption 61 W excluding PoE output, 210 W including it. Read 2026-11-18."
+  },
   "sourceUrl": "https://techspecs.ui.com/unifi/switching/usw-pro-xg-8-poe"
 }
