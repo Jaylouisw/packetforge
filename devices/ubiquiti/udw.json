@@ -3,7 +3,7 @@
   "model": "UDW",
   "label": "UniFi Dream Wall",
   "category": "router",
-  "description": "UniFi Dream Wall (UDW) - 17x 1G RJ45 (4 PoE++ / 4 PoE+ / 4 PoE) + 1x 2.5G RJ45 + 2x 10G SFP+ (10G/1G). WiFi 6; 112 W max.",
+  "description": "UniFi Dream Wall (UDW) - 17x 1G RJ45 (4 PoE++ / 4 PoE+ / 4 PoE) + 1x 2.5G RJ45 + 2x 10G SFP+ (10G/1G). WiFi 6; 112 W max excluding PoE output; 420 W PoE budget.",
   "capabilities": [
     "l3-forward",
     "cli",
@@ -25,7 +25,8 @@
       "speed": "1G",
       "speedCaps": [
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
       "poeOut": true,
       "poeOutClass": "PoE++"
@@ -37,7 +38,8 @@
       "speed": "1G",
       "speedCaps": [
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
       "poeOut": true,
       "poeOutClass": "PoE++"
@@ -49,7 +51,8 @@
       "speed": "1G",
       "speedCaps": [
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
       "poeOut": true,
       "poeOutClass": "PoE++"
@@ -61,7 +64,8 @@
       "speed": "1G",
       "speedCaps": [
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
       "poeOut": true,
       "poeOutClass": "PoE++"
@@ -73,7 +77,8 @@
       "speed": "1G",
       "speedCaps": [
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
       "poeOut": true,
       "poeOutClass": "PoE+"
@@ -85,7 +90,8 @@
       "speed": "1G",
       "speedCaps": [
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
       "poeOut": true,
       "poeOutClass": "PoE+"
@@ -97,7 +103,8 @@
       "speed": "1G",
       "speedCaps": [
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
       "poeOut": true,
       "poeOutClass": "PoE+"
@@ -109,7 +116,8 @@
       "speed": "1G",
       "speedCaps": [
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
       "poeOut": true,
       "poeOutClass": "PoE+"
@@ -121,7 +129,8 @@
       "speed": "1G",
       "speedCaps": [
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
       "poeOut": true,
       "poeOutClass": "PoE"
@@ -133,7 +142,8 @@
       "speed": "1G",
       "speedCaps": [
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
       "poeOut": true,
       "poeOutClass": "PoE"
@@ -145,7 +155,8 @@
       "speed": "1G",
       "speedCaps": [
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
       "poeOut": true,
       "poeOutClass": "PoE"
@@ -157,7 +168,8 @@
       "speed": "1G",
       "speedCaps": [
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
       "poeOut": true,
       "poeOutClass": "PoE"
@@ -169,7 +181,8 @@
       "speed": "1G",
       "speedCaps": [
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ]
     },
     {
@@ -179,7 +192,8 @@
       "speed": "1G",
       "speedCaps": [
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ]
     },
     {
@@ -189,7 +203,8 @@
       "speed": "1G",
       "speedCaps": [
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ]
     },
     {
@@ -199,7 +214,8 @@
       "speed": "1G",
       "speedCaps": [
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ]
     },
     {
@@ -209,7 +225,8 @@
       "speed": "1G",
       "speedCaps": [
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ]
     },
     {
@@ -246,5 +263,9 @@
   ],
   "icon": "router",
   "color": "#14b8a6",
+  "poe": {
+    "budgetW": 420,
+    "sourceUrl": "https://techspecs.ui.com/unifi/cloud-gateways/udw"
+  },
   "sourceUrl": "https://techspecs.ui.com/unifi/cloud-gateways/udw"
 }
