@@ -2764,8 +2764,8 @@ Both spellings are one command. `at` is the keyword `link down <id> at <ms>` has
 `Number('at')` is `NaN`, and a `NaN` instant fails the "is this process still pending" comparison —
 so every `(pending)` mark vanished and the console reported a converged lab at an instant before it
 converged. This page named the bare form and blamed the `help` index for teaching the other
-form (`engine/cli.js:6765` is that row, and it names both now); the parser reads both, and a word that
-is neither an instant nor `at` is refused by name: `converge 1000 wibble` is
+form, and `_help()` now carries the row `converge [<ms> | at <ms>]`, which names both. The parser reads
+both, and a word that is neither an instant nor `at` is refused by name: `converge 1000 wibble` is
 `% Unrecognized "wibble" (converge [<ms> | at <ms>])`, and `converge at`, `converge wibble`,
 `converge -5` are each `% Invalid instant: …`. A refusal changes nothing, so the answer you then ask
 for is the one you get.
