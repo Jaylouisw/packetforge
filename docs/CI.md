@@ -41,18 +41,35 @@ Five verification checks on a code change, all of which must be green before a m
 | `Server smoke test` | A server that boots but cannot serve: every API route, the catalogue, WebSocket upgrade |
 | `Docker build` | A `Dockerfile` that does not build. Present as a syntax/build proxy, not a full image test |
 
-The test job runs the whole suite — `scripts/run-tests.js` discovers every
-`test/*.test.js` — plus `audit:ports`, `check:bytes`, `syntax-check` and the
-canonical-URL check.
+The test job runs more than the suite (`ci.yml`, the `test` job):
+
+- `npm test` — `audit:ports`, then `check:bytes`, then every `test/*.test.js` that
+  `scripts/run-tests.js` discovers;
+- `scripts/syntax-check.js`, started beside the suite and waited on at the end of the same step;
+- `scripts/check-node-surface.js` — no API newer than the Node 18 floor;
+- `scripts/check-canonical-urls.js` — every project URL points at Forgejo;
+- `scripts/check-ci-disk-hygiene.js` — every job that builds an image bounds what it writes;
+- `examples/build-examples.js`, then `scripts/missing-devices.js examples --no-issues`, which
+  cross-checks every model the built labs name.
+
+This paragraph used to name only the suite, `audit:ports`/`check:bytes`, the syntax check and the
+canonical-URL check. It left out the Node-surface, disk-hygiene, example-lab and catalogue steps, and
+its silence on the disk-hygiene check contradicted the shared-disk section below, which calls that
+script "a step in the test job".
 
 ### Running the same checks locally
 
 ```bash
-npm test              # every suite, the same entry point CI uses
-npm run syntax        # syntax-check across every JS file
-npm run smoke         # starts the server, exercises every route, shuts down
-docker build -t pf .  # exactly what the Docker job does
-npm run audit:ports   # per-port type audit
+npm test                                # audit:ports, check:bytes, then every suite — what CI runs
+npm run syntax                          # syntax-check across every JS file
+node scripts/check-node-surface.js      # no API newer than the Node 18 floor
+node scripts/check-canonical-urls.js    # every project URL points at Forgejo
+npm run check:ci-disk                   # every image-building job bounds what it writes
+npm run examples                        # build & verify the example labs
+npm run missing:devices                 # every model those labs name exists in the catalogue
+npm run smoke                           # starts the server, exercises every route, shuts down
+docker build -t pf .                    # exactly what the Docker job does
+npm run audit:ports                     # per-port type audit
 ```
 
 Two suites are randomised on purpose, and both are seeded so a failure reproduces exactly:
