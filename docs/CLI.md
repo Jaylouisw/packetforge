@@ -1749,18 +1749,27 @@ A dynamic or PAT translation lives for its protocol's timeout, and each packet t
 |---|---|
 | icmp | 60 s |
 | udp | 300 s |
+| udp to the DNS port, 53 (a port-translated entry) | 60 s |
 | tcp | 86400 s (24 hours) |
 | anything else | 86400 s (24 hours) |
 
 These are Cisco's published defaults (`ip nat translation (timeout)`: `icmp-timeout` 60 s, `udp-timeout` 300 s,
-`tcp-timeout` 86400 s, general `timeout` 86400 s;
+`dns-timeout` 60 s, `tcp-timeout` 86400 s, general `timeout` 86400 s;
 <https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/ipaddr/command/ipaddr-cr-book/ipaddr-i4.html>).
 `config.nat.timeouts` overrides any of them, and `show ip nat statistics` prints the values in force rather than
 leaving the rule to be guessed:
 
 ```
-Timeouts (seconds): icmp 60, udp 300, tcp 86400, other 86400
+Timeouts (seconds): icmp 60, udp 300, dns 60, tcp 86400, other 86400
 ```
+
+`dns` is not a fourth protocol: the same command reference writes the contrast in one sentence - "When port
+translation is configured, ... Non-DNS UDP translations time out after 5 minutes, and DNS times out in 1 minute" -
+and the DNS ALG is on as soon as NAT is configured, on port 53. So a UDP entry in the **port-translation** table
+whose destination is 53 is a DNS translation and takes the 60-second timer; every other UDP entry keeps 300, and a
+simple dynamic entry (no overload) keeps its protocol's timer whatever port the first flow named. `dns` in
+`config.nat.timeouts` sets the 60; a `udp` value does not move it. The TCP side of the ALG, a non-default ALG port
+and DNS payload rewriting are not modelled - see `research/nat-dns-translation-timeout.md`.
 
 The model has had `expireTranslations()` since it was written and nothing called it, so a translation was in force
 for the life of the run. Two things were wrong because of it. A **two-address pool with three inside hosts** refused

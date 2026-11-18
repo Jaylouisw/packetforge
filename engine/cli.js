@@ -5299,8 +5299,12 @@ class CliSession {
         // The timeouts are in force whether or not anyone asked: a dynamic translation that has been idle for
         // one is gone. Printing them is the only way to read the rule the table is being held to.
         const timeouts = natCfg.timeouts;
+        // `dns` is not a protocol, so it is printed from the port that makes an entry a DNS translation -
+        // the same call `expireTranslations()` makes for a UDP entry to port 53, so the line cannot drift
+        // from the rule it reports.
         out.push('Timeouts (seconds): icmp ' + natLib.timeoutFor(timeouts, 'icmp') +
           ', udp ' + natLib.timeoutFor(timeouts, 'udp') +
+          ', dns ' + natLib.timeoutFor(timeouts, 'udp', natLib.DNS_ALG_PORT) +
           ', tcp ' + natLib.timeoutFor(timeouts, 'tcp') +
           ', other ' + natLib.timeoutFor(timeouts, 'other'));
         const table = this._natTableAt();

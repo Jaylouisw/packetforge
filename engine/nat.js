@@ -60,9 +60,25 @@ const MAX_POOL = 1024;
 // (https://www.cisco.com/c/en/us/td/docs/switches/lan/cisco_ie9300/software/17_7/ip-addressing-config-ie93xx/g-ie93xx-l3-nat/t-config-address-translation-timeouts.html).
 // This model used to hold TCP for one hour and everything else for five minutes, which is neither
 // value. `default` is the general 24-hour timeout for protocols with no override.
-// FIN/RST and SYN shortening (60 s) and the DNS 60-second rule are not modelled here; see
-// research/nat-default-timeouts.md.
-const DEFAULT_TIMEOUTS = { icmp: 60, udp: 300, tcp: 86400, default: 86400 };
+//
+// `dns` is the fourth value the same reference publishes (`dns-timeout`, default 60 s), and it is not a
+// protocol: it is the timer for a **DNS translation** - a UDP entry in the port-translation table whose
+// destination is the DNS ALG's port. The command reference's usage guidelines draw the contrast the model
+// needs, in one sentence: "Non-DNS UDP translations time out after 5 minutes, and DNS times out in 1 minute"
+// (same page). The ALG is on as soon as NAT is configured - "The DNS ALG feature is enabled as soon as NAT
+// is configured on the device", Cisco Security Advisory cisco-sa-alg-dos-hbBS7SZE - so the 1-minute timer is
+// the one in force for a query unless someone disables it.
+//
+// What is deliberately *not* modelled: a DNS flow whose payload is rewritten (this engine translates
+// addresses, never DNS records), the TCP side of the ALG (`ip nat service dns tcp`), and a non-default ALG
+// port (`ip nat service dns udp port <n>`). research/nat-dns-translation-timeout.md says what would settle
+// each one.
+// FIN/RST and SYN shortening (60 s) are still not modelled; see research/nat-default-timeouts.md.
+const DEFAULT_TIMEOUTS = { icmp: 60, udp: 300, tcp: 86400, dns: 60, default: 86400 };
+
+// The DNS ALG's default port. `ip nat service dns udp` takes a `port port-number` to move it, and this
+// console has no `ip nat service`, so 53 is the only value that can be in force here.
+const DNS_ALG_PORT = 53;
 
 const PROTO_BY_NUMBER = {
   1: 'icmp', 6: 'tcp', 17: 'udp', 47: 'gre', 50: 'esp', 51: 'ah', 58: 'icmpv6'
@@ -422,8 +438,19 @@ function lookupTranslation(table, query) {
   return null;
 }
 
-function timeoutFor(timeouts, proto) {
+// Which timer a translation is held to. `dstPort` is optional and names the *kind* of entry, not a second
+// protocol: a UDP entry whose destination is the DNS ALG's port is a DNS translation and takes `dns-timeout`.
+// The caller decides whether a destination port is meaningful here - on a port-translated entry it is part of
+// the key, so it is the entry's own fact; on a simple dynamic entry it is only the first flow's port, and
+// passing it would let one packet's destination decide how long an address-sharing entry lives.
+function timeoutKind(proto, dstPort) {
   const p = normalizeProtocol(proto);
+  if (p === 'udp' && portOf(dstPort) === DNS_ALG_PORT) return 'dns';
+  return p;
+}
+
+function timeoutFor(timeouts, proto, dstPort) {
+  const p = timeoutKind(proto, dstPort);
   const from = function (o) {
     if (!isObject(o)) return null;
     if (typeof o[p] === 'number' && isFinite(o[p])) return o[p];
@@ -448,7 +475,10 @@ function expireTranslations(table, timeouts, step) {
 
   for (const e of t.translations) {
     if (e.type === NAT_TYPES.STATIC) { keep.push(e); continue; }
-    const limit = timeoutFor(timeouts, e.protocol);
+    // The destination port is read on a port-translated entry only. That is the entry the vendor's sentence
+    // is about - "When port translation is configured, each entry contains more information about the traffic
+    // that is using the translation" - and it is the only entry whose `dstPort` is part of its identity.
+    const limit = timeoutFor(timeouts, e.protocol, e.type === NAT_TYPES.PAT ? e.dstPort : null);
     const last = numOrNull(e.lastStep);
     const idle = now - (last === null ? 0 : last);
     if (isFinite(limit) && idle >= limit) { removed++; continue; }
@@ -840,6 +870,7 @@ module.exports = {
   // The timeout a translation is held to is part of what the table means, so the console prints it rather
   // than describing it a second time (#1393).
   timeoutFor,
+  DNS_ALG_PORT,
   expireTranslations,
   formatRuleLine
 };

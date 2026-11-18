@@ -1070,11 +1070,17 @@ section('7. NAT: PAT, static and dynamic translation');
 
 {
   // Ageing: PAT entries expire after the protocol idle timeout, statics never do.
+  //
+  // The destination used to be 8.8.8.8:53, which is a DNS query - and a port-translated UDP entry to the DNS
+  // ALG's port is held to 60 seconds, not 300 (`nat.dns`, research/nat-dns-translation-timeout.md). The port
+  // moved to 123 so this block still asks its own question, "a PAT entry ages at its protocol timer", and the
+  // DNS timer is asked in test/nat-dns-translation-timeout.test.js where it belongs.
   eq(nat.DEFAULT_TIMEOUTS.udp, 300, 'the default UDP translation timeout is 300 steps');
+  eq(nat.DEFAULT_TIMEOUTS.dns, 60, 'and a DNS translation is held for 60 steps');
   const table = nat.createNatTable();
   table.rules.push({ type: 'pat', insideLocal: '192.168.1.0/24', insideGlobal: '203.0.113.5' });
   nat.translateOutbound(table, {
-    srcIp: '192.168.1.10', srcPort: 5000, dstIp: '8.8.8.8', dstPort: 53, protocol: 'udp'
+    srcIp: '192.168.1.10', srcPort: 5000, dstIp: '8.8.8.8', dstPort: 123, protocol: 'udp'
   }, 10);
   eq(nat.expireTranslations(table, null, 309), 0, 'a PAT entry is kept until its idle timeout is reached');
   eq(nat.expireTranslations(table, null, 310), 1, 'a PAT entry idles out exactly at lastStep + timeout');

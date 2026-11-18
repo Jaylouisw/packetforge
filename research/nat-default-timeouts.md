@@ -61,10 +61,11 @@ carry or would be a second rule rather than a correction of this one:
   settle the implementation: a table entry that carries the last-seen flags and a test built from the FAQ's
   FIN/RST sequence.
 * **SYN without a completed handshake.** `syn-timeout` is 60 seconds. The model has no half-open state.
-* **DNS.** `dns-timeout` is 60 seconds for DNS server connections, while other UDP is 300. `timeoutFor()`
-  sees only the protocol, not the destination port, so DNS-over-UDP gets 300. Fixing it means passing the
-  port (or a flow kind) into the timeout lookup; the evidence is already in hand
-  (`ip nat translation (timeout)`, `dns-timeout` default 60).
+* **DNS.** *Settled later, in `research/nat-dns-translation-timeout.md`.* `dns-timeout` is 60 seconds, and it
+  is not a protocol: the command reference contrasts "Non-DNS UDP translations" (5 minutes) with "DNS"
+  (1 minute), and the DNS ALG is on as soon as NAT is configured, on port 53. `timeoutFor()` now takes the
+  destination port, and a UDP entry in the port-translation table whose destination is 53 ages at 60 s. The
+  TCP side of the ALG, a non-default ALG port and `port-timeout` remain open there.
 * **PPTP** has its own 86400-second timer, and ARP-ping and per-port timers exist; none of those flows are
   modelled.
 

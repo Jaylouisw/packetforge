@@ -158,7 +158,7 @@ console.log('The console reads the table at the instant it is asked');
 
   const stats = ((s.run('show ip nat statistics') || {}).output || []).join('\n');
   ok(/Active translations: 0/.test(stats), 'statistics agree: nothing is active', stats.split('\n').slice(-1)[0]);
-  ok(/Timeouts \(seconds\): icmp 60, udp 300, tcp 86400, other 86400/.test(stats),
+  ok(/Timeouts \(seconds\): icmp 60, udp 300, dns 60, tcp 86400, other 86400/.test(stats),
     'and the timeouts the table is held to are printed, not assumed', stats.split('\n').filter(function (l) {
       return /Timeouts/.test(l); })[0]);
 
