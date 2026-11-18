@@ -2530,7 +2530,7 @@ Both spellings are one command. `at` is the keyword `link down <id> at <ms>` has
 `Number('at')` is `NaN`, and a `NaN` instant fails the "is this process still pending" comparison —
 so every `(pending)` mark vanished and the console reported a converged lab at an instant before it
 converged. This page named the bare form and blamed the `help` index for teaching the other
-(`engine/cli.js:5272`); the parser reads both now, and a word that is neither an instant nor `at` is
+(`engine/cli.js:6389-6391`); the parser reads both now, and a word that is neither an instant nor `at` is
 refused by name: `converge 1000 wibble` is `% Unrecognized "wibble" (converge [<ms> | at <ms>])`, and
 `converge at`, `converge wibble`, `converge -5` are each `% Invalid instant: …`. A refusal changes
 nothing, so the answer you then ask for is the one you get.
