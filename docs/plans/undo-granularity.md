@@ -1,6 +1,10 @@
 # Plan: the config prints a `no` line that deletes the group it sits in
 
-Status: forward plan, no code. Measured on `a45f9d85`, 2026-11-17. Closes **no** open issue - the queue is
+Status: **step 2's VRRP half has landed** (2026-11-18: `engine/cli.js`, a new
+`test/vrrp-no-form.test.js`, a `test/config-roundtrip.test.js` fixture and the `docs/CLI.md` VRRP section;
+evidence in [research/vrrp-no-form-scope.md](../../research/vrrp-no-form-scope.md)). The rest is still a
+forward plan, measured on `a45f9d85`, 2026-11-17 - the "What exists today" section below describes the
+console as it was measured then. Closes **no** open issue - the queue is
 six device/catalogue requests (#130, #803, #807, #808, #810, #1879) and none is about the console. Scope:
 four `no` branches and one printer line in `engine/cli.js`, `test/config-roundtrip.test.js`, one new suite,
 `docs/CLI.md:2870`. Steps 2-5 change CLI behaviour; step 5's encapsulation case can change a subinterface's
@@ -90,7 +94,7 @@ the config column and one short in the total.
 ## Ordered steps
 
 1. **S** - `docs/CLI.md:2870`: 32/15/9/8 -> 33/16/9/8. No code, no behaviour.
-2. **S** - `no vrrp <vrid> priority` resets the priority to 100 and keeps the group; `no vrrp <vrid> preempt`
+2. **S** - **landed 2026-11-18.** `no vrrp <vrid> priority` resets the priority to 100 and keeps the group; `no vrrp <vrid> preempt`
    restores preempt; `no vrrp <vrid> advertise` likewise; bare `no vrrp <vrid>` still removes. Receipts in the
    OSPF words. Add a `config-roundtrip` fixture that carries `preempt: false, priority: 120` and asserts the
    group survives the paste - this is the PR that closes the defect found above.

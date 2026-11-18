@@ -1966,12 +1966,48 @@ class CliSession {
     if (head === 'no' && tokens[1] === 'vrrp') {
       const vrid = parseInt(tokens[2], 10);
       const groups = (this.device.config.vrrp || []);
-      const kept = groups.filter(function (g) {
-        return !(g.vrid === vrid && g.interface === this.iface);
+      const mine = groups.filter(function (g) {
+        return g.vrid === vrid && g.interface === this.iface;
       }, this);
-      if (kept.length === groups.length) return ['% No VRRP group ' + tokens[2] + ' on ' + this.iface];
-      this.device.config.vrrp = kept;
-      return ['VRRP group ' + vrid + ' removed from ' + this.iface];
+      if (!mine.length) return ['% No VRRP group ' + tokens[2] + ' on ' + this.iface];
+      // What follows the vrid decides whether the *group* goes or one *setting* does. IOS's `no` form of an
+      // attribute command removes that attribute and leaves the virtual router standing: "To disable this
+      // function, use the no form of this command" (Cisco IOS First Hop Redundancy Protocols Command
+      // Reference, `vrrp preempt`, syntax `no vrrp group preempt`,
+      // https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/ipapp_fhrp/command/fhp-cr-book/fhp-v1.html), and the
+      // configuration guide's own sample lists `no vrrp 100 preempt` in the same interface block as
+      // `vrrp 100 ip 10.1.0.100` (Cisco IOS IP Application Services Configuration Guide, Configuring VRRP).
+      //
+      // This branch read the vrid and nothing after it, so `no vrrp 42 preempt` deleted the group - and the
+      // printer writes exactly that line for a group whose preemption is off (`  no vrrp <vrid> preempt` in
+      // `_runningConfig`), so a config this console printed could not be pasted back: the paste took the
+      // virtual gateway with it. A printed line must not destroy the object it describes.
+      // See research/vrrp-no-form-scope.md and docs/plans/undo-granularity.md step 2.
+      const undo = String(tokens[3] || '').toLowerCase();
+      if (!undo) {
+        this.device.config.vrrp = groups.filter(function (g) {
+          return !(g.vrid === vrid && g.interface === this.iface);
+        }, this);
+        return ['VRRP group ' + vrid + ' removed from ' + this.iface];
+      }
+      const vrrpLib = require('./vrrp');
+      const group = mine[0];
+      if (undo === 'preempt') {
+        group.preempt = false;
+        return ['VRRP group ' + vrid + ' preempt disabled'];
+      }
+      if (undo === 'priority') {
+        group.priority = vrrpLib.VRRP_DEFAULT_PRIORITY;
+        return ['VRRP group ' + vrid + ' priority reset to ' + vrrpLib.VRRP_DEFAULT_PRIORITY];
+      }
+      if (undo === 'advertise' || undo === 'advertisement') {
+        group.advertSec = vrrpLib.VRRP_DEFAULT_ADVERT_SEC;
+        return ['VRRP group ' + vrid + ' advertises every ' + vrrpLib.VRRP_DEFAULT_ADVERT_SEC + ' s'];
+      }
+      // Anything else is a word this console cannot unset, and it is refused rather than read as the bare form:
+      // the guess that costs the most is the one that answers a `no` about one setting by deleting the group.
+      return ['% Unrecognized vrrp command: ' + tokens.join(' ') +
+        ' (this console can unset: priority, preempt, advertise - `no vrrp ' + vrid + '` removes the group)'];
     }
     if (head === 'ip' && tokens[1] && String(tokens[1]).toLowerCase() === 'nat') {
       // `ip nat inside` / `ip nat outside` - which side of the translation this port is on. The model translated

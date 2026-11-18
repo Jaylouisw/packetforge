@@ -2631,25 +2631,52 @@ interface Gi0/0
   vrrp <vrid> ip <virtual-address>
   vrrp <vrid> priority <1-254>        # 100 default; 255 is only ever the address owner's
   vrrp <vrid> advertise <seconds>
-  vrrp <vrid> preempt                 # the default, and the only value there is
+  vrrp <vrid> preempt                 # on by default; `no vrrp <vrid> preempt` turns it off
   vrrp <vrid> authentication <text>   # stored, and never used by the election
-  no vrrp <vrid>                      # remove the group - the only `no` form
+  no vrrp <vrid>                      # remove the group
+  no vrrp <vrid> priority|preempt|advertise   # put one setting back to its default
 ```
 
-**`no` reads the vrid and nothing after it.** The interface-mode handler matches `no vrrp <vrid>`
-before it looks at the rest of the line — `_ifaceMode()`, `engine/cli.js:1810-1819` — so any `no` that
-names a group removes that group, whatever follows the vrid:
+**A `no` that names a setting removes the setting; a bare `no` removes the group.** The interface-mode
+handler (`_ifaceMode()`, `engine/cli.js:1966-2011`) reads the vrid, and then the word after it:
 
 ```
 R1(config-if)#no vrrp 10 preempt
+VRRP group 10 preempt disabled
+R1(config-if)#no vrrp 10 priority
+VRRP group 10 priority reset to 100
+R1(config-if)#no vrrp 10 advertise
+VRRP group 10 advertises every 1 s
+R1(config-if)#no vrrp 10
 VRRP group 10 removed from Gi0/0
 ```
 
-`no vrrp 10 priority`, `no vrrp 10 advertise` and `no vrrp 10 wibble` are answered by the same line.
-Two consequences are worth knowing before typing it. There is no command that turns preemption off:
-the sub-command parser has a `no` branch for it, but the dispatcher has already removed the group
-by the time it would run, so every group that exists preempts. And a line written to switch one
-option off deletes the virtual gateway instead - check `show vrrp` afterwards.
+Each of those three words undoes exactly one line of the group, with the default the vendor's reference
+states — `priority` is 100 and `timers advertise` is 1 second — and the group keeps its virtual address,
+its other settings, and its place in the election. That is what the device does: `no vrrp <group> preempt`
+is the documented way to turn preemption off ("To disable this function, use the no form of this
+command", syntax `no vrrp group preempt`, [Cisco IOS First Hop Redundancy Protocols Command Reference,
+`vrrp preempt`](https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/ipapp_fhrp/command/fhp-cr-book/fhp-v1.html)),
+and the configuration guide's sample interface block lists `no vrrp 100 preempt` beside
+`vrrp 100 ip 10.1.0.100`. It also mattered here: `show running-config` has always printed
+`  no vrrp <vrid> preempt` for a group whose preemption is off, so the console was writing a line it read
+back as a deletion — pasting its own config took the virtual gateway with it. Only the bare `no vrrp <vrid>`
+removes a group, and a word the console cannot unset (`no vrrp 10 wibble`) is refused by name rather than
+read as that bare form:
+
+```
+R1(config-if)#no vrrp 10 wibble
+% Unrecognized vrrp command: no vrrp 10 wibble (this console can unset: priority, preempt, advertise - `no vrrp 10` removes the group)
+```
+
+Two things this does not yet do, so nobody reads more into the receipt than is there. **Nothing reads
+`preempt` during an election**: `computeVrrp()` re-elects the group from scratch on every pass, and the
+one function that models a rejoining router with preemption off (`groupState()`, `engine/vrrp.js:408`)
+is called only by the tests. A group with preemption off therefore behaves, so far, exactly like one
+with it on. And **`show vrrp` has no column for it** — the vendor prints `Preemption is disabled` in
+the detail view and a `Pre` column in `brief`. See
+[research/vrrp-no-form-scope.md](../research/vrrp-no-form-scope.md) for the evidence and for what would
+settle the display question.
 
 **`authentication` is a sub-word of `vrrp`, and the list above only now names it.** `vrrp <vrid> authentication
 <text>` is accepted inside an interface and answers `VRRP group <vrid> authentication set`, and

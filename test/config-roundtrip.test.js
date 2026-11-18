@@ -332,4 +332,38 @@ console.log('The config prints what a port references before the port that refer
   ok(runningConfig(b).join('\n') === text, 'and the config reproduces itself byte for byte');
 }
 
+console.log('');
+console.log('A VRRP group whose preemption is off survives the round trip:');
+{
+  // The printer wrote `  no vrrp <vrid> preempt` for the one state the console could not read back: the
+  // interface-mode `no vrrp` branch took the vrid, dropped the rest of the line, and deleted the group. So a
+  // config this console printed stopped being the config it had - the virtual gateway went with the paste.
+  const a = session(spec(/ASR 1001-X/));
+  const configured = a.run([
+    'enable', 'configure terminal',
+    'interface Gi0/0/0',
+    'ip address 10.1.2.3 255.255.255.0',
+    'vrrp 42 ip 10.1.2.1',
+    'vrrp 42 priority 120',
+    'no vrrp 42 preempt',
+    'exit', 'end'
+  ]);
+  ok(rejections(configured).length === 0, 'the group takes the line that turns preemption off',
+    JSON.stringify(rejections(configured).slice(0, 3)));
+  ok(a.dev.config.vrrp.length === 1 && a.dev.config.vrrp[0].preempt === false,
+    'and the group is still configured, with preemption off', JSON.stringify(a.dev.config.vrrp));
+  const rc = runningConfig(a);
+  const text = rc.join('\n');
+  ok(text.indexOf('  no vrrp 42 preempt') !== -1, 'the printer writes the line back');
+
+  const b = session(spec(/ASR 1001-X/));
+  const replayOut = b.run(['enable', 'configure terminal'].concat(rc).concat(['end']));
+  ok(rejections(replayOut).length === 0, 'and the paste is accepted',
+    JSON.stringify(rejections(replayOut).slice(0, 3)));
+  ok(b.dev.config.vrrp.length === 1, 'with the group still there', JSON.stringify(b.dev.config.vrrp));
+  ok(b.dev.config.vrrp[0] && b.dev.config.vrrp[0].preempt === false && b.dev.config.vrrp[0].priority === 120,
+    'preemption still off and the priority intact', JSON.stringify(b.dev.config.vrrp));
+  ok(runningConfig(b).join('\n') === text, 'and it reproduces itself');
+}
+
 process.exit(failed ? 1 : 0);
