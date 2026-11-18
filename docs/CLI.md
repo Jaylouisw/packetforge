@@ -2603,7 +2603,7 @@ interface Gi0/0
 ```
 
 **`no` reads the vrid and nothing after it.** The interface-mode handler matches `no vrrp <vrid>`
-before it looks at the rest of the line — `_ifaceMode()`, `engine/cli.js:1705` — so any `no` that
+before it looks at the rest of the line — `_ifaceMode()`, `engine/cli.js:1810-1819` — so any `no` that
 names a group removes that group, whatever follows the vrid:
 
 ```
