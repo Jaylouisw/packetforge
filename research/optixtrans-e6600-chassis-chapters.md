@@ -139,3 +139,29 @@ not published in any chapter an anonymous reader can reach.
 | https://e.huawei.com/en/products/optical-transmission/optixtrans-e6600 | spec table, four model columns (unchanged since 2026-11-16) |
 | https://www.actfornet.com/solutions/solution/OptiXtrans_E66000_Boards_Overview | 200 - partner mirror, lead only |
 | https://support.huawei.com/hedex/pages/EDOC1100126589BEJ09047/03/EDOC1100126589BEJ09047/03/resources/help/wdm/9800/hd/line/n210/n210.html | 403 (browser UA), 302 (curl and no UA) - still closed |
+
+## 9. Table 1 verbatim, re-read 2026-11-18
+
+The same chapter's *Table 1 Current subrack capacity* is the only place the E6600 generation states a
+cross-connect figure per **switch board** rather than per chassis. Re-fetched today (1,535,511 B, 20 pp,
+text layer 29,975 characters) and read row by row, because the E6616 spec's `fabric.note` now quotes it:
+
+| Cross-connect board | Max per slot: ODUk | Max per slot: SDH VC-4/VC-3/VC-12 | Max subrack: ODUk | Max subrack: SDH VC-4 | Max subrack: SDH VC-3/VC-12 |
+|--|--|--|--|--|--|
+| TMK5SXCH | 200 Gbit/s | 10 Gbit/s | **2.8 Tbit/s** | 140 Gbit/s | 20 Gbit/s |
+| TMK5XCH | 200 Gbit/s | N/A | **2.4 Tbit/s** | N/A | N/A |
+| TMK6XCH | 200 Gbit/s | N/A | **2.8 Tbit/s** | N/A | N/A |
+| TMK5UXCME | 100 Gbit/s ODUk + 100 Gbit/s OSU | 20 Gbit/s | 920 Gbit/s ODUk + 920 Gbit/s OSU | 160 Gbit/s | 20 Gbit/s |
+| TMK5XCS | N/A | 20 Gbit/s | N/A | 160 Gbit/s | 20 Gbit/s |
+
+Two readings that matter for the catalogue and were previously only implicit:
+
+- The SDH figures belong to **TMK5SXCH alone** (the OTN+SDH switch board); the OTN-only boards carry no
+  SDH columns. So "OTN 2.8 Tbit/s" is TMK5SXCH or TMK6XCH, and "2.4 Tbit/s" is TMK5XCH - three
+  different switch boards, not three generations of the same one.
+- TMK5UXCME is an **OSU** board (920 Gbit/s ODUk *plus* 920 Gbit/s OSU in the subrack), not a
+  cross-connect, and its footnote limits OSU add/drop to slots 1, 2, 3, 5, 7, 9, 11 and 13 with a
+  4 x 9.6 Gbit/s ceiling - which is why it cannot be read as a fourth 2.8 Tbit/s fabric.
+
+Applied in `devices/huawei/optixtrans-e6616.json` `fabric.note`: the 2.8 Tbit/s figure is now attributed
+to the named switch board instead of "the 14-slot shelf", and the 2.4 Tbit/s TMK5XCH variant is stated.

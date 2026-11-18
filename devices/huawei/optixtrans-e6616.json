@@ -3,7 +3,7 @@
   "model": "OptiXtrans E6616",
   "label": "OptiXtrans E6616 OTN platform, DC chassis, 14x B1LDCD (56x 100GE client, 28x 200G line)",
   "category": "switch",
-  "description": "Huawei OptiXtrans E6616 - 5U OTN transport platform, 2.8 Tbit/s, 14 service slots in the DC chassis (12 under 1500 W AC power, 10 under 2400 W AC power), 400G per slot capable. Modelled fully populated with 14x B1LDCD muxponder boards: 56x 100GE client ports and 28x 200G line ports.",
+  "description": "Huawei OptiXtrans E6616 - 5U OTN transport platform, 2.8 Tbit/s with the TMK5SXCH or TMK6XCH cross-connect (2.4 Tbit/s with TMK5XCH), 14 service slots in the DC chassis (12 under 1500 W AC power, 10 under 2400 W AC power), 200 Gbit/s ODUk per service slot. Modelled fully populated with 14x B1LDCD muxponder boards: 56x 100GE client ports and 28x 200G line ports.",
   "capabilities": [
     "cli"
   ],
@@ -520,7 +520,7 @@
   "fabric": {
     "capacityMbps": 2800000,
     "kind": "OTN cross-connect",
-    "note": "2.8 Tbit/s OTN cross-connect for the 14-slot shelf with K5XCH switch boards (2.4 Tbit/s with the OTN+SDH variant). Line ports are excluded from the offered figure: each one is the far end of a client connection the fabric already carries once.",
+    "note": "2.8 Tbit/s OTN cross-connect for the 14-slot shelf with the TMK5SXCH switch board, which carries SDH as well (140 Gbit/s VC-4, 20 Gbit/s VC-3/VC-12); TMK6XCH gives the same 2.8 Tbit/s OTN with no SDH, and TMK5XCH is 2.4 Tbit/s OTN only. Verbatim from OptiXtrans E6600 Product Documentation chapter 1 (E6616 Chassis), Table 1 \"Current subrack capacity\": TMK5SXCH 200 Gbit/s ODUk per slot into 2.8 Tbit/s subrack, TMK5XCH 200 Gbit/s into 2.4 Tbit/s, TMK6XCH 200 Gbit/s into 2.8 Tbit/s. Line ports are excluded from the offered figure: each one is the far end of a client connection the fabric already carries once.",
     "excludes": [
       "line*"
     ]
