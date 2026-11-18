@@ -1215,27 +1215,65 @@ jobs:
           fi
           echo "#${NUMBER}: every check on ${HEAD_SHA} is green - merging"
 
-          # Ask for the merge and let the server answer, instead of watching the cached
-          # `mergeable` field. GET /pulls/:n serves a value a background task fills in, so
-          # it lags the branch; POST /pulls/:n/merge recomputes mergeability inside the very
-          # request that merges, so it is both the shorter path and the authoritative one.
+          # Two measured facts before this block, both from the last hour of runs.
           #
-          # The loop this replaces polled the cached field for 90 s and then reported
-          # "mergeable was still not computed" - wrong on both counts, because the field had
-          # been answered (`false`) and the server would have recomputed it on a merge
-          # request. Two of the last 40 green arm runs paid the 90 s and still did not merge:
-          # #1917 (run 5735, task 14603) and #1923 (run 5788, task 14759). #1923 was then
-          # merged at 02:11:47 by the next rebase pass, 6 min later, after that pass re-ran
-          # the whole matrix on a fresh head. Same question, asked once, now.
+          # 1. This job's merge POST was being refused, and the refusal was invisible.
+          #    Each of the three pull requests the pipeline reported green at 20:25-20:27
+          #    (#2026 run 6627, #2027 run 6629, #2028 run 6631) had all eight statuses
+          #    `success` and `mergeable: true` at 20:30, and none of them was merged. The
+          #    three before them landed 4-16 min after their own arm job had already gone
+          #    green: #2025 arm green at 20:03:29 (run 6611), merged 20:07:33; #2024 arm
+          #    green at 20:00:15 (run 6608), merged 20:07:44; #2023 arm green at 19:52:14
+          #    (run 6606), merged 20:08:13. Every one of those merges was the *scheduled*
+          #    rebase pass, not this job - so a green gate still cost a full second matrix
+          #    on a fresh head, and 4-16 min of sitting open.
           #
-          # `head_commit_id` is still sent: a merge aimed at a commit that is no longer the
-          # head is refused by the server rather than merged against a tree nobody tested.
-          # The retry is bounded to 8 s and prints the server's own reason; nothing here can
-          # turn a red or unmergeable pull request green, and a refusal leaves the branch for
-          # the next rebase pass exactly as before.
+          #    The reason is the one already written down in pr-rebase.yml: Forgejo fills
+          #    `mergeable` from a background task, and a merge request that arrives before
+          #    that task has answered is refused with 405 "Please try again later". The
+          #    loop below treated that answer as a verdict and retried the same request
+          #    four seconds later, three times - 12 s of retries against a number that only
+          #    changes when the background task runs, then `exit 0` with a warning nobody
+          #    reads. Retrying a POST that is waiting on the server is not a retry; it is a
+          #    guess. Asking the server whether its own answer has settled is the answer.
+          #
+          # 2. So the wait comes first, bounded at 40 s (the cached field settles in
+          #    seconds once the head stops moving; the rebase pass allows itself 120 s for
+          #    the same question on a head that was pushed one second earlier, and this head
+          #    is a minute old). If it settles, the merge POST is the immediate, decisive
+          #    call it was always meant to be. If it does not settle in 40 s, the POST is
+          #    still attempted - the server may recompute inside the request - and the
+          #    refusal is reported with its own HTTP code instead of being retried blind.
+          #    Nothing here can merge a red or unmergeable pull request: the status set is
+          #    still verified above, and `head_commit_id` still pins the commit this run
+          #    checked.
+          mergeable=""
+          deadline=$((SECONDS + 40))
+          while : ; do
+            mergeable=$(curl -sS --connect-timeout 5 --max-time 20 --retry 2 --retry-delay 1 \
+                          --retry-connrefused -H "Authorization: token ***" \
+                          "$api/repos/$repo/pulls/${NUMBER}" 2>/dev/null |
+                        node -e '
+                          let d = "";
+                          process.stdin.on("data", (c) => { d += c; });
+                          process.stdin.on("end", () => {
+                            try { const j = JSON.parse(d); console.log(String(j.mergeable)); }
+                            catch (e) { console.log(""); }
+                          });
+                        ')
+            if [ "$mergeable" = "true" ]; then break; fi
+            if [ "$SECONDS" -ge "$deadline" ]; then break; fi
+            sleep 2
+          done
+          echo "#${NUMBER}: mergeable=${mergeable:-unreadable} after $((40 - (deadline - SECONDS))) s of waiting"
+          # Bounded, and each attempt is a real question with a printed answer: the
+          # first one normally succeeds now that the field has settled, and a second
+          # covers the case where the background task answered between the last poll and
+          # the POST. A refusal still leaves the branch for the next rebase pass, exactly
+          # as before - this changes when the merge is asked for, not what counts as one.
           body="${RUNNER_TEMP:-/tmp}/merge-body.json"
           attempt=0
-          while [ "$attempt" -lt 3 ]; do
+          while [ "$attempt" -lt 2 ]; do
             attempt=$((attempt + 1))
             code=$(curl -sS --connect-timeout 5 --max-time 20 --retry 2 --retry-delay 1 \
                      --retry-connrefused -o "$body" -w '%{http_code}' -X POST \
@@ -1254,6 +1292,6 @@ jobs:
                 note "#${NUMBER}: merge refused (HTTP ${code}) ${why}"
                 exit 0 ;;
             esac
-            sleep 4
+            sleep 3
           done
           note "#${NUMBER}: still not mergeable after ${attempt} attempts - every check is green and the branch is left for the next rebase pass"
