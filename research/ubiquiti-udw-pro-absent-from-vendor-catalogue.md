@@ -1,10 +1,11 @@
-# The Dream Wall Pro has no vendor page, and Ubiquiti serves its 404s as 200s
+# The Dream Wall Pro has no vendor page - and Ubiquiti's not-found is a redirect, not a soft 200
 
 Request #130 asks for a **Ubiquiti UniFi Dream Wall Pro (UDW-PRO)** as a routed gateway. Its own
 body says the port list is "inferred from the 4gon product name" and sends the reader to that
 reseller listing, so the census was never sourced in the first place. This note records what
-Ubiquiti publishes about the Pro today (2026-11-17) and, more usefully, the two ways this site
-makes a page look present when it is not.
+Ubiquiti publishes about the Pro (first written 2026-11-17, re-measured 2026-11-18) and, more
+usefully, the one way this site answers for a slug it does not have - a redirect to the techspecs
+root, corrected here from the "soft 200" reading an earlier pass had recorded.
 
 ## What Ubiquiti does publish: the non-Pro Dream Wall
 
@@ -28,11 +29,11 @@ the Pro, and the request is only for the Pro.
 
 | probe | status | final URL | bytes |
 |---|---|---|---|
-| `techspecs.ui.com/unifi/cloud-gateways/udw-pro` | 200 | `https://techspecs.ui.com/` | 609,911 |
+| `techspecs.ui.com/unifi/cloud-gateways/udw-pro` | **307** -> `Location: /` | `https://techspecs.ui.com/` after following | 1 -> 609,911 |
 | `techspecs.ui.com/unifi/cloud-gateways/udw` | 200 | unchanged | 704,702 |
 | `store.ui.com/us/en/products/udw-pro` | **404** | unchanged | 204,279 |
 | `store.ui.com/us/en/products/udw` | 200 | unchanged | 568,104 |
-| `dl.ui.com/ds/udw-pro_ds.pdf` | 200 | `https://techspecs.ui.com/` | 609,911 |
+| `dl.ui.com/ds/udw-pro_ds.pdf` | **302** -> `Location: https://techspecs.ui.com` | same, after following | 308 -> 609,911 |
 | `dl.ui.com/ds/udw_ds.pdf` | 200 | unchanged | 544,909 |
 
 The store page for the UDW mentions only `udw-us`, `udw-module` and `udw-raceway`; there is no
@@ -40,22 +41,39 @@ The store page for the UDW mentions only `udw-us`, `udw-module` and `udw-raceway
 (`4gon.co.uk/ubiquiti-unifi-dream-wall-pro-udwpro-p-10111.html`) now answers **403** to this host,
 and would not be admissible evidence for a port count even if it did not.
 
-## The trap: on these two hosts, 200 means nothing
+## The trap, corrected 2026-11-18: these hosts redirect, they do not soft-200
 
-`dl.ui.com` and `techspecs.ui.com` answer **HTTP 200 with the techspecs home page** for any slug
-they do not have. Two controls, run the same way as the probes above:
+This note first said `dl.ui.com` and `techspecs.ui.com` "answer HTTP 200 with the techspecs home page
+for any slug they do not have". Re-measured today **without following redirects**, that is not what
+happens: both hosts answer a redirect to the techspecs root with a 1-byte or ~300-byte body, and the
+609,911-byte home page is the *landing* page reached only when the redirect is followed.
 
-- `techspecs.ui.com/unifi/cloud-gateways/udw-pro-techspecs` - 200, final `https://techspecs.ui.com/`, 609,911 bytes.
-- `dl.ui.com/ds/bogus-xyz_ds.pdf` - 200, final `https://techspecs.ui.com/`, 609,911 bytes.
+| probe, no `-L` | status | `Location` | body | landed page |
+|---|---|---|---|---|
+| `techspecs.ui.com/unifi/cloud-gateways/udw-pro` | **307** | `/` | 1 B | 200, 609,911 B |
+| `techspecs.ui.com/unifi/cloud-gateways/udw-pro-techspecs` (control) | **307** | `/` | 1 B | 200, 609,911 B |
+| `dl.ui.com/ds/udw-pro_ds.pdf` | **302** | `https://techspecs.ui.com` | 308 B | 200, 609,911 B |
+| `dl.ui.com/ds/bogus-xyz_ds.pdf` (control) | **302** | `https://techspecs.ui.com` | 290 B | 200, 609,911 B |
+| `dl.ui.com/qig/udw-pro.pdf` | **302** | `https://techspecs.ui.com` | 306 B | 200, 609,911 B |
+| `techspecs.ui.com/` (the landing page itself) | 200 | - | 609,911 B | - |
 
-Both are byte-identical to the `udw-pro` probes. So the only honest reading of a 200 on those hosts
-is **compare the final URL and the byte count**, never the status line. The same caveat kills the
-quick-start-guide pattern as a negative test: `dl.ui.com/qs/UDW-Pro.pdf` and `dl.ui.com/qs/UDW.pdf`
-both fall back to 609,911 bytes, so "no QSG at that path" proves nothing about either model.
+The landing page is byte-identical to the bare root (md5 `5bec75c89b40d2283b11ac5397d85af1`), so the
+fallback is the site's front door rather than a synthesised stub - which is why the earlier byte count
+was right even though the status line it came from had been read after a redirect.
 
-This is why the 2026-11-10 comment on #130 ("`techspecs.ui.com/.../udw-pro` redirects") was right
-about the outcome and unsafe as a method: a redirect to the techspecs home page is the site's
-not-found, not a link to the product.
+**Why the correction matters.** "200 on these hosts means nothing" is too strong, and it is the wrong
+instrument for the next SKU. A 200 whose `%{url_effective}` is unchanged and whose body is not 609,911
+bytes is a real page - that is how `techspecs.ui.com/unifi/cloud-gateways/udw` (704,702 B) and
+`dl.ui.com/ds/udw_ds.pdf` (544,909 B) read as genuine today, side by side with the fallbacks above.
+The instrument is `curl -w '%{http_code} %{redirect_url} %{num_redirects}'` **without** `-L`: a 307 or
+302 to the root is the not-found, a 200 in place is a document. Consequence for the negative test this
+note cares about: a Pro quick-start, if Ubiquiti ever publishes one, would present as a 200
+`application/pdf` at that same URL, and the previous wording would have thrown it away as "the usual
+fallback".
+
+The outcome recorded here is unchanged - the Pro has no page, no datasheet and no quick-start today.
+What changes is that a later pass can tell a new document from the fallback by the status line,
+instead of by a byte count it has to remember.
 
 ## Why the non-Pro numbers cannot stand in
 
@@ -70,8 +88,9 @@ two i-MO console ports and on three MA5801 copper uplinks.
 
 Any one of:
 
-1. A `techspecs.ui.com/unifi/cloud-gateways/udw-pro` page that returns **its own** content (final URL
-   unchanged, byte count different from 609,911) - then the census is one read away.
+1. A `techspecs.ui.com/unifi/cloud-gateways/udw-pro` page that returns **its own** content - a 200
+   with no redirect to the root, at a byte count other than 609,911 (2026-11-18: today it is a 307
+   to `/`, so this test is unambiguous) - then the census is one read away.
 2. The UDW-PRO quick-start or installation guide at a URL that actually resolves.
 3. A statement from Ubiquiti that the Pro was cancelled. The request is for a product that appears
    never to have reached the store, and "not a shipping product" is a closable answer; "no census
