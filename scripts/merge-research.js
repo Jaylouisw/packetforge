@@ -91,16 +91,20 @@ const devices = [
     ], icon: 'switch', color: '#14b8a6' },
 
   // ===================== Ubiquiti =====================
+  // UDM-Pro: the 10G side is two SFP+ cages, not one cage and a connectorless 10G port.
+  // Vendor rows: '(8) LAN: GbE RJ45 ports / (1) WAN: GbE RJ45 port' and
+  // 'SFP+ interface (1) LAN: 10G SFP+ / (1) WAN: 10G SFP+' - https://dl.ui.com/ds/udm-pro.pdf
   { vendor: 'ubiquiti', model: 'UDM-Pro', label: 'UniFi Dream Machine Pro', category: 'firewall',
-    description: 'Rackmount UniFi gateway/firewall/NVR appliance with 8-port GbE switch and dual 10G SFP+ uplinks.',
+    description: 'Rackmount UniFi gateway/firewall/NVR appliance with 8-port GbE switch and dual 10G SFP+ cages.',
     capabilities: ['l3-forward','firewall','nat','dhcp-server','dhcp-client','cli','http-server'],
     interfaces: [
-      { name: 'wan1', type: 'ethernet', speed: '1G' }, { name: 'wan2', type: 'ethernet', speed: '10G' },
-      { name: 'port1', type: 'ethernet', speed: '1G' }, { name: 'port2', type: 'ethernet', speed: '1G' },
-      { name: 'port3', type: 'ethernet', speed: '1G' }, { name: 'port4', type: 'ethernet', speed: '1G' },
-      { name: 'port5', type: 'ethernet', speed: '1G' }, { name: 'port6', type: 'ethernet', speed: '1G' },
-      { name: 'port7', type: 'ethernet', speed: '1G' }, { name: 'port8', type: 'ethernet', speed: '1G' },
-      { name: 'sfp1', type: 'ethernet', speed: '10G' }
+      { name: 'wan1', type: 'ethernet', connector: 'rj45', speed: '1G' },
+      { name: 'port1', type: 'ethernet', connector: 'rj45', speed: '1G' }, { name: 'port2', type: 'ethernet', connector: 'rj45', speed: '1G' },
+      { name: 'port3', type: 'ethernet', connector: 'rj45', speed: '1G' }, { name: 'port4', type: 'ethernet', connector: 'rj45', speed: '1G' },
+      { name: 'port5', type: 'ethernet', connector: 'rj45', speed: '1G' }, { name: 'port6', type: 'ethernet', connector: 'rj45', speed: '1G' },
+      { name: 'port7', type: 'ethernet', connector: 'rj45', speed: '1G' }, { name: 'port8', type: 'ethernet', connector: 'rj45', speed: '1G' },
+      { name: 'sfp1', type: 'ethernet', connector: 'sfp+', speed: '10G', speedCaps: [1000, 10000] },
+      { name: 'sfp2', type: 'ethernet', connector: 'sfp+', speed: '10G', speedCaps: [1000, 10000] }
     ], icon: 'firewall', color: '#3b82f6' },
 
   { vendor: 'ubiquiti', model: 'UCG-Ultra', label: 'UniFi Cloud Gateway Ultra', category: 'router',
