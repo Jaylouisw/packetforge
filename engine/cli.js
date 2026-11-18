@@ -1877,12 +1877,32 @@ class CliSession {
     return null;
   }
 
-  _ipOverlapRefusal(iface, ip, dotted) {
+  // Whether a port is in the routing table at all, which is the thing the overlap rule is about: one
+  // subnet, one wire. A port that is administratively down installs no connected route, so it neither
+  // reserves its subnet nor collides with one; a subinterface whose parent is shut is in the same
+  // position, because its route goes out through the parent. Read from the same `enabled` flag
+  // `show interfaces` prints, not from a second copy of the state.
+  _portReservesSubnet(iface) {
+    if (!iface || iface.enabled === false) return false;
+    if (iface.parent) {
+      const parent = this.device.interfaces.get(iface.parent);
+      if (parent && parent.enabled === false) return false;
+    }
+    return true;
+  }
+
+  _ipOverlapRefusal(iface, ip, dotted, opts) {
     const netLib = require('./net');
+    const atLinkUp = !!(opts && opts.atLinkUp);
+    // A shut port takes an overlapping address without a word: `no shutdown` is where the box refuses
+    // (`atLinkUp` says the port is being opened, so its own admin state is what is about to change, not
+    // what decides). A live port asked at `ip address` time is checked here, before anything is stored.
+    if (!atLinkUp && !this._portReservesSubnet(iface)) return null;
     const start = netLib.networkOf(ip, dotted);
     const end = netLib.broadcastOf(ip, dotted);
     for (const other of this.device.interfaces.values()) {
       if (other === iface) continue;
+      if (!this._portReservesSubnet(other)) continue;
       if (!other.ip || !other.mask) continue;
       if (!netLib.isContiguousMask(other.mask)) continue;
       const oStart = netLib.networkOf(other.ip, other.mask);
@@ -2150,6 +2170,21 @@ class CliSession {
       out.push(iface.name + ' administratively down' +
         (forgotten ? ' (' + forgotten + ' learned address' + (forgotten === 1 ? '' : 'es') + ' on it dropped)' : ''));
     } else if (head === 'no' && tokens[1] === 'shutdown') {
+      // The address this port already holds is put into the routing table by opening it, so the overlap
+      // question is asked again here - and a port whose address collides with a live one is refused in
+      // the same one line, and stays administratively down:
+      //
+      //     R1(config-if)#ip address 172.20.101.1 255.255.255.0
+      //     R1(config-if)#
+      //     R1(config-if)#no shutdown
+      //     % 172.20.101.0 overlaps with GigabitEthernet0/1
+      //
+      // A shut port takes an overlapping address silently, which is why this is the only place the
+      // collision can surface for one: it was not a collision when the address was typed.
+      if (iface.enabled === false && iface.ip && iface.mask) {
+        const clash = this._ipOverlapRefusal(iface, iface.ip, iface.mask, { atLinkUp: true });
+        if (clash) return [clash];
+      }
       iface.enabled = true;
       this._controlPlaneChanged();
       out.push(iface.name + ' up');

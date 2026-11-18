@@ -2,6 +2,20 @@
 
 ### Fixed
 
+- **An overlapping address on a port that is administratively down, and where the box refuses it.** The
+  one-subnet-one-wire rule belongs to the routing table, so it is asked at both ends of a port's life. A port
+  that is down installs no connected route and takes an overlapping address without a word; the command that
+  opens it is where the collision surfaces, in the same one line, and the port stays down. Connected Dots
+  walks the same address through all three states on one router - accepted while `Gi0/0` is shut, refused
+  with `% 172.20.101.0 overlaps with GigabitEthernet0/1` at `no shutdown`, and accepted once `Gi0/1` is
+  shutdown -
+  an IOS SVI log on Cisco's forum keeps the SVI down for the same reason ("Vlan123 has been shutdown"). The
+  model refused at address entry whatever the port's state, so a lab could not build the case at all. A shut
+  incumbent no longer blocks a live port either, and a shut parent frees its subinterface's subnet, because
+  that route leaves through the parent. An incumbent that is open but has no carrier is deliberately not
+  modelled: no source in hand speaks about line protocol rather than administrative state. The sources, the
+  three states, and what would settle the carrier case are in
+  [research/ip-address-overlap.md](research/ip-address-overlap.md).
 - **`show arp` prints the box's own addresses.** Cisco's field list for the command says the hyphen in `Age (min)`
   "means the address is local", and a router and a switch transcript each show the row - `Internet 10.2.2.1 - ... ARPA GigabitEthernet0/0/2` on an ASR1000, `Internet 192.168.2.1 - ... ARPA Vlan1` on a 2960-CX. The table held only what the device had heard, so the address configured on the box was absent from the box's own cache. There is now one local row per interface holding an IPv4 address: the port's MAC in `Hardware Addr`, its name in `Interface`, and `-` in `Age (min)`; it is not aged and not a neighbour. End hosts get no such row, because their cache holds their neighbours rather than themselves. The sources and the open cases are in [research/show-arp-local-address.md](research/show-arp-local-address.md).
 - **A channel group configured at one end only forms no bundle, and its member is stand-alone.** LACP is a

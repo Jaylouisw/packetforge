@@ -428,8 +428,22 @@ port that got there first. Overlap is asked of the two address ranges rather tha
 because `10.1.1.1/16` and `10.1.2.1/24` are different subnets that still cover the same host — a box refuses
 those too, in either order. A subinterface collides exactly like a port (`Gi0/0/0.20` against `Gi0/0/0`), the
 same port may be re-addressed freely, `no ip address` frees the subnet, and the same subnet on another device
-is the normal case and is untouched. What the refusal does *not* decide — an incumbent that is administratively
-down, and an address a DHCP client holds at run time — is recorded in
+is the normal case and is untouched.
+
+The rule belongs to the routing table, so it is asked at **both** ends of a port's life. A port that is
+administratively down installs no connected route, and takes an overlapping address without a word; opening
+it is where the collision surfaces, in the same one line, and the port stays down:
+
+```
+R1(config-if)#shutdown
+R1(config-if)#ip address 172.20.101.1 255.255.255.0
+R1(config-if)#no shutdown
+% 172.20.101.0 overlaps with Gi0/0
+```
+
+Closing the incumbent first is what the box expects the operator to do, and the same `no shutdown` then
+succeeds. What this still does not decide — an incumbent that is open but has no carrier, and an address a
+DHCP client holds at run time — is recorded in
 [research/ip-address-overlap.md](../research/ip-address-overlap.md).
 
 An address that is not a host address is refused before any of that is asked. Under the mask it was typed
@@ -2749,7 +2763,7 @@ interface Gi0/0
 ```
 
 **A `no` that names a setting removes the setting; a bare `no` removes the group.** The interface-mode
-handler (`_ifaceMode()`, `engine/cli.js:1966-2011`) reads the vrid, and then the word after it:
+handler (`_ifaceMode()`, `engine/cli.js:1917-2028`) reads the vrid, and then the word after it:
 
 ```
 R1(config-if)#no vrrp 10 preempt

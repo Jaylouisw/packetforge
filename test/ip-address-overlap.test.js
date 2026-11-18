@@ -150,5 +150,74 @@ console.log('\nA subinterface collides exactly like a port:');
     'and refuses an address in the parent\'s subnet, naming the parent', JSON.stringify(out));
 }
 
+
+console.log('\n' + 'A shut port takes an overlapping address, and `no shutdown` is where it is refused:');
+{
+  // The rule is about the routing table, not about the typing: a port that is administratively down
+  // installs no connected route, so its address collides with nothing. Opening it is what puts the
+  // address into the table, so that is where the box refuses - in the same one line, leaving the port
+  // shut. Evidence, and the limit of it, in research/ip-address-overlap.md.
+  //
+  //   https://www.connecteddots.online/resources/cisco/network-overlaps-with-GigabitEthernet
+  const env = lab();
+  const a = env.eth[0].name, b = env.eth[1].name;
+  const shut = function (name) {
+    env.cli.run('interface ' + name);
+    const o = env.cli.run('shutdown').output;
+    env.cli.run('exit');
+    return o;
+  };
+  const open = function (name) {
+    env.cli.run('interface ' + name);
+    const o = env.cli.run('no shutdown').output;
+    env.cli.run('exit');
+    return o;
+  };
+  env.say(a, '172.20.100.1', '255.255.254.0');
+  shut(b);
+  const typed = env.say(b, '172.20.101.1', '255.255.255.0');
+  ok(typed.join(' ').indexOf('overlaps') === -1 && env.ipOf(b) === '172.20.101.1/24',
+    'a port that is shut accepts the address in silence', JSON.stringify(typed));
+  ok(env.cli.run('show ip route').output.filter(function (l) {
+    return /172.20.101.0/.test(l);
+  }).length === 0, 'and its subnet is in no connected route while it is shut',
+    env.cli.run('show ip route').output.join(' | '));
+  const refused = open(b);
+  ok(refused.length === 1 && refused[0] === '% 172.20.101.0 overlaps with ' + a,
+    '`no shutdown` is refused in the same one line the box uses at address entry, naming the live port', JSON.stringify(refused));
+  ok(env.r1.interfaces.get(b).enabled === false && /administratively down/.test(env.brief(b)),
+    'and the port stays administratively down', env.brief(b));
+  // The other half of the same fact: a shut port does not reserve its subnet either.
+  shut(a);
+  const allowed = open(b);
+  ok(allowed.length === 1 && allowed[0] === b + ' up',
+    'once the incumbent is shut, the same port opens with the address it already held',
+    JSON.stringify(allowed));
+}
+
+console.log('\n' + 'A shut incumbent does not block an address on a live port:');
+{
+  const env = lab();
+  const a = env.eth[0].name, b = env.eth[1].name;
+  env.say(a, '10.4.0.1', '255.255.255.0');
+  env.cli.run('interface ' + a); env.cli.run('shutdown'); env.cli.run('exit');
+  const out = env.say(b, '10.4.0.2', '255.255.255.0');
+  ok(out.join(' ').indexOf('overlaps') === -1 && env.ipOf(b) === '10.4.0.2/24',
+    'a shut port holds no connected route, so the subnet is free', JSON.stringify(out));
+}
+
+console.log('\n' + 'A subinterface on a shut parent reserves nothing:');
+{
+  const env = lab();
+  const a = env.eth[0].name, b = env.eth[1].name;
+  env.cli.run('interface ' + a + '.30');
+  env.cli.run('ip address 10.5.30.1 255.255.255.0');
+  env.cli.run('exit');
+  env.cli.run('interface ' + a); env.cli.run('shutdown'); env.cli.run('exit');
+  const out = env.say(b, '10.5.30.2', '255.255.255.0');
+  ok(out.join(' ').indexOf('overlaps') === -1 && env.ipOf(b) === '10.5.30.2/24',
+    'its route goes out through the parent, so a shut parent frees the subnet', JSON.stringify(out));
+}
+
 console.log('\n' + passed + ' passed, ' + failed + ' failed');
 process.exit(failed ? 1 : 0);
