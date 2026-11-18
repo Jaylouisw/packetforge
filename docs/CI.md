@@ -186,7 +186,8 @@ What it will **not** close, and why:
   bodies that made this rule necessary: #1867's *"Does **not** close #743"*, #1873's
   *"Refs #742 - this PR records measurements; it does **not** close the issue"* and its
   heading *"## What would close #742"*. All three name a number next to a keyword, none
-  claims a fix, and #742/#743 are still open — which is what Forgejo decided too.
+  claims a fix, and #742/#743 are still open. That is not evidence about Forgejo's parser —
+  see *The forge's own parser, and the sentence it cannot read*, below.
 - **An issue that is already closed**, or a number that belongs to a pull request: it
   never reopens and never re-closes.
 - **A device that is only nearly the same product.** `OptiXtrans E6616X` is not the
@@ -197,6 +198,46 @@ What it will **not** close, and why:
   commit or the device it closed; if the marker is already there and the issue is open
   again, the sweep leaves it alone and says so. A second run can therefore not repeat
   itself, which is what makes it safe to run on every merge.
+
+### The forge's own parser, and the sentence it cannot read
+
+The sweep above reads a negation: *does not close #N* is not a claim, and `--explain` says so. The
+forge does not always agree, and on 2026-11-18 it closed two `[Device]:` requests on their own
+disclaimers, a few hours apart:
+
+| pull request | the words | the request | what happened |
+|---|---|---|---|
+| #2000 | *"Refs #803 — does not close it"* and, further down, *"Why it cannot close #803:"* | #803 | `closed` at 16:04:48Z, two seconds after the merge, with no comment |
+| #2005 | *"This PR does not close #130 — UDW-PRO still has no Ubiquiti source"* | #130 | `closed` at 18:00:05Z, also two seconds after the merge, no comment |
+
+Neither close was this sweep: it posts a comment carrying its marker *before* it changes state,
+and neither issue carries one. Both were reopened by hand about twenty minutes later, which is
+where the cost is — a request that leaves the queue has to be found and put back, and the next
+reader of the queue cannot see that it happened.
+
+The identical shape in #1867 (*"Does **not** close #743"*) and #1873 (*"it does **not** close the
+issue"*) closed nothing. So the forge's rule is not something that can be learned from outside, and
+the conclusion is not "write a better negation" — it is **stop putting a closing keyword in a
+sentence about a request you are not answering**. Two shapes are safe, and both were in use before
+this was written down:
+
+- **`Refs #N`** — a reference with no closing keyword anywhere in the sentence around it;
+- **`issue N`**, or the model name — no `#`, so there is nothing for either parser to read.
+
+`scripts/check-closing-keywords.js` checks a body for the first shape failing:
+
+```bash
+node scripts/check-closing-keywords.js --file body.md              # or --text "...", or from a pipe
+node scripts/check-closing-keywords.js --file - < commit-msg.txt   # git log -1 --format=%B | ...
+FORGEJO_TOKEN=... node scripts/check-closing-keywords.js --pr 2005 # the body and its commits
+```
+
+It prints every keyword-plus-number the forge could read as a close and this repository's rule
+would not, with the reason (`negated`, `mid-sentence`, `hypothetical`) and a `--strict` exit code
+of 1. It is deliberately not wired into CI: it is a check you run before pushing, and a careful
+sentence should not be able to turn somebody else's merge red. `test/closing-keywords.test.js`
+holds it in step with `parseClosingKeywords()`, so the two cannot drift into disagreeing about the
+same body.
 
 It never fails the build: a missing token, a refused write or a timeout is a
 `::warning::` with the reason, and nothing is left half-closed (the comment is posted

@@ -51,6 +51,7 @@
     "test:canvas": "node test/canvas-ports.test.js",
     "check:bytes": "node scripts/check-control-bytes.js",
   "check:citations": "node scripts/check-doc-citations.js",
+  "check:closing-keywords": "node scripts/check-closing-keywords.js",
   "check:ci-disk": "node scripts/check-ci-disk-hygiene.js",
     "audit:ports": "node scripts/audit-port-types.js",
     "audit:poe": "node scripts/audit-poe-budget.js",

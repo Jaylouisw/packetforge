@@ -99,8 +99,11 @@ const SEPARATOR = /^[ \t]*(?:[,;&/]|\band\b|\balso\b|\bthen\b)?[ \t]*/i;
 //   PR #1873: "## What would close #742"                (a heading asking what is missing)
 //
 // All three name a number next to a keyword and none of them claims the issue is fixed. #743 and
-// #742 are still open, which is what Forgejo decided when it merged those pull requests, and this
-// sweep agrees with it: a keyword that does not open a line or a sentence is not a closing claim.
+// #742 are still open, and this sweep agrees that they should be: a keyword that does not open a
+// line or a sentence is not a closing claim. Do not read those two merges as the forge's rule -
+// on 2026-11-18 it closed #803 from "Why it cannot close #803" and #130 from "This PR does not
+// close #130", the same shape, and both had to be reopened. The rule below is this sweep's, not
+// the forge's; `scripts/check-closing-keywords.js` reports the difference before a body is pushed.
 // The claim that *did* work - PR #1635's body, which begins "Fixes #1526." - still parses.
 // The claim may also open a sentence that opens with a conjunction - "Fixes #12. Also closes #13"
 // is two claims, and dropping the second would leave an issue open for no better reason than
