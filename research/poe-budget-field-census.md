@@ -13,8 +13,8 @@ present; the number was not.
 |--|--|--|
 | models in the catalogue | 2,356 | |
 | source PoE on >= 1 port (`hardware.poeOut`) | 401 | the population that can be asked a wattage question |
-| **silent** - PoE out, no budget, no "never published" marker | **130** | the engine reports the ports and refuses the arithmetic |
-| **inferred** - budget parsed out of the model name | **22** | not traced to a document |
+| **silent** - PoE out, no budget, no "never published" marker | **129** | the engine reports the ports and refuses the arithmetic |
+| **inferred** - budget parsed out of the model name | **20** | not traced to a document |
 | **explicitly unknown** - `poe.budgetUnknown: true` | **16** | correct, and kept visible |
 | **orphan** - budget with no PSE port | **0** | already policed by `test/hardware-invariants.test.js` |
 
@@ -37,7 +37,7 @@ Two corrections this script had to make to itself, both worth not re-deriving:
   one port". A per-port class is never a budget. Requiring the figure *before* the word "budget",
   and accepting a thousands separator, stopped it inventing numbers in both directions - the first
   cut also read the Enterprise Campus 24 PoE's "1,050 W" as *50 W*. The prose lead list stands at 41
-  of the 130 silent devices after the eight promotions below.
+  of the 129 silent devices after the eight promotions below.
 
 ## 2. Promoted this pass: eight budgets that only existed in prose
 
@@ -80,15 +80,60 @@ same shape as the E6616X's AC/DC slot arithmetic (#803): a frame's capacity is a
 plugged into it, and a spec that hides the configuration is off by whatever the configuration is
 worth.
 
-## 4. What is still open
+## 4. The power input is the configuration, not a constant
 
-- **130 silent PSEs.** 41 of them quote a budget in prose, which makes them promotions waiting for a
+The USW-Ultra family is the same shape as the ECS-24-PoE, one layer further down: the budget is not
+a property of the chassis at all, it is a property of **how the chassis is powered**. All three
+catalogue specs - `usw-ultra`, `usw-ultra-60w`, `usw-ultra-210w` - carried the description "42 W PoE
+budget", including the 210 W one, and none carried `poe.budgetW`.
+
+Ubiquiti's spec table publishes one row, "Total PoE Availability", with five values:
+
+| power input | PoE availability |
+|--|--|
+| PoE++ input | 42 W |
+| PoE+ input | 16 W |
+| 60 W PoE adapter input | 42 W |
+| 60 W AC adapter input | 52 W |
+| 210 W AC adapter input | 202 W |
+
+Read from <https://techspecs.ui.com/unifi/switching/usw-ultra> (200, 628,685 B) and the two variant
+slugs `.../usw-ultra-60w` (628,751 B) and `.../usw-ultra-210w` (628,783 B), all three of which print
+the identical five-row table - the SKU suffix names the adapter, not a different PoE engine. The
+store page spells the same thing out in prose: "PoE input is supported for switch operation, with
+PoE+/PoE++ input or AC power required for PoE output", and offers the one product with "No AC
+Adapter" / "60W AC Adapter" / "210W AC Adapter" as power options
+(<https://store.ui.com/us/en/products/usw-ultra> -> `.../pro-category/switching-utility/collections/pro-ultra/products/usw-ultra`,
+200, 673,337 B).
+
+The three specs now hold 42 W / 52 W / 202 W respectively - each the row its own name selects - and
+each `poe.note` carries all five, so a lab that powers the unit from a different adapter takes that
+row instead of inheriting the one in the field.
+
+**The census error the same table hid.** The specs also described port 8 as a 60 W PoE++ *source*
+(`"poeOut": true, "poeOutClass": "PoE++"`), giving the switch 8 PSE ports. The vendor's port layout
+is "8 (7 PoE+; 1 PoE++ **input**)" and "Max. PoE Output: Up to PoE+", with "Max. PoE Wattage per
+Port by PSE: PoE+ 30 W" and no PoE++ row - the PoE++ port is where the unit *takes* power from an
+upstream switch, which is also why its power method reads "(1) AC/DC adapter (Excluded) / (1)
+PoE++". That is the phantom-PoE class again (the UDM PoE draw this catalogue already corrected),
+this time on the source side of one port. Port 8 is now `"poeOut": 0, "poeIn": 9` (9 W is the
+vendor's "max. power consumption excluding PoE output with PoE input"), so `show power inline`
+counts 7 PSE ports on this model instead of 8. The eight ports also gained the `10M` cap the same
+line publishes ("1G/100M/10M") and the specs had dropped.
+
+**Trap recorded so it is not re-walked:** `https://dl.ui.com/ds/usw-ultra_ds.pdf` 302s to
+`https://techspecs.ui.com/` and serves the same 609,911-byte home page that every missing
+`dl.ui.com` document serves - there is no Ultra datasheet, and that page is not one.
+
+## 5. What is still open
+
+- **129 silent PSEs.** 40 of them quote a budget in prose, which makes them promotions waiting for a
   vendor read rather than new research. The remainder - mostly MikroTik routers with one PoE-out
   port and Ubiquiti EdgeRouter/EP models - may genuinely never publish a figure; those should end up
   as `poe.budgetUnknown` rather than staying silent, so the audit can distinguish "not checked" from
   "not published".
-- **22 name-inferred budgets.** `ES-24-250W` and `ES-48-500W` really do encode their PoE budget in
+- **20 name-inferred budgets.** `ES-24-250W` and `ES-48-500W` really do encode their PoE budget in
   the model string; `ES-24-500W` encodes its PSU. Each wants one datasheet line before the inference
   is taken as fact.
-- **The gate.** `--strict` exists but is not wired into CI: it would fail on the 130. The end state
+- **The gate.** `--strict` exists but is not wired into CI: it would fail on the 129. The end state
   is zero silent devices, then `--strict` in the test job, which is what makes the class stay fixed.
