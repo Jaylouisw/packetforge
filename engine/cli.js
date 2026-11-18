@@ -1663,16 +1663,46 @@ class CliSession {
   // The same guide says classless addressing must be on first; it is the default in every IOS this model
   // speaks for, and no `ip classless` command exists here to turn it on, so the exemption is unconditional.
   //
-  // Two things this deliberately leaves alone, rather than guessing:
-  //   * a /32. One thread reports a physical port refusing `192.168.2.1 255.255.255.255` with
-  //     `Bad mask /32 for address 192.168.2.1` while the same mask was taken on a loopback
-  //     (https://learningnetwork.cisco.com/s/question/0D53i00000KswrtCAB/subnet-mask-255255255255), and no
-  //     second transcript confirms which prefix lengths a physical port refuses. A /32 is unchanged here.
+  // **The /32 is refused on a port, and it is documented rather than inferred.** A 32-bit mask describes a
+  // subnet with exactly one address and no host space at all, so a box will not put one on a link that is
+  // meant to reach another box; Cisco says why and where the value does belong: "A subnet mask of
+  // 255.255.255.255 (a /32 subnet) describes a subnet with only one IPv4 host address. These subnets cannot
+  // be used to assign address to network links because they always need more than one address per link. The
+  // use of /32 is strictly reserved for use on links that can have only one address. The example for Cisco
+  // routers is the loopback interface."
+  //   * https://www.cisco.com/c/en/us/support/docs/ip/routing-information-protocol-rip/13788-3.html
+  // Three independent transcripts print the refusal for a non-loopback port, on three different platforms:
+  //   * a GRE tunnel on IOS 12.x - `R1(config-if) address 10.0.0.1 255.255.255.255` answers
+  //     `Bad mask /32 for address 10.0.0.1`, and the accepted answer states the rule: "You cannot directly
+  //     configure a /32 address on tunnel (or other physical interface). You need to configure it on a
+  //     loopback interface" (https://community.cisco.com/t5/routing/tunnel-interface-32-host-mask/td-p/2134221)
+  //   * a serial port on a 2811 running 15.0(1)M10 - `ip add 123.123.123.123 255.255.255.255` answers
+  //     `Bad mask /32 for address 123.123.123.123`
+  //     (https://www.reddit.com/r/ccna/comments/8ett29/assign_32_to_an_interface/)
+  //   * a 4331's routed port on IOS XE - `ip address 12.0.0.1 255.255.255.255` answers
+  //     `Bad mask /32 for address 12.0.0.1`
+  //     (https://community.cisco.com/t5/routing-and-sd-wan/subnet-mask-255-255-255-255-by-dhcp/td-p/4091332)
+  // The one thread this note used to cite for the physical/loopback split is the first of those, read from the
+  // other side: https://learningnetwork.cisco.com/s/question/0D53i00000KswrtCAB/subnet-mask-255255255255
+  // (`Bad mask /32 for address 192.168.2.1` on the port, the same mask taken on a loopback). A loopback is the
+  // vendor's exception, not a hole in the rule, so the refusal stands down for an interface of that type -
+  // which this model does not build - and applies to every port it does.
+  // research/ip-address-not-a-host.md carries the sources.
+  //
+  // One thing this deliberately leaves alone:
   //   * a /0, where the network address and the broadcast address are the same address and nothing in hand
   //     says which sentence a box prints. Unchanged.
-  _ipHostRefusal(ip, dotted) {
+  _ipHostRefusal(iface, ip, dotted) {
     const netLib = require('./net');
     const bits = netLib.prefixOf(dotted);
+    // A /32 is the mask that says "this subnet is one address", and a box keeps it for a link that has
+    // only itself to reach (the loopback); on a port it answers with the same `Bad mask` sentence the
+    // network and broadcast refusals use. The type is asked of the interface rather than assumed, so the
+    // vendor's exception is stated in the code and a loopback - if one is ever built - keeps its /32.
+    if (bits === 32) {
+      if (iface && /^loopback/i.test(String(iface.type || ''))) return null;
+      return 'Bad mask /32 for address ' + ip;
+    }
     if (!(bits >= 1 && bits <= 30)) return null;
     if (netLib.ipToInt(ip) === netLib.networkOf(ip, dotted) ||
         netLib.ipToInt(ip) === netLib.broadcastOf(ip, dotted)) {
@@ -1827,7 +1857,7 @@ class CliSession {
         // compared. (Which of the two validations a real box runs first is not witnessed by anything in hand;
         // the order is invisible unless a command is both, e.g. `ip address 10.0.0.0 255.255.255.0` while
         // 10.0.0.1/24 sits on another port, and there the address is wrong on its own terms.)
-        const notHost = this._ipHostRefusal(ip, dotted);
+        const notHost = this._ipHostRefusal(iface, ip, dotted);
         if (notHost) return [notHost];
         const overlap = this._ipOverlapRefusal(iface, ip, dotted);
         if (overlap) return [overlap];

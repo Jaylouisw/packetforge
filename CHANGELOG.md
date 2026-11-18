@@ -2,6 +2,21 @@
 
 ### Fixed
 
+- **`ip address <addr> 255.255.255.255` is refused on a port, in the vendor's own sentence.** A 32-bit mask
+  leaves one address and no host space, so a box will not put one on a link that has to reach another box:
+  Cisco's guide says `255.255.255.255` "describes a subnet with only one IPv4 host address ... strictly
+  reserved for use on links that can have only one address. The example for Cisco routers is the loopback
+  interface", and three transcripts - a GRE tunnel, a 2811 serial port on 15.0(1)M10, and a 4331 routed port
+  on IOS XE - show `Bad mask /32 for address <what was typed>` for the same command. This console accepted
+  the address and stored it, so `show ip interface brief` and `show running-config` carried a /32 a device
+  would not have. The refusal is the same one line the network- and broadcast-address cases already print,
+  comes before nothing is stored, and stands down for an interface whose type is `loopback` - the vendor's
+  exception, which no catalogue device currently declares. `research/ip-address-not-a-host.md` now records
+  the four sources and the two questions left open (whether an SVI or port-channel behaves like the three L3
+  ports, and the loopback exception the model cannot demonstrate). `test/ip-address-not-a-host.test.js` pins
+  27 checks: the /32 line on a port, the bare-prefix spelling, the held address and `show running-config`
+  untouched, a `/31` still accepted at the boundary, and a dot1q subinterface refused like its parent.
+
 - **`vrrp <vrid> priority` accepts 1-254, because 255 belongs to the address owner alone.** The console took any
   priority up to 255 and quoted "(1-255)" back at everything it refused, so an operator could type the one value
   that means "I own this virtual address" on a router that does not - and the group then outranked the real owner

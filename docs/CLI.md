@@ -372,10 +372,15 @@ The line carries no `%`: four raw transcripts print it bare, and the sibling ref
 (`Not a valid host address - 0.0.0.1`) is bare too, so a marker here would be this console's addition rather
 than the device's. A **/31** is the exception — RFC 3021 gives both of its addresses to the two ends of the
 link, which Cisco's configuration guide states in as many words and demonstrates with `ip address 192.168.1.0
-255.255.255.254` — so `192.168.1.0/31` and `192.168.1.1/31` are both accepted, one per end. A `/32` and a
-`/0` are left exactly as they were: the one thread in hand says a physical port refused `192.168.2.1
-255.255.255.255` while the same mask was taken on a loopback, and no second transcript settles it. What is
-known, what is inferred and what would settle the rest is in
+255.255.255.254` — so `192.168.1.0/31` and `192.168.1.1/31` are both accepted, one per end.
+
+A **/32** is refused in the same sentence, because the mask leaves no host space at all: Cisco's guide says
+`255.255.255.255` "describes a subnet with only one IPv4 host address" and is "strictly reserved for use on
+links that can have only one address ... the loopback interface", and three transcripts (a GRE tunnel, a 2811
+serial port, a 4331 routed port) show a box answering `Bad mask /32 for address <what was typed>` on a port.
+The loopback exception is stated against the interface's type, and no catalogue device carries a loopback
+interface, so every port here refuses. A `/0` is left exactly as it was: nothing in hand says which sentence a
+box prints for `ip address 0.0.0.0 0.0.0.0`. What is known, what is inferred and what remains open is in
 [research/ip-address-not-a-host.md](../research/ip-address-not-a-host.md).
 
 | Command | Effect |

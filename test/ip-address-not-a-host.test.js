@@ -177,15 +177,39 @@ console.log('\nThe mask is still checked first, and says so in its own words:');
     'a non-contiguous mask is a mask error, not a host-address error', JSON.stringify(out));
 }
 
-console.log('\nLeft exactly as it was, because nothing in hand settles it (research note):');
+console.log('\nA /32 is refused on a port: the mask names a subnet with no host space, and a box says so:');
 {
   const env = lab();
   const a = env.eth[0].name;
+  env.say(a, '10.20.20.1', '255.255.255.0');
   const out = env.say(a, '10.20.20.1', '255.255.255.255');
-  ok(out.join(' ').indexOf('10.20.20.1/32') !== -1,
-    'a /32 is still accepted: one thread says a physical port refuses it while a loopback takes it, and no',
+  ok(out.length === 1 && out[0] === 'Bad mask /32 for address 10.20.20.1',
+    'the refusal is one line, in the same words as the network-address refusal', JSON.stringify(out));
+  ok(env.ipOf(a) === '10.20.20.1/24', 'and the address the port held is untouched', String(env.ipOf(a)));
+  const bare = env.say(a, '10.20.20.1', '32');
+  ok(bare.length === 1 && bare[0] === 'Bad mask /32 for address 10.20.20.1',
+    'the prefix typed bare is refused with the prefix, not the dotted mask', JSON.stringify(bare));
+  const cfg = env.cli.run('show running-config').output.join('\n');
+  ok(cfg.indexOf('/32') === -1, 'and `show running-config` never carries the refused line');
+}
+
+console.log('\nA one-bit-longer mask is still a host address, so the rule stops exactly at /32:');
+{
+  const env = lab();
+  const a = env.eth[0].name;
+  const out = env.say(a, '10.21.21.2', '255.255.255.254');
+  ok(out.join(' ').indexOf('10.21.21.2/31') !== -1, 'a /31 host address is still taken',
     JSON.stringify(out));
-  ok(env.ipOf(a) === '10.20.20.1/32', 'second transcript settles which, so the model does not guess');
+}
+
+console.log('\nA subinterface is refused the same way its parent is:');
+{
+  const env = lab();
+  const a = env.eth[0].name;
+  env.cli.run('interface ' + a + '.30');
+  const out = env.cli.run('ip address 10.30.30.1 255.255.255.255').output;
+  ok(out.length === 1 && out[0] === 'Bad mask /32 for address 10.30.30.1',
+    'a /32 on a dot1q subinterface is refused', JSON.stringify(out));
 }
 
 console.log('\n' + passed + ' passed, ' + failed + ' failed');
