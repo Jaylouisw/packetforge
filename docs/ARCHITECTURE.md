@@ -1589,8 +1589,9 @@ tests noticed because the tests drove the engine, not the URL.
 ### Ping, and what a destination is
 
 `POST /api/topologies/:name/ping` — `{ src, dst, count?, atMs? }`. `count` is a whole number from 1 to 50 (the
-default is 4); anything else is a `400` with `code: "E_BAD_COUNT"`, because a count is a loop bound and one request
-asking for a billion echoes is hours of engine time. The engine clamps as a backstop and reports both `count` (what
+default is 5, the repeat count an IOS-style box prompts with - `PING_COUNT_DEFAULT` in `engine/simulator.js:33`);
+anything else is a `400` with `code: "E_BAD_COUNT"`, because a count is a loop bound and one request asking for a
+billion echoes is hours of engine time. The engine clamps as a backstop and reports both `count` (what
 was sent) and `requestedCount` (what was asked for, `null` when nothing was asked).
 
 `atMs` is the instant to ask at, in milliseconds, and it is the same question the console spells
