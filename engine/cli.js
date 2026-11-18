@@ -1081,6 +1081,14 @@ class CliSession {
       // The same destructive silence, one keypress away: `hostname ?` renamed the box to "?" (#1685).
       const keyed = this._helpKeyRefusal(name, 'hostname <name>', 'the name is unchanged');
       if (keyed) return [keyed];
+      // The name is all digits: a real box prints `% Hostname contains one or more illegal
+      // characters.` and then takes the name anyway - "the name will be accepted after an error is
+      // returned", and its own transcript's prompt reads `123(config)#`. This console renamed in
+      // silence, so an operator got no word that the name breaks a rule a real box enforces. The
+      // sentence is the vendor's verbatim (full stop included) rather than the house `% Warning:`
+      // prefix, because recognising the line is the point. It is a warning, not a refusal: no early
+      // return, nothing below is skipped, and the name is stored exactly as it was before.
+      if (hostnameIsAllNumeric(name)) out.push('% Hostname contains one or more illegal characters.');
       if (!this.device.config.hostname) this.device.nameBeforeHostname = this.device.name;
       this.device.config.hostname = name;
       // device.name is what the UI renders: the canvas label, the inspector header, the
@@ -6360,6 +6368,24 @@ function runCommands(device, topology, simulator, commands) {
     for (const l of res.output) lines.push(l);
   }
   return { output: lines.join('\n'), lines: lines, session: session };
+}
+
+// The one hostname rule breach a vendor document shows the *outcome* of: an all-numeric name.
+//
+// Every IOS and IOS XE `hostname` reference publishes the ARPANET host-label rule (start with a
+// letter, end with a letter or digit, interior letters/digits/hyphens only) and then adds, of the
+// numeric case alone, "Creating an all numeric hostname is not recommended but the name will be
+// accepted after an error is returned" - with a transcript: `hostname 123` prints
+// `% Hostname contains one or more illegal characters.` and the prompt becomes `123(config)#`.
+//
+// Only that case is warned about here. The reference shows the same line for `hostname \99` but
+// never shows the prompt that follows, and says nothing at all about a leading digit, an underscore,
+// a trailing dot, a name past 63 characters or an interior space - and half the catalogue's own
+// default names (vendor model strings like "ZenWiFi ET8", "FRITZ!Box 7590") breach the rule, so
+// guessing at the rest would put a warning on every replayed running-config. research/
+// hostname-illegal-characters.md lists each of those open questions.
+function hostnameIsAllNumeric(name) {
+  return /^[0-9]+$/.test(name);
 }
 
 // resolvePortName / portKey are exported so the naming test can pin the alias

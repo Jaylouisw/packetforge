@@ -3058,3 +3058,47 @@ accepts.
 
 Measured at the same time and correct as it stands: `encapsulation dot1q` and `ip access-group` refuse a *physical
 port* and a *list that does not exist*, and both answer in terms of the real problem rather than the number.
+
+## An all-numeric hostname is warned about, then taken - the vendor's own line
+
+Every IOS and IOS XE `hostname` reference publishes the same rule — ARPANET host names: "They must
+start with a letter, end with a letter or digit, and have as interior characters only letters, digits,
+and hyphens" — and then states the outcome of one breach, with a transcript:
+
+```
+Device(config)#hostname 123
+% Hostname contains one or more illegal characters.
+123(config)#
+```
+
+"Creating an all numeric hostname is not recommended but the name will be accepted after an error is
+returned." This console did neither half — it renamed in silence, so an operator got no word that the
+name they had just typed is one a real box complains about:
+
+```
+Router(config)#hostname 123
+Router(config)#                        <- before: no line, and the prompt still said Router
+% Hostname contains one or more illegal characters.   <- now
+123(config)#
+```
+
+The warning is not a refusal, and that distinction is the whole point: the name is stored, the prompt
+carries it, `device.name` carries it, and `show running-config` prints `hostname 123`. Nothing after
+the line is skipped. It is the vendor's sentence verbatim, full stop included, rather than this
+console's `% Warning:` prefix, because recognising the line is the reason to print it.
+
+**Only the numeric case is modelled, and that is deliberate.** The same reference prints the line for
+`hostname \99` and then stops — it never shows the prompt that follows — and says nothing at all about
+a leading digit, an underscore, a trailing dot, a name past 63 characters or an interior space. Half
+the catalogue's own default names are vendor model strings (`ZenWiFi ET8`, `FRITZ!Box 7590`) that
+breach the rule, so extending the check to the whole rule would put a warning on every replayed
+running-config — a warning storm, which is how a warning stops being read. Those shapes stay silent
+and stay open; [research/hostname-illegal-characters.md](../research/hostname-illegal-characters.md)
+lists each one and the capture that would settle it.
+
+`test/hostname-illegal-characters.test.js` pins 45 checks: the exact line and the resulting
+`123(config)#` prompt, the name reaching `show running-config`, the line printed once and before the
+name is taken, a second identical rename warning again, the four other breach shapes staying silent as
+written down, four catalogue-style names staying silent (the round-trip guard,
+`test/config-roundtrip.test.js`, replays all 2198 models and asserts no complaint), six legal names
+printing nothing, and `no hostname` restoring the default without a warning.

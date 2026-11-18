@@ -2,6 +2,27 @@
 
 ### Fixed
 
+- **An all-numeric hostname is warned about, then taken - the vendor's own line.** Every IOS and IOS XE
+  `hostname` reference publishes the ARPANET rule ("start with a letter, end with a letter or digit, and
+  have as interior characters only letters, digits, and hyphens") and states the outcome of one breach
+  with a transcript: `hostname 123` prints `% Hostname contains one or more illegal characters.` and the
+  prompt becomes `123(config)#` - "Creating an all numeric hostname is not recommended but the name will be
+  accepted after an error is returned". The console renamed in silence, so an operator got no word that
+  the name breaks a rule a real box enforces. The warning is not a refusal: it is printed before the name
+  is stored, nothing downstream is skipped, and `config.hostname`, `device.name`, the prompt and
+  `show running-config` all carry the flagged name afterwards. The sentence is the vendor's verbatim
+  (full stop included) rather than the console's `% Warning:` prefix, because recognising the line is the
+  point. Only the numeric case is modelled: the same reference prints the line for `\99` and never shows
+  the prompt that follows, and half the catalogue's default names are vendor model strings (`ZenWiFi ET8`,
+  `FRITZ!Box 7590`) that breach the rule - so the rest would be a warning on every replayed
+  running-config. The open questions are written down in
+  [research/hostname-illegal-characters.md](research/hostname-illegal-characters.md).
+  `test/hostname-illegal-characters.test.js` pins 45 checks: the exact line and the `123(config)#` prompt,
+  the name reaching `show running-config`, the line printed once and before the name is taken, a repeated
+  rename warning again, the other breach shapes staying silent, four catalogue-style names staying silent
+  with `test/config-roundtrip.test.js` replaying all 2198 models, six legal names printing nothing, and
+  `no hostname` restoring without a warning.
+
 - **`show vrrp` prints the priority the group runs at, and an address owner runs at 255.** VRRP reserves
   255 for the router whose own interface address is one of the group's virtual addresses - Cisco: "If a
   VRRP group is the IP address owner, its priority is fixed at 255"; Nexus: "the default is 100 for
