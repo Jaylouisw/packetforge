@@ -159,3 +159,46 @@ No Huawei-hosted chapter for `TNG1A212`, `TNG1T212` or `TNG1M210D` is indexed on
 If that chapter surfaces, `#807` closes as `OptiXtrans E9605 (5x TNG1A212)` = 60 x 10G client ports plus
 that board's own published line ports, with the slot count from `TNG2DAP` §1.9 (`IU1-IU5`) and nothing
 guessed. That is a smaller ask than a whole Board Datasheet and it is the same one file for `#808`/`#810`.
+
+## 9. A different Huawei host or TLD is the same deployment, not a way round the wall
+
+Previous passes have looked for an alternative route into these documents. This section closes the *host* axis:
+`support.huawei.cn` and `info.support.huawei.com` were never tested, and both are the same backend.
+
+| URL | result |
+|--|--|
+| `https://support.huawei.cn/enterprise/en/optical-transmission/optixtrans-e6616x-pid-257173887` | **200**, 25,028 B - a Nuxt SPA shell, zero document links, `window.__NUXT__` config only |
+| `https://support.huawei.cn/enterprise/en/doc/EDOC1100486186` | **200**, **3,800 B** |
+| `https://support.huawei.cn/enterprise/en/doc/EDOC1100163901` | **200**, **3,800 B** |
+| `https://support.huawei.cn/supportgateway/view/v1/enterprise/doc/catalogue?nid=EDOC1100163901` | **401** `{"status":401,"code":"support-view-020003","message":"need login."}` |
+| `https://info.support.huawei.com/enterprise/br/optical-transmission/optixtrans-e9624-pid-250733004` | **403**, 370 B (Chrome UA); **200, 91,294 B** (Googlebot and bare `curl`) |
+
+The 3,800 B is the same `supportview/lst` bundle loader `support.huawei.com` serves, and the 401 is the same
+gateway code and message as §5 on `.com`. A regional TLD is a CDN edge in front of one document service.
+The `info.` host answers 403 to a browser and, to a crawler, the 91,294-byte generic support index - the same
+page every dead `hedex` path already returns - so a 200 from `info.` is the not-found, exactly as on `dl.ui.com`.
+
+`e-file.huawei.com/robots.txt` and `e-file.huawei.com/sitemap.xml` answer Akamai **403** (387 B and 388 B,
+`errors.edgesuite.net` reference), so there is no asset index to enumerate material hashes from. The only
+index that lists these chapters is a search engine's, and it carries no `TNG1N*` client chapter.
+
+## 10. `idPath` is navigation context, tested in the form the site itself emits
+
+Section 7 showed the article URL shape is not the reason for the 404s, using a bare `…/en/doc/<ID>`. The E9605
+support page does not emit bare links - it emits `…/enterprise/en/doc/<EDOC>?idPath=24030884|9856748|9858640|250707904|250732995`.
+Requested exactly that way (pipes percent-encoded, crawler UA, 2026-11-17):
+
+| Document | `EDOC` | result |
+|--|--|--|
+| OptiXtrans E9600 Board Datasheet | `EDOC1100163901` | **404 -> `/view/notFound`**, 452,479 B |
+| E9600 V100R024C10 Hardware Description 04 | `EDOC1100456418` | **404 -> `/view/notFound`**, 452,479 B |
+| E9600 V100R023C10 Hardware Description 08 | `EDOC1100365420` | **404 -> `/view/notFound`**, 452,479 B |
+
+So the parameter does not resolve them either, and the two ids are new to this thread: the E9605 page's
+own Hardware Description entries for R024C10 and R023C10 are `EDOC1100456418` (issue 04) and
+`EDOC1100365420` (issue 08).
+
+**Unchanged blocker, and it is now measured on every axis tried:** one client-board chapter
+(`TNG1A212`, `TNG1T212`, `TNG1M210D`, `TNG1N206`, `TNG1N210` or `TNG1N401`) with a Front Panel and Port
+Specifications table, or `EDOC1100163901` pasted by a reader with a support session. Nothing in sections 1-10
+is a substitute for that one file.
