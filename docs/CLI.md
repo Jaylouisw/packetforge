@@ -455,13 +455,38 @@ A **/32** is refused in the same sentence, because the mask leaves no host space
 links that can have only one address ... the loopback interface", and three transcripts (a GRE tunnel, a 2811
 serial port, a 4331 routed port) show a box answering `Bad mask /32 for address <what was typed>` on a port.
 The loopback exception is stated against the interface's type, and no catalogue device carries a loopback
-interface, so every port here refuses. A `/0` is left exactly as it was: nothing in hand says which sentence a
-box prints for `ip address 0.0.0.0 0.0.0.0`. What is known, what is inferred and what remains open is in
+interface, so every port here refuses with this sentence — except inside the two blocks below, which are
+answered first. A `/0` is left exactly as it was: nothing in hand says which sentence a box prints for
+`ip address 0.0.0.0 0.0.0.0`. What is known, what is inferred and what remains open is in
 [research/ip-address-not-a-host.md](../research/ip-address-not-a-host.md).
+
+**Some addresses are not host addresses under any mask.** An address in `0.0.0.0/8` — the "this network" block —
+or `127.0.0.0/8`, the loopback block, is refused before the mask is judged, in a second sentence that names the
+address and prints no prefix:
+
+```
+R1(config-if)#ip address 0.0.0.1 255.255.255.0
+Not a valid host address - 0.0.0.1
+R1(config-if)#ip address 127.0.0.2 255.0.0.0
+Not a valid host address - 127.0.0.2
+```
+
+Three pastes settle it: the sentence carries no `%`, like its `Bad mask` sibling; it echoes the address exactly as
+typed; and it is the same for a /16 and a /24, which is why the block is tested before the mask. It reaches the
+/32 rule above as well — `ip address 127.0.0.1 255.255.255.255` answers `Not a valid host address - 127.0.0.1`
+and not `Bad mask /32 for address 127.0.0.1`, because a loopback interface refuses 127/8 too. `0.0.0.0` itself sits
+outside the block on purpose: whether a box takes `ip address 0.0.0.0 0.0.0.0` is the `/0` question above, and it
+is still accepted here. A mask that is not a run of ones is still refused ahead of the address, as its own
+parse-stage error (`% Invalid mask: 255.0.255.0 - a netmask is a run of ones then zeros …`), and two neighbours stay
+outside this rule: `224/4` is **still accepted** (the one paste that reports a refusal is a reader comment printing
+a different sentence, so it was not adopted), and `255.255.255.255` is refused by the /32 rule above
+(`Bad mask /32 for address 255.255.255.255`), not by this one.
+[research/ip-address-host-range.md](../research/ip-address-host-range.md) carries the sources, the ordering argument
+and what would settle each of them.
 
 | Command | Effect |
 |---------|--------|
-| `ip address <ip> <mask>` | assign an IP (e.g. `192.168.1.1 255.255.255.0`); the mask must be a run of ones then zeros and may be written as a prefix length (`24`), and the address must be a host address of that subnet (not its network or broadcast address, except on a `/31`). No word may follow the mask: IOS's syntax is `ip address ip-address mask [secondary]`, and
+| `ip address <ip> <mask>` | assign an IP (e.g. `192.168.1.1 255.255.255.0`); the mask must be a run of ones then zeros and may be written as a prefix length (`24`), and the address must be a host address of that subnet (not its network or broadcast address, except on a `/31`, and never inside `0.0.0.0/8` or `127.0.0.0/8`, which are refused by name under any mask). No word may follow the mask: IOS's syntax is `ip address ip-address mask [secondary]`, and
 `secondary` adds a second address rather than replacing the primary - which this model, one address per port,
 cannot honour, so `secondary` is refused by name and every other word is refused with the word quoted |
 | `no ip address` | remove the IP; the line takes no argument, so `no ip address <word>` is refused and nothing is removed |
