@@ -87,7 +87,7 @@ first.
   `lacp` and `stp` are no longer in the vocabulary at all (#1526) — the datasheet
   fact stays in the spec, but nothing advertises it as behaviour. See
   [DEVICE_SCHEMA.md](DEVICE_SCHEMA.md#capabilities), [§2](#2-ethernet-and-l2) and
-  [§5.1](#51-dhcp--absent-from-the-data-path).
+  [§5.1](#51-dhcp--in-the-data-path-since-1051).
 
 **Absent**
 
@@ -386,7 +386,8 @@ HSRP and GLBP do not exist.
 | **Approximate** | Link metric is a fixed 10 in the simulator's link list; per-interface costs enter through the graph builder. | `engine/simulator.js:441` |
 | **Absent** | Area types (stub/NSSA), virtual links, ABR/ASBR route leaking, authentication, graceful restart, OSPFv3, redistribution. | — |
 
-Known defects that change what a lab will show: [#42, #43, #44](#10-known-open-defects).
+Three OSPF defects were found here — [#42, #43, #44](#10-fixed-defects-kept-visible) — and all three are
+**fixed**; a lab saved before the fix may still route differently, which is why [§10](#10-fixed-defects-kept-visible) keeps them.
 
 ### 5.6 BGP
 
