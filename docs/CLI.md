@@ -2096,9 +2096,21 @@ sw1(config-if)#channel-group 1 mode active
 Interface Gi1/0/9 added to channel group 1 (mode active)
   Gi1/0/9 is hot-standby: the bundle already has 8 active links, and this one takes over if an active link fails
 
+sw1(config-if)#exit
+sw1(config)#interface Gi1/0/11
 sw1(config-if)#channel-group 1 mode on
-% Gi1/0/9 not added: channel group 1 already holds 8 members, and a static (`mode on`) bundle carries at most 8 links. Nothing was changed.
+% Gi1/0/11 not added: channel group 1 already holds 8 members, and a static (`mode on`) bundle carries at most 8 links. Nothing was changed.
 ```
+
+The refusal is asked of a port that is **not in the bundle yet** - Gi1/0/11 above, the eleventh socket of
+the switch whose first ten carry the LACP bundle this section describes. Typed on a port that is already a
+member it is not the answer at all: the mode belongs to the group, so `channel-group 1 mode on` at Gi1/0/9
+rewrites every member (`Channel group 1 mode changed from active to on for every member: Gi1/0/1, Gi1/0/2, …`)
+and adds the port, and the group then holds ten members in a mode whose own sentence says eight at most. The
+cap is compared on the joining path only - `_channelGroup()` skips it when the port is already a member
+(`alreadyIn`) - so a static bundle past the cap is still reachable through the mode conversion. That half is
+the engine's to close; this page shows the refusal where the console really gives it, rather than printing it
+over the port that built the hot-standby in the line before.
 
 The table prints the letters the key above it has always printed:
 
