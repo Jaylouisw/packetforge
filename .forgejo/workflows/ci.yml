@@ -596,33 +596,36 @@ jobs:
       #
       # So the second invocation goes, and only it: the script, its arguments and its exit
       # status are unchanged, and it still runs in every leg of the matrix.
-      # The three steps below and the two after the suite were the only places left in this
-      # job with no bound of their own, and that is what a kill at the job timeout costs: run
+      # The five checks below and after the suite - three read-only scans and two example
+      # builds - were the only places left in this job with no bound of their own, and that
+      # is what a kill at the job timeout costs: run
       # 5616, task 14236 - dead at 900 s, and its log does not exist, so a red gate could not
       # name the step that hung. A step that gives up on its own keeps its log and prints its
       # own name (the suite does this at 300 s, the syntax check at 120 s), which is strictly
       # more than the runner's kill leaves behind.
       #
-      # Green, these five take 0.3-1.3 s in total - run 5664, tasks 14388-14390: the three
+      # Green, these five take 0.3-1.8 s in total - run 5664, tasks 14388-14390: the three
       # static checks 22:10:51.4 -> 22:10:52.7, the two example steps 22:11:36.2 ->
-      # 22:11:36.9 - so 60 s and 120 s are two orders of magnitude of headroom, and a slow
+      # 22:11:36.9, and re-measured on this tree at 5e6bc405 as 0.98 + 0.75 + 0.10 s for the
+      # three scans - so 60 s and 120 s are two orders of magnitude of headroom, and a slow
       # host cannot turn one of them red on time alone. Nothing is skipped, softened or
       # retried: a timeout here is a red leg that names the step and how long it ran.
-      - name: No API newer than the Node 18 floor
-        # A green suite on the newest Node means nothing for the oldest matrix job, and that
-        # failure reads like a flaky runner rather than "you used a Node 20 API".
-        run: timeout --signal=TERM --kill-after=10 60 node scripts/check-node-surface.js
-      - name: Every project URL points at Forgejo
-        # The project moved and the links did not follow: the README said to clone from GitHub and
-        # SECURITY.md sent reports to a GitHub advisory page. Nothing failed, because a stale URL
-        # looks like every other string in the repo.
-        run: timeout --signal=TERM --kill-after=10 60 node scripts/check-canonical-urls.js
-      - name: Every job that builds an image bounds what it writes
-        # See the `docker` job below: it builds against the host daemon, on the same volume
-        # Forgejo stores its data on. When that volume filled up, the forge did not say "disk
-        # full" - it refused pushes with `couldn't set 'refs/heads/...'` and stopped creating the
-        # jobs that carry `needs:`, so pull requests sat armed against checks that did not exist.
-        run: timeout --signal=TERM --kill-after=10 60 node scripts/check-ci-disk-hygiene.js
+      # The three read-only scans that used to be three steps of their own, here, in front
+      # of the suite. They were serial with it for no reason: each one reads files that the
+      # suite only reads, and the syntax check has been overlapping that same suite since
+      # 2026-11-16 (see the note on the step below). Measured on this tree at 5e6bc405,
+      # same scripts, on the runtime the runner image carries: check-node-surface.js 0.98 s,
+      # check-canonical-urls.js 0.75 s, check-ci-disk-hygiene.js 0.10 s - 1.8 s of every
+      # leg's prologue, in front of a 40 s suite, on the one leg that is the wall clock of a
+      # pull request - plus two extra step starts per leg, three legs.
+      #
+      # They now start in the background beside the suite, in the same step, with the same
+      # scripts, the same 60 s bound each, the same exit status and the same ::error title
+      # per check. Nothing is skipped, softened or dropped from any leg: every check still
+      # runs in all three legs, on the runtime that leg is named for, and a non-zero exit
+      # still fails the leg. What moves is when a red is reported - at the end of the step,
+      # alongside the suite, instead of two seconds into the leg. The leg is red either way,
+      # and it is the second red that a pull request actually waits for.
       # The syntax check used to be its own step in the middle of the static checks, and
       # it sat in front of the suite for no reason. It is one `node --check` process per file, 339 of them, one
       # after another: measured in the runner image on this host (node:20-bookworm,
@@ -637,10 +640,11 @@ jobs:
       # than in the first two seconds - the leg is red either way, and it is the second
       # red that a pull request actually waits for.
       #
-      # Both exit codes are collected before either is acted on: a `set -e` here would
-      # let the first failure hide the other check's result, which is the difference
-      # between "the syntax is broken" and "the syntax is broken and the suite is too".
-      - name: Full test suite and syntax check, together
+      # Every exit code in the phase is collected before any of them is acted on: a
+      # `set -e` here would let the first failure hide the other results, which is the
+      # difference between "the syntax is broken" and "the syntax is broken and the suite
+      # is too". The same rule now covers the three read-only scans that start here too.
+      - name: Full test suite, syntax check and static checks, together
         # 200 s per leg, three legs, two runner slots: the suite is the whole wall clock of
         # a pull request, and it was running 257 separate processes one at a time on one
         # core. The runner now takes `PF_TEST_CONCURRENCY` (default 1, so a local `npm
@@ -742,7 +746,8 @@ jobs:
           set -u
           # Outside the working tree: a log file in the repo root is one more thing a
           # later step might trip over, and nothing here needs to read it back.
-          out="${RUNNER_TEMP:-/tmp}/syntax-check.log"
+          dir="${RUNNER_TEMP:-/tmp}"
+          out="${dir}/syntax-check.log"
           # The suite is the one thing in this job that can wait forever, and until now it
           # had no bound of any kind. `timeout-minutes` at the top of the job is not the bound
           # anyone wants: it reads 10 now, and when it fires the runner kills the container and
@@ -770,12 +775,32 @@ jobs:
           # status, and a timeout is reported as a timeout rather than as a failing assertion.
           timeout --signal=TERM --kill-after=15 120 node scripts/syntax-check.js > "$out" 2>&1 &
           syntax_pid=$!
+          # The three static checks, same scripts and same 60 s bound they had as steps of
+          # their own, started here so they run over the suite instead of in front of it.
+          # Their logs go to the same place the syntax check's does - outside the tree - and
+          # each exit status is collected below, not short-circuited.
+          timeout --signal=TERM --kill-after=10 60 node scripts/check-node-surface.js > "$dir/check-node-surface.log" 2>&1 &
+          node_surface_pid=$!
+          timeout --signal=TERM --kill-after=10 60 node scripts/check-canonical-urls.js > "$dir/check-canonical-urls.log" 2>&1 &
+          canonical_urls_pid=$!
+          timeout --signal=TERM --kill-after=10 60 node scripts/check-ci-disk-hygiene.js > "$dir/check-ci-disk-hygiene.log" 2>&1 &
+          disk_hygiene_pid=$!
           timeout --signal=TERM --kill-after=15 300 npm test
           test_rc=$?
           wait "$syntax_pid"
           syntax_rc=$?
+          wait "$node_surface_pid"
+          node_surface_rc=$?
+          wait "$canonical_urls_pid"
+          canonical_urls_rc=$?
+          wait "$disk_hygiene_pid"
+          disk_hygiene_rc=$?
           echo "--- node scripts/syntax-check.js ---"
           cat "$out"
+          for log in check-node-surface check-canonical-urls check-ci-disk-hygiene; do
+            echo "--- node scripts/${log}.js ---"
+            cat "$dir/${log}.log"
+          done
           if [ "$syntax_rc" -eq 124 ] || [ "$syntax_rc" -eq 137 ]; then
             echo "::error title=Syntax check (all JS)::node scripts/syntax-check.js was still running after 120 s and was stopped - a green run takes ~19 s"
           elif [ "$syntax_rc" -ne 0 ]; then
@@ -786,7 +811,21 @@ jobs:
           elif [ "$test_rc" -ne 0 ]; then
             echo "::error title=Full test suite::npm test exited ${test_rc}"
           fi
-          [ "$test_rc" -eq 0 ] && [ "$syntax_rc" -eq 0 ]
+          # Same two outcomes per static check as when each was a step of its own: a stop
+          # after its own 60 s bound is named as a stop, any other non-zero exit as an exit.
+          report_static() {   # $1 = script name, $2 = exit status
+            if [ "$2" -eq 124 ] || [ "$2" -eq 137 ]; then
+              echo "::error title=${3}::node scripts/$1.js was still running after 60 s and was stopped - a green run takes about a second"
+            elif [ "$2" -ne 0 ]; then
+              echo "::error title=${3}::node scripts/$1.js exited ${2}"
+            fi
+          }
+          report_static check-node-surface "$node_surface_rc" "No API newer than the Node 18 floor"
+          report_static check-canonical-urls "$canonical_urls_rc" "Every project URL points at Forgejo"
+          report_static check-ci-disk-hygiene "$disk_hygiene_rc" "Every job that builds an image bounds what it writes"
+          [ "$test_rc" -eq 0 ] && [ "$syntax_rc" -eq 0 ] &&
+            [ "$node_surface_rc" -eq 0 ] && [ "$canonical_urls_rc" -eq 0 ] &&
+            [ "$disk_hygiene_rc" -eq 0 ]
       - name: Build & verify example labs
         run: timeout --signal=TERM --kill-after=10 120 node examples/build-examples.js
       - name: Every lab model exists in the catalogue
