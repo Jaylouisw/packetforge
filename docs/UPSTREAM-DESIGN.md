@@ -64,13 +64,20 @@ Four scenarios, one change each, same lab (probe `E_failover_matrix`):
 | Scenario | Egress used | Outcome |
 |---|---|---|
 | both links up | `wan1` | dies at ISP A (it has no route onward) |
-| `Link.state = "down"` on wan1 | `wan1` | **identical trace** — the data path never reads `Link.state` |
+| `Link.state = "down"` on wan1 | `wan1` | dies at the cable: `drop: link down` on the port the route names, and nothing picks the second default (see below) |
 | `iface.enabled = false` on wan1 | *nothing* | `drop: no usable egress interface`, while a valid second default sits in `config.routes` |
 | ISP A unplugged (no IP) | `wan1` | silence: ARP is never answered, no switch to wan2 |
 
-`_deliver()` (`simulator.js:2976`) checks `iface.enabled` and `iface.peer`; it
-never asks whether the *link* is up. `web/app.js:921` prints a State field in the
-link inspector that the engine ignores.
+`_deliver()` (`simulator.js:3174`) checks `iface.enabled`, `iface.peer` and whether the
+cable itself is up — `Link.state` was decoration when this section was measured, and it has
+been read since #1058, so the down-link row above is a dead end the lab can see rather than an
+invisible one (`drop: link down`, in a `drop` event; there is no `link-down` event type). The
+web inspector prints the same field (`web/app.js:2347`, and the canvas colours a down cable at
+`:2792`), so console and screen agree about the cable.
+
+What has **not** changed is the choice: the frame still dies on the WAN the routing table
+picked. `routeTo()` returns one route and nothing asks for a second, which is the defect this
+section is about.
 
 ### 1.2 Asymmetry is already data, and dead
 
@@ -167,12 +174,12 @@ CAGE_SPEEDS.cellular = function (maxMbps) {
 };
 ```
 
-`derivePortHardware()` (`media.js:894`) needs **no** change: the band special-case
+`derivePortHardware()` (`media.js:941`) needs **no** change: the band special-case
 is `if (cage === 'antenna')`, and `cellular` is not `antenna`, so a cellular port
 keeps the media its cage lists. That is the whole reason for a separate cage
 instead of reusing `antenna` (see §10, rejected alternatives).
 
-`inferCage()` (`media.js:786`) gains, next to the subscriber-access lines:
+`inferCage()` (`media.js:828`) gains, next to the subscriber-access lines:
 
 ```js
 if (type === 'cellular' || type === 'lte' || type === 'nr' || type === '5g' || type === 'wwan') return 'cellular';
@@ -593,7 +600,7 @@ deviation from this design: the cage is `wwan` and it mates with nothing. See ro
 | 23 | `device.js:974 egressFor()` | first interface in subnet | keep; add `isInterfaceUsable()` for liveness |
 | 24 | `device.js:1073 routesTable()` | no AD/metric | add `ad`, `metric`, `wan` columns |
 | 25 | `device.js:584 serialize()` / `:650 hydrate()` | white-list | add the three config keys — **both** |
-| 26 | `simulator.js:1595 _deliver()` | checks `enabled` + `peer` | also `link.isUp()`, emit `link-down` |
+| 26 | `simulator.js:1595 _deliver()` | checks `enabled` + `peer` | ✅ done (#1058): also `link.isUp()`, and the frame dies with a `drop` whose reason reads `link down` — the reason travels on a `drop` event rather than as its own `link-down` type |
 | 27 | `simulator.js:1416 _sendIcmp()`, `:1445 _sendTransport()` | `routeTo()` once | candidate loop + `wan-select` |
 | 28 | `simulator.js:1894 _forwardL3()` | `routeTo()` once | candidate loop; **move NAT after the route** or flag it (§8) |
 | 29 | `simulator.js:3445 pathMtu()`, `:2029 _pickDestIp()`, `:2159 openFlow()` | single route | use `routeTo()` (unchanged) — they want *a* path, not the preferred one |
