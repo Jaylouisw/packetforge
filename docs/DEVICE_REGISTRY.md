@@ -243,15 +243,15 @@ entry it returns is either a device with at least one named port or an error tha
 
 ## What is in the catalogue
 
-**2,355 models across 258 vendors**, and it grows every time somebody's hardware is
+**2,356 models across 258 vendors**, and it grows every time somebody's hardware is
 added. The largest vendors by model count:
 
 | vendor | models | | category | models |
 |---|---:|---|---|---:|
 | MikroTik | 366 | | router | 382 |
-| Ubiquiti | 368 | | switch | 428 |
+| Ubiquiti | 368 | | switch | 429 |
 | Aruba | 73 | | point-to-point | 212 |
-| Huawei | 101 | | wireless | 220 |
+| Huawei | 102 | | wireless | 220 |
 | Cisco | 89 | | L3 switch | 264 |
 | TP-Link | 57 | | IoT | 125 |
 | Teltonika | 88 | | modem | 54 |
@@ -268,7 +268,7 @@ prose and prose goes stale.
 <!-- open-requests:start -->
 ## What is left open, and why
 
-Three hardware requests are open and cannot be modelled yet.
+Two hardware requests are open and cannot be modelled yet.
 Not one of them is blocked on research effort: in every case the vendor publishes the
 field *type* and not its *value*, and the value is what a spec needs. This table is
 generated from `research/open-device-requests.json` - `npm run regen:registry-doc` after
@@ -280,12 +280,10 @@ below carries the `blocked-on-build` label on its issue, which is what stops
 |---:|---|---|---|
 | 130 | Ubiquiti UniFi Dream Wall Pro (UDW-PRO) | the whole port layout, and the product itself: the SKU is not in Ubiquiti's cloud-gateway index (`udw-pro` occurs zero times in 610,409 B of it), `techspecs.ui.com/unifi/cloud-gateways/udw-pro` redirects to the site root, and `store.ui.com/.../udw-pro` is a 404. Three further surfaces were checked and are empty (2026-11-17): the EU storefront publishes only `udw-eu`, the 420 W UDW; no FCC grant exists under `SWX-UDWPRO`, `SWX-UDW-PRO` or `SWX-UDW2` (all 303, against 200 for `SWX-UDW`); and Wayback holds no capture of any of the four `udw-pro` URLs. Ubiquiti's early-access copy names "the Dream Wall and Dream Wall Pro (UDW/UDW Pro)" and then lists only the UDW's ports, beside "Dream Wall Pro - Coming Soon". The published datasheet `dl.ui.com/ds/udw_ds.pdf` is the non-Pro Dream Wall. | a Ubiquiti page, datasheet, FCC exhibit or quick-start guide that names UDW-PRO's ports and PoE budget, or the requester confirming they meant the UDW (already catalogued as `devices/ubiquiti/udw.json`). Modelling it from the non-Pro numbers is the family-sibling error this catalogue has already corrected. |
 | 803 | Huawei OptiXtrans E6616X | the service-board part number valid in an E6616X subrack, and that board's front-panel census. Correction (2026-11-17): the E6600 board documentation is not confined to the closed hedex tree - it is published one chapter per PDF on `e-file.huawei.com`, anonymous, and two board chapters were fetched and read today: `(6)-UXCME` (TMK5UXCME system control, 590,457 B) and `(21)-TMB3AUX` (auxiliary board, 482,177 B). Neither is a client board, and neither carries a `Valid Slots` table (zero occurrences), unlike the E9600 board chapters - so even a client-board chapter may not state which subrack accepts it. The 27-part numbered bundle those chapters belong to is now enumerated exhaustively and holds no client board. The E6616 chassis chapter (20 pp, `(2)-OptiXtrans E6616-Datasheet`) remains slot layout plus per-system-board capacity, with no port table. | the board set to be modelled (e.g. `E6616X DC (12x <board>)`), or an E6600 ordering/configuration guide. Routes closed on 2026-11-17: the related-materials graph (40 pages, 27 numbered parts, enumerated in `research/optixtrans-e-file-numbered-bundle.md`), the vendor sitemap (713 pages, no E6600 board chapter), hedex (302/403 for every user-agent today, including the Dorado path that answered 200 this morning), and Wayback (no capture of the E6600 boards overview under three URL prefixes). |
-| 810 | Huawei OptiXtrans E9624 | the cross-connect mode, which decides the port count - and only that. Board-to-subrack validity is now stated, not inferred: the E9600 Boards Overview, Table 3 prints `TNG1N206/TNG1N210` as Y in both the E9624 1:1 and 1:3 columns (and Y for the E9612 and E9605), and Table 1 names the board `10 x 10 Gbit/s Line Service Processing Board` (read 2026-11-18 from the verbatim partner copy https://www.actfornet.com/solutions/solution/OptiXtrans_E9600_Boards_Overview; vendor copy EDOC1100126589BEJ09047 / EDOC1100163901 still answers 302 -> /view/notFound). So the same board gives 24 x 10 = 240 line ports in 1:1 or 20 x 10 = 200 in 1:3, and IU6/IU7/IU18/IU19 are unusable in 1:3 (TNG2DAP section 1.9, E9624 row, footnote). The E9612 - the third column of the same table, no mode qualifier - was modelled from this reading and closed as #808 (devices/huawei/optixtrans-e9612.json, 13x TNG1N210). See research/optixtrans-e9612-stated-build.md. | one line from the requester naming the mode: `E9624, 1:1, 24x TNG1N210` = 240 x 10G line ports, or `E9624, 1:3, 20x TNG1N210` = 200. No vendor document is needed for the census any more - the board chapter's port table and the Boards Overview Table 3 supply it, exactly as they did for the E9612 (#808) and the E9605 (#807). A vendor copy of EDOC1100163901 would replace the mirror-read rows with a huawei.com URL but would not change the port count. |
 
 Sources last read for each, so the next pass starts from the end of this one rather than
 from the beginning:
 
 - **#130** (2026-11-17) - <https://techspecs.ui.com/unifi/cloud-gateways>, <https://eu.store.ui.com/eu/en/category/all-cloud-gateways>, <https://fccid.io/SWX-UDW>, <https://dl.ui.com/ds/udw_ds.pdf>
 - **#803** (2026-11-17) - <https://e.huawei.com/en/products/optical-transmission/optixtrans-e6600>, <https://e.huawei.com/en/documents/others/621bfc22e8564cf69ae86581569a7594>, <https://e.huawei.com/sitemap-ebg-x-default.xml>, <https://e-file.huawei.com/marketingcloud/pep/asset/20000001/Material/104eb87894f1489dac28e58171dca5cc/M3T1A669N1304590990909157504/_21_-TMB3AUX.pdf>, <https://e-file.huawei.com/marketingcloud/pep/asset/20000001/Material/5fa3c10e4f454dfaa44f26447563718d/M3T1A669N1304588494599672043/_6_-UXCME.pdf>, <https://e-file.huawei.com/marketingcloud/pep/asset/20000001/Material/e650e67ac43a4b169fd5001518bd346d/M3T1A669N1178212931847860258/eSFP_1550_12nm_125M%20to%202_67Gbps_0%20to%204_0dBm_-28_0dBm_LC_120km.pdf>, <https://e.huawei.com/en/documents/others/104eb87894f1489dac28e58171dca5cc>
-- **#810** (2026-11-18) - <https://support.huawei.com/enterprise/en/optical-transmission/optixtrans-e9624-pid-250733004>, <https://certification.enisa.europa.eu/document/download/ab9c6a55-bf65-4095-99bb-4e947a28156c_en?filename=EUCC-3089-2026-004%20Security%20Target.pdf>, <https://e-file.huawei.com/marketingcloud/pep/asset/20000001/Material/e75c775ac71144e6b522d7cef1601604/M3T1A669N1188254864652623965/TNG2DAP%20-.pdf>, <https://e.huawei.com/sitemap-ebg-x-default.xml>, <https://e.huawei.com/en/products/optical-transmission/optixtrans-e9624x>, <https://support.huawei.com/enterprise/en/optical-transmission/optixtrans-e9624x-pid-251792361>, <https://e.huawei.com/en/products/optical-transmission/optixtrans-e9600>, <https://www.actfornet.com/solutions/solution/OptiXtrans_E9600_Boards_Overview>, <https://e.huawei.com/en/products/optical-transmission/osn-9800>, <https://www.thunder-link.com/tng1n210.html>
 <!-- open-requests:end -->

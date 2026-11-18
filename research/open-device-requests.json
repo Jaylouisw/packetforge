@@ -29,25 +29,6 @@
         "https://e-file.huawei.com/marketingcloud/pep/asset/20000001/Material/e650e67ac43a4b169fd5001518bd346d/M3T1A669N1178212931847860258/eSFP_1550_12nm_125M%20to%202_67Gbps_0%20to%204_0dBm_-28_0dBm_LC_120km.pdf",
         "https://e.huawei.com/en/documents/others/104eb87894f1489dac28e58171dca5cc"
       ]
-    },
-    {
-      "issue": 810,
-      "models": "Huawei OptiXtrans E9624",
-      "missing": "the cross-connect mode, which decides the port count - and only that. Board-to-subrack validity is now stated, not inferred: the E9600 Boards Overview, Table 3 prints `TNG1N206/TNG1N210` as Y in both the E9624 1:1 and 1:3 columns (and Y for the E9612 and E9605), and Table 1 names the board `10 x 10 Gbit/s Line Service Processing Board` (read 2026-11-18 from the verbatim partner copy https://www.actfornet.com/solutions/solution/OptiXtrans_E9600_Boards_Overview; vendor copy EDOC1100126589BEJ09047 / EDOC1100163901 still answers 302 -> /view/notFound). So the same board gives 24 x 10 = 240 line ports in 1:1 or 20 x 10 = 200 in 1:3, and IU6/IU7/IU18/IU19 are unusable in 1:3 (TNG2DAP section 1.9, E9624 row, footnote). The E9612 - the third column of the same table, no mode qualifier - was modelled from this reading and closed as #808 (devices/huawei/optixtrans-e9612.json, 13x TNG1N210). See research/optixtrans-e9612-stated-build.md.",
-      "unblock": "one line from the requester naming the mode: `E9624, 1:1, 24x TNG1N210` = 240 x 10G line ports, or `E9624, 1:3, 20x TNG1N210` = 200. No vendor document is needed for the census any more - the board chapter's port table and the Boards Overview Table 3 supply it, exactly as they did for the E9612 (#808) and the E9605 (#807). A vendor copy of EDOC1100163901 would replace the mirror-read rows with a huawei.com URL but would not change the port count.",
-      "checked": "2026-11-18",
-      "sources": [
-        "https://support.huawei.com/enterprise/en/optical-transmission/optixtrans-e9624-pid-250733004",
-        "https://certification.enisa.europa.eu/document/download/ab9c6a55-bf65-4095-99bb-4e947a28156c_en?filename=EUCC-3089-2026-004%20Security%20Target.pdf",
-        "https://e-file.huawei.com/marketingcloud/pep/asset/20000001/Material/e75c775ac71144e6b522d7cef1601604/M3T1A669N1188254864652623965/TNG2DAP%20-.pdf",
-        "https://e.huawei.com/sitemap-ebg-x-default.xml",
-        "https://e.huawei.com/en/products/optical-transmission/optixtrans-e9624x",
-        "https://support.huawei.com/enterprise/en/optical-transmission/optixtrans-e9624x-pid-251792361",
-        "https://e.huawei.com/en/products/optical-transmission/optixtrans-e9600",
-        "https://www.actfornet.com/solutions/solution/OptiXtrans_E9600_Boards_Overview",
-        "https://e.huawei.com/en/products/optical-transmission/osn-9800",
-        "https://www.thunder-link.com/tng1n210.html"
-      ]
     }
   ]
 }

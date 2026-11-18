@@ -1,0 +1,1460 @@
+{
+  "vendor": "huawei",
+  "model": "OptiXtrans E9624",
+  "label": "OptiXtrans E9624 OTN subrack, 1:1 mode, 24x TNG1N210 (240x 10G line)",
+  "category": "switch",
+  "description": "Huawei OptiXtrans E9624 - 747.2 mm (16.8U) metro/core OTN subrack whose service-slot count depends on the cross-connect protection mode: 1:1 mode gives 12 large or 24 small slots, 1:3 mode 10 large or 20 small. Unlike its E9612/E9605 siblings it carries real cross-connect boards (TNG1CXP, TNG3CXP or TNG4CXP in IU71/IU72) and accepts OTN tributary and packet boards as well as line boards. Modelled in 1:1 mode, fully populated with 24x TNG1N210 line boards in IU1-IU24: 240x 10G WDM-side line ports, each carrying one OTU2 or OTU2e wavelength.",
+  "capabilities": [
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "iu1/p1",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu1/p2",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu1/p3",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu1/p4",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu1/p5",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu1/p6",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu1/p7",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu1/p8",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu1/p9",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu1/p10",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu2/p1",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu2/p2",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu2/p3",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu2/p4",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu2/p5",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu2/p6",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu2/p7",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu2/p8",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu2/p9",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu2/p10",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu3/p1",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu3/p2",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu3/p3",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu3/p4",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu3/p5",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu3/p6",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu3/p7",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu3/p8",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu3/p9",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu3/p10",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu4/p1",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu4/p2",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu4/p3",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu4/p4",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu4/p5",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu4/p6",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu4/p7",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu4/p8",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu4/p9",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu4/p10",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu5/p1",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu5/p2",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu5/p3",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu5/p4",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu5/p5",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu5/p6",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu5/p7",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu5/p8",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu5/p9",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu5/p10",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu6/p1",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu6/p2",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu6/p3",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu6/p4",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu6/p5",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu6/p6",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu6/p7",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu6/p8",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu6/p9",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu6/p10",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu7/p1",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu7/p2",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu7/p3",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu7/p4",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu7/p5",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu7/p6",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu7/p7",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu7/p8",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu7/p9",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu7/p10",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu8/p1",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu8/p2",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu8/p3",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu8/p4",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu8/p5",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu8/p6",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu8/p7",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu8/p8",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu8/p9",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu8/p10",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu9/p1",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu9/p2",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu9/p3",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu9/p4",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu9/p5",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu9/p6",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu9/p7",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu9/p8",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu9/p9",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu9/p10",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu10/p1",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu10/p2",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu10/p3",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu10/p4",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu10/p5",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu10/p6",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu10/p7",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu10/p8",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu10/p9",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu10/p10",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu11/p1",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu11/p2",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu11/p3",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu11/p4",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu11/p5",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu11/p6",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu11/p7",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu11/p8",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu11/p9",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu11/p10",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu12/p1",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu12/p2",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu12/p3",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu12/p4",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu12/p5",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu12/p6",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu12/p7",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu12/p8",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu12/p9",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu12/p10",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu13/p1",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu13/p2",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu13/p3",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu13/p4",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu13/p5",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu13/p6",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu13/p7",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu13/p8",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu13/p9",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu13/p10",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu14/p1",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu14/p2",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu14/p3",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu14/p4",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu14/p5",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu14/p6",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu14/p7",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu14/p8",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu14/p9",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu14/p10",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu15/p1",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu15/p2",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu15/p3",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu15/p4",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu15/p5",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu15/p6",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu15/p7",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu15/p8",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu15/p9",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu15/p10",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu16/p1",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu16/p2",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu16/p3",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu16/p4",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu16/p5",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu16/p6",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu16/p7",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu16/p8",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu16/p9",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu16/p10",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu17/p1",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu17/p2",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu17/p3",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu17/p4",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu17/p5",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu17/p6",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu17/p7",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu17/p8",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu17/p9",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu17/p10",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu18/p1",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu18/p2",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu18/p3",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu18/p4",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu18/p5",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu18/p6",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu18/p7",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu18/p8",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu18/p9",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu18/p10",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu19/p1",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu19/p2",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu19/p3",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu19/p4",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu19/p5",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu19/p6",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu19/p7",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu19/p8",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu19/p9",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu19/p10",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu20/p1",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu20/p2",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu20/p3",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu20/p4",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu20/p5",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu20/p6",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu20/p7",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu20/p8",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu20/p9",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu20/p10",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu21/p1",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu21/p2",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu21/p3",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu21/p4",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu21/p5",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu21/p6",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu21/p7",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu21/p8",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu21/p9",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu21/p10",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu22/p1",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu22/p2",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu22/p3",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu22/p4",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu22/p5",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu22/p6",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu22/p7",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu22/p8",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu22/p9",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu22/p10",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu23/p1",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu23/p2",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu23/p3",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu23/p4",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu23/p5",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu23/p6",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu23/p7",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu23/p8",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu23/p9",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu23/p10",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu24/p1",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu24/p2",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu24/p3",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu24/p4",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu24/p5",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu24/p6",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu24/p7",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu24/p8",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu24/p9",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "iu24/p10",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    }
+  ],
+  "icon": "switch",
+  "color": "#dc2626",
+  "sourceUrl": "https://e.huawei.com/marketingcloud/pep/asset/20000001/Material/0f9e00e3f2ca431693884a01667d7ec6/M3T1A669N1188254857740624027/OptiXtrans%20E9600%20Family%20-.pdf",
+  "notes": "Stated card complement, not a fixed chassis figure: the E9624 brochure prints 24 small service slots in 1:1 cross-connect mode (12 large slots; one 11 U slot splits into two 5.5 U slots), so \"24x TNG1N210\" is what 240 line ports means. A partly filled shelf, the same shelf in 1:3 mode (20 small slots - IU6, IU7, IU18 and IU19 unusable), or one carrying TNG1N206 (6x 10G), TNG1N401 (1x 100G), the 20x10G TNV3N220/TNV5N220, or the OTN tributary and packet boards the E9624 column also admits (TNG1T206, TNG1T212, TNV1T410, TNV2E224) is a different box - model it separately rather than reusing this one. Same convention as devices/huawei/optixtrans-e9612.json, optixtrans-e9605.json and optixtrans-e6616.json.\n\nFrame, from the vendor brochure cited as sourceUrl (OptiXtrans E9600 Family, 4 pp, 277,705 B, read 2026-11-18, specification table, E9624 column): 747.2 (H) x 442 (W) x 295 (D) mm; \"Max. number of service board slots - 1:1 cross-connect mode: 12 large slots or 24 small slots; 1:3 cross-connect mode: 10 large slots or 20 small slots\", with the NOTE \"The E9624 subrack supports slot splitting. One 11 U slot of the E9624 subrack can be split into two 5.5 U slots.\" Electrical switching 4.8 Tbit/s OSUflex/ODUk, 4.8 Tbit/s packet services, 1.92 Tbit/s VC-4, 160 Gbit/s VC-3/VC-12, 1-20 degree ROADM.\n\nSlot numbering and the 1:3 caveat are vendor-sourced: TNG2DAP chapter, section 1.9 Valid Slots, Table 1 - the E9624 row reads 1 occupied slot, physical and logical IU1 to IU24, with the footnote \"In the 1:3 mode of an E9624 subrack, service boards cannot be installed in slots IU6, IU7, IU18, and IU19\" (https://e-file.huawei.com/marketingcloud/pep/asset/20000001/Material/e75c775ac71144e6b522d7cef1601604/M3T1A669N1188254864652623965/TNG2DAP%20-.pdf, HTTP 200, application/pdf, 871,676 B, read 2026-11-18). Twenty-four minus those four is the 20 small slots the brochure prints for 1:3 mode.\n\nBoard validity and port count: the OptiXtrans E9600 (E9624/E9612/E9605) Boards Overview chapter, Table 3 - the TNG1N206/TNG1N210 row prints \"1:1 mode: Y / 1:3 mode: Y\" under the E9624 column - and Table 1, which names the board \"TNG1N210: 10 x 10 Gbit/s Line Service Processing Board\". That chapter is EDOC1100126589BEJ09047 and its vendor copy (OptiXtrans E9600 Board Datasheet, EDOC1100163901) answers 302 -> /view/notFound for every user-agent tried, so the text was read from the verbatim partner copy at https://www.actfornet.com/solutions/solution/OptiXtrans_E9600_Boards_Overview (HTTP 200, 226,637 B, read 2026-11-18), whose 127 support.huawei.com/hedex topic links identify the vendor chapter it reproduces. The same table shows why this shelf is broader than its siblings: OTN tributary rows (TNG1T206, TNG1T212, TNV1T410) and packet rows (TNV2E224) read Y under the E9624 column and NA under E9612/E9605.\n\nThe 24 is the service range, and it excludes the cross-connect boards. Huawei Common Criteria Security Target EUCC-3089-2026-004 (https://certification.enisa.europa.eu/document/download/ab9c6a55-bf65-4095-99bb-4e947a28156c_en?filename=EUCC-3089-2026-004%20Security%20Target.pdf, HTTP 200, 3,009,787 B, issue 0.19 dated 2026-10-14, read 2026-11-18) puts \"OptiX OSN 9800 M24 / OptiXtrans E9624\" on one row of Table 1-1 and places the SCC board in \"CXP: IU71, IU72\", outside IU1-IU24. That row is also what joins the carrier name to the enterprise one, which is why the TNG1N210 chapter valid-slot line for \"OSN 9800 M24\" - 1:1 IU1-IU24, 1:3 IU1-IU5, IU8-IU17, IU20-IU24, single-slot board 237.1 x 30.5 x 220 mm, 64 W typical / 67 W maximum (reprint https://www.thunder-link.com/tng1n210.html) - describes this subrack. The cross-connect boards themselves are not modelled: no client ports, and the engine has no cross-connect concept, so capabilities stays cli.\n\nLine side is OTU2/OTU2e over DWDM, not Ethernet. The engine has no OTN type, so the ports are filed as ethernet/sfp+ - the physical cage - and the protocol claim is written down here instead. The link validator will therefore accept a 10GBASE-LR peer on a port that only carries OTU2: that is the house convention, shared by devices/huawei/optixtrans-e9612.json, optixtrans-e9605.json, optixtrans-e6616.json, devices/ciena/waveserver-ai.json, devices/adva/fsp-3000.json and devices/packetlight/pl-2000m.json, all of which pass scripts/audit-port-types.js. A real otn/wdm type is an engine change and would fix it for all of them.\n\nNot modelled: the OptiXtrans E9624X is a fourth, separate subrack - its own product page, its own SCC board (TNG1HCXP) and its own slot row in the vendor tables - not a variant of this one; see research/optixtrans-e9624x-fourth-subrack.md. No PoE and no copper access ports on this shelf at all.",
+  "aliases": [
+    "E9624",
+    "OSN 9800 M24"
+  ]
+}

@@ -80,3 +80,8 @@ or 1:3 (10 large / 20 small), and Table 3's N210 row is Y in both - so the same 
 or 200 depending on a mode the request does not state. `24x TNG1N210` in 1:1 is the vendor maximum and
 is one line of requester input away; until then the E9624 stays open rather than doubling the shelf's
 port count on an unstated assumption.
+
+**Correction, 2026-11-18 (later the same day).** The paragraph above says the request does not state
+the mode. It does: issue #810 quotes "1:1 cross-connect mode: 12 large or 24 small slots" in its own
+port line, so `24 x TNG1N210` is the stated build and the E9624 was modelled from it —
+`research/optixtrans-e9624-stated-build.md`, `devices/huawei/optixtrans-e9624.json`, request closed.
