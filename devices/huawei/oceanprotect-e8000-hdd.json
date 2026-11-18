@@ -1,0 +1,208 @@
+{
+ "vendor": "huawei",
+ "model": "OceanProtect E8000 (HDD)",
+ "label": "Huawei OceanProtect E8000 backup storage, HDD form (2U, 2 controllers, 12 interface-module slots)",
+ "category": "nas",
+ "description": "Huawei OceanProtect E8000 backup and archiving converged storage node in its HDD form: one 2 U controller enclosure with two controllers, up to 12 hot-swappable interface modules (six per controller) and 2 U 25-slot SAS disk frames behind the controllers. Modelled configuration: a 4-port 10GE/25GE interface module in IOM 0 and another in IOM 1 on each controller - 16 x 10/25GbE SFP28 front-end ports - plus the two 1GbE management/maintenance ports per controller; no PoE, and no front-end port exists without an interface module fitted.",
+ "capabilities": [
+  "host",
+  "http-server",
+  "cli"
+ ],
+ "interfaces": [
+  {
+   "name": "A-IOM0-P0",
+   "type": "ethernet",
+   "connector": "sfp28",
+   "speed": "25G",
+   "speedCaps": [
+    10000,
+    25000
+   ]
+  },
+  {
+   "name": "A-IOM0-P1",
+   "type": "ethernet",
+   "connector": "sfp28",
+   "speed": "25G",
+   "speedCaps": [
+    10000,
+    25000
+   ]
+  },
+  {
+   "name": "A-IOM0-P2",
+   "type": "ethernet",
+   "connector": "sfp28",
+   "speed": "25G",
+   "speedCaps": [
+    10000,
+    25000
+   ]
+  },
+  {
+   "name": "A-IOM0-P3",
+   "type": "ethernet",
+   "connector": "sfp28",
+   "speed": "25G",
+   "speedCaps": [
+    10000,
+    25000
+   ]
+  },
+  {
+   "name": "A-IOM1-P0",
+   "type": "ethernet",
+   "connector": "sfp28",
+   "speed": "25G",
+   "speedCaps": [
+    10000,
+    25000
+   ]
+  },
+  {
+   "name": "A-IOM1-P1",
+   "type": "ethernet",
+   "connector": "sfp28",
+   "speed": "25G",
+   "speedCaps": [
+    10000,
+    25000
+   ]
+  },
+  {
+   "name": "A-IOM1-P2",
+   "type": "ethernet",
+   "connector": "sfp28",
+   "speed": "25G",
+   "speedCaps": [
+    10000,
+    25000
+   ]
+  },
+  {
+   "name": "A-IOM1-P3",
+   "type": "ethernet",
+   "connector": "sfp28",
+   "speed": "25G",
+   "speedCaps": [
+    10000,
+    25000
+   ]
+  },
+  {
+   "name": "B-IOM0-P0",
+   "type": "ethernet",
+   "connector": "sfp28",
+   "speed": "25G",
+   "speedCaps": [
+    10000,
+    25000
+   ]
+  },
+  {
+   "name": "B-IOM0-P1",
+   "type": "ethernet",
+   "connector": "sfp28",
+   "speed": "25G",
+   "speedCaps": [
+    10000,
+    25000
+   ]
+  },
+  {
+   "name": "B-IOM0-P2",
+   "type": "ethernet",
+   "connector": "sfp28",
+   "speed": "25G",
+   "speedCaps": [
+    10000,
+    25000
+   ]
+  },
+  {
+   "name": "B-IOM0-P3",
+   "type": "ethernet",
+   "connector": "sfp28",
+   "speed": "25G",
+   "speedCaps": [
+    10000,
+    25000
+   ]
+  },
+  {
+   "name": "B-IOM1-P0",
+   "type": "ethernet",
+   "connector": "sfp28",
+   "speed": "25G",
+   "speedCaps": [
+    10000,
+    25000
+   ]
+  },
+  {
+   "name": "B-IOM1-P1",
+   "type": "ethernet",
+   "connector": "sfp28",
+   "speed": "25G",
+   "speedCaps": [
+    10000,
+    25000
+   ]
+  },
+  {
+   "name": "B-IOM1-P2",
+   "type": "ethernet",
+   "connector": "sfp28",
+   "speed": "25G",
+   "speedCaps": [
+    10000,
+    25000
+   ]
+  },
+  {
+   "name": "B-IOM1-P3",
+   "type": "ethernet",
+   "connector": "sfp28",
+   "speed": "25G",
+   "speedCaps": [
+    10000,
+    25000
+   ]
+  },
+  {
+   "name": "A-MGMT0",
+   "type": "ethernet",
+   "speed": "1G",
+   "speedCaps": [
+    1000
+   ]
+  },
+  {
+   "name": "A-MGMT1",
+   "type": "ethernet",
+   "speed": "1G",
+   "speedCaps": [
+    1000
+   ]
+  },
+  {
+   "name": "B-MGMT0",
+   "type": "ethernet",
+   "speed": "1G",
+   "speedCaps": [
+    1000
+   ]
+  },
+  {
+   "name": "B-MGMT1",
+   "type": "ethernet",
+   "speed": "1G",
+   "speedCaps": [
+    1000
+   ]
+  }
+ ],
+ "sourceUrl": "https://e-file.huawei.com/marketingcloud/pep/asset/20000001/Material/4b552a977d394d1e802814db6a8d4a0a/M3T1A590N1258729497791078666/%E5%8D%8E%E4%B8%BAOceanProtect%E4%B8%93%E7%94%A8%E5%A4%87%E4%BB%BD%E5%AD%98%E5%82%A8%E4%BA%A7%E5%93%81%E6%8A%80%E6%9C%AF%E7%99%BD%E7%9A%AE%E4%B9%A6%20V200R001C20.pdf",
+ "notes": "Every field traces to Huawei documentation read 2026-11-18. (1) FRAME, CONTROLLERS AND INTERFACE-MODULE SLOTS: 'OceanProtect E8000，采用2U2控的控制框，盘控一体形态，支持36盘位NVME(PALM）。关键模块FRU设计，支持冗余备份，故障时可在线更换。每控制框支持最多12个可热插拔的接口模块。通过RDMA实现框内2控制器间镜像……每控有2个GE管理/维护口，1个串口。' - section 3.1.3 OceanProtect E8000 of the OceanProtect product technical white paper V200R001C20, document version 03 (2026-05-06), whitepaper p.14 (PDF p.22), asset 19,224,057 B, 141 pp: https://e-file.huawei.com/marketingcloud/pep/asset/20000001/Material/4b552a977d394d1e802814db6a8d4a0a/M3T1A590N1258729497791078666/%E5%8D%8E%E4%B8%BAOceanProtect%E4%B8%93%E7%94%A8%E5%A4%87%E4%BB%BD%E5%AD%98%E5%82%A8%E4%BA%A7%E5%93%81%E6%8A%80%E6%9C%AF%E7%99%BD%E7%9A%AE%E4%B9%A6%20V200R001C20.pdf . CAVEAT, stated rather than hidden: that section's first sentence opens with the X8000's model name ('OceanProtect X8000，采用2U2控的控制框'), a copy-paste slip in the vendor text; the section heading (3.1.3 OceanProtect E8000), its figures 3-10/3-11 ('OceanProtect E8000 NVME 36 盘位型号前视图/后视图') and its 36-slot two-controller description are the E8000's, and the '12 hot-swappable interface modules per control frame' limit is the sentence they introduce. It is the only vendor statement of the E8000's interface-module count, and it is why this spec models six slots per controller and not the X8000's six-by-copy. (2) MODULE TYPES AND PORTS PER MODULE: the same whitepaper's per-model table (pp.7-9; PDF pp.15-17), row 接口卡. E8000 (HDD形态) cell, read from its own column coordinates: '●前端：前端接口模块包括4端口8G/16G/32G/64G FC接口模块，4端口10GE/25GE ETH接口模块，2端口40GE/100GE接口模块。●集群互联：Scale-Out接口模块包括4端口25Gb RDMA接口模块用于4控直连组网。●后端：后端接口模块包括4端口12Gb SAS接口模块（接入SAS硬盘框的接口模块）'. E8000 (NVME全闪存形态) cell: same three front-end modules, '●集群互联：Scale-Out接口模块包括4端口25Gb RDMA接口模块用于4控直连组网', '●后端：100Gb RDMA接口模块，每个模块2个100G RDMA端口'. So each front-end module type carries a published per-module port count (4, 4, 2). (3) CONTROLLERS PER NODE AND FRONT-END PORT TYPES: '单节点控制器数量 2' and '前端通道端口类型 16/32/64 Gb FC, 10/25/40/100 GbE' in the specification table of https://e.huawei.com/cn/products/storage/oceanprotect/oceanprotect-e8000 (HTTP 200, 360,565 B, crawler user-agent) and the English page https://e.huawei.com/en/products/storage/oceanprotect/oceanprotect-e8000 ('Number of Controllers per Node 2', 'Front-End Port Types 16/32/64 Gb FC, 10/25/40/100 GbE'); the same table also names '数据盘类型 NVMe SSD：7.68/15.36/30.72/61.44TB; NL-SAS：8/10/16/20/24TB'. The white paper is reached from https://e.huawei.com/cn/documents/products/storage/4b552a977d394d1e802814db6a8d4a0a (HTTP 200, 332,980 B), whose hidden attachmentUrl field carries the e-file path above. MODEL CONFIGURATION, chosen and labelled as such: one 4-port 10GE/25GE ETH interface module in IOM 0 and one in IOM 1 on each controller - 8 front-end ports per controller, 16 in the node - with the other four slots per controller left free. Port count follows the vendor's per-module '4端口' and the module's own 10GE/25GE rates (SFP28 cage, 10G or 25G per port). NOT MODELLED, deliberately: the 4-port 8G/16G/32G/64G FC and 2-port 40GE/100GE front-end modules (the frame accepts them; this configuration does not fit them), the 4-port 25Gb RDMA Scale-Out module (inter-enclosure link for four-controller direct connect, no cable to a backup client), the back-end module (disk enclosures, not host ports), the per-controller serial port (stated once per controller, not a network interface), and PoE, which the product does not have. This entry is the HDD form the white paper's table names 'OceanProtect E8000（HDD形态）': '2U 25盘位 盘控一体' with '2U 25盘位 2.5寸SAS 硬盘框; 4U 24盘位 3.5寸SAS 硬盘框; 4U 75盘位 3.5寸SAS 高密框' behind it and '2.5寸 SAS SSD；3.5寸 NL-SAS HDD' as data disks."
+}

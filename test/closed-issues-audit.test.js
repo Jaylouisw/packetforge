@@ -112,7 +112,11 @@ try {
   const fs = require('fs');
   const file = path.join(__dirname, '..', 'research', 'open-device-requests.json');
   const real = blockedRequestNumbers(JSON.parse(fs.readFileSync(file, 'utf8')));
-  ok(real.has(742), 'the live mirror still lists the E8000 request', JSON.stringify(Array.from(real)));
+  // #742 is no longer a live row: the E8000's HDD and NVMe specs were built from the Chinese
+  // product technical white paper (research/oceanprotect-e8000-cn-whitepaper.md), so the ledger
+  // must have dropped it. #130 keeps proving the mirror still yields a row to compare against.
+  ok(!real.has(742), '#742 left the live mirror once its spec landed', JSON.stringify(Array.from(real)));
+  ok(real.has(130), 'the live mirror still yields a row to audit', JSON.stringify(Array.from(real)));
 } catch (e) {
   ok(false, 'research/open-device-requests.json parses', e.message);
 }
@@ -180,8 +184,10 @@ try {
   ok(stale.length === 0, 'no open-request row names a model the catalogue holds', stale.join(', '));
   ok(!requests.some(function (r) { return Number(r.issue) === 743; }),
     '#743 is out of the ledger - #1902 answered it with the X8100/X9100 specs');
-  ok(requests.some(function (r) { return Number(r.issue) === 742; }),
-    'the E8000 request is still in the ledger, which is what proves the check can see a live row');
+  ok(!requests.some(function (r) { return Number(r.issue) === 742; }),
+    '#742 is out of the ledger - the E8000 HDD and NVMe specs answer it');
+  ok(requests.some(function (r) { return Number(r.issue) === 130; }),
+    'a live row remains (#130), which is what proves the check can see one');
 } catch (e) {
   ok(false, 'the ledger and the catalogue can be compared', e.message);
 }

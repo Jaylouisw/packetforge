@@ -15,25 +15,6 @@
       ]
     },
     {
-      "issue": 742,
-      "models": "Huawei OceanProtect E8000",
-      "missing": "front-end port count per node - the interface-module slots per controller and the ports on each module type. The V200R001C20 data sheet (4-slide pptx, 2,407,538 B) and the 26H2 data sheet (pdf, 658,756 B, 3 pp), both read in full 2026-11-18, stop at port *types* - `16/32/64 Gb FC, 10/25/40/100 GbE` - and contain `interface module` 0, `slot` 0 and `IOM` 0 times between them. The vendor's document sitemap was counted the same day: 224 `/en/documents/products/storage/` pages, exactly two of them E8000 documents, both data sheets - there is no public hardware book. The one vendor book whose title names E8000, Parts Replacement `EDOC1100305200`, is retired: its two still-indexed sections now answer 302 to `/view/notFound`.",
-      "unblock": "one rendered section of the E8000 V200R001 set - Product Description `EDOC1100486186`, Quick Installation Guide `EDOC1100485347` or Installation Guide `EDOC1100486185` - pasted by a reader with a support session; or a stated configuration such as \"E8000 node, 2 controllers, 2 x 4-port 25GE IOM per controller\". The tree's catalogue endpoint, Spare Parts Query and the hedex content API are all measured dead ends (hedex `/api/navi/<id>/first-level-tree` answers 401 \"NOT LOGIN!\" for `EDOC1100368651`, `EDOC1100486185` and `EDOC1100486186`). The readable X6000/X8000 1.3.0 installation guide's \"six interface module slots\" does not transfer: it never names E8000 (`E8000` occurs 0 times in 473,037 characters). See `research/oceanprotect-e8000-public-document-set.md`. The X8100/X9100 pair once waited on the same field (#743); both are now catalogued with the front end unmodelled, so their row is no longer a request.",
-      "checked": "2026-11-18",
-      "sources": [
-        "https://e.huawei.com/en/products/storage/oceanprotect/oceanprotect-e8000",
-        "https://e.huawei.com/en/documents/products/storage/597eb7d1363f4b5da0d4ad663da1f7b6",
-        "https://support.huawei.com/supportgateway/view/v1/enterprise/doc/catalogue?nid=EDOC1100486186",
-        "https://info.support.huawei.com/storage/spareparts/",
-        "https://info.support.huawei.com/storageinfogw/csrf-gw/rest/csrf/getCsrfToken",
-        "https://e.huawei.com/en/documents/products/storage/b2c7e3c34bcb4798812106bdd494fe91",
-        "https://e.huawei.com/sitemap-ebg-x-default.xml",
-        "https://support.huawei.com/hedex/api/navi/EDOC1100486185/first-level-tree",
-        "https://support.huawei.com/enterprise/en/doc/EDOC1100318730/ce945100/cabinet-layout-and-connection-planning",
-        "https://www.commoncriteriaportal.org/files/epfiles/st_huawei_oceanprotect160_v1.10.pdf"
-      ]
-    },
-    {
       "issue": 803,
       "models": "Huawei OptiXtrans E6616X",
       "missing": "the service-board part number valid in an E6616X subrack, and that board's front-panel census. Correction (2026-11-17): the E6600 board documentation is not confined to the closed hedex tree - it is published one chapter per PDF on `e-file.huawei.com`, anonymous, and two board chapters were fetched and read today: `(6)-UXCME` (TMK5UXCME system control, 590,457 B) and `(21)-TMB3AUX` (auxiliary board, 482,177 B). Neither is a client board, and neither carries a `Valid Slots` table (zero occurrences), unlike the E9600 board chapters - so even a client-board chapter may not state which subrack accepts it. The 27-part numbered bundle those chapters belong to is now enumerated exhaustively and holds no client board. The E6616 chassis chapter (20 pp, `(2)-OptiXtrans E6616-Datasheet`) remains slot layout plus per-system-board capacity, with no port table.",
