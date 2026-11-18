@@ -3319,7 +3319,7 @@ and stays as a guard.
 ```
 sw1(config-if)#channel-group 4097 mode active
 Interface Fa0/2 added to channel group 4097 (mode active)                  ← before
-% Invalid channel group id "4097": a channel group is identified by a number, 1-4096   ← now
+% Invalid channel group id "4097": a channel group is identified by a number, 1-4096 (e.g. `channel-group 1 mode active`)   ← now
 ```
 
 The condition was `!/^\d+$/.test(id) || Number(id) < 1` — a lower bound only. #1495 fixed the half where a *word*
