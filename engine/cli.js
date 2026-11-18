@@ -5662,7 +5662,7 @@ class CliSession {
           // it, and in the `channel-group ... mode ...` line that put the port here (#1620).
           const proto = lagLib.cliMode(l.mode) === 'on' ? '-' : 'LACP';
           out.push(pad(id, ETHERCHANNEL_COLUMNS.group) +
-            pad('Po' + id + '(' + bundleFlags + ')', ETHERCHANNEL_COLUMNS['port-channel']) +
+            pad(lagLib.portChannelName(id) + '(' + bundleFlags + ')', ETHERCHANNEL_COLUMNS['port-channel']) +
             pad(proto, ETHERCHANNEL_COLUMNS.protocol) + shown.join(' '));
           // Why a member is not carrying, in the same words `show interfaces` uses, and what that means for
           // the bundle as a whole.
@@ -5805,7 +5805,11 @@ class CliSession {
       out.push(columns.map(function (c) { return pad('-'.repeat(c[2]), c[1]); }).join(''));
       // The rows come from the engine, so the payload the browser reads and this table cannot disagree (#1327).
       let rows = dev.macRows(this.topo, nowMs);
-      if (only) rows = rows.filter(function (r) { return r.port === only; });
+      // The filter matches the port the table names *and* the member a bundled frame arrived on: a real box
+      // learned the address on the port-channel, so `interface Po1` is the filter that finds it - but `Fa0/2`
+      // is the cable the frame came in on, and refusing it would answer a question the box can answer. The
+      // port-channel spelling does not resolve as a port name here yet (research/mac-table-port-channel-name.md).
+      if (only) rows = rows.filter(function (r) { return r.port === only || r.learnedOn === only; });
       if (only && !rows.length) {
         // An empty table for a filter is a fact about that port, and it has to say so: a bare header reads as
         // "the switch knows nothing", which is a different claim about the whole box.

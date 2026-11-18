@@ -713,6 +713,7 @@ class Device {
   // explaining why that port cannot be the way to it.
   macRows(topo, nowMs) {
     const vlanLib = require('./vlan');
+    const lagLib = require('./lag');
     // The rows are the rows at the instant asked. No instant means no ageing, which is what every caller got
     // before the table had timestamps (#1395).
     if (Number.isFinite(nowMs)) this.ageMacs(nowMs);
@@ -735,11 +736,27 @@ class Device {
       // A port that no longer carries this VLAN cannot be the way to a MAC in it, even while the port itself is
       // up: moving a port between VLANs is exactly how that happens (#1255).
       const mismatch = (port && vlanLib.classifyEgress(port.vlan, r.vlan).action === 'drop') ? '(vlan mismatch)' : '';
+      // A frame that arrived on a bundle member is remembered against the *port-channel*, not the member. The
+      // vendor states the rule for this table in as many words: "The show mac-address-table dynamic command
+      // output for an EtherChannel interface changes the port number designation (for example, 5/7) to a port
+      // group number (for example, Po80)" (Catalyst 4500 command reference), and a Catalyst 9000 table prints
+      // `100 20bb.c05e.5318 DYNAMIC Po1` beside its physical-port rows. This row used to name whichever member
+      // carried the frame, which is a fact about one frame and not about where the address is (see
+      // research/mac-table-port-channel-name.md).
+      //
+      // A member that never negotiated is not in the bundle: it forwards as an ordinary port, so it is named as
+      // one - the same rule the spanning tree groups ports by (simulator `_logicalPortName`). The physical port
+      // stays on the row as `learnedOn`, because `show mac address-table interface <member>` still has to find
+      // the entry and the carrier note is about the member, not about the bundle.
+      const bundle = (port && typeof this.lagFor === 'function') ? this.lagFor(name) : null;
+      const suspended = bundle ? lagLib.memberSuspension(this, name, topo) : null;
+      const shown = (bundle && !suspended) ? lagLib.portChannelName(bundle.id) : name;
       // Seconds since the switch heard from this address, or null when nothing recorded when it did.
       const ageSec = (Number.isFinite(r.atMs) && Number.isFinite(nowMs))
         ? Math.max(0, Math.floor((nowMs - r.atMs) / 1000))
         : null;
-      return { vlan: r.vlan, mac: r.mac, port: name, age: ageSec, note: this.portCarrierNote(port, topo, mismatch) };
+      return { vlan: r.vlan, mac: r.mac, port: shown, learnedOn: name, age: ageSec,
+        note: this.portCarrierNote(port, topo, mismatch) };
     }, this);
   }
 

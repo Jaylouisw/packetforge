@@ -48,6 +48,14 @@ function cliMode(mode) {
   if (canonical === 'static') return 'on';
   return canonical;
 }
+
+// The name a box prints for a bundle, in every view that names one: `Po1` in the Port-channel cell of
+// `show etherchannel summary` and in the `Ports` column of `show mac address-table`. One function, so a table
+// and a summary cannot call the same bundle two different things.
+function portChannelName(id) {
+  return 'Po' + id;
+}
+
 const HASH_POLICIES = ['l2', 'l3', 'l3l4'];
 
 const DEFAULT_LAG_ID = 'lag1';
@@ -409,6 +417,7 @@ module.exports = {
   MODE_ALIASES,
   canonicalMode,
   cliMode,
+  portChannelName,
   HASH_POLICIES,
   normalizeLag,
   hashFrame,
