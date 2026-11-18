@@ -139,6 +139,107 @@ const CONFIG_WORDS = [
   { word: 'help', spellings: ['help'] }
 ];
 
+// The words that may stand in a `(config-if)#` line, one table per position, and every entry a word `_ifaceMode()`
+// itself compares against (#fidelity). An operator spends most of a session in this mode, and a box applies the
+// same uniqueness rule there as at the prompt's first word - `ip add 10.0.0.1 255.255.255.0`, `sw mo acc`,
+// `desc uplink`, `no shut`, `encap dot1q 10` are all accepted. This console resolved the first word of an EXEC
+// line, the view word after `show` and the first word of a config line, and refused every shortening inside an
+// interface block, so the mode operators actually type in was the one mode that could not be shortened
+// (research/command-word-abbreviation.md).
+//
+// A Cisco 2950 transcript prints the two most-typed ones the way an operator writes them:
+//
+//   SW2950(config)#int vlan1
+//   SW2950(config-if)#ip add 192.168.1.2 255.255.255.0
+//   SW2950(config-if)no shut
+//   https://community.cisco.com/t5/switching/cisco-2950-switch/td-p/1007218
+//
+// and a router thread prints the shortening reaching the *sub-words* as well - `ip add` -> `ip address`,
+// `ip na` -> `ip nat`, `ip nat ou` -> `ip nat outside` - on both a router and an 887VA:
+//   https://community.cisco.com/t5/switching/cisco-887va/td-p/4749176
+// The switchport pair appears in a CCNP lab transcript (`sw mo acc`, `sw ac vlan 2`, `sw acc vlan 4`):
+//   https://www.scribd.com/document/814808735/Ccsi-Notepad
+//
+// The rule is applied at the positions where this console has a *complete* table, and nowhere else: the first
+// word, the word after `no`, the word after `ip`, `ipv6`, `switchport`, `encapsulation` and `clock`, and the value
+// of `switchport mode`. A VLAN id, an address, a description or a rate is a value, not a word from a table, and is
+// never touched - guessing there is how a console accepts a line the box it imitates would have refused.
+//
+// `spanning-tree` is deliberately absent: `_ifaceMode()` does not dispatch it (an interface block falls through to
+// the config-mode handler for it, exactly as `vlan 20` does), so a table of this dispatcher's own words cannot
+// contain it. The consequence is stated in the research note: `sp` here is `speed` alone, where a box would also
+// be weighing `spanning-tree`.
+const IFACE_WORDS = [
+  { word: 'interface', spellings: ['interface', 'int'] },
+  { word: 'vrrp', spellings: ['vrrp'] },
+  { word: 'ip', spellings: ['ip'] },
+  { word: 'ipv6', spellings: ['ipv6'] },
+  { word: 'switchport', spellings: ['switchport'] },
+  { word: 'shutdown', spellings: ['shutdown'] },
+  { word: 'encapsulation', spellings: ['encapsulation'] },
+  { word: 'description', spellings: ['description'] },
+  { word: 'speed', spellings: ['speed'] },
+  { word: 'duplex', spellings: ['duplex'] },
+  { word: 'channel-group', spellings: ['channel-group'] },
+  { word: 'clock', spellings: ['clock'] },
+  { word: 'show', spellings: ['show'] },
+  { word: 'no', spellings: ['no'] },
+  { word: 'exit', spellings: ['exit'] },
+  { word: 'end', spellings: ['end'] },
+  { word: 'help', spellings: ['help'] }
+];
+
+// The word after `no` in interface mode - each one a `tokens[1] ===` comparison in `_ifaceMode()`. `no sh` is
+// the most-typed line in the mode (`no shut` is in the 2950 transcript above); `no s`, `no d` and `no c` are
+// refused as ambiguous, which is what a box does with them too.
+const IFACE_NO_WORDS = [
+  { word: 'vrrp', spellings: ['vrrp'] },
+  { word: 'ip', spellings: ['ip'] },
+  { word: 'ipv6', spellings: ['ipv6'] },
+  { word: 'shutdown', spellings: ['shutdown'] },
+  { word: 'clock', spellings: ['clock'] },
+  { word: 'switchport', spellings: ['switchport'] },
+  { word: 'channel-group', spellings: ['channel-group'] },
+  { word: 'speed', spellings: ['speed'] },
+  { word: 'duplex', spellings: ['duplex'] },
+  { word: 'description', spellings: ['description'] }
+];
+
+// The word after `ip` (and after `no ip`) in interface mode. `address` and `access-group` share `ip a`, so `ip a`
+// is refused as ambiguous rather than guessed - the vendor's rule is that the abbreviation must be unique, and it
+// is not.
+const IFACE_IP_WORDS = [
+  { word: 'address', spellings: ['address'] },
+  { word: 'access-group', spellings: ['access-group'] },
+  { word: 'ospf', spellings: ['ospf'] },
+  { word: 'nat', spellings: ['nat'] }
+];
+
+// `ipv6 address` is the only form the dispatcher takes under `ipv6`.
+const IFACE_IPV6_WORDS = [
+  { word: 'address', spellings: ['address'] }
+];
+
+// `switchport <word>`. `access` and `trunk` also name a mode, and the mode's own values are a closed pair, so
+// `sw mo acc` resolves two positions deep - which is how the CCNP transcript above writes it.
+const IFACE_SWITCHPORT_WORDS = [
+  { word: 'reset', spellings: ['reset'] },
+  { word: 'mode', spellings: ['mode'] },
+  { word: 'access', spellings: ['access'] },
+  { word: 'trunk', spellings: ['trunk'] },
+  { word: 'voice', spellings: ['voice'] }
+];
+
+const IFACE_SWITCHPORT_MODE_WORDS = [
+  { word: 'access', spellings: ['access'] },
+  { word: 'trunk', spellings: ['trunk'] }
+];
+
+// `encapsulation dot1q <vid>` and `clock rate <bps>`: one word each, so a shortening can only reach the door the
+// whole spelling reaches.
+const IFACE_ENCAP_WORDS = [{ word: 'dot1q', spellings: ['dot1q'] }];
+const IFACE_CLOCK_WORDS = [{ word: 'rate', spellings: ['rate'] }];
+
 // The word a typed spelling means, or the words it could mean. An exact spelling wins over a longer one that
 // starts with it (`link` is not made ambiguous by `links`), one prefix match is the answer IOS accepts, and more
 // than one is an ambiguity for the caller to report in its own words. `word: null` means "no command of that name
@@ -1785,10 +1886,54 @@ class CliSession {
   _ifaceMode(tokens) {
     const out = [];
     const iface = this.device.interfaces.get(this.iface);
-    const head = tokens[0].toLowerCase();
+    if (tokens[0] === undefined) return out;
+    let head = tokens[0].toLowerCase();
     if (head === 'help' || head === '?') return this._help();
     const noKeyed = this._noHelpKeyRefusal(tokens);
     if (noKeyed) return [noKeyed];
+
+    // What the operator typed, before any word is rewritten: a refusal at the end of this function names their
+    // line, not the line it was resolved into (`sh port-c 1` answers about `show port-c`, and the same rule holds
+    // here). The words themselves are rewritten in place so every handler below - each of which slices its own
+    // arguments off `tokens` - sees the whole spelling.
+    const typedLine = tokens.join(' ');
+    const resolveAt = function (pos, table) {
+      const r = resolveCommandWord(tokens[pos], table);
+      if (r.rivals.length) {
+        return { refuse: '% Ambiguous interface command "' + tokens.slice(0, pos + 1).join(' ') + '": ' +
+          r.rivals.join(' | ') + ' (type more characters)' };
+      }
+      if (r.word) tokens[pos] = r.word;
+      return {};
+    };
+    const headWord = resolveAt(0, IFACE_WORDS);
+    if (headWord.refuse) return [headWord.refuse];
+    head = tokens[0].toLowerCase();
+    // The word after the head, at the positions where this console has a complete table (see IFACE_WORDS above).
+    // A head without an entry here takes a value or a name next - a VLAN id, an address, a description - and is
+    // left exactly as typed.
+    const subTable = { ip: IFACE_IP_WORDS, ipv6: IFACE_IPV6_WORDS, switchport: IFACE_SWITCHPORT_WORDS,
+      encapsulation: IFACE_ENCAP_WORDS, clock: IFACE_CLOCK_WORDS }[head];
+    if (subTable) {
+      const subWord = resolveAt(1, subTable);
+      if (subWord.refuse) return [subWord.refuse];
+      if (head === 'switchport' && tokens[1] === 'mode') {
+        const modeWord = resolveAt(2, IFACE_SWITCHPORT_MODE_WORDS);
+        if (modeWord.refuse) return [modeWord.refuse];
+      }
+    } else if (head === 'no') {
+      const noWord = resolveAt(1, IFACE_NO_WORDS);
+      if (noWord.refuse) return [noWord.refuse];
+      // `no ip add` / `no ipv6 add` - the same table one position further in, so the negation reaches the form
+      // the operator meant. `no ip` on its own keeps its existing answer (it takes no argument).
+      if (tokens[1] === 'ip') {
+        const inner = resolveAt(2, IFACE_IP_WORDS);
+        if (inner.refuse) return [inner.refuse];
+      } else if (tokens[1] === 'ipv6') {
+        const inner = resolveAt(2, IFACE_IPV6_WORDS);
+        if (inner.refuse) return [inner.refuse];
+      }
+    }
 
     // IOS treats a new `interface <name>` line inside interface mode as a mode switch, not as an
     // error. Configs copied out before #1230 rely on exactly this, because they have no `exit`
@@ -2056,7 +2201,7 @@ class CliSession {
       // if config mode does not recognise it either (#1230).
       const asConfig = this._configMode(tokens);
       const rejected = asConfig.length === 1 && /^% Unrecognized config command/.test(asConfig[0]);
-      if (rejected) out.push('% Unrecognized interface command: ' + tokens.join(' '));
+      if (rejected) out.push('% Unrecognized interface command: ' + typedLine);
       else out.push.apply(out, asConfig);
     }
     return out;

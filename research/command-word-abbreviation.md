@@ -156,11 +156,9 @@ stays a decision.
 
 ## What remains unresolved
 
-* **Sub-modes have no table yet.** `(config-if)#` still refuses `ip add 10.0.0.1 255.255.255.0`, `sw mo acc`,
-  `desc uplink` and `do sh run`, and `(config-if)#` is where an operator spends most of their typing. It is the
-  same shape of work as this pass - an `IFACE_WORDS` table built from `_ifaceMode()`'s own `head ===` comparisons -
-  but it is a different dispatcher and was not attempted here. The transcript above (`do sh run int g0/1` at
-  `(config-if)#`) is the evidence it would be built on.
+* **Sub-modes had no table.** `(config-if)#` refused `ip add 10.0.0.1 255.255.255.0`, `sw mo acc`, `desc uplink`
+  and `do sh run`. The third pass below answers this one, with an `IFACE_WORDS` table built from `_ifaceMode()`'s own
+  `head ===` comparisons plus the five positions after it; `do` itself is still not an interface command here.
 * **`sh run` at `(config)#` is accepted here and refused by a box.** Pre-existing, unchanged by this pass: this
   console answers `show` at `(config)#` where a box prints `% Invalid input detected at '^' marker`. Because the
   `show` door is in the table, `sh ver` reaches it too - consistent within the console, divergent from a box. What
@@ -174,3 +172,93 @@ stays a decision.
 * **Whether IOS's uniqueness is per mode or across the whole image.** `co` is ambiguous at EXEC on a box
   (`configure`, `connect`, `copy`); whether a word that exists only in config mode can make an EXEC prefix
   ambiguous was not settled by any source read here.
+
+## Third pass: `(config-if)#`, the position operators type in most
+
+The first pass's unresolved list named the sub-modes as the biggest hole: `(config-if)#` refused `ip add
+10.0.0.1 255.255.255.0`, `sw mo acc`, `desc uplink` and `do sh run`, and that prompt is where a session is spent.
+The vendor's rule is written for "commands and keywords", with no mode in it - the same sentence the first pass
+quoted - so the mode is a dispatcher to fix, not a question to re-ask. What was missing was evidence that operators
+actually write it that way on real gear. Four transcripts answer that:
+
+```
+SW2950(config)#int vlan1
+SW2950(config-if)#ip add 192.168.1.2 255.255.255.0
+SW2950(config-if)no shut
+```
+https://community.cisco.com/t5/switching/cisco-2950-switch/td-p/1007218
+
+```
+Rack1R1(config)#int f0/1
+Rack1R1(config-if)#ip add 0.0.0.1 255.255.255.0
+```
+https://community.cisco.com/t5/switching/what-is-the-lowest-prefix-possible-and-the-lowest-ip/td-p/1214384
+
+```
+CiscoR1(config-if)#ip add
+CiscoR1(config-if)#ip address 192.168.1.2 255.255.255.0
+Router(config-if)#ip na
+Router(config-if)#ip nat ou
+Router(config-if)#ip nat outside
+```
+https://community.cisco.com/t5/switching/cisco-887va/td-p/4749176
+
+```
+R1(config-subif)#no ip add
+```
+https://community.cisco.com/t5/networking-blogs/leak-map-eigrp-some-leaks-are-useful/ba-p/3102498
+
+and a CCNP lab transcript uses the switchport pair throughout: `sw mo acc`, `sw ac vlan 2`, `sw acc vlan 4`
+(https://www.scribd.com/document/814808735/Ccsi-Notepad). The 887VA thread is the one that settles the *depth*:
+the operator shortens the second word (`ip na`) and the third (`ip nat ou`), not only the first.
+
+`engine/cli.js` now resolves the words of an interface line against six tables, each built from a `head ===` or
+`tokens[1] ===` the dispatcher already compares against, so a shortening can only reach a door the whole spelling
+reaches:
+
+| position | table | example |
+|---|---|---|
+| the first word | `IFACE_WORDS` (17 words) | `shut`, `sh`, `desc uplink`, `ip add ...` |
+| the word after `no` | `IFACE_NO_WORDS` (10) | `no shut`, `no sw`, `no ip add` |
+| the word after `ip` / `ipv6` | `IFACE_IP_WORDS` (4) / `IFACE_IPV6_WORDS` (1) | `ip ad`, `ip o cost 10`, `no ip ac 101 in` |
+| the word after `switchport` | `IFACE_SWITCHPORT_WORDS` (5) | `sw ac vlan 20`, `sw mo acc` |
+| the value of `switchport mode` | `IFACE_SWITCHPORT_MODE_WORDS` (2) | `sw mo acc`, `sw mo t` |
+| the word after `encapsulation` / `clock` | one word each | `encap dot1q 10`, `cl rate 64000` |
+
+A shared prefix is refused in the console's existing sentence with the mode in it, and the line is quoted as the
+operator typed it, not as it would have resolved:
+
+```
+sw1(config-if)#no s     -> % Ambiguous interface command "no s": shutdown | switchport | speed (type more characters)
+sw1(config-if)#ip a     -> % Ambiguous interface command "ip a": address | access-group (type more characters)
+sw1(config-if)#d        -> % Ambiguous interface command "d": description | duplex (type more characters)
+```
+
+`sh` is ambiguous there too (`show` and `shutdown`), which is what a box says at that prompt - the command word is
+decided before the view word after it is read, so `sh flurbish` is an ambiguity, not an invalid view.
+
+`test/iface-word-abbreviation.test.js` pins 117 assertions: nineteen shortenings answer byte-for-byte as their
+whole spelling and are shown to *change the device* (so a console that resolved both to the same refusal cannot
+pass), seven shared prefixes refuse and leave `mode === 'iface'`, `switchport mode`'s two values resolve, and the
+values - a description, an address, a VLAN id, a rate - are asserted untouched.
+
+## What this pass did not settle
+
+* **`sp` is `speed` at `(config-if)#` here, and ambiguous on a box.** `spanning-tree` is not a word this
+  dispatcher compares against: the mode hands an unrecognised line to the config handler, which is how
+  `spanning-tree portfast` and `vlan 20` are answered at that prompt. Including `spanning-tree` in the table would
+  make `sp` ambiguous, but by the same argument `vlan`, `hostname`, `router` and `access-list` would have to be in
+  it too, and then the table is no longer "the words this dispatcher dispatches". The table keeps its invariant and
+  the divergence is stated here and asserted in the test.
+* **The `no` asymmetry between modes is deliberate.** At `(config)#` the words after `no` are an open set (`no
+  vlan`, `no ip dhcp pool`, `no dns zone`, `no scion`, `no hostname`...) and stay unresolved, as the second pass
+  decided. At `(config-if)#` the set is closed and ten words long, so it is resolved. `no vla 20` at `(config)#`
+  is still refused, and the test asserts that too.
+* **The third position is untouched.** `ipv6 address auto` does not reach `autoconfig`, and `switchport trunk
+  allowed vlan add 5` has its leaf words unresolved. Each needs its own table and its own evidence; nothing here
+  guessed at them.
+* **`do` in interface mode is still refused.** The first pass noted `do sh run` at `(config-if)#` as an IOS form
+  this console does not take. This pass resolved the words, not the door: `do` is still not an interface command
+  here, so the transcript line that motivated the sub-mode work is only half answered.
+* **The refusal sentence is still the console's, not IOS's.** A box prints `% Ambiguous command: "no s"` here;
+  this console keeps `% Ambiguous interface command "no s": ...`, on the same reasoning as the first pass.

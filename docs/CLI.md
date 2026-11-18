@@ -45,9 +45,9 @@ Modes and their prompts:
 
 `sh ver` is `show version`, `sh int` is `show interfaces`, `conf t` is `configure terminal`. IOS accepts an
 abbreviation of a command word "to the number of characters that allow a unique abbreviation", and this console
-follows that rule at the three places where it holds a complete list of the words that may appear there: the **first
-word** of a line, the **view word after `show`**, and the **first word of a config line** (with the word after `do`
-resolved as the EXEC word it is).
+follows that rule at every place where it holds a complete list of the words that may appear there: the **first
+word** of a line, the **view word after `show`**, the **first word of a config line** (with the word after `do`
+resolved as the EXEC word it is), and, inside an interface block, the **first word and the keyword after it**.
 
 | typed | answered as |
 |-------|-------------|
@@ -62,6 +62,14 @@ resolved as the EXEC word it is).
 | `vla 20 name lab` | `vlan 20 name lab` |
 | `sp priority 4096` | `spanning-tree priority 4096` |
 | `do sh ver` | `do show version` |
+| `ip add 10.0.0.1 255.255.255.0` | `ip address 10.0.0.1 255.255.255.0` |
+| `desc uplink`, `de uplink` | `description uplink` |
+| `sw mo acc`, `sw mo t` | `switchport mode access`, `switchport mode trunk` |
+| `sw ac vlan 20` | `switchport access vlan 20` |
+| `shut`, `no shut` | `shutdown`, `no shutdown` |
+| `encap dot1q 10`, `cl rate 64000` | `encapsulation dot1q 10`, `clock rate 64000` |
+| `ip o cost 10`, `ip ac 101 in` | `ip ospf cost 10`, `ip access-group 101 in` |
+| `no ip add` | `no ip address` |
 
 A shortening two words share is refused, and the refusal names the words it could have been - the same sentence
 `configure` has answered with since it learned to abbreviate:
@@ -80,14 +88,28 @@ sw1(config)#i
 % Ambiguous config command "i": interface | ip | ipv6 (type more characters)
 ```
 
+Inside an interface block the same sentence names the words `(config-if)#` has - `no s` is
+`shutdown | switchport | speed`, `ip a` is `address | access-group`, `d` is `description | duplex`:
+
+```
+sw1(config-if)#no s
+% Ambiguous interface command "no s": shutdown | switchport | speed (type more characters)
+```
+
 A prefix that is ambiguous changes no state: `e` at `(config)#` does not leave config mode, it says which doors it
-could have opened.
+could have opened, and `no s` at `(config-if)#` neither closes the port nor switches anything.
 
 The rule stops where this console has no complete list of the words that could appear. The words after `show ip`
 are not shortened - type `show ip interface brief` in full; `sh ip int br` is refused as an unknown view - and a
 keyword such as `brief` is not shortened either, nor is a value such as a port name: `sh int Fa` names no port
 rather than guessing one. The **second** word of a config line is at that boundary too: `ip ro 10.0.0.0 255.0.0.0
-10.0.0.1` is still refused, because this console cannot enumerate the words after `ip`. A one- or
+10.0.0.1` is still refused, because this console cannot enumerate the words after `ip`. An interface block's
+keyword positions are the exception, because their sets are closed: the word after `ip`, `ipv6`, `switchport`,
+`encapsulation`, `clock` and `no`, and the value of `switchport mode` (`access|trunk`). Everything else there is
+a value and is left exactly as typed - `desc de uplink` sets the description "de uplink", and `sw ac vlan 20`
+keeps its `20`. One divergence is stated rather than hidden: `sp` at `(config-if)#` is `speed` here, because
+`spanning-tree` is not one of the words that prompt's dispatcher compares against (it hands the line to the
+config handler, as it does `vlan 20`), where a box would call `sp` ambiguous. A one- or
 two-letter prefix is also this simulator's answer rather than a claim about a particular switch: it is measured
 against this console's shorter command set, so `sh s` reaches the spanning tree here where a box with `snmp`,
 `ssh` and `spanning-tree` would call it ambiguous.
