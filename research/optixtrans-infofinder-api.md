@@ -203,3 +203,63 @@ equivalents (`hedex/hdx.do?docid=<ID>&lang=en`) return the same 3,728 B Vue shel
 each need one client-board port table. What is left is unchanged and short: a readable copy of
 `EDOC1100163901` (Board Datasheet) or `EDOC1100622610` / `EDOC1100621488` from a reader with a
 support session, one e-file `TNG1*` chapter, or a stated configuration naming the board.
+
+## 8. Addendum 2026-11-18 19:5x UTC: the Hardware Center's HTML route, and the two boards the last pass named
+
+Section 7 measured the Hardware Center through its JSON API. Two things were still worth pinning down
+before another pass spends an hour on it: whether the tool's **server-rendered HTML route** - a surface
+whose access rules differ from the API's - knows an OptiXtrans product, and whether the **specific part
+numbers** the last pass handed over as candidates (`TMB2DMS`, `TMB2PD1`) are in the part index at all.
+
+### 8.1 The API trap, spelled out
+
+The correct call is section 7's payload, and today it answers **200**:
+`POST /info-finder/hardware/v4/queryModels` with `{"domain":"0","language":"en","keyword":"<kw>","toolType":"hardwarecenter"}`.
+
+| keyword | HTTP | body | result |
+|--|--|--|--|
+| `E6616X` | 200 | `{"errCode":0,"data":{"total":0,"matchRelations":null}}` | 0 parts |
+| `TMB2DMS` | 200 | same | 0 parts |
+| `TMB2PD1` | 200 | same | 0 parts |
+
+The trap: `domain` must be the **code** `"0"` (enterprise) or `"1"` (carrier). Any other value -
+`"enterprise"`, `"carrier"`, an empty string - returns **HTTP 403 `{"errCode":10101,"errMsg":"参数取值不合法。请参考API文档了解允许的取值。"}`**,
+which reads like a refusal and is really a type error in the request. `domain:"1"` returns **401** with
+`data:null`. So "the tool refused me" and "the tool has no such part" are one string apart; only
+`domain:"0"` distinguishes them. A pass that guesses the domain will conclude the tool is gated.
+
+### 8.2 The HTML route resolves pids server-side - and knows no optical product
+
+`GET https://info.support.huawei.com/info-finder/search-center/en/enterprise/<type>/-pid-<pid>/hardwarecenter`
+is not the SPA: it returns a server-rendered page of ~140 KB when the pid is in the tool's product table,
+and a bare `302 -> /info-finder/search-center/en/enterprise/index` when it is not. The `<type>` segment
+is decoration - `wlan/-pid-255229035` renders the switch product `S8700-4` - so the pid alone decides.
+
+| pid | product | HTTP | bytes |
+|--|--|--|--|
+| 23772823 | AR6280 (routers) | **200** | 139,834 |
+| 260431197 | CE8875 (switch) | **200** | 139,927 |
+| 255229035 | S8700-4 (wlan path) | **200** | 139,866 |
+| 999999999 | *none* (control) | **302** | 0 |
+| 257173887 | OptiXtrans E6616X | **302** | 0 |
+| 250732937 | OptiXtrans E6616 | **302** | 0 |
+| 7905372 | OptiX OSN 9800 U32 | **302** | 0 |
+| 255972187 | OptiX OSN 9800 K36 | **302** | 0 |
+| 23221349 | OptiX OSN 9800 P32 | **302** | 0 |
+| 266120513 | OptiXtrans E6600 Series | **302** | 0 |
+
+Every optical pid behaves exactly like a pid that does not exist, and the three datacom pids behave as
+section 7's index implies. So the Hardware Center is a **datacom** part index: the E6600 subracks are
+absent from it, not merely thin in it.
+
+Do not read the 200s as a census route. The 139 KB page carries the column headers the tool advertises -
+`Part Number` (x4), `Slot Number` (x3), `More Matched Parts` (x3), `Mapping parts` (x1) - and **zero part
+rows**; the rows are still filled by the API. The HTML route's only free yield is the pid yes/no above,
+which is why it is recorded here as a *control* rather than a lead.
+
+### 8.3 Net effect on #803
+
+None, and the remaining ask is unchanged: a stated configuration of an E6616X subrack (board model plus
+quantity per slot), or a readable E6600 hardware-description board chapter. What is now cheaper for the
+next pass is the negative: `E6616X`, `TMB2DMS` and `TMB2PD1` are absent from the enterprise part index at
+part level, so no amount of keyword wording will surface them there.
