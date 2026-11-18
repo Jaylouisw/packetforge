@@ -31,6 +31,20 @@ const RESERVED_VLANS = Object.freeze([
   { id: 1004, name: 'fddinet-default' },
   { id: 1005, name: 'trnet-default' }
 ]);
+// How long a VLAN name may be. Every Cisco reference that documents the field gives the same range - 1 to 32
+// characters - and the width of the Name column in `show vlan` is the same 32, so the two are one fact and live
+// together: a name that cannot fit the field cannot be stored, and a stored name always fits the field.
+//   * Cisco IOS LAN Switching Command Reference, `show vlan`: "the VLAN name is an ASCII string from 1 to 32
+//     characters"
+//     https://www.cisco.com/c/en/us/td/docs/ios/lanswitch/command/reference/lsw_book/lsw_s2.html
+//   * Catalyst 2960-X 15.2(6)E command reference, `vlan`: "names the VLAN with an ASCII string from 1 to 32
+//     characters that must be unique within the administrative domain"
+//     https://www.cisco.com/c/en/us/td/docs/switches/lan/catalyst2960x/software/15_2_6_e/command_reference/b_1526_2960x_cr.pdf
+//   * Catalyst 1200/1300 CLI guide, `vlan`: "vlan-name - Specifies the VLAN name. (range: 1-32 characters)"
+//     https://www.cisco.com/c/en/us/td/docs/switches/campus-lan-switches-access/Catalyst-1200-and-1300-Switches/cli/C1300-cli/vlan-commands.html
+// What a box does with a longer one is not witnessed for IOS (research/vlan-name-length.md), so the refusal
+// below speaks in this console's own words while the limit it quotes is the vendor's.
+const VLAN_NAME_MAX = 32;
 const VLAN_RESERVED_MIN = RESERVED_VLANS[0].id;                        // Cisco's media defaults: FDDI ...
 const VLAN_RESERVED_MAX = RESERVED_VLANS[RESERVED_VLANS.length - 1].id; // ... Token Ring / FDDI / ATM-FUNI defaults
 
@@ -755,6 +769,7 @@ function describeAllowed(allowed) {
 
 module.exports = {
   VLAN_MIN,
+  VLAN_NAME_MAX,
   RESERVED_VLANS,
   vlanIsBuiltIn,
   VLAN_MAX,

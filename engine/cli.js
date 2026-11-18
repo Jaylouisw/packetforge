@@ -1229,6 +1229,17 @@ class CliSession {
       // that asks what a name is. Refused before the VLAN is made, so nothing is left behind either.
       const keyed = this._helpKeyRefusal(text, 'vlan <id> name <text>', 'nothing was changed');
       if (keyed) return [keyed];
+      // A VLAN name is 1 to 32 characters, and the Name column of `show vlan` is exactly those 32: the field and
+      // the limit are one fact. This door had no length rule at all, so `vlan 4094 name <40 characters>` stored a
+      // name the table could not print - the row ran 8 columns past its cell and pushed `Status` and the ports list
+      // right, on the one table an operator holds against a change record. Refused before the VLAN is made, so a
+      // rejected name leaves nothing behind, and the count is the name's own so the operator can trim it without
+      // counting by eye.
+      const limit = vlanLib.VLAN_NAME_MAX;
+      if (text.length > limit) {
+        return ['% VLAN name "' + text + '" is ' + text.length + ' characters: a VLAN name is 1-' + limit +
+          ' characters, so nothing was changed'];
+      }
       const name = text || ('VLAN' + String(id).padStart(4, '0'));
       this.device.config.vlans[id] = { name: name };
       out.push('VLAN ' + id + ' created (name: ' + name + ')');

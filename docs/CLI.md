@@ -289,6 +289,18 @@ to 1005 "are automatically created and cannot be removed", the Nexus 3548 layer 
 default VLAN and cannot be created or deleted", and a real IOS XE switch answers `no vlan 1` with
 `%Default VLAN 1 may not be deleted.`
 
+**A VLAN name is 1 to 32 characters, and that 32 is the width of the `show vlan` Name column.** The two are
+one fact: the table has a 32-character cell, so a longer name can only be printed by shoving `Status` and the
+ports list out of their columns — which is exactly what this console did, storing `vlan 4094 name <40
+characters>` and printing one row eight columns wider than every other. Every vendor reference that documents
+the field gives the same range — "valid values are an ASCII string from 1 to 32 characters" (Cisco IOS LAN
+Switching Command Reference, `show vlan`), "names the VLAN with an ASCII string from 1 to 32 characters"
+(Catalyst 2960-X 15.2(6)E command reference, `vlan`) — and a longer name is now refused, before the VLAN is
+created, so a rejected name leaves nothing behind. What a real box prints for the breach is not witnessed on
+IOS (the one transcript in hand is NX-OS, and it refuses: `Vlan name greater than 32 is not allowed!`), so the
+sentence is this console's own while the limit it quotes is the vendor's; `research/vlan-name-length.md` gives
+the sources and what would settle the wording.
+
 **The other four default VLANs are refused by the same rule.** `no vlan 1002` answered `% VLAN 1002 does not
 exist` — about a row `show vlan` prints before anybody configures anything, in the same session — while the
 vendor's range table files them as normal VLANs that simply cannot be removed: "1002-1005 | Normal | Cisco
