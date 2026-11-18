@@ -195,12 +195,14 @@ takes back.
 | Section | Printed as |
 |---|---|
 | hostname | `hostname <name>` |
-| interfaces | `interface <name>` block: description, `speed`, `duplex`, `encapsulation dot1q <vlan>` (a subinterface), `ip address`, switchport VLAN/trunk, `channel-group`, `ip access-group`, `shutdown`, `vrrp <vrid> …` |
+| interfaces | `interface <name>` block: description, `speed`, `duplex`, `clock rate <bps>` (a serial DCE), `encapsulation dot1q <vlan>` (a subinterface), `ip address`, switchport VLAN/trunk, `channel-group`, `ip access-group`, `ip nat inside` / `ip nat outside`, `shutdown`, `vrrp <vrid> …` |
 | VLAN table | `vlan <id> [name] <text>` |
 | DHCP pools | `ip dhcp pool <name>` block: network, range, default-router, dns-server, excluded-address, lease, `host <addr> <mac>` |
 | DNS zones | `dns zone <apex>` followed by `dns add <name> <type> <value>` |
 | ACLs | `access-list <id> <rule>` |
 | routing | `ip route <dest> <mask> <gateway> [iface]`, `ip default-gateway <addr>`, and `ip routing` when the box is not in its platform's default state |
+| NAT | `ip nat pool <name> <start> <end> netmask <mask>`, and one `ip nat inside source …` line per rule, printed as the command that creates it (`static <local> <global> [<protocol> <port>]`, or `list <local> pool <name>` or `list <local> interface <if>`, with `overload` on a PAT rule) |
+| spanning tree | `spanning-tree priority <n>` whenever a bridge priority has been set - a typed `32768`, the value the box already assumes, is printed too, because the config records that an operator set one |
 | name servers | `ip name-server <addr>` - a command line takes up to six addresses, space separated, and the printer writes one line for each |
 | SCION | `scion <isd-as>` |
 | OSPF | `ospf router-id <ip>`, `ospf area <id>`, and per interface `ip ospf cost <n>`, `ip ospf area <id>`, `ip ospf passive` |
@@ -209,10 +211,17 @@ takes back.
 | IPv6 routing | `ipv6 route <prefix>/<len> <next-hop>`, `ipv6 gateway <addr>` |
 | IPv6 router advertisements | `ipv6 nd ra enable`, `ipv6 nd suppress-ra`, `ipv6 nd ra managed`, `ipv6 nd ra other-config`, `ipv6 nd ra lifetime <s>`, `ipv6 nd prefix <prefix>/<len> valid <s> preferred <s>` |
 
+Three things the printer writes were missing from this table until they were measured: NAT and the bridge
+priority, both printed above the first `interface` block (`engine/cli.js` writes them before it walks the ports),
+and `clock rate`, printed inside the block of the serial port it belongs to. `test/config-completeness.test.js`
+names `nat` and `stpPriority` among the keys the printer must cover, so the table now lists what that guard
+already required.
+
 Two fields are deliberately **not** printed because no command can express them: a DNS zone's
 `defaultTtl` (records inherit it) and a per-record `ttl`. A default value that the device already
 assumes — VRRP `preempt` on, `advertise 1`, switchport `allowed vlan all` — is printed only when it
-differs, which is the same rule the rest of the config follows.
+differs, which is the same rule the rest of the config follows — with the bridge priority as the stated
+exception, because "nobody set one" and "somebody set 32768" are different facts about a box.
 
 `test/config-roundtrip.test.js` asserts both halves: the printed config replays into an identical
 config, and no configured value is missing from the text.
