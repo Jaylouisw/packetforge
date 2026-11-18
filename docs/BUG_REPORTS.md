@@ -18,7 +18,7 @@ When the app is running it adds the parts you cannot reasonably be asked to find
 | Node version and platform | the server | platform-specific bugs are otherwise indistinguishable from user error |
 | Browser | `navigator.userAgent` | canvas and WebSocket bugs are browser-specific |
 | Page | `location.href` | the app has tabs; the tab is often the bug |
-| Catalogue size | the loaded catalogue | "no devices in the palette" means something different at 0 models than at 1,947 |
+| Catalogue size | the loaded catalogue | "no devices in the palette" means something different at 0 models than at 2,354 |
 | Devices and links on the canvas | the current topology | see below - "my link won't come up" is unanswerable without it |
 
 ## Where the report goes, and why it is on your clipboard
