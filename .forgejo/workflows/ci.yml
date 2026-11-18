@@ -380,7 +380,13 @@ jobs:
             mkdir -p "$PFDIR"
             echo "starting the ${PFDIST} download here, so the checkout below runs over it"
             touch "$PFDIR/$PFDIST.started"
-            nohup sh -c "curl -fsSL --retry 3 --retry-delay 2 --retry-connrefused --connect-timeout 10 --max-time 180 -o '$PFDIR/$PFDIST.tar.gz.part' 'https://nodejs.org/dist/$PFDIST/node-$PFDIST-linux-x64.tar.gz' && mv '$PFDIR/$PFDIST.tar.gz.part' '$PFDIR/$PFDIST.tar.gz' && touch '$PFDIR/$PFDIST.ok' || { rm -f '$PFDIR/$PFDIST.tar.gz.part'; touch '$PFDIR/$PFDIST.failed'; }" > "$PFDIR/download.log" 2>&1 &
+            # Unpacked here, not in the step below: the extraction is 1.3 s and it does
+            # not need to be serial with anything either. The tree lands in a temporary
+            # directory and is renamed onto /opt/node-<release> once `bin/node` is
+            # executable, so a reader never sees a half-unpacked tree, and the marker is
+            # written only after that rename.
+            nohup sh -c "curl -fsSL --retry 3 --retry-delay 2 --retry-connrefused --connect-timeout 10 --max-time 180 -o '$PFDIR/$PFDIST.tar.gz.part' 'https://nodejs.org/dist/$PFDIST/node-$PFDIST-linux-x64.tar.gz' && rm -rf '/opt/node-$PFDIST.tmp' && mkdir -p '/opt/node-$PFDIST.tmp' && tar -xzf '$PFDIR/$PFDIST.tar.gz.part' -C '/opt/node-$PFDIST.tmp' --strip-components=1 && rm -rf '/opt/node-$PFDIST' && mv '/opt/node-$PFDIST.tmp' '/opt/node-$PFDIST' && [ -x '/opt/node-$PFDIST/bin/node' ] && touch '$PFDIR/$PFDIST.ok' || { rm -rf '$PFDIR/$PFDIST.tar.gz.part' '/opt/node-$PFDIST.tmp'; touch '$PFDIR/$PFDIST.failed'; }" > "$PFDIR/download.log" 2>&1 &
+            echo $! > "$PFDIR/$PFDIST.pid"
           fi
           # The runner's working directory is the repository root. Derive the git URL from
           # the instance URL the runner itself is configured with, never a hardcoded host.
@@ -526,11 +532,11 @@ jobs:
               tar -xzf "${dest}.tar.gz" -C "${dest}" --strip-components=1 &&
               [ -x "${dest}/bin/node" ]
           }
-          # That fetch may already be running: the step above started it before the
-          # checkout, so the tarball is usually complete - or nearly - by the time this
-          # step begins. Wait for it, bounded, and unpack it here. Anything other than a
-          # complete, executable unpack falls through to the same two attempts this step
-          # has always made, so the only thing the prefetch can change is the clock.
+          # That download may already be running, or finished: the step above started it,
+          # tarball and unpack both, before the checkout. Wait for it, bounded, and use the
+          # tree it produced. Anything other than a complete, executable /opt/node-<release>
+          # falls through to the same two attempts this step has always made, so the only
+          # thing the prefetch can change is the clock.
           PFDIR="${RUNNER_TEMP:-/tmp}/node-prefetch"
           if [ -e "$PFDIR/${DIST}.started" ] && [ ! -e "$PFDIR/${DIST}.ok" ] && [ ! -e "$PFDIR/${DIST}.failed" ]; then
             echo "waiting for the ${DIST} download started during the checkout"
@@ -538,17 +544,19 @@ jobs:
               if [ -e "$PFDIR/${DIST}.ok" ] || [ -e "$PFDIR/${DIST}.failed" ]; then break; fi
               sleep 1
             done
-          fi
-          if [ -e "$PFDIR/${DIST}.ok" ] && [ -s "$PFDIR/${DIST}.tar.gz" ]; then
-            rm -rf "${dest}" "${dest}.tar.gz"
-            mkdir -p "${dest}"
-            if tar -xzf "$PFDIR/${DIST}.tar.gz" -C "${dest}" --strip-components=1 && [ -x "${dest}/bin/node" ]; then
-              echo "unpacked ${DIST} from the download that overlapped the checkout"
-            else
-              echo "the prefetched tarball for ${DIST} did not unpack into a working tree - downloading it again"
-              rm -rf "${dest}"
-              fetch 1 || { echo "first attempt at ${url} failed - retrying once in 5 s"; sleep 5; fetch 2; }
+            # Still nothing after 60 s: the detached attempt is wedged or was killed with
+            # the step that started it. Stop it before taking the tree apart, so the two
+            # cannot write to /opt/node-${DIST} at once.
+            if [ ! -e "$PFDIR/${DIST}.ok" ] && [ ! -e "$PFDIR/${DIST}.failed" ]; then
+              if [ -s "$PFDIR/${DIST}.pid" ]; then
+                kill "$(cat "$PFDIR/${DIST}.pid")" 2>/dev/null || true
+                sleep 2
+              fi
+              touch "$PFDIR/${DIST}.failed"
             fi
+          fi
+          if [ -e "$PFDIR/${DIST}.ok" ] && [ -x "${dest}/bin/node" ]; then
+            echo "unpacked ${DIST} from the download that overlapped the checkout"
           else
             fetch 1 || { echo "first attempt at ${url} failed - retrying once in 5 s"; sleep 5; fetch 2; }
           fi
