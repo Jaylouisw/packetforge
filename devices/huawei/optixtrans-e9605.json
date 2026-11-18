@@ -1,0 +1,317 @@
+{
+ "vendor": "huawei",
+ "model": "optixtrans-e9605",
+ "label": "OptiXtrans E9605 OTN platform, DC, 5x TNG1N210 (50x 10G line)",
+ "category": "switch",
+ "description": "Huawei OptiXtrans E9605 - compact optical subrack for OLA and ROADM line-degree sites (177 mm x 442 mm x 260 mm, 7.6 kg, 5 service board slots). Modelled with all five service slots (IU1-IU5) filled by TNG1N210 line boards: 50x 10G OTU2 line ports on SFP+. No client tributary port exists until a tributary board is fitted; the CTU pair in IU73-IU74, the PIU/APIU pair in IU100-IU101 and the EFI boards in IU71-IU72 add no service ports.",
+ "capabilities": [
+  "cli"
+ ],
+ "interfaces": [
+  {
+   "name": "line1",
+   "type": "ethernet",
+   "connector": "sfp+",
+   "speed": "10G"
+  },
+  {
+   "name": "line2",
+   "type": "ethernet",
+   "connector": "sfp+",
+   "speed": "10G"
+  },
+  {
+   "name": "line3",
+   "type": "ethernet",
+   "connector": "sfp+",
+   "speed": "10G"
+  },
+  {
+   "name": "line4",
+   "type": "ethernet",
+   "connector": "sfp+",
+   "speed": "10G"
+  },
+  {
+   "name": "line5",
+   "type": "ethernet",
+   "connector": "sfp+",
+   "speed": "10G"
+  },
+  {
+   "name": "line6",
+   "type": "ethernet",
+   "connector": "sfp+",
+   "speed": "10G"
+  },
+  {
+   "name": "line7",
+   "type": "ethernet",
+   "connector": "sfp+",
+   "speed": "10G"
+  },
+  {
+   "name": "line8",
+   "type": "ethernet",
+   "connector": "sfp+",
+   "speed": "10G"
+  },
+  {
+   "name": "line9",
+   "type": "ethernet",
+   "connector": "sfp+",
+   "speed": "10G"
+  },
+  {
+   "name": "line10",
+   "type": "ethernet",
+   "connector": "sfp+",
+   "speed": "10G"
+  },
+  {
+   "name": "line11",
+   "type": "ethernet",
+   "connector": "sfp+",
+   "speed": "10G"
+  },
+  {
+   "name": "line12",
+   "type": "ethernet",
+   "connector": "sfp+",
+   "speed": "10G"
+  },
+  {
+   "name": "line13",
+   "type": "ethernet",
+   "connector": "sfp+",
+   "speed": "10G"
+  },
+  {
+   "name": "line14",
+   "type": "ethernet",
+   "connector": "sfp+",
+   "speed": "10G"
+  },
+  {
+   "name": "line15",
+   "type": "ethernet",
+   "connector": "sfp+",
+   "speed": "10G"
+  },
+  {
+   "name": "line16",
+   "type": "ethernet",
+   "connector": "sfp+",
+   "speed": "10G"
+  },
+  {
+   "name": "line17",
+   "type": "ethernet",
+   "connector": "sfp+",
+   "speed": "10G"
+  },
+  {
+   "name": "line18",
+   "type": "ethernet",
+   "connector": "sfp+",
+   "speed": "10G"
+  },
+  {
+   "name": "line19",
+   "type": "ethernet",
+   "connector": "sfp+",
+   "speed": "10G"
+  },
+  {
+   "name": "line20",
+   "type": "ethernet",
+   "connector": "sfp+",
+   "speed": "10G"
+  },
+  {
+   "name": "line21",
+   "type": "ethernet",
+   "connector": "sfp+",
+   "speed": "10G"
+  },
+  {
+   "name": "line22",
+   "type": "ethernet",
+   "connector": "sfp+",
+   "speed": "10G"
+  },
+  {
+   "name": "line23",
+   "type": "ethernet",
+   "connector": "sfp+",
+   "speed": "10G"
+  },
+  {
+   "name": "line24",
+   "type": "ethernet",
+   "connector": "sfp+",
+   "speed": "10G"
+  },
+  {
+   "name": "line25",
+   "type": "ethernet",
+   "connector": "sfp+",
+   "speed": "10G"
+  },
+  {
+   "name": "line26",
+   "type": "ethernet",
+   "connector": "sfp+",
+   "speed": "10G"
+  },
+  {
+   "name": "line27",
+   "type": "ethernet",
+   "connector": "sfp+",
+   "speed": "10G"
+  },
+  {
+   "name": "line28",
+   "type": "ethernet",
+   "connector": "sfp+",
+   "speed": "10G"
+  },
+  {
+   "name": "line29",
+   "type": "ethernet",
+   "connector": "sfp+",
+   "speed": "10G"
+  },
+  {
+   "name": "line30",
+   "type": "ethernet",
+   "connector": "sfp+",
+   "speed": "10G"
+  },
+  {
+   "name": "line31",
+   "type": "ethernet",
+   "connector": "sfp+",
+   "speed": "10G"
+  },
+  {
+   "name": "line32",
+   "type": "ethernet",
+   "connector": "sfp+",
+   "speed": "10G"
+  },
+  {
+   "name": "line33",
+   "type": "ethernet",
+   "connector": "sfp+",
+   "speed": "10G"
+  },
+  {
+   "name": "line34",
+   "type": "ethernet",
+   "connector": "sfp+",
+   "speed": "10G"
+  },
+  {
+   "name": "line35",
+   "type": "ethernet",
+   "connector": "sfp+",
+   "speed": "10G"
+  },
+  {
+   "name": "line36",
+   "type": "ethernet",
+   "connector": "sfp+",
+   "speed": "10G"
+  },
+  {
+   "name": "line37",
+   "type": "ethernet",
+   "connector": "sfp+",
+   "speed": "10G"
+  },
+  {
+   "name": "line38",
+   "type": "ethernet",
+   "connector": "sfp+",
+   "speed": "10G"
+  },
+  {
+   "name": "line39",
+   "type": "ethernet",
+   "connector": "sfp+",
+   "speed": "10G"
+  },
+  {
+   "name": "line40",
+   "type": "ethernet",
+   "connector": "sfp+",
+   "speed": "10G"
+  },
+  {
+   "name": "line41",
+   "type": "ethernet",
+   "connector": "sfp+",
+   "speed": "10G"
+  },
+  {
+   "name": "line42",
+   "type": "ethernet",
+   "connector": "sfp+",
+   "speed": "10G"
+  },
+  {
+   "name": "line43",
+   "type": "ethernet",
+   "connector": "sfp+",
+   "speed": "10G"
+  },
+  {
+   "name": "line44",
+   "type": "ethernet",
+   "connector": "sfp+",
+   "speed": "10G"
+  },
+  {
+   "name": "line45",
+   "type": "ethernet",
+   "connector": "sfp+",
+   "speed": "10G"
+  },
+  {
+   "name": "line46",
+   "type": "ethernet",
+   "connector": "sfp+",
+   "speed": "10G"
+  },
+  {
+   "name": "line47",
+   "type": "ethernet",
+   "connector": "sfp+",
+   "speed": "10G"
+  },
+  {
+   "name": "line48",
+   "type": "ethernet",
+   "connector": "sfp+",
+   "speed": "10G"
+  },
+  {
+   "name": "line49",
+   "type": "ethernet",
+   "connector": "sfp+",
+   "speed": "10G"
+  },
+  {
+   "name": "line50",
+   "type": "ethernet",
+   "connector": "sfp+",
+   "speed": "10G"
+  }
+ ],
+ "sourceUrl": "https://e-file.huawei.com/marketingcloud/pep/asset/20000001/Material/cc7356212e6146b58f38b74dd1102e08/M3T1A669N1188254859704168616/OptiXtrans%20E9605%20-.pdf",
+ "notes": "Slot map from the E9605 Subrack chapter (117,447 B, 2 pp): \"Service board areas | 5 service boards | IU1-IU5\", two CTU boards in IU73-IU74, two PIU/APIU boards in IU100-IU101, two EFI boards in IU71-IU72, fan IU90, 177 x 442 x 260 mm, 7.6 kg. The brochure agrees on \"Max. number of service board slots: 5\". Ports: TNG1N210 is \"10 x 10 Gbit/s Line Service Processing Board\" in the boards-overview Table 3, so 5 slots x 10 = 50; each port is a 10G optical line (OTU2/OTU2e) interface in an SFP+ cage, the 10G optical module the E9600 family brochure lists among its supported pluggables. The SFP+ cage itself is not printed in any public chapter - the board datasheet that carries the front panel (EDOC1100163901) answers 302 -> /view/notFound - so the cage is derived from the 10G optical line rate, not transcribed. Build provenance. The frame half is vendor-stated: `https://e-file.huawei.com/marketingcloud/pep/asset/20000001/Material/0f9e00e3f2ca431693884a01667d7ec6/M3T1A669N1188254857740624027/OptiXtrans%20E9600%20Family%20-.pdf` (Product Brochure, 277,705 B) prints the \"Max. number of service board slots\" row, and the subrack chapters print the slot map. The card half is vendor-stated too, but from a partner mirror rather than a Huawei host: `https://www.actfornet.com/solutions/solution/OptiXtrans_E9600_Boards_Overview` (HTTP 200, 226,637 B) reproduces the hedex chapter *OptiXtrans E9600 (E9624/E9612/E9605) Boards Overview* (`EDOC1100126589`) and carries Table 3, \"Mapping between the line boards and OptiXtrans 9800 E9624/E9612/E9605 subrack\", whose TNG1N206/TNG1N210 row reads E9624 \"1:1 mode: Y 1:3 mode: Y\", E9612 \"Y\", E9605 \"Y\". That is the board-to-subrack validity no Huawei-hosted document publishes (the board chapters answer 302 -> /view/notFound; see research/optixtrans-client-board-chapters.md). The complement is a build recorded here, not a vendor configuration: every service slot is filled with the same line board, the convention devices/huawei/optixtrans-e6616.json and devices/arista/7504r.json already use. A shelf with tributary (TNG1T212/TNG1A212) or WSS boards fitted in some slots is a different box with a different port list.",
+ "aliases": [
+  "E9605"
+ ]
+}
