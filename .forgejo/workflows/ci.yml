@@ -681,8 +681,29 @@ jobs:
         # So 10, not 12: 12 buys 1.3 s over 10 on an idle host and allocates a fifth more
         # processes under the three-leg contention where the real cost is paid. The bound
         # that matters is the harness's own cap of 16 and the 40 cores underneath.
+        #
+        # Re-measured on 2026-11-18 because the suite grew past what 10 was chosen for:
+        # 344 suites / 11933 assertions now, against the 285 / 10234 that number was
+        # picked on. Same method, node:20-bookworm on odin, the same commit cloned from
+        # Forgejo (d4ea0dd, the head of main at the time), each configuration run alone
+        # and then three copies started at the same second - one per leg, which is what
+        # the matrix actually pays:
+        #   one leg alone:      10: 24.8 s     14: 20.4 s     16: 19.1 s
+        #   three legs at once: 10: 43.9, 43.9, 43.5 s      16: 39.2, 39.0, 38.9 s
+        # All six contended runs reported the same 344 suites and the same 11933
+        # assertions, 0 failed, so the only thing that moves between 10 and 16 is the
+        # clock. That matches what the real legs do today: the suite line in task 16672
+        # (run 6441, `Test (Node 20)`, a push to main, 2026-11-18T16:24:36Z) reads
+        # `344 suite(s) in 40.4 s - 11933 assertions passed, 0 failed` at 10.
+        #
+        # 16 and not 14: the harness caps at 16, 16 was fastest of the three in every
+        # arrangement measured, and 48 processes across three legs on the 40 cores under
+        # this host is still not a fight - the three-leg numbers are within 1.5 % of each
+        # other, which is what a plateau looks like, not a queue. So the leg gets ~4.7 s
+        # back on the contended path (and ~5.7 s when it runs alone), 14 s of runner time
+        # per pull request across three legs.
         env:
-          PF_TEST_CONCURRENCY: 10
+          PF_TEST_CONCURRENCY: 16
         run: |
           # Actions runs this file as `bash -e`, and that is the default this step has to
           # leave: without it the first non-zero exit - `npm test` failing, which is the
