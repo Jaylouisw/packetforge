@@ -895,6 +895,17 @@ negotiate the Gigabit back. A port that stops at 100 Mb/s (a Fast Ethernet route
 auto with no argument. Both refusals and the vendor transcripts behind them are in
 `research/half-duplex-is-10-100.md`.
 
+Neither command takes a word after its value. The syntax lines are
+`speed {10 | 100 | 1000 | 2500 | 5000 | auto [10 | 100 | 1000 | 2500 | 5000] | nonegotiate}` and
+`duplex {auto | full | half}`, so `speed 100 flurbish` is a parse error on a box, and this console now refuses
+it by name rather than forcing the rate and dropping the word. Two words are real and unimplemented, and are
+refused as such: `speed auto 10` (autonegotiate only at the rates named) and `speed nonegotiate` (stop
+negotiating, pin 1000 Mb/s) - neither is modelled, and answering the first as a plain `speed auto` reported a
+different setting than the one typed. The `no` forms differ from each other: `no speed` takes no argument,
+while `no duplex {auto | full | half}` takes the same three words as its positive form and returns the port to
+the default, `auto`. `research/speed-duplex-grammar.md` carries the syntax lines and the rest of the
+measurement.
+
 Both halves of this setting survive a save: `duplex` always did, and `speed` did not — a lab saved with
 `speed 100` came back negotiating, with the command gone from `show running-config` too, so nothing put it back
 (#1405). The forced rate is written to the port document only when it is set, so a port that negotiates its own

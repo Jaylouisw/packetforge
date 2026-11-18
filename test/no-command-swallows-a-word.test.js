@@ -174,6 +174,33 @@ section('3. The valid forms still work');
   ok(/Invalid mode: flurbish/.test(mode.refusals.join(' ')), 'an invalid mode is still refused by name (mode was always checked)');
 }
 
+section('4. A word after a value the command already has');
+{
+  // The sweep above hands the *value* position a word that does not exist. This is the other half: a good
+  // value, and then a word. `speed` and `duplex` are the pair this run fixed - their syntax lines carry no
+  // second word at all except `speed auto [rates]` - and the same measurement on every other interface
+  // command that takes a single value is in research/speed-duplex-grammar.md, "what remains".
+  const TAIL = [
+    ['speed (switch)', 's', ['interface {SP1}', 'speed 100 ' + WORD]],
+    ['duplex (switch)', 's', ['interface {SP1}', 'duplex full ' + WORD]],
+    ['speed (router)', 'r', ['interface {RP1}', 'speed 100 ' + WORD]],
+    ['duplex (router)', 'r', ['interface {RP1}', 'duplex full ' + WORD]],
+    ['no speed (switch)', 's', ['interface {SP1}', 'no speed ' + WORD]],
+    ['no duplex (switch)', 's', ['interface {SP1}', 'no duplex ' + WORD]]
+  ];
+  const silent = [], wrote = [];
+  for (const c of TAIL) {
+    const r = attempt(c[1], c[2]);
+    if (!r.refusals.length) { silent.push(c[0] + ' -> ' + JSON.stringify(r.said.slice(-1)[0] || '(nothing)')); continue; }
+    if (r.refusals.join(' ').toLowerCase().indexOf(WORD) === -1) silent.push(c[0] + ' -> ' + r.refusals[0]);
+    if (r.changed) wrote.push(c[0]);
+  }
+  ok(TAIL.length === 6, 'the pair is checked in both directions on both device kinds (' + TAIL.length + ' cases)');
+  ok(silent.length === 0, 'no trailing word is swallowed and none is refused without being named',
+    silent.join('; '));
+  ok(wrote.length === 0, 'and no refused line wrote configuration', wrote.join(', '));
+}
+
 section('');
 if (failed) {
   console.error(passed + ' passed, ' + failed + ' failed');

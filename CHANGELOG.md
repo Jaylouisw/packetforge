@@ -2,6 +2,19 @@
 
 ### Fixed
 
+- **`speed` and `duplex` take one word, and a word after it is refused instead of dropped.** The vendor's
+  syntax lines close both commands after one value - `speed {10 | 100 | 1000 | 2500 | 5000 | auto [rates] |
+  nonegotiate}` and `duplex {auto | full | half}` - so `speed 100 flurbish` is a parse error on a box. This
+  console read the first word and dropped the rest: the rate was forced, the duplex was set, and the word was
+  never mentioned, which is the silence `ip address <ip> <mask> <word>` closed for its own line. Four orders
+  lied, and three reported a different command than the one typed: `speed auto 10` was answered as a plain
+  `speed auto`, although `auto` followed by rates means "autonegotiate only at the rates named there" and this
+  model has no advertisement to restrict; `speed nonegotiate`, a real keyword, was called an invalid rate; and
+  `no speed flurbish` returned the port to autonegotiation anyway, while `no duplex` is the form that *does*
+  take a word (`no duplex {auto | full | half}`, back to the default, `auto`). Each refusal now names the word
+  it did not use and leaves the port exactly as it was. The syntax lines, the vendor's `speed auto 10 100`
+  example and the ten other commands that swallow a trailing word are in
+  [research/speed-duplex-grammar.md](research/speed-duplex-grammar.md).
 - **An overlapping address on a port that is administratively down, and where the box refuses it.** The
   one-subnet-one-wire rule belongs to the routing table, so it is asked at both ends of a port's life. A port
   that is down installs no connected route and takes an overlapping address without a word; the command that

@@ -2242,10 +2242,28 @@ class CliSession {
     } else if (head === 'speed') {
       out.push.apply(out, this._speed(tokens.slice(1), iface));
     } else if (head === 'no' && tokens[1] === 'speed') {
+      // `no speed` is the whole command - the vendor's syntax line carries no argument - so a word after it
+      // cannot be a rate to set. This line dropped the word and returned the port to autonegotiation anyway:
+      // the same silence the trailing-word fixes closed elsewhere (#1495). research/speed-duplex-grammar.md.
+      if (tokens[2]) {
+        return ['% no speed takes no argument: it returns this port to autonegotiation' +
+          ' (the word "' + tokens.slice(2).join(' ') + '" was not used, and the rate is unchanged)'];
+      }
       out.push.apply(out, this._speed(['auto'], iface));
     } else if (head === 'duplex') {
       out.push.apply(out, this._duplex(tokens.slice(1), iface));
     } else if (head === 'no' && tokens[1] === 'duplex') {
+      // `no duplex {auto | full | half}` does take a word - the same three the positive form takes - and the
+      // default it returns to is `auto`, so the word is only a check on what was typed. Anything else was
+      // swallowed and the duplex was reset anyway.
+      if (tokens[2] && !['auto', 'full', 'half'].includes(String(tokens[2]).toLowerCase())) {
+        return ['% no duplex takes auto, full or half: the word "' + tokens[2] + '" was not used,' +
+          ' and the duplex is unchanged'];
+      }
+      if (tokens[3]) {
+        return ['% no duplex ' + tokens[2] + ' takes no word after it: the word "' + tokens[3] + '" was' +
+          ' not used, and the duplex is unchanged'];
+      }
       out.push.apply(out, this._duplex(['auto'], iface));
     } else if (head === 'description') {
       // `description` with nothing after it set the port's description to the empty string and answered
@@ -2748,6 +2766,40 @@ class CliSession {
   _speed(tokens, iface) {
     const want = (tokens[0] || '').toLowerCase();
     if (!want) return ['% Usage: speed auto | <mbps>'];
+    // The vendor's syntax line is
+    //   speed {10 | 100 | 1000 | 2500 | 5000 | auto [10 | 100 | 1000 | 2500 | 5000] | nonegotiate}
+    // (Catalyst 2960-X 15.2(6)E command reference, Interface and Hardware Commands, `speed`), so exactly one
+    // shape carries a second word: `auto` followed by the rates it may advertise. This handler read
+    // `tokens[0]` and dropped the rest, so `speed 100 flurbish` forced 100 Mb/s and never mentioned a word a
+    // real box rejects at parse time, and `speed auto 10` was answered as a plain `speed auto` - a different
+    // setting on hardware, reported as the one that was typed. Both are refused here, before anything is
+    // written, as `ip address` refuses the word after its mask. research/speed-duplex-grammar.md.
+    const rest = tokens.slice(1).map(function (x) { return String(x); });
+    // Only a word the command knows can be followed by something: `speed forced 100` is answered about
+    // `forced`, which is not a rate at all, by the check below.
+    const isRateWord = want === 'auto' || want === 'nonegotiate' || mediaLib.parseSpeedMbps(want) !== null;
+    if (rest.length && isRateWord) {
+      const notARate = rest.filter(function (x) { return mediaLib.parseSpeedMbps(x) === null; });
+      if (want !== 'auto') {
+        return ['% speed ' + want + ' takes one rate and nothing after it: the word "' +
+          (notARate[0] || rest[0]) + '" was not used, and the rate is unchanged'];
+      }
+      if (notARate.length) {
+        return ['% speed auto takes a rate after it, not "' + notARate[0] + '": the word "' + notARate[0] +
+          '" was not used, and the rate is unchanged'];
+      }
+      // Real syntax, not modelled here: the subset restricts what the port offers during autonegotiation.
+      return ['% speed auto ' + rest.join(' ') + ' is not modelled: a real switch autonegotiates only at the' +
+        ' rates named there, this console offers the whole ladder - `speed auto` is the setting it' +
+        ' has, and the rate is unchanged'];
+    }
+    if (want === 'nonegotiate') {
+      // A real keyword - it disables autonegotiation and the port runs at 1000 Mb/s - so "Invalid rate" was
+      // the wrong answer: the word is a rate setting the console has no advertisement to switch off.
+      return ['% speed nonegotiate is not modelled: it is a real keyword (it stops autonegotiation and the' +
+        ' port runs at 1000 Mb/s), and this console has no advertisement to turn off - the rate is' +
+        ' unchanged'];
+    }
     if (iface.type !== 'ethernet' && iface.type !== 'wireless') {
       return ['% ' + iface.name + ' has no line rate to set (type ' + iface.type + ')'];
     }
@@ -2815,6 +2867,13 @@ class CliSession {
     const want = (tokens[0] || '').toLowerCase();
     if (!['auto', 'full', 'half'].includes(want)) {
       return ['% Usage: duplex auto | full | half'];
+    }
+    // `duplex {auto | full | half}` - the syntax line has no optional word at all (Catalyst 2960-X
+    // 15.2(6)E, Interface and Hardware Commands, `duplex`), so a word after the mode is a parse error and
+    // nothing is set. This dropped the word and changed the duplex anyway.
+    if (tokens.length > 1) {
+      return ['% duplex ' + want + ' takes one mode and nothing after it: the word "' +
+        String(tokens[1]) + '" was not used, and the duplex is unchanged'];
     }
     if (iface.type !== 'ethernet') {
       return ['% ' + iface.name + ' has no duplex setting (type ' + iface.type + ')'];
