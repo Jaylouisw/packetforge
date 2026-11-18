@@ -332,6 +332,7 @@ being put into a VLAN, the refusal stands.
 | `no hostname` | clear it, restoring the device's previous name |
 | `interface <name>` | enter interface config mode |
 | `interface <port>.<vlan>` | create a subinterface, or open an existing one, on that parent port - the prompt is `(config-subif)#`, as a box prints it (`research/subinterface-prompt.md`) |
+| `no interface <port>.<vlan>` | remove a subinterface and its block; a physical port is refused, because a port is not something the console created |
 | `ip route <dest> <mask> <gw> [iface]` | add static route |
 | `no ip route <dest> <mask> [gw]` | remove static route |
 | `ip default-gateway <gw>` | set default gateway (hosts) |
@@ -340,6 +341,39 @@ being put into a VLAN, the refusal stands.
 | `no dns zone <name>` | remove a DNS zone and its records |
 | `do show …` | run a `show` from config mode |
 | `exit` / `end` | leave config mode |
+
+**A subinterface can be taken back, and `help` names only the direction that makes one.** `no interface
+<port>.<vlan>` deletes the logical interface and everything in its block; `no int` is the same line. The parent
+port is untouched — it keeps its own address, and the `switchport mode trunk` that `encapsulation dot1q` set on
+it — because the subinterface was the only object created, so removing it removes only that:
+
+```
+R1(config)#interface Gi0/0.20
+Created subinterface Gi0/0.20 (parent Gi0/0)
+R1(config-subif)#encapsulation dot1q 20
+Subinterface Gi0/0.20 encapsulation dot1q 20
+R1(config-subif)#exit
+R1(config)#no interface Gi0/0.20
+Subinterface Gi0/0.20 removed
+R1(config)#no interface Gi0/0.20
+% Interface not found: Gi0/0.20
+R1(config)#no interface Gi0/0
+% Gi0/0 is a physical interface and cannot be removed
+```
+
+The physical-port refusal is the rule rather than a message: a port is in the box's inventory, not in its
+configuration, so the line that would delete one is refused and nothing is removed. An unknown name is the same
+`% Interface not found: <name>` the `interface` line gives. The `help` index prints
+`interface <parent>.<vlan>              (creates a subinterface)` and no removal row beside it, so the console
+accepts a line its own index does not mention; the `?`-key refusal for a `no` line does name it, in the words of
+the branch it stopped:
+
+```
+R1(config)#no interface ?
+% "?" is the help key, not a value: `no interface <name>` removes a subinterface - nothing was removed
+```
+
+That gap is the code's to close; this page records that the console takes the line.
 
 ## Interface-mode commands
 
