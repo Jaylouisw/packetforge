@@ -21,6 +21,11 @@
 //
 // A /31 is the documented exception: RFC 3021 gives both of its addresses to the two ends of the link, and
 // Cisco's own guide says so with `ip address 192.168.100.4 255.255.255.254` and `192.168.1.0 255.255.255.254`.
+//
+// The sibling sentence is a different rule and is pinned at the bottom of this file: an address in 0.0.0.0/8 or
+// 127.0.0.0/8 is refused by name under any mask - `Not a valid host address - 0.0.0.1` - and the /32 exception
+// does not reach it, because a loopback refuses 127/8 too. research/ip-address-host-range.md carries the
+// sources for that half.
 const path = require('path');
 const { Topology, Simulator } = require('../engine');
 const { CliSession } = require('../engine/cli');
@@ -210,6 +215,94 @@ console.log('\nA subinterface is refused the same way its parent is:');
   const out = env.cli.run('ip address 10.30.30.1 255.255.255.255').output;
   ok(out.length === 1 && out[0] === 'Bad mask /32 for address 10.30.30.1',
     'a /32 on a dot1q subinterface is refused', JSON.stringify(out));
+}
+console.log('\nAn address in 0.0.0.0/8 is not a host address, and the box names it instead of a prefix:');
+{
+  const env = lab();
+  const a = env.eth[0].name;
+  const one = env.say(a, '0.0.0.1', '255.255.255.0');
+  ok(one.length === 1 && one[0] === 'Not a valid host address - 0.0.0.1',
+    '`ip add 0.0.0.1 255.255.255.0` answers in the vendor\'s own sentence', JSON.stringify(one));
+  const two = env.say(a, '0.0.0.2', '255.255.255.0');
+  ok(two.length === 1 && two[0] === 'Not a valid host address - 0.0.0.2',
+    'each refusal echoes the address that was typed', JSON.stringify(two));
+  ok(env.ipOf(a) === null, 'and neither was applied to the port', String(env.ipOf(a)));
+  ok(env.brief(a).indexOf('unassigned') !== -1 && env.brief(a).indexOf('unset') !== -1,
+    '`show ip interface brief` still calls the port unassigned, method unset', env.brief(a));
+  const cfg = env.cli.run('show running-config').output.join('\n');
+  ok(cfg.indexOf('0.0.0.1') === -1 && cfg.indexOf('0.0.0.2') === -1,
+    'and neither line reaches `show running-config`');
+}
+
+console.log('\nThe whole 0.0.0.0/8 block, not just its first /24, and the next block along is ordinary:');
+{
+  const env = lab();
+  const a = env.eth[0].name;
+  const far = env.say(a, '0.255.255.254', '255.255.255.0');
+  ok(far.length === 1 && far[0] === 'Not a valid host address - 0.255.255.254',
+    'the last usable address of the block is refused too', JSON.stringify(far));
+  const next = env.say(a, '1.0.0.1', '255.255.255.0');
+  ok(next.join(' ').indexOf('1.0.0.1/24') !== -1 && env.ipOf(a) === '1.0.0.1/24',
+    'while 1.0.0.1, one block along, is taken', JSON.stringify(next));
+}
+
+console.log('\n127.0.0.0/8 is refused the same way, and the loopback transcript is why it outranks a /32:');
+{
+  const env = lab();
+  const a = env.eth[0].name;
+  const host = env.say(a, '127.0.0.2', '255.255.255.0');
+  ok(host.length === 1 && host[0] === 'Not a valid host address - 127.0.0.2',
+    '`ip address 127.0.0.2 255.255.255.0` is refused by name', JSON.stringify(host));
+  const wide = env.say(a, '127.1.1.1', '255.255.255.0');
+  ok(wide.length === 1 && wide[0] === 'Not a valid host address - 127.1.1.1',
+    'and so is an address far from 127.0.0.x, which is what makes it a block rather than a subnet',
+    JSON.stringify(wide));
+  const sixteen = env.say(a, '127.0.0.100', '255.255.0.0');
+  ok(sixteen.length === 1 && sixteen[0] === 'Not a valid host address - 127.0.0.100',
+    'a /16 under the same block prints no prefix either', JSON.stringify(sixteen));
+  const thirtytwo = env.say(a, '127.0.0.1', '255.255.255.255');
+  ok(thirtytwo.length === 1 && thirtytwo[0] === 'Not a valid host address - 127.0.0.1',
+    'the address sentence wins over `Bad mask /32`: the range is asked first', JSON.stringify(thirtytwo));
+}
+
+console.log('\nA port that already holds an address keeps it when the range refusal comes back:');
+{
+  const env = lab();
+  const a = env.eth[0].name;
+  env.say(a, '10.9.9.1', '255.255.255.0');
+  const out = env.say(a, '127.0.0.9', '255.255.255.0');
+  ok(out.length === 1 && out[0] === 'Not a valid host address - 127.0.0.9', 'the refusal is one line',
+    JSON.stringify(out));
+  ok(env.ipOf(a) === '10.9.9.1/24', 'and the address it held is untouched', String(env.ipOf(a)));
+}
+
+console.log('\nA subinterface is refused the same way its parent is:');
+{
+  const env = lab();
+  const a = env.eth[0].name;
+  env.cli.run('interface ' + a + '.40');
+  const out = env.cli.run('ip address 0.0.0.5 255.255.255.0').output;
+  ok(out.length === 1 && out[0] === 'Not a valid host address - 0.0.0.5',
+    'a reserved-block address on a dot1q subinterface is refused', JSON.stringify(out));
+}
+
+console.log('\nThe mask is still checked before the range, in its own words:');
+{
+  const env = lab();
+  const a = env.eth[0].name;
+  const out = env.say(a, '0.0.0.1', '255.0.255.0');
+  ok(out.length === 1 && out[0].indexOf('% Invalid mask: 255.0.255.0') === 0,
+    'a non-contiguous mask is a mask error, whichever block the address is in', JSON.stringify(out));
+}
+
+console.log('\nThe one command this rule steps around, still open: 0.0.0.0 with a /0 mask');
+{
+  const env = lab();
+  const a = env.eth[0].name;
+  const out = env.say(a, '0.0.0.0', '0.0.0.0');
+  ok(out.join(' ').indexOf('0.0.0.0/0') !== -1,
+    'nothing in hand says what a box prints for it, so the range rule does not decide it',
+    JSON.stringify(out));
 }
 
 console.log('\n' + passed + ' passed, ' + failed + ' failed');

@@ -1689,11 +1689,50 @@ class CliSession {
   // which this model does not build - and applies to every port it does.
   // research/ip-address-not-a-host.md carries the sources.
   //
-  // One thing this deliberately leaves alone:
+  // Two things this deliberately leaves alone:
   //   * a /0, where the network address and the broadcast address are the same address and nothing in hand
   //     says which sentence a box prints. Unchanged.
+  //   * the other reserved blocks - 224/4 above all - which are a separate sentence from a separate check and
+  //     are left alone because the evidence for them is one unverifiable snippet. See the section below.
+  //
+  // **Some addresses are not host addresses under any mask, and the box says so in its own words.** Before it
+  // looks at the mask at all, IOS refuses an address in 0.0.0.0/8 or 127.0.0.0/8 - the "this network" and
+  // "loopback" blocks - with a sentence that names the address and no prefix:
+  //
+  //     Rack1R1(config-if)#ip add 0.0.0.1 255.255.255.0
+  //     Not a valid host address - 0.0.0.1
+  //     Rack1R1(config-if)#ip add 0.0.0.2 255.255.255.0
+  //     Not a valid host address - 0.0.0.2
+  //     (https://community.cisco.com/t5/switching/what-is-the-lowest-prefix-possible-and-the-lowest-ip/td-p/1214384)
+  //
+  //     R1(config-if)#ip address 127.0.0.2 255.255.255.0
+  //     Not a valid host address - 127.0.0.2
+  //     R1(config-if)#ip address 127.1.1.1 255.255.255.0
+  //     Not a valid host address - 127.1.1.1
+  //     (https://learningnetwork.cisco.com/s/question/0D53i00000KsviSCAR/ping-127001-in-router-failed - on
+  //     `interface loopback0`, the one type that takes a /32)
+  //
+  //     R2(config-if)#ip address 127.0.0.100 255.255.0.0
+  //     Not a valid host address - 127.0.0.100
+  //     (https://learningnetwork.cisco.com/s/question/0D53i00000KszT6CAJ/ipv6-interface-loopback-address)
+  //
+  // Three things the pastes establish: the sentence carries no leading `%`, like its `Bad mask` sibling; it
+  // echoes the address exactly as typed; and it is the same for a /16 and a /24, which is why the range is
+  // tested before the mask - the words name an address, never a prefix. The loopback transcript is the sharp
+  // one: 127/8 is refused on a loopback interface, so the /32 exception above stays a *mask* rule and does not
+  // reach this one.
+  //
+  // 0.0.0.0 itself is left out of the block on purpose. Whether a box takes `ip address 0.0.0.0 0.0.0.0` is the
+  // /0 question this note has always left open, and a first-octet test would answer it by accident rather than
+  // by evidence. research/ip-address-host-range.md has the sources, the ordering argument, and the two blocks
+  // this rule does not cover - 224/4 and 255.255.255.255 - with what would settle each.
   _ipHostRefusal(iface, ip, dotted) {
     const netLib = require('./net');
+    const text = String(ip);
+    const firstOctet = Number(text.split('.')[0]);
+    if ((firstOctet === 0 && text !== '0.0.0.0') || firstOctet === 127) {
+      return 'Not a valid host address - ' + text;
+    }
     const bits = netLib.prefixOf(dotted);
     // A /32 is the mask that says "this subnet is one address", and a box keeps it for a link that has
     // only itself to reach (the loopback); on a port it answers with the same `Bad mask` sentence the

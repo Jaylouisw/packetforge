@@ -169,4 +169,5 @@ running-config untouched.
   a box treats that way — 0/8 and 127/8 at least, and whether 224/4 and 255.255.255.255 join them — is a
   separate question, with its own message, and is **not** implemented here. This model still accepts
   `ip address 224.0.0.1 255.255.255.0` and `ip address 0.0.0.1 255.255.255.0`. That is the next question, not
-  this one.
+  this one - and it has since been taken: research/ip-address-host-range.md refuses 0/8 and 127/8
+  in that sentence and says why the rest of the reserved table is still open.
