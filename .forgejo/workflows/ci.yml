@@ -1035,27 +1035,45 @@ jobs:
           fi
           echo "#${NUMBER}: every check on ${HEAD_SHA} is green - merging"
 
-          # `mergeable` is computed off the request thread, so 405 here means "not
-          # known yet" rather than "refused". Bounded against the wall clock, not
-          # against a count of tries.
-          deadline=$((SECONDS + 90))
-          while [ "$SECONDS" -lt "$deadline" ]; do
-            state=$(curl -sS --connect-timeout 5 --max-time 20 --retry 2 --retry-delay 1 \
-                      --retry-connrefused -H "Authorization: token ${TOKEN}" \
-                      "$api/repos/$repo/pulls/${NUMBER}" 2>/dev/null \
-                    | tr ',' '\n' | grep -m1 '"mergeable"' | cut -d: -f2 | tr -d ' ' || true)
-            if [ "$state" = "true" ]; then
-              code=$(curl -sS --connect-timeout 5 --max-time 20 --retry 2 --retry-delay 1 \
-                       --retry-connrefused -o /dev/null -w '%{http_code}' -X POST \
-                       -H "Authorization: token ${TOKEN}" -H 'Content-Type: application/json' \
-                       "$api/repos/$repo/pulls/${NUMBER}/merge" \
-                       -d "{\"Do\":\"squash\",\"head_commit_id\":\"${HEAD_SHA}\"}")
-              case "$code" in
-                200|201) echo "#${NUMBER}: merged ${HEAD_SHA} as a squash, every check green" ; exit 0 ;;
-                405|409) echo "#${NUMBER}: merge refused (HTTP ${code}) - the head moved or the branch is not mergeable; the next rebase pass will bring it back here" ; exit 0 ;;
-                *)       note "#${NUMBER}: merge refused (HTTP ${code})" ; exit 0 ;;
-              esac
-            fi
-            sleep 5
+          # Ask for the merge and let the server answer, instead of watching the cached
+          # `mergeable` field. GET /pulls/:n serves a value a background task fills in, so
+          # it lags the branch; POST /pulls/:n/merge recomputes mergeability inside the very
+          # request that merges, so it is both the shorter path and the authoritative one.
+          #
+          # The loop this replaces polled the cached field for 90 s and then reported
+          # "mergeable was still not computed" - wrong on both counts, because the field had
+          # been answered (`false`) and the server would have recomputed it on a merge
+          # request. Two of the last 40 green arm runs paid the 90 s and still did not merge:
+          # #1917 (run 5735, task 14603) and #1923 (run 5788, task 14759). #1923 was then
+          # merged at 02:11:47 by the next rebase pass, 6 min later, after that pass re-ran
+          # the whole matrix on a fresh head. Same question, asked once, now.
+          #
+          # `head_commit_id` is still sent: a merge aimed at a commit that is no longer the
+          # head is refused by the server rather than merged against a tree nobody tested.
+          # The retry is bounded to 8 s and prints the server's own reason; nothing here can
+          # turn a red or unmergeable pull request green, and a refusal leaves the branch for
+          # the next rebase pass exactly as before.
+          body="${RUNNER_TEMP:-/tmp}/merge-body.json"
+          attempt=0
+          while [ "$attempt" -lt 3 ]; do
+            attempt=$((attempt + 1))
+            code=$(curl -sS --connect-timeout 5 --max-time 20 --retry 2 --retry-delay 1 \
+                     --retry-connrefused -o "$body" -w '%{http_code}' -X POST \
+                     -H "Authorization: token ${TOKEN}" -H 'Content-Type: application/json' \
+                     "$api/repos/$repo/pulls/${NUMBER}/merge" \
+                     -d "{\"Do\":\"squash\",\"head_commit_id\":\"${HEAD_SHA}\"}" 2>/dev/null || echo 000)
+            case "$code" in
+              200|201)
+                echo "#${NUMBER}: merged ${HEAD_SHA} as a squash, every check green"
+                exit 0 ;;
+              405|409)
+                why=$(tr -d '\r\n' < "$body" 2>/dev/null | cut -c1-200)
+                echo "#${NUMBER}: merge not accepted yet (HTTP ${code}): ${why:-no reason given}" ;;
+              *)
+                why=$(tr -d '\r\n' < "$body" 2>/dev/null | cut -c1-200)
+                note "#${NUMBER}: merge refused (HTTP ${code}) ${why}"
+                exit 0 ;;
+            esac
+            sleep 4
           done
-          note "#${NUMBER}: mergeable was still not computed after 90 s - green and left unmerged"
+          note "#${NUMBER}: still not mergeable after ${attempt} attempts - every check is green and the branch is left for the next rebase pass"
