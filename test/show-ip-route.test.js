@@ -181,7 +181,7 @@ console.log('The printed table agrees with the data plane:');
   const lines = show(s);
   const rows = [];
   for (const l of lines.slice(1)) {
-    const m = /^([A-Z]\*?)\s+(\d+\.\d+\.\d+\.\d+)\s+\/(\d+)\s+.*\[(\d+)\/\d+\]/.exec(l);
+    const m = /^([A-Z]\*?)\s+(\d+\.\d+\.\d+\.\d+)\/(\d+)\s+.*\[(\d+)\/\d+\]/.exec(l);
     if (m) rows.push({ code: m[1], dest: m[2], prefix: Number(m[3]), distance: Number(m[4]) });
   }
   ok(rows.length >= 4, 'the table parsed into rows (' + rows.length + ')');
@@ -210,7 +210,7 @@ console.log('The printed table agrees with the data plane:');
     }
     // And when the engine hands the packet on, the next hop is the one the winning row names.
     if (best.code !== 'C' && verdict.via && best && r.dest === best.dest) {
-      const rowForBest = rowFor(lines, best.dest + ' ')[0] || '';
+      const rowForBest = rowFor(lines, best.dest + '/')[0] || '';
       if (verdict.via !== best.dest && !rowForBest.includes(verdict.via)) {
         problems.push(probe + ': engine uses ' + verdict.via + ', winning row ' + best.dest);
       }

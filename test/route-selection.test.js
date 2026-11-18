@@ -4,8 +4,8 @@
 // Found by asking whether a report's own summary matches the table under it. It did not, on two surfaces:
 //
 //   r1#show ip route
-//   C   10.0.12.0      /24  is directly connected, Gi0
-//   B  10.0.12.0      /24  [20/0] via 10.0.12.2  Gi0
+//   C   10.0.12.0/24  is directly connected, Gi0
+//   B   10.0.12.0/24  [20/0] via 10.0.12.2  Gi0
 //
 // Two rows, one destination. `routeTo()` - the lookup that actually forwards - has always chosen by longest
 // prefix then lowest distance, so the engine knew which one was installed; the table printed both as equals and
@@ -130,14 +130,14 @@ console.log('');
 console.log('What the console prints, and what the panel is served, are the same rows');
 {
   const text = show(lab.t, lab.r1, 'show ip route');
-  ok(/C   10\.0\.12\.0\s+\/24  is directly connected/.test(text), 'the connected row is unchanged', text.split('\n')[1]);
-  ok(/B  10\.0\.12\.0\s+\/24.*\(not installed: the C route for this prefix has distance 0\)/.test(text),
+  ok(/C +10\.0\.12\.0\/24  is directly connected/.test(text), 'the connected row is unchanged', text.split('\n')[1]);
+  ok(/B +10\.0\.12\.0\/24.*\(not installed: the C route for this prefix has distance 0\)/.test(text),
     'the BGP row for the connected subnet says why it is not installed',
     text.split('\n').filter(function (l) { return /^B  /.test(l); }).join(' | '));
-  ok(/S  10\.2\.2\.0\s+\/24.*\[1\/0\]/.test(text.replace(/\n/g, '\n')) && !/S  10\.2\.2\.0.*not installed/.test(text),
+  ok(/S +10\.2\.2\.0\/24.*\[1\/0\]/.test(text.replace(/\n/g, '\n')) && !/S +10\.2\.2\.0.*not installed/.test(text),
     'the static that wins its prefix is printed without a mark',
     text.split('\n').filter(function (l) { return /^S  /.test(l); }).join(' | '));
-  ok(/O  10\.3\.3\.0\s+\/24.*\(not installed: the B route for this prefix has distance 20\)/.test(text),
+  ok(/O +10\.3\.3\.0\/24.*\(not installed: the B route for this prefix has distance 20\)/.test(text),
     'and an OSPF route that loses to BGP says so',
     text.split('\n').filter(function (l) { return /^O  /.test(l); }).join(' | '));
 

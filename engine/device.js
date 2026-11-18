@@ -1291,8 +1291,8 @@ class Device {
     // The table used to print every candidate it held, so a BGP route for a subnet the box is *directly
     // connected to* appeared beside the connected route as an equal:
     //
-    //     C   10.0.12.0      /24  is directly connected, Gi0
-    //     B  10.0.12.0      /24  [20/0] via 10.0.12.2  Gi0
+    //     C   10.0.12.0/24  is directly connected, Gi0
+    //     B   10.0.12.0/24  [20/0] via 10.0.12.2  Gi0
     //
     // Two rows for one destination, and only one of them can be installed. `routeTo()` - the thing that
     // actually forwards - has always chosen by longest prefix then lowest distance, so the engine knew the

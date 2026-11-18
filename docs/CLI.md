@@ -109,7 +109,7 @@ asking whether `192.0.2.0/24` was installed printed:
 
 ```
 Codes: C - connected, S - static, O - OSPF, B - BGP
-C   10.0.0.0       /24  is directly connected, Gi0
+C   10.0.0.0/24  is directly connected, Gi0
 ```
 
 A different prefix, printed as the answer to a question about this one. An operator checking whether a prefix is
@@ -539,8 +539,8 @@ R1(config)# exit
 R1# show ip route
 Codes: C - connected, S - static, O - OSPF, B - BGP, * - candidate default
 Gateway of last resort is not set
-C   10.0.1.0       /24  is directly connected, Gi0/0
-C   10.0.2.0       /24  is directly connected, Gi0/1
+C   10.0.1.0/24  is directly connected, Gi0/0
+C   10.0.2.0/24  is directly connected, Gi0/1
 R1# ping 10.0.1.10
 Type escape sequence to abort.
 Sending 5, 100-byte ICMP Echos to 10.0.1.10, timeout is 2 seconds:
@@ -1926,8 +1926,8 @@ An installed route can still lead nowhere. When its egress port cannot carry a f
 same words the other tables use:
 
 ```
-C   10.0.0.0       /24  is directly connected, Gi0  (down: link down)
-S  172.20.0.0     /16  [1/0] via 10.0.0.1  (down: link down)
+C   10.0.0.0/24  is directly connected, Gi0  (down: link down)
+S   172.20.0.0/16  [1/0] via 10.0.0.1  (down: link down)
 ```
 
 A connected route or a static route stays listed when its port goes down — they are configuration, not
@@ -2236,7 +2236,7 @@ Route added: 192.168.9.0/24 out Gi0
   no next hop: this resolves by ARP on that segment, which needs proxy ARP on the far side
 
 r1#show ip route
-S  192.168.9.0    /24  [1/0] via -  Gi0  (no next hop: ARP for the destination on that segment)
+S   192.168.9.0/24  [1/0] via -  Gi0  (no next hop: ARP for the destination on that segment)
 ```
 
 Anything that is neither an address nor a port is refused, naming it and the route:
@@ -2262,6 +2262,17 @@ and a mask, so the two spellings produce the same state — instead of storing t
 producing a pool the validator rejects.
 
 ### Reading `show ip route`
+
+The destination is **one field**: `10.0.0.0/24`, address and mask joined, immediately after the code. It was
+printed as an address padded out to fifteen characters with the mask hanging off it — `C   10.0.0.0       /24` —
+which laid one table out in two shapes (a `/24` row pushed its mask to column 20, the `/0` default row did not)
+and disagreed with the inspector's Routes panel, which has always shown `dest/len`. Every IOS sample joins the
+pair: `C 10.44.192.0/24 is directly connected, GigabitEthernet0/0` and `S* 0.0.0.0/0 [1/0] via 10.108.99.2` in
+Cisco's [gateway-of-last-resort note](https://www.cisco.com/c/en/us/support/docs/ip/routing-information-protocol-rip/16448-default.html),
+`C 10.2.1.0/24 is directly connected, Loopback1` in the [`show ip route` command reference](https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/iproute_pi/command/Cisco_IOS_IP_Routing_Protocol-Independent_Command_Reference/IP_Routing_Protocol-Independent_Commands_S_through_T.html).
+What IOS pads is the *code*, to a wider field than this console uses; the prefix is never split, because it is
+one token read as a whole. `test/show-ip-route-prefix-one-field.test.js` pins the rule on every kind of row
+(connected, static, static default, configured gateway, OSPF, eBGP).
 
 The legend names every code the table can print — `C` connected, `S` static, `O` OSPF, `B` BGP, and
 `*` for a candidate default — and each row carries `[distance/metric]`. The distance is not decoration: it is half of the rule that picks
@@ -2385,10 +2396,10 @@ configured gateway 254 — and it always did. The table did not say so: it print
 
 ```
 r1#show ip route
-C   10.0.12.0      /24  is directly connected, Gi0
-B  10.0.12.0      /24  [20/0] via 10.0.12.2  Gi0  (not installed: the C route for this prefix has distance 0)
-O   10.3.3.0       /24  [110/2] via 10.0.12.2  Gi0  (not installed: the B route for this prefix has distance 20)
-B  10.3.3.0       /24  [20/0] via 10.0.12.2  Gi0
+C   10.0.12.0/24  is directly connected, Gi0
+B   10.0.12.0/24  [20/0] via 10.0.12.2  Gi0  (not installed: the C route for this prefix has distance 0)
+O   10.3.3.0/24  [110/2] via 10.0.12.2  Gi0  (not installed: the B route for this prefix has distance 20)
+B   10.3.3.0/24  [20/0] via 10.0.12.2  Gi0
 ```
 
 Two rows, one destination, and now the table says which one a packet follows. A losing row is **not deleted** —

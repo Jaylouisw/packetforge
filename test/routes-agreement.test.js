@@ -94,7 +94,7 @@ function cliRows(dev, topo) {
     // Ordinary control flow, not an exemption: these two lines are the legend and the gateway summary, not
     // rows of the table. Nothing about a device or a port is being decided here.
     if (/^Codes:/.test(line) || /^Gateway of last resort/.test(line)) continue;
-    const m = /^(\S+)\s+(\d+\.\d+\.\d+\.\d+)\s+\/(\d+)\s+(.*)$/.exec(line);
+    const m = /^(\S+)\s+(\d+\.\d+\.\d+\.\d+)\/(\d+)\s+(.*)$/.exec(line);
     if (!m) continue;
     const code = m[1];
     const prefix = m[2] + '/' + m[3];

@@ -93,9 +93,9 @@ console.log('An OSPF route carries its cost, not a zero:');
   ok(/\[110\/3\]/.test(third), 'r1 reaches the LAN behind r3 at [110/3]', third);
   const all = show(env, env.r2, 'show ip route');
   ok(!/\[110\/0\]/.test(all), 'no OSPF row prints a metric of 0 any more', all);
-  ok(/192\.168\.1\.0\s+\/24\s+\[110\/2\] via 10\.0\.12\.1/.test(all),
+  ok(/192\.168\.1\.0\/24  \[110\/2\] via 10\.0\.12\.1/.test(all),
     'the row reads in the device order: prefix, bracket, next hop', all);
-  ok(/C\s+10\.0\.12\.0\s+\/24\s+is directly connected/.test(all) && !/is directly connected.*\[/.test(all),
+  ok(/C\s+10\.0\.12\.0\/24  is directly connected/.test(all) && !/is directly connected.*\[/.test(all),
     'and a connected route still has no bracket at all', all);
 }
 
@@ -119,7 +119,7 @@ console.log('The metric is the protocol cost, not a distance: a static route kee
   const text = show(env, env.r2, 'show ip route');
   // The code is `S*` now: the asterisk marks the row as a candidate default, and on IOS it belongs to every
   // route to 0.0.0.0/0 rather than to one particular row (research/show-ip-route-candidate-default.md).
-  ok(/S\*\s+0\.0\.0\.0\s+\/0\s+\[1\/0\] via 10\.0\.12\.1/.test(text),
+  ok(/S\*\s+0\.0\.0\.0\/0\s+\[1\/0\] via 10\.0\.12\.1/.test(text),
     'a static default is S*, [1/0] - distance 1, metric 0 - as the device prints it', text);
   ok(/\[110\/2\]/.test(text), 'and the O row beside it still carries its cost', text);
 }

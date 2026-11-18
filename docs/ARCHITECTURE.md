@@ -564,7 +564,7 @@ returned no note at all — so the row was reported as healthy. On a router hold
 ```
 r1(config)# ip route 192.168.50.0 255.255.255.0 172.16.9.1
 r1> show ip route
-S  192.168.50.0   /24  [1/0] via 172.16.9.1              <- no caveat: reads as an installed route
+S   192.168.50.0/24  [1/0] via 172.16.9.1              <- no caveat: reads as an installed route
 r1> ping 192.168.50.5
 "no usable egress interface"                             <- the data plane could not use it at all
 ```
@@ -578,8 +578,8 @@ The row is still printed, because it *is* configuration and `routeTo()` still fi
 exactly like a connected route on a shut port — but it now carries the reason:
 
 ```
-S  192.168.50.0   /24  [1/0] via 172.16.9.1  (no interface on the subnet of next hop 172.16.9.1)
-S  192.168.50.0   /24  [1/0] via 10.0.0.99   (next hop 10.0.0.99 would leave by Gi0/0, which cannot carry: administratively down (shut down))
+S   192.168.50.0/24  [1/0] via 172.16.9.1  (no interface on the subnet of next hop 172.16.9.1)
+S   192.168.50.0/24  [1/0] via 10.0.0.99   (next hop 10.0.0.99 would leave by Gi0/0, which cannot carry: administratively down (shut down))
 ```
 
 The two shapes are kept apart on purpose: a next hop no interface is on the subnet of is a
@@ -608,7 +608,7 @@ because every device was answered by the same printer:
 ```
 sw1> show ip route
 Codes: C - connected, S - static, O - OSPF, B - BGP
-S*  0.0.0.0        /0  [254/0] via 10.0.0.1
+S*  0.0.0.0/0  [254/0] via 10.0.0.1
 ```
 
 Those two lines are the router's shape twice over: the codes legend belongs to a table, and the `S*` row is the
@@ -1173,7 +1173,7 @@ server nobody has asked.
 ```
 a> show ip route
 Gateway of last resort is 10.1.1.1 to network 0.0.0.0
-S*  0.0.0.0        /0  [254/0] via 10.1.1.1
+S*  0.0.0.0/0  [254/0] via 10.1.1.1
 
 a> ping 10.9.9.9
 no route to 10.9.9.9                    <- printed on the host that HAS a route

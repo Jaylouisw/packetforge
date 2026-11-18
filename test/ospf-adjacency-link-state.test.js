@@ -6,8 +6,8 @@
 // every topology link between two such interfaces. A topology link exists while its state is `down`, and
 // nothing asked. So:
 //
-//   cable in   O  192.168.9.0   /24  [110/0] via 10.0.0.1  Gi0
-//   cable out  O  192.168.9.0   /24  [110/0] via 10.0.0.1  Gi0      <- same row, next hop unreachable
+//   cable in   O   192.168.9.0/24  [110/0] via 10.0.0.1  Gi0
+//   cable out  O   192.168.9.0/24  [110/0] via 10.0.0.1  Gi0      <- same row, next hop unreachable
 //   ping 192.168.9.1  ->  false, "no ARP reply from 10.0.0.1"
 //
 // BGP had the same defect one iteration earlier (#1269); OSPF had no link-state check at all.
@@ -72,7 +72,7 @@ console.log('A live adjacency installs an O route, unmarked:');
   const env = lab();
   const o = rows(env, env.r2, 'O');
   ok(o.length === 1, 'one O route on r2', show(env, env.r2, 'show ip route'));
-  ok(/192\.168\.9\.0\s+\/24/.test(o.join('\n')), 'for r1\'s LAN', o.join(' | '));
+  ok(/192\.168\.9\.0\/24/.test(o.join('\n')), 'for r1\'s LAN', o.join(' | '));
   ok(/via 10\.0\.0\.1/.test(o.join('\n')), 'through r1 as next hop', o.join(' | '));
   ok(!/\(/.test(o.join('\n')), 'and nothing is marked, because nothing is wrong', o.join(' | '));
 }
@@ -134,9 +134,9 @@ console.log('A route that is still installed but leads nowhere says so:');
   // addressed port.)
   const env2 = lab();
   const r1Routes = show(env2, env2.r1, 'show ip route');
-  ok(/192\.168\.9\.0\s+\/24\s+is directly connected, Gi0\/0\/0\s+\(down: no cable\)/.test(r1Routes),
+  ok(/192\.168\.9\.0\/24\s+is directly connected, Gi0\/0\/0\s+\(down: no cable\)/.test(r1Routes),
     'a connected route on a port with no cable is marked', r1Routes);
-  ok(!/10\.0\.0\.0\s+\/24\s+is directly connected, Gi0\s+\(/.test(r1Routes),
+  ok(!/10\.0\.0\.0\/24\s+is directly connected, Gi0\s+\(/.test(r1Routes),
     'and the one on the live cable is not', r1Routes);
 }
 

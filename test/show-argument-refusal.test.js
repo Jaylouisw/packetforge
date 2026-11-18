@@ -8,7 +8,7 @@
 //
 //   r1#show ip route 192.0.2.0/24
 //   Codes: C - connected, S - static, O - OSPF, B - BGP
-//   C   10.0.0.0       /24  is directly connected, Gi0
+//   C   10.0.0.0/24  is directly connected, Gi0
 //
 // The table held one route, 10.0.0.0/24, and the question was whether 192.0.2.0/24 was installed. The answer
 // printed a different prefix, and an operator scanning for their prefix sees a table with a route in it. A silent

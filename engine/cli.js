@@ -5188,7 +5188,15 @@ class CliSession {
 
       for (const r of rows) {
         const prefix = net.prefixOf(r.mask);
-        const dest = pad(r.dest, 15) + '/' + prefix;
+        // The destination is ONE field: `10.1.1.0/24`, not an address padded out to a column with the mask
+        // hanging off it. Every IOS sample prints the pair joined - `C 10.44.192.0/24 is directly
+        // connected, GigabitEthernet0/0`, `S* 0.0.0.0/0 [1/0] via 10.108.99.2` - and the web inspector's
+        // Routes panel already printed `dest/len` from the same rows, so the two surfaces disagreed about
+        // one fact. The padding also laid one table out in two shapes: a /24 row indented its mask to
+        // column 20 while the /0 default row put its mask hard against the address.
+        //   https://www.cisco.com/c/en/us/support/docs/ip/routing-information-protocol-rip/16448-default.html
+        //   https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/iproute_pi/command/Cisco_IOS_IP_Routing_Protocol-Independent_Command_Reference/IP_Routing_Protocol-Independent_Commands_S_through_T.html
+        const dest = r.dest + '/' + prefix;
         if (r.type === 'connected') {
           // A connected route stays listed - it is configuration, and `routeTo()` still finds it - but a
           // port that cannot carry a frame is why the ping to that very address fails. Saying nothing left
@@ -5205,9 +5213,10 @@ class CliSession {
         // a reader uses to compare two paths was a placeholder (#fidelity: show ip route metric).
         //
         // The distance is half of the rule that picks the installed route (longest prefix first, then
-        // lowest distance), so a table without it cannot be checked by reading. Three columns whatever the
-        // code length, so `S*` does not shift the whole row.
-        out.push((r.displayCode.length === 1 ? r.displayCode + '  ' : r.displayCode + ' ') + dest +
+        // lowest distance), so a table without it cannot be checked by reading. The code field is four
+        // characters whatever the code is - one letter and three spaces, or `S*` and two - so the prefix
+        // starts in the same column on every row now that the address itself is not padded.
+        out.push((r.displayCode.length === 1 ? r.displayCode + '   ' : r.displayCode + '  ') + dest +
           '  [' + r.distance + '/' + r.metric + '] via ' + r.gw +
           (r.iface && r.iface !== '-' ? '  ' + r.iface : '') +
           (r.note ? '  ' + r.note : '') + (r.shadow ? '  ' + r.shadow : ''));

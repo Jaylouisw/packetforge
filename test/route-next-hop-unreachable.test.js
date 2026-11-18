@@ -6,7 +6,7 @@
 //
 //   r1(config)# ip route 192.168.50.0 255.255.255.0 172.16.9.1
 //   r1> show ip route
-//   S  192.168.50.0   /24  [1/0] via 172.16.9.1          <- no caveat: reads as an installed route
+//   S   192.168.50.0/24  [1/0] via 172.16.9.1          <- no caveat: reads as an installed route
 //   r1> ping 192.168.50.5
 //   "no usable egress interface"                          <- the data plane could not use it at all
 //
@@ -57,12 +57,15 @@ function showRoute(L) { return lines(runCommands(L.r1, L.t, L.sim, ['show ip rou
 function rowFor(L, dest) {
   return (L.r1.routesTable(L.t) || []).filter(function (r) { return r.dest === dest; })[0] || null;
 }
-// The row for one prefix, matched on the column it sits in: `indexOf('0.0.0.0')` also matches the connected
-// `10.0.0.0/24` row, which is how the first version of this test passed while reading the wrong line.
+// The row for one prefix, found by the field that starts with the destination and a slash. Two fields -
+// a destination column and a mask column - are not what a real table prints: `show ip route` writes the
+// prefix as one token (`10.0.0.0/24`), so matching `t[1] === dest && t[2] is a mask` found nothing at all
+// once the console printed the device shape. `indexOf(dest)` alone is not enough: it also matches the
+// connected `10.0.0.0/24` row when the destination asked about is `0.0.0.0`.
 function printedFor(linesOut, dest) {
   return linesOut.filter(function (l) {
     const t = l.trim().split(/\s+/);
-    return t.length > 2 && t[1] === dest && /^\//.test(t[2]) && !/^Codes:/.test(l);
+    return t.length > 2 && t[1].indexOf(dest + '/') === 0 && !/^Codes:/.test(l);
   })[0] || '';
 }
 

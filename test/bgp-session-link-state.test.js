@@ -65,7 +65,7 @@ console.log('A session over a live cable is established, and its prefixes are li
   ok(up.up === 1 && up.of === 1, 'one neighbour, established', up.text);
   const rows = bRows(env, env.r2);
   ok(rows.length === 1, 'the peer installed a B row', rows.join(' | '));
-  ok(/10\.0\.0\.0\s+\/24/.test(rows.join('\n')), 'for the advertised prefix', rows.join(' | '));
+  ok(/10\.0\.0\.0\/24  /.test(rows.join('\n')), 'for the advertised prefix', rows.join(' | '));
 
   // The prefix table: which prefix, off which next hop, with what path - the question the count could not
   // answer.
