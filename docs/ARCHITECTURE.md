@@ -1092,8 +1092,8 @@ Four decisions worth keeping:
   console's *printing*, not about the command: a switch prints an allowed list with runs folded into ranges, so the same
   configuration is one short line, and a Catalyst accepts the removal on a default trunk
   (`research/trunk-allowed-remove-from-all.md`). `switchport trunk allowed vlan remove 10` now answers
-  `Trunk on Fa0/1 allows VLANs 1-9,11-1001,1006-4094 (removed 10)`, the backup writes that same line, and
-  `show interfaces` says `allowed 1-9,11-1001,1006-4094` — a sentence and a backup that are now shaped like the box's.
+  `Trunk on Fa0/1 allows VLANs 1-9,11-4094 (removed 10)`, the backup writes that same line, and
+  `show interfaces` says `allowed 1-9,11-4094` — a sentence and a backup that are now shaped like the box's.
 * **A word is named as a word.** `except 20` prints `% Unrecognized "except": this console takes a list (10,20), a range
   (10-20), "all", "add <list>" or "remove <list>"` — not the glued `except20`. A genuinely malformed numeric list still
   gets the library's own message.
