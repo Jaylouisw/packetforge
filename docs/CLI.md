@@ -284,6 +284,11 @@ reserved VIDs are 0 and 4095 — the vendor's own table puts those two under **R
 and 1002-1005 under **Normal**. The refusal names the four media defaults and no longer attributes them to
 the standard.
 
+There is one list where the four are not refused at all: a trunk's *allowed* list always contains them, because
+the device's default list is `1-4094` and the block cannot be removed from a trunk — see
+[a trunk's allowed list](#a-trunks-allowed-list-is-edited-in-place-add-and-remove) below. Everywhere a *port* is
+being put into a VLAN, the refusal stands.
+
 
 ## Config-mode commands
 
@@ -1548,12 +1553,31 @@ Trunk on Fa0/1 allows all VLANs again
 A `remove` that would empty the list is refused rather than committed, with both ways out named — a trunk carrying
 no VLAN is not something to arrive at by subtraction. A `remove` on a trunk that still allows the default `all` is
 not refused, because a switch subtracts from it; the remainder prints the way the box prints a list, runs folded
-into ranges and the reserved 1002-1005 block never in the answer:
+into ranges:
 
 ```
 sw1(config-if)#switchport trunk allowed vlan remove 10
-Trunk on Fa0/1 allows VLANs 1-9,11-1001,1006-4094 (removed 10)
+Trunk on Fa0/1 allows VLANs 1-9,11-4094 (removed 10)
 ```
+
+The list always holds **VLANs 1002-1005**, the four FDDI and Token Ring defaults. They are ordinary members of a
+trunk's allowed list - the device's default list is `1-4094` and a switch refuses to remove them - so a removal
+subtracts the other ids and the printed remainder runs straight through the block, which is what a c3550 does:
+
+```
+sw1(config-if)#switchport trunk allowed vlan remove 5-10,12
+Trunk on Fa0/1 allows VLANs 1-4,11,13-4094 (removed 5-10,12)
+sw1(config-if)#switchport trunk allowed vlan add 7
+Trunk on Fa0/1 allows VLANs 1-4,7,11,13-4094 (added 7)
+sw1(config-if)#switchport trunk allowed vlan remove 1002
+% VLANs 1002 stay on every trunk: the four media defaults (1002-1005) are always allowed and cannot be removed
+```
+
+They can be *named* in the list, and only there: `switchport trunk allowed vlan 1,100,1002-1005` is a line real
+Catalyst configurations carry. An access, native or voice VLAN still cannot be one, because those VLANs' media is
+Token Ring/FDDI and no Ethernet port can join them — `switchport access vlan 1002` stays refused. The column that
+mattered was the allowed list, and it was the one place the console applied the wrong rule
+([research/trunk-allowed-reserved-vlans.md](../research/trunk-allowed-reserved-vlans.md)).
 
 The word in front of the list is read as a word. A list typed with spaces or with spaced ranges still parses
 (`10, 20` and `40 - 42` are `10,20` and `40-42`), and anything that is neither a verb nor a list is quoted back
@@ -1580,8 +1604,12 @@ sw1(config-if)#switchport trunk allowed vlan 30-20
 console refused a word nobody had typed — the only way to add one VLAN was to retype the whole list
 ([ARCHITECTURE.md](ARCHITECTURE.md), "A verb eaten by a join, and the token nobody typed"). What the list holds
 afterwards is what the backup and the inspector both print, so an edited trunk survives a save without retyping:
-`show running-config` writes the folded ranges `switchport trunk allowed vlan 1-9,11-1001,1006-4094`, and
-`show interfaces` repeats them as `switchport: trunk · native 1 · allowed 1-9,11-1001,1006-4094`.
+`show running-config` writes the folded ranges `switchport trunk allowed vlan 1-9,11-4094`, and
+`show interfaces` repeats them as `switchport: trunk · native 1 · allowed 1-9,11-4094`.
+
+One last line, because it is the reason the removal arithmetic looks the way it does: 1002-1005 are in every
+allowed list, so `remove 1-1001,1006-4094` leaves only them, and that is the dead trunk the console refuses to
+build rather than a list it silently commits. `remove 1-4094` names the whole id space and gets the same refusal.
 
 ### NAT: configuring it, and reading what it did
 

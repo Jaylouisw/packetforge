@@ -33,7 +33,10 @@ const ROOT = path.join(__dirname, '..');
 const catalog = loadCatalog(path.join(ROOT, 'devices')).filter(function (s) { return !s.error; });
 const SWITCH = catalog.find(function (s) { return s.model === 'generic-switch'; });
 
-// Every assignable VLAN id: 1-4094 less the four reserved media defaults (1002-1005).
+// Every id a trunk's allowed list can hold: the whole 1-4094, the four media defaults included. A switch
+// keeps 1002-1005 in the list whatever the operator removes ("You cannot remove VLANs 1002-1005",
+// Catalyst 6500 trunking guide), so the remainder a removal prints runs straight through them
+// (research/trunk-allowed-reserved-vlans.md).
 const ASSIGNABLE = vlanLib.allVlansExcept([]);
 
 function session() {
@@ -81,7 +84,7 @@ console.log('A list is printed the way a switch prints one - consecutive ids fol
   ok(vlanLib.formatVlanList([]) === '', 'an empty list prints as nothing, so the caller keeps its own word for it',
     JSON.stringify(vlanLib.formatVlanList([])));
   ok(vlanLib.formatVlanList([4094]) === '4094', 'one id is one number', vlanLib.formatVlanList([4094]));
-  const parsed = vlanLib.parseVlanList(vlanLib.formatVlanList(ASSIGNABLE));
+  const parsed = vlanLib.parseVlanList(vlanLib.formatVlanList(ASSIGNABLE), { keepReserved: true });
   ok(parsed.ok && parsed.vlans.length === ASSIGNABLE.length, 'and the printed form parses back to the same ids',
     parsed.vlans.length + ' of ' + ASSIGNABLE.length);
 }
@@ -101,13 +104,14 @@ console.log('`remove` on a trunk that allows all of them does what the device do
   ok(after.indexOf(2) === -1, 'VLAN 2 is not in it', String(after.indexOf(2)));
   ok([1, 3, 1001, 1006, 4094].every(function (v) { return after.indexOf(v) !== -1; }),
     'and 1, 3, 1001, 1006 and 4094 still are');
-  ok([1002, 1003, 1004, 1005].every(function (v) { return after.indexOf(v) === -1; }),
-    'the reserved media defaults are in no list at all', '1002-1005');
+  ok([1002, 1003, 1004, 1005].every(function (v) { return after.indexOf(v) !== -1; }),
+    'the four media defaults stay: a trunk always allows them', '1002-1005');
 
   const line = L.config();
-  ok(line === 'switchport trunk allowed vlan 1,3-1001,1006-4094', 'the backup prints the remainder as ranges', line);
-  ok(line.length < 50, 'which is one readable line, not 4,089 numbers', String(line.length) + ' chars');
-  ok(L.sentence() === 'switchport: trunk \u00b7 native 1 \u00b7 allowed 1,3-1001,1006-4094',
+  ok(line === 'switchport trunk allowed vlan 1,3-4094',
+    'the backup prints the remainder as ranges, straight through the media defaults', line);
+  ok(line.length < 50, 'which is one readable line, not 4,093 numbers', String(line.length) + ' chars');
+  ok(L.sentence() === 'switchport: trunk \u00b7 native 1 \u00b7 allowed 1,3-4094',
     'and `show interfaces` says the same list, in the same shape', L.sentence());
 
   // Typing the printed line back has to be a no-op, or a backup cannot restore the box it came from.
@@ -125,7 +129,7 @@ console.log('Two removals subtract one after the other, from the default list as
   const after = L.allowed();
   ok(after.indexOf(10) === -1 && after.indexOf(20) === -1, 'both VLANs are gone', 'count ' + after.length);
   ok(after.length === ASSIGNABLE.length - 2, 'and nothing else is', after.length + ' ids');
-  ok(L.config() === 'switchport trunk allowed vlan 1-9,11-19,21-1001,1006-4094',
+  ok(L.config() === 'switchport trunk allowed vlan 1-9,11-19,21-4094',
     'the line reads as three runs', L.config());
 
   L.put('switchport trunk allowed vlan remove 2');
@@ -179,7 +183,7 @@ console.log('Removing VLAN 1 is how a trunk is told to stop carrying it:');
   ok(L.allowed().indexOf(1) === -1, 'and VLAN 1 leaves the allowed list', 'index 1');
   ok(vlanLib.classifyEgress(L.port(), 1).action === 'drop', 'so VLAN 1 frames are dropped',
     vlanLib.classifyEgress(L.port(), 1).action);
-  ok(L.config() === 'switchport trunk allowed vlan 2-1001,1006-4094', 'the line starts at 2', L.config());
+  ok(L.config() === 'switchport trunk allowed vlan 2-4094', 'the line starts at 2', L.config());
 }
 
 console.log('');
@@ -192,11 +196,12 @@ console.log('A removal that would empty the trunk is still refused:');
     'naming the way back', out[0].slice(0, 120));
   ok(L.allowed() === 'all', 'and the default list is untouched', JSON.stringify(L.allowed()));
 
-  // `1-4094` spans the reserved block, which this console refuses in any explicit list; the refusal has to be
-  // about the VLAN, not about the word `remove`, which it used to say instead.
+  // `1-4094` names every id, so what is left after the subtraction is the four media defaults - a list no
+  // Ethernet port can join. The refusal is the same dead-trunk one, and it is about the VLANs, not about the
+  // word `remove`, which it used to say instead.
   const reserved = L.put('switchport trunk allowed vlan remove 1-4094');
-  ok(/reserved/.test(reserved[0]) && /1002/.test(reserved[0]),
-    'a range through the reserved block names the reserved VLAN', reserved[0].slice(0, 90));
+  ok(/no VLANs/.test(reserved[0]),
+    'a range through the whole id space leaves nothing to carry', reserved[0].slice(0, 90));
   ok(!/Unrecognized/.test(reserved[0]), 'and does not call the verb unrecognized', reserved[0].slice(0, 60));
 }
 
@@ -205,10 +210,10 @@ console.log('A switchport sentence never prints a wall of numbers:');
 {
   const cfg = { mode: 'trunk', nativeVlan: 1, allowedVlans: vlanLib.allVlansExcept([2]) };
   const text = vlanLib.switchportSentence(cfg);
-  ok(/allowed 1,3-1001,1006-4094$/.test(text), 'the sentence carries the folded list', text);
+  ok(/allowed 1,3-4094$/.test(text), 'the sentence carries the folded list', text);
   ok(text.indexOf('3,4,5') === -1, 'so no run of numbers appears in it', 'no run');
   const staged = vlanLib.switchportSentence({ mode: 'access', accessVlan: 5, allowedVlans: vlanLib.allVlansExcept([2]) });
-  ok(/allowed 1,3-1001,1006-4094/.test(staged), 'a trunk staged on an access port reads the same way', staged);
+  ok(/allowed 1,3-4094/.test(staged), 'a trunk staged on an access port reads the same way', staged);
 }
 
 console.log('\n' + passed + ' passed, ' + failed + ' failed');

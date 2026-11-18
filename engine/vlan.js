@@ -112,7 +112,17 @@ function mergeRanges(spans) {
 // as written (after de-duplication of overlap); vlans is the expanded,
 // sorted, de-duplicated membership list.
 
-function parseVlanList(spec) {
+function parseVlanList(spec, opts) {
+  // A vlan-list is read by two kinds of caller, and they disagree about the four
+  // media defaults. A port's access, native or voice VLAN cannot be 1002: the
+  // VLAN's media is Token Ring/FDDI, nothing Ethernet can join it, so naming one
+  // is an error. A trunk's *allowed* list is the other case - 1002-1005 are
+  // members of it on every box (the default list is `1-4094`, and a switch
+  // refuses to remove them), so the caller that reads an allowed list passes
+  // `keepReserved: true` and gets them back as ordinary members instead of a
+  // refusal. The default stays strict, which is what keeps the access door honest.
+  const options = (opts && typeof opts === 'object') ? opts : {};
+  const keepReserved = options.keepReserved === true;
   const out = {
     ok: false,
     vlans: [],
@@ -205,12 +215,14 @@ function parseVlanList(spec) {
     rawRanges.push([sp.lo, sp.hi]);
     for (let v = lo; v <= hi; v++) {
       if (isReservedVlan(v)) {
-        // 'all' is a shorthand, not an explicit request for the four media defaults.
-        if (!sp.all) {
+        // 'all' is a shorthand for the assignable range, never an explicit request
+        // for the four media defaults, so it skips them whatever the caller asked.
+        if (sp.all) continue;
+        if (!keepReserved) {
           fail('E_VLAN_RESERVED', 'VLAN ' + v + ' is reserved: it is one of the four FDDI and ' +
             'Token Ring defaults (' + VLAN_RESERVED_MIN + '-' + VLAN_RESERVED_MAX + ')');
+          continue;
         }
-        continue;
       }
       if (seen[v]) {
         if (!sp.all) dup[v] = true;
@@ -247,7 +259,11 @@ function isCanonicalVlanArray(list) {
     // v <= prev also rejects duplicates and any unsorted list, both of which have
     // to keep going through the parser so they normalise to one answer.
     if (typeof v !== 'number' || !Number.isInteger(v) || v <= prev) return false;
-    if (v > VLAN_MAX || isReservedVlan(v)) return false;   // v >= VLAN_MIN follows from v > prev >= 0
+    // The media defaults are not rejected here: a trunk's allowed list holds them
+    // (parseVlanList(..., { keepReserved: true })), and a canonical array is a
+    // member list, not an assignable list - the assignable question is asked by
+    // the parsers and by classifyEgress, not by this shape check.
+    if (v > VLAN_MAX) return false;                        // v >= VLAN_MIN follows from v > prev >= 0
     prev = v;
   }
   return true;
@@ -313,16 +329,18 @@ function formatVlanList(ids) {
   return out.join(',');
 }
 
-// Every assignable VLAN except the ones named - what `switchport trunk allowed vlan remove <list>` means on
-// a trunk that still allows the default "all". The four media defaults are not in the answer: they are not
-// assignable, and `parseVlanList` drops it from every list for the same reason.
+// What `switchport trunk allowed vlan remove <list>` means on a trunk that still allows the default "all":
+// every id in 1-4094 except the ones named - *including* the four media defaults, because they cannot be
+// removed from a trunk. That is why the c3550's answer to `remove 5-10,12` is `1-4,11,13-4094` and not
+// `1-4,11,13-1001,1006-4094`: the device's remainder runs through 1002-1005 as one range, and a model that
+// deleted them printed a list the box cannot produce (research/trunk-allowed-reserved-vlans.md).
 function allVlansExcept(removed) {
   const gone = Object.create(null);
   const list = Array.isArray(removed) ? removed : [];
   for (let i = 0; i < list.length; i++) gone[Number(list[i])] = true;
   const out = [];
   for (let v = VLAN_MIN; v <= VLAN_MAX; v++) {
-    if (isReservedVlan(v) || gone[v]) continue;
+    if (gone[v]) continue;
     out.push(v);
   }
   return out;
@@ -368,9 +386,9 @@ function normalizePortConfig(cfg) {
       ? []
       : (isCanonicalVlanArray(raw.allowedVlans)
         ? raw.allowedVlans.slice()
-        : parseVlanList(raw.allowedVlans).vlans.slice());
+        : parseVlanList(raw.allowedVlans, { keepReserved: true }).vlans.slice());
   } else if (typeof raw.allowedVlans === 'string') {
-    allowedVlans = parseVlanList(raw.allowedVlans).vlans.slice();
+    allowedVlans = parseVlanList(raw.allowedVlans, { keepReserved: true }).vlans.slice();
   } else {
     allowedVlans = [];
   }
@@ -617,7 +635,7 @@ function validatePortConfig(cfg, ctx) {
         (typeof raw.allowedVlans === 'string' && raw.allowedVlans.trim() === '') ||
         (Array.isArray(raw.allowedVlans) && raw.allowedVlans.length === 0);
       if (!rawEmpty) {
-        const parsed = parseVlanList(raw.allowedVlans);
+        const parsed = parseVlanList(raw.allowedVlans, { keepReserved: true });
         if (!parsed.ok) {
           listParseFailed = true;
           for (let i = 0; i < parsed.errors.length; i++) {
@@ -746,6 +764,7 @@ module.exports = {
   allVlansExcept,
   vlanListIncludes,
   normalizePortConfig,
+  isReservedVlan,
   classifyEgress,
   switchportSentence,
   classifyIngress,

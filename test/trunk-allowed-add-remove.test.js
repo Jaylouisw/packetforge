@@ -159,10 +159,10 @@ console.log('The two footguns are refused, not committed:');
   // printed as ranges rather than as a number per VLAN; see test/trunk-allowed-remove-from-all.test.js.
   const remFromAll = all.put('switchport trunk allowed vlan remove 10');
   ok(!/^%/.test(remFromAll[0]), 'removing a VLAN from "all" is accepted, as the device accepts it', remFromAll[0]);
-  ok(/removed 10/.test(remFromAll[0]) && /1-9,11-1001,1006-4094/.test(remFromAll[0]),
+  ok(/removed 10/.test(remFromAll[0]) && /1-9,11-4094/.test(remFromAll[0]),
     'and the answer is the remainder, printed as ranges', remFromAll[0]);
-  // 4,090 assignable ids (1-4094 less the four reserved media defaults), one of them taken away.
-  ok(Array.isArray(all.allowed()) && all.allowed().length === 4089 && all.allowed().indexOf(10) === -1,
+  // Every id 1-4094 (the four media defaults included, as a trunk always allows them), one of them taken away.
+  ok(Array.isArray(all.allowed()) && all.allowed().length === 4093 && all.allowed().indexOf(10) === -1,
     'the trunk now carries all but VLAN 10', Array.isArray(all.allowed()) ? all.allowed().length + ' ids' : String(all.allowed()));
 }
 

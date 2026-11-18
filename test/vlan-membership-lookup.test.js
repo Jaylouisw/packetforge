@@ -137,9 +137,12 @@ check('normalizePortConfig() does not alias a 4,089-id caller array', function (
   assert.strictEqual(input.length, 4089, 'input array was mutated through the result');
 });
 
-check('normalizePortConfig() still drops reserved and out-of-range ids', function () {
+check('normalizePortConfig() keeps a media default in an allowed list and drops out-of-range ids', function () {
+  // 1003 is a member of a trunk's allowed list on a real box (the default list is 1-4094 and a switch will
+  // not remove them), so the normaliser must not quietly drop it - see
+  // research/trunk-allowed-reserved-vlans.md. 5000 is not a VLAN id at all and still goes.
   const cfg = vlan.normalizePortConfig({ mode: 'trunk', allowedVlans: [10, 1003, 5000] });
-  assert.deepStrictEqual(cfg.allowedVlans, [10]);
+  assert.deepStrictEqual(cfg.allowedVlans, [10, 1003]);
 });
 
 // ---------------------------------------------------------------------------

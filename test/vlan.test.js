@@ -297,10 +297,20 @@ check('accessVlan 1002 is reserved', function () {
   assert.strictEqual(r.ok, false);
   assert.strictEqual(hasCode(r.errors, 'E_VLAN_RESERVED'), true);
 });
-check('reserved VLAN inside the allowed list is an error', function () {
+// The allowed list is the one vlan-list a media default may appear in: a trunk's list holds 1002-1005 on
+// every box (the default list is `1-4094` and a switch will not remove them), so naming one is not an error
+// there. On a port's access, native or voice VLAN it still is - that VLAN's media cannot carry an Ethernet
+// frame at all (research/trunk-allowed-reserved-vlans.md).
+check('a reserved VLAN inside the allowed list is accepted', function () {
   const r = vlan.validatePortConfig({ mode: 'trunk', nativeVlan: 10, allowedVlans: [10, 1003] });
-  assert.strictEqual(r.ok, false);
-  assert.strictEqual(hasCode(r.errors, 'E_VLAN_RESERVED'), true);
+  assert.strictEqual(r.ok, true);
+  assert.strictEqual(hasCode(r.errors, 'E_VLAN_RESERVED'), false);
+});
+check('and it is still refused as a port VLAN', function () {
+  assert.strictEqual(vlan.validatePortConfig({ mode: 'access', accessVlan: 1003 }).ok, false);
+  assert.strictEqual(vlan.validatePortConfig({ mode: 'trunk', nativeVlan: 1003 }).ok, false);
+  assert.strictEqual(hasCode(vlan.validatePortConfig({ mode: 'access', voiceVlan: 1003 }).errors,
+    'E_VLAN_RESERVED'), true);
 });
 check('out-of-range VLAN inside the allowed list is an error', function () {
   const r = vlan.validatePortConfig({ mode: 'trunk', nativeVlan: 10, allowedVlans: '10,5000' });

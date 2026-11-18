@@ -2827,7 +2827,11 @@ class CliSession {
         this.device.flushMacsOnPort(iface.name);
         return ['Trunk on ' + iface.name + ' allows all VLANs' + allowedNote];
       }
-      const parsed = vlanLib.parseVlanList(spec);
+      // The allowed list is read with `keepReserved`: 1002-1005 are members of every trunk's allowed list -
+      // the default list is `1-4094` and a switch will not remove them - so naming one here is not the error
+      // it is on an access port, where the VLAN's media cannot carry an Ethernet frame at all
+      // (research/trunk-allowed-reserved-vlans.md).
+      const parsed = vlanLib.parseVlanList(spec, { keepReserved: true });
       if (!parsed.ok) {
         // A word where a list belongs is a question about the command, not a VLAN token to complain about -
         // but the verb `add`/`remove` is not that word. `remove 1-4094` names a real list that the parser
@@ -2871,8 +2875,15 @@ class CliSession {
         // prints `1-4,7,11,13-4094` (research/trunk-allowed-remove-from-all.md). This console used to refuse
         // ("name the list it should allow instead") because the remainder is 4,090 ids; printed the way a
         // switch prints it that is one short line, so the refusal has no reason left to exist.
-        const next = vlanLib.allVlansExcept(parsed.vlans);
-        if (!next.length) {
+        // 1002-1005 are named but not removable, so they are not subtracted: the remainder the box prints
+        // runs through them (`1-4,7,11,13-4094`), and `remove 1-4094` leaves exactly the four defaults.
+        const allPinned = parsed.vlans.filter(function (v) { return vlanLib.isReservedVlan(v); });
+        const allGone = parsed.vlans.filter(function (v) { return !vlanLib.isReservedVlan(v); });
+        const next = vlanLib.allVlansExcept(allGone);
+        // "No VLANs left" is about the VLANs that can carry a frame: the four media defaults are in the
+        // list but no Ethernet port can join them, so a remainder of only those is the dead trunk this
+        // console refuses to build (the same refusal it gave before 1002-1005 were put back in the list).
+        if (!next.some(function (v) { return !vlanLib.isReservedVlan(v); })) {
           return ['% that would leave the trunk allowing no VLANs: name what it should carry instead ' +
             '(switchport trunk allowed vlan <list>) or restore it with "no switchport trunk allowed vlan"' +
             allowedNote];
@@ -2880,22 +2891,38 @@ class CliSession {
         iface.vlan = vlanLib.normalizePortConfig(Object.assign({}, iface.vlan, { allowedVlans: next }));
         this.device.flushMacsOnPort(iface.name);
         return ['Trunk on ' + iface.name + ' allows VLANs ' + vlanLib.formatVlanList(next) +
-          ' (removed ' + vlanLib.formatVlanList(parsed.vlans) + ')' + allowedNote];
+          ' (removed ' + vlanLib.formatVlanList(allGone) + ')' +
+          (allPinned.length ? '; ' + vlanLib.formatVlanList(allPinned) +
+            ' stay: a trunk always allows the four media defaults' : '') + allowedNote];
       }
-      const gone = parsed.vlans.filter(function (v) { return current.indexOf(v) !== -1; });
+      // The four media defaults stay: a trunk's allowed list always holds them, which is why a switch
+      // documents that they "cannot be removed" and why its remainder after a removal runs straight through
+      // them. Removing one is answered rather than performed - the alternative was a stored list the box
+      // cannot print, and every view of it would then disagree with the hardware.
+      const pinned = parsed.vlans.filter(function (v) { return vlanLib.isReservedVlan(v); });
+      const gone = parsed.vlans.filter(function (v) {
+        return !vlanLib.isReservedVlan(v) && current.indexOf(v) !== -1;
+      });
       if (!gone.length) {
+        if (pinned.length) {
+          return ['% VLANs ' + vlanLib.formatVlanList(pinned) + ' stay on every trunk: the four media defaults (' +
+            vlanLib.RESERVED_VLANS[0].id + '-' + vlanLib.RESERVED_VLANS[vlanLib.RESERVED_VLANS.length - 1].id +
+            ') are always allowed and cannot be removed' + allowedNote];
+        }
         return ['% VLANs ' + vlanLib.formatVlanList(parsed.vlans) + ' are not allowed on ' + iface.name +
           ': the list is unchanged (' + (current.length ? vlanLib.formatVlanList(current) : 'none') + ')' + allowedNote];
       }
       const next = current.filter(function (v) { return gone.indexOf(v) === -1; });
-      if (!next.length) {
+      if (!next.some(function (v) { return !vlanLib.isReservedVlan(v); })) {
         return ['% that would leave the trunk allowing no VLANs: name what it should carry instead ' +
           '(switchport trunk allowed vlan <list>) or restore it with "no switchport trunk allowed vlan"'];
       }
       iface.vlan = vlanLib.normalizePortConfig(Object.assign({}, iface.vlan, { allowedVlans: next }));
       this.device.flushMacsOnPort(iface.name);
       return ['Trunk on ' + iface.name + ' allows VLANs ' + vlanLib.formatVlanList(next) +
-        ' (removed ' + vlanLib.formatVlanList(gone) + ')' + allowedNote];
+        ' (removed ' + vlanLib.formatVlanList(gone) + ')' +
+        (pinned.length ? '; ' + vlanLib.formatVlanList(pinned) +
+          ' stay: a trunk always allows the four media defaults' : '') + allowedNote];
     }
     return ['% Unrecognized switchport command: ' + t.join(' ')];
   }
