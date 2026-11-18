@@ -88,14 +88,29 @@ jobs:
           ref="${{ github.event.pull_request.head.ref }}"
           git init -q .
           git remote add origin "$url"
+          # Every network call in this file carries its own ceiling, because this runner
+          # does not enforce `timeout-minutes`: task 14673 (run 5763, pull #1915) started at
+          # 00:07:30 and was still holding one of this host's two slots at 01:53:33 - 6363 s
+          # against a 10-minute bound - and finished `failure`, a red X on a pull request
+          # with nothing wrong with it. The two fetches below were the only calls in this
+          # step with neither a timeout nor a low-speed abort (step 2 exports these; this
+          # step did not), and git's own default is to wait forever for a peer that accepts
+          # the connection and then stops answering - the stall this host produced twice on
+          # 2026-11-18, once as 40 s of silence and once as a refused connection. The
+          # low-speed abort is the same one that unblocked the demo deploy script. Nothing
+          # about the result changes: a fetch that trips it was not going to finish, and the
+          # fail-open path below already reports that and leaves the branch untouched.
+          export GIT_TERMINAL_PROMPT=0
+          export GIT_HTTP_LOW_SPEED_LIMIT=1000
+          export GIT_HTTP_LOW_SPEED_TIME=30
           # `blob:none` is a request, not a requirement: a server that does not know the
           # filter answers with a warning and the full pack, and every command below
           # still works. Sending everything is what the action did anyway.
           fetch() {
             if [ -n "${TOKEN:-}" ]; then
-              git -c "http.extraheader=Authorization: token ${TOKEN}" fetch -q --no-tags --filter=blob:none origin "$@"
+              timeout 90 git -c "http.extraheader=Authorization: token ${TOKEN}" fetch -q --no-tags --filter=blob:none origin "$@"
             else
-              git fetch -q --no-tags --filter=blob:none origin "$@"
+              timeout 90 git fetch -q --no-tags --filter=blob:none origin "$@"
             fi
           }
           # The head by sha, and the branch name as the fallback for an instance that
@@ -270,7 +285,13 @@ jobs:
               warn "#${number}: could not check out ${head_sha}, so nothing was rebased and the branch is untouched. A runner or network problem, not a problem with the change."
               exit 0
             fi
-            if git rebase refs/remotes/origin/main; then
+            # `bounded` rather than a bare call: the clone is `blob:none`, so the replay
+            # fetches the file contents it needs from the same host, and a rebase that
+            # waits on a stalled server is a held runner slot. 180 s is the same ceiling
+            # `git push` and the `git fetch` above got.
+            rebase_rc=0
+            bounded 180 git rebase refs/remotes/origin/main || rebase_rc=$?
+            if [ "$rebase_rc" -eq 0 ]; then
               # force-with-lease against the exact head we checked out, so a push that
               # landed while this job was running is never overwritten.
               host="${server#http://}"; host="${host#https://}"
@@ -289,6 +310,13 @@ jobs:
               # A conflict is a decision about behaviour, so it is reported rather
               # than guessed at. Leave the branch exactly as the author wrote it.
               git rebase --abort || true
+              # A timeout is not a conflict, and reporting it as one would send the
+              # author looking for a clash that does not exist. 124 is `timeout`'s own
+              # status, 137 its --kill-after escalation.
+              if [ "$rebase_rc" -eq 124 ] || [ "$rebase_rc" -eq 137 ]; then
+                warn "#${number}: rebasing took longer than 180 s and was stopped, so the branch is untouched and nothing was reported as a conflict. A stalled host rather than a problem with the change."
+                exit 0
+              fi
               # The files this branch touches - the likely conflict site - rather than
               # a diff against main, which after an aborted rebase would list main's
               # own changes.
