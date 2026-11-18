@@ -330,7 +330,7 @@
       "poeOutClass": "PoE+"
     },
     {
-      "name": "Gi1/0/25",
+      "name": "Gi1/1/1",
       "type": "ethernet",
       "connector": "sfp",
       "speed": "1G",
@@ -339,7 +339,7 @@
       ]
     },
     {
-      "name": "Gi1/0/26",
+      "name": "Gi1/1/2",
       "type": "ethernet",
       "connector": "sfp",
       "speed": "1G",
@@ -348,7 +348,7 @@
       ]
     },
     {
-      "name": "Gi1/0/27",
+      "name": "Gi1/1/3",
       "type": "ethernet",
       "connector": "sfp",
       "speed": "1G",
@@ -357,7 +357,7 @@
       ]
     },
     {
-      "name": "Gi1/0/28",
+      "name": "Gi1/1/4",
       "type": "ethernet",
       "connector": "sfp",
       "speed": "1G",
@@ -384,6 +384,7 @@
     "Stacking: StackWise-80, 80 Gbps, up to 8 C9200L members and \"up to 384 access ports\" per stack, C9200L-STACK-KIT; fixed C9200L cannot stack with modular C9200 or other Catalyst switches (data sheet Table 5).",
     "Console and management: RJ-45 console (EIA/TIA-232) plus USB mini-Type B console, one 10/100/1000BASE-T RJ-45 Ethernet management port and USB Type A storage ports on the front panel (hardware installation guide, \"Management Ports\").",
     "Software: Cisco IOS XE Release 16.9.2 or later (data sheet). Fixed power supplies, fixed redundant fans, no network-module slot on C9200L.",
-    "Uplinks are 1G SFP only - the data sheet and the installation guide agree. An SFP+ module in a 1G uplink does not operate (network-module text, same guide); that restriction is for the modular C9200 slot, so on C9200L it is simply a 1G cage."
+    "Uplinks are 1G SFP only - the data sheet and the installation guide agree. An SFP+ module in a 1G uplink does not operate (network-module text, same guide); that restriction is for the modular C9200 slot, so on C9200L it is simply a 1G cage.",
+    "Uplink numbering: the fixed SFP/SFP+/SFP28 uplinks sit in module 1 and their port numbers restart at 1 - Cisco Catalyst 9200 Interface and Hardware Components Configuration Guide, \"Interface Types\": \"On a device with SFP uplink ports, the module number is 1 and the port numbers restart. For example, if the device has 24 10/100/1000 ports, the SFP module ports are GigabitEthernet1/1/1 through GigabitEthernet1/1/4 or TenGigabitEthernet1/1/1 through TenGigabitEthernet1/1/4.\" A real C9200L-24P-4G (17.3.3) agrees: `show inventory` names its SFP cages Gi1/1/1 and Gi1/1/2. They were modelled as Gi1/0/25-28 / Te1/0/25-28 / Twe1/0/25-26, continuing the downlink group; the 2960-X really does continue it, the 9200L does not."
   ]
 }
