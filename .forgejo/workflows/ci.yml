@@ -870,8 +870,31 @@ jobs:
       # still checked statically first (fast, catches everything a build would catch
       # early), and the fallback below keeps the job honest on runners that provide
       # neither a binary nor a socket.
+      # Every step in this job is now bounded, and it was the last job in the file where
+      # that was not true. `timeout-minutes: 10` above is not the bound it looks like on
+      # this runner: the container is killed from outside and the log dies with it, and
+      # the job has outlived the declared limit more than once - task 13930 (run 5531,
+      # Server smoke test) ran 714 s against 10 min, and task 14236 (run 5616, Test
+      # (Node 20)) was killed at exactly 900 s under the old 15. A step that stops on
+      # its own keeps its log and names itself; a job killed from outside leaves
+      # `dbfs open "actions_log/.../N.log.zst": file does not exist`.
+      #
+      # The numbers are the 762 successful `Docker build` tasks since 2026-11-14
+      # (/api/v1/repos/.../actions/tasks): median 25 s, p99 55 s, slowest 76 s for the
+      # whole job, CLI download and image build included. Every bound below is several
+      # times that, so a slow host cannot turn one red on time alone.
+      #
+      # What an unbounded one costs today, over the same window: the 34 failed
+      # `Docker build` tasks have a median of 768 s and a maximum of 3,297 s - task 7105
+      # (run 3320) 3,297 s, task 7112 (run 3322) 3,010 s, task 7126 (run 3337) 2,749 s,
+      # task 7138 (run 3342) 2,622 s, task 7085 (run 3310) 606 s. That is 10-55 minutes
+      # of the host per failure, none of it diagnosable, against a 25 s green job - and
+      # `arm`, the merge gate, has `needs: docker`, so a hung build also holds a slot in
+      # front of the job that merges the pull request. Bounding a step skips nothing and
+      # retries nothing: same commands, same arguments, same exit status; a step that is
+      # stopped says so and says how long it ran.
       - name: Dockerfile static checks
-        run: node scripts/check-dockerfile.js
+        run: timeout --signal=TERM --kill-after=10 60 node scripts/check-dockerfile.js
       - name: Install Docker CLI
         # This step needs one binary that can talk to the host's socket, and
         # `apt-get install docker.io` was buying a container runtime to get it:
@@ -899,22 +922,39 @@ jobs:
           if ! command -v docker >/dev/null 2>&1; then
             echo "static download unavailable - falling back to the distro package"
             export DEBIAN_FRONTEND=noninteractive
-            apt-get -o Acquire::Retries=1 -o Acquire::http::Timeout=20 update -qq
-            apt-get install -y -qq docker.io
+            # Bounded like everything else here: a distro mirror that answers slowly is
+            # a 90 s problem, not an hour-long one. `apt-get install` was the one command
+            # in this job that could wait on a mirror indefinitely.
+            timeout --signal=TERM --kill-after=10 90 apt-get -o Acquire::Retries=1 -o Acquire::http::Timeout=20 update -qq
+            timeout --signal=TERM --kill-after=15 240 apt-get install -y -qq docker.io
           fi
           command -v docker || { echo "::error title=Docker CLI::no docker binary and no fallback package - the image build below would be skipped silently"; exit 1; }
           docker --version
       - name: What the host's disk looks like before this job
         # Printed before the build as well as after it, so a growing volume reads as a trend in the
         # log rather than as a single number someone has to remember.
+        # `docker system df` talks to the host daemon over the mounted socket, so an
+        # unresponsive daemon used to hang this step before the build had even started.
         run: |
-          df -h / || true
-          docker system df 2>/dev/null || true
+          timeout --signal=TERM --kill-after=5 30 df -h / || true
+          timeout --signal=TERM --kill-after=5 30 docker system df 2>/dev/null || true
       - name: Build image (only where a docker daemon is available)
         run: |
+          # Actions runs this file as `bash -e`, so without this the first non-zero
+          # exit ends the step at that line - before `rc` is read and before the
+          # timeout is named. The exit status is still carried out of the step below.
+          set +e
           if command -v docker >/dev/null 2>&1 && docker info >/dev/null 2>&1; then
             echo "docker daemon found - building the image for real"
-            docker build -t packetforge:ci .
+            # 180 s against 10-20 s of green build inside a 76 s worst green job, and
+            # against the 606-3,297 s the failed ones took. `--kill-after` because a
+            # build blocked on the daemon can outlive SIGTERM.
+            timeout --signal=TERM --kill-after=20 180 docker build -t packetforge:ci .
+            rc=$?
+            if [ "$rc" -eq 124 ] || [ "$rc" -eq 137 ]; then
+              echo "::error title=Docker build::docker build was still running after 180 s and was stopped - a green build here takes 10-20 s, so this is a build that stopped moving, not a slow one"
+            fi
+            exit "$rc"
           else
             echo "No docker daemon in this job image (no docker binary, no docker socket)."
             echo "The Dockerfile passed the static checks above."
@@ -936,10 +976,14 @@ jobs:
             echo "No docker daemon here - nothing was written to the host, so nothing to reclaim."
             exit 0
           fi
-          docker image rm -f packetforge:ci >/dev/null 2>&1 || true
-          docker image prune -f --filter "until=24h" >/dev/null 2>&1 || true
-          docker builder prune -f --keep-storage 2GB >/dev/null 2>&1 \
-            || docker builder prune -f >/dev/null 2>&1 \
+          # Each of these talks to the host daemon, which is the thing that can be
+          # unresponsive in the first place: cleanup that hangs is worse than no
+          # cleanup, because it holds the slot the next job is queued for. Still
+          # best-effort, now bounded.
+          timeout --signal=TERM --kill-after=10 60 docker image rm -f packetforge:ci >/dev/null 2>&1 || true
+          timeout --signal=TERM --kill-after=10 60 docker image prune -f --filter "until=24h" >/dev/null 2>&1 || true
+          timeout --signal=TERM --kill-after=15 120 docker builder prune -f --keep-storage 2GB >/dev/null 2>&1 \
+            || timeout --signal=TERM --kill-after=15 120 docker builder prune -f >/dev/null 2>&1 \
             || true
           echo "--- what this job left on the host ---"
           docker system df || true
