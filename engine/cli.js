@@ -1583,17 +1583,56 @@ class CliSession {
     } else if (head === 'dns') {
       out.push.apply(out, this._dns(tokens.slice(1)));
     } else if (head === 'ip' && tokens[1] === 'name-server') {
-      const ip = tokens[2];
+      // One line carries one to six addresses, and the order typed is the order asked.
+      //
+      // The syntax is the vendor's own: `ip name-server server-address1 [server-address2 ... server-address6]`,
+      // and the DNS configuration guide states it in words - "Specifies one or more hosts (up to six) that can
+      // function as a name server", with the worked example `Device(config)# ip name-server 172.16.1.111
+      // 172.16.1.2` (Cisco IOS XE 17.x IP Addressing Configuration Guide, Configuring DNS; the command
+      // reference's parameter table says the same: "a maximum of six name servers"). An access-point guide
+      // spells the ordering rule out: "Separate each server address with a space. The first server specified
+      // is the primary server."
+      //
+      // This console read `tokens[2]` and nothing else, so `ip name-server 172.16.1.111 172.16.1.2` stored
+      // the first address, answered "Name server 172.16.1.111", and **threw the second away without a word** -
+      // a documented command form silently losing half its configuration, which is the defect class of #2004
+      // (`speed 100 full` dropping the word after the value). The list is a list: appending in typed order is
+      // what makes the box ask the primary first (`_domainServersFor()` walks `config.dnsServers` in order).
+      //
+      // Everything is checked before anything is stored, because a real console parses the whole line before
+      // it executes it: one bad address in a good line configures neither. What a live IOS prints when a line
+      // names a seventh server is not settled by any transcript in hand (research/ip-name-server-list.md), so
+      // the refusal below is this console's own sentence, not a quoted one.
+      const NAME_SERVERS_MAX = 6;
+      const typed = tokens.slice(2);
       // A missing address was reported as an invalid one - `Invalid name server "": not an IPv4 address` - so a
       // half-typed line read as a bad value rather than a short line (#1497).
-      if (!ip) {
-        out.push('% Incomplete command: ip name-server <address>');
-      } else if (!net.isIp(ip)) {
-        out.push('% Invalid name server "' + ip + '": not an IPv4 address');
+      if (!typed.length) {
+        out.push('% Incomplete command: ip name-server <address> [<address2> ... <address6>]');
       } else {
-        if (!this.device.config.dnsServers) this.device.config.dnsServers = [];
-        if (this.device.config.dnsServers.indexOf(ip) === -1) this.device.config.dnsServers.push(ip);
-        out.push('Name server ' + ip);
+        const bad = typed.filter(function (w) { return !net.isIp(w); });
+        const list = Array.isArray(this.device.config.dnsServers) ? this.device.config.dnsServers : [];
+        // An address already configured is not a second server, so typing it again cannot push the box past
+        // the limit - only genuinely new addresses count towards it.
+        const fresh = [];
+        for (const ip of typed) {
+          if (list.indexOf(ip) === -1 && fresh.indexOf(ip) === -1) fresh.push(ip);
+        }
+        if (bad.length) {
+          out.push('% Invalid name server "' + bad[0] + '": not an IPv4 address');
+        } else if (typed.length > NAME_SERVERS_MAX) {
+          out.push('% ip name-server takes at most six addresses on one line, and this line names ' +
+            typed.length + ': nothing was configured');
+        } else if (list.length + fresh.length > NAME_SERVERS_MAX) {
+          out.push('% ' + (this.device.name || 'this device') + ' already has ' + list.length +
+            ' name server' + (list.length === 1 ? '' : 's') + ': `ip name-server` takes at most six, and this ' +
+            'line would make ' + (list.length + fresh.length) + '. Nothing was configured');
+        } else {
+          this.device.config.dnsServers = list;
+          for (const ip of fresh) list.push(ip);
+          // One receipt per address named, in typed order - the same line each single address already got.
+          for (const ip of typed) out.push('Name server ' + ip);
+        }
       }
     } else if (head === 'no' && tokens[1] === 'ip' && tokens[2] === 'name-server') {
       this.device.config.dnsServers = [];

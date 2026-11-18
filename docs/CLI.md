@@ -201,7 +201,7 @@ takes back.
 | DNS zones | `dns zone <apex>` followed by `dns add <name> <type> <value>` |
 | ACLs | `access-list <id> <rule>` |
 | routing | `ip route <dest> <mask> <gateway> [iface]`, `ip default-gateway <addr>`, and `ip routing` when the box is not in its platform's default state |
-| name servers | `ip name-server <addr>` (one line each) |
+| name servers | `ip name-server <addr>` - a command line takes up to six addresses, space separated, and the printer writes one line for each |
 | SCION | `scion <isd-as>` |
 | OSPF | `ospf router-id <ip>`, `ospf area <id>`, and per interface `ip ospf cost <n>`, `ip ospf area <id>`, `ip ospf passive` |
 | BGP | `router bgp <as>`, `bgp router-id <ip>`, `neighbor <ip> remote-as <as>` |
@@ -3114,7 +3114,7 @@ Same shape as `ip route flurbish` in #1495 — the *empty string* was validated 
 
 | typed | used to answer | now |
 |---|---|---|
-| `ip name-server` | `% Invalid name server "": not an IPv4 address` | `% Incomplete command: ip name-server <address>` |
+| `ip name-server` | `% Invalid name server "": not an IPv4 address` | `% Incomplete command: ip name-server <address> [<address2> ... <address6>]` |
 | `ipv6 address` | `% Invalid IPv6 address ""` | `% Incomplete command: ipv6 address <address>/<prefix> (or `ipv6 address autoconfig`)` |
 | `vrrp 1 ip` | `% Invalid address: (none)` | `% Incomplete command: vrrp <vrid> ip <address>` |
 
