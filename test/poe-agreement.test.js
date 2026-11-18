@@ -179,6 +179,12 @@ console.log('Every case a PSE actually meets, compared port by port:');
     lab({ budget: 100, cable: [{ port: '1/1/1', pd: 'a' }, { port: '1/1/2', pd: 'pc', plain: true }] }));
   agree('a PSE port with nothing plugged in',
     lab({ budget: 100, cable: [{ port: '1/1/1', pd: 'a' }] }));
+  // Port 10 against port 2. Both copies used to sort the port NAMES, so both served 1/1/10 before 1/1/2 - they
+  // agreed with each other and disagreed with the hardware. Comparing the pair is what makes an agreement test
+  // able to catch a rule both implementations hold wrongly (research/poe-allocation-order.md).
+  agree('a tight budget spread over ports 1, 2 and 10',
+    lab({ budget: 25.9, cable: [{ port: '1/1/1', pd: 'a' }, { port: '1/1/2', pd: 'b' },
+      { port: '1/1/10', pd: 'c' }] }));
   agree('no budget configured at all (the panel says "not modelled")',
     lab({ budget: 0 }));
 }

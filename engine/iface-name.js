@@ -191,6 +191,53 @@ function resolvePortName(device, typed) {
   return alias || null;
 }
 
+// Port order: the order a box numbers, serves and prints its ports in.
+//
+// `Array.prototype.sort()` compares strings, and string order is not port order: "1/1/10" sorts
+// before "1/1/2", so a 24-port switch read "in port order" is really in order for its first nine
+// ports and the tens after them. Nothing on the hardware orders ports that way - a PSE serves
+// them by port number, `show` commands print them by port number, and the number is the last run
+// of digits in the name.
+//
+// The comparison is run by run: numeric runs compare as numbers, everything else as folded text.
+// That puts 10 after 2 while still sorting GigabitEthernet before TenGigabitEthernet, and it needs
+// no per-vendor table of what a port name looks like - "eth10", "SFP+2", "1/1/10", "Port 9" and
+// "Te1/1/1" all come out in the order the panel is silk-screened in.
+const PORT_RUNS = /[0-9]+|[^0-9]+/g;
+
+function portRuns(name) {
+  const text = (name === null || name === undefined) ? '' : String(name);
+  return text.match(PORT_RUNS) || [];
+}
+
+function comparePortNames(a, b) {
+  const ra = portRuns(a);
+  const rb = portRuns(b);
+  const n = Math.min(ra.length, rb.length);
+  for (let i = 0; i < n; i++) {
+    const x = ra[i];
+    const y = rb[i];
+    const xn = /^[0-9]+$/.test(x);
+    const yn = /^[0-9]+$/.test(y);
+    if (xn && yn) {
+      const diff = Number(x) - Number(y);
+      // Equal value, different spelling ("0/01" and "0/1") falls through to the raw comparison
+      // below, so the order is still total and the same list comes out sorted the same way twice.
+      if (diff !== 0) return diff < 0 ? -1 : 1;
+      continue;
+    }
+    if (xn !== yn) return String(a) < String(b) ? -1 : 1;   // one run is a number, one is not
+    const xl = x.toLowerCase();
+    const yl = y.toLowerCase();
+    if (xl !== yl) return xl < yl ? -1 : 1;
+  }
+  if (ra.length !== rb.length) return ra.length < rb.length ? -1 : 1;
+  const sa = String(a);
+  const sb = String(b);
+  if (sa === sb) return 0;
+  return sa < sb ? -1 : 1;
+}
+
 // Same question, but returning the INTERFACE object rather than its name.
 function resolveInterface(device, typed) {
   const name = resolvePortName(device, typed);
@@ -199,4 +246,4 @@ function resolveInterface(device, typed) {
 }
 
 module.exports = { PORT_NAME_RULES, TYPE_SPELLINGS, portKey, foldInterfaceType, expandTypePrefix,
-  resolvePortName, resolveInterface };
+  resolvePortName, resolveInterface, comparePortNames, portRuns };

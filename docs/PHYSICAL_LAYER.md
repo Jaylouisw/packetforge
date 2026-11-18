@@ -75,8 +75,10 @@ device declares the `poe-pse` capability.
 
 ### Who gets powered, and who reports it
 
-`Simulator.computePoe()` walks a device's **active** interfaces in port-name order and serves each powered
-device that asks (`poeIn` on the far end) while the budget lasts. Two consequences worth knowing:
+`Simulator.computePoe()` walks a device's **active** interfaces in **port order** - numeric order, not string
+order, so `1/1/2` is served before `1/1/10` - and serves each powered device that asks (`poeIn` on the far end)
+while the budget lasts, which is why the ports left dark are the highest-numbered ones. The budget is accounted
+in milliwatts, so a budget that exactly equals the draw of N ports funds all N. Two consequences worth knowing:
 
 * an **administratively down PSE port serves no power**. The port is still PSE hardware — the inspector counts
   it — but nothing is drawn through it;

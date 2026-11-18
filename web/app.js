@@ -2033,8 +2033,34 @@
     return switchportSentence(i && i.vlan);
   }
 
+  // Port order, the panel's copy of engine/iface-name.js `comparePortNames`: numbers compare as numbers,
+  // everything else as folded text. `sort()` on the names alone puts 1/1/10 before 1/1/2, so a 24-port PSE
+  // would be drawn powering its tens and leaving its twos dark - the engine's own allocation had that bug,
+  // and the panel is a mirror of it (research/poe-allocation-order.md).
+  const PORT_RUNS = /[0-9]+|[^0-9]+/g;
+  function comparePortNames(a, b) {
+    const ra = String(a === null || a === undefined ? '' : a).match(PORT_RUNS) || [];
+    const rb = String(b === null || b === undefined ? '' : b).match(PORT_RUNS) || [];
+    const n = Math.min(ra.length, rb.length);
+    for (let i = 0; i < n; i++) {
+      const x = ra[i], y = rb[i];
+      const xn = /^[0-9]+$/.test(x), yn = /^[0-9]+$/.test(y);
+      if (xn && yn) {
+        const diff = Number(x) - Number(y);
+        if (diff !== 0) return diff < 0 ? -1 : 1;
+        continue;
+      }
+      if (xn !== yn) return String(a) < String(b) ? -1 : 1;
+      const xl = x.toLowerCase(), yl = y.toLowerCase();
+      if (xl !== yl) return xl < yl ? -1 : 1;
+    }
+    if (ra.length !== rb.length) return ra.length < rb.length ? -1 : 1;
+    if (String(a) === String(b)) return 0;
+    return String(a) < String(b) ? -1 : 1;
+  }
+
   // Display mirror of Simulator.computePoe(): a PSE serves powered devices in
-  // port-name order until its budget runs out. ui-render.test.js asserts this
+  // port order until its budget runs out. ui-render.test.js asserts this
   // agrees with the engine, so the two cannot drift apart silently.
   function poeSummary(d) {
     // Only a port that is administratively up can power anything: `Simulator.computePoe()` walks
@@ -2045,13 +2071,15 @@
     const psePorts = d.interfaces
       .filter(function (i) { return i.poeOut && i.enabled; })
       .map(function (i) { return i.name; })
-      .sort();
+      .sort(comparePortNames);
     if (!d.poeBudget && !psePorts.length) return null;
     if (!d.poeBudget) {
       return { budget: 0, used: 0, unknown: true, ports: [], denied: 0, psePorts: psePorts.length };
     }
 
-    let remaining = d.poeBudget;
+    // Milliwatts, as the engine accounts it: five 12.95 W devices sum to 64.74999999999999 W in binary
+    // floating point, so the fifth of them was drawn as denied on a budget that exactly covers it.
+    let remaining = Math.round(d.poeBudget * 1000);
     const ports = [];
     for (const name of psePorts) {
       const link = (topo.links || []).find(function (l) {
@@ -2066,8 +2094,9 @@
       const peerIface = peer && peer.interfaces.find(function (i) { return i.name === other.iface; });
       if (!peerIface || !peerIface.poeIn) continue;      // not a powered device
       const draw = peerIface.poeIn;
-      if (remaining >= draw) {
-        remaining -= draw;
+      const need = Math.round(draw * 1000);
+      if (remaining >= need) {
+        remaining -= need;
         ports.push({ name: name, pd: peer.name, draw: draw, powered: true });
       } else {
         ports.push({ name: name, pd: peer.name, draw: draw, powered: false });
@@ -2075,7 +2104,7 @@
     }
     return {
       budget: d.poeBudget,
-      used: d.poeBudget - remaining,
+      used: (Math.round(d.poeBudget * 1000) - remaining) / 1000,
       unknown: false,
       ports: ports,
       denied: ports.filter(function (p) { return !p.powered; }).length,

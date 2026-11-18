@@ -474,7 +474,7 @@ layer exists in `engine/bgp.js` today.
 | **Modelled** | Device-level budget, read from the spec or parsed out of the model string (`"… PoE+ 370W"`). | `engine/media.js:806-812` |
 | **Modelled** | Budget is allocated before the run; a port that cannot be funded marks its peer `poeUnpowered`, and that device then neither transmits nor receives (`poe-deny` events both ways). | `engine/simulator.js:1211-1259`, `engine/simulator.js:1534-1540`, `engine/simulator.js:1783-1789` |
 | **Modelled** | Cable-time check: `E_POE_BUDGET` refuses a link that would over-subscribe the PSE; `W_POE_DRAW` warns about a powered device on a port that cannot supply power. | `engine/validation.js:668-690`, `engine/validation.js:763-777` |
-| **Approximate** | Allocation order is **alphabetical by port name**, not by LLDP power priority or by class: which device goes dark when the budget runs out is decided by `ports.sort()`. | `engine/simulator.js:1221-1226` |
+| **Modelled** | Allocation order is **port order** - numeric, not string order - so the ports left dark are the highest-numbered ones. That is the one ordering Cisco states (power is granted "in ascending order of the port numbers" and denied "in descending order of the port numbers", [research/poe-allocation-order.md](../research/poe-allocation-order.md)). Budgets are accounted in milliwatts, so a budget exactly equal to the draw of N ports funds all N. | `engine/simulator.js` `computePoe()`, `engine/iface-name.js` `comparePortNames()` |
 | **Absent** | PoE class negotiation and classification, 802.3bt Type 3/4 class levels, power priority/critical ports, per-port current limits, power budgeting over time, inrush. | — |
 
 ### 6.4 Optical budget and PON splitters

@@ -21,6 +21,7 @@ const flowLib = require('./flow');
 const latencyLib = require('./latency');
 const convergenceLib = require('./convergence');
 const dhcpLib = require('./dhcp');
+const ifaceName = require('./iface-name');
 
 // How many echoes one ping may ask for. The default is what a box sends when you type `ping <address>`, and the
 // ceiling is what keeps a single call bounded; `PING_COUNT_DEFAULT` and `PING_COUNT_MAX` are the whole rule.
@@ -2552,12 +2553,21 @@ class Simulator {
     for (const dev of this.topo.devices.values()) {
       if (!dev.poeBudget) continue;
 
-      let remaining = dev.poeBudget;
+      // Power is accounted in whole milliwatts, the unit a real budget is counted in. Watts cannot hold the
+      // fractions a device draws: five 12.95 W phones sum to 64.74999999999999 W, so a 64.75 W budget funded
+      // four of them and refused the fifth it exactly covers. What is REPORTED below stays in watts, because
+      // that is the unit `show power inline` prints and the panel shows.
+      let remaining = Math.round(dev.poeBudget * 1000);
       const ports = [];
+      // Port order, not name order: `sort()` on the names serves 1/1/10, 1/1/11, 1/1/12 before 1/1/2, which is
+      // how a 24-port PSE came to power its tens and leave its twos dark. A real box serves ports by port
+      // number - the only ordering Cisco states for power allocation and the one the comment above always
+      // claimed (research/poe-allocation-order.md). `comparePortNames` is also what keeps `show` output and
+      // this allocation in the same order.
       const names = dev.activeInterfaces()
         .filter(function (i) { return i.poeOut; })
         .map(function (i) { return i.name; })
-        .sort();
+        .sort(ifaceName.comparePortNames);
 
       for (const name of names) {
         const link = this._linkOnPort(dev.id, name);
@@ -2570,20 +2580,22 @@ class Simulator {
         if (!peerIface || !peerIface.poeIn) continue;   // not a powered device
 
         const draw = peerIface.poeIn;
-        if (remaining >= draw) {
-          remaining -= draw;
+        const need = Math.round(draw * 1000);
+        if (remaining >= need) {
+          remaining -= need;
           ports.push({ iface: name, pd: other.id, draw: draw, powered: true });
         } else {
           // One sentence, kept on the port entry as well as in the event: `show power inline` and the timeline
           // both report why a powered device got nothing, and two renderings of one reason drift (the panel
           // already had its own count of denials with no reason at all).
-          const reason = 'PSE budget exhausted: ' + draw + ' W requested, ' + remaining + ' W left';
+          const left = remaining / 1000;
+          const reason = 'PSE budget exhausted: ' + draw + ' W requested, ' + left + ' W left';
           ports.push({ iface: name, pd: other.id, draw: draw, powered: false,
-            remaining: remaining, reason: reason });
+            remaining: left, reason: reason });
           peer.poeUnpowered = true;
           this._emit({
             type: 'poe-deny', dev: dev.id, iface: name, pd: other.id,
-            draw: draw, remaining: remaining, reason: reason
+            draw: draw, remaining: left, reason: reason
           });
         }
       }
@@ -2591,7 +2603,7 @@ class Simulator {
       this.poe.push({
         dev: dev.id,
         budget: dev.poeBudget,
-        used: dev.poeBudget - remaining,
+        used: (Math.round(dev.poeBudget * 1000) - remaining) / 1000,
         ports: ports
       });
     }

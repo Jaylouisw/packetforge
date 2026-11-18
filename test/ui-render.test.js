@@ -204,5 +204,30 @@ pf.selectDevice(sw5.id);
 pf.renderDeviceTab();
 ok(!/DENIED/.test(mainWrap.innerHTML), 'with enough budget nothing is flagged');
 
+// Port 10 versus port 2: the panel and the engine have to walk the ports in the same ORDER, not merely reach
+// the same count - string order serves 1/1/10 before 1/1/2, and a mirror that does that would draw the wrong
+// port dark (research/poe-allocation-order.md).
+const t6 = new Topology();
+const sw6 = t6.addDevice(spec('aruba', 'CX 6000 24G CL4 PoE 4SFP 370W'));
+const r1 = t6.addDevice(spec('ubiquiti', 'UCG-Ultra'));
+const r2 = t6.addDevice(spec('ubiquiti', 'UCG-Ultra'));
+const r3 = t6.addDevice(spec('ubiquiti', 'UCG-Ultra'));
+sw6.name = 'SW6'; r1.name = 'R1'; r2.name = 'R2'; r3.name = 'R3';
+t6.connect(r1.id, 'port1', sw6.id, '1/1/1');
+t6.connect(r2.id, 'port1', sw6.id, '1/1/2');
+t6.connect(r3.id, 'port1', sw6.id, '1/1/10');
+sw6.poeBudget = r1.interfaces.get('port1').poeIn * 2;   // two of the three fit
+const t6s = JSON.parse(JSON.stringify(t6.serialize()));
+const enginePoe6 = new Simulator(t6).computePoe()[0];
+pf.setTopology(t6s);
+pf.selectDevice(sw6.id);
+const uiPoe6 = pf.poeSummary(t6s.devices.find(function (d) { return d.id === sw6.id; }));
+const engineDenied6 = enginePoe6.ports.filter(function (p) { return !p.powered; }).map(function (p) { return p.iface; });
+const uiDenied6 = uiPoe6.ports.filter(function (p) { return !p.powered; }).map(function (p) { return p.name; });
+ok(engineDenied6.join(',') === '1/1/10', 'the engine denies the highest-numbered port (1/1/10)', engineDenied6.join(' '));
+ok(uiDenied6.join(',') === engineDenied6.join(','),
+   'and the panel denies the same one, not 1/1/2 as string order would', uiDenied6.join(' '));
+ok(uiPoe6.used === enginePoe6.used, 'power in use still matches the engine (' + uiPoe6.used + ' W)');
+
 console.log('\n' + passed + ' passed, ' + failed + ' failed');
 process.exit(failed ? 1 : 0);
