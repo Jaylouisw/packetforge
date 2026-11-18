@@ -61,6 +61,13 @@ slots carry TMB1APIU boards. A future E6616/E6616X spec label therefore has to n
 configuration, or the slot count silently moves by two - the same class of error as quoting a frame
 figure as a port figure.
 
+**Applied 2026-11-18.** The one E6616 the catalogue already models was the exception that proved the
+rule: `devices/huawei/optixtrans-e6616.json` stated "14 service slots" with no power configuration,
+while its two siblings already said "DC chassis". Its `label`, `description` and `notes` now name the
+DC chassis (assembly TMK5K31AFB) and print the AC figures (1500 W 12, 2400 W 10), so the same
+14x B1LDCD build is not silently read as fitting an AC shelf. Port list unchanged: 56 client + 28
+line is the DC figure the entry always meant.
+
 Chassis assembly part numbers, from section 1.1: TMK5K31AFB (DC), TMK5K32AFB (DC, fiber tray),
 TMK5K33AFB (AC 1500 W), TMK5K34AFB (AC 1500 W, fiber tray), TMK5K35AFB (AC 2400 W),
 TMK5K36AFB (AC 2400 W, fiber tray).
