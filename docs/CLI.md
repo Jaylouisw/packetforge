@@ -2115,16 +2115,24 @@ bundle, mark all ten `(P)`, and hash frames across all ten — a switch that mov
 row that agreed with the configuration instead of the hardware.
 
 Now `mode on` holds eight members and refuses a ninth, LACP holds sixteen, and past the eighth the receipt says
-what the box would do:
+what the box would do — on a negotiating bundle, where the ninth waits:
 
 ```
 sw1(config-if)#channel-group 1 mode active
 Interface Gi1/0/9 added to channel group 1 (mode active)
   Gi1/0/9 is hot-standby: the bundle already has 8 active links, and this one takes over if an active link fails
+```
 
+and on a group already holding eight `mode on` members, which has nowhere to park a ninth:
+
+```
 sw1(config-if)#channel-group 1 mode on
 % Gi1/0/9 not added: channel group 1 already holds 8 members, and a static (`mode on`) bundle carries at most 8 links. Nothing was changed.
 ```
+
+The mode belongs to the group, not to the member: typed on a port that is already in that group, the line
+re-modes every member (`Channel group 1 mode changed from active to on for every member: Gi1/0/1, Gi1/0/2,
+… Gi1/0/8`) rather than refusing the port, because the cap is checked when a port joins.
 
 The table prints the letters the key above it has always printed:
 
