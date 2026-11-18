@@ -1302,12 +1302,20 @@ whether a single address had been handed out.
 
 ```
 r1> show ip dhcp binding
+Bindings from all pools not associated with VRF:
 IP address      Client identifier / MAC          Pool              Expires in
 192.168.10.100  02:00:00:00:01:00                lan               3540s (0:59:00)
 192.168.10.105  02:00:00:00:00:0a (reserved)     lan               3595s (0:59:55)
 
 2 active binding(s); the lease clock runs from the instant the lease was granted
 ```
+
+The title line is the box's, and it is printed above the table whether or not a row follows it — it names which
+pools the rows came from, and a box writes `Remembered bindings from all pools not associated with VRF:` when
+the criterion is the remembered table instead
+([research/show-ip-dhcp-binding-title.md](../research/show-ip-dhcp-binding-title.md)). The columns under it are
+this console's own: a real box prints a three-deep `Client-ID/ Hardware address/ User name` header, an absolute
+`Lease expiration` and a `Type`, where this table keeps the pool attribution and a countdown.
 
 `Expires in` is the lease time counted from the instant it was granted, not from the last time you looked. The
 `(reserved)` marker means the address is the one that MAC is pinned to, so it will get it back after any lapse.

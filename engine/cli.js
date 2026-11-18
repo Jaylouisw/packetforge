@@ -4139,6 +4139,13 @@ class CliSession {
         rows = matched;
       }
       const failed = this._dhcpFailures().asServer;
+      // The title is the box's own line, and it is printed whether or not a row follows it. Every IOS capture
+      // of this view opens with it, and the On-Demand Address Pool guide prints it above an empty table -
+      // "There are no bindings shown under the Bindings from all pools not associated with VRF field because the
+      // Global pool has not allocated any addresses" - so the heading is not contingent on a row. The sentence
+      // is literally true here: this model has no VRF, so every pool it holds is a pool not associated with one.
+      // Evidence, and the two shapes of the header line that follow it, in research/show-ip-dhcp-binding-title.md.
+      out.push('Bindings from all pools not associated with VRF:');
       out.push(pad('IP address', 16) + pad('Client identifier / MAC', 30) + pad('Pool', 18) + 'Expires in');
       if (!rows.length) {
         // "nothing has asked" is only true when nothing asked. A request that was answered with silence is a

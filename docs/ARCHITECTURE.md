@@ -1120,6 +1120,7 @@ A pool of two addresses, three clients asking:
 
 ```
 r1> show ip dhcp binding
+Bindings from all pools not associated with VRF:
 IP address      Client identifier / MAC       Pool              Expires in
 10.20.0.10      02:00:00:00:02:00             LAN               -
 10.20.0.11      02:00:00:00:03:00             LAN               -
