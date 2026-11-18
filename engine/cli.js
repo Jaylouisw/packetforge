@@ -5017,6 +5017,50 @@ class CliSession {
     return text;
   }
 
+  // Where each member of one bundle stands, in one place: `show etherchannel summary` prints its letters from
+  // this and `show ip interface brief` asks it whether the bundle itself is up. Two copies of the rule would let
+  // the summary call a bundle `(P)` while the interface table called the same bundle `down`.
+  //
+  // Bundled (P) or down (D) is a statement about the link, not just about spanning tree: a member whose cable is
+  // out used to read (P), i.e. "this port is carrying traffic", while it was dropping everything hashed to it
+  // (#1263). A member whose two ends never negotiated is not a member - but it is not a dead port either: the
+  // hardware puts it into an independent state and it goes on carrying traffic as an ordinary single link
+  // (Cisco, Configuring EtherChannels). That is a third state, so the summary gives it `(I)` stand-alone - the
+  // state the 2960 and 3750 chapters call "independent" - rather than `(D)` down, which would claim the cable is
+  // out when it is not, or `(s)` suspended, which the key reserves for a port that is *not* carrying
+  // (research/lacp-one-sided-group.md).
+  _lagMemberStates(dev, l) {
+    const lagLib = require('./lag');
+    const raw = Array.isArray(l && l.members) ? l.members : [];
+    const why = {};
+    const suspended = {};
+    const canCarry = (function (self, reasons, held) {
+      return function (name) {
+        const iface = dev.interfaces.get(name);
+        if (!iface) { reasons[name] = '(no such port)'; return false; }
+        if (dev.stp && dev.stp.blocked && dev.stp.blocked.has(name)) {
+          reasons[name] = '(STP blocking)';
+          return false;
+        }
+        // The same sentence `show interfaces` and `show arp` use for the same fact.
+        const note = self._staleNote(iface);
+        if (note) { reasons[name] = note; return false; }
+        // Negotiation is asked last, of a port that could otherwise carry: a stand-alone port still forwards, so
+        // "this end never negotiated" must not hide "the cable is out".
+        const heldMember = lagLib.memberSuspension(dev, name, self.topo);
+        if (heldMember) { held[name] = heldMember; reasons[name] = '(stand-alone: ' + heldMember.why + ')'; return false; }
+        return true;
+      };
+    })(this, why, suspended);
+    const live = lagLib.eligibleMembers(raw, canCarry);
+    // A member that can carry but finds the channel already holding eight links is not down - it is the port the
+    // key above the table calls `(H)` hot-standby, the letter this console printed in its key and could not print
+    // in a row (research/etherchannel-member-limit.md). A static (`mode on`) group has no hot-standby in the key's
+    // sense, so a ninth member that reached a saved topology is shown `(s)` suspended: up, and not in the channel.
+    const standby = lagLib.standbyMembers(raw, canCarry);
+    return { raw: raw, why: why, suspended: suspended, live: live, standby: standby };
+  }
+
   // "3 drops (no route to 10.0.0.99 x2, link down x1)" - one phrasing, in engine/simulator.js `dropsSentence()`,
   // because a ping now says the same thing about the same fact and two copies drift (#1417, #1485).
   _dropSummary(drops, limit) {
@@ -5519,6 +5563,23 @@ class CliSession {
         // pad() chain put every row a column off because the header and the rows were counted separately (#1521).
         out.push(briefLine([i.name, ip, 'YES', briefMethod(i), link.status, link.protocol]));
       }
+      // An EtherChannel is an interface, and a box lists it here beside the ports that make it up: every
+      // published capture of this table taken on a switch with a bundle carries the row
+      // `Port-channel1  unassigned  YES unset  up    up`, and one where no member joined the bundle reads
+      // `down  down` (research/port-channel-in-interface-brief.md). This table listed only the member ports, so
+      // the interface an operator addresses - and the one they ping - appeared in no view they open first.
+      //
+      // The name is the long form here, not the `Po1` the MAC table and `show etherchannel summary` print: a box
+      // shortens the type word inside a table cell and spells it out where the name is the subject of the row.
+      // `unassigned`/`unset` because this model builds no Layer 3 bundle, and `up` only when a member is really
+      // in the bundle - the same predicate the summary's `(SU)`/`(SD)` flags and `(P)` letters come from, so the
+      // two views cannot call one bundle by two states.
+      const lagCfg = (dev.config && dev.config.lags) || {};
+      for (const id of Object.keys(lagCfg).sort(function (a, b) { return Number(a) - Number(b); })) {
+        const live = this._lagMemberStates(dev, lagCfg[id]).live;
+        const state = live.length ? 'up' : 'down';
+        out.push(briefLine([require('./lag').portChannelIfaceName(id), 'unassigned', 'YES', 'unset', state, state]));
+      }
     } else if (what === 'ip' && tokens[1] === 'route') {
       // There is no `show ip route <prefix>` here, and the command used to answer as though there were: it printed
       // the whole table, so a prefix that is *not* installed came back looking installed (#1403).
@@ -5996,43 +6057,14 @@ class CliSession {
         out.push(ETHERCHANNEL_RULE);
         for (const id of ids) {
           const l = lags[id] || {};
-          const raw = Array.isArray(l.members) ? l.members : [];
-          // Bundled (P) or down (D) is a statement about the link, not just about spanning tree: a member
-          // whose cable is out used to read (P), i.e. "this port is carrying traffic", while it was
-          // dropping everything hashed to it (#1263).
-          const why = {};
-          // A member whose two ends never negotiated is not a member - but it is not a dead port either: the
-          // hardware puts it into an independent state and it goes on carrying traffic as an ordinary single
-          // link (Cisco, Configuring EtherChannels). That is a third state, so it gets the flag the key above
-          // the table gives it, `(I)` stand-alone - the state the 2960 and 3750 chapters call "independent" -
-          // rather than `(D)` down, which would claim the cable is out when it is not, or `(s)` suspended,
-          // which the same key reserves for a port that is *not* carrying (research/lacp-one-sided-group.md).
-          const suspended = {};
-          const canCarry = (function (self, reasons, held) {
-            return function (name) {
-              const iface = dev.interfaces.get(name);
-              if (!iface) { reasons[name] = '(no such port)'; return false; }
-              if (dev.stp && dev.stp.blocked && dev.stp.blocked.has(name)) {
-                reasons[name] = '(STP blocking)';
-                return false;
-              }
-              // The same sentence `show interfaces` and `show arp` use for the same fact.
-              const note = self._staleNote(iface);
-              if (note) { reasons[name] = note; return false; }
-              // Negotiation is asked last, of a port that could otherwise carry: a stand-alone port still
-              // forwards, so "this end never negotiated" must not hide "the cable is out".
-              const heldMember = lagLib.memberSuspension(dev, name, self.topo);
-              if (heldMember) { held[name] = heldMember; reasons[name] = '(stand-alone: ' + heldMember.why + ')'; return false; }
-              return true;
-            };
-          })(this, why, suspended);
-          const live = lagLib.eligibleMembers(raw, canCarry);
-          // A member that can carry but finds the channel already holding eight links is not down - it is the
-          // port the key above the table calls `(H)` hot-standby, the letter this console printed in its key
-          // and could not print in a row (research/etherchannel-member-limit.md). A static (`mode on`) group
-          // has no hot-standby in the key's sense, so a ninth member that reached a saved topology is shown
-          // `(s)` suspended: up, and not in the channel.
-          const standby = lagLib.standbyMembers(raw, canCarry);
+          // Where each member stands comes from one rule, shared with the bundle's own row in
+          // `show ip interface brief`: a bundle is up when at least one member is really in it.
+          const members = this._lagMemberStates(dev, l);
+          const raw = members.raw;
+          const why = members.why;
+          const suspended = members.suspended;
+          const live = members.live;
+          const standby = members.standby;
           const isLacp = lagLib.cliMode(l.mode) !== 'on';
           const shown = raw.map(function (m) {
             if (suspended[m]) return m + '(I)';

@@ -59,6 +59,13 @@ function portChannelName(id) {
   return 'Po' + id;
 }
 
+// The same bundle spelled out, for the views where the interface name is the subject of the row rather than a
+// cell in a table - `show ip interface brief` prints `Port-channel1` where the MAC table prints `Po1`. Both name
+// one object, and one library names it, so the long and the short form cannot disagree about which bundle it is.
+function portChannelIfaceName(id) {
+  return 'Port-channel' + id;
+}
+
 const HASH_POLICIES = ['l2', 'l3', 'l3l4'];
 
 const DEFAULT_LAG_ID = 'lag1';
@@ -493,6 +500,7 @@ module.exports = {
   canonicalMode,
   cliMode,
   portChannelName,
+  portChannelIfaceName,
   HASH_POLICIES,
   normalizeLag,
   hashFrame,

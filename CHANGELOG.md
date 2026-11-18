@@ -12,6 +12,20 @@
   vendor's own pages wrap the sentence across two lines; the PDF's Courier text layer keeps both. The string,
   its placement and the "once per entry" rule are pinned by `test/config-mode-greeting.test.js`, and the pages
   that disagree are in [research/config-mode-greeting.md](research/config-mode-greeting.md).
+- **`show ip interface brief` lists the EtherChannel, not only its members.** An EtherChannel is an interface,
+  and a box prints its row beside the ports that make it up: `Port-channel2 unassigned YES unset up up` on a
+  3850, `Port-channel1 ... down down` on an FTD whose members were suspended, and a 3750X table that ends
+  `Port-channel1 ... up up` / `Port-channel20 ... down down` after `Te1/1/2`. This console's table listed
+  twenty-eight ports and no bundle, because `lagFor()` maps each member to an id and nothing in the model was an
+  interface object for the port-channel - so the interface an operator addresses, and pings, appeared in no view
+  they open first. The bundle now has a row after the physical ports, in bundle-number order: `Port-channel<n>`,
+  `unassigned  YES unset` (this model builds no Layer 3 bundle), and `up  up` only when at least one member is
+  really in the bundle - a bundle whose members are all stand-alone reads `down down` while each member reads
+  `up up`, which is the same predicate `show etherchannel summary` prints as `Po1(SD)` with `(I)` members. The
+  name is spelled out here and stays `Po1` in the summary and the MAC table, as a box spells it in each; both
+  come from `engine/lag.js`. The captures, the row order one 9300-class table contradicts, and the port-channel
+  views that still cannot name the bundle (`show interfaces Port-channel1`) are in
+  [research/port-channel-in-interface-brief.md](research/port-channel-in-interface-brief.md).
 - **A bundle carries eight links, and a LACP group's surplus waits as hot-standby.** One EtherChannel "can
   consist of up to eight compatibly configured Ethernet ports", and "for a LACP EtherChannel, you can configure
   up to 16 Ethernet ports ... Up to eight ports can be active, and up to eight ports can be in standby mode"

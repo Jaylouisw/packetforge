@@ -22,7 +22,7 @@ Modes and their prompts:
 | `enable` | enter enable mode |
 | `configure terminal` | enter config mode, answering with the box's one-line greeting; abbreviable word by word, down to what is still unique - `config t` is accepted, `con` is refused as ambiguous (`configure` / `converge`), and a bare `configure` is `% Incomplete command` |
 | `show version` | vendor, model, category, capabilities |
-| `show ip interface brief` | interface IP / status table (status = whether the port can carry a frame) |
+| `show ip interface brief` | interface IP / status table (status = whether the port can carry a frame), one row per port and one per EtherChannel bundle (`Port-channel1`, `unassigned YES unset`, `up` only when a member is in it) |
 | `show ip route` | routing table: connected, static, OSPF, BGP, and the default - or `Gateway of last resort is not set` when there is none; a box that does not route prints `Default gateway is ...` over the host/redirect cache instead |
 | `show arp` | ARP cache: the neighbours it has heard, with an age and the port each was heard on and whether that port can still carry a frame, plus a local row (age `-`) for every interface holding an IPv4 address |
 | `show mac address-table` | MAC table (switches), per VLAN, with an age per entry and stale entries marked, titled and ruled as the device prints it and closed by `Total Mac Addresses for this criterion: N`; an address learned through a bundle is named on the port-channel (`Po1`), as the device names it (`research/mac-table-port-channel-name.md`) |
@@ -759,6 +759,23 @@ kept before a lease arrives because asking is a method — a client that has not
 `unassigned YES DHCP` on hardware. `NVRAM` — the spelling a real IOS uses for an address it read back from
 the saved configuration — is not distinct here: this model keeps one configuration, so a static address reads
 `manual` whether or not the board has been saved.
+
+**An EtherChannel is an interface, and it has a row.** A bundle's members are listed as their own ports, and
+the bundle itself is listed too — after them, in bundle-number order — as `Port-channel1` with
+`unassigned  YES unset`, and `up up` only when at least one member is really in the bundle:
+
+```
+Port-channel1          unassigned      YES unset  up                    up
+Port-channel20         unassigned      YES unset  down                  down
+```
+
+The name is spelled out **here** and shortened to `Po1` in `show etherchannel summary` and the MAC table's
+`Ports` column, which is what a box does: a table cell abbreviates the type word, a row whose subject *is* the
+interface does not (`Port-channel4 ... up up` beside `4 Po4(SU) LACP Gi4/31(P)` in one capture; both names come
+from `engine/lag.js`, so they cannot disagree about which bundle they mean). The state is the bundle's own: a
+bundle no member joined is `down down` even while each member is `up up`, carrying traffic as a single link —
+`show etherchannel summary` shows that as `Po1(SD)` with the members `(I)`, and both views read the same
+predicate. `research/port-channel-in-interface-brief.md` carries the captures and what is still open.
 
 The header is padded from the same widths as the rows, so a heading cannot sit one column to the right of the
 values beneath it — `Method` above `manual`, `Status` above `down`.
