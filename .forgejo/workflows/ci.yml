@@ -134,15 +134,47 @@ jobs:
           # 12980 (run 5238, pull #1851) reported "Failing after 13m48s", task 10860 (run
           # 4596) 12m45s, task 2694 (run 1342) 27,702 s - and for every second of each,
           # all five jobs of that pull request read "Blocked by required conditions".
-          # So the bound lives in the step: 120 s of wall clock, plus a git abort after
-          # 30 s below 1 kB/s - the same pair that fixed the stuck fetch in the demo
-          # deploy script. A stalled server costs two minutes, not an afternoon.
+          # So the bound lives in the step: 90 s of wall clock per attempt, at most two
+          # attempts, plus a git abort after 30 s below 1 kB/s - the abort that fixed the
+          # stuck fetch in the demo deploy script. A stalled server costs three minutes,
+          # not an afternoon.
+          # One commit, two attempts. The fetch is the only step in this job that talks to a
+          # network, and the network answers this runner with aborts that say nothing about
+          # the commit: task 13960 (run 5540, Test (Node 22), push 52cff888) died 34 s in
+          # with `Operation too slow. Less than 1000 bytes/sec transferred the last 30
+          # seconds` while its Node 18 and Node 20 siblings ran the same commit green in
+          # 54 s and 53 s, and the smoke and Docker jobs of that run went on to pass - a
+          # red X on a tree with nothing wrong with it, and a pull request that cannot
+          # merge until somebody re-runs it by hand. That is the one failure a retry is
+          # honest for: a second attempt asks the same server for the same commit, and if
+          # every attempt fails the job still fails, with the same status and the same
+          # message. Nothing is hidden - a commit that does not exist, a token that is not
+          # accepted and a repository that is gone all fail every attempt.
+          # Two, not three: this job is on the critical path of every run, and its failure
+          # is already safe - it publishes `code=true` and the whole matrix runs. 2 x 90 s
+          # plus 5 s of backoff is a 185 s ceiling against the 120 s a single attempt used
+          # to get, and 90 s is 25x the 3.5 s checkout measured here.
           ok=no
-          if [ -n "${TOKEN:-}" ]; then
-            timeout 120 git -c "http.extraheader=Authorization: token ${TOKEN}" -c http.lowSpeedLimit=1000 -c http.lowSpeedTime=30 fetch -q --depth=1 origin "$sha" && ok=yes || ok=no
-          else
-            timeout 120 git -c http.lowSpeedLimit=1000 -c http.lowSpeedTime=30 fetch -q --depth=1 origin "$sha" && ok=yes || ok=no
-          fi
+          attempt=1
+          while [ "$attempt" -le 2 ]; do
+            rc=1
+            if [ -n "${TOKEN:-}" ]; then
+              timeout 90 git -c "http.extraheader=Authorization: token ${TOKEN}" -c http.lowSpeedLimit=1000 -c http.lowSpeedTime=30 fetch -q --depth=1 origin "$sha" && rc=0 || rc=$?
+            else
+              timeout 90 git -c http.lowSpeedLimit=1000 -c http.lowSpeedTime=30 fetch -q --depth=1 origin "$sha" && rc=0 || rc=$?
+            fi
+            if [ "$rc" -eq 0 ]; then
+              ok=yes
+              break
+            fi
+            if [ "$attempt" -lt 2 ]; then
+              echo "fetch of ${sha} failed on attempt ${attempt} of 2 (rc ${rc}) - retrying in 5 s; a transport abort is not a verdict about the commit"
+              sleep 5
+              attempt=$((attempt + 1))
+            else
+              break
+            fi
+          done
           if [ "$ok" != "yes" ]; then
             # No tree means no diff, and a diff nobody can read has exactly one honest
             # answer - the one `classify-change.js` already prints for a base it cannot
@@ -152,7 +184,7 @@ jobs:
             # smoke and Docker jobs, is never written without a diff, and `live` is
             # untouched - the five jobs then run exactly as they do on a code change.
             : > "${RUNNER_TEMP:-/tmp}/classify-fetch-failed"
-            echo "::warning title=Classify the change::${sha} could not be fetched (bounded at 120 s) - running the full matrix instead of blocking the pull request"
+            echo "::warning title=Classify the change::${sha} could not be fetched (two attempts of 90 s) - running the full matrix instead of blocking the pull request"
           else
             git checkout -q -f --detach FETCH_HEAD
             # The action emptied the directory before it checked out; this is the same
@@ -312,10 +344,45 @@ jobs:
           sha="${{ github.sha }}"
           git init -q .
           git remote add origin "$url"
-          if [ -n "${TOKEN:-}" ]; then
-            timeout 300 git -c "http.extraheader=Authorization: token ${TOKEN}" -c http.lowSpeedLimit=1000 -c http.lowSpeedTime=30 fetch -q --depth=1 origin "$sha"
-          else
-            timeout 300 git -c http.lowSpeedLimit=1000 -c http.lowSpeedTime=30 fetch -q --depth=1 origin "$sha"
+          # One commit, three attempts. The fetch is the only step in this job that talks to a
+          # network, and the network answers this runner with aborts that say nothing about
+          # the commit: task 13960 (run 5540, Test (Node 22), push 52cff888) died 34 s in
+          # with `Operation too slow. Less than 1000 bytes/sec transferred the last 30
+          # seconds` while its Node 18 and Node 20 siblings ran the same commit green in
+          # 54 s and 53 s, and the smoke and Docker jobs of that run went on to pass - a
+          # red X on a tree with nothing wrong with it, and a pull request that cannot
+          # merge until somebody re-runs it by hand. That is the one failure a retry is
+          # honest for: a second attempt asks the same server for the same commit, and if
+          # every attempt fails the job still fails, with the same status and the same
+          # message. Nothing is hidden - a commit that does not exist, a token that is not
+          # accepted and a repository that is gone all fail every attempt.
+          # Three, not more: 3 x 90 s plus 10 s of backoff is a 280 s ceiling, which is
+          # below the 300 s a single attempt used to get, so a dead server costs this job
+          # less than it did before while a blip no longer costs a whole run. 90 s is also
+          # 25x the 3.5 s checkout measured here (run 5719, task 14549), so a slow but
+          # working server still passes.
+          attempt=1
+          rc=1
+          while [ "$attempt" -le 3 ]; do
+            if [ -n "${TOKEN:-}" ]; then
+              timeout 90 git -c "http.extraheader=Authorization: token ${TOKEN}" -c http.lowSpeedLimit=1000 -c http.lowSpeedTime=30 fetch -q --depth=1 origin "$sha" && rc=0 || rc=$?
+            else
+              timeout 90 git -c http.lowSpeedLimit=1000 -c http.lowSpeedTime=30 fetch -q --depth=1 origin "$sha" && rc=0 || rc=$?
+            fi
+            if [ "$rc" -eq 0 ]; then
+              break
+            fi
+            if [ "$attempt" -lt 3 ]; then
+              echo "fetch of ${sha} failed on attempt ${attempt} of 3 (rc ${rc}) - retrying in 5 s; a transport abort is not a verdict about the commit"
+              sleep 5
+              attempt=$((attempt + 1))
+            else
+              break
+            fi
+          done
+          if [ "$rc" -ne 0 ]; then
+            echo "::error title=Checkout::${sha} could not be fetched after ${attempt} attempt(s) (rc ${rc}) - no tree means nothing in this job could be tested, so it fails rather than passing on an empty directory"
+            exit "$rc"
           fi
           git checkout -q -f --detach FETCH_HEAD
           # The action emptied the directory before it checked out; this is the same
@@ -623,10 +690,45 @@ jobs:
           sha="${{ github.sha }}"
           git init -q .
           git remote add origin "$url"
-          if [ -n "${TOKEN:-}" ]; then
-            timeout 300 git -c "http.extraheader=Authorization: token ${TOKEN}" -c http.lowSpeedLimit=1000 -c http.lowSpeedTime=30 fetch -q --depth=1 origin "$sha"
-          else
-            timeout 300 git -c http.lowSpeedLimit=1000 -c http.lowSpeedTime=30 fetch -q --depth=1 origin "$sha"
+          # One commit, three attempts. The fetch is the only step in this job that talks to a
+          # network, and the network answers this runner with aborts that say nothing about
+          # the commit: task 13960 (run 5540, Test (Node 22), push 52cff888) died 34 s in
+          # with `Operation too slow. Less than 1000 bytes/sec transferred the last 30
+          # seconds` while its Node 18 and Node 20 siblings ran the same commit green in
+          # 54 s and 53 s, and the smoke and Docker jobs of that run went on to pass - a
+          # red X on a tree with nothing wrong with it, and a pull request that cannot
+          # merge until somebody re-runs it by hand. That is the one failure a retry is
+          # honest for: a second attempt asks the same server for the same commit, and if
+          # every attempt fails the job still fails, with the same status and the same
+          # message. Nothing is hidden - a commit that does not exist, a token that is not
+          # accepted and a repository that is gone all fail every attempt.
+          # Three, not more: 3 x 90 s plus 10 s of backoff is a 280 s ceiling, which is
+          # below the 300 s a single attempt used to get, so a dead server costs this job
+          # less than it did before while a blip no longer costs a whole run. 90 s is also
+          # 25x the 3.5 s checkout measured here (run 5719, task 14549), so a slow but
+          # working server still passes.
+          attempt=1
+          rc=1
+          while [ "$attempt" -le 3 ]; do
+            if [ -n "${TOKEN:-}" ]; then
+              timeout 90 git -c "http.extraheader=Authorization: token ${TOKEN}" -c http.lowSpeedLimit=1000 -c http.lowSpeedTime=30 fetch -q --depth=1 origin "$sha" && rc=0 || rc=$?
+            else
+              timeout 90 git -c http.lowSpeedLimit=1000 -c http.lowSpeedTime=30 fetch -q --depth=1 origin "$sha" && rc=0 || rc=$?
+            fi
+            if [ "$rc" -eq 0 ]; then
+              break
+            fi
+            if [ "$attempt" -lt 3 ]; then
+              echo "fetch of ${sha} failed on attempt ${attempt} of 3 (rc ${rc}) - retrying in 5 s; a transport abort is not a verdict about the commit"
+              sleep 5
+              attempt=$((attempt + 1))
+            else
+              break
+            fi
+          done
+          if [ "$rc" -ne 0 ]; then
+            echo "::error title=Checkout::${sha} could not be fetched after ${attempt} attempt(s) (rc ${rc}) - no tree means nothing in this job could be tested, so it fails rather than passing on an empty directory"
+            exit "$rc"
           fi
           git checkout -q -f --detach FETCH_HEAD
           # The action emptied the directory before it checked out; this is the same
@@ -716,10 +818,45 @@ jobs:
           sha="${{ github.sha }}"
           git init -q .
           git remote add origin "$url"
-          if [ -n "${TOKEN:-}" ]; then
-            timeout 300 git -c "http.extraheader=Authorization: token ${TOKEN}" -c http.lowSpeedLimit=1000 -c http.lowSpeedTime=30 fetch -q --depth=1 origin "$sha"
-          else
-            timeout 300 git -c http.lowSpeedLimit=1000 -c http.lowSpeedTime=30 fetch -q --depth=1 origin "$sha"
+          # One commit, three attempts. The fetch is the only step in this job that talks to a
+          # network, and the network answers this runner with aborts that say nothing about
+          # the commit: task 13960 (run 5540, Test (Node 22), push 52cff888) died 34 s in
+          # with `Operation too slow. Less than 1000 bytes/sec transferred the last 30
+          # seconds` while its Node 18 and Node 20 siblings ran the same commit green in
+          # 54 s and 53 s, and the smoke and Docker jobs of that run went on to pass - a
+          # red X on a tree with nothing wrong with it, and a pull request that cannot
+          # merge until somebody re-runs it by hand. That is the one failure a retry is
+          # honest for: a second attempt asks the same server for the same commit, and if
+          # every attempt fails the job still fails, with the same status and the same
+          # message. Nothing is hidden - a commit that does not exist, a token that is not
+          # accepted and a repository that is gone all fail every attempt.
+          # Three, not more: 3 x 90 s plus 10 s of backoff is a 280 s ceiling, which is
+          # below the 300 s a single attempt used to get, so a dead server costs this job
+          # less than it did before while a blip no longer costs a whole run. 90 s is also
+          # 25x the 3.5 s checkout measured here (run 5719, task 14549), so a slow but
+          # working server still passes.
+          attempt=1
+          rc=1
+          while [ "$attempt" -le 3 ]; do
+            if [ -n "${TOKEN:-}" ]; then
+              timeout 90 git -c "http.extraheader=Authorization: token ${TOKEN}" -c http.lowSpeedLimit=1000 -c http.lowSpeedTime=30 fetch -q --depth=1 origin "$sha" && rc=0 || rc=$?
+            else
+              timeout 90 git -c http.lowSpeedLimit=1000 -c http.lowSpeedTime=30 fetch -q --depth=1 origin "$sha" && rc=0 || rc=$?
+            fi
+            if [ "$rc" -eq 0 ]; then
+              break
+            fi
+            if [ "$attempt" -lt 3 ]; then
+              echo "fetch of ${sha} failed on attempt ${attempt} of 3 (rc ${rc}) - retrying in 5 s; a transport abort is not a verdict about the commit"
+              sleep 5
+              attempt=$((attempt + 1))
+            else
+              break
+            fi
+          done
+          if [ "$rc" -ne 0 ]; then
+            echo "::error title=Checkout::${sha} could not be fetched after ${attempt} attempt(s) (rc ${rc}) - no tree means nothing in this job could be tested, so it fails rather than passing on an empty directory"
+            exit "$rc"
           fi
           git checkout -q -f --detach FETCH_HEAD
           # The action emptied the directory before it checked out; this is the same
