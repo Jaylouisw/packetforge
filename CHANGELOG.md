@@ -2,6 +2,8 @@
 
 ### Fixed
 
+- **`show arp` prints the box's own addresses.** Cisco's field list for the command says the hyphen in `Age (min)`
+  "means the address is local", and a router and a switch transcript each show the row - `Internet 10.2.2.1 - ... ARPA GigabitEthernet0/0/2` on an ASR1000, `Internet 192.168.2.1 - ... ARPA Vlan1` on a 2960-CX. The table held only what the device had heard, so the address configured on the box was absent from the box's own cache. There is now one local row per interface holding an IPv4 address: the port's MAC in `Hardware Addr`, its name in `Interface`, and `-` in `Age (min)`; it is not aged and not a neighbour. End hosts get no such row, because their cache holds their neighbours rather than themselves. The sources and the open cases are in [research/show-arp-local-address.md](research/show-arp-local-address.md).
 - **A channel group configured at one end only forms no bundle, and its member is stand-alone.** LACP is a
   conversation, and a port that never configured a channel group never sends or answers an LACPDU, so
   `channel-group 1 mode active` against a plain access port has nothing to negotiate with. `memberSuspension()`

@@ -5942,6 +5942,28 @@ class CliSession {
         // engine's own values, so the table cannot disagree with the engine about who holds the address.
         rows.push([ip, net.formatMac(mac), age, note]);
       }
+      // The box's own addresses are entries in this table too, and the vendor's field list says so where a reader
+      // would look for it: Age (min) is "Age, in minutes, of the cache entry; a hyphen (-) means the address is
+      // local". A router prints one row per interface that holds an IPv4 address, with the interface's own MAC and
+      // its name in the Interface column - a Cisco TAC ARP FAQ shows `Internet 10.2.2.1 - 30e4.dbb7.7e02 ARPA
+      // GigabitEthernet0/0/2` above the neighbour the article is about, and a Catalyst 2960-CX transcript shows
+      // `Internet 192.168.2.1 - d42c.4461.e340 ARPA Vlan1` above the PC it serves. This table held only what the
+      // box had *heard*, so the address configured on the box was absent from the box's own cache: an operator
+      // looking for their gateway, or checking that the right address is on the port, found nothing at all
+      // (research/show-arp-local-address.md).
+      //
+      // A host is not given these rows: an end station's ARP cache holds its neighbours, not itself, and `isHost()`
+      // is the predicate the data plane already uses to tell the two apart. `i.mac` is set on every port this model
+      // builds, subinterfaces borrowing their parent's (device.js `addSubinterface`), so an address with no hardware
+      // address beside it cannot occur - the guard is there so a hand-built device cannot print `null` in that
+      // column.
+      if (typeof dev.isHost !== 'function' || !dev.isHost()) {
+        const held = new Set(rows.map(function (r) { return r[0]; }));
+        for (const i of dev.interfaces.values()) {
+          if (!i.ip || !i.mac || held.has(i.ip)) continue;
+          rows.push([i.ip, net.formatMac(i.mac), '-', i.name]);
+        }
+      }
       rows.sort(function (a, b) { return String(a[0]).localeCompare(String(b[0]), undefined, { numeric: true }); });
       for (const r of rows) {
         // Type sits between the hardware address and the interface, as the vendor table orders them.

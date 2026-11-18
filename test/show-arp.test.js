@@ -69,7 +69,8 @@ console.log('Every learned neighbour is listed, and the Interface column holds s
   env.sim.ping('nine', '10.0.0.1', { count: 1 });
 
   const out = rows(env);
-  ok(out.body.length === 2, 'both neighbours are listed', String(out.body.length));
+  // Three rows: the router's own address (a local entry, age `-`) and the two neighbours it heard.
+  ok(out.body.length === 3, "the two neighbours and the router's own address are listed", String(out.body.length));
   ok(out.fields.every(function (f) { return f.length === 6; }),
     'every row has as many columns as the header',
     out.fields.map(function (f) { return f.length; }).join(','));
@@ -91,8 +92,17 @@ console.log('Every learned neighbour is listed, and the Interface column holds s
     'the hardware address matches the table the engine uses',
     JSON.stringify({ printed: rowFor('10.0.0.9')[3], engine: env.r.arp.get('10.0.0.9') }));
 
-  ok(out.fields[0][1] === '10.0.0.9',
-    'and the rows are in numeric address order (.9 before .10)', out.fields.map(function (f) { return f[1]; }).join(','));
+  // The local entry: the address on the box itself, a hyphen where an age would be, the port's own MAC, and the
+  // port's name - what a box prints for an address that is local rather than learned
+  // (research/show-arp-local-address.md).
+  ok(rowFor('10.0.0.1')[2] === '-', "the router's own address has a hyphen for its age", JSON.stringify(rowFor('10.0.0.1')));
+  ok(rowFor('10.0.0.1')[3] === net.formatMac(eth(env.r)[0].mac),
+    'and the hardware address of the port that holds it', JSON.stringify(rowFor('10.0.0.1')[3]));
+  ok(rowFor('10.0.0.1')[5] === eth(env.r)[0].name, 'with the port named beside it', JSON.stringify(rowFor('10.0.0.1')[5]));
+
+  ok(out.fields[0][1] === '10.0.0.1',
+    'and the rows are in numeric address order (.1, .9, .10)',
+    out.fields.map(function (f) { return f[1]; }).join(','));
 }
 
 console.log('');
@@ -129,12 +139,18 @@ console.log('A neighbour on a port that is gone is not presented as reachable:')
   runCommands(env.r, env.t, env.sim, ['configure terminal', 'interface ' + eth(env.r)[0].name,
     'shutdown', 'end']);
   const after = rows(env);
-  ok(after.fields.length === 1, 'the entry is still listed - a real ARP cache does not empty on shutdown',
+  // The neighbour row survives the shutdown (a real ARP cache does not empty on it) and the local row stays put;
+  // the local row is not the one that carries the fault report, so assertions about the neighbour pick it out by
+  // address rather than by position.
+  ok(after.fields.length === 2, 'the entry is still listed - a real ARP cache does not empty on shutdown',
     String(after.fields.length));
-  ok(/administratively down/.test(after.body[0] || ''), 'but it says the port cannot carry a frame',
-    after.body[0]);
-  ok(after.fields[0][5] === eth(env.r)[0].name, 'and the port is still named',
-    after.fields[0][5]);
+  const neighbour = after.fields.filter(function (f) { return f[1] === '10.0.0.9'; })[0] || [];
+  ok(/administratively down/.test(after.body[1] || ''), 'but it says the port cannot carry a frame',
+    after.body[1]);
+  ok(neighbour[5] === eth(env.r)[0].name, 'and the port is still named',
+    JSON.stringify(neighbour[5]));
+  ok(after.fields[0][1] === '10.0.0.1' && after.fields[0][2] === '-',
+    'the local entry is untouched by the shutdown', after.body[0]);
 
   // A cable pulled with `link down` is a different fault from a shut port, and the column says which.
   const env2 = lab();
@@ -149,7 +165,8 @@ console.log('A neighbour on a port that is gone is not presented as reachable:')
   const rows2 = rows(env2);
   ok(/link down/.test(rows2.body.join(' ')), 'a cable taken down marks the entry as such',
     rows2.body.join(' | '));
-  ok(/down: link down/.test(rows2.body[0] || ''), 'and names the reason, not just "down"', rows2.body[0]);
+  const pulled = rows2.body.filter(function (l) { return /^Internet\s+10\.0\.0\.9\s/.test(l); })[0] || '';
+  ok(/down: link down/.test(pulled), 'and names the reason, not just "down"', pulled);
 }
 
 console.log('');

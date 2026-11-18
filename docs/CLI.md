@@ -24,7 +24,7 @@ Modes and their prompts:
 | `show version` | vendor, model, category, capabilities |
 | `show ip interface brief` | interface IP / status table (status = whether the port can carry a frame) |
 | `show ip route` | routing table: connected, static, OSPF, BGP, and the default - or `Gateway of last resort is not set` when there is none; a box that does not route prints `Default gateway is ...` over the host/redirect cache instead |
-| `show arp` | ARP cache, with an age per neighbour, the port it was learned on, and whether that port can still carry a frame |
+| `show arp` | ARP cache: the neighbours it has heard, with an age and the port each was heard on and whether that port can still carry a frame, plus a local row (age `-`) for every interface holding an IPv4 address |
 | `show mac address-table` | MAC table (switches), per VLAN, with an age per entry and stale entries marked, titled and ruled as the device prints it and closed by `Total Mac Addresses for this criterion: N`; an address learned through a bundle is named on the port-channel (`Po1`), as the device names it (`research/mac-table-port-channel-name.md`) |
 | `show vlan` / `show vlan brief` | VLAN table: one row per VLAN in the VLAN database, with the **access** ports in it - a trunk port carries the VLAN and appears in no row - and the four reserved defaults (1002-1005) a switch has from boot. `show vlan` is the full view: it then prints the media table (`Type`, `SAID`, `MTU`, `Stp`, `Trans1/2`), the empty `Remote SPAN VLANs` section and the empty private-VLAN table; `brief` stops after the first table |
 | `show spanning-tree` | per-port STP role and state, the bridge priority and the elected root, or "not measured" when nothing has run |
@@ -2217,9 +2217,14 @@ so that entry is dropped at once rather than read as a missing value and default
 ```
 R1#show arp
 Protocol  Address          Age (min)  Hardware Addr     Type    Interface
+Internet  10.0.0.1         -          0200.0000.0100    ARPA    Gi0
 Internet  10.0.0.9         20         0200.0000.0200    ARPA    Gi0
 Internet  10.0.0.10        -          0200.0000.0300    ARPA    Gi0 (down: link down)
 ```
+
+The first row is the router's own address on `Gi0`: a real box lists its own interface addresses in this table,
+and Cisco's field list for the command gives the marker - *"Age, in minutes, of the cache entry; a hyphen (-)
+means the address is local"*. The other two rows are neighbours, one aged and one whose port has gone down.
 
 A hardware address prints the way an IOS-family device prints one: three dotted quartets, `0200.0000.0300`,
 not the colon-separated form the engine stores, compares and hashes them in. The same rule covers the
@@ -2231,7 +2236,13 @@ virtual MAC in `show vrrp` (`0000.5e00.010a`).
   catalogue carries no Token Ring or FDDI port, the two media SNAP and SAP were for — so the column is a
   constant rather than a guess. It sits between the hardware address and the interface, which is where
   Cisco's own `show arp` field list puts it (research/show-arp-type-column.md).
-* **Interface** is the port the neighbour was heard on — where to look next.
+* **Interface** is the port the neighbour was heard on — where to look next. On a local row it is the port that
+  holds the address.
+* **A hyphen in Age (min) means the address is local.** Every interface holding an IPv4 address gets one row of
+  its own: the interface's MAC in Hardware Addr, its name in Interface, and `-` where an age would be. It is not a
+  neighbour, it is not aged, and it does not disappear when the port goes down — the address is still configured
+  on the box. A host gets no such row: an end station's cache holds its neighbours, not itself
+  (`research/show-arp-local-address.md`).
 * **Age** is the minutes since this neighbour was last **heard**, and it ages out: past four hours of silence
   (`ARP_AGE_MS`, the IOS default `arp timeout 14400`) the entry is gone and the router ARPs again for that
   next hop. Minutes, not steps — the model has had an instant in milliseconds since convergence was modelled.
