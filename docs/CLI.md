@@ -3100,5 +3100,5 @@ lists each one and the capture that would settle it.
 `123(config)#` prompt, the name reaching `show running-config`, the line printed once and before the
 name is taken, a second identical rename warning again, the four other breach shapes staying silent as
 written down, four catalogue-style names staying silent (the round-trip guard,
-`test/config-roundtrip.test.js`, replays all 2198 models and asserts no complaint), six legal names
+`test/config-roundtrip.test.js`, replays all 2200 models that print a running-config and asserts no complaint), six legal names
 printing nothing, and `no hostname` restoring the default without a warning.
