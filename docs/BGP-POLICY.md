@@ -71,9 +71,9 @@ The anchors:
 | `bgp.js:310-319` `pathIsLoopFree` | correct already (AS_SET members included) | keep, no change |
 | `simulator.js:1907-1957` advertisement loop | `if (e.from === adj.peer.dev.id) continue;` (line 1913), prepend at 1919, the next hop at 1924, and the iBGP→iBGP suppression at 1918 (landed with #41, §6.3) | call `advertise()`/`applyRouteMap()` instead of re-deriving AS path and next hop; keep the iBGP→iBGP suppression |
 | `cli.js:1564-1582` config-mode BGP dispatch | `router bgp` / `no router bgp` / `neighbor` / `bgp` | add `route-map`, `match`, `set` branches |
-| `cli.js:2518` `_bgp(tokens)` | `as`, `router-id`, `<ip> remote-as` | add `always-compare-med`, `default local-preference`, `<ip> route-map`, `<ip> next-hop-self` |
-| `cli.js:2587` `this._dnsZone` | sticky "current zone" context, no new prompt mode | same pattern for the current route-map (§9.2) |
-| `cli.js:6588` `_help()` | command list | add the new lines |
+| `cli.js:2610` `_bgp(tokens)` | `as`, `router-id`, `<ip> remote-as` | add `always-compare-med`, `default local-preference`, `<ip> route-map`, `<ip> next-hop-self` |
+| `cli.js:2679` `this._dnsZone` | sticky "current zone" context, no new prompt mode | same pattern for the current route-map (§9.2) |
+| `cli.js:6721` `_help()` | command list | add the new lines |
 
 Design invariants that must survive the change, because every existing test
 relies on them:
@@ -767,7 +767,7 @@ routed to `_bgp(tokens.slice(1))` at `cli.js:1580`, so
 There is no `(config-route-map)#` prompt. `route-map NAME permit 10` sets
 `this._routeMap = { name, seq, action }`, and subsequent bare `match` / `set`
 commands in config mode apply to it. This mirrors `this._dnsZone`
-(`cli.js:2587`), the existing precedent for a sticky sub-context, and keeps
+(`cli.js:2679`), the existing precedent for a sticky sub-context, and keeps
 `prompt()` and the four mode constants untouched. `this._routeMap` is cleared by
 `exit`/`end` (mode change to exec) and by `no route-map` on the same name.
 
@@ -821,7 +821,7 @@ duplicates" behaviour already required of `neighbor ... remote-as`
 
 ### 9.4 `_help()` additions
 
-Append these lines to `_help()` (`cli.js:6588`), keeping the existing column
+Append these lines to `_help()` (`cli.js:6721`), keeping the existing column
 alignment:
 
 ```
