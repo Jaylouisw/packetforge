@@ -125,6 +125,11 @@
       "speed": "1G"
     }
   ],
+  "poe": {
+    "budgetW": 110,
+    "sourceUrl": "https://www.tp-link.com/us/business-networking/easy-smart-switch/tl-sg1016pe/",
+    "note": "TP-Link states a total PoE power budget of 110 W with up to 30 W per port on PoE+ ports 1-8 (product page bullets and \"Overload Arrangement\": at 110 W the lowest-priority port is cut). The 110 W is a PSE ceiling, not the 110 W supply rating of the included adapter."
+  },
   "sourceUrl": "https://www.tp-link.com/us/business-networking/easy-smart-switch/tl-sg1016pe/",
   "notes": "Vendor figures from the TP-Link datasheet: interface is 16x 10/100/1000 Mbps RJ45 ports (auto negotiation / auto MDI/MDIX); PoE standard 802.3at (30 W) on ports 1-8 with a 110 W total budget. PoE is on eight of the sixteen ports, so the other eight are modelled without it - a lab that powers a ninth device from this switch is wrong, and the spec should say so."
 }

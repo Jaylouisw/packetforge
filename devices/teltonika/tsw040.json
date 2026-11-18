@@ -70,6 +70,11 @@
       "poeOut": 30
     }
   ],
+  "poe": {
+    "budgetW": 240,
+    "sourceUrl": "https://wiki.teltonika-networks.com/view/TSW040",
+    "note": "Wiki: \"eight RJ45 ports with a total power budget of 240 W, or up to 30 W per port\". 240 W is the switch budget; 30 W is the per-port class, and the two must not be conflated - a full 8 x 30 W load is exactly at the 240 W ceiling."
+  },
   "sourceUrl": "https://wiki.teltonika-networks.com/view/TSW040",
   "notes": "Vendor figures (Teltonika wiki): eight RJ45 PoE+ ports, 240 W total power budget, up to 30 W per port, 2-pin power input, integrated DIN rail mount. Unmanaged."
 }

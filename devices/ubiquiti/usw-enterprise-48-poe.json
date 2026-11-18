@@ -680,5 +680,10 @@
   ],
   "icon": "switch",
   "color": "#14b8a6",
+  "poe": {
+    "budgetW": 720,
+    "sourceUrl": "https://techspecs.ui.com/unifi/switching/usw-enterprise-48-poe",
+    "note": "Tech specs, \"Total PoE Availability\": 720 W over 48 PoE+ ports (32 W per port max by PSE). The 870 W AC/DC supply rating and the 150 W non-PoE draw are not budgets."
+  },
   "sourceUrl": "https://techspecs.ui.com/unifi/switching/usw-enterprise-48-poe"
 }

@@ -372,5 +372,10 @@
   ],
   "icon": "switch",
   "color": "#14b8a6",
+  "poe": {
+    "budgetW": 600,
+    "sourceUrl": "https://techspecs.ui.com/unifi/switching/usw-pro-hd-24-poe",
+    "note": "Tech specs, \"Total PoE Availability\": 600 W over 24 PoE++ ports (64 W per port max by PSE). 660 W is the input power including PoE output; 60 W is the draw excluding it - neither is the budget."
+  },
   "sourceUrl": "https://techspecs.ui.com/unifi/switching/usw-pro-hd-24-poe"
 }

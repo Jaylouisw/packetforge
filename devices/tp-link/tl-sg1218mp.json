@@ -172,6 +172,11 @@
       ]
     }
   ],
+  "poe": {
+    "budgetW": 250,
+    "sourceUrl": "https://www.tp-link.com/us/business-networking/poe-switch/tl-sg1218mp/v1/",
+    "note": "\"High PoE power budget with up to 30 W for each PoE port and 250 W for all PoE ports\" - 250 W across the sixteen PoE+ ports, with Intelligent Power Management shedding lower-priority ports above 250 W."
+  },
   "sourceUrl": "https://www.tp-link.com/us/business-networking/poe-switch/tl-sg1218mp/v1/",
   "notes": "Vendor figures from the TP-Link datasheet: 16x PoE+ gigabit RJ45 ports, 2x gigabit non-PoE RJ45 ports and 2x combo gigabit SFP slots; PoE standard 802.3at/802.3af on ports 1-16 with a 250 W budget. The two non-PoE ports are modelled without PoE: on this switch the last two copper ports are deliberately unpowered, which is easy to get wrong when planning budgets."
 }

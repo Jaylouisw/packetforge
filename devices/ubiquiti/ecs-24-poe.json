@@ -382,5 +382,10 @@
   ],
   "icon": "switch",
   "color": "#14b8a6",
+  "poe": {
+    "budgetW": 1050,
+    "sourceUrl": "https://techspecs.ui.com/unifi/switching/ecs-24-poe",
+    "note": "Tech specs give PoE availability as a function of the fitted PSUs: 1,050 W shared / 450 W redundant with (2) 600 W modules; 2,250 W shared / 1,050 W redundant (200-240 V) or 1,850 W shared / 850 W redundant (100-120 V) with (2) 1,200 W modules. 1,050 W models the two-600 W-module chassis, the only configuration in which 1,050 W is reachable at any input voltage; a lab needing the 1,200 W-module ceiling must state it. All 24 PoE+++ ports can take 90 W."
+  },
   "sourceUrl": "https://techspecs.ui.com/unifi/switching/ecs-24-poe"
 }

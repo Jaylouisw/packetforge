@@ -53,6 +53,7 @@
   "check:citations": "node scripts/check-doc-citations.js",
   "check:ci-disk": "node scripts/check-ci-disk-hygiene.js",
     "audit:ports": "node scripts/audit-port-types.js",
+    "audit:poe": "node scripts/audit-poe-budget.js",
     "test:qsfpdd": "node test/qsfpdd.test.js",
     "test:roundtrip": "node test/topology-roundtrip.test.js",
     "test:lldp": "node test/lldp.test.js",

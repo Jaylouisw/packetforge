@@ -48,6 +48,11 @@
       "poeOut": 30
     }
   ],
+  "poe": {
+    "budgetW": 120,
+    "sourceUrl": "https://wiki.teltonika-networks.com/view/TSF000",
+    "note": "Wiki: \"4x PoE+ outputs with a 120 W power budget\". A 120 W ceiling over four PoE+ ports means the budget binds before the 30 W per-port class does, so the simulator must refuse a fifth 30 W device rather than the fourth."
+  },
   "sourceUrl": "https://wiki.teltonika-networks.com/view/TSF000",
   "notes": "Vendor figures (Teltonika wiki): 4 x PoE+ outputs with a 120 W power budget, 5 x Ethernet ports total, low-profile housing, DIN rail mount, unmanaged. eth0 carries no PoE because the PoE budget is stated for four outputs."
 }

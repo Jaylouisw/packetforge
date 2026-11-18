@@ -93,6 +93,11 @@
       ]
     }
   ],
+  "poe": {
+    "budgetW": 123,
+    "sourceUrl": "https://www.tp-link.com/us/business-networking/soho-switch-poe/tl-sg1210mpe/",
+    "note": "Specification table: \"PoE Ports (RJ45) - Standard: 802.3af/at compliant, PoE Ports: Port 1-8, PoE Power Budget: 123 W\". The 141.54 W max power consumption figure is input power with 123 W of PD load attached, not a second budget."
+  },
   "sourceUrl": "https://www.tp-link.com/us/business-networking/soho-switch-poe/tl-sg1210mpe/",
   "notes": "Vendor figures from the TP-Link datasheet: interface is 9x 10/100/1000 Mbps RJ45 ports plus 1x 1000 Mbps Combo SFP/RJ45 port; PoE standard 802.3af/at compliant on ports 1-8 with a 123 W total budget. The combo port is modelled once, as sfp1, because it is a single physical cage that takes either an SFP module or the tenth copper port - a lab that needs the copper side should treat sfp1 as eth9."
 }
