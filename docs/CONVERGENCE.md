@@ -83,11 +83,12 @@ Honestly, and by design:
   finished or not.
 - **Timer jitter and retransmission.** A hello is heard, not lost. There is no dead-interval expiry,
   no 3-missed-hellos neighbour teardown, no exponential backoff.
-- **Topology-change driven convergence.** Changing a link after power-on and watching the network
-  re-converge is not modelled; the schedule is computed from the topology as it stands.
+- **Two changes at once.** Only the most recent change is kept (`topology.lastChangeAtMs`), so a
+  second cable pulled while the first re-convergence is still running re-bases the whole schedule
+  from the newer instant: every port waits its two forward delays from the last change, and the
+  earlier deadline is gone rather than interleaved with it.
 - **STP port roles changing over time.** Roles come from the steady-state computation; only the
   transitional Listening/Learning state is timed.
-- **Link-down events during convergence.** A cable pulled mid-convergence is a separate feature.
 
 Each of those is a real gap and each is a candidate for its own issue. What exists is the part a
 technician meets first: the honest *duration* of coming up.
