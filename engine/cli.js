@@ -2317,6 +2317,12 @@ class CliSession {
       const keyed = this._helpKeyRefusal(tokens.slice(1).join(' '), 'description <text>',
         'the description of ' + iface.name + ' is unchanged', 'a description');
       if (keyed) return [keyed];
+      // No length rule here on purpose. The published maximum for this one command is 64 characters (Catalyst
+      // 1200 CLI guide), 200 (IOS XE SD-WAN qualified reference), 238 (IOS Interface and Hardware Component
+      // Command Reference) and 240 (Catalyst 2960-X and 3850 configuration guides), and the one transcript of an
+      // over-long description is a 12.2 router taking ~200 words "with no issues" - an acceptance, not a refusal.
+      // Which number this family uses, and whether the box truncates or refuses, is unknown, so no ceiling is
+      // invented: research/interface-description-length.md records the four figures and what would settle it.
       iface.description = tokens.slice(1).join(' ');
       out.push('Description set: ' + iface.description);
     } else if (head === 'no' && tokens[1] === 'description') {
