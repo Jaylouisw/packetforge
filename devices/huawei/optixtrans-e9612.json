@@ -1,0 +1,800 @@
+{
+  "vendor": "huawei",
+  "model": "OptiXtrans E9612",
+  "label": "OptiXtrans E9612 OTN line shelf, 13x TNG1N210 (130x 10G line)",
+  "category": "switch",
+  "description": "Huawei OptiXtrans E9612 - 347.2 mm (7.8U) metro OTN line shelf with 13 service-board slots and no electrical cross-connect (the vendor table prints Cross-connect Type: NA, so the shelf relays line boards rather than grooming them). Modelled fully populated with 13x TNG1N210 line boards: 130x 10G WDM-side line ports, each carrying one OTU2 or OTU2e wavelength.",
+  "capabilities": [
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "line1",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "line2",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "line3",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "line4",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "line5",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "line6",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "line7",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "line8",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "line9",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "line10",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "line11",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "line12",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "line13",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "line14",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "line15",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "line16",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "line17",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "line18",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "line19",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "line20",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "line21",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "line22",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "line23",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "line24",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "line25",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "line26",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "line27",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "line28",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "line29",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "line30",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "line31",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "line32",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "line33",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "line34",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "line35",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "line36",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "line37",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "line38",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "line39",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "line40",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "line41",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "line42",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "line43",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "line44",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "line45",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "line46",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "line47",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "line48",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "line49",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "line50",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "line51",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "line52",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "line53",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "line54",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "line55",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "line56",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "line57",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "line58",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "line59",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "line60",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "line61",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "line62",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "line63",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "line64",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "line65",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "line66",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "line67",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "line68",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "line69",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "line70",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "line71",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "line72",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "line73",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "line74",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "line75",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "line76",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "line77",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "line78",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "line79",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "line80",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "line81",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "line82",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "line83",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "line84",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "line85",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "line86",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "line87",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "line88",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "line89",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "line90",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "line91",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "line92",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "line93",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "line94",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "line95",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "line96",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "line97",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "line98",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "line99",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "line100",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "line101",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "line102",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "line103",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "line104",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "line105",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "line106",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "line107",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "line108",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "line109",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "line110",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "line111",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "line112",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "line113",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "line114",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "line115",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "line116",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "line117",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "line118",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "line119",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "line120",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "line121",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "line122",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "line123",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "line124",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "line125",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "line126",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "line127",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "line128",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "line129",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    },
+    {
+      "name": "line130",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+"
+    }
+  ],
+  "icon": "switch",
+  "color": "#dc2626",
+  "sourceUrl": "https://e.huawei.com/en/products/optical-transmission/optixtrans-e9600",
+  "notes": "Stated card complement, not a fixed chassis figure: the E9612 spec table prints 13 service slots, so \"13x TNG1N210\" is what 130 line ports means. A partly filled shelf, or the same shelf with TNG1N206 (6x 10G) or TNG1N401 (1x 100G) in place of the N210, is a different box - model it separately rather than reusing this one. Same convention as devices/huawei/optixtrans-e9605.json, optixtrans-e6608.json and optixtrans-e6616.json.\n\nFrame, from the cited product page (read 2026-11-18, HTTP 200, 344,531 B, specification table, OptiXtrans E9612 column): 442 x 295 x 347.2 mm, Number of Service Slots 13, Cross-connect Type NA, line rates 10G to 1.2 Tbit/s, service types SDH/SONET/Ethernet/SAN/OTN/Video, power -48/-60 V DC or 110/220 V AC or 240/336 V HVDC. Cross-connect NA is why there is no fabric block: like the E9605 this is a line shelf that relays boards, and the N210 terminates 10 OTU2 wavelengths per board rather than switching client traffic, so capabilities is cli only and there is no L2/L3 forwarding.\n\nThe 13 is the vendor's headline figure and it is conditional. The E9612 subrack chapter (e-file PDF, 333,351 B, 6 pp, read 2026-11-17) gives DC master 12 (IU1-IU12), DC slave 13 (IU1-IU13), AC/HVDC master 10 and slave 11 (IU3-IU13), and 13/11 for the E3CTU layout, because under AC power one APIU occupies physical slots IU1 and IU2 with logical slot IU1. A shelf built with 13 boards is therefore the DC, 13-slot layout; an AC-powered E9612 is two or three boards (20-30 line ports) smaller and is a different box.\n\nBoard validity and port count: the OptiXtrans E9600 (E9624/E9612/E9605) Boards Overview chapter, Table 3 - the TNG1N206/TNG1N210 row prints Y under both the E9612 and the E9605 columns (and 1:1/1:3 Y for the E9624) - and Table 1, which names the board \"TNG1N210: 10 x 10 Gbit/s Line Service Processing Board\". IU numbering (IU1-IU13) is from TNG2DAP section 1.9, Valid slots, E9612 row. That chapter is EDOC1100126589BEJ09047 and its vendor copy (OptiXtrans E9600 Board Datasheet, EDOC1100163901) answers 302 -> /view/notFound for every user-agent tried, so the text was read from the verbatim partner copy at https://www.actfornet.com/solutions/solution/OptiXtrans_E9600_Boards_Overview (HTTP 200, 226,637 B, 2026-11-18), whose 127 support.huawei.com/hedex topic links identify the vendor chapter it reproduces. The board's own chapter reprint (https://www.thunder-link.com/tng1n210.html) agrees: 10 ports, all SFP+ -10G, valid in OSN 9800 M12 IU1-IU13 - but it names the carrier subrack, not the enterprise one, so the E9612 column of Table 3 is what this entry rests on.\n\nLine side is OTU2/OTU2e over DWDM, not Ethernet. The engine has no OTN type, so the ports are filed as ethernet/sfp+ - the physical cage - and the protocol claim is written down here instead. The link validator will therefore accept a 10GBASE-LR peer on a port that only carries OTU2: that is the house convention, shared by devices/huawei/optixtrans-e9605.json, optixtrans-e6616.json, devices/ciena/waveserver-ai.json, devices/adva/fsp-3000.json and devices/packetlight/pl-2000m.json, all of which pass scripts/audit-port-types.js. A real otn/wdm type is an engine change and would fix it for all six.\n\nNo PoE, no fans/PSE data: this shelf has no copper access ports at all.",
+  "aliases": [
+    "E9612",
+    "TNG1N210"
+  ]
+}
