@@ -33,6 +33,9 @@ Modes and their prompts:
 | `show lldp neighbors` | LLDP neighbours, with the local port marked when it can no longer carry, and each row listed only for as long as the hold time its neighbour advertised |
 | `show access-lists` | ACL rules, bindings, and how many packets each rule has matched |
 | `show ip bgp` / `show ip bgp summary` | BGP neighbours with their state and reason, and the prefixes installed |
+| `show ip ospf` / `show ip ospf neighbour` / `show ip ospf interface` | the process this box runs (`Areas`, `Interfaces`, `Neighbours`, `Routes installed from OSPF`), each adjacency's `Pri`, `State` and `Dead Time` - the Router Dead Interval counting down from that neighbour's last Hello - and what each port costs; a box with no OSPF says so and names the command that would turn it on |
+| `show ip dhcp` / `show ip dhcp binding` / `show ip dhcp pool` | the allocation table under the box's own `Bindings from all pools not associated with VRF:` title: which MAC holds which address, from which pool, and how long is left on the lease - and, per pool, its utilisation mark, its totals and the address it would hand out next; a box with no pools says it is not a DHCP server |
+| `show ip dns` / `show ip dns zone` | the zones this box answers for, as records in zone-file shape, and the name servers it asks; a zone it would refuse to answer is printed with `NOT answered: <reason>` rather than as if it were live, and a device with no zones says it is not a DNS server |
 | `show interfaces` | per-interface detail incl. MAC, peer, link state and what has crossed the port |
 | `show power inline [<port>]` | PoE supplied per PSE port, the budget left, and why a powered device was denied |
 | `show vrrp` | the group, its state (`Master`/`Backup`/`Init` with the reason), and the master the election chose |
@@ -2887,13 +2890,13 @@ network converges again. See [LINK-STATE.md](LINK-STATE.md).
 
 A row here is a promise an operator relies on before they ever open the app. `test/docs-show-commands.test.js` reads
 this file, splits the alternatives (`show vlan [brief] | spanning-tree`), fills the placeholders with real values from
-a real lab, and types each form at a router and a switch — 56 forms, 112 commands today, including the
+a real lab, and types each form at a router and a switch — 59 forms, 118 commands today, including the
 `show ?` and `show ipv6 ?` examples in the section on the help key — and fails on the three answers that mean the
 documentation and the parser disagree: `% Invalid show command`, `% Unrecognized …`, or a throw.
 
 A *legitimate* refusal is not a failure, and the distinction is the whole point: a box with no OSPF configured has no
 `show ip ospf` to give and says so in a sentence (`% OSPF is not enabled (use "ospf router-id <ip>" in config mode)`),
-which means this page is right and the box is the wrong one to ask. Sixty-eight of the 112 answers are refusals of
+which means this page is right and the box is the wrong one to ask. Seventy-four of the 118 answers are refusals of
 that kind today, and none of them complains about the command itself.
 
 The check is real in the direction that matters: rename `show spanning-tree` to one letter off and the suite fails,
