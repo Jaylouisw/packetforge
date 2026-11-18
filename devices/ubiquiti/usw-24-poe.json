@@ -299,5 +299,9 @@
   ],
   "icon": "switch",
   "color": "#14b8a6",
+  "poe": {
+    "budgetW": 95,
+    "sourceUrl": "https://techspecs.ui.com/unifi/switching/usw-24-poe"
+  },
   "sourceUrl": "https://techspecs.ui.com/unifi/switching/usw-24-poe"
 }

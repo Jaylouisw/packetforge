@@ -95,5 +95,9 @@
   ],
   "icon": "switch",
   "color": "#14b8a6",
+  "poe": {
+    "budgetW": 630,
+    "sourceUrl": "https://techspecs.ui.com/unifi/switching/usw-lr-switch-8-poe"
+  },
   "sourceUrl": "https://techspecs.ui.com/unifi/switching/usw-lr-switch-8-poe"
 }

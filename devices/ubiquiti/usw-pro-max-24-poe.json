@@ -333,5 +333,9 @@
   ],
   "icon": "switch",
   "color": "#14b8a6",
+  "poe": {
+    "budgetW": 400,
+    "sourceUrl": "https://techspecs.ui.com/unifi/switching/usw-pro-max-24-poe"
+  },
   "sourceUrl": "https://techspecs.ui.com/unifi/switching/usw-pro-max-24-poe"
 }

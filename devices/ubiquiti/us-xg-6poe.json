@@ -83,5 +83,9 @@
   ],
   "icon": "switch",
   "color": "#14b8a6",
+  "poe": {
+    "budgetW": 170,
+    "sourceUrl": "https://techspecs.ui.com/unifi/switching/us-xg-6poe"
+  },
   "sourceUrl": "https://techspecs.ui.com/unifi/switching/us-xg-6poe"
 }

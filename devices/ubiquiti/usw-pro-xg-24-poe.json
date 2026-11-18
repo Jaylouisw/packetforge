@@ -382,5 +382,9 @@
   ],
   "icon": "switch",
   "color": "#14b8a6",
+  "poe": {
+    "budgetW": 720,
+    "sourceUrl": "https://techspecs.ui.com/unifi/switching/usw-pro-xg-24-poe"
+  },
   "sourceUrl": "https://techspecs.ui.com/unifi/switching/usw-pro-xg-24-poe"
 }

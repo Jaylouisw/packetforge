@@ -583,5 +583,9 @@
   ],
   "icon": "switch",
   "color": "#14b8a6",
+  "poe": {
+    "budgetW": 195,
+    "sourceUrl": "https://techspecs.ui.com/unifi/switching/usw-48-poe"
+  },
   "sourceUrl": "https://techspecs.ui.com/unifi/switching/usw-48-poe"
 }

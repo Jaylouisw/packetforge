@@ -231,5 +231,9 @@
   ],
   "icon": "switch",
   "color": "#14b8a6",
+  "poe": {
+    "budgetW": 220,
+    "sourceUrl": "https://techspecs.ui.com/uisp/wired/uisp-s-pro-u"
+  },
   "sourceUrl": "https://techspecs.ui.com/uisp/wired/uisp-s-pro-u"
 }

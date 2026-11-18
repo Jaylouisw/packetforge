@@ -91,5 +91,9 @@
   ],
   "icon": "switch",
   "color": "#14b8a6",
+  "poe": {
+    "budgetW": 480,
+    "sourceUrl": "https://techspecs.ui.com/unifi/switching/usw-industrial-din-8-poe"
+  },
   "sourceUrl": "https://techspecs.ui.com/unifi/switching/usw-industrial-din-8-poe"
 }

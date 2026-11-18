@@ -123,5 +123,9 @@
   ],
   "icon": "switch",
   "color": "#14b8a6",
+  "poe": {
+    "budgetW": 120,
+    "sourceUrl": "https://techspecs.ui.com/unifi/switching/usw-mission-critical"
+  },
   "sourceUrl": "https://techspecs.ui.com/unifi/switching/usw-mission-critical"
 }

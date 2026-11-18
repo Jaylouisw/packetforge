@@ -186,5 +186,9 @@
   ],
   "icon": "switch",
   "color": "#14b8a6",
+  "poe": {
+    "budgetW": 400,
+    "sourceUrl": "https://techspecs.ui.com/unifi/switching/usw-pro-xg-10-poe"
+  },
   "sourceUrl": "https://techspecs.ui.com/unifi/switching/usw-pro-xg-10-poe"
 }
