@@ -351,6 +351,37 @@ jobs:
           TOKEN: ${{ secrets.FORGEJO_TOKEN || secrets.GITHUB_TOKEN || github.token }}
         run: |
           set -eu
+          # The pinned runtime this leg is named for is 45 MB from nodejs.org, and the
+          # checkout below is 2.6 s of git: one is a network transfer, the other is a
+          # packfile on local disk. They ran one after the other, so every Node 18 and
+          # Node 22 leg paid for both, end to end, in front of the suite. Measured over the
+          # 14 green runs 6294-6341 (/actions/tasks; task received -> `> packetforge@0.1.0
+          # test` in the leg logs): Node 20 5.8 s, Node 18 9.3 s, Node 22 11.9 s. The Node
+          # 20 leg is the same job without this download, so the difference is the download
+          # - 3.5 s and 6.1 s of a 46-66 s leg, and it only needs to overlap the checkout
+          # to cost nothing.
+          #
+          # So it starts here, before the git fetch, and the fetch runs over it. The step
+          # below waits for this attempt (bounded, and it still falls back to its own
+          # download) and unpacks the same tarball from the same pinned URL.
+          #
+          # It cannot fail this step: the download is detached, every outcome is a marker
+          # file, and a prefetch that dies leaves the step below exactly the code it had
+          # before. The `case` is duplicated there on purpose - if the two ever disagree the
+          # file name does not match and that step downloads its own, which is the behaviour
+          # this job had before this block existed.
+          case "${{ matrix.node }}" in
+            18) PFDIST=v18.20.8 ;;
+            22) PFDIST=v22.23.5 ;;
+            *) PFDIST="" ;;
+          esac
+          if [ -n "$PFDIST" ]; then
+            PFDIR="${RUNNER_TEMP:-/tmp}/node-prefetch"
+            mkdir -p "$PFDIR"
+            echo "starting the ${PFDIST} download here, so the checkout below runs over it"
+            touch "$PFDIR/$PFDIST.started"
+            nohup sh -c "curl -fsSL --retry 3 --retry-delay 2 --retry-connrefused --connect-timeout 10 --max-time 180 -o '$PFDIR/$PFDIST.tar.gz.part' 'https://nodejs.org/dist/$PFDIST/node-$PFDIST-linux-x64.tar.gz' && mv '$PFDIR/$PFDIST.tar.gz.part' '$PFDIR/$PFDIST.tar.gz' && touch '$PFDIR/$PFDIST.ok' || { rm -f '$PFDIR/$PFDIST.tar.gz.part'; touch '$PFDIR/$PFDIST.failed'; }" > "$PFDIR/download.log" 2>&1 &
+          fi
           # The runner's working directory is the repository root. Derive the git URL from
           # the instance URL the runner itself is configured with, never a hardcoded host.
           server="${GITHUB_SERVER_URL:-}"
@@ -495,7 +526,32 @@ jobs:
               tar -xzf "${dest}.tar.gz" -C "${dest}" --strip-components=1 &&
               [ -x "${dest}/bin/node" ]
           }
-          fetch 1 || { echo "first attempt at ${url} failed - retrying once in 5 s"; sleep 5; fetch 2; }
+          # That fetch may already be running: the step above started it before the
+          # checkout, so the tarball is usually complete - or nearly - by the time this
+          # step begins. Wait for it, bounded, and unpack it here. Anything other than a
+          # complete, executable unpack falls through to the same two attempts this step
+          # has always made, so the only thing the prefetch can change is the clock.
+          PFDIR="${RUNNER_TEMP:-/tmp}/node-prefetch"
+          if [ -e "$PFDIR/${DIST}.started" ] && [ ! -e "$PFDIR/${DIST}.ok" ] && [ ! -e "$PFDIR/${DIST}.failed" ]; then
+            echo "waiting for the ${DIST} download started during the checkout"
+            for _ in $(seq 1 60); do
+              if [ -e "$PFDIR/${DIST}.ok" ] || [ -e "$PFDIR/${DIST}.failed" ]; then break; fi
+              sleep 1
+            done
+          fi
+          if [ -e "$PFDIR/${DIST}.ok" ] && [ -s "$PFDIR/${DIST}.tar.gz" ]; then
+            rm -rf "${dest}" "${dest}.tar.gz"
+            mkdir -p "${dest}"
+            if tar -xzf "$PFDIR/${DIST}.tar.gz" -C "${dest}" --strip-components=1 && [ -x "${dest}/bin/node" ]; then
+              echo "unpacked ${DIST} from the download that overlapped the checkout"
+            else
+              echo "the prefetched tarball for ${DIST} did not unpack into a working tree - downloading it again"
+              rm -rf "${dest}"
+              fetch 1 || { echo "first attempt at ${url} failed - retrying once in 5 s"; sleep 5; fetch 2; }
+            fi
+          else
+            fetch 1 || { echo "first attempt at ${url} failed - retrying once in 5 s"; sleep 5; fetch 2; }
+          fi
           # Over the image's own Node 20, not beside it: the assertion below reads
           # `node --version`, and a second runtime earlier on PATH would let it pass while
           # `npm test` still ran on the runtime the image shipped.
