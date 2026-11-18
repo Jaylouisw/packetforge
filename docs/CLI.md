@@ -194,10 +194,12 @@ takes back.
 | hostname | `hostname <name>` |
 | interfaces | `interface <name>` block: description, `speed`, `duplex`, `encapsulation dot1q <vlan>` (a subinterface), `ip address`, switchport VLAN/trunk, `channel-group`, `ip access-group`, `shutdown`, `vrrp <vrid> …` |
 | VLAN table | `vlan <id> [name] <text>` |
+| spanning tree | `spanning-tree priority <n>`, printed once a priority has been configured - a box nobody configured prints no line, and an explicit 32768 is kept as the line that was typed |
 | DHCP pools | `ip dhcp pool <name>` block: network, range, default-router, dns-server, excluded-address, lease, `host <addr> <mac>` |
 | DNS zones | `dns zone <apex>` followed by `dns add <name> <type> <value>` |
 | ACLs | `access-list <id> <rule>` |
-| routing | `ip route <dest> <mask> <gateway> [iface]`, `ip default-gateway <addr>`, and `ip routing` when the box is not in its platform's default state |
+| NAT | `ip nat pool <name> <first> <last> netmask <mask>`, `ip nat inside source list <prefix> pool <name> [overload]`, `ip nat inside source static <local> <global> [<proto> <port>]`, and per interface `ip nat inside` / `ip nat outside` |
+| routing | `ip route <dest> <mask> <gateway> [iface]`, `ip default-gateway <addr>`, and `ip routing` — or `no ip routing` on a box whose platform defaults to routing on — when the box is not in its platform's default state |
 | name servers | `ip name-server <addr>` (one line each) |
 | SCION | `scion <isd-as>` |
 | OSPF | `ospf router-id <ip>`, `ospf area <id>`, and per interface `ip ospf cost <n>`, `ip ospf area <id>`, `ip ospf passive` |
