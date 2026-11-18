@@ -5962,6 +5962,28 @@ class CliSession {
         for (const i of dev.interfaces.values()) {
           if (!i.ip || !i.mac || held.has(i.ip)) continue;
           rows.push([i.ip, net.formatMac(i.mac), '-', i.name]);
+          held.add(i.ip);
+        }
+        // An address a VRRP group holds is the box's own too, and it is the last fact this table was
+        // missing about the box itself. The elected master claims the group's IPs (device.js claimVrrp()),
+        // and macForIp() puts the group's virtual MAC on every reply for one, so the row is the claim
+        // printed rather than a second rule. Cisco checks a first-hop group by reading exactly this row -
+        // 'Internet 10.2.0.20 - 0000.0c07.ac01 ARPA Ethernet0/2' beside the group's virtual MAC (HSRP
+        // guide 9234) - and a VRRP sample shows the same shape with 0000.5e00.01xx
+        // (research/show-arp-vrrp-virtual-address.md). An address that is also an interface address is
+        // already printed above and is not repeated: there the address is the port's, and VRRP
+        // substitutes a MAC only where it is not (which is what the VRRS 'mac-address' plug-in exists to
+        // do by hand). A backup gets no row: what a real backup holds is learned from the master's
+        // gratuitous ARP, and this model does not install addresses from an unsolicited ARP, so it prints
+        // nothing rather than a binding it never received.
+        for (const claim of (Array.isArray(dev.vrrpClaims) ? dev.vrrpClaims : [])) {
+          const claimIface = claim.iface ? dev.interfaces.get(claim.iface) : null;
+          if (!claimIface) continue;
+          for (const vip of (claim.ips || [])) {
+            if (!vip || held.has(vip)) continue;
+            rows.push([vip, net.formatMac(claim.mac || claimIface.mac), '-', claimIface.name]);
+            held.add(vip);
+          }
         }
       }
       rows.sort(function (a, b) { return String(a[0]).localeCompare(String(b[0]), undefined, { numeric: true }); });

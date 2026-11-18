@@ -2268,6 +2268,15 @@ virtual MAC in `show vrrp` (`0000.5e00.010a`).
   neighbour, it is not aged, and it does not disappear when the port goes down — the address is still configured
   on the box. A host gets no such row: an end station's cache holds its neighbours, not itself
   (`research/show-arp-local-address.md`).
+* **A VRRP group's address is local on the master, and is printed as such.** The elected master answers ARP
+  for a group address with the group's virtual MAC (`0000.5e00.01xx`), so the address is its own by the same
+  test: `Internet  10.0.0.254  -  0000.5e00.0101  ARPA  Gi0/0/0`. Cisco checks a first-hop group by reading
+  exactly this row - its HSRP guide prints `Internet 10.2.0.20 - 0000.0c07.ac01 ARPA Ethernet0/2` - and a VRRP
+  sample shows the same shape with the `0000.5e00.01xx` MAC (`research/show-arp-vrrp-virtual-address.md`).
+  A backup prints no such row: what a real backup holds is learned from the master's gratuitous ARP, and this
+  model does not install addresses from an unsolicited ARP, so it prints nothing rather than a binding it never
+  received. Where the group address is also an interface address (VRRP's "IP address owner") there is one row,
+  carrying the port's own hardware address.
 * **Age** is the minutes since this neighbour was last **heard**, and it ages out: past four hours of silence
   (`ARP_AGE_MS`, the IOS default `arp timeout 14400`) the entry is gone and the router ARPs again for that
   next hop. Minutes, not steps — the model has had an instant in milliseconds since convergence was modelled.
