@@ -45,12 +45,18 @@ function typed(cmd) {
   return { mode: s.mode, out: res.output, said: res.output.join('\n'), prompt: s.prompt() };
 }
 
-// Every abbreviation of both words that a box accepts opens config mode, with no complaint on the way.
+// Every abbreviation of both words that a box accepts opens config mode, with no complaint on the way. The
+// one line a box does print here is the greeting that opens the mode - `Enter configuration commands, one per
+// line.  End with CNTL/Z.` - and it is the answer to holding the mode open, not a refusal
+// (research/config-mode-greeting.md).
+const GREETING = 'Enter configuration commands, one per line.  End with CNTL/Z.';
 ['configure terminal', 'configure term', 'conf t', 'conf term', 'config t', 'config term',
   'confi t', 'confi termi', 'CONFIG T'].forEach(function (cmd) {
   const r = typed(cmd);
-  ok(r.mode === 'config' && r.out.length === 0, '"' + cmd + '" opens config mode',
+  ok(r.mode === 'config' && r.said === GREETING, '"' + cmd + '" opens config mode and greets',
     'mode=' + r.mode + ' said=' + JSON.stringify(r.out));
+  ok(r.out.filter(function (l) { return /^%/.test(String(l)); }).length === 0,
+    '"' + cmd + '" says nothing in the console\'s refusal voice', JSON.stringify(r.out));
   ok(/(config\)#)$/.test(r.prompt), '"' + cmd + '" leaves the config prompt', r.prompt);
 });
 

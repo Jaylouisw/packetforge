@@ -25,6 +25,20 @@ const vlanLib = require('./vlan');
 // cannot disagree about what `0.0.0.1` means (#1843).
 const ospfLib = require('./ospf');
 
+// What a box says as it opens configuration mode.
+//
+// The sentence is furniture: every IOS and IOS XE session begins a config block with it, and this console
+// opened the mode in silence - so the first line of every captured session an operator compares against a
+// real box was missing, even though a real box prints it every time the mode is entered.
+//
+// It is ONE line, and it has TWO spaces after "line." - which is the half a reader cannot get from Cisco's
+// HTML pages, because the browser collapses the run of spaces and two of the vendor's own pages wrap the
+// sentence across two lines in the rendered block. The text layer of the vendor's PDF (Catalyst 3560 Switch
+// Command Reference 12.2(25)SEA, "Using the Command-Line Interface") preserves both: one baseline, and the
+// double space, in the Courier face the transcript is set in. The same sentence is on IOS XE 16/17
+// (`cf-cli-basics`). research/config-mode-greeting.md records the pages that disagree and why they are the
+// rendering, not the device.
+const CONFIG_MODE_GREETING = 'Enter configuration commands, one per line.  End with CNTL/Z.';
 
 function pad(s, w) { s = String(s); return s + ' '.repeat(Math.max(0, w - s.length)); }
 
@@ -862,6 +876,9 @@ class CliSession {
             out.push('% Incomplete command: configure terminal');
           } else if ('terminal'.indexOf(String(tokens[1]).toLowerCase()) === 0) {
             this.mode = MODE_CONFIG;
+            // The greeting belongs to the command that opens the mode, not to the mode: a box prints it once
+            // per entry, and prints nothing when the next command is `interface`, `vlan` or `router bgp`.
+            out.push(CONFIG_MODE_GREETING);
           } else {
             out.push('% Invalid input: ' + line);
           }

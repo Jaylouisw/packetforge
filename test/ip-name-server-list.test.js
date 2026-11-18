@@ -47,7 +47,9 @@ function configure(env, cmds) {
   const session = new CliSession(env.d, env.t, null);
   const out = [];
   for (const c of ['enable', 'configure terminal'].concat(cmds).concat(['end'])) {
-    out.push.apply(out, session.run(c).output.map(String));
+    // `configure terminal` answers with the box's greeting; it is not an answer to the command under test.
+    out.push.apply(out, session.run(c).output.map(String)
+      .filter(function (l) { return !/^Enter configuration commands, one per line\./.test(l); }));
   }
   return out;
 }

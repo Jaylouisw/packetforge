@@ -42,7 +42,10 @@ const SWITCH = 'EKI-7708G-4FI';
 
 function cli(t, dev, cmds) {
   return runCommands(dev, t, null, ['enable', 'configure terminal'].concat(cmds)).lines
-    .filter(function (l) { return !/\(config|>enable|#configure/.test(String(l)); });
+    .filter(function (l) {
+      return !/\(config|>enable|#configure/.test(String(l)) &&
+        !/^Enter configuration commands, one per line\./.test(String(l));
+    });
 }
 function show(t, dev, cmd) {
   const s = new Simulator(t);

@@ -36,7 +36,10 @@ const spec = function (m) { return catalog.find(function (x) { return x.model ==
 
 function cli(t, d, cmds) {
   return runCommands(d, t, null, ['enable', 'configure terminal'].concat(cmds)).lines
-    .filter(function (l) { return !/\(config|>enable|#configure/.test(String(l)); });
+    .filter(function (l) {
+      return !/\(config|>enable|#configure/.test(String(l)) &&
+        !/^Enter configuration commands, one per line\./.test(String(l));
+    });
 }
 function show(t, d, cmd) {
   const s = new Simulator(t);

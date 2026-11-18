@@ -2,6 +2,16 @@
 
 ### Fixed
 
+- **Opening configuration mode prints the sentence a box prints.** `configure terminal` answered in silence,
+  so the first line of every captured IOS session - the vendor's
+  `Enter configuration commands, one per line.  End with CNTL/Z.` - was missing from a transcript a reader
+  compares against their own console, and the only sign of the mode change was the prompt, which a pasted
+  config does not show. The sentence is now the command's
+  answer, printed once per entry and by no config command or submode after it. It is one line with two spaces
+  after `line.` - the half no HTML page can settle, because browsers collapse the run of spaces and two of the
+  vendor's own pages wrap the sentence across two lines; the PDF's Courier text layer keeps both. The string,
+  its placement and the "once per entry" rule are pinned by `test/config-mode-greeting.test.js`, and the pages
+  that disagree are in [research/config-mode-greeting.md](research/config-mode-greeting.md).
 - **A bundle carries eight links, and a LACP group's surplus waits as hot-standby.** One EtherChannel "can
   consist of up to eight compatibly configured Ethernet ports", and "for a LACP EtherChannel, you can configure
   up to 16 Ethernet ports ... Up to eight ports can be active, and up to eight ports can be in standby mode"

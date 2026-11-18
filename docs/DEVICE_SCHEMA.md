@@ -122,6 +122,7 @@ without `dhcp-server` cannot create a pool, and one that is not a router cannot 
 ```
 Router> enable
 Router# configure terminal
+Enter configuration commands, one per line.  End with CNTL/Z.
 Router(config)# ip dhcp pool p1              ! on a Raspberry Pi
 % Raspberry Pi 5 SBC-d1 cannot serve DHCP: it has no dhcp-server capability
 ```

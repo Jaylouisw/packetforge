@@ -20,7 +20,7 @@ Modes and their prompts:
 | Command | Effect |
 |---------|--------|
 | `enable` | enter enable mode |
-| `configure terminal` | enter config mode; abbreviable word by word, down to what is still unique - `config t` is accepted, `con` is refused as ambiguous (`configure` / `converge`), and a bare `configure` is `% Incomplete command` |
+| `configure terminal` | enter config mode, answering with the box's one-line greeting; abbreviable word by word, down to what is still unique - `config t` is accepted, `con` is refused as ambiguous (`configure` / `converge`), and a bare `configure` is `% Incomplete command` |
 | `show version` | vendor, model, category, capabilities |
 | `show ip interface brief` | interface IP / status table (status = whether the port can carry a frame) |
 | `show ip route` | routing table: connected, static, OSPF, BGP, and the default - or `Gateway of last resort is not set` when there is none; a box that does not route prints `Default gateway is ...` over the host/redirect cache instead |
@@ -43,6 +43,15 @@ Modes and their prompts:
 | `ping <ip> [count]` | ICMP echo from this device |
 | `traceroute <address|name>` (`tracert`) | TTL-limited probes, one hop at a time, **three probes per hop**; each router that expires a probe answers with ICMP time exceeded, the destination with an echo reply, and every hop prints its address and a round trip per probe in `msec`; a probe refused with an ICMP destination-unreachable prints the letter for its code in that probe's column (`!N` network, `!H` host, `!P` protocol, `!U` port, `!A` administratively prohibited); a hop stopped by a down cable, a shut port or an ACL says why and ends the walk |
 | `exit` / `logout` | leave the session |
+
+`configure terminal` answers with the one sentence a box prints on entering config mode - `Enter configuration
+commands, one per line.  End with CNTL/Z.` - and prints it once per entry: the config commands that follow and
+the submodes they open print nothing of the sort, `end` prints nothing, and a refused `configure` enters no mode
+and so prints no sentence. It is **one line**, and the **two spaces** after `line.` are the box's own: Cisco's
+HTML pages collapse the run of spaces (and two editions wrap the sentence onto a second line in the rendered
+block), while the PDF's Courier text layer keeps both. Evidence and the two questions left open - wrapping at a
+narrow `terminal width`, and the NX-OS/IOS XR spellings - are in
+[research/config-mode-greeting.md](../research/config-mode-greeting.md).
 
 ## A command word can be shortened, down to what is still unique
 
@@ -651,6 +660,7 @@ the console accepts prints what it did:
 ```
 Router> enable
 Router# configure terminal
+Enter configuration commands, one per line.  End with CNTL/Z.
 Router(config)# hostname R1
 R1(config)# interface Gi0/0
 R1(config-if)# ip address 10.0.1.1 255.255.255.0
