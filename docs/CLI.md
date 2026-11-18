@@ -1659,12 +1659,17 @@ subtracts the other ids and the printed remainder runs straight through the bloc
 
 ```
 sw1(config-if)#switchport trunk allowed vlan remove 5-10,12
-Trunk on Fa0/1 allows VLANs 1-4,11,13-4094 (removed 5-10,12)
+Trunk on Fa0/1 allows VLANs 1-4,11,13-4094 (removed 5-9,12)
 sw1(config-if)#switchport trunk allowed vlan add 7
 Trunk on Fa0/1 allows VLANs 1-4,7,11,13-4094 (added 7)
 sw1(config-if)#switchport trunk allowed vlan remove 1002
 % VLANs 1002 stay on every trunk: the four media defaults (1002-1005) are always allowed and cannot be removed
 ```
+
+The tail names the ids **this** list lost, not the range that was typed: VLAN 10 was removed in the block above, so
+the same line on an untouched default list - the c3550's, which is where the transcript comes from - reads
+`(removed 5-10,12)` and here reads `(removed 5-9,12)`. `engine/cli.js` prints the ids the port was carrying
+(`gone`), so a request cannot report a subtraction that did not happen.
 
 They can be *named* in the list, and only there: `switchport trunk allowed vlan 1,100,1002-1005` is a line real
 Catalyst configurations carry. An access, native or voice VLAN still cannot be one, because those VLANs' media is
