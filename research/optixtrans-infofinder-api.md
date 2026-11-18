@@ -160,3 +160,46 @@ curl -sS --compressed -A "$UA" -H 'Content-Type: application/json' \
 
 The bundle that names the endpoints:
 `https://info.support.huawei.com/info-finder/vue/assets/index-aac0aaf9.js` - grep it for `getSpecBoards`.
+
+## 7. Addendum 2026-11-18: the third tool has no OptiXtrans hardware either, and the pages now block browsers
+
+The note above closed the *board-spec* tool (`speccenter`). Info-Finder ships three, and the one this
+note never asked - **Hardware Center** (`/info-finder/hardware/v4/queryModels`) - was measured today.
+It answers freely; it simply carries no subrack and no service board.
+
+**Payload.** `POST https://info.support.huawei.com/info-finder/hardware/v4/queryModels` with
+`{"domain":"0","language":"en","keyword":"<kw>","toolType":"hardwarecenter"}`. `domain` is `"0"`
+(enterprise) or `"1"` (carrier); anything else returns `10101`. `domain:"1"` answers
+`{"errCode":0,"data":null}` for every keyword tried, including the empty one - the carrier side is a
+separate deployment, not a second dataset on this host.
+
+| keyword | total | what comes back |
+|--|--|--|
+| `""` | **8,137** | the whole enterprise part set |
+| `OSN 9800` | **32** | **every row `hardwareType:"Optical module"`** - `OSN080N10` (CFP 1310 nm 103.125G), `OSN040N08` (QSFP-DD 400G), `OSN080N02` (QSFP28 100G), `OSN010B00`/`OSN010B01` (BiDi QSFP28), etc. Zero chassis, zero boards. |
+| `OptiXtrans` | **0** | - |
+| `E6616X` | **0** | - |
+| `TNG1N206`, `TNG1N210`, `TNG2DAP`, `TMB1`, `TNV1T210U` | **0** each | - |
+
+So the coverage is transceivers for the OSN 9800 line, filed under optical-module part numbers. The
+`TNG1N…` / `TNG1T…` / `TMB1…` boards the four open issues need are not in this tool's index at all,
+and the tool that does hold board specs (`speccenter`) is faulted per section 4. Both halves of
+Info-Finder are now closed by measurement rather than by guess.
+
+**User-agent correction, because it has already cost passes.** `support.huawei.com` product pages
+answer **200 only to the Googlebot UA** used in section 6. A Chrome UA, a Firefox UA and an empty UA
+all get Akamai `403 Access Denied` (414-463 B, `Reference #18.5e3da17…`, `errors.edgesuite.net`).
+Read with a browser UA, this host looks *withdrawn*; it is not - the documents are still 302 to
+`/view/notFound`, which is a publication decision, not a WAF. Only a Googlebot-UA 200 can distinguish
+the two, so section 6's recipe is the one to reuse.
+
+**Two R026 ids added to the wall.** The E9605 page (Googlebot UA, 200, 84,377 B) lists
+`EDOC1100622610` *OptiXtrans E9600 V100R026C00 Product Description 01* and `EDOC1100622612`
+*Feature Description 01*. Both answer `302 -> /view/notFound`, exactly like the R026 Product
+Documentation (`EDOC1100621488`) and Hardware Description (`EDOC1100625542`) roots. Their hedex
+equivalents (`hedex/hdx.do?docid=<ID>&lang=en`) return the same 3,728 B Vue shell as reported before.
+
+**Net effect on the four issues: none, and that is the finding.** #807, #808, #810 and #803 still
+each need one client-board port table. What is left is unchanged and short: a readable copy of
+`EDOC1100163901` (Board Datasheet) or `EDOC1100622610` / `EDOC1100621488` from a reader with a
+support session, one e-file `TNG1*` chapter, or a stated configuration naming the board.
