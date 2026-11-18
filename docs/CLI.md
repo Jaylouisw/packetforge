@@ -2445,9 +2445,16 @@ finished, the reply is not a timeout - the engine names the process that is not 
 
 ```
 SW1#ping 10.0.0.2 1 at 5000
+Type escape sequence to abort.
+Sending 1, 100-byte ICMP Echos to 10.0.0.2, timeout is 2 seconds:  (at t=5000 ms)
+.
 Success rate is 0 percent (0/1)
 % Still converging: stp on SW1 (ready at 30000 ms) at t=5000 ms
 ```
+
+Those are the whole answer, not two lines of it: `Sending 1, … (at t=5000 ms)` names the instant that was
+asked, the lone `.` is the one echo that never came back, and `Success rate is 0 percent (0/1)` counts it - the
+converging sentence is the last line of a five-line answer. [CONVERGENCE.md](CONVERGENCE.md) prints the same one.
 
 Replies now carry a real millisecond time, computed from the path (propagation in each medium,
 serialisation at each port, store-and-forward at each device) rather than a hop count. See
