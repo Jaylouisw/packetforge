@@ -3196,6 +3196,13 @@ class CliSession {
     // column an operator reads to find out which box is answering for the gateway (#1241).
     const verdicts = (this.sim && typeof this.sim.vrrpFor === 'function') ? this.sim.vrrpFor(dev.id) : [];
     const claims = (dev.vrrpClaims || []);
+    // Groups where this router holds the virtual address itself. The Pri column quotes the priority the
+    // group runs at, and for these that is 255 - Cisco: "If a VRRP group is the IP address owner, its
+    // priority is fixed at 255", and the election here has always voted that way (#1727). Printing the
+    // configured 100 next to a router that just outranked a 254 is a table arguing with its own
+    // election.
+    const vrrpLib = require('./vrrp');
+    const ownerNotes = [];
     out.push(pad('Interface', 14) + pad('Group', 7) + pad('Pri', 5) + pad('State', 11) +
       pad('Master', 18) + pad('Virtual IP', 16) + 'Virtual MAC');
     for (const g of groups) {
@@ -3238,13 +3245,24 @@ class CliSession {
       // The virtual MAC is a hardware address, so it prints in the same dotted form as every other one this
       // console shows, and in the form the device's own `show vrrp detail` uses: 0000.5e00.010a.
       const virtualMac = (verdict && verdict.mac) || (claim && claim.mac) || null;
+      // The owner check is the election's own predicate, asked of this router's interface address, so
+      // the column and the vote cannot disagree about which value is in force.
+      const isOwner = vrrpLib.isOwner({ ip: port ? port.ip : null }, ips);
+      const configured = (g.priority === undefined || g.priority === null) ? vrrpLib.VRRP_DEFAULT_PRIORITY : g.priority;
+      const inForce = vrrpLib.effectivePriority({ owner: isOwner, priority: configured });
+      if (isOwner) {
+        ownerNotes.push('% VRRP group ' + g.vrid + ' on ' + g.interface + ': this device holds ' +
+          (port && port.ip ? port.ip : ips.join(',')) + ', so it is the address owner and its priority is ' +
+          inForce + ' (owner mode) - `vrrp ' + g.vrid + ' priority` cannot set that value');
+      }
       out.push(pad(String(g.interface), 14) + pad(String(g.vrid), 7) +
-        pad(String(g.priority === undefined ? 100 : g.priority), 5) +
+        pad(String(inForce), 5) +
         pad(state, 11) +
         pad(master, 18) +
         pad((g.ips || []).join(','), 16) +
         (virtualMac ? net.formatMac(virtualMac) : '-'));
     }
+    out.push.apply(out, ownerNotes);
     // The old note fired whenever this device held no claim, and told you to run a simulation even when
     // one had just run. Two different situations, two different sentences.
     if (!verdicts.length && !claims.length) {

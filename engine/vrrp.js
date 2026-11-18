@@ -362,12 +362,24 @@ function idsExcept(cands, id) {
   return out;
 }
 
+// The priority a candidate runs at, as opposed to the one an operator typed: an address owner holds
+// one of the group's virtual addresses on its own interface, so it is implicitly 255 no matter what
+// the `priority` command says. Cisco states it twice - "If a VRRP group is the IP address owner, its
+// priority is fixed at 255" (IOS First Hop Redundancy Protocols Configuration Guide) and "the default
+// is 100 for backups and 255 for a master that has an interface IP address equal to the virtual IP
+// address" (Nexus 5600 Unicast Routing Guide) - and RFC 5798 reserves the value for exactly that
+// router. Both numbers are kept on each candidate, because the configured one is what
+// `show running-config` prints and the effective one is what the group votes with (#1727).
+function effectivePriority(c) {
+  return c.owner ? VRRP_OWNER_PRIORITY : c.priority;
+}
+
 // routers: [{ id, priority, ip, preempt, up }]. The optional second argument is
 // the group (or its ips array) and is what makes owner detection possible.
 function electMaster(routers, group) {
   const cands = candidateList(routers, groupIpsOf(group));
   if (cands.length === 0) {
-    return { masterId: null, backups: [], reason: 'no-candidates' };
+    return { masterId: null, backups: [], reason: 'no-candidates', candidates: [] };
   }
   const master = cands[0];
   let reason;
@@ -378,7 +390,13 @@ function electMaster(routers, group) {
   return {
     masterId: master.id,
     backups: idsExcept(cands, master.id),
-    reason: reason
+    reason: reason,
+    // Every candidate with both numbers: the caller that reports the group (show vrrp, the timeline)
+    // has to quote the priority the group runs at, and re-deriving it from the configured value is how
+    // a surface ends up saying 100 about a router that voted with 255 (#1727).
+    candidates: cands.map(function (c) {
+      return { id: c.id, priority: effectivePriority(c), configured: c.configured, owner: c.owner };
+    })
   };
 }
 
@@ -473,6 +491,8 @@ module.exports = {
   VRRP_MAC_PREFIX,
   VRRP_MULTICAST_IP,
   VRRP_RULES,
+  isOwner,
+  effectivePriority,
   validateGroup,
   normalizeGroup,
   virtualMac,

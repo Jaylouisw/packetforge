@@ -2,6 +2,25 @@
 
 ### Fixed
 
+- **`show vrrp` prints the priority the group runs at, and an address owner runs at 255.** VRRP reserves
+  255 for the router whose own interface address is one of the group's virtual addresses - Cisco: "If a
+  VRRP group is the IP address owner, its priority is fixed at 255"; Nexus: "the default is 100 for
+  backups and 255 for a master that has an interface IP address equal to the virtual IP address" - and
+  the election here has always voted that way. The `Pri` column printed the configured value instead, so
+  a router that owned the virtual gateway showed `100` in the very table explaining why it had just
+  outranked a 254, and the timeline event carried the same number. The column now quotes the election's
+  number, a note under the table says why it differs from the configuration (`owner mode`, and that
+  `vrrp <vrid> priority` cannot set 255), and the configured value is untouched: `show running-config`
+  still prints it and a backup still runs at it. `electMaster()` now returns both numbers per candidate
+  (`priority`, `configured`) so no caller has to re-derive the rule. The refusal of
+  `vrrp 7 priority 255` is unchanged, and [research/show-vrrp-owner-priority.md](research/show-vrrp-owner-priority.md)
+  records the sources and the one question left open - what IOS's own `show vrrp brief` prints for an
+  owner, where every sample in hand has no owner in it or is internally inconsistent.
+  `test/show-vrrp-owner-priority.test.js` pins 28 checks: the owner's 255 and the backup's 254, the note
+  and its wording, the refused value staying refused and leaving the group alone, an owner configured
+  150 printing 255 while the running-config keeps 150, the verdict carrying both numbers, the column
+  without a simulator, a shut owner still at 255 in `Init` while the backup takes over, and a group
+  where nobody owns the address printing configured values with no note.
 - **`ip address <addr> 255.255.255.255` is refused on a port, in the vendor's own sentence.** A 32-bit mask
   leaves one address and no host space, so a box will not put one on a link that has to reach another box:
   Cisco's guide says `255.255.255.255` "describes a subnet with only one IPv4 host address ... strictly

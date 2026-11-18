@@ -2583,6 +2583,14 @@ Interface     Group  Pri  State      Master            Virtual IP      Virtual M
 Gi0/0         10     150  Master     10.0.0.1          10.0.0.254      0000.5e00.010a   
 ```
 
+* **Pri** is the priority the group runs at, which is not always the number that was typed. VRRP
+  reserves 255 for the **address owner** - the router whose own interface address is one of the
+  group's virtual addresses - so that router runs at 255 however it is configured, and the column
+  prints 255 with a note saying why. Every other router prints its configured priority. The value is
+  not typeable: `vrrp <vrid> priority` accepts 1-254, because typing 255 would claim an ownership the
+  router does not have. A router that owns the address and was configured 150 therefore shows `255`
+  here and `vrrp 7 priority 150` in `show running-config`, which is the difference between what the
+  group votes with and what was asked for.
 * **State** is this router's own role: `Master`, `Backup`, or `Init` when it is not taking part at all
   (its group interface is down or has no address — a backup that cannot receive advertisements is not
   standing by, it is out).

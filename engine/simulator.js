@@ -1092,8 +1092,15 @@ class Simulator {
 
       // Record the verdict once per candidate port, so any router in the group can answer "who is the
       // master, and has it got the address yet?" without re-running the election.
+      //
+      // The priority quoted here is the one the group voted with, which is the election's own number:
+      // an address owner runs at 255 whatever it is configured with, so `priority` is the effective
+      // value and `configured` keeps the typed one beside it (#1727).
+      const eff = new Map(res.candidates.map(function (c) { return [c.id, c]; }));
       const candidates = voters.map(function (c) {
-        return { id: c.id, name: c.dev.name || c.id, priority: c.priority, up: c.up };
+        const e = eff.get(c.id) || { priority: c.priority, configured: c.priority, owner: false };
+        return { id: c.id, name: c.dev.name || c.id, priority: e.priority,
+          configured: e.configured, owner: e.owner, up: c.up };
       });
       for (const c of voters) {
         const list = this.vrrpByDevice.get(c.id) || [];
@@ -1108,7 +1115,8 @@ class Simulator {
           // The address, because that is what `show vrrp` is for: the master's own interface address is
           // the thing a fault report quotes, and it fits a column.
           masterIp: master.iface.ip || null,
-          masterPriority: master.priority,
+          // The master's priority as the group counts it: 255 when it owns the virtual address.
+          masterPriority: (eff.get(master.dev.id) || { priority: master.priority }).priority,
           owning: owning,
           mac: vrrpLib.virtualMac(e.vrid),
           candidates: candidates,
@@ -1120,7 +1128,8 @@ class Simulator {
       events.push({
         type: 'vrrp', vrid: e.vrid, ips: e.group.ips.slice(),
         master: master.dev.id, masterName: master.dev.name, iface: master.iface.name,
-        priority: master.priority, reason: res.reason,
+        priority: (eff.get(master.dev.id) || { priority: master.priority }).priority,
+        reason: res.reason,
         backups: voters.filter(function (c) { return c.id !== master.dev.id; })
           .map(function (c) { return c.dev.name; }),
         mac: vrrpLib.virtualMac(e.vrid),
