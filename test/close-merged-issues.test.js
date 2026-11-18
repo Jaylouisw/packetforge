@@ -8,6 +8,7 @@
 // things that decide whether it helps or does damage: what counts as a closing claim, whether a
 // device is really in the catalogue, and whether a second run can repeat itself or reopen
 // something a human reopened on purpose.
+const fs = require('fs');
 const path = require('path');
 const {
   parseClosingKeywords,
@@ -303,19 +304,34 @@ const INDEX = buildDeviceIndex(SPECS);
   console.log('Against the real catalogue - the queue Jay is looking at:');
   try {
     const index = loadDeviceIndex();
-    const queue = [
-      [810, '[Device]: OptiXtrans E9624'],
-      [803, '[Device]: OptiXtrans E6616X'],
-      [743, '[Device]: Huawei OceanProtect X8100/X9100 Backup Storage'],
-      [742, '[Device]: Huawei OceanProtect E8000 Backup Storage'],
-      [130, '[Device]: Ubiquiti UniFi Dream Wall Pro (UDW-PRO)']
-    ];
-    const proposed = queue.filter(function (q) { return deviceMatch(q[1], index); });
+    // The queue is not a literal in this file. It is `research/open-device-requests.json` - the same
+    // ledger docs/DEVICE_REGISTRY.md is rendered from, and the record scripts/check-closed-issues.js
+    // treats as "still blocked" - and a request leaves it in the commit that models the device.
+    // A copy pasted here had to be hand-edited by every device pull request, and it went red on
+    // #1962 and #1934 for answering the very request they were opened to answer: the assertion
+    // could not tell "this pull request built the device" from "the sweep regressed". Reading the
+    // ledger leaves the device stream one edit, the one the docs need anyway.
+    const ledgerFile = path.join(__dirname, '..', 'research', 'open-device-requests.json');
+    const ledger = JSON.parse(fs.readFileSync(ledgerFile, 'utf8')).requests || [];
+    ok(ledger.length > 0, 'the open-request ledger still yields rows, so this pass is not vacuous',
+      String(ledger.length));
+    ok(ledger.every(function (r) { return r && r.issue && r.models; }),
+      'every ledger row names an issue and a model, which is what the join below needs',
+      ledger.filter(function (r) { return !(r && r.issue && r.models); }).map(function (r) { return String(r && r.issue); }).join(', '));
+    const proposed = ledger.filter(function (r) { return deviceMatch('[Device]: ' + r.models, index); });
+    // What is left to assert is the invariant the snapshot was reaching for: a request the project
+    // still lists as blocked must not be one the sweep would close - the ledger would be lying to
+    // docs/DEVICE_REGISTRY.md, and the sweep would close an issue nobody built anything for.
     ok(proposed.length === 0,
-      'none of the six open requests is in the catalogue, so none is closed by this workflow',
-      proposed.map(function (p) { return '#' + p[0]; }).join(', '));
+      'none of the ' + ledger.length + ' open requests is in the catalogue, so none is closed by this' +
+      ' workflow (an answered row must leave the ledger: npm run regen:registry-doc)',
+      proposed.map(function (p) {
+        const hit = deviceMatch('[Device]: ' + p.models, index);
+        return '#' + p.issue + ' -> ' + (hit && hit.file);
+      }).join(', '));
     // A request the catalogue now answers is answered: #807's E9605 and #808's E9612 both landed
-    // on 2026-11-18, so the sweep would find them - which is why neither is in the queue above.
+    // on 2026-11-18, and each left this ledger in the commit that built it - which is why the sweep
+    // finds them and the ledger no longer lists them.
     const answered = deviceMatch('[Device]: OptiXtrans E9605', index);
     ok(answered && answered.file === 'devices/huawei/optixtrans-e9605.json',
       'and the E9605 request that has since been built resolves to its spec file', answered && answered.file);
