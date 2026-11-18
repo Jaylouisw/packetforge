@@ -159,10 +159,11 @@
   example ends four rows with `Total entries displayed: 4`, and a filtered Nexus detail view ends its one row
   with `1`. An empty table prints no count, because no vendor page in hand shows one - the empty case is the
   half left open in [research/lldp-total-entries.md](research/lldp-total-entries.md), which also says why the
-  capability-codes legend was *not* taken with it. `test/lldp-total-entries.test.js` pins 17 checks: the
+  capability-codes legend was *not* taken with it. `test/lldp-total-entries.test.js` pins 16 checks: the
   wording and position, the count against the rows, the plural for a single row, a row aged past its TTL leaving
-  the count, a row for a downed port still counting, the empty table printing none, and all three accepted
-  spellings agreeing.
+  the count, a row for a downed port still counting, the empty table printing none, and both accepted
+  spellings agreeing - `show lldp neighbors` and `show lldp neighbours`. `show lldp` was a third until it
+  became the status view (#1915), which is the one check this count lost.
 
 - **A Catalyst does not route until somebody types `ip routing`, and now neither does this one.** The console has
   printed two `show ip route` shapes since the host table landed - the codes legend over a routing table, and
