@@ -2979,7 +2979,7 @@ sw1(config-if)#no description ?
 % "?" is the help key, not a value: `no description` clears the description on this port - nothing was cleared
 ```
 
-The table behind it is `NO_FORMS` in `engine/cli.js`: 32 branches — 15 in config mode, 9 at an interface, 8 in a
+The table behind it is `NO_FORMS` in `engine/cli.js`: 33 branches — 16 in config mode, 9 at an interface, 8 in a
 DHCP pool — and the longest match wins, so `no ip nat pool <name>` is named rather than the `no ip nat` beside it.
 A head the table does not know is refused without inventing a syntax it never had:
 
