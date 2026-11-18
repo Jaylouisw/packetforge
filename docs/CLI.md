@@ -25,7 +25,7 @@ Modes and their prompts:
 | `show ip interface brief` | interface IP / status table (status = whether the port can carry a frame), one row per port and one per EtherChannel bundle (`Port-channel1`, `unassigned YES unset`, `up` only when a member is in it) |
 | `show ip route` | routing table: connected, static, OSPF, BGP, and the default - or `Gateway of last resort is not set` when there is none; a box that does not route prints `Default gateway is ...` over the host/redirect cache instead |
 | `show arp` | ARP cache: the neighbours it has heard, with an age and the port each was heard on and whether that port can still carry a frame, plus a local row (age `-`) for every interface holding an IPv4 address |
-| `show mac address-table` | MAC table (switches), per VLAN, with an age per entry and stale entries marked, titled and ruled as the device prints it and closed by `Total Mac Addresses for this criterion: N`; an address learned through a bundle is named on the port-channel (`Po1`), as the device names it (`research/mac-table-port-channel-name.md`) |
+| `show mac address-table` | MAC table (switches), per VLAN, with an age per entry and stale entries marked, the box's twenty reserved `All … CPU` rows above the learned ones, titled and ruled as the device prints it and closed by `Total Mac Addresses for this criterion: N`; an address learned through a bundle is named on the port-channel (`Po1`), as the device names it (`research/mac-table-port-channel-name.md`) |
 | `show vlan` / `show vlan brief` | VLAN table: one row per VLAN in the VLAN database, with the **access** ports in it - a trunk port carries the VLAN and appears in no row - and the four reserved defaults (1002-1005) a switch has from boot. `show vlan` is the full view: it then prints the media table (`Type`, `SAID`, `MTU`, `Stp`, `Trans1/2`), the empty `Remote SPAN VLANs` section and the empty private-VLAN table; `brief` stops after the first table |
 | `show spanning-tree` | per-port STP role and state, the bridge priority and the elected root, or "not measured" when nothing has run |
 | `show etherchannel summary` | the device's own summary: the nine-line flag key, both counts, `Po<N>(SU)` per group, LAG members `(P)` bundled, `(I)` stand-alone or `(D)` unbundled, with the reason |
@@ -2451,10 +2451,30 @@ SW1#show mac address-table
 
 Vlan    Mac Address         Type        Age     Ports
 ----    -----------         --------    ---     -----
+All     0100.0ccc.cccc      STATIC      -       CPU
+All     0100.0ccc.cccd      STATIC      -       CPU
+All     0180.c200.0000      STATIC      -       CPU
+All     0180.c200.0001      STATIC      -       CPU
+All     0180.c200.0002      STATIC      -       CPU
+All     0180.c200.0003      STATIC      -       CPU
+All     0180.c200.0004      STATIC      -       CPU
+All     0180.c200.0005      STATIC      -       CPU
+All     0180.c200.0006      STATIC      -       CPU
+All     0180.c200.0007      STATIC      -       CPU
+All     0180.c200.0008      STATIC      -       CPU
+All     0180.c200.0009      STATIC      -       CPU
+All     0180.c200.000a      STATIC      -       CPU
+All     0180.c200.000b      STATIC      -       CPU
+All     0180.c200.000c      STATIC      -       CPU
+All     0180.c200.000d      STATIC      -       CPU
+All     0180.c200.000e      STATIC      -       CPU
+All     0180.c200.000f      STATIC      -       CPU
+All     0180.c200.0010      STATIC      -       CPU
+All     ffff.ffff.ffff      STATIC      -       CPU
 1       0200.0000.0100      DYNAMIC     0s      Fa0/1
 1       0200.0000.0200      DYNAMIC     140s    Fa0/2 (down: peer shut down)
 20      0200.0000.0900      DYNAMIC     -       Fa0/1 (vlan mismatch)
-Total Mac Addresses for this criterion: 3
+Total Mac Addresses for this criterion: 23
 ```
 
 * **The table is titled, ruled and counted, the way the device prints it.** `Total Mac Addresses for this
@@ -2462,6 +2482,15 @@ Total Mac Addresses for this criterion: 3
   switch's, and a view that matched nothing reads `…: 0` rather than losing the line. The underline under the
   headings is the device's own fixed run of dashes (4, 11, 8 and 5 for Vlan, Mac Address, Type and Ports); `Age`
   is this model's column and is underlined to the length of its own name.
+* **The twenty `All … CPU` rows above them are the box's, not anyone's traffic.** A real switch forwards CDP's
+  two addresses, the `0180.c200.0000`–`0010` group-address run (spanning tree, LACP and LLDP among them) and the
+  all-nodes broadcast to its own CPU, so it
+  prints them as `STATIC` with `All` in the Vlan cell — they are in no VLAN — and counts them in the total, which
+  is why an untouched switch reads 20 rather than 0. Nothing here learned them and nothing can age them out, so
+  they appear only in the unfiltered view: they are on no port, and `interface <port>` cannot match one. The
+  IOS XE family prints one more, `0180.c200.0021`, which this console does not print for any model
+  (`research/mac-table-reserved-rows.md` records the split and the eleven-row sample in Cisco's 2960-X reference
+  that is boilerplate shared with third-party manuals, not a transcript).
 * **Ports** is the port the source MAC was heard on, per VLAN.
 * **Age** is the silence: a dynamic entry leaves the table after 300 s without a frame from that address, and the
   same aged lookup decides forwarding — an entry the table only remembers is not a port a frame may be sent to. `-`

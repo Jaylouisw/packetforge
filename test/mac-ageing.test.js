@@ -57,6 +57,9 @@ function table(env, nowMs) {
   for (const l of lines.slice(head + 2, total < 0 ? lines.length : total)) {
     if (!l.trim()) continue;
     const f = l.trim().split(/\s+/);
+    // A row whose Ports cell is `CPU` is one of the platform's reserved entries: never learned, never
+    // aged, and another suite's subject (`test/mac-table-reserved-rows.test.js`).
+    if (f[4] === 'CPU') continue;
     out.push({ vlan: f[0], mac: f[1], type: f[2], age: f[3], port: f[4] });
   }
   return out;

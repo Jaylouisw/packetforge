@@ -2,6 +2,22 @@
 
 ### Fixed
 
+- **A switch's MAC table starts with the twenty rows nobody learned.** `show mac address-table` on a switch
+  nobody had configured printed an empty table and `Total Mac Addresses for this criterion: 0`. A real Catalyst
+  forwards a fixed set of addresses to its own CPU - CDP's two, the `0180.c200.0000`-`0010` group-address run
+  (spanning tree, LACP, LLDP among them) and the all-nodes broadcast - and prints them as `All … STATIC … CPU`
+  above the learned rows, counting them in the
+  total: a factory-default 2960 reads 20, and the same box with one address learned reads 21 (a 12.2SE paste at
+  brezular.com/2010/10/10/mac-flooding-attack-2; Cisco's own CCNA lab shows the same twenty over two learned
+  rows and closes at 22). They belong to no VLAN and to no port, so they appear only in the unfiltered view, and
+  only on a device whose category is a switch - a PC answering the same command still gets an empty table. The
+  IOS XE family prints one more row, `0180.c200.0021`, which this console does not print for any model.
+  `test/mac-table-reserved-rows.test.js` (22 checks) pins the set, its order, the four cells, the placement above
+  the learned rows, the counted total and the filtered view;
+  [research/mac-table-reserved-rows.md](research/mac-table-reserved-rows.md) records the 20-versus-21 split and
+  why the eleven-row `0000.0000.000x` sample in Cisco's current 2960-X/2960-L/1000 references was read as
+  documentation boilerplate rather than a transcript - the same eleven rows are in Hikvision's and SNR's
+  manuals, and the same page contradicts itself a few paragraphs later.
 - **Opening configuration mode prints the sentence a box prints.** `configure terminal` answered in silence,
   so the first line of every captured IOS session - the vendor's
   `Enter configuration commands, one per line.  End with CNTL/Z.` - was missing from a transcript a reader

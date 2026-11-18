@@ -71,12 +71,14 @@ its heading.
   (<https://www.arista.com/en/um-eos/eos-data-transfer>), and the sentence is phrased as a count of a criterion,
   of which zero is a value. PacketForge prints 0. This is the one line of the change that rests on inference.
 * **The total counts static rows too.** In the 9200 transcript the 22 is 21 `STATIC … CPU` rows plus one
-  dynamic row, so the count is of rows, not of learned addresses. PacketForge has no static rows to count, so
-  its number is its dynamic rows; that difference is the next item.
-* **The reserved `STATIC … CPU` rows are not modelled — unresolved, and out of scope here.** A real switch
-  lists `All 0100.0ccc.cccc STATIC CPU`, eighteen `0180.c200.00xx` multicast rows and `ffff.ffff.ffff` before
-  any traffic arrives. Which of them appear varies with platform and image (the 9200 page shows 21, other
-  images show a different set), so adopting one list would be inventing a platform. This run did not touch it.
+  dynamic row, so the count is of rows, not of learned addresses. PacketForge's number is now its dynamic rows
+  plus the reserved block — the next item, which a later run took up.
+* **The reserved `STATIC … CPU` rows were left unmodelled here.** A real switch lists `All 0100.0ccc.cccc
+  STATIC CPU`, the `0180.c200.00xx` multicast run and `ffff.ffff.ffff` before any traffic arrives, and the 9200
+  page shows 21 of them. This run judged that the set varied too much per image to adopt one list.
+  **Superseded:** `research/mac-table-reserved-rows.md` found a real 2960 paste beside the XE pages, showed the
+  variance is one row (`0180.c200.0021`, IOS XE only) and not a different set per platform, and the console now
+  prints the twenty rows every transcript shares, counted in the total.
 
 ## What PacketForge prints now
 

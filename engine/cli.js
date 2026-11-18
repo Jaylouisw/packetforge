@@ -42,6 +42,28 @@ const CONFIG_MODE_GREETING = 'Enter configuration commands, one per line.  End w
 
 function pad(s, w) { s = String(s); return s + ' '.repeat(Math.max(0, w - s.length)); }
 
+// The reserved entries a Catalyst has in its forwarding table before anyone configures anything, and the reason a
+// student's first `show mac address-table` on real hardware is not the empty table this console used to print.
+// Every row is `All` in the Vlan column (they belong to no VLAN), `STATIC`, and `CPU` in Ports, because the box
+// forwards them to its own CPU rather than out of a port - CDP's two addresses, the `0180.c200.0000`-`0010`
+// group-address run (spanning tree, LACP, LLDP among them), the all-nodes broadcast - so they are on no port and
+// no filter can find them.
+//
+// The twenty below are the block a 2960 prints, in the box's order: two `0100.0ccc.xxxx`, the `0180.c200.0000` run
+// to `0010`, then the broadcast address. A real 2960-I (12.2SE) paste lists exactly these with one learned entry
+// and closes `Total Mac Addresses for this criterion: 21`
+// (https://brezular.com/2010/10/10/mac-flooding-attack-2/), and the CCNA "Viewing Network Device MAC Addresses"
+// lab prints the same twenty over two learned rows and closes at 22. The IOS XE family prints one more -
+// `0180.c200.0021` between `0010` and `ffff.ffff.ffff`, twenty-one rows - in the Catalyst 9300 16.12 command
+// reference (https://www.cisco.com/c/en/us/td/docs/switches/lan/catalyst9300/software/release/16-12/command_reference/b_1612_9300_cr/system_management_commands.html)
+// and on the 9200/9400/9500/9600 pages. This console speaks one IOS-shaped table for the whole catalogue, so it
+// prints the twenty every published transcript agrees on and not the one row that arrived with IOS XE;
+// research/mac-table-reserved-rows.md records the split, and why the eleven-row `0000.0000.000x` sample in Cisco's
+// current 2960-X/2960-L/1000 command references was not used as evidence.
+const RESERVED_MAC_TABLE_ROWS = ['0100.0ccc.cccc', '0100.0ccc.cccd']
+  .concat(Array.from({ length: 17 }, function (_, i) { return '0180.c200.' + i.toString(16).padStart(4, '0'); }))
+  .concat(['ffff.ffff.ffff']);
+
 // One MAC, in every notation a console meets it in. A hardware address has three spellings - `aa:bb:cc:00:00:99`,
 // `aa-bb-cc-00-00-99`, and the IOS dotted `aabb.cc00.0099` that `net.formatMac()` prints on every table this
 // console shows - and `net.macToInt()` already folds all three onto the same 48 bits. "Is this token a hardware
@@ -6315,7 +6337,16 @@ class CliSession {
       out.push('');
       out.push(columns.map(function (c) { return pad(c[0], c[1]); }).join(''));
       out.push(columns.map(function (c) { return pad('-'.repeat(c[2]), c[1]); }).join(''));
-      // The rows come from the engine, so the payload the browser reads and this table cannot disagree (#1327).
+      // The rows the box has learned come from the engine, so the payload the browser reads and this table cannot
+      // disagree (#1327). The reserved block above them does not come from the engine because it is not state: no
+      // frame ever taught the box those addresses and nothing here can forget them. It is a property of being a
+      // switch, which is why a PC answering this command (this console answers every command everywhere) still
+      // gets an empty table, and why a filtered view gets none of them - they are on the CPU, not on a port.
+      const reserved = (only || !(dev.category === 'switch' || dev.category === 'l3-switch'))
+        ? [] : RESERVED_MAC_TABLE_ROWS;
+      for (const mac of reserved) {
+        out.push(pad('All', 8) + pad(mac, 20) + pad('STATIC', 12) + pad('-', 8) + 'CPU');
+      }
       let rows = dev.macRows(this.topo, nowMs);
       // The filter matches the port the table names *and* the member a bundled frame arrived on: a real box
       // learned the address on the port-channel, so `interface Po1` is the filter that finds it - but `Fa0/2`
@@ -6338,9 +6369,10 @@ class CliSession {
       // criterion" is the filter the operator typed, so a filtered view totals that port, not the box (a 9200
       // transcript shows `Total ...: 1` under a one-row filter on a switch holding 22 entries). An empty view
       // prints 0 rather than losing the line, which would read as a command that did not finish.
-      // Known gap, not fixed here: a real box also lists its reserved `STATIC ... CPU` rows above the learned
-      // ones, and counts them; this model has none to count (research/mac-table-surround.md).
-      out.push('Total Mac Addresses for this criterion: ' + rows.length);
+      // The reserved rows are counted, because the device counts them: the 2960 paste holds twenty CPU rows
+      // and one learned address and closes at 21, and one static entry added by hand makes it 22. They are also
+      // why an untouched switch no longer prints `0` (research/mac-table-reserved-rows.md).
+      out.push('Total Mac Addresses for this criterion: ' + (rows.length + reserved.length));
     } else if (what === 'interfaces' || what === 'interface') {
       // `show interfaces Fa0/1` printed every port on the box: the answer to a question about one socket was
       // the whole switch, and on a 48-port model the socket asked about could be eight screens down. The name

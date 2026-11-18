@@ -77,10 +77,16 @@ console.log('The count at the end is of the rows just printed:');
 {
   const env = lab();
   const out = lines(env, 'show mac address-table');
-  ok(out[out.length - 1] === 'Total Mac Addresses for this criterion: 2',
-    'the whole table ends with its total', JSON.stringify(out[out.length - 1]));
+  // The twenty reserved `All ... CPU` rows a switch prints before anything is learned count too - the device
+  // counts them (research/mac-table-reserved-rows.md) - so the total over two learned entries is 22.
+  ok(out[out.length - 1] === 'Total Mac Addresses for this criterion: 22',
+    'the whole table ends with its total, reserved rows included', JSON.stringify(out[out.length - 1]));
   const rows = out.filter(function (l) { return /^\d+\s/.test(l); }).length;
-  ok(rows === 2, 'and the total is the number of rows above it', String(rows));
+  ok(rows === 2, 'and the learned rows above it are the two the hosts sent', String(rows));
+  const reserved = out.filter(function (l) { return /^All\s/.test(l); });
+  ok(reserved.length === 20 && /CPU$/.test(reserved[0]),
+    'twenty reserved CPU rows precede them, and the total counts those too',
+    String(reserved.length));
 
   const filtered = lines(env, 'show mac address-table interface Fa0/1');
   ok(filtered[filtered.length - 1] === 'Total Mac Addresses for this criterion: 1',

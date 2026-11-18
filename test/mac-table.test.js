@@ -58,7 +58,11 @@ function table(env) {
     .map(String);
   const head = lines.findIndex(function (l) { return /^Vlan\s/.test(l); });
   const total = lines.findIndex(function (l) { return /^Total Mac Addresses for this criterion:/.test(l); });
-  const body = lines.slice(head + 2, total < 0 ? lines.length : total).filter(function (l) { return l !== ''; });
+  // The reserved `... CPU` rows a switch prints above the learned ones are a platform table, not something the
+  // box learned - `test/mac-table-reserved-rows.test.js` owns them. This suite is about entries that came off a
+  // wire, so they are dropped here rather than counted as learned rows.
+  const body = lines.slice(head + 2, total < 0 ? lines.length : total)
+    .filter(function (l) { return l !== '' && !/\sCPU$/.test(l); });
   return { header: lines[head] || '', body: body, fields: body.map(function (l) { return l.trim().split(/\s+/); }) };
 }
 
