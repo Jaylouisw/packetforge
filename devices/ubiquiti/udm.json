@@ -1,0 +1,52 @@
+{
+  "vendor": "ubiquiti",
+  "model": "UDM",
+  "label": "UniFi Dream Machine",
+  "category": "router",
+  "description": "UniFi Dream Machine (UDM) - 1x 1G RJ45 WAN + 4x 1G RJ45 LAN, no PoE. WiFi 5; 26 W max.",
+  "capabilities": [
+    "l3-forward",
+    "firewall",
+    "nat",
+    "dhcp-server",
+    "dhcp-client",
+    "cli",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "WAN",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "LAN 1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "LAN 2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "LAN 3",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "LAN 4",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    }
+  ],
+  "icon": "router",
+  "color": "#14b8a6",
+  "notes": "Port census from the vendor datasheet, 'Networking interface': (4) LAN GbE RJ45 ports, (1) WAN GbE RJ45 port; no SFP and no PoE on this model. Max. power consumption 26 W. The tech-spec page (https://techspecs.ui.com/unifi/cloud-gateways/udm, 608,032 B, read 2026-11-18) prints no networking-interface row, so the datasheet is the source of the counts.",
+  "sourceUrl": "https://dl.ui.com/ds/udm_ds.pdf"
+}
