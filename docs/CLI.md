@@ -3065,7 +3065,7 @@ Router(config)#ip route 10.9.0.0
 % Incomplete command: ip route <dest> <mask> <gateway|interface>
 ```
 
-`test/no-command-swallows-a-word.test.js` runs the whole sweep as a guard — 33 families, three classes, and a rule for what an unquoted refusal is allowed to be — so the next command that accepts a word it does not know is caught by measurement rather than by someone noticing. 21 checks; with the old handler, 12 passed / 9 failed.
+`test/no-command-swallows-a-word.test.js` runs the whole sweep as a guard — 34 cases, three classes, and a rule for what an unquoted refusal is allowed to be — so the next command that accepts a word it does not know is caught by measurement rather than by someone noticing. 24 checks; it shipped with 21, of which the old handler passed 12 and failed 9.
 
 ## A short line is not a wrong value
 
