@@ -65,7 +65,7 @@ The anchors:
 | Anchor | Today | This design changes it to |
 |---|---|---|
 | `bgp.js:57-59` | `DEFAULT_LOCAL_PREF = 100`, `DEFAULT_WEIGHT = 0`, `DEFAULT_MED = 0` | keep; add `MED_MAX`, `LOCAL_PREF_MAX`, `WEIGHT_MAX`, `WELL_KNOWN_COMMUNITIES` |
-| `bgp.js:490-521` `comparePaths(a, b)` | 9 steps — weight, `LOCAL_PREF`, locally originated, AS-path length, `ORIGIN`, MED, eBGP over iBGP, the advertising speaker's router ID, then the peer address (`fromIp`) — with MED compared unconditionally (declared simplification in the file header comment, lines 18-19) | MED only within a neighbouring AS; optional `opts` third argument |
+| `bgp.js:490-521` `comparePaths(a, b)` | 9 steps — weight, `LOCAL_PREF`, locally originated, AS-path length, `ORIGIN`, MED, eBGP over iBGP, the advertising speaker's router ID, then the peer address (`fromIp`) — and MED compared only between paths that name the same neighbouring AS (MED-3: `neighbourAs()` / `medComparable()`, `research/bgp-med-neighbour-as.md`) | optional `opts` third argument for `always-compare-med` (MED-5), still unmodelled |
 | `bgp.js:554-574` `compareForBest` / `bestPath` | sort with `comparePaths`, then router-id, then prefix | RFC 4271 §9.1.2.2 *elimination pipeline* (a sortable comparator cannot express the MED rule — see §4.5) |
 | `bgp.js:588-625` `advertise(routes, opts)` | prepends AS on eBGP, sets next hop, copies `localPreference` and `med` unconditionally | strip `LOCAL_PREF` on eBGP, apply the MED non-transitivity rule, apply community suppression, honour `nextHopSelf` |
 | `bgp.js:305-318` `pathIsLoopFree` | correct already (AS_SET members included) | keep, no change |

@@ -2,6 +2,28 @@
 
 ### Fixed
 
+- **MED is compared only between paths learned from the same neighbouring AS.** RFC 4271 9.1.2.2(c) is
+  explicit - "MULTI_EXIT_DISC is only comparable between routes learned from the same neighboring AS (the
+  neighboring AS is determined from the AS_PATH attribute)" - and Cisco states the same test on the path
+  ("MEDs are compared only if the first AS in the AS_SEQUENCE is the same for multiple paths", *Select
+  BGP-path Algorithm*, doc 13753, step 6). `comparePaths()` compared it unconditionally, and admitted as
+  much in the file header: two external peers in different ASes offering one prefix were separated on
+  MED, so the table installed the lower-MED route where a box ties them at step 6 and decides on eBGP
+  over iBGP and then the advertising router ID. `neighbourAs()` reads the leftmost AS of the AS_PATH -
+  the neighbouring AS, because an eBGP speaker prepends its own AS when it advertises (5.1.2(b)) - and
+  `medComparable()` skips the comparison only when both paths name an AS and the two differ; a path that
+  names none (empty AS_PATH, or AS_SET-leading, which 9.1.2.2(c) defines as the local AS) stays
+  comparable. `bgp always-compare-med` and `bgp deterministic-med` remain unmodelled, and `bestPath()`
+  still sorts rather than eliminating, which only matters for a list of three or more candidates. The
+  rule was already written down as MED-3/MED-4 in [docs/BGP-POLICY.md](docs/BGP-POLICY.md); the sources,
+  the two inferences and what is still missing are in
+  [research/bgp-med-neighbour-as.md](research/bgp-med-neighbour-as.md).
+  `test/bgp-med-neighbour-as.test.js` pins 22 checks: the same-AS behaviour that must not regress, a
+  different-AS pair where the *higher* MED wins because its path has the lower router ID (and the other
+  path winning once the IDs are swapped, so the outcome is provably the ID's), the null cases, the
+  string spelling of an AS number, and two labs - one proving the AS_PATH of an installed eBGP route
+  begins with the peer's AS, the fact the rule reads.
+
 - **An all-numeric hostname is warned about, then taken - the vendor's own line.** Every IOS and IOS XE
   `hostname` reference publishes the ARPANET rule ("start with a letter, end with a letter or digit, and
   have as interior characters only letters, digits, and hyphens") and states the outcome of one breach

@@ -15,8 +15,9 @@
 //     negotiation (everything is treated as IPv4 unicast)
 //   * the FSM ignores real timers: holdTime is validated and carried around but
 //     keepalive/hold expiration never fires here; the caller feeds events in
-//   * MED is compared unconditionally -- real BGP only compares MED between
-//     paths learned from the same neighbour AS
+//   * MED is compared only between paths whose AS_PATH names the same
+//     neighbouring AS, as RFC 4271 9.1.2.2(c) requires; `bgp
+//     always-compare-med`, which lifts that restriction, is not modelled
 //   * paths are plain objects; the fields read are weight, localPreference,
 //     asPath, origin, med, type/peerType, routerId, fromIp, nextHop and from.
 //     Missing fields take the documented defaults so two sparse paths still
@@ -470,6 +471,41 @@ function comparePeerAddress(a, b) {
   return sign(x - y);
 }
 
+// The neighbouring AS a path names - the key the MED comparison is gated on.
+//
+// RFC 4271 9.1.2.2(c) is the sentence the whole rule rests on: "MULTI_EXIT_DISC is only comparable
+// between routes learned from the same neighboring AS". Emitting a route across an eBGP session
+// prepends the sender's own AS (5.1.2(b)), so for a path that arrived over eBGP the leftmost AS of the
+// AS_PATH *is* the neighbouring AS. Cisco states the same test on the AS_PATH rather than on the peer:
+// "This comparison only occurs if the first (the neighboring) AS is the same in the two paths. Any
+// confederation sub-ASs are ignored. In other words, MEDs are compared only if the first AS in the
+// AS_SEQUENCE is the same for multiple paths." (Select BGP-path Algorithm, document 13753, step 6.)
+//
+// Returns null when the path names no neighbouring AS at all: an empty AS_PATH is a route this box
+// originated, and an AS_SET-leading AS_PATH is an aggregate - 9.1.2.2(c) treats both as the local AS,
+// which two candidates on one box necessarily share. So null means "states no AS", never "AS 0", and
+// two paths that both state nothing stay comparable (medComparable()).
+function neighbourAs(path) {
+  const p = isObject(path) ? path : {};
+  const ap = p.asPath;
+  if (!Array.isArray(ap) || !ap.length) return null;
+  const first = ap[0];
+  if (typeof first === 'number' && Number.isFinite(first)) return first;
+  if (typeof first === 'string' && /^\d+$/.test(first.trim())) return Number(first.trim());
+  // An AS_SET (nested array, or { asns: [...] }) names a set of ASes, not the one AS the route entered
+  // from, so it is not a neighbouring AS for this comparison.
+  return null;
+}
+
+// May the two paths' MEDs be compared at all? Only when they were learned from the same neighbouring
+// AS (RFC 4271 9.1.2.2(c), Cisco 13753 step 6). A path that names no AS is treated as the local AS,
+// which is the same for both, so it does not disqualify the comparison on its own.
+function medComparable(a, b) {
+  const x = neighbourAs(a);
+  const y = neighbourAs(b);
+  return x === null || y === null || x === y;
+}
+
 // comparePaths(a, b) -> negative | 0 | positive
 // Negative means a is better. Standard BGP decision order, one tie-break per
 // step, every field defaulted so sparse paths still rank deterministically:
@@ -478,7 +514,7 @@ function comparePeerAddress(a, b) {
 //   3. locally originated
 //   4. shorter AS path (AS_SET = 1)
 //   5. lower origin (IGP < EGP < INCOMPLETE)
-//   6. lower MED
+//   6. lower MED, among paths that name the same neighbouring AS
 //   7. eBGP over iBGP
 //   8. lower router ID of the advertising speaker (RFC 4271 9.1.2.2 f)
 //   9. lowest peer address (RFC 4271 9.1.2.2 g)
@@ -508,8 +544,10 @@ function comparePaths(a, b) {
   d = originCode(x.origin) - originCode(y.origin);
   if (d !== 0) return sign(d);
 
-  d = num(x.med, DEFAULT_MED) - num(y.med, DEFAULT_MED);
-  if (d !== 0) return sign(d);
+  if (medComparable(x, y)) {
+    d = num(x.med, DEFAULT_MED) - num(y.med, DEFAULT_MED);
+    if (d !== 0) return sign(d);
+  }
 
   d = pathRank(x) - pathRank(y);
   if (d !== 0) return sign(d);

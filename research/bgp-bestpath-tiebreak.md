@@ -95,10 +95,10 @@ questions have one answer.
   a pure recomputation - so "received first" has no meaning here. A real box prefers the incumbent route,
   which is precisely the flapping behaviour this model cannot exhibit.
 * **Step 12, cluster list length,** is absent for the same reason as ORIGINATOR_ID: no reflector.
-* **MED is still compared unqualified** between paths from different neighbouring ASes (noted in
-  `engine/bgp.js` before this change), where Cisco compares it only when the first AS in the AS_PATH is the
-  same. That can make a path look tied here that a box would have separated on MED, and the new steps then
-  decide it - so fixing MED comparison would change these outcomes too.
+* **MED is now compared only among paths that name the same neighbouring AS** - fixed after this note
+  was written, so two paths from different neighbouring ASes no longer separate on MED at all:
+  `research/bgp-med-neighbour-as.md`. `bgp always-compare-med` (which lifts the restriction) and the
+  `(med)` marker in `show ip bgp` are still unmodelled.
 
 What would settle the first two: a capture or `show ip bgp <prefix>` pair from a box with unequal IGP
 distances to two equal eBGP paths (step 8), and one where a newer better-ID route is refused because the
