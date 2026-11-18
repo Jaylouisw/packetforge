@@ -2745,10 +2745,11 @@ Both spellings are one command. `at` is the keyword `link down <id> at <ms>` has
 `Number('at')` is `NaN`, and a `NaN` instant fails the "is this process still pending" comparison —
 so every `(pending)` mark vanished and the console reported a converged lab at an instant before it
 converged. This page named the bare form and blamed the `help` index for teaching the other
-(`engine/cli.js:6389-6391`); the parser reads both now, and a word that is neither an instant nor `at` is
-refused by name: `converge 1000 wibble` is `% Unrecognized "wibble" (converge [<ms> | at <ms>])`, and
-`converge at`, `converge wibble`, `converge -5` are each `% Invalid instant: …`. A refusal changes
-nothing, so the answer you then ask for is the one you get.
+form (`engine/cli.js:6765` is that row, and it names both now); the parser reads both, and a word that
+is neither an instant nor `at` is refused by name: `converge 1000 wibble` is
+`% Unrecognized "wibble" (converge [<ms> | at <ms>])`, and `converge at`, `converge wibble`,
+`converge -5` are each `% Invalid instant: …`. A refusal changes nothing, so the answer you then ask
+for is the one you get.
 
 ## DHCP server
 
@@ -2819,7 +2820,7 @@ interface Gi0/0
 ```
 
 **A `no` that names a setting removes the setting; a bare `no` removes the group.** The interface-mode
-handler (`_ifaceMode()`, `engine/cli.js:1917-2028`) reads the vrid, and then the word after it:
+handler (`_ifaceMode()`, `engine/cli.js:1956-2069`) reads the vrid, and then the word after it:
 
 ```
 R1(config-if)#no vrrp 10 preempt
