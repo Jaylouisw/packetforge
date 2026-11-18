@@ -41,6 +41,17 @@ That is enough to write `OptiXtrans E9605 (5x TNG1N210)` = 50 x 10G ports withou
 
 ## 2. The second blocker: there is no port type to file an OTN line port under
 
+> **Correction, 2026-11-18 — the section below is kept for its measurement, not its conclusion.**
+> The engine facts it states are right (there is no `otn` / `wdm` type, `sfp+` offers 10G Ethernet
+> media), and the problem it names is real: a WDM-side wavelength filed as `ethernet` can be joined to
+> a 10GBASE-LR peer. But its conclusion — that these specs are therefore blocked until
+> `engine/media.js` grows a type — does not hold. Four catalogued specs already file OTN and WDM line
+> ports as Ethernet cages with the compromise written into `notes`, one of them
+> (`devices/huawei/optixtrans-e6616.json`) a sibling frame from the same vendor and document family, and
+> all four pass `scripts/audit-port-types.js`. The missing type is an improvement waiting for an engine
+> PR, not a gate. See `research/otn-line-ports-need-no-new-type.md`; the family is blocked on the board
+> census alone.
+
 `devices/*.json` ports resolve through `engine/media.js`. The types the engine knows are
 `ethernet, wireless, console, usb, coax, dsl, powerline, serial, pon` (the catalogue uses the first eight;
 `pon` exists for OLTs), and the cages are Ethernet/storage ones: `rj45, sfp, sfp+, sfp28, combo, qsfp+,
@@ -55,10 +66,13 @@ bug that only shows up when a lab refuses to cable"). The physical cage is right
 wrong, and there is no `otn` / `wdm` / optical-line type to say so.
 
 Adding one is an engine change (`engine/media.js` type table plus the faceplate renderer), which this
-stream is explicitly not allowed to make. So the family is blocked on **two** fields now, in this order:
+stream is explicitly not allowed to make. **Corrected 2026-11-18:** that makes it unavailable, not
+blocking — four specs on `main` already ship this way, including this family's own
+`devices/huawei/optixtrans-e6616.json`, which files 28 x 200G OTN line ports as `ethernet`/`cfp2` and
+says so in `notes`. So the family is blocked on **one** field:
 
 1. board part number per slot — **now available** (above);
-2. a port type that can represent an OTN line port — **not available, and not a document**.
+2. ~~a port type that can represent an OTN line port~~ — not a blocker; `research/otn-line-ports-need-no-new-type.md`.
 
 ## 3. Sources checked this pass (2026-11-17), and what each returned
 
