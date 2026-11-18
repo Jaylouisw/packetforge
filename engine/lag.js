@@ -12,6 +12,9 @@
 // selected tuple) -- never Math.random -- so a given frame always lands on the
 // same member, which is what makes flows stable across calls and across runs.
 
+// Port order, not string order: an active link is chosen by port number, and `Fa0/10` is not before `Fa0/2`.
+const ifaceName = require('./iface-name');
+
 const LAG_MODES = ['lacp-active', 'lacp-passive', 'static'];
 
 // Two vocabularies for one fact. The console says `channel-group 1 mode active|passive|on`, the way IOS does;
@@ -62,6 +65,29 @@ const DEFAULT_LAG_ID = 'lag1';
 const DEFAULT_MODE = 'lacp-active';
 const DEFAULT_HASH_POLICY = 'l3l4';
 const DEFAULT_MIN_LINKS = 2;
+
+// How many links one bundle can carry, and how many members a group can hold.
+//
+// One number, stated the same way by every Catalyst chapter that documents EtherChannels: "Each EtherChannel
+// can consist of up to eight compatibly configured Ethernet ports ... For a PAgP EtherChannel, you can
+// configure up to eight ports of the same type and speed for the same group. For a LACP EtherChannel, you can
+// configure up to 16 Ethernet ports of the same type. Up to eight ports can be active, and up to eight ports
+// can be in standby mode" (Cisco, *Configuring EtherChannels*, Catalyst 2960-X 15.2E).
+//
+// The console modelled neither: a bundle took as many members as the operator typed, every one of them was
+// `(P)`, and the data plane hashed frames across all of them, so a ten-member "bundle" carried ten links'
+// worth of traffic - a switch no vendor sells. The `H - Hot-standby (LACP only)` line in the key above
+// `show etherchannel summary` was unreachable for the same reason (research/etherchannel-member-limit.md).
+const MAX_ACTIVE_LINKS = 8;
+const MAX_MEMBERS_LACP = 16;
+const MAX_MEMBERS_STATIC = 8;
+
+// The member cap depends on whether the bundle negotiates: LACP may hold 16 members because 8 of them can sit
+// in hot-standby; a non-negotiating (`on`) group has nowhere to park a ninth, so it takes eight.
+function maxMembers(mode) {
+  const canonical = canonicalMode(mode);
+  return canonical.indexOf('lacp') === 0 ? MAX_MEMBERS_LACP : MAX_MEMBERS_STATIC;
+}
 
 // ---------------------------------------------------------------------------
 // normalisation
@@ -204,23 +230,10 @@ function memberEnabled(m) {
 // had been unplugged still hashed a share of the traffic onto that dead member and dropped it, while a
 // perfectly good member sat idle (#1263).
 function selectMember(members, frame, policy, opts) {
-  const list = Array.isArray(members) ? members : [];
   const o = opts || {};
   const canCarry = (typeof o.canCarry === 'function') ? o.canCarry : null;
-
-  const eligible = [];
-  const seen = new Set();
-  for (const m of list) {
-    if (!memberEnabled(m)) continue;
-    const name = memberName(m);
-    if (!name || seen.has(name)) continue;
-    if (canCarry && !canCarry(name)) continue;
-    seen.add(name);
-    eligible.push(name);
-  }
+  const eligible = eligibleMembers(members, canCarry);
   if (eligible.length === 0) return null;
-
-  eligible.sort(function (a, b) { return a < b ? -1 : (a > b ? 1 : 0); });
 
   const h = hashFrame(frame, policy);
   let idx = Math.floor(h * eligible.length);
@@ -229,9 +242,14 @@ function selectMember(members, frame, policy, opts) {
   return eligible[idx];
 }
 
-// Which members of a bundle could carry a frame right now, in the order the selection rule uses.
-// Exported so the CLI's `show etherchannel` and the data plane cannot hold two opinions about a bundle.
-function eligibleMembers(members, canCarry) {
+// Every member that could carry a frame right now, in PORT order.
+//
+// Port order, not string order, because that is the tie-break the hardware uses to decide which links are in
+// the bundle: "If you configure more than eight links for an EtherChannel group, the software automatically
+// decides which of the hot-standby ports to make active based on the LACP priority ... The hot-standby ports
+// that have lower port numbers become active in the channel first" (Cisco, Configuring EtherChannels). With
+// one system priority and the default port priority on every port, that reduces to port number.
+function carryingMembers(members, canCarry) {
   const list = Array.isArray(members) ? members : [];
   const out = [];
   const seen = new Set();
@@ -241,6 +259,37 @@ function eligibleMembers(members, canCarry) {
     if (!name || seen.has(name)) continue;
     seen.add(name);
     if (canCarry && !canCarry(name)) continue;
+    out.push(name);
+  }
+  return out.sort(ifaceName.comparePortNames);
+}
+
+// The members that are IN the channel: at most eight, the lowest-numbered ones that can carry.
+function activeMembers(members, canCarry) {
+  return carryingMembers(members, canCarry).slice(0, MAX_ACTIVE_LINKS);
+}
+
+// The members that can carry but are not in the channel because eight already are - LACP's hot-standby list.
+function standbyMembers(members, canCarry) {
+  return carryingMembers(members, canCarry).slice(MAX_ACTIVE_LINKS);
+}
+
+// Which members of a bundle could carry a frame right now, in the order the selection rule uses.
+// Exported so the CLI's `show etherchannel` and the data plane cannot hold two opinions about a bundle.
+//
+// The order here is the hash's, not the panel's (it sorts by name, so it is stable whatever order the config
+// listed the members in); the SET is the active eight, so a frame can never be hashed onto a hot-standby link.
+function eligibleMembers(members, canCarry) {
+  const list = Array.isArray(members) ? members : [];
+  const active = new Set(activeMembers(list, canCarry));
+  const out = [];
+  const seen = new Set();
+  for (const m of list) {
+    if (!memberEnabled(m)) continue;
+    const name = memberName(m);
+    if (!name || seen.has(name)) continue;
+    seen.add(name);
+    if (!active.has(name)) continue;
     out.push(name);
   }
   return out.sort(function (a, b) { return a < b ? -1 : (a > b ? 1 : 0); });
@@ -435,6 +484,10 @@ function validateLag(lag, memberPorts) {
 }
 
 module.exports = {
+  MAX_ACTIVE_LINKS,
+  MAX_MEMBERS_LACP,
+  MAX_MEMBERS_STATIC,
+  maxMembers,
   LAG_MODES,
   MODE_ALIASES,
   canonicalMode,
@@ -444,6 +497,9 @@ module.exports = {
   normalizeLag,
   hashFrame,
   selectMember,
+  carryingMembers,
+  activeMembers,
+  standbyMembers,
   eligibleMembers,
   negotiationVerdict,
   memberSuspension,

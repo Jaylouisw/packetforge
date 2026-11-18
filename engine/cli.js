@@ -3349,6 +3349,22 @@ class CliSession {
       if (!l.members.length) delete dev.config.lags[other];
     }
     const existing = dev.config.lags[id];
+    // A group holds what the vendor says it holds, and the view above the config says the same number: a
+    // non-negotiating (`mode on`) group takes eight members, LACP takes sixteen because eight of them can sit
+    // in hot-standby ("For a PAgP EtherChannel, you can configure up to eight ports ... For a LACP EtherChannel,
+    // you can configure up to 16 Ethernet ports ... Up to eight ports can be active, and up to eight ports can
+    // be in standby mode", Cisco, Configuring EtherChannels). Before this the console took the ninth, the
+    // twelfth and the fortieth, called every one of them `(P)`, and hashed frames across the lot - a bundle no
+    // switch builds, carrying traffic no cable carries (research/etherchannel-member-limit.md).
+    const cap = lagLib.maxMembers(mode);
+    const alreadyIn = !!(existing && Array.isArray(existing.members) && existing.members.indexOf(iface.name) !== -1);
+    if (existing && !alreadyIn && Array.isArray(existing.members) && existing.members.length >= cap) {
+      return ['% ' + iface.name + ' not added: channel group ' + id + ' already holds ' + cap + ' members, and ' +
+        (cap === lagLib.MAX_MEMBERS_LACP
+          ? 'an LACP bundle holds at most ' + cap + ': 8 active links and 8 in hot-standby'
+          : 'a static (`mode on`) bundle carries at most ' + cap + ' links') +
+        '. Nothing was changed.'];
+    }
     const g = existing || { mode: mode, hashPolicy: 'l2', members: [] };
     const out = [];
     if (existing && existing.mode && existing.mode !== mode) {
@@ -3368,6 +3384,16 @@ class CliSession {
       ? 'Interface ' + iface.name + ' moved from channel group ' + movedFrom.join(', ') + ' to ' + id +
         ' (mode ' + lagLib.cliMode(mode) + ')'
       : 'Interface ' + iface.name + ' added to channel group ' + id + ' (mode ' + lagLib.cliMode(mode) + ')');
+    // Above eight members the ninth is not in the channel: LACP parks it as hot-standby, and saying "added"
+    // with no more than that would read as a ninth active link. The set is chosen the way the hardware chooses
+    // it - lowest port numbers first - so the answer is known here and not guessed.
+    {
+      const standby = lagLib.standbyMembers(g.members, null);
+      if (standby.indexOf(iface.name) !== -1) {
+        out.push('  ' + iface.name + ' is hot-standby: the bundle already has ' + lagLib.MAX_ACTIVE_LINKS +
+          ' active links, and this one takes over if an active link fails');
+      }
+    }
     // The port records, which nobody passed (#1524). Every per-member rule in engine/lag.js - rate, duplex,
     // VLAN set - is guarded by "do I have a record for this port", so with no records the whole section was
     // skipped and a bundle of ports that cannot carry traffic the same way was accepted with a receipt and no
@@ -5978,9 +6004,18 @@ class CliSession {
             };
           })(this, why, suspended);
           const live = lagLib.eligibleMembers(raw, canCarry);
+          // A member that can carry but finds the channel already holding eight links is not down - it is the
+          // port the key above the table calls `(H)` hot-standby, the letter this console printed in its key
+          // and could not print in a row (research/etherchannel-member-limit.md). A static (`mode on`) group
+          // has no hot-standby in the key's sense, so a ninth member that reached a saved topology is shown
+          // `(s)` suspended: up, and not in the channel.
+          const standby = lagLib.standbyMembers(raw, canCarry);
+          const isLacp = lagLib.cliMode(l.mode) !== 'on';
           const shown = raw.map(function (m) {
             if (suspended[m]) return m + '(I)';
-            return m + (live.indexOf(m) === -1 ? '(D)' : '(P)');
+            if (live.indexOf(m) !== -1) return m + '(P)';
+            if (standby.indexOf(m) !== -1) return m + (isLacp ? '(H)' : '(s)');
+            return m + '(D)';
           });
           // The Port-channel cell carries the bundle's own flags, which say what the member list cannot: S is a
           // Layer2 bundle (R would be Layer3, which this model does not build) and U is a bundle in use, D one
@@ -6002,6 +6037,9 @@ class CliSession {
               // a cable fault that is not there.
               out.push('  ' + pad(m, 10) + 'is stand-alone ' + why[m].replace('(stand-alone: ', '(') +
                 ' - the port still carries traffic, as a single link rather than as a member of Po' + id);
+            } else if (standby.indexOf(m) !== -1) {
+              out.push('  ' + pad(m, 10) + 'hot-standby: the bundle already holds ' + lagLib.MAX_ACTIVE_LINKS +
+                ' active links');
             } else if (live.indexOf(m) === -1) {
               out.push('  ' + pad(m, 10) + 'not bundled ' + (why[m] || '(cannot carry a frame)'));
             }
@@ -6025,9 +6063,17 @@ class CliSession {
             } else {
               out.push('  bundle ' + id + ' is down: no member can carry a frame (traffic is dropped)');
             }
-          } else if (live.length < raw.length) {
-            out.push('  bundle ' + id + ' is running on ' + live.length + ' of ' + raw.length +
+          } else if (live.length < raw.length - standby.length) {
+            out.push('  bundle ' + id + ' is running on ' + live.length + ' of ' + (raw.length - standby.length) +
               ' members: ' + live.join(', '));
+          }
+          if (standby.length) {
+            // Not a degradation: a bundle that holds its eight active links and parks the rest is the state the
+            // vendor's own chapter describes, and the parked links take over when one fails.
+            out.push('  bundle ' + id + ' carries ' + live.length + ' active links; ' + standby.join(', ') +
+              (isLacp
+                ? ' hot-standby (one takes over if an active link fails)'
+                : ' not in the channel: a static bundle carries at most ' + lagLib.MAX_ACTIVE_LINKS + ' links'));
           }
         }
       }

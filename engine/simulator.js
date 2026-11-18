@@ -3598,7 +3598,10 @@ class Simulator {
       if (members.length > 1 || live.length !== members.length) {
         this._emit({
           type: 'lag', dev: dev.id, lag: id, members: members, live: live, picked: picked, vlan: vid,
-          degraded: live.length < members.length,
+          // Capacity, not cable count: a bundle with ten members and eight active links is running at the
+          // eight the hardware can carry, so it is not "degraded" - the other two are hot-standby (the same
+          // eight the selection rule in engine/lag.js caps at).
+          degraded: live.length < Math.min(members.length, lagLib.MAX_ACTIVE_LINKS),
           // No member can carry: the frame is still attempted on one, so it is dropped with the reason
           // rather than disappearing into a bundle that looks healthy.
           noLiveMember: live.length === 0

@@ -2,6 +2,20 @@
 
 ### Fixed
 
+- **A bundle carries eight links, and a LACP group's surplus waits as hot-standby.** One EtherChannel "can
+  consist of up to eight compatibly configured Ethernet ports", and "for a LACP EtherChannel, you can configure
+  up to 16 Ethernet ports ... Up to eight ports can be active, and up to eight ports can be in standby mode"
+  (Cisco, *Configuring EtherChannels*, Catalyst 2960-X 15.2(3)E). This console capped nothing: ten
+  `channel-group` lines made a ten-member bundle, every member read `(P)` bundled, and the hash was taken
+  across all ten, so a lab moved ten links' worth of traffic over hardware that carries eight - and the
+  `H - Hot-standby (LACP only)` line of the summary's own key was unreachable, because no member of any bundle
+  could be in that state. The active set is now the eight lowest-numbered members that can carry; a `mode on`
+  group refuses a ninth member and an LACP group a seventeenth; the receipt for a member that lands beyond the
+  eighth says it is hot-standby; `show etherchannel summary` prints `(H)` for those members and promotes one
+  into `(P)` when an active link's cable goes away; and the data plane never hashes a frame onto a parked link.
+  The vendor sentences, the platforms they come from, and what is still open - the box's own wording for the
+  ninth and seventeenth line, `lacp max-bundle`, and the per-vendor maxima one global number cannot express -
+  are in [research/etherchannel-member-limit.md](research/etherchannel-member-limit.md).
 - **`speed` and `duplex` take one word, and a word after it is refused instead of dropped.** The vendor's
   syntax lines close both commands after one value - `speed {10 | 100 | 1000 | 2500 | 5000 | auto [rates] |
   nonegotiate}` and `duplex {auto | full | half}` - so `speed 100 flurbish` is a parse error on a box. This

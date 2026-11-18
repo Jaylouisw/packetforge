@@ -2042,8 +2042,50 @@ Two consequences of the missing translation are worth knowing:
 why in the same sentence `show interfaces` and `show arp` use — `administratively down`, `down: no cable`,
 `down: link down`, `down: peer shut down`, or `(STP blocking)`.
 
-The data plane uses the same rule: **the hash is taken over the members that can carry**, so unplugging one
-member of a two-member bundle does not cost you half your flows while the other member sits idle. When no
+#### A bundle carries eight links; the rest wait as `(H)`
+
+One number, and the console applied none of it: "Each EtherChannel can consist of up to eight compatibly
+configured Ethernet ports … For a PAgP EtherChannel, you can configure up to eight ports of the same type and
+speed for the same group. For a LACP EtherChannel, you can configure up to 16 Ethernet ports of the same type.
+**Up to eight ports can be active, and up to eight ports can be in standby mode**" (Cisco, *Configuring
+EtherChannels*, Catalyst 2960-X 15.2(3)E). Ten `channel-group 1 mode active` lines used to build a ten-member
+bundle, mark all ten `(P)`, and hash frames across all ten — a switch that moves ten links of traffic, and a
+row that agreed with the configuration instead of the hardware.
+
+Now `mode on` holds eight members and refuses a ninth, LACP holds sixteen, and past the eighth the receipt says
+what the box would do:
+
+```
+sw1(config-if)#channel-group 1 mode active
+Interface Gi1/0/9 added to channel group 1 (mode active)
+  Gi1/0/9 is hot-standby: the bundle already has 8 active links, and this one takes over if an active link fails
+
+sw1(config-if)#channel-group 1 mode on
+% Gi1/0/9 not added: channel group 1 already holds 8 members, and a static (`mode on`) bundle carries at most 8 links. Nothing was changed.
+```
+
+The table prints the letters the key above it has always printed:
+
+```
+1      Po1(SU)         LACP      Gi1/0/1(P) Gi1/0/2(P) Gi1/0/3(P) Gi1/0/4(P) Gi1/0/5(P) Gi1/0/6(P) Gi1/0/7(P) Gi1/0/8(P) Gi1/0/9(H) Gi1/0/10(H)
+  Gi1/0/9   hot-standby: the bundle already holds 8 active links
+  Gi1/0/10  hot-standby: the bundle already holds 8 active links
+  bundle 1 carries 8 active links; Gi1/0/9, Gi1/0/10 hot-standby (one takes over if an active link fails)
+```
+
+`(H)` is the key's own letter for that state — "Hot-standby (LACP only)" — and it was unreachable before: no
+member of any bundle could be in it. The active eight are the **lowest-numbered** members that can carry
+("The hot-standby ports that have lower port numbers become active in the channel first", same chapter), so
+port order and not string order decides — `Gi1/0/9` waits behind `Gi1/0/2`, where a name sort would have put
+it first. Pull an active member's cable and the first standby is promoted into the row as `(P)`; the bundle
+stays eight links wide and the `bundle 1 is running on …` sentence does not appear, because a bundle at full
+width is not a bundle running short. `research/etherchannel-member-limit.md` carries the sentences, the
+platforms they come from, and what is still open (the device's own wording for the ninth and seventeenth line,
+`lacp max-bundle`, and the per-vendor maxima this one global number cannot express).
+
+The data plane uses the same rule: **the hash is taken over the members that can carry** and are in the
+channel — never more than eight — so unplugging one member of a two-member bundle does not cost you half your
+flows while the other member sits idle, and a hot-standby member never receives a frame. When no
 member can carry, the bundle is reported down and the frames are still attempted and dropped with a reason,
 so the loss is countable rather than invisible.
 
