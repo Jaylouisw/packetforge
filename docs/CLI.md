@@ -2552,6 +2552,7 @@ interface Gi0/0
   vrrp <vrid> priority <1-254>        # 100 default; 255 is only ever the address owner's
   vrrp <vrid> advertise <seconds>
   vrrp <vrid> preempt                 # the default, and the only value there is
+  vrrp <vrid> authentication <text>   # stored, and never used by the election
   no vrrp <vrid>                      # remove the group - the only `no` form
 ```
 
@@ -2569,6 +2570,24 @@ Two consequences are worth knowing before typing it. There is no command that tu
 the sub-command parser has a `no` branch for it, but the dispatcher has already removed the group
 by the time it would run, so every group that exists preempts. And a line written to switch one
 option off deletes the virtual gateway instead - check `show vrrp` afterwards.
+
+**`authentication` is a sub-word of `vrrp`, and the list above only now names it.** `vrrp <vrid> authentication
+<text>` is accepted inside an interface and answers `VRRP group <vrid> authentication set`, and
+`show running-config` prints the text back, so a saved lab keeps it:
+
+```
+R1(config-if)#vrrp 1 authentication secret
+VRRP group 1 authentication set
+```
+
+Nothing reads it. `show vrrp` has no column for it, and the election never compares two groups' texts -
+VRRPv2 authentication is absent here beyond storing the text, as [SIMULATION.md](SIMULATION.md) says. The
+stored value is the **first eight characters**, VRRPv2's field width: `vrrp 1 authentication
+averylongsecret` is accepted without a word about the rest and comes back from `show running-config` as
+`vrrp 1 authentication averylon`, so a pasted-back config carries the shortened text rather than the typed
+one. A line with no text at all - `vrrp 1 authentication` - is accepted too, says the same sentence, and
+stores nothing, so no `authentication` line appears in the config afterwards. The VRRP row in `help` stops
+at `preempt` and does not name this spelling; the console accepts it, so this page does.
 
 The virtual address has to be **in the interface's own subnet** — a gateway address is only a gateway for
 hosts on its wire. Anything else is refused and no group is created:
