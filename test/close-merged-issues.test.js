@@ -306,7 +306,6 @@ const INDEX = buildDeviceIndex(SPECS);
     const queue = [
       [810, '[Device]: OptiXtrans E9624'],
       [808, '[Device]: OptiXtrans E9612'],
-      [807, '[Device]: OptiXtrans E9605'],
       [803, '[Device]: OptiXtrans E6616X'],
       [743, '[Device]: Huawei OceanProtect X8100/X9100 Backup Storage'],
       [742, '[Device]: Huawei OceanProtect E8000 Backup Storage'],
@@ -314,8 +313,13 @@ const INDEX = buildDeviceIndex(SPECS);
     ];
     const proposed = queue.filter(function (q) { return deviceMatch(q[1], index); });
     ok(proposed.length === 0,
-      'none of the seven open requests is in the catalogue, so none is closed by this workflow',
+      'none of the six open requests is in the catalogue, so none is closed by this workflow',
       proposed.map(function (p) { return '#' + p[0]; }).join(', '));
+    // A request the catalogue now answers is answered: #807's E9605 landed on 2026-11-18, so the
+    // sweep would find it - which is why it is no longer in the queue above.
+    const answered = deviceMatch('[Device]: OptiXtrans E9605', index);
+    ok(answered && answered.file === 'devices/huawei/optixtrans-e9605.json',
+      'and the E9605 request that has since been built resolves to its spec file', answered && answered.file);
     // A near miss is a miss, and this is the near miss: E6616 is modelled, E6616X is not.
     ok(deviceMatch('[Device]: OptiXtrans E6616', index) !== null, 'while E6616 itself is modelled');
     ok(deviceMatch('[Device]: OptiXtrans E6616', index).file === 'devices/huawei/optixtrans-e6616.json',
