@@ -257,10 +257,12 @@ label that lies.
 
 **VLAN 1 is the exception, and it is the switch vendors' rule, not this model's.** The default VLAN is created
 when the box initialises, so `vlan 1` has nothing to create: it says so and writes no `vlan 1` line into the
-config, and the name stays `default` instead of becoming `VLAN0001`. `no vlan 1` is refused by name —
-`% VLAN 1 is the default VLAN: every access port starts in it and it cannot be deleted` — rather than answered
-with `% VLAN 1 does not exist`, which was a denial of the one VLAN that is certainly there. Neither can the name
-be changed. Every vendor documents the same rule: the Catalyst 2960 configuration guide says VLAN IDs 1 and 1002
+config, and the name stays `default` instead of becoming `VLAN0001`. `no vlan 1` is refused in the vendor's own
+sentence — `%Default VLAN 1 may not be deleted.`, with no space after the `%` — rather than answered with
+`% VLAN 1 does not exist`, which was a denial of the one VLAN that is certainly there. The sentence is printed
+verbatim, with nothing added: it is the string an operator sees on a real switch, and a script that matches the
+refusal has to find it here too (the transcripts are in `research/default-vlan-refusal-wording.md`; the reason
+the rule exists is this paragraph, not a console line no switch prints). Neither can the name be changed. Every vendor documents the same rule: the Catalyst 2960 configuration guide says VLAN IDs 1 and 1002
 to 1005 "are automatically created and cannot be removed", the Nexus 3548 layer 2 guide says "VLAN1 is the
 default VLAN and cannot be created or deleted", and a real IOS XE switch answers `no vlan 1` with
 `%Default VLAN 1 may not be deleted.`
@@ -271,9 +273,10 @@ vendor's range table files them as normal VLANs that simply cannot be removed: "
 defaults for FDDI and Token Ring. You cannot delete VLANs 1002-1005." (Catalyst 6500 15.4SY guide, Table 26-1;
 Catalyst 3560 12.2(25)SEA guide, Table 17-1), and the VLAN chapters add "You cannot delete the default VLANs
 for the different media types: Ethernet VLAN 1 and FDDI or Token Ring VLANs 1002 to 1005". Each is now refused
-by name — `% VLAN 1002 is the fddi-default VLAN: it is one of the four FDDI and Token Ring defaults
-(1002-1005), created at boot, and cannot be deleted` — and the table is unchanged afterwards
-(`research/vlan-media-defaults.md`).
+in the same vendor sentence with its own number — `no vlan 1002` answers `%Default VLAN 1002 may not be
+deleted.` — and the table is unchanged afterwards (`research/vlan-media-defaults.md`). A real box asked for a
+range prints that line once per default VLAN it could not remove, which is what one command per id produces
+here (`research/default-vlan-refusal-wording.md`).
 
 The same table corrects a reason this console and its port validator both gave. `vlan 1002` and
 `switchport access vlan 1002` said the id was "reserved by IEEE 802.1Q (1002-1005)", but the standard's

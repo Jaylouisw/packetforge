@@ -15,6 +15,11 @@
 //   * and the refusal itself, on IOS XE 17.18.2:
 //         ACC-SW1(config)# no vlan 1
 //         %Default VLAN 1 may not be deleted.
+//     which a Catalyst 2960X prints with the media VLAN's number in the same slot, and a range prints once per
+//     default VLAN:
+//         2960X-Gigabit(config)#no vlan 1002
+//         %Default VLAN 1002 may not be deleted.
+//     research/default-vlan-refusal-wording.md collects the four independent transcripts.
 //
 //   https://www.cisco.com/c/en/us/td/docs/switches/lan/c9000/lyr2-fwd/vlan/vlan-configuration-guide/configure-vlan.html
 //   http://cisco.com/c/en/us/td/docs/switches/lan/catalyst2960/software/release/12-2_55_se/configuration/guide/scg_2960/swvlan.html
@@ -80,12 +85,16 @@ console.log('VLAN 1 exists before anything is configured, and cannot be deleted:
   const row = env.vlanRow1();
   ok(/^1\s/.test(row) && /default/.test(row), 'a switch that has never been configured lists VLAN 1 named "default"', row);
 
+  // The sentence is the box's, character for character: "%Default VLAN 1 may not be deleted." - no space after
+  // the `%`, a full stop at the end, nothing else on the line. This console used to answer in its own words
+  // ("...: every access port starts in it and it cannot be deleted"), which is true and is not what an operator
+  // reading the console of a real switch will ever see; the reason the rule exists lives in docs/CLI.md.
+  // research/default-vlan-refusal-wording.md carries the transcripts this comes from.
   const out = env.run(['no vlan 1']);
-  ok(out.length === 1 && /^%/.test(out[0]), '`no vlan 1` is refused with a reason, not accepted in silence', JSON.stringify(out));
+  ok(out.length === 1 && out[0] === '%Default VLAN 1 may not be deleted.',
+    '`no vlan 1` is refused in the vendor sentence', JSON.stringify(out));
   ok(!/does not exist/i.test(out[0]), 'it does not claim the default VLAN is missing', out[0]);
-  ok(/default VLAN/.test(out[0]) && /cannot be deleted/.test(out[0]),
-    'it says VLAN 1 is the default VLAN and cannot be deleted', out[0]);
-  ok(/access port/.test(out[0]), 'and names what depends on it - every access port starts in it', out[0]);
+  ok(!/^% /.test(out[0]), 'and the vendor form keeps no space after the %', out[0]);
 
   ok(/default/.test(env.vlanRow1()), 'VLAN 1 is still there afterwards, still named "default"', env.vlanRow1());
   ok(!env.d.config.vlans || !env.d.config.vlans[1], 'and no VLAN 1 record was written in its place',
@@ -137,7 +146,7 @@ console.log('A lab saved by an older build cannot smuggle a VLAN 1 record back i
   // Exactly what `vlan 1` used to write: a record whose name the box does not own.
   env.d.config.vlans = { 1: { name: 'Corp' }, 20: { name: 'twenty' } };
   const out = env.run(['no vlan 1']);
-  ok(out.length === 1 && /cannot be deleted/.test(out[0]),
+  ok(out.length === 1 && out[0] === '%Default VLAN 1 may not be deleted.',
     'the deletion is refused for what VLAN 1 is, not for whether a record exists', JSON.stringify(out));
   ok(env.d.config.vlans[1] && env.d.config.vlans[1].name === 'Corp', 'and the stored record is untouched',
     JSON.stringify(env.d.config.vlans));

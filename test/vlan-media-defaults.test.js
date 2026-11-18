@@ -50,15 +50,24 @@ function rowFor(lines, id) {
   })[0] || null;
 }
 
-console.log('A media default cannot be deleted, and the answer says why:');
+// The refusal is the vendor's own sentence, not a description of the rule: a 2960X answers `no vlan 1002`
+// with exactly "%Default VLAN 1002 may not be deleted." - no space after the `%`, a full stop at the end, and
+// the VLAN's number substituted. A range ("no vlan 2-1024") prints one such line per default VLAN it could
+// not remove, which is why nothing here is batched into one sentence. Sources and the shape of the evidence:
+// research/default-vlan-refusal-wording.md.
+console.log('A media default cannot be deleted, and the answer is the vendor sentence:');
 {
   const L = fresh(SWITCH);
   for (const id of Object.keys(NAMES)) {
     const out = say(L.dev, L.t, L.sim, ['configure terminal', 'no vlan ' + id]);
+    const refusals = out.filter(function (l) { return /^%/.test(l); });
     const answer = out.join(' | ');
-    ok(!/does not exist/.test(answer), 'no vlan ' + id + ' does not claim the VLAN is absent', answer);
-    ok(/cannot be deleted/.test(answer), 'no vlan ' + id + ' says it cannot be deleted', answer);
-    ok(answer.indexOf(NAMES[id]) !== -1, 'and names the row it is refusing to remove (' + NAMES[id] + ')', answer);
+    ok(refusals.length === 1, 'no vlan ' + id + ' is answered with one refusal line, as the box does', answer);
+    ok(refusals[0] === '%Default VLAN ' + id + ' may not be deleted.',
+      'no vlan ' + id + ' prints the vendor sentence with the VLAN number substituted', answer);
+    ok(!/does not exist/.test(answer), 'and does not claim the VLAN is absent', answer);
+    ok(!/^% /.test(refusals[0] || ''),
+      'the sentence carries no space after the % - that is how the box prints it', answer);
   }
 }
 
@@ -89,11 +98,14 @@ console.log('A VLAN that really is absent still answers with its absence:');
   ok(!rowFor(rows, 20), 'and its row is gone from the table');
 }
 
-console.log('VLAN 1 is refused in its own words, unchanged:');
+console.log('VLAN 1 is refused in the vendor sentence:');
 {
   const L = fresh(SWITCH);
-  const out = say(L.dev, L.t, L.sim, ['configure terminal', 'no vlan 1']).join(' | ');
-  ok(/VLAN 1 is the default VLAN/.test(out), 'no vlan 1 still names the access-port rule', out);
+  const lines = say(L.dev, L.t, L.sim, ['configure terminal', 'no vlan 1']);
+  const refusals = lines.filter(function (l) { return /^%/.test(l); });
+  const out = lines.join(' | ');
+  ok(refusals.length === 1 && refusals[0] === '%Default VLAN 1 may not be deleted.',
+    'no vlan 1 prints "%Default VLAN 1 may not be deleted." and nothing else', out);
   ok(!/does not exist/.test(out), 'and does not deny it either', out);
 }
 
@@ -115,7 +127,8 @@ console.log('A router, which has no VLAN database, is unchanged:');
 {
   const L = fresh(ROUTER, 'r1');
   const out = say(L.dev, L.t, L.sim, ['configure terminal', 'no vlan 1002']).join(' | ');
-  ok(/cannot be deleted/.test(out), 'the refusal is the same rule on a box with no bridge', out);
+  ok(/^%Default VLAN 1002 may not be deleted\.$/.test(out.split(' | ').pop() || ''),
+    'the refusal is the same sentence on a box with no bridge', out);
 }
 
 console.log('');

@@ -1216,10 +1216,16 @@ class CliSession {
       const id = parseInt(tokens[2], 10);
       // `no vlan 1` answered "% VLAN 1 does not exist" - about the one VLAN that certainly does: the one
       // `show vlan` lists before anybody configures anything, and the one every access port starts in. Real
-      // switches refuse the command outright ("%Default VLAN 1 may not be deleted."), because the default
-      // VLAN is created at initialisation and cannot be removed. The rule is stated now instead of denied.
+      // switches refuse the command outright, because the default VLAN is created at initialisation and
+      // cannot be removed. What they print is one sentence, and it carries no space after the `%`:
+      // "%Default VLAN 1 may not be deleted." Three independent transcripts give it in that shape - a lab
+      // 2960-class switch, a forum answer quoting a box, and a Cisco Community thread deleting 1-4094 - and
+      // the same sentence appears with 1002, 1003, 1004 and 1005 substituted, one line per VLAN
+      // (research/default-vlan-refusal-wording.md). It is printed verbatim, because an operator comparing
+      // this console against a box, or a script matching the refusal, has to find the vendor's string; the
+      // reason the rule exists belongs in the documentation, not in a line no switch prints.
       if (id === vlanLib.VLAN_DEFAULT) {
-        return ['% VLAN 1 is the default VLAN: every access port starts in it and it cannot be deleted'];
+        return ['%Default VLAN 1 may not be deleted.'];
       }
       // The other four default VLANs are un-deletable for the same reason, and this branch answered
       // "% VLAN 1002 does not exist" about the one row `show vlan` prints before anybody configures
@@ -1233,14 +1239,15 @@ class CliSession {
       // VLANs"). So they are not "reserved by IEEE 802.1Q" - the same table files 0 and 4095 under Reserved
       // and these four under Normal - they are Cisco's defaults for media no port here can join.
       //
-      // What a real box prints for the attempt is not settled: the guides give the rule, not the console
-      // transcript, so this answers in this console's own words, like the VLAN 1 line above.
+      // What a real box prints for the attempt used to be unrecorded here, so this answered in the
+      // console's own words. It is recorded now, and it is the VLAN 1 sentence with this VLAN's number:
+      // "2960X-Gigabit(config)#no vlan 1002 / %Default VLAN 1002 may not be deleted." A range prints one
+      // such line per default VLAN it could not remove ("no vlan 2-1024" yields 1002, 1003, 1004, 1005),
+      // which is what per-id commands here produce anyway
+      // (research/default-vlan-refusal-wording.md).
       const mediaDefault = vlanLib.RESERVED_VLANS.filter(function (r) { return r.id === id; })[0];
       if (mediaDefault) {
-        return ['% VLAN ' + id + ' is the ' + mediaDefault.name + ' VLAN: it is one of the four FDDI and ' +
-          'Token Ring defaults (' + vlanLib.RESERVED_VLANS[0].id + '-' +
-          vlanLib.RESERVED_VLANS[vlanLib.RESERVED_VLANS.length - 1].id + '), created at boot, and cannot ' +
-          'be deleted'];
+        return ['%Default VLAN ' + id + ' may not be deleted.'];
       }
       const have = this.device.config.vlans && this.device.config.vlans[id];
       // It used to print "VLAN 42 removed" whether or not there was one - the same sentence for work done and

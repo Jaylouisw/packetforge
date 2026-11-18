@@ -112,11 +112,11 @@ printed everywhere is a good property; the string in it still has to be true.
 
 ## What remains unresolved
 
-* **The exact words a real box prints for `no vlan 1002`.** The guides state the rule and never show the
-  transcript. For VLAN 1 there is one (`%Default VLAN 1 may not be deleted.`, which this console deliberately
-  answers in its own words instead), and the same shape is a reasonable guess for the other four — but it is a
-  guess, and nothing here asserts it. Evidence that would settle it: a capture of `no vlan 1002` at
-  `(config)#` on any Catalyst running IOS or IOS XE.
+* **The exact words a real box prints for `no vlan 1002`.** *Settled since this note was written*, by four
+  transcripts: a live 2960X answers `%Default VLAN 1002 may not be deleted.`, the same sentence VLAN 1 gets
+  with the number substituted, and a range prints it once per default VLAN. The console now prints that
+  sentence verbatim instead of the paraphrase recorded under "What changed" above; sources and the open
+  VTP-client case are in `research/default-vlan-refusal-wording.md`.
 * **Whether `vlan 1002` should be accepted.** The range table says user configuration lives in 2-1001, and the
   VLAN chapters say only that these four "cannot be removed" — not that they cannot be modified. A real switch
   may well enter `(config-vlan)#` for 1002 and let `name` rename fddi-default. This console refuses outright,
