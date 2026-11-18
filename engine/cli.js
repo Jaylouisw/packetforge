@@ -5132,10 +5132,37 @@ class CliSession {
     } else if (what === 'power' && (tokens[1] || '').toLowerCase() === 'inline') {
       out.push.apply(out, this._showPowerInline(tokens.slice(2)));
     } else if (what === 'lldp') {
-      if (tokens.length > 1 && String(tokens[1]).toLowerCase() !== 'neighbors' && String(tokens[1]).toLowerCase() !== 'neighbours') {
-        return showNoTail('show lldp', tokens.slice(1), 'every neighbour on every port is listed');
-      }
-      if (tokens.length > 2) {
+      const lldpSub = String(tokens[1] || '').toLowerCase();
+      if (tokens.length === 1) {
+        // `show lldp` is the protocol's status view, not its neighbour table. Both answers are one word away from
+        // each other, and this console gave the table to both, so a technician who typed `show lldp` to find out
+        // whether LLDP was even running was handed neighbours instead - and a box that had heard nothing looked
+        // identical to one with the protocol off (research/lldp-default-state.md, "what is known" 3).
+        //
+        // The four lines are a vendor transcript, not a composition: a Catalyst 9500 prints exactly these, at this
+        // indentation, in Cisco's own field notice on unknown-protocol drops
+        // (https://www.cisco.com/c/en/us/support/docs/switches/catalyst-9300-series-switches/224586-troubleshoot-unknown-protocol-drops-in.html,
+        // which also shows the off-case answering the one line `% LLDP is not enabled`). The numbers are the
+        // protocol defaults, read from the library rather than typed twice (engine/lldp.js).
+        //
+        // `ACTIVE` and not the refusal, because this model always announces: `announceLldp()` walks every device
+        // with a neighbour map and there is no global off switch to read. Saying so is truthful; inventing an
+        // `lldp run` would be the feature this run is not allowed to add. What the vendor's default is *before*
+        // anyone types it is the part the evidence does not settle, and that stays open.
+        const lldpLib = require('./lldp');
+        out.push('Global LLDP Information:');
+        out.push('    Status: ACTIVE');
+        out.push('    LLDP advertisements are sent every ' + lldpLib.DEFAULT_TX_INTERVAL_S + ' seconds');
+        out.push('    LLDP hold time advertised is ' + lldpLib.DEFAULT_TTL_S + ' seconds');
+        out.push('    LLDP interface reinitialisation delay is ' + lldpLib.DEFAULT_REINIT_DELAY_S + ' seconds');
+        // Returned here, not left to fall through: the neighbour table below is the answer to a *different*
+        // command, and letting the block run into it would print both views as one answer - the defect this
+        // change exists to remove, only upside down.
+        return out;
+      } else if (lldpSub !== 'neighbors' && lldpSub !== 'neighbours') {
+        return showNoTail('show lldp', tokens.slice(1), 'the status view takes no word',
+          'neighbours are `show lldp neighbors`');
+      } else if (tokens.length > 2) {
         return showNoTail('show lldp neighbors', tokens.slice(2), 'every neighbour on every port is listed',
           'the Local port column says which port each one is on');
       }
@@ -6175,6 +6202,7 @@ class CliSession {
       '  hostname <name>          ip address <ip> <mask>',
       '  ip route <dest> <mask> <gw> [iface]',
       '  ip routing / no ip routing        forward between networks, or stop',
+      '  show lldp                         status: on, and the three timers it advertises',
       '  show lldp neighbors               neighbours learned over the wire',
       '  show power inline [<port>]        PoE supplied, and why a port was denied',
       '  ip default-gateway <gw>  shutdown / no shutdown',

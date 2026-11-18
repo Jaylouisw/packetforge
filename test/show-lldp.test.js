@@ -43,7 +43,7 @@ function lab() {
 }
 
 function table(env, dev) {
-  const lines = ((new CliSession(dev || env.sw, env.t, env.sim).run('show lldp').output) || [])
+  const lines = ((new CliSession(dev || env.sw, env.t, env.sim).run('show lldp neighbors').output) || [])
     .map(String);
   const headerIdx = lines.findIndex(function (l) { return /Neighbour/.test(l); });
   const header = headerIdx === -1 ? '' : lines[headerIdx];

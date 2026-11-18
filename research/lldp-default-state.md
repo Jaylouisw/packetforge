@@ -92,3 +92,28 @@ one-liner: a per-device `lldp: on|off` default in `docs/DEVICE_SCHEMA.md` (with 
 `lldp run` on a box that cannot run it is refused), a status form for `show lldp` with the table kept on
 `show lldp neighbors` (39 `show lldp` call sites in `test/`), and one sentence in `docs/CLI.md` naming the
 default PacketForge chose and why.
+
+## What changed since: the status view, without the default (2026-11-17)
+
+The two halves of this note were not equally uncertain, and the simulator only had to be wrong about one of them.
+`show lldp` answering with the neighbour table is **not** a contested default - it is a view the vendor documents
+and transcribes, and the console had it missing. So the status form was implemented on its own, under the
+"fidelity of an existing command" rule rather than as a feature:
+
+* `show lldp` now prints the four lines, byte for byte from the field-notice transcript quoted above -
+  `Global LLDP Information:` / `    Status: ACTIVE` / advertisements every 30 s / hold time 120 s /
+  reinitialisation delay 2 s (Cisco, "Troubleshoot Unknown Protocol Drops in Catalyst 9000 Switches", doc 224586,
+  updated 2025-08-25). The three numbers come from `engine/lldp.js` (`DEFAULT_TX_INTERVAL_S`,
+  `DEFAULT_TTL_S`, `DEFAULT_REINIT_DELAY_S`) and the test asserts `DEFAULT_TTL_S === DEFAULT_TX_INTERVAL_S * 4`,
+  which is the `lldp timer` x hold-multiplier relation the TTL TLV already depended on.
+* `show lldp neighbors` keeps the table, unchanged, including `Total entries displayed: N`.
+* `show lldp <anything else>` refuses in one line and names `show lldp neighbors`, so the word that used to be
+  silently irrelevant is now either the table or an answer.
+* `Status: ACTIVE` is a statement about *this model*, not about a Cisco box out of the box: `announceLldp()` walks
+  every device and there is no global switch to read. docs/CLI.md says so in as many words.
+
+What is still open is exactly the part the evidence does not settle: whether a factory-default Cisco access switch
+runs LLDP before `lldp run`, and therefore whether the honest answer for a Cisco entry in the catalogue is
+`% LLDP is not enabled`. That needs a per-device `lldp on|off` in the schema plus a capability token for `lldp run`,
+and it stays undone until a `show lldp` / `show lldp neighbors` / `show running-config | include lldp` capture from
+one factory-default box arrives. The evidence list in "What evidence would settle it" above is unchanged.

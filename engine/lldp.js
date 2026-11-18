@@ -13,6 +13,13 @@
 const LLDP_MULTICAST = '01:80:c2:00:00:0e';
 const ETH_LLDP = 0x88cc;
 const DEFAULT_TTL_S = 120;
+// The other two numbers `show lldp` prints, and the reason they live here rather than in the printer: they are the
+// protocol's defaults, not a layout choice. IOS sends an LLDPDU every 30 s and advertises 30 x 4 = 120 s as its TTL
+// (`lldp timer` 30, `lldp holdtime` 120, reinit delay 2 - the same three defaults across 12.2 and 17.x). The model
+// announces once, at the start of a run, so the interval is not a timer it keeps; it is the value the protocol is
+// documented to use, and the status view is the only place it is visible.
+const DEFAULT_TX_INTERVAL_S = 30;
+const DEFAULT_REINIT_DELAY_S = 2;
 
 // Build the Ethernet frame a device sends out of one port.
 function buildFrame(dev, iface, opts) {
@@ -107,6 +114,8 @@ module.exports = {
   LLDP_MULTICAST: LLDP_MULTICAST,
   ETH_LLDP: ETH_LLDP,
   DEFAULT_TTL_S: DEFAULT_TTL_S,
+  DEFAULT_TX_INTERVAL_S: DEFAULT_TX_INTERVAL_S,
+  DEFAULT_REINIT_DELAY_S: DEFAULT_REINIT_DELAY_S,
   buildFrame: buildFrame,
   describePort: describePort,
   isLldp: isLldp,

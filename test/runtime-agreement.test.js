@@ -100,7 +100,7 @@ function cli(t, dev, cmd) {
         wrong.push(label + ': arp says ' + JSON.stringify(arpNote) + ' while the MAC row on the same port says ' +
           JSON.stringify(onSamePort.note));
       }
-      const lldpOut = cli(x.t, x.sw, 'show lldp');
+      const lldpOut = cli(x.t, x.sw, 'show lldp neighbors');
       const lldpLine = lldpOut.split('\n').filter(function (l) { return l.indexOf('h2') !== -1; })[0] || '';
       if (lldpNote && lldpLine.indexOf(lldpNote) === -1) wrong.push(label + ': show lldp does not carry ' + JSON.stringify(lldpNote));
     }

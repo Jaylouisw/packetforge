@@ -118,7 +118,7 @@ const FORMS = [
   ['sw1', 'show vlan', /VLAN\s+Name/],
   ['sw1', 'show vlan brief', /VLAN\s+Name/],
   ['sw1', 'show spanning-tree', /Spanning tree/],
-  ['sw1', 'show lldp', /LLDP neighbours/],
+  ['sw1', 'show lldp', /Global LLDP Information/],
   ['sw1', 'show lldp neighbors', /LLDP neighbours/],
   ['sw1', 'show access-lists', /access list/i],
   ['sw1', 'show version', /PacketForge|Version/i]

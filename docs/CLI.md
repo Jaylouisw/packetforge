@@ -29,7 +29,8 @@ Modes and their prompts:
 | `show vlan` / `show vlan brief` | VLAN table: one row per VLAN in the VLAN database, with the **access** ports in it - a trunk port carries the VLAN and appears in no row - and the four reserved defaults (1002-1005) a switch has from boot. `show vlan` is the full view: it then prints the media table (`Type`, `SAID`, `MTU`, `Stp`, `Trans1/2`), the empty `Remote SPAN VLANs` section and the empty private-VLAN table; `brief` stops after the first table |
 | `show spanning-tree` | per-port STP role and state, the bridge priority and the elected root, or "not measured" when nothing has run |
 | `show etherchannel summary` | the device's own summary: the nine-line flag key, both counts, `Po<N>(SU)` per group, LAG members `(P)` bundled, `(s)` suspended or `(D)` unbundled, with the reason |
-| `show lldp` | LLDP neighbours, with the local port marked when it can no longer carry, and each row listed only for as long as the hold time its neighbour advertised |
+| `show lldp` | the protocol's status block: `Global LLDP Information:` with `Status: ACTIVE`, the 30 s advertisement interval, the 120 s hold time it advertises and the 2 s reinitialisation delay - the four lines a Catalyst prints, so "running with nothing heard" is distinguishable from "off", which only `show lldp neighbors` used to look like |
+| `show lldp neighbors` | LLDP neighbours, with the local port marked when it can no longer carry, and each row listed only for as long as the hold time its neighbour advertised |
 | `show access-lists` | ACL rules, bindings, and how many packets each rule has matched |
 | `show ip bgp` / `show ip bgp summary` | BGP neighbours with their state and reason, and the prefixes installed |
 | `show interfaces` | per-interface detail incl. MAC, peer, link state and what has crossed the port |
@@ -2005,7 +2006,36 @@ With no simulation run the table prints `counters: not measured (no simulation r
 traffic through the list, `counters: no packet has been tested against this list`. Those are different
 answers and neither of them is "zero".
 
-### Reading `show lldp`
+### Reading `show lldp` and `show lldp neighbors`
+
+Two commands, two questions, one word apart. This console used to answer both with the neighbour table, which
+meant the protocol's *own* state could not be asked for at all:
+
+```
+sw#show lldp
+Global LLDP Information:
+    Status: ACTIVE
+    LLDP advertisements are sent every 30 seconds
+    LLDP hold time advertised is 120 seconds
+    LLDP interface reinitialisation delay is 2 seconds
+```
+
+Those five lines are a vendor transcript — a Catalyst 9500 prints exactly this, at this indent, in Cisco's field
+notice on unknown-protocol drops
+(https://www.cisco.com/c/en/us/support/docs/switches/catalyst-9300-series-switches/224586-troubleshoot-unknown-protocol-drops-in.html),
+where the off-case (`lldp run` never typed) is the single line `% LLDP is not enabled`. The three numbers are the
+protocol defaults and are read from `engine/lldp.js`, so the status block and the TTL every LLDPDU carries cannot
+drift apart: `lldp timer` 30 s × the hold multiplier 4 = the 120 s `lldp holdtime`. Nothing else varies them.
+
+**This model always announces**, so the block always says `ACTIVE`. There is no `lldp run` here and no per-port
+`lldp transmit` / `lldp receive`, so there is no state in which the refusal would be honest, and the block states
+the model rather than a vendor default it cannot check. Whether a factory-default Cisco switch runs LLDP before
+anyone types `lldp run` is genuinely contradictory in the public sources (the configuration guides' default tables
+say disabled; field reports from a Catalyst 3750 and Cisco's own field notice transcript say ACTIVE) —
+research/lldp-default-state.md lays out both sides and what would settle it. The consequence worth knowing: a port
+list that is empty under `show lldp neighbors` is *not* how you find out LLDP is off, because it never is here.
+
+The table itself:
 
 ```
 LLDP neighbours on Switch (L2)-sw:

@@ -133,7 +133,7 @@ console.log('');
 console.log('Every spelling of the view ends the same way:');
 {
   const env = lab();
-  ['show lldp', 'show lldp neighbors', 'show lldp neighbours'].forEach(function (cmd) {
+  ['show lldp neighbors', 'show lldp neighbours'].forEach(function (cmd) {
     const total = totalOf(lines(env, cmd));
     ok(!!total && total.n === 2, '"' + cmd + '" ends with the same count', JSON.stringify(total));
   });
