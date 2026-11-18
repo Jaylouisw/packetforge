@@ -696,14 +696,41 @@ jobs:
         # (run 6441, `Test (Node 20)`, a push to main, 2026-11-18T16:24:36Z) reads
         # `344 suite(s) in 40.4 s - 11933 assertions passed, 0 failed` at 10.
         #
-        # 16 and not 14: the harness caps at 16, 16 was fastest of the three in every
-        # arrangement measured, and 48 processes across three legs on the 40 cores under
-        # this host is still not a fight - the three-leg numbers are within 1.5 % of each
-        # other, which is what a plateau looks like, not a queue. So the leg gets ~4.7 s
-        # back on the contended path (and ~5.7 s when it runs alone), 14 s of runner time
-        # per pull request across three legs.
+        # 16 was measured, merged as 8b8348e9 at 16:42:53, and taken back out the same
+        # evening, because the 4.7 s it returns per leg was paid for with red mains.
+        #
+        # The benchmark above started three legs and nothing else. The queue does not look
+        # like that. A merge on main fires the rebase pass, which force-pushes every open
+        # pull request that is behind main, and each of those is a new run asking for three
+        # more legs - so five and six legs are in flight at once: tasks 16900-16907 are PRs
+        # #2011 and #2012 overlapping, and 16923-16936 overlap each other and the Docker
+        # build. At 16 that is 80-96 node processes on this host's 40 cores and 31 GB with
+        # no swap, where 30-50 is what the widths in this file were chosen against.
+        #
+        # Two suites in this tree assert wall-clock tripwires of their own:
+        # `test/state-payload-shape.test.js` budgets 60 ms for a 200-cable payload its own
+        # comment calls "a few milliseconds", and `test/palette-search-keys.test.js` ceilings
+        # a warm catalogue filter at 25 ms. Both are loose against an idle machine and both
+        # read the queue when it is oversubscribed. In the 80 minutes after this 16 landed,
+        # every red test leg sampled (8 of 8) was one of those two, and main went red four
+        # times on them:
+        #   task 16773 (main, 17:09:42)  state payload 113.9 ms of 60
+        #   task 16821 (main, 17:45:12)  warm filter 39.48 ms of 25
+        #   task 16924 (main, 18:08:50)  warm filter 28.81 ms of 25
+        #   task 16933 (main, 18:09:40)  state payload 130.7 ms of 60
+        # plus pull-request legs 16900/16901 (#2011, 106.8 and 71.9 ms), 16829 (#2005,
+        # 83.8 ms) and 16952 (#2015, 80.0 ms) at 18:23. In the eight hours before it, over
+        # ~400 legs, two such legs reported.
+        #
+        # 10 is not a cure: the same tripwires fired on 2026-11-17 between 00:00Z and 05:00Z
+        # with this 10 in place, when six legs were in flight again (14 legs). What 10 does is
+        # halve what this file adds to that contention, for the 4.7 s per leg measured above -
+        # 344 suites and 11933 assertions in every leg at either width, so no coverage moves.
+        # The tripwires belong in `test/`, which this stream does not write; until they
+        # measure the code instead of the host, a leg that reports the queue is worth more
+        # than five seconds, and a red main is worth more still.
         env:
-          PF_TEST_CONCURRENCY: 16
+          PF_TEST_CONCURRENCY: 10
         run: |
           # Actions runs this file as `bash -e`, and that is the default this step has to
           # leave: without it the first non-zero exit - `npm test` failing, which is the
