@@ -2,6 +2,23 @@
 
 ### Fixed
 
+- **A channel group configured at one end only forms no bundle, and its member is stand-alone.** LACP is a
+  conversation, and a port that never configured a channel group never sends or answers an LACPDU, so
+  `channel-group 1 mode active` against a plain access port has nothing to negotiate with. `memberSuspension()`
+  returned `null` the moment the far port named no group, so the summary read `Po1(SU)` with both members
+  `(P)` and the data plane hashed frames across two links the far end saw as unrelated single ports. The
+  vendor states the outcome for the platform these views follow: "Incompatible ports are suspended. Beginning
+  with Cisco IOS Release 12.2(35)SE, instead of a suspended state, the local port is put into an independent
+  state and continues to carry data traffic as would any other single link" (Catalyst 2960, *Configuring
+  EtherChannels*, 12.2(46)SE). The group now reads `Po1(SD)` with the member `(I)` and the ping still crosses
+  over that one link. Two smaller corrections travel with it: the letter for a member that negotiated nothing
+  is `(I)` stand-alone rather than `(s)`, because the key printed above the table reserves `s - suspended` for
+  a member that is *not* carrying - so the passive/passive pair reads `(I)` now too, being the same state
+  reached another way; and `mode on` is deliberately untouched, because it negotiates nothing and the switch
+  forces the bundle up ("a usable EtherChannel exists only when the switches at both ends of the link are
+  configured in the on mode ... otherwise, packet loss can occur"). The sources, the IOS XE wording that
+  disagrees, and what is still unresolved are in
+  [research/lacp-one-sided-group.md](research/lacp-one-sided-group.md).
 - **MED is compared only between paths learned from the same neighbouring AS.** RFC 4271 9.1.2.2(c) is
   explicit - "MULTI_EXIT_DISC is only comparable between routes learned from the same neighboring AS (the
   neighboring AS is determined from the AS_PATH attribute)" - and Cisco states the same test on the path

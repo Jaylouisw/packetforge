@@ -28,7 +28,7 @@ Modes and their prompts:
 | `show mac address-table` | MAC table (switches), per VLAN, with an age per entry and stale entries marked, titled and ruled as the device prints it and closed by `Total Mac Addresses for this criterion: N`; an address learned through a bundle is named on the port-channel (`Po1`), as the device names it (`research/mac-table-port-channel-name.md`) |
 | `show vlan` / `show vlan brief` | VLAN table: one row per VLAN in the VLAN database, with the **access** ports in it - a trunk port carries the VLAN and appears in no row - and the four reserved defaults (1002-1005) a switch has from boot. `show vlan` is the full view: it then prints the media table (`Type`, `SAID`, `MTU`, `Stp`, `Trans1/2`), the empty `Remote SPAN VLANs` section and the empty private-VLAN table; `brief` stops after the first table |
 | `show spanning-tree` | per-port STP role and state, the bridge priority and the elected root, or "not measured" when nothing has run |
-| `show etherchannel summary` | the device's own summary: the nine-line flag key, both counts, `Po<N>(SU)` per group, LAG members `(P)` bundled, `(s)` suspended or `(D)` unbundled, with the reason |
+| `show etherchannel summary` | the device's own summary: the nine-line flag key, both counts, `Po<N>(SU)` per group, LAG members `(P)` bundled, `(I)` stand-alone or `(D)` unbundled, with the reason |
 | `show lldp` | the protocol's status block: `Global LLDP Information:` with `Status: ACTIVE`, the 30 s advertisement interval, the 120 s hold time it advertises and the 2 s reinitialisation delay - the four lines a Catalyst prints, so "running with nothing heard" is distinguishable from "off", which only `show lldp neighbors` used to look like |
 | `show lldp neighbors` | LLDP neighbours, with the local port marked when it can no longer carry, and each row listed only for as long as the hold time its neighbour advertised |
 | `show access-lists` | ACL rules, bindings, and how many packets each rule has matched |
@@ -1918,12 +1918,12 @@ no groups in use and prints exactly this empty table (`research/etherchannel-sum
 `Po1(SU)` is the bundle's own flags: `S` Layer2, and `U` in use or `D` down — `Po1(SD)` when no member can
 carry a frame, which is the row above saying the same thing about the group as `(D)` says about a member.
 
-#### Two ends that are both `passive` never form a bundle
+#### A member that negotiated nothing is not in the bundle
 
 A `passive` port answers LACP and never starts it, so two passive ends wait for a partner that neither of them
 sends: "A port in the passive mode cannot form an EtherChannel with another port that is also in the passive
 mode because neither port starts LACP negotiation" (Cisco, *Configuring EtherChannels*, LACP modes). The bundle
-therefore never comes up — `Po1(SD)`, every member `(s)` suspended — and the member is **not** lost: the same
+therefore never comes up — `Po1(SD)`, every member `(I)` stand-alone — and the member is **not** lost: the same
 chapter's next sentence is that incompatible ports are "put into an independent state" and "continue to carry
 data traffic as would any other single link". This model does that, so a ping between a passive/passive pair
 still crosses; it crosses over one physical link, because with the bundle gone the spanning tree sees two
@@ -1931,9 +1931,27 @@ parallel links between the two bridges and blocks one of them. Before this the s
 both members `(P)` and the data plane hashed frames across a bundle no box would have built
 (`research/lacp-passive-both-ends.md`).
 
-Only two **configured** ends are decided this way. A far end in no channel group at all still lets the group
-come up: the vendor sentence is about two configured ends, and what a lone negotiating port does against an
-unconfigured one is not modelled here rather than guessed.
+The same answer covers the other way to lose the negotiation: a far port in **no channel group at all**. LACP
+is a conversation, and a port that never configured a channel group never sends or answers an LACPDU —
+`channel-group 1 mode active` against a plain access port forms no bundle either, however confidently the near
+end announces itself. The 2960 chapter states the outcome: "Incompatible ports are suspended. Beginning with
+Cisco IOS Release 12.2(35)SE, instead of a suspended state, the local port is put into an independent state and
+continues to carry data traffic as would any other single link. The port configuration does not change, but the
+port does not participate in the EtherChannel." So the summary reads `Po1(SD)` with the member `(I)`, the frame
+still crosses over that one link, and the spanning tree sees the single link the hardware has
+(`research/lacp-one-sided-group.md`).
+
+The letter is `(I)` stand-alone rather than `(s)` suspended because that is what the key above the table says
+the two mean, and this model's member is **carrying**: `s` is the flag for a member that is not. IOS XE 17.x
+words the same condition as *suspended* and moves the member back out of that state only when LACP standalone
+mode is enabled on the bundle — a different behaviour from the one this console claims, and one whose own
+default its guide states both ways (`research/lacp-one-sided-group.md` records the split).
+
+`mode on` is the exception the vendor names, and it is not one this model invents: `on` negotiates nothing, so
+there is no answer to wait for and the switch forces the bundle up — "in the on mode, a usable EtherChannel
+exists only when the switches at both ends of the link are configured in the on mode", and otherwise "packet
+loss can occur". A one-ended `on` group therefore still reads `Po1(SU)` with its members `(P)`; each end has
+its own opinion of that cable on a real box, which is the asymmetry the research note leaves open.
 
 The Protocol column names a protocol and nothing else: `LACP` for `active`/`passive`, `-` for `mode on`,
 because `on` negotiates nothing and there is no protocol to name (Cisco's own lab transcripts print `-` there).

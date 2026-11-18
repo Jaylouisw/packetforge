@@ -158,6 +158,16 @@ console.log('The summary names the protocol and the mode, in the operator\'s wor
     say(env, 'channel-group 1 mode active');
   }
   say(env, 'end');
+  // The far end has to name the group as well: LACP is a conversation, and a port whose partner configured
+  // no group gets no answer, so it is not bundled (research/lacp-one-sided-group.md).
+  const far = new CliSession(env.b, env.t, env.sim);
+  far.run('enable');
+  far.run('configure terminal');
+  for (const p of [env.pa[0].name, env.pa[1].name]) {
+    far.run('interface ' + p);
+    far.run('channel-group 1 mode active');
+  }
+  far.run('end');
   const summary = (env.s.run('show etherchannel summary').output || []).map(String);
   const row = summary.filter(function (l) { return /^1\s/.test(l); })[0] || '';
   ok(/LACP/.test(row), 'the row names the protocol, LACP', row);

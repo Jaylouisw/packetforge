@@ -5821,9 +5821,10 @@ class CliSession {
           const why = {};
           // A member whose two ends never negotiated is not a member - but it is not a dead port either: the
           // hardware puts it into an independent state and it goes on carrying traffic as an ordinary single
-          // link (Cisco, Configuring EtherChannels). That is a third state, so it gets the flag a box uses for
-          // it, `(s)` suspended, rather than `(D)` down, which would claim the cable is out when it is not
-          // (#fidelity: LACP passive/passive).
+          // link (Cisco, Configuring EtherChannels). That is a third state, so it gets the flag the key above
+          // the table gives it, `(I)` stand-alone - the state the 2960 and 3750 chapters call "independent" -
+          // rather than `(D)` down, which would claim the cable is out when it is not, or `(s)` suspended,
+          // which the same key reserves for a port that is *not* carrying (research/lacp-one-sided-group.md).
           const suspended = {};
           const canCarry = (function (self, reasons, held) {
             return function (name) {
@@ -5836,16 +5837,16 @@ class CliSession {
               // The same sentence `show interfaces` and `show arp` use for the same fact.
               const note = self._staleNote(iface);
               if (note) { reasons[name] = note; return false; }
-              // Negotiation is asked last, of a port that could otherwise carry: a suspended port may still
-              // forward, so "suspended" must not hide "the cable is out".
+              // Negotiation is asked last, of a port that could otherwise carry: a stand-alone port still
+              // forwards, so "this end never negotiated" must not hide "the cable is out".
               const heldMember = lagLib.memberSuspension(dev, name, self.topo);
-              if (heldMember) { held[name] = heldMember; reasons[name] = '(suspended: ' + heldMember.why + ')'; return false; }
+              if (heldMember) { held[name] = heldMember; reasons[name] = '(stand-alone: ' + heldMember.why + ')'; return false; }
               return true;
             };
           })(this, why, suspended);
           const live = lagLib.eligibleMembers(raw, canCarry);
           const shown = raw.map(function (m) {
-            if (suspended[m]) return m + '(s)';
+            if (suspended[m]) return m + '(I)';
             return m + (live.indexOf(m) === -1 ? '(D)' : '(P)');
           });
           // The Port-channel cell carries the bundle's own flags, which say what the member list cannot: S is a
@@ -5866,7 +5867,7 @@ class CliSession {
             if (suspended[m]) {
               // The port is not lost, and saying "traffic is dropped" here would send an operator looking for
               // a cable fault that is not there.
-              out.push('  ' + pad(m, 10) + 'is suspended ' + why[m].replace('(suspended: ', '(') +
+              out.push('  ' + pad(m, 10) + 'is stand-alone ' + why[m].replace('(stand-alone: ', '(') +
                 ' - the port still carries traffic, as a single link rather than as a member of Po' + id);
             } else if (live.indexOf(m) === -1) {
               out.push('  ' + pad(m, 10) + 'not bundled ' + (why[m] || '(cannot carry a frame)'));
@@ -5880,8 +5881,8 @@ class CliSession {
           }
           if (!live.length && raw.length) {
             // An empty bundle has three different answers, and only one of them is "traffic is dropped": a
-            // suspended member went on forwarding on its own, so a bundle of suspended members still carries
-            // traffic - as two single links - while a bundle of dead members carries nothing.
+            // stand-alone member went on forwarding on its own, so a bundle of stand-alone members still
+            // carries traffic - as two single links - while a bundle of dead members carries nothing.
             const carrying = raw.filter(function (m) { return !!suspended[m]; });
             if (carrying.length === raw.length) {
               out.push('  bundle ' + id + ' is down: no member joined it (each one carries traffic as a single link)');

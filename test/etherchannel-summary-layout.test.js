@@ -34,6 +34,11 @@ function ports(dev) {
 }
 
 // Two switches, two cables: a bundle whose members can both carry a frame.
+//
+// Both ends name the group. LACP is a conversation, so a port whose partner configured no channel group
+// receives no answer and is not bundled - `Po1(SD)` with the member as a single link. The table below is
+// about the layout of a *working* bundle, so the far end has to be in the group for the row to be (SU)
+// (research/lacp-one-sided-group.md).
 function lab() {
   const t = new Topology();
   const a = t.addDevice(SWITCH, 'sw1');
@@ -44,7 +49,15 @@ function lab() {
   t.connect('sw1', pa[1].name, 'sw2', pb[1].name);
   const sim = new Simulator(t);
   const s = new CliSession(a, t, sim);
-  return { t: t, a: a, pa: pa, sim: sim, s: s };
+  const far = new CliSession(b, t, sim);
+  far.run('enable');
+  far.run('configure terminal');
+  for (const p of [pb[0].name, pb[1].name]) {
+    far.run('interface ' + p);
+    far.run('channel-group 1 mode active');
+  }
+  far.run('end');
+  return { t: t, a: a, b: b, pa: pa, pb: pb, sim: sim, s: s };
 }
 
 function say(env, cmd) {

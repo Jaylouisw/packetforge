@@ -605,7 +605,7 @@ changed what a lab does, which is why the pointer is here rather than in a chang
 | Field | What reads it now |
 |---|---|
 | `Link.state` | a frame crossing a down cable is dropped with `reason: 'link down'` and the link id (`engine/simulator.js:3099`), and the switch logic in `engine/segment.js` will not carry a frame over one ([LINK-STATE.md](LINK-STATE.md)) |
-| LAG `mode` | `negotiationVerdict()` through `memberSuspension()`: two `passive` ends never form a bundle (`test/lacp-passive-both-ends.test.js`, 22 assertions) |
+| LAG `mode` | `negotiationVerdict()` through `memberSuspension()`: two `passive` ends never form a bundle, and neither does a far end in no channel group at all (`test/lacp-passive-both-ends.test.js` + `test/lacp-one-sided-group.test.js`, 54 assertions) |
 | `voiceVlan` | `classifyEgress()` and `classifyIngress()` carry it on an access port as one tagged VLAN beside the untagged access VLAN, and ignore it on a trunk (`engine/vlan.js`, #1368) |
 | `iface.dhcp` | `Simulator.computeDhcp()` collects every port carrying the flag as a client and applies the lease it is given (`engine/simulator.js:1172`) |
 | RA valid/preferred lifetimes | written into the prefix information option the router advertises (`engine/ra.js:210`), and read back out of it on arrival |

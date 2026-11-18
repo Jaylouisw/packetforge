@@ -273,11 +273,27 @@ function negotiationVerdict(myMode, peerMode) {
 // A member that never negotiated is not in the bundle - but it is not dead either. The vendor's own sentence:
 // "Incompatible ports are put into an independent state and continue to carry data traffic as would any other
 // single link. The port configuration does not change, but the port does not participate in the EtherChannel"
-// (Cisco, Configuring EtherChannels). So this is a suspension: the port forwards as itself instead of as a
-// member, and `show etherchannel summary` marks it `(s)`.
+// (Cisco, Configuring EtherChannels). So the port leaves the bundle without dying: it forwards as itself, and
+// `show etherchannel summary` marks it `(I)` stand-alone - the letter the key printed above the table gives to
+// a port that is "operating independently", and not `(s)`, which the key gives to a suspended one.
 //
-// Only decided when BOTH ends name a channel group. A far end in no group at all is a different question, and
-// one this model does not answer yet (research/lacp-passive-both-ends.md).
+// Three ways to lose the negotiation, all one outcome:
+//
+//   1. both ends passive          - neither starts LACP (negotiationVerdict);
+//   2. a far port in no group     - nothing at the far end answers LACP at all;
+//   3. a far port that cannot     - a PC, a router port, anything with no channel group to answer with.
+//
+// (2) and (3) are the same fact from this side of the cable: an LACP speaker needs an LACP partner, and a port
+// that never configured a channel group never sends or answers an LACPDU. The vendor states the pair rule -
+// "you must configure both ends in the same mode ... the other end must also be configured in the on mode;
+// otherwise, packet loss can occur" - and the 2960 chapter states what a port does when the negotiation comes
+// back empty: since 12.2(35)SE it is put into an independent state and goes on carrying traffic as any other
+// single link (research/lacp-one-sided-group.md). Before this, a group configured at one end alone came up as a
+// bundle and hashed frames across members that, on the wire, were two unrelated single links.
+//
+// `on` is deliberately NOT covered: it negotiates nothing, so there is no response to wait for and the vendor
+// says the switch *forces* the bundle up (`show etherchannel summary` on that side really does read SU/P) while
+// the far end treats its port as a plain access port - the asymmetry research/lacp-passive-both-ends.md names.
 function memberSuspension(dev, ifaceName, topo) {
   if (!dev || !topo || typeof dev.lagFor !== 'function') return null;
   const iface = dev.interfaces ? dev.interfaces.get(ifaceName) : null;
@@ -285,9 +301,15 @@ function memberSuspension(dev, ifaceName, topo) {
   const mine = dev.lagFor(ifaceName);
   if (!mine) return null;
   const peerDev = typeof topo.getDevice === 'function' ? topo.getDevice(iface.peer.deviceId) : null;
-  if (!peerDev || typeof peerDev.lagFor !== 'function') return null;
-  const theirs = peerDev.lagFor(iface.peer.iface);
-  if (!theirs) return null;
+  const theirs = (peerDev && typeof peerDev.lagFor === 'function') ? peerDev.lagFor(iface.peer.iface) : null;
+  if (!theirs) {
+    // No channel group on the far port: nothing over there speaks LACP, whatever this end says. A static
+    // (`on`) member is left alone - it never asked a question, so it cannot go unanswered.
+    const canonical = canonicalMode(mine.mode);
+    if (canonical !== 'lacp-active' && canonical !== 'lacp-passive') return null;
+    return { why: 'the far end is in no channel group: nothing there answers LACP',
+      mode: mine.mode, peerMode: null, peer: iface.peer };
+  }
   const verdict = negotiationVerdict(mine.mode, theirs.mode);
   if (verdict.bundled) return null;
   return { why: verdict.why, mode: mine.mode, peerMode: theirs.mode, peer: iface.peer };

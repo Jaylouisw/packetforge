@@ -12,8 +12,11 @@
 //
 // - and the unnegotiated member is not lost, it "is put into an independent state and continues to carry data
 // traffic as would any other single link" (same chapter). So the expected picture is a bundle that is down and
-// two ports that still forward: (SD) with (s) members, no hashing, and the spanning tree seeing two links
-// where the bundle used to be one, so one of them is blocked.
+// two ports that still forward: (SD) with (I) stand-alone members, no hashing, and the spanning tree seeing two
+// links where the bundle used to be one, so one of them is blocked. The letter is `(I)` and not `(s)` because
+// the key printed above the table reserves `s - suspended` for a member that is not carrying: these two are,
+// and the state the 2960/3750 chapters name for them is "independent" - `I - stand-alone`
+// (research/lacp-one-sided-group.md).
 const path = require('path');
 const { Topology, Simulator, runCommands } = require('../engine');
 const { CliSession } = require('../engine/cli');
@@ -86,8 +89,8 @@ console.log('Two passive ends: no bundle, and both ports carry on as single link
   const lines = summary(env, env.s1);
   const row = rowFor(lines, 1);
   ok(/Po1\(SD\)/.test(row), 'the port-channel is down, not in use', row);
-  ok(/Fa0\/2\(s\)/.test(row), 'member Fa0/2 is suspended, not bundled', row);
-  ok(/Fa0\/3\(s\)/.test(row), 'member Fa0/3 is suspended, not bundled', row);
+  ok(/Fa0\/2\(I\)/.test(row), 'member Fa0/2 is stand-alone, not bundled', row);
+  ok(/Fa0\/3\(I\)/.test(row), 'member Fa0/3 is stand-alone, not bundled', row);
   ok(!/\(P\)/.test(row), 'no member claims to be carrying as a member', row);
   const why = notes(lines, 1).join(' | ');
   ok(/passive/.test(why), 'the reason names the mode that could not negotiate', why);
@@ -143,17 +146,9 @@ console.log('The modes that do negotiate are untouched:');
     rowFor(summary(on, on.s1), 1));
 }
 
-console.log('');
-console.log('A far end in no channel group is a different question, and is left as it was:');
-{
-  // The vendor's refusal sentence is about two configured ends. What a negotiating port does when the far port
-  // is in no group at all is not modelled here (research/lacp-passive-both-ends.md says so out loud), so a
-  // single-ended group keeps behaving exactly as it did rather than acquiring an invented rule.
-  const env = lab('passive', null);
-  const row = rowFor(summary(env, env.s1), 1);
-  ok(/Po1\(SU\)/.test(row), 'a group whose far end has no group still comes up', row);
-  ok(/\(P\)/.test(row), 'with its members bundled', row);
-}
+// A far end in no channel group is the same question with a shorter answer - nothing over there answers
+// LACP, so nothing is bundled - and it has its own file, because it changes what a one-ended lab does:
+// test/lacp-one-sided-group.test.js.
 
 console.log(String.fromCharCode(10) + passed + ' passed, ' + failed + ' failed');
 process.exit(failed ? 1 : 0);

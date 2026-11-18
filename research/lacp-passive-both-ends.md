@@ -52,7 +52,8 @@ was brought up: `show etherchannel summary` and the data plane both asked only w
   applies only when **both** ends name a group.
 * `engine/simulator.js`: a suspended member is not grouped into `lag-N` for forwarding, and it is its own port
   to `_logicalPortName`, so the tree sees two links and blocks one.
-* `engine/cli.js`: `show etherchannel summary` prints `(s)` for a suspended member, `Po1(SD)`, a per-member
+* `engine/cli.js`: `show etherchannel summary` prints `(s)` for a suspended member (later changed to `(I)`
+  stand-alone — see `research/lacp-one-sided-group.md`), `Po1(SD)`, a per-member
   sentence naming the mode that could not negotiate, and a bundle sentence that says the members still carry
   traffic as single links instead of "traffic is dropped".
 * `test/lacp-passive-both-ends.test.js`: 22 assertions - the passive/passive picture (bundle down, `(s)`
@@ -65,11 +66,12 @@ was brought up: `show etherchannel summary` and the data plane both asked only w
   when the devices at both ends are configured in the on mode"), but the two ends disagree about the same
   cable: the `on` side shows a bundle, the negotiating side suspends. This model has one opinion per member,
   not one per end, so modelling it honestly needs per-end state - not done, and not guessed.
-* **A far end in no channel group at all.** Per the LACP section a lone LACP port with no partner is either
-  `suspended` or `stand-alone` (`I`), depending on `port-channel standalone-disable`. Neither the knob nor the
-  `I` state is modelled; a single-ended group still comes up exactly as before. The evidence would support
-  "suspended", but that changes every single-sided lab and the summary's own examples, so it is a separate
-  increment with its own evidence, not a side effect of this one.
+* **A far end in no channel group at all.** *Settled in a later increment, not here:*
+  `research/lacp-one-sided-group.md`. No bundle forms, the member is out of the group, and it goes on
+  forwarding as a single link — so this model now prints `(I)` stand-alone for that member, and for the
+  passive/passive pair above as well, because it is the same physical state reached another way. The `(s)` this
+  file describes was the letter chosen when only the pair rule existed; the key printed above the table
+  reserves `s` for a member that is *not* carrying.
 * **A member's STP cost** once it falls out of the bundle. This model gives each port its full link cost
   (`_logicalPortName` is simply the port), which is what a box does once the bundle is gone; no transcript was
   found showing the `show spanning-tree` rows for that exact transition.
