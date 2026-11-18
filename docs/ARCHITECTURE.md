@@ -1094,9 +1094,10 @@ Four decisions worth keeping:
   (`research/trunk-allowed-remove-from-all.md`). `switchport trunk allowed vlan remove 10` now answers
   `Trunk on Fa0/1 allows VLANs 1-9,11-4094 (removed 10)`, the backup writes that same line, and
   `show interfaces` says `allowed 1-9,11-4094` — a sentence and a backup that are now shaped like the box's.
-* **A word is named as a word.** `except 20` prints `% Unrecognized "except": this console takes a list (10,20), a range
-  (10-20), "all", "add <list>" or "remove <list>"` — not the glued `except20`. A genuinely malformed numeric list still
-  gets the library's own message.
+* **A word is named as a word.** `banana` prints `% Unrecognized "banana": this console takes a list (10,20), a range
+  (10-20), "all", "add <list>", "except <list>" or "remove <list>"` — not a glued token. A genuinely malformed numeric
+  list still gets the library's own message. (`except 20` was the example here until `except` became a form of the
+  command: it inverts the named list over 1-4094 instead of editing the port's own, `research/trunk-allowed-except.md`.)
 * **Everything that worked is untouched.** `10, 20` with spaces, `40 - 42` ranges, `all`, `no switchport trunk allowed
   vlan`, and the bare command's `% Incomplete command` all behave exactly as before.
 

@@ -1743,14 +1743,40 @@ mattered was the allowed list, and it was the one place the console applied the 
 
 The word in front of the list is read as a word. A list typed with spaces or with spaced ranges still parses
 (`10, 20` and `40 - 42` are `10,20` and `40-42`), and anything that is neither a verb nor a list is quoted back
-with the four forms the command takes:
+with the forms the command takes:
 
 ```
 sw1(config-if)#switchport trunk allowed vlan banana
-% Unrecognized "banana": this console takes a list (10,20), a range (10-20), "all", "add <list>" or "remove <list>"
+% Unrecognized "banana": this console takes a list (10,20), a range (10-20), "all", "add <list>", "except <list>" or "remove <list>"
 sw1(config-if)#switchport trunk allowed vlan add
 % Incomplete command: switchport trunk allowed vlan add <list>
 ```
+
+`except <list>` is the third verb, and it is the one that is not an edit. A vendor's vlan-list grammar is
+`all | none | [add | remove | except] vlan-atom`, and `except` "lists the VLANs that should be calculated by
+inverting the defined list of VLANs" — so it replaces the list with everything the named ids are not, over the
+whole 1-4094 a trunk's default list covers, whatever the port was carrying before. The CCNP lab that uses it
+prints the answer this console now gives:
+
+```
+sw1(config-if)#switchport trunk allowed vlan except 1,999
+Trunk on Fa0/1 allows VLANs 2-998,1000-4094 (all but 1,999)
+```
+
+The run passes straight through 1002-1005 for the same reason a removal's remainder does: the four media defaults
+cannot come out of a trunk, so a list that names one is answered with that rule instead of performed, and a list
+that would leave nothing behind is the dead trunk the console already refuses:
+
+```
+sw1(config-if)#switchport trunk allowed vlan except 1002
+% VLANs 1002 stay on every trunk: the four media defaults (1002-1005) are always allowed and cannot be removed
+sw1(config-if)#switchport trunk allowed vlan except 1-4094
+% that would leave the trunk allowing no VLANs: name what it should carry instead (switchport trunk allowed vlan <list>) or restore it with "no switchport trunk allowed vlan"
+```
+
+The line the backup prints is the computed list, not the word `except` - `switchport trunk allowed vlan
+2-998,1000-4094` - so a saved board restores the same set by the path the other forms use
+([research/trunk-allowed-except.md](../research/trunk-allowed-except.md)).
 
 A range is two ids, written low-to-high the way every Cisco `vlan-list` note writes one — "two VLAN numbers, the
 lower one first". A transposed pair is refused rather than read upside down, and the two ids are named back in

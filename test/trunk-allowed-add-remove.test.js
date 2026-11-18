@@ -170,10 +170,14 @@ console.log('');
 console.log('A word that is not a verb or a list is named as a word:');
 {
   const L = session();
-  const out = L.put('switchport trunk allowed vlan except 20');
-  ok(/Unrecognized "except"/.test(out[0]), 'the refusal quotes the word that was typed', out[0]);
-  ok(out[0].indexOf('except20') === -1, 'and never the glued token', out[0]);
-  ['add', 'remove', 'all'].forEach(function (form) {
+  // `except 20` was the example here until `except` became a form of the command: the vendor's vlan-list
+  // grammar is `all | none | [add | remove | except] vlan-atom` (Catalyst 9300 17.12 command reference),
+  // so the word quoted back is one that is neither a verb nor a list
+  // (research/trunk-allowed-except.md, test/trunk-allowed-except.test.js).
+  const out = L.put('switchport trunk allowed vlan banana');
+  ok(/Unrecognized "banana"/.test(out[0]), 'the refusal quotes the word that was typed', out[0]);
+  ok(out[0].indexOf('banana20') === -1, 'and never a glued token', out[0]);
+  ['add', 'remove', 'except', 'all'].forEach(function (form) {
     ok(out[0].indexOf('"' + form), 'it lists the accepted form `' + form + '`', out[0]);
   });
   const bare = L.put('switchport trunk allowed vlan add');

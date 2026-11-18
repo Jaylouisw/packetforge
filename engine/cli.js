@@ -3158,17 +3158,26 @@ class CliSession {
       // `add` and `remove` are the words IOS puts in front of a list to edit the one already there, and joining the
       // tokens with no separator ate them: `allowed vlan add 30` became the token `add30` and the console refused a
       // word nobody had typed (#1455). The verb is read from the token list, and only the list is glued together.
+      //
+      // `except <list>` is the command's third documented verb, and it is not an edit: it *replaces* the list with
+      // the inversion of the ids named. "except lists the VLANs that should be calculated by inverting the defined
+      // list of VLANs. (VLANs are added except the ones specified.)" - Catalyst 9300 17.12 command reference,
+      // `switchport trunk`, vlan-list choices (research/trunk-allowed-except.md). The CCNP lab that uses it prints
+      // the answer the inversion gives: `switchport trunk allowed vlan except 1,999` then `show interface trunk` ->
+      // `Fa0/7  2-998,1000-4094`, one run straight through the media defaults, which is the universe this console
+      // already inverts over for `remove` on a default trunk.
       const verb = String(rest[0] || '').toLowerCase();
       const editing = (verb === 'add' || verb === 'remove');
-      const spec = (editing ? rest.slice(1) : rest).join('');
+      const inverting = (verb === 'except');
+      const spec = (editing || inverting ? rest.slice(1) : rest).join('');
       if (!spec) {
-        return [editing
+        return [editing || inverting
           ? '% Incomplete command: switchport trunk allowed vlan ' + verb + ' <list>'
           : '% Incomplete command'];
       }
       const refuseWord = function () {
         return ['% Unrecognized "' + String(rest[0]) + '": this console takes a list (10,20), a range (10-20), ' +
-          '"all", "add <list>" or "remove <list>"'];
+          '"all", "add <list>", "except <list>" or "remove <list>"'];
       };
       if (!editing && spec === 'all') {
         iface.vlan = vlanLib.normalizePortConfig(Object.assign({}, iface.vlan, { allowedVlans: 'all' }));
@@ -3186,11 +3195,39 @@ class CliSession {
         // refused on its contents (the reserved block), and it was answered `% Unrecognized "remove"`: a
         // refusal of the one word in the line that was certainly correct, hiding the reason the list was
         // refused.
-        if (!editing && /^[a-z]/i.test(String(rest[0]))) return refuseWord();
+        if (!editing && !inverting && /^[a-z]/i.test(String(rest[0]))) return refuseWord();
         return ['% ' + (parsed.message || 'invalid VLAN list')];
       }
       const bad = parsed.vlans.filter(function (v) { return v < 1 || v > 4094; });
       if (bad.length) return ['% VLAN out of range: ' + bad[0]];
+      if (inverting) {
+        // The inversion runs over the whole id space a trunk's default list covers, not over the list the port
+        // carries now: `except 5` on a port allowing 10 leaves 1-4,6-4094, which is what "VLANs are added except
+        // the ones specified" says and what the CCNP capture shows. The four media defaults are the one thing the
+        // inversion cannot take out - a switch documents that 1002-1005 cannot be removed from a trunk - so a list
+        // that names one is answered the way `remove 1002` is answered: the rule, and the list left alone
+        // (research/trunk-allowed-reserved-vlans.md).
+        const pinned = parsed.vlans.filter(function (v) { return vlanLib.isReservedVlan(v); });
+        const named = parsed.vlans.filter(function (v) { return !vlanLib.isReservedVlan(v); });
+        const next = vlanLib.allVlansExcept(named);
+        // The dead-trunk question is asked first, the same order `remove` asks it in: `except 1-4094` names the
+        // whole id space, and the remaining four media defaults carry no Ethernet frame, so the answer is the
+        // refusal the console gives `remove 1-4094`, not a sentence about 1002 that hides a trunk carrying nothing.
+        if (!next.some(function (v) { return !vlanLib.isReservedVlan(v); })) {
+          return ['% that would leave the trunk allowing no VLANs: name what it should carry instead ' +
+            '(switchport trunk allowed vlan <list>) or restore it with "no switchport trunk allowed vlan"' +
+            allowedNote];
+        }
+        if (pinned.length) {
+          return ['% VLANs ' + vlanLib.formatVlanList(pinned) + ' stay on every trunk: the four media defaults (' +
+            vlanLib.RESERVED_VLANS[0].id + '-' + vlanLib.RESERVED_VLANS[vlanLib.RESERVED_VLANS.length - 1].id +
+            ') are always allowed and cannot be removed' + allowedNote];
+        }
+        iface.vlan = vlanLib.normalizePortConfig(Object.assign({}, iface.vlan, { allowedVlans: next }));
+        this.device.flushMacsOnPort(iface.name);
+        return ['Trunk on ' + iface.name + ' allows VLANs ' + vlanLib.formatVlanList(next) +
+          ' (all but ' + vlanLib.formatVlanList(named) + ')' + allowedNote];
+      }
       if (!editing) {
         iface.vlan = vlanLib.normalizePortConfig(Object.assign({}, iface.vlan, { allowedVlans: parsed.vlans }));
         this.device.flushMacsOnPort(iface.name);
