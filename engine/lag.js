@@ -66,6 +66,19 @@ function portChannelIfaceName(id) {
   return 'Port-channel' + id;
 }
 
+// The inverse of the two above: a bundle's id, read back from a name an operator typed.
+//
+// A box accepts every spelling of its own interface name - `show interfaces port-channel 1`, and the short
+// form its own tables print (`Po1`) - so the console has to recognise them before it can decide whether it
+// has anything to say about one. Returns null for anything that is not a bundle name, so a caller can tell
+// "not a bundle" from bundle 1.
+function bundleIdFromName(typed) {
+  const m = /^(?:po|port-?channel)\s*(\d+)$/i.exec(String(typed == null ? '' : typed).trim());
+  if (!m) return null;
+  const id = Number(m[1]);
+  return Number.isInteger(id) && id > 0 ? id : null;
+}
+
 const HASH_POLICIES = ['l2', 'l3', 'l3l4'];
 
 const DEFAULT_LAG_ID = 'lag1';
@@ -501,6 +514,7 @@ module.exports = {
   cliMode,
   portChannelName,
   portChannelIfaceName,
+  bundleIdFromName,
   HASH_POLICIES,
   normalizeLag,
   hashFrame,

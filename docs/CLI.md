@@ -994,6 +994,20 @@ the line since it was fixed for exactly this reason; the reporting side was left
 same way. A name that really does match nothing is refused with **the whole name you typed**:
 `% No interface Port 99 on …`, never truncated to its first word.
 
+A bundle has two names, and neither is a port this view prints. `Po1` - the spelling in
+`show etherchannel summary` and in the MAC table - and `Port-channel1` - the spelling of the
+`show ip interface brief` row - are recognised when a group with that id is configured, and answered as what
+they are, with the view that does print the bundle and its members:
+
+```
+s1#show interfaces Po1
+% Port-channel1 is an EtherChannel bundle: this console has no block for one. `show etherchannel summary` lists the bundle and the ports that carry it.
+```
+
+A group nobody configured is refused as the name nobody has, like any other; and no block is invented for a
+bundle, because a box's own block carries a hardware address, a status and counters that this model keeps on the
+members, not on the bundle (`research/port-channel-show-interfaces.md`).
+
 Each block carries one switchport line, because the command an operator opens first is the one that has to
 say what the port does with a frame:
 

@@ -6731,6 +6731,19 @@ class CliSession {
               'There is no keyword form here - `help` lists the commands this console has, ' +
               '`show vlan` prints VLAN membership and `show lldp neighbors` prints what is plugged in.'];
           }
+          // A bundle is an interface a box prints a block for - `show interfaces Port-channel1` is answered
+          // with `Port-channel1 is up, line protocol is up` and a `Members in this channel:` line
+          // (research/port-channel-show-interfaces.md) - and this console prints none. But it is not a port
+          // that is missing: the name comes straight off `show etherchannel summary` (`Po1`) or off the
+          // `Port-channel1` row of `show ip interface brief`, and both got the sentence a typo gets, so the
+          // reader went looking for a spelling mistake in a name the session had just printed. Say what the
+          // thing is, and name the view that does print it.
+          const bundleId = require('./lag').bundleIdFromName(typed);
+          if (bundleId !== null && dev.config && dev.config.lags && dev.config.lags[String(bundleId)]) {
+            return ['% ' + require('./lag').portChannelIfaceName(bundleId) + ' is an EtherChannel bundle: ' +
+              'this console has no block for one. `show etherchannel summary` lists the bundle and the ports ' +
+              'that carry it.'];
+          }
           // Ambiguity is refused rather than guessed, exactly as `interface` refuses it: the panel is the
           // only authority on which socket a spelling means.
           const ambiguous = portKey(wanted) !== null && [...dev.interfaces.keys()]
