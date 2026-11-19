@@ -2105,13 +2105,14 @@ Declaring the sides is what stops the inside-to-inside translation, and the side
 `show running-config` (printed inside the interface block, which is the only place the parser accepts them).
 
 The engine has translated static, dynamic and PAT since it was written, and until now **no command could
-configure any of them** — `config.nat` had no writer, so a lab could not ask the question at all. Five spellings
+configure any of them** — `config.nat` had no writer, so a lab could not ask the question at all. Six spellings
 create a rule:
 
 | command | rule |
 |---|---|
 | `ip nat inside source static <local> <global>` | one-to-one, both directions |
-| `ip nat inside source static <local> <global> tcp <port>` | port forwarding |
+| `ip nat inside source static <local> <global> tcp <port>` | port forwarding, TCP |
+| `ip nat inside source static <local> <global> udp <port>` | port forwarding, UDP |
 | `ip nat inside source list <spec> pool <name>` | dynamic — the pool's addresses are handed out |
 | `ip nat inside source list <spec> pool <name> overload` | PAT — many inside locals on one address |
 | `ip nat inside source list <spec> interface <if> [overload]` | translate to the interface's address |
