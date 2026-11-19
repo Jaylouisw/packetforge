@@ -12,6 +12,8 @@
     "dhcp-client",
     "cli",
     "http-server",
+    "poe-pse",
+    "802.3at",
     "wireless"
   ],
   "interfaces": [
@@ -37,49 +39,65 @@
       "name": "lan1",
       "type": "ethernet",
       "connector": "rj45",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "lan2",
       "type": "ethernet",
       "connector": "rj45",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "lan3",
       "type": "ethernet",
       "connector": "rj45",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "lan4",
       "type": "ethernet",
       "connector": "rj45",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "lan5",
       "type": "ethernet",
       "connector": "rj45",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "lan6",
       "type": "ethernet",
       "connector": "rj45",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "lan7",
       "type": "ethernet",
       "connector": "rj45",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "lan8",
       "type": "ethernet",
       "connector": "rj45",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "wwan1",
@@ -107,8 +125,13 @@
       "speed": "1.2G"
     }
   ],
+  "poe": {
+    "budgetW": 305.7,
+    "sourceUrl": "https://www.peplink.com/compare/tech-specs/hd4-mbx-5g.pdf",
+    "note": "DERIVED ENVELOPE, not a quoted budget - Peplink prints no \"PoE budget\" row for the HD4 MBX on any surface. The two figures it does print give the headroom exactly: the AC adapter is \"AC Input 100V-240V, DC Output 54V 3.34A [13] Compatible with ACW-630\" = 180.36 W per supply, and the footnote on PoE Output reads \"2x 54V DC input is needed for all 8x LAN ports to have 802.3at PoE. Plugging in 1x 54V DC input will result in 4x LAN ports having 802.3at PoE.\" With both DC inputs populated: 2 x 180.36 = 360.72 W in, less \"Maximum Power Consumption 55W (w/o PoE)\" = 305.72 W available to the eight PSE ports. The vendor's own single-supply case corroborates the same arithmetic: 180.36 - 55 = 125.36 W, which funds 4 x 30 W = 120 W and no more - precisely the four ports its footnote promises. Same arithmetic shape as devices/ubiquiti/ep-s16.json (DC input x A, less consumption). Read 2026-11-19 from https://www.peplink.com/compare/tech-specs/hd4-mbx-5g.pdf (HTTP 200, application/pdf, 226,055 B, 6 pp; page 5 the AC adapter row, page 6 \"PoE Input No\" / \"PoE Output Up to 8x 802.3at PoE+\" / \"Nominal Power Consumption 35\" / \"Maximum Power Consumption 55W (w/o PoE)\"). NOT a quoted figure: a lab that feeds one 54V supply gets four PoE+ ports and 125.36 W of headroom, and this spec models the two-supply build, the only one in which all eight LAN ports source power."
+  },
   "sourceUrl": "https://www.peplink.com/compare/tech-specs/hd4-mbx-5g.pdf",
-  "notes": "Vendor figures from the Peplink tech-spec sheet: Ethernet WAN port **3 / 2 (GE)**, Number of Ethernet LAN port **8 / 9 (GE)**, Router Throughput 2.5 Gbps, Wi-Fi AP Yes. The footnote explains the pairs: **WAN 3 can be configured as a LAN port**, so the same box is 3 WAN / 8 LAN or 2 WAN / 9 LAN by configuration. Base configuration is modelled. **HD4 carries four modems against the HD2's two, on the same port layout and the same 2.5 Gbps router ceiling** - so four bonded 5G links cannot push more through the box than two can, and that ceiling, not the modem count, is what a throughput plan has to respect.",
+  "notes": "Census from the vendor's tech-spec sheet https://www.peplink.com/compare/tech-specs/hd4-mbx-5g.pdf (200, application/pdf, 226,055 B, 6 pp, read 2026-11-19). Page 1: \"Number of Ethernet WAN port 3 / 2 (GE)\", \"Number of Ethernet LAN port 8 / 9 (GE)\", \"Maximum Ethernet WAN / LAN port configuration 3 WAN with 8 LAN, 2 WAN with 9 LAN\", \"Router Throughput 2.5Gbps\". Page 6: \"PoE Input No\", \"PoE Output Up to 8x 802.3at PoE+\", \"Nominal Power Consumption 35\", \"Maximum Power Consumption 55W (w/o PoE)\"; the eight LAN ports are the eight PoE+ outlets in the 3 WAN / 8 LAN build this spec models. The budget in the `poe` block is DERIVED from the printed AC adapter (54V 3.34A, ACW-630) and the 55 W ceiling, not quoted - read the note there. The row previously declared no `poe` block and no `poeOut` port at all, so `computePoe()` skipped the box at `if (!dev.poeBudget) continue;` and eight 802.3at outlets powered nothing. \n\nThe source is unchanged: this row already cited the 5G tech-spec sheet and already modelled the 3 WAN / 8 LAN build; only the PoE census was missing. Its sibling `MAX-HD4-MBX-LTEA` cited https://download.peplink.com/resources/hd4.pdf, which now answers HTTP 403, and was re-pointed at https://www.peplink.com/compare/tech-specs/hd4-mbx.pdf - the same printed rows.",
   "role": [
     "sd-wan"
   ]

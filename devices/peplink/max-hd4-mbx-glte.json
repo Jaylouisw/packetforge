@@ -3,7 +3,7 @@
   "model": "MAX-HD4-MBX-GLTE",
   "label": "Peplink MAX HD4 MBX (GLTE)",
   "category": "router",
-  "description": "Four-modem mobile router, global LTE: 2x GE WAN, 8x GE LAN with 802.3at PoE output, 400 Mbps throughput.",
+  "description": "Four-modem mobile router, global LTE (CAT-20): 3x GE WAN (WAN3 convertible to LAN), 8x GE LAN with 802.3at PoE+ output, 2.5 Gbps throughput.",
   "capabilities": [
     "l3-forward",
     "nat",
@@ -25,6 +25,12 @@
     },
     {
       "name": "wan2",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G"
+    },
+    {
+      "name": "wan3",
       "type": "ethernet",
       "connector": "rj45",
       "speed": "1G"
@@ -119,8 +125,13 @@
       "speed": "1.2G"
     }
   ],
-  "sourceUrl": "https://download.peplink.com/resources/pepwave_max_hd4_datasheet.pdf",
-  "notes": "Vendor figures from the Peplink MAX HD4 datasheet: **2x 100/1000M Ethernet WAN** and **8x 100/1000M Ethernet LAN with 802.3at PoE Output**, four cellular modems, 802.11ac 2x2 MIMO Wi-Fi at 1166 Mbps, Router Throughput 400 Mbps. **All eight LAN ports are PoE outputs** - this chassis powers cameras and APs directly - and the 400 Mbps router ceiling sits well below what four bonded LTE links can deliver, so the box, not the cellular side, is the limit.",
+  "poe": {
+    "budgetW": 305.7,
+    "sourceUrl": "https://www.peplink.com/compare/tech-specs/hd4-mbx.pdf",
+    "note": "DERIVED ENVELOPE, not a quoted budget - Peplink prints no \"PoE budget\" row for the HD4 MBX on any surface. The two figures it does print give the headroom exactly: the AC adapter is \"AC Input 100V-240V, DC Output 54V 3.34A [13] Compatible with ACW-630\" = 180.36 W per supply, and the footnote on PoE Output reads \"2x 54V DC input is needed for all 8x LAN ports to have 802.3at PoE. Plugging in 1x 54V DC input will result in 4x LAN ports having 802.3at PoE.\" With both DC inputs populated: 2 x 180.36 = 360.72 W in, less \"Maximum Power Consumption 55W (w/o PoE)\" = 305.72 W available to the eight PSE ports. The vendor's own single-supply case corroborates the same arithmetic: 180.36 - 55 = 125.36 W, which funds 4 x 30 W = 120 W and no more - precisely the four ports its footnote promises. Same arithmetic shape as devices/ubiquiti/ep-s16.json (DC input x A, less consumption). Read 2026-11-19 from https://www.peplink.com/compare/tech-specs/hd4-mbx.pdf (HTTP 200, application/pdf, 226,176 B, 6 pp; page 6 the AC adapter row, page 6 \"PoE Input No\" / \"PoE Output Up to 8x 802.3at PoE+\" / \"Nominal Power Consumption 35\" / \"Maximum Power Consumption 55W (w/o PoE)\"). NOT a quoted figure: a lab that feeds one 54V supply gets four PoE+ ports and 125.36 W of headroom, and this spec models the two-supply build, the only one in which all eight LAN ports source power."
+  },
+  "sourceUrl": "https://www.peplink.com/compare/tech-specs/hd4-mbx.pdf",
+  "notes": "Census from the vendor's HD4 MBX tech-spec sheet, page 1 and page 6 (https://www.peplink.com/compare/tech-specs/hd4-mbx.pdf - 200, application/pdf, 226,176 B, 6 pp, \"Tech Specs | Enterprise Mobility - HD4 MBX\", read 2026-11-19) unless stated:\n\nPORTS - page 1: \"Number of Ethernet WAN port 3 / 2 (GE)\" and \"Number of Ethernet LAN port 8 / 9 (GE)\", both footnoted \"WAN 3 is configured as a LAN port by default, configuration is changeable on the Web Admin\"; the same page prints \"Maximum Ethernet WAN / LAN port configuration 3 WAN with 8 LAN, 2 WAN with 9 LAN\", \"SFP LAN / WAN No\", \"Serial Interface No\", \"USB WAN Yes (2x USB)\". The 3 WAN / 8 LAN build is modelled - the one in which the eight LAN ports and the eight PoE+ outlets are the same eight ports. The 2 WAN / 9 LAN build exists by reconfiguring WAN 3, and the vendor does not say which of the nine LAN ports then lacks power.\n\nPoE OUTPUT - page 6: \"PoE Input No\" (this box does not draw power from PoE) and \"PoE Output Up to 8x 802.3at PoE+\" with the two-supply footnote quoted in the `poe` block. The budget is derived there, not quoted.\n\nWHAT WAS WRONG - this row was a copy of the NON-MBX MAX HD4 datasheet (https://download.peplink.com/resources/pepwave_max_hd4_datasheet.pdf, 200, 807,072 B, 2 pp), which prints \"2x 100/1000M Ethernet WAN\", \"8x 100/1000M Ethernet LAN with 802.3at PoE Output#\", \"Router Throughput 400Mbps\" and the ACW-618/ACW-622 PoE kit footnotes. The MBX is a different chassis: 2.5 Gbps, eleven GE ports (3 WAN + 8 LAN), 55 W max consumption against the HD4's 38 W, and a 54V/3.34A ACW-630 adapter against the HD4's 12V/4.2A. The row carried 400 Mbps, ten copper ports and no budget at all, so `show power inline` skipped it at `if (!dev.poeBudget) continue;` and eight 802.3at ports powered nothing.\n\nNOT MODELLED - no 802.3bt, no 802.3af token (the sheet prints 802.3at PoE+ only), no SFP and no serial port (both \"No\"), and no USB WAN interface. Cellular: \"Cellular Modem Category options 4x CAT-12, 4x CAT-12 (FirstNet Ready), 4x CAT-18, 4x CAT-18 (ESN), 4x CAT-20\", \"5G support No\", \"SIM Slots 8\" - GLTE is the CAT-20 option; the product page names the SKUs MAX-HD4-MBX-GLTE-G-T and MAX-HD4-MBX-GLTE-S-T (https://www.peplink.com/products/enterprise-mobility/mbx/, 200, 187,714 B). Wi-Fi is \"Dual (2.4GHz + 5GHz), 2x2 Wi-Fi 5\".",
   "role": [
     "sd-wan"
   ]
