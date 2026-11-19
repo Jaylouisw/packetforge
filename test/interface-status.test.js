@@ -12,6 +12,7 @@ const path = require('path');
 const { Topology, Simulator, runCommands } = require('../engine');
 const { CliSession } = require('../engine/cli');
 const { loadCatalog } = require('../devices/registry');
+const { displayName } = require('../engine/iface-name');
 
 let passed = 0, failed = 0;
 function ok(cond, msg, detail) {
@@ -59,8 +60,11 @@ function show(env, dev, cmd) {
 }
 
 function briefRow(lines, portName) {
+  // The brief table spells the type out (`GigabitEthernet0/0/0`), so a row is found by the name the
+  // table prints, not the catalogue's short one (research/interface-brief-name-spelling.md).
+  const shown = displayName(portName);
   return lines.filter(function (l) {
-    return l.indexOf(portName) === 0 || new RegExp('^' + portName.replace(/[/]/g, '\\/') + '\\s').test(l);
+    return l.indexOf(shown) === 0 || new RegExp('^' + shown.replace(/[/]/g, '\\/') + '\\s').test(l);
   })[0] || '';
 }
 

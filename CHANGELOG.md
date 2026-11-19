@@ -18,6 +18,17 @@
   why the eleven-row `0000.0000.000x` sample in Cisco's current 2960-X/2960-L/1000 references was read as
   documentation boilerplate rather than a transcript - the same eleven rows are in Hikvision's and SNR's
   manuals, and the same page contradicts itself a few paragraphs later.
+- **The Interface column of `show ip interface brief` spells the type out.** Every published capture of the
+  command prints `GigabitEthernet1/0/1`, `FastEthernet0/1` and `Vlan1`; this console printed the catalogue's
+  short spelling (`Gi1/0/1`) under the vendor's header - and that header's 23-column Interface field is
+  exactly the room `TenGigabitEthernet1/1/1` needs, so the table was drawn for the long word and filled with
+  the short one. Rows now print the vendor's spelling (`displayName()` in `engine/iface-name.js`, from a table
+  of the IOS-style abbreviations only: `eth1`/`Eth1/1` are vendor spellings and pass through untouched), while
+  the stored name, `show running-config` and every lookup key stay on the panel's short form - so a name
+  pasted out of the table still resolves. `show interfaces` keeps the panel name by its own tested rule, the
+  same split a bundle already has (`Port-channel1` in the brief table, `Po1` in the summary). The samples, and
+  what is still open (a name wider than the column, a vendor that prints neither spelling), are in
+  [research/interface-brief-name-spelling.md](research/interface-brief-name-spelling.md).
 - **Opening configuration mode prints the sentence a box prints.** `configure terminal` answered in silence,
   so the first line of every captured IOS session - the vendor's
   `Enter configuration commands, one per line.  End with CNTL/Z.` - was missing from a transcript a reader

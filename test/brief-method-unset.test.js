@@ -39,8 +39,8 @@ console.log('');
 console.log('A port with no address has no method:');
 {
   const env = session('generic-router');
-  const row = env.row('Gi0/0');
-  ok(/^Gi0\/0\s+unassigned\s+YES\s+unset(\s|$)/.test(row),
+  const row = env.row('GigabitEthernet0/0');
+  ok(/^GigabitEthernet0\/0\s+unassigned\s+YES\s+unset(\s|$)/.test(row),
     'a factory port reads `unassigned  YES unset`', row);
   ok(!/\bmanual\b/.test(row), 'and never claims a method nobody configured', row);
 }
@@ -55,22 +55,22 @@ console.log('The method changes with the configuration, and back:');
   env.s.run('end');
   // The address cell is the bare address: IOS never prints the mask in this table (see
   // test/interface-brief-address-cell.test.js).
-  ok(/^Gi0\/0\s+10\.0\.0\.1\s+YES\s+manual(\s|$)/.test(env.row('Gi0/0')),
-    'a static address is `manual`', env.row('Gi0/0'));
+  ok(/^GigabitEthernet0\/0\s+10\.0\.0\.1\s+YES\s+manual(\s|$)/.test(env.row('GigabitEthernet0/0')),
+    'a static address is `manual`', env.row('GigabitEthernet0/0'));
 
   env.s.run('configure terminal');
   env.s.run('interface Gi0/0');
   env.s.run('ip address dhcp');
   env.s.run('end');
-  ok(/^Gi0\/0\s+unassigned\s+YES\s+DHCP(\s|$)/.test(env.row('Gi0/0')),
-    'a DHCP client is `DHCP`, even before it has a lease', env.row('Gi0/0'));
+  ok(/^GigabitEthernet0\/0\s+unassigned\s+YES\s+DHCP(\s|$)/.test(env.row('GigabitEthernet0/0')),
+    'a DHCP client is `DHCP`, even before it has a lease', env.row('GigabitEthernet0/0'));
 
   env.s.run('configure terminal');
   env.s.run('interface Gi0/0');
   env.s.run('no ip address');
   env.s.run('end');
-  ok(/^Gi0\/0\s+unassigned\s+YES\s+unset(\s|$)/.test(env.row('Gi0/0')),
-    'and removing the address removes the method with it', env.row('Gi0/0'));
+  ok(/^GigabitEthernet0\/0\s+unassigned\s+YES\s+unset(\s|$)/.test(env.row('GigabitEthernet0/0')),
+    'and removing the address removes the method with it', env.row('GigabitEthernet0/0'));
 }
 
 console.log('');

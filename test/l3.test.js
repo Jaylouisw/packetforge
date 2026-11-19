@@ -151,7 +151,7 @@ console.log('\nScenario E: CLI validation');
     'running-config shows the subinterface and its encapsulation');
 
   const brief = runCommands(L.r, L.t, L.sim, ['show ip interface brief']).lines.join('\n');
-  ok(/Gi0\/0\.10/.test(brief), 'show ip interface brief lists the subinterface');
+  ok(/GigabitEthernet0\/0\.10/.test(brief), 'show ip interface brief lists the subinterface');
 
   const del = runCommands(L.r, L.t, L.sim, [
     'configure terminal', 'no interface Gi0/0.20'

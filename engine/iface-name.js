@@ -85,6 +85,41 @@ function foldInterfaceType(name) {
   return type + m[2];
 }
 
+// The type word as the brief table spells it.
+//
+// `show ip interface brief` prints the interface TYPE in full: every published capture of the
+// command prints `GigabitEthernet1/0/1`, `FastEthernet0/1`, `Serial1/0/0`, `Vlan1`, and
+// `Port-channel1`, never `Gi1/0/1` or `Po1`. The catalogue stores what the panel says (short), so
+// the table has to expand the word when it prints. Only the Cisco-style abbreviations are listed:
+// `eth`/`et` are left alone because RouterOS and several whitebox CLIs print `ether1`/`Eth1`
+// rather than `Ethernet1`, and `ma` is left alone because Nexus prints `Mgmt0` and Arista prints
+// `Management1`. `ge` is here because VRP's own `display ip interface brief` says
+// `GigabitEthernet0/0/1` too.
+const DISPLAY_ABBREV = new Map([
+  ['gi', 'GigabitEthernet'],
+  ['ge', 'GigabitEthernet'],
+  ['fa', 'FastEthernet'],
+  ['te', 'TenGigabitEthernet'],
+  ['twe', 'TwentyFiveGigE'],
+  ['fo', 'FortyGigabitEthernet'],
+  ['hu', 'HundredGigabitEthernet'],
+  ['se', 'Serial'],
+  ['vl', 'Vlan'],
+  ['lo', 'Loopback'],
+  ['po', 'Port-channel']
+]);
+
+// The name as a `show ip interface brief` row spells it. A name whose type word is not one of the
+// abbreviations above is returned unchanged: this expands a spelling, it never renames a port.
+function displayName(name) {
+  const s = String(name === undefined || name === null ? '' : name).trim();
+  const m = TYPE_AND_NUMBER.exec(s.toLowerCase());
+  if (!m) return s;
+  const shown = DISPLAY_ABBREV.get(m[1]);
+  if (!shown) return s;
+  return shown + m[2];
+}
+
 // The comparison key for a port name: case-insensitive, with every known console spelling
 // folded onto the panel spelling, and the interface type folded onto its one name
 // ('GigabitEthernet1/0/1', 'gi 1/0/1' and 'GE1/0/1' are one key). A subinterface keeps its
@@ -245,5 +280,5 @@ function resolveInterface(device, typed) {
   return { name: name, iface: device.interfaces.get(name) || null };
 }
 
-module.exports = { PORT_NAME_RULES, TYPE_SPELLINGS, portKey, foldInterfaceType, expandTypePrefix,
-  resolvePortName, resolveInterface, comparePortNames, portRuns };
+module.exports = { PORT_NAME_RULES, TYPE_SPELLINGS, DISPLAY_ABBREV, portKey, foldInterfaceType, displayName,
+  expandTypePrefix, resolvePortName, resolveInterface, comparePortNames, portRuns };

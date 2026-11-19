@@ -719,7 +719,7 @@ The **Status** column answers "can this port carry a frame", not merely "did som
 | otherwise | `up` | `up` |
 
 The **Method** column names where the address came from, and a port with no address says `unset`:
-`Gi0/0  unassigned  YES unset  down  down`. `manual` belongs beside an address configured at the console, and
+`GigabitEthernet0/0  unassigned  YES unset  down  down`. `manual` belongs beside an address configured at the console, and
 `DHCP` stays beside `unassigned` while an `ip address dhcp` client has no lease yet - the method records the
 intent, not whether it has succeeded. Cisco's field list defines `unset` as "Unset" and its sample output pairs
 `Serial1  unassigned  YES unset  administratively down down`; `manual` beside `unassigned` would claim a
@@ -779,6 +779,18 @@ predicate. `research/port-channel-in-interface-brief.md` carries the captures an
 
 The header is padded from the same widths as the rows, so a heading cannot sit one column to the right of the
 values beneath it — `Method` above `manual`, `Status` above `down`.
+
+**The Interface cell spells the type out.** A box's own table prints `GigabitEthernet1/0/1` and
+`FastEthernet0/1`, never `Gi1/0/1`: every published capture of this command does, on a 2960 and on a 9200,
+and its 23-column Interface field is exactly the room `TenGigabitEthernet1/1/1` needs. The catalogue keeps
+the panel's short spelling, so `interface Gi1/0/1`, `interface GigabitEthernet1/0/1` and a name pasted out
+of this table all reach the same port; only the printed cell is expanded. `show interfaces` still heads
+each block with the panel spelling (`Gi1/0/1`), because that block is this console's own shape rather than
+a vendor table, and the brief table is the vendor's. Tables that abbreviate on a real box still abbreviate
+here — `show vlan`'s Ports list, `show etherchannel summary`'s members and the MAC table's `Ports` column
+print `Fa0/1`/`Gi1/0/1` exactly as a box does. The samples, and the parts still open (a name wider than
+the column, a vendor that prints neither spelling), are in
+[research/interface-brief-name-spelling.md](../research/interface-brief-name-spelling.md).
 
 A device that is **not part of a topology** has no cables to report on, so its ports keep their old
 answer (`up` unless shut). The command cannot know about a cable it was never told about, and inventing
@@ -3160,7 +3172,7 @@ Every `do show …` in every configuration session failed that way, echoing the 
 ```
 sw1(config)#do show ip interface brief
 Interface              IP-Address      OK? Method Status                Protocol
-Fa0/1                  unassigned      YES unset  down                  down
+FastEthernet0/1        unassigned      YES unset  down                  down
 sw1(config)#do ping 10.0.0.1
 % `do` runs a show command from config mode here: `do show <command>` (for anything else, leave config mode with `end`)
 ```

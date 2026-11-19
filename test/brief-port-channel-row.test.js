@@ -106,7 +106,7 @@ console.log('The row arrives after the physical ports, and bundles sort by numbe
   const rows = tableRows(lines);
   const names = rows.map(function (l) { return l.split(/\s+/)[0]; });
   const firstBundle = names.findIndex(function (n) { return n.indexOf('Port-channel') === 0; });
-  ok(names.indexOf('Port-channel1') > names.indexOf('Gi1/0/28'),
+  ok(names.indexOf('Port-channel1') > names.indexOf('GigabitEthernet1/0/28'),
     'every bundle follows the last physical port', names.slice(-4).join(' '));
   ok(names.indexOf('Port-channel2') < names.indexOf('Port-channel10'),
     'bundles in numeric order, not string order', names.slice(firstBundle).join(' '));
@@ -121,8 +121,8 @@ console.log('A bundle no member joined is down, and the members are not:');
   const lines = say(env, 'show ip interface brief');
   const row = rowOf(lines, 'Port-channel1');
   ok(/down\s+down$/.test(row), 'the bundle is down down', row);
-  ok(/^Gi1\/0\/1\s+unassigned\s+YES unset\s+up\s+up$/.test(rowOf(lines, 'Gi1/0/1')),
-    'while the member is up up, carrying as a single link', rowOf(lines, 'Gi1/0/1'));
+  ok(/^GigabitEthernet1\/0\/1\s+unassigned\s+YES unset\s+up\s+up$/.test(rowOf(lines, 'GigabitEthernet1/0/1')),
+    'while the member is up up, carrying as a single link', rowOf(lines, 'GigabitEthernet1/0/1'));
   ok(/\bI\)/.test(say(env, 'show etherchannel summary').filter(function (l) {
     return /^1\s+Po1\(/.test(l);
   })[0] || ''), 'and the summary marks each member stand-alone (I), the state the bundle is not in');

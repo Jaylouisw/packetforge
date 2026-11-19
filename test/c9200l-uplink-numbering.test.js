@@ -119,9 +119,9 @@ console.log('The console answers about the port by the name the vendor guide use
     'show interfaces Te1/0/25 - the old name - is refused, and prints no port block',
     gone.join(' / '));
   const brief = env.run(['show ip interface brief']);
-  ok(brief.some(function (l) { return /^Te1\/1\/1\s/.test(l); }) &&
-    !brief.some(function (l) { return /^Te1\/0\/25\s/.test(l); }),
-    'show ip interface brief lists Te1/1/1 and no Te1/0/25');
+  ok(brief.some(function (l) { return /^TenGigabitEthernet1\/1\/1\s/.test(l); }) &&
+    !brief.some(function (l) { return /^TenGigabitEthernet1\/0\/25\s/.test(l); }),
+    'show ip interface brief lists TenGigabitEthernet1/1/1 and no TenGigabitEthernet1/0/25');
   const rows = brief.filter(function (l) { return /\s(down|up|administratively down)\s+(down|up)\s*$/.test(l); });
   ok(rows.length === 28, 'and holds 28 rows - 24 copper, 4 optical', String(rows.length));
   const entered = env.run(['configure terminal', 'interface Te1/1/1', 'description core uplink']);

@@ -75,10 +75,10 @@ console.log('A configured address is printed without its prefix length:');
   env.say('interface Gi0/0');
   env.say('ip address 10.0.0.1 255.255.255.0');
   env.say('end');
-  const row = env.row('Gi0/0');
+  const row = env.row('GigabitEthernet0/0');
   ok(ipCell(row) === '10.0.0.1', 'the cell is the bare address', ipCell(row));
   ok(row.indexOf('/24') === -1, 'and no /24 anywhere in the row', row);
-  ok(/^Gi0\/0\s+10\.0\.0\.1\s+YES\s+manual(\s|$)/.test(row), 'the rest of the row is unchanged', row);
+  ok(/^GigabitEthernet0\/0\s+10\.0\.0\.1\s+YES\s+manual(\s|$)/.test(row), 'the rest of the row is unchanged', row);
 }
 
 console.log('');
@@ -90,7 +90,7 @@ console.log('The same for a mask the reader would have had to convert:');
   env.say('interface Gi0/1');
   env.say('ip address 192.0.2.6 255.255.255.252');
   env.say('end');
-  ok(ipCell(env.row('Gi0/1')) === '192.0.2.6', 'a /30 address is bare too', ipCell(env.row('Gi0/1')));
+  ok(ipCell(env.row('GigabitEthernet0/1')) === '192.0.2.6', 'a /30 address is bare too', ipCell(env.row('GigabitEthernet0/1')));
 }
 
 console.log('');
@@ -101,12 +101,12 @@ console.log('A DHCP client shows the address and `DHCP`, both as the box writes 
   env.say('interface Gi0/2');
   env.say('ip address dhcp');
   env.say('end');
-  ok(/^Gi0\/2\s+unassigned\s+YES\s+DHCP(\s|$)/.test(env.row('Gi0/2')),
-    'before the lease: `unassigned  YES DHCP`', env.row('Gi0/2'));
+  ok(/^GigabitEthernet0\/2\s+unassigned\s+YES\s+DHCP(\s|$)/.test(env.row('GigabitEthernet0/2')),
+    'before the lease: `unassigned  YES DHCP`', env.row('GigabitEthernet0/2'));
   // A lease is what the client writes onto the port; the method stays `DHCP`.
   const port = [...env.d.interfaces.values()].filter(function (i) { return i.name === 'Gi0/2'; })[0];
   port.ip = '10.20.0.11'; port.mask = '255.255.255.0';
-  const leased = env.row('Gi0/2');
+  const leased = env.row('GigabitEthernet0/2');
   ok(ipCell(leased) === '10.20.0.11', 'after the lease the cell is the bare address', ipCell(leased));
   ok(/\sYES\s+DHCP(\s|$)/.test(leased), 'and the method is still DHCP', leased);
 }
@@ -115,7 +115,7 @@ console.log('');
 console.log('A port with no address still says `unassigned`:');
 {
   const env = lab(ROUTER);
-  const bare = env.row('Gi0/0');
+  const bare = env.row('GigabitEthernet0/0');
   ok(ipCell(bare) === 'unassigned', 'one word, in the address column', ipCell(bare));
 }
 

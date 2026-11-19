@@ -57,7 +57,7 @@ console.log('The header is the table own first row, not a string of its own:');
   const lines = env.say('show ip interface brief');
   ok(lines[0] === IOS_HEADER, 'it is the IOS header, character for character', lines[0]);
 
-  const row = rowOf(lines, 'Gi0/0');
+  const row = rowOf(lines, 'GigabitEthernet0/0');
   ok(colOf(lines[0], 'OK?') === colOf(row, 'YES'), 'OK? sits above YES',
     colOf(lines[0], 'OK?') + ' vs ' + colOf(row, 'YES'));
   ok(colOf(lines[0], 'IP-Address') === colOf(row, '10.0.0.1'), 'IP-Address above the address',
@@ -81,13 +81,13 @@ console.log('The Method column says how the port got its address, and a port wit
   env.say('end');
   const lines = env.say('show ip interface brief');
 
-  const stat = rowOf(lines, 'Gi0/0');
+  const stat = rowOf(lines, 'GigabitEthernet0/0');
   ok(/YES manual /.test(stat), 'a static address is manual', stat);
 
-  const dhcp = rowOf(lines, 'Gi0/1');
+  const dhcp = rowOf(lines, 'GigabitEthernet0/1');
   ok(/unassigned\s+YES DHCP/.test(dhcp), 'a DHCP client with no lease yet is unassigned beside DHCP', dhcp);
 
-  const bare = rowOf(lines, 'Gi0/2');
+  const bare = rowOf(lines, 'GigabitEthernet0/2');
   ok(/unassigned\s+YES unset /.test(bare), 'a port nobody configured is unassigned beside unset', bare);
   ok(!/unassigned\s+YES manual/.test(bare), 'and never beside manual, which claims an address it has not got',
     bare);
@@ -100,10 +100,10 @@ console.log('The method follows the port back when the address is taken away:');
   env.cfg();
   env.say('interface Gi0/0');
   env.say('ip address 10.0.0.9 255.255.255.0');
-  ok(/YES manual /.test(rowOf(env.say('show ip interface brief'), 'Gi0/0')), 'manual to begin with');
+  ok(/YES manual /.test(rowOf(env.say('show ip interface brief'), 'GigabitEthernet0/0')), 'manual to begin with');
   env.say('no ip address');
   env.say('end');
-  const after = rowOf(env.say('show ip interface brief'), 'Gi0/0');
+  const after = rowOf(env.say('show ip interface brief'), 'GigabitEthernet0/0');
   ok(/unassigned\s+YES unset /.test(after), 'and unset once the address is gone', after);
 }
 
@@ -116,7 +116,7 @@ console.log('A shut port keeps its method, and the long status word does not jos
   env.say('ip address 10.0.0.1 255.255.255.0');
   env.say('shutdown');
   env.say('end');
-  const row = rowOf(env.say('show ip interface brief'), 'Gi0/0');
+  const row = rowOf(env.say('show ip interface brief'), 'GigabitEthernet0/0');
   ok(/YES manual /.test(row), 'the method is a property of the address, not of the link', row);
   ok(/administratively down\s+down$/.test(row), 'and the status column still ends in down', row);
 }

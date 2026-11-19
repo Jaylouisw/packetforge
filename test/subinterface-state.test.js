@@ -62,7 +62,8 @@ function roas() {
 // cannot pass.
 function briefRow(env, name) {
   const table = env.run(env.a, 'show ip interface brief');
-  const line = table.split('\n').filter(function (l) { return l.split(/\s+/)[0] === name; });
+  const shown = require('../engine/iface-name').displayName(name);
+  const line = table.split('\n').filter(function (l) { return l.split(/\s+/)[0] === shown; });
   assert.strictEqual(line.length, 1, 'exactly one row for ' + name + ' in:\n' + table);
   return line[0].trim();
 }

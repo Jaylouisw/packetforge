@@ -5622,7 +5622,12 @@ class CliSession {
         // list includes `unset - Unset`, and its sample output pairs `unassigned  YES unset  ...`.
         // briefMethod() is that rule, and briefLine() is what lands the row under its heading; the fixed-width
         // pad() chain put every row a column off because the header and the rows were counted separately (#1521).
-        out.push(briefLine([i.name, ip, 'YES', briefMethod(i), link.status, link.protocol]));
+        // The Interface cell spells the type out, as a box's own table does: every published capture
+        // of this command prints `GigabitEthernet1/0/1`, not `Gi1/0/1` (research/interface-brief-name-spelling.md).
+        // The stored name stays the panel's short spelling; only the printed cell is expanded, so a
+        // name typed from this row still resolves.
+        out.push(briefLine([require('./iface-name').displayName(i.name), ip, 'YES', briefMethod(i),
+          link.status, link.protocol]));
       }
       // An EtherChannel is an interface, and a box lists it here beside the ports that make it up: every
       // published capture of this table taken on a switch with a bundle carries the row

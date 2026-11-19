@@ -30,6 +30,7 @@ const path = require('path');
 const { Topology, Simulator } = require('../engine');
 const { CliSession } = require('../engine/cli');
 const { loadCatalog } = require('../devices/registry');
+const { displayName } = require('../engine/iface-name');
 const netLib = require('../engine/net');
 
 let passed = 0, failed = 0;
@@ -63,7 +64,7 @@ function lab(spec) {
   };
   const brief = function (name) {
     const row = cli.run('show ip interface brief').output.filter(function (l) {
-      return l.indexOf((name || port) + ' ') === 0;
+      return l.indexOf(displayName(name || port) + ' ') === 0;
     })[0] || '';
     return row.replace(/\s+/g, ' ').trim();
   };
