@@ -178,5 +178,66 @@ console.log('Hot-standby is not in the data plane, and takes over when an active
 }
 
 console.log('');
+console.log('A group too wide for its new mode is not converted into it (#2033)');
+{
+  // The cap was checked only where a port joins, and a mode change is the one path that rewrites the cap a
+  // group already holds under: nine LACP members fit (the cap is sixteen), `channel-group 1 mode on` typed on
+  // a member moved the group to `mode on` - cap eight - and left all nine in it. The console then refused the
+  // next `mode on` join with "already holds 8 members" over a group holding nine, and called the ninth
+  // hot-standby in a bundle whose own key says hot-standby is `LACP only`.
+  const env = lab(9, 'active');
+  ok(env.a.config.lags['1'].mode === 'lacp-active' && env.a.config.lags['1'].members.length === 9,
+    'the lab starts with nine members in one LACP group',
+    env.a.config.lags['1'].mode + ' / ' + env.a.config.lags['1'].members.length);
+  env.sa.run('configure terminal');
+  env.sa.run('interface Gi1/0/9');
+  const out = say(env, 'channel-group 1 mode on');
+  ok(/^% /.test(out[0] || ''), 'the conversion is refused, not made', JSON.stringify(out));
+  ok(/holds 9 members/.test(out[0] || '') && /carries at most 8 links/.test(out[0] || ''),
+    'and the refusal names the count it holds and the cap it would breach', out[0]);
+  ok(out.some(function (l) { return /channel-group 1 mode active/.test(l); }),
+    'and the form that keeps the bundle is one the console accepts', JSON.stringify(out));
+  ok(!out.some(function (l) { return /mode changed/.test(l); }), 'nothing claims the mode moved', JSON.stringify(out));
+  ok(!out.some(function (l) { return /is hot-standby/.test(l); }),
+    'and no member is called hot-standby here, which is `LACP only` in the key', JSON.stringify(out));
+  const lag = env.a.config.lags['1'] || { members: [] };
+  ok(lag.mode === 'lacp-active', 'the group is still in the mode it was in', lag.mode);
+  ok(lag.members.length === 9, 'holding all nine members', String(lag.members.length));
+  const lines = say(env, 'show etherchannel summary');
+  ok(/LACP/.test(rowFor(lines, 1)), 'the table still calls the group LACP', rowFor(lines, 1));
+  ok(TEN.slice(0, 9).every(function (name) { return flagOf(rowFor(lines, 1), name) !== ''; }),
+    'and all nine members are still in it', rowFor(lines, 1));
+
+  // The console's own words about the group it just kept have to stay true: the ninth static join is still
+  // refused, and the refusal now names the number the group really holds.
+  say(env, 'exit');
+  say(env, 'interface Gi1/0/10');
+  const join = say(env, 'channel-group 1 mode on');
+  // Nine members, typed `mode on`: the refusal has to state the group's own count, not the cap it would
+  // breach - "already holds 8 members" over a group of nine is a sentence that sends an operator looking for
+  // members that are not there.
+  ok(/holds 9 members/.test(join[0] || '') && /would make 10/.test(join[0] || ''),
+    'a tenth join that would also shrink the mode names the real count', join[0]);
+  ok(env.a.config.lags['1'].members.length === 9, 'and is refused with the group untouched',
+    String(env.a.config.lags['1'].members.length));
+}
+
+console.log('');
+console.log('A group that does fit is still converted, so the guard is about the overflow');
+{
+  const env = lab(8, 'active');
+  env.sa.run('configure terminal');
+  env.sa.run('interface Gi1/0/8');
+  const out = say(env, 'channel-group 1 mode on');
+  const lag = env.a.config.lags['1'] || { members: [] };
+  ok(out.some(function (l) { return /mode changed from active to on/.test(l); }),
+    'eight members convert with the receipt that says every member moved', JSON.stringify(out));
+  ok(lag.mode === 'static' && lag.members.length === 8, 'the group is static and holds its eight',
+    lag.mode + ' / ' + lag.members.length);
+  ok(!out.some(function (l) { return /hot-standby/.test(l); }),
+    'and nothing is parked: a static bundle has no standby state', JSON.stringify(out));
+}
+
+console.log('');
 console.log(passed + ' passed, ' + failed + ' failed');
 process.exit(failed ? 1 : 0);

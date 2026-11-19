@@ -3506,12 +3506,31 @@ class CliSession {
     // twelfth and the fortieth, called every one of them `(P)`, and hashed frames across the lot - a bundle no
     // switch builds, carrying traffic no cable carries (research/etherchannel-member-limit.md).
     const cap = lagLib.maxMembers(mode);
+    const capSentence = cap === lagLib.MAX_MEMBERS_LACP
+      ? 'an LACP bundle holds at most ' + cap + ': 8 active links and 8 in hot-standby'
+      : 'a static (`mode on`) bundle carries at most ' + cap + ' links';
+    const held = (existing && Array.isArray(existing.members)) ? existing.members.length : 0;
     const alreadyIn = !!(existing && Array.isArray(existing.members) && existing.members.indexOf(iface.name) !== -1);
+    // The cap is checked on every door. A join was checked, and the mode change was not - so the one path that
+    // rewrites the cap a group already holds under went through unguarded: nine members fit one LACP group
+    // (cap sixteen), `channel-group 1 mode on` typed on a member moved the group to `mode on`, cap eight, and
+    // left all nine in it (#2033). The console then refused the next `mode on` join with "already holds 8
+    // members" over a group holding nine, and told the operator the ninth was hot-standby in a bundle whose own
+    // key says hot-standby is `LACP only`. Nothing is parked here: the members are refused the mode instead.
+    const retuning = !!(existing && existing.mode && existing.mode !== mode);
+    if (existing && alreadyIn && retuning && held > cap) {
+      const keep = 'channel-group ' + id + ' mode ' + lagLib.cliMode(existing.mode);
+      return ['% Channel group ' + id + ' not moved to mode ' + typed + ': it holds ' + held + ' members, and ' +
+        capSentence + ', with no hot-standby to park ' + (held - cap === 1 ? 'the extra member' : 'the extra ' + (held - cap)) +
+        ' in. Keep `' + keep + '`, or remove a member first. Nothing was changed.'];
+    }
     if (existing && !alreadyIn && Array.isArray(existing.members) && existing.members.length >= cap) {
-      return ['% ' + iface.name + ' not added: channel group ' + id + ' already holds ' + cap + ' members, and ' +
-        (cap === lagLib.MAX_MEMBERS_LACP
-          ? 'an LACP bundle holds at most ' + cap + ': 8 active links and 8 in hot-standby'
-          : 'a static (`mode on`) bundle carries at most ' + cap + ' links') +
+      // The count named here is the group's, not the cap's: with the mode changing in the same line the two
+      // differ, and "already holds 8 members" over a group of nine is a sentence nobody can act on.
+      return ['% ' + iface.name + ' not added: channel group ' + id + ' ' +
+        (retuning ? 'holds ' + held + ' members, and `channel-group ' + id + ' mode ' + typed +
+          '` would make ' + (held + 1) + ' - above the ' + cap + ' links such a bundle carries'
+          : 'already holds ' + held + ' members, and ' + capSentence) +
         '. Nothing was changed.'];
     }
     const g = existing || { mode: mode, hashPolicy: 'l2', members: [] };
@@ -3536,7 +3555,7 @@ class CliSession {
     // Above eight members the ninth is not in the channel: LACP parks it as hot-standby, and saying "added"
     // with no more than that would read as a ninth active link. The set is chosen the way the hardware chooses
     // it - lowest port numbers first - so the answer is known here and not guessed.
-    {
+    if (g.mode !== 'static') {
       const standby = lagLib.standbyMembers(g.members, null);
       if (standby.indexOf(iface.name) !== -1) {
         out.push('  ' + iface.name + ' is hot-standby: the bundle already has ' + lagLib.MAX_ACTIVE_LINKS +
