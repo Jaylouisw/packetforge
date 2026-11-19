@@ -2115,9 +2115,25 @@ class CliSession {
     // error. Configs copied out before #1230 rely on exactly this, because they have no `exit`
     // between blocks; the config-mode handler already knows how to open an interface (including a
     // dot1q subinterface), so reuse it.
+    //
+    // A name the box cannot open is a different thing from a name it opens. The parser refuses the
+    // line before it runs, so nothing about the session changes - a box answers the refusal and
+    // leaves the cursor on the interface it was already on. This console stepped down to
+    // `(config)#` *before* asking the config-mode door, so `interface Fa9/9` at `(config-if)#`
+    // printed `% Interface not found: Fa9/9` and then a prompt one level up, and the next line
+    // typed - a `description`, a `no ip address` - landed nowhere instead of on the port under the
+    // cursor. The step down is taken back unless a port was actually opened: the door sets
+    // MODE_IFACE itself when it succeeds (a new name, a new dot1q subinterface), so a mode still
+    // reading `config` after the call means the line was refused and the session never moved.
+    // research/interface-refusal-mode.md has the captures.
     if (head === 'interface' || head === 'int') {
+      const was = this.mode;
       this.mode = MODE_CONFIG;
-      return this._configMode(tokens);
+      try {
+        return this._configMode(tokens);
+      } finally {
+        if (this.mode === MODE_CONFIG) this.mode = was;
+      }
     }
 
     if (head === 'vrrp') {

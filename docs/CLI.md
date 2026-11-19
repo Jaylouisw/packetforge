@@ -431,6 +431,23 @@ copies of one naming rule drift. Ambiguity is refused rather than guessed: if tw
 spelling, that spelling resolves to nothing and the command says the port does not exist. Whatever you
 type, everything printed afterwards uses the panel spelling.
 
+**A name that opens nothing leaves the session where it was.** `interface Fa9/9` on a box with no slot 9 is
+refused, and the refusal is the whole effect: a box reports the line at the parser, before it runs, so the
+mode does not move. Typed from inside another port's block, it keeps you on that port and the next line lands
+there — which is what a pasted config expects, since pasted blocks are not separated by `exit`:
+
+```
+s1(config)#interface Fa0/1
+s1(config-if)#interface Fa9/9
+% Interface not found: Fa9/9
+s1(config-if)#description uplink to core
+Description set: uplink to core
+```
+
+That holds at `(config-subif)#` too, and for an incomplete `interface` line. The rule and the captures are in
+[research/interface-refusal-mode.md](../research/interface-refusal-mode.md). A name the box *can* open still
+moves the session, in every spelling — that is the same door.
+
 The interface **type** is folded the same way, because every vendor spells it more than one way. Cisco
 states the four forms in one sentence - "you can specify either gigabitethernet 0/1, gigabitethernet0/1,
 gi 0/1, or gi0/1" - so `interface GigabitEthernet1/0/1`, `interface GigabitEthernet 1/0/1` and
