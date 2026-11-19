@@ -97,6 +97,10 @@ console.log('Exactly one row per prefix is installed, and it is the one the look
     if (installed.length !== 1) several.push(k + ': ' + installed.length);
     const winner = installed[0];
     if (!winner) continue;
+    // A local row is the box's own address: `routeTo()` answers where a packet would leave, and a packet for
+    // the box itself leaves nowhere, so the receive entry is the one row a forwarding lookup cannot match by
+    // type (research/local-route-in-show-ip-route.md).
+    if (winner.type === 'local') continue;
     // The probe: an address inside the prefix, asked of the same lookup the data plane uses.
     const look = lab.r1.routeTo(winner.dest);
     if (!look) { wrong.push(k + ': routeTo returned null'); continue; }
@@ -265,6 +269,11 @@ console.log('Every model in the catalogue marks one route per prefix, and the lo
     for (const k of Object.keys(groups)) {
       const win = groups[k].filter(function (r) { return r.installed; });
       if (win.length !== 1) { bad.push(s.model + ' ' + k + ': ' + win.length + ' installed'); continue; }
+      // A local row is a receive entry, not a forwarding one: `routeTo()` answers where a packet would leave
+      // this box, and a packet for the box's own address leaves nowhere - the engine delivers it internally.
+      // So the one prefix whose row type cannot match a lookup is the L row, and only that one is skipped
+      // (research/local-route-in-show-ip-route.md).
+      if (win[0].type === 'local') continue;
       const look = d.routeTo(win[0].dest);
       if (!look || look.type !== win[0].type) {
         bad.push(s.model + ' ' + k + ': table ' + win[0].type + ', lookup ' + (look && look.type));

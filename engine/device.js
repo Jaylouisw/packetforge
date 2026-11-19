@@ -1205,6 +1205,14 @@ class Device {
   static routeDistance(r) {
     if (!r) return 1;
     if (r.type === 'connected') return 0;
+    // The box's own address is a host route at distance 0, the same distance as the connected route it sits
+    // beside: Cisco's note on local routes says so in one sentence - "The local routes have the administrative
+    // distance of 0. This is the same adminstrative distance as connected routes" - and adds the one thing that
+    // does not follow the number: "when you configure redistributed connected under any routing process, the
+    // connected routes are redistributed, but the local routes are not"
+    // (https://www.cisco.com/c/en/us/support/docs/ip/ip-routing/116264-technote-ios-00.html). Nothing here
+    // redistributes, so only the distance is read; research/local-route-in-show-ip-route.md has the rest.
+    if (r.type === 'local') return 0;
     // A static route carries the distance it was configured with (`ip route ... <1-255>`), and the vendor's
     // default of 1 when nobody typed one. Reading it from the route rather than returning 1 is what makes a
     // floating static float: two routes to one prefix are compared by this number, so the backup at 200 loses
@@ -1237,7 +1245,9 @@ class Device {
         ? link.status : link.status + ': ' + link.reason;
       return '(' + why + ')';
     };
-    if (row.type === 'connected') {
+    // The local route is the address the connected route's subnet holds, so its fate is that port's fate: one
+    // cable pulled and the box withdraws both rows.
+    if (row.type === 'connected' || row.type === 'local') {
       const iface = row.iface && row.iface !== '-' ? this.interfaces.get(row.iface) : null;
       const why = iface ? carry(iface) : '(gone)';
       return { note: why || '', unusable: !!why };
@@ -1290,6 +1300,32 @@ class Device {
           code: 'C', dest: net.intToIp(net.networkOf(iface.ip, iface.mask)),
           mask: iface.mask, gw: '-', iface: iface.name, type: 'connected'
         });
+        // Two rows, not one: the box installs the subnet AND its own address. A router with
+        // `ip address 10.1.1.1 255.255.255.252` on Ethernet0/0 prints
+        //
+        //     C        10.1.1.0/30 is directly connected, Ethernet0/0
+        //     L        10.1.1.1/32 is directly connected, Ethernet0/0
+        //
+        // - the second is a local host route, distance 0, whose only job is to be a receive entry for the
+        // address the box owns, so a packet for it is punted to the router instead of being forwarded to a
+        // neighbour that happens to advertise a longer prefix. Cisco's note on local host routes states the
+        // rule and both rows: "For each IPv4 and IPv6 address, Cisco IOS installs host routes in the respective
+        // routing tables" (https://www.cisco.com/c/en/us/support/docs/ip/ip-routing/116264-technote-ios-00.html,
+        // IOS 15.0(1)S). This console printed only the connected row, so the address a reader had just typed
+        // was missing from the table they were told to check it in, and `ping 10.1.1.1` succeeded with no row
+        // that explains why. research/local-route-in-show-ip-route.md records the page and what is open.
+        //
+        // Not when the mask is already a /32: the same page's next section says an address configured that way
+        // "appears in the routing table only as connected (it has the C flag)" - one row, code C, which the
+        // loopback case prints today. Two rows for one prefix would be the invented shape.
+        // (`prefixOf()` rather than a string compare, so a mask stored as `/32`, `32` or `255.255.255.255` -
+        // all three are masks this engine accepts from a spec - reads the same way.)
+        if (net.prefixOf(iface.mask) !== 32) {
+          rows.push({
+            code: 'L', dest: iface.ip, mask: '255.255.255.255',
+            gw: '-', iface: iface.name, type: 'local'
+          });
+        }
       }
     }
     for (const r of (this.config.routes || [])) {
@@ -1347,7 +1383,10 @@ class Device {
       // Protocol-Independent Command Reference, `ip route`). The flag is computed here, in the one function
       // both surfaces read, so the console and the inspector cannot disagree about which rows take that shape
       // (research/show-ip-route-static-via-interface.md).
-      row.directlyConnected = row.type === 'connected' ||
+      // A local row is the address itself, and the box prints it in the same shape as the connected row above
+      // it: `L 10.1.1.1/32 is directly connected, Ethernet0/0` - not with a next hop and a bracket
+      // (https://www.cisco.com/c/en/us/support/docs/ip/ip-routing/116264-technote-ios-00.html).
+      row.directlyConnected = row.type === 'connected' || row.type === 'local' ||
         (row.type === 'static' && (row.gw === '-' || row.gw == null) &&
           !!row.iface && row.iface !== '-');
       row.distance = Device.routeDistance(row);

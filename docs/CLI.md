@@ -777,10 +777,12 @@ IP address set on Gi0/1: 10.0.2.1/24
 R1(config-if)# exit
 R1(config)# exit
 R1# show ip route
-Codes: C - connected, S - static, O - OSPF, B - BGP, * - candidate default
+Codes: L - local, C - connected, S - static, B - BGP, O - OSPF, * - candidate default
 Gateway of last resort is not set
 C   10.0.1.0/24  is directly connected, Gi0/0
+L   10.0.1.1/32  is directly connected, Gi0/0
 C   10.0.2.0/24  is directly connected, Gi0/1
+L   10.0.2.1/32  is directly connected, Gi0/1
 R1# ping 10.0.1.10
 Type escape sequence to abort.
 Sending 5, 100-byte ICMP Echos to 10.0.1.10, timeout is 2 seconds:
@@ -2942,10 +2944,33 @@ What IOS pads is the *code*, to a wider field than this console uses; the prefix
 one token read as a whole. `test/show-ip-route-prefix-one-field.test.js` pins the rule on every kind of row
 (connected, static, static default, configured gateway, OSPF, eBGP).
 
-The legend names every code the table can print — `C` connected, `S` static, `O` OSPF, `B` BGP, and
-`*` for a candidate default — and each row carries `[distance/metric]`. The distance is not decoration: it is half of the rule that picks
-the installed route (longest prefix first, then lowest distance), and without it two rows for the same
-prefix cannot be told apart.
+The legend names every code the table can print — `L` local, `C` connected, `S` static, `B` BGP, `O` OSPF,
+and `*` for a candidate default — and each row carries `[distance/metric]`. The distance is not decoration: it is
+half of the rule that picks the installed route (longest prefix first, then lowest distance), and without it two
+rows for the same prefix cannot be told apart. The order is the box's own: a Cisco table's legend starts
+`L - local, C - connected, S - static, R - RIP, M - mobile, B - BGP, D - EIGRP, … O - OSPF, IA - OSPF inter
+area …`, so `B` sits before `O` there and here
+([Cisco, local host routes](https://www.cisco.com/c/en/us/support/docs/ip/ip-routing/116264-technote-ios-00.html)).
+
+An interface address is a row of its own, one line under the subnet that holds it:
+
+```
+C   10.1.1.0/30  is directly connected, Gi0/0
+L   10.1.1.1/32  is directly connected, Gi0/0
+```
+
+The `L` row is the address, as a `/32`, and its job is to be a *receive* entry: a packet for it is handed to the
+box itself rather than forwarded to a peer that happens to advertise a longer prefix. Both rows are distance 0 —
+"the local routes have the administrative distance of 0 … the same adminstrative distance as connected routes"
+— and, unlike the connected route, the local one is never redistributed, which is why an interior gateway
+protocol carries networks with their real masks instead of a host route per interface. The one exception is an
+address configured with a `/32` mask (a loopback): there the host route "appears in the routing table only as
+connected (it has the C flag)", so one row, not two. This console printed only the connected row, so the address
+a technician had just typed was missing from the table they were told to check it in, and a ping to the box's own
+address succeeded with no row explaining why
+([Cisco, *Local Host Routes Installed in the Routing Table*](https://www.cisco.com/c/en/us/support/docs/ip/ip-routing/116264-technote-ios-00.html);
+`research/local-route-in-show-ip-route.md` records what is still open, the IOS 12.x table that has no local
+routes at all and the classful heading lines this console does not print).
 
 A static route whose next hop is **only an interface** is a different row again: IOS prints it as a
 directly connected network, in the same words a connected route uses and with **no bracket and no `via`** —
@@ -3004,7 +3029,7 @@ route row:
 
 ```
 r1#show ip route
-Codes: C - connected, S - static, O - OSPF, B - BGP, * - candidate default
+Codes: L - local, C - connected, S - static, B - BGP, O - OSPF, * - candidate default
 Gateway of last resort is not set
 ```
 

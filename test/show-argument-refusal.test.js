@@ -111,7 +111,7 @@ for (const c of REFUSALS) {
 console.log('');
 console.log('The documented forms are untouched');
 const FORMS = [
-  ['r1', 'show ip route', /Codes: C - connected/],
+  ['r1', 'show ip route', /Codes: L - local, C - connected/],
   ['r1', 'show arp', /Protocol/],
   ['r1', 'show ip interface brief', /Interface\s+IP-Address/],
   ['sw1', 'show running-config', /! PacketForge running-config/],

@@ -98,12 +98,24 @@ console.log('The destination is one field: address, slash, length - no padding b
 console.log('');
 console.log('Each kind of row, in the reading order the device uses');
 {
-  const connected = rows.filter(function (l) { return / is directly connected,/.test(l); });
+  const connected = rows.filter(function (l) { return /^C\s/.test(l) && / is directly connected,/.test(l); });
   ok(connected.length === 2, 'two connected rows', connected.join(' | '));
   ok(connected.every(function (l) { return /^C\s+\d+\.\d+\.\d+\.\d+\/\d+\s{2}is directly connected, \S+/.test(l); }),
     'C, then the prefix as one field, then is directly connected, and the port', connected.join(' | '));
   ok(connected.some(function (l) { return l.indexOf('10.1.2.0/24') !== -1; }),
     'the first subnet reads 10.1.2.0/24, not 10.1.2.0 with its mask adrift', connected.join(' | '));
+
+  // The second shape of directly-connected row: the box's own address, one line under its subnet
+  // (research/local-route-in-show-ip-route.md). Same field rule - `10.1.2.3/32`, not `10.1.2.3` then a /32
+  // adrift - because it goes through the same printer.
+  const local = rows.filter(function (l) { return /^L\s/.test(l); });
+  ok(local.length === 2, 'two local host rows, one per address', local.join(' | '));
+  ok(local.every(function (l) { return /^L\s+\d+\.\d+\.\d+\.\d+\/32\s{2}is directly connected, \S+$/.test(l); }),
+    'L, then the address as one /32 field, then the port - no bracket, no next hop', local.join(' | '));
+  ok(local.some(function (l) { return l.indexOf('10.1.2.3/32') !== -1; }),
+    'the local row is the address, not the subnet', local.join(' | '));
+  ok(rows.indexOf(local[0]) === rows.indexOf(connected[0]) + 1,
+    'and it sits directly under the connected row it belongs to', rows.join(' | '));
 
   const def = rows.filter(function (l) { return l.indexOf('0.0.0.0/0') !== -1; });
   ok(def.length === 2, 'both candidate defaults print 0.0.0.0/0 as one field', def.join(' | '));

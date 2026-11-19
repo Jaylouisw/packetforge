@@ -250,7 +250,9 @@ console.log('The reported case: a router whose only uplink is down.');
 {
   const env = lab('link-down');
   const p = panelRows(env.r1, env.t);
-  ok(p.length === 3, 'the panel still lists all three routes - they are installed', JSON.stringify(p));
+  // Three configured routes plus the local host route that travels with the connected one: the box keeps both
+  // while the table holds the subnet (research/local-route-in-show-ip-route.md), so the panel does too.
+  ok(p.length === 4, 'the panel still lists every route - they are installed', JSON.stringify(p));
   ok(p.every(function (r) { return r.unusable; }), 'and marks every one of them unusable',
     JSON.stringify(p.map(function (r) { return r.network + '=' + r.unusable; })));
   ok(p.every(function (r) { return /down: link down/.test(r.note); }), 'with the reason',

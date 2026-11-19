@@ -5988,15 +5988,23 @@ class CliSession {
       }
 
       // The legend has to name every code the table can produce: routesTable() emits O (OSPF) and B
-      // (BGP) rows as well as C and S, and an undefined code in the legend is a code the reader has to
-      // guess at (#1234).
+      // (BGP) rows as well as C, S and the L (local) row for an interface address, and an undefined code in
+      // the legend is a code the reader has to guess at (#1234).
       //
       // `*` is a code too. The table has printed `S*` for a candidate default since #1407 while the legend
       // above it defined only four letters, so the one mark that says "this is where unmatched traffic
       // leaves" was the one a reader could not look up. IOS's own legend carries the same line, in the same
       // place - after the protocol codes (`ia - IS-IS inter area, * - candidate default, U - per-user
       // static route`) - so it goes last here as well (research/show-ip-route-candidate-default.md).
-      out.push('Codes: C - connected, S - static, O - OSPF, B - BGP, * - candidate default');
+      // `L` is first because the box's legend puts it first, and the codes after it keep the box's order rather
+      // than this console's: the vendor's string runs `L - local, C - connected, S - static, R - RIP, M - mobile,
+      // B - BGP, D - EIGRP, ... O - OSPF, IA - OSPF inter area ...` - B before O, which the line above had the
+      // other way round because the codes were appended as the table learned to produce them
+      // (https://www.cisco.com/c/en/us/support/docs/ip/ip-routing/116264-technote-ios-00.html,
+      // https://www.cisco.com/c/en/us/support/docs/ip/routing-information-protocol-rip/16448-default.html).
+      // The subset is this console's own, as the comment above says; only the order and the new first code are
+      // the box's. research/local-route-in-show-ip-route.md.
+      out.push('Codes: L - local, C - connected, S - static, B - BGP, O - OSPF, * - candidate default');
       // Every row arrives annotated by the device - displayCode, distance, and the sentence that says why it
       // cannot carry a packet - and the inspector's Routes table reads those same fields. Two surfaces printing
       // different verdicts for the same route is the defect this replaced (#1301).

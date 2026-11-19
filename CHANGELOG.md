@@ -2,6 +2,22 @@
 
 ### Fixed
 
+- **A router's own interface address is a row in `show ip route`, and the box prints it.** Configuring
+  `ip address 10.1.1.1 255.255.255.252` installs two rows on IOS, one line apart: the connected subnet
+  (`C 10.1.1.0/30 is directly connected, Ethernet0/0`) and the address itself as a `/32` local host route
+  (`L 10.1.1.1/32 is directly connected, Ethernet0/0`). Cisco's note on local host routes states the rule,
+  prints the pair, and gives the exception - an address configured with a `/32` mask "appears in the routing
+  table only as connected (it has the C flag)" - plus the two numbers that belong to the row: distance 0, the
+  same as the connected route, and never redistributed by `redistribute connected`. This console printed only
+  the connected row, so the address a technician had just typed was missing from the table they were told to
+  check it in, and `ping <own address>` succeeded with no row explaining why. `routesTable()` now emits the
+  row beside its subnet, priced at distance 0, taking its fault note from the same port; the `show ip route`
+  legend leads with `L - local` and keeps the box's order (`B` before `O`). A `/32` address still prints one
+  row, and a box that does not route is untouched. `test/local-route-row.test.js` (23 checks) pins the pair,
+  its order and wording, the distance, the `/32` case, the shut-port withdrawal, the non-routing switch and
+  the receive-entry distinction from `routeTo()`;
+  [research/local-route-in-show-ip-route.md](research/local-route-in-show-ip-route.md) cites the pages and
+  records what is still open (the classful heading lines, the 12.x table, a `/31`).
 - **A `show running-config` stanza header spells the interface type in full.** The printer headed every
   block with the catalogue's panel spelling, so a factory 2960-X printed 28 stanzas reading
   `interface Gi1/0/1` … `interface Gi1/0/28` where a box prints `GigabitEthernet1/0/1` - and prints the
