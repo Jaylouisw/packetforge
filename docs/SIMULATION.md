@@ -657,7 +657,7 @@ so the next reader does not have to rediscover them.
 | `docs/BGP-POLICY.md` | A full policy design — local-pref, MED, communities, route-maps | A design document. Only the decision-order subset in `engine/bgp.js` exists. |
 
 Six rows have left this table since it was written. Two were the README's counts, which now match the
-tree — **90** media types across **ten** families and **28** connector cages, and **2,356 models across
+tree — **90** media types across **ten** families and **28** connector cages, and **2,355 models across
 258 vendors** in 25 categories:
 
 ```bash
