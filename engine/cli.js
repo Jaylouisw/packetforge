@@ -442,6 +442,38 @@ const ETHERCHANNEL_RULE = '------+-------------+-----------+--------------------
 const ETHERCHANNEL_HEADER = 'Group  Port-channel  Protocol    Ports';
 const ETHERCHANNEL_COLUMNS = { group: 7, 'port-channel': 16, protocol: 10 };
 
+// The `Codes:` legend above `show ip route`: nine lines of fixed text, not one line of this console's codes.
+//
+// A box prints the whole legend of its image on every `show ip route`, whether the table holds one code from
+// it or all of them - the same rule `ETHERCHANNEL_FLAGS` above follows ("a box prints every flag it can use,
+// not only the ones this table happens to set"). This console printed one 85-character line naming only the six
+// codes its own table can emit (`Codes: L - local, C - connected, S - static, B - BGP, O - OSPF, * - candidate
+// default`), so a reader comparing a captured table against this one found a shape no box produces: the real
+// block wraps nine times and defines RIP, EIGRP, IS-IS, NHRP and ODR on a device that has never run them.
+//
+// The nine lines below are the block a Catalyst at IOS 15.2E prints, character for character: the first line
+// carries the `Codes: ` label and the eight continuations start at column 7, aligning their code under the
+// `L` (measured in ntc-templates' raw capture of this command, where the leading spaces survive:
+// https://github.com/networktocode/ntc-templates/blob/master/tests/cisco_ios/show_ip_route/cisco_ios_show_ip_route.raw,
+// and in Cisco's Catalyst 2960-L 15.2(5)E "Configuring IP Unicast Routing" sample:
+// https://cisco.com/c/en/us/td/docs/switches/lan/catalyst2960l/software/15-2_5_e/config-guide/b_1525e_consolidated_2960l_cg/b_1525e_consolidated_2960l_cg_chapter_0111101.html).
+// The wrap points are the image's, not a reflow: IOS XE 16/17 inserts `m - OMP`, the four NAT codes and the
+// three NHRP ones between the lines above, which is why the same command on a 3850 at 16.12.7 prints eleven
+// lines. This console speaks one IOS-shaped table for the whole catalogue, so it prints the 15.2E block the
+// catalogue's access switches run; research/show-ip-route-codes-legend.md records the three variants and the
+// platforms each one came from.
+const IP_ROUTE_CODES_LEGEND = [
+  'Codes: L - local, C - connected, S - static, R - RIP, M - mobile, B - BGP',
+  '       D - EIGRP, EX - EIGRP external, O - OSPF, IA - OSPF inter area',
+  '       N1 - OSPF NSSA external type 1, N2 - OSPF NSSA external type 2',
+  '       E1 - OSPF external type 1, E2 - OSPF external type 2',
+  '       i - IS-IS, su - IS-IS summary, L1 - IS-IS level-1, L2 - IS-IS level-2',
+  '       ia - IS-IS inter area, * - candidate default, U - per-user static route',
+  '       o - ODR, P - periodic downloaded static route, H - NHRP, l - LISP',
+  '       a - application route',
+  '       + - replicated route, % - next hop override, p - overrides from PfR'
+];
+
 // The rule line under the header: each column draws its own width in dashes, one short of the field because
 // the space between columns is not a column. The Ports window is the last one, so it runs to the end of the line.
 function vlanRule() {
@@ -6027,9 +6059,11 @@ class CliSession {
       // other way round because the codes were appended as the table learned to produce them
       // (https://www.cisco.com/c/en/us/support/docs/ip/ip-routing/116264-technote-ios-00.html,
       // https://www.cisco.com/c/en/us/support/docs/ip/routing-information-protocol-rip/16448-default.html).
-      // The subset is this console's own, as the comment above says; only the order and the new first code are
-      // the box's. research/local-route-in-show-ip-route.md.
-      out.push('Codes: L - local, C - connected, S - static, B - BGP, O - OSPF, * - candidate default');
+      // The order and the first code are the box's (research/local-route-in-show-ip-route.md). The line itself
+      // is not: a box prints the image's whole nine-line legend here, and this console printed one line of its
+      // own six codes until #fidelity. `IP_ROUTE_CODES_LEGEND` is that block, with the captures behind it -
+      // research/show-ip-route-codes-legend.md.
+      out.push.apply(out, IP_ROUTE_CODES_LEGEND);
       // Every row arrives annotated by the device - displayCode, distance, and the sentence that says why it
       // cannot carry a packet - and the inspector's Routes table reads those same fields. Two surfaces printing
       // different verdicts for the same route is the defect this replaced (#1301).

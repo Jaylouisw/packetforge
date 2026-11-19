@@ -44,6 +44,16 @@ function rowsFor(lines, dest) {
     return l.indexOf(dest) !== -1 && !/^Codes:/.test(l) && !/^Gateway of last resort/.test(l);
   });
 }
+// The block is nine lines, not one (research/show-ip-route-codes-legend.md); `* - candidate default` lives on
+// the sixth, so reading `lines[0]` alone cannot see the mark this suite is about.
+function legendText(lines) {
+  const block = [];
+  for (const l of lines) {
+    if (l.indexOf('Codes: ') === 0 || (block.length && l.indexOf('       ') === 0)) block.push(l);
+    else break;
+  }
+  return block.join('\n');
+}
 const DEFAULT_ROUTE = [{ dest: '0.0.0.0', mask: '0.0.0.0', gw: '10.1.2.1', iface: null }];
 
 console.log('A default an operator types is a candidate default:');
@@ -115,13 +125,18 @@ console.log('The legend defines the mark the rows use:');
 {
   const env = build(DEFAULT_ROUTE, { defaultGateway: '10.1.2.254' });
   const lines = show(env);
-  const legend = lines[0] || '';
-  ok(legend.indexOf('* - candidate default') !== -1, 'the legend names the asterisk', legend);
+  const legend = legendText(lines);
+  const legendLines = legend.split('\n');
+  ok(legend.indexOf('* - candidate default') !== -1, 'the legend names the asterisk',
+    legendLines[5]);
   ok(legend.indexOf('C - connected') !== -1 && legend.indexOf('S - static') !== -1,
-    'and still names every letter code the table prints', legend);
-  const body = lines.slice(1).join('\n');
-  ok(body.indexOf('S*') !== -1 && lines.indexOf(legend) === 0,
-    'the legend comes first, before any row that uses it', lines.slice(0, 2).join(' | '));
+    'and still names every letter code the table prints', legendLines[0]);
+  const body = lines.slice(legendLines.length).join('\n');
+  const firstRow = lines.findIndex(function (l) { return /^[A-Z]\*?\s/.test(l); });
+  // The gateway sentence sits between the block and the first row, so "after the legend" is the property,
+  // not "immediately after it".
+  ok(body.indexOf('S*') !== -1 && firstRow > legendLines.length - 1,
+    'the legend comes first, before any row that uses it', lines.slice(0, 11).join(' | '));
 }
 
 console.log('');

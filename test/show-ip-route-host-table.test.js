@@ -104,9 +104,11 @@ console.log('A box that routes is untouched:');
   const out = cli.run('show ip route').output.map(String);
   // `L - local` leads because the table now carries the host route for the interface address, and because the
   // box's own legend leads with it (research/local-route-in-show-ip-route.md).
-  ok(/^Codes: L - local, C - connected, S - static, B - BGP, O - OSPF, \* - candidate default$/.test(out[0]),
-    'the codes legend still leads, with the asterisk it uses defined', out[0]);
-  ok(out[1] === 'Gateway of last resort is not set', 'and the router sentence is under it', out[1]);
+  ok(/^Codes: L - local, C - connected, S - static, R - RIP, M - mobile, B - BGP$/.test(out[0]),
+    'the codes legend still leads, with the asterisk it uses defined', out.join(' | '));
+  ok(out[5].indexOf('* - candidate default') !== -1,
+    'and the asterisk the table prints is defined inside the block', out[5]);
+  ok(out[9] === 'Gateway of last resort is not set', 'and the router sentence is under the block', out[9]);
   ok(!out.some(function (l) { return /ICMP redirect cache/.test(l); }),
     'no host/redirect cache is printed by a router', JSON.stringify(out));
 }

@@ -798,7 +798,15 @@ IP address set on Gi0/1: 10.0.2.1/24
 R1(config-if)# exit
 R1(config)# exit
 R1# show ip route
-Codes: L - local, C - connected, S - static, B - BGP, O - OSPF, * - candidate default
+Codes: L - local, C - connected, S - static, R - RIP, M - mobile, B - BGP
+       D - EIGRP, EX - EIGRP external, O - OSPF, IA - OSPF inter area
+       N1 - OSPF NSSA external type 1, N2 - OSPF NSSA external type 2
+       E1 - OSPF external type 1, E2 - OSPF external type 2
+       i - IS-IS, su - IS-IS summary, L1 - IS-IS level-1, L2 - IS-IS level-2
+       ia - IS-IS inter area, * - candidate default, U - per-user static route
+       o - ODR, P - periodic downloaded static route, H - NHRP, l - LISP
+       a - application route
+       + - replicated route, % - next hop override, p - overrides from PfR
 Gateway of last resort is not set
 C   10.0.1.0/24  is directly connected, Gi0/0
 L   10.0.1.1/32  is directly connected, Gi0/0
@@ -2975,13 +2983,19 @@ What IOS pads is the *code*, to a wider field than this console uses; the prefix
 one token read as a whole. `test/show-ip-route-prefix-one-field.test.js` pins the rule on every kind of row
 (connected, static, static default, configured gateway, OSPF, eBGP).
 
-The legend names every code the table can print — `L` local, `C` connected, `S` static, `B` BGP, `O` OSPF,
-and `*` for a candidate default — and each row carries `[distance/metric]`. The distance is not decoration: it is
-half of the rule that picks the installed route (longest prefix first, then lowest distance), and without it two
-rows for the same prefix cannot be told apart. The order is the box's own: a Cisco table's legend starts
-`L - local, C - connected, S - static, R - RIP, M - mobile, B - BGP, D - EIGRP, … O - OSPF, IA - OSPF inter
-area …`, so `B` sits before `O` there and here
-([Cisco, local host routes](https://www.cisco.com/c/en/us/support/docs/ip/ip-routing/116264-technote-ios-00.html)).
+The legend is the **image's nine lines**, not one line of this console's own codes: a box prints its whole
+code list on every `show ip route`, whether or not a route uses it, and wraps it after `B - BGP`, with the
+eight continuations starting at column 7 so every code aligns under the `L`. It therefore defines `RIP`,
+`EIGRP`, `IS-IS`, `NHRP` and `ODR` on a switch that has never run them — that is what a capture looks like, and
+copying a captured table is the point. `L` local, `C` connected, `S` static, `B` BGP, `O` OSPF and `*` for a
+candidate default (the sixth line) are the entries this table's rows actually use; each row carries
+`[distance/metric]`. The distance is not decoration: it is half of the rule that picks the installed route
+(longest prefix first, then lowest distance), and without it two rows for the same prefix cannot be told apart.
+`B` sits before `O` because the box's string does
+([Catalyst 2960-L 15.2(5)E, "Configuring IP Unicast Routing"](https://cisco.com/c/en/us/td/docs/switches/lan/catalyst2960l/software/15-2_5_e/config-guide/b_1525e_consolidated_2960l_cg/b_1525e_consolidated_2960l_cg_chapter_0111101.html);
+the line breaks and the seven-space indent are measured in
+[ntc-templates' raw capture of this command](https://github.com/networktocode/ntc-templates/blob/master/tests/cisco_ios/show_ip_route/cisco_ios_show_ip_route.raw), and IOS XE 16/17 prints a longer block of its own —
+`research/show-ip-route-codes-legend.md`).
 
 An interface address is a row of its own, one line under the subnet that holds it:
 
@@ -3042,7 +3056,7 @@ different case - the vendor rule for that number is that the route is *never* in
 and is excluded from the gateway line.
 
 The asterisk is the device's mark for a **candidate default**, and it belongs to the prefix, not to the
-row's origin: every route to `0.0.0.0/0` carries it, and the legend's last entry says so
+row's origin: every route to `0.0.0.0/0` carries it, and the legend defines it on its sixth line
 (`* - candidate default`). A typed static default therefore reads `S* 0.0.0.0/0 [1/0] via …`, which is
 the shape Cisco's own gateway-of-last-resort note prints, and so does a default learned by a protocol
 (`O*E2 0.0.0.0/0`, `D*EX 0.0.0.0/0`).
@@ -3060,7 +3074,15 @@ route row:
 
 ```
 r1#show ip route
-Codes: L - local, C - connected, S - static, B - BGP, O - OSPF, * - candidate default
+Codes: L - local, C - connected, S - static, R - RIP, M - mobile, B - BGP
+       D - EIGRP, EX - EIGRP external, O - OSPF, IA - OSPF inter area
+       N1 - OSPF NSSA external type 1, N2 - OSPF NSSA external type 2
+       E1 - OSPF external type 1, E2 - OSPF external type 2
+       i - IS-IS, su - IS-IS summary, L1 - IS-IS level-1, L2 - IS-IS level-2
+       ia - IS-IS inter area, * - candidate default, U - per-user static route
+       o - ODR, P - periodic downloaded static route, H - NHRP, l - LISP
+       a - application route
+       + - replicated route, % - next hop override, p - overrides from PfR
 Gateway of last resort is not set
 ```
 
