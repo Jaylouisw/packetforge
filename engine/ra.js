@@ -158,6 +158,69 @@ function normalizeConfig(cfg) {
   };
 }
 
+// --- the prefixes an interface gets for free -------------------------------
+
+// A router advertises the prefixes it holds as addresses, without anyone typing
+// `ipv6 nd prefix`: Cisco's command reference says so in the Usage Guidelines of
+// that command - "By default, prefixes configured as addresses on an interface
+// using the ipv6 address command are advertised in router advertisements" - and
+// gives the same lifetimes this module already defaults to (2,592,000 s valid,
+// 604,800 s preferred, L and A set). research/ipv6-ra-advertises-interface-prefix.md
+// has the sources and the one sentence that argues the other way.
+//
+// Only a /64 is derived. A host forms a SLAAC address by splicing a 64-bit
+// interface identifier onto the advertised prefix (RFC 4862 §5.5.3), so a /48 or
+// a /128 changes no host's behaviour; leaving those lengths to the explicit
+// command keeps this rule to the case the sources describe and avoids inventing
+// what an A-bit on a non-/64 prefix would mean (RFC 4861 §4.6.2 says it must be
+// zero there, which no Cisco command reference says it sets).
+function addressPrefixes(addresses) {
+  const list = Array.isArray(addresses) ? addresses : [];
+  const out = [];
+  const seen = {};
+  for (const e of list) {
+    if (!e || typeof e.addr !== 'string') continue;
+    if (Number(e.prefix) !== 64) continue;
+    const parsed = ipv6.parsePrefix6(e.addr + '/64');
+    if (!parsed.valid) continue;
+    const network = ipv6.networkAddress6(parsed);
+    if (seen[network]) continue;
+    seen[network] = true;
+    out.push({
+      prefix: network,
+      prefixLen: 64,
+      onLink: true,
+      autonomous: true,
+      validLifetime: DEFAULTS.validLifetime,
+      preferredLifetime: DEFAULTS.preferredLifetime
+    });
+  }
+  return out;
+}
+
+// The advertisement's prefix list: the automatic ones, with an explicit
+// `ipv6 nd prefix` entry replacing its own prefix (and only that one). This is
+// the additive reading of the vendor's prefix table - "advertise all prefixes
+// that are configured as addresses ..., except prefixes ... changed by the
+// ipv6 nd prefix command" - and is the one that cannot silently withdraw the
+// on-link prefix the hosts on that wire need. The rival sentence, "then only
+// these prefixes are advertised", is recorded in the research note.
+function mergePrefixes(automatic, explicit) {
+  const out = (Array.isArray(automatic) ? automatic : []).map(function (p) {
+    return Object.assign({}, p);
+  });
+  for (const p of (Array.isArray(explicit) ? explicit : [])) {
+    const n = normalizePrefixInfo(p);
+    if (!n) continue;
+    let at = -1;
+    for (let i = 0; i < out.length; i++) {
+      if (out[i].prefix === n.prefix && out[i].prefixLen === n.prefixLen) { at = i; break; }
+    }
+    if (at === -1) out.push(n); else out[at] = n;
+  }
+  return out;
+}
+
 // --- build (structured message) -------------------------------------------
 
 // The RA as a plain object. Everything here also exists on the wire; nothing
@@ -401,6 +464,8 @@ module.exports = {
   DEFAULTS,
   normalizeConfig,
   normalizePrefixInfo,
+  addressPrefixes,
+  mergePrefixes,
   buildRa,
   buildRs,
   encodeRa,

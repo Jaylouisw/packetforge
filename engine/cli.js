@@ -7179,15 +7179,35 @@ class CliSession {
     out.push('  Timers      : reachable ' + cfg.reachableTime + 'ms, retrans ' + cfg.retransTimer +
       'ms, hop limit ' + cfg.curHopLimit);
 
-    if (!cfg.prefixes.length) {
+    // What would actually go out: the /64 each interface holds as an address
+    // (IOS advertises those without an `ipv6 nd prefix` line) plus the prefixes
+    // the operator configured, with a configured entry replacing its own prefix
+    // and nothing else. The advertisement builds its list from the same two
+    // helpers, so this report cannot promise a prefix the wire would omit -
+    // research/ipv6-ra-advertises-interface-prefix.md.
+    const automatic = canAdvertise ? raLib.addressPrefixes(dev.ip6Addrs()) : [];
+    const advertised = raLib.mergePrefixes(automatic, cfg.prefixes);
+    const configuredKey = {};
+    for (const p of cfg.prefixes) configuredKey[p.prefix + '/' + p.prefixLen] = true;
+    const fromIface = advertised.filter(function (p) {
+      return !configuredKey[p.prefix + '/' + p.prefixLen];
+    }).length;
+    if (!advertised.length) {
       out.push('  Prefixes    : none - hosts would learn a default router only');
     } else {
-      out.push('  Prefixes    : ' + cfg.prefixes.length);
-      out.push('    ' + pad('prefix', 26) + pad('L', 3) + pad('A', 3) + pad('valid(s)', 12) + 'preferred(s)');
-      for (const p of cfg.prefixes) {
-        out.push('    ' + pad(p.prefix + '/' + p.prefixLen, 26) +
+      out.push('  Prefixes    : ' + advertised.length +
+        (fromIface
+          ? '   (' + fromIface + ' from an interface address' + (fromIface === 1 ? '' : 'es') +
+            (advertised.length > fromIface ? ', ' + (advertised.length - fromIface) + ' configured' : '') + ')'
+          : ''));
+      out.push('    ' + pad('prefix', 26) + pad('L', 3) + pad('A', 3) + pad('valid(s)', 12) +
+        pad('preferred(s)', 15) + 'source');
+      for (const p of advertised) {
+        const key = p.prefix + '/' + p.prefixLen;
+        out.push('    ' + pad(key, 26) +
           pad(p.onLink ? '1' : '0', 3) + pad(p.autonomous ? '1' : '0', 3) +
-          pad(p.validLifetime, 12) + p.preferredLifetime);
+          pad(p.validLifetime, 12) + pad(p.preferredLifetime, 15) +
+          (configuredKey[key] ? 'configured' : 'interface address'));
       }
     }
 
@@ -7208,7 +7228,7 @@ class CliSession {
         // Which prefix would go out of which port: a router advertises a prefix
         // on the link it is attached to, not on every port it owns.
         const rows = ports.map(function (i) {
-          const list = cfg.prefixes.filter(function (p) { return holds(i, p); })
+          const list = advertised.filter(function (p) { return holds(i, p); })
             .map(function (p) { return p.prefix + '/' + p.prefixLen; });
           return i.name + (list.length ? ' (' + list.join(', ') + ')' : ' (default router only)');
         });

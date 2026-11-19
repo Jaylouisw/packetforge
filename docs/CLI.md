@@ -656,7 +656,7 @@ Config mode:
 | `ipv6 nd ra enable` / `ipv6 nd ra disable` | advertising is **on by default** on any interface that carries an IPv6 address (`l3-forward` only); `disable` stops it, `enable` starts it again |
 | `ipv6 nd ra managed` / `ipv6 nd ra other-config` | set the M / O flag (`no …` clears it) |
 | `ipv6 nd ra lifetime <s>` | router lifetime; `0` means "not a default router" |
-| `ipv6 nd prefix <prefix>/<len> [valid <s>] [preferred <s>]` | advertise a prefix with L=A=1 |
+| `ipv6 nd prefix <prefix>/<len> [valid <s>] [preferred <s>]` | override the lifetimes of a prefix that is already advertised, or add one; the `/64` of an interface address is advertised without this line |
 | `no ipv6 nd prefix <prefix>/<len>` | withdraw a prefix |
 | `ipv6 nd suppress-ra` | stop periodic advertisements, still answer solicitations (`no …` resumes) - the vendor's own off switch, and the one a real config carries |
 | `show ipv6 nd` | what this device would advertise, and which interfaces are waiting |
@@ -675,6 +675,23 @@ that prefix**, because a prefix is a promise to route the traffic addressed in
 it. `show ipv6 nd` prints that mapping and says so when a configured prefix is
 attached to no interface.
 
+A `/64` **address is an announcement by itself**. Cisco's `ipv6 nd prefix`
+reference states the default in its Usage Guidelines - "By default, prefixes
+configured as addresses on an interface using the ipv6 address command are
+advertised in router advertisements" - and gives the parameters the box uses
+when nothing was configured: valid lifetime 2,592,000 s (30 days), preferred
+604,800 s (7 days), on-link (L) and autoconfiguration (A) set. So a router with
+one line, `ipv6 address 2001:db8:aa::1/64`, already hands every host on that wire
+a prefix to form an address from; the `ipv6 nd prefix` command exists to change
+those lifetimes, not to switch the announcement on. Only a `/64` is derived,
+because a host splices a 64-bit interface identifier onto the advertised prefix
+(RFC 4862 §5.5.3) - a `/48` or `/128` changes no host's behaviour.
+
+An explicit entry for a prefix **replaces the parameters of that prefix and
+nothing else**; other interface prefixes keep going out. `show ipv6 nd` prints a
+`source` column so the two cannot be confused: `interface address` for the
+automatic entry, `configured` for one an operator wrote.
+
 Advertising itself is **the default**, not a step: RFC 4861 §6.2.1 has a router
 send unsolicited advertisements on every link it is configured to serve, and
 Cisco's `ipv6 nd ra suppress` reference gives the same state as its Command
@@ -689,19 +706,16 @@ that never touched router advertisements writes none.
 R1(config)# interface Gi0/0
 R1(config-if)# ipv6 address 2001:db8:aa::1/64
 IPv6 address 2001:db8:aa::1/64 on Gi0/0
-R1(config-if)# exit
-R1(config)# ipv6 nd prefix 2001:db8:aa::/64 valid 2592000 preferred 604800
-IPv6 ND prefix 2001:db8:aa::/64 advertised (L=1 A=1, valid 2592000s, preferred 604800s)
-R1(config)# end
+R1(config-if)# end
 R1# show ipv6 nd
 IPv6 router advertisements on R1:
   Device      : generic-router  (l3-forward)
   Advertise   : enabled  (the default; `ipv6 nd suppress-ra` stops the periodic ones)
   Flags       : M=0 O=0   router lifetime 1800s
   Timers      : reachable 0ms, retrans 0ms, hop limit 64
-  Prefixes    : 1
-    prefix                    L  A  valid(s)    preferred(s)
-    2001:db8:aa::/64          1  1  2592000     604800
+  Prefixes    : 1   (1 from an interface address)
+    prefix                    L  A  valid(s)    preferred(s)   source
+    2001:db8:aa::/64          1  1  2592000     604800         interface address
   Interfaces  : Gi0/0 (2001:db8:aa::/64)
   Autoconfig  : none
 

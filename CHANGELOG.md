@@ -19,6 +19,23 @@
   `show ip interface brief`, and the round trip;
   [research/running-config-interface-name.md](research/running-config-interface-name.md) cites the pages
   and records what is still open (the capitalisation of the type word, types the table does not know).
+- **A router advertises the `/64` it holds as an interface address, without an `ipv6 nd prefix` line.** Cisco's
+  `ipv6 nd prefix` reference states the default in its Usage Guidelines — "By default, prefixes configured as
+  addresses on an interface using the ipv6 address command are advertised in router advertisements" — with a
+  2,592,000 s valid / 604,800 s preferred lifetime and L=A=1; the same parameters, restated for IOS XE, ASA and
+  the small-business switch line. The engine built its advertisement from `config.ra.prefixes` alone, so a router
+  with `ipv6 address 2001:db8:1::1/64` and nothing else advertised a default router and no prefix: a host
+  configured for autoconfiguration learned a gateway and formed no address, which is the opposite of what IPv6
+  does out of the box. `ra.js` now derives the option from each `/64` interface address and merges it with the
+  configured list, a configured entry replacing its own prefix's parameters and only that prefix;
+  `show ipv6 nd` reads the same two helpers, prints the automatic rows with a `source` column and counts how many
+  came from an address, so the report and the wire cannot disagree. `test/ipv6-ra-advertises-interface-prefix.test.js`
+  (31 checks) pins the default announcement, the encoded option, the host's address, the override, the additive
+  case and the `/48` that is deliberately not turned into a `/64`;
+  [research/ipv6-ra-advertises-interface-prefix.md](research/ipv6-ra-advertises-interface-prefix.md) records the
+  one vendor sentence that argues for replacing every automatic prefix, and the `no-advertise` keyword this
+  console still lacks.
+
 - **An empty `show lldp neighbors` ends with `Total entries displayed: 0`, the line a box prints.** The count
   line was added for a table with rows and deliberately withheld from an empty one, because no vendor page in
   hand showed an empty neighbour table. The captures now in hand do: a Catalyst 9300 with dot1x holding the

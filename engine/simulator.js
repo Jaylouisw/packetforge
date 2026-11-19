@@ -2229,13 +2229,23 @@ class Simulator {
       if (this._prefixOnIface(dev, iface, p)) onLink.push(p);
     }
 
+    // ...and the prefix the interface gets for free from its own address. A
+    // router with `ipv6 address 2001:db8:1::1/64` advertises 2001:db8:1::/64
+    // without an `ipv6 nd prefix` line, which is what makes a host on the wire
+    // autoconfigure; the console's `show ipv6 nd` reads the same helper, so the
+    // report and the wire cannot disagree (research/ipv6-ra-advertises-interface-prefix.md).
+    const automatic = raLib.addressPrefixes(dev.ip6Addrs().filter(function (e) {
+      return e.name === iface.name;
+    }));
+    const prefixes = raLib.mergePrefixes(automatic, onLink);
+
     const msg = raLib.buildRa({
       m: cfg.m, o: cfg.o,
       curHopLimit: cfg.curHopLimit,
       routerLifetime: cfg.routerLifetime,
       reachableTime: cfg.reachableTime,
       retransTimer: cfg.retransTimer,
-      prefixes: onLink,
+      prefixes: prefixes,
       srcMac: iface.mac
     });
 
