@@ -546,7 +546,7 @@ jobs:
             pushed_sha=$(git rev-parse HEAD)
             reported=""
             for _ in 1 2 3 4; do
-              reported=$(http -H "Authorization: token ***" \
+              reported=$(http -H "Authorization: token ${TOKEN}" \
                 "$api/repos/$repo/commits/${pushed_sha}/status" 2>/dev/null \
                 | node -e 'let d="";process.stdin.on("data",c=>d+=c).on("end",()=>{try{process.stdout.write(String(JSON.parse(d).total_count||0))}catch(e){process.stdout.write("")}})')
               case "${reported:-}" in ''|*[!0-9]*) reported="" ;; esac

@@ -1356,10 +1356,18 @@ jobs:
           # second identical request against a server that has already answered is how
           # this gate came to spend 30-57 s per pull request not merging (tasks 17222,
           # 17238, 17247).
+          # The credential goes in `${TOKEN}`, and it must stay an expansion of the
+          # environment variable. For 7.5 hours this line carried the three literal
+          # characters `***` - the shape a masking tool leaves behind when a token is
+          # written through it - so the request presented `***` as its token and the
+          # server answered 401 "access token does not exist". The status read above
+          # still worked, because this repository is readable anonymously, so the gate
+          # went on reporting "every check is green - arming" and arming nothing. If an
+          # edit ever shows `***` here again, it is that bug and not a placeholder.
           body="${RUNNER_TEMP:-/tmp}/merge-body.json"
           code=$(curl -sS --connect-timeout 5 --max-time 20 --retry 2 --retry-delay 1 \
                    --retry-connrefused -o "$body" -w '%{http_code}' -X POST \
-                   -H "Authorization: token ***" -H 'Content-Type: application/json' \
+                   -H "Authorization: token ${TOKEN}" -H 'Content-Type: application/json' \
                    "$api/repos/$repo/pulls/${NUMBER}/merge" \
                    -d "{\"Do\":\"squash\",\"head_commit_id\":\"${HEAD_SHA}\",\"merge_when_checks_succeed\":true}" 2>/dev/null || echo 000)
           why=$(tr -d '\r\n' < "$body" 2>/dev/null | cut -c1-300)
@@ -1367,12 +1375,37 @@ jobs:
             200|201)
               echo "#${NUMBER}: armed for a squash merge of ${HEAD_SHA} - every check on it is green" ;;
             409)
-              echo "#${NUMBER}: already armed for ${HEAD_SHA} (HTTP 409) - nothing to do" ;;
+              # 409 on this endpoint is two different answers: "already scheduled to
+              # auto merge" (nothing to do) and "head out of date" (this head cannot be
+              # armed until it is rebased, and the scheduled pass will do it). Printing
+              # "already armed" for both was a log that said nothing was wrong while
+              # nothing was armed - the server's own words decide which it was.
+              case "$why" in
+                *"already scheduled"*|*"already been merged"*)
+                  echo "#${NUMBER}: already armed for ${HEAD_SHA} (HTTP 409) - nothing to do" ;;
+                *)
+                  note "#${NUMBER}: the arm was refused (HTTP 409) ${why}" ;;
+              esac ;;
             *)
               # The reason a green gate did not arm belongs where a person looks: this
               # job's own status is `success` by design, the log needs a login, and a
               # `::warning::` is an annotation nobody opens. One comment, only on refusal.
               note "#${NUMBER}: every check on ${HEAD_SHA} is green and the arm was refused (HTTP ${code}) ${why}"
+              # A credential the server does not recognise is not transient: it answers the
+              # same 401 for every pull request until someone replaces the token, and a
+              # `success` from this job then means nothing at all. That is not hypothetical:
+              # between 2026-11-18T20:57Z and 2026-11-19T04:26Z every arm that reached this
+              # POST - 78 of them, runs 6667 through 7081 - was answered 401 "access token
+              # does not exist" because this line sent the literal string `***` instead of
+              # the token, and the job reported success on all 78 while four green pull
+              # requests (#2085-#2088) sat open. So a 401/403 is named as a failure here.
+              # Every other refusal (405, 409 body, 5xx) stays green-with-a-comment: those
+              # are the server's answer about this pull request and resolve themselves.
+              case "$code" in
+                401|403)
+                  echo "::error title=Auto-merge::#${NUMBER}: the arm was refused (HTTP ${code}) - the workflow's token was not accepted, so no pull request on this head can merge until it is replaced"
+                  exit 1 ;;
+              esac
               comment=$(node -e '
                 process.stdout.write(JSON.stringify({
                   body: "**Arm auto-merge went green but could not arm this pull request.**\n\n"
@@ -1385,7 +1418,7 @@ jobs:
               ' "$HEAD_SHA" "$code" "$why")
               curl -sS --connect-timeout 5 --max-time 20 --retry 2 --retry-delay 1 \
                    --retry-connrefused -o /dev/null -X POST \
-                   -H "Authorization: token ***" -H 'Content-Type: application/json' \
+                   -H "Authorization: token ${TOKEN}" -H 'Content-Type: application/json' \
                    "$api/repos/$repo/issues/${NUMBER}/comments" -d "$comment" 2>/dev/null ||
                 echo "#${NUMBER}: could not post the reason as a comment" ;;
           esac
