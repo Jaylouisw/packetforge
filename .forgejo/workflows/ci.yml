@@ -978,8 +978,37 @@ jobs:
           fi
           exit "$rc"
 
-  smoke:
-    name: Server smoke test
+  # One slot, two checks. `Server smoke test` and `Docker build` were separate jobs, and on
+  # this runner they could not overlap: three slots are held by the test legs for ~60 s and
+  # the fourth carried `Classify the change`, then the smoke test, then the image build, one
+  # after another. Measured over the last 60 pull-request runs (run ids 7607-7974,
+  # /actions/tasks): the `Docker build` task was created a median 2 s AFTER the
+  # `Server smoke test` task had finished (p10 -1 s, p90 +3 s), so the two never overlapped
+  # once in those runs, and in 24 of the 60 the build was still running after every test leg
+  # had reported - a median 11 s past them and 97 s at worst (run 7913: legs done at +69 s,
+  # Docker build done at +115 s). Each of those two jobs also paid its own 5.3 s checkout of
+  # the same commit into its own container.
+  #
+  # Neither check reads anything the other writes, and both want the same tree and the same
+  # Node 20 image: `scripts/smoke-http.js` listens on 127.0.0.1 on an ephemeral port and
+  # keeps its state under `os.tmpdir()`, and the image build reads the tree through the host
+  # daemon. So they are one job: one checkout, one container, and the 10 s HTTP smoke runs
+  # beside the 20 s image build instead of in front of it. That is one slot instead of two
+  # back to back, on a host where the fourth slot is what the whole tail of a run waits on.
+  #
+  # Nothing is skipped, softened or retried. Same `scripts/smoke-http.js`, same 180 s bound,
+  # same eight Dockerfile static checks, same `docker build -t packetforge:ci-run-<run>` with
+  # its 180 s bound, same prune that runs even when the build fails, same
+  # `::error title=Server smoke test` and `::error title=Docker build` titles, so a red still
+  # names which of the two checks failed. What moves is when the smoke result is printed: at
+  # the end of the job, beside the build's, instead of 11 s into it - the same move the test
+  # legs already made for their static checks, and the job is red either way.
+  #
+  # This is the sixth status a run posts, where it used to be seven. `arm` below requires the
+  # three test legs by name and every status on the head to be green; it does not name these
+  # two, so it agrees with the server about "green" exactly as before.
+  docker:
+    name: Server smoke and Docker build
     runs-on: ubuntu-latest
     timeout-minutes: 10
     needs: changes
@@ -1073,148 +1102,28 @@ jobs:
       # a red check on a pull request that never touched the server.
       - name: Which runtime is running this
         run: node --version && npm --version
-      # The smoke client is the one thing in this job that can wait forever, and it is
-      # the only step in this workflow with no bound of any kind.
+      # The smoke client is the one thing here that can wait forever: `req()` settles on the
+      # response's `end` or on `error`, and a connection accepted and then never answered is
+      # neither - the promise never settles and Node exits only when something outside it
+      # kills the process (tasks 11669, 11193, 10082: 676 s, 872 s and 792 s of a two-slot
+      # runner, each leaving no log at all). So it keeps the 180 s bound it had as a step of
+      # its own, and it keeps its log, because Node is signalled and the exit status is
+      # recorded instead of the step being killed from outside.
       #
-      # `scripts/smoke-http.js` drives the server over plain `http.request`, and its
-      # `req()` settles on the response's `end` or on `error`. A connection that is
-      # accepted and then never answered is neither: the promise never settles, the event
-      # loop has nothing to do, and Node exits only when something outside it kills the
-      # process. That is what three failures on 2026-11-17 look like - all on pull
-      # requests whose three test legs passed the same commit in 52-67 s:
-      #   run 4832 (pull #1798), task 11669 - failed after 676 s;
-      #   run 4688 (pull #1784), task 11193 - failed after 872 s;
-      #   run 4373 (pull #1755), task 10082 - failed after 792 s.
-      # Each held one of the host's two runner slots for 11-15 minutes, and each left no
-      # evidence at all: because the process was killed instead of exiting, the runner
-      # has no log for the task and answers
-      #   dbfs open "actions_log/.../11669.log.zst": file does not exist.
-      # A red gate nobody can diagnose, for 2,340 s of a two-slot runner on one day.
-      #
-      # `timeout-minutes: 10` above is not the bound anyone thinks it is: this runner does
-      # not enforce it (see the note in the `changes` job), and 676 s, 792 s and 872 s all
-      # exceed it. So the bound lives in the step, at 180 s, and is deliberately generous:
-      # the whole job is 11 s median and 30 s at its slowest green run in the last 24 h
-      # (469 task records), and the script's own wait for the server is capped at 20 s, so
-      # 180 s is six times the worst green run and nine times the median. A slow but
-      # working smoke test still passes. A hung one is still red - it just stops holding
-      # the slot for a quarter of an hour, and it now keeps its log, because Node is
-      # signalled and the step exits with its own status instead of being killed from
-      # outside. Nothing is skipped, retried or weakened: the assertions the script makes
-      # are the same assertions, on the same commit.
-      - name: Drive the API end to end
-        run: |
-          set +e
-          timeout --signal=TERM --kill-after=15 180 node scripts/smoke-http.js
-          rc=$?
-          if [ "$rc" -eq 124 ] || [ "$rc" -eq 137 ]; then
-            echo "::error title=Server smoke test::scripts/smoke-http.js was still running after 180 s and was stopped - a green job takes ~11 s here and the slowest green job in the last 24 h took 30 s, so this is a request that never answered, not a slow server"
-          fi
-          exit "$rc"
-
-  docker:
-    name: Docker build
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    needs: changes
-    # A device spec cannot change how the server boots or how the image builds. For a
-    # data-only diff this job reports success without taking a runner for ten minutes.
-    if: always() && needs.changes.outputs.data_only != 'true' && needs.changes.outputs.live != 'false'
-    steps:
-      # Same git checkout as the `changes` job - see the measured note there: 4.7-10.2 s of
-      # every job in this workflow was the checkout action's clone, and the three test legs
-      # clone that action into one shared directory within seconds of each other.
-      - name: Check out this commit, from git
-        env:
-          TOKEN: ${{ secrets.FORGEJO_TOKEN || secrets.GITHUB_TOKEN || github.token }}
+      # It runs here, detached, so the ~10 s the HTTP surface costs runs over the image build
+      # below instead of in front of it. The status goes to a file because the process is not
+      # this step's child: `nohup` keeps it alive across the step boundary (the Node download
+      # in the test legs relies on the same thing), and the last step of this job waits for
+      # that file and reports it with the same `::error title=Server smoke test` title.
+      - name: Drive the API end to end, beside the image build
         run: |
           set -eu
-          # The runner's working directory is the repository root. Derive the git URL from
-          # the instance URL the runner itself is configured with, never a hardcoded host.
-          server="${GITHUB_SERVER_URL:-}"
-          if [ -z "$server" ]; then
-            api="${GITHUB_API_URL:-http://10.0.10.20:3000/api/v1}"
-            server="${api%/api/v1}"
-          fi
-          url="${server}/${GITHUB_REPOSITORY}.git"
-          sha="${{ github.sha }}"
-          git init -q .
-          git remote add origin "$url"
-          # One commit, three attempts. The fetch is the only step in this job that talks to a
-          # network, and the network answers this runner with aborts that say nothing about
-          # the commit: task 13960 (run 5540, Test (Node 22), push 52cff888) died 34 s in
-          # with `Operation too slow. Less than 1000 bytes/sec transferred the last 30
-          # seconds` while its Node 18 and Node 20 siblings ran the same commit green in
-          # 54 s and 53 s, and the smoke and Docker jobs of that run went on to pass - a
-          # red X on a tree with nothing wrong with it, and a pull request that cannot
-          # merge until somebody re-runs it by hand. That is the one failure a retry is
-          # honest for: a second attempt asks the same server for the same commit, and if
-          # every attempt fails the job still fails, with the same status and the same
-          # message. Nothing is hidden - a commit that does not exist, a token that is not
-          # accepted and a repository that is gone all fail every attempt.
-          # Three, not more: 3 x 90 s plus 10 s of backoff is a 280 s ceiling, which is
-          # below the 300 s a single attempt used to get, so a dead server costs this job
-          # less than it did before while a blip no longer costs a whole run. 90 s is also
-          # 25x the 3.5 s checkout measured here (run 5719, task 14549), so a slow but
-          # working server still passes.
-          attempt=1
-          rc=1
-          while [ "$attempt" -le 3 ]; do
-            if [ -n "${TOKEN:-}" ]; then
-              timeout 90 git -c "http.extraheader=Authorization: token ${TOKEN}" -c http.lowSpeedLimit=1000 -c http.lowSpeedTime=30 fetch -q --depth=1 origin "$sha" && rc=0 || rc=$?
-            else
-              timeout 90 git -c http.lowSpeedLimit=1000 -c http.lowSpeedTime=30 fetch -q --depth=1 origin "$sha" && rc=0 || rc=$?
-            fi
-            if [ "$rc" -eq 0 ]; then
-              break
-            fi
-            if [ "$attempt" -lt 3 ]; then
-              echo "fetch of ${sha} failed on attempt ${attempt} of 3 (rc ${rc}) - retrying in 5 s; a transport abort is not a verdict about the commit"
-              sleep 5
-              attempt=$((attempt + 1))
-            else
-              break
-            fi
-          done
-          if [ "$rc" -ne 0 ]; then
-            echo "::error title=Checkout::${sha} could not be fetched after ${attempt} attempt(s) (rc ${rc}) - no tree means nothing in this job could be tested, so it fails rather than passing on an empty directory"
-            exit "$rc"
-          fi
-          git checkout -q -f --detach FETCH_HEAD
-          # The action emptied the directory before it checked out; this is the same
-          # guarantee, applied to whatever the runner left in the workspace: after this
-          # line the tree is the commit's own files and nothing else.
-          git clean -qfdx
-          echo "checked out $(git rev-parse HEAD) of ${url} with git - no action cache involved"
-      # node:20-bookworm ships no docker binary. The runner mounts the host
-      # /var/run/docker.sock into the job (config `docker_host: automount`), so
-      # installing the CLI is enough to build against the host daemon. The Dockerfile is
-      # still checked statically first (fast, catches everything a build would catch
-      # early), and the fallback below keeps the job honest on runners that provide
-      # neither a binary nor a socket.
-      # Every step in this job is now bounded, and it was the last job in the file where
-      # that was not true. `timeout-minutes: 10` above is not the bound it looks like on
-      # this runner: the container is killed from outside and the log dies with it, and
-      # the job has outlived the declared limit more than once - task 13930 (run 5531,
-      # Server smoke test) ran 714 s against 10 min, and task 14236 (run 5616, Test
-      # (Node 20)) was killed at exactly 900 s under the old 15. A step that stops on
-      # its own keeps its log and names itself; a job killed from outside leaves
-      # `dbfs open "actions_log/.../N.log.zst": file does not exist`.
-      #
-      # The numbers are the 762 successful `Docker build` tasks since 2026-11-14
-      # (/api/v1/repos/.../actions/tasks): median 25 s, p99 55 s, slowest 76 s for the
-      # whole job, CLI download and image build included. Every bound below is several
-      # times that, so a slow host cannot turn one red on time alone.
-      #
-      # What an unbounded one costs today, over the same window: the 34 failed
-      # `Docker build` tasks have a median of 768 s and a maximum of 3,297 s - task 7105
-      # (run 3320) 3,297 s, task 7112 (run 3322) 3,010 s, task 7126 (run 3337) 2,749 s,
-      # task 7138 (run 3342) 2,622 s, task 7085 (run 3310) 606 s. That is 10-55 minutes
-      # of the host per failure, none of it diagnosable, against a 25 s green job - and
-      # `arm`, the merge gate, has `needs: docker`, so a hung build also holds a slot in
-      # front of the job that merges the pull request. Bounding a step skips nothing and
-      # retries nothing: same commands, same arguments, same exit status; a step that is
-      # stopped says so and says how long it ran.
+          dir="${RUNNER_TEMP:-/tmp}"
+          rm -f "$dir/smoke-http.rc" "$dir/smoke-http.pid"
+          mkdir -p "$dir"
+          echo "starting node scripts/smoke-http.js here, so the image build below runs over it"
+          nohup sh -c 'timeout --signal=TERM --kill-after=15 180 node scripts/smoke-http.js > "$1/smoke-http.log" 2>&1; echo $? > "$1/smoke-http.rc"' sh "$dir" > "$dir/smoke-http.nohup" 2>&1 &
+          echo $! > "$dir/smoke-http.pid"
       - name: Dockerfile static checks
         run: timeout --signal=TERM --kill-after=10 60 node scripts/check-dockerfile.js
       - name: Install Docker CLI
@@ -1402,6 +1311,45 @@ jobs:
           echo "--- what this job left on the host ---"
           docker system df || true
           df -h / || true
+      # The smoke verdict, printed at the end of the job instead of 11 s in - the same move the
+      # test legs made for their static checks (#2122). Nothing is weakened: the same script,
+      # the same 180 s bound, the same `::error title=Server smoke test`, and a non-zero exit
+      # still reddens the job. This step is `if: always()` for the same reason the cleanup is:
+      # a build that dies is exactly when the smoke result is most worth reading - and a
+      # failed build step must not swallow the smoke step's verdict.
+      - name: Report the server smoke test
+        if: always()
+        run: |
+          set +e
+          dir="${RUNNER_TEMP:-/tmp}"
+          rcf="$dir/smoke-http.rc"
+          if [ ! -s "$rcf" ] && [ ! -s "$dir/smoke-http.pid" ]; then
+            echo "::error title=Server smoke test::the smoke test was never started - the step that launches it did not get that far, so the HTTP surface was not driven"
+            exit 1
+          fi
+          # Bounded here too: the script has its own 180 s `timeout`, and this waits 200 s for
+          # the status file, so a client that ignores SIGTERM cannot hold the slot past that.
+          for _ in $(seq 1 200); do
+            if [ -s "$rcf" ]; then break; fi
+            sleep 1
+          done
+          echo "--- node scripts/smoke-http.js ---"
+          cat "$dir/smoke-http.log" 2>/dev/null || true
+          if [ ! -s "$rcf" ]; then
+            echo "::error title=Server smoke test::scripts/smoke-http.js had not exited after 200 s - a green run takes ~11 s here, so this is a request that never answered"
+            exit 1
+          fi
+          rc=$(tr -d '[:space:]' < "$rcf")
+          [ -n "$rc" ] || rc=1
+          if [ "$rc" -eq 124 ] || [ "$rc" -eq 137 ]; then
+            echo "::error title=Server smoke test::scripts/smoke-http.js was still running after 180 s and was stopped - a green job takes ~11 s here and the slowest green job in the last 24 h took 30 s, so this is a request that never answered, not a slow server"
+            exit 1
+          fi
+          if [ "$rc" -ne 0 ]; then
+            echo "::error title=Server smoke test::scripts/smoke-http.js exited ${rc}"
+            exit 1
+          fi
+          echo "HTTP smoke passed (all checks clean)"
 
   # The one place that knows the checks are green, because it runs after them.
   #
@@ -1439,7 +1387,7 @@ jobs:
     name: Arm auto-merge
     runs-on: ubuntu-latest
     timeout-minutes: 5
-    needs: [changes, test, smoke, docker]
+    needs: [changes, test, docker]
     if: always() && github.event_name == 'pull_request' && needs.changes.outputs.live != 'false'
     permissions:
       contents: read
