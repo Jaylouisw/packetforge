@@ -254,3 +254,81 @@ FCC exhibit or storefront entry that names `UDW-PRO` and prints its ports and Po
 requester confirming they meant the **UDW** (`devices/ubiquiti/udw.json`) or the **UDM-Pro**. The
 quick-start avenue should be considered closed for any sibling that Ubiquiti publishes only as
 `qig` artwork.
+
+## 2026-11-19 03:5x UT: the marketing site publishes a product ItemList, and the support knowledge base publishes console names - neither knows a Pro Dream Wall
+
+Two Ubiquiti hosts that the earlier passes never read. Both enumerate products by name; both answer
+the Pro with nothing, and both answered a control correctly, which is what makes those nothings
+usable.
+
+### 1. `ui.com/cloud-gateways` carries a schema.org `ItemList` of the family - 14 named SKUs, no Pro
+
+`https://ui.com/cloud-gateways` - **200**, 446,725 B, four `application/ld+json` blocks. One of them
+is an `ItemList` whose `itemListElement` entries name each gateway and point at its tech-spec page:
+
+| # | name | `item.url` |
+|---|---|---|
+| 1 | Enterprise Firewall Core | `techspecs.ui.com/unifi/cloud-gateways/ef-core` |
+| 2 | Enterprise Firewall | `.../efg` |
+| 3 | Dream Machine Beast | `.../udm-beast` |
+| 4 | Dream Machine Pro Max | `.../udm-pro-max` |
+| 5 | Dream Machine Special Edition | `.../udm-se` |
+| 6 | Dream Machine Pro | `.../udm-pro` |
+| 7-10 | Cloud Gateway Max / Fiber / Ultra / Industrial | `.../ucg-max`, `.../ucg-fiber`, `.../ucg-ultra`, `.../ucg-industrial` |
+| 11 | Dream Router 5G Max | `.../udr-5g-max` |
+| 12 | Dream Router 7 | `.../udr7` |
+| 13 | **Dream Wall** | `.../udw` |
+| 14 | UniFi Express 7 | `.../ux7` |
+
+`udw-pro` occurs **0** times in those 446,725 bytes, `Dream Wall Pro` **0** times. The list is not
+filtering Pro variants out: item 4 and item 6 are `Dream Machine Pro Max` and `Dream Machine Pro`, and
+the sibling Dream Wall is item 13 - a Pro would be listed next to it.
+
+Caveat, recorded rather than glossed: this is a **curated** list of 14, while the techspecs category
+grid carries 16 cards - `udr` and `ux` are absent from the marketing list. So this page corroborates
+the absence, it is not by itself an exhaustive enumeration. The exhaustive one remains the techspecs
+grid.
+
+### 2. The support knowledge base names consoles - "Dream Wall (UDW)", never a Pro
+
+`help.ui.com` is Zendesk, so the search index is public and machine-readable:
+`https://help.ui.com/api/v2/help_center/articles/search.json?query=<q>&per_page=…`
+
+| query | HTTP | bytes | `count` |
+|---|---|---|---|
+| `dream wall pro` | 200 | 728,119 | 33 |
+| `udw-pro` | 200 | 719,384 | 105 |
+| `udw` | 200 | 364,696 | 13 |
+
+73 result rows, **50 unique articles**; across all titles and bodies the strings `Dream Wall Pro`,
+`UDW-PRO` and `UDWPRO` occur **zero** times. The Dream Wall appears only as `Dream Wall (UDW)` - in
+*UniFi Consoles with UniFi Access Support*, *UniFi Gateway - SD-WAN with Site Manager and Fabrics*,
+*Upgrading to UID Enterprise* (which marks it `(EA)`, the early-access flag, for the UDW itself) and
+*UniFi Recovery Mode*.
+
+**Control, because an empty search can also mean a broken index.** The same endpoint with
+`query=udm-pro` returns 200, 1,737,208 B, 100 rows of 118, and those rows contain `UDM-PRO` **39**
+times and `Dream Machine Pro` **18** times. The index does carry Pro-suffixed console names; it
+simply has none for the Dream Wall.
+
+### 3. A third instrument trap for this host family, and a corroboration that is not a spec change
+
+`https://ui.com/robots.txt` (200, 367 B) declares `Sitemap: https://ui.com/sitemap.xml`. That sitemap
+is real - 200, 8,712 B, 81 `<loc>` entries - but it indexes **sections**, not SKUs
+(`/cloud-gateways`, `/how-it-works/multi-site`, `/physical-security/dome-turret`, …), and contains
+zero occurrences of the string `dream`. It therefore says nothing about a Dream Wall of any kind:
+**absence from this sitemap must not be cited as a negative**, the way absence from the techspecs grid
+legitimately can be. Recorded so a later pass does not count it either way.
+
+The recovery article does give one incidental cross-check on the UDW census: *"Connect to the Dream
+Wall via Port 18, not Port 1"* - a vendor-published statement that the box has at least 18 numbered
+Ethernet ports, consistent with the 17 LAN + 1 WAN RJ45 already in `devices/ubiquiti/udw.json` (20
+interfaces with the two SFP+). It corroborates; it does not add a field, so no spec change follows.
+
+### What still unblocks #130
+
+Unchanged: a Ubiquiti-hosted page, datasheet, quick-start, FCC exhibit, storefront entry or
+knowledge-base article that names `UDW-PRO` and prints its ports and PoE budget - or the requester
+confirming they meant the **UDW** (`devices/ubiquiti/udw.json`) or the **UDM-Pro**. The Pro's missing
+fields remain the whole census: RJ45 and SFP+ counts and rates, PoE budget and per-port maxima, drive
+bays, WAN options.
