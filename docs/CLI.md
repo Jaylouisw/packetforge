@@ -3090,13 +3090,14 @@ not: `_traceroute()` reads `tokens[0]` and nothing else, so `traceroute 10.0.0.1
 indexed and not implemented.
 
 The opposite gap sits one word deeper, where the guard cannot look. The index row for a trunk's allowed list reads
-`switchport trunk allowed vlan <list|all>`, and the console also takes `add <list>` and `remove <list>` ("A trunk's
-allowed list is edited in place: `add` and `remove`"); `switchport voice vlan <id>` - the line that puts a phone on
-its own VLAN, prints in `show running-config` and survives a saved board ("The voice VLAN") - has no row in the index
-at all. `test/help-completeness.test.js` compares the *first word* of a line against the dispatcher's vocabulary, and
+`switchport trunk allowed vlan <list|all>`, and the console also takes `add <list>`, `remove <list>` and
+`except <list>` ("A trunk's allowed list is edited in place: `add` and `remove`", and `except`, the verb that
+replaces the list instead of editing it); `switchport voice vlan <id>` - the line that puts a phone on its own VLAN,
+prints in `show running-config` and survives a saved board ("The voice VLAN") - has no row in the index at all.
+`test/help-completeness.test.js` compares the *first word* of a line against the dispatcher's vocabulary, and
 `switchport` is in it, so nothing after that word is visible to the check: #1491's sweep was written against verbs, and
-these are keywords it left behind. Both are accepted by the console today, so this page records them rather than
-promising they are indexed; the index is the code's to complete.
+these are keywords it left behind. All of them are accepted by the console today, so this page records them rather
+than promising they are indexed; the index is the code's to complete.
 
 ## Three commands that answered a question nobody asked
 
