@@ -125,3 +125,50 @@ stronger statement than "Ubiquiti has not published the layout yet".
 
 This changes nothing about the blocker and closes three avenues: **#130** stays open, and the next
 pass should not re-check the EU storefront, the FCC grant index or Wayback.
+
+## Surface 4: the device-fingerprint index — machine-readable, and regenerated the same evening
+
+Read 2026-11-19 22:2x UTC: `https://static.ui.com/fingerprint/ui/public.json` — HTTP/2 **200**,
+`content-type: application/json`, `content-length: 832585`, `last-modified: Thu, 19 Nov 2026
+17:40:52 GMT`, `sha256 f8dd439503e37a2c32b94e63727eba570fca58252e0e78cf8c323b49291d03ee`. This is
+not a web page but the record set Ubiquiti's controllers use to recognise a device they adopt: 701
+device records, each carrying `sku`, `sysid`, `product.name`, `fcc`, `ic`, `deviceType` and
+`compliance.modelName`.
+
+The complete Dream line in that file:
+
+| `sku` | `product.name` |
+|---|---|
+| UDM | Dream Machine |
+| UDM-Beast | Dream Machine Beast |
+| UDM-Pro | Dream Machine Pro |
+| UDM-Pro-Max | Dream Machine Pro Max |
+| UDM-SE | Dream Machine Special Edition |
+| UDR | Dream Router |
+| UDR-5G-Max | Dream Router 5G Max |
+| UDR7 | Dream Router 7 |
+| UDW | Dream Wall |
+
+One Dream Wall: `sku: UDW`, `sysid: ea2a`, `fcc: SWX-UDW`, `ic: 6545A-UDW`, `deviceType: console`,
+`compliance.modelName: "UDW"`. `udw-?pro` occurs **zero** times in the 832,585 bytes, and the
+case-sensitive `UDW Pro` also zero.
+
+**Why this is a different and stronger surface than the three already recorded.** The techspecs grid
+is HTML that a locale slug or a retired card can perturb; the storefront is a merchandising view; the
+FCC index is a mirror. The fingerprint file is the identity list a controller consults at adoption,
+and it already carries *every Pro tier Ubiquiti ships* — `UDM-Pro` and `UDM-Pro-Max` sit two rows
+from `UDW`. It is also current: `last-modified` is 17:40Z today, about five hours before this read,
+so "the Pro has not been added yet" would have to mean added after an index that already lists
+`UDR7` and `UDM-Beast`.
+
+**Trap, stated so it is not over-read.** `public.json` enumerates devices a controller can adopt; it
+is not a roadmap. Its emptiness is evidence that no Pro SKU is adoptable anywhere, which is
+consistent with — not independent of — the early-access "Dream Wall Pro — Coming Soon" post quoted
+above. It does not prove no Pro unit was ever built.
+
+**What this pass did not do.** No spec was written, and `devices/ubiquiti/udw.json` was not touched:
+the base model already matches the vendor page row for row (17x 1 GbE RJ45 in a 4/4/4 PoE split with
+10M rungs, 1x 2.5G, 2x 10G SFP+ at 10G/1G, 420 W budget). For the requirement in #130 there is also a
+shipping cellular gateway already in the catalogue — `devices/ubiquiti/udr-5g-max.json`
+(`wwan0` 3.4G, 4x 2.5G + 1x 10G SFP+, 15.4 W PoE) — which is the device to reach for if the need was
+"a routed lab with a cellular WAN" rather than the Pro chassis specifically.
