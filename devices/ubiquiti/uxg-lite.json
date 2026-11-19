@@ -18,15 +18,17 @@
       "name": "eth0",
       "type": "ethernet",
       "connector": "rj45",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": false
     },
     {
       "name": "eth1",
       "type": "ethernet",
       "connector": "rj45",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": false
     }
   ],
   "sourceUrl": "https://techspecs.ui.com/unifi/cloud-gateways/uxg-lite",
-  "notes": "Vendor figures: 1GbE RJ45 x2 (1G/100M/10M); IDS/IPS throughput 1 Gbps. Modelled as a two-port router: one WAN, one LAN. The vendor does not label which physical port is WAN - the ports are assignable - so both are plain eth ports here."
+  "notes": "Vendor figures read 2026-11-19 from techspecs.ui.com/unifi/cloud-gateways/uxg-lite (HTTP 200, 643,116 B): Port Layout = 1 GbE RJ45 x2 (1G/100M/10M), Max. WAN Port Count 1, Default WAN Ports (1) GbE RJ45, IDS/IPS Throughput 1 Gbps, Form Factor compact desktop, Max. Power Consumption 3.83 W, Power Method = USB type C (5V DC/3A), Supported Voltage Range 100-240V AC, Heat Dissipation 13 BTU/hr. The ports are assignable, so both are plain eth ports here.\nPower: the vendor powers this box from a USB-C 5 V/3 A adapter and publishes no PoE input. store.ui.com/us/en/products/uxg-lite (HTTP 200, 534,758 B) carries the same table with PoE Budget flagged Empty and Power Method \"USB type C (5V DC/3A)\". Both copper ports therefore say poeIn: false: isPoePd() in engine/media.js matches \"unifi\" in the model/label and would otherwise infer a 12.95 W 802.3af draw (25.9 W) on a box that cannot accept it. Same correction as uxg-pro.json (PR #2118) and udm-pro-max.json (PR #2111). Trap: dl.ui.com/ds/uxg-lite_ds.pdf is a miss - it follows with no redirect but lands on the 609,911-byte techspecs front page, so this SKU has no published datasheet to cross-check against."
 }

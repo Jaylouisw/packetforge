@@ -18,13 +18,15 @@
       "name": "eth0",
       "type": "ethernet",
       "connector": "rj45",
-      "speed": "2.5G"
+      "speed": "2.5G",
+      "poeIn": false
     },
     {
       "name": "eth1",
       "type": "ethernet",
       "connector": "rj45",
-      "speed": "2.5G"
+      "speed": "2.5G",
+      "poeIn": false
     },
     {
       "name": "SFP+-1",
@@ -70,5 +72,5 @@
     }
   ],
   "sourceUrl": "https://techspecs.ui.com/unifi/cloud-gateways/uxg-enterprise",
-  "notes": "Vendor figures: 2.5GbE RJ45 x2 (2.5G/1G/100M/10M), 10G SFP+ x2 (10G/1G), 25G SFP28 x2 (25G/10G/1G); IDS/IPS throughput 12.5 Gbps; 10,000 SSL/TLS inspection sessions, 10 million concurrent sessions, 71,000 new sessions per second."
+  "notes": "Vendor figures read 2026-11-19 from techspecs.ui.com/unifi/cloud-gateways/uxg-enterprise (HTTP 200, 671,598 B): Port Layout = 2.5 GbE RJ45 x2 (2.5G/1G/100M/10M), 10G SFP+ x2 (10G/1G), 25G SFP28 x2 (25G/10G/1G); Max. WAN Port Count 5, Default WAN Ports (1) 25G SFP28 / (1) 2.5 GbE RJ45, IDS/IPS Throughput 12.5 Gbps, 10,000 SSL/TLS inspection sessions, 10 million concurrent sessions, Form Factor rack mount 1U (442.4 x 43.7 x 325 mm), Max. Power Consumption 82 W, Power Method = Universal AC input, 100-240V AC, 7A Max., 50/60 Hz, Power Supply (2) hot-swappable 150 W CRPS, Heat Dissipation 280 BTU/hr.\nPower: dual hot-swap AC supplies, no PoE input and no PoE budget - store.ui.com/us/en/products/uxg-enterprise (HTTP 200, 539,028 B) flags PoE Budget Empty and repeats the AC power method. The two copper ports say poeIn: false so isPoePd()'s \"unifi\" match cannot draw 25.9 W on an AC-fed 1U gateway. The four cages never drew power anyway (a cage cannot carry watts). Same correction as uxg-pro.json (PR #2118). Trap: dl.ui.com/ds/uxg-enterprise_ds.pdf lands on the 609,911-byte techspecs front page, not a datasheet."
 }

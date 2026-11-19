@@ -18,25 +18,29 @@
       "name": "eth0",
       "type": "ethernet",
       "connector": "rj45",
-      "speed": "2.5G"
+      "speed": "2.5G",
+      "poeIn": false
     },
     {
       "name": "eth1",
       "type": "ethernet",
       "connector": "rj45",
-      "speed": "2.5G"
+      "speed": "2.5G",
+      "poeIn": false
     },
     {
       "name": "eth2",
       "type": "ethernet",
       "connector": "rj45",
-      "speed": "2.5G"
+      "speed": "2.5G",
+      "poeIn": false
     },
     {
       "name": "eth3",
       "type": "ethernet",
       "connector": "rj45",
-      "speed": "2.5G"
+      "speed": "2.5G",
+      "poeIn": false
     },
     {
       "name": "eth4",
@@ -47,7 +51,8 @@
         "10G",
         "2.5G",
         "1G"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "SFP+-1",
@@ -71,5 +76,5 @@
     }
   ],
   "sourceUrl": "https://techspecs.ui.com/unifi/cloud-gateways/uxg-fiber",
-  "notes": "Vendor figures: 2.5GbE RJ45 x4 (2.5G/1G/100M/10M), 10GbE RJ45 x1 (10G/2.5G/1G), 10G SFP+ x2 (10G/1G); IDS/IPS throughput 5 Gbps. The 10G cage is the WAN port on the vendor's default profile, but all ports are assignable."
+  "notes": "Vendor figures read 2026-11-19 from techspecs.ui.com/unifi/cloud-gateways/uxg-fiber (HTTP 200, 649,433 B): Port Layout = 2.5 GbE RJ45 x4 (2.5G/1G/100M/10M), 10 GbE RJ45 x1 (10G/2.5G/1G), 10G SFP+ x2 (10G/1G); Max. WAN Port Count 6, Default WAN Ports (1) 10G SFP+ / (1) 10 GbE RJ45, IDS/IPS Throughput 5 Gbps, Form Factor compact desktop (212.8 x 127.6 x 30 mm), Max. Power Consumption 25 W excluding PoE output, Power Method = DC jack (54V DC/1.1A), Power Supply 54V DC/1.1A adapter included, Supported Voltage Range 100-240V AC, Heat Dissipation 85 BTU/hr excluding PoE output, Processor quad-core ARM Cortex-A73 at 2.2 GHz.\nPower in: DC jack, no PoE input. All seven interfaces say poeIn: false so isPoePd()'s \"unifi\" match cannot draw 12.95 W on each of the five copper sockets (64.75 W) on a box fed by a 54 V DC jack.\nOpen field, deliberately left unmodelled: this gateway does source PoE. techspecs prints PoE Budget 30 W and Max. PoE Wattage per Port by PSE = PoE+ 30 W at 50-57 V, and store.ui.com/us/en/products/uxg-fiber (HTTP 200, 476,760 B) says \"Integrated 4-port switch with (1) PoE+ port\" - so one of the four 2.5G RJ45 ports is a 30 W PSE. The vendor does not say which of the four, and publishes no datasheet to check (the store payload carries datasheet: null; dl.ui.com/ds/uxg-fiber_ds.pdf lands on the 609,911-byte techspecs front page). Naming a port would be a guess, and declaring the 30 W budget with no PSE port fails test/poe-inference.test.js (\"a device that claims a budget with no port to source it\"), so neither is written. What would close it: a Ubiquiti diagram or QSG that numbers the PoE+ port, or the datasheet."
 }
