@@ -4997,11 +4997,30 @@ class CliSession {
             // Same sentence the rest of the console uses, and the same one this report's sibling prints (#1403).
             out.push('% No interface ' + wanted.name + ' on ' + dev.name);
           } else if (!port.enabled) {
+            // Unsettled: no capture was found for a shut port, and "administratively down" is a fact about the
+            // port that a reader needs. This sentence stays this console's own until one arrives.
             out.push('% ' + wanted.name + ' is administratively down: OSPF runs on no shut port with an address');
-          } else if (!port.ip || !port.mask) {
-            out.push('% ' + wanted.name + ' has no address: OSPF needs one to form an adjacency');
           } else {
-            out.push('% ' + wanted.name + ' is not in OSPF');
+            // OSPF is not on this port, and a box says only that - one tagged system message, naming the port
+            // in its long type spelling, with no `is` and the tag glued to the percent sign:
+            //   R4-2503# show ip ospf interface s0            -> %OSPF: OSPF not enabled on Serial0
+            //     (Cisco, "Initial Configurations for OSPF over Frame Relay Subinterfaces", 13693-22 - the
+            //      unaddressed physical Serial0, while s0.1 on the same box prints the full block, so the line
+            //      is about this port and not a missing process)
+            //   R1# show ip ospf interface fastEthernet 0/0   -> %OSPF: OSPF not enabled on FastEthernet0/0
+            //   R1# show ip ospf interface loopback 0         -> %OSPF: OSPF not enabled on Loopback0
+            //     (networklessons.com, OSPF adjacency and route-advertisement troubleshooting)
+            //   #sh ip ospf interface vlan 16                 -> %OSPF: OSPF not enabled on Vlan16
+            //     (Cisco Community td-p/3398254)
+            //   #sh ip ospf interface gigabitEthernet 9/1     -> %OSPF: OSPF not enabled on GigabitEthernet9/1
+            //     (Cisco Community td-p/2039094 - an L2 access port with no address)
+            // The reason is not part of the line: an unaddressed port, an L2 port and a port the network
+            // statement never covered all draw the same sentence. This console used to distinguish them
+            // ("has no address: OSPF needs one to form an adjacency", "is not in OSPF"); the distinguishing
+            // facts are still readable in `show ip interface brief` and `show running-config`. The name goes
+            // through the same expansion `show ip interface brief` uses, because `s0` comes back as `Serial0`.
+            // research/show-ospf-interface-not-enabled.md holds the captures and the open half.
+            out.push('%OSPF: OSPF not enabled on ' + require('./iface-name').displayName(port.name));
           }
         } else {
           out.push('% OSPF is enabled but no interface qualifies (needs an address and the port up)');

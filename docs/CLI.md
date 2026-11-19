@@ -1682,15 +1682,23 @@ costs, and the `[110/n]` beside an `O` route is that sum plus the cost of the de
 add both ends of every link together, which priced one hop as two interfaces; `test/ospf.test.js` carries the
 arithmetic and `test/ospf-route-metric.test.js` the bracket.
 
-`show ip ospf neighbour <port>` and `show ip ospf interface <port>` narrow to one port, and name the reason when
-the port you asked about is not contributing:
+`show ip ospf neighbour <port>` and `show ip ospf interface <port>` narrow to one port, and say where the port
+you asked about stands:
 
 ```
 r1> show ip ospf neighbour Gi0/0/1
 % Gi0/0/1 is passive: it advertises its prefix and forms no adjacency
 r1> show ip ospf interface Gi0/0/2
-% Gi0/0/2 has no address: OSPF needs one to form an adjacency
+%OSPF: OSPF not enabled on GigabitEthernet0/0/2
 ```
+
+The second answer is the box's, not this console's: where OSPF is not on the port, a router prints one tagged
+system message, names the port in its long type spelling, and does **not** say why - an unaddressed port, an L2
+access port and a port a `network` statement never covered all draw the same line
+(`research/show-ospf-interface-not-enabled.md` has the captures). The reason is still readable in
+`show ip interface brief` and `show running-config`, which is where an operator goes next. A *shut* port keeps
+this console's own sentence (`% Gi0/0/1 is administratively down: ...`), because no capture was found for what a
+box prints there.
 
 An access switch has no OSPF at all, and says so rather than printing an empty table:
 

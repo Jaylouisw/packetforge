@@ -2,6 +2,20 @@
 
 ### Fixed
 
+- **`show ip ospf interface <port>` answers a port with no OSPF on it the way a box does.** The view picked the
+  reason itself and printed `% Gi0/1 has no address: OSPF needs one to form an adjacency` or `% Gi0/1 is not in
+  OSPF`. A router prints one tagged system message instead - `%OSPF: OSPF not enabled on GigabitEthernet0/0/2` -
+  with the tag glued to the percent sign, no `is`, the port in its long type spelling, and no reason at all:
+  Cisco's own Frame Relay OSPF guide prints it for an unaddressed Serial0 while the same box prints the full
+  block for s0.1, a Catalyst paste has it for an L2 access port (`%OSPF: OSPF not enabled on
+  GigabitEthernet9/1`), and two networklessons captures add a FastEthernet and a Loopback. Both invented
+  sentences are gone; the reason is still readable in `show ip interface brief` and `show running-config`. The
+  name is expanded by the same table `show ip interface brief` uses, so one port cannot be named two ways by two
+  views. The administratively-down branch and the no-such-port sentence are unchanged, because no capture was
+  found for either. `test/show-ospf-interface-not-enabled.test.js` (12 checks) pins the sentence, the one-line
+  shape, three spellings of one port and the untouched branches;
+  [research/show-ospf-interface-not-enabled.md](research/show-ospf-interface-not-enabled.md) cites the five
+  captures and lists what a paste from a live box would still settle.
 - **`show running-config` ends an interface stanza with `!`, the line a box prints.** The printer wrote
   `exit` after every interface block - on a 24-port switch, 24 `exit` lines in a row - because #1230 needed
   the parser to leave interface mode before the next block. No box prints `exit` in this file: the Cisco

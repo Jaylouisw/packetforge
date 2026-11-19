@@ -344,8 +344,10 @@ console.log('A named port that is not carrying OSPF is named, and explained:');
   // A port with no address cannot be in OSPF; a shut port likewise.
   const shut = show(t, sim, 'r1', 'show ip ospf interface Gi0/0/2');
   ok(/%/.test(shut), 'a port OSPF is not on gets an explanation, not an empty table', shut.split('\n').pop());
-  ok(/no address|not in OSPF|administratively down|No interface/.test(shut), 'naming the reason',
-    shut.split('\n').pop());
+  // The reason moved out of the line: a box answers with the one tagged sentence, and does not say why
+  // (research/show-ospf-interface-not-enabled.md). What the branch must still do is name the port.
+  ok(/^%OSPF: OSPF not enabled on GigabitEthernet0\/0\/2$/.test(shut.split('\n').pop()),
+    'the vendor sentence, naming the port', shut.split('\n').pop());
 
   const unknown = show(t, sim, 'r1', 'show ip ospf interface Gi9/9');
   ok(/No interface Gi9\/9/.test(unknown), 'a port that does not exist is named as such', unknown.split('\n').pop());
