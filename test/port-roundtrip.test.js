@@ -173,8 +173,13 @@ console.log('A port that declared its PoE still says it declared it:');
   }
 
   // The other direction: a device whose watts were inferred must not claim it declared them.
+  // No window: the loop breaks on its first candidate, so it costs the same as the old
+  // `specs.slice(0, 400)` in the normal case - but that fixed bound made the assertion depend on
+  // catalogue order. The only candidate sat at index 399 (aruba/2530-8-PoE+), so a spec landing in
+  // an earlier category bucket pushed it to 400 and the test failed with "no such port found"
+  // while nothing about PoE had changed. Widening the search does not weaken the assertion.
   const inferred = [];
-  for (const s of specs.slice(0, 400)) {
+  for (const s of specs) {
     const t = new Topology();
     let d;
     try { d = t.addDevice(s, 'd1'); } catch (e) { continue; }

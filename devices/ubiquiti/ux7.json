@@ -2,14 +2,18 @@
   "vendor": "ubiquiti",
   "model": "UX7",
   "label": "UniFi Express 7",
-  "category": "wireless",
-  "description": "UniFi Express 7 (UX7) - 1x 2.5G RJ45 + 1x 10G RJ45. WiFi 6/7; 22 W max.",
+  "category": "router",
+  "description": "UniFi Express 7 (UX7) - 1x 2.5G RJ45 (2.5G/1G/100M/10M) + 1x 10G RJ45 (10G/5G/2.5G/1G/100M) that is the default WAN; WiFi 6/6E + 7 on 6/5/2.4 GHz; 22 W max, USB-C powered.",
   "capabilities": [
-    "l2-forward",
     "wireless",
+    "l2-forward",
+    "l3-forward",
+    "nat",
+    "dhcp-server",
+    "dhcp-client",
+    "firewall",
     "cli",
-    "http-server",
-    "dhcp-client"
+    "http-server"
   ],
   "interfaces": [
     {
@@ -20,7 +24,8 @@
       "speedCaps": [
         "2.5G",
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ]
     },
     {
@@ -39,15 +44,21 @@
     {
       "name": "radio0",
       "type": "wireless",
-      "speed": "1G"
+      "speed": "688M"
     },
     {
       "name": "radio1",
       "type": "wireless",
-      "speed": "1G"
+      "speed": "4.3G"
+    },
+    {
+      "name": "radio2",
+      "type": "wireless",
+      "speed": "5.7G"
     }
   ],
-  "icon": "ap",
+  "icon": "router",
   "color": "#14b8a6",
-  "sourceUrl": "https://techspecs.ui.com/unifi/cloud-gateways/ux7"
+  "sourceUrl": "https://techspecs.ui.com/unifi/cloud-gateways/ux7",
+  "notes": "Read 2026-11-19 from https://techspecs.ui.com/unifi/cloud-gateways/ux7 (HTTP 200, 688,360 B, title \"UniFi Express 7 - Tech Specs\"): \"Port Layout - 2.5 GbE RJ45 1 (2.5G/1G/100M/10M) / 10 GbE RJ45 1 (10G/5G/2.5G/1G/100M)\", \"Default WAN Ports (1) 10 GbE RJ45\", \"Max. WAN Port Count 1\", \"Max. Power Consumption 22W\", \"Power Method USB type C (5V DC/5A)\". Routing/firewall rows used for the capability list: \"Stateful Firewall\", \"Advanced NAT (SNAT / DNAT / Masquerade / NAT Pooling / 1-to-1 NAT)\", \"Customizable DHCP Server\", \"Dynamic Routing - OSPF\", \"VLAN/Subnet-based Traffic Segmentation\" - all ticked. Radio rates from \"Throughput\": 6 GHz 5.7 Gbps, 5 GHz 4.3 Gbps, 2.4 GHz 688 Mbps, one 2x2 radio per band. Category is router, not wireless: Ubiquiti files the SKU under Cloud Gateways (the tech-spec path itself) and its BSSID row reads \"4 per Radio (Gateway Mode) / 4 per Radio (AP Mode)\"; the store page (https://store.ui.com/us/en/products/ux7, HTTP 200, 587,404 B) calls it a \"super-compact 10G Cloud Gateway with integrated 6 GHz WiFi 7\". The default WAN port is documented in prose rather than as a role on eth1 so no saved lab changes which port it treats as uplink. No datasheet is published for this SKU - the tech-spec page lists only the quick-start (https://dl.ui.com/qig/ux7, which serves an HTML viewer, not a PDF with a text layer)."
 }
