@@ -18,29 +18,35 @@
     {
       "name": "WAN",
       "type": "ethernet",
-      "speed": "2.5G"
+      "speed": "2.5G",
+      "poeIn": false
     },
     {
       "name": "Port 1",
       "type": "ethernet",
-      "speed": "2.5G"
+      "speed": "2.5G",
+      "poeIn": false
     },
     {
       "name": "Port 2",
       "type": "ethernet",
-      "speed": "2.5G"
+      "speed": "2.5G",
+      "poeIn": false
     },
     {
       "name": "Port 3",
       "type": "ethernet",
-      "speed": "2.5G"
+      "speed": "2.5G",
+      "poeIn": false
     },
     {
       "name": "Port 4",
       "type": "ethernet",
-      "speed": "2.5G"
+      "speed": "2.5G",
+      "poeIn": false
     }
   ],
   "icon": "router",
-  "color": "#3b82f6"
+  "color": "#3b82f6",
+  "notes": "Power: none of these copper ports accepts PoE. Vendor page https://techspecs.ui.com/unifi/cloud-gateways/ucg-max (HTTP 200, 668,564 B, read 2026-11-19, server-rendered tech-spec table) says \"Power Method = USB type C (5V DC/5A)\"; a box fed from mains, a USB-C supply or a DC jack has no PoE-PD front end, so WAN / Port 1 / Port 2 / Port 3 / Port 4 now declare poeIn: false. Without that declaration the engine's isPoePd() match on \"unifi\" gave each silent copper port a 12.95 W 802.3af draw - the defect PR #2118 and PR #2121 fixed across the UXG family (refs #130)."
 }

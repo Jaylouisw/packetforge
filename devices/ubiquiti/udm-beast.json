@@ -22,7 +22,8 @@
       "speedCaps": [
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth1",
@@ -32,7 +33,8 @@
       "speedCaps": [
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth2",
@@ -45,7 +47,8 @@
         "2.5G",
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth3",
@@ -58,7 +61,8 @@
         "2.5G",
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth4",
@@ -71,7 +75,8 @@
         "2.5G",
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth5",
@@ -84,7 +89,8 @@
         "2.5G",
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth6",
@@ -97,7 +103,8 @@
         "2.5G",
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth7",
@@ -110,7 +117,8 @@
         "2.5G",
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth8",
@@ -123,7 +131,8 @@
         "2.5G",
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth9",
@@ -136,7 +145,8 @@
         "2.5G",
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "sfp1",
@@ -183,5 +193,6 @@
   ],
   "icon": "router",
   "color": "#14b8a6",
-  "sourceUrl": "https://techspecs.ui.com/unifi/cloud-gateways/udm-beast"
+  "sourceUrl": "https://techspecs.ui.com/unifi/cloud-gateways/udm-beast",
+  "notes": "Power: none of these copper ports accepts PoE. Vendor page https://techspecs.ui.com/unifi/cloud-gateways/udm-beast (HTTP 200, 679,909 B, read 2026-11-19, server-rendered tech-spec table) says \"Power Method = (1) Universal AC input, 100-240V AC, 3A Max., 50/60 Hz (1) USP-RPS DC input, 11.5V DC, 13.05A\"; a box fed from mains, a USB-C supply or a DC jack has no PoE-PD front end, so eth0 / eth1 / eth2 / eth3 / eth4 / eth5 / eth6 / eth7 / eth8 / eth9 now declare poeIn: false. Without that declaration the engine's isPoePd() match on \"unifi\" gave each silent copper port a 12.95 W 802.3af draw - the defect PR #2118 and PR #2121 fixed across the UXG family (refs #130)."
 }

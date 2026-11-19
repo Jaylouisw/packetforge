@@ -26,7 +26,8 @@
         "1G",
         "100M",
         "10M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth1",
@@ -39,7 +40,8 @@
         "2.5G",
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "radio0",
@@ -60,5 +62,5 @@
   "icon": "router",
   "color": "#14b8a6",
   "sourceUrl": "https://techspecs.ui.com/unifi/cloud-gateways/ux7",
-  "notes": "Read 2026-11-19 from https://techspecs.ui.com/unifi/cloud-gateways/ux7 (HTTP 200, 688,360 B, title \"UniFi Express 7 - Tech Specs\"): \"Port Layout - 2.5 GbE RJ45 1 (2.5G/1G/100M/10M) / 10 GbE RJ45 1 (10G/5G/2.5G/1G/100M)\", \"Default WAN Ports (1) 10 GbE RJ45\", \"Max. WAN Port Count 1\", \"Max. Power Consumption 22W\", \"Power Method USB type C (5V DC/5A)\". Routing/firewall rows used for the capability list: \"Stateful Firewall\", \"Advanced NAT (SNAT / DNAT / Masquerade / NAT Pooling / 1-to-1 NAT)\", \"Customizable DHCP Server\", \"Dynamic Routing - OSPF\", \"VLAN/Subnet-based Traffic Segmentation\" - all ticked. Radio rates from \"Throughput\": 6 GHz 5.7 Gbps, 5 GHz 4.3 Gbps, 2.4 GHz 688 Mbps, one 2x2 radio per band. Category is router, not wireless: Ubiquiti files the SKU under Cloud Gateways (the tech-spec path itself) and its BSSID row reads \"4 per Radio (Gateway Mode) / 4 per Radio (AP Mode)\"; the store page (https://store.ui.com/us/en/products/ux7, HTTP 200, 587,404 B) calls it a \"super-compact 10G Cloud Gateway with integrated 6 GHz WiFi 7\". The default WAN port is documented in prose rather than as a role on eth1 so no saved lab changes which port it treats as uplink. No datasheet is published for this SKU - the tech-spec page lists only the quick-start (https://dl.ui.com/qig/ux7, which serves an HTML viewer, not a PDF with a text layer)."
+  "notes": "Read 2026-11-19 from https://techspecs.ui.com/unifi/cloud-gateways/ux7 (HTTP 200, 688,360 B, title \"UniFi Express 7 - Tech Specs\"): \"Port Layout - 2.5 GbE RJ45 1 (2.5G/1G/100M/10M) / 10 GbE RJ45 1 (10G/5G/2.5G/1G/100M)\", \"Default WAN Ports (1) 10 GbE RJ45\", \"Max. WAN Port Count 1\", \"Max. Power Consumption 22W\", \"Power Method USB type C (5V DC/5A)\". Routing/firewall rows used for the capability list: \"Stateful Firewall\", \"Advanced NAT (SNAT / DNAT / Masquerade / NAT Pooling / 1-to-1 NAT)\", \"Customizable DHCP Server\", \"Dynamic Routing - OSPF\", \"VLAN/Subnet-based Traffic Segmentation\" - all ticked. Radio rates from \"Throughput\": 6 GHz 5.7 Gbps, 5 GHz 4.3 Gbps, 2.4 GHz 688 Mbps, one 2x2 radio per band. Category is router, not wireless: Ubiquiti files the SKU under Cloud Gateways (the tech-spec path itself) and its BSSID row reads \"4 per Radio (Gateway Mode) / 4 per Radio (AP Mode)\"; the store page (https://store.ui.com/us/en/products/ux7, HTTP 200, 587,404 B) calls it a \"super-compact 10G Cloud Gateway with integrated 6 GHz WiFi 7\". The default WAN port is documented in prose rather than as a role on eth1 so no saved lab changes which port it treats as uplink. No datasheet is published for this SKU - the tech-spec page lists only the quick-start (https://dl.ui.com/qig/ux7, which serves an HTML viewer, not a PDF with a text layer).\nPower: none of these copper ports accepts PoE. Vendor page https://techspecs.ui.com/unifi/cloud-gateways/ux7 (HTTP 200, 688,360 B, read 2026-11-19, server-rendered tech-spec table) says \"Power Method = USB type C (5V DC/5A)\"; a box fed from mains, a USB-C supply or a DC jack has no PoE-PD front end, so eth0 / eth1 now declare poeIn: false. Without that declaration the engine's isPoePd() match on \"unifi\" gave each silent copper port a 12.95 W 802.3af draw - the defect PR #2118 and PR #2121 fixed across the UXG family (refs #130)."
 }

@@ -183,7 +183,8 @@
         "1G",
         "100M",
         "10M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth13",
@@ -194,7 +195,8 @@
         "1G",
         "100M",
         "10M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth14",
@@ -205,7 +207,8 @@
         "1G",
         "100M",
         "10M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth15",
@@ -216,7 +219,8 @@
         "1G",
         "100M",
         "10M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth16",
@@ -227,7 +231,8 @@
         "1G",
         "100M",
         "10M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth17",
@@ -238,7 +243,8 @@
         "2.5G",
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "sfp1",
@@ -267,5 +273,6 @@
     "budgetW": 420,
     "sourceUrl": "https://techspecs.ui.com/unifi/cloud-gateways/udw"
   },
-  "sourceUrl": "https://techspecs.ui.com/unifi/cloud-gateways/udw"
+  "sourceUrl": "https://techspecs.ui.com/unifi/cloud-gateways/udw",
+  "notes": "Power: none of these copper ports accepts PoE. Vendor page https://techspecs.ui.com/unifi/cloud-gateways/udw (HTTP 200, 704,702 B, read 2026-11-19, server-rendered tech-spec table) says \"Power Method = Universal AC input 100-240V AC, 7A Max., 50/60 Hz\"; a box fed from mains, a USB-C supply or a DC jack has no PoE-PD front end, so eth12 / eth13 / eth14 / eth15 / eth16 / eth17 now declare poeIn: false. Without that declaration the engine's isPoePd() match on \"unifi\" gave each silent copper port a 12.95 W 802.3af draw - the defect PR #2118 and PR #2121 fixed across the UXG family (refs #130)."
 }

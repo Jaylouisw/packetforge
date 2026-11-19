@@ -25,7 +25,8 @@
         "10G",
         "2.5G",
         "1G"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "SFP+ 1",
@@ -57,17 +58,20 @@
     {
       "name": "Port 2",
       "type": "ethernet",
-      "speed": "2.5G"
+      "speed": "2.5G",
+      "poeIn": false
     },
     {
       "name": "Port 3",
       "type": "ethernet",
-      "speed": "2.5G"
+      "speed": "2.5G",
+      "poeIn": false
     },
     {
       "name": "Port 4",
       "type": "ethernet",
-      "speed": "2.5G"
+      "speed": "2.5G",
+      "poeIn": false
     }
   ],
   "icon": "router",
@@ -77,5 +81,6 @@
     "budgetW": 30,
     "sourceUrl": "https://store.ui.com/us/en/products/ucg-fiber",
     "note": "30 W, and one PSE port. The rendered tech-spec table prints the budget without naming a port - \"PoE Budget = 30W\" and \"Voltage Range PoE Mode = 50-57V\" beside \"2.5 GbE RJ45 = 4 (2.5G/1G/100M/10M) / 10 GbE RJ45 = 1 (10G/2.5G/1G) / 10G SFP+ = 2 (10G/1G)\", and its 'Max. PoE Wattage per Port by PSE' group is present but empty (https://techspecs.ui.com/unifi/cloud-gateways/ucg-fiber, read 2026-11-19); the 'Port 1 PoE+' reading in research/ubiquiti-cloud-gateway-poe-budgets.md therefore recorded the budget and left the row without a PSE. The vendor's own store page for the same SKU (displaySku \"UCG-Fiber (30W)\") states the class and the count in its key features: \"Integrated 4-port switch with (1) PoE+ port\" (https://store.ui.com/us/en/products/ucg-fiber, read 2026-11-19). So one of the four 2.5G RJ45 ports is 802.3at. Which one is not published on either host, so Port 1 carries it - the same convention as devices/zyxel/gs1900-24ep.json, where the datasheet gives the count and the guide withholds the numbering. 30 W budget = one 802.3at port at its 30 W PSE ceiling, so the budget never binds above a single full-power AP."
-  }
+  },
+  "notes": "Power: none of these copper ports accepts PoE. Vendor page https://techspecs.ui.com/unifi/cloud-gateways/ucg-fiber (HTTP 200, 667,242 B, read 2026-11-19, server-rendered tech-spec table) says \"Power Method = DC jack (54V DC/1.1A)\"; a box fed from mains, a USB-C supply or a DC jack has no PoE-PD front end, so WAN / Port 2 / Port 3 / Port 4 now declare poeIn: false. Without that declaration the engine's isPoePd() match on \"unifi\" gave each silent copper port a 12.95 W 802.3af draw - the defect PR #2118 and PR #2121 fixed across the UXG family (refs #130)."
 }

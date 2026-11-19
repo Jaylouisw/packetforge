@@ -38,7 +38,8 @@
         "2.5G",
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth2",
@@ -49,7 +50,8 @@
         "2.5G",
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth3",
@@ -60,7 +62,8 @@
         "2.5G",
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "sfp1",
@@ -85,5 +88,5 @@
     "budgetW": 15.4,
     "sourceUrl": "https://techspecs.ui.com/unifi/cloud-gateways/udr-5g-max"
   },
-  "notes": "Vendor figures from the tech specs page, read 2026-11-19 (structured spec table, not the rendered images): **2.5 GbE RJ45 = 4 (1 PoE) (2.5G/1G/100M)**, **10G SFP+ = 1 (10G/1G)**, **Max. WAN port count 4**, default WAN ports **(1) 10G SFP+ / (1) 2.5 GbE RJ45**, **PoE Budget 15.4 W** with the single PoE port rated 15.4 W (802.3af, 44-57 V), **Max. Power Consumption 34.5 W (excluding PoE output)**, **Cellular: 5G NR Sub-6** - 5G NSA 3.4 Gbps down / 560 Mbps up, 5G SA 1.8 Gbps / 650 Mbps, 4G LTE 1.6 Gbps / 210 Mbps, **(2) Nano SIM + (1) Nano-SIM or eSIM**.\n\nThe modem is modelled as `wwan0` at the vendor's 3.4 Gbps 5G NSA downlink, the convention `u5g-max`, `u5g`, `u5g-max-outdoor`, `u-lte-backup-pro` and `umr` already use; the engine resolves the name to a cellular cage and offers LTE / LTE-A / 5G sub-6 media from that rate. Without it the row was a router with four RJ45s and no WAN of the kind the request asks for.\n\nThe WiFi 7 radios (2.4 GHz 688 Mbps / 5 GHz 4.3 Gbps / 6 GHz 5.7 Gbps, 2x2) are NOT modelled: no UniFi console row in this catalogue carries radios, and adding them to this one row alone would make the console family read as if only this model had WiFi. The PoE budget and the single port's 802.3af ceiling are the same 15.4 W figure on the vendor page - that is one PoE port, not a budget that happens to match."
+  "notes": "Vendor figures from the tech specs page, read 2026-11-19 (structured spec table, not the rendered images): **2.5 GbE RJ45 = 4 (1 PoE) (2.5G/1G/100M)**, **10G SFP+ = 1 (10G/1G)**, **Max. WAN port count 4**, default WAN ports **(1) 10G SFP+ / (1) 2.5 GbE RJ45**, **PoE Budget 15.4 W** with the single PoE port rated 15.4 W (802.3af, 44-57 V), **Max. Power Consumption 34.5 W (excluding PoE output)**, **Cellular: 5G NR Sub-6** - 5G NSA 3.4 Gbps down / 560 Mbps up, 5G SA 1.8 Gbps / 650 Mbps, 4G LTE 1.6 Gbps / 210 Mbps, **(2) Nano SIM + (1) Nano-SIM or eSIM**.\n\nThe modem is modelled as `wwan0` at the vendor's 3.4 Gbps 5G NSA downlink, the convention `u5g-max`, `u5g`, `u5g-max-outdoor`, `u-lte-backup-pro` and `umr` already use; the engine resolves the name to a cellular cage and offers LTE / LTE-A / 5G sub-6 media from that rate. Without it the row was a router with four RJ45s and no WAN of the kind the request asks for.\n\nThe WiFi 7 radios (2.4 GHz 688 Mbps / 5 GHz 4.3 Gbps / 6 GHz 5.7 Gbps, 2x2) are NOT modelled: no UniFi console row in this catalogue carries radios, and adding them to this one row alone would make the console family read as if only this model had WiFi. The PoE budget and the single port's 802.3af ceiling are the same 15.4 W figure on the vendor page - that is one PoE port, not a budget that happens to match.\nPower: none of these copper ports accepts PoE. Vendor page https://techspecs.ui.com/unifi/cloud-gateways/udr-5g-max (HTTP 200, 876,426 B, read 2026-11-19, server-rendered tech-spec table) says \"Power Method = DC jack (54V DC/1.1A)\"; a box fed from mains, a USB-C supply or a DC jack has no PoE-PD front end, so eth1 / eth2 / eth3 now declare poeIn: false. Without that declaration the engine's isPoePd() match on \"unifi\" gave each silent copper port a 12.95 W 802.3af draw - the defect PR #2118 and PR #2121 fixed across the UXG family (refs #130)."
 }
