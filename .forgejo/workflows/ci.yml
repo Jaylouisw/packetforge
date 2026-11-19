@@ -304,14 +304,37 @@ jobs:
     # thirds of what it did. The steps below that had no bound of their own now have one;
     # see the note above the static checks.
     timeout-minutes: 10
-    needs: changes
-    # Skipped only for a pull request the API positively reports as merged or closed
-    # (see the `liveness` step): the job cannot change an outcome there, and on a
-    # two-slot runner it is the difference between a live pull request waiting minutes
-    # or hours. Every open pull request still gets all three Node versions.
+    # No `needs: changes`. This job used to wait for `Classify the change`, and that wait
+    # was the largest fixed cost left in front of every leg - even though nothing in the
+    # classifier can change what a leg does. The matrix reads none of its outputs:
+    # `data_only` only stands `smoke` and `docker` down, and `live` is now asked by the leg
+    # itself (see the first step below). Yet each leg could not even be created until the
+    # classifier had finished.
     #
-    # `always()` because a job that needs a failed one is otherwise skipped, and a skipped
-    # test leg is not a failure - it is a run that reports nothing at all. Measured: task
+    # Measured through /api/v1/repos/jaylouisw/packetforge/actions/tasks over the 858
+    # `Classify the change` tasks of the last two days: median 7 s, p90 11 s. On run 6947
+    # (pull #2071, 2026-11-19) the classifier held 02:22:05-02:22:11 and `Test (Node 18)` -
+    # the leg that is the wall clock of that run, 61 s of 75 s - was created at 02:22:13,
+    # so eight seconds of the run were spent deciding a question no leg asks. Run 6945 is
+    # the same at nine. The classifier is still worth its 7 s (it saves `smoke` and
+    # `docker` a slot each on a data-only diff); it just does not need to be paid before
+    # coverage starts.
+    #
+    # The same dependency is also why task 15604 (run 6076, pull #1957) reported one red X
+    # and zero coverage: the classifier hung for 855 s and the five jobs below it were
+    # never created. Without the edge the legs run and report on the commit whatever the
+    # classifier does - the same conservative answer the classifier publishes when it
+    # cannot read a diff.
+    #
+    # Stood down only for a pull request the API positively reports as merged or closed
+    # (the `still open?` step below, which is the `changes` job's `liveness` call moved):
+    # the job cannot change an outcome there, and on a shared runner it is the difference
+    # between a live pull request waiting minutes or hours. Every open pull request still
+    # gets all three Node versions.
+    #
+    # `always()`, which now has no dependency to be woken by and simply says "never let a
+    # previous job's colour decide whether this one reports". A skipped test leg is not a
+    # failure - it is a run that reports nothing at all. Measured: task
     # 15604 (run 6076, pull #1957, 2026-11-18T08:21:26Z) was the only task its run ever
     # created - the classify job failed after 855 s, no log survived (`dbfs open
     # "actions_log/jaylouisw/packetforge/f4/15604.log.zst": file does not exist`) and the
@@ -322,12 +345,11 @@ jobs:
     # `always()` the matrix runs instead, which is the same conservative answer the
     # classifier itself publishes whenever it cannot read a diff.
     #
-    # Nothing is skipped by this. `live=false` and `data_only=true` still stand the legs
-    # down whenever the classify job *succeeded* and positively said so - both are outputs
-    # that only exist on success, and an absent output has always meant "run". A run that
-    # is cancelled still cancels its jobs; `always()` describes a failed dependency, not a
-    # cancelled run.
-    if: always() && needs.changes.outputs.live != 'false'
+    # Nothing is skipped by this. The stand-down only fires on a positive `merged: true`
+    # or `state: closed` from the API, and an absent token, a timed-out API or an
+    # unparseable body runs the leg exactly as before. A run that is cancelled still
+    # cancels its jobs; `always()` describes a failed dependency, not a cancelled run.
+    if: always()
     # A data-only diff used to run one Node version instead of three. That saving was bought with
     # an `if:` that read `matrix.node`, which cannot work: the job condition is evaluated before
     # the matrix exists, so every leg died ~2 s after starting (runs 1398, 1401, 1402 - three red
@@ -343,10 +365,52 @@ jobs:
       matrix:
         node: [18, 20, 22]
     steps:
+      # The question the `changes` job used to answer for the whole matrix, asked by the
+      # leg that is about to spend a slot. Same call, same rule, same direction of
+      # failure: `closed=true` is written only for a pull request the server positively
+      # reports as merged or closed, and every other outcome - no token, a timeout, a
+      # reply that is not JSON, a push event - leaves the output unset and the steps below
+      # run. The cost is one API call (~0.3 s) instead of the 7 s median of a job in front
+      # of the matrix.
+      #
+      # It cannot make the job `skipped` the way the dependency could - a step cannot skip
+      # the job it lives in - so a leg that stands down reports `success` with this line in
+      # its log. That is the colour the `changes` job has always had while it stood the
+      # other four down, and it cannot merge anything: the only thing being stood down for
+      # is a pull request that is already merged or closed, and `arm` pins `head_commit_id`
+      # against a server that refuses a closed pull request.
+      - name: Is this pull request still open?
+        id: still_open
+        if: github.event_name == 'pull_request'
+        env:
+          TOKEN: ${{ secrets.FORGEJO_TOKEN || secrets.GITHUB_TOKEN || github.token }}
+        run: |
+          set -u
+          api="${GITHUB_API_URL:-http://10.0.10.20:3000/api/v1}"
+          number="${{ github.event.pull_request.number }}"
+          json=$(curl -sS --connect-timeout 5 --max-time 20 --retry 2 --retry-delay 1 \
+                   --retry-connrefused -H "Authorization: token ${TOKEN:-}" \
+                   "$api/repos/$GITHUB_REPOSITORY/pulls/$number" 2>/dev/null || true)
+          if printf '%s' "$json" | grep -q '"merged":true'; then
+            echo "closed=true" >> "${GITHUB_OUTPUT:-/dev/null}"
+            echo "pull #${number} is already merged - this leg cannot gate anything, so it stands down"
+            exit 0
+          fi
+          if printf '%s' "$json" | grep -q '"state":"closed"'; then
+            echo "closed=true" >> "${GITHUB_OUTPUT:-/dev/null}"
+            echo "pull #${number} is closed - this leg cannot gate anything, so it stands down"
+            exit 0
+          fi
+          if [ -z "$json" ]; then
+            echo "could not ask whether pull #${number} is still open - no reply from ${api} - running the leg"
+            exit 0
+          fi
+          echo "pull #${number} is open - running the leg"
       # Same git checkout as the `changes` job - see the measured note there: 4.7-10.2 s of
       # every job in this workflow was the checkout action's clone, and the three test legs
       # clone that action into one shared directory within seconds of each other.
       - name: Check out this commit, from git
+        if: steps.still_open.outputs.closed != 'true'
         env:
           TOKEN: ${{ secrets.FORGEJO_TOKEN || secrets.GITHUB_TOKEN || github.token }}
         run: |
@@ -509,7 +573,7 @@ jobs:
       # assertion below is unchanged, so what this job claims to test is unchanged.
       - name: Provide the runtime this leg is named for
         id: node_runtime
-        if: matrix.node != 20
+        if: matrix.node != 20 && steps.still_open.outputs.closed != 'true'
         continue-on-error: true
         env:
           MAJOR: ${{ matrix.node }}
@@ -571,6 +635,7 @@ jobs:
       # already paid for twice (runs 1398/1401/1402). So every leg checks, and a
       # runner image that changes underneath this file fails loudly here instead.
       - name: The runtime is the version this leg is named for
+        if: steps.still_open.outputs.closed != 'true'
         run: |
           want="${{ matrix.node }}"
           got="$(node --version)"
@@ -645,6 +710,7 @@ jobs:
       # difference between "the syntax is broken" and "the syntax is broken and the suite
       # is too". The same rule now covers the three read-only scans that start here too.
       - name: Full test suite, syntax check and static checks, together
+        if: steps.still_open.outputs.closed != 'true'
         # 200 s per leg, three legs, two runner slots: the suite is the whole wall clock of
         # a pull request, and it was running 257 separate processes one at a time on one
         # core. The runner now takes `PF_TEST_CONCURRENCY` (default 1, so a local `npm
@@ -827,8 +893,10 @@ jobs:
             [ "$node_surface_rc" -eq 0 ] && [ "$canonical_urls_rc" -eq 0 ] &&
             [ "$disk_hygiene_rc" -eq 0 ]
       - name: Build & verify example labs
+        if: steps.still_open.outputs.closed != 'true'
         run: timeout --signal=TERM --kill-after=10 120 node examples/build-examples.js
       - name: Every lab model exists in the catalogue
+        if: steps.still_open.outputs.closed != 'true'
         run: timeout --signal=TERM --kill-after=10 120 node scripts/missing-devices.js examples --no-issues
 
   smoke:
