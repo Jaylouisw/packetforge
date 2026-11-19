@@ -22,11 +22,12 @@
       "connector": "rj45",
       "speed": "1G",
       "speedCaps": [
-        "1G",
-        "100M"
+        10,
+        100,
+        1000
       ],
       "poeOut": true,
-      "poeOutClass": "PoE"
+      "poeOutClass": "passive"
     },
     {
       "name": "eth1",
@@ -34,11 +35,12 @@
       "connector": "rj45",
       "speed": "1G",
       "speedCaps": [
-        "1G",
-        "100M"
+        10,
+        100,
+        1000
       ],
       "poeOut": true,
-      "poeOutClass": "PoE"
+      "poeOutClass": "passive"
     },
     {
       "name": "eth2",
@@ -46,11 +48,12 @@
       "connector": "rj45",
       "speed": "1G",
       "speedCaps": [
-        "1G",
-        "100M"
+        10,
+        100,
+        1000
       ],
       "poeOut": true,
-      "poeOutClass": "PoE"
+      "poeOutClass": "passive"
     },
     {
       "name": "eth3",
@@ -58,11 +61,12 @@
       "connector": "rj45",
       "speed": "1G",
       "speedCaps": [
-        "1G",
-        "100M"
+        10,
+        100,
+        1000
       ],
       "poeOut": true,
-      "poeOutClass": "PoE"
+      "poeOutClass": "passive"
     },
     {
       "name": "eth4",
@@ -70,11 +74,12 @@
       "connector": "rj45",
       "speed": "1G",
       "speedCaps": [
-        "1G",
-        "100M"
+        10,
+        100,
+        1000
       ],
       "poeOut": true,
-      "poeOutClass": "PoE"
+      "poeOutClass": "passive"
     },
     {
       "name": "eth5",
@@ -82,11 +87,12 @@
       "connector": "rj45",
       "speed": "1G",
       "speedCaps": [
-        "1G",
-        "100M"
+        10,
+        100,
+        1000
       ],
       "poeOut": true,
-      "poeOutClass": "PoE"
+      "poeOutClass": "passive"
     },
     {
       "name": "eth6",
@@ -94,11 +100,12 @@
       "connector": "rj45",
       "speed": "1G",
       "speedCaps": [
-        "1G",
-        "100M"
+        10,
+        100,
+        1000
       ],
       "poeOut": true,
-      "poeOutClass": "PoE"
+      "poeOutClass": "passive"
     },
     {
       "name": "eth7",
@@ -106,11 +113,12 @@
       "connector": "rj45",
       "speed": "1G",
       "speedCaps": [
-        "1G",
-        "100M"
+        10,
+        100,
+        1000
       ],
       "poeOut": true,
-      "poeOutClass": "PoE"
+      "poeOutClass": "passive"
     },
     {
       "name": "eth8",
@@ -118,11 +126,12 @@
       "connector": "rj45",
       "speed": "1G",
       "speedCaps": [
-        "1G",
-        "100M"
+        10,
+        100,
+        1000
       ],
       "poeOut": true,
-      "poeOutClass": "PoE"
+      "poeOutClass": "passive"
     },
     {
       "name": "eth9",
@@ -130,11 +139,12 @@
       "connector": "rj45",
       "speed": "1G",
       "speedCaps": [
-        "1G",
-        "100M"
+        10,
+        100,
+        1000
       ],
       "poeOut": true,
-      "poeOutClass": "PoE"
+      "poeOutClass": "passive"
     },
     {
       "name": "sfp1",
@@ -151,5 +161,11 @@
   ],
   "icon": "router",
   "color": "#14b8a6",
-  "sourceUrl": "https://techspecs.ui.com/uisp/wired/er-12p"
+  "sourceUrl": "https://techspecs.ui.com/uisp/wired/er-12p",
+  "poe": {
+    "budgetW": 40,
+    "sourceUrl": "https://techspecs.ui.com/uisp/wired/er-12p",
+    "note": "Ubiquiti prints no total PoE budget on either surface. The tech-spec page states the PoE interface ((10) 24V passive PoE ports, 2-pair (Pins 4, 5+; 7, 8-)), the included 60 W (24 V, 2.5 A) AC/DC adapter, \"Max. power consumption 20 W (excluding PoE output)\" and \"Passive PoE Max. wattage per port: 17 W (24 V)\". The 40 W recorded here is the arithmetic of that stated configuration - 60 W adapter minus 20 W of device draw leaves 40 W for the passive ports - and is an envelope derived from two printed figures, not a budget Ubiquiti prints. A lab that fits a larger DC supply inside the 9-30 V range can declare its own."
+  },
+  "notes": "Vendor figures from Ubiquiti own tech-spec page (read 2026-11-19, HTTP 200, 575,620 B): Networking interface **(10) 10/100/1000 RJ45 ports, (2) 1 Gbps SFP ports**; PoE interface **(10) 24V passive PoE ports, 2-pair (Pins 4, 5+; 7, 8-)**; Power method **AC/DC power adapter, 60W, 24V DC, 2.5A (Included)**; Supported voltage range **9-30V DC**; Max. power consumption **20W (Excludes PoE output)**; Passive PoE Max. wattage per port **17W (24V)**; Passive PoE voltage range **20-30V**. store.ui.com/us/en/products/er-12p (200, 323,284 B) corroborates. No datasheet: dl.ui.com/ds/er-12p_ds.pdf answers 302 to the techspecs root and dl.ui.com/qig/er-12p answers 302 there too, so every figure above is tech-spec-only. This box is 2-pair passive only - it cannot feed a 4-pair 802.3at PD, so the port class is passive, not PoE+."
 }

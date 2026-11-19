@@ -22,7 +22,7 @@
       "connector": "rj45",
       "speed": "1G",
       "poeOut": true,
-      "poeOutClass": "PoE"
+      "poeOutClass": "passive"
     },
     {
       "name": "eth1",
@@ -30,7 +30,7 @@
       "connector": "rj45",
       "speed": "1G",
       "poeOut": true,
-      "poeOutClass": "PoE"
+      "poeOutClass": "passive"
     },
     {
       "name": "eth2",
@@ -38,7 +38,7 @@
       "connector": "rj45",
       "speed": "1G",
       "poeOut": true,
-      "poeOutClass": "PoE"
+      "poeOutClass": "passive"
     },
     {
       "name": "eth3",
@@ -46,7 +46,7 @@
       "connector": "rj45",
       "speed": "1G",
       "poeOut": true,
-      "poeOutClass": "PoE"
+      "poeOutClass": "passive"
     },
     {
       "name": "eth4",
@@ -54,7 +54,7 @@
       "connector": "rj45",
       "speed": "1G",
       "poeOut": true,
-      "poeOutClass": "PoE"
+      "poeOutClass": "passive"
     },
     {
       "name": "sfp1",
@@ -65,5 +65,11 @@
   ],
   "icon": "router",
   "color": "#14b8a6",
-  "sourceUrl": "https://techspecs.ui.com/uisp/wired/er-6p"
+  "sourceUrl": "https://techspecs.ui.com/uisp/wired/er-6p",
+  "poe": {
+    "budgetW": 44,
+    "sourceUrl": "https://techspecs.ui.com/uisp/wired/er-6p",
+    "note": "Ubiquiti prints no total PoE budget on either surface. The tech-spec page states the PoE interface ((5) 24V Passive PoE ports (2-pair and 4-pair)), the included 60 W (24 V, 2.5 A) AC/DC adapter, \"Max. power consumption 16 W (excluding PoE output)\" and \"Max. PoE wattage per port: 24 W (24 V, 1 A, 4-pair); 12 W (24 V, 0.5 A, 2-pair)\". The 44 W recorded here is the arithmetic of that stated configuration - 60 W adapter minus 16 W of device draw leaves 44 W for the passive ports - and is an envelope derived from two printed figures, not a budget Ubiquiti prints. A lab that fits a larger 16-30 V DC supply can declare its own."
+  },
+  "notes": "Vendor figures from Ubiquiti's own tech-spec page (read 2026-11-19, HTTP 200, 582,715 B): Networking interface **(5) GbE RJ45 ports, (1) 1G SFP port**; PoE interface **(5) 24V Passive PoE ports (2-pair and 4-pair)**; Power method **AC/DC power adapter, 24V, 2.5A (Included)**; Power supply **AC/DC adapter, external, 60W**; Supported voltage range **16-30V DC**; Max. power consumption **16W (Excluding PoE output)**; Max. PoE wattage per port **24W (24V, 1A, 4-pair) / 12W (24V, 0.5A, 2-pair)**. store.ui.com/us/en/products/er-6p (200, 332,139 B) prints the same table. No datasheet: dl.ui.com/ds/er-6p_ds.pdf answers 302 to the techspecs root (609,911 B) and dl.ui.com/qig/er-6p/ 200s an iframe shell, so both figures above are tech-spec-only. The five copper ports are 24 V passive, not 802.3af - the port class says so, and no 48 V standard is claimed."
 }
