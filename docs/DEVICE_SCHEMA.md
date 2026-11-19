@@ -106,8 +106,8 @@ Kept, because the spec is a record of the hardware and a token the datasheet dec
 — dropping it is data loss, and it used to happen without a word (#1522). Named, because the
 engine will not honour it and the run must not call that clean. `802.3af`, `802.3at`, `802.3bt`,
 `poe-injector`, `passive-poe` and `midspan` are in this class today: real power facts with no
-behaviour behind them. `vlan`, `lacp` and `stp` joined them (#1526): 125 specs state 802.1Q,
-LACP or STP because their datasheets do, but the engine runs VLANs, LAGs and spanning tree on
+behaviour behind them. `vlan`, `lacp` and `stp` joined them (#1526): 213 specs state 802.1Q,
+LACP or STP today because their datasheets do, but the engine runs VLANs, LAGs and spanning tree on
 any `l2-forward` box, so the token is a hardware fact rather than behaviour — gating the
 features on it would have switched VLANs off for almost the whole catalogue. If one of these
 should grant behaviour, it belongs in `CAPABILITIES` and in the code that branches on it, not
