@@ -2,32 +2,52 @@
   "vendor": "teltonika",
   "model": "CAP700",
   "label": "Teltonika ALTOS CAP700",
-  "category": "wireless",
-  "description": "Wi-Fi 7 5G fixed-wireless access point: 1x 2.5G WAN/LAN, 1x 1 GbE LAN.",
+  "category": "router",
+  "description": "Teltonika ALTOS CAP700 - a 5G FWA Wi-Fi 7 router: 1x 2.5G RJ45 WAN (configurable as LAN), 1x 1G RJ45 LAN, dual-band 2x2 Wi-Fi 7, 5G NR up to 4.0 Gbps downlink. Powered from a 12 VDC barrel jack - it has no PoE.",
   "capabilities": [
     "wireless",
-    "poe-pd",
+    "l2-forward",
+    "l3-forward",
     "nat",
     "firewall",
-    "dhcp-server"
+    "dhcp-server",
+    "dhcp-client",
+    "cli",
+    "http-server"
   ],
   "interfaces": [
     {
       "name": "wan1",
       "type": "ethernet",
       "connector": "rj45",
-      "speed": "2.5G"
+      "speed": "2.5G",
+      "speedCaps": [
+        "2.5G",
+        "1G",
+        "100M",
+        "10M"
+      ]
     },
     {
       "name": "lan1",
       "type": "ethernet",
       "connector": "rj45",
-      "speed": "1G"
+      "speed": "1G",
+      "speedCaps": [
+        "1G",
+        "100M",
+        "10M"
+      ]
     },
     {
       "name": "wwan1",
       "type": "wireless",
-      "speed": "2.5G"
+      "speed": "4.0G",
+      "media": [
+        "lte",
+        "lte-a",
+        "5g-sub6"
+      ]
     },
     {
       "name": "wlan0",
@@ -40,9 +60,9 @@
       "speed": "5.8G"
     }
   ],
-  "sourceUrl": "https://teltonika-networks.com/product/cap700/",
-  "notes": "Vendor figures from the ALTOS CAP700 datasheet: **1x WAN/LAN port, 10/100/1000/2500 Mbps** and **1x LAN port, 10/100/1000 Mbps**, with a 5G modem and Wi-Fi 7 radios. **The two ports are not the same speed** - 2.5G on the WAN/LAN port, gigabit on the LAN port - so the 2.5G path is only end to end if the fast host is the one on the first port.",
   "role": [
     "mobile5g"
-  ]
+  ],
+  "sourceUrl": "https://wiki.teltonika-networks.com/view/CAP700",
+  "notes": "Read 2026-11-19 from Teltonika's own material. The previous sourceUrl (https://teltonika-networks.com/product/cap700/) is dead: it answers 301 to /product/cap700 and then 404 on a 2.3 MB soft-404 page, and the same for /products/cap700 - so a 404 here is a real not-found, not a redirect. Live replacements: https://wiki.teltonika-networks.com/view/CAP700 (200, 57,164 B) and the product path https://teltonika-networks.com/products/routers/altos (200; client-rendered, so its spec table is not readable to a fetch and is not cited). PORT CENSUS - https://wiki.teltonika-networks.com/view/CAP700_Interfaces (200): \"Ethernet ports 2 x RJ45 ethernet ports\", \"Telephone port 1 x RJ11 port\", \"SIM Slot 1 x SIM slot\", \"Wireless Radio 2.4 GHz / 5 GHz radio\", \"Cellular Radio 5G LTE Cat 19\", \"USB port 1 x Virtual network interface via micro USB\". Rates and the WAN/LAN split - Teltonika's ALTOS flyer (CAP700_Flyer_2026_-v1.1, https://eshop.sectron.eu/UserFiles/File/Teltonika_ALTOS_Flyer.pdf, 200, application/pdf, 597,507 B, text layer): \"5G NR up to 4.0 Gbps DL / 900 Mbps UL; 4G LTE (CAT 19) up to 1.6 Gbps DL / 200 Mbps UL\", \"1 x RJ45 port, 10/100/1000 Mbps, 1 x RJ45 port, 10/100/1000/2500 Mbps: 1 x WAN (configurable as LAN)\", \"802.11a/b/g/n/ac/ax/be (Wi-Fi 7), Dual Band, 2x2 MIMO\". wwan1 was 2.5G, which is the 2.5G Ethernet port's rate and no cellular figure any Teltonika document prints; 4.0G is the vendor's 5G NR downlink, written 4.0G rather than 4G because a bare \"4G\" reads as the generation on a cellular port (both parse to 4000 Mbps). Downlink only, like udr-5g-max; the 900 Mbps uplink is in this note, not in the field. wwan1 declares media [lte, lte-a, 5g-sub6] because those are the generations the vendor names - \"5G NR\", \"4G LTE (CAT 19)\", \"3G\" - and it names no mmWave; without the pin the 4000 Mbps rate sits exactly on the catalogue's 5g-mmwave threshold (engine/media.js MEDIA['5g-mmwave'].speedMbps = 4000) and the port would offer a band the vendor never sold. The catalogue's slowest cellular medium is LTE, so the 3G row has no medium of its own. ROUTING - the vendor's own zero-touch copy calls the SKU a \"5G Wi-Fi 7 router\" and the wiki files it under \"ALTOS Routers\"; https://wiki.teltonika-networks.com/view/CAP700_Routes describes \"the router's ARP table and active IPv4 and IPv6 routes\", https://wiki.teltonika-networks.com/view/CAP700_WAN prints \"Ethernet WAN\" and \"Mobile WAN\" as two interface types configurable under \"Static DHCP DHCPv6 PPPoE Mobile\" (that is the source for dhcp-client too), and https://wiki.teltonika-networks.com/view/CAP700_LAN defaults the LAN to \"192.168.1.1 Your router's address on the network\". Category moved wireless -> router on that evidence: as a wireless entry with no l3-forward, `ip route` refused with \"% Teltonika ALTOS CAP700-r1 cannot install a route: it has no l3-forward capability\" and `show ip route` printed the host/redirect cache under \"Default gateway is not set\" - a lab asking this box to be the gateway got a bridge. l2-forward is the VLAN page (https://wiki.teltonika-networks.com/view/CAP700_VLAN) plus the flyer's bridge/passthrough rows. NO POE - https://wiki.teltonika-networks.com/view/CAP700_Powering_Options gives the barrel jack as the only input (\"can be powered by a 12 VDC power supply unit\"), and the flyer's powering row is \"DC power jack socket 2-pin, 12 VDC 2A 24W\"; the spec declared poe-pd, which is removed. Modelling boundaries, not omissions: the RJ11 telephony port and the micro-USB network interface are vendor ports but the catalogue has no telephony or USB interface type, so neither is claimed as a port. The wlan0/wlan1 rate figures predate this read and no Teltonika text layer states per-band Wi-Fi rates, so they are left as they were rather than re-guessed."
 }

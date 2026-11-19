@@ -908,33 +908,52 @@
     "vendor": "teltonika",
     "model": "CAP700",
     "label": "Teltonika ALTOS CAP700",
-    "category": "wireless",
-    "description": "Wi-Fi 7 5G fixed-wireless access point: 1x 2.5G WAN/LAN, 1x 1 GbE LAN.",
+    "category": "router",
+    "description": "Teltonika ALTOS CAP700 - a 5G FWA Wi-Fi 7 router: 1x 2.5G RJ45 WAN (configurable as LAN), 1x 1G RJ45 LAN, dual-band 2x2 Wi-Fi 7, 5G NR up to 4.0 Gbps downlink. Powered from a 12 VDC barrel jack - it has no PoE.",
     "capabilities": [
       "wireless",
-      "wifi-ap",
-      "poe-pd",
+      "l2-forward",
+      "l3-forward",
       "nat",
       "firewall",
-      "dhcp-server"
+      "dhcp-server",
+      "dhcp-client",
+      "cli",
+      "http-server"
     ],
     "interfaces": [
       {
         "name": "wan1",
         "type": "ethernet",
         "connector": "rj45",
-        "speed": "2.5G"
+        "speed": "2.5G",
+        "speedCaps": [
+          "2.5G",
+          "1G",
+          "100M",
+          "10M"
+        ]
       },
       {
         "name": "lan1",
         "type": "ethernet",
         "connector": "rj45",
-        "speed": "1G"
+        "speed": "1G",
+        "speedCaps": [
+          "1G",
+          "100M",
+          "10M"
+        ]
       },
       {
         "name": "wwan1",
         "type": "wireless",
-        "speed": "2.5G"
+        "speed": "4.0G",
+        "media": [
+          "lte",
+          "lte-a",
+          "5g-sub6"
+        ]
       },
       {
         "name": "wlan0",
@@ -947,7 +966,7 @@
         "speed": "5.8G"
       }
     ],
-    "sourceUrl": "https://teltonika-networks.com/product/cap700/",
-    "notes": "Vendor figures from the ALTOS CAP700 datasheet: **1x WAN/LAN port, 10/100/1000/2500 Mbps** and **1x LAN port, 10/100/1000 Mbps**, with a 5G modem and Wi-Fi 7 radios. **The two ports are not the same speed** - 2.5G on the WAN/LAN port, gigabit on the LAN port - so the 2.5G path is only end to end if the fast host is the one on the first port."
+    "sourceUrl": "https://wiki.teltonika-networks.com/view/CAP700",
+    "notes": "Read 2026-11-19 from Teltonika's own material; the row previously carried a dead sourceUrl (https://teltonika-networks.com/product/cap700/ - 301 then 404 on a 2.3 MB soft-404 page, and /products/cap700 the same). Port census: https://wiki.teltonika-networks.com/view/CAP700_Interfaces (200) - \"Ethernet ports 2 x RJ45 ethernet ports\", \"Telephone port 1 x RJ11 port\", \"Wireless Radio 2.4 GHz / 5 GHz radio\", \"Cellular Radio 5G LTE Cat 19\". Rates and the WAN/LAN split: Teltonika ALTOS flyer CAP700_Flyer_2026_-v1.1 (https://eshop.sectron.eu/UserFiles/File/Teltonika_ALTOS_Flyer.pdf, 200, PDF, 597,507 B) - \"5G NR up to 4.0 Gbps DL / 900 Mbps UL\", \"1 x RJ45 port, 10/100/1000 Mbps, 1 x RJ45 port, 10/100/1000/2500 Mbps: 1 x WAN (configurable as LAN)\", \"802.11a/b/g/n/ac/ax/be (Wi-Fi 7), Dual Band, 2x2 MIMO\". wwan1 was 2.5G - the 2.5G Ethernet port's rate, which no Teltonika document prints as a cellular figure; 4.0G is the vendor's 5G NR downlink (downlink only, as udr-5g-max); wwan1 pins media [lte, lte-a, 5g-sub6] because the vendor names 5G NR, LTE Cat 19 and 3G and no mmWave, and 4000 Mbps is exactly engine/media.js's 5g-mmwave threshold. Router, not wireless: the vendor calls the SKU a \"5G Wi-Fi 7 router\" and files it under ALTOS Routers; https://wiki.teltonika-networks.com/view/CAP700_Routes describes \"the router's ARP table and active IPv4 and IPv6 routes\", CAP700_WAN prints \"Ethernet WAN\"/\"Mobile WAN\" configurable under \"Static DHCP DHCPv6 PPPoE\" (source for dhcp-client), CAP700_LAN defaults the LAN to 192.168.1.1. cli/http-server from the Interfaces mgmt rows (SSH 22/tcp, HTTPS 443/tcp). No PoE: https://wiki.teltonika-networks.com/view/CAP700_Powering_Options - barrel jack, \"can be powered by a 12 VDC power supply unit\" - and the flyer's \"DC power jack socket 2-pin, 12 VDC 2A 24W\"; poe-pd removed. wifi-ap dropped: it is not in engine CAPABILITIES and the radios are covered by wireless. RJ11 and the micro-USB virtual network interface are real ports with no catalogue interface type, so neither is claimed."
   }
 ]

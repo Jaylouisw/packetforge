@@ -249,9 +249,9 @@ added. The largest vendors and categories by model count, in descending order:
 | vendor | models | | category | models |
 |---|---:|---|---|---:|
 | Ubiquiti | 368 | | switch | 429 |
-| MikroTik | 366 | | router | 384 |
+| MikroTik | 366 | | router | 385 |
 | Huawei | 102 | | L3 switch | 264 |
-| Cisco | 89 | | wireless | 219 |
+| Cisco | 89 | | wireless | 218 |
 | Teltonika | 88 | | point-to-point | 212 |
 | Aruba | 73 | | IoT | 125 |
 | Peplink | 59 | | ONT | 120 |
