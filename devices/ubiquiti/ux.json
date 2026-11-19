@@ -18,12 +18,14 @@
     {
       "name": "wan",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "rj45"
     },
     {
       "name": "lan",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "rj45"
     },
     {
       "name": "radio0",
@@ -38,5 +40,6 @@
   ],
   "icon": "router",
   "color": "#2563eb",
-  "sourceUrl": "https://techspecs.ui.com/unifi/unifi-cloud-gateways/ux"
+  "sourceUrl": "https://techspecs.ui.com/unifi/cloud-gateways/ux",
+  "notes": "Census from the vendor tech-spec table, read 2026-11-19 at https://techspecs.ui.com/unifi/cloud-gateways/ux (HTTP 200, 670,206 B, server-rendered; the structured table, not the rendered images): \"Max. WAN Port Count = 1\", \"Default WAN Ports = (1) GbE RJ45\", \"Port Layout = 2 (1G/100M/10M)\", \"Throughput 5 GHz = 2.4 Gbps / 2.4 GHz = 573.5 Mbps\" (802.11a/b/g/n/ac/ax, 2x2 MU-MIMO), \"Max. Power Consumption = 10W\", \"Power Method = USB type C (5V DC/3A)\". No SFP/slot and no PoE on this model - the row declares neither. The sourceUrl this row carried until today, https://techspecs.ui.com/unifi/unifi-cloud-gateways/ux, answers 307 with Location https://techspecs.ui.com/unifi/cloud-gateways and a 21-byte body (measured 2026-11-19, no redirect followed): it was the category index, not the product page, so the two wired ports had no page behind them. The corrected path answers 200 with the census above, and is the URL every other UniFi gateway row in this directory already uses."
 }
