@@ -178,8 +178,8 @@ address there is the one the vendor refuses. Either half alone moves the lie rat
 * **The order of the refusal against value validation.** This console validates the mask and the host-address
   rule before anything else (`_ipHostRefusal`, `_ipOverlapRefusal`), and that order is invisible on a real box
   unless a line is wrong in two ways at once — `ip address 10.0.0.0 255.0.255.0` on a switchport would say either
-  `% Invalid mask` or the L2 sentence depending on which check the parser runs first. No capture found shows a
-  doubly-wrong line, so nothing here is settled.
+  `Bad mask 0XFF00FF00 for address 10.0.0.0` or the L2 sentence depending on which check the parser runs first.
+  No capture found shows a doubly-wrong line, so nothing here is settled.
 * **That mgmt0 is routed on the hardware the catalogue names.** The MDS guide says so in its own words; the
   Brocade and Dell pages describe the management Ethernet address without using the word "routed". The rule above
   assumes "management port takes an address" for all three, which is stronger than what the pages state for the

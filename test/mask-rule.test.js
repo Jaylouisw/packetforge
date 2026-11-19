@@ -113,14 +113,22 @@ console.log('A mask that is not a run of ones has no prefix length:');
 }
 
 console.log('');
-console.log('The console refuses it, and says which argument is wrong:');
+console.log('The console refuses it, in the sentence the box prints for a mask like this:');
 {
+  // A mask that is a dotted quad and not a run of ones gets the vendor's line, mask in hex, address echoed,
+  // no `%` marker - `Bad mask 0xFFFF0500 for address 192.168.1.254` on a real box
+  // (https://www.n-study.com/en/ip-addressing/cisco-ipaddress-configuration/). This console used to answer
+  // with its own `% Invalid mask: 255.0.255.0 - a netmask is a run of ones then zeros (...)`.
+  // research/ip-address-bad-mask-hex.md.
   const env = configure('10.9.9.9', '255.0.255.0');
-  const refusal = env.out.filter(function (l) { return /^%/.test(l); })[0] || '';
-  ok(!!refusal, 'the command is refused', JSON.stringify(env.out));
-  ok(/Invalid mask/.test(refusal), 'naming the mask, not the address', refusal);
-  ok(/255\.0\.255\.0/.test(refusal), 'quoting what was typed', refusal);
-  ok(/run of ones/.test(refusal), 'and explaining the rule', refusal);
+  ok(env.out.length === 1 && env.out[0] === 'Bad mask 0XFF00FF00 for address 10.9.9.9',
+    'the refusal is one unmarked line, the mask in hex and the address as typed', JSON.stringify(env.out));
+  ok(!/Invalid mask/.test(env.out.join(' ')), 'not a sentence of this console\'s own any more');
+  ok(env.out.join(' ').indexOf('%') === -1, 'and no marker, like the `Bad mask /N` refusal beside it');
+  // The high byte is zero here, which is the one case a padded and an unpadded hex word differ: `0X00FFFFFF`.
+  const lowByte = configure('10.9.9.9', '0.255.255.255');
+  ok(lowByte.out[0] === 'Bad mask 0X00FFFFFF for address 10.9.9.9',
+    'a mask whose first byte is zero keeps all eight hex digits', JSON.stringify(lowByte.out));
   ok(env.portState.ip === '10.1.2.3' && env.portState.mask === '255.255.255.0',
     'the previous address is untouched',
     env.portState.ip + '/' + env.portState.mask);

@@ -50,9 +50,10 @@ The blocks themselves are what the address registries say they are: 0.0.0.0/8 is
   the order is an inference from the wording: the refusal names an address and never a prefix, and the same words
   serve two different mask lengths. The model asks the range first, so `ip address 127.0.0.1 255.255.255.255`
   answers `Not a valid host address - 127.0.0.1` and not `Bad mask /32 for address 127.0.0.1`.
-* **The mask-contiguity check still runs first.** That check is this console's own parse-stage error
-  (`% Invalid mask: …`), and `ip address 0.0.0.1 255.0.255.0` keeps answering it. Nothing in hand shows a box
-  given a non-contiguous mask *and* a reserved address, so the existing order is left as it is.
+* **The mask-contiguity check still runs first.** A non-contiguous mask is refused in the box's own words
+  (`Bad mask 0XFF00FF00 for address 0.0.0.1`, research/ip-address-bad-mask-hex.md), and `ip address 0.0.0.1
+  255.0.255.0` keeps answering that rather than the range sentence. Nothing in hand shows a box given a
+  non-contiguous mask *and* a reserved address, so the existing order is left as it is.
 * **0.0.0.0 itself is deliberately not covered.** The first octet of `0.0.0.0` is 0, so a naive block test would
   refuse `ip address 0.0.0.0 0.0.0.0` - and that command is the still-open `/0` question the sibling note declined
   to decide. The rule therefore excludes the exact address `0.0.0.0`, and a test pins that exclusion so nobody

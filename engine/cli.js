@@ -1761,8 +1761,12 @@ class CliSession {
       // The mask was "validated" by a call whose result was thrown away, and `maskToInt()` does not refuse a
       // non-contiguous mask - it turns 255.0.255.0 into an integer and `prefixOf()` then reports 8, so
       // `ip route 192.0.2.0 255.0.255.0 10.1.1.9` answered "Route added: 192.0.2.0/8" and installed a prefix
-      // nobody asked for. `ip address` has refused this mask, with this sentence, all along (#1411).
+      // nobody asked for. `ip address` has refused this mask all along (#1411).
       if (!net.isContiguousMask(mask)) {
+        // The port door answers this mask in the vendor's words (`Bad mask 0X... for address ...`, see
+        // badMaskLine); this door keeps the sentence #1411 gave it, because the only transcript in hand is
+        // an `ip address` line typed at an interface prompt and a static route's refusal for the same mask is
+        // not witnessed by anything. research/ip-address-bad-mask-hex.md.
         return ['% Invalid mask: ' + mask + ' - a netmask is a run of ones then zeros (255.255.255.0, or 24)'];
       }
       // A port name used to be stored in the *gateway* field: `ip route 10.9.0.0 255.255.0.0 Gi0` kept
@@ -2275,7 +2279,16 @@ class CliSession {
         // A netmask must be a run of ones then zeros, and a bad mask is reported as a *mask* - the old
         // code let maskToInt() throw and the message came out as "Invalid IPv4 address: garbage",
         // pointing at the wrong argument (#1249).
+        //
+        // A mask that is a dotted quad and not a run of ones is the case the box has words for, and it
+        // prints them: `Bad mask 0XFF00FF00 for address 10.0.0.1`. This console said
+        // `% Invalid mask: 255.0.255.0 - a netmask is a run of ones then zeros ...` instead - a sentence no
+        // box prints, with the mask in the decimal spelling the box does not use here (badMaskLine, at the
+        // foot of this file; research/ip-address-bad-mask-hex.md). A mask that is not a dotted quad at all (junk, a prefix length
+        // out of range) keeps this console's own sentence, because the box's line quotes a mask word that does
+        // not exist and nothing in hand says what it prints for junk.
         if (!net.isContiguousMask(mask)) {
+          if (net.isIp(mask)) return [badMaskLine(ip, mask)];
           return ['% Invalid mask: ' + mask + ' - a netmask is a run of ones then zeros (255.255.255.0, or 24)'];
         }
         // The line documents one optional word after the mask and no more: `ip address ip-address mask
@@ -7437,6 +7450,30 @@ function runCommands(device, topology, simulator, commands) {
 // hostname-illegal-characters.md lists each of those open questions.
 function hostnameIsAllNumeric(name) {
   return /^[0-9]+$/.test(name);
+}
+
+// How a box writes a mask that is a legal dotted quad but not a run of ones. The mask has no prefix length,
+// so the sentence cannot name one; IOS prints the mask as a hex word instead:
+//
+//     R1(config-if)# ip address 192.168.1.254 255.255.5.0
+//     Bad mask 0xFFFF0500 for address 192.168.1.254
+//     (https://www.n-study.com/en/ip-addressing/cisco-ipaddress-configuration/ - one of the two refusals that
+//     page prints without the `%` marker its overlap refusal carries)
+//
+// The hex spelling comes from the way a box renders a netmask in hex at all - "as indicated by the leading
+// 0X (for example, 0XFFFFFF00)" (Cisco IOS IP Addressing Services Command Reference, `ip netmask-format`)
+// - so the word is built the same way here: `0X`, the mask's four bytes, uppercase. research/
+// ip-address-bad-mask-hex.md has the second transcript (`Bad mask 0XFFFFF`, a forum thread title whose
+// screenshot is unreadable), the casing and zero-padding disagreement between them, and the one capture that
+// would settle it.
+//
+// Like its `Bad mask /N` sibling this line carries no leading `%`: a box prints it unmarked (research/
+// ip-address-not-a-host.md), and a marker on one mask refusal and not the other would be this console's
+// invention. It explains nothing, because the box explains nothing.
+function badMaskLine(ip, mask) {
+  const netLib = require('./net');
+  const hex = (netLib.maskToInt(mask) >>> 0).toString(16).toUpperCase().padStart(8, '0');
+  return 'Bad mask 0X' + hex + ' for address ' + ip;
 }
 
 // resolvePortName / portKey are exported so the naming test can pin the alias

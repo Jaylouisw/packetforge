@@ -130,7 +130,8 @@ mask's own contiguity check and **before** the overlap check:
   stored, so `iface.ip`, `iface.mask` and the DHCP flag are untouched and `show running-config` never carries
   the refused line;
 * prefixes 0 and 31 are not examined, and a non-contiguous mask keeps its own message
-  (`% Invalid mask: …`) because that check runs first.
+  (`Bad mask 0XFF00FF00 for address <address>`, research/ip-address-bad-mask-hex.md) because that check runs
+  first.
 
 `test/ip-address-not-a-host.test.js` — 27 checks: the exact line for the network and broadcast address, the
 prefix in the line for a `/22`, the bare-prefix spelling (`10.0.0.0 24`), a `/30`'s two usable addresses, a

@@ -519,12 +519,20 @@ reaches a name the table does not know - a UniFi `Port 1` is not `p1`. Evidence 
 
 A netmask has to be a run of ones followed by zeros — `255.0.255.0` is a valid IPv4 *address* and not a
 netmask, because it has no prefix length, and every rule stated as a prefix length would describe something
-other than what the device does. It is refused, and the refusal names the mask rather than the address:
+other than what the device does. It is refused in the sentence a box prints for it: the mask has no prefix
+length to name, so the box writes it as a hex word, echoes the address that was typed, and explains nothing —
+and the line carries no `%` marker, like the `Bad mask /N` refusal beside it.
 
 ```
 R1(config-if)#ip address 10.9.9.9 255.0.255.0
-% Invalid mask: 255.0.255.0 - a netmask is a run of ones then zeros (255.255.255.0, or 24)
+Bad mask 0XFF00FF00 for address 10.9.9.9
 ```
+
+A mask that is not a dotted quad at all (`garbage`, a prefix length out of range) is a different thing and keeps
+this console's own sentence, `% Invalid mask: <what was typed> - a netmask is a run of ones then zeros
+(255.255.255.0, or 24)`, because nothing in hand says what a box prints for a mask word that does not exist.
+[research/ip-address-bad-mask-hex.md](../research/ip-address-bad-mask-hex.md) has the transcript, the hex
+spelling, and the one detail (zero-padding) that a second capture would settle.
 
 The mask may be written as a prefix length (`24`) and is **stored in the dotted form** either way, so
 nothing downstream has to guess which spelling it is looking at. The front panel applies the same rule: a
@@ -605,8 +613,8 @@ typed; and it is the same for a /16 and a /24, which is why the block is tested 
 /32 rule above as well — `ip address 127.0.0.1 255.255.255.255` answers `Not a valid host address - 127.0.0.1`
 and not `Bad mask /32 for address 127.0.0.1`, because a loopback interface refuses 127/8 too. `0.0.0.0` itself sits
 outside the block on purpose: whether a box takes `ip address 0.0.0.0 0.0.0.0` is the `/0` question above, and it
-is still accepted here. A mask that is not a run of ones is still refused ahead of the address, as its own
-parse-stage error (`% Invalid mask: 255.0.255.0 - a netmask is a run of ones then zeros …`), and two neighbours stay
+is still accepted here. A mask that is not a run of ones is still refused ahead of the address, in the box's own
+line (`Bad mask 0XFF00FF00 for address 0.0.0.1`), and two neighbours stay
 outside this rule: `224/4` is **still accepted** (the one paste that reports a refusal is a reader comment printing
 a different sentence, so it was not adopted), and `255.255.255.255` is refused by the /32 rule above
 (`Bad mask /32 for address 255.255.255.255`), not by this one.
@@ -1305,9 +1313,11 @@ Two neighbours of that rule live here too, because they are the same mistake in 
 
 * **A mask is a mask.** `ip route` "validated" its mask with a call whose result it threw away, and `maskToInt()`
   turns a non-contiguous mask into an integer rather than refusing it - so `ip route 192.0.2.0 255.0.255.0
-  10.1.1.9` answered `Route added: 192.0.2.0/8`, installing a prefix nobody asked for. It now uses the same
-  contiguity rule and the same sentence as `ip address`: `% Invalid mask: 255.0.255.0 - a netmask is a run of ones
-  then zeros (255.255.255.0, or 24)`.
+  10.1.1.9` answered `Route added: 192.0.2.0/8`, installing a prefix nobody asked for. It now applies the same
+  contiguity rule as `ip address` and refuses the mask: `% Invalid mask: 255.0.255.0 - a netmask is a run of ones
+  then zeros (255.255.255.0, or 24)`. The sentence differs from the port door's `Bad mask 0X...` on purpose —
+  the only transcript in hand is an `ip address` line typed at an interface prompt, and a static route's
+  refusal for the same mask is not witnessed by anything.
 * **A route with nowhere to go is not installed.** `ip route <dest> <mask>` with neither a next hop nor an
   interface used to be accepted as `on-link`, and the table then described it as *"no next hop: ARP for the
   destination on that segment"* - naming a segment the command never mentioned. It is now

@@ -174,12 +174,15 @@ console.log('\nA subinterface is refused the same way its parent is:');
     JSON.stringify(fine));
 }
 
-console.log('\nThe mask is still checked first, and says so in its own words:');
+console.log('\nThe mask is still checked first, and says so in the box\'s words:');
 {
   const env = lab();
   const a = env.eth[0].name;
   const out = env.say(a, '10.0.0.0', '255.0.255.0');
-  ok(out.length === 1 && out[0].indexOf('% Invalid mask: 255.0.255.0') === 0,
+  // The mask has no prefix length, so the refusal names it as a hex word: `Bad mask 0XFF00FF00 for address
+  // 10.0.0.0`, the same shape as `Bad mask 0xFFFF0500 for address 192.168.1.254` in
+  // https://www.n-study.com/en/ip-addressing/cisco-ipaddress-configuration/ (research/ip-address-bad-mask-hex.md).
+  ok(out.length === 1 && out[0] === 'Bad mask 0XFF00FF00 for address 10.0.0.0',
     'a non-contiguous mask is a mask error, not a host-address error', JSON.stringify(out));
 }
 
@@ -287,12 +290,12 @@ console.log('\nA subinterface is refused the same way its parent is:');
     'a reserved-block address on a dot1q subinterface is refused', JSON.stringify(out));
 }
 
-console.log('\nThe mask is still checked before the range, in its own words:');
+console.log('\nThe mask is still checked before the range, in the box\'s words:');
 {
   const env = lab();
   const a = env.eth[0].name;
   const out = env.say(a, '0.0.0.1', '255.0.255.0');
-  ok(out.length === 1 && out[0].indexOf('% Invalid mask: 255.0.255.0') === 0,
+  ok(out.length === 1 && out[0] === 'Bad mask 0XFF00FF00 for address 0.0.0.1',
     'a non-contiguous mask is a mask error, whichever block the address is in', JSON.stringify(out));
 }
 
