@@ -1303,7 +1303,27 @@ jobs:
           # cleanup, because it holds the slot the next job is queued for. Still
           # best-effort, now bounded.
           timeout --signal=TERM --kill-after=10 60 docker image rm -f packetforge:ci >/dev/null 2>&1 || true
-          timeout --signal=TERM --kill-after=10 60 docker image prune -f --filter "until=24h" >/dev/null 2>&1 || true
+          # `docker image prune -f --filter "until=24h"` used to run here, and it reddened
+          # `main` twice on 2026-11-19. It deletes old *dangling* images - which is what the
+          # legacy builder's cache names as parents: `WORKDIR /app` has not changed in
+          # weeks, so the intermediate behind it is older than a day while the cache entry
+          # saying `---> Using cache` is not. The prune removed the image and left the
+          # entry, and the next build died at the first step it could not reuse:
+          #   run 7378 (task 19408, push to main, 09:44:57Z) `Failing after 14s`
+          #   run 7762 (task 20470, push to main, 17:10:54Z) `Failing after 15s`
+          #   Step 2/8 : WORKDIR /app ---> Using cache
+          #   Step 3/8 : COPY . .
+          #   failed to export image: failed to set parent sha256:39e26cbad...
+          #   unknown parent image ID sha256:39e26cbad...
+          # On main those two commits were otherwise green (nine other checks green), so a
+          # build that was fine read as a red gate - and `arm` needs `docker`, so it blocked
+          # the merge behind a cache left over from an unrelated earlier push.
+          # Nothing this job writes needs that line: the image it creates is removed by name
+          # above, and the layers behind it are the builder's own bookkeeping, which the
+          # builder prune two lines down bounds by size - the 2 GB bound is unchanged. So the
+          # line goes, and the disk rule is unchanged with it: same `if: always()`, same image
+          # removal by name, same `--keep-storage 2GB`, same `docker system df` after it
+          # (scripts/check-ci-disk-hygiene.js, test/ci-disk-hygiene.test.js).
           timeout --signal=TERM --kill-after=15 120 docker builder prune -f --keep-storage 2GB >/dev/null 2>&1 \
             || timeout --signal=TERM --kill-after=15 120 docker builder prune -f >/dev/null 2>&1 \
             || true
