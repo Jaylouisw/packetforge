@@ -145,6 +145,12 @@ jobs:
           # be pushed is the whole job. A repository secret is the reliable path, and it
           # is what wiki-sync.yml already uses for the same reason.
           TOKEN: ${{ secrets.FORGEJO_TOKEN || secrets.GITHUB_TOKEN || github.token }}
+          # The same token under its other name, so the step can tell a user token from
+          # the run's own. A push on the run token lands on the branch but raises no
+          # `pull_request` event, so no run is created for the head it mints - and this
+          # job is the one that fires on every push to every pull request, so it is where
+          # those heads came from (#2082). See the guard below.
+          RUN_TOKEN: ${{ github.token }}
         run: |
           # The default shell here is `bash -e`, and this script inherited it. That is the
           # whole reason pull request #1198 collected a red X nobody could act on: one
@@ -279,6 +285,29 @@ jobs:
           echo "#${number}: ${behind} commit(s) behind main"
 
           if [ "$behind" -gt 0 ]; then
+            # A push authenticated with the run's own token lands on the branch but
+            # raises no `pull_request` event, so nothing creates a run for the head it
+            # mints, and a head with no checks can never be armed - `merge_when_checks_succeed`
+            # is evaluated against the status set, and a merge on an empty one would be a
+            # merge nothing verified. Worse, the head replaces a head that *had* checks,
+            # and because it now sits on current `main` no later pass revisits it: the
+            # pull request is at zero statuses permanently (#2082).
+            #
+            # Measured, not guessed: on 2026-11-19 a pass holding only the run token left
+            # heads with no `/actions/tasks` row at all - the run was never created, so
+            # there was nothing to re-run - while pushes made with a user token produced
+            # their eight statuses inside ~25 s. auto-rebase.yml already refuses this
+            # push for the same reason; this job did not, and it is the one that runs on
+            # every push to every pull request.
+            #
+            # So a pass that holds nothing but the run token leaves the branch exactly as
+            # the author wrote it: behind main is a pull request that can still merge on
+            # the checks it has, while a head nothing checks cannot merge at all.
+            if [ -n "${RUN_TOKEN:-}" ] && [ "${TOKEN}" = "${RUN_TOKEN}" ]; then
+              warn "#${number}: behind main by ${behind} commit(s), but this run holds only its own token - a push made with it raises no pull_request event, so the head it would mint would have no checks and could never be armed. The branch is untouched. Set the FORGEJO_TOKEN repository secret to a user token with write access so this rebase can run."
+              exit 0
+            fi
+
             # Only now is a working tree needed, and only now is it paid for: the
             # checkout pulls the file contents the replay needs, lazily, in one batch.
             if ! bounded 120 git checkout -q -f --detach "${head_sha}"; then
