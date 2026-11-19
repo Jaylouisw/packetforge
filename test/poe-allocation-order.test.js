@@ -26,7 +26,7 @@ function spec(v, m) {
 }
 
 const PSE = 'CX 6000 24G CL4 PoE 4SFP 370W';
-const PD = 'UCG-Ultra';
+const PD = 'RBSXTsqG-5acD';
 
 console.log('Port order is numeric order, not string order:');
 const c = ifaceName.comparePortNames;
@@ -47,15 +47,15 @@ function build(psePorts, budget) {
   sw.name = 'SW1';
   const pds = [];
   for (let i = 1; i <= psePorts; i++) {
-    const pd = t.addDevice(spec('ubiquiti', PD));
+    const pd = t.addDevice(spec('mikrotik', PD));
     pd.name = 'PD' + i;
-    t.connect(pd.id, 'port1', sw.id, '1/1/' + i);
+    t.connect(pd.id, 'eth1', sw.id, '1/1/' + i);
     pds.push(pd);
   }
   sw.poeBudget = budget;
   return { t: t, sw: sw, pds: pds };
 }
-const draw = build(1, 370).pds[0].interfaces.get('port1').poeIn;
+const draw = build(1, 370).pds[0].interfaces.get('eth1').poeIn;
 
 console.log('\nA budget that covers five of twelve ports serves the five lowest:');
 const b5 = build(12, draw * 5);

@@ -179,11 +179,11 @@ ok(/no longer exists/.test(bw.innerHTML), 'a stale selection says so instead of 
 console.log('\nThe PoE display agrees with the engine:');
 const t5 = new Topology();
 const sw5 = t5.addDevice(spec('aruba', 'CX 6000 24G CL4 PoE 4SFP 370W'));
-const q1 = t5.addDevice(spec('ubiquiti', 'UCG-Ultra'));
-const q2 = t5.addDevice(spec('ubiquiti', 'UCG-Ultra'));
+const q1 = t5.addDevice(spec('mikrotik', 'RBSXTsqG-5acD'));
+const q2 = t5.addDevice(spec('mikrotik', 'RBSXTsqG-5acD'));
 sw5.name = 'SW5'; q1.name = 'P1'; q2.name = 'P2';
-t5.connect(q1.id, 'port1', sw5.id, '1/1/1');
-t5.connect(q2.id, 'port1', sw5.id, '1/1/2');
+t5.connect(q1.id, 'eth1', sw5.id, '1/1/1');
+t5.connect(q2.id, 'eth1', sw5.id, '1/1/2');
 sw5.poeBudget = 25;                       // 2 x 12.95 W cannot both fit
 const t5s = JSON.parse(JSON.stringify(t5.serialize()));
 const sim5 = new Simulator(t5);
@@ -209,14 +209,14 @@ ok(!/DENIED/.test(mainWrap.innerHTML), 'with enough budget nothing is flagged');
 // port dark (research/poe-allocation-order.md).
 const t6 = new Topology();
 const sw6 = t6.addDevice(spec('aruba', 'CX 6000 24G CL4 PoE 4SFP 370W'));
-const r1 = t6.addDevice(spec('ubiquiti', 'UCG-Ultra'));
-const r2 = t6.addDevice(spec('ubiquiti', 'UCG-Ultra'));
-const r3 = t6.addDevice(spec('ubiquiti', 'UCG-Ultra'));
+const r1 = t6.addDevice(spec('mikrotik', 'RBSXTsqG-5acD'));
+const r2 = t6.addDevice(spec('mikrotik', 'RBSXTsqG-5acD'));
+const r3 = t6.addDevice(spec('mikrotik', 'RBSXTsqG-5acD'));
 sw6.name = 'SW6'; r1.name = 'R1'; r2.name = 'R2'; r3.name = 'R3';
-t6.connect(r1.id, 'port1', sw6.id, '1/1/1');
-t6.connect(r2.id, 'port1', sw6.id, '1/1/2');
-t6.connect(r3.id, 'port1', sw6.id, '1/1/10');
-sw6.poeBudget = r1.interfaces.get('port1').poeIn * 2;   // two of the three fit
+t6.connect(r1.id, 'eth1', sw6.id, '1/1/1');
+t6.connect(r2.id, 'eth1', sw6.id, '1/1/2');
+t6.connect(r3.id, 'eth1', sw6.id, '1/1/10');
+sw6.poeBudget = r1.interfaces.get('eth1').poeIn * 2;   // two of the three fit
 const t6s = JSON.parse(JSON.stringify(t6.serialize()));
 const enginePoe6 = new Simulator(t6).computePoe()[0];
 pf.setTopology(t6s);

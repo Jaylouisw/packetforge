@@ -18,20 +18,20 @@ function spec(v, m) {
 
 // A real PoE switch and two real powered devices.
 const PSE = 'CX 6000 24G CL4 PoE 4SFP 370W';
-const PD = 'UCG-Ultra';   // powered device that is also L3, so it can ping
+const PD = 'RBSXTsqG-5acD';   // powered device that is also L3, so it can ping
 
 const t = new Topology();
 const sw = t.addDevice(spec('aruba', PSE));
-const pd1 = t.addDevice(spec('ubiquiti', PD));
-const pd2 = t.addDevice(spec('ubiquiti', PD));
+const pd1 = t.addDevice(spec('mikrotik', PD));
+const pd2 = t.addDevice(spec('mikrotik', PD));
 sw.name = 'SW1'; pd1.name = 'PD1'; pd2.name = 'PD2';
 
-const l1 = t.connect(pd1.id, 'port1', sw.id, '1/1/1');
-const l2 = t.connect(pd2.id, 'port1', sw.id, '1/1/2');
+const l1 = t.connect(pd1.id, 'eth1', sw.id, '1/1/1');
+const l2 = t.connect(pd2.id, 'eth1', sw.id, '1/1/2');
 
 console.log('The catalogue gives this PSE a real budget:');
 ok(sw.poeBudget === 370, 'Aruba ' + PSE + ' has a 370 W budget (from its model name)');
-const pdDraw = pd1.interfaces.get('port1').poeIn;
+const pdDraw = pd1.interfaces.get('eth1').poeIn;
 ok(pdDraw > 0, 'and the PD declares what it draws (' + pdDraw + ' W)');
 
 console.log('\nA budget that cannot cover both devices powers only the first:');
@@ -51,9 +51,9 @@ ok(!!denyEv, 'a poe-deny event is logged');
 ok(denyEv && /budget exhausted/i.test(denyEv.reason), 'with the reason: "' + (denyEv && denyEv.reason) + '"');
 
 console.log('\nThe unpowered device is genuinely dead on the wire:');
-runCommands(pd1, t, null, ['enable', 'configure terminal', 'interface ' + 'port1',
+runCommands(pd1, t, null, ['enable', 'configure terminal', 'interface ' + 'eth1',
   'ip address 192.168.50.1 255.255.255.0']);
-runCommands(pd2, t, null, ['enable', 'configure terminal', 'interface ' + 'port1',
+runCommands(pd2, t, null, ['enable', 'configure terminal', 'interface ' + 'eth1',
   'ip address 192.168.50.2 255.255.255.0']);
 sim = new Simulator(t);
 let r = sim.ping(pd1.id, '192.168.50.2', { count: 1 });
@@ -79,15 +79,33 @@ const poe3 = sim3.computePoe();
 ok(poe3[0].ports.length === 0, 'a plain PC draws no PoE and is not counted');
 ok(poe3[0].used === 0, 'so the whole budget stays free');
 
+console.log('\nA gateway that accepts no PoE is not a powered device:');
+// `isPoePd()` matches `unifi` in the model+label, so a UniFi box that says nothing
+// about PoE used to have every silent copper port invented as a 12.95 W 802.3af
+// draw - 64.75 W on a 6.2 W USB-C console. The datasheets declare no PoE in either
+// direction, so both models say so per port and nothing is drawn.
+const t5 = new Topology();
+const sw5 = t5.addDevice(spec('aruba', PSE));
+const ucg = t5.addDevice(spec('ubiquiti', 'UCG-Ultra'));
+const udm = t5.addDevice(spec('ubiquiti', 'UDM-Pro'));
+t5.connect(ucg.id, 'port1', sw5.id, '1/1/1');
+t5.connect(udm.id, 'port1', sw5.id, '1/1/2');
+sw5.poeBudget = 370;
+ok(ucg.interfaces.get('port1').poeIn === false && udm.interfaces.get('port1').poeIn === false,
+  'both declare poeIn: false rather than leaving the inference to fill in 12.95 W');
+const poe5 = new Simulator(t5).computePoe()[0];
+ok(poe5.ports.length === 0, 'so neither port is in the allocation table (' + poe5.ports.length + ')');
+ok(poe5.used === 0, 'and the switch spends nothing on them (' + poe5.used + ' W)');
+
 console.log('\nAn unpowered device cannot transmit either:');
 const t4 = new Topology();
 const sw4 = t4.addDevice(spec('aruba', PSE));
-const d1 = t4.addDevice(spec('ubiquiti', PD));
-const d2 = t4.addDevice(spec('ubiquiti', PD));
-t4.connect(d1.id, 'port1', sw4.id, '1/1/1');
-t4.connect(d2.id, 'port1', sw4.id, '1/1/2');
+const d1 = t4.addDevice(spec('mikrotik', PD));
+const d2 = t4.addDevice(spec('mikrotik', PD));
+t4.connect(d1.id, 'eth1', sw4.id, '1/1/1');
+t4.connect(d2.id, 'eth1', sw4.id, '1/1/2');
 sw4.poeBudget = 25;
-runCommands(d2, t4, null, ['enable', 'configure terminal', 'interface ' + 'port1',
+runCommands(d2, t4, null, ['enable', 'configure terminal', 'interface ' + 'eth1',
   'ip address 10.9.9.9 255.255.255.0']);
 const sim4 = new Simulator(t4);
 sim4.ping(d2.id, '10.9.9.1', { count: 1 });

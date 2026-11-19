@@ -43,10 +43,10 @@ function lab(opts) {
   const hosts = {};
   for (const c of (opts.cable || [])) {
     if (!hosts[c.pd]) {
-      const s = c.plain ? spec('asus', 'RT-AX86U Pro') : spec('ubiquiti', 'UCG-Ultra');
+      const s = c.plain ? spec('asus', 'RT-AX86U Pro') : spec('mikrotik', 'RBSXTsqG-5acD');
       const d = t.addDevice(s);
       d.name = 'PD' + c.pd.toUpperCase();
-      hosts[c.pd] = { dev: d, port: c.plain ? [...d.interfaces.values()][0].name : 'port1' };
+      hosts[c.pd] = { dev: d, port: c.plain ? [...d.interfaces.values()][0].name : 'eth1' };
     }
     t.connect(hosts[c.pd].dev.id, hosts[c.pd].port, sw.id, c.port);
   }

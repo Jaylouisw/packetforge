@@ -256,15 +256,15 @@ console.log('\nPer-device counters add up to the bytes that moved:');
 console.log('\nA PoE-unpowered device cannot open a flow:');
 {
   const PSE = 'CX 6000 24G CL4 PoE 4SFP 370W';
-  const PD = 'UCG-Ultra';
+  const PD = 'RBSXTsqG-5acD';
   const t = new Topology();
   const sw = t.addDevice(spec('aruba', PSE)); sw.name = 'SW1';
-  const pd1 = t.addDevice(spec('ubiquiti', PD)); pd1.name = 'PD1';
-  const pd2 = t.addDevice(spec('ubiquiti', PD)); pd2.name = 'PD2';
-  t.connect(pd1.id, 'port1', sw.id, '1/1/1');
-  t.connect(pd2.id, 'port1', sw.id, '1/1/2');
-  cfg(pd1, t, ['interface port1', 'ip address 10.9.0.1 255.255.255.0']);
-  cfg(pd2, t, ['interface port1', 'ip address 10.9.0.2 255.255.255.0', 'exit', 'ip default-gateway 10.9.0.1']);
+  const pd1 = t.addDevice(spec('mikrotik', PD)); pd1.name = 'PD1';
+  const pd2 = t.addDevice(spec('mikrotik', PD)); pd2.name = 'PD2';
+  t.connect(pd1.id, 'eth1', sw.id, '1/1/1');
+  t.connect(pd2.id, 'eth1', sw.id, '1/1/2');
+  cfg(pd1, t, ['interface eth1', 'ip address 10.9.0.1 255.255.255.0']);
+  cfg(pd2, t, ['interface eth1', 'ip address 10.9.0.2 255.255.255.0', 'exit', 'ip default-gateway 10.9.0.1']);
 
   // 2 x 12.95 W does not fit in 25 W, so the second port in order loses out.
   sw.poeBudget = 25;

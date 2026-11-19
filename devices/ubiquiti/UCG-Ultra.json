@@ -3,7 +3,7 @@
   "model": "UCG-Ultra",
   "label": "UniFi Cloud Gateway Ultra",
   "category": "router",
-  "description": "Compact fanless UniFi gateway with 2.5G WAN and a 4-port GbE LAN switch.",
+  "description": "Compact fanless UniFi gateway: 1x 2.5G RJ45 WAN + 4x 1G RJ45 LAN (assignable, Max. WAN Port Count 4). No PoE in or out; 6.2 W max, USB-C 5V/3A power.",
   "sourceUrl": "https://techspecs.ui.com/unifi/cloud-gateways/ucg-ultra",
   "capabilities": [
     "l3-forward",
@@ -18,29 +18,66 @@
     {
       "name": "wan1",
       "type": "ethernet",
-      "speed": "2.5G"
+      "connector": "rj45",
+      "speed": "2.5G",
+      "speedCaps": [
+        "2.5G",
+        "1G",
+        "100M",
+        "10M"
+      ],
+      "poeIn": false
     },
     {
       "name": "port1",
       "type": "ethernet",
-      "speed": "1G"
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        "1G",
+        "100M",
+        "10M"
+      ],
+      "poeIn": false
     },
     {
       "name": "port2",
       "type": "ethernet",
-      "speed": "1G"
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        "1G",
+        "100M",
+        "10M"
+      ],
+      "poeIn": false
     },
     {
       "name": "port3",
       "type": "ethernet",
-      "speed": "1G"
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        "1G",
+        "100M",
+        "10M"
+      ],
+      "poeIn": false
     },
     {
       "name": "port4",
       "type": "ethernet",
-      "speed": "1G"
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        "1G",
+        "100M",
+        "10M"
+      ],
+      "poeIn": false
     }
   ],
   "icon": "router",
-  "color": "#3b82f6"
+  "color": "#3b82f6",
+  "notes": "Vendor figures read 2026-11-19 from https://techspecs.ui.com/unifi/cloud-gateways/ucg-ultra (HTTP 200, 657,109 B): Port Layout = (4) 1 GbE & (1) 2.5 GbE, Max. WAN Port Count 4, Max. Power Consumption 6.2 W, Power Method = USB type C (5V DC/3A), Power Supply = USB type C (5V DC/3A) (adapter included). The page prints no PoE row at all - zero occurrences of 'PoE' or '802.3' in 657,109 bytes. https://store.ui.com/us/en/products/ucg-ultra (HTTP 200, 550,854 B) agrees and is the machine-readable confirmation: PoE Support flag Empty, PoE Budget flag Empty, Max. PoE Wattage per Port by PSE flag Empty, Power Method 'USB type C (5V DC/3A)'. (The store page's 'PoE'-bearing strings - 'PoE Integrated AC Adapter', 'PoE-powered 5G RedCap antenna', Power Method 'PoE / IEEE 802.3af' - are cross-sell specifications for other SKUs in the same payload, not this console.) There is no UCG-Ultra datasheet: https://dl.ui.com/ds/ucg-ultra.pdf and https://dl.ui.com/ds/ucg-ultra_ds.pdf both answer 302 -> https://techspecs.ui.com, the miss this project already recorded for uxg-fiber. All five copper ports therefore say poeIn: false: isPoePd() matches 'unifi' in the label, and without the explicit false every silent port became a 12.95 W 802.3af draw - 64.75 W on a 6.2 W box fed by a 5 V USB-C adapter."
 }
