@@ -72,5 +72,7 @@ which has always built its network cell as `dest + '/' + maskBits(mask)` (`web/a
 * **Lines this console does not print**: `10.0.0.0/8 is variably subnetted, 4 subnets, 2 masks`, the
   `L - local` code and its `/32` rows, and the blank line between prefix groups. A box with a LAN
   interface prints all three; this table prints neither, so its rows cannot be compared group by group
-  with a capture. What would settle it: one capture from a 2960/ ISR with two subnets of a classful /8
-  in the table, showing whether the group header appears when only one group exists.
+  with a capture. The group header is now its own note: [show-ip-route-subnetted-header.md](show-ip-route-subnetted-header.md)
+  carries the captures this bullet asked for (a classful /8 holding two subnets of one mask, and one holding
+  two masks), the rule the header follows - key, mask, counts, and the shape of the rows under it - and what
+  is still unobservable, which is its indentation. `L` rows and the blank line stay open here.

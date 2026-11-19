@@ -3033,6 +3033,15 @@ Codes: L - local, C - connected, S - static, B - BGP, O - OSPF, * - candidate de
 Gateway of last resort is not set
 ```
 
+The rows below that line carry no **classful group header**. A real box groups the prefixes of one classful
+network under `10.0.0.0/8 is variably subnetted, 4 subnets, 2 masks` — or `10.0.0.0/24 is subnetted, 1 subnets`
+when every entry in the group shares one mask — drops the prefix length from the rows of a single-mask group,
+and leaves a classful-complete route (`S 192.168.0.0/16`) and the default outside every group. This console
+prints every row flat, with its prefix, and no header: the grouping repaints every row of the view rather than
+adding one sentence, so it is a change of its own. `research/show-ip-route-subnetted-header.md` records the
+captures, the rule (key, mask, counts, row shapes) and the one thing the captures disagree about, which is the
+indentation.
+
 A box that does not route gets no router sentence at all. A Catalyst without `ip routing` answers
 `show ip route` with a different shape, its default gateway over the host/redirect cache — three lines and no
 codes legend, which is what this console prints for it now:
