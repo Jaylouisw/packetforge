@@ -5837,8 +5837,15 @@ class CliSession {
     } else if (what === 'ip' && tokens[1] === 'interface' && tokens[2] === 'brief') {
       if (tokens.length > 3) {
         const want = tokens.slice(3).join(' ');
+        // The pointer may only carry a port when the words name one this box has. It was built from whatever was
+        // typed, so `show ip interface brief ZZZNOPE` advised `show interfaces ZZZNOPE` - a command whose own
+        // answer is `% No interface ZZZNOPE on ...`, i.e. a refusal that ends in a second wrong answer. A word
+        // that is not a port leaves the `<port>` placeholder the mac-address-table refusal already uses, so the
+        // sentence teaches the shape of the command instead of inventing a spelling of it.
+        const known = resolvePortName(dev, want);
+        const port = known && dev.interfaces.get(known) ? want : '<port>';
         return showNoTail('show ip interface brief', tokens.slice(3), 'every interface is listed',
-          'use `show interfaces ' + want + '` for one port');
+          'use `show interfaces ' + port + '` for one port');
       }
       out.push(briefLine(BRIEF_COLUMNS.map(function (c) { return c.head; })));
       // A console or aux socket is a line, not an interface, and a box's own table has no row for one: Cisco's
@@ -5890,8 +5897,11 @@ class CliSession {
       // There is no `show ip route <prefix>` here, and the command used to answer as though there were: it printed
       // the whole table, so a prefix that is *not* installed came back looking installed (#1403).
       if (tokens.length > 2) {
+        // The pointer used to say to read the row "in the table below" - and the refusal is one line, with no
+        // table below it, so an operator who followed it looked past the answer for output that was never printed.
+        // It names the command that does print the table instead.
         return showNoTail('show ip route', tokens.slice(2), 'the whole table is printed',
-          'read the row for the prefix in the table below');
+          'run `show ip route` and read the row for the prefix');
       }
       // A box that does not route has no routing table, and IOS does not print one for it. `show ip route` on a
       // Catalyst with `ip routing` off answers with the default gateway over the host/redirect cache - three

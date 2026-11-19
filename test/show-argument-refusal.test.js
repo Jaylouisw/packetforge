@@ -132,6 +132,37 @@ for (const f of FORMS) {
 }
 
 console.log('');
+console.log('');
+console.log('A refusal that names a command names one this box can run, and promises nothing it did not print');
+{
+  // `show ip interface brief <word>` built its pointer out of the word it had just rejected, so a typo came back
+  // as advice to run the typo:
+  //
+  //   r1#show ip interface brief ZZZNOPE
+  //   % show ip interface brief does not take "ZZZNOPE": every interface is listed - use `show interfaces ZZZNOPE` for one port
+  //
+  // and that command answers `% No interface ZZZNOPE on ...`. The refusal is right, the sentence after the dash is
+  // a second wrong answer, and on a box where the typed words happen to be two ports the advice names a line that
+  // is not a port either. The pointer may only carry a port when the words name one.
+  const typo = show('r1', 'show ip interface brief ZZZNOPE');
+  ok(typo.indexOf('ZZZNOPE`') === -1, 'a word that is not a port is not offered back as one', typo);
+  ok(/`show interfaces <port>`/.test(typo), 'the pointer keeps the placeholder the mac refusal uses', typo);
+  const realPort = show('r1', 'show ip interface brief ' + RP);
+  const pointer = (realPort.match(/`(show interfaces [^`]*)`/) || [])[1];
+  ok(pointer === 'show interfaces ' + RP, 'a port the box has is still named in the pointer', realPort);
+  if (pointer) {
+    const answered = show('r1', pointer);
+    ok(!/^% No interface /.test(answered), 'and the command it names answers: ' + pointer, answered.split('\n')[0]);
+  }
+
+  // `show ip route <prefix>` refused the prefix and then said to read "the row for the prefix in the table below"
+  // - one line, and no table below it. The advice has to be a command, not a place the operator cannot look.
+  const route = show('r1', 'show ip route 192.0.2.0/24');
+  ok(isRefusal(route), 'show ip route still refuses a prefix', route);
+  ok(!/table below/i.test(route), 'and does not point at a table it did not print', route);
+  ok(/`show ip route`/.test(route), 'it names the command that prints the table', route);
+}
+
 console.log('The two commands that really do filter still filter (#1401 is not undone)');
 {
   const one = show('sw1', 'show interfaces ' + swPorts[0]);
