@@ -14,7 +14,7 @@ at the source and not two hops away, cannot be built, seen or taught here.
 
 | fact | evidence |
 |---|---|
-| every interface carries an MTU, and it is a literal | `this.mtu = 1500;` `engine/device.js:90`. 0 of 2,357 device specs declare one (`find devices -name '*.json' \| wc -l`; a scan for an `mtu` key finds none) |
+| every interface carries an MTU, and it is a literal | `this.mtu = 1500;` `engine/device.js:90`. 0 of 2,356 device specs declare one (`find devices -name '*.json' \| wc -l`; a scan for an `mtu` key finds none) |
 | the only reader | `Simulator.pathMtu()` `engine/simulator.js:3963-3983` — walks the route, `Math.min(mtu, egress.mtu)`, bounded at 32 hops and by a `seen` set |
 | what it changes | MSS: `flowLib.mssForMtu()` `engine/flow.js:111-118`, applied at `engine/simulator.js:4122-4123` |
 | the code says there is nothing else | `engine/simulator.js:3922-3924`: *"IP fragmentation — the MSS is derived from the path MTU, so no segment needs to fragment"* |
@@ -125,7 +125,7 @@ the full `npm test`: `engine/simulator.js` and `engine/cli.js` are the two most-
 
 `ip tcp adjust-mss` and MSS clamping on a transit box — a second model, and a decision about rewriting a packet
 only being passed. IPv4 options, record-route, source-route. Jumbo-frame catalogue work (which ports declare
-9000): 2,357 specs, its own sweep. A per-link MTU (a switch's `system mtu`), which is a link property rather
+9000): 2,356 specs, its own sweep. A per-link MTU (a switch's `system mtu`), which is a link property rather
 than a port one. Reassembly timers and overlapping-fragment attacks. A full `show ip interface`, which does not
 exist and is its own plan. Making the `show vlan` MTU column per-VLAN: nobody has asked, and the row is
 currently honest about being Ethernet-only.
