@@ -153,7 +153,7 @@ issue comments. `scripts/check-closed-issues.js` reports a close that contradict
 
 1. A maintainer reviews the PR.
 2. CI must be green (tests, syntax check, example-lab build). [docs/CI.md](docs/CI.md)
-   lists the five checks and how to run each of them locally.
+   lists the four checks and how to run each of them locally.
 3. For device additions, the maintainer cross-checks the datasheet.
 
 Thank you for contributing!

@@ -31,15 +31,14 @@ could never pass.
 
 ## What a pull request goes through
 
-Five verification checks on a code change, all of which must be green before a merge. A **data-only** diff is gated on the three test legs only — `smoke` and `docker` are skipped for it (*What runs, and why a device PR runs less of it*, below). Two more job statuses sit alongside them and are not checks on the diff: `Classify the change`, which decides what runs, and `Arm auto-merge`, which is the merge decision itself (*Merging*, below):
+Four verification checks on a code change, all of which must be green before a merge. A **data-only** diff is gated on the three test legs only — `Server smoke and Docker build` is skipped for it (*What runs, and why a device PR runs less of it*, below). The last of the four is one job, not two (#2219): the smoke client runs beside the image build in the same slot, and the job's `::error` titles still name which of the two checks went red. Two more job statuses sit alongside them and are not checks on the diff: `Classify the change`, which decides what runs, and `Arm auto-merge`, which is the merge decision itself (*Merging*, below):
 
 | Check | Catches |
 |---|---|
 | `Test (Node 18)` | Syntax or API that only works on newer Node. The floor is 18. |
 | `Test (Node 20)` | Nothing Node 18 and 22 together cannot — kept for the middle of the support window |
 | `Test (Node 22)` | Behaviour that regressed on the newest runtime |
-| `Server smoke test` | A server that boots but cannot serve: every API route, the catalogue, WebSocket upgrade |
-| `Docker build` | A `Dockerfile` that does not build. Present as a syntax/build proxy, not a full image test |
+| `Server smoke and Docker build` | A server that boots but cannot serve (every API route, the catalogue, WebSocket upgrade) **or** a `Dockerfile` that does not build. One status, two checks: the smoke client runs beside the image build in the same job, and the failure titles still separate them. Present as a build-syntax proxy, not a full image test |
 
 The test job runs more than the suite (`ci.yml`, the `test` job):
 
@@ -110,7 +109,7 @@ meant that a burst of merges cancelled its own verification and `main` went
 untested. See #1076.
 
 Every job also carries a `timeout-minutes` bound — 5 in `changes` and `arm`, 10 in
-`test`, `smoke` and `docker` — but on this runner that bound is a label, not a
+`test` and `Server smoke and Docker build` — but on this runner that bound is a label, not a
 bound. It is not enforced: measured on 2026-11-17, task 12980 (run 5238, pull #1851)
 reported `Failing after 13m48s` under the `changes` job's five minutes, task 10860
 (run 4596) 12m45s, and task 2694 (run 1342) 27,702 s — and for every second of each,
@@ -122,8 +121,8 @@ afterwards either: a task killed from outside exits without a log.
 So the bound that holds is in the step, and there is one on the thing that can wait.
 Every fetch in `ci.yml` is wrapped in `timeout 90` — at most two attempts per leg, and
 `timeout 60` for the base commit the classifier diffs — with a git abort after 30 s
-below 1 kB/s; the test leg's suite gets `timeout 300` and the Docker build `timeout
-180`, and the smoke client gets `timeout 180`, because the whole job is 11 s median and
+below 1 kB/s; the test leg's suite gets `timeout 300`, the Docker build `timeout
+180` and the smoke client `timeout 180`, because the smoke client is 11 s median and
 30 s at its slowest green run, so a slow-but-working run still passes and a hung one
 stops holding a slot. A stalled server costs three minutes, not an afternoon.
 
@@ -154,7 +153,7 @@ fails that test is left untouched and green, with a line naming `ci.yml`'s
 green is still armed here, so a pull request that lost its arm does not sit
 mergeable and unarmed.
 
-`Arm auto-merge` takes `needs: [changes, test, smoke, docker]` for ordering but asks
+`Arm auto-merge` takes `needs: [changes, test, docker]` for ordering but asks
 the statuses API for the verdict, so a leg skipped for a data-only diff is a
 legitimate absence while a leg that never reported is not. It merges with
 `head_commit_id` set to the head it read, so a run against a commit that has since
@@ -434,12 +433,12 @@ empty block.
 `ci.yml` starts with a **`Classify the change`** job. It diffs the pull request against its
 base and answers one question: can this diff change runtime behaviour?
 
-| the diff touches | `Test (Node 18/20/22)` | `Server smoke test` | `Docker build` |
-|---|---|---|---|
-| only `devices/**/*.json`, `docs/*.md`, `research/*.json`, top-level `*.md` | three legs | skipped | skipped |
-| anything else (scripts, tests, workflows, server, engine, web, config) | three legs | yes | yes |
+| the diff touches | `Test (Node 18/20/22)` | `Server smoke and Docker build` |
+|---|---|---|
+| only `devices/**/*.json`, `docs/*.md`, `research/*.json`, top-level `*.md` | three legs | skipped |
+| anything else (scripts, tests, workflows, server, engine, web, config) | three legs | yes |
 
-Only the last two columns differ, and that is deliberate: there is no such thing as a data-only
+Only the last column differs, and that is deliberate: there is no such thing as a data-only
 test leg.
 
 `npm test` still runs for a data-only change, and on **all three** Node versions: the diff
@@ -448,10 +447,10 @@ The `test` job carries that history in its own comment — a data-only `if:` tha
 `matrix.node` was evaluated before the matrix existed, so every leg died about two seconds in (runs
 1398, 1401, 1402), and a matrix built from an expression collapses to a single unnamed leg that
 runs the suite once and reports it three times. Three versions, always. What the classifier still
-saves is the pair of jobs where the slots were actually going: `smoke` and `docker` skip a
-JSON-only diff entirely, ten minutes each against roughly a minute for the suite. A device spec
-cannot change how the server boots or whether the image builds, and paying those two jobs to learn
-that is how a two-runner host ends up with a queue that never reaches the next pull request.
+saves is the job where the slots were actually going: `Server smoke and Docker build` skips a
+JSON-only diff entirely, up to ten minutes of one slot against roughly a minute for the suite. A
+device spec cannot change how the server boots or whether the image builds, and paying that job to
+learn that is how a two-runner host ends up with a queue that never reaches the next pull request.
 
 The classifier is deliberately hostile to the "skip" answer (`scripts/classify-change.js`):
 
