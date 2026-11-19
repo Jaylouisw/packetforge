@@ -1,4 +1,10 @@
-# EdgePoint S16: sixteen PSE ports that could light nothing, and the four strongest filed as the weakest
+# EdgePoint family PoE census (EP-R6, EP-R8, EP-S16)
+
+Three members, one datasheet, one family - a WISP control point whose whole purpose is powering
+the radio above it. Read 2026-11-19 in two increments on the catalogue stream under #130's
+fallback list (a router/gateway node for a routed lab: NAT, DHCP, VPN).
+
+## EP-S16: sixteen PSE ports that could light nothing, and the four strongest filed as the weakest
 
 Read 2026-11-19, one increment on the catalogue stream, under #130's fallback list (a
 router/gateway node for a routed lab: NAT, DHCP, VPN). The EdgePoint S16 is the switching member
@@ -48,19 +54,70 @@ with some layer-3 capabilities", and it lists Static/PBR routing, so `l3-forward
   `EP-S16.pdf`, `EdgePoint_S16.pdf` and `datasheets/edgemax/EP-S16_DS.pdf` all answer **302** into
   the 609,911-byte tech-spec front page, which reads as a document if you only check for 200.
 - The datasheet is a **three-model** document (EP-R6, EP-R8, EP-S16). The PoE tables differ per
-  model on adjacent pages - page 5 is the EP-R6, page 6 the EP-R8, page 8 the EP-S16 - so lifting
+  model on adjacent pages - page 6 is the EP-R6, page 7 the EP-R8, page 9 the EP-S16 (the printed
+  footer number on each page; page 8 is the EdgeOS software table, and an earlier note in this file
+  cited it for the S16 hardware rows) - so lifting
   "40 W max" from page 6 onto the R6, or the R6's five 24 V outputs onto the S16, is the same
   one-table-two-models trap as the Dream Wall's non-Pro datasheet.
 
-## The siblings, still silent or still thin
+## EP-R6 and EP-R8: the rest of the family, done
 
-Same datasheet, not done here (one device per increment):
+Read the same day, after the S16 landed. Both members were still unable to power the radio they
+exist for, in two different ways.
 
-- `devices/ubiquiti/ep-r6.json` - **five** 24 V/0.7 A passive outputs (`eth0 to eth4`), one 24 V/1.4 A
-  4-pair input on eth0, `7W (Excludes PoE output)`, `24VDC, 3A` input. The row declares **no**
-  `poeOut` at all today, so its five PSE ports are missing, not mislabelled.
-- `devices/ubiquiti/ep-r8.json` - seven outputs (`eth1-eth2` 54/24 V 1.4 A 4-pair; `eth3-eth7`
-  24 V/0.7 A), two 54 V/1.5 A 4-pair inputs (`eth0` and the no-data "PoE In" port), `40W (Excludes
-  PoE output)`, `54VDC, 6A` input. The row has two `poeOut` ports, both labelled `"PoE"`, and no
-  budget. Its ports 7-8 are **RJ45/SFP combination** cages and the spec has no `comboPorts` entry,
-  so a lab can currently cable `eth6` and `sfp1` as if they were two ports.
+### Sources (both surfaces, 2026-11-19)
+
+| source | result |
+|---|---|
+| `https://dl.ui.com/datasheets/edgemax/EdgePoint_DS.pdf` | 200, `application/pdf`, 6,571,516 B, 12 pp, text layer; page 6 = EP-R6, page 7 = EP-R8, page 9 = EP-S16 |
+| `https://techspecs.ui.com/uisp/wired/ep-r6` | 200, 577,753 B, server-rendered table (not the 609,911 B front page) |
+| `https://techspecs.ui.com/uisp/wired/ep-r8` | 200, 578,035 B, same rows as the PDF |
+
+### Vendor rows
+
+| | EP-R6 (page 6) | EP-R8 (page 7) |
+|---|---|---|
+| data ports | `(5) 10/100/1000 RJ45 Ports`, `(1) 1 Gbps SFP Port` | `(6) 10/100/1000 RJ45 Ports`, `(2) 10/100/1000 RJ45/SFP Combination Ports`, `(1) RJ45 PoE In Port`, `(1) RJ45 Serial Port` |
+| PoE output | `(5) 24V / 0.7A, 2-Pair (+4, 5; -7, 8) Passive PoE, eth0 to eth4` = 16.8 W x 5 | `(2) 54V or 24V / 1.4A, 4-Pair ... eth1 to eth2` = 75.6 W; `(5) 24V / 0.7A, 2-Pair ... eth3 to eth7` = 16.8 W |
+| PoE input | `(1) 24V / 1.4A, 4-Pair ... eth0` | `(2) 54V / 1.5A, 4-Pair ... eth0 and PoE In` (`PoE In is DC Only, No Data`) |
+| max consumption | `7W (Excludes PoE output)` | `40W (Excludes PoE output)` |
+| DC input | `24V DC, 3A` = 72 W | `54V DC, 6A` = 324 W |
+| derived budget | 72 - 7 = **65 W** | 324 - 40 = **284 W** |
+
+Per-port watts are the vendor's own voltage x current rows, not a negotiated class: **no EdgePoint
+prints an 802.3af/at row.** A 48 V 802.3 PD on any of these ports will not negotiate - the UISP
+Router defect (`test/uisp-r-poe.test.js`) on the same vendor's passive-PoE line. Both budgets are
+DERIVED and say so in `poe.note`, with the PoE-input alternative recorded (R6 on 24V/1.4A:
+33.6 - 7 = 26.6 W; R8 on two 54V/1.5A inputs: 162 - 40 = 122 W).
+
+### What was wrong
+
+| spec | was | now |
+|---|---|---|
+| `ep-r6.json` | `poe-pse` claimed, **zero PSE ports**; no `poe` block; no `10M` rung | 5 x `poeOut: 16.8` passive, `poe.budgetW 65`, `poeIn: 7` on eth0 |
+| `ep-r8.json` | `poeOut: true, poeOutClass: "PoE"` on **eth0 and eth1 only** - eth0 is the vendor's PoE *input* port, and "PoE" is 802.3af, which this chassis has nowhere - while eth2-eth7 (five real PSEs) were dry; no `poe` block; `poe-pd` missing | eth0 `poeIn: 40` and no output; eth1-eth2 `poeOut: 75.6` passive; eth3-eth7 `poeOut: 16.8` passive; `poe.budgetW 284`; `poe-pd` declared |
+
+With no `poe` block, `computePoe()` opens with `if (!dev.poeBudget) continue;`, so both boxes were
+*skipped* rather than reported unknown. `scripts/audit-poe-budget.js` counted the EP-R8 among its
+silent PSEs (102 -> 101) and could not count the EP-R6 at all, because that row declared no PSE
+port to be silent about - the audit can only count ports that exist.
+
+`test/poe-inference.test.js` had EP-R6 in its `PD_ONLY` list, which it entered on the strength of
+its own description ("Passive PoE-in") rather than the vendor's table. It leaves that list the way
+ER-10X did, and is pinned by its own assertion instead; `test/edgepoint-poe.test.js` pins both rows.
+
+### Traps
+
+- **`dl.ui.com` answers 200 with the front page for keys it does not have.** `qig/ep-r8.pdf`,
+  `qig/ep-r8`, `guides/edgemax/EdgePoint_QSG.pdf`, `guides/edgemax/EdgePoint_R8_QSG.pdf` and
+  `guides/edgemax/EdgePoint_DS.pdf` all return the identical **609,911 B** HTML page, so a 200 on
+  that host proves nothing.
+- **Which two R8 copper positions are the RJ45/SFP combination ports is not published.** The
+  datasheet gives the count and the PoE rows name `eth0`-`eth7`, but nothing pairs a position with
+  `sfp1`/`sfp2`. The pairing is left undeclared rather than guessed: ten links into eight positions
+  is exactly the bug a guessed `comboWith` causes. Panel artwork with readable labels, or the EdgeOS
+  default config, would let it be declared.
+- **The R8's separate "PoE In" RJ45 is not an interface** - "PoE In is DC Only, No Data", a power
+  inlet like the DC terminal block.
+- **`Power supply Min. 54V / 0.8A`** is the minimum *adapter*, not the input ceiling; the budget
+  uses `54V DC, 6A input`. Reading the smaller row would give a 3 W PoE envelope.

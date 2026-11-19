@@ -3,7 +3,7 @@
   "model": "EP-R8",
   "label": "EdgePoint R8",
   "category": "router",
-  "description": "EdgePoint R8 (EP-R8) - 8x 1G RJ45 + 2x 1G SFP. 40 W max. Ports 7-8 are RJ45/SFP combination ports sharing one cage each; port 1 accepts 24V passive PoE in and passes it through.",
+  "description": "EdgePoint R8 (EP-R8) - 8x 1G RJ45 data ports (6 plain + 2 RJ45/SFP combination) plus 2x 1G SFP cages. eth1-eth2 source 54V or 24V passive PoE at 1.4A 4-pair; eth3-eth7 source 24V/0.7A 2-pair passive PoE. eth0 accepts 54V/1.5A passive PoE in; a separate RJ45 PoE In port is power-only and carries no data. 40 W max excluding PoE output; 284 W PoE envelope on the 54 V / 6 A DC input. Passive PoE only - no 802.3af/at negotiation on any port.",
   "capabilities": [
     "l3-forward",
     "cli",
@@ -13,7 +13,8 @@
     "dhcp-server",
     "dhcp-client",
     "poe-pse",
-    "passive-poe"
+    "passive-poe",
+    "poe-pd"
   ],
   "interfaces": [
     {
@@ -21,52 +22,103 @@
       "type": "ethernet",
       "connector": "rj45",
       "speed": "1G",
-      "poeOut": true,
-      "poeOutClass": "PoE"
+      "speedCaps": [
+        "1G",
+        "100M",
+        "10M"
+      ],
+      "poeIn": 40
     },
     {
       "name": "eth1",
       "type": "ethernet",
       "connector": "rj45",
       "speed": "1G",
-      "poeOut": true,
-      "poeOutClass": "PoE"
+      "speedCaps": [
+        "1G",
+        "100M",
+        "10M"
+      ],
+      "poeOut": 75.6,
+      "poeOutClass": "passive"
     },
     {
       "name": "eth2",
       "type": "ethernet",
       "connector": "rj45",
-      "speed": "1G"
+      "speed": "1G",
+      "speedCaps": [
+        "1G",
+        "100M",
+        "10M"
+      ],
+      "poeOut": 75.6,
+      "poeOutClass": "passive"
     },
     {
       "name": "eth3",
       "type": "ethernet",
       "connector": "rj45",
-      "speed": "1G"
+      "speed": "1G",
+      "speedCaps": [
+        "1G",
+        "100M",
+        "10M"
+      ],
+      "poeOut": 16.8,
+      "poeOutClass": "passive"
     },
     {
       "name": "eth4",
       "type": "ethernet",
       "connector": "rj45",
-      "speed": "1G"
+      "speed": "1G",
+      "speedCaps": [
+        "1G",
+        "100M",
+        "10M"
+      ],
+      "poeOut": 16.8,
+      "poeOutClass": "passive"
     },
     {
       "name": "eth5",
       "type": "ethernet",
       "connector": "rj45",
-      "speed": "1G"
+      "speed": "1G",
+      "speedCaps": [
+        "1G",
+        "100M",
+        "10M"
+      ],
+      "poeOut": 16.8,
+      "poeOutClass": "passive"
     },
     {
       "name": "eth6",
       "type": "ethernet",
       "connector": "rj45",
-      "speed": "1G"
+      "speed": "1G",
+      "speedCaps": [
+        "1G",
+        "100M",
+        "10M"
+      ],
+      "poeOut": 16.8,
+      "poeOutClass": "passive"
     },
     {
       "name": "eth7",
       "type": "ethernet",
       "connector": "rj45",
-      "speed": "1G"
+      "speed": "1G",
+      "speedCaps": [
+        "1G",
+        "100M",
+        "10M"
+      ],
+      "poeOut": 16.8,
+      "poeOutClass": "passive"
     },
     {
       "name": "sfp1",
@@ -83,5 +135,11 @@
   ],
   "icon": "router",
   "color": "#14b8a6",
-  "sourceUrl": "https://techspecs.ui.com/uisp/wired/ep-r8"
+  "poe": {
+    "budgetW": 284,
+    "sourceUrl": "https://dl.ui.com/datasheets/edgemax/EdgePoint_DS.pdf",
+    "note": "DERIVED ENVELOPE, not a quoted budget - Ubiquiti prints no \"PoE budget\" row for this box on either surface. The two figures it does print give the headroom exactly: \"Power method (1) DC terminal block, (2) RJ45 (PoE In and eth0), 54V DC, 6A input\" = 324 W, and \"Max. power consumption 40W (Excludes PoE output)\", so at most 324 - 40 = 284 W can leave the seven PSE ports on the stated DC-input configuration. Same arithmetic shape as devices/ubiquiti/ep-s16.json, devices/ubiquiti/uisp-r.json and devices/ubiquiti/er-6p.json. A box fed instead by its two 54V/1.5A passive PoE inputs has 2 x 81 = 162 W of input and therefore at most 162 - 40 = 122 W for its own PSE ports; a lab that powers it that way states its own figure. Read 2026-11-19: https://dl.ui.com/datasheets/edgemax/EdgePoint_DS.pdf (HTTP 200, application/pdf, 6,571,516 B, 12 pp; page 7 \"Hardware Specifications EP-R8\") and https://techspecs.ui.com/uisp/wired/ep-r8 (HTTP 200, 578,035 B, rendered spec table - not the 609,911 B front page). NOT an 802.3 standard anywhere: every output row is 4-pair or 2-pair PASSIVE PoE with no detection, so a 48 V 802.3af/at PD will not negotiate; \"PoE In\" is DC only with no data."
+  },
+  "sourceUrl": "https://techspecs.ui.com/uisp/wired/ep-r8",
+  "notes": "Census, all from the vendor datasheet text layer (https://dl.ui.com/datasheets/edgemax/EdgePoint_DS.pdf - 200, application/pdf, 6,571,516 B, 12 pp, \"Models: EP-R6, EP-R8, EP-S16\", page 7 = EP-R8 table, read 2026-11-19) unless stated; the rendered techspecs table at https://techspecs.ui.com/uisp/wired/ep-r8 prints the same rows.\n\nPORTS - page 7: \"Serial Console Port (1) RJ45 Serial Port\"; \"Data Ports (6) 10/100/1000 RJ45 Ports, (2) 10/100/1000 RJ45/SFP Combination Ports\". Eight copper positions (eth0-eth7) plus two 1G SFP cages; the console is a line, not a link (research/console-is-a-line-not-an-interface.md). The separate \"PoE In Port (1) RJ45 Port\" is a power inlet, not an interface: \"PoE In is DC Only, No Data\".\n\nwhich copper positions are the two combination ones is NOT published - the datasheet gives the count (\"(2) 10/100/1000 RJ45/SFP Combination Ports\") and the PoE rows name eth0-eth7, but nothing pairs a copper position with sfp1 or sfp2. The pairing is left undeclared rather than guessed: an empty field is a question, a guessed comboWith is a bug that shows up when a lab cables ten links into eight positions. A source for the pairing (panel artwork with readable labels, or the EdgeOS default config) would let it be declared.\n\nPoE OUTPUT - page 7: \"Passive PoE Output (2) 54V or 24V / 1.4A, 4-Pair (+1, 2, 4, 5; -3, 6, 7, 8) Passive PoE, eth1 to eth2\" and \"(5) 24V / 0.7A, 2-Pair (+4, 5; -7, 8) Passive PoE, eth3 to eth7\". So eth1-eth2 carry 75.6 W at 54 V (33.6 W at 24 V) and eth3-eth7 carry 16.8 W each, all passive. Seven PSE ports in total.\n\nPoE INPUT - page 7: \"Passive PoE Input (2) 54V / 1.5A, 4-Pair ... Passive PoE, eth0 and PoE In\". eth0 therefore declares `poeIn: 40` - the vendor's own \"Max. power consumption 40W (Excludes PoE output)\" is what the box draws from a PoE source; the 1.5 A row is the port's input capacity, not a draw, and is not used as one.\n\nWHAT WAS WRONG - the row had the two PoE facts inverted and no budget. It declared `poeOut` on eth0 and eth1 with class \"PoE\" (802.3af, 48 V negotiated) on a box that has no 802.3 detection at all, and it declared no PoE on eth2-eth7, so five real PSE ports were dry. eth0, which the vendor lists under PoE INPUT and not under PoE OUTPUT, was modelled as a power source; `poe-pd` was missing. With no `poe` block, `engine/simulator.js` opened `computePoe()` with `if (!dev.poeBudget) continue;` and skipped the box, so the two ports that did claim PoE could power nothing and `show power inline` reported a budget of zero.\n\nNOT MODELLED - no 802.3af, 802.3at or 802.3bt capability: the datasheet prints no 802.3 row for this chassis, only the passive rows above. No PoE++ and no SFP+ rate: the cages are \"10/100/1000 ... Combination\", i.e. 1G."
 }

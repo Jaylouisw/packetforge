@@ -108,7 +108,16 @@ t('a device that only accepts PoE never sources it', () => {
   // output = DC/PoE passthrough" (https://techspecs.ui.com/uisp/wired/er-10x, 200, 576,148 B).
   // The original complaint is kept as its own assertion below, where it belongs: one outlet,
   // not ten.
-  const PD_ONLY = ['EP-R6', 'ACB-AC'];
+  //
+  // EP-R6 left this list on 2026-11-19 for the same reason ER-10X did: it is not a PoE-in-only
+  // box. It was put here because its description said "Passive PoE-in" - prose written before
+  // anyone read the box's own table, which prints both directions: "Passive PoE Input (1) 24V /
+  // 1.4A, 4-Pair ... eth0" and "Passive PoE Output (5) 24V / 0.7A, 2-Pair ... eth0 to eth4"
+  // (https://dl.ui.com/datasheets/edgemax/EdgePoint_DS.pdf, page 6; the same rows at
+  // https://techspecs.ui.com/uisp/wired/ep-r6, 200, 577,753 B). A list built from descriptions
+  // inherits whatever the descriptions got wrong. The five outlets are pinned in the assertion
+  // below and in test/edgepoint-poe.test.js.
+  const PD_ONLY = ['ACB-AC'];
   for (const model of PD_ONLY) {
     const spec = all.find(x => String(x.spec.model) === model);
     assert.ok(spec, model + ' must exist in the catalogue');
@@ -118,6 +127,21 @@ t('a device that only accepts PoE never sources it', () => {
     const sinking = spec.ifaces.filter(p => p.hardware.poeIn);
     assert.ok(sinking.length > 0, model + ' must still accept power on at least one port');
   }
+});
+
+t('the EdgePoint R6 sources on all five copper ports and sinks on eth0 only', () => {
+  // The row that came out of PD_ONLY above, pinned where the rest of the family is pinned: the
+  // vendor prints one PoE OUT row covering every copper port ("(5) 24V / 0.7A, 2-Pair ... eth0 to
+  // eth4") and one PoE IN row for eth0 alone. 24V x 0.7A = 16.8 W out; the 7 W figure is the box's
+  // own max draw, not a port capacity.
+  const spec = all.find(x => String(x.spec.model) === 'EP-R6');
+  assert.ok(spec, 'EP-R6 must exist in the catalogue');
+  const sourcing = spec.ifaces.filter(p => p.hardware.poeOut).map(p => p.name);
+  assert.deepStrictEqual(sourcing, ['eth0', 'eth1', 'eth2', 'eth3', 'eth4'],
+    'EP-R6 sources 24V passive PoE on all five copper ports');
+  const sinking = spec.ifaces.filter(p => p.hardware.poeIn).map(p => p.name + '=' + p.hardware.poeIn);
+  assert.deepStrictEqual(sinking, ['eth0=7'],
+    'and sinks only on eth0, at the 7 W the vendor prints as its max draw');
 });
 
 t('the EdgeRouter 10X sources power on one passthrough port, and nowhere else', () => {

@@ -3,7 +3,7 @@
   "model": "EP-R6",
   "label": "EdgePoint R6",
   "category": "router",
-  "description": "EdgePoint R6 (EP-R6) - 5x 1G RJ45 + 1x 1G SFP. Passive PoE-in; 7 W max.",
+  "description": "EdgePoint R6 (EP-R6) - 5x 1G RJ45 + 1x 1G SFP. All five copper ports source 24V/0.7A 2-pair passive PoE (16.8 W each); eth0 also accepts 24V/1.4A passive PoE in. 7 W max excluding PoE output; 65 W PoE envelope on the 24 V / 3 A DC input. Passive PoE only - no 802.3af/at negotiation.",
   "capabilities": [
     "l3-forward",
     "cli",
@@ -24,9 +24,12 @@
       "speed": "1G",
       "speedCaps": [
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
-      "poeIn": 7.0
+      "poeIn": 7,
+      "poeOut": 16.8,
+      "poeOutClass": "passive"
     },
     {
       "name": "eth1",
@@ -35,8 +38,11 @@
       "speed": "1G",
       "speedCaps": [
         "1G",
-        "100M"
-      ]
+        "100M",
+        "10M"
+      ],
+      "poeOut": 16.8,
+      "poeOutClass": "passive"
     },
     {
       "name": "eth2",
@@ -45,8 +51,11 @@
       "speed": "1G",
       "speedCaps": [
         "1G",
-        "100M"
-      ]
+        "100M",
+        "10M"
+      ],
+      "poeOut": 16.8,
+      "poeOutClass": "passive"
     },
     {
       "name": "eth3",
@@ -55,8 +64,11 @@
       "speed": "1G",
       "speedCaps": [
         "1G",
-        "100M"
-      ]
+        "100M",
+        "10M"
+      ],
+      "poeOut": 16.8,
+      "poeOutClass": "passive"
     },
     {
       "name": "eth4",
@@ -65,8 +77,11 @@
       "speed": "1G",
       "speedCaps": [
         "1G",
-        "100M"
-      ]
+        "100M",
+        "10M"
+      ],
+      "poeOut": 16.8,
+      "poeOutClass": "passive"
     },
     {
       "name": "sfp1",
@@ -77,5 +92,11 @@
   ],
   "icon": "router",
   "color": "#14b8a6",
-  "sourceUrl": "https://techspecs.ui.com/uisp/wired/ep-r6"
+  "poe": {
+    "budgetW": 65,
+    "sourceUrl": "https://dl.ui.com/datasheets/edgemax/EdgePoint_DS.pdf",
+    "note": "DERIVED ENVELOPE, not a quoted budget - Ubiquiti prints no \"PoE budget\" row for this box on either surface. \"Power method (1) DC terminal block, 24V DC, 3A input\" = 72 W, less \"Max. power consumption 7W (Excludes PoE output)\" = 65 W available to the five PSE ports; that ceiling is real, since 5 x 16.8 = 84 W of port capacity exceeds it. Same arithmetic shape as devices/ubiquiti/ep-s16.json, devices/ubiquiti/ep-r8.json and devices/ubiquiti/uisp-r.json. A box fed instead by its 24V/1.4A passive PoE input has 33.6 W of input and therefore at most 33.6 - 7 = 26.6 W for its own PSE ports; a lab that powers it that way states its own figure. Read 2026-11-19: https://dl.ui.com/datasheets/edgemax/EdgePoint_DS.pdf (HTTP 200, application/pdf, 6,571,516 B, 12 pp; page 6 \"Hardware Specifications EP-R6\") and https://techspecs.ui.com/uisp/wired/ep-r6 (HTTP 200, 577,753 B, rendered spec table). NOT 802.3: \"Passive PoE output (5) 24V / 0.7A, 2-Pair (+4, 5; -7, 8) Passive PoE\" carries no detection, and the vendor warns \"Do NOT configure eth0 in PoE output mode if you are using a PoE input power source\"."
+  },
+  "sourceUrl": "https://techspecs.ui.com/uisp/wired/ep-r6",
+  "notes": "Census, all from the vendor datasheet text layer (https://dl.ui.com/datasheets/edgemax/EdgePoint_DS.pdf - 200, application/pdf, 6,571,516 B, 12 pp, \"Models: EP-R6, EP-R8, EP-S16\", page 6 = EP-R6 table, read 2026-11-19) unless stated; the rendered techspecs table at https://techspecs.ui.com/uisp/wired/ep-r6 prints the same rows.\n\nPORTS - page 6: \"Data Ports (5) 10/100/1000 RJ45 Ports, (1) 1 Gbps SFP Port\". The LED row names the cage \"eth5/SFP\", so the copper positions are eth0-eth4 and the cage is the sixth link - what this spec has. No serial console port is printed for the R6, unlike the R8 and S16.\n\nPoE OUTPUT - page 6: \"Passive PoE Output (5) 24V / 0.7A, 2-Pair (+4, 5; -7, 8) Passive PoE, eth0 to eth4\" - every copper port is a PSE at 16.8 W, and all five are passive 24 V with no 802.3 detection.\n\nPoE INPUT - page 6: \"Passive PoE Input (1) 24V / 1.4A, 4-Pair (+1, 2, 4, 5; -3, 6, 7, 8) Passive PoE, eth0\", with \"Do NOT Configure eth0 in PoE Output Mode if You Are Using a PoE Input Power Source\". eth0 therefore carries both `poeIn: 7` (the vendor's \"Max. power consumption 7W (Excludes PoE output)\" is what it draws) and `poeOut: 16.8`.\n\nWHAT WAS WRONG - the row claimed `poe-pse` and printed no PSE port at all: all five copper ports were dry, so a 24 V airMAX radio had nothing to plug into on the router whose datasheet names it. There was also no `poe` block, so even if a port had been declared `engine/simulator.js` would have skipped the box at `if (!dev.poeBudget) continue;` (parsePoeBudget finds no number in \"EP-R6\"). The `speedCaps` rung was missing 10M on a 10/100/1000 port.\n\nNOT MODELLED - no 802.3af/at/bt capability (the datasheet prints none), and the 16.8 W per-port figure is the vendor's 24 V x 0.7 A row, not a negotiated class."
 }
