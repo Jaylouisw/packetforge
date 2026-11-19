@@ -11,7 +11,10 @@
     "firewall",
     "dhcp-server",
     "wireless",
-    "http-server"
+    "http-server",
+    "poe-pd",
+    "poe-pse",
+    "802.3at"
   ],
   "interfaces": [
     {
@@ -24,7 +27,7 @@
         100,
         10
       ],
-      "poeIn": true
+      "poeIn": 9
     },
     {
       "name": "rj45-2",
@@ -45,8 +48,18 @@
       "speed": "150M"
     }
   ],
-  "notes": "Vendor figures: **(2) GbE RJ45 ports**, **LTE Cat 4** (150 Mbps down / 50 Mbps up), WiFi 4 1x1, 9 W, PoE+ (48-54 V) or USB-C or 4-pin ATX DC. The PoE row is the interesting one: **(1) PoE input and (1) PoE output, max 10 W, which requires a PoE+ switch** - so it can be powered by the switch it sits on *and* pass power through to one downstream device, but only when the upstream is PoE+ rather than plain 802.3af.",
+  "notes": "Vendor figures: **(2) GbE RJ45 ports**, **LTE Cat 4** (150 Mbps down / 50 Mbps up), WiFi 4 1x1, 9 W, PoE+ (48-54 V) or USB-C or 4-pin ATX DC. The PoE row is the interesting one: **(1) PoE input and (1) PoE output, max 10 W, which requires a PoE+ switch** - so it can be powered by the switch it sits on *and* pass power through to one downstream device, but only when the upstream is PoE+ rather than plain 802.3af. **Cited 2026-11-19.** Port row, 9 W draw and the PoE classes: https://techspecs.ui.com/unifi/integrations/umr-us (200, 708,698 B) prints \"Networking Interface (2) GbE RJ45 ports, LTE Cat 4 radio, WiFi 4\", \"PoE Interface (1) PoE input / (1) PoE output (Max. 10W, requires PoE+ switch)\", \"Max. Power Consumption 9W\" and \"Power Method PoE+ (48-54V DC)\". Datasheet https://dl.ui.com/ds/umr_ds.pdf (200, application/pdf, 597,924 B, two pages, text layer) prints the same census as \"(2) GbE RJ45 ports\" and \"(1) PoE in / (1) PoE output*\" with \"*Requires a PoE+ switch\" - but no output wattage, so the 10 W budget is a tech-spec-only figure. The store page https://store.ui.com/us/en/products/umr-us (307 to its collection URL, 200 there at 585,616 B) corroborates it in prose: \"PoE+ input required for PoE passthrough.\" The two documents disagree on the chassis - datasheet 220.6 x 89.8 x 28.8 mm and 252/298 g against tech-spec 190 x 89.8 x 28.8 mm and 257/303 g - while the ports, the 150 Mbps WiFi 4 rate and the 9 W draw are identical on both, and those are what the row models. Neither surface publishes *which* RJ45 is the input, only that there is one of each, so rj45-1 sinks (9 W) and rj45-2 sources (PoE+), the same convention as devices/zyxel/gs1900-24ep.json. The -us suffix is required on both hosts: store /products/umr is 404 and techspecs .../integrations/umr lands on the 609,911-byte front page.",
   "role": [
     "vpn"
-  ]
+  ],
+  "aliases": [
+    "UMR-US",
+    "UniFi Mobile Router"
+  ],
+  "sourceUrl": "https://techspecs.ui.com/unifi/integrations/umr-us",
+  "poe": {
+    "budgetW": 10,
+    "sourceUrl": "https://techspecs.ui.com/unifi/integrations/umr-us",
+    "note": "(1) PoE output, max 10 W, and it requires a PoE+ switch upstream - so the passthrough is bounded at 10 W on the one PSE port (rj45-2). The 10 W is printed only by the tech-spec page; the datasheet states the port count and the PoE+ upstream requirement but no output wattage."
+  }
 }
