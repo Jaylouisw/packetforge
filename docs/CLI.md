@@ -128,9 +128,11 @@ against this console's shorter command set, so `sh s` reaches the spanning tree 
 
 ## A command with words it cannot use refuses them
 
-Every command above is the whole command. Two take a port name — `show interfaces <port>`,
-`show power inline <port>` — and one takes a filter, `show mac address-table interface <port>`. The rest take
-nothing, and **a word they cannot use is refused, with the words quoted and the command named**:
+Most of the commands above are the whole command. Some narrow to one object of their own: a port name
+(`show interfaces <port>`, `show power inline <port>`, `show ip ospf interface <port>`, `show ip ospf neighbour
+<port>`), a filter (`show mac address-table interface <port>`), an address or MAC (`show ip dhcp binding`) or a
+zone name (`show ip dns zone`). On the rest, **a word they cannot use is refused, with the words quoted and the
+command named**:
 
 ```
 r1#show ip route 192.0.2.0/24
