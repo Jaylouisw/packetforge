@@ -165,3 +165,92 @@ Pro is "not a shipping product" and therefore closable. `docs/RESOLUTIONS.md` is
 request closes as unbuildable or impossible; a request whose product may exist but whose census
 nobody publishes is the case that rule was written for. It stays open, as the ledger's `unblock`
 field already says.
+
+## 2026-11-19 03:2x UT: the page publishes its own storefront list (nine of nine 404), and the quick-start key resolves - to artwork with no text layer
+
+Two surfaces this thread had named but never resolved, both reached from the UDW techspecs page's own
+server-rendered `__NEXT_DATA__` rather than from a guessed URL. Neither publishes a Pro census. The
+first makes "not a regional SKU" exhaustive instead of two-region; the second closes the
+"the quick-start prints the layout" hope for this family at the level of the file format.
+
+### 1. `alternativeStores` enumerates the storefronts, and the Pro is absent from all nine
+
+`https://techspecs.ui.com/unifi/cloud-gateways/udw` (200, 704,702 B) carries
+`props.pageProps.product.alternativeStores` - the storefronts that carry the SKU, published by the
+vendor's own page. It names nine: `br`, `ca`, `eu`, `jp`, `me`, `mx`, `tw`, `uk`, `us`.
+
+| storefront | `/{store}/en/products/udw` (control) | `/{store}/en/products/udw-pro` |
+|---|---|---|
+| us | 200, 568,104 B | **404**, 204,279 B |
+| eu | 200, 588,457 B | **404**, 204,279 B |
+| ca | 200, 589,781 B | **404**, 204,279 B |
+| br | 200, 492,349 B | **404**, 204,279 B |
+| jp | 200, 555,049 B | **404**, 204,279 B |
+| me | 200, 485,478 B | **404**, 204,279 B |
+| mx | 200, 510,785 B | **404**, 204,279 B |
+| tw | 200, 491,408 B | **404**, 204,279 B |
+| uk | 200, 584,209 B | **404**, 204,279 B |
+
+Two details that keep the negative honest. Non-US requests answer **307** from
+`store.ui.com/{store}/...` to `{store}.store.ui.com/{store}/...`: that is storefront routing, and the
+control 200 at the end of it shows the route works. And the nine 404s are one page - identical
+204,279 B, `md5 346734f60828bb9d80819a8092b2d291` when checked on `us`, `eu` and `tw` - so these are
+product-keyed misses, not nine different errors.
+
+Earlier passes walked the US and EU **category grids** and read the absence of `udw-pro` there. This
+is the product-keyed version of the same test across every storefront the page itself names, so the
+"it may be a regional SKU" avenue is now closed rather than merely unlikely.
+
+### 2. The document key pattern is `dl.ui.com/qig/<slug>.pdf`, taken from the product's own record
+
+`props.pageProps.product.documents` is
+`[{"type": "InstallationGuide", "url": "https://dl.ui.com/qig/udw"}]`. Following the key it names:
+
+| probe | status | type | bytes |
+|---|---|---|---|
+| `dl.ui.com/qig/udw.pdf` | **200** | `application/pdf` | 8,279,805 |
+| `dl.ui.com/qig/udw-pro.pdf` | 302 -> `https://techspecs.ui.com` | - | 286 |
+| `dl.ui.com/qig/udwpro.pdf` | 302 -> `https://techspecs.ui.com` | - | 305 |
+| `dl.ui.com/qig/udw-eu.pdf` | 302 -> `https://techspecs.ui.com` | - | 305 |
+| `dl.ui.com/qig/bogus-xyz.pdf` (control) | 302 -> `https://techspecs.ui.com` | - | 308 |
+
+So the pattern an earlier pass guessed (`dl.ui.com/qs/UDW.pdf`) was wrong in the segment, not absent:
+the quick-start exists for the UDW, at `/qig/`, and the fallback for a slug that has no document is
+the same 302 to the techspecs root that a nonsense slug gets. `qig/udw-eu.pdf` missing while
+`qig/udw.pdf` is present also shows the key is **per SKU, not per region** - there is no regional
+quick-start to find.
+
+**The part that ends the quick-start route as a census source for this family.** The UDW QIG is one
+page, produced by Adobe Illustrator 28.0, and carries **no text at all**: none of its five
+decompressed content streams contains a `BT`, `Tj` or `TJ` operator, and the file has no
+`/ActualText`. Every label on the sheet is outlined vector artwork. A Pro quick-start, if Ubiquiti
+ever published one, would still have to be read by eye by someone with the drawing in front of them;
+it cannot be turned into a port census by text extraction, and reading outline artwork by guessing at
+shapes is exactly the kind of inference this note exists to prevent.
+
+### 3. The vendor's own machine-readable spec agrees with `devices/ubiquiti/udw.json`
+
+For completeness, the same pageProps hold `product.technicalSpecification` - the spec table as data,
+not as markup. The rows that matter here:
+
+| row | value |
+|---|---|
+| PoE Budget | `420W` |
+| Max. Power Consumption | `112W (Excluding PoE output)` |
+| Default WAN Ports | `(1) 2.5 GbE RJ45` + `(1) 10G SFP+` |
+| Max. WAN Port Count | `8` |
+| Power Supply | `(2) Hot-Swappable AC/DC 550W PSU`, `(1) Pre-installed PSU` |
+| NVR Storage | `512 GB microSD` + `128 GB SSD` |
+
+That matches the datasheet text layer (`dl.ui.com/ds/udw_ds.pdf`, 544,909 B: 17 LAN GbE of which
+4 PoE / 4 PoE+ / 4 PoE++, 1 WAN 2.5 GbE, 1 LAN + 1 WAN 10G SFP+, 532 W max consumption) and
+`devices/ubiquiti/udw.json` (20 interfaces, 420 W budget). **No spec change follows** - the file was
+already right, which is why pointing a requester at it is safe.
+
+### What still unblocks #130
+
+Unchanged, and now narrowed on two more surfaces: a Ubiquiti-hosted page, datasheet, quick-start,
+FCC exhibit or storefront entry that names `UDW-PRO` and prints its ports and PoE budget - or the
+requester confirming they meant the **UDW** (`devices/ubiquiti/udw.json`) or the **UDM-Pro**. The
+quick-start avenue should be considered closed for any sibling that Ubiquiti publishes only as
+`qig` artwork.
