@@ -244,18 +244,18 @@ entry it returns is either a device with at least one named port or an error tha
 ## What is in the catalogue
 
 **2,356 models across 258 vendors**, and it grows every time somebody's hardware is
-added. The largest vendors by model count:
+added. The largest vendors and categories by model count, in descending order:
 
 | vendor | models | | category | models |
 |---|---:|---|---|---:|
-| MikroTik | 366 | | router | 384 |
 | Ubiquiti | 368 | | switch | 429 |
-| Aruba | 73 | | point-to-point | 212 |
-| Huawei | 102 | | wireless | 219 |
-| Cisco | 89 | | L3 switch | 264 |
-| TP-Link | 57 | | IoT | 125 |
-| Teltonika | 88 | | modem | 54 |
-| HPE | 33 |
+| MikroTik | 366 | | router | 384 |
+| Huawei | 102 | | L3 switch | 264 |
+| Cisco | 89 | | wireless | 219 |
+| Teltonika | 88 | | point-to-point | 212 |
+| Aruba | 73 | | IoT | 125 |
+| Peplink | 59 | | ONT | 120 |
+| TP-Link | 57 | | | |
 | NETGEAR | 52 | | | |
 
 The authoritative list is not this page — it is the directory. `GET /api/catalog` returns
@@ -263,7 +263,9 @@ every spec the running server has loaded, with the category groupings the palett
 and `GET /api/requests` returns the hardware people have asked for that is not here yet.
 
 If a number here disagrees with the directory, the directory is right; this section is
-prose and prose goes stale.
+prose and prose goes stale. `npm run regen:registry-doc` rewrites those counts in place
+and never moves a row, so the order above is an editor's to keep when a vendor overtakes
+another.
 
 <!-- open-requests:start -->
 ## What is left open, and why
