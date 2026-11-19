@@ -3,7 +3,7 @@
   "model": "UISP-R",
   "label": "UISP Router",
   "category": "router",
-  "description": "UISP Router (UISP-R) - 8x 1G RJ45 + 1x 1G SFP. 10 W max.",
+  "description": "UISP Router (UISP-R) - 8x 1G RJ45, all eight 27V passive PoE at 30 W/port, + 1x 1G SFP. 10 W max excluding PoE output; 27V 4.4A adapter.",
   "capabilities": [
     "l3-forward",
     "cli",
@@ -21,73 +21,122 @@
       "type": "ethernet",
       "connector": "rj45",
       "speed": "1G",
-      "poeOut": true,
-      "poeOutClass": "PoE"
+      "poeOut": 30,
+      "poeOutClass": "passive",
+      "speedCaps": [
+        "1G",
+        "100M",
+        "10M"
+      ]
     },
     {
       "name": "eth1",
       "type": "ethernet",
       "connector": "rj45",
       "speed": "1G",
-      "poeOut": true,
-      "poeOutClass": "PoE"
+      "poeOut": 30,
+      "poeOutClass": "passive",
+      "speedCaps": [
+        "1G",
+        "100M",
+        "10M"
+      ]
     },
     {
       "name": "eth2",
       "type": "ethernet",
       "connector": "rj45",
       "speed": "1G",
-      "poeOut": true,
-      "poeOutClass": "PoE"
+      "poeOut": 30,
+      "poeOutClass": "passive",
+      "speedCaps": [
+        "1G",
+        "100M",
+        "10M"
+      ]
     },
     {
       "name": "eth3",
       "type": "ethernet",
       "connector": "rj45",
       "speed": "1G",
-      "poeOut": true,
-      "poeOutClass": "PoE"
+      "poeOut": 30,
+      "poeOutClass": "passive",
+      "speedCaps": [
+        "1G",
+        "100M",
+        "10M"
+      ]
     },
     {
       "name": "eth4",
       "type": "ethernet",
       "connector": "rj45",
       "speed": "1G",
-      "poeOut": true,
-      "poeOutClass": "PoE"
+      "poeOut": 30,
+      "poeOutClass": "passive",
+      "speedCaps": [
+        "1G",
+        "100M",
+        "10M"
+      ]
     },
     {
       "name": "eth5",
       "type": "ethernet",
       "connector": "rj45",
       "speed": "1G",
-      "poeOut": true,
-      "poeOutClass": "PoE"
+      "poeOut": 30,
+      "poeOutClass": "passive",
+      "speedCaps": [
+        "1G",
+        "100M",
+        "10M"
+      ]
     },
     {
       "name": "eth6",
       "type": "ethernet",
       "connector": "rj45",
       "speed": "1G",
-      "poeOut": true,
-      "poeOutClass": "PoE"
+      "poeOut": 30,
+      "poeOutClass": "passive",
+      "speedCaps": [
+        "1G",
+        "100M",
+        "10M"
+      ]
     },
     {
       "name": "eth7",
       "type": "ethernet",
       "connector": "rj45",
       "speed": "1G",
-      "poeOut": true,
-      "poeOutClass": "PoE"
+      "poeOut": 30,
+      "poeOutClass": "passive",
+      "speedCaps": [
+        "1G",
+        "100M",
+        "10M"
+      ]
     },
     {
       "name": "sfp1",
       "type": "ethernet",
       "connector": "sfp",
-      "speed": "1G"
+      "speed": "1G",
+      "speedCaps": [
+        "1G"
+      ]
     }
   ],
   "icon": "router",
   "color": "#14b8a6",
-  "sourceUrl": "https://techspecs.ui.com/uisp/wired/uisp-r"
+  "sourceUrl": "https://techspecs.ui.com/uisp/wired/uisp-r",
+  "poe": {
+    "budgetW": 108.8,
+    "sourceUrl": "https://techspecs.ui.com/uisp/wired/uisp-r",
+    "note": "DERIVED CEILING, not a quoted budget - Ubiquiti prints no total PoE row for this box. The two figures it does print give the headroom exactly: the included adapter is \"27V DC, 4.4A\" = 118.8 W, and \"Max. power consumption = 10W (Excluding PoE output)\", so at most 118.8 - 10 = 108.8 W can leave the eight PSE ports. Recorded as a derived figure in the same shape as devices/antaira/lmp-1002g-sfp-t.json, which subtracts its no-PD draw from its fully-loaded figure; this is arithmetic on two published numbers, not an estimate. Per-port ceiling is the vendor's own: \"Max. Passive PoE wattage per port = 30W/27V DC\" - eight of those would be 240 W, so the adapter, not the port count, is what stops a full fill. NOT 802.3af/at: the PoE interface row reads \"(8) 27V passive PoE: 2-pair (pins 4, 5+/7, 8-) or 4-pair (pins 1, 2, 4, 5+/3, 6, 7, 8-)\" with \"Passive PoE voltage range = 27V DC\" against a 24-28V DC supported input, so the eight ports feed 24/27V passive gear (airMAX/airFiber) and will not negotiate with a 48V 802.3af/at PD. Read 2026-11-19: https://techspecs.ui.com/uisp/wired/uisp-r (HTTP 200, 583,910 B, title \"UISP Router - Tech Specs\") and https://dl.ui.com/ds/uisp-r_ds.pdf (HTTP 200, application/pdf, 2,635,831 B, 2 pp, text layer) - both print every row above. The datasheet key is hyphenated per SKU: dl.ui.com/ds/uisp_router_ds.pdf answers 302, and store.ui.com/us/en/products/uisp-router answers 404, while the commerce backend storefrontProduct(slug:\"uisp-r\") returns displaySku UISP-R, status Available."
+  },
+  "notes": "Vendor figures from Ubiquiti's own pages, read 2026-11-19. Networking interface \"(8) GbE RJ45 ports\" + \"(1) 1G SFP port\" (datasheet: \"(8) 10/100/1000 MbE RJ45 ports\", the 10M rung the row now lists); \"Power method: External AC/DC adapter\", \"Power supply: 27V DC, 4.4A power adapter (included)\", \"Supported voltage range 24-28V DC\", \"Max. power consumption 10W (Excluding PoE output)\"; \"PoE interface (8) 27V passive PoE\", \"Max. Passive PoE wattage per port 30W/27V DC\", \"Passive PoE voltage range 27V DC\". Management is \"Ethernet in-band\" plus Bluetooth BLE, so the row keeps cli/http-server and gains nothing new. Sources: https://techspecs.ui.com/uisp/wired/uisp-r and https://dl.ui.com/ds/uisp-r_ds.pdf. Before this pass all eight copper ports claimed poeOutClass \"PoE\" (802.3af) with a true poeOut and no wattage, and the row had no poe block at all - so the budget came from the model name, which has no figure in it: 0. engine/simulator.js opens computePoe() with \"if (!dev.poeBudget) continue;\", so eight documented PSE ports were skipped without an entry, and a MicroPoP router could not power a single airMAX radio while show power inline said nothing at all."
 }
