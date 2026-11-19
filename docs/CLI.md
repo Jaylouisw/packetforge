@@ -2035,7 +2035,7 @@ Declaring the sides is what stops the inside-to-inside translation, and the side
 `show running-config` (printed inside the interface block, which is the only place the parser accepts them).
 
 The engine has translated static, dynamic and PAT since it was written, and until now **no command could
-configure any of them** — `config.nat` had no writer, so a lab could not ask the question at all. Four spellings
+configure any of them** — `config.nat` had no writer, so a lab could not ask the question at all. Five spellings
 create a rule:
 
 | command | rule |
