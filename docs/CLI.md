@@ -2205,31 +2205,39 @@ bundle, mark all ten `(P)`, and hash frames across all ten — a switch that mov
 row that agreed with the configuration instead of the hardware.
 
 Now `mode on` holds eight members and refuses a ninth, LACP holds sixteen, and past the eighth the receipt says
-what the box would do — on a negotiating bundle, where the ninth waits:
+what the box would do — on a negotiating bundle, where the ninth and the tenth wait:
 
 ```
 sw1(config-if)#channel-group 1 mode active
 Interface Gi1/0/9 added to channel group 1 (mode active)
   Gi1/0/9 is hot-standby: the bundle already has 8 active links, and this one takes over if an active link fails
+sw1(config-if)#exit
+sw1(config)#interface Gi1/0/10
+sw1(config-if)#channel-group 1 mode active
+Interface Gi1/0/10 added to channel group 1 (mode active)
+  Gi1/0/10 is hot-standby: the bundle already has 8 active links, and this one takes over if an active link fails
 ```
 
-and on a group already holding eight `mode on` members, which has nowhere to park a ninth:
-
-```
-sw1(config-if)#channel-group 1 mode on
-% Gi1/0/9 not added: channel group 1 already holds 8 members, and a static (`mode on`) bundle carries at most 8 links. Nothing was changed.
-```
-
-The mode belongs to the group, not to the member: typed on a port that is already in that group, the line
-re-modes every member (`Channel group 1 mode changed from active to on for every member: Gi1/0/1, Gi1/0/2,
-… Gi1/0/8`) rather than refusing the port. The cap is applied on that path too, because a mode change is the
-one line that rewrites the cap a group already holds under: nine members fit one LACP group (sixteen), and
-moving it to `mode on` would leave them in an eight-link bundle with nowhere to park the ninth — hot-standby
-is `LACP only`, as the key says — so the mode is what gets refused:
+The mode belongs to the group, not to the member: a line typed on a port that is already in the group re-modes
+every member (`Channel group 1 mode changed from active to on for every member: Gi1/0/1, Gi1/0/2, …`) rather
+than refusing the port. The cap is applied on that path too, because a mode change is the one line that rewrites
+the cap a group already holds under: ten members fit one LACP group (sixteen), and moving it to `mode on` would
+leave them in an eight-link bundle with nowhere to park the ninth or the tenth — hot-standby is `LACP only`, as
+the key says — so the mode is what gets refused:
 
 ```
 sw1(config-if)#channel-group 1 mode on
-% Channel group 1 not moved to mode on: it holds 9 members, and a static (`mode on`) bundle carries at most 8 links, with no hot-standby to park the extra member in. Keep `channel-group 1 mode active`, or remove a member first. Nothing was changed.
+% Channel group 1 not moved to mode on: it holds 10 members, and a static (`mode on`) bundle carries at most 8 links, with no hot-standby to park the extra 2 in. Keep `channel-group 1 mode active`, or remove a member first. Nothing was changed.
+```
+
+Typed on a port the group does not hold, the same line is a join as well as a mode change, and it is refused for
+the bundle it would build. `Gi1/0/11` is the eleventh socket of this switch, outside the ten-member bundle:
+
+```
+sw1(config-if)#exit
+sw1(config)#interface Gi1/0/11
+sw1(config-if)#channel-group 1 mode on
+% Gi1/0/11 not added: channel group 1 holds 10 members, and `channel-group 1 mode on` would make 11 - above the 8 links such a bundle carries. Nothing was changed.
 ```
 
 The join refusal names the group's own count and the cap it would breach, so a line that both joins and

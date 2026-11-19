@@ -61,6 +61,32 @@ function session() {
   return cli;
 }
 
+// A transcript is replayed prompt for prompt: each page line either names a command (and the console must be
+// at that prompt) or is an answer (and must be the next line the console printed, in order).
+function replay(cli, block) {
+  const steps = transcript(block);
+  const mismatches = [];
+  const pending = [];
+  let lines = 0;
+  for (const step of steps) {
+    if (step.command !== undefined) {
+      lines++;
+      const here = cli.prompt();
+      if (step.prompt !== here) mismatches.push('prompt: page shows ' + step.prompt + ', console says ' + here);
+      const out = (cli.run(step.command).output || []).map(String);
+      for (const l of out) pending.push(l);
+    } else {
+      lines++;
+      const next = pending.shift();
+      if (next === undefined) mismatches.push('page shows "' + step.output + '" but the console printed nothing there');
+      else if (next !== step.output) mismatches.push('page shows "' + step.output + '", console says "' + next + '"');
+    }
+  }
+  // A transcript is also incomplete if the console said something the page left out.
+  for (const extra of pending) mismatches.push('console printed "' + extra + '", page shows nothing');
+  return { lines: lines, mismatches: mismatches };
+}
+
 console.log('');
 console.log('The DHCP pool session in docs/CLI.md is what this console prints:');
 {
@@ -69,31 +95,10 @@ console.log('The DHCP pool session in docs/CLI.md is what this console prints:')
   })[0];
   ok(!!block, 'the page still holds the DHCP pool session');
   if (block) {
-    const steps = transcript(block);
-    const cli = session();
-    const mismatches = [];
-    const pending = [];
-    let lines = 0;
-    for (const step of steps) {
-      if (step.command !== undefined) {
-        lines++;
-        const here = cli.prompt();
-        if (step.prompt !== here) mismatches.push('prompt: page shows ' + step.prompt + ', console says ' + here);
-        const out = (cli.run(step.command).output || []).map(String);
-        for (const l of out) pending.push(l);
-      } else {
-        lines++;
-        const next = pending.shift();
-        if (next === undefined) mismatches.push('page shows "' + step.output + '" but the console printed nothing there');
-        else if (next !== step.output) mismatches.push('page shows "' + step.output + '", console says "' + next + '"');
-      }
-    }
-    // A transcript is also incomplete if the console said something the page left out.
-    for (const extra of pending) mismatches.push('console printed "' + extra + '", page shows nothing');
-
-    ok(lines > 0, 'and it is a transcript of real prompts', String(lines));
-    ok(mismatches.length === 0, 'every line on the page is a line the console prints, in order',
-      JSON.stringify(mismatches.slice(0, 4)));
+    const result = replay(session(), block);
+    ok(result.lines > 0, 'and it is a transcript of real prompts', String(result.lines));
+    ok(result.mismatches.length === 0, 'every line on the page is a line the console prints, in order',
+      JSON.stringify(result.mismatches.slice(0, 4)));
   }
 }
 
@@ -104,6 +109,61 @@ console.log('No documented answer uses the retired error-code prefix:');
   // that shape is a string no code path can produce.
   const retired = doc.split('\n').filter(function (l) { return /^\s*%\s+E_[A-Z_]+:/.test(l); });
   ok(retired.length === 0, 'docs/CLI.md has no `% E_<CODE>: message` line', JSON.stringify(retired.slice(0, 3)));
+}
+
+
+console.log('');
+console.log('The EtherChannel session in docs/CLI.md is what this console prints:');
+{
+  // The section is one session on a 48-port 2960X: ten `mode active` joins, then the two lines typed after them.
+  // The refusal it used to print was a join refusal over Gi1/0/9 - a port that had just joined the group in the
+  // line above, so `_channelGroup()` answers it on the mode-change path instead (#2033). The block is replayed
+  // from the eighth member on, and the two lines after it in the same session.
+  const sw = catalog.filter(function (s) { return s.model === 'C2960X-48FPS-L'; })[0];
+  ok(!!sw, 'the section\'s switch is in the catalogue');
+  if (sw) {
+    // Only the blocks of this section: the page shows `channel-group` in more than one place, and each is its
+    // own session.
+    const section = (function () {
+      const all = doc.split('\n');
+      const start = all.findIndex(function (l) { return /^#### A bundle carries eight links/.test(l); });
+      if (start === -1) return null;
+      const rest = all.slice(start + 1);
+      const end = rest.findIndex(function (l) { return /^#{1,4} /.test(l); });
+      return (end === -1 ? rest : rest.slice(0, end)).join('\n');
+    })();
+    ok(!!section, 'the page still holds the eight-link section');
+    const tries = fencedBlocks(section || '').filter(function (b) {
+      return b.some(function (l) { return /^[A-Za-z][\w.-]*(?:\([a-z0-9-]+\))?#channel-group 1 mode /.test(l); });
+    });
+    ok(tries.length === 3, 'the page holds three channel-group transcripts', String(tries.length));
+
+    const cli = (function () {
+      const t = new Topology();
+      const dev = t.addDevice(sw, 'sw1');
+      dev.config.hostname = 'sw1';
+      const c = new CliSession(dev, t, new Simulator(t));
+      c.run('enable');
+      c.run('configure terminal');
+      // Members one to eight are joined before the page starts printing: the section quotes the ninth.
+      for (let i = 1; i <= 8; i++) {
+        c.run('interface Gi1/0/' + i);
+        c.run('channel-group 1 mode active');
+      }
+      c.run('interface Gi1/0/9');
+      return c;
+    })();
+
+    const lines = { lines: 0, mismatches: [] };
+    for (const block of tries) {
+      const result = replay(cli, block);
+      lines.lines += result.lines;
+      for (const m of result.mismatches) lines.mismatches.push(m);
+    }
+    ok(lines.lines > 0, 'and it is a transcript of real prompts', String(lines.lines));
+    ok(lines.mismatches.length === 0, 'every line on the page is a line the console prints, in order',
+      JSON.stringify(lines.mismatches.slice(0, 4)));
+  }
 }
 
 console.log('\n' + passed + ' passed, ' + failed + ' failed');
