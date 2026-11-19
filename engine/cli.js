@@ -6945,7 +6945,13 @@ class CliSession {
         // `interface Console` wrote a stanza no Cisco running-config contains and no box could read back.
         // `line con 0` is not a mode this console has, so the honest config has nothing to say here at all.
         if (isConsoleLine(i)) continue;
-        out.push('interface ' + i.name);
+        // The stanza header spells the type out, the way the box's own file does: a Catalyst prints
+        // `interface FastEthernet0/6`, and a 9200's own `show running-config interface gigabitethernet1/0/1`
+        // comes back headed `interface GigabitEthernet1/0/1` however the command was typed. The panel name
+        // stays the key (every lookup folds onto it), so only the printed header moves - and it moves through
+        // the same table `show ip interface brief` uses, so one port cannot be named two ways by two views
+        // (research/running-config-interface-name.md).
+        out.push('interface ' + require('./iface-name').displayName(i.name));
         if (i.description) out.push('  description ' + i.description);
         // Only when forced: a config that emits `speed auto` on every port is noise, and the round trip
         // already asserts that nothing configured is left out (#1259).

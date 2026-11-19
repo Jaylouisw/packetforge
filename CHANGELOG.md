@@ -2,6 +2,23 @@
 
 ### Fixed
 
+- **A `show running-config` stanza header spells the interface type in full.** The printer headed every
+  block with the catalogue's panel spelling, so a factory 2960-X printed 28 stanzas reading
+  `interface Gi1/0/1` … `interface Gi1/0/28` where a box prints `GigabitEthernet1/0/1` - and prints the
+  same header however the `interface` command was typed. A Catalyst's own
+  `show running-config interface fastEthernet 0/6` comes back headed `interface FastEthernet0/6`, a
+  9200's `show running-config interface gigabitethernet1/0/1` is headed `interface GigabitEthernet1/0/1`,
+  and the 4000 Series ISR's default configuration goes `interface GigabitEthernet0/0/0` / `no ip address` /
+  `negotiation auto` / `!`. The header now goes through the same `displayName()` the brief table uses, so
+  the two vendor-shaped views cannot name one port two ways, a subinterface keeps its tag after the
+  expanded parent (`GigabitEthernet1/0/3.10`), and a name the table does not know - UniFi's `Port 1`,
+  RouterOS's `eth1` - is printed untouched. The panel name stays the key, `show interfaces` still heads
+  its block with `Gi1/0/1`, and the printed file still replays byte-identically.
+  `test/running-config-interface-name.test.js` (34 checks) pins every header, the three typed spellings,
+  the subinterface, the router and VRP spellings, the untouched names, the agreement with
+  `show ip interface brief`, and the round trip;
+  [research/running-config-interface-name.md](research/running-config-interface-name.md) cites the pages
+  and records what is still open (the capitalisation of the type word, types the table does not know).
 - **An empty `show lldp neighbors` ends with `Total entries displayed: 0`, the line a box prints.** The count
   line was added for a table with rows and deliberately withheld from an empty one, because no vendor page in
   hand showed an empty neighbour table. The captures now in hand do: a Catalyst 9300 with dot1x holding the

@@ -203,7 +203,10 @@ console.log('The drop lands on the VLAN interface, and running-config prints the
     lines.filter(function (l) { return /drop/.test(l); }).join(' | '));
 
   const rc = (session.run('show running-config').output || []).map(String);
-  const at = rc.indexOf('interface ' + env.rp + '.10');
+  // The stanza header spells the type out, so the block is found under the name the printer writes
+  // (research/running-config-interface-name.md), not the panel spelling the test's own variable holds.
+  const stanza = 'interface ' + require('../engine/iface-name').displayName(env.rp + '.10');
+  const at = rc.indexOf(stanza);
   ok(at !== -1, 'running-config has a block for ' + env.rp + '.10', String(at));
   const block = at === -1 ? [] : rc.slice(at + 1, at + 6);
   ok(block.some(function (l) { return l.trim() === 'ip access-group 101 in'; }),

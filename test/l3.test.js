@@ -147,7 +147,7 @@ console.log('\nScenario E: CLI validation');
   ok(/VLAN out of range/.test(bad), 'subinterface with an out-of-range VLAN rejected');
 
   const run = runCommands(L.r, L.t, L.sim, ['show running-config']).lines.join('\n');
-  ok(/interface Gi0\/0\.10/.test(run) && /encapsulation dot1q 10/.test(run),
+  ok(/interface GigabitEthernet0\/0\.10/.test(run) && /encapsulation dot1q 10/.test(run),
     'running-config shows the subinterface and its encapsulation');
 
   const brief = runCommands(L.r, L.t, L.sim, ['show ip interface brief']).lines.join('\n');

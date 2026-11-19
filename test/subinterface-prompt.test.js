@@ -104,7 +104,7 @@ test('the subinterface is still an interface mode: its config lands and `end` le
   const ip = env.run('ip address 10.0.0.1 255.255.255.0');
   assert.match(ip, /IP address set on Gi0\/0\.10/, 'the address is accepted inside the subinterface: ' + ip);
   const run = env.run('show running-config');
-  assert.match(run, /interface Gi0\/0\.10/, 'the subinterface is in the config');
+  assert.match(run, /interface GigabitEthernet0\/0\.10/, 'the subinterface is in the config');
   assert.match(run, /ip address 10\.0\.0\.1/, 'with its address');
   env.run('end');
   assert.strictEqual(env.prompt(), 'r1#', 'end reaches enable mode from a subinterface');

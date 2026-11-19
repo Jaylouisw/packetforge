@@ -188,6 +188,14 @@ Four properties make that work, all of them load-bearing:
   (`test/running-config-stanza-separator.test.js`, `research/running-config-stanza-separator.md`).
 * **Comment lines (`!`, `#`) are ignored in every mode**, including the `! PacketForge running-config`
   header the printer writes itself.
+* **An interface stanza header spells the type out.** A box's file prints
+  `interface FastEthernet0/6` / `interface GigabitEthernet1/0/1` / `interface Serial0/0/0`, never `Fa0/6`
+  or `Gi1/0/1`, and prints the same header however the `interface` command was typed; a 2960-X's 28 stanzas
+  therefore read `GigabitEthernet1/0/1` … `GigabitEthernet1/0/28`, and a subinterface keeps its tag after
+  the expanded parent (`GigabitEthernet1/0/3.10`). The expansion is the one `show ip interface brief` uses,
+  so the two vendor-shaped views cannot name one port two ways, and a name the table does not know
+  (Ubiquiti's `Port 1`, `SFP+ 1`, RouterOS's `eth1`) is printed untouched
+  (`research/running-config-interface-name.md`, `test/running-config-interface-name.test.js`).
 * **An interface name is the rest of the line**, because some contain spaces — Ubiquiti's `Port 1`,
   `SFP+ 1`. Splitting on whitespace and taking one token made those devices' configs unreplayable.
 * **The file ends with `end`.** That is the line a real config closes with, and its job is the paste: read
@@ -453,8 +461,13 @@ A port answers to any spelling it is silkscreened or configured under, so `inter
 socket the panel calls `eth1` and `interface SFP+1` opens `sfp+1`. The naming table lives in
 `engine/iface-name.js` and is used by both the console and the engine — there is no second copy, because two
 copies of one naming rule drift. Ambiguity is refused rather than guessed: if two ports fold onto the same
-spelling, that spelling resolves to nothing and the command says the port does not exist. Whatever you
-type, everything printed afterwards uses the panel spelling.
+spelling, that spelling resolves to nothing and the command says the port does not exist. What is printed
+afterwards depends on the view, exactly as it does on a box: the panel spelling is the key and the name in
+this console's own shapes (`show interfaces`, and the refusals), while a vendor-shaped view prints what the
+vendor prints there - the type word spelled out in `show ip interface brief` and in a `show running-config`
+stanza header, and the abbreviation in the tables that abbreviate (`show vlan`, `show etherchannel summary`,
+the MAC table). `research/interface-brief-name-spelling.md` and
+`research/running-config-interface-name.md` carry the captures.
 
 **A name that opens nothing leaves the session where it was.** `interface Fa9/9` on a box with no slot 9 is
 refused, and the refusal is the whole effect: a box reports the line at the parser, before it runs, so the
@@ -864,7 +877,9 @@ of this table all reach the same port; only the printed cell is expanded. `show 
 each block with the panel spelling (`Gi1/0/1`), because that block is this console's own shape rather than
 a vendor table, and the brief table is the vendor's. Tables that abbreviate on a real box still abbreviate
 here — `show vlan`'s Ports list, `show etherchannel summary`'s members and the MAC table's `Ports` column
-print `Fa0/1`/`Gi1/0/1` exactly as a box does. The samples, and the parts still open (a name wider than
+print `Fa0/1`/`Gi1/0/1` exactly as a box does — and the other vendor-shaped view, the `show running-config`
+stanza header, spells the type out for the same reason
+(`research/running-config-interface-name.md`). The samples, and the parts still open (a name wider than
 the column, a vendor that prints neither spelling), are in
 [research/interface-brief-name-spelling.md](../research/interface-brief-name-spelling.md).
 
@@ -1828,7 +1843,7 @@ sw1> show ip ospf
 ### The voice VLAN
 
 ```
-interface Gi1/0/5
+interface GigabitEthernet1/0/5
  switchport access vlan 10
  switchport mode access
  switchport voice vlan 20
@@ -1994,10 +2009,10 @@ build rather than a list it silently commits. `remove 1-4094` names the whole id
 ### NAT: configuring it, and reading what it did
 
 ```
-interface Gi0/0/1
+interface GigabitEthernet0/0/1
   ip nat inside
 exit
-interface Gi0/0/0
+interface GigabitEthernet0/0/0
   ip nat outside
 exit
 ip nat pool WAN 203.0.113.1 203.0.113.1 netmask 255.255.255.0
@@ -3199,7 +3214,7 @@ packet of a run, and the failures are the ones a server really produces — `no-
 A group belongs to an interface, so the commands live inside `interface`:
 
 ```
-interface Gi0/0
+interface GigabitEthernet0/0
   ip address 10.0.0.1 255.255.255.0
   vrrp <vrid> ip <virtual-address>
   vrrp <vrid> priority <1-254>        # 100 default; 255 is only ever the address owner's

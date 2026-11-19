@@ -48,13 +48,18 @@ function lab() {
 }
 
 // The lines of one interface's block, prompts and the closing `!` separator stripped.
+// The stanza header is the vendor's full type word (`interface FastEthernet0/1`), so the block is
+// matched on the port KEY rather than on the string: `Fa0/1` and `FastEthernet0/1` are one port, and
+// this test is about the order of the lines, not about the spelling of the header
+// (research/running-config-interface-name.md).
+const ifaceName = require('../engine/iface-name');
 function block(lines, name) {
   const out = [];
   let inside = false;
   for (const raw of lines) {
     const line = String(raw).replace(/^.*?#\s*/, '');
     const m = /^interface (.+)$/.exec(line);
-    if (m) { inside = m[1] === name; continue; }
+    if (m) { inside = ifaceName.portKey(m[1]) === ifaceName.portKey(name); continue; }
     if (!inside) continue;
     if (/^!$/.test(line) || /^exit$/.test(line)) break;
     if (line.trim()) out.push(line.trim());

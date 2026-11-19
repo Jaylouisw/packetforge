@@ -83,10 +83,10 @@ console.log('An interface stanza closes with the separator a box prints:');
 
   // The empty stanza is two lines, `interface X` then `!` - no indented body invented for a port with
   // nothing configured, and no missing separator either.
-  const at = fresh.indexOf('interface Gi0/1');
+  const at = fresh.indexOf('interface GigabitEthernet0/1');
   ok(at >= 0 && fresh[at + 1] === '!', 'an unconfigured port is its header and the separator',
     JSON.stringify(fresh.slice(at, at + 3)));
-  ok(fresh[at + 2] === 'interface Gi0/2', 'and the separator ends that stanza - the next line is the next block',
+  ok(fresh[at + 2] === 'interface GigabitEthernet0/2', 'and the separator ends that stanza - the next line is the next block',
     JSON.stringify(fresh.slice(at, at + 3)));
   ok(fresh[fresh.length - 2] === '!' && fresh[fresh.length - 1] === 'end',
     'the file closes the last stanza and then ends', JSON.stringify(fresh.slice(-3)));
@@ -98,7 +98,7 @@ console.log('A configured stanza keeps its lines, and closes with `!`:');
   const r = session(ROUTER);
   configure(r);
   const rc = r.config();
-  const at = rc.indexOf('interface Gi0/0');
+  const at = rc.indexOf('interface GigabitEthernet0/0');
   ok(rc[at + 1] === '  ip address 10.1.2.3 255.255.255.0', 'the address is inside the stanza',
     JSON.stringify(rc.slice(at, at + 3)));
   ok(rc[at + 2] === '!', 'and the separator follows it', JSON.stringify(rc[at + 2]));

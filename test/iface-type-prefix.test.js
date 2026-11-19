@@ -56,7 +56,10 @@ test('a one-letter type opens the port on a switch whose only G-type is gigabite
   assert.ok(s.cli.prompt().endsWith('(config-if)#'), 'the prompt is the interface prompt');
   s.run('description shortened');
   s.run('end');
-  assert.match(s.run('show running-config'), /^interface Gi1\/0\/1$/m, 'the config keeps the panel spelling');
+  // `g1/0/1` opened the port; the file a box writes spells the type out whatever was typed
+  // (research/running-config-interface-name.md).
+  assert.match(s.run('show running-config'), /^interface GigabitEthernet1\/0\/1$/m,
+    'the config spells the type in full');
   assert.match(s.run('show interfaces g1/0/1'), /desc: shortened/, 'and the shortened name reads the same port back');
 });
 
@@ -76,7 +79,7 @@ test('a prefix resolves to the type this device carries, not to a Cisco default'
   assert.match(s.cli.prompt(), /\(config-if\)#$/);
   s.run('exit');
   assert.strictEqual(s.run('interface s0/0/0'), '');
-  assert.match(s.run('show running-config'), /^interface Se0\/0\/0$/m);
+  assert.match(s.run('show running-config'), /^interface Serial0\/0\/0$/m);
 });
 
 test('a shortened type works on a subinterface', function () {

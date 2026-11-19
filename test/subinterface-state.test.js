@@ -97,7 +97,7 @@ test('shutting the parent turns the subinterface administratively down, and the 
   assert.doesNotMatch(block, /status: administratively down \(shut down\)/);
   // ...and the config does not grow a shutdown the operator never typed. A restore that carried one
   // would shut the subinterface on the next load, after the parent came back.
-  const sub = env.run(env.a, 'show running-config').split('interface Gi0/0.10')[1].split('exit')[0];
+  const sub = env.run(env.a, 'show running-config').split('interface GigabitEthernet0/0.10')[1].split('exit')[0];
   assert.doesNotMatch(sub, SD);
 });
 
@@ -110,7 +110,7 @@ test('shutting the subinterface on its own leaves the parent alone', () => {
   assert.deepStrictEqual(statusOf(env, 'Gi0/0'), { status: 'up', protocol: 'up' });
   assert.deepStrictEqual(statusOf(env, 'Gi0/0.10'), { status: 'administratively down', protocol: 'down' });
   // This one the operator did type, so it is in the config.
-  const sub = env.run(env.a, 'show running-config').split('interface Gi0/0.10')[1].split('exit')[0];
+  const sub = env.run(env.a, 'show running-config').split('interface GigabitEthernet0/0.10')[1].split('exit')[0];
   assert.match(sub, SD);
 });
 
@@ -144,7 +144,7 @@ test('a subinterface created while the parent is shut comes up when the parent i
   assert.deepStrictEqual(statusOf(env, 'Gi0/0.10'), { status: 'administratively down', protocol: 'down' });
   for (const step of ['configure terminal', 'interface Gi0/0', 'no shutdown', 'end']) run(step);
   assert.deepStrictEqual(statusOf(env, 'Gi0/0.10'), { status: 'up', protocol: 'up' });
-  const sub = run('show running-config').split('interface Gi0/0.10')[1].split('exit')[0];
+  const sub = run('show running-config').split('interface GigabitEthernet0/0.10')[1].split('exit')[0];
   assert.doesNotMatch(sub, SD);
 });
 

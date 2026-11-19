@@ -13,13 +13,15 @@
 // Series 15.2(6)E).
 //
 // What is held here: the four documented spellings are one port, on a box whose catalogue
-// name is short (Cisco) and on one whose name is long (Huawei); a name typed the long way
-// prints the panel spelling afterwards, so the running-config it produces still replays; a
-// subinterface can be created through the long name; and the fold cannot invent a socket -
-// a Ubiquiti "Port 1" is not reachable as Po1, and a type that is not the port's type is
-// still refused. Partial spellings (Gig1/0/1) are no longer one of them: a shortened type expands
-// against the types the device actually has, which is its own question and its own file -
-// test/iface-type-prefix.test.js (research/interface-type-spellings.md records the evidence).
+// name is short (Cisco) and on one whose name is long (Huawei); a name typed any of them
+// prints the vendor's full type word afterwards - `interface GigabitEthernet1/0/1` - so the
+// running-config it produces still replays and reads like the file a box writes
+// (research/running-config-interface-name.md); a subinterface can be created through the long
+// name; and the fold cannot invent a socket - a Ubiquiti "Port 1" is not reachable as Po1, and
+// a type that is not the port's type is still refused. Partial spellings (Gig1/0/1) are no
+// longer one of them: a shortened type expands against the types the device actually has, which
+// is its own question and its own file - test/iface-type-prefix.test.js
+// (research/interface-type-spellings.md records the evidence).
 
 const { test } = require('node:test');
 const assert = require('node:assert');
@@ -74,8 +76,13 @@ test('on a Catalyst, the long name opens the port the catalogue calls Gi1/0/1', 
   s.run('description uplink to core');
   s.run('end');
   const conf = s.run('show running-config');
-  assert.match(conf, /^interface Gi1\/0\/1$/m, 'the running-config uses the panel spelling');
-  assert.doesNotMatch(conf, /^interface GigabitEthernet1\/0\/1$/m, 'and never the typed one');
+  // The stanza header is the vendor's, not the panel's and not an echo of the typed line: a Catalyst's
+  // own `show running-config interface fastEthernet 0/6` comes back headed `interface FastEthernet0/6`,
+  // and a 9200's `show running-config interface gigabitethernet1/0/1` headed `interface
+  // GigabitEthernet1/0/1` (research/running-config-interface-name.md).
+  assert.match(conf, /^interface GigabitEthernet1\/0\/1$/m, 'the running-config spells the type in full');
+  assert.doesNotMatch(conf, /^interface Gi1\/0\/1$/m, 'and never the panel spelling');
+  assert.doesNotMatch(conf, /^interface gi 1\/0\/1$/m, 'nor an echo of a typed spelling');
   assert.match(s.run('show interfaces Gi1/0/1'), /desc: uplink to core/, 'the description landed on the port');
 });
 

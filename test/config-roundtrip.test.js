@@ -241,7 +241,7 @@ console.log('Nothing configurable is left out of the config (#1232):');
 
   // …and VRRP is inside the interface block, because that is the only place the parser takes it.
   const vrrpLine = rc.indexOf('  vrrp 42 ip 10.1.2.1');
-  const ifaceLine = rc.indexOf('interface Gi0/0/0');
+  const ifaceLine = rc.indexOf('interface GigabitEthernet0/0/0');
   const ifaceExit = rc.indexOf('exit', ifaceLine);
   ok(vrrpLine > ifaceLine && vrrpLine < ifaceExit, 'the VRRP group is inside its interface block');
 
@@ -280,7 +280,14 @@ console.log('Nothing configurable is left out of the config (#1232):');
     // and each one is listed with its reason above. Anything else that fails to appear is a real
     // omission, which is what the assertion below is for - see #1232.
     if (NOT_PRINTED_ON_PURPOSE.some(function (re) { return re.test(prefix); })) return;
-    if (text.indexOf(String(obj)) === -1) missing.push(prefix + ' = ' + JSON.stringify(obj));
+    // A stored interface name is printed in the vendor's full type word
+    // (research/running-config-interface-name.md): `config.vrrp[].interface` holds `Gi0/0/0` and the
+    // stanza it belongs to is headed `interface GigabitEthernet0/0/0`, so the value is present in the
+    // file under the spelling the file uses.
+    const spelled = require('../engine/iface-name').displayName(String(obj));
+    if (text.indexOf(String(obj)) === -1 && text.indexOf(spelled) === -1) {
+      missing.push(prefix + ' = ' + JSON.stringify(obj));
+    }
   })(a.dev.config, 'config');
   ok(missing.length === 0, 'every configured value appears somewhere in the printed config',
     missing.slice(0, 5).join(' | '));

@@ -115,7 +115,7 @@ console.log('The config says who clocks the line:');
 {
   const t = lab();
   const cfg = run(t, 'r1', 'show running-config');
-  ok(/interface Se0\/0\/0/.test(cfg), 'the port has a config block');
+  ok(/interface Serial0\/0\/0/.test(cfg), 'the port has a config block');
   ok(/^\s+clock rate 64000$/m.test(cfg), 'with the clock rate in it, at the rate that was typed', cfg.split('\n').filter(function (l) { return /clock/.test(l); }).join(' | '));
   ok(!/clock rate/.test(run(t, 'r2', 'show running-config')), 'and the DTE end claims no clock');
   ok(/^\s+clock rate 64000$/m.test(run(reopen(t), 'r1', 'show running-config')),
