@@ -5035,7 +5035,21 @@ class CliSession {
     const dev = this.device;
     const cfg = dev.config && dev.config.bgp;
     const out = [];
-    if (!cfg || !cfg.as) { out.push('% BGP is not enabled'); return out; }
+    // A box with no BGP process answers every one of these views with the same five words - `% BGP not active`
+    // - and not the sentence this console used to print (`% BGP is not enabled`). It is the string a reader
+    // pastes into a search box and the string a colleague recognises; "is not enabled" is a description of the
+    // same fact in words no box prints. Three Cisco IOS/IOS XE captures, three sub-views:
+    //   R12#sh ip bgp                  -> % BGP not active   (Cisco Community, "BGP Synchronization and MPLS",
+    //                                                          https://community.cisco.com/t5/routing-and-sd-wan/bgp-synchronization-and-mpls/td-p/2904090)
+    //   #sh ip bgp regexp ^abc         -> % BGP not active   (Cisco Community, 9800 WLC thread,
+    //                                                          https://community.cisco.com/t5/wireless/automatically-apply-tag-policy-tag-rf-tag-site-on-cisco-9800-wlc/td-p/4906039)
+    //   P#sh ip bgp summary            -> % BGP not active   (IOS XE lab transcript,
+    //                                                          https://www.pinglabz.com/mpls-l3vpn-configuration-step-by-step/)
+    // The Arista EOS spelling of the same refusal is `% BGP is not active`, one word different and a reminder
+    // that this is a vendor's line rather than a universal one; this console imitates Cisco's, so it prints
+    // Cisco's. research/bgp-not-active-refusal.md records the three captures and the half that is still open
+    // (the config-mode refusals below are this console's own sentences and are not what a box says at all).
+    if (!cfg || !cfg.as) { out.push('% BGP not active'); return out; }
 
     const rows = dev.bgpNeighbors || [];
     // The election again, for the case where no pass has run over this device: `show ip bgp` printed

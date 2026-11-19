@@ -2358,6 +2358,21 @@ every row, which is a value a box never puts beside an eBGP path. The cell is bl
 The prefix list and `show ip route`'s `B` rows describe the same routes, with the same prefix lengths — they
 are read together when a route is not being used.
 
+With **no BGP process** the box answers none of these views. It prints one line, and it is the same line for
+`show ip bgp`, `show ip bgp summary` and every narrowed form:
+
+```
+% BGP not active
+```
+
+Not `% BGP is not enabled`, which was this console's own sentence: right about the fact, wrong about the
+words. A refusal is what an operator recognises and quotes, so it is copied from the box. No `is`, no full
+stop — and the Arista EOS spelling of the same refusal (`% BGP is not active`) is one word different, which
+is the reminder that the line belongs to a vendor. Four Cisco captures across three sub-views are in
+[research/bgp-not-active-refusal.md](../research/bgp-not-active-refusal.md); the *config-mode* refusals
+(`% BGP is not enabled (use "router bgp <as>")`) are unchanged, because they are this console's sentences
+for commands it accepts in global config and a box does not — a separate question, recorded there.
+
 ### Reading `show access-lists`
 
 ```
