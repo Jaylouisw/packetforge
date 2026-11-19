@@ -110,7 +110,8 @@ first.
 | **Modelled** | A learned entry pointing back at the ingress port is dropped with `loop`, rather than forwarded. | `engine/simulator.js:1957` |
 | **Approximate** | Learning happens before the ACL and the STP egress checks, so a frame that is then dropped still taught the switch a MAC. Real hardware does the same; worth knowing when reading a table after a denied flow. | `engine/simulator.js:1734` vs `1792` |
 | **Approximate** | Multicast is treated as broadcast: no IGMP snooping, no per-group filtering. This is deliberate — IPv6 neighbour discovery would never arrive otherwise. | `engine/simulator.js:1842` |
-| **Absent** | MAC ageing, MAC move detection, per-port MAC limits, port security, storm control, error counters, CRC/FCS errors, collisions. | — |
+| **Modelled** | A dynamically learned entry ages out after **300 s** of silence (`MAC_AGE_MS`), and the aged lookup is what the data path uses, not just what the report prints: an entry the table only remembers is not a port a frame may be sent to. The `Age` column in `show mac address-table` is that silence, refreshed by traffic, not a lifetime. | `engine/device.js:6` (`MAC_AGE_MS`), `macLookup()` and `ageMacs()` |
+| **Absent** | MAC move detection, per-port MAC limits, port security, storm control, error counters, CRC/FCS errors, collisions. | — |
 
 ### 2.2 VLANs (802.1Q)
 
