@@ -3142,6 +3142,21 @@ prints in `show running-config` and survives a saved board ("The voice VLAN") - 
 these are keywords it left behind. All of them are accepted by the console today, so this page records them rather
 than promising they are indexed; the index is the code's to complete.
 
+One whole mechanism is missing from the index, and it is invisible to the same check for the same reason: **NAT**.
+The config lines `ip nat pool <name> <start> <end> netmask <mask>` and `ip nat inside source …`, an interface's
+`ip nat inside` / `ip nat outside`, and the three views the NAT section reads (`rules`, `translations`,
+`statistics`) are accepted today, and `help` names none of them - the only line in the index containing `nat` is
+`switchport trunk native vlan <id>`. The guard reads the dispatcher's *first words*, and this feature's first words
+are `ip` and `show`, both already indexed, so every word behind them is outside what it can see. A reader on a box
+holding the `nat` capability learns nothing about NAT from `help`; the pointer is the usage refusal behind the
+feature's own word:
+
+```
+% Usage: show ip nat (rules | translations | statistics)
+```
+
+Recorded here rather than promised as indexed; the index is the code's to complete.
+
 ## Three commands that answered a question nobody asked
 
 Each of these replied in the voice of a neighbouring command, and each answer looked plausible enough to believe (#1493).
