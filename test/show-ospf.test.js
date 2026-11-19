@@ -109,12 +109,20 @@ console.log('The neighbour table is the adjacency the SPF was built on:');
   ok(!/\b1\.1\.1\.1\b/.test(table), 'r1 itself is not its own neighbour');
   ok(/10\.1\.0\.2/.test(rowOf(table, '2.2.2.2')), 'with the address it answers on',
     rowOf(table, '2.2.2.2'));
-  ok(/Gi0\/0\/0/.test(rowOf(table, '2.2.2.2')), 'and the port the adjacency formed on');
+  // The port in FULL, as the box names it in this table: the capture the widths come from says
+  // `Port-channel1` / `Vlan1000`, Cisco 13688-16 says `Ethernet0`, and the Cisco Press OSPFv2 chapter's
+  // three rows are `GigabitEthernet0/0/1..3`. The catalogue stores the panel spelling (`Gi0/0/0`).
+  // research/ospf-neighbor-table-layout.md.
+  ok(/GigabitEthernet0\/0\/0/.test(rowOf(table, '2.2.2.2')), 'and the port the adjacency formed on, spelled in full',
+    rowOf(table, '2.2.2.2'));
+  ok(!/(^|\s)Gi0\/0\/0/.test(rowOf(table, '2.2.2.2')), 'not in the panel spelling', rowOf(table, '2.2.2.2'));
 
   const engine = t.getDevice('r1').ospfNeighbors;
   ok(engine.length === 2, 'the engine agrees there are two', String(engine.length));
+  const longName = function (n) { return require('../engine/iface-name').displayName(n); };
   const everyRowIsEngine = engine.every(function (n) {
-    return table.indexOf(n.routerId) !== -1 && table.indexOf(n.address) !== -1 && table.indexOf(n.iface) !== -1;
+    return table.indexOf(n.routerId) !== -1 && table.indexOf(n.address) !== -1 &&
+      table.indexOf(longName(n.iface)) !== -1;
   });
   ok(everyRowIsEngine, 'every engine neighbour appears in the table, and nothing extra');
 }
@@ -149,8 +157,11 @@ console.log('The columns are the box\'s, in its order and at its widths - Pri an
   ok(row.slice(22, 23) === 'F', 'State starts at column 22', row);
   ok(/^\d\d:\d\d:\d\d/.test(row.slice(38)), 'Dead Time starts at column 38, as HH:MM:SS', row);
   ok(row.slice(50, 58) === '10.1.0.2', 'Address starts at column 50', row);
-  ok(row.slice(66) === 'Gi0/0/0', 'and the port is last, un-padded', row);
-  ok(row.length <= 80, 'no row runs past the console\'s 80 columns', String(row.length));
+  ok(row.slice(66) === 'GigabitEthernet0/0/0', 'and the port is last, un-padded, in its full spelling', row);
+  // A real box does not wrap this row: 66 + len('GigabitEthernet0/0/0') = 86 characters, which is what every
+  // paste of the command on an Ethernet port shows. The console prints one line per neighbour and lets the
+  // client wrap it, as the box does.
+  ok(row.length === 86, 'the row runs to 86 columns, as the box\'s does with a full port name', String(row.length));
 
   const engine = t.getDevice('r1').ospfNeighbors;
   ok(engine.every(function (n) { return n.priority === 1; }),

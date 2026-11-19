@@ -2,6 +2,18 @@
 
 ### Fixed
 
+- **`show ip ospf neighbor` names the port in full, the way the box does.** The Interface cell printed the
+  catalogue's panel spelling (`Gi0/0/0`) where every capture of this command spells the port out: the ntc-templates
+  raw file this table's widths were measured on reads `Port-channel1` and `Vlan1000`, Cisco's `13688-16` sample ends
+  `Ethernet0`, and the Cisco Press OSPFv2 chapter's three rows read `GigabitEthernet0/0/1..3`. The cell now goes
+  through the same `displayName()` expansion `show ip interface brief` and the `%OSPF: OSPF not enabled on …`
+  sentence already use, so `Gi0/0/0` prints as `GigabitEthernet0/0/0` and a row on a gigabit port reaches column 86
+  - which the box's does too, and nothing wraps it here. `show ip ospf interface brief` keeps the abbreviation
+  (`Et0/2` in Cisco's own note), so the two commands in this family still spell the same port differently, as they
+  do on hardware. `test/show-ospf.test.js` pins the long cell, the absence of the short one and the 86-column row;
+  [research/ospf-neighbor-table-layout.md](research/ospf-neighbor-table-layout.md) has the four captures, the one
+  hand-typed blog row that disagrees (`Gig0/0`) and what is still open (a paste from a very long port name).
+
 - **A `ping` ends at the success rate, because a box prints no sentence per echo.** Each echo is reported as one
   character of the marks line (`!`, `.`, `U`) and the run closes with `Success rate is N percent (n/m)` - the round
   trip riding on that line as `, round-trip min/avg/max = a/b/c ms` when anything came back. This console appended

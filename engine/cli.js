@@ -5109,8 +5109,19 @@ class CliSession {
         // carries is always the default. RFC 2328 puts it in the Hello packet; Cisco 13688-16 states the
         // default ("By default, priorities are set to 1") and that the field is the neighbour's.
         const pri = (n.priority === null || n.priority === undefined) ? 1 : n.priority;
+        // The Interface cell names the port in FULL, the way the box names it in this table - not in the
+        // panel spelling the catalogue stores. The capture this table's widths were measured on says so
+        // (`Port-channel1`, `Vlan1000`: ntc-templates cisco_ios_show_ip_ospf_neighbor.raw), Cisco's own
+        // explanation of the command shows `Ethernet0` (13688-16), and the Cisco Press OSPFv2 chapter's
+        // sample runs `GigabitEthernet0/0/1`, `GigabitEthernet0/0/2`, `GigabitEthernet0/0/3` - three rows
+        // that would be `Gi0/0/x` on any other page. A row is therefore wider than 80 columns when the port
+        // name is long (66 + 19 = 85 for `GigabitEthernet0/0/0`), and a real box does not wrap it either.
+        // `show ip ospf interface brief` is the other spelling in the same command family and it DOES
+        // abbreviate (`Gi0/0`), so this is not a general rule - it is this table's.
+        // research/ospf-neighbor-table-layout.md records the four captures and the one sample that
+        // disagrees (`Gig0/0`, a hand-typed blog row).
         out.push(pad(n.routerId, 16) + String(pri).padStart(3, ' ') + '   ' + pad(n.state, 16) +
-          pad(deadCell, 12) + pad(n.address, 16) + n.iface);
+          pad(deadCell, 12) + pad(n.address, 16) + require('./iface-name').displayName(n.iface));
       }
       out.push('');
       out.push(rows.length + ' neighbour(s), all Fully adjacent' +

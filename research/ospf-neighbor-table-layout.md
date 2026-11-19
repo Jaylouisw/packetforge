@@ -32,6 +32,21 @@ order, at what column, and what is the `Dead Time` cell counting?
   column, which is the one vendor-specific addition seen:
   <https://www.dell.com/support/manuals/en-us/smartfabric-os10-emp-partner/smartfabric-os-user-guide-10-6-1-x/show-ip-ospf-neighbor>
   The base six are therefore the portable shape, and Area is left out here.
+* **The Interface cell's spelling.** The last column prints the port's *full* name, not the panel
+  abbreviation. Four captures agree: the ntc-templates raw file prints `Port-channel1` and
+  `Vlan1000` (link above); Cisco 13688-16's own sample row ends `Ethernet0`; the Cisco Press
+  chapter "Implementing OSPFv2 Using network Commands" prints three rows ending
+  `GigabitEthernet0/0/1`, `GigabitEthernet0/0/2`, `GigabitEthernet0/0/3`
+  <https://www.ciscopress.com/articles/article.asp?p=3197438&seqNum=3>; and a RouteLearn paste
+  prints `GigabitEthernet0/0` on every row
+  <https://routelearn.net/ospf/dr-bdr-network-types>. One third-party blog row is written
+  `Gig0/0` <https://github.com/OneUptime/blog/blob/master/posts/2026-03-20-troubleshoot-ospf-neighbor-adjacency/README.md>
+  - hand-typed prose rather than a paste, and the only sample found that abbreviates.
+* The abbreviation is used in the *other* member of this command family: `show ip ospf interface
+  brief` prints `Et0/2` / `Et0/0` in its Interface column in Cisco's own forwarding-address note
+  <https://www.cisco.com/c/en/us/support/docs/ip/open-shortest-path-first-ospf/200066-Understand-Selection-of-Forwarding-Addre.pdf>
+  (a CCNA lab doc prints `Gi1/0/23` there). So the long spelling is a fact about this table, not
+  about OSPF reporting in general.
 * The dead interval is four Hellos: 40 s over the default 10 s hello on a broadcast segment
   (IOS's `ip ospf dead-interval` default). A capture showing the countdown at 36 s, with neighbours
   heard at slightly different instants, is in Cisco's two-way troubleshooting note:
@@ -39,8 +54,11 @@ order, at what column, and what is the `Dead Time` cell counting?
 
 ## What this model does
 
-* Prints the six columns at the measured widths, in the measured order. A row is at most 75 columns
-  with the longest interface name in the catalogue, so nothing wraps.
+* Prints the six columns at the measured widths, in the measured order, with the port named in full
+  (`GigabitEthernet0/0/0` for a catalogue port called `Gi0/0/0`) as every capture does. A row with
+  that name reaches column 86, so the table's last line is wider than 80 columns - the box's is too,
+  and neither wraps it. `show ip ospf interface brief` keeps the abbreviation (`Gi0/0`), which is
+  what the same box prints there.
 * `Pri` reads the neighbour's Hello priority, now carried as `ospfNeighbors[].priority`. It is 1 on
   every port because `ip ospf priority` is not modelled - one value, held as a number so the day the
   command exists the table reads it instead of being rewritten.
@@ -67,6 +85,12 @@ order, at what column, and what is the `Dead Time` cell counting?
   always prints two-digit hours).
 
 ## What is unresolved
+
+* Whether any IOS release abbreviates the Interface cell of `show ip ospf neighbor`. Every paste
+  found spells it out; the one abbreviated row is a blog's hand-typed example (`Gig0/0`), which is
+  also the spelling no `show` command in this family uses (`Gi0/0` would be the abbreviation). A
+  paste from a box with a very long name (`TwentyFiveGigE1/0/1`) would show whether the box ever
+  shortens it to keep the row near 80 columns - this table does not.
 
 * What a real box prints when the countdown reaches zero: whether the row vanishes, drops to
   `DOWN`, or shows `00:00:00` for one more refresh. This model has no per-neighbour expiry - an

@@ -1801,14 +1801,20 @@ Routing Process with ID 1.1.1.1
 ```
 r1> show ip ospf neighbour
 Neighbor ID     Pri   State           Dead Time   Address         Interface
-2.2.2.2           1   FULL/DR         00:00:40    10.1.0.2        Gi0/0/0
+2.2.2.2           1   FULL/DR         00:00:40    10.1.0.2        GigabitEthernet0/0/0
 
 1 neighbour(s), all Fully adjacent
 ```
 
 The six columns are the device's, in its order and at its own columns - Neighbor ID, Pri, State,
 Dead Time, Address, Interface - so a reader who knows the command finds the priority and the
-countdown where they belong instead of the port under `Address`. **Pri** is the neighbour's Hello
+countdown where they belong instead of the port under `Address`. **Interface** names the port in
+full (`GigabitEthernet0/0/0`, not the panel's `Gi0/0/0`), as every paste of this command does: the
+capture the widths were measured on reads `Port-channel1` and `Vlan1000`, Cisco's `13688-16` reads
+`Ethernet0`, and the Cisco Press OSPFv2 chapter reads `GigabitEthernet0/0/1`. That makes the row 86
+columns wide on a GigabitEthernet port, and nothing wraps it - the box prints it that way too. The
+abbreviation is what the same box prints in `show ip ospf interface brief`, so the two commands in
+this family spell the same port differently, and this console does the same. **Pri** is the neighbour's Hello
 priority: 1 here, the hardware default, because `ip ospf priority` is not modelled and the column is
 carried as a number rather than spelled at the console. **Dead Time** is the Router Dead Interval
 counting down from the neighbour's last Hello, and it comes from `convergence.ospfTimers()` - the
