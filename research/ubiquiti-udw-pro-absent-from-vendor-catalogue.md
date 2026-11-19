@@ -332,3 +332,109 @@ knowledge-base article that names `UDW-PRO` and prints its ports and PoE budget 
 confirming they meant the **UDW** (`devices/ubiquiti/udw.json`) or the **UDM-Pro**. The Pro's missing
 fields remain the whole census: RJ45 and SFP+ counts and rates, PoE budget and per-port maxima, drive
 bays, WAN options.
+
+## 2026-11-19 04:2x UT: the commerce backend answers per SKU, and its not-found carries a store list that stays empty for the Pro
+
+Every pass above tested the store with the wrong instrument. Nine storefronts were probed by fetching
+`/{store}/en/products/udw-pro` and reading the 404 - a **page route**. A route can be removed while
+the product still sits in the catalogue, and a page can be switched off while the row survives. This
+pass asked the database instead: `store.ui.com` is a Next.js front end over a GraphQL service, and its
+per-SKU lookup answers anonymously.
+
+### 1. How to reach it, and why the obvious door is shut
+
+The product page's HTML gives one hint - `<link rel="preconnect" href="https://ecomm.svc.ui.com">` -
+and no paths; the operations live in the JS chunks. `https://ecomm.svc.ui.com/graphql` is live:
+`{__typename}` answers `{"data":{"__typename":"Query"}}`.
+
+Three things about it have to be known before a result means anything:
+
+- **Introspection is refused.** `{__schema{queryType{fields{name}}}}` answers **400**.
+- **Validation errors are masked.** An unknown field does not say "unknown field"; it returns *N* copies
+  of `{"message":"Internal Server Error","code":"INTERNAL_SERVER_ERROR"}`. The **count** is still an
+  oracle: adding a valid optional input field leaves the count unchanged, an invalid field adds 1, and
+  a missing *required* field removes 1. That is how `limit` and `offset` were found to be required and
+  `ids` to be invalid - no guessing beyond that was needed.
+- **The list query is not usable.** `storefrontProducts(input:...)` answers four masked errors for
+  every selection and every input tried, including a valid `storeId`. There is no catalogue-wide
+  enumeration here; this instrument is slug-at-a-time.
+
+The lookup that does work, taken from the `GetProduct` operation in the bundle:
+
+```
+query GetProduct($slug:LowercaseTrimmedString!,$storeId:StoreId!,
+                 $language:LowercaseTrimmedString!,$displayCurrency:Currency!){
+  storefrontProduct(slug:$slug,storeId:$storeId,language:$language,
+                    displayCurrency:$displayCurrency){
+    id title displaySku slug status historicalSlugs }}
+```
+
+`storeId` must be **lowercase** (`"us"` works, `"US"` returns the masked validation error). Reproduce
+all of this with `node scripts/ubiquiti-storefront-catalogue.js --slug udw,udw-pro`.
+
+### 2. The controls first, because a miss is only evidence if a hit is possible
+
+This API returns products that are **gone**, and resolves names they used to have. If it could only
+return current listings, a miss would prove nothing.
+
+| slug | result | `status` | `historicalSlugs` |
+|---|---|---|---|
+| `udw` | **FOUND**, `displaySku` `UDW (420W)` | `SoldOut` | `["dream-wall","dream-wall-ea","udw","unifi-dream-wall"]` |
+| `udm` | **FOUND**, `displaySku` `UDM` | `SoldOut` | `["unifi-dream-machine"]` |
+| `udm-pro` | **FOUND**, `displaySku` `UDM-Pro` | `Available` | `["udm-pro","udm-pro-u"]` |
+| `ucg-fiber` | **FOUND**, `displaySku` `UCG-Fiber (30W)` | `Available` | `[]` |
+
+So retired rows are served, and `dream-wall-ea` - the early-access slug - is on the UDW's own record.
+A Pro variant sold under an old name would be reachable by that name.
+
+### 3. The Pro, asked at the database, from every storefront
+
+The not-found error carries `extensions.alternativeStores`, which is the API naming the catalogues that
+*do* hold the product. On the control it is populated; on the Pro it is empty everywhere.
+
+| store | `udw` (control) | `udw-pro` |
+|---|---|---|
+| us | **FOUND** `SoldOut` | **NOT_FOUND**, `alternativeStores: []` |
+| eu | NOT_FOUND, **9 stores listed** | **NOT_FOUND**, `alternativeStores: []` |
+| ca | NOT_FOUND, **9 stores listed** | **NOT_FOUND**, `alternativeStores: []` |
+| br | NOT_FOUND, **9 stores listed** | **NOT_FOUND**, `alternativeStores: []` |
+| jp | NOT_FOUND, **9 stores listed** | **NOT_FOUND**, `alternativeStores: []` |
+| me | NOT_FOUND, **9 stores listed** | **NOT_FOUND**, `alternativeStores: []` |
+| mx | NOT_FOUND, **9 stores listed** | **NOT_FOUND**, `alternativeStores: []` |
+| tw | NOT_FOUND, **9 stores listed** | **NOT_FOUND**, `alternativeStores: []` |
+| uk | NOT_FOUND, **9 stores listed** | **NOT_FOUND**, `alternativeStores: []` |
+
+The non-US control rows are the important ones: from `eu`, the UDW is **not in that catalogue**, and
+the error lists all nine storefronts that have it. That is the instrument demonstrating it can see a
+product outside the store being asked about. The same query for `udw-pro` lists **nothing**, from all
+nine. Five spellings were tried at the database - `udw-pro`, `udwpro`, `udw-pro-us`,
+`dream-wall-pro`, `dreamwallpro` - and all are `NOT_FOUND` with an empty store list.
+
+### 4. What this does and does not prove
+
+**It proves** there is no catalogue row for a Pro Dream Wall in any Ubiquiti storefront, that no
+alias on record resolves to one, and that this is not a delisting: a delisted product answers
+`SoldOut` and is still returned.
+
+**It does not prove the product never existed.** This API *purges* rows - `usg` and `uxg` are also
+`NOT_FOUND` while `udm`, `udr` and `ucg-fiber` are found - so a purged legacy SKU is indistinguishable
+from one that was never created. That distinction is exactly why the request stays open: the census
+fields were never published, and "Ubiquiti no longer has a record" is not a port count.
+
+### 5. Two further traps on this host, so they are not re-walked
+
+`store.ui.com/robots.txt`, `/sitemap.xml`, `/us/en/sitemap.xml` and `/products.json` **all 404** -
+the same 204,279-byte page as any other miss, so the store publishes no product index and is not
+Shopify (no `products.json`). And the earlier thread's note that store search is client-rendered still
+holds; this API is the only machine-readable door, and it is per-SKU.
+
+**No spec change follows.** `devices/ubiquiti/udw.json` is untouched: the vendor's machine-readable
+`technicalSpecification` agrees with it, and none of the Pro's fields exist to add.
+
+### What still unblocks #130
+
+Unchanged. A Ubiquiti-hosted page, datasheet, quick-start, FCC exhibit, storefront entry or KB article
+that names `UDW-PRO` and prints its ports and PoE budget - or the requester confirming they meant the
+**UDW** (`devices/ubiquiti/udw.json`) or the **UDM-Pro**. What has changed is the strength of the
+negative: it no longer rests on rendered pages, but on the catalogue itself, asked per SKU across nine
+storefronts with a control that returns retired rows and foreign-store hits.
