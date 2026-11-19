@@ -55,7 +55,9 @@ command output"
    as switchport mode trunk" and says such a port is displayed "whether the link is up or down", so the test
    is the configuration. PacketForge's `vlan.mode === 'trunk'` is exactly that flag.
 2. **EtherChannel members are also left out.** One Cisco KB sentence says so; PacketForge does not apply it
-   yet (a bundled member keeps its own access VLAN and can still appear). A second rule, a second question.
+   yet (a bundled member keeps its own access VLAN and can still appear). A second rule, a second question,
+   now worked in `research/show-vlan-brief-etherchannel.md`: the IOS sample in hand names `Po1` in the cell,
+   but no capture shows the members' absence, so the engine is unchanged.
 
 ## The one contradiction
 
@@ -124,8 +126,9 @@ trunk allows. The two answers differ because the questions do.
 1. **Unconnected trunks** (above): the KB says VLAN 1 lists them; the command reference says non-trunk ports
    only. One `show vlan brief` from a switch with `switchport mode trunk` on an unpatched port would settle it.
 2. **EtherChannel members**: one KB sentence says bundled ports do not appear. PacketForge lists a member's
-   access VLAN. What would settle it: a capture from a switch with a port-channel whose members are configured
-   `switchport access vlan 10`.
+   access VLAN. `research/show-vlan-brief-etherchannel.md` gathers the IOS/NX-OS samples and the exact
+   command set that would settle it; no capture in hand shows an IOS access bundle's cell, so the engine is
+   unchanged.
 3. **`show vlan id <n>`**: the single-VLAN form does list trunk ports per the command reference, and this
    console refuses that argument rather than printing it. Adopting the single-VLAN form is a new command, not a
    fidelity fix, so it was not added here.
