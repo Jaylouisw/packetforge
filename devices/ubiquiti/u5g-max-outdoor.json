@@ -21,9 +21,9 @@
     {
       "name": "wwan0",
       "type": "wireless",
-      "speed": "1G"
+      "speed": "3.4G"
     }
   ],
   "sourceUrl": "https://techspecs.ui.com/unifi/integrations/u5g-max-outdoor",
-  "notes": "Vendor figures from the Ubiquiti tech specs page: Networking Interface **(1) 2.5 GbE RJ45 port**, **5G NR and LTE** radio, nano-SIM or eSIM, PoE input, **IPX6 - and IP67 only with the cable-gland door kit**, 1.2 kg. The IP rating is conditional: an outdoor install without that door kit is IPX6, which is water jets from any direction but **not** dust-tight immersion protection. Price the kit in with the unit."
+  "notes": "Vendor figures from the Ubiquiti tech specs page: Networking Interface **(1) 2.5 GbE RJ45 port**, **5G NR and LTE** radio, nano-SIM or eSIM, PoE input, **IPX6 - and IP67 only with the cable-gland door kit**, 1.2 kg. The IP rating is conditional: an outdoor install without that door kit is IPX6, which is water jets from any direction but **not** dust-tight immersion protection. Price the kit in with the unit. **Radio rates from the same page, read 2026-11-19:** 5G NSA downlink **3.4 Gbps** / uplink 560 Mbps, 5G SA 1.8 Gbps / 650 Mbps, 4G LTE 1.6 Gbps / 210 Mbps, **(6) embedded cellular antennas**. `wwan0` carried `1G` while `udr-5g-max`, the same radio, carried 3.4G - so the outdoor 5G bridge could not be cabled as 5G. It now carries 3.4G (vendor 5G NSA downlink), the figure the sibling rows use. Sources: https://techspecs.ui.com/unifi/integrations/u5g-max-outdoor (200, 690,575 B, read 2026-11-19) and https://techspecs.ui.com/unifi/accessories/u5g-max-outdoor."
 }
