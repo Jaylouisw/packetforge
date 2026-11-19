@@ -68,12 +68,12 @@ Four scenarios, one change each, same lab (probe `E_failover_matrix`):
 | `iface.enabled = false` on wan1 | *nothing* | `drop: no usable egress interface`, while a valid second default sits in `config.routes` |
 | ISP A unplugged (no IP) | `wan1` | silence: ARP is never answered, no switch to wan2 |
 
-`_deliver()` (`simulator.js:3174`) checks `iface.enabled`, `iface.peer` and whether the
+`_deliver()` (`simulator.js:3226`) checks `iface.enabled`, `iface.peer` and whether the
 cable itself is up — `Link.state` was decoration when this section was measured, and it has
 been read since #1058, so the down-link row above is a dead end the lab can see rather than an
 invisible one (`drop: link down`, in a `drop` event; there is no `link-down` event type). The
-web inspector prints the same field (`web/app.js:2347`, and the canvas colours a down cable at
-`:2792`), so console and screen agree about the cable.
+web inspector prints the same field, in the cable's `State` row (`web/app.js:2380`), and the
+canvas colours a down cable at `web/canvas.js:257`, so console and screen agree about the cable.
 
 What has **not** changed is the choice: the frame still dies on the WAN the routing table
 picked. `routeTo()` returns one route and nothing asks for a second, which is the defect this
