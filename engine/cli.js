@@ -5642,6 +5642,29 @@ class CliSession {
       const natCfg = this.device.config.nat || { rules: [], pools: {} };
       const rules = Array.isArray(natCfg.rules) ? natCfg.rules : [];
       const sub = String(tokens[2] || '').toLowerCase();
+      // A NAT view is one answer, and a word after it was being dropped in silence: `show ip nat translations
+      // verbose` - a real IOS spelling this console keeps no verbose form of - printed the *plain* table, and
+      // `... statistics flurbish` printed the counters, neither saying the request had been ignored. The reader
+      // asked a different question than the one that was answered, which is the one thing a console must not do
+      // quietly. The word is refused where it was typed, the way `show vlan` and `show access-lists` already
+      // refuse theirs (#2097).
+      const natTail = tokens.slice(3);
+      if (natTail.length) {
+        if (sub === 'translations' || sub === 'translation') {
+          if (String(natTail[0] || '').toLowerCase() === 'verbose') {
+            return ['% show ip nat translations has no verbose form: every row already carries the inside local ' +
+              'and global and the outside local and global addresses, so the plain table is the whole answer'];
+          }
+          return showNoTail('show ip nat translations', natTail, 'every translation in the table is printed');
+        }
+        if (sub === 'rules') {
+          return showNoTail('show ip nat rules', natTail, 'every rule is printed, one line each');
+        }
+        if (sub === 'statistics' || sub === 'stat') {
+          return showNoTail('show ip nat statistics', natTail, 'every counter is printed');
+        }
+        // Any other word after `nat` is a view this console does not have: the Usage line below names the three.
+      }
       if (sub === 'rules') {
         if (!rules.length) {
           out.push('% No NAT rules configured');

@@ -195,5 +195,46 @@ console.log('Removing things says what it removed:');
 }
 
 console.log('');
+console.log('A NAT view takes no word, and says so rather than answering the question it was not asked:');
+{
+  // `show ip nat translations verbose` is a real IOS spelling, and `... statistics flurbish` is not a spelling at
+  // all: both used to print the view as if the word were not there. `verbose` is the worse of the two - the reader
+  // asked for a *different* table and was handed the plain one, with nothing on the page saying the request had been
+  // dropped. The console's other views refuse a tail (`% show vlan does not take "brief brief"`); these three did not.
+  const env = lab();
+  configured(env, ['ip nat pool WAN 203.0.113.1 203.0.113.1 netmask 255.255.255.0',
+    'ip nat inside source list 192.168.10.0/24 pool WAN overload']);
+  run(env, 'in1', ['enable', 'ping 203.0.113.9']);
+
+  const plain = run(env, 'r1', ['enable', 'show ip nat translations']);
+  ok(/Inside global/.test(plain), 'the plain table is still printed', plain.split('\n')[0]);
+
+  const verbose = run(env, 'r1', ['enable', 'show ip nat translations verbose']);
+  ok(/verbose/.test(verbose) && !/Inside global/.test(verbose),
+    '`show ip nat translations verbose` is refused, not answered with the plain table', verbose.split('\n')[0]);
+  ok(/no verbose form/.test(verbose), 'and the refusal says the console has no verbose form of the view',
+    verbose.split('\n')[0]);
+
+  const junkTranslations = run(env, 'r1', ['enable', 'show ip nat translations flurbish']);
+  ok(/does not take "flurbish"/.test(junkTranslations) && !/Inside global/.test(junkTranslations),
+    'a made-up word after `translations` is refused too', junkTranslations.split('\n')[0]);
+
+  const junkRules = run(env, 'r1', ['enable', 'show ip nat rules flurbish']);
+  ok(/does not take "flurbish"/.test(junkRules) && !/inside source|Inside source/.test(junkRules),
+    '`show ip nat rules` refuses a word as well', junkRules.split('\n')[0]);
+
+  const junkStats = run(env, 'r1', ['enable', 'show ip nat statistics flurbish']);
+  ok(/does not take "flurbish"/.test(junkStats) && !/Active translations:/.test(junkStats),
+    'and `show ip nat statistics` refuses one', junkStats.split('\n')[0]);
+
+  // A device with no NAT at all must refuse the word rather than report "nothing has crossed" - the answer to the
+  // question asked has to win over the state of the box, or the word is still being dropped in silence.
+  const empty = lab();
+  const emptyJunk = run(empty, 'r1', ['enable', 'show ip nat translations verbose']);
+  ok(/verbose/.test(emptyJunk) && !/No translations/.test(emptyJunk),
+    'the refusal does not depend on a table existing', emptyJunk.split('\n')[0]);
+}
+
+console.log('');
 console.log(passed + ' passed, ' + failed + ' failed');
 if (failed) process.exit(1);

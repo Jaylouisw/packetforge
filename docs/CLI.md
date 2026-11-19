@@ -1939,6 +1939,22 @@ show ip nat translations     # the live table: proto, inside global, inside loca
 show ip nat statistics       # rules by type, pools, timeouts, active translations
 ```
 
+Each of the three is one answer, so a word after it is refused rather than dropped:
+
+```
+% show ip nat translations does not take "flurbish": every translation in the table is printed
+% show ip nat rules does not take "flurbish": every rule is printed, one line each
+% show ip nat statistics does not take "flurbish": every counter is printed
+```
+
+`verbose` is refused in its own words, because it is a real IOS spelling of a *different* table - one row per
+translation with each address pair spelled out - and this console keeps no such form. Printing the plain table in
+answer to it would have answered a question nobody asked (#2097):
+
+```
+% show ip nat translations has no verbose form: every row already carries the inside local and global and the outside local and global addresses, so the plain table is the whole answer
+```
+
 ### What the MAC table remembers, and for how long
 
 A dynamic entry is where a frame was last seen, and when. Silently, for longer than **300 s**, it is gone: the
