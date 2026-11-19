@@ -28,7 +28,7 @@ importer's to state, and is taken from `engine/device.js` (`CAPABILITIES`).
 | `vendor` | yes | **lowercase letters, digits and dashes only** (`^[a-z0-9][a-z0-9-]*$`). It names the directory, so `HPE` fails and `hpe` is right. |
 | `model` | yes | the variant, unique inside the vendor. Becomes the filename. |
 | `label` | recommended | what the UI shows, with the SKU in parentheses. |
-| `category` | yes | one of the 24 below. |
+| `category` | yes | one of the 25 below. |
 | `description` | recommended | prose. Must agree with the ports — see the invariant. |
 | `capabilities` | yes | non-empty array from the vocabulary below. |
 | `interfaces` **or** `portTemplate` | yes | at least one port has to exist. |
@@ -59,12 +59,16 @@ where that complement lives:
 
 ### Categories
 
-`router` `switch` `l3-switch` `firewall` `ont` `host` `server` `wireless` `ptp` `cloud` `olt`
-`splitter` `modem` `powerline` `nas` `desktop` `laptop` `phone` `tablet` `printer` `camera` `nvr`
-`iot` `tap`
+`router` `switch` `l3-switch` `firewall` `ap` `ont` `host` `server` `wireless` `ptp` `cloud`
+`olt` `splitter` `modem` `powerline` `nas` `desktop` `laptop` `phone` `tablet` `printer` `camera`
+`nvr` `iot` `tap`
 
 `tap` covers passive and active network taps, including packet brokers. `splitter` is for passive
-optical splits — a different device with a different failure mode.
+optical splits — a different device with a different failure mode. `ap` is in use once, by
+`devices/huawei/wifi-extender-ax3000.json`; the catalogue's other 220 wireless devices (the Aruba, Ubiquiti
+and Cambium access points) are `wireless`, so the two are not spellings of one category: `web/canvas.js`
+draws them with the same icon, and `devices/registry.js` sorts `ap` after every category named in its
+`CATEGORY_ORDER`, because `ap` is not in that array.
 
 ### Capabilities
 
