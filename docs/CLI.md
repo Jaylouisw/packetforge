@@ -250,11 +250,11 @@ its routing protocol. `test/config-completeness.test.js` closes that hole from t
 **every** key `device.config` can hold, with the pattern the printer must produce for it, so a new piece of
 state that nobody taught the printer to print fails the suite instead of shipping as a silent omission.
 
-### Undoing a command: every printed line has a `no` form
+### Undoing a command: every printed line should have a `no` form
 
-A backup is only a backup if you can edit it back. The rule `test/config-undo.test.js` holds every feature to
-is: add a command, then remove it, and the printed config returns **byte for byte** to what it was — and
-removing something that is not there refuses and names the thing.
+A backup is only a backup if you can edit it back. The rule `test/config-undo.test.js` holds the features
+below to is: add a command, then remove it, and the printed config returns **byte for byte** to what it was —
+and removing something that is not there refuses and names the thing.
 
 ```
 r1(config)#no hostname
@@ -296,6 +296,31 @@ and `no vlan` printed "VLAN 42 removed" whether or not a VLAN 42 existed:
 | `dns zone <name>` | `no dns zone <name>` | `% No DNS zone named <name>` |
 | `ip access-group <n> in\|out` | `no ip access-group [<n>] [in\|out]` | `% No access list <n> applied in on <port>` |
 | `vlan <id>` | `no vlan <id>` | `% VLAN <id> does not exist` |
+
+**Three printed lines do not have one yet.** `show running-config` writes `bgp router-id <ip>` in the BGP
+block, `dns add <name> <type> <value>` under its zone, and `ipv6 nd ra lifetime <s>` at the top level. The
+first two are removed only by `no router bgp <as>` and `no dns zone <apex>`, which take the whole object with
+them - `no bgp router-id` and `no dns add www A 10.0.0.9` both answer `% Unrecognized config command`. The
+lifetime line has no spelling that removes it, and one that looks like it does the opposite:
+
+```
+R1(config)#ipv6 nd ra lifetime 900
+IPv6 RA router lifetime 900s
+R1(config)#no ipv6 nd ra lifetime
+% Incomplete command: ipv6 nd ra lifetime <seconds>
+R1(config)#no ipv6 nd ra lifetime 900
+IPv6 RA router lifetime 900s
+R1(config)#no ipv6
+IPv6 routes cleared
+```
+
+The bare `no` spelling asks for a value; the one with the value on it is **accepted** and answers with the
+sentence the set form prints, because `_ipv6Nd()` shifts a leading `no` into a `negated` flag and never reads
+it on the `lifetime` branch - so the value is written again rather than removed, on a box that never had one.
+`no ipv6` clears the gateway and the static routes and leaves the line exactly as it was. The only way back is
+to type the default, `ipv6 nd ra lifetime 1800`, which the printer omits because it is
+`ra.DEFAULTS.routerLifetime`. The `no` forms the first two lines lack are the code's to add; this page records
+what the console does.
 
 Two of those refusals are there for more than tidiness:
 
