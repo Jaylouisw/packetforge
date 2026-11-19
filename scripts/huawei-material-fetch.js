@@ -20,8 +20,10 @@
 'use strict';
 
 const fs = require('fs');
+const os = require('os');
 const path = require('path');
 const https = require('https');
+const { spawnSync } = require('child_process');
 
 const UA = 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)';
 const MAX_HOPS = 5;
@@ -30,7 +32,45 @@ const MAX_HOPS = 5;
 // the file name can contain spaces, and a quote or angle bracket ends it.
 const ASSET_RE = new RegExp('pep/asset/20000001/Material/[0-9a-f]{32}/[A-Za-z0-9]+/[^"<>]+');
 
-function get(url, hops) {
+// The host fingerprints the TLS client, not the headers: measured 2026-11-18, `https.get` with the
+// crawler user-agent and `accept: */*` answers 403 (428-byte body) on a material page that answers
+// 200 / 337,802 bytes to curl sending the same two headers from the same host in the same minute, and
+// a browser user-agent changes nothing. So the transport is curl when it is on PATH; the node client
+// stays as the fallback for hosts that have no curl.
+const HAS_CURL = (() => {
+  try { return spawnSync('curl', ['--version'], { stdio: 'ignore' }).status === 0; } catch (e) { return false; }
+})();
+
+function curlGet(url) {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'hw-material-'));
+  const bodyFile = path.join(dir, 'body');
+  const headerFile = path.join(dir, 'headers');
+  try {
+    const res = spawnSync('curl', [
+      '-sS', '-L', '--max-time', '180', '-A', UA, '-H', 'accept: */*',
+      '-o', bodyFile, '-D', headerFile, '-w', '%{http_code} %{url_effective}', url,
+    ], { encoding: 'utf8' });
+    if (res.status !== 0) {
+      throw new Error('curl exited ' + res.status + ' for ' + url + ': ' + String(res.stderr || '').trim());
+    }
+    const line = String(res.stdout || '').trim();
+    const cut = line.indexOf(' ');
+    const status = Number(cut === -1 ? line : line.slice(0, cut));
+    const finalUrl = cut === -1 ? url : line.slice(cut + 1).trim();
+    // With -L the dump holds one block per hop; the last content-type belongs to the body on disk.
+    const blocks = fs.readFileSync(headerFile, 'utf8').split(/\r?\n\r?\n/);
+    let ctype = '';
+    for (const b of blocks) {
+      const m = /^content-type:\s*(.+)$/im.exec(b);
+      if (m) { ctype = m[1].trim(); }
+    }
+    return { status, url: finalUrl || url, headers: { 'content-type': ctype }, body: fs.readFileSync(bodyFile) };
+  } finally {
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
+}
+
+function nodeGet(url, hops) {
   const budget = hops === undefined ? MAX_HOPS : hops;
   return new Promise((resolve, reject) => {
     if (budget <= 0) { reject(new Error('too many redirects from ' + url)); return; }
@@ -39,12 +79,16 @@ function get(url, hops) {
       if (code >= 300 && code < 400 && res.headers.location) {
         const next = new URL(res.headers.location, url).toString();
         res.resume();
-        resolve(get(next, budget - 1));
+        resolve(nodeGet(next, budget - 1));
         return;
       }
-      resolve({ status: code, headers: res.headers, stream: res, url });
+      readAll(res).then((body) => resolve({ status: code, url, headers: res.headers, body }), reject);
     }).on('error', reject);
   });
+}
+
+function get(url) {
+  return HAS_CURL ? Promise.resolve().then(() => curlGet(url)) : nodeGet(url);
 }
 
 function readAll(stream) {
@@ -74,7 +118,7 @@ async function main() {
 
   const pageUrl = materialUrl(arg);
   const page = await get(pageUrl);
-  const html = (await readAll(page.stream)).toString('utf8');
+  const html = page.body.toString('utf8');
   const title = (/<title>([^<]*)/.exec(html) || [])[1] || '(no title)';
   const match = ASSET_RE.exec(html);
   console.log('page    ' + page.status + ' ' + pageUrl);
@@ -94,7 +138,7 @@ async function main() {
     console.error('asset answered HTTP ' + asset.status + ' at ' + asset.url);
     process.exit(1);
   }
-  const bytes = await readAll(asset.stream);
+  const bytes = asset.body;
   const ctype = String(asset.headers['content-type'] || '');
   if (/^text\/html/i.test(ctype) || bytes.slice(0, 1).toString() === '<') {
     console.error('the asset resolved to HTML, not a document (final URL ' + asset.url + ') - the file name is wrong');
