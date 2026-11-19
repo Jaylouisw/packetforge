@@ -66,7 +66,8 @@ console.log('A running-config pasted back reproduces itself:');
   configureRouting(a);
   const rc = runningConfig(a);
 
-  ok(rc.some(function (l) { return l === 'exit'; }), 'the printer closes each interface block with exit');
+  ok(rc.some(function (l) { return l === '!'; }), 'the printer closes each interface block with the vendor\'s `!` separator');
+  ok(!rc.some(function (l) { return l === 'exit'; }), 'and never with `exit`, which no box prints in this file');
   ok(!/undefined/.test(rc.join('\n')), 'and never prints undefined');
 
   const b = session(spec(/ASR 1001-X/));
@@ -95,7 +96,8 @@ console.log('A config copied out before the fix still replays:');
   // accepted the corrected shape, this fix would invalidate the very backups people already have.
   const a = session(spec(/ASR 1001-X/));
   configureRouting(a);
-  const oldShape = runningConfig(a).filter(function (l) { return l !== 'exit'; });
+  // No `exit` was printed then and no `!` either: blocks were simply back to back.
+  const oldShape = runningConfig(a).filter(function (l) { return l !== 'exit' && l !== '!'; });
   ok(oldShape.some(function (l) { return /^interface /.test(l); }), 'the old shape still has interface blocks');
 
   const b = session(spec(/ASR 1001-X/));

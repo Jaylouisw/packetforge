@@ -6803,10 +6803,15 @@ class CliSession {
           }
           if (g.authText) out.push('  vrrp ' + g.vrid + ' authentication ' + g.authText);
         }
-        // Close the block. Without this the next `interface` line is read while still inside the
-        // previous block, every following line is parsed as an interface command, and a pasted config
-        // applies its addresses and shutdowns to whichever interface was current (#1230).
-        out.push('exit');
+        // Close the block the way a box closes it: a bare `!` line, the stanza separator every
+        // published running-config uses between two `interface` stanzas (the 4000 Series ISR default
+        // configuration prints `interface GigabitEthernet0/0/0` / `no ip address` / `negotiation auto` /
+        // `!` / `interface GigabitEthernet0/0/1` ... ). `exit` is not a line any box prints in this file:
+        // it closes a session, not a stanza. The block still ends, because the parser reads a global
+        // command at an interface prompt as global (the documented leniency) and a following `interface`
+        // line switches blocks (#1230) - so the paste lands where it did with the `exit` line there.
+        // research/running-config-stanza-separator.md carries the samples and the parts left open.
+        out.push('!');
       }
       // DHCP pools. A pool is a sub-mode, so each one closes with `exit` before the next begins.
       for (const pool of (dev.config.dhcpPools || [])) {

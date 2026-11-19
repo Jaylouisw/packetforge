@@ -178,10 +178,14 @@ and you get the same configuration, on the same ports.
 
 Four properties make that work, all of them load-bearing:
 
-* **Every interface block closes with `exit`.** Without it a reader never leaves interface mode, and
-  every following line — including global ones like `ip route` — is parsed as an interface command. The
-  failure was silent and destructive: an address meant for `Gi0/0/0` and a `shutdown` meant for
-  `Gi0/0/1` both landed on the first interface in the file.
+* **Every interface block closes with `!`.** A bare `!` is the line every published running-config prints
+  between two `interface` stanzas — the 4000 Series ISR default configuration goes
+  `interface GigabitEthernet0/0/0` / `no ip address` / `negotiation auto` / `!` / `interface
+  GigabitEthernet0/0/1` — and `exit` is not a line a box writes in this file at all: `exit` closes a
+  session, not a stanza. Reading it back works because a new `interface` line inside interface mode is a
+  mode switch and a global command at an interface prompt is applied in global config, so a paste still
+  lands each address and `shutdown` on the port it belongs to
+  (`test/running-config-stanza-separator.test.js`, `research/running-config-stanza-separator.md`).
 * **Comment lines (`!`, `#`) are ignored in every mode**, including the `! PacketForge running-config`
   header the printer writes itself.
 * **An interface name is the rest of the line**, because some contain spaces — Ubiquiti's `Port 1`,
@@ -193,9 +197,10 @@ Four properties make that work, all of them load-bearing:
   privileged EXEC, where a paste usually starts, is accepted and says nothing
   (`research/running-config-end.md`, `test/running-config-end.test.js`).
 
-Configs copied out before this was fixed (block after block, no `exit`) still replay: the parser treats
-a new `interface` line inside interface mode as a mode switch, and falls through to global config
-commands when a line is not an interface command.
+Configs copied out before this was fixed (block after block, with neither `!` nor `exit` between them)
+still replay: the parser treats a new `interface` line inside interface mode as a mode switch, and falls
+through to global config commands when a line is not an interface command. So does a config copied out of
+a real box, where the separators are `!` lines.
 
 ### What the config contains
 

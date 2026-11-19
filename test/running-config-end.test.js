@@ -108,9 +108,9 @@ console.log('When the last block in the file is an interface:');
     'ip address 10.9.9.1 255.255.255.0', 'shutdown', 'exit', 'end']);
   const rc = config(r);
   ok(rc[rc.length - 1] === 'end', 'the file still ends with end', JSON.stringify(rc[rc.length - 1]));
-  ok(rc[rc.length - 2] === 'exit', 'directly under the exit that closes the interface block',
+  ok(rc[rc.length - 2] === '!', 'directly under the `!` that closes the interface block',
     JSON.stringify(rc.slice(-4)));
-  ok(/^interface /.test(rc[rc.length - 3]), 'and under the header of the last block, which exit closes',
+  ok(/^interface /.test(rc[rc.length - 3]), 'and under the header of the last block, which `!` closes',
     JSON.stringify(rc.slice(-4)));
 }
 

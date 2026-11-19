@@ -2,6 +2,21 @@
 
 ### Fixed
 
+- **`show running-config` ends an interface stanza with `!`, the line a box prints.** The printer wrote
+  `exit` after every interface block - on a 24-port switch, 24 `exit` lines in a row - because #1230 needed
+  the parser to leave interface mode before the next block. No box prints `exit` in this file: the Cisco
+  4000 Series ISRs' own default configuration goes `interface GigabitEthernet0/0/0` / `no ip address` /
+  `negotiation auto` / `!` / `interface GigabitEthernet0/0/1` ..., the IOS 11.2 `show running-config`
+  sample separates every stanza with `!` and closes with `end`, and `exit` is documented as a command that
+  leaves a mode. The parser no longer needs the line - a new `interface` line inside interface mode is a
+  mode switch, and a global command at an interface prompt is applied in global config - so the separator
+  is now the character a box writes, and a config copied off a real device (which has `!` and no `exit`) is
+  read back onto the same ports. The `ip dhcp pool` stanza still closes with `exit`, because `!` is read as
+  a comment here rather than as a mode exit; that question is open.
+  `test/running-config-stanza-separator.test.js` (17 checks) pins the stanza shape, the last block above
+  `end`, a byte-identical replay and a vendor-shaped paste;
+  [research/running-config-stanza-separator.md](research/running-config-stanza-separator.md) cites the pages
+  and lists what a `!` does at a real submode prompt, which would settle the rest.
 - **A Catalyst 2960X-48FPS-L is 48 PoE+ ports with a 740 W budget, and the catalogue gave it no power to
   give.** The spec's own description said "48x 1G PoE+ downlinks (740 W budget)", but its port template
   declared no `poeOut` and the spec no `poe` block, so the device's budget was 0 W, `show power inline`

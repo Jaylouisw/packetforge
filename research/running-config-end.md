@@ -101,7 +101,7 @@ since this console's EXEC branch knew `end` as a word but had no handler for it.
   over an already-enabled session — and the trailing `end` a script appends after one — no longer produce an
   error on the closing line.
 * `test/running-config-end.test.js` (14 assertions): the last line on a configured and an unconfigured box,
-  exactly one `end`, `end` after the last configured line and directly under the closing `exit` of the last
+  exactly one `end`, `end` after the last configured line and directly under the `!` that closes the last
   interface block, an unpasted file is stable, a full paste ends at `EDGE-1#` with no rejected line and a
   byte-identical configuration, and `end` at `#` is silent.
 

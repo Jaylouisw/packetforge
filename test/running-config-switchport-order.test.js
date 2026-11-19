@@ -47,7 +47,7 @@ function lab() {
   };
 }
 
-// The lines of one interface's block, prompts and the closing `exit` stripped.
+// The lines of one interface's block, prompts and the closing `!` separator stripped.
 function block(lines, name) {
   const out = [];
   let inside = false;
@@ -56,7 +56,7 @@ function block(lines, name) {
     const m = /^interface (.+)$/.exec(line);
     if (m) { inside = m[1] === name; continue; }
     if (!inside) continue;
-    if (/^exit$/.test(line)) break;
+    if (/^!$/.test(line) || /^exit$/.test(line)) break;
     if (line.trim()) out.push(line.trim());
   }
   return out;
