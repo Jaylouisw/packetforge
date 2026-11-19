@@ -62,7 +62,7 @@ If you already have the JSON, skip the form and open a PR — see
 
 ## Categories
 
-`router` · `switch` · `l3-switch` · `firewall` · `ont` · `host` · `server` ·
+`router` · `switch` · `l3-switch` · `firewall` · `ap` · `ont` · `host` · `server` ·
 `wireless` · `ptp` · `cloud` · `olt` · `splitter` · `modem` · `powerline` · `nas` ·
 `desktop` · `laptop` · `phone` · `tablet` · `printer` · `camera` · `nvr` · `iot` · `tap`
 

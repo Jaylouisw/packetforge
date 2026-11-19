@@ -27,7 +27,7 @@ catalog to the API and the UI palette.
 | `vendor` | yes | lowercase manufacturer slug |
 | `model` | yes | unique per vendor |
 | `label` | yes | human-friendly name shown in the palette |
-| `category` | yes | `router`, `switch`, `l3-switch`, `firewall`, `tap`, `host`, `server`, `wireless`, `ptp`, `cloud`, `olt`, `ont`, `splitter`, `modem`, `powerline`, `nas`, `desktop`, `laptop`, `phone`, `tablet`, `printer`, `camera`, `nvr`, `iot` |
+| `category` | yes | `router`, `switch`, `l3-switch`, `firewall`, `ap`, `tap`, `host`, `server`, `wireless`, `ptp`, `cloud`, `olt`, `ont`, `splitter`, `modem`, `powerline`, `nas`, `desktop`, `laptop`, `phone`, `tablet`, `printer`, `camera`, `nvr`, `iot` |
 
 
 ### Taps and passive hardware
