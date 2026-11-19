@@ -379,42 +379,47 @@ jobs:
       # other four down, and it cannot merge anything: the only thing being stood down for
       # is a pull request that is already merged or closed, and `arm` pins `head_commit_id`
       # against a server that refuses a closed pull request.
-      - name: Is this pull request still open?
-        id: still_open
-        if: github.event_name == 'pull_request'
-        env:
-          TOKEN: ${{ secrets.FORGEJO_TOKEN || secrets.GITHUB_TOKEN || github.token }}
-        run: |
-          set -u
-          api="${GITHUB_API_URL:-http://10.0.10.20:3000/api/v1}"
-          number="${{ github.event.pull_request.number }}"
-          json=$(curl -sS --connect-timeout 5 --max-time 20 --retry 2 --retry-delay 1 \
-                   --retry-connrefused -H "Authorization: token ${TOKEN:-}" \
-                   "$api/repos/$GITHUB_REPOSITORY/pulls/$number" 2>/dev/null || true)
-          if printf '%s' "$json" | grep -q '"merged":true'; then
-            echo "closed=true" >> "${GITHUB_OUTPUT:-/dev/null}"
-            echo "pull #${number} is already merged - this leg cannot gate anything, so it stands down"
-            exit 0
-          fi
-          if printf '%s' "$json" | grep -q '"state":"closed"'; then
-            echo "closed=true" >> "${GITHUB_OUTPUT:-/dev/null}"
-            echo "pull #${number} is closed - this leg cannot gate anything, so it stands down"
-            exit 0
-          fi
-          if [ -z "$json" ]; then
-            echo "could not ask whether pull #${number} is still open - no reply from ${api} - running the leg"
-            exit 0
-          fi
-          echo "pull #${number} is open - running the leg"
       # Same git checkout as the `changes` job - see the measured note there: 4.7-10.2 s of
       # every job in this workflow was the checkout action's clone, and the three test legs
       # clone that action into one shared directory within seconds of each other.
+      #
+      # This step also carries the liveness question that used to be the step above it:
+      # one fewer step boundary before the suite, and the answer is unchanged - only a
+      # positive `merged` or `closed` stands the leg down, every other outcome runs it.
       - name: Check out this commit, from git
-        if: steps.still_open.outputs.closed != 'true'
+        id: still_open
         env:
           TOKEN: ${{ secrets.FORGEJO_TOKEN || secrets.GITHUB_TOKEN || github.token }}
         run: |
           set -eu
+          # The liveness question is asked here, in the step that was going to run anyway,
+          # rather than in a step of its own. A step on this runner is a container exec, a
+          # shell and its own log stream, and five of them are paid for before the suite
+          # starts - this one asked a question that costs 0.3 s. Same call, same rule, same
+          # direction of failure as before: only a positive "merged" or "closed" stands the
+          # leg down, and every other answer runs it.
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            api="${GITHUB_API_URL:-http://10.0.10.20:3000/api/v1}"
+            number="${{ github.event.pull_request.number }}"
+            json=$(curl -sS --connect-timeout 5 --max-time 20 --retry 2 --retry-delay 1 \
+                     --retry-connrefused -H "Authorization: token ${TOKEN:-}" \
+                     "$api/repos/$GITHUB_REPOSITORY/pulls/$number" 2>/dev/null || true)
+            if printf '%s' "$json" | grep -q '"merged":true'; then
+              echo "closed=true" >> "${GITHUB_OUTPUT:-/dev/null}"
+              echo "pull #${number} is already merged - this leg cannot gate anything, so it stands down"
+              exit 0
+            fi
+            if printf '%s' "$json" | grep -q '"state":"closed"'; then
+              echo "closed=true" >> "${GITHUB_OUTPUT:-/dev/null}"
+              echo "pull #${number} is closed - this leg cannot gate anything, so it stands down"
+              exit 0
+            fi
+            if [ -z "$json" ]; then
+              echo "could not ask whether pull #${number} is still open - no reply from ${api} - running the leg"
+            else
+              echo "pull #${number} is open - running the leg"
+            fi
+          fi
           # The pinned runtime this leg is named for is 45 MB from nodejs.org, and the
           # checkout below is 2.6 s of git: one is a network transfer, the other is a
           # packfile on local disk. They ran one after the other, so every Node 18 and
@@ -571,72 +576,79 @@ jobs:
       # the same host and the same tarball this step fetches. A second attempt at that URL
       # keeps the hedge; a pre-cloned action that never executes does not. The major-version
       # assertion below is unchanged, so what this job claims to test is unchanged.
+      # Provisioning and the assertion that it worked were two steps: the first could
+      # fail without failing the leg (`continue-on-error`), and the second read
+      # `node --version` to decide. They are one step now, so the leg pays one boundary
+      # instead of two - and the assertion still runs last, so a leg that tested the wrong
+      # runtime is red exactly as before, with the same message. The Node 20 leg has
+      # nothing to download and reaches the same assertion.
       - name: Provide the runtime this leg is named for
         id: node_runtime
-        if: matrix.node != 20 && steps.still_open.outputs.closed != 'true'
-        continue-on-error: true
+        if: steps.still_open.outputs.closed != 'true'
         env:
           MAJOR: ${{ matrix.node }}
         run: |
           set -eu
           case "$MAJOR" in
+            20) DIST="" ;;
             18) DIST=v18.20.8 ;;
             22) DIST=v22.23.5 ;;
             *) echo "::error title=Test (Node ${MAJOR})::no pinned Node release for major ${MAJOR} - add it to this step"; exit 1 ;;
           esac
-          dest="/opt/node-${DIST}"
-          url="https://nodejs.org/dist/${DIST}/node-${DIST}-linux-x64.tar.gz"
-          # `fetch` is all-or-nothing: a truncated tarball or a failed unpack must not leave
-          # a half-populated /opt/node-* behind for the second attempt to bolt onto.
-          fetch() {
-            rm -rf "${dest}" "${dest}.tar.gz"
-            mkdir -p "${dest}"
-            echo "fetching ${url} for Node ${MAJOR} (attempt ${1})"
-            curl -fsSL --retry 3 --retry-delay 2 --retry-connrefused --connect-timeout 10 --max-time 180 -o "${dest}.tar.gz" "$url" &&
-              tar -xzf "${dest}.tar.gz" -C "${dest}" --strip-components=1 &&
-              [ -x "${dest}/bin/node" ]
-          }
-          # That download may already be running, or finished: the step above started it,
-          # tarball and unpack both, before the checkout. Wait for it, bounded, and use the
-          # tree it produced. Anything other than a complete, executable /opt/node-<release>
-          # falls through to the same two attempts this step has always made, so the only
-          # thing the prefetch can change is the clock.
-          PFDIR="${RUNNER_TEMP:-/tmp}/node-prefetch"
-          if [ -e "$PFDIR/${DIST}.started" ] && [ ! -e "$PFDIR/${DIST}.ok" ] && [ ! -e "$PFDIR/${DIST}.failed" ]; then
-            echo "waiting for the ${DIST} download started during the checkout"
-            for _ in $(seq 1 60); do
-              if [ -e "$PFDIR/${DIST}.ok" ] || [ -e "$PFDIR/${DIST}.failed" ]; then break; fi
-              sleep 1
-            done
-            # Still nothing after 60 s: the detached attempt is wedged or was killed with
-            # the step that started it. Stop it before taking the tree apart, so the two
-            # cannot write to /opt/node-${DIST} at once.
-            if [ ! -e "$PFDIR/${DIST}.ok" ] && [ ! -e "$PFDIR/${DIST}.failed" ]; then
-              if [ -s "$PFDIR/${DIST}.pid" ]; then
-                kill "$(cat "$PFDIR/${DIST}.pid")" 2>/dev/null || true
-                sleep 2
-              fi
-              touch "$PFDIR/${DIST}.failed"
-            fi
-          fi
-          if [ -e "$PFDIR/${DIST}.ok" ] && [ -x "${dest}/bin/node" ]; then
-            echo "unpacked ${DIST} from the download that overlapped the checkout"
+          if [ -z "$DIST" ]; then
+            echo "Node ${MAJOR} is the runner image's own runtime - nothing to download"
           else
-            fetch 1 || { echo "first attempt at ${url} failed - retrying once in 5 s"; sleep 5; fetch 2; }
+            dest="/opt/node-${DIST}"
+            url="https://nodejs.org/dist/${DIST}/node-${DIST}-linux-x64.tar.gz"
+            # `fetch` is all-or-nothing: a truncated tarball or a failed unpack must not leave
+            # a half-populated /opt/node-* behind for the second attempt to bolt onto.
+            fetch() {
+              rm -rf "${dest}" "${dest}.tar.gz"
+              mkdir -p "${dest}"
+              echo "fetching ${url} for Node ${MAJOR} (attempt ${1})"
+              curl -fsSL --retry 3 --retry-delay 2 --retry-connrefused --connect-timeout 10 --max-time 180 -o "${dest}.tar.gz" "$url" &&
+                tar -xzf "${dest}.tar.gz" -C "${dest}" --strip-components=1 &&
+                [ -x "${dest}/bin/node" ]
+            }
+            # That download may already be running, or finished: the step above started it,
+            # tarball and unpack both, before the checkout. Wait for it, bounded, and use the
+            # tree it produced. Anything other than a complete, executable /opt/node-<release>
+            # falls through to the same two attempts this step has always made, so the only
+            # thing the prefetch can change is the clock.
+            PFDIR="${RUNNER_TEMP:-/tmp}/node-prefetch"
+            if [ -e "$PFDIR/${DIST}.started" ] && [ ! -e "$PFDIR/${DIST}.ok" ] && [ ! -e "$PFDIR/${DIST}.failed" ]; then
+              echo "waiting for the ${DIST} download started during the checkout"
+              for _ in $(seq 1 60); do
+                if [ -e "$PFDIR/${DIST}.ok" ] || [ -e "$PFDIR/${DIST}.failed" ]; then break; fi
+                sleep 1
+              done
+              # Still nothing after 60 s: the detached attempt is wedged or was killed with
+              # the step that started it. Stop it before taking the tree apart, so the two
+              # cannot write to /opt/node-${DIST} at once.
+              if [ ! -e "$PFDIR/${DIST}.ok" ] && [ ! -e "$PFDIR/${DIST}.failed" ]; then
+                if [ -s "$PFDIR/${DIST}.pid" ]; then
+                  kill "$(cat "$PFDIR/${DIST}.pid")" 2>/dev/null || true
+                  sleep 2
+                fi
+                touch "$PFDIR/${DIST}.failed"
+              fi
+            fi
+            if [ -e "$PFDIR/${DIST}.ok" ] && [ -x "${dest}/bin/node" ]; then
+              echo "unpacked ${DIST} from the download that overlapped the checkout"
+            else
+              fetch 1 || { echo "first attempt at ${url} failed - retrying once in 5 s"; sleep 5; fetch 2; }
+            fi
+            # Over the image's own Node 20, not beside it: the assertion below reads
+            # `node --version`, and a second runtime earlier on PATH would let it pass while
+            # `npm test` still ran on the runtime the image shipped.
+            for b in node npm npx; do ln -sf "${dest}/bin/${b}" "/usr/local/bin/${b}"; done
+            echo "installed $(command -v node): $(node --version) / npm $(npm --version)"
           fi
-          # Over the image's own Node 20, not beside it: the assertion below reads
-          # `node --version`, and a second runtime earlier on PATH would let it pass while
-          # `npm test` still ran on the runtime the image shipped.
-          for b in node npm npx; do ln -sf "${dest}/bin/${b}" "/usr/local/bin/${b}"; done
-          echo "installed $(command -v node): $(node --version) / npm $(npm --version)"
-      # The saving above is only a saving if the runtime really is the version the leg
-      # is named for. A leg that quietly tested Node 22 under the name "Test (Node 20)"
-      # would report coverage it never had, which is the failure this repository has
-      # already paid for twice (runs 1398/1401/1402). So every leg checks, and a
-      # runner image that changes underneath this file fails loudly here instead.
-      - name: The runtime is the version this leg is named for
-        if: steps.still_open.outputs.closed != 'true'
-        run: |
+          # The saving above is only a saving if the runtime really is the version the leg
+          # is named for. A leg that quietly tested Node 22 under the name "Test (Node 20)"
+          # would report coverage it never had, which is the failure this repository has
+          # already paid for twice (runs 1398/1401/1402). So every leg checks, and a
+          # runner image that changes underneath this file fails loudly here instead.
           want="${{ matrix.node }}"
           got="$(node --version)"
           echo "wanted Node ${want}, running ${got} ($(npm --version))"
@@ -944,12 +956,27 @@ jobs:
             [ "$node_surface_rc" -eq 0 ] && [ "$canonical_urls_rc" -eq 0 ] &&
             [ "$disk_hygiene_rc" -eq 0 ] && [ "$audit_rc" -eq 0 ] &&
             [ "$control_rc" -eq 0 ]
+      # Two steps became one: the catalogue check reads what `build-examples.js` writes,
+      # so the order is unchanged, and the leg no longer pays a step boundary between
+      # them. Same commands, same bounds, same exit status - a stop is still named.
       - name: Build & verify example labs
         if: steps.still_open.outputs.closed != 'true'
-        run: timeout --signal=TERM --kill-after=10 120 node examples/build-examples.js
-      - name: Every lab model exists in the catalogue
-        if: steps.still_open.outputs.closed != 'true'
-        run: timeout --signal=TERM --kill-after=10 120 node scripts/missing-devices.js examples --no-issues
+        run: |
+          set +e
+          timeout --signal=TERM --kill-after=10 120 node examples/build-examples.js
+          build_rc=$?
+          if [ "$build_rc" -ne 0 ]; then
+            if [ "$build_rc" -eq 124 ] || [ "$build_rc" -eq 137 ]; then
+              echo "::error title=Example labs::the example build was still running after 120 s and was stopped"
+            fi
+            exit "$build_rc"
+          fi
+          timeout --signal=TERM --kill-after=10 120 node scripts/missing-devices.js examples --no-issues
+          rc=$?
+          if [ "$rc" -eq 124 ] || [ "$rc" -eq 137 ]; then
+            echo "::error title=Lab models::the catalogue check was still running after 120 s and was stopped"
+          fi
+          exit "$rc"
 
   smoke:
     name: Server smoke test
