@@ -20,8 +20,10 @@
 // so it is the view's closing line rather than one platform's habit. `show mac address-table` already closes
 // its own table with a count of the rows printed for the criterion asked
 // (research/mac-table-surround.md); this is the same rule for the neighbour view.
-// research/lldp-total-entries.md records the evidence, and the half of the question the sources do not
-// answer: what a box with nothing heard prints.
+// An empty table prints it too, reading 0: a Catalyst 9300 asked about one port with nothing on it, and one
+// whose dot1x is holding the phone's LLDPDUs back, both go from the heading straight to
+// `Total entries displayed: 0`, and an IOS router just given `lldp run` does the same.
+// research/lldp-total-entries.md records the captures.
 const path = require('path');
 const { Topology, Simulator } = require('../engine');
 const { CliSession } = require('../engine/cli');
@@ -104,18 +106,43 @@ console.log('The view ends with the count, and the count is the rows it printed:
 }
 
 console.log('');
-console.log('The number counts rows, so an empty table has no number to print:');
+console.log('An empty table prints the same line, reading 0:');
 {
   const env = lab();
   // Both entries were heard at t=1000 with the default 120 s TTL, so both have lapsed at 121 s.
   env.sim.setRunTime(1000 + 121 * 1000);
   const out = lines(env);
   ok(rowsOf(out).length === 0, 'every neighbour has aged out', JSON.stringify(rowsOf(out)));
-  ok(totalOf(out) === null,
-    'and an empty table prints no count - no source shows an empty table, so none is invented',
+  // A Catalyst 9300 asked about a port with nothing on it prints the heading and then
+  // `Total entries displayed: 0`; so does one whose dot1x is holding the phone's LLDPDUs back, and an IOS
+  // router that has just been given `lldp run` and heard nothing. The count is of the rows printed, so zero
+  // follows from the same rule as four - research/lldp-total-entries.md has the captures.
+  const total = totalOf(out);
+  ok(!!total && total.n === 0, 'and the view still ends with a count, reading 0',
     out.join(' | '));
-  ok(/^ {2}\(none - every neighbour has gone past the hold-time/.test(out[out.length - 1]),
-    'the empty state is the prose line that says why', out[out.length - 1]);
+  ok(!!total && total.line === 'Total entries displayed: 0', 'spelled the same way as a count with rows',
+    total && total.line);
+  ok(!!total && out[out.length - 1] === total.line, 'still the last line of the view', out[out.length - 1]);
+  ok(/^ {2}\(none - every neighbour has gone past the hold-time/.test(out[out.length - 2]),
+    'and the prose that says why the table is empty sits above it', JSON.stringify(out.slice(-2)));
+}
+
+console.log('');
+console.log('A box that has never heard anything prints 0 under its own sentence:');
+{
+  // One switch, nothing plugged in: no LLDPDU has crossed a port, which is the other empty state.
+  const t = new Topology();
+  t.addDevice(SWITCH, 'solo');
+  const sim = new Simulator(t);
+  sim.setRunTime(1000);
+  sim.refreshNeighbours();
+  const cli = new CliSession(t.getDevice('solo'), t, sim);
+  const out = (cli.run('show lldp neighbors').output || []).map(String);
+  ok(rowsOf(out).length === 0, 'no rows', JSON.stringify(rowsOf(out)));
+  ok(/^ {2}\(none - no LLDP has been heard on any port\)$/.test(out[out.length - 2]),
+    'the empty state is still the sentence that says nothing was heard', JSON.stringify(out.slice(-2)));
+  const total = totalOf(out);
+  ok(!!total && total.n === 0, 'and the count is 0 there too, not absent', out.join(' | '));
 }
 
 console.log('');

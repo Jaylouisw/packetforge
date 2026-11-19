@@ -2,6 +2,20 @@
 
 ### Fixed
 
+- **An empty `show lldp neighbors` ends with `Total entries displayed: 0`, the line a box prints.** The count
+  line was added for a table with rows and deliberately withheld from an empty one, because no vendor page in
+  hand showed an empty neighbour table. The captures now in hand do: a Catalyst 9300 with dot1x holding the
+  phone's LLDPDUs back goes from the column heading straight to `Total entries displayed: 0`, another 9300
+  asked about one port with nothing on it does the same in the filtered view, an IOS router that had just been
+  given `lldp run` prints it under the heading, and Cisco's own IOS XE release notes print the zero for a
+  filtered `show lldp entry *`. The count was always the number of rows the view printed, so zero is the same
+  rule as four; only the evidence was missing. The sentence above it stays, because the number cannot say
+  whether the table is empty because nothing was ever heard or because every entry ran past its hold-time -
+  a box prints the same zero for both. `test/lldp-total-entries.test.js` (21 checks) pins both empty states,
+  the position of the line and the filled cases;
+  [research/lldp-total-entries.md](research/lldp-total-entries.md) has the five captures and what is left
+  open.
+
 - **A probe answered with an ICMP unreachable is marked `U`, not `.`.** `ping` printed one character per
   echo from the echo-reply table alone, so an echo a router had answered with destination-unreachable looked
   exactly like an echo into a dead cable: `..`, a `Request timed out` line per probe, and the same success

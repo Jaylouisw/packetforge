@@ -2604,8 +2604,10 @@ ran a 55-character router name into the Local port column, which made the row un
 The closing `Total entries displayed: N` is the vendor's sentence, and `N` is the rows the view printed, not
 the number of neighbours the box has ever heard. A Catalyst ends its own table with exactly that line, at the
 left margin under the last row; so do NX-OS and IOS XR. `show mac address-table` closes its table the same
-way. An empty table prints no count, because no vendor page in hand shows one and inventing a `0` would be a
-claim about a view nobody has seen (research/lldp-total-entries.md).
+way. An empty table gets the same line reading `Total entries displayed: 0` - a Catalyst 9300 asked about a
+port with nothing on it prints the heading and then the zero, and so does an IOS router just given `lldp run`
+that has heard nothing yet. The count cannot say *why* the table is empty, which is what the sentence above it
+is for (research/lldp-total-entries.md).
 
 A neighbour is **not** deleted the moment its link goes down: real switches hold the entry until the
 hold time it advertised runs out, and that is what happens here. The box notes the instant it heard each

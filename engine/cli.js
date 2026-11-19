@@ -6132,22 +6132,25 @@ class CliSession {
         for (const c of cells) {
           out.push('  ' + pad(c.name, wName) + pad(c.port, wPort) + pad(c.portId, wId) + c.mgmt);
         }
-        // The line the vendor's table ends with, and what its number counts: the rows just printed.
-        // A Catalyst's own configuration example prints four neighbours and then exactly this sentence -
-        // `Total entries displayed: 4` - at the left margin, one line under the last row, with no blank line
-        // between (Cisco, "Catalyst 3750/3750-E/3750-X Series Switches Using LLDP Configuration Example",
-        // https://www.cisco.com/c/en/us/support/docs/switches/catalyst-3750-series-switches/113397-lldp-3750-switch-00.html).
-        // The same sentence closes the table on NX-OS and IOS XR, and `show mac address-table` already ends its
-        // own table with a count of the rows printed for the criterion asked (research/mac-table-surround.md).
-        // This console printed the rows and nothing after them, so a pasted table gave no way to tell how many
-        // entries a reader was looking at without counting them - and "how many are there" is the question the
-        // command is opened with when a link stops working (research/lldp-total-entries.md).
-        //
-        // No number for an empty table: the vendor pages in hand all print a table with rows, so the count line
-        // is printed only when there is a count. Whether a box with nothing heard prints
-        // `Total entries displayed: 0` or nothing at all is recorded as the open half of the question.
-        out.push('Total entries displayed: ' + cells.length);
       }
+      // The line the vendor's table ends with, and what its number counts: the rows just printed.
+      // A Catalyst's own configuration example prints four neighbours and then exactly this sentence -
+      // `Total entries displayed: 4` - at the left margin, one line under the last row, with no blank line
+      // between (Cisco, "Catalyst 3750/3750-E/3750-X Series Switches Using LLDP Configuration Example",
+      // https://www.cisco.com/c/en/us/support/docs/switches/catalyst-3750-series-switches/113397-lldp-3750-switch-00.html).
+      // The same sentence closes the table on NX-OS and IOS XR, and `show mac address-table` already ends its
+      // own table with a count of the rows printed for the criterion asked (research/mac-table-surround.md).
+      //
+      // An empty table prints it too, reading `Total entries displayed: 0`. That was the open half of the
+      // question when this line was first added - the pages in hand all had rows in them - and the captures
+      // that settle it are a pair of Catalyst 9300s with LLDP running and no neighbour on the port asked about
+      // (`Device ID Local Intf Hold-time Capability Port ID` then straight to `Total entries displayed: 0`, on
+      // a 9300 whose dot1x is holding the phone's LLDPDUs back and on another asked about one port with
+      // nothing on it), plus an IOS router that had just been given `lldp run` and heard nothing yet. Zero is
+      // the same rule as four: the number counts the rows the view printed, and the view printed none. The
+      // prose above the count stays, because it says *why* the table is empty and the number cannot - this
+      // model always announces, so an empty table is never "LLDP is off" (research/lldp-total-entries.md).
+      out.push('Total entries displayed: ' + rows.length);
     } else if (what === 'access-lists' || what === 'access-list') {
       if (tokens.length > 1) {
         return showNoTail('show access-lists', tokens.slice(1), 'every list is printed',

@@ -1029,6 +1029,7 @@ A board's file is the lab, so it has to carry what the lab is made of.
 s1(config-if)# switchport trunk allowed vlan 10
 s1# show lldp neighbors
   (none - no LLDP has been heard on any port)
+Total entries displayed: 0
 
 s1# show interfaces Fa0/1
   peer: s2/Fa0/1                        <- the cable is up and knows its neighbour
