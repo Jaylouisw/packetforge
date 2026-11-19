@@ -13,7 +13,9 @@
     "start": 1,
     "count": 48,
     "type": "ethernet",
-    "speed": "1G"
+    "speed": "1G",
+    "poeOut": true,
+    "poeOutClass": "PoE+"
   },
   "interfaces": [
     {
@@ -53,6 +55,13 @@
       ]
     }
   ],
+  "poe": {
+    "budgetW": 740,
+    "standard": "802.3at",
+    "perPortW": 30,
+    "sourceUrl": "https://www.cisco.com/c/en/us/td/docs/switches/lan/catalyst2960x/hardware/installation/guide/b_c2960x_hig/b_c2960x_hig_chapter_01.html",
+    "note": "48 10/100/1000 PoE+ ports with a 740 W PoE budget and 4 SFP module slots; 30 W per port maximum, 740 W switch maximum. The budget, not the port count, is the ceiling: 48 Class-3 (15.4 W) PDs fit (739.2 W), or 24 Class-4 (30 W) PDs (720 W)."
+  },
   "icon": "switch",
   "color": "#0d9488"
 }

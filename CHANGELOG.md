@@ -2,6 +2,17 @@
 
 ### Fixed
 
+- **A Catalyst 2960X-48FPS-L is 48 PoE+ ports with a 740 W budget, and the catalogue gave it no power to
+  give.** The spec's own description said "48x 1G PoE+ downlinks (740 W budget)", but its port template
+  declared no `poeOut` and the spec no `poe` block, so the device's budget was 0 W, `show power inline`
+  answered `% No PoE on Catalyst 2960X-48FPS-L-sw1: no port on this device can supply power`, and an access
+  point cabled to Gi1/0/1 stayed dark. Cisco's 2960-X hardware installation guide lists the model as "48
+  10/100/1000 PoE+ ports (PoE budget of 740 W) and 4 SFP module slots", and its technical specifications as
+  "30 W-per-port maximum, 740-W switch maximum (Catalyst 2960X-48FPD-L and 2960X-48FPS-L switches)". The 48
+  copper ports now source 802.3at out of 740 W; the four SFP cages still source nothing.
+  `test/c2960x-48fps-poe.test.js` (29 checks) pins the budget, every PSE port, the 24-AP fleet that fits and
+  the 30th AP that is denied; [research/catalyst-2960x-poe-budget.md](research/catalyst-2960x-poe-budget.md)
+  cites the pages and records what a real `show power inline` would still settle.
 - **`show access-lists` spells a standard entry the way a box does.** The table echoed each rule as it
   had been typed, so a standard list read `permit 192.168.1.0 0.0.0.255` and `deny host 10.0.1.10` where
   every IOS prints `permit 192.168.1.0, wildcard bits 0.0.0.255` and `deny 10.0.1.10` - the comma form, and
