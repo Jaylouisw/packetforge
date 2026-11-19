@@ -136,7 +136,7 @@ command named**:
 
 ```
 r1#show ip route 192.0.2.0/24
-% show ip route does not take "192.0.2.0/24": the whole table is printed - read the row for the prefix in the table below
+% show ip route does not take "192.0.2.0/24": the whole table is printed - type `show ip route` and read the row for the prefix
 ```
 
 That refusal is the point, and it is worth stating why, because the alternative looked helpful. These commands used
@@ -163,6 +163,19 @@ sw1#show ip interface brief Gi1/0/1
 sw1#show running-config interface Gi1/0/1
 % show running-config does not take "interface Gi1/0/1": the whole configuration is printed - use `show interfaces Gi1/0/1` for one port's state
 ```
+
+That pointer is named only when it leads somewhere. `show ip interface brief <word>` offers
+`show interfaces <port>` with the port the words name - but only if they name one the box has and can describe, so a
+typo is not handed back as a port that does not exist:
+
+```
+sw1#show ip interface brief ZZZNOPE
+% show ip interface brief does not take "ZZZNOPE": every interface is listed - use `show interfaces <port>` for one port
+```
+
+The second sentence is judged by the same rule as the first: it may not name a command that refuses in turn, and it
+may not point at output the answer does not contain. `show ip route <prefix>` names the command that prints the
+table rather than telling the reader to look at a table below a one-line refusal.
 
 Two kinds of answer are **not** refusals even though they begin with `%`, and the difference matters: a
 device-level fact that holds whatever was typed. `show access-lists` on a device with no lists says

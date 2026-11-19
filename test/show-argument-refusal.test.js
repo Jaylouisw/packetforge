@@ -109,6 +109,43 @@ for (const c of REFUSALS) {
 }
 
 console.log('');
+console.log('The advice after the dash points at something that is there (#2146)');
+{
+  // A pointer to a second refusal is not advice. `show ip interface brief ZZZNOPE` offered the words it had just
+  // rejected back as a port, so following it landed on `% No interface ZZZNOPE`; `show ip route <prefix>` sent the
+  // reader to a table below a one-line answer. Both are judged here by following the pointer, not by reading it.
+  const pointer = function (text) {
+    const m = /use `([^`]*)`/.exec(text) || /- type `([^`]*)` and/.exec(text);
+    return m ? m[1] : null;
+  };
+  const unknown = show('r1', 'show ip interface brief ZZZNOPE');
+  ok(pointer(unknown) === 'show interfaces <port>', 'an unknown word keeps the <port> placeholder', unknown);
+  ok(unknown.indexOf('ZZZNOPE`') === -1, 'and the rejected word is never offered back as a port', unknown);
+
+  const consoleWord = show('r1', 'show ip interface brief Console');
+  ok(pointer(consoleWord) === 'show interfaces <port>', 'a console socket is not named as a port either', consoleWord);
+
+  const named = show('r1', 'show ip interface brief ' + RP);
+  ok(pointer(named) === 'show interfaces ' + RP, 'a port the box has is still named: ' + RP, named);
+  ok(!isRefusal(show('r1', pointer(named))), 'and the command it names answers', pointer(named));
+
+  // Every port the brief table prints: typing it must produce a pointer that answers. A name that resolves in the
+  // brief table but not in `show interfaces` would send the reader to a second refusal.
+  const dead = [];
+  for (const name of rPorts) {
+    const cmd = pointer(show('r1', 'show ip interface brief ' + name));
+    if (!cmd || cmd.indexOf('<port>') !== -1) { dead.push(name + ' -> ' + cmd); continue; }
+    if (isRefusal(show('r1', cmd))) dead.push(name + ' -> ' + cmd);
+  }
+  ok(dead.length === 0, 'every port on the box is followed to an answer', dead.join(', '));
+
+  const route = show('r1', 'show ip route 192.0.2.0/24');
+  ok(/`show ip route`/.test(route), 'the route refusal names the command that prints the table', route);
+  ok(route.indexOf('table below') === -1, 'and does not send the reader past a one-line answer to a table', route);
+  ok(!isRefusal(show('r1', pointer(route))), 'the command it names answers', pointer(route));
+}
+
+console.log('');
 console.log('The documented forms are untouched');
 const FORMS = [
   ['r1', 'show ip route', /Codes: C - connected/],

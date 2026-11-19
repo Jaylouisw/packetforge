@@ -5837,8 +5837,18 @@ class CliSession {
     } else if (what === 'ip' && tokens[1] === 'interface' && tokens[2] === 'brief') {
       if (tokens.length > 3) {
         const want = tokens.slice(3).join(' ');
+        // The sentence after the dash is advice, and advice whose target refuses is a second wrong answer: it
+        // offered the rejected words back as a port name, so
+        //   show ip interface brief ZZZNOPE -> use `show interfaces ZZZNOPE` for one port -> % No interface ZZZNOPE
+        // (#2146). The narrower question does have an answer for a port the box has, and `show interfaces` is
+        // what gives it, so that name is printed only when the typed words are one - resolved by the same table
+        // `show interfaces` uses, and not a console or aux socket, which is a line and refuses the same way.
+        // Otherwise the pointer keeps the `<port>` placeholder `show mac address-table interface <port>` prints.
+        const port = ifaceName.resolvePortName(dev, want);
+        const one = port ? dev.interfaces.get(port) : null;
+        const describes = (one && !isConsoleLine(one)) ? one.name : '<port>';
         return showNoTail('show ip interface brief', tokens.slice(3), 'every interface is listed',
-          'use `show interfaces ' + want + '` for one port');
+          'use `show interfaces ' + describes + '` for one port');
       }
       out.push(briefLine(BRIEF_COLUMNS.map(function (c) { return c.head; })));
       // A console or aux socket is a line, not an interface, and a box's own table has no row for one: Cisco's
@@ -5890,8 +5900,11 @@ class CliSession {
       // There is no `show ip route <prefix>` here, and the command used to answer as though there were: it printed
       // the whole table, so a prefix that is *not* installed came back looking installed (#1403).
       if (tokens.length > 2) {
+        // "read the row ... in the table below" pointed past the answer for a table that was never printed:
+        // the refusal is one line on purpose (#1403), so it names the command that prints the table instead
+        // (#2146).
         return showNoTail('show ip route', tokens.slice(2), 'the whole table is printed',
-          'read the row for the prefix in the table below');
+          'type `show ip route` and read the row for the prefix');
       }
       // A box that does not route has no routing table, and IOS does not print one for it. `show ip route` on a
       // Catalyst with `ip routing` off answers with the default gateway over the host/redirect cache - three
