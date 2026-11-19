@@ -97,7 +97,9 @@ console.log('A connected route reads as a connected route:');
   ok(connected.length === 1, 'one row for the connected subnet', JSON.stringify(connected));
   ok(/is directly connected,/.test(connected[0] || ''), 'it says "is directly connected"', connected[0]);
   ok(!/via -/.test(connected[0] || ''), 'and it does not print a meaningless "via -"', connected[0]);
-  ok(/Gi0|Gi0\/0\/0/.test(connected[0] || ''), 'naming the interface', connected[0]);
+  // The full type word, as the box writes it in this row: `... is directly connected, GigabitEthernet0`
+  // (research/show-ip-route-interface-spelling.md).
+  ok(/is directly connected, GigabitEthernet0\b/.test(connected[0] || ''), 'naming the interface', connected[0]);
 }
 
 console.log('');

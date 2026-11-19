@@ -91,7 +91,11 @@ console.log('The console prints the pair in the box\'s order and shape:');
   ok(out[9] === 'Gateway of last resort is not set', 'the router sentence is under the block, unchanged', out[9]);
   const cLine = out.filter(function (l) { return /^C\s/.test(l); })[0] || '';
   const lLine = out.filter(function (l) { return /^L\s/.test(l); })[0] || '';
-  ok(cLine.indexOf('10.1.1.0/30') !== -1 && cLine.indexOf('is directly connected, ' + port.name) !== -1,
+  // The port is named in the box's spelling for a sentence, not the panel's abbreviated cell: `show ip route`
+  // prints `GigabitEthernet0`, and the row here used to say the same thing as a `show vlan` cell (`Gi0`)
+  // (research/show-ip-route-interface-spelling.md).
+  const longPort = require('../engine/iface-name').displayName(port.name);
+  ok(cLine.indexOf('10.1.1.0/30') !== -1 && cLine.indexOf('is directly connected, ' + longPort) !== -1,
     'the connected row is the subnet, directly connected on the port', cLine);
   ok(/^L\s+10\.1\.1\.1\/32\s{2}is directly connected, \S+/.test(lLine),
     'the local row is the address, said the same way - no bracket, no next hop', lLine);

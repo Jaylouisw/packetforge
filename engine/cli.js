@@ -6133,7 +6133,7 @@ class CliSession {
           // A connected route stays listed - it is configuration, and `routeTo()` still finds it - but a
           // port that cannot carry a frame is why the ping to that very address fails. Saying nothing left
           // the reader with a route row that reads "directly connected" about a port with no cable (#1271).
-          out.push(codeField + dest + '  is directly connected, ' + r.iface +
+          out.push(codeField + dest + '  is directly connected, ' + (r.ifaceDisplay || r.iface) +
             (r.note ? '  ' + r.note : '') + (r.shadow ? '  ' + r.shadow : ''));
           continue;
         }
@@ -6147,9 +6147,17 @@ class CliSession {
         // The distance is half of the rule that picks the installed route (longest prefix first, then
         // lowest distance), so a table without it cannot be checked by reading. The prefix starts in the
         // same column on every row now that the address itself is not padded.
+        // The interface is a comma-separated field of the row, not a column hanging off the next hop: the
+        // command reference prints `P 172.16.4.0/8 [1/0] via 10.1.1.1, BRI0`, `H 172.16.99.0 [250/1] via
+        // 10.1.1.99, 00:11:43, Tunnel0` and `O E2 10.110.0.0 [160/5] via 10.119.254.6, 0:01:00, Ethernet2`;
+        // a fully specified static is `S 172.16.2.0/24 [1/0] via 172.16.4.2, Serial0/0/1`. Two spaces there
+        // made the field look like another column and no box writes it that way
+        // (research/show-ip-route-interface-spelling.md). A protocol-learned row on the hardware carries a
+        // third field between the two - the route's age, `00:11:43` - which this engine does not track; the
+        // note records that as the half still open rather than printing a made-up time.
         out.push(codeField + dest +
           '  [' + r.distance + '/' + r.metric + '] via ' + r.gw +
-          (r.iface && r.iface !== '-' ? '  ' + r.iface : '') +
+          (r.iface && r.iface !== '-' ? ', ' + (r.ifaceDisplay || r.iface) : '') +
           (r.note ? '  ' + r.note : '') + (r.shadow ? '  ' + r.shadow : ''));
       }
     } else if (what === 'ip' && tokens[1] === 'dns') {

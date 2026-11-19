@@ -122,10 +122,14 @@ console.log('An interface-only static is printed as a directly connected network
   // Nothing anywhere may still print the placeholder next hop this change removed.
   ok(!/via -/.test(table.join('\n')), 'no row prints "via -" any more', table.join(' | '));
 
+  // The interface is a comma-separated field of the row, not a column two spaces off the next hop:
+  // `S 172.16.2.0/24 [1/0] via 172.16.4.2, Serial0/0/1` is the vendor's row for this form
+  // (research/show-ip-route-interface-spelling.md).
+  const pLong = require('../engine/iface-name').displayName(p);
   const full = byPrefix('10.8.0.0/16');
-  ok(/^S\s+10\.8\.0\.0\/16\s{2}\[1\/0\] via 10\.9\.0\.9\s{2}/.test(full),
+  ok(/^S\s+10\.8\.0\.0\/16\s{2}\[1\/0\] via 10\.9\.0\.9, /.test(full),
     'the fully specified form is not directly connected: it keeps its bracket and next hop', full);
-  ok(full.indexOf(p) !== -1, 'and still names the exit interface beside the next hop', full);
+  ok(full.indexOf(', ' + pLong) !== -1, 'and still names the exit interface beside the next hop', full);
   const fullRow = (s.dev.routesTable ? s.dev.routesTable() : []).filter(function (r) {
     return r.dest === '10.8.0.0';
   })[0];

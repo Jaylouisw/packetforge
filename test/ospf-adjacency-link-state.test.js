@@ -134,9 +134,15 @@ console.log('A route that is still installed but leads nowhere says so:');
   // addressed port.)
   const env2 = lab();
   const r1Routes = show(env2, env2.r1, 'show ip route');
-  ok(/192\.168\.9\.0\/24\s+is directly connected, Gi0\/0\/0\s+\(down: no cable\)/.test(r1Routes),
+  // The port is named the way this row names it - the full type word, `GigabitEthernet0/0/0`, not the
+  // `Gi0/0/0` a table cell uses (research/show-ip-route-interface-spelling.md).
+  const longOf = require('../engine/iface-name').displayName;
+  const rx = function (s) { return String(s).replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); };
+  ok(new RegExp('192\\.168\\.9\\.0\\/24\\s+is directly connected, ' + rx(longOf(env2.a2)) +
+    '\\s+\\(down: no cable\\)').test(r1Routes),
     'a connected route on a port with no cable is marked', r1Routes);
-  ok(!/10\.0\.0\.0\/24\s+is directly connected, Gi0\s+\(/.test(r1Routes),
+  ok(!new RegExp('10\\.0\\.0\\.0\\/24\\s+is directly connected, ' + rx(longOf(env2.a1)) +
+    '\\s+\\(').test(r1Routes),
     'and the one on the live cable is not', r1Routes);
 }
 

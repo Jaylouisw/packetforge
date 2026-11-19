@@ -145,7 +145,7 @@ asking whether `192.0.2.0/24` was installed printed:
 
 ```
 Codes: C - connected, S - static, O - OSPF, B - BGP
-C   10.0.0.0/24  is directly connected, Gi0
+C   10.0.0.0/24  is directly connected, GigabitEthernet0
 ```
 
 A different prefix, printed as the answer to a question about this one. An operator checking whether a prefix is
@@ -803,10 +803,10 @@ Codes: L - local, C - connected, S - static, R - RIP, M - mobile, B - BGP
        a - application route
        + - replicated route, % - next hop override, p - overrides from PfR
 Gateway of last resort is not set
-C   10.0.1.0/24  is directly connected, Gi0/0
-L   10.0.1.1/32  is directly connected, Gi0/0
-C   10.0.2.0/24  is directly connected, Gi0/1
-L   10.0.2.1/32  is directly connected, Gi0/1
+C   10.0.1.0/24  is directly connected, GigabitEthernet0/0
+L   10.0.1.1/32  is directly connected, GigabitEthernet0/0
+C   10.0.2.0/24  is directly connected, GigabitEthernet0/1
+L   10.0.2.1/32  is directly connected, GigabitEthernet0/1
 R1# ping 10.0.1.10
 Type escape sequence to abort.
 Sending 5, 100-byte ICMP Echos to 10.0.1.10, timeout is 2 seconds:
@@ -2592,7 +2592,7 @@ An installed route can still lead nowhere. When its egress port cannot carry a f
 same words the other tables use:
 
 ```
-C   10.0.0.0/24  is directly connected, Gi0  (down: link down)
+C   10.0.0.0/24  is directly connected, GigabitEthernet0  (down: link down)
 S   172.20.0.0/16  [1/0] via 10.0.0.1  (down: link down)
 ```
 
@@ -2979,7 +2979,7 @@ Route added: 192.168.9.0/24 out Gi0
   no next hop: this resolves by ARP on that segment, which needs proxy ARP on the far side
 
 r1#show ip route
-S   192.168.9.0/24  is directly connected, Gi0  (no next hop: ARP for the destination on that segment)
+S   192.168.9.0/24  is directly connected, GigabitEthernet0  (no next hop: ARP for the destination on that segment)
 ```
 
 Anything that is neither an address nor a port is refused, naming it and the route:
@@ -3016,6 +3016,16 @@ Cisco's [gateway-of-last-resort note](https://www.cisco.com/c/en/us/support/docs
 What IOS pads is the *code*, to a wider field than this console uses; the prefix is never split, because it is
 one token read as a whole. `test/show-ip-route-prefix-one-field.test.js` pins the rule on every kind of row
 (connected, static, static default, configured gateway, OSPF, eBGP).
+
+The **interface is a field of the sentence**, in the box's spelling: the type word is written out
+(`GigabitEthernet0/0`, not the `Gi0/0` a table cell uses), and when it follows a next hop it is introduced by
+`, ` — `S 10.8.0.0/16 [1/0] via 10.1.2.9, GigabitEthernet0/0`. The command reference prints the same row for a
+fully specified static (`P 172.16.4.0/8 [1/0] via 10.1.1.1, BRI0`), and for a protocol route it prints one more
+field between the two, the route's age: `O E2 10.110.0.0 [160/5] via 10.119.254.6, 0:01:00, Ethernet2`. This
+engine does not track how long a route has been installed, so that field is **left out rather than faked**;
+the rest of the row is the vendor's. `test/show-ip-route-interface-spelling.test.js` holds the spelling, the
+comma and the absence of an invented age, and `research/show-ip-route-interface-spelling.md` carries the
+captures and the half still open.
 
 The legend is the **image's nine lines**, not one line of this console's own codes: a box prints its whole
 code list on every `show ip route`, whether or not a route uses it, and wraps it after `B - BGP`, with the

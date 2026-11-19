@@ -17,7 +17,7 @@ const ARP_AGE_MS = 14400000;
 const LLDP_DEFAULT_TTL_S = 120;
 // device.js -- Device + Interface model (vendor-agnostic).
 const net = require('./net');
-const { resolvePortName } = require('./iface-name');
+const { resolvePortName, displayName } = require('./iface-name');
 const media = require('./media');
 const vlanLib = require('./vlan');
 
@@ -1389,6 +1389,15 @@ class Device {
       row.directlyConnected = row.type === 'connected' || row.type === 'local' ||
         (row.type === 'static' && (row.gw === '-' || row.gw == null) &&
           !!row.iface && row.iface !== '-');
+      // The interface as the table spells it, and the row is a sentence rather than a cell: every published
+      // `show ip route` sample prints the type word out - `... is directly connected, GigabitEthernet0/0`
+      // (Cisco doc 16448, IOS 15M), `... via 10.119.254.6, 0:01:00, Ethernet2` (the command reference) - while
+      // this console printed the panel's short name (`Fa0/0`, `Gi0/0/0`), a spelling no box writes here. The
+      // stored `iface` stays the panel name because it is the key every lookup uses (`routeTo()`, the
+      // inspector's port links); only the printed cell is expanded, through the same `displayName()` the
+      // `show ip interface brief` row uses. Both surfaces read this field, so the console and the inspector
+      // cannot disagree about what the box would print (research/show-ip-route-interface-spelling.md).
+      row.ifaceDisplay = (row.iface && row.iface !== '-') ? displayName(row.iface) : null;
       row.distance = Device.routeDistance(row);
       // Every row carries a metric, because the bracket prints one for every row: a static, connected or
       // BGP route is 0 (no protocol here computes a cost for it), an O route carries its OSPF cost.

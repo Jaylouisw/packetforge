@@ -1586,11 +1586,16 @@
       // the rule is what keeps this panel and the console saying the same thing about the row.
       const connected = typeof r.directlyConnected === 'boolean' ? r.directlyConnected : r.type === 'connected';
       let via;
+      // `ifaceDisplay` is the spelling the box prints in this row (the full type word, `GigabitEthernet0/0`),
+      // resolved once in `Device.routesTable()` from the panel name the row is keyed by. A panel drawn beside
+      // the console must not call the same route out of a different port
+      // (research/show-ip-route-interface-spelling.md).
+      const shownIface = r.ifaceDisplay || r.iface;
       if (connected) {
-        via = 'is directly connected, ' + (r.iface && r.iface !== '-' ? r.iface : '-');
+        via = 'is directly connected, ' + (shownIface && shownIface !== '-' ? shownIface : '-');
       } else {
         via = 'via ' + (r.gw && r.gw !== '-' ? r.gw : '-') +
-          (r.iface && r.iface !== '-' ? '  ' + r.iface : '') +
+          (shownIface && shownIface !== '-' ? ', ' + shownIface : '') +
           (typeof r.distance === 'number' ? '  [' + r.distance + '/0]' : '');
       }
       // A payload from an older server carries no verdict. Saying "not checked" is honest; printing nothing

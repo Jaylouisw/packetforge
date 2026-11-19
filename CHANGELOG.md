@@ -2,6 +2,24 @@
 
 ### Fixed
 
+- **`show ip route` spells the port out, and separates it from the next hop with a comma.** The row printed the
+  catalogue's panel name — `C 10.0.1.0/24 is directly connected, Gi0/0` — where every capture of this command
+  writes the type word in full (`GigabitEthernet0/0`, `Ethernet2`, `Serial0/0/1`, `Tunnel0`), and it put two
+  spaces where the box puts `, `: `S 10.8.0.0/16 [1/0] via 10.9.0.9, GigabitEthernet0/0`. The row is a sentence,
+  not a table cell, which is the rule `show ip ospf neighbor` and `show ip interface brief` already follow; the
+  interface now goes through the same `displayName()` expansion. The spelling is resolved once in
+  `Device.routesTable()` (`ifaceDisplay`) and read by both surfaces, so the inspector's Routes panel and the
+  console cannot name the same port differently, while the stored `iface` stays the key `routeTo()` forwards by.
+  A protocol-learned row on the hardware carries the route's age between the two (`via 10.119.254.6, 0:01:00,
+  Ethernet2`); this engine does not track it and prints no substitute.
+  `test/show-ip-route-interface-spelling.test.js` (12 checks) pins the spelling, the comma, the next-hop-only row
+  with no dangling comma and the absence of an invented age; four suites that measured the old cell now measure
+  the rule (`show-ip-route`, `show-ip-route-static-via-interface`, `local-route-row`,
+  `ospf-adjacency-link-state`), and `docs/CLI.md`'s samples follow.
+  [research/show-ip-route-interface-spelling.md](research/show-ip-route-interface-spelling.md) has the captures,
+  the teaching pages that paraphrase with `Gi0/1`, and what is still open (the age field, and whether any image
+  ever abbreviates here).
+
 - **`show ip ospf neighbor` names the port in full, the way the box does.** The Interface cell printed the
   catalogue's panel spelling (`Gi0/0/0`) where every capture of this command spells the port out: the ntc-templates
   raw file this table's widths were measured on reads `Port-channel1` and `Vlan1000`, Cisco's `13688-16` sample ends
