@@ -1271,7 +1271,33 @@ jobs:
             # 180 s against 10-20 s of green build inside a 76 s worst green job, and
             # against the 606-3,297 s the failed ones took. `--kill-after` because a
             # build blocked on the daemon can outlive SIGTERM.
-            timeout --signal=TERM --kill-after=20 180 docker build -t packetforge:ci .
+            # Tagged with this commit, not with a name every build on the host shares.
+            #
+            # `docker build -t packetforge:ci` gave every job on this daemon one tag, and
+            # the cleanup step below removes that tag - which removes the *image*, because
+            # the tag is its only reference. Two builds overlapping is the normal case on
+            # this host (a merge on main fires the rebase pass, every rebased pull request
+            # starts a matrix, and they all share one daemon): the build that finishes
+            # first deletes the image the other one is using as a cache parent, and the
+            # other one dies exporting its last layer.
+            #
+            # Four of the five failed `Docker build` tasks in the 72 hours to
+            # 2026-11-19T20:27Z are exactly that, and the timing names the culprit: each
+            # died 14-19 s in, and in every one another `Docker build` on this daemon
+            # finished 13-16 s into it - the second its cleanup ran:
+            #   run 7887 task 20834, 20:11:18Z, failed 14 s in; run 7883 finished 20:11:31
+            #   run 7762 task 20470, 17:10:54Z, failed 15 s in; run 7758 finished 17:11:10
+            #   run 7378 task 19408, 09:44:57Z, failed 14 s in; run 7374 finished 09:45:10
+            #   run 7330 task 19273, 08:45:26Z, failed 19 s in; run 7326 finished 08:45:42
+            # #2193 removed an `image prune --filter until=24h` for the same signature
+            # (`failed to export image: ... unknown parent image ID`) and the failures kept
+            # coming back after it, because this removal was the other half. `arm` has
+            # `needs: docker`, so each one blocked a green pull request's merge.
+            #
+            # `packetforge:ci-<sha>` can only be held by this commit's own builds, and the
+            # cleanup below removes exactly the tag this run created. Nothing consumes the
+            # image - it exists to prove the Dockerfile builds - so the name is free.
+            timeout --signal=TERM --kill-after=20 180 docker build -t packetforge:ci-run-${{ github.run_id }} .
             rc=$?
             if [ "$rc" -eq 124 ] || [ "$rc" -eq 137 ]; then
               echo "::error title=Docker build::docker build was still running after 180 s and was stopped - a green build here takes 10-20 s, so this is a build that stopped moving, not a slow one"
@@ -1293,16 +1319,21 @@ jobs:
       # build still gets a warm start; docker 20.10 has no `--keep-storage`, hence the fallback.
       - name: Bound what the build left behind
         if: always()
+        env:
+          TOKEN: ${{ secrets.FORGEJO_TOKEN || secrets.GITHUB_TOKEN || github.token }}
         run: |
           if ! command -v docker >/dev/null 2>&1 || ! docker info >/dev/null 2>&1; then
             echo "No docker daemon here - nothing was written to the host, so nothing to reclaim."
             exit 0
           fi
+          api="${GITHUB_API_URL:-http://10.0.10.20:3000/api/v1}"
+          api_tasks="$api/repos/$GITHUB_REPOSITORY/actions/tasks?status=running&limit=50"
           # Each of these talks to the host daemon, which is the thing that can be
           # unresponsive in the first place: cleanup that hangs is worse than no
           # cleanup, because it holds the slot the next job is queued for. Still
           # best-effort, now bounded.
-          timeout --signal=TERM --kill-after=10 60 docker image rm -f packetforge:ci >/dev/null 2>&1 || true
+          # The image this run created, by the tag only this commit can hold.
+          timeout --signal=TERM --kill-after=10 60 docker image rm -f packetforge:ci-run-${{ github.run_id }} >/dev/null 2>&1 || true
           # `docker image prune -f --filter "until=24h"` used to run here, and it reddened
           # `main` twice on 2026-11-19. It deletes old *dangling* images - which is what the
           # legacy builder's cache names as parents: `WORKDIR /app` has not changed in
@@ -1320,13 +1351,54 @@ jobs:
           # the merge behind a cache left over from an unrelated earlier push.
           # Nothing this job writes needs that line: the image it creates is removed by name
           # above, and the layers behind it are the builder's own bookkeeping, which the
-          # builder prune two lines down bounds by size - the 2 GB bound is unchanged. So the
+          # builder prune below bounds by size - the 2 GB bound is unchanged. So the
           # line goes, and the disk rule is unchanged with it: same `if: always()`, same image
           # removal by name, same `--keep-storage 2GB`, same `docker system df` after it
           # (scripts/check-ci-disk-hygiene.js, test/ci-disk-hygiene.test.js).
-          timeout --signal=TERM --kill-after=15 120 docker builder prune -f --keep-storage 2GB >/dev/null 2>&1 \
-            || timeout --signal=TERM --kill-after=15 120 docker builder prune -f >/dev/null 2>&1 \
-            || true
+          # Both of the calls below are about the *shared* cache, not about this run's
+          # image, so they wait until no other `Docker build` is in flight.
+          #
+          # `--keep-storage 2GB` drops least-recently-used intermediates, and an
+          # intermediate that another job started building against a second ago is not
+          # least-recently-used - it is in use, and the legacy builder does not know that.
+          # The result is the same `failed to export image: ... unknown parent image ID`
+          # the build step above documents. One bounded call to the actions API answers
+          # "how many builds are running right now"; a run with nothing else to do pays
+          # ~0.2 s for it and keeps the 2 GB bound. When the answer cannot be read the
+          # prune runs anyway - an unreadable API must not become an unbounded cache - and
+          # says so.
+          busy=unknown
+          if [ -n "${TOKEN:-}" ]; then
+            body=$(curl -sS --connect-timeout 5 --max-time 15 --retry 2 --retry-delay 1 \
+                     --retry-connrefused -H "Authorization: token ${TOKEN}" \
+                     "$api_tasks" 2>/dev/null) || body=""
+            if [ -n "$body" ]; then
+              busy=$(printf '%s' "$body" | node -e '
+                let d = "";
+                process.stdin.on("data", (c) => { d += c; });
+                process.stdin.on("end", () => {
+                  let j; try { j = JSON.parse(d); } catch (e) { console.log("unknown"); return; }
+                  // The cleanup runs inside the running Docker build task itself, so a
+                  // count of one means the daemon is this job and nothing else. No run
+                  // identity has to be resolved here - one less expression that can come
+                  // back empty and quietly switch the disk bound off.
+                  console.log((j.workflow_runs || []).filter((t) => t.name === "Docker build").length);
+                });
+              ' 2>/dev/null || echo unknown)
+            fi
+          fi
+          case "$busy" in
+            0|1)
+              # The fixed tag every build used before this change; nothing creates it any
+              # more, so it is removed only here, where no in-flight build can be using it.
+              timeout --signal=TERM --kill-after=10 60 docker image rm -f packetforge:ci >/dev/null 2>&1 || true
+              timeout --signal=TERM --kill-after=15 120 docker builder prune -f --keep-storage 2GB >/dev/null 2>&1 \
+                || timeout --signal=TERM --kill-after=15 120 docker builder prune -f >/dev/null 2>&1 \
+                || true ;;
+            *)
+              echo "not pruning this time: ${busy} Docker build(s) are running on this daemon, this one included - the cache the others are building against is not this job's to drop"
+              ;;
+          esac
           echo "--- what this job left on the host ---"
           docker system df || true
           df -h / || true
