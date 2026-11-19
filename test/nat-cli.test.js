@@ -195,5 +195,55 @@ console.log('Removing things says what it removed:');
 }
 
 console.log('');
+console.log('The NAT views do not drop the word typed after them:');
+{
+  // `show ip nat translations verbose` printed the plain table, so an operator comparing against a box saw a
+  // table the lab does not have while the word they typed was dropped on the floor. `rules` and `statistics`
+  // did the same with any word.
+  const env = lab();
+  const verbose = run(env, 'r1', ['enable', 'show ip nat translations verbose']);
+  ok(/does not take "verbose"/.test(verbose),
+    'the verbose form is refused, naming the word that was dropped', verbose.split('\n')[0]);
+  ok(/no verbose form/.test(verbose),
+    'and says this console has no such form', verbose);
+  ok(/inside and outside local\/global addresses/.test(verbose),
+    'and points at the addresses each row already carries', verbose);
+  ok(!/Pro\s+Inside global/.test(verbose),
+    'without printing the plain table under a refusal', verbose);
+
+  // The refusal is about the word, not about whether a table exists yet.
+  const other = run(env, 'r1', ['enable', 'show ip nat translations flurbish']);
+  ok(/does not take "flurbish"/.test(other), 'any other word is refused too', other.split('\n')[0]);
+  ok(!/Pro\s+Inside global/.test(other) && !/No translations/.test(other),
+    'and the refusal stands in place of the table', other);
+
+  const rules = run(env, 'r1', ['enable', 'show ip nat rules flurbish']);
+  ok(/show ip nat rules does not take "flurbish"/.test(rules),
+    '`show ip nat rules <word>` is refused, not answered with the empty-rule sentence', rules.split('\n')[0]);
+  ok(!/No NAT rules configured/.test(rules), 'and the empty-rule sentence is not printed', rules);
+
+  const stats = run(env, 'r1', ['enable', 'show ip nat statistics flurbish']);
+  ok(/show ip nat statistics does not take "flurbish"/.test(stats),
+    '`show ip nat statistics <word>` is refused', stats.split('\n')[0]);
+  ok(!/Timeouts/.test(stats), 'and no statistics are printed under the refusal', stats);
+
+  // The plain forms keep printing what they printed before - including once a translation table exists.
+  const live = lab();
+  configured(live, ['ip nat pool WAN 203.0.113.1 203.0.113.1 netmask 255.255.255.0',
+    'ip nat inside source list 192.168.10.0/24 pool WAN overload']);
+  run(live, 'in1', ['enable', 'ping 203.0.113.9']);
+  const plain = run(live, 'r1', ['enable', 'show ip nat translations']);
+  ok(/Pro\s+Inside global/.test(plain) && /icmp/.test(plain), 'the plain translations view still prints the table', plain);
+  const stillVerbose = run(live, 'r1', ['enable', 'show ip nat translations verbose']);
+  ok(/does not take "verbose"/.test(stillVerbose),
+    'and still refuses the verbose form once a table exists', stillVerbose.split('\n')[0]);
+  const plainRules = run(live, 'r1', ['enable', 'show ip nat rules']);
+  ok(/ip nat inside source list/.test(plainRules), 'the plain rules view still prints the rule', plainRules);
+  const plainStats = run(live, 'r1', ['enable', 'show ip nat statistics']);
+  ok(/Timeouts \(seconds\)/.test(plainStats) && /Active translations:/.test(plainStats),
+    'the plain statistics view still prints its lines', plainStats);
+}
+
+console.log('');
 console.log(passed + ' passed, ' + failed + ' failed');
 if (failed) process.exit(1);

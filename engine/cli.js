@@ -5642,6 +5642,31 @@ class CliSession {
       const natCfg = this.device.config.nat || { rules: [], pools: {} };
       const rules = Array.isArray(natCfg.rules) ? natCfg.rules : [];
       const sub = String(tokens[2] || '').toLowerCase();
+      // The word after a NAT view used to be dropped: `show ip nat translations verbose` printed the plain
+      // table, so a reader comparing against a box concluded the box prints a table this console lacks when in
+      // fact the word was discarded (#2097). `verbose` is a real IOS spelling of a *different* table - one row
+      // per translation with the inside/outside local/global pairs spelled out - and this console has no such
+      // form, so it says so rather than answering with the view it does have. Any other word is refused with the
+      // sentence the other `show` views use. The answer depends on the word typed, never on whether a
+      // translation table exists yet: the refusal is the same before and after the first translated packet.
+      const tail = tokens.slice(3);
+      if (tail.length) {
+        if (sub === 'translations' || sub === 'translation') {
+          if (tail.length === 1 && String(tail[0]).toLowerCase() === 'verbose') {
+            return showNoTail('show ip nat translations', tail, 'this console has no verbose form',
+              'each row already carries the inside and outside local/global addresses');
+          }
+          return showNoTail('show ip nat translations', tail, 'the whole table is printed',
+            'each row carries the inside and outside local/global addresses');
+        }
+        if (sub === 'rules') {
+          return showNoTail('show ip nat rules', tail, 'every rule is listed, one line each',
+            'each line is the `ip nat` command that would create it');
+        }
+        if (sub === 'statistics' || sub === 'stat') {
+          return showNoTail('show ip nat statistics', tail, 'every counter is printed for the whole device');
+        }
+      }
       if (sub === 'rules') {
         if (!rules.length) {
           out.push('% No NAT rules configured');
