@@ -2,6 +2,18 @@
 
 ### Fixed
 
+- **`show access-lists` spells a standard entry the way a box does.** The table echoed each rule as it
+  had been typed, so a standard list read `permit 192.168.1.0 0.0.0.255` and `deny host 10.0.1.10` where
+  every IOS prints `permit 192.168.1.0, wildcard bits 0.0.0.255` and `deny 10.0.1.10` - the comma form, and
+  a host as the bare address with no `host` keyword (`any` stays `any`). `engine/acl.js` now renders the
+  body from the parsed source (`displayBody()`), and `engine/cli.js` asks it for standard entries only,
+  keeping the typed line for the extended form (which already matched the captures: `host` kept, no comma)
+  and for any entry with no parsed source. Sequence numbers, the four-column indent, the match counter and
+  `show running-config` are unchanged. `test/show-access-lists-standard-address-form.test.js` (17 checks)
+  pins all of it;
+  [research/show-access-lists-standard-address-form.md](research/show-access-lists-standard-address-form.md)
+  lists what is still open (the `permit`/`deny` padding, and whether an all-ones wildcard typed numerically
+  folds into `any`).
 - **IPv6 router advertisements are on before anybody asks.** `show ipv6 nd` on a device that had only
   been given an address answered `Advertise : disabled  (ipv6 nd ra enable to start)`, and SLAAC therefore
   needed a command no Cisco console teaches: the vendor's `ipv6 nd ra suppress` reference states the

@@ -321,6 +321,49 @@ function normalizeAcl(entries) {
 }
 
 // ---------------------------------------------------------------------------
+// display
+// ---------------------------------------------------------------------------
+
+// The body of a standard entry, in the spelling a box puts after the sequence number.
+//
+// `show access-lists` printed the line exactly as it had been typed, so a standard entry read
+//   `10 permit 192.168.1.0 0.0.0.255`
+// where every IOS prints
+//   `10 permit 192.168.1.0, wildcard bits 0.0.0.255`
+// and read `20 deny host 10.0.1.10` where a box drops the `host` keyword (`20 deny 10.0.1.10`). The comma
+// and the words `wildcard bits` are the vendor's own rendering - the standard-list form, not the extended
+// one, which keeps `host` and prints the address and wildcard side by side with no comma:
+//   * https://www.cisco.com/c/en/us/support/docs/security/ios-firewall/23602-confaccesslists.html
+//     (`15 permit 10.10.10.0, wildcard bits 0.0.0.255`, `25 deny any`, `30 permit 172.16.1.11`)
+//   * Catalyst 2960 12.2(44)SE Command Reference, `show access-lists`
+//     (http://www.cisco.com/c/en/us/td/docs/switches/lan/catalyst2960/software/release/12-2_44_se/command/reference/cr/cli2.pdf)
+//     (`10 permit 1.1.1.1`, `30 permit any`)
+//   * Catalyst 2960-L 15.2(5)E config guide, `show ip access-lists kmd1`
+//     (`100 permit 10.4.4.0, wildcard bits 0.0.0.255`)
+//   * ntc-templates real captures, cisco_ios_show_access-list.raw
+//     (https://raw.githubusercontent.com/networktocode/ntc-templates/master/tests/cisco_ios/show_access-list/cisco_ios_show_access-list.raw)
+//     (`10 permit 10.1.2.3 log`, `30 deny   192.168.1.0, wildcard bits 0.0.0.255`)
+//
+// A host is printed as the bare address, `any` as `any`, and anything else as `<address>, wildcard bits
+// <wildcard>`. Nothing is normalised that the parse did not already decide: an entry typed
+// `0.0.0.0 255.255.255.255` keeps the wildcard form, because no capture in hand shows whether a box folds
+// it into `any` (research/show-access-lists-standard-address-form.md).
+//
+// Returns null for an entry this function does not speak for - an extended line, or one with no parsed
+// source (an older topology file that stored only the text) - so the caller keeps printing the typed line
+// rather than inventing a rendering.
+function displayBody(entry) {
+  if (!entry || typeof entry !== 'object' || entry.error) return null;
+  if (entry.kind !== 'standard' || !entry.source || !entry.action) return null;
+  const spec = entry.source;
+  let source;
+  if (spec.any) source = 'any';
+  else if (!spec.wildcard || spec.wildcard === WILDCARDS.HOST) source = String(spec.ip);
+  else source = String(spec.ip) + ', wildcard bits ' + String(spec.wildcard);
+  return entry.action + ' ' + source + (entry.log ? ' log' : '');
+}
+
+// ---------------------------------------------------------------------------
 // matching + evaluation
 // ---------------------------------------------------------------------------
 
@@ -479,5 +522,6 @@ module.exports = {
   evaluate,
   validateAcl,
   sortAcl,
-  numberedEntries
+  numberedEntries,
+  displayBody
 };

@@ -5967,7 +5967,12 @@ class CliSession {
           // stripped from the body rather than from the key: an entry typed as "10 permit ip any any"
           // must not print its 10 twice.
           const key = e.line || (e.action + ' ' + (e.protocol || 'ip'));
-          const ruleText = String(key).replace(/^\d+\s+(?=(?:permit|deny)\b)/i, '');
+          // A standard entry is spelled the vendor's way (`permit 10.0.0.0, wildcard bits 0.0.0.255`,
+          // `deny 10.0.1.10`, `permit any`), not echoed as it was typed; `aclLib.displayBody()` is the one
+          // renderer and returns null for the lines it does not speak for, which keep their typed text.
+          // research/show-access-lists-standard-address-form.md.
+          const body = aclLib.displayBody(e);
+          const ruleText = body !== null ? body : String(key).replace(/^\d+\s+(?=(?:permit|deny)\b)/i, '');
           const count = tally && tally.entries[key] ? tally.entries[key] : 0;
           out.push('    ' + slot.seq + ' ' + ruleText +
             (count ? ' (' + count + (count === 1 ? ' match' : ' matches') + ')' : ''));

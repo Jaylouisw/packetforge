@@ -76,7 +76,9 @@ console.log('\nScenario B: standard ACL denies one host');
 
   const show = runCommands(L.r1, L.t, L.sim, ['show access-lists']).lines.join('\n');
   ok(/Standard IP access list 10/.test(show), 'show access-lists lists the ACL');
-  ok(/deny host 10\.0\.1\.10/.test(show), 'show access-lists renders the entry');
+  // A box drops the `host` keyword on a standard entry and prints the bare address; the running-config
+  // below still echoes the line as it was typed. See test/show-access-lists-standard-address-form.test.js.
+  ok(show.indexOf('    10 deny 10.0.1.10') !== -1, 'show access-lists renders the entry');
   ok(/applied IN on Gi0\/0/.test(show), 'show access-lists reports the binding');
 
   const run = runCommands(L.r1, L.t, L.sim, ['show running-config']).lines.join('\n');
