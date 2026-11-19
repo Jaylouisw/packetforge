@@ -3,7 +3,7 @@
   "model": "ER-10X",
   "label": "EdgeRouter 10X",
   "category": "router",
-  "description": "EdgeRouter 10X (ER-10X) - 10x 1G RJ45. Passive PoE-in; 8 W max.",
+  "description": "EdgeRouter 10X (ER-10X) - 10x 10/100/1000 RJ45: eth0 accepts 24V passive PoE, eth9 is the 24V passive PoE passthrough outlet. 8 W max, excluding PoE output.",
   "capabilities": [
     "l3-forward",
     "cli",
@@ -23,10 +23,11 @@
       "connector": "rj45",
       "speed": "1G",
       "speedCaps": [
-        "1G",
-        "100M"
+        1000,
+        100,
+        10
       ],
-      "poeIn": 8.0
+      "poeIn": 8
     },
     {
       "name": "eth1",
@@ -34,9 +35,11 @@
       "connector": "rj45",
       "speed": "1G",
       "speedCaps": [
-        "1G",
-        "100M"
-      ]
+        1000,
+        100,
+        10
+      ],
+      "poeIn": false
     },
     {
       "name": "eth2",
@@ -44,9 +47,11 @@
       "connector": "rj45",
       "speed": "1G",
       "speedCaps": [
-        "1G",
-        "100M"
-      ]
+        1000,
+        100,
+        10
+      ],
+      "poeIn": false
     },
     {
       "name": "eth3",
@@ -54,9 +59,11 @@
       "connector": "rj45",
       "speed": "1G",
       "speedCaps": [
-        "1G",
-        "100M"
-      ]
+        1000,
+        100,
+        10
+      ],
+      "poeIn": false
     },
     {
       "name": "eth4",
@@ -64,9 +71,11 @@
       "connector": "rj45",
       "speed": "1G",
       "speedCaps": [
-        "1G",
-        "100M"
-      ]
+        1000,
+        100,
+        10
+      ],
+      "poeIn": false
     },
     {
       "name": "eth5",
@@ -74,9 +83,11 @@
       "connector": "rj45",
       "speed": "1G",
       "speedCaps": [
-        "1G",
-        "100M"
-      ]
+        1000,
+        100,
+        10
+      ],
+      "poeIn": false
     },
     {
       "name": "eth6",
@@ -84,9 +95,11 @@
       "connector": "rj45",
       "speed": "1G",
       "speedCaps": [
-        "1G",
-        "100M"
-      ]
+        1000,
+        100,
+        10
+      ],
+      "poeIn": false
     },
     {
       "name": "eth7",
@@ -94,9 +107,11 @@
       "connector": "rj45",
       "speed": "1G",
       "speedCaps": [
-        "1G",
-        "100M"
-      ]
+        1000,
+        100,
+        10
+      ],
+      "poeIn": false
     },
     {
       "name": "eth8",
@@ -104,9 +119,11 @@
       "connector": "rj45",
       "speed": "1G",
       "speedCaps": [
-        "1G",
-        "100M"
-      ]
+        1000,
+        100,
+        10
+      ],
+      "poeIn": false
     },
     {
       "name": "eth9",
@@ -114,12 +131,22 @@
       "connector": "rj45",
       "speed": "1G",
       "speedCaps": [
-        "1G",
-        "100M"
-      ]
+        1000,
+        100,
+        10
+      ],
+      "poeIn": false,
+      "poeOut": 15,
+      "poeOutClass": "passive"
     }
   ],
   "icon": "router",
   "color": "#14b8a6",
-  "sourceUrl": "https://techspecs.ui.com/uisp/wired/er-10x"
+  "sourceUrl": "https://techspecs.ui.com/uisp/wired/er-10x",
+  "poe": {
+    "budgetW": 15,
+    "sourceUrl": "https://techspecs.ui.com/uisp/wired/er-10x",
+    "note": "15 W, the vendor's own per-port ceiling for the passthrough outlet - Ubiquiti prints \"Passive PoE Max. wattage per port = 15W (24V, 0.63A)\" and \"Passive PoE output = DC/PoE passthrough\" (https://techspecs.ui.com/uisp/wired/er-10x, HTTP 200, 576,148 B, read 2026-11-19; the store page https://store.ui.com/us/en/products/er-10x repeats the same table, 200, 323,875 B). The unit has exactly one outlet, so the per-port figure is also its whole budget. The included 24W (24V, 1A) adapter minus the 8W the unit draws (\"Max. power consumption = 8W (Excludes PoE output)\") leaves 16 W, so the vendor's 15 W per-port number is what binds, not the adapter arithmetic. Because the outlet is a DC/PoE passthrough, a unit powered from 24V passive PoE on eth0 instead of the adapter passes the upstream supply through: a lab with a bigger passive source can state more, and one feeding a device above 15 W is outside the hardware."
+  },
+  "notes": "Ubiquiti sources read 2026-11-19: tech-spec page https://techspecs.ui.com/uisp/wired/er-10x (HTTP 200, 576,148 B - a real product page, not the 609,911 B fallback) and the store page for the same SKU https://store.ui.com/us/en/products/er-10x (200, 323,875 B), which prints the identical table plus the one-line summary \"Gigabit router with a built-in Layer 2 switch, (10) Gigabit RJ45 ports, a PoE input, and PoE passthrough port.\"\n\nThe table: **Networking interface = (10) 10/100/1000 RJ45 ports**; **Management interface = (1) RJ45 serial port**; **PoE interface = PoE In: (1) 24V passive PoE port, 2-pair (4, 5+; 7, 8-) / PoE Out: (1) 24V passive PoE port, 2-pair (4, 5+; 7, 8-)**; **Power method = AC/DC power adapter, 24W, 24V, 1A (Included) / 24V passive PoE**; **Supported voltage range = DC 9-30V / 24V passive PoE 20-30V**; **Max. power consumption = 8W (Excludes PoE output)**; **Passive PoE Max. wattage per port = 15W (24V, 0.63A)**; **Passive PoE output = DC/PoE passthrough**. So the box sinks power on one socket and sources it on another - it is not a ten-port PSE, and it is not a PoE-in-only router either.\n\n**Which socket is which is a convention, not a vendor figure.** Neither host numbers the PoE pair, so the inlet sits on eth0 and the outlet on eth9, the last port - the same placement rule as the ER-X family (devices/ubiquiti/ER-X.json, eth0 in / eth4 out) and as devices/ubiquiti/ucg-fiber.json, where the vendor gives a count but withholds the numbering. What is the vendor's is the census: one inlet, one outlet, 24V passive, 15 W per port.\n\nTwo traps recorded so they are not re-walked: **this SKU has no datasheet or quick-start he can be handed** - https://dl.ui.com/datasheets/edgemax/EdgeRouter_10X_DS.pdf and https://dl.ui.com/guides/edgemax/EdgeRouter_10X_QSG.pdf both answer **200 with the 609,911-byte techspecs front page** (the silent fallback this catalogue has trapped for ucg-fiber, uxg-pro, er-6p and er-12p), so the tech-spec page is the only citable document; and the tech-spec table's PoE rows carry both sockets, so reading \"PoE In\" and stopping - which is what this row did - deletes the outlet and leaves a device that declares `poe-pse` with nothing to source from.\n\n**Why every other port now says `poeIn: false`:** this row declares the device-level `poe-pd` token, and `isPoePd()` in `engine/media.js` then gives every silent copper port a 12.95 W 802.3af draw - 124.55 W across ten ports on hardware whose whole supply is a 24 W adapter, and whose only inlet is an 8 W figure. The one socket that can sink power carries its own number; the nine that cannot say `false`, the same correction as devices/ubiquiti/UDM-Pro.json and devices/ubiquiti/ucg-fiber.json.\n\nA management detail, not a link: the unit also carries **(1) RJ45 serial port** (vendor's \"Management interface\" row) and a factory-reset button. Per docs/DEVICE_SCHEMA.md serial consoles live in `notes`, not in `interfaces`, so the console socket is recorded here and not modelled as a port."
 }

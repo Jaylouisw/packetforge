@@ -101,7 +101,14 @@ t('a device that only accepts PoE never sources it', () => {
   // Each of these says "PoE-in" in its own description. Their specs declared every port a PSE
   // anyway, which is a claim the hardware does not support: an EdgeRouter 10X with 10 self-
   // powered ports is not an EdgeRouter 10X.
-  const PD_ONLY = ['EP-R6', 'ER-10X', 'ACB-AC'];
+  //
+  // ER-10X left this list on 2026-11-19, and the reason is that it is not a PoE-in-only box: its
+  // own tech-spec table prints both sockets - "PoE In: (1) 24V passive PoE port, 2-pair (4, 5+;
+  // 7, 8-)" and "PoE Out: (1) 24V passive PoE port, 2-pair (4, 5+; 7, 8-)" - with "Passive PoE
+  // output = DC/PoE passthrough" (https://techspecs.ui.com/uisp/wired/er-10x, 200, 576,148 B).
+  // The original complaint is kept as its own assertion below, where it belongs: one outlet,
+  // not ten.
+  const PD_ONLY = ['EP-R6', 'ACB-AC'];
   for (const model of PD_ONLY) {
     const spec = all.find(x => String(x.spec.model) === model);
     assert.ok(spec, model + ' must exist in the catalogue');
@@ -111,6 +118,23 @@ t('a device that only accepts PoE never sources it', () => {
     const sinking = spec.ifaces.filter(p => p.hardware.poeIn);
     assert.ok(sinking.length > 0, model + ' must still accept power on at least one port');
   }
+});
+
+t('the EdgeRouter 10X sources power on one passthrough port, and nowhere else', () => {
+  // The defect the PD_ONLY entry above was written for was ten self-powered ports, and the fix was
+  // to leave the row sourcing nothing at all - which broke the other half of the same vendor row:
+  // the unit has a 24V passive PoE **outlet** ("Passive PoE output = DC/PoE passthrough",
+  // "Passive PoE Max. wattage per port = 15W (24V, 0.63A)"), so `show power inline` answered
+  // "no port on this device can supply power" on a router that passes power to an AP. The count
+  // is what this pins: one outlet at 15 W, one inlet at the unit's own 8 W draw.
+  const spec = all.find(x => String(x.spec.model) === 'ER-10X');
+  assert.ok(spec, 'ER-10X must exist in the catalogue');
+  const sourcing = spec.ifaces.filter(p => p.hardware.poeOut).map(p => p.name);
+  assert.deepStrictEqual(sourcing, ['eth9'],
+    'ER-10X sources on its one 24V passive passthrough outlet only, not on ten ports');
+  const sinking = spec.ifaces.filter(p => p.hardware.poeIn).map(p => p.name + '=' + p.hardware.poeIn);
+  assert.deepStrictEqual(sinking, ['eth0=8'],
+    'and sinks only on its one 24V passive inlet, at the 8 W the vendor prints as its max draw');
 });
 
 t('a switch that claims a PoE budget actually sources power', () => {
