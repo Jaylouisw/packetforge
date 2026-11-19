@@ -54,12 +54,24 @@ function rowFor(lines, destPrefix) {
   });
 }
 
+// The legend is nine printed lines (research/show-ip-route-codes-legend.md): the label line and eight
+// continuations that start at column 7. Reading `lines[0]` alone saw one ninth of it, which is how the
+// assertions below reported a code the block does define (O) as undefined.
+function legendText(lines) {
+  const block = [];
+  for (const l of lines) {
+    if (l.indexOf('Codes: ') === 0 || (block.length && l.indexOf('       ') === 0)) block.push(l);
+    else break;
+  }
+  return block.join('\n');
+}
+
 console.log('');
 console.log('The legend names every code the table can print:');
 {
   const s = build();
   const lines = show(s);
-  const legend = lines[0];
+  const legend = legendText(lines);
   ok(/C\b.*connected/.test(legend), 'the legend explains C', legend);
   ok(/S\b.*static/.test(legend), 'the legend explains S', legend);
   ok(/O\b.*OSPF/.test(legend), 'the legend explains O - the table emits OSPF rows', legend);
@@ -108,8 +120,8 @@ console.log('Both defaults are candidate defaults, and the distance tells them a
   ok(/10\.1\.2\.1/.test(stat), 'the static default is the one at distance 1, via its own next hop', stat);
   ok(/10\.1\.2\.254/.test(candidate), 'the configured gateway keeps distance 254', candidate);
   ok(stat !== candidate, 'and the distance in the brackets is what tells the two rows apart, as for any two routes');
-  ok(lines[0].indexOf('* - candidate default') !== -1,
-    'while the legend defines the asterisk those rows use', lines[0]);
+  ok(legendText(lines).indexOf('* - candidate default') !== -1,
+    'while the legend defines the asterisk those rows use', legendText(lines).split('\n')[5]);
 
   const gatewayLine = lines.filter(function (l) { return /^Gateway of last resort is/.test(l); })[0];
   ok(!!gatewayLine, 'a "Gateway of last resort" line names the gateway', gatewayLine);
@@ -146,8 +158,9 @@ console.log('A device with no default says so, in the place the device says it:'
   const lines = show(s);
   const negative = lines.filter(function (l) { return /^Gateway of last resort/.test(l); })[0] || '';
   ok(negative === 'Gateway of last resort is not set', 'the line says the gateway is not set', negative);
-  ok(lines.indexOf(negative) === 1, 'and it sits directly under the codes legend',
-    lines.slice(0, 3).join(' | '));
+  ok(lines.indexOf(negative) === legendText(lines).split('\n').length,
+    'and it sits directly under the codes legend',
+    lines.slice(0, 11).join(' | '));
   ok(!/\d/.test(negative.replace(/^[^\d]*/, '')), 'naming no address at all', negative);
   ok(!lines.some(function (l) { return /^S\*/.test(l); }), 'and no candidate default row');
 }

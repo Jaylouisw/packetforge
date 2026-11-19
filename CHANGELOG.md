@@ -2,6 +2,19 @@
 
 ### Fixed
 
+- **The `Codes:` legend above `show ip route` is the image's nine lines, not one line of this console's codes.**
+  A box prints its whole code list on every `show ip route`, whether or not a route uses any of it: at IOS 15.2E
+  that is nine lines, breaking after `B - BGP`, with every continuation starting at column 7 so each code lines
+  up under the `L` - `D - EIGRP`, `EX`, `O`/`IA`, `N1`/`N2`, `E1`/`E2`, the five IS-IS codes, `ia`, `*`, `U`,
+  `o - ODR`, `P`, `H - NHRP`, `l - LISP`, `a - application route` and the `+`/`%`/`p` line. This console printed
+  one 85-column line naming the six codes its own table can emit, so a reader comparing a captured table against
+  this one found a shape no box produces. The set and the shape are one object on the hardware, so they are one
+  object here: `IP_ROUTE_CODES_LEGEND` in `engine/cli.js` is the 15.2E Catalyst block, character for character,
+  and a box that does not route still prints no legend at all (it has no table). IOS XE 16/17 prints a longer
+  block of its own - `m - OMP`, four NAT codes, three NHRP codes - which `research/show-ip-route-codes-legend.md`
+  records along with the 15.0 variant, the three captures that fix the indent, and the one thing still open (a
+  fixed-config 9200 at 17.x). `test/show-ip-route-codes-legend.test.js` (17 checks) pins the nine lines, the
+  column, the codes the table can emit and the gateway sentence's place under the block.
 - **A router's own interface address is a row in `show ip route`, and the box prints it.** Configuring
   `ip address 10.1.1.1 255.255.255.252` installs two rows on IOS, one line apart: the connected subnet
   (`C 10.1.1.0/30 is directly connected, Ethernet0/0`) and the address itself as a `/32` local host route

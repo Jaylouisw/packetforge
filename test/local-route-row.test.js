@@ -84,9 +84,11 @@ console.log('The console prints the pair in the box\'s order and shape:');
   const port = ethernet(dev)[0];
   port.ip = '10.1.1.1'; port.mask = '255.255.255.252'; port.enabled = true;
   const out = show(dev);
-  ok(/^Codes: L - local, C - connected, S - static, B - BGP, O - OSPF, \* - candidate default$/.test(out[0]),
-    'the legend leads with L - local, in the box\'s order (L, C, S, B, O)', out[0]);
-  ok(out[1] === 'Gateway of last resort is not set', 'the router sentence is under it, unchanged', out[1]);
+  ok(/^Codes: L - local, C - connected, S - static, R - RIP, M - mobile, B - BGP$/.test(out[0]),
+    'the legend leads with L - local, in the box\'s order (L, C, S, R, M, B)', out[0]);
+  // The legend is the image's nine lines (research/show-ip-route-codes-legend.md), so the router sentence sits
+  // under the block rather than on the line directly below its first line.
+  ok(out[9] === 'Gateway of last resort is not set', 'the router sentence is under the block, unchanged', out[9]);
   const cLine = out.filter(function (l) { return /^C\s/.test(l); })[0] || '';
   const lLine = out.filter(function (l) { return /^L\s/.test(l); })[0] || '';
   ok(cLine.indexOf('10.1.1.0/30') !== -1 && cLine.indexOf('is directly connected, ' + port.name) !== -1,
