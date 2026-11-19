@@ -209,7 +209,7 @@ takes back.
 | DHCP pools | `ip dhcp pool <name>` block: network, range, default-router, dns-server, excluded-address, lease, `host <addr> <mac>` |
 | DNS zones | `dns zone <apex>` followed by `dns add <name> <type> <value>` |
 | ACLs | `access-list <id> <rule>` |
-| routing | `ip route <dest> <mask> <gateway> [iface]`, `ip default-gateway <addr>`, and `ip routing` when the box is not in its platform's default state |
+| routing | `ip route <dest> <mask> <gateway> [iface] [<distance>]`, `ip default-gateway <addr>`, and `ip routing` when the box is not in its platform's default state |
 | NAT | `ip nat pool <name> <start> <end> netmask <mask>`, and one `ip nat inside source …` line per rule, printed as the command that creates it (`static <local> <global> [<protocol> <port>]`, or `list <local> pool <name>` or `list <local> interface <if>`, with `overload` on a PAT rule) |
 | spanning tree | `spanning-tree priority <n>` whenever a bridge priority has been set - a typed `32768`, the value the box already assumes, is printed too, because the config records that an operator set one |
 | name servers | `ip name-server <addr>` - a command line takes up to six addresses, space separated, and the printer writes one line for each |
@@ -354,8 +354,8 @@ being put into a VLAN, the refusal stands.
 | `interface <name>` | enter interface config mode |
 | `interface <port>.<vlan>` | create a subinterface, or open an existing one, on that parent port - the prompt is `(config-subif)#`, as a box prints it (`research/subinterface-prompt.md`) |
 | `no interface <port>.<vlan>` | remove a subinterface and its block; a physical port is refused, because a port is not something the console created |
-| `ip route <dest> <mask> <gw> [iface]` | add static route |
-| `no ip route <dest> <mask> [gw]` | remove static route |
+| `ip route <dest> <mask> <gw> [iface] [<distance 1-255>]` | add static route, at that administrative distance (default 1) |
+| `no ip route <dest> <mask> [gw] [<distance>]` | remove static route - with a distance, only that one |
 | `ip default-gateway <gw>` | set default gateway (hosts) |
 | `no vlan <id>` | remove a VLAN (refused while a trunk carries it, or a port holds a trunk parameter or a voice VLAN naming it) |
 | `no ip dhcp pool <name>` | remove a DHCP pool |
@@ -1145,6 +1145,23 @@ Two neighbours of that rule live here too, because they are the same mistake in 
   destination on that segment"* - naming a segment the command never mentioned. It is now
   `% Incomplete command: ip route 192.0.2.0 255.255.255.0 needs a next hop or an interface`. The interface-only
   form is still legal and still says what it will take to work.
+* **A number after the next hop is a distance, not a port.** The vendor's syntax ends
+  `{ ip-address | interface-type interface-number [ip-address] } [dhcp] [global] [distance] [multicast]
+  [name next-hop-name] [permanent | track number] [tag tag]`, with `distance` an administrative distance from
+  1 to 255 whose default for a static route is 1 (Cisco IOS IP Routing: Protocol-Independent Command Reference,
+  `ip route`). This console read that slot as an interface and refused the backup route every IOS course
+  teaches:
+  ```
+  r1(config)#ip route 0.0.0.0 0.0.0.0 10.1.1.2 200
+  % 0.0.0.0/0: no interface called "200"
+  ```
+  It now stores the number on the route, prints it in the bracket (`S*  0.0.0.0/0 [200/0] via 10.1.1.2`),
+  writes it back into `running-config` so the line replays, and lets it decide which route is installed - so a
+  floating static sits marked `(not installed: the S route for this prefix has distance 1)` while the primary
+  lives, and carries the traffic when it goes. A distance outside 1-255 is refused by name, and 255 keeps the
+  vendor's meaning - *"routes with a distance value of 255 are not installed in the routing table"* - so the row
+  is printed and marked, and no packet is ever sent by it. What is still not read from that syntax: `name`, `tag`,
+  `permanent`, `track` and `vrf` (`research/static-route-distance.md`).
 
 ### A VLAN id is a number
 
@@ -2667,6 +2684,12 @@ The default gets two forms because there are two ways to configure one:
 |---|---|---|
 | `S*  0.0.0.0/0 [254/0] via …` | `ip default-gateway` | 254 |
 | `S*  0.0.0.0/0 [1/0] via …` | `ip route 0.0.0.0 0.0.0.0 …` | 1 |
+| `S*  0.0.0.0/0 [200/0] via …` | `ip route 0.0.0.0 0.0.0.0 … 200` | 200 |
+
+The last row is the floating default: it is a candidate, it is listed, and the `Gateway of last resort is …`
+line above the table does not name it while a distance-1 default exists. A static route at distance 255 is a
+different case - the vendor rule for that number is that the route is *never* installed - so its row says so
+and is excluded from the gateway line.
 
 The asterisk is the device's mark for a **candidate default**, and it belongs to the prefix, not to the
 row's origin: every route to `0.0.0.0/0` carries it, and the legend's last entry says so

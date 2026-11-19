@@ -1008,13 +1008,18 @@ class Device {
     for (const r of (this.config.routes || [])) {
       if (net.ipInSubnet(dstIp, r.dest, r.mask)) {
         const prefix = net.prefixOf(r.mask);
-        if (better(prefix, 1)) {
+        const ad = Device.routeDistance({ type: 'static', distance: r.distance });
+        // "Routes with a distance value of 255 are not installed in the routing table" (Cisco IOS IP Routing:
+        // Protocol-Independent Command Reference, `distance`). A route configured that way is kept - it is in
+        // the file and in the table's candidate list - but traffic never goes by it.
+        if (ad >= 255) continue;
+        if (better(prefix, ad)) {
           best = {
             iface: r.iface || null,
             via: r.gw || dstIp, // on-link if no gateway given
             type: 'static',
             prefix: prefix,
-            ad: 1
+            ad: ad
           };
         }
       }
@@ -1172,7 +1177,14 @@ class Device {
   static routeDistance(r) {
     if (!r) return 1;
     if (r.type === 'connected') return 0;
-    if (r.type === 'static') return 1;
+    // A static route carries the distance it was configured with (`ip route ... <1-255>`), and the vendor's
+    // default of 1 when nobody typed one. Reading it from the route rather than returning 1 is what makes a
+    // floating static float: two routes to one prefix are compared by this number, so the backup at 200 loses
+    // to the primary at 1 and only wins when the primary is gone (research/static-route-distance.md).
+    if (r.type === 'static') {
+      const ad = Number(r.distance);
+      return (Number.isFinite(ad) && ad >= 1 && ad <= 255) ? ad : 1;
+    }
     if (r.type === 'ospf') return 110;
     if (r.type === 'bgp') return (r.ad === undefined || r.ad === null) ? 200 : r.ad;
     if (r.type === 'default') return 254;
@@ -1255,7 +1267,10 @@ class Device {
     for (const r of (this.config.routes || [])) {
       rows.push({
         code: 'S', dest: r.dest, mask: r.mask,
-        gw: r.gw || '-', iface: r.iface || '-', type: 'static'
+        gw: r.gw || '-', iface: r.iface || '-', type: 'static',
+        // The distance the route was configured with, so `routeDistance()` (and every surface reading it)
+        // prices this row the way the data plane does.
+        distance: r.distance
       });
     }
     for (const r of (this.ospfRoutes || [])) {
@@ -1332,6 +1347,9 @@ class Device {
         row.installed = row === best;
         if (row !== best) row.shadowedBy = { code: best.displayCode, distance: best.distance, iface: best.iface };
       }
+      // A distance-255 route is never installed, even when it is the only candidate: the vendor's rule for
+      // that number is "not installed in the routing table", not "least preferred" (#fidelity: ip route).
+      if (best && best.distance >= 255) best.installed = false;
     }
 
     for (const row of rows) {
@@ -1343,7 +1361,9 @@ class Device {
       row.shadow = (row.installed === false && row.shadowedBy)
         ? '(not installed: the ' + row.shadowedBy.code + ' route for this prefix has distance ' +
           row.shadowedBy.distance + ')'
-        : '';
+        : (row.installed === false && row.distance >= 255
+          ? '(not installed: a route with administrative distance 255 is never installed)'
+          : '');
       row.note = verdict.note;
       row.unusable = verdict.unusable;
       row.checked = !!topo;

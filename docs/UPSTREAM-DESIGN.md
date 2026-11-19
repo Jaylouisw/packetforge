@@ -317,9 +317,11 @@ routeTo(dstIp) {                       // unchanged for all 7 call sites
 
 Two behavioural changes hide in there, both deliberate:
 
-- **`config.routes[i].distance` is honoured** (`device.js:395` currently hard-codes
-  `ad: 1`). That is what makes a floating static possible:
-  `ip route 0.0.0.0 0.0.0.0 198.51.100.1 wan2 200`.
+- **`config.routes[i].distance` is honoured** (the static loop in `routeTo()` priced every static at
+  `ad: 1`; it now reads the configured distance and defaults it to 1, and `show ip route` prints it).
+  That is what makes a floating static possible:
+  `ip route 0.0.0.0 0.0.0.0 198.51.100.1 200` - see `research/static-route-distance.md`. What is still
+  not here is the rest of §4.1: one ordered candidate list, and the `wan2` name form.
 - **The default gateway becomes a candidate in the list** rather than a
   `if (!best)` fallback (`device.js:438`). Today a host's default gateway can
   never lose to anything; with AD 254 it still loses to nothing, so C4 holds —

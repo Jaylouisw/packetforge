@@ -1689,12 +1689,24 @@ class CliSession {
     } else if (head === 'no' && tokens[1] === 'ip' && tokens[2] === 'routing') {
       out.push.apply(out, this._ipRouting(false, tokens.slice(3)));
     } else if (head === 'ip' && tokens[1] === 'route') {
-      // ip route DEST MASK GW [iface]   and   ip route DEST MASK <iface>   (the directly-connected form)
+      // ip route DEST MASK GW [iface] [distance]   and   ip route DEST MASK <iface> [distance]
+      // (the directly-connected form).
+      //
+      // The number after the next hop is the route's administrative distance, not a port name. The vendor's
+      // syntax is `ip route prefix mask { ip-address | interface-type interface-number [ip-address] } [dhcp]
+      // [global] [distance] [multicast] [name next-hop-name] [permanent | track number] [tag tag]`, with
+      // "distance (Optional) Administrative distance. The range is 1 to 255. The default administrative
+      // distance for a static route is 1" (Cisco IOS IP Routing: Protocol-Independent Command Reference,
+      // `ip route`, https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/iproute_pi/command/iri-cr-book/iri-cr-a1.html).
+      // This console read that slot as an interface and refused `ip route 0.0.0.0 0.0.0.0 198.51.100.1 200`
+      // with `no interface called "200"` - so the one command that makes a floating static, the backup route
+      // every IOS course configures, could not be typed at all (research/static-route-distance.md).
       const dest = tokens[2], mask = tokens[3];
       const cannotRoute = this._capabilityRefusal('l3-forward', 'install a route');
       if (cannotRoute) return [cannotRoute];
       let gw = tokens[4] || null;
-      let iface = tokens[5] || null;
+      let iface = null;
+      let distance = null;
       if (dest && !net.isIp(dest)) {
         // The word was reported as a *missing* argument when the mask was absent too, so a reader was told to add
         // a mask to a destination that is not an address at all (#1495). The shape of the destination is checked
@@ -1717,8 +1729,6 @@ class CliSession {
       if (gw) {
         const asPort = resolvePortName(this.device, gw);
         if (asPort) {
-          if (iface) return ['% ' + dest + '/' + net.prefixOf(mask) + ': ' + asPort +
-            ' is an interface, so it cannot also be followed by ' + iface];
           gw = null;
           iface = asPort;
         } else if (!net.isIp(gw)) {
@@ -1726,10 +1736,35 @@ class CliSession {
             'nor an interface on ' + this.device.name];
         }
       }
-      if (iface) {
-        const named = resolvePortName(this.device, iface);
-        if (!named) return ['% ' + dest + '/' + net.prefixOf(mask) + ': no interface called "' + iface + '"'];
-        iface = named;
+      // The words after the next hop, in either order this console accepts: an interface (the vendor's
+      // `{ interface-type interface-number }` form) and the administrative distance. A port name is resolved
+      // first, so a device whose ports are named by number keeps its own name; every other bare number is the
+      // distance. Anything else is quoted back rather than dropped.
+      for (const tok of tokens.slice(5)) {
+        const asPort = resolvePortName(this.device, tok);
+        if (asPort) {
+          if (iface) return ['% ' + dest + '/' + net.prefixOf(mask) + ': ' + iface +
+            ' is an interface, so it cannot also be followed by ' + tok];
+          iface = asPort;
+          continue;
+        }
+        if (distance === null && /^\d+$/.test(tok)) {
+          const n = Number(tok);
+          if (!(n >= 1 && n <= 255)) {
+            return ['% ' + dest + '/' + net.prefixOf(mask) + ': administrative distance ' + tok +
+              ' must be 1-255 (the default is 1)'];
+          }
+          distance = n;
+          continue;
+        }
+        // A word in this position is a port name that did not resolve - the commonest way to get here is a
+        // typo in the interface form - so it keeps the sentence that names the misspelling. Only a second
+        // number is something else, and that says what it is.
+        if (/^\d+$/.test(tok)) {
+          return ['% ' + dest + '/' + net.prefixOf(mask) + ': unexpected "' + tok +
+            '" - a route takes one administrative distance, and it must be 1-255'];
+        }
+        return ['% ' + dest + '/' + net.prefixOf(mask) + ': no interface called "' + tok + '"'];
       }
       // With neither a next hop nor an interface there is nothing to send a packet to and no segment to ARP on,
       // and the route was still installed and reported as "on-link" - a route the table then describes with
@@ -1737,9 +1772,14 @@ class CliSession {
       if (!gw && !iface) {
         return ['% Incomplete command: ip route ' + dest + ' ' + mask + ' needs a next hop or an interface'];
       }
-      this.device.config.routes.push({ dest: dest, mask: mask, gw: gw || null, iface: iface });
+      const route = { dest: dest, mask: mask, gw: gw || null, iface: iface };
+      // Only when it was typed: an unset distance is the vendor's default of 1, and writing a 1 into every
+      // static route would make the saved file differ from the one an operator typed.
+      if (distance !== null) route.distance = distance;
+      this.device.config.routes.push(route);
       out.push('Route added: ' + dest + '/' + net.prefixOf(mask) +
-        (gw ? ' via ' + gw + (iface ? ' ' + iface : '') : (iface ? ' out ' + iface : ' on-link')));
+        (gw ? ' via ' + gw + (iface ? ' ' + iface : '') : (iface ? ' out ' + iface : ' on-link')) +
+        (distance !== null ? ' (distance ' + distance + ')' : ''));
       if (!gw && iface) {
         // Legal, and often not what the operator wanted on a segment that is not point-to-point: with no
         // next hop the box ARPs for the *destination* on that wire, and only answers if the router in
@@ -1748,10 +1788,25 @@ class CliSession {
         out.push('  no next hop: this resolves by ARP on that segment, which needs proxy ARP on the far side');
       }
     } else if (head === 'no' && tokens[1] === 'ip' && tokens[2] === 'route') {
-      const dest = tokens[3], mask = tokens[4], gw = tokens[5] || null;
+      // The words after the prefix repeat the positive form, so the distance may be named here too:
+      // `no ip route 10.0.0.0 255.0.0.0 10.0.0.254 200` removes that one route and leaves a distance-1 route
+      // to the same prefix alone. A bare number in the gateway slot is a distance, never a next hop.
+      const dest = tokens[3], mask = tokens[4];
+      let gw = tokens[5] || null;
+      let distance = null;
+      if (gw && /^\d+$/.test(gw) && !resolvePortName(this.device, gw)) {
+        distance = Number(gw);
+        gw = null;
+      } else if (tokens[6] && /^\d+$/.test(tokens[6])) {
+        distance = Number(tokens[6]);
+      }
       const before = this.device.config.routes.length;
       this.device.config.routes = this.device.config.routes.filter(function (r) {
-        return !(r.dest === dest && r.mask === mask && (gw == null || r.gw === gw));
+        const rowDistance = (Number.isFinite(Number(r.distance)) && Number(r.distance) >= 1)
+          ? Number(r.distance) : 1;
+        return !(r.dest === dest && r.mask === mask &&
+          (gw == null || r.gw === gw) &&
+          (distance == null || rowDistance === distance));
       });
       out.push(before > this.device.config.routes.length ? 'Route removed' : '% Route not found');
     } else if (head === 'ip' && tokens[1] === 'default-gateway') {
@@ -5720,9 +5775,10 @@ class CliSession {
       // gateway no packet can reach, so the line must not name it either (#1439). `shadow` does not disqualify a
       // row - when the group's winner is unusable, the reachable candidate is the only gateway worth naming, and
       // it is the one `routeTo()` would fall through to once the unusable row cannot be used.
+      // A default at distance 255 is never installed, so it is not the gateway of last resort either.
       const fallback = rows
         .filter(function (r) { return r.mask === '0.0.0.0' && r.gw && r.gw !== '-'; })
-        .filter(function (r) { return !r.unusable; })
+        .filter(function (r) { return !r.unusable && !(r.distance >= 255); })
         .sort(function (a, b) { return a.distance - b.distance; })[0];
       if (fallback) {
         out.push('Gateway of last resort is ' + fallback.gw + ' to network 0.0.0.0');
@@ -6784,11 +6840,14 @@ class CliSession {
       }
 
       for (const r of dev.config.routes) {
-        // Three shapes, each of which the parser takes back: via a next hop (optionally out a port), out a
-        // port alone (the directly-connected form), or bare. The old line printed an empty field for a
-        // missing gateway, leaving two spaces and a line that depended on the tokenizer being forgiving.
+        // Each shape is one the parser takes back: via a next hop (optionally out a port), out a port alone
+        // (the directly-connected form), and either of those with the administrative distance last. A
+        // distance that was never typed is not printed, because the box's own file does not carry the
+        // default of 1 either. The old line printed an empty field for a missing gateway, leaving two spaces
+        // and a line that depended on the tokenizer being forgiving.
         out.push('ip route ' + r.dest + ' ' + r.mask +
-          (r.gw ? ' ' + r.gw + (r.iface ? ' ' + r.iface : '') : (r.iface ? ' ' + r.iface : '')));
+          (r.gw ? ' ' + r.gw + (r.iface ? ' ' + r.iface : '') : (r.iface ? ' ' + r.iface : '')) +
+          (Number.isFinite(Number(r.distance)) && Number(r.distance) >= 1 ? ' ' + Number(r.distance) : ''));
       }
       if (dev.config.defaultGateway) out.push('ip default-gateway ' + dev.config.defaultGateway);
       // `ip routing` is printed when it differs from the platform default, in the direction it differs - the IOS
