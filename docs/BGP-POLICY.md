@@ -70,10 +70,10 @@ The anchors:
 | `bgp.js:626-663` `advertise(routes, opts)` | prepends AS on eBGP, sets next hop, copies `localPreference` and `med` unconditionally | strip `LOCAL_PREF` on eBGP, apply the MED non-transitivity rule, apply community suppression, honour `nextHopSelf` |
 | `bgp.js:310-319` `pathIsLoopFree` | correct already (AS_SET members included) | keep, no change |
 | `simulator.js:1905-1958` advertisement loop | `if (e.from === adj.peer.dev.id) continue;` (line 1914), prepend at 1920, the next hop at 1925, and the iBGP→iBGP suppression at 1919 (landed with #41, §6.3) | call `advertise()`/`applyRouteMap()` instead of re-deriving AS path and next hop; keep the iBGP→iBGP suppression |
-| `cli.js:1581-1599` config-mode BGP dispatch | `router bgp` / `no router bgp` / `neighbor` / `bgp` | add `route-map`, `match`, `set` branches |
-| `cli.js:2633` `_bgp(tokens)` | `as`, `router-id`, `<ip> remote-as` | add `always-compare-med`, `default local-preference`, `<ip> route-map`, `<ip> next-hop-self` |
-| `cli.js:2702` `this._dnsZone` | sticky "current zone" context, no new prompt mode | same pattern for the current route-map (§9.2) |
-| `cli.js:6914` `_help()` | command list | add the new lines |
+| `cli.js:1605-1623` config-mode BGP dispatch | `router bgp` / `no router bgp` / `neighbor` / `bgp` | add `route-map`, `match`, `set` branches |
+| `cli.js:2722` `_bgp(tokens)` | `as`, `router-id`, `<ip> remote-as` | add `always-compare-med`, `default local-preference`, `<ip> route-map`, `<ip> next-hop-self` |
+| `cli.js:2791` `this._dnsZone` | sticky "current zone" context, no new prompt mode | same pattern for the current route-map (§9.2) |
+| `cli.js:6997` `_help()` | command list | add the new lines |
 
 Design invariants that must survive the change, because every existing test
 relies on them:
@@ -725,7 +725,7 @@ Refusals are config-time CLI errors, not silent drops:
 | `match community <c>` | true if the route's community set **contains** `c` (subset semantics, RFC 1997 gives no ordering) |
 | `match community <c> [<c> ...]` | true if **any** listed community is present |
 | `match community <c> exact` | true only if the route's set is exactly the listed set |
-| `match community` with no operand | CLI error: `% Incomplete command` (matches existing style, `cli.js:998`, `:1198`) |
+| `match community` with no operand | CLI error: `% Incomplete command` (matches existing style, `cli.js:1538`, `:1652`) |
 
 Prefix-list / as-path-list / `match ip address` are out of scope for this
 layer. `match ip address <acl>` is the obvious next addition because
@@ -745,7 +745,7 @@ exactly — no new prompt mode, no new tokenizer, no change to `prompt()`.
 ### 9.1 Config mode — dispatch additions
 
 ```js
-// in _configMode(), next to the existing BGP branches (cli.js:1581-1599)
+// in _configMode(), next to the existing BGP branches (cli.js:1605-1623)
 } else if (head === 'route-map') {
   out.push.apply(out, this._routeMap(tokens.slice(1)));
 } else if (head === 'no' && tokens[1] === 'route-map') {
@@ -758,7 +758,7 @@ exactly — no new prompt mode, no new tokenizer, no change to `prompt()`.
 ```
 
 `neighbor ...` never reaches these branches: `head === 'neighbor'` is already
-routed to `_bgp(tokens.slice(1))` at `cli.js:1597`, so
+routed to `_bgp(tokens.slice(1))` at `cli.js:1621`, so
 `neighbor <ip> route-map <name> in` is parsed inside `_bgp`, exactly like
 `neighbor <ip> remote-as <as>`.
 
@@ -767,7 +767,7 @@ routed to `_bgp(tokens.slice(1))` at `cli.js:1597`, so
 There is no `(config-route-map)#` prompt. `route-map NAME permit 10` sets
 `this._routeMap = { name, seq, action }`, and subsequent bare `match` / `set`
 commands in config mode apply to it. This mirrors `this._dnsZone`
-(`cli.js:2702`), the existing precedent for a sticky sub-context, and keeps
+(`cli.js:2791`), the existing precedent for a sticky sub-context, and keeps
 `prompt()` and the four mode constants untouched. `this._routeMap` is cleared by
 `exit`/`end` (mode change to exec) and by `no route-map` on the same name.
 
@@ -821,7 +821,7 @@ duplicates" behaviour already required of `neighbor ... remote-as`
 
 ### 9.4 `_help()` additions
 
-Append these lines to `_help()` (`cli.js:6914`), keeping the existing column
+Append these lines to `_help()` (`cli.js:6997`), keeping the existing column
 alignment:
 
 ```
