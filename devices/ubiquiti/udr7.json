@@ -75,5 +75,10 @@
   ],
   "icon": "router",
   "color": "#14b8a6",
-  "sourceUrl": "https://techspecs.ui.com/unifi/cloud-gateways/udr7"
+  "sourceUrl": "https://techspecs.ui.com/unifi/cloud-gateways/udr7",
+  "poe": {
+    "budgetW": 15.4,
+    "sourceUrl": "https://techspecs.ui.com/unifi/cloud-gateways/udr7",
+    "note": "15.4 W, the whole published budget: the tech-spec table lists \"2.5 GbE RJ45 = 4 (1 PoE)\" and, under Hardware, \"PoE Budget = 15.4W\", \"PoE = 15.4W\", \"Voltage Range PoE Mode = 44-57V\" (read 2026-11-19). One 802.3af port at its 15.4 W maximum exactly uses the budget, which is why eth0 is the only poeOut port modelled. This model has no datasheet in its documents list - the product page names only https://ui.com/qig/udr7 (InstallationGuide) - so the rendered spec table is the vendor source."
+  }
 }

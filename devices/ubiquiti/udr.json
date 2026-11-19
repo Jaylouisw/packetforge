@@ -73,5 +73,10 @@
   ],
   "icon": "router",
   "color": "#14b8a6",
-  "sourceUrl": "https://techspecs.ui.com/unifi/cloud-gateways/udr"
+  "sourceUrl": "https://dl.ui.com/ds/udr_ds.pdf",
+  "poe": {
+    "budgetW": 40,
+    "sourceUrl": "https://dl.ui.com/ds/udr_ds.pdf",
+    "note": "40 W from the vendor datasheet, which prints it as its own row: \"PoE budget 40W\" beside \"PoE interface (2) PoE (Pair B 4, 5+; 7, 8-)\" and \"Max. PoE wattage per port by PSE 15.4W\" - two of the five GbE ports source 802.3af, so at most 30.8 W of the 40 W can be drawn and the budget never binds. The tech-spec table carries the same three figures (PoE Budget 40W / PoE 15.4W / Voltage Range PoE Mode 44-57V): https://techspecs.ui.com/unifi/cloud-gateways/udr (read 2026-11-19). Before this, the row declared poe-pse and two poeOut ports with no budget at all, and the PoE allocator skips a PSE whose budget is 0 - so the Dream Router could not power a single phone."
+  }
 }

@@ -97,5 +97,10 @@
   ],
   "icon": "router",
   "color": "#14b8a6",
-  "sourceUrl": "https://techspecs.ui.com/unifi/cloud-gateways/ucg-industrial"
+  "sourceUrl": "https://techspecs.ui.com/unifi/cloud-gateways/ucg-industrial",
+  "poe": {
+    "budgetW": 270,
+    "sourceUrl": "https://techspecs.ui.com/unifi/cloud-gateways/ucg-industrial",
+    "note": "The budget is a function of the power input, and the vendor states both numbers in one row: \"PoE Budget = DC input: 270W / ATX power: 75W\" (Hardware section, read 2026-11-19: https://techspecs.ui.com/unifi/cloud-gateways/ucg-industrial). 270 W is recorded because it is the ceiling, the same convention as devices/allied-telesis/at-x530dp-28ghxm.json; the same chassis on ATX power has 75 W. The five PSE ports are the vendor's own census - \"2.5 GbE RJ45 = 4 (2 PoE+++, 2 PoE+)\", \"10 GbE RJ45 = 1 (PoE+++)\" - with per-port maxima \"PoE+ = 30W\", \"PoE+++ = 90W\", \"Voltage Range PoE Mode = 50-57V\". 3 x 90 W + 2 x 30 W is 330 W, so the budget is what stops a full-power fill; it is not a sum of the ports."
+  }
 }

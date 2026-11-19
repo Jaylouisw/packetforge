@@ -100,5 +100,11 @@
     }
   ],
   "icon": "firewall",
-  "color": "#3b82f6"
+  "color": "#3b82f6",
+  "sourceUrl": "https://techspecs.ui.com/unifi/cloud-gateways/udm-se",
+  "poe": {
+    "budgetW": 180,
+    "sourceUrl": "https://techspecs.ui.com/unifi/cloud-gateways/udm-se",
+    "note": "180 W, from the tech-spec table row \"PoE Budget = 180W\" (with \"PoE = 15.4W\", \"PoE+ = 30W\", \"Voltage Range PoE Mode = PoE: 44-57V / PoE+: 50-57V\"), read 2026-11-19: https://techspecs.ui.com/unifi/cloud-gateways/udm-se . The same box's datasheet, https://dl.ui.com/ds/udm_se_ds.pdf (200, 358,669 B, text layer), prints the placement and per-port maxima but not the aggregate - \"PoE interface (6) PoE (Pair A 1, 2+; 3, 6-) / (2) PoE+\" and \"Max. PoE wattage per port by PSE PoE: 15.4W / PoE+: 30W\" - which is what the two PoE+ and six PoE poeOutClass values on ports 1-8 already follow. 8 ports at their class maxima is 152.4 W, inside the 180 W budget. The aggregate exists on the vendor page only; the datasheet is cited here so the placement is not read off the same table as the total."
+  }
 }
