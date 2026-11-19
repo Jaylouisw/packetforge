@@ -1813,8 +1813,11 @@ full (`GigabitEthernet0/0/0`, not the panel's `Gi0/0/0`), as every paste of this
 capture the widths were measured on reads `Port-channel1` and `Vlan1000`, Cisco's `13688-16` reads
 `Ethernet0`, and the Cisco Press OSPFv2 chapter reads `GigabitEthernet0/0/1`. That makes the row 86
 columns wide on a GigabitEthernet port, and nothing wraps it - the box prints it that way too. The
-abbreviation is what the same box prints in `show ip ospf interface brief`, so the two commands in
-this family spell the same port differently, and this console does the same. **Pri** is the neighbour's Hello
+abbreviation is what `show ip ospf interface` prints in this console - its `Interface` column reads
+`Gi0/0/0` - so the family's two views spell the same port differently, as a box's do between this
+command and its `show ip ospf interface brief`. That `brief` view is the vendor's, not this
+console's: the parser reads the word as a port name and refuses it, `% No interface brief on r1`,
+so the abbreviated spelling is the one `show ip ospf interface` already prints. **Pri** is the neighbour's Hello
 priority: 1 here, the hardware default, because `ip ospf priority` is not modelled and the column is
 carried as a number rather than spelled at the console. **Dead Time** is the Router Dead Interval
 counting down from the neighbour's last Hello, and it comes from `convergence.ospfTimers()` - the
