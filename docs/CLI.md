@@ -3169,7 +3169,7 @@ sw1(config)#do ping 10.0.0.1
 
 ## A word the console does not know is never swallowed
 
-Three handlers answering a neighbouring command's question (#1493) suggested a wider question: **what does each command family do when it is handed a word that does not exist?** Thirty-three families, one nonsense word each, and every answer sorted into three classes:
+Three handlers answering a neighbouring command's question (#1493) suggested a wider question: **what does each command family do when it is handed a word that does not exist?** Thirty-four cases, one nonsense word each, and every answer sorted into three classes:
 
 | class | meaning |
 |---|---|
