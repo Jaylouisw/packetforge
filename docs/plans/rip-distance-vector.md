@@ -62,7 +62,7 @@ version 1|2`, `rip auto-summary` / `rip no auto-summary` (the `no` inside the pr
 <vrid> preempt` already uses), `rip passive-interface <port>`), with the same `no`-form entries beside `no
 router bgp` and `no ospf` (`:733`, `:735`) and the same refusal-by-name shape. `rip network` stores the *major*
 network the address falls in — that is what IOS does and what makes `network 10.0.0.0` enable `10.1.2.0/24`; say
-so in the acknowledgement. Print the block from `show running-config` beside OSPF's (`engine/cli.js:6928-6935`)
+so in the acknowledgement. Print the block from `show running-config` beside OSPF's (`engine/cli.js:6949-6956`)
 and add `rip` to the serialize whitelist (`engine/device.js:1413`) with a restore path. `_help()` gains the
 line; `test/help-completeness.test.js`'s config list and `docs/CLI.md`'s command table move in the same PR or
 the suite goes red — that is the guard working, not an obstacle.

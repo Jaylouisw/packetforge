@@ -6519,18 +6519,39 @@ class CliSession {
       }
     } else if (what === 'etherchannel') {
       // `show etherchannel <anything>` printed the summary whatever was asked for (#1403).
+      //
+      // A channel-group number in front is not an extra word: the vendor's grammar is
+      // `show etherchannel [channel-group-number | {detail | port | port-channel | protocol | summary}]`, and
+      // every command reference prints `show etherchannel 1 summary`. The console refused it as though the
+      // number were a typo, which told an operator to read a table they had just asked to narrow. The number
+      // filters the row; it does not filter the two count lines above it, which stay the device's totals - a
+      // two-group box answers `show etherchannel 2 summary` with `Number of channel-groups in use: 2` and one
+      // row (research/show-etherchannel-group-summary.md).
+      let groupFilter = null;
+      let rest = tokens.slice(1);
+      if (rest.length && /^\d+$/.test(String(rest[0]))) {
+        groupFilter = String(Number(rest[0]));
+        rest = rest.slice(1);
+      }
       {
         const known = { summary: 1, brief: 1, detail: 1, load: 1, port: 1, 'port-channel': 1, protocol: 1 };
-        const extra = tokens.slice(1).filter(function (t) { return !known[String(t).toLowerCase()]; });
+        const extra = rest.filter(function (t) { return !known[String(t).toLowerCase()]; });
         if (extra.length) {
-          return showNoTail(this._showAliasFrom || 'show etherchannel', extra, 'every group is listed',
-            'each group is headed by its number');
+          const named = this._showAliasFrom || 'show etherchannel';
+          return showNoTail(named, extra,
+            'the whole summary is printed - name a group number to narrow it',
+            'e.g. `' + named + ' 1 summary`');
         }
       }
       const lags = dev.config.lags || {};
       // Bundle ids are numbers and a technician reads that column as a list; `sort()` on the keys gave
       // `10, 100, 2`. `show access-lists` already sorts with a numeric comparator (#1510).
       const ids = Object.keys(lags).sort(function (a, b) { return Number(a) - Number(b); });
+      // Which rows the table keeps. The counts below still describe the box, not this filter: a group number
+      // that matches nothing leaves the furniture standing with the device's own totals over an empty table,
+      // the same shape a box with no groups prints (research/etherchannel-group-summary.md).
+      const shownIds = groupFilter === null ? ids
+        : ids.filter(function (id) { return String(Number(id)) === groupFilter; });
       {
         const lagLib = require('./lag');
         // The key comes before the table, and the two counts after it, because a summary without them is a
@@ -6550,7 +6571,7 @@ class CliSession {
         // quoted in the note.
         out.push(ETHERCHANNEL_HEADER);
         out.push(ETHERCHANNEL_RULE);
-        for (const id of ids) {
+        for (const id of shownIds) {
           const l = lags[id] || {};
           // Where each member stands comes from one rule, shared with the bundle's own row in
           // `show ip interface brief`: a bundle is up when at least one member is really in it.

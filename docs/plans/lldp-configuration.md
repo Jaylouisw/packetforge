@@ -46,7 +46,7 @@ printed, never used: one frame per run is not "every 30 seconds".
 
 **Nowhere to keep a setting.** The serialised port document has no `lldp*` field
 (`engine/device.js:1411-1450`), `hydrate()` copies a fixed list (`:1600`), and the running-config printer's
-per-port block (`engine/cli.js:6748` onward) has no line. That is the #1405/#1321 defect class: a field absent
+per-port block (`engine/cli.js:6769` onward) has no line. That is the #1405/#1321 defect class: a field absent
 from all three is dropped on save.
 
 **Documented as missing, three times.** `docs/CLI.md:2447-2453` - *"There is no `lldp run` here and no
@@ -93,7 +93,7 @@ Steps 1-4 add command surface and are each marked for approval; step 5 is docs o
    change here. **needs Jay's approval.** **M**
 5. **Docs and anchors.** §5.9's two anchors to `2540`/`3359`, the `Approximate` row rewritten now that a
    timer exists, `docs/CLI.md:2426-2453` rewritten without "there is no `lldp run` here", `_help()` lines at
-   `engine/cli.js:7046-7047`, and `test/help-completeness.test.js:322`. **S**
+   `engine/cli.js:7067-7068`, and `test/help-completeness.test.js:322`. **S**
 
 ## Risks
 

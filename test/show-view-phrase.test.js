@@ -119,14 +119,18 @@ console.log('`show port-channel …` is the other spelling of the etherchannel v
     JSON.stringify(run('show port-channel brief')));
   ok(run('show port-channel summary').join('\n').indexOf('Invalid show command') === -1,
     'nothing about it is "invalid" any more');
-  // The refusal for an argument names the command the reader typed.
-  const refused = run('show port-channel 1')[0];
-  ok(/show port-channel does not take "1"/.test(refused), 'an argument is refused by the name the reader typed', refused);
-  const refusedReal = run('show etherchannel 1')[0];
-  ok(/show etherchannel does not take "1"/.test(refusedReal), 'and the real spelling refuses by its own name',
+  // A channel-group number is a filter, not an argument the view refuses
+  // (research/show-etherchannel-group-summary.md); a word that is neither is refused in the name the
+  // reader typed, and the advice uses that same spelling.
+  const refused = run('show port-channel flurbish')[0];
+  ok(/show port-channel does not take "flurbish"/.test(refused), 'an argument is refused by the name the reader typed', refused);
+  const refusedReal = run('show etherchannel flurbish')[0];
+  ok(/show etherchannel does not take "flurbish"/.test(refusedReal), 'and the real spelling refuses by its own name',
     refusedReal);
-  ok(run('show port-channel 1').join('\n').indexOf('show etherchannel') === -1 ||
-    /every group is listed/.test(refused), 'the sentence still says where the answer is', refused);
+  ok(/name a group number to narrow it/.test(refused), 'the sentence still says where the answer is', refused);
+  const filtered = run('show port-channel 1');
+  ok(eq(filtered, real) || filtered.length > 0 && /^1\s+Po1\(/.test(filtered[filtered.length - 1]),
+    '`show port-channel 1` is the one-group table, not a refusal', JSON.stringify(filtered.slice(-1)));
 }
 
 console.log('');

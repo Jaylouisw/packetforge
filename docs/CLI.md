@@ -28,7 +28,7 @@ Modes and their prompts:
 | `show mac address-table` | MAC table (switches), per VLAN, with an age per entry and stale entries marked, the box's twenty reserved `All … CPU` rows above the learned ones, titled and ruled as the device prints it and closed by `Total Mac Addresses for this criterion: N`; an address learned through a bundle is named on the port-channel (`Po1`), as the device names it (`research/mac-table-port-channel-name.md`) |
 | `show vlan` / `show vlan brief` | VLAN table: one row per VLAN in the VLAN database, with the **access** ports in it - a trunk port carries the VLAN and appears in no row - and the four reserved defaults (1002-1005) a switch has from boot. `show vlan` is the full view: it then prints the media table (`Type`, `SAID`, `MTU`, `Stp`, `Trans1/2`), the empty `Remote SPAN VLANs` section and the empty private-VLAN table; `brief` stops after the first table |
 | `show spanning-tree` | per-port STP role and state, the bridge priority and the elected root, or "not measured" when nothing has run |
-| `show etherchannel summary` | the device's own summary: the nine-line flag key, both counts, `Po<N>(SU)` per group, LAG members `(P)` bundled, `(I)` stand-alone or `(D)` unbundled, with the reason |
+| `show etherchannel summary` | the device's own summary: the nine-line flag key, both counts, `Po<N>(SU)` per group, LAG members `(P)` bundled, `(I)` stand-alone or `(D)` unbundled, with the reason; a channel-group number in front of the keyword keeps that group's row only, and leaves both counts as the box's totals |
 | `show lldp` | the protocol's status block: `Global LLDP Information:` with `Status: ACTIVE`, the 30 s advertisement interval, the 120 s hold time it advertises and the 2 s reinitialisation delay - the four lines a Catalyst prints, so "running with nothing heard" is distinguishable from "off", which only `show lldp neighbors` used to look like |
 | `show lldp neighbors` | LLDP neighbours, with the local port marked when it can no longer carry, and each row listed only for as long as the hold time its neighbour advertised |
 | `show access-lists` | ACL rules, bindings, and how many packets each rule has matched |
@@ -153,7 +153,7 @@ installed is checking exactly the thing a silent drop fabricates: the table came
 
 The same for `show arp <address>`, `show vlan <id>`, `show spanning-tree <port>`, `show lldp neighbors <port>`,
 `show ip interface brief <port>`, `show running-config interface <port>`, `show access-lists <n>`,
-`show etherchannel <x>`, `show vrrp <group>` and `show version <x>`. Where a narrower question has an answer, the
+`show etherchannel <word>`, `show vrrp <group>` and `show version <x>`. Where a narrower question has an answer, the
 refusal names the command that gives it:
 
 ```
@@ -2331,14 +2331,49 @@ place where the device is **not** self-consistent: the header spends 14 columns 
 `Protocol`, a row spends 16 and 10, so `Protocol` sits two columns left of `LACP` while `Ports` and the member
 list both start at column 33. That drift is the box's, and lining it up would be tidier than the box.
 
+`Po1(SU)` is the bundle's own flags: `S` Layer2, and `U` in use or `D` down — `Po1(SD)` when no member can
+carry a frame, which is the row above saying the same thing about the group as `(D)` says about a member.
+
 With no channel groups the same four pieces print and nothing follows them: both counts read `0`, then the
 header and the rule, and no row. This console used to answer `% No link aggregation groups configured` — a
 sentence no IOS prints, and one that turned an empty view into an error. A device with nothing in a view still
 answers with the view: Cisco's errdisable recovery document opens its port-channel example with a 6500 that has
 no groups in use and prints exactly this empty table (`research/etherchannel-summary-layout.md`).
 
-`Po1(SU)` is the bundle's own flags: `S` Layer2, and `U` in use or `D` down — `Po1(SD)` when no member can
-carry a frame, which is the row above saying the same thing about the group as `(D)` says about a member.
+#### A group number narrows the table; the counts stay the box's
+
+The command takes a channel-group number in front of the keyword — the vendor's syntax is
+`etherchannel [channel-group-number | {detail | port | port-channel | protocol | summary}]`, and the 2960-X, 9500
+and 9200 references all print their example under a heading that names the number. The number is a **filter**:
+the key, both counts, the header and the rule are printed as they are over the whole box, and the table keeps the
+rows for the group named — one row, on a switch holding two:
+
+```
+sw1#show etherchannel 2 summary
+Flags:  D - down        P - bundled in port-channel
+        I - stand-alone s - suspended
+        H - Hot-standby (LACP only)
+        R - Layer3      S - Layer2
+        U - in use      f - failed to allocate aggregator
+        M - not in use, minimum links not met
+        u - unsuitable for bundling
+        w - waiting to be aggregated
+        d - default port
+Number of channel-groups in use: 2
+Number of aggregators:           2
+Group  Port-channel  Protocol    Ports
+------+-------------+-----------+-----------------------------------------------
+2      Po2(SU)         LACP      Fa0/7(P) Fa0/8(P)
+```
+
+Both counts still describe the box, not the selection: a two-group switch answers
+`show etherchannel 2 summary` with `Number of channel-groups in use: 2`, and the same command on a switch holding
+only group 2 answers `1`. This console used to refuse the number altogether — `show etherchannel 1` answered
+`% show etherchannel does not take "1": every group is listed - each group is headed by its number`, which read as
+a complaint about a typo and sent an operator who had copied a line out of a vendor document back to the whole
+table. A number that names no group leaves the furniture standing with no row, the shape a box with no groups
+prints. `research/show-etherchannel-group-summary.md` carries the captures and the two things left open (a
+number naming no group, and a number outside the platform's range).
 
 #### A member that negotiated nothing is not in the bundle
 
@@ -3467,13 +3502,13 @@ network converges again. See [LINK-STATE.md](LINK-STATE.md).
 
 A row here is a promise an operator relies on before they ever open the app. `test/docs-show-commands.test.js` reads
 this file, splits the alternatives (`show vlan [brief] | spanning-tree`), fills the placeholders with real values from
-a real lab, and types each form at a router and a switch — 59 forms, 118 commands today, including the
+a real lab, and types each form at a router and a switch — 61 forms, 122 commands today, including the
 `show ?` and `show ipv6 ?` examples in the section on the help key — and fails on the three answers that mean the
 documentation and the parser disagree: `% Invalid show command`, `% Unrecognized …`, or a throw.
 
 A *legitimate* refusal is not a failure, and the distinction is the whole point: a box with no OSPF configured has no
 `show ip ospf` to give and says so in a sentence (`% OSPF is not enabled (use "ospf router-id <ip>" in config mode)`),
-which means this page is right and the box is the wrong one to ask. Seventy-four of the 118 answers are refusals of
+which means this page is right and the box is the wrong one to ask. Seventy-two of the 122 answers are refusals of
 that kind today, and none of them complains about the command itself.
 
 The check is real in the direction that matters: rename `show spanning-tree` to one letter off and the suite fails,

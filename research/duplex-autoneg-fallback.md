@@ -71,7 +71,7 @@ alone.
 | --- | --- | --- |
 | the port model | `Interface.duplex = 'full'` (`engine/device.js:85`), restored from a saved port at `:1604` | `full` |
 | `show interfaces` | `_linkRateLine()` appends `duplex: ' + (iface.duplex \|\| 'full')` (`engine/cli.js:5175`) | `duplex: full`, whether or not there is a link |
-| `show running-config` | prints the line only when it differs from `full` (`engine/cli.js:6752`) | (no line) - correct, `auto` is the default |
+| `show running-config` | prints the line only when it differs from `full` (`engine/cli.js:6773`) | (no line) - correct, `auto` is the default |
 | link verdict | `W_DUPLEX_MISMATCH` compares the two ports' *configured* duplex strings (`engine/validation.js:889-898`, fed from `engine/topology.js:400-401`) | see below |
 | the API | `duplex: i.duplex` per port (`engine/device.js:1443`) | `full` |
 

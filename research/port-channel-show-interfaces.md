@@ -52,7 +52,7 @@ missing, and records what the block must contain for the run that does add it.**
    interfaces by type then number, which would put `Port-channel` before `Vlan` and after the physical
    types; no capture in hand proves it for this command.
 9. **Whether a member's own block names the bundle.** None of the samples read shows the member's block,
-   and this console already prints its own `channel-group <id> mode <mode>` line there (engine/cli.js:7004),
+   and this console already prints its own `channel-group <id> mode <mode>` line there (engine/cli.js:7025),
    which is this model's line rather than a quoted one.
 10. **Where the bundle's MAC comes from.** The samples show a MAC and a `bia` equal to it; none shows which
     member's address it was borrowed from.
