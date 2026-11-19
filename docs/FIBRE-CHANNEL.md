@@ -55,14 +55,27 @@ and the optic will even seat, but Fibre Channel carries FC frames at its own rat
 frame ever crosses. Put an FC HBA or switch on the other end.
 ```
 
-Two details worth keeping:
+Four details worth keeping:
 
 - The check runs **before** the BiDi explanation. Both are true of some pairs, and the protocol is
   the more fundamental reason: a user who has plugged an FC optic into a switch port needs to hear
   about the protocol, not about the shape of the strand.
-- An FC optic in a **1G SFP** cage is refused on the *connector* instead, because it genuinely
-  does not seat. Only SFP+/SFP28/SFP-DD sockets take an FC module, and the test suite pins both
-  answers so they cannot drift into each other.
+- A socket the module genuinely does not fit is refused on the *connector* instead: an FC module
+  in an **RJ45** port is `E_CONNECTOR_MISMATCH` — `Cannot mate SFP+ (FC) to RJ45 (incompatible
+  connectors)`.
+- A **1G SFP** port is not that case, and the engine answers it two ways, depending on which end
+  the cable names first. `CAGE_MATE` in `engine/media.js` lists `fc-sfp` under `sfp` but not `sfp`
+  under `fc-sfp`, and `canMate()` asks one direction only, so in a lab of an EdgeSwitch-16 (`sw`,
+  port `SFP1`) and a QLogic 5800V (`san`, port `0`):
+  `topology.validateLink('sw', 'SFP1', 'san', '0')` refuses on the **protocol**, in the words
+  above — "the connector is the same LC/SFP family and the optic will even seat" — while
+  `topology.validateLink('san', '0', 'sw', 'SFP1')` refuses on the **connector**, `Cannot mate
+  SFP+ (FC) to SFP (incompatible connectors)`. One pair of ports, two verdicts: that is a defect
+  in the mating table rather than a fact about the hardware, and it is the code's to close. This
+  page records both answers until it does.
+- `test/fibre-channel.test.js` pins the SFP+ pair and deliberately skips this one — its comment
+  says the 1G SFP pair "refuses on the connector", which the engine does only when the FC end is
+  asked first — so no test holds either answer in place.
 
 ## Two FC ports link and negotiate down
 
