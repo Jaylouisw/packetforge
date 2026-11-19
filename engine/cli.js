@@ -1416,9 +1416,11 @@ class CliSession {
       //
       // Two kinds of port still refuse, and both are named:
       //
-      //   * a trunk that carries it - deleting a VLAN does rewrite a trunk's allowed list on the device, and
-      //     the evidence for how is not good enough to model yet, so the refusal stays rather than inventing
-      //     it;
+      //   * a trunk that carries it - whether deleting a VLAN rewrites that trunk's allowed list, leaves it
+      //     exactly as typed while the VLAN drops out of the *active* list, or refuses, is not settled by any
+      //     source found, so the refusal stays rather than inventing an outcome
+      //     (research/trunk-allowed-vlan-on-vlan-delete.md records the evidence and the one paste that would
+      //     settle it);
       //   * a port that only references it - a native VLAN or an allowed list stored on a port that is not in
       //     trunk mode yet. Those used to be missed, and removing the VLAN then rewrote the port's staged
       //     configuration in silence: `no vlan 20` said "VLAN 20 removed" and a port that had been staged for
