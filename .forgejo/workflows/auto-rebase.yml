@@ -34,8 +34,36 @@ on:
   # stays as a safety net for the case where main does not move for a long time.
   push:
     branches: [main]
+  # Ten minutes was chosen when this tick could rebase. On this instance it cannot,
+  # and its own log says so on every tick: "this pass cannot push (run token only) -
+  # a rebase would mint a head nothing checks". The comparison that produces that
+  # line is `TOKEN` against `RUN_TOKEN`, so `secrets.FORGEJO_TOKEN` is resolving to
+  # the same value as `github.token` here - the repository does have a secret of that
+  # name (created 2026-11-09T01:12:57Z, /actions/secrets), so this is not "nobody
+  # configured it", and whatever makes the two equal is outside this file. What
+  # follows from it is inside it: `steps.queue.outputs.push` is false, and the
+  # checkout, the rebase and the force-push are all stood down before they run.
+  #
+  # What a tick still does is arm - and arming is done per pull request by ci.yml's
+  # `Arm auto-merge` job, which runs after every matrix (234 tasks in the 24 hours to
+  # 2026-11-19T16:27Z, median 3 s) and reads the same status set.
+  #
+  # Measured over that same window (/api/v1/.../actions/tasks, event=schedule): 143
+  # scheduled ticks, median 27 s, 63.6 runner-minutes a day - 5.8% of the ~1100
+  # minutes the whole pipeline spends - for a pass that cannot rebase and whose
+  # arming duplicates ci.yml's. Task 20330 (run 7714, 2026-11-19T16:20:04Z) is the
+  # shape of all of them: 3.9 s fetching actions/checkout, 3.1 s listing four open
+  # pull requests, 8.2 s of status calls, then
+  # `batch=5 rebased=0 current=0 conflicts=0 duplicates=0 armed=0 rearmed=1 ...`.
+  #
+  # So the net stays and stops being paid for six times an hour. Every push to main
+  # - the moment that actually matters, 128 ticks in the same 24 hours - still fires
+  # it immediately, pr-rebase.yml still rebases a pull request the moment it is
+  # opened, pushed to or reopened, and a working token is fixed by making one string
+  # differ rather than by the schedule, which would then be the 30-minute backstop
+  # it was always meant to be.
   schedule:
-    - cron: '*/10 * * * *'
+    - cron: '*/30 * * * *'
   workflow_dispatch:
     inputs:
       batch:
