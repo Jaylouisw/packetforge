@@ -2,8 +2,11 @@
   "vendor": "ubiquiti",
   "model": "ER-8-XG",
   "label": "EdgeRouter Infinity",
+  "aliases": [
+    "EdgeRouter Infinity"
+  ],
   "category": "router",
-  "description": "EdgeRouter Infinity (ER-8-XG) - 1x 1G RJ45 + 8x 10G SFP+. 100 W max.",
+  "description": "EdgeRouter Infinity (ER-8-XG): eight 10G SFP+ cages (eth1-eth8) and one 1G RJ45 port (eth0), 80 Gbps line rate at 18 Mpps, dual hot-swappable 100 W PSUs. EdgeOS router with NAT, firewall and DHCP; no PoE inlet or outlet anywhere on the box.",
   "capabilities": [
     "l3-forward",
     "cli",
@@ -18,58 +21,88 @@
       "name": "eth0",
       "type": "ethernet",
       "connector": "rj45",
-      "speed": "1G"
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
     },
     {
-      "name": "sfp1",
+      "name": "eth1",
       "type": "ethernet",
       "connector": "sfp+",
-      "speed": "10G"
+      "speed": "10G",
+      "speedCaps": [
+        10000
+      ]
     },
     {
-      "name": "sfp2",
+      "name": "eth2",
       "type": "ethernet",
       "connector": "sfp+",
-      "speed": "10G"
+      "speed": "10G",
+      "speedCaps": [
+        10000
+      ]
     },
     {
-      "name": "sfp3",
+      "name": "eth3",
       "type": "ethernet",
       "connector": "sfp+",
-      "speed": "10G"
+      "speed": "10G",
+      "speedCaps": [
+        10000
+      ]
     },
     {
-      "name": "sfp4",
+      "name": "eth4",
       "type": "ethernet",
       "connector": "sfp+",
-      "speed": "10G"
+      "speed": "10G",
+      "speedCaps": [
+        10000
+      ]
     },
     {
-      "name": "sfp5",
+      "name": "eth5",
       "type": "ethernet",
       "connector": "sfp+",
-      "speed": "10G"
+      "speed": "10G",
+      "speedCaps": [
+        10000
+      ]
     },
     {
-      "name": "sfp6",
+      "name": "eth6",
       "type": "ethernet",
       "connector": "sfp+",
-      "speed": "10G"
+      "speed": "10G",
+      "speedCaps": [
+        10000
+      ]
     },
     {
-      "name": "sfp7",
+      "name": "eth7",
       "type": "ethernet",
       "connector": "sfp+",
-      "speed": "10G"
+      "speed": "10G",
+      "speedCaps": [
+        10000
+      ]
     },
     {
-      "name": "sfp8",
+      "name": "eth8",
       "type": "ethernet",
       "connector": "sfp+",
-      "speed": "10G"
+      "speed": "10G",
+      "speedCaps": [
+        10000
+      ]
     }
   ],
   "icon": "router",
   "color": "#14b8a6",
-  "sourceUrl": "https://techspecs.ui.com/uisp/wired/er-8-xg"
+  "sourceUrl": "https://techspecs.ui.com/uisp/wired/er-8-xg",
+  "notes": "Ubiquiti sources read 2026-11-19, all three of them real product documents rather than the silent fallback this catalogue has trapped before:\n\n- datasheet **https://dl.ui.com/datasheets/edgemax/EdgeRouter_ER-8-XG_DS.pdf** (HTTP 200, application/pdf, 5,606,800 B, 6 pp, text layer)\n- quick-start guide **https://dl.ui.com/guides/edgemax/EdgeRouter_ER-8-XG_QSG.pdf** (HTTP 200, application/pdf, 3,261,200 B)\n- tech-spec page **https://techspecs.ui.com/uisp/wired/er-8-xg** (HTTP 200, 583,121 B - a real page, not the 609,911 B front-page fallback)\n\nThe census. Datasheet page 4, \"Ports\": *\"(8) 10G SFP+ Ports / (1) RJ45 Gigabit Ethernet Port / (1) RJ45 Serial Console Port\"*; the hardware table on page 5 repeats it as **Serial Console Port (1) RJ45 Serial Port / Data Ports (8) SFP+ Ports, (1) RJ45 Gigabit Ethernet Port**. The tech-spec page splits the same nine data ports into **Management interface = (1) RJ45 CLI management port** and **Networking interface = (1) GbE RJ45 port + (8) 10G SFP+ ports**, and prints **Total non-blocking throughput 80 Gbps, switching capacity 160 Gbps, forwarding rate 18 Mpps** (the datasheet's own L3 rows: 18,000,000 pps at 64 B, 80 Gbps line rate at 1514 B).\n\n**The port names are the vendor's, not a convention.** The QSG's front-panel LED table labels the cages **\"SFP+ (eth1-8)\"** and the copper port **\"RJ45 (eth0)\"**, and its access section says *\"By default, eth1 is set up as a DHCP client, while eth0 is assigned a static IP address of 192.168.1.1\"* and *\"connect an Ethernet cable ... to the port labeled eth0\"*. So the eight cages are eth1-eth8 in EdgeOS and the single GbE port is eth0 - a `sfp1..sfp8` spelling names ports the device does not have, and a routed-lab case that sets `eth1` up as the WAN would miss its own cage.\n\n**One SKU, one row.** The catalogue carried this box twice: `devices/ubiquiti/er-8-xg.json` (model `ER-8-XG`, cages named `sfp1..sfp8`) and `devices/ubiquiti/edgerouter-infinity.json` (model `EdgeRouter Infinity`, cages named `eth1..eth8`). `modelKey()` could not catch it because the two strings normalise differently (`ubiquiti|er8xg` vs `ubiquiti|edgerouterinfinity`), so the picker offered one router as two models with two incompatible cablings - the same class as #1194 and #70. They are merged here into the SKU row: the datasheet and the store page both call the model **ER-8-XG** and the product line *EdgeRouter Infinity*, so the SKU is the model and the product name is the alias. The second file is deleted and the duplicate entry is dropped from `research/incoming/devices-routers-ent.json` so a re-import cannot resurrect it.\n\n**Not modelled, on purpose.** (1) The **RJ45 serial console port** is in this note rather than in `interfaces`: `docs/DEVICE_SCHEMA.md` puts serial consoles in prose because the engine forwards frames and a console is not a link. (2) Nothing below 10G is claimed for the cages - neither document says whether the SFP+ cages accept 1G optics, so `speedCaps` states the 10G the datasheet does print and no rate it does not. (3) **No PoE**: the tech-spec table has no PoE row at all and the datasheet's power rows are PSU-only ((2) hot-swappable AC/DC 100 W modules included, DC/DC module sold separately as RPS-DC-100W), so this router neither sources nor sinks power on any port.\n\n**Trap recorded so it is not re-walked.** Four plausible spellings - `dl.ui.com/datasheets/edgemax/EdgeRouter_Infinity_DS.pdf`, `dl.ui.com/guides/edgemax/EdgeRouter_Infinity_QSG.pdf`, `dl.ui.com/qs/ER-8-XG.pdf` and `dl.ui.com/ds/er-8-xg_ds.pdf` - all answer **200 with the 609,911-byte techspecs front page**. The documents exist only under the SKU spelling and the two different path roots shown above; a crawl that trusts a 200 on `dl.ui.com` concludes this SKU has no datasheet, which is what happened to it here.\n\nThe store page **https://store.ui.com/us/en/products/er-8-xg** (HTTP 200, 337,183 B) is the SKU slug for the same box and agrees with the tech-spec table."
 }
