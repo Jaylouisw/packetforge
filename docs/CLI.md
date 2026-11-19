@@ -2617,13 +2617,24 @@ frame it sends.
 
 ### Static routes: a next hop, or an interface, never a port name in the address field
 
-`ip route` takes three shapes, and each of them replays from `show running-config`:
+`ip route` takes three shapes, each of which may carry an administrative distance after it, and every one
+of them replays from `show running-config`:
 
 ```
-ip route 10.9.0.0 255.255.0.0 10.0.0.1        via a next hop
-ip route 10.9.0.0 255.255.0.0 10.0.0.1 Gi0    via a next hop, out a named port
-ip route 10.9.0.0 255.255.0.0 Gi0             out a port, with no next hop
+ip route 10.9.0.0 255.255.0.0 10.0.0.1          via a next hop
+ip route 10.9.0.0 255.255.0.0 10.0.0.1 Gi0/0    via a next hop, out a named port
+ip route 10.9.0.0 255.255.0.0 Gi0/0             out a port, with no next hop
+ip route 0.0.0.0 0.0.0.0 10.0.0.1 200           a floating static, at distance 200
 ```
+
+The distance is 1-255, default 1, and it is *the number in that slot* rather than a port name:
+`ip route 10.9.0.0 255.255.0.0 10.0.0.1 200` is a route at distance 200. The printer writes it in the order
+a config takes back (`[iface] [distance]`), so `ip route 10.9.0.0 255.255.0.0 10.0.0.1 Gi0/0 200` survives
+the round trip and a floating static does too. One route carries one distance, so a second number is refused
+(`ip route 10.9.0.0 255.255.0.0 10.0.0.1 100 200` answers `% 10.9.0.0/16: unexpected "200" - a route takes
+one administrative distance, and it must be 1-255`), and a number outside the range is answered with the
+range: `% 10.9.5.0/16: administrative distance 0 must be 1-255 (the default is 1)`
+(`research/static-route-distance.md`).
 
 The third used to be stored as `gw: "Gi0"` — a port name in the next-hop field — so the route was listed,
 installed, printed, and then ARPed for an address called `Gi0`. Nothing said why it never worked. It is now
