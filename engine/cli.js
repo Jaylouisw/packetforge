@@ -4367,7 +4367,18 @@ class CliSession {
   // The report a ping prints, whichever address family answered: the marks line, the success rate, one line per
   // reply. Shared so `ping 10.0.0.1` and `ping 2001:db8:1::1` cannot drift into two different-looking answers.
   _pingReplyLines(out, shownTarget, count, replies) {
-    out.push(replies.map(function (r) { return r.success ? '!' : '.'; }).join(''));
+    // One character per echo, and the character says *what came back*, not merely whether an echo reply did:
+    // `!` for a reply, `U` for an ICMP destination-unreachable, `.` for nothing at all (Cisco doc 12778,
+    // "Possible Output Characters From the Ping Facility" - `U` "A destination unreachable error PDU was
+    // received", `.` "the network server timed out as it waits for a reply"). The engine has recorded the error
+    // per seq since the forwarding path learned to answer one; this line printed `.` for it, so a router saying
+    // "no route" and a cable in the dark spelled the same character. A `U` is also not per code: the vendor's
+    // own worked example prints `U.U.U` for a code-1 (host unreachable) answer, which is the opposite of
+    // `traceroute`'s `!H`/`!N` letters (research/ping-unreachable-letter.md).
+    out.push(replies.map(function (r) {
+      if (r.success) return '!';
+      return r.unreachable ? 'U' : '.';
+    }).join(''));
     const ok = replies.filter(function (r) { return r.success; }).length;
     // The success-rate line is the vendor's, clause and all: one sentence that says how many echoes came back
     // and - when any did - how long they took. A ping that lost everything keeps the short form.
@@ -4382,6 +4393,11 @@ class CliSession {
       } else if (r.reason === 'converging') {
         // Not "request timed out": nothing was lost, the network is not up yet. Said once, below, rather than
         // once per echo - the answer is one fact about the path, not four (#1383).
+      } else if (r.unreachable) {
+        // Nothing here, because nothing is what a box prints: `U.U.U` is followed straight by the success rate,
+        // with no per-echo sentence (Cisco doc 12778, Troubleshoot Ping Failures). A `Request timed out` line
+        // under a `U` mark would be the block contradicting itself, and the `% Echoes lost:` sentence below
+        // already names the box that recorded the drop.
       } else {
         out.push('Request timed out (seq ' + r.seq + ')');
       }

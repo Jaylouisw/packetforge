@@ -684,9 +684,33 @@ class Simulator {
       // announcement from an earlier step, a shut port noticed on the way in). Those belong to this run too, so
       // the whole event log is searched, not just the slice (#1431).
       const lost = got ? null : this._lastDiscard(this.events, srcId);
+      // An echo can fail because an *error* came back rather than because nothing did: a router on the path with
+      // no route for the destination answers with ICMP destination-unreachable (type 3), and a box marks that
+      // probe `U` - "." is the timeout character and nothing else (Cisco doc 12778, "Possible Output Characters
+      // From the Ping Facility": `U` = "A destination unreachable error PDU was received").
+      //
+      // The error was already recorded here, per seq, by the ICMP path (`_handleIcmp`, `this.icmpErrors`); no
+      // caller ever read it back, so a `ping` that drew an unreachable and a `ping` into silence produced the
+      // same reply object and therefore the same `.` on the console. Reading it back is the whole fix: the
+      // reply says an error arrived, who sent it and what code it carried, and the view spells the mark.
+      // research/ping-unreachable-letter.md.
+      const err = got ? null : (this.icmpErrors.filter(function (e) {
+        return e.dst === srcId && e.seq === seq && e.step >= startStep;
+      })[0] || null);
+      // Only type 3 is the `U`. A type-11 (time exceeded) can only happen to an echo caught in a forwarding loop,
+      // and the old chart gives that its own mark (`&`, "packet lifetime exceeded") which no modern capture in
+      // hand confirms - so it is left unmapped rather than relabelled as an unreachable.
+      const unreachable = !!(err && err.errorType === net.ICMP_DEST_UNREACH);
       replies.push({
         seq: seq,
         success: !!got,
+        // A destination-unreachable is not a drop the engine failed to explain: it is an answer, and one the
+        // reader has to be able to tell from silence. `reason` stays the loss sentence (which names the box that
+        // recorded the drop), and the four fields below are the ICMP error that came back.
+        unreachable: unreachable,
+        unreachableFrom: unreachable ? err.from : null,
+        errorType: unreachable ? err.errorType : null,
+        errorCode: unreachable ? err.code : null,
         reason: got ? null : (pending.length ? 'converging' : (lost || null)),
         pending: pending.map(function (e) {
           return { process: e.process, device: e.device.name, readyAtMs: e.readyAtMs };

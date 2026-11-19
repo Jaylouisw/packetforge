@@ -1387,6 +1387,31 @@ address on an administratively disabled port is not answered locally - that port
 fails there, which is the state the operator asked for. A neighbour's address is untouched by this: a ping to an
 address nobody owns still loses every echo, for `no ARP reply from <address>`.
 
+### A probe that came back as an unreachable
+
+The marks line is one character per echo, and the character says what came back. `!` is a reply, `.` is the timeout
+expiring with nothing received, and `U` is an ICMP destination-unreachable: a router on the path with no route for
+the destination answers the echo with type 3, and that is a different fact from silence. The vendor keeps the two
+apart in its own output-character table - `U` "A destination unreachable error PDU was received", `.` "the network
+server timed out as it waits for a reply" - and the same page's worked example prints `U.U.U` for a **code 1** (host
+unreachable) answer, so the letter is not per code the way `traceroute`'s `!H`/`!N` are
+(research/ping-unreachable-letter.md).
+
+```
+R1# ping 192.0.2.10 3
+Type escape sequence to abort.
+Sending 3, 100-byte ICMP Echos to 192.0.2.10, timeout is 2 seconds:
+UUU
+Success rate is 0 percent (0/3)
+% Echoes lost: 3 drops ("no route to 192.0.2.10 (dropped by r2)" x3)
+```
+
+There is no per-echo sentence under a `U`: a box prints the marks and the success rate and nothing between them, so
+`Request timed out (seq n)` is printed only where the timeout really did expire. The `% Echoes lost:` line is this
+console's own voice and stays, because it is the only part that says *which* box could not route. A box that cannot
+route the echo **itself** - a source-side `no route` - is a separate case the evidence does not settle, and is left
+as a timeout; the research note says why.
+
 `show ip dns` reads the zones back — the records that are actually answered, in zone-file shape:
 
 ```

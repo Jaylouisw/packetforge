@@ -2,6 +2,20 @@
 
 ### Fixed
 
+- **A probe answered with an ICMP unreachable is marked `U`, not `.`.** `ping` printed one character per
+  echo from the echo-reply table alone, so an echo a router had answered with destination-unreachable looked
+  exactly like an echo into a dead cable: `..`, a `Request timed out` line per probe, and the same success
+  rate. A box keeps the two apart - `U` "A destination unreachable error PDU was received", `.` "the network
+  server timed out as it waits for a reply" - and spells `U` for **any** type-3 code, the opposite of
+  `traceroute`'s `!H`/`!N` letters, which this console already implements from the same page (Cisco doc 12778,
+  whose own worked example prints `U.U.U` for a code-1 answer). The engine had recorded every received error
+  per `seq` since `_forwardL3` learned to answer one and no caller read it: the ping reply now carries
+  `unreachable`, `unreachableFrom`, `errorType` and `errorCode`, and the view prints the letter and no
+  contradictory per-echo sentence. A source-side `no route` (a box that cannot route its own echo) stays a
+  timeout, because the only vendor capture of that case has the marks line buried under `debug ip packet` -
+  `test/ping-unreachable-letter.test.js` (18 checks) pins that open half on purpose;
+  [research/ping-unreachable-letter.md](research/ping-unreachable-letter.md) cites six vendor pages and lists
+  what a clean capture would settle.
 - **`show ip ospf interface <port>` answers a port with no OSPF on it the way a box does.** The view picked the
   reason itself and printed `% Gi0/1 has no address: OSPF needs one to form an adjacency` or `% Gi0/1 is not in
   OSPF`. A router prints one tagged system message instead - `%OSPF: OSPF not enabled on GigabitEthernet0/0/2` -
