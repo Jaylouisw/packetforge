@@ -6231,10 +6231,25 @@ class CliSession {
           ? '  No ports are bridging: this device is not part of an L2 loop.'
           : '  Not measured (no simulation run): nothing has computed the spanning tree.');
       } else {
+        // The Port column names a bundle the way every other table cell does. `Simulator` keys the tree by the
+        // internal logical port name `lag-N` - one port for the whole bundle, which is the right model - and this
+        // table printed that key as if it were a port: a switch with an EtherChannel answered `show spanning-tree`
+        // with `lag-1`, a label no device prints. A Cisco summary table names the bundle `Po1` in the Interface
+        // column (`Po1 Root FWD 100000 128.65 P2p`, C2950; `Po1 Desg FWD 10000 128.3433 P2p`, Catalyst 9600;
+        // `Po1 Desg FWD 20000 128.833 P2p`, Catalyst troubleshooting guide) and spells it `Port-channel1` only
+        // where the name is the subject of a sentence (`Port 27 (Port-channel1) of VLAN0001 is root forwarding`).
+        // `lagLib.portChannelName()` is the one function that names a bundle in a cell - the MAC table and
+        // `show etherchannel summary` already take their `Po1` from it - so this view cannot learn a third
+        // spelling. research/stp-port-channel-name.md has the captures and the half still open.
+        const lagLib = require('./lag');
+        const portLabel = function (name) {
+          const m = /^lag-(\d+)$/.exec(String(name));
+          return m ? lagLib.portChannelName(m[1]) : String(name);
+        };
         out.push('Port          Role          State');
         for (const n of names) {
           const role = (st.roles || {})[n] || '-';
-          out.push(pad(n, 14) + pad(role, 14) + st.states[n] +
+          out.push(pad(portLabel(n), 14) + pad(role, 14) + st.states[n] +
             (st.states[n] === 'blocking' ? '   (traffic dropped)' : ''));
         }
       }

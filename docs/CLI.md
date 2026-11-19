@@ -2058,6 +2058,12 @@ There are three states, and the header says which one you are in:
   has the captures. (IOS 12.x/15.x routers print the same sentence with a plural — `instances` — and that older
   form is not reproduced.)
 
+A **bundle is one port** in this table, and it is named the way every table cell names one: `Po1`, the short
+form `show etherchannel summary` and `show mac address-table` print. The engine keys the tree by an internal
+logical name (`lag-1`) because one bundle is one port to the election; that key is not a port name and is never
+printed (`research/stp-port-channel-name.md`). Physical ports keep their own spelling, and a bundle whose
+members never negotiated is printed as the physical ports, because that is what the tree sees.
+
 A topology with **no bridges at all has no root**, and `engine/stp.js` answers `null` for it rather than a root
 object with a default priority and no identity. That object is how `root bridge undefined priority 32768` reached
 the console on the models in the catalogue that are not bridges — 1,026 of the 2,038 when #1399 was fixed,
