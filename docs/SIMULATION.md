@@ -30,7 +30,7 @@ Two conventions used throughout:
 
 - **A "run"** is one call to `Simulator.ping()`, `openFlow()` or `pingScion()`.
   State that lives on a `Device` survives between runs; state that lives on the
-  `Simulator` does not. `Simulator.reset()` (`engine/simulator.js:201`) rewinds
+  `Simulator` does not. `Simulator.reset()` (`engine/simulator.js:202`) rewinds
   a run, not the network.
 - **A "step"** is one frame handed to one port. It is a hop count, not a
   duration — see [§8](#8-time-what-rtt-means-and-what-it-does-not).
@@ -45,31 +45,38 @@ first.
 **Modelled**
 
 - A frame is a plain object (`{dstMac, srcMac, etherType, ip, icmp, arp, l4, flow}`),
-  built by `ethFrame()` at `engine/simulator.js:141`.
+  built by `ethFrame()` at `engine/simulator.js:142`.
 - Transmissions go on a FIFO array and `_run()` drains it synchronously, one
-  `step++` per delivery (`engine/simulator.js:3105-3112`). There is no timer, no
+  `step++` per delivery (`engine/simulator.js:3158-3169`). There is no timer, no
   coroutine and no scheduling: a run is a single-threaded loop that ends when the
   queue is empty.
 - Guard rails are loop detectors, not physics: `maxSteps = 8000`
-  (`engine/simulator.js:209`) and a 100 000-iteration runaway guard
-  (`engine/simulator.js:3110`). Exceeding either emits a `limit` event.
+  (`engine/simulator.js:210`) and a 100 000-iteration runaway guard
+  (`engine/simulator.js:3163`). Exceeding either emits a `limit` event.
 - Before the first packet, a run recomputes the world **once**, and which steps it
   runs is the entry point's own. `ping()` runs eight, in this order: spanning tree,
   PoE, the VRRP election, the DHCP pull, LLDP, router advertisements, OSPF, BGP
-  (`engine/simulator.js:610-627`). The election comes before the pull because a host
+  (`engine/simulator.js:612-628`). The election comes before the pull because a host
   that takes its gateway from DHCP should pull the address something already answers
   for; both come before the announcements because a host with no address cannot be
   asked anything. `traceroute()` and `openFlow()` run the six without those two
-  (`engine/simulator.js:734-739`, `engine/simulator.js:4063-4068`).
-  `ping6()` runs five, without LLDP (`engine/simulator.js:2409-2415`).
+  (`engine/simulator.js:759-764`, `engine/simulator.js:4119-4124`).
+  `ping6()` runs five, without LLDP (`engine/simulator.js:2451-2457`).
   `pingScion()` runs PoE and the SCION paths alone
-  (`engine/simulator.js:2735-2736`). The protocols are therefore converged before
+  (`engine/simulator.js:2788-2789`). The protocols are therefore converged before
   packet one, and do not reconverge during the run.
 - Layer decisions are gated by `hasCap()`, through the predicates that name each
-  token — `isL2()`, `isL3()`, `isHost()` (`engine/device.js:635-687`), with `isL3()`
+  token — `isL2()`, `isL3()`, `isHost()` (`engine/device.js:663-715`), with `isL3()`
   also requiring `ip routing` to be on — and the only capabilities the forwarding path
   actually consults are `l2-forward`, `l3-forward` and `host`
-  (`engine/simulator.js:3419-3429`).
+  (`engine/simulator.js:3472-3482`).
+
+The pointers above were re-measured against this tree, because they had slid: `_run()`'s loop was cited at
+3105-3112 and the 100 000-iteration guard at 3110, and 3110 is inside the VLAN egress-drop branch - a reader
+following it learned what `goneVlan` does, not where a run is bounded. `npm run check:citations` cannot catch
+this class: it judges a citation only when the sentence names exactly one function and one line, and a bare
+range or a bare number names no function to check it against. Each number above was read off the definition it
+belongs to; the rest of this page's citations were not re-measured in the same pass.
 
 **Approximate**
 
