@@ -851,8 +851,52 @@ jobs:
           canonical_urls_pid=$!
           timeout --signal=TERM --kill-after=10 60 node scripts/check-ci-disk-hygiene.js > "$dir/check-ci-disk-hygiene.log" 2>&1 &
           disk_hygiene_pid=$!
-          timeout --signal=TERM --kill-after=15 300 npm test
-          test_rc=$?
+          # `npm test` is three commands in a row - `node scripts/audit-port-types.js &&
+          # node scripts/check-control-bytes.js && node scripts/run-tests.js` - and the
+          # first two are read-only scans of the tree the suite is about to read. They sat
+          # in front of the suite, so every leg paid for both before a single suite began:
+          # measured on this tree on 2026-11-19 (same working copy, three runs each) 1.02 s
+          # for audit-port-types and 0.40 s for check-control-bytes - the 1.4 s that
+          # `npm test` spends after `> packetforge@0.1.0 test` and before the first suite
+          # line in every leg log. Three legs a run, on the job that is a pull request's
+          # wall clock: the green legs to run 7187 are task 18863 (Node 18, 65 s), 18864
+          # (Node 20, 57 s) and 18865 (Node 22, 58 s), against a 364-suite / 12420-
+          # assertion suite that takes 24-40 s of it.
+          #
+          # So they run beside the suite now, exactly as the syntax check and the three
+          # read-only scans below already run, with their own 60 s bounds, their own logs
+          # outside the tree and their own ::error titles. Nothing is skipped, softened or
+          # retried: both still run in every leg, on the runtime that leg is named for, and
+          # a non-zero exit still fails the leg. What changes is where a red is reported -
+          # at the end of the step, next to the suite, instead of 1.4 s into it - and that a
+          # failing scan no longer stops the suite from running: `npm test`'s `&&` chain
+          # reported the scan and nothing else, this reports both.
+          #
+          # The split is conditional on `npm test` still being that exact chain, read from
+          # package.json here rather than assumed: a fourth command added to it later would
+          # be a check this step had silently stopped running. Anything other than the
+          # expected string, including a package.json that will not parse, runs `npm test`
+          # whole - the behaviour this step had before.
+          want="node scripts/audit-port-types.js && node scripts/check-control-bytes.js && node scripts/run-tests.js"
+          have=$(node -e 'process.stdout.write((require("./package.json").scripts || {}).test || "")' 2>/dev/null || echo "")
+          if [ "$have" != "$want" ]; then
+            echo "package.json scripts.test is not the three-command chain this step overlaps (${have:-<missing>}) - running npm test whole, as before"
+            timeout --signal=TERM --kill-after=15 300 npm test
+            test_rc=$?
+            audit_rc=0
+            control_rc=0
+          else
+            timeout --signal=TERM --kill-after=10 60 node scripts/audit-port-types.js > "$dir/audit-port-types.log" 2>&1 &
+            audit_pid=$!
+            timeout --signal=TERM --kill-after=10 60 node scripts/check-control-bytes.js > "$dir/check-control-bytes.log" 2>&1 &
+            control_pid=$!
+            timeout --signal=TERM --kill-after=15 300 node scripts/run-tests.js
+            test_rc=$?
+            wait "$audit_pid"
+            audit_rc=$?
+            wait "$control_pid"
+            control_rc=$?
+          fi
           wait "$syntax_pid"
           syntax_rc=$?
           wait "$node_surface_pid"
@@ -867,13 +911,18 @@ jobs:
             echo "--- node scripts/${log}.js ---"
             cat "$dir/${log}.log"
           done
+          for log in audit-port-types check-control-bytes; do
+            [ -f "$dir/${log}.log" ] || continue
+            echo "--- node scripts/${log}.js ---"
+            cat "$dir/${log}.log"
+          done
           if [ "$syntax_rc" -eq 124 ] || [ "$syntax_rc" -eq 137 ]; then
             echo "::error title=Syntax check (all JS)::node scripts/syntax-check.js was still running after 120 s and was stopped - a green run takes ~19 s"
           elif [ "$syntax_rc" -ne 0 ]; then
             echo "::error title=Syntax check (all JS)::node scripts/syntax-check.js exited ${syntax_rc}"
           fi
           if [ "$test_rc" -eq 124 ] || [ "$test_rc" -eq 137 ]; then
-            echo "::error title=Full test suite::npm test was still running after 300 s and was stopped - a green leg takes 46-69 s here, so this is a hung suite, not a slow one; the suites that had already reported are above"
+            echo "::error title=Full test suite::the suite was still running after 300 s and was stopped - a green leg takes 46-69 s here, so this is a hung suite, not a slow one; the suites that had already reported are above"
           elif [ "$test_rc" -ne 0 ]; then
             echo "::error title=Full test suite::npm test exited ${test_rc}"
           fi
@@ -889,9 +938,12 @@ jobs:
           report_static check-node-surface "$node_surface_rc" "No API newer than the Node 18 floor"
           report_static check-canonical-urls "$canonical_urls_rc" "Every project URL points at Forgejo"
           report_static check-ci-disk-hygiene "$disk_hygiene_rc" "Every job that builds an image bounds what it writes"
+          report_static audit-port-types "$audit_rc" "Port types declared in every device spec"
+          report_static check-control-bytes "$control_rc" "No control bytes in source"
           [ "$test_rc" -eq 0 ] && [ "$syntax_rc" -eq 0 ] &&
             [ "$node_surface_rc" -eq 0 ] && [ "$canonical_urls_rc" -eq 0 ] &&
-            [ "$disk_hygiene_rc" -eq 0 ]
+            [ "$disk_hygiene_rc" -eq 0 ] && [ "$audit_rc" -eq 0 ] &&
+            [ "$control_rc" -eq 0 ]
       - name: Build & verify example labs
         if: steps.still_open.outputs.closed != 'true'
         run: timeout --signal=TERM --kill-after=10 120 node examples/build-examples.js
