@@ -1026,8 +1026,11 @@ goes even though the port that names 22 still points at it: `show interfaces` re
 invented port.
 
 **A switch has five VLANs before anything is configured**: 1, and the four reserved Token Ring / FDDI defaults,
-1002-1005. They belong to the VLAN database from power-on, no port may be assigned to one, and they print
-`act/unsup` with an empty Ports column — which is the fact behind `% VLAN id 1002 is reserved`. They are not
+1002-1005. They belong to the VLAN database from power-on and print `act/unsup` with an empty Ports column.
+No port joins one here — `% VLAN id 1002 is reserved` — because nothing in this model carries FDDI or Token
+Ring; that refusal is this model's decision, not a witnessed console line, since the vendor documents the ids
+as non-Ethernet media defaults but no capture shows what the command answers
+(`research/media-default-vlan-as-access-vlan.md`). They are not
 configuration: `show running-config` never prints them, and they keep their place in the sort, so a hand-made
 VLAN 2000 appears after 1005. The names are `RESERVED_VLANS` in `engine/vlan.js`, the same list the reserved-range
 refusal quotes. A device that is not a bridge is not given the reserved rows, because it has no VLAN database

@@ -123,7 +123,10 @@ printed everywhere is a good property; the string in it still has to be true.
   which is defensible for a box that cannot carry FDDI here, but it is a choice, not a citation. Evidence: a
   capture of `vlan 1002`, `name test`, `end`, `show vlan brief`.
 * **Whether a port may be assigned to one.** `switchport access vlan 1002` is refused here by the same
-  validator. `show vlan` prints the four rows `act/unsup` — active/unsupported — which is the switch saying no
-  port can be configured into them, but no transcript in hand shows the attempt.
+  validator, and that refusal is this model's choice, not a citation: `show vlan` prints the four rows
+  `act/unsup`, but the vendor never defines that status word, and the command's own documented range
+  (1-4094) includes these ids. No transcript in hand shows the attempt. Sources, the one vendor sentence
+  that gives a reason (they are not Ethernet VLANs) and the capture that would settle it are in
+  [media-default-vlan-as-access-vlan.md](media-default-vlan-as-access-vlan.md).
 * **VTP.** On a box in VTP server mode the removal is refused for the whole domain, and in transparent mode
   only locally. This model has no VTP, so the refusal here is the local case only.
