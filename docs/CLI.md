@@ -219,7 +219,7 @@ takes back.
 | routing | `ip route <dest> <mask> <gateway> [iface] [<distance>]`, `ip default-gateway <addr>`, and `ip routing` when the box is not in its platform's default state |
 | NAT | `ip nat pool <name> <start> <end> netmask <mask>`, and one `ip nat inside source …` line per rule, printed as the command that creates it (`static <local> <global> [<protocol> <port>]`, or `list <local> pool <name>` or `list <local> interface <if>`, with `overload` on a PAT rule) |
 | spanning tree | `spanning-tree priority <n>` whenever a bridge priority has been set - a typed `32768`, the value the box already assumes, is printed too, because the config records that an operator set one |
-| name servers | `ip name-server <addr>` - a command line takes up to six addresses, space separated, and the printer writes one line for each |
+| name servers | `ip name-server <addr>` - a command line takes up to six addresses, space separated, and the printer writes one line for each; the `no` form accepts an address but clears every resolver, not just that one (below) |
 | SCION | `scion <isd-as>` |
 | OSPF | `ospf router-id <ip>`, `ospf area <id>`, and per interface `ip ospf cost <n>`, `ip ospf area <id>`, `ip ospf passive` |
 | BGP | `router bgp <as>`, `bgp router-id <ip>`, `neighbor <ip> remote-as <as>` |
@@ -266,6 +266,25 @@ r1(config)#no vlan 20
 r1(config-if)#no ip access-group 103 in
 % Access list 102 is applied in on Gi0, not 103
 ```
+
+**One printed line's `no` form is wider than the line.** `no ip name-server <address>` is accepted, and it
+clears *every* resolver rather than the one named: the branch behind it never reads the address, so a name
+that was never configured — or is not an address at all — clears the list just the same, and the only line
+printed is `Name servers cleared`:
+
+```
+r1(config)#ip name-server 1.1.1.1
+Name server 1.1.1.1
+r1(config)#ip name-server 8.8.8.8
+Name server 8.8.8.8
+r1(config)#no ip name-server 8.8.8.8
+Name servers cleared
+```
+
+`show running-config` then prints no `ip name-server` line at all, where "add it, remove it" promises the
+`1.1.1.1` line back. The console's own `?` sentence for the form says `no ip name-server <address>` "removes a
+name server"; that sentence is the code's claim and is the thing that is wrong. A per-address removal is the
+fix, and until it lands this page records what the console does rather than what its index says.
 
 Four commands used to be one-way doors — accepted, printed, and impossible to take back from the console —
 and `no vlan` printed "VLAN 42 removed" whether or not a VLAN 42 existed:
