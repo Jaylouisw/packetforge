@@ -11,11 +11,15 @@
  * GETs, ~5.6 MB, and the cards are in the server-rendered RSC payload as
  * `<h6 …>title</h6><p …>SKU</p>` inside the escaped JSON.
  *
- * What the cards are good for: exactly one thing - an inventory of the SKU strings Ubiquiti
- * publishes a spec page for. Pro tiers are first-class cards (`UDM` / `UDM-Pro` / `UDM-Pro-Max` sit
- * beside each other in cloud-gateways; 70 of the 398 SKUs counted on 2026-11-19 carry a `-Pro`
- * tier), so the absence of a card is a statement about the product line and not about the tile
- * layout. What the cards are NOT good for: any field. A card carries a title and a SKU, no ports.
+ * What the cards are good for: an inventory of what Ubiquiti *merchandises* - the SKU strings on a
+ * category shelf. Pro tiers are first-class cards (`UDM` / `UDM-Pro` / `UDM-Pro-Max` sit beside each
+ * other in cloud-gateways; 70 of the 398 SKUs counted on 2026-11-19 carry a `-Pro` tier), so an
+ * absent Pro card is a statement about the shelf. It is **not** an inventory of the pages this host
+ * serves: measured 2026-11-19, five UXG product pages answer 200 at their own URL while no grid
+ * carries a card for any of them (`uxg-lite`, `uxg-max`, `uxg-fiber`, `uxg-enterprise`, `uxg-pro`).
+ * A specific SKU is settled by the direct slug probes below - 200 = page exists, 3xx = this host
+ * does not have it - never by a card count alone. What the cards are NOT good for: any field. A
+ * card carries a title and a SKU, no ports.
  * Nothing may be written to `devices/` from this script; it only reports.
  *
  * Traps, measured 2026-11-19, recorded so nobody re-walks them:
@@ -27,8 +31,8 @@
  *     `dl.ui.com/ds/<bogus>_ds.pdf` is a **302 to `techspecs.ui.com/`**. Neither is the 200-with-
  *     front-page-body that earlier passes recorded, so `curl -L` now turns a miss into a 200 hit on
  *     the site home page. This script never follows a redirect: a 3xx is a miss.
- *   * `/robots.txt` and `/sitemap.xml` are 307s to `/` - there is no sitemap, so the category grids
- *     are the only enumeration.
+ *   * `/robots.txt` and `/sitemap.xml` are 307s to `/` - there is no sitemap, so the enumeration is
+ *     the fixed grids plus direct slug probes, and the grids are not complete (see SLUG_PROBES).
  *   * Card titles are HTML-escaped and the pages are CloudFront-cached; compare `content-length`
  *     across passes rather than assuming a page is current.
  *
@@ -60,6 +64,39 @@ const FAMILIES = [
   { family: 'unifi', route: '/unifi/wifi', grid: 'wifi' },
   { family: 'uisp', route: '/uisp', grid: 'uisp' }
 ];
+
+// Direct slug probes. The grids above are shelves, not an index of the pages this host serves:
+// measured 2026-11-19, five UXG pages answer 200 while no grid carries a card for any of them, so a
+// missing card proves nothing about a page. A specific SKU is settled here instead - 200 is a page
+// at its own URL, any 3xx is the host saying it has no such product (the 307 goes to `/` with a
+// 1-byte body; never follow it). Two positive controls and one negative control are probed beside
+// the real question so a change in the host's routing shows up as a mismatch rather than as a
+// silent "absent".
+const SLUG_PROBES = [
+  { grid: 'cloud-gateways', slug: 'udw', route: '/unifi/cloud-gateways/udw', expect: 'page', why: 'positive control: the Dream Wall page' },
+  { grid: 'cloud-gateways', slug: 'udm-pro-max', route: '/unifi/cloud-gateways/udm-pro-max', expect: 'page', why: 'positive control: a Pro tier on the same grid' },
+  { grid: 'cloud-gateways', slug: 'uxg-lite', route: '/unifi/cloud-gateways/uxg-lite', expect: 'page', why: 'off-grid: live page, no card' },
+  { grid: 'cloud-gateways', slug: 'uxg-max', route: '/unifi/cloud-gateways/uxg-max', expect: 'page', why: 'off-grid: live page, no card' },
+  { grid: 'cloud-gateways', slug: 'uxg-fiber', route: '/unifi/cloud-gateways/uxg-fiber', expect: 'page', why: 'off-grid: live page, no card' },
+  { grid: 'cloud-gateways', slug: 'uxg-enterprise', route: '/unifi/cloud-gateways/uxg-enterprise', expect: 'page', why: 'off-grid: live page, no card' },
+  { grid: 'cloud-gateways', slug: 'uxg-pro', route: '/unifi/cloud-gateways/uxg-pro', expect: 'page', why: 'off-grid: live page, no card' },
+  { grid: 'cloud-gateways', slug: 'udw-pro', route: '/unifi/cloud-gateways/udw-pro', expect: 'absent', why: 'the SKU #130 asks for' },
+  { grid: 'cloud-gateways', slug: 'bogus-xyz', route: '/unifi/cloud-gateways/bogus-xyz', expect: 'absent', why: 'negative control' }
+];
+
+async function runProbes() {
+  const out = [];
+  for (const p of SLUG_PROBES) {
+    const res = await get(p.route).catch(e => ({ error: e.message }));
+    let verdict;
+    if (res.error) verdict = 'error';
+    else if (res.status === 200) verdict = 'page';
+    else if (res.status >= 300 && res.status < 400) verdict = 'absent';
+    else verdict = 'http-' + res.status;
+    out.push({ ...p, status: res.status || null, bytes: res.bytes || null, location: res.location || null, verdict });
+  }
+  return out;
+}
 
 function arg(name, dflt) {
   const i = process.argv.indexOf('--' + name);
@@ -142,6 +179,15 @@ async function main() {
     pages.push({ ...f, bytes: res.bytes, status: res.status, cards });
   }
 
+  const probes = await runProbes();
+  const mismatch = probes.filter(p => p.verdict !== p.expect);
+  if (mismatch.length) ok = false;
+
+  // Pages the host serves that no shelf carries. This is the measurement that says a card count is
+  // not an inventory: if this list is non-empty, "no card" cannot be read as "no page".
+  const shelves = new Map(pages.filter(p => p.cards).map(p => [p.grid, new Set(p.cards.map(c => c.slug))]));
+  const offGrid = probes.filter(p => p.verdict === 'page' && p.grid && shelves.has(p.grid) && !shelves.get(p.grid).has(p.slug));
+
   const all = pages.flatMap(p => (p.cards || []).map(c => ({ ...c, grid: p.grid, family: p.family })));
   const bySku = uniqSku(all);
   const dupes = [...bySku.keys()].filter(k => all.filter(r => r.sku.toUpperCase() === k).length > 1);
@@ -151,6 +197,9 @@ async function main() {
     process.stdout.write(JSON.stringify({
       families: pages.map(p => ({ route: p.route, status: p.status, bytes: p.bytes, cards: (p.cards || []).length, error: p.error })),
       cards: all.length, uniqueSkus: bySku.size, duplicateSkus: dupes,
+      probes: probes.map(p => ({ route: p.route, status: p.status, bytes: p.bytes, verdict: p.verdict, expect: p.expect })),
+      offGrid: offGrid.map(p => p.route),
+      probeMismatch: mismatch.map(p => p.route),
       match: String(matchArg), hits
     }, null, 2) + '\n');
     process.exit(ok ? 0 : 1);
@@ -162,7 +211,16 @@ async function main() {
     console.log(`  ${p.route.padEnd(30)} 200 ${String(p.bytes).padStart(7)} B  ${String(p.cards.length).padStart(3)} cards`);
   }
   console.log(`\nCards: ${all.length}   Unique SKUs: ${bySku.size}   Duplicated across grids: ${dupes.length}${dupes.length ? ' (' + dupes.slice(0, 8).join(', ') + (dupes.length > 8 ? ', ...' : '') + ')' : ''}`);
-  console.log(`Matching /${matchArg}/i: ${hits.length}`);
+
+  console.log('\nDirect slug probes (200 = page at its own URL, 3xx = the host has no such product)');
+  for (const p of probes) {
+    const state = p.verdict === p.expect ? 'ok ' : 'MISMATCH';
+    console.log(`  ${state} ${p.route.padEnd(38)} ${String(p.status).padStart(3)} ${String(p.bytes || 0).padStart(7)} B  ${p.verdict.padEnd(7)} ${p.why}`);
+  }
+  console.log(`\nPages with no card on their own shelf: ${offGrid.length}${offGrid.length ? ' (' + offGrid.map(p => p.slug).join(', ') + ')' : ''}`);
+  if (offGrid.length) console.log('  -> a card count is a shelf inventory, not a page inventory; settle a SKU on its slug probe.');
+
+  console.log(`\nMatching /${matchArg}/i: ${hits.length}`);
   for (const h of hits) console.log(`  ${h.sku.padEnd(22)} ${h.title.padEnd(34)} ${h.family}/${h.grid}${h.slug ? '/' + h.slug : ''}`);
   process.exit(ok ? 0 : 1);
 }

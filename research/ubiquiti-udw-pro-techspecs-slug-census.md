@@ -60,7 +60,40 @@ grid: `UDM-Beast`, `UDM-Pro`, `UDM-Pro-Max` and `UDM-SE` sit together in cloud-g
 `U7-Pro-Max`, `U7-Pro-XG`, `U7-Pro-XG-Wall` and `U7-Pro-Outdoor` sit together in wifi; `UNVR-Pro` and
 `UNVR-G2-Pro` sit beside `UNVR` and `UNVR-G2`. So a Pro Dream Wall would be a card
 of its own in cloud-gateways, next to `UDW`, exactly as `UDM-Pro` sits next to `UDM`. It is not
-there, and it is not anywhere else on the host.
+there, and it is not anywhere else on the *shelves* - which, measured the same evening, is not the
+same statement about the host (next section).
+
+## Correction, measured the same evening: the grids are not the whole host
+
+Five product pages on `techspecs.ui.com` answer 200 at their own URL while **no grid carries a card
+for them** - the whole UXG line. Read 2026-11-19 23:2x UT, redirects not followed, by the probes now
+built into `scripts/ubiquiti-techspecs-census.js`:
+
+| URL | HTTP | bytes | card on `/unifi/cloud-gateways`? |
+|---|---|---|---|
+| `/unifi/cloud-gateways/udw` | 200 | 704,702 | **yes** - positive control |
+| `/unifi/cloud-gateways/udm-pro-max` | 200 | 677,375 | **yes** - positive control |
+| `/unifi/cloud-gateways/uxg-lite` | 200 | 643,116 | no |
+| `/unifi/cloud-gateways/uxg-max` | 200 | 647,803 | no |
+| `/unifi/cloud-gateways/uxg-fiber` | 200 | 649,433 | no |
+| `/unifi/cloud-gateways/uxg-enterprise` | 200 | 671,598 | no |
+| `/unifi/cloud-gateways/uxg-pro` | 200 | 649,578 | no |
+| `/unifi/cloud-gateways/udw-pro` | **307 → `/`** | 1 | - (the SKU this note is about) |
+| `/unifi/cloud-gateways/bogus-xyz` | **307 → `/`** | 1 | - negative control |
+
+The five UXG rows are already the pages `devices/ubiquiti/uxg-*.json` cites as its source, with those
+exact byte counts, so they are live spec pages and not cached ghosts. A shelf is a *merchandising*
+list: it drops a product when it stops being sold while the spec page keeps answering, so the
+sixteen-card gateway grid undercounts the gateway pages the host serves by five. The 408/398 census
+above is an inventory of cards, not of pages.
+
+**What this changes for #130:** the card count alone was not sufficient evidence, and two earlier
+comments leaned on it harder than it can carry. The negative now rests on the direct slug probe -
+`/unifi/cloud-gateways/udw-pro` answering **307 → `/`** (1 byte) beside two 200 controls on the same
+grid, i.e. the host's own not-found for that slug - together with the datasheet, FCC grant,
+storefront and device-fingerprint negatives already on the thread. That is a narrower base than
+"zero cards out of 398", and a sound one. **Nothing in the blocker changes: no spec was written, and
+this does not close the request.**
 
 ## Traps, measured
 
@@ -80,8 +113,9 @@ there, and it is not anywhere else on the host.
   three see the 307, so the "serves its 404s as 200" sentence in the November 17 comments is the
   stale reading, not this one.
 - **There is no sitemap to enumerate.** `/robots.txt` and `/sitemap.xml` are 307s to `/`. The
-  category grids are the only inventory, which is why they are hard-coded in the script rather than
-  crawled.
+  enumeration is therefore the fixed category grids plus direct slug probes, both hard-coded in the
+  script rather than crawled - and, as the section above records, the grids alone are not enough:
+  they omit five live pages.
 - **Bytes drift, counts do not.** `/unifi/door-access` measured 706,555 B at 22:52 and 706,784 B at
   22:56 with the same 61 cards - CloudFront and a live build. Compare card counts across passes,
   not `content-length`.
@@ -89,7 +123,9 @@ there, and it is not anywhere else on the host.
 ## What this settles, and what it cannot
 
 **Settles:** #130 is not hiding behind a category. No SKU on Ubiquiti's own spec site is a Dream
-Wall Pro, on any shelf; the only Dream Wall there is `UDW`, which is catalogued and matches its page.
+Wall Pro, on any shelf, and the slug itself - `/unifi/cloud-gateways/udw-pro` - is the host's own
+not-found (307 → `/`) beside 200 controls; the only Dream Wall it serves is `UDW`, which is
+catalogued and matches its page.
 
 **Cannot settle:** anything about ports, and it does not close the issue. The card carries a title
 and a SKU; a product that exists but has no spec card (the Early Access storefront is the remaining
