@@ -1475,11 +1475,11 @@ Success rate is 0 percent (0/3)
 % Echoes lost: 3 drops ("no route to 192.0.2.10 (dropped by r2)" x3)
 ```
 
-There is no per-echo sentence under a `U`: a box prints the marks and the success rate and nothing between them, so
-`Request timed out (seq n)` is printed only where the timeout really did expire. The `% Echoes lost:` line is this
-console's own voice and stays, because it is the only part that says *which* box could not route. A box that cannot
-route the echo **itself** - a source-side `no route` - is a separate case the evidence does not settle, and is left
-as a timeout; the research note says why.
+There is no per-echo sentence under a `U`, or under the `.` that stands for a timeout: a box prints the marks and
+the success rate and nothing between them, and this console prints nothing there either. The `% Echoes lost:` line
+is this console's own voice and stays, because it is the only part that says *which* box could not route. A box
+that cannot route the echo **itself** - a source-side `no route` - is a separate case the evidence does not settle,
+and is left as a timeout; the research note says why.
 
 `show ip dns` reads the zones back — the records that are actually answered, in zone-file shape:
 
@@ -1580,9 +1580,11 @@ Type escape sequence to abort.
 Sending 1, 100-byte ICMP Echos to 10.0.0.99, timeout is 2 seconds:
 .
 Success rate is 0 percent (0/1)
-Request timed out (seq 0)
 % Echoes lost: 1 drop (no ARP reply from 10.0.0.99)
 ```
+
+The per-echo `Request timed out (seq n)` line is gone with the `Reply from` lines it used to sit beside: a box
+prints no sentence per echo, and the `.` on the marks line is where the expiry was already reported.
 
 Four echoes are one statement about the path, not four; the count lives in the sentence:
 
@@ -1592,10 +1594,6 @@ Type escape sequence to abort.
 Sending 4, 100-byte ICMP Echos to 10.0.0.10, timeout is 2 seconds:
 ....
 Success rate is 0 percent (0/4)
-Request timed out (seq 0)
-Request timed out (seq 1)
-Request timed out (seq 2)
-Request timed out (seq 3)
 % Echoes lost: 4 drops ("peer port shut (r2 Gi0/0/0)" x4)
 ```
 
@@ -1607,7 +1605,8 @@ parser.
 
 Two silences are deliberate. A path that is **still converging** is not loss and keeps its own sentence (`% Still
 converging: stp on s1 (ready at 30000 ms)`), never both. And a failure with **no recorded reason** prints nothing
-extra: the timeout line already said what happened, and inventing a cause for it would be worse than the gap.
+extra: the `.` on the marks line already said what happened, and inventing a cause for it would be worse than the
+gap.
 
 The browser's Simulate dialog draws the same sentence from the same rule, mirrored and checked case for case, so a
 percentage and its explanation cannot drift apart on one surface and agree on the other.
