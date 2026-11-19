@@ -1580,7 +1580,11 @@
   function routesRows(d) {
     const rows = (topo.runtime && topo.runtime[d.id] && topo.runtime[d.id].routes) || [];
     return rows.map(function (r) {
-      const connected = r.type === 'connected';
+      // `directlyConnected` comes from `Device.routesTable()`: a connected route, or a static route whose
+      // next hop is only an interface, which the box prints as a directly connected network rather than as a
+      // next hop (research/show-ip-route-static-via-interface.md). Reading the flag rather than re-deriving
+      // the rule is what keeps this panel and the console saying the same thing about the row.
+      const connected = typeof r.directlyConnected === 'boolean' ? r.directlyConnected : r.type === 'connected';
       let via;
       if (connected) {
         via = 'is directly connected, ' + (r.iface && r.iface !== '-' ? r.iface : '-');

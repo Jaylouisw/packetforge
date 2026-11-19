@@ -1311,6 +1311,17 @@ class Device {
       // the distance in the brackets.
       row.candidateDefault = row.dest === '0.0.0.0' && row.mask === '0.0.0.0';
       row.displayCode = row.candidateDefault ? row.code + '*' : row.code;
+      // Which rows the device prints as a directly connected NETWORK rather than as a next hop. A connected
+      // route is one, and so is a static route whose next hop is only an interface
+      // (`ip route <prefix> <mask> <interface>`): IOS says `S 192.168.2.0/24 is directly connected,
+      // GigabitEthernet0/1`, with no bracket and no `via`, because "the router considers each of the hosts
+      // within the range of the route to be directly connected through that interface" (Cisco IOS IP Routing:
+      // Protocol-Independent Command Reference, `ip route`). The flag is computed here, in the one function
+      // both surfaces read, so the console and the inspector cannot disagree about which rows take that shape
+      // (research/show-ip-route-static-via-interface.md).
+      row.directlyConnected = row.type === 'connected' ||
+        (row.type === 'static' && (row.gw === '-' || row.gw == null) &&
+          !!row.iface && row.iface !== '-');
       row.distance = Device.routeDistance(row);
       // Every row carries a metric, because the bracket prints one for every row: a static, connected or
       // BGP route is 0 (no protocol here computes a cost for it), an O route carries its OSPF cost.

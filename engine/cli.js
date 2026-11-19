@@ -5941,11 +5941,26 @@ class CliSession {
         //   https://www.cisco.com/c/en/us/support/docs/ip/routing-information-protocol-rip/16448-default.html
         //   https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/iproute_pi/command/Cisco_IOS_IP_Routing_Protocol-Independent_Command_Reference/IP_Routing_Protocol-Independent_Commands_S_through_T.html
         const dest = r.dest + '/' + prefix;
-        if (r.type === 'connected') {
+        // The code field is four characters whatever the code is - one letter and three spaces, or `S*` and
+        // two - so the prefix starts in the same column on every row. It is built once because two shapes of
+        // row now share it (a connected row and a static one with no next hop).
+        const codeField = r.displayCode.length === 1 ? r.displayCode + '   ' : r.displayCode + '  ';
+        // A static route whose next hop is only an interface is printed by IOS as a directly connected
+        // network, not with a next hop: `S 192.168.2.0/24 is directly connected, GigabitEthernet0/1`, and
+        // `S* 0.0.0.0/0 is directly connected, FastEthernet0` for the default. The vendor explains why in the
+        // `ip route` reference - "When the next hop of a static route points to an interface, the router
+        // considers each of the hosts within the range of the route to be directly connected through that
+        // interface, and therefore it will send Address Resolution Protocol (ARP) requests to any destination
+        // addresses that route through the static route." This console printed the bracket form with a
+        // placeholder next hop instead: `S 192.168.2.0/24  [1/0] via -  Gi0/0/0`, a row that names no next hop
+        // and prices a metric for it. research/show-ip-route-static-via-interface.md has the captures.
+        // `routesTable()` decides which rows take that shape, so the inspector cannot draw a different one:
+        // a connected route, or a static route whose next hop is only an interface.
+        if (r.directlyConnected) {
           // A connected route stays listed - it is configuration, and `routeTo()` still finds it - but a
           // port that cannot carry a frame is why the ping to that very address fails. Saying nothing left
           // the reader with a route row that reads "directly connected" about a port with no cable (#1271).
-          out.push('C   ' + dest + '  is directly connected, ' + r.iface +
+          out.push(codeField + dest + '  is directly connected, ' + r.iface +
             (r.note ? '  ' + r.note : '') + (r.shadow ? '  ' + r.shadow : ''));
           continue;
         }
@@ -5957,10 +5972,9 @@ class CliSession {
         // a reader uses to compare two paths was a placeholder (#fidelity: show ip route metric).
         //
         // The distance is half of the rule that picks the installed route (longest prefix first, then
-        // lowest distance), so a table without it cannot be checked by reading. The code field is four
-        // characters whatever the code is - one letter and three spaces, or `S*` and two - so the prefix
-        // starts in the same column on every row now that the address itself is not padded.
-        out.push((r.displayCode.length === 1 ? r.displayCode + '   ' : r.displayCode + '  ') + dest +
+        // lowest distance), so a table without it cannot be checked by reading. The prefix starts in the
+        // same column on every row now that the address itself is not padded.
+        out.push(codeField + dest +
           '  [' + r.distance + '/' + r.metric + '] via ' + r.gw +
           (r.iface && r.iface !== '-' ? '  ' + r.iface : '') +
           (r.note ? '  ' + r.note : '') + (r.shadow ? '  ' + r.shadow : ''));

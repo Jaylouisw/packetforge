@@ -2751,7 +2751,7 @@ Route added: 192.168.9.0/24 out Gi0
   no next hop: this resolves by ARP on that segment, which needs proxy ARP on the far side
 
 r1#show ip route
-S   192.168.9.0/24  [1/0] via -  Gi0  (no next hop: ARP for the destination on that segment)
+S   192.168.9.0/24  is directly connected, Gi0  (no next hop: ARP for the destination on that segment)
 ```
 
 Anything that is neither an address nor a port is refused, naming it and the route:
@@ -2793,6 +2793,22 @@ The legend names every code the table can print — `C` connected, `S` static, `
 `*` for a candidate default — and each row carries `[distance/metric]`. The distance is not decoration: it is half of the rule that picks
 the installed route (longest prefix first, then lowest distance), and without it two rows for the same
 prefix cannot be told apart.
+
+A static route whose next hop is **only an interface** is a different row again: IOS prints it as a
+directly connected network, in the same words a connected route uses and with **no bracket and no `via`** —
+`S 192.168.2.0/24 is directly connected, GigabitEthernet0/1`, and `S* 0.0.0.0/0 is directly connected,
+FastEthernet0` for a default. The `ip route` reference explains why this is not a lie: "When the next hop of
+a static route points to an interface, the router considers each of the hosts within the range of the route
+to be directly connected through that interface, and therefore it will send Address Resolution Protocol
+(ARP) requests to any destination addresses that route through the static route." The bracket is absent even
+when an administrative distance was typed, which is the part that surprises operators: the distance still
+prices the route for selection (the vendor's own chapter on static routing says "although the routing table
+entry indicates 'directly connected', the administrative distance of the static route is still 1"), it is
+just not shown on the row. This console printed the bracket with a placeholder next hop instead —
+`S 192.168.9.0/24 [1/0] via - Gi0` — a row that named no next hop and priced a metric for it
+(`research/show-ip-route-static-via-interface.md`, `test/show-ip-route-static-via-interface.test.js`).
+A **fully specified** static (interface *and* next hop) is not a directly connected route and keeps its
+`[distance/metric] via <next hop>` row.
 
 The metric is the protocol's own cost for the path, in the format Cisco's `show ip route` reference
 states — `[administrative distance/metric]`, where "`[110/2]` means that the route has an administrative
