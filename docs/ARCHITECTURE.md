@@ -400,7 +400,7 @@ ever reaches the living.
 
 ### What the static server answers
 
-`web/` is four files served by `serveStatic()`, with three rules:
+`web/` is six files served by `serveStatic()`, with four rules:
 
 | request | answer |
 |---|---|
