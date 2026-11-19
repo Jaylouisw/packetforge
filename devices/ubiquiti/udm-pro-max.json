@@ -3,7 +3,7 @@
   "model": "UDM-Pro-Max",
   "label": "UniFi Dream Machine Pro Max",
   "category": "firewall",
-  "description": "Ubiquiti UDM-Pro-Max - 1U cloud gateway with two NVR bays: 8x 1GbE RJ45 LAN (no PoE), 1x 2.5GbE RJ45 WAN, 2x 10G SFP+; 5 Gbps IDS/IPS.",
+  "description": "Ubiquiti UDM-Pro-Max - 1U cloud gateway with two NVR bays: 8x 1GbE RJ45 + 1x 2.5GbE RJ45 (up to 8 WAN ports, no PoE on any port), 2x 10G SFP+; 5 Gbps IDS/IPS.",
   "capabilities": [
     "l3-forward",
     "firewall",
@@ -17,47 +17,56 @@
     {
       "name": "WAN",
       "type": "ethernet",
-      "speed": "2.5G"
+      "speed": "2.5G",
+      "poeIn": false
     },
     {
       "name": "Port 1",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": false
     },
     {
       "name": "Port 2",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": false
     },
     {
       "name": "Port 3",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": false
     },
     {
       "name": "Port 4",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": false
     },
     {
       "name": "Port 5",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": false
     },
     {
       "name": "Port 6",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": false
     },
     {
       "name": "Port 7",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": false
     },
     {
       "name": "Port 8",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": false
     },
     {
       "name": "SFP+ 1",
@@ -81,5 +90,7 @@
     }
   ],
   "icon": "firewall",
-  "color": "#3b82f6"
+  "color": "#3b82f6",
+  "sourceUrl": "https://techspecs.ui.com/unifi/cloud-gateways/udm-pro-max",
+  "notes": "Vendor figures read 2026-11-19 from two Ubiquiti hosts, both server-rendered, both quoting the same census. `https://techspecs.ui.com/unifi/cloud-gateways/udm-pro-max` (HTTP 200, 677,375 B) prints the structured spec table: **Port Layout - 1 GbE RJ45 = 8 (1G/100M/10M), 2.5 GbE RJ45 = 1 (2.5G/1G/100M/10M), 10G SFP+ = 2 (10G/1G)**, **Max. WAN Port Count = 8**, **Default WAN Ports = (1) 10G SFP+ / (1) 2.5 GbE RJ45**, **Max. Power Consumption = 60W**, **Power Method = (1) Universal AC input, 100-240V AC, 2A Max., 50/60 Hz / (1) USP-RPS DC input, 11.5V DC, 8.7A**, **NVR Storage = (2) 3.5\\\" NVR HDD bays** with a built-in 128 GB SSD, **IDS/IPS Throughput = 5 Gbps**. The eleven interfaces above are those rows and nothing else: nine copper sockets (eight 1G behind the 2.5G one) and two 10G cages. The Console and MGMT rows other UniFi gateway pages carry are absent here, so none is modelled.\n\n`https://store.ui.com/us/en/products/udm-pro-max` (HTTP 200, 598,527 B, `displaySku` `UDM-Pro-Max`) carries the same table as embedded spec JSON and settles the PoE question the tech-spec page only settles by silence: **PoE Support = Empty**, **PoE Budget = Empty**, **Max. PoE Wattage per Port by PSE - PoE / PoE+ / PoE++ / PoE+++ = Empty**, **Voltage Range PoE Mode = Empty**, against **Port Layout = (8) 1 GbE, (1) 2.5 GbE & (2) 10G SFP+**. The model therefore has no PSE port and no budget - which is the one place it differs from its sibling `udm-se.json` (8 PoE ports, 180 W). Copying the SE numbers onto this row is the family-sibling error this catalogue has already corrected on UDM PoE, two i-MO console ports and three MA5801 uplinks; the \"Empty\" flags are the vendor saying the field does not apply, not the vendor omitting it.\n\nThe nine copper ports carry `poeIn: false` on purpose. The engine infers a 12.95 W 802.3af **draw** on copper ports of any device whose model or label matches `unifi` (`isPoePd` in `engine/media.js`), which is right for an access point and wrong for a rack console: this box is powered by a 100 W internal AC supply or the USP-RPS DC input, and neither the tech-spec table nor the store table publishes a PoE *input*. Declaring the port stops the engine turning that silence into a phantom load a lab could spend against a switch budget. `dl.ui.com/ds/udm-pro-max_ds.pdf` was tried and falls back to the 609,911-byte techspecs home page, so no datasheet is cited here."
 }
