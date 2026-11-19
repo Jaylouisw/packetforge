@@ -83,3 +83,71 @@ Two traps worth keeping. **The page never prints an IEEE number** - zero occurre
 such rather than as a vendor string. **Neither surface numbers the PoE ports** either, so `eth0` sinks
 and `eth1` sources, the same convention as `umr.json` and `devices/zyxel/gs1900-24ep.json`: a stated
 count, not a guessed census.
+
+## 2026-11-19 13:5x UT: two mobile routers had no cellular port at all
+
+The family is the one #130's lab reaches for *"a router/gateway node in a routed lab (NAT, DHCP,
+VPN, cellular WAN)"*, and the previous passes on this file settled its PoE and its citations. What
+none of them noticed is that the interface the product is named for was missing: `umr.json` and
+`umr-ultra.json` modelled `rj45-1`, `rj45-2` and `radio-2g` - two copper ports and the **WiFi 4**
+radio - and **no `wwan` port**, while the third member of the family (`umr-industrial.json`) has
+carried a `wwan0` all along. A mobile router with no cellular interface cannot be the cellular WAN
+of anything.
+
+Read today, crawler user-agent, all three product pages, plus the one datasheet in the family:
+
+| surface | result | the row that matters |
+|---|---|---|
+| `techspecs.ui.com/unifi/integrations/umr-us` | 200, 708,698 B | "Networking Interface (2) GbE RJ45 ports, **LTE Cat 4 radio**, WiFi 4"; "**LTE Throughput Speed Download 150 Mbps / Upload 50 Mbps**" |
+| `dl.ui.com/ds/umr_ds.pdf` | 200, PDF, 597,924 B, 2 pp | page 2: "LTE throughput speed* **Download 150 Mbps / Upload 50 Mbps**", "LTE Category 4 radio", "Supported WiFi Data Rates 6.5 Mbps to 150 Mbps" |
+| `techspecs.ui.com/unifi/integrations/umr-ultra-us` | 200, 682,619 B | "(2) FE RJ45 ports, **LTE Cat 4 radio**, WiFi 4"; "LTE Throughput Speed **Download 150 Mbps / Upload 50 Mbps**" |
+| `techspecs.ui.com/unifi/integrations/umr-industrial-us` | 200, 693,659 B | same "LTE Cat 4 radio"; "LTE Throughput Speed **Download 150 Mbps / Upload 50 Mbps**"; WiFi 4 to 300 Mbps |
+| `dl.ui.com/ds/umr-ultra_ds.pdf`, `.../umr-industrial_ds.pdf` | 609,911 B techspecs front page | no datasheet for either, unchanged from the earlier pass |
+
+So the radios were never the question - the vendor names the LTE radio in the first row of the
+Networking Interface table and prints its rate on every one of the three. The catalogue simply
+stopped at the RJ45s and the WiFi radio.
+
+**What was written.** `wwan0` at **150M** on `umr.json` and `umr-ultra.json` (the published
+*download* figure, the convention `udr-5g-max` and `u5g-max` already use; the 50 Mbps uplink stays
+in `notes` because the schema carries one rate per port), and `umr-industrial.json`'s `wwan0`
+**50M -> 150M** - it was carrying the uplink half of the same table row, which made it the only
+row in the family reading the wrong column.
+
+**Why it is not cosmetic.** A `wwan` port cannot be cabled - `test/cellular-cage.test.js` pins that
+("two modems in a lab are not cabled to each other: they are both subscribed to a network neither
+of them contains") - so a cellular WAN in this engine is an interface you *configure*, not one you
+patch. Before the change the UMR offered nothing to configure:
+
+```
+> show ip interface brief
+Interface              IP-Address      OK? Method Status                Protocol
+rj45-1                 unassigned      YES unset  down                  down
+rj45-2                 unassigned      YES unset  down                  down
+radio-2g               unassigned      YES unset  up                    up
+```
+
+After it, the lab's cellular WAN exists and takes the default route:
+
+```
+> interface wwan0 / ip address 10.99.0.10 255.255.255.0
+IP address set on wwan0: 10.99.0.10/24
+> ip route 0.0.0.0 0.0.0.0 10.99.0.1
+Route added: 0.0.0.0/0 via 10.99.0.1
+> show ip route
+S*  0.0.0.0/0  [1/0] via 10.99.0.1
+```
+
+Cage resolution checked, not assumed: `wwan0` resolves to `cage=wwan`, `media=['lte']`, 150 Mbps
+(`radio-2g` stays `antenna`), so the row still offers no Wi-Fi band from the cellular port and no
+copper medium from either.
+
+## Queued for a later pass (measured, not written)
+
+`devices/ubiquiti/u-lte-backup-pro.json` still carries `wwan0` at **100M**, and its own datasheet
+prints the rate: `https://dl.ui.com/ds/u-lte-backup-pro_ds.pdf` (200, PDF, 2 pp, read today) -
+"LTE Category 4 radio", "Throughput speeds* **Download 150 Mbps / Upload 50 Mbps**". The comment on
+#130 for PR #2150 says that citation "corrected `wwan0` from the 100M class guess to 150M", but
+`git log -- devices/ubiquiti/u-lte-backup-pro.json` holds only the original #1143 commit and the
+file on `main` is still `100M` - the claim outran the commit. It is a different product line from
+the mobile routers, so it was left for its own pass rather than folded into this family's change.

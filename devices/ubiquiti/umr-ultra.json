@@ -35,12 +35,17 @@
       ]
     },
     {
+      "name": "wwan0",
+      "type": "wireless",
+      "speed": "150M"
+    },
+    {
       "name": "radio-2g",
       "type": "wireless",
       "speed": "150M"
     }
   ],
-  "notes": "Vendor figures: **(2) FE RJ45 ports** - fast ethernet - **LTE Cat 4**, WiFi 4 1x1, **5.7 W**, USB-C 5 V/2 A or **9-30 V DC** on a 4-pin ATX header, **-30 to 70 C** operating. **The \"Ultra\" is the lesser unit**: against the UMR it drops both ports from gigabit to 100M, loses PoE entirely, and gives up LTE band coverage - in exchange for a wider DC input range, a wider temperature range and one third less power. The name does not rank the hardware. **Cited 2026-11-19.** Every figure from https://techspecs.ui.com/unifi/integrations/umr-ultra-us (200, 682,619 B): \"Networking Interface (2) FE RJ45 ports, LTE Cat 4 radio, WiFi 4\", \"Max. Power Consumption 5.7W\", \"Power Method USB Type-C (5V DC/2A), 4-pin ATX DC (9-30V DC)\", \"-30 to 70 C\", and a Features table that carries no PoE row at all. Its store page https://store.ui.com/us/en/products/umr-ultra-us (307 to its collection URL, 200 there at 587,964 B) is the second vendor surface. No datasheet exists: dl.ui.com/ds/umr-ultra_ds.pdf and dl.ui.com/ds/umr-ultra-us_ds.pdf both answer the 609,911-byte techspecs front page instead of a PDF - the silent fallback already trapped for ucg-fiber and ux-pro. The bare store slug /products/umr-ultra 307s to the internet-solutions category rather than a product, so the -us suffix is required on both hosts, the same shape as umr-us.",
+  "notes": "Vendor figures: **(2) FE RJ45 ports** - fast ethernet - **LTE Cat 4**, WiFi 4 1x1, **5.7 W**, USB-C 5 V/2 A or **9-30 V DC** on a 4-pin ATX header, **-30 to 70 C** operating. **The \"Ultra\" is the lesser unit**: against the UMR it drops both ports from gigabit to 100M, loses PoE entirely, and gives up LTE band coverage - in exchange for a wider DC input range, a wider temperature range and one third less power. The name does not rank the hardware. **Cited 2026-11-19.** Every figure from https://techspecs.ui.com/unifi/integrations/umr-ultra-us (200, 682,619 B): \"Networking Interface (2) FE RJ45 ports, LTE Cat 4 radio, WiFi 4\", \"Max. Power Consumption 5.7W\", \"Power Method USB Type-C (5V DC/2A), 4-pin ATX DC (9-30V DC)\", \"-30 to 70 C\", and a Features table that carries no PoE row at all. Its store page https://store.ui.com/us/en/products/umr-ultra-us (307 to its collection URL, 200 there at 587,964 B) is the second vendor surface. No datasheet exists: dl.ui.com/ds/umr-ultra_ds.pdf and dl.ui.com/ds/umr-ultra-us_ds.pdf both answer the 609,911-byte techspecs front page instead of a PDF - the silent fallback already trapped for ucg-fiber and ux-pro. The bare store slug /products/umr-ultra 307s to the internet-solutions category rather than a product, so the -us suffix is required on both hosts, the same shape as umr-us. **The cellular port (added 2026-11-19).** The tech-spec page names an *LTE Cat 4 radio* in the Networking Interface row and prints its rate two dozen rows later: \"LTE Throughput Speed Download 150 Mbps / Upload 50 Mbps\" - the Ultra keeps the UMR's Cat 4 radio and gives up LTE band coverage, not throughput. The row modelled the two copper ports and the WiFi 4 radio only, so the cellular WAN had no interface; `wwan0` is now `150M`, the published download figure, the same convention as `umr.json` beside it. There is no datasheet to cross-read (see the trap above), so this rests on the one vendor surface.",
   "role": [
     "vpn"
   ],
