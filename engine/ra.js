@@ -140,8 +140,13 @@ function normalizeConfig(cfg) {
       if (n) prefixes.push(n);
     }
   }
+  // Advertising is *on* unless something turned it off. A Cisco router
+  // announces itself on a LAN the moment the interface has an address and
+  // unicast routing is on - `ipv6 nd ra suppress` is the command that stops
+  // it, and there is no enable step to take first (Cisco IOS IPv6 Command
+  // Reference, `ipv6 nd ra suppress`, "Command Default"). research/.
   return {
-    enabled: c.enabled === true,
+    enabled: c.enabled !== false,
     suppress: c.suppress === true,
     m: c.m === true,
     o: c.o === true,

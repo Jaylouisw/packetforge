@@ -572,12 +572,12 @@ Config mode:
 | `ipv6 route <prefix>/<len> <next-hop>` | add a static IPv6 route |
 | `ipv6 gateway <addr>` | set the default IPv6 gateway |
 | `no ipv6` | clear the IPv6 gateway and static routes |
-| `ipv6 nd ra enable` / `ipv6 nd ra disable` | advertise prefixes to the link (`l3-forward` only) |
+| `ipv6 nd ra enable` / `ipv6 nd ra disable` | advertising is **on by default** on any interface that carries an IPv6 address (`l3-forward` only); `disable` stops it, `enable` starts it again |
 | `ipv6 nd ra managed` / `ipv6 nd ra other-config` | set the M / O flag (`no …` clears it) |
 | `ipv6 nd ra lifetime <s>` | router lifetime; `0` means "not a default router" |
 | `ipv6 nd prefix <prefix>/<len> [valid <s>] [preferred <s>]` | advertise a prefix with L=A=1 |
 | `no ipv6 nd prefix <prefix>/<len>` | withdraw a prefix |
-| `ipv6 nd suppress-ra` | stop periodic advertisements, still answer solicitations (`no …` resumes) |
+| `ipv6 nd suppress-ra` | stop periodic advertisements, still answer solicitations (`no …` resumes) - the vendor's own off switch, and the one a real config carries |
 | `show ipv6 nd` | what this device would advertise, and which interfaces are waiting |
 
 Interface mode:
@@ -594,20 +594,28 @@ that prefix**, because a prefix is a promise to route the traffic addressed in
 it. `show ipv6 nd` prints that mapping and says so when a configured prefix is
 attached to no interface.
 
+Advertising itself is **the default**, not a step: RFC 4861 §6.2.1 has a router
+send unsolicited advertisements on every link it is configured to serve, and
+Cisco's `ipv6 nd ra suppress` reference gives the same state as its Command
+Default - "IPv6 router advertisements are automatically sent on Ethernet and FDDI
+interfaces if IPv6 unicast routing is enabled". A box whose port carries no IPv6
+address advertises nothing, and the two commands that stop it are `ipv6 nd ra
+disable` and `ipv6 nd suppress-ra` - the latter being the spelling a Cisco config
+prints. Whichever one was used is the line `show running-config` writes; a device
+that never touched router advertisements writes none.
+
 ```
 R1(config)# interface Gi0/0
 R1(config-if)# ipv6 address 2001:db8:aa::1/64
 IPv6 address 2001:db8:aa::1/64 on Gi0/0
 R1(config-if)# exit
-R1(config)# ipv6 nd ra enable
-IPv6 router advertisements enabled on R1
 R1(config)# ipv6 nd prefix 2001:db8:aa::/64 valid 2592000 preferred 604800
 IPv6 ND prefix 2001:db8:aa::/64 advertised (L=1 A=1, valid 2592000s, preferred 604800s)
 R1(config)# end
 R1# show ipv6 nd
 IPv6 router advertisements on R1:
   Device      : generic-router  (l3-forward)
-  Advertise   : enabled
+  Advertise   : enabled  (the default; `ipv6 nd suppress-ra` stops the periodic ones)
   Flags       : M=0 O=0   router lifetime 1800s
   Timers      : reachable 0ms, retrans 0ms, hop limit 64
   Prefixes    : 1

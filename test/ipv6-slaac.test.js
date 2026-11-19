@@ -152,7 +152,7 @@ for (const j of JUNK) {
 }
 eq(threw, 0, 'no entry point throws on malformed input');
 ok(ra.parseRa('not-octets').valid === false, 'a string is refused, not thrown');
-eq(ra.normalizeConfig(null).enabled, false, 'a missing config advertises nothing');
+eq(ra.normalizeConfig(null).enabled, true, 'a missing config still advertises - that is the vendor default');
 eq(ra.normalizeConfig(null).routerLifetime, ra.DEFAULTS.routerLifetime, 'and still has a sane lifetime');
 
 // ---------------------------------------------------------------------------
@@ -176,8 +176,8 @@ console.log('\nConfiguring a router through the CLI:');
 cli(t, r1, ['interface Gi0/0', 'ipv6 address 2001:db8:aa::1/64', 'exit',
   'interface Gi0/1', 'ipv6 address 2001:db8:bb::1/64']);
 let out = cli(t, r1, ['ipv6 nd ra enable']);
-ok(/router advertisements enabled/.test(out.join(' ')), 'CLI accepts "ipv6 nd ra enable"');
-eq(r1.config.ra.enabled, true, 'and stores the intent');
+ok(/already being sent/.test(out.join(' ')), 'CLI accepts "ipv6 nd ra enable" and says it is the default');
+eq(r1.config.ra.enabled, true, 'and the stored intent is "on"');
 
 out = cli(t, r1, ['ipv6 nd ra disable']);
 ok(/router advertisements disabled/.test(out.join(' ')), 'CLI accepts "ipv6 nd ra disable"');

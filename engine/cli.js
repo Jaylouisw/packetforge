@@ -2543,8 +2543,18 @@ class CliSession {
         // does: the negated form flips the verb rather than being refused.
         const on = (sub === 'enable') !== negated;
         c.enabled = on;
+        // A box advertises without being asked: RFC 4861 6.2.1 has a router send
+        // unsolicited RAs on every link it is configured to serve, and Cisco's
+        // `ipv6 nd ra suppress` reference states the default in its own words -
+        // "IPv6 router advertisements are automatically sent on Ethernet and FDDI
+        // interfaces if IPv6 unicast routing is enabled". So `enable` here is the
+        // spelling an operator reaches for after a `disable`, not a step a fresh
+        // device needs; the answer says which of the two just happened.
         return [on
-          ? 'IPv6 router advertisements enabled on ' + dev.name
+          ? (negated
+            ? 'IPv6 router advertisements enabled on ' + dev.name
+            : 'IPv6 router advertisements are already being sent on ' + dev.name +
+              ' - that is the default (`ipv6 nd ra disable` stops them)')
           : 'IPv6 router advertisements disabled on ' + dev.name];
       }
       if (sub === 'managed' || sub === 'other-config') {
@@ -6579,9 +6589,12 @@ class CliSession {
         // device that never touched `ipv6 nd` prints nothing.
         const ra = require('./ra');
         const cfg = dev.config.ra ? ra.normalizeConfig(dev.config.ra) : null;
-        if (cfg && (cfg.enabled || cfg.suppress || cfg.m || cfg.o || cfg.prefixes.length ||
+        if (cfg && (!cfg.enabled || cfg.suppress || cfg.m || cfg.o || cfg.prefixes.length ||
             cfg.routerLifetime !== ra.DEFAULTS.routerLifetime)) {
-          if (cfg.enabled) out.push('ipv6 nd ra enable');
+          // `enable` is the default, so it is not a line the config owns: only the
+          // two ways of switching advertising off are stored, and they are stored
+          // as the commands that would reproduce this box from scratch.
+          if (!cfg.enabled) out.push('ipv6 nd ra disable');
           if (cfg.suppress) out.push('ipv6 nd suppress-ra');
           if (cfg.m) out.push('ipv6 nd ra managed');
           if (cfg.o) out.push('ipv6 nd ra other-config');
@@ -6819,11 +6832,14 @@ class CliSession {
     if (!canAdvertise) {
       out.push('  Advertise   : unavailable - a device without l3-forward cannot route a prefix');
     } else if (!cfg.enabled) {
-      out.push('  Advertise   : disabled  (ipv6 nd ra enable to start)');
+      out.push('  Advertise   : disabled  (ipv6 nd ra enable, or `no ipv6 nd ra disable`, to start)');
     } else if (cfg.suppress) {
       out.push('  Advertise   : enabled, suppressed  (solicited advertisements only)');
     } else {
-      out.push('  Advertise   : enabled');
+      // The line a fresh device prints. It is on because that is the default, not
+      // because somebody configured it - and a report that does not say so invites
+      // the reader to look for the command that switched it on.
+      out.push('  Advertise   : enabled  (the default; `ipv6 nd suppress-ra` stops the periodic ones)');
     }
     out.push('  Flags       : M=' + (cfg.m ? 1 : 0) + ' O=' + (cfg.o ? 1 : 0) +
       '   router lifetime ' + cfg.routerLifetime + 's' +

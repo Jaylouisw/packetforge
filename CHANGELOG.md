@@ -2,6 +2,21 @@
 
 ### Fixed
 
+- **IPv6 router advertisements are on before anybody asks.** `show ipv6 nd` on a device that had only
+  been given an address answered `Advertise : disabled  (ipv6 nd ra enable to start)`, and SLAAC therefore
+  needed a command no Cisco console teaches: the vendor's `ipv6 nd ra suppress` reference states the
+  Command Default as "IPv6 router advertisements are automatically sent on Ethernet and FDDI interfaces if
+  IPv6 unicast routing is enabled", and `show ipv6 interface` on a freshly addressed port already prints
+  "ND router advertisements are sent every 200 seconds". Advertising is now the default; `ipv6 nd ra
+  disable` and `ipv6 nd suppress-ra` are the two ways off, `enable` answers that the box is already
+  advertising, and only an explicit off reaches `show running-config`. A port that carries no IPv6 address
+  advertises nothing - `linkLocal6()` will derive a link-local for any MAC, so the forwarding path now
+  checks the port rather than trusting the default. `test/ipv6-ra-default.test.js` (19 checks) pins the
+  fresh-router advertisement, the report's wording, the saved off switch, the silent IPv4-only port and
+  `suppress-ra`'s solicited answer;
+  [research/ipv6-ra-default.md](research/ipv6-ra-default.md) cites the four vendor pages and lists what is
+  still open (the 200 s interval, which is not modelled, and prefixes that a box derives from its own
+  addresses rather than from `ipv6 nd prefix`).
 - **A switch's MAC table starts with the twenty rows nobody learned.** `show mac address-table` on a switch
   nobody had configured printed an empty table and `Total Mac Addresses for this criterion: 0`. A real Catalyst
   forwards a fixed set of addresses to its own CPU - CDP's two, the `0180.c200.0000`-`0010` group-address run

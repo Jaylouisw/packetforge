@@ -2188,6 +2188,13 @@ class Simulator {
     // that asks still gets an answer, which is exactly what the command means on
     // real gear. A router that never answers is a router with RAs switched off.
     if (cfg.suppress && o.solicited !== true) return 0;
+    // A port that carries no IPv6 address is not running IPv6 - a router with
+    // `ipv6 unicast-routing` does not advertise on a legacy IPv4 port, and
+    // `linkLocal6()` will happily invent a link-local for any MAC, so this is the
+    // only thing standing between "advertising is the default" and an RA leaving
+    // a port that has no IPv6 configuration at all.
+    const carries6 = dev.ip6Addrs().some(function (e) { return e.name === iface.name; });
+    if (!carries6) return 0;
 
     // A router advertises a prefix on the link it is attached to, not on every
     // port it happens to own. Sending the aa::/64 down the bb link would hand

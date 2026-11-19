@@ -136,7 +136,9 @@ console.log('Each of the eight was stored and printed nowhere - now each changes
       'ip ospf passive'], /^\s+ip ospf cost 20$/m],
     ['BGP', ['router bgp 65001', 'bgp router-id 1.1.1.1', 'neighbor 10.0.0.2 remote-as 65002'],
       /^neighbor 10\.0\.0\.2 remote-as 65002$/m],
-    ['IPv6 router advertisements', ['ipv6 nd ra enable', 'ipv6 nd prefix 2001:db8:1::/64'], /^ipv6 nd ra enable$/m],
+    // Advertising is the default, so `ipv6 nd ra enable` is not a line the printer owns any more: the
+    // half of the policy a config can hold is the off switch, and that is what has to survive a save.
+    ['IPv6 router advertisements', ['ipv6 nd ra disable', 'ipv6 nd prefix 2001:db8:1::/64'], /^ipv6 nd ra disable$/m],
     ['IPv6 addresses', ['interface %P%', 'ipv6 address 2001:db8:1::1/64'], /^\s+ipv6 address 2001:db8:1::1\/64$/m],
     ['IPv6 routes and gateway', ['ipv6 route 2001:db8:2::/64 2001:db8:1::2', 'ipv6 gateway 2001:db8:1::2'],
       /^ipv6 route 2001:db8:2::\/64 2001:db8:1::2$/m]
