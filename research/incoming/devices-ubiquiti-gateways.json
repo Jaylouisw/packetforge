@@ -94,14 +94,18 @@
       "dhcp-server",
       "dhcp-client",
       "cli",
-      "http-server"
+      "http-server",
+      "poe-pse",
+      "802.3at"
     ],
     "interfaces": [
       {
         "name": "eth0",
         "type": "ethernet",
         "connector": "rj45",
-        "speed": "2.5G"
+        "speed": "2.5G",
+        "poeOut": 30,
+        "poeOutClass": "PoE+"
       },
       {
         "name": "eth1",
@@ -154,7 +158,12 @@
       }
     ],
     "sourceUrl": "https://techspecs.ui.com/unifi/cloud-gateways/uxg-fiber",
-    "notes": "Vendor figures: 2.5GbE RJ45 x4 (2.5G/1G/100M/10M), 10GbE RJ45 x1 (10G/2.5G/1G), 10G SFP+ x2 (10G/1G); IDS/IPS throughput 5 Gbps. The 10G cage is the WAN port on the vendor's default profile, but all ports are assignable."
+    "notes": "Vendor figures: 2.5GbE RJ45 x4 (2.5G/1G/100M/10M), 10GbE RJ45 x1 (10G/2.5G/1G), 10G SFP+ x2 (10G/1G); IDS/IPS throughput 5 Gbps. The 10G cage is the WAN port on the vendor's default profile, but all ports are assignable. PoE out: one of the four 2.5G RJ45 ports is a 30 W 802.3at PSE, budget 30 W - the vendor states the budget, the per-port ceiling and the count, but not which port, so eth0 carries it (convention documented in devices/ubiquiti/ucg-fiber.json).",
+    "poe": {
+      "budgetW": 30,
+      "sourceUrl": "https://techspecs.ui.com/unifi/cloud-gateways/uxg-fiber",
+      "note": "PoE Budget = 30W and Max. PoE Wattage per Port by PSE = PoE+ 30W (techspecs, read 2026-11-19); \"Integrated 4-port switch with (1) PoE+ port\", displaySku \"UXG-Fiber (30W)\" (store.ui.com/us/en/products/uxg-fiber). The vendor does not number the PoE+ port; eth0 carries it, the same convention as devices/ubiquiti/ucg-fiber.json."
+    }
   },
   {
     "vendor": "ubiquiti",

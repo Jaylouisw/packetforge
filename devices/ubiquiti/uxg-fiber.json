@@ -11,7 +11,9 @@
     "dhcp-server",
     "dhcp-client",
     "cli",
-    "http-server"
+    "http-server",
+    "poe-pse",
+    "802.3at"
   ],
   "interfaces": [
     {
@@ -19,7 +21,9 @@
       "type": "ethernet",
       "connector": "rj45",
       "speed": "2.5G",
-      "poeIn": false
+      "poeIn": false,
+      "poeOut": 30,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "eth1",
@@ -76,5 +80,10 @@
     }
   ],
   "sourceUrl": "https://techspecs.ui.com/unifi/cloud-gateways/uxg-fiber",
-  "notes": "Vendor figures read 2026-11-19 from techspecs.ui.com/unifi/cloud-gateways/uxg-fiber (HTTP 200, 649,433 B): Port Layout = 2.5 GbE RJ45 x4 (2.5G/1G/100M/10M), 10 GbE RJ45 x1 (10G/2.5G/1G), 10G SFP+ x2 (10G/1G); Max. WAN Port Count 6, Default WAN Ports (1) 10G SFP+ / (1) 10 GbE RJ45, IDS/IPS Throughput 5 Gbps, Form Factor compact desktop (212.8 x 127.6 x 30 mm), Max. Power Consumption 25 W excluding PoE output, Power Method = DC jack (54V DC/1.1A), Power Supply 54V DC/1.1A adapter included, Supported Voltage Range 100-240V AC, Heat Dissipation 85 BTU/hr excluding PoE output, Processor quad-core ARM Cortex-A73 at 2.2 GHz.\nPower in: DC jack, no PoE input. All seven interfaces say poeIn: false so isPoePd()'s \"unifi\" match cannot draw 12.95 W on each of the five copper sockets (64.75 W) on a box fed by a 54 V DC jack.\nOpen field, deliberately left unmodelled: this gateway does source PoE. techspecs prints PoE Budget 30 W and Max. PoE Wattage per Port by PSE = PoE+ 30 W at 50-57 V, and store.ui.com/us/en/products/uxg-fiber (HTTP 200, 476,760 B) says \"Integrated 4-port switch with (1) PoE+ port\" - so one of the four 2.5G RJ45 ports is a 30 W PSE. The vendor does not say which of the four, and publishes no datasheet to check (the store payload carries datasheet: null; dl.ui.com/ds/uxg-fiber_ds.pdf lands on the 609,911-byte techspecs front page). Naming a port would be a guess, and declaring the 30 W budget with no PSE port fails test/poe-inference.test.js (\"a device that claims a budget with no port to source it\"), so neither is written. What would close it: a Ubiquiti diagram or QSG that numbers the PoE+ port, or the datasheet."
+  "notes": "Vendor figures read 2026-11-19 from techspecs.ui.com/unifi/cloud-gateways/uxg-fiber (HTTP 200, 649,433 B): Port Layout = 2.5 GbE RJ45 x4 (2.5G/1G/100M/10M), 10 GbE RJ45 x1 (10G/2.5G/1G), 10G SFP+ x2 (10G/1G); Max. WAN Port Count 6, Default WAN Ports (1) 10G SFP+ / (1) 10 GbE RJ45, IDS/IPS Throughput 5 Gbps, Form Factor compact desktop (212.8 x 127.6 x 30 mm), Max. Power Consumption 25 W excluding PoE output, Power Method = DC jack (54V DC/1.1A), Power Supply 54V DC/1.1A adapter included, Supported Voltage Range 100-240V AC, Heat Dissipation 85 BTU/hr excluding PoE output, Processor quad-core ARM Cortex-A73 at 2.2 GHz.\nPower in: DC jack, no PoE input. All seven interfaces say poeIn: false so isPoePd()'s \"unifi\" match cannot draw 12.95 W on each of the five copper sockets (64.75 W) on a box fed by a 54 V DC jack.\nPoE out: the gateway does source power, and it is now written. The tech-spec table prints \"PoE Budget = 30W\", \"Max. PoE Wattage per Port by PSE = PoE+ 30W\" and \"Voltage Range PoE Mode = 50-57V\", and store.ui.com/us/en/products/uxg-fiber (HTTP 200, 476,892 B, displaySku \"UXG-Fiber (30W)\") says \"Integrated 4-port switch with (1) PoE+ port\". Neither host numbers the port, so eth0 carries it - the same convention as devices/ubiquiti/ucg-fiber.json, the Cloud Gateway Fiber twin of this box, which records the identical 30 W / one-PoE+ census; the count and class are the vendor's, only the numbering is ours. Before this the row declared no poe-pse and no budget, so `show power inline` refused and the allocator could not power one AP from a box the vendor says can power one. Still not modelled, and not because of a missing source: no datasheet exists for this SKU (the store payload carries datasheet: null and dl.ui.com/ds/uxg-fiber_ds.pdf lands on the 609,911-byte techspecs front page), so the per-port ceiling comes from the rendered table rather than a PDF.",
+  "poe": {
+    "budgetW": 30,
+    "sourceUrl": "https://techspecs.ui.com/unifi/cloud-gateways/uxg-fiber",
+    "note": "30 W, the vendor's whole published budget: the tech-spec table prints \"PoE Budget = 30W\", \"Max. PoE Wattage per Port by PSE = PoE+ 30W\" and \"Voltage Range PoE Mode = 50-57V\" (https://techspecs.ui.com/unifi/cloud-gateways/uxg-fiber, HTTP 200, 649,433 B, read 2026-11-19), and the store page for the same SKU states the count and class in prose: \"Integrated 4-port switch with (1) PoE+ port\", displaySku \"UXG-Fiber (30W)\" (https://store.ui.com/us/en/products/uxg-fiber, HTTP 200, 476,892 B, read 2026-11-19). Neither host numbers the port, so eth0 carries it - the same placement convention as devices/ubiquiti/ucg-fiber.json, the Cloud Gateway Fiber twin of this box, which records the identical 30 W / one-PoE+ census. The numbering is a convention; the count (1), the class (802.3at) and the ceiling (30 W) are the vendor's. One 802.3at port at its ceiling exactly consumes the budget, so it never binds above a single full-power AP."
+  }
 }
