@@ -21,6 +21,19 @@
 //         %Default VLAN 1002 may not be deleted.
 //     research/default-vlan-refusal-wording.md collects the four independent transcripts.
 //
+// The *rename* refusal is the same family and was never sourced here: this suite used to accept any line
+// saying "cannot be renamed", which is what the console said in its own words. IOS says
+//         VTP-Switch-1(config)#vlan 1
+//         VTP-Switch-1(config-vlan)#name TEST
+//         Default VLAN 1 may not have its name changed.
+// (HowToNetwork "VTP and VLANs Explained", https://www.howtonetwork.com/technical/protocols/vtp/; a CCNA
+// exam bank quotes the same error, and a Cisco Community thread has it as its subject line,
+// https://community.cisco.com/t5/switching/issue-default-vlan-1-may-not-have-its-name-changed/td-p/3094819).
+// The leading `%` is the one character the direct captures of this line omit while both its siblings carry it -
+// `%Default VLAN 1 may not be deleted.` on four boxes and `%Default VLAN 1 may not have its operational
+// state changed.` on a 2960G - so the family's form is printed and the gap is recorded in
+// research/default-vlan-rename-wording.md.
+//
 //   https://www.cisco.com/c/en/us/td/docs/switches/lan/c9000/lyr2-fwd/vlan/vlan-configuration-guide/configure-vlan.html
 //   http://cisco.com/c/en/us/td/docs/switches/lan/catalyst2960/software/release/12-2_55_se/configuration/guide/scg_2960/swvlan.html
 //   https://www.cisco.com/c/en/us/td/docs/switches/lan/catalyst4500/12-2/52sg/configuration/guide/config/vlans.pdf
@@ -129,7 +142,9 @@ console.log('The name of the default VLAN cannot be changed:');
   const env = lab();
   const out = env.run(['vlan 1 name Corp']);
   ok(out.length === 1 && /^%/.test(out[0]), '`vlan 1 name Corp` is refused', JSON.stringify(out));
-  ok(/cannot be renamed/.test(out[0]), 'and says why - VLAN 1 cannot be renamed', out[0]);
+  // Byte-for-byte: no reason, no suggestion, no quoted name - the sentence is the vendor's and nothing is added.
+  ok(out[0] === '%Default VLAN 1 may not have its name changed.',
+    'in the vendor\'s sentence, one line, with no explanation appended', out[0]);
   ok(/default/.test(env.vlanRow1()), 'the name is still "default"', env.vlanRow1());
   ok(!env.d.config.vlans || !env.d.config.vlans[1], 'and nothing was stored', JSON.stringify(env.d.config.vlans));
 

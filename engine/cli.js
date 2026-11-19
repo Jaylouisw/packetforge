@@ -1286,8 +1286,20 @@ class CliSession {
       // door already knew this (`_createVlanForPort` refuses to make VLAN 1, and `vlan-auto-create` asserts
       // it); the console door did not.
       if (id === vlanLib.VLAN_DEFAULT) {
+        // Renaming the default VLAN is refused in the vendor's own words, as one line with no reason and no
+        // suggestion: "Default VLAN 1 may not have its name changed." Five captures carry that sentence - a
+        // 2960-class lab (`vlan 1` then `name TEST`), a CCNA exam question that quotes the error, a lab record,
+        // a Packet Tracer exercise, and a Cisco Community thread whose subject line is the message itself - and
+        // one sibling from the same family is a real box's paste, `%Default VLAN 1 may not have its operational
+        // state changed.` (a 2960G). The console used to describe the box instead ("% VLAN 1 is the default
+        // VLAN: it cannot be renamed (its name is "default")"), which is a sentence no switch prints and reads
+        // as an answer to a question about the name. What was *not* settled is the leading `%`: the direct
+        // captures of the name line start at `Default`, while both its siblings carry `%Default ...` with no
+        // space after the `%`. The family's form is printed, because the words are the vendor's and the prefix
+        // is the one the deletion refusal (`%Default VLAN 1 may not be deleted.`) and this console's error
+        // style both use; research/default-vlan-rename-wording.md records the gap and what would close it.
         if (text && text.toLowerCase() !== 'default') {
-          return ['% VLAN 1 is the default VLAN: it cannot be renamed (its name is "default")'];
+          return ['%Default VLAN 1 may not have its name changed.'];
         }
         return ['VLAN 1 is the default VLAN: it already exists (name: default), so there was nothing to create'];
       }

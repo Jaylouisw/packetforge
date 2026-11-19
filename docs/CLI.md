@@ -364,10 +364,23 @@ sentence — `%Default VLAN 1 may not be deleted.`, with no space after the `%` 
 `% VLAN 1 does not exist`, which was a denial of the one VLAN that is certainly there. The sentence is printed
 verbatim, with nothing added: it is the string an operator sees on a real switch, and a script that matches the
 refusal has to find it here too (the transcripts are in `research/default-vlan-refusal-wording.md`; the reason
-the rule exists is this paragraph, not a console line no switch prints). Neither can the name be changed. Every vendor documents the same rule: the Catalyst 2960 configuration guide says VLAN IDs 1 and 1002
-to 1005 "are automatically created and cannot be removed", the Nexus 3548 layer 2 guide says "VLAN1 is the
-default VLAN and cannot be created or deleted", and a real IOS XE switch answers `no vlan 1` with
-`%Default VLAN 1 may not be deleted.`
+the rule exists is this paragraph, not a console line no switch prints).
+
+Neither can the name be changed. Every vendor documents the rule - the Catalyst 2960 configuration guide says
+VLAN IDs 1 and 1002 to 1005 "are automatically created and cannot be removed", the Catalyst 9000 VLAN guide
+says "You cannot delete or rename VLAN 1", and the Nexus 3548 layer 2 guide says "VLAN1 is the default VLAN
+and cannot be created or deleted" - and `vlan 1 name Corp` is refused in the sentence IOS prints for it:
+
+```
+%Default VLAN 1 may not have its name changed.
+```
+
+A 2960-class lab capture gives the line under `name TEST` in the VLAN sub-mode, a CCNA exam question quotes the
+error verbatim, and a Cisco Community thread has it as its subject line; `research/default-vlan-rename-wording.md`
+collects the attestations and records the one character they disagree on - the leading `%`, which both sibling
+sentences of the same message family carry. The console used to answer with a sentence of its own making,
+`% VLAN 1 is the default VLAN: it cannot be renamed (its name is "default")`, which described the box rather
+than refusing the command and added a reason no switch prints.
 
 **A VLAN name is 1 to 32 characters, and that 32 is the width of the `show vlan` Name column.** The two are
 one fact: the table has a 32-character cell, so a longer name can only be printed by shoving `Status` and the
