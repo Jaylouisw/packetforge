@@ -11,13 +11,21 @@
     "dhcp-server",
     "dhcp-client",
     "cli",
-    "http-server"
+    "http-server",
+    "poe-pse",
+    "802.3at"
   ],
   "interfaces": [
     {
       "name": "WAN",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "rj45",
+      "speedCaps": [
+        "10G",
+        "2.5G",
+        "1G"
+      ]
     },
     {
       "name": "SFP+ 1",
@@ -42,7 +50,9 @@
     {
       "name": "Port 1",
       "type": "ethernet",
-      "speed": "2.5G"
+      "speed": "2.5G",
+      "poeOut": 30,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "Port 2",
@@ -61,5 +71,11 @@
     }
   ],
   "icon": "router",
-  "color": "#3b82f6"
+  "color": "#3b82f6",
+  "sourceUrl": "https://techspecs.ui.com/unifi/cloud-gateways/ucg-fiber",
+  "poe": {
+    "budgetW": 30,
+    "sourceUrl": "https://store.ui.com/us/en/products/ucg-fiber",
+    "note": "30 W, and one PSE port. The rendered tech-spec table prints the budget without naming a port - \"PoE Budget = 30W\" and \"Voltage Range PoE Mode = 50-57V\" beside \"2.5 GbE RJ45 = 4 (2.5G/1G/100M/10M) / 10 GbE RJ45 = 1 (10G/2.5G/1G) / 10G SFP+ = 2 (10G/1G)\", and its 'Max. PoE Wattage per Port by PSE' group is present but empty (https://techspecs.ui.com/unifi/cloud-gateways/ucg-fiber, read 2026-11-19); the 'Port 1 PoE+' reading in research/ubiquiti-cloud-gateway-poe-budgets.md therefore recorded the budget and left the row without a PSE. The vendor's own store page for the same SKU (displaySku \"UCG-Fiber (30W)\") states the class and the count in its key features: \"Integrated 4-port switch with (1) PoE+ port\" (https://store.ui.com/us/en/products/ucg-fiber, read 2026-11-19). So one of the four 2.5G RJ45 ports is 802.3at. Which one is not published on either host, so Port 1 carries it - the same convention as devices/zyxel/gs1900-24ep.json, where the datasheet gives the count and the guide withholds the numbering. 30 W budget = one 802.3at port at its 30 W PSE ceiling, so the budget never binds above a single full-power AP."
+  }
 }

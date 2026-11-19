@@ -28,7 +28,7 @@ not a scraped sentence), 2026-11-19.
 | UDR7 | 694,473 | `15.4W` | `2.5 GbE RJ45 = 4 (1 PoE)`; `PoE = 15.4W`; `44-57V` | poe-pse, 1 `poeOut`, **no budget** |
 | UDM-SE | 682,201 | `180W` | `8` copper; `PoE = 15.4W`, `PoE+ = 30W` | poe-pse, 8 `poeOut`, **no budget**, **no `sourceUrl` at all** |
 | UCG-Industrial | 699,330 | `DC input: 270W` / `ATX power: 75W` | `2.5 GbE RJ45 = 4 (2 PoE+++, 2 PoE+)`, `10 GbE RJ45 = 1 (PoE+++)`; `PoE+ = 30W`, `PoE+++ = 90W` | poe-pse, 5 `poeOut`, **no budget** |
-| UCG-Fiber | 667,145 | `30W` | **no interface row marks a port PoE** | no `poeOut`, no `poe-pse` - left alone |
+| UCG-Fiber | 667,242 | `30W` | **no interface row marks a port PoE**; the store page states `(1) PoE+` (added 2026-11-19) | no `poeOut`, no `poe-pse` -> now 30 W, 1 PSE on Port 1 |
 | UDW | 704,702 | `420W` | `1 GbE RJ45 = 17 (4 PoE++; 4 PoE+; 4 PoE)` | 420 W, modelled |
 | UDR-5G-Max | - | `15.4W` | `2.5 GbE RJ45 = 4 (1 PoE)` | 15.4 W, modelled 2026-11-19 |
 | EF-Core, EFG, UCG-Max, UCG-Ultra, UDM, UDM-Pro, UDM-Pro-Max, UDM-Beast, UX, UX7 | - | none printed | no PoE row | no PSE, nothing to add |
@@ -60,17 +60,41 @@ mixed-class box - UDM-SE is 6 PoE at 15.4 W plus 2 PoE+ at 30 W. On UCG-Industri
 is worth recording: 3 x 90 W + 2 x 30 W is 330 W against a 270 W budget, so the budget is what stops
 a full-power fill; it is not a sum of the ports and the row must not be "corrected" to one.
 
-## What was deliberately left, and the exact missing field
+## The one row that was left open, and how a later pass closed it
 
-**UCG-Fiber** publishes `PoE Budget = 30W` on the same table and marks **no** port PoE in it
-(`2.5 GbE RJ45 = 4`, `10 GbE RJ45 = 1`, no parenthetical class anywhere). Its document list holds
-only `{"type":"InstallationGuide","url":"https://ui.com/qig/ucg-fiber"}` - no datasheet - and the
-guessed datasheet slugs (`dl.ui.com/ds/ucg-fiber.pdf`, `ucg-fiber_ds.pdf`, `ucgf_ds.pdf`) all
-answer 302 to the techspecs root. Writing `poe.budgetW` with no `poeOut` port would create exactly
-the condition `scripts/audit-poe-budget.js` refuses (`Budget with no PSE port`), and writing
-`poeOut` on a port the vendor has not marked would be an invented field. The missing fact is
-precise: **which of the five RJ45 ports on the UCG-Fiber source PoE, and at which class**. One
-Ubiquiti datasheet or spec row that says so unblocks it.
+**UCG-Fiber** - resolved 2026-11-19, one pass after it was written off here. The rendered table
+prints `PoE Budget = 30W` and `Voltage Range PoE Mode = 50-57V` beside
+`2.5 GbE RJ45 = 4 (2.5G/1G/100M/10M)` / `10 GbE RJ45 = 1 (10G/2.5G/1G)` /
+`10G SFP+ = 2 (10G/1G)`, and marks no port PoE; its `Max. PoE Wattage per Port by PSE` group is
+present but empty. Its document list holds only `{"type":"InstallationGuide","url":"https://ui.com/qig/ucg-fiber"}`
+- no datasheet - and the guessed datasheet slugs (`dl.ui.com/ds/ucg-fiber.pdf`, `ucg-fiber_ds.pdf`,
+`ucgf_ds.pdf`) all answer 302 to the techspecs root.
+
+What earlier passes missed is that the **store product page** for the same SKU carries a spec the
+tech-spec table does not: `https://store.ui.com/us/en/products/ucg-fiber` (HTTP 200, 595,865 B,
+server-rendered; `displaySku` `UCG-Fiber (30W)`), whose `keyFeatures` HTML reads
+
+```
+(1) 10G SFP+ and (1) 10 GbE RJ45 WAN port
+(1) 10G SFP+ LAN port
+Integrated 4-port switch with (1) PoE+ port
+```
+
+So the missing fact this document named - *which class, and how many ports* - is published: **one
+PoE+ (802.3at) port among the four 2.5 GbE RJ45 ports**. What is still not published on either host
+is *which port number*; that is a placement convention, not a hardware field, and Port 1 carries it
+(the same treatment `devices/zyxel/gs1900-24ep.json` gives a datasheet that gives a count and not a
+numbering). 30 W budget = one 802.3at port at its 30 W PSE ceiling, so the budget never binds above
+a single full-power AP.
+
+Written into `devices/ubiquiti/ucg-fiber.json`: `poe-pse` + `802.3at` in `capabilities`,
+`poeOut: 30` / `poeOutClass: PoE+` on Port 1, `poe.budgetW = 30` sourced to the store page, and the
+row's first `sourceUrl` (`techspecs.ui.com/unifi/cloud-gateways/ucg-fiber`); the 10G RJ45 WAN port
+also gained `connector: rj45` and `speedCaps: [10G, 2.5G, 1G]`, since a bare `ethernet` at 10G is
+the shape that reads as a socket nothing can seat. `UCG-Max` and `UCG-Ultra` - the other two rows
+this request falls back into - gained the `sourceUrl` they never had
+(`techspecs.ui.com/unifi/cloud-gateways/ucg-max`, `.../ucg-ultra`); their censuses needed no change
+(5x 2.5G RJ45 on the Max, 1x 2.5G + 4x 1G on the Ultra, both matching the rendered table).
 
 ## Method notes worth keeping
 
@@ -83,3 +107,4 @@ Ubiquiti datasheet or spec row that says so unblocks it.
   UDM-SE -> `dl.ui.com/ds/udm_se_ds.pdf`).
 - UDM-SE carried no `sourceUrl`, so every field in that row was untraceable - the provenance gap
   and the budget gap were in the same file.
+- The **store** product page is a second vendor surface, not a reseller listing: `store.ui.com/{store}/en/products/<slug>` renders server-side and its `keyFeatures` HTML names port classes the tech-spec table omits (UCG-Fiber's `(1) PoE+ port`). Reads taken from `store.ui.com` before this were only ever used as 404 tests, which is why the class sat unread for a pass.
