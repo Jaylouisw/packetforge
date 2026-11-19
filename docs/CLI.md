@@ -2407,11 +2407,11 @@ The table is ordered by number rather than as strings, so groups read `2, 10, 10
 ```
 sw1#show power inline
 Available:25.0(w) Used:13.0(w) Remaining:12.0(w)
-Interface  Admin  Oper  Draw     Powered device
-1/1/1      auto   on    12.95 W  PD1
-1/1/2      auto   off   12.95 W  PD2  (denied)
-1/1/3      auto   off   -        the far end is not a powered device
-1/1/4      auto   off   -        administratively down
+Interface  Admin  Oper       Draw     Powered device
+1/1/1      auto   on         12.95 W  PD1
+1/1/2      auto   power-deny 0.0 W    PD2
+1/1/3      auto   off        -        the far end is not a powered device
+1/1/4      auto   off        -        administratively down
 22 ports with nothing plugged in: 1/1/5, 1/1/6, 1/1/7, 1/1/8, 1/1/9 (+17 more)
   1/1/2: PSE budget exhausted: 12.95 W requested, 12.05 W left
 ```
@@ -2423,8 +2423,13 @@ ones an operator is usually asking about. The summary line is the box's own: a s
 and `Remaining` is `Available - Used` on the printed values (`research/show-power-inline-summary-line.md`).
 It is the device's, so `show power inline <port>` does not print it:
 
-* `denied` means the device asked and the budget could not supply it; the sentence under the table is the same
-  one the timeline emitted for the `poe-deny` event, not a re-rendering of the same arithmetic;
+* `Oper` carries the vendor's four operating states — `on`, `off`, `faulty`, `power-deny` — so a port that
+  **detected a powered device and could not supply it** reads `power-deny`, not `off`: the field table defines
+  `off` as "No PoE is applied", the word a socket with nothing on it prints, and the two are different answers
+  to "is anything out there". `Draw` on such a row is `0.0 W`, because the column is the power **allocated**;
+  what the device asked for is in the sentence under the table, which is the same one the timeline emitted for
+  the `poe-deny` event rather than a re-rendering of the same arithmetic
+  (`research/show-power-inline-power-deny.md`);
 * `Admin` is the port's PoE **administration mode**, not the link's: the vendor's field table reads
   "Administration mode: auto, off, static", `auto` is the factory default, and `off` is what
   `power inline never` leaves behind. This console has no `power inline` command, so every PSE port is `auto` —

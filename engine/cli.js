@@ -5594,9 +5594,18 @@ class CliSession {
       const p = byIface.get(i.name);
       const admin = this._poeAdminMode(i);
       if (p) {
-        const draw = (Math.round((p.draw || 0) * 100) / 100) + ' W';
-        rows.push(pad(i.name, 11) + pad(admin, 7) + pad(p.powered ? 'on' : 'off', 6) + pad(draw, 9) +
-          nameOf(p.pd) + (p.powered ? '' : '  (denied)'));
+        // A port that detected a powered device and could not give it power is in the vendor's fourth
+        // Oper state: `power-deny` - "a powered device is detected, but no PoE is available" - and not in
+        // `off`, which the same field table defines as "No PoE is applied" and which a box prints for a
+        // socket with nothing on it. The two words answer different questions (is anything out there?), so a
+        // refused port printed `off` read exactly like an empty one. The Power cell is the power ALLOCATED,
+        // and a refusal allocates none: the box prints 0.0 there, and the figure the device asked for belongs
+        // to the sentence under the table, where the budget arithmetic is stated.
+        //   https://www.cisco.com/c/en/us/td/docs/switches/lan/catalyst2960x/software/15-2_7_e/command_reference/b_1527_2960x_cr/interface_and_hardware_commands.html
+        //   research/show-power-inline-power-deny.md
+        const oper = p.powered ? 'on' : 'power-deny';
+        const draw = p.powered ? (Math.round((p.draw || 0) * 100) / 100) + ' W' : '0.0 W';
+        rows.push(pad(i.name, 11) + pad(admin, 7) + pad(oper, 11) + pad(draw, 9) + nameOf(p.pd));
         if (p.powered) supplied += p.draw || 0;
         continue;
       }
@@ -5621,7 +5630,7 @@ class CliSession {
         idle.push(i.name);
         continue;
       }
-      rows.push(pad(i.name, 11) + pad(admin, 7) + pad('off', 6) + pad('-', 9) + why);
+      rows.push(pad(i.name, 11) + pad(admin, 7) + pad('off', 11) + pad('-', 9) + why);
     }
 
     // The budget summary is the box's first line, above the port table, in the box's own words and unit.
@@ -5644,7 +5653,10 @@ class CliSession {
       out.push('Available:' + watts(avail) + ' Used:' + watts(used) +
         ' Remaining:' + watts(avail - used));
     }
-    out.push(pad('Interface', 11) + pad('Admin', 7) + pad('Oper', 6) + pad('Draw', 9) + 'Powered device');
+    // `Oper` is eleven characters wide, the width the box's own heading holds: "power-deny" is ten
+    // characters and would otherwise push the columns behind it one word out of line on exactly the rows
+    // that are hardest to read.
+    out.push(pad('Interface', 11) + pad('Admin', 7) + pad('Oper', 11) + pad('Draw', 9) + 'Powered device');
     out.push.apply(out, rows);
     if (idle.length) {
       out.push(idle.length + ' port' + (idle.length === 1 ? '' : 's') + ' with nothing plugged in: ' +

@@ -93,8 +93,28 @@ console.log('A real allocation is reported port by port:');
   // console names the powered device, not that it invents one.
   ok(out.some(function (l) { return /^1\/1\/1\s+auto\s+on\s+12\.95 W\s+PDA/.test(l); }),
     'the powered port shows its device and its draw', JSON.stringify(out.slice(0, 3)));
-  ok(out.some(function (l) { return /^1\/1\/2\s+auto\s+off\s+12\.95 W\s+PDB\s+\(denied\)/.test(l); }),
-    'the denied port is marked denied', JSON.stringify(out.slice(0, 3)));
+  // A refused port is in the vendor's fourth Oper state, `power-deny` - "a powered device is detected, but
+  // no PoE is available" - and the Power cell is the power allocated, which is none. It used to read
+  // `off` (the word for a socket with nothing on it) with the request still printed as if it had been
+  // given, which made the hardest row in the table read like an empty port drawing 12.95 W.
+  //   research/show-power-inline-power-deny.md
+  ok(out.some(function (l) { return /^1\/1\/2\s+auto\s+power-deny\s+0\.0 W\s+PDB\s*$/.test(l); }),
+    'the refused port is in `power-deny` and draws 0.0 W', JSON.stringify(out.slice(0, 3)));
+  // ...and the word belongs to that state alone: a powered port is `on`, a port with no powered device and a
+  // shut port are `off`, so the change cannot pass by spraying `power-deny` over the table.
+  const operOf = {};
+  for (const l of out) {
+    const m = /^(1\/1\/\d+)\s+(\S+)\s+(\S+)\s+/.exec(l);
+    if (m) operOf[m[1]] = m[3];
+  }
+  ok(operOf['1/1/1'] === 'on', 'a powered port reads `on`', JSON.stringify(operOf));
+  ok(operOf['1/1/2'] === 'power-deny', 'the refused one reads `power-deny`', JSON.stringify(operOf));
+  ok(operOf['1/1/3'] === 'off', 'a port cabled to a non-PD reads `off`', JSON.stringify(operOf));
+  ok(operOf['1/1/4'] === 'off', 'and so does a shut port', JSON.stringify(operOf));
+  // The request is not lost: the sentence under the table still carries it.
+  ok(/^\s+1\/1\/2: PSE budget exhausted: 12\.95 W requested, /.test(out.filter(function (l) { return /1\/1\/2:/.test(l); })[0] || ''),
+    'the watts the device asked for are in the denial sentence below the table',
+    JSON.stringify(out.filter(function (l) { return /1\/1\/2:/.test(l); })));
   ok(out.some(function (l) { return /^1\/1\/3\s+auto\s+off\s+-\s+the far end is not a powered device/.test(l); }),
     'a port cabled to something that is not a powered device says so', JSON.stringify(out));
   ok(out.some(function (l) { return /^1\/1\/4\s+auto\s+off\s+-\s+administratively down/.test(l); }),

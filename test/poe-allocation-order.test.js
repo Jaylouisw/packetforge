@@ -104,8 +104,10 @@ ok(/12\.95 W requested, 12\.94 W left/.test(deniedShort[0].reason),
 console.log('\nThe console reports the same allocation:');
 const out = runCommands(b5.sw, b5.t, sim5, ['enable', 'show power inline']).output;
 ok(/1\/1\/2\s+auto\s+on/.test(out), 'the port that is powered reads `on`');
-ok(/1\/1\/10\s+auto\s+off/.test(out), 'and the one that lost out reads `off`');
-ok(/denied/.test(out), 'with the denial flagged, as the panel flags it');
+ok(/1\/1\/10\s+auto\s+power-deny/.test(out),
+  'and the one that lost out reads `power-deny`, the vendor\'s word for a detected device it cannot supply');
+ok(/1\/1\/10:\s+PSE budget exhausted/.test(out),
+  'with the denial sentence, which the panel and the timeline each carry too');
 
 console.log('\n' + passed + ' passed, ' + failed + ' failed');
 process.exit(failed ? 1 : 0);
