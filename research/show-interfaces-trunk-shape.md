@@ -11,9 +11,10 @@ issue and changes no engine code: step 2 of that plan is a new view and needs Ja
 trunk": **only ports that are operationally trunking are listed**, and a switch with none answers with no
 output at all — not an empty header. The *shape* half is settled for a trunking port by two IOS XE command
 references whose spacing survives extraction, and they agree on every column start; a named interface is a
-different question and prints the four blocks even when the port is not trunking. Two things are **not**
-settled: the word in the `Status` column for a named but non-trunking port (`not-trunking` in one reference,
-`other` in three others, the same sample carried forward), and whether a long VLAN list wraps.
+different question and prints the four blocks even when the port is not trunking. The word in the `Status`
+column for a named but non-trunking port, listed here as **not** settled, is settled in
+`research/show-interfaces-trunk-status-word.md` — `not-trunking` on an up port, `other` on a port whose link is
+not up — so the one thing left open below is whether a long VLAN list wraps.
 
 ## The shape, character for character
 
@@ -190,7 +191,7 @@ link-state question above, and it would drop this port from the table exactly as
 
 | question | state | evidence that would settle it |
 | --- | --- | --- |
-| `Status` word for a named port that is not trunking | **contradictory.** `not-trunking` (9600 17.7) vs `other` (3850 16.12, 9200 17.9, 9300 17.15 — one sample copy-pasted across three references, so not three witnesses) | one `show interfaces <shut-or-DTP-pending-trunk> trunk` capture from a real box, plus one from a routed port |
+| `Status` word for a named port that is not trunking | **settled** in `research/show-interfaces-trunk-status-word.md`: `not-trunking` on an up port that is not trunking, `other` on a port whose link is not up. The 9600/9300 pair looked contradictory because the two samples are two different port states | a port that is up, configured as a trunk and still not trunking — the one state that would separate the two readings; it changes no word this model can print |
 | does a long allowed list wrap, and at what width/indent | **unresolved.** One community capture prints a ~200-character allowed list on a single line with no wrap (<https://community.cisco.com/t5/switching/show-intferaces-trunk-command/m-p/1322816>); no capture found at a narrow terminal | a capture on an 80-column session with >20 VLANs allowed, plus the same on `show vlan`'s Ports column for comparison |
 | is "no output" literal (zero bytes) when nothing trunks | **inferred-high** from the CR sentence and three teaching captures; no direct vendor statement | `show interfaces trunk` on a factory-default switch, `wc -c` |
 | section-header field width in older IOS (10 vs 12) | **doc noise.** The 12.2 4500 guide is internally inconsistent (10-wide section 2 header, single-spaced row); XE references agree on 12 | a preserved-space capture from a 12.2 box |
@@ -207,9 +208,10 @@ link-state question above, and it would drop this port from the table exactly as
 5. Each of blocks 2-4 is preceded by a blank line, is headed by `Port` + eight spaces + the section title, and
    prints one row per port already listed in block 1.
 6. An empty list is the cell word `none`, per row per block, never a suppressed row.
-7. `Mode` is the administrative mode (`on`, `auto`, `desirable`); `Status` is the operational word, and which
-   word a non-trunking named port gets is the open question above — do not print either candidate until a
-   capture lands.
+7. `Mode` is the trunk mode (`on`, `auto`, `desirable`, `off` for a static access port — not `static access`,
+   which is `show interfaces switchport`'s word). `Status` is `trunking` when the link is up and the port
+   trunks, `not-trunking` when the link is up and it does not, `other` when the link is not up
+   (`research/show-interfaces-trunk-status-word.md`).
 8. `Encapsulation` is `802.1q` when hard-set; the `n-` prefix belongs to a negotiated encapsulation and this
    model has no DTP, so no `n-` can be honest here yet.
 9. A port-channel is one row named `Po<N>`; members never get rows of their own.

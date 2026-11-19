@@ -110,7 +110,9 @@ Steps 1, 3, 4 and 5 stand alone; 2 depends on 1, and 3 is only observable once 2
   access port measured `status: up, protocol: up`. Section 1's Status column must either say `not-trunking`
   from `framesCompatible()` (`vlan.js:708-736`) or print only the configured mode; printing `trunking` for a
   link that carries nothing would be a new lie in the place operators look first. Step 1 settles which, and
-  step 2 needs Jay because it is a claim about state, not a rendering.
+  step 2 needs Jay because it is a claim about state, not a rendering. `research/show-interfaces-trunk-status-word.md`
+  has since done it: the vendor's column is `trunking` / `not-trunking` (up, not trunking) / `other` (link not
+  up), from five real captures, so the word comes from `dev.ifaceStatus()` and not from `framesCompatible()`.
 - **Row set.** If the vendor's table lists only operational trunks, a switch whose one trunk is shut prints
   an empty table — correct, and alarming. Pin it in step 1 rather than discovering it in review.
 - **Reserved VLANs.** `allowedVlans: 'all'` expands to 1-4094 and the four media defaults sit inside any
