@@ -15,7 +15,8 @@
     "poe-pse",
     "802.3bt",
     "802.3at",
-    "802.3af"
+    "802.3af",
+    "wireless"
   ],
   "interfaces": [
     {
@@ -265,6 +266,22 @@
         "10G",
         "1G"
       ]
+    },
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "300M",
+      "bands": [
+        "2.4"
+      ]
+    },
+    {
+      "name": "radio1",
+      "type": "wireless",
+      "speed": "2.4G",
+      "bands": [
+        "5"
+      ]
     }
   ],
   "icon": "router",
@@ -274,5 +291,5 @@
     "sourceUrl": "https://techspecs.ui.com/unifi/cloud-gateways/udw"
   },
   "sourceUrl": "https://techspecs.ui.com/unifi/cloud-gateways/udw",
-  "notes": "Power: none of these copper ports accepts PoE. Vendor page https://techspecs.ui.com/unifi/cloud-gateways/udw (HTTP 200, 704,702 B, read 2026-11-19, server-rendered tech-spec table) says \"Power Method = Universal AC input 100-240V AC, 7A Max., 50/60 Hz\"; a box fed from mains, a USB-C supply or a DC jack has no PoE-PD front end, so eth12 / eth13 / eth14 / eth15 / eth16 / eth17 now declare poeIn: false. Without that declaration the engine's isPoePd() match on \"unifi\" gave each silent copper port a 12.95 W 802.3af draw - the defect PR #2118 and PR #2121 fixed across the UXG family (refs #130)."
+  "notes": "Power: none of these copper ports accepts PoE. Vendor page https://techspecs.ui.com/unifi/cloud-gateways/udw (HTTP 200, 704,702 B, read 2026-11-19, server-rendered tech-spec table) says \"Power Method = Universal AC input 100-240V AC, 7A Max., 50/60 Hz\"; a box fed from mains, a USB-C supply or a DC jack has no PoE-PD front end, so eth12 / eth13 / eth14 / eth15 / eth16 / eth17 now declare poeIn: false. Without that declaration the engine's isPoePd() match on \"unifi\" gave each silent copper port a 12.95 W 802.3af draw - the defect PR #2118 and PR #2121 fixed across the UXG family (refs #130).\n\nWiFi: the Dream Wall carries an 802.11ax (WiFi 6) access point of its own, so the row can serve wireless clients instead of being a wired-only gateway. Source rows, identical on both Ubiquiti surfaces: https://dl.ui.com/ds/udw_ds.pdf (HTTP 200, 544,909 B, 3 pages, text layer reads \"MIMO 2.4 GHz 2 x 2 / 5 GHz 4 x 4\", \"Throughput rate 2.4 GHz 300 Mbps / 5 GHz 2.4 Gbps\", \"WiFi standards 802.11a/b/g/n/ac/ax / WiFi 4/WiFi 5/WiFi 6\") and https://techspecs.ui.com/unifi/cloud-gateways/udw (HTTP 200, 704,702 B, read 2026-11-19). Hence radio0 = 2.4 GHz at 300 Mbps (2x2) and radio1 = 5 GHz at 2.4 Gbps (4x4). Each radio declares `bands` because engine/media.js otherwise derives the band set from the rate alone, and a 2.4 Gbps 802.11ax radio would be credited with a 6 GHz band the chassis does not have. Ubiquiti's own device fingerprint lists ACCESS_POINT among the UDW's deviceCapabilities (https://static.ui.com/fingerprint/ui/public.json, sku UDW, sysid ea2a)."
 }
