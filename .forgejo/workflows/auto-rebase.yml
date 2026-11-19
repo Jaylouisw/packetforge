@@ -268,6 +268,11 @@ jobs:
           # then the automatic token. This job force-pushes pull-request branches, so
           # it needs write access, not just read.
           TOKEN: ${{ secrets.FORGEJO_TOKEN || secrets.GITHUB_TOKEN || github.token }}
+          # The run's own token, under its own name, so the step can tell a user token
+          # from it. A push authenticated with this one raises no `pull_request` event on
+          # this instance, and a head with no checks can never be armed - see the note
+          # above the push guard below.
+          RUN_TOKEN: ${{ github.token }}
         run: |
           set -u
           api="${GITHUB_API_URL:-http://10.0.10.20:3000/api/v1}"
@@ -430,6 +435,7 @@ jobs:
           fi
 
           rebased=0; current=0; conflicted=0; dupes=0; armed=0; red=0; looked=0
+          no_checks=0; uncheckable=0
 
           # Here-string, not a pipe: `echo ... | while` would run the loop in a
           # subshell and the counters on the summary line would always read zero.
@@ -454,6 +460,35 @@ jobs:
               continue
             fi
             looked=$((looked+1))
+
+            # Which credential this pass is holding decides whether rebasing helps at all.
+            # A push made with the run's own token lands on the branch but raises no
+            # `pull_request` event, so nothing creates a run for the head it mints, and a
+            # head with no checks can never be armed: `checks_green` needs the three
+            # `CI / Test (Node *)` statuses and the merge POST needs every status on the
+            # head to have reported. Measured on 2026-11-18 22:07Z, one pass that pushed
+            # every open branch left five heads with zero CI tasks between them - #2040
+            # 816c1f38, #2038 1169554d, #2037 bf3f2220, #2035 6320501e, #2033 9df7b89b
+            # (`/actions/tasks` by `head_sha`: 0 records each) - and those pull requests
+            # could only merge after a human pushed or closed-and-reopened them, while
+            # every merge that landed froze the rest of the queue the same way.
+            #
+            # A user token's push does raise the event: 2026-11-19 00:55Z, pushing
+            # 237fc3cc..4e94088d to #2059 with the repository token produced eight
+            # statuses on the new head inside 25 s. And dispatching ci.yml afterwards is
+            # not a substitute - run 6872 was a `workflow_dispatch` against a9384edf that
+            # ran the whole matrix green while `/commits/a9384edf/status` still answered
+            # `total_count: 0`.
+            #
+            # So a pass holding only the run token leaves the branch where it is: behind
+            # main is a pull request that can still merge on the checks it has, while a
+            # head nothing checks cannot merge at all. The re-arming below still runs -
+            # it needs no push - and the reason is printed once per pass rather than once
+            # per branch.
+            if [ "${TOKEN}" = "${RUN_TOKEN:-}" ]; then
+              uncheckable=$((uncheckable+1))
+              continue
+            fi
 
             if ! bounded 60 git fetch -q origin "+refs/heads/$ref:refs/remotes/origin/$ref"; then
               echo "PR #$n: branch $ref is gone"; continue
@@ -485,6 +520,46 @@ jobs:
 
             if ! bounded 180 git push -q --force-with-lease origin "HEAD:refs/heads/$ref"; then
               echo "PR #$n: push rejected (branch moved underneath us)"; continue
+            fi
+
+            # A head this push mints has no checks unless a run is created for it, and a
+            # head with no checks can never be armed: `checks_green` below needs the three
+            # `CI / Test (Node *)` statuses, and the merge POST needs every status on the
+            # head to have reported. Measured on 2026-11-18 at 22:07Z, one pass that
+            # force-pushed every open branch left five heads with zero CI tasks between
+            # them - #2040 816c1f38, #2038 1169554d, #2037 bf3f2220, #2035 6320501e,
+            # #2033 9df7b89b (`/actions/tasks` by `head_sha`: 0 records each) - while the
+            # branches themselves were current and clean. Those pull requests could only
+            # be merged after a human pushed or closed-and-reopened them, and every merge
+            # that landed froze the rest of the queue the same way.
+            #
+            # Dispatching ci.yml for the branch does not repair that: run 6872 was a
+            # `workflow_dispatch` of ci.yml against a9384edf (a head this pass minted) and
+            # ran the whole matrix - three test legs, smoke and Docker, all green - while
+            # `/commits/a9384edf/status` still answered `total_count: 0`. The run exists and
+            # its jobs pass; the statuses the gate reads do not.
+            #
+            # So the head is checked instead of assumed, and a push that produced no checks
+            # is named rather than left to look like a pull request nobody merged. Nothing
+            # here can create the statuses without inventing a result, so this reports the
+            # condition; `checks_green` below then behaves exactly as it does today.
+            pushed_sha=$(git rev-parse HEAD)
+            reported=""
+            for _ in 1 2 3 4; do
+              reported=$(http -H "Authorization: token ***" \
+                "$api/repos/$repo/commits/${pushed_sha}/status" 2>/dev/null \
+                | node -e 'let d="";process.stdin.on("data",c=>d+=c).on("end",()=>{try{process.stdout.write(String(JSON.parse(d).total_count||0))}catch(e){process.stdout.write("")}})')
+              case "${reported:-}" in ''|*[!0-9]*) reported="" ;; esac
+              [ -n "$reported" ] && [ "$reported" -gt 0 ] && break
+              sleep 5
+            done
+            if [ -z "${reported:-}" ]; then
+              echo "PR #$n: could not read the status set for ${pushed_sha} - checks unknown"
+            elif [ "$reported" -eq 0 ]; then
+              no_checks=$((no_checks+1))
+              echo "::warning title=Auto-rebase::PR #$n was rebased to ${pushed_sha} and no check was created for that head - it cannot be armed until CI runs on it (see the note in this step)"
+            else
+              echo "PR #$n: ${reported} check(s) reported on ${pushed_sha}"
             fi
 
             # `mergeable` is computed off the request thread. Poll it rather than
@@ -556,4 +631,7 @@ jobs:
             esac
           done
 
-          echo "batch=$batch rebased=$rebased current=$current conflicts=$conflicted duplicates=$dupes armed=$armed rearmed=$rearmed red=$red"
+          if [ "$uncheckable" -gt 0 ]; then
+            echo "::warning title=Auto-rebase::${uncheckable} pull request(s) left unrebased: this pass holds only the run token, and a push made with it raises no pull_request event, so the head it mints would have no checks and could never be armed. Set the FORGEJO_TOKEN repository secret to a user token - measured, a user token's push produces the eight statuses inside 25 s."
+          fi
+          echo "batch=$batch rebased=$rebased current=$current conflicts=$conflicted duplicates=$dupes armed=$armed rearmed=$rearmed red=$red no_checks=$no_checks uncheckable=$uncheckable"
