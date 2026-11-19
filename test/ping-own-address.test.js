@@ -66,7 +66,7 @@ console.log('A router pings its own interface address:');
   const out = L.joined('r1', 'ping ' + V4_ROUTER);
   ok(/!!!!!/.test(out), 'all five echoes come back', out);
   ok(/Success rate is 100 percent \(5\/5\)/.test(out), 'and the success rate says so', out);
-  ok(out.indexOf('Reply from ' + V4_ROUTER + ': bytes=100 time=') !== -1, 'each reply names the address', out);
+  ok(!/^Reply from /m.test(out), 'and the report is the marks line and the rate, with no per-echo sentence', out);
   ok(out.indexOf('no ARP reply') === -1, 'the console does not blame an ARP reply from the box itself', out);
   const types = L.sim.events.slice(before).map(function (e) { return e.type; });
   ok(types.indexOf('icmp-echo') !== -1, 'the stack answered the echo', JSON.stringify(types));

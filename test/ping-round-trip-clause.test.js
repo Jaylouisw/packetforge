@@ -20,7 +20,7 @@
 //
 // The figures keep this console's units rather than the vendor's whole milliseconds (a real box prints `0/0/0 ms` for a
 // sub-millisecond path), because the fractional rtt is the latency model's whole point; what is checked here is that the
-// clause's figures and the `Reply from ... time=` lines are the same measurement spelled the same way.
+// clause is the only place a run's figures appear: a box prints no per-echo line beside it.
 const path = require('path');
 const { Topology, Simulator } = require('../engine');
 const { CliSession } = require('../engine/cli');
@@ -75,11 +75,15 @@ console.log('A ping that came back says how long it took:');
   ok(/Success rate is 100 percent \(3\/3\), round-trip min\/avg\/max = [0-9.]+\/[0-9.]+\/[0-9.]+ ms/.test(text),
     'the rate carries the round-trip clause', text);
   const c = clauseOf(text);
-  const times = (text.match(/time=([0-9.]+) ms/g) || []).map(function (s) { return s.replace(/time=| ms/g, ''); });
-  ok(c !== null && times.length === 3, 'three replies print and the clause parses', String(c) + ' / ' + String(times));
-  if (c && times.length) {
-    // The summary and the detail are one measurement: min/avg/max of the replies is what the clause prints.
-    const nums = times.map(Number);
+  ok(c !== null, 'the clause parses into three figures', String(c));
+  // The summary and the measurement are one number: min/avg/max of the replies is what the clause prints. The
+  // replies are read from the engine, because the report itself prints only the marks line - a box appends no
+  // per-echo sentence to compare against (research/ping-report-shape.md).
+  const raw = L.sim.ping('h1', '10.0.0.2', { count: 3 }).replies;
+  const nums = raw.filter(function (r) { return r.success && typeof r.rtt === 'number'; })
+    .map(function (r) { return r.rtt; });
+  ok(nums.length === 3, 'three echoes came back, each carrying a measured delay', String(nums));
+  if (c && nums.length === 3) {
     const min = Math.min.apply(null, nums), max = Math.max.apply(null, nums);
     const avg = nums.reduce(function (a, b) { return a + b; }, 0) / nums.length;
     const f = function (ms) { return ms.toFixed(max < 1 ? 3 : 1); };
@@ -88,8 +92,8 @@ console.log('A ping that came back says how long it took:');
     ok(c[1] === f(avg), 'and avg is their mean, in the same units', c[1] + ' vs ' + f(avg));
     ok(Number(c[0]) <= Number(c[1]) && Number(c[1]) <= Number(c[2]),
       'the three read min/avg/max, in order', c.join('/'));
-    ok(times.every(function (s) { return s === times[0]; }), 'a flat lab reports one round trip, not three',
-      times.join(','));
+    ok(nums.every(function (n) { return n === nums[0]; }), 'a flat lab reports one round trip, not three',
+      nums.join(','));
   }
 }
 
@@ -119,7 +123,7 @@ console.log('Partial loss keeps the rate honest and averages only what came back
     { seq: 4, success: true, reason: null, rtt: 1.4, hops: 1 }
   ];
   const out = [];
-  L.cli('h1')._pingReplyLines(out, '10.0.0.9', 5, replies);
+  L.cli('h1')._pingReplyLines(out, 5, replies);
   const text = out.join('\n');
   ok(/^\.!!!!$/m.test(text), 'the marks line keeps one dot for the lost echo', text);
   ok(/Success rate is 80 percent \(4\/5\)/.test(text), 'the rate is 80 percent (4/5)', text);
@@ -133,7 +137,7 @@ console.log("The figures are the console's units, with one precision per clause:
   const L = lab();
   const render = function (replies, count) {
     const out = [];
-    L.cli('h1')._pingReplyLines(out, '10.0.0.2', count || replies.length, replies);
+    L.cli('h1')._pingReplyLines(out, count || replies.length, replies);
     return out.join('\n');
   };
   const sub = render([
@@ -156,7 +160,8 @@ console.log("The figures are the console's units, with one precision per clause:
   ]);
   ok(/Success rate is 100 percent \(2\/2\)/.test(unmeasured), 'a reply with no modelled delay still counts', unmeasured);
   ok(unmeasured.indexOf('round-trip') === -1, 'but it cannot be averaged, so no clause is printed', unmeasured);
-  ok(/time=2 hops/.test(unmeasured), 'the reply line says what it does know', unmeasured);
+  ok(!/^Reply from /m.test(unmeasured), 'and no per-echo line is invented to carry a figure instead', unmeasured);
+  ok(!/hops/.test(unmeasured), 'a hop count is not dressed up as a round trip either', unmeasured);
 }
 
 console.log('');
@@ -185,7 +190,8 @@ console.log('Nothing else about the report moved:');
   ok(lines[2] === '!', 'the marks line follows it', lines[2]);
   ok(/^Success rate is 100 percent \(1\/1\), round-trip/.test(lines[3]), 'the rate is third, clause and all',
     lines[3]);
-  ok(/^Reply from 10\.0\.0\.2: bytes=100 time=/.test(lines[4]), 'and the reply lines still follow the rate', lines[4]);
+  ok(lines.length === 4, 'and the report ends there: a box prints no per-echo line after the rate',
+    String(lines.length) + ' lines: ' + lines.join(' | '));
 }
 
 console.log('');

@@ -2,6 +2,23 @@
 
 ### Fixed
 
+- **A `ping` ends at the success rate, because a box prints no sentence per echo.** Each echo is reported as one
+  character of the marks line (`!`, `.`, `U`) and the run closes with `Success rate is N percent (n/m)` - the round
+  trip riding on that line as `, round-trip min/avg/max = a/b/c ms` when anything came back. This console appended
+  `Reply from <address>: bytes=100 time=<rtt> ms` for every answered echo and `Request timed out (seq N)` for every
+  lost one, which is **Windows** `ping`'s output shape (`bytes=` and all - Cisco's own BRKTRS-2811 deck prints
+  `Reply from 10.10.30.27: bytes=100 time<1ms TTL=126` from a `C:\>` prompt beside IOS captures of `!!!!!`), so the
+  report was IOS's marks line followed by another operating system's reply lines. `_pingReplyLines()` is now the
+  marks line and the rate only, for both address families; the `% Echoes lost:` sentence stays, because it is the
+  console's own explanation of a drop and carries the reason. `test/ping-report-shape.test.js` (29 checks) pins the
+  four-line success report, the total-loss report with its `%` explanation, a fabricated 4/5 run, IPv6 parity and
+  the absence of `bytes=`; eight suites that had measured the old shape now measure the rule
+  (`ping-default-count`, `ping-ipv6`, `ping-own-address`, `ping-loss-reason`, `ping-unreachable-letter`,
+  `dns-console`, `convergence-timing`, `ping-round-trip-clause`), and `docs/CLI.md` / `docs/ARCHITECTURE.md` drop
+  every reply line from their examples. [research/ping-report-shape.md](research/ping-report-shape.md) has the
+  captures and the three things still open (an IOS ICMP-error sentence, NX-OS/IOS-XR, and what to say when a path
+  carries no modelled delay).
+
 - **`show etherchannel <group> summary` takes the group number, and the counts stay the box's.** A real box
   accepts a channel-group number in front of the keyword — the 2960-X, 9500 and 9200 command references print
   their example in that form — and narrows the table to that group's row while the nine-line key and both counts

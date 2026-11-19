@@ -813,9 +813,9 @@ function noFormFor(words, mode) {
 // fraction - an IOS host pinging its own link-local address prints `0/0/0 ms` - but this console's whole reason for
 // having a latency model is that a 1 m patch lead (0.103 ms) and a 40 km span (0.65 ms) are different paths, and
 // rounding both to `0/0/0` would put that difference back where it started. So the clause is the vendor's sentence
-// in the units `Reply from ... time=` already prints, and the two cannot disagree: a fast lab reads
-// `round-trip min/avg/max = 0.103/0.103/0.103 ms` beside `time=0.103 ms`. Printing `0/0/0` there would be the vendor's
-// spelling of the same measurement, and also the one thing an operator would report as a bug.
+// in this console's units - the same `formatRttMs` figures a `traceroute` hop line prints, so the two views cannot
+// spell one measurement two ways. Printing `0/0/0` there would be the vendor's spelling of the same measurement, and
+// also the one thing an operator would report as a bug.
 function formatRttMs(ms) {
   return ms < 1 ? ms.toFixed(3) : ms.toFixed(1);
 }
@@ -831,15 +831,15 @@ function roundTripClause(replies) {
   const avg = measured.reduce(function (a, b) { return a + b; }, 0) / measured.length;
   // One precision for the whole clause, chosen by its largest value, so the three figures read as one measurement
   // rather than `0.200/0.733/1.6`. The thresholds are `formatRttMs`'s, so a figure here and the same figure on a
-  // reply line are never spelled two ways.
+  // traceroute hop line are never spelled two ways.
   const f = function (ms) { return ms.toFixed(max < 1 ? 3 : 1); };
   return ', round-trip min/avg/max = ' + f(min) + '/' + f(avg) + '/' + f(max) + ' ms';
 }
 
 // One traceroute probe, as the column a real trace puts it in: the round trip in `msec`, or a single `*` for a
 // probe that timed out. The unit is the vendor's - IOS prints `msec` on a hop line while `ping` prints `ms` - and
-// the figures are formatted by the same `formatRttMs` the echo reply lines use, so a hop and the ping beside it
-// cannot spell the same measurement two ways.
+// the figures are formatted by the same `formatRttMs` the ping's success-rate clause uses, so a hop and the ping
+// beside it cannot spell the same measurement two ways.
 // The letter a destination-unreachable puts where a probe's time would go. Cisco's traceroute
 // output table names N (network unreachable), H (host unreachable), P (protocol unreachable),
 // U (port unreachable) and A (administratively prohibited), and the same page's ICMP type-3
@@ -4295,14 +4295,14 @@ class CliSession {
     try {
     let shownTarget = target;
     // ICMPv6 echo, when the target is a literal IPv6 address. The report is the same report - same marks line, same
-    // success rate, same per-reply lines - because an operator reading a ping should not have to learn two shapes.
+    // success rate, same clause - because an operator reading a ping should not have to learn two shapes.
     if (literal6) {
       out.push('Type escape sequence to abort.');
       const shown6 = ipv6Lib.formatIpv6(literal6.groups) || target;
       out.push('Sending ' + count + ', 100-byte ICMP Echos to ' + shown6 + ', timeout is 2 seconds:' +
         (atMs !== null ? '  (at t=' + atMs + ' ms)' : ''));
       const res6 = this.sim.ping6(this.device.id, shown6, { count: count });
-      return this._pingReplyLines(out, shown6, count, res6.replies || []);
+      return this._pingReplyLines(out, count, res6.replies || []);
     }
     if (namedTarget) {
       // Resolve first, and print the lookup in the order and shape a box prints it: the query line comes
@@ -4330,7 +4330,7 @@ class CliSession {
     out.push('Sending ' + count + ', 100-byte ICMP Echos to ' + shownTarget + ', timeout is 2 seconds:' +
       (atMs !== null ? '  (at t=' + atMs + ' ms)' : ''));
     const res = this.sim.ping(this.device.id, namedTarget ? target : ip, { count: count });
-    this._pingReplyLines(out, shownTarget, count, res.replies);
+    this._pingReplyLines(out, count, res.replies);
     // "Still converging" is a statement about the path, so it is printed once, with the instant the answer was
     // given at - which is the answer's own, not the one the operator typed (#1383).
     const converging = require('./simulator').pingConvergenceSentence(res.replies);
@@ -4421,9 +4421,19 @@ class CliSession {
     return 'ipv6: ' + parts.join(', ');
   }
 
-  // The report a ping prints, whichever address family answered: the marks line, the success rate, one line per
-  // reply. Shared so `ping 10.0.0.1` and `ping 2001:db8:1::1` cannot drift into two different-looking answers.
-  _pingReplyLines(out, shownTarget, count, replies) {
+  // The report a ping prints, whichever address family answered: one marks line and the success rate, which is the
+  // whole of what a box prints. Shared so `ping 10.0.0.1` and `ping 2001:db8:1::1` cannot drift into two
+  // different-looking answers.
+  //
+  // There is deliberately no per-echo sentence after the rate. This console used to append one - `Reply from
+  // <address>: bytes=100 time=<rtt> ms` for every answered echo, `Request timed out (seq N)` for every lost one -
+  // and neither is IOS output. A box reports each echo as one character of the marks line (Cisco's field table:
+  // `!` "Each exclamation point indicates receipt of a reply", `.` the timeout) and closes the run with the success
+  // rate; the `Reply from ...: bytes=100 time<1ms TTL=126` shape is *Windows* ping (`ping -l 100`), which Cisco's
+  // own troubleshooting deck prints from a `C:\>` prompt beside IOS captures. The per-echo lines therefore had this
+  // console speaking one operating system's dialect on another operating system's prompt. The round trip a run
+  // reports rides on the success-rate line in the vendor's clause instead (research/ping-report-shape.md).
+  _pingReplyLines(out, count, replies) {
     // One character per echo, and the character says *what came back*, not merely whether an echo reply did:
     // `!` for a reply, `U` for an ICMP destination-unreachable, `.` for nothing at all (Cisco doc 12778,
     // "Possible Output Characters From the Ping Facility" - `U` "A destination unreachable error PDU was
@@ -4441,24 +4451,6 @@ class CliSession {
     // and - when any did - how long they took. A ping that lost everything keeps the short form.
     out.push('Success rate is ' + Math.round((ok / count) * 100) + ' percent (' + ok + '/' + count + ')' +
       roundTripClause(replies));
-    for (const r of replies) {
-      if (r.success) {
-        const t = (r.rtt === null || r.rtt === undefined)
-          ? (r.hops + ' hops')
-          : formatRttMs(r.rtt) + ' ms';
-        out.push('Reply from ' + shownTarget + ': bytes=100 time=' + t);
-      } else if (r.reason === 'converging') {
-        // Not "request timed out": nothing was lost, the network is not up yet. Said once, below, rather than
-        // once per echo - the answer is one fact about the path, not four (#1383).
-      } else if (r.unreachable) {
-        // Nothing here, because nothing is what a box prints: `U.U.U` is followed straight by the success rate,
-        // with no per-echo sentence (Cisco doc 12778, Troubleshoot Ping Failures). A `Request timed out` line
-        // under a `U` mark would be the block contradicting itself, and the `% Echoes lost:` sentence below
-        // already names the box that recorded the drop.
-      } else {
-        out.push('Request timed out (seq ' + r.seq + ')');
-      }
-    }
     return out;
   }
 

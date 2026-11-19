@@ -76,8 +76,11 @@ console.log('A ping that fails says why, in the words the engine already used:')
   ok(/10\.91\.0\.99/.test(lines[0] || ''), 'and it names the address that did not answer', lines[0]);
   ok(/ARP|no route/i.test(lines[0] || ''), 'and the reason, not just the address', lines[0]);
   ok(/^\% /.test(lines[0] || ''), 'written in the console\'s explanatory voice ("% ...")', lines[0]);
-  ok(gap.text.indexOf('Request timed out') < gap.text.indexOf(lines[0] || 'x'),
-    'after the per-echo lines, so the report reads top to bottom', gap.text.split('\n').join(' | '));
+  const order = gap.text.split('\n');
+  const marksAt = order.findIndex(function (l) { return /^[.!U]+$/.test(l); });
+  const sayAt = order.findIndex(function (l) { return /^% Echoes lost: /.test(l); });
+  ok(marksAt !== -1 && marksAt < sayAt,
+    'after the marks line, so the report reads top to bottom', gap.text.split('\n').join(' | '));
 }
 
 console.log('');
@@ -114,7 +117,8 @@ console.log('Four lost echoes are one statement about the path, not four:');
   const lines = lossLine(r.text);
   ok(lines.length === 1, 'a four-echo ping adds one loss line, not four', lines.join(' | '));
   ok(/4 drops/.test(lines[0] || ''), 'and counts the echoes in it', lines[0]);
-  ok((r.text.match(/Request timed out/g) || []).length === 4, 'while every echo still gets its own timeout line');
+  ok(!/Request timed out/.test(r.text), 'and no per-echo timeout line, because a box prints none either');
+  ok(/^\.\.\.\.$/m.test(r.text), 'the four marks are what says every echo was lost');
 }
 
 console.log('');
@@ -132,7 +136,7 @@ console.log('Convergence is not loss, and the two sentences never both claim the
   ok(lossSay([]) === null, 'and an empty report says nothing rather than zero drops');
   // A loss with no recorded reason must not be dressed up as an explanation.
   ok(lossSay([{ success: false, reason: null }]) === null,
-    'a failure with no reason is left for the timeout line to state');
+    'a failure with no reason adds nothing to the report beyond its mark');
   ok(lossSay([{ success: false, reason: '   ' }]) === null, 'and blank is not a reason');
 }
 

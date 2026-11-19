@@ -255,8 +255,9 @@ t('The CLI can ask the question, and says "converging" rather than "timed out"')
     'and does not pretend the packet was lost');
 
   const late = runCommands(a, topo, sim, ['enable', 'ping 10.0.0.2 1 at 31000']).lines;
-  ok(late.some(function (l) { return /Reply from 10\.0\.0\.2: bytes=100 time=[0-9.]+ ms/.test(l); }),
-    'a late ping reports a real millisecond time');
+  ok(late.some(function (l) {
+    return /^Success rate is 100 percent \(1\/1\), round-trip min\/avg\/max = [0-9.]+\/[0-9.]+\/[0-9.]+ ms$/.test(l);
+  }), 'a late ping reports a real millisecond time, on the rate line a box uses');
   ok(!late.some(function (l) { return /hops/.test(l); }), 'not a hop count wearing a time label');
 
   const bad = runCommands(a, topo, sim, ['enable', 'ping 10.0.0.2 1 at -3']).lines;

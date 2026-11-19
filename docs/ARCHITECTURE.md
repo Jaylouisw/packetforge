@@ -885,11 +885,11 @@ Type escape sequence to abort.
 Sending 5, 100-byte ICMP Echos to 2001:db8:1::1, timeout is 2 seconds:
 !!!!!
 Success rate is 100 percent (5/5), round-trip min/avg/max = 0.103/0.103/0.103 ms
-Reply from 2001:db8:1::1: bytes=100 time=0.103 ms
 ```
 
-* **one report, two families.** The marks line, the success rate and the per-reply lines come from a single helper, so
-  `ping 10.0.0.1` and `ping 2001:db8:1::1` cannot drift into two different-looking answers;
+* **one report, two families.** The marks line and the success rate come from a single helper, so `ping 10.0.0.1`
+  and `ping 2001:db8:1::1` cannot drift into two different-looking answers - and neither grows a per-echo sentence,
+  because a box prints one character per echo and then the rate (`research/ping-report-shape.md`);
 * **the count and the instant mean the same thing.** `ping <v6> 2`, `ping <v6> 0` (refused) and
   `ping <v6> 2 at 60000` behave exactly as their IPv4 counterparts - including at a mid-convergence instant, where both
   families give the same answer, and the session is left at the instant it arrived with;

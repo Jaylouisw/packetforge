@@ -85,8 +85,7 @@ console.log('Silence is still a dot, and the two are told apart inside one run:'
   const r = console_(L.t, L.r1.id, 'ping 192.168.2.99 2');
   const text = r.lines.join('\n');
   ok(marks(text) === '..', 'an ARP that nobody answers is two dots', marks(text));
-  ok((text.match(/Request timed out \(seq \d\)/g) || []).length === 2,
-    'and every lost echo keeps its own timeout line', text.split('\n').join(' | '));
+  ok(!/^Reply from /m.test(text), 'and neither echo gets a per-echo sentence', text.split('\n').join(' | '));
   const raw = new Simulator(L.t).ping(L.r1.id, '192.168.2.99', { count: 1 });
   ok(raw.replies[0].unreachable === false, 'the reply says no error came back', JSON.stringify(raw.replies[0]));
   ok(raw.replies[0].errorType === null, 'and carries no ICMP type it did not receive', String(raw.replies[0].errorType));
@@ -104,7 +103,7 @@ console.log('A box that cannot route the echo itself is the open half, and stays
   const r = console_(L.t, L.r1.id, 'ping 198.51.100.7 2');
   const text = r.lines.join('\n');
   ok(marks(text) === '..', 'a source-side `no route` is not a received error, so it stays a dot', marks(text));
-  ok((text.match(/Request timed out \(seq \d\)/g) || []).length === 2, 'with the timeout lines it always had');
+  ok(!/^Reply from /m.test(text), 'with no per-echo line invented to explain it');
 }
 
 console.log('');

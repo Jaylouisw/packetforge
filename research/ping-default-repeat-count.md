@@ -46,8 +46,9 @@ One rule, one number, four call sites:
   drift from the engine again.
 * `web/app.js`: all three copies in the dialog are 5 - the field's value, the empty-field value handed to the
   validator, and the number sent.
-* `docs/CLI.md` / `docs/ARCHITECTURE.md`: the worked examples now read `Sending 5` / `!!!!!` / `(5/5)` with five reply
-  lines, and the ping section states the default and cites it.
+* `docs/CLI.md` / `docs/ARCHITECTURE.md`: the worked examples now read `Sending 5` / `!!!!!` / `(5/5)`, and the ping
+  section states the default and cites it. (The five per-echo `Reply from` lines those examples once carried were
+  removed later - see `research/ping-report-shape.md`.)
 * `test/ping-default-count.test.js` (new, 18 checks): the constant, a bare `sim.ping()` and `sim.ping6()` (five replies,
   all answered, `requestedCount` still `null`), the console header/marks/rate/reply-line count, an explicit count still
   winning, the browser field and its empty fallback, and that no doc example still says four.

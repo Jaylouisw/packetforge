@@ -92,8 +92,8 @@ console.log('The console prints the count it actually sent:');
     'the header is `Sending 5, ...`, as a box prints it', out[1]);
   ok(/^!!!!!$/m.test(text), 'the marks line is five replies', text.split('\n').filter(function (l) { return /^[!.]/.test(l); })[0]);
   ok(/Success rate is 100 percent \(5\/5\)/.test(text), 'and the rate is out of five', text);
-  ok((text.match(/^Reply from /gm) || []).length === 5, 'five reply lines are printed, one per echo',
-    String((text.match(/^Reply from /gm) || []).length));
+  ok(!/^Reply from /m.test(text), 'and the report ends at the rate, as a box prints it',
+    text.split('\n').slice(0, 6).join(' | '));
 
   // An explicit count still wins, so the default is a default and not a floor.
   const two = L.joined('ping 10.0.0.2 2');

@@ -749,11 +749,6 @@ Type escape sequence to abort.
 Sending 5, 100-byte ICMP Echos to 2001:db8:aa::1, timeout is 2 seconds:
 !!!!!
 Success rate is 100 percent (5/5), round-trip min/avg/max = 0.002/0.002/0.002 ms
-Reply from 2001:db8:aa::1: bytes=100 time=0.002 ms
-Reply from 2001:db8:aa::1: bytes=100 time=0.002 ms
-Reply from 2001:db8:aa::1: bytes=100 time=0.002 ms
-Reply from 2001:db8:aa::1: bytes=100 time=0.002 ms
-Reply from 2001:db8:aa::1: bytes=100 time=0.002 ms
 PC1# show ipv6 nd
 IPv6 router advertisements on PC1:
   Device      : generic-pc  (no l3-forward)
@@ -817,21 +812,23 @@ Type escape sequence to abort.
 Sending 5, 100-byte ICMP Echos to 10.0.1.10, timeout is 2 seconds:
 !!!!!
 Success rate is 100 percent (5/5), round-trip min/avg/max = 0.002/0.002/0.002 ms
-Reply from 10.0.1.10: bytes=100 time=0.002 ms
-Reply from 10.0.1.10: bytes=100 time=0.002 ms
-Reply from 10.0.1.10: bytes=100 time=0.002 ms
-Reply from 10.0.1.10: bytes=100 time=0.002 ms
-Reply from 10.0.1.10: bytes=100 time=0.002 ms
 ```
 
 The success-rate line is the vendor's, clause and all. When at least one echo comes back it goes on with
 `, round-trip min/avg/max = <min>/<avg>/<max> ms`; when none does it stops at the rate, because there is no round
 trip to average. Both halves are the vendor's own: the 4/5 ping in Cisco's NAT connectivity note prints
 `Success rate is 80 percent (4/5), round-trip min/avg/max = 1/1/2 ms`, and the ping/traceroute note prints
-`Success rate is 0 percent (0/5)` with nothing after it. The figures are in this console's units - the ones the
-`Reply from` lines print, one precision for the whole clause - because a real box truncates to whole milliseconds
-and would print `0/0/0 ms` for this path beside `time=0.002 ms`, which is two answers to one question.
+`Success rate is 0 percent (0/5)` with nothing after it. The figures keep a fraction where a real box would print
+whole milliseconds - an IOS host's `0/0/0 ms` for a sub-millisecond path - because the fraction is what tells a 1 m
+patch lead from a 40 km span, and the same `formatRttMs` spelling is used by a `traceroute` hop line beside it.
 `test/ping-round-trip-clause.test.js` pins both halves of the rule.
+
+A box prints **no per-echo line** after that: each echo is one character of the marks line, and the rate is the
+last word on the run. This console used to append `Reply from <address>: bytes=100 time=<rtt> ms` for every
+answered echo and `Request timed out (seq N)` for every lost one, which is **Windows** `ping`'s output shape - `C:\>`
+prompts in Cisco's own troubleshooting deck print exactly that, with `TTL=`, beside IOS captures of `!!!!!` and the
+rate. The per-echo sentences are gone; `research/ping-report-shape.md` holds the captures that settled it and
+`test/ping-report-shape.test.js` pins the four-line report.
 
 Only the two connected subnets are in the table because no default has been configured yet, and the console
 says so between the legend and the first row (`Gateway of last resort is not set`); `ip
@@ -1415,7 +1412,6 @@ Type escape sequence to abort.
 Sending 5, 100-byte ICMP Echos to 10.0.0.1, timeout is 2 seconds:
 !!!!!
 Success rate is 100 percent (5/5), round-trip min/avg/max = 0.002/0.002/0.002 ms
-Reply from 10.0.0.1: bytes=100 time=0.002 ms
 ```
 
 A name that does not resolve is refused **before** anything is sent, and the three ways it can fail are kept apart,
@@ -1451,11 +1447,6 @@ Type escape sequence to abort.
 Sending 5, 100-byte ICMP Echos to 10.0.0.1, timeout is 2 seconds:
 !!!!!
 Success rate is 100 percent (5/5), round-trip min/avg/max = 0.000/0.000/0.000 ms
-Reply from 10.0.0.1: bytes=100 time=0.000 ms
-Reply from 10.0.0.1: bytes=100 time=0.000 ms
-Reply from 10.0.0.1: bytes=100 time=0.000 ms
-Reply from 10.0.0.1: bytes=100 time=0.000 ms
-Reply from 10.0.0.1: bytes=100 time=0.000 ms
 ```
 
 `0.000 ms` is the model being literal: the echo crossed no link, so the latency model has nothing to add, and a figure

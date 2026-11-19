@@ -64,7 +64,7 @@ console.log('A literal IPv6 address is an address:');
   ok(/Sending 5, 100-byte ICMP Echos to 2001:db8:1::1/.test(text), 'it is echoed, not resolved', text.split('\n')[1]);
   ok(/!!!!!/.test(text), 'all five replies arrive', text);
   ok(/Success rate is 100 percent \(5\/5\)/.test(text), 'and the rate says so', text);
-  ok(/Reply from 2001:db8:1::1: bytes=100 time=/.test(text), 'each reply names the address', text);
+  ok(!/^Reply from /m.test(text), 'and the report names no per-echo line beside it', text);
   ok(text.indexOf('Could not resolve') === -1, 'no resolver was asked', text);
   ok(text.indexOf('SERVFAIL') === -1, 'and no DNS status is reported about an address', text);
 
@@ -90,8 +90,9 @@ console.log('One report for both families:');
     }).join('|');
   };
   ok(shape(v6) === shape(v4), 'the first four lines have the same shape', shape(v6) + '  vs  ' + shape(v4));
-  ok(/^Reply from 2001:db8:1::1: bytes=100 time=/m.test(v6.join('\n')), 'the v6 reply line has the v4 format', '');
-  ok(/^Reply from 10\.0\.0\.1: bytes=100 time=/m.test(v4.join('\n')), 'and the v4 line is unchanged', '');
+  ok(v6.length === v4.length, 'and both reports are the same length: marks line and rate only',
+    v6.length + ' vs ' + v4.length);
+  ok(!v4.some(function (l) { return /^Reply from /.test(l); }), 'neither family prints a per-echo sentence', '');
 }
 
 console.log('');
@@ -162,9 +163,8 @@ console.log('An address nobody owns times out, and says so:');
   const L = lab();
   const text = L.joined('ping 2001:db8:1::99');
   ok(/Success rate is 0 percent \(0\/5\)/.test(text), 'nothing answers', text.split('\n')[2]);
-  ['0', '1', '2', '3', '4'].forEach(function (seq) {
-    ok(new RegExp('Request timed out \\(seq ' + seq + '\\)').test(text), 'seq ' + seq + ' says it timed out', '');
-  });
+  ok(/^\.\.\.\.\.$/m.test(text), 'five dots mark the five lost echoes', text);
+  ok(!/Request timed out/.test(text), 'and no per-echo timeout line is printed', text);
 }
 
 console.log('');

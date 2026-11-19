@@ -73,7 +73,7 @@ console.log('ping takes a name, and says how it resolved:');
   ok(text.indexOf('Echos to 10.0.0.1, timeout') !== -1,
     'the address it resolved to is the ping target', text);
   ok(/Success rate is 100 percent \(5\/5\)/.test(text), 'and the ping actually happens', text);
-  ok(/Reply from 10\.0\.0\.1/.test(text), 'replies name the address, not the name');
+  ok(!/^Reply from /m.test(text), 'and the report carries no per-echo line naming the name back');
 
   // A CNAME resolves to its target's address through the engine, and the console prints what came back.
   const cname = show(t, 'h1', sim, 'ping alias.lab');

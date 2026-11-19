@@ -55,9 +55,17 @@ A real box reports **whole milliseconds** and truncates: the 0/0/0 transcript ab
 console's equivalent path measures 0.103 ms. This console prints three decimals below a millisecond and one above,
 because the fractional rtt is the whole reason the latency model exists - a 1 m patch lead and a 40 km span differ at
 the third decimal, and rounding both to `0/0/0` would erase exactly the distinction the model was built to show. So the
-clause is the vendor's sentence with this console's figures, in the same units the `Reply from ... time=` lines already
-print; printing `0/0/0 ms` beside `time=0.103 ms` would be the vendor's spelling of the same measurement and would read
-as two answers to one question.
+clause is the vendor's sentence with this console's figures - since `research/ping-report-shape.md` the per-echo line
+that used to carry `time=0.103 ms` is gone, and the clause is the only place a run's figures appear, formatted by the
+same `formatRttMs` a `traceroute` hop line uses. Printing `0/0/0 ms` there would be the vendor's spelling of the same
+measurement, and the one thing an operator would report as a bug.
+
+## Postscript: the per-echo lines this note measured against are gone
+
+The example above shows the console as it stood when this rule was adopted, including the
+`Reply from 10.0.0.2: bytes=100 time=0.103 ms` line. That line is not IOS output - it is Windows `ping`'s shape -
+and a later run removed it, with the timeout lines beside it. The clause is unchanged and is now the report's last
+line; `research/ping-report-shape.md` carries the evidence and `test/ping-report-shape.test.js` pins the shape.
 
 ## What remains unresolved
 
