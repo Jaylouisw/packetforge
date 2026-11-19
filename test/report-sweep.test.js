@@ -10,7 +10,8 @@
 //   * `runStp({ bridges: [] })` answered a root object with a priority and no identity, so a topology with no
 //     bridges had a root. The root of nothing. It answers `null` now;
 //   * a box that is not a bridge (a router) was asked who the root was, which implies it joined an election it
-//     never joined. It says it is not a bridge now;
+//     never joined. It answers with the box's own line now - `No spanning tree instance exists.` - and never
+//     with a root;
 //   * `String(rootRes.key)` printed the absence instead of naming it. The root is only named when it has one.
 //
 // The sweep is the test: every model, every basic report, no `undefined`, no `NaN`, no `[object`. Cheap, and it
@@ -95,8 +96,8 @@ console.log('');
 console.log('A box that is not a bridge says so, and does not answer a question it was never asked');
 {
   const out = report(ROUTER, 'show spanning-tree');
-  ok(/not running on this device/.test(out), 'a router is told spanning tree is not running', out);
-  ok(/not a bridge/.test(out), 'because it is not one', out);
+  ok(/No spanning tree instance exists\./.test(out), 'a router answers with the box\'s own sentence', out);
+  ok(/not running on this device/.test(out) === false, 'and not with this console\'s explanation', out);
   ok(!/root bridge/.test(out), 'and no root is named for it', out);
   ok(!/election/.test(out), 'nor does it claim an election it could never join', out);
   ok(!/enabled protocol/.test(out), 'and it does not claim to be enabled', out);

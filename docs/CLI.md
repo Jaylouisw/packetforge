@@ -2052,9 +2052,11 @@ There are three states, and the header says which one you are in:
 * **a bridge in a tree** — `root bridge core-sw1 priority 4096`, with `(this bridge is the root)` after the
   priority when you are reading the root itself;
 * **a lone bridge** — the election still runs, and answers with the only candidate: itself;
-* **a box that is not a bridge** — a router. It prints `Spanning tree is not running on this device: it is not a
-  bridge (no L2 forwarding)`, because a router never joins an election, and a report that describes one in terms
-  of roots and bridge priorities implies it did.
+* **a box that is not a bridge** — a router. It prints the box's own one-line answer, `No spanning tree instance
+  exists.`, because a router never joins an election and a report that describes one in terms of roots and bridge
+  priorities implies it did. The words are IOS/IOS XE's, not this model's: `research/stp-no-instance-wording.md`
+  has the captures. (IOS 12.x/15.x routers print the same sentence with a plural — `instances` — and that older
+  form is not reproduced.)
 
 A topology with **no bridges at all has no root**, and `engine/stp.js` answers `null` for it rather than a root
 object with a default priority and no identity. That object is how `root bridge undefined priority 32768` reached

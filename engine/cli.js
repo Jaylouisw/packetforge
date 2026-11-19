@@ -6196,9 +6196,13 @@ class CliSession {
       // would be in one: a router answered `show spanning-tree` with a root it had never looked for (#1399).
       // `isL2()` is the predicate `computeStp()` uses to decide what may be a bridge at all, so it is the one this
       // report must ask. A router answers false: it never joins an election, so no sentence here may imply it did.
+      // The sentence is the box's, not ours: an IOS/IOS XE router asked for a tree answers exactly this line and
+      // nothing else - `No spanning tree instance exists.` - so the console prints the words an operator would see
+      // on the hardware instead of the explanation this file used to write
+      // (`research/stp-no-instance-wording.md`).
       const bridgesAtAll = (typeof dev.isL2 !== 'function') || dev.isL2();
       if (!bridgesAtAll) {
-        out.push('Spanning tree is not running on this device: it is not a bridge (no L2 forwarding).');
+        out.push('No spanning tree instance exists.');
         return out;
       }
       out.push('Spanning tree enabled protocol ieee');
