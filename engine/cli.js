@@ -6373,7 +6373,27 @@ class CliSession {
       // still listening "forwarding" (#1335). The attached simulator recomputes for the instant it was given.
       if (this.sim && typeof this.sim.recomputeStp === 'function') this.sim.recomputeStp();
       const st = dev.stp || { states: {}, roles: {}, blocked: new Set() };
-      const names = Object.keys(st.states || {}).sort();
+      // The rows run in **port order**, not in character order. This table sorted its keys as strings, so a box
+      // with ten or more ports printed `Gi1/0/1, Gi1/0/10, Gi1/0/11, Gi1/0/12, Gi1/0/2, ...` - an order no
+      // capture shows. Two live transcripts disagree with it and agree with each other: a stack member's
+      // `#sh spanning-tree vlan 10` lists `Gi1/0/4, Gi1/0/5, Gi1/0/6, Gi1/0/9, Gi1/0/10, Gi1/0/11, Gi1/0/13 ...`
+      // with `Prio.Nbr` 128.9 / 128.10 / 128.11 beside them (community.spiceworks.com/t/
+      // dhcp-suddenly-fails-on-specific-vlan-and-specific-ports/795152, post of 30 Mar 2021), and a C9300
+      // stack's `show spanning-tree` runs `Gi1/0/1, Gi1/0/2, Gi1/0/6, Gi1/0/8, Gi1/0/10, Gi1/0/11, Gi1/0/13 ...`
+      // (community.cisco.com/t5/switching/td-p/4852991, SW-050) - where a string sort would have put 10, 11, 13,
+      // 15, 17, 2, 20, 22 before `Gi1/0/6`. A box walks its port list, and the port list is numbered.
+      //
+      // A bundle row is unaffected by this: the sort is still on the internal key (`lag-1`), which lands after
+      // every interface name, and `Po1` is printed last as it always was. No capture in hand shows a whole
+      // `show spanning-tree` table with a bundle row in it, so that position is recorded as inferred rather than
+      // settled (research/show-spanning-tree-port-order.md).
+      //
+      // What is left unsettled is the order *between* two kinds of port (`Fa0/1` before or after `Gi1/0/1`): a
+      // box uses the platform's interface index, which is hardware-dependent, so the type word still breaks the
+      // tie the way this table always did - research/show-spanning-tree-port-order.md.
+      const names = Object.keys(st.states || {}).sort(function (a, b) {
+        return String(a).localeCompare(String(b), undefined, { numeric: true });
+      });
       const stpLib = require('./stp');
       const mine = (dev.config && dev.config.stpPriority !== null && dev.config.stpPriority !== undefined)
         ? dev.config.stpPriority : stpLib.STP_DEFAULT_PRIORITY;

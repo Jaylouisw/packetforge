@@ -2229,6 +2229,13 @@ logical name (`lag-1`) because one bundle is one port to the election; that key 
 printed (`research/stp-port-channel-name.md`). Physical ports keep their own spelling, and a bundle whose
 members never negotiated is printed as the physical ports, because that is what the tree sees.
 
+The rows run in **port order** — `Gi1/0/1`, `Gi1/0/2`, … `Gi1/0/10` — because that is the order a box walks its
+port list, not the order the names sort as strings. This table sorted its keys as text, so a switch with ten or
+more ports in the tree printed `Gi1/0/10` before `Gi1/0/2`: an order no capture shows, disproved by a stack
+member whose `sh spanning-tree vlan 10` lists `Gi1/0/9, Gi1/0/10, Gi1/0/11` in that order with `Prio.Nbr` 128.9,
+128.10, 128.11 beside them. The captures, and the one thing they do not settle (the order between two *types* of
+port), are in `research/show-spanning-tree-port-order.md`.
+
 A topology with **no bridges at all has no root**, and `engine/stp.js` answers `null` for it rather than a root
 object with a default priority and no identity. That object is how `root bridge undefined priority 32768` reached
 the console on the models in the catalogue that are not bridges — 1,026 of the 2,038 when #1399 was fixed,
