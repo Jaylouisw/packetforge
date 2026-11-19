@@ -5083,9 +5083,47 @@ class CliSession {
             // Same sentence the rest of the console uses, and the same one this report's sibling prints (#1403).
             out.push('% No interface ' + wanted.name + ' on ' + dev.name);
           } else if (!port.enabled) {
-            // Unsettled: no capture was found for a shut port, and "administratively down" is a fact about the
-            // port that a reader needs. This sentence stays this console's own until one arrives.
-            out.push('% ' + wanted.name + ' is administratively down: OSPF runs on no shut port with an address');
+            // A shut port the process covers is still an OSPF interface, and a box prints its block - the block
+            // opens with the port's own state line, not with a refusal:
+            //   R1# show ip ospf interface loopback 100
+            //   Loopback100 is administratively down, line protocol is down
+            //   Internet Address 100.1.1.1/24, Area 0
+            //   Process ID 1, Router ID 1.1.1.1, Network Type LOOPBACK, Cost: 1
+            //     (howtonetwork.org, "Troubleshooting Route Advertisement" - the loopback is in area 0 and its
+            //      `show ip ospf interface brief` row reads `Lo100 ... DOWN 0/0`, so OSPF did *not* drop the port
+            //      from the process when it was shut)
+            //   R1# show ip ospf interface
+            //   FastEthernet0/0 is administratively down, line protocol is down
+            //     Internet Address 192.168.100.1/24, Area 0
+            //     Process ID 1, Router ID 1.1.1.1, Network Type BROADCAST, Cost: 1
+            //     ...
+            //     Transmit Delay is 1 sec, State DOWN, Priority 1
+            //     (tech.pjin.jp, OSPF neighbour-failure drill, IOS 12.4: interface FastEthernet0/0 holds
+            //      `ip address 192.168.100.1 255.255.255.0`, `ip ospf 1 area 0` and `shutdown`)
+            // Two independent boxes, one the `show ip ospf interface` table and one the per-port form, both open
+            // with this line at the left margin, indenting the fields under it by two spaces.
+            //
+            // This console used to answer with a sentence no box prints - `% Gi0/1 is administratively down: OSPF
+            // runs on no shut port with an address` - and the rule inside it is false: a shut port stays an OSPF
+            // interface (it cannot form an adjacency, and it is not advertised, but it is listed). The two lines
+            // below are the captured head of the block. The block continues with `Process ID`, `Network Type` and
+            // `State`, and this model has no process id and no network type to print, so it stops after the two
+            // lines it can state rather than inventing the rest. What is still open - the rest of the block, and
+            // what a shut *unaddressed* port prints - is recorded in
+            // research/show-ospf-interface-shut-port.md.
+            const shownName = require('./iface-name').displayName(port.name);
+            if (port.ip && port.mask) {
+              const ov = (dev.config.ospf.interfaces || []).filter(function (x) { return x.name === port.name; })[0];
+              const area = (ov && ov.area !== undefined) ? ov.area : (dev.config.ospf.areaId || 0);
+              out.push(shownName + ' is administratively down, line protocol is down');
+              out.push('  Internet Address ' + port.ip + '/' + require('./net').prefixOf(port.mask) + ', Area ' + area);
+            } else {
+              // A shut port with no address is not an OSPF interface at all, and the same one-line message that
+              // every other disqualifier draws is the only line the vendor has for that state. Inference, not a
+              // capture: the captures in hand put an *up* unaddressed Serial0 on this line (Cisco 13693-22), and
+              // the message is documented as carrying no reason of its own.
+              out.push('%OSPF: OSPF not enabled on ' + shownName);
+            }
           } else {
             // OSPF is not on this port, and a box says only that - one tagged system message, naming the port
             // in its long type spelling, with no `is` and the tag glued to the percent sign:

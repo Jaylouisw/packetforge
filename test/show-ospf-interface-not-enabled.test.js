@@ -12,8 +12,10 @@
 // network statement never covered. This console used to answer with its own sentences - `% Gi0/1 has no
 // address: OSPF needs one to form an adjacency` and `% Gi0/1 is not in OSPF`.
 //
-// The shut-port branch is NOT settled by any capture found, so it keeps this console's own sentence and is
-// pinned here as such; research/show-ospf-interface-not-enabled.md records that split.
+// The shut-port branch is not part of this question any more: a shut port the process covers prints its
+// interface block, opening with the port's own state line (research/show-ospf-interface-shut-port.md), and
+// test/show-ospf-interface-shut-port.test.js pins that shape. What is checked here is only that this branch
+// does not draw the tagged message - the port is on OSPF, it is just down.
 const { loadCatalog } = require('../devices/registry');
 const { Topology } = require('../engine/topology');
 const { Simulator } = require('../engine/simulator');
@@ -103,15 +105,17 @@ console.log('The line does not explain why - the same words for every reason:');
 }
 
 console.log('');
-console.log('The branches the evidence does not settle keep this console\'s own sentence:');
+console.log('The shut and missing branches are not this message:');
 {
   const r = running();
   configure(r.t, 'r1', ['interface Gi0/0/1', 'shutdown']);
   const sim = new Simulator(r.t);
   sim.computeOspf();
   const shut = show(r.t, sim, 'r1', 'show ip ospf interface Gi0/0/1');
-  ok(/administratively down/.test(shut) && !/not enabled on/.test(shut),
-    'a shut port still says it is shut, and does not claim the box printed a tag', shut);
+  ok(/^GigabitEthernet0\/0\/1 is administratively down, line protocol is down/.test(shut),
+    'a shut port opens its block with the port state line (its own question)', shut.split('\n')[0]);
+  ok(!/OSPF not enabled/.test(shut),
+    'and never claims OSPF is off a port the process covers', shut);
   const missing = show(r.t, sim, 'r1', 'show ip ospf interface Gi9/9');
   ok(/^% No interface Gi9\/9 on /.test(missing),
     'a port the box does not have is still named as missing', missing);

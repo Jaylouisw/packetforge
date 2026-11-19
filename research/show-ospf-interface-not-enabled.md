@@ -43,11 +43,11 @@ Community L3-switch paste (2039094), which is IOS but carries no version banner.
 
 **Unresolved (and therefore untouched in the engine).**
 
-* **A port that is administratively disabled.** No capture was found for `show ip ospf interface <port>` naming
-  a port in that state. Two shapes are plausible - the same `%OSPF:` line, or the head of the interface block
-  (`GigabitEthernet0/1 is administratively down, line protocol is down`) - and this console prints
-  neither: it keeps its own `% Gi0/1 is administratively down: OSPF runs on ...`. That sentence is a claim no box
-  makes, but guessing between two vendor shapes on no evidence would be worse.
+* ~~A port that is administratively disabled.~~ **Settled since this note was written, in
+  `research/show-ospf-interface-shut-port.md`:** the second shape is the right one - a shut port that the process
+  covers prints the interface block, opening `GigabitEthernet0/1 is administratively down, line protocol is
+  down`, and not the `%OSPF:` line. `engine/cli.js` now prints the captured head of that block instead of its own
+  sentence. A shut port with *no address* is the remaining inference, not a capture.
 * **A port the box does not have.** `% No interface Gi9/9 on <box>` is this console's sentence for every view.
   What IOS prints for `show ip ospf interface gi9/9` (a `%OSPF:`-tagged refusal, a bare `% Invalid input`, or
   nothing) was not found.

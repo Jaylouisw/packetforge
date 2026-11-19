@@ -1845,9 +1845,23 @@ The second answer is the box's, not this console's: where OSPF is not on the por
 system message, names the port in its long type spelling, and does **not** say why - an unaddressed port, an L2
 access port and a port a `network` statement never covered all draw the same line
 (`research/show-ospf-interface-not-enabled.md` has the captures). The reason is still readable in
-`show ip interface brief` and `show running-config`, which is where an operator goes next. A *shut* port keeps
-this console's own sentence (`% Gi0/0/1 is administratively down: ...`), because no capture was found for what a
-box prints there.
+`show ip interface brief` and `show running-config`, which is where an operator goes next.
+
+A *shut* port is a different answer, because it is a different fact: it is still an OSPF interface, and a box
+prints its block - not a message. The block opens with the port's own state line and the address and area:
+
+```text
+r1> show ip ospf interface Gi0/0/1
+GigabitEthernet0/0/1 is administratively down, line protocol is down
+  Internet Address 10.2.0.1/24, Area 0
+```
+
+Two captures, a lab loopback and an IOS 12.4 router (`research/show-ospf-interface-shut-port.md`), agree on
+those two lines and on their indentation. The block continues with `Process ID`, `Network Type`, `Cost`, `State
+DOWN` and the DR/BDR and timer lines; this console stops after the two lines whose facts it holds, rather than
+printing numbers it would have to invent. A shut port with **no address** cannot be in OSPF at all and draws the
+tagged `%OSPF:` line above. (The *reason* a port is down is not in either answer - it is in
+`show interfaces`.)
 
 An access switch has no OSPF at all, and says so rather than printing an empty table:
 
