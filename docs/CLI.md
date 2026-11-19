@@ -3651,7 +3651,7 @@ A genuinely bad value is still quoted back (`Invalid name server "flurbish"`), s
 
 ## Two things measured and left alone
 
-**Whitespace is already robust.** A lab is pasted, not typed, so every command in the sweep was also run with double spaces, a tab, a leading space, a trailing space and a mix: **108 variant runs, 0 differences** in either the answer or the resulting config. That property is pinned by a test rather than assumed.
+**Whitespace is already robust.** A lab is pasted, not typed, so the sweep's seven commands were also run with double spaces, a tab, a leading space, a trailing space, three trailing spaces and a mix: **42 variant runs, 0 differences** in either the answer or the resulting config. That property is pinned by a test rather than assumed.
 
 **A global command at an interface prompt is applied in global config** — deliberately, so that a pasted running-config block works without `exit` lines between blocks (#1230). It is leniency by design; what it costs is that the answer does not say where the configuration landed. The reverse is refused by name, and where the console knows better it says so:
 
