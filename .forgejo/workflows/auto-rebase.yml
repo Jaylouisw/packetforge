@@ -426,7 +426,10 @@ jobs:
                   // ones per tick. The per-run ceiling below is still `batch` actual
                   // rebases, so the matrix count a tick can enqueue is unchanged.
                   .slice(0, Number(process.env.BATCH || 5) * 4)
-                  .forEach(p => console.log(p.number + " " + p.head.ref));
+                  // The head sha is in this same reply - `p.head.sha` - so the
+                  // per-candidate `head_of` GET below would be a second read of a
+                  // field this pass already holds. It is carried through instead.
+                  .forEach(p => console.log(p.number + " " + p.head.ref + " " + (p.head.sha || "")));
               });' 2>/dev/null || true)
 
           if [ -z "${pulls:-}" ]; then
@@ -445,7 +448,7 @@ jobs:
           # ceiling on actual rebases per run is unchanged, so this cannot enqueue more
           # matrices than before - it only stops enqueueing them for branches that
           # cannot use them.
-          while read -r n ref; do
+          while read -r n ref listed_sha; do
             [ -z "${n:-}" ] && continue
             [ "$looked" -ge "$batch" ] && break
 
@@ -453,7 +456,7 @@ jobs:
             # rebase is what re-runs the matrix that failed. Leave it to its author:
             # pr-rebase.yml rebases the moment a fix is pushed, which is the only event
             # that can turn it green.
-            head_sha=$(head_of "$n")
+            head_sha="${listed_sha:-$(head_of "$n")}"
             if [ -n "$head_sha" ] && checks_failed "$head_sha"; then
               red=$((red+1))
               echo "PR #$n: checks already failing on ${head_sha} - not rebasing it"
@@ -614,11 +617,17 @@ jobs:
                 });
                 prs
                   .filter(p => p.state === "open" && p.mergeable === true)
-                  .forEach(p => console.log(p.number));
+                  // Same reply, same field: the arming loop below needs the head
+                  // sha, and asking each pull request for it again is one GET per
+                  // mergeable pull request per pass.
+                  .forEach(p => console.log(p.number + " " + (p.head.sha || "")));
               });')
 
-          for n in $armable; do
-            head_sha=$(head_of "$n")
+          # Here-string, not `for n in $armable`: the list is "number sha" pairs
+          # now, and a plain word-split would read a sha as the next pull number.
+          while read -r n listed_sha; do
+            [ -z "${n:-}" ] && continue
+            head_sha="${listed_sha:-$(head_of "$n")}"
             if [ -z "$head_sha" ] || ! checks_green "$head_sha"; then
               echo "PR #$n: checks are not green yet - ci.yml's Arm auto-merge job merges it once they are"
               continue
@@ -629,7 +638,7 @@ jobs:
               200|201|409) rearmed=$((rearmed+1)) ;;
               *)           echo "PR #$n: arm refused (http $code)" ;;
             esac
-          done
+          done <<< "$armable"
 
           if [ "$uncheckable" -gt 0 ]; then
             echo "::warning title=Auto-rebase::${uncheckable} pull request(s) left unrebased: this pass holds only the run token, and a push made with it raises no pull_request event, so the head it mints would have no checks and could never be armed. Set the FORGEJO_TOKEN repository secret to a user token - measured, a user token's push produces the eight statuses inside 25 s."
