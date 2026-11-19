@@ -21,6 +21,34 @@ const { resolvePortName } = require('./iface-name');
 const media = require('./media');
 const vlanLib = require('./vlan');
 
+// A console or auxiliary port is a LINE, not an interface.
+//
+// The catalogue records the boxes' console and aux sockets as ports (`type: "console"`) because the faceplate has
+// to draw the connector and the physical layer has to know it is out-of-band - `media.canMate()` already calls it
+// one ("a console port is not a data port", and two consoles negotiate a *baud rate*, not a line rate). The
+// interface tables did not know: `show ip interface brief` printed `Console unassigned YES unset down down` and
+// `show interfaces` gave it a MAC address and a speed, on every one of the 233 models that declare such a port.
+//
+// A Cisco router's console is a *line*: `show running-config` writes `line con 0` / `line aux 0`, `show line`
+// reports it as `0 CTY` beside the aux port's `129 AUX 9600/9600`, and the socket runs at 9600 baud, 8 data bits, 1
+// stop bit, no parity. In the one Cisco capture that shows all of it at once (tech note 19065, a 3640), the
+// interface tables hold Loopback0, Ethernet0/0 and Serial3/x and nothing for either socket.
+// research/console-is-a-line-not-an-interface.md has the captures, and the one caveat: no cisco.com page in hand
+// prints `show ip interface brief` on a 2811 itself.
+//
+// Returned for the three views that list *interfaces* (`show ip interface brief`, `show interfaces`,
+// `show running-config`) and for the `interface` door, so the rule is stated once. It is deliberately narrow: the
+// port keeps existing in `device.interfaces`, keeps its place on the faceplate and keeps its cable, because a lab
+// may cable a console cable to it - it just is not an interface anything can address.
+function isConsoleLine(port) {
+  if (!port) return false;
+  if (String(port.type || '').toLowerCase() === 'console') return true;
+  // The same fact in hardware terms, which is the spelling `media.canMate()` uses to decide that a socket is
+  // out-of-band: the derived cage is `console`. A spec that omits `type` but names a console connector lands here.
+  const hw = port.hardware || {};
+  return hw.cage === 'console';
+}
+
 class Interface {
   constructor(spec, index, deviceSpec) {
     this.name = spec.name;
@@ -1696,4 +1724,4 @@ class Device {
   }
 }
 
-module.exports = { Device, Interface, CAPABILITIES, MAC_AGE_MS, ARP_AGE_MS };
+module.exports = { Device, Interface, CAPABILITIES, MAC_AGE_MS, ARP_AGE_MS, isConsoleLine };

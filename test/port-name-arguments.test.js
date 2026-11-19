@@ -19,6 +19,7 @@ const { CliSession } = require('../engine/cli');
 const { Topology } = require('../engine/topology');
 const { Simulator } = require('../engine/simulator');
 const { loadCatalog } = require('../devices/registry');
+const { isConsoleLine } = require('../engine/device');
 
 let passed = 0, failed = 0;
 function ok(cond, msg, detail) {
@@ -165,7 +166,7 @@ console.log('A single-word name still works, and every model can be looked at po
 
   // The sweep that found this: for every model, the first three ports it lists must be answerable by name.
   const bad = [];
-  let checked = 0;
+  let checked = 0, lines = 0;
   for (const spec of catalog) {
     let tt = null, d = null, ss = null;
     try {
@@ -176,13 +177,17 @@ console.log('A single-word name still works, and every model can be looked at po
       ss.setRunTime(60000);
     } catch (e) { bad.push(spec.model + ' setup threw'); continue; }
     for (const name of Array.from(d.interfaces.keys()).slice(0, 3)) {
+      // A console or aux socket is named on the panel but is not an interface, so `show interfaces <name>` answers
+      // about it in words and prints no block (research/console-is-a-line-not-an-interface.md). It is still
+      // answerable by name; the sweep just cannot count a block for it.
+      if (isConsoleLine(d.interfaces.get(name))) { lines++; continue; }
       let text = '';
       try { text = show(tt, 'd1', 'show interfaces ' + name, ss); } catch (e) { bad.push(spec.model + ' ' + name + ' threw: ' + e.message); continue; }
       checked++;
       if (blocks(text) !== 1) bad.push(spec.model + ' | ' + name + ' | ' + blocks(text) + ' blocks');
     }
   }
-  ok(checked > 5000, 'every model, three ports each', String(checked));
+  ok(checked > 5000, 'every model, three ports each', String(checked) + ' (' + lines + ' console lines skipped)');
   ok(bad.length === 0, 'each one namable, and each answer about exactly that port', bad.slice(0, 5).join(' ;; '));
 }
 

@@ -21,6 +21,7 @@
 // to arrive: nothing plugged in, a shut port, an empty table (broadcast), and a policy refusal.
 const path = require('path');
 const { Topology, Simulator, CliSession, runCommands, flow } = require('../engine');
+const { isConsoleLine } = require('../engine/device');
 const { loadCatalog } = require('../devices/registry');
 
 let passed = 0, failed = 0;
@@ -332,10 +333,13 @@ console.log('The two surfaces agree on every switch in the catalogue:');
     const console_ = parseShowInterfaces(show(session({ topo: topo }, dev), 'show interfaces'));
     const payload = flow.counterSnapshot(topo.flowState, dev.id);
     const printed = Object.keys(console_).length;
-    // `show interfaces` prints one block per interface, and a switch has more than its ethernet ports - a console
-    // port, a coax port, a radio. Comparing against the ethernet count alone would call a correct report wrong.
-    if (printed !== dev.interfaces.size) {
-      bad.push(swSpec.model + ': console prints ' + printed + ' of ' + dev.interfaces.size + ' interfaces');
+    // `show interfaces` prints one block per interface, and a switch has more than its ethernet ports - a coax
+    // port, a radio. Comparing against the ethernet count alone would call a correct report wrong. A console or
+    // aux socket is the one kind of port that gets no block, because it is not an interface at all - it is a line
+    // (research/console-is-a-line-not-an-interface.md) - so it comes off the count rather than being expected.
+    const dataPorts = Array.from(dev.interfaces.values()).filter(function (i) { return !isConsoleLine(i); });
+    if (printed !== dataPorts.length) {
+      bad.push(swSpec.model + ': console prints ' + printed + ' of ' + dataPorts.length + ' interfaces');
       continue;
     }
     // Nothing has crossed, so every printed port must be zero and the payload must have no rows.

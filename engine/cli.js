@@ -14,6 +14,9 @@ const MODE_DHCP_POOL = 'dhcp-pool';
 // engine/iface-name.js, kept in step by hand; two copies of a naming rule drift, which is the
 // failure mode this repo has already been bitten by (#1247).
 const { PORT_NAME_RULES, portKey, resolvePortName } = require('./iface-name');
+// A console port is a line, not an interface. The predicate lives with the port model that owns `type`, so the
+// three views that list interfaces and the `interface` door all ask the same question (research note cited there).
+const { isConsoleLine } = require('./device');
 const ifaceName = { resolvePortName };
 // Rates are spelled the way the catalogue spells them, by the parser the catalogue uses: `speed 1G` and
 // `speed 1000` must land on the same port rate, and a second parser here would be a second answer.
@@ -39,6 +42,20 @@ const ospfLib = require('./ospf');
 // (`cf-cli-basics`). research/config-mode-greeting.md records the pages that disagree and why they are the
 // rendering, not the device.
 const CONFIG_MODE_GREETING = 'Enter configuration commands, one per line.  End with CNTL/Z.';
+
+// The one sentence both doors print for a console socket: `interface Console` and `show interfaces Console`.
+//
+// It names the socket the operator typed, says what it is instead, and where a box keeps its settings. The words
+// are this console's own - IOS has no sentence for this, because on a box the name does not resolve to an interface
+// at all (`% Invalid input detected at '^' marker.`) - so making up a caret line would claim a parser error nobody
+// made. What the sentence must not do is invent a `line` mode here: there is none, and a reader told to type
+// `line con 0` at this console would get `% Unrecognized command`. It is named as a fact about the box, not as an
+// instruction (research/console-is-a-line-not-an-interface.md).
+function consoleIsALine(name) {
+  const aux = /^aux/i.test(String(name));
+  return '% ' + name + ' is the ' + (aux ? 'auxiliary' : 'console') + ' line, not an interface: it carries a ' +
+    'terminal at a baud rate, not frames, and a box keeps its settings under `line ' + (aux ? 'aux 0' : 'con 0') + '`';
+}
 
 function pad(s, w) { s = String(s); return s + ' '.repeat(Math.max(0, w - s.length)); }
 
@@ -1535,6 +1552,10 @@ class CliSession {
           return ['% Interface not found: ' + typed];
         }
       }
+      // `interface Console` opened a port a box cannot open: a console is a line, addressed with `line console 0`,
+      // and no IOS `interface` name exists for it. Accepting it also let `ip address` succeed on a socket that
+      // carries an operator at a baud rate, and the address then vanished from every table that lists interfaces.
+      if (isConsoleLine(this.device.interfaces.get(name))) return [consoleIsALine(name)];
       this.iface = name;
       this.mode = MODE_IFACE;
     } else if (head === 'vrrp') {
@@ -5804,7 +5825,13 @@ class CliSession {
           'use `show interfaces ' + want + '` for one port');
       }
       out.push(briefLine(BRIEF_COLUMNS.map(function (c) { return c.head; })));
+      // A console or aux socket is a line, not an interface, and a box's own table has no row for one: Cisco's
+      // 2811 samples list FastEthernet0/0, FastEthernet0/1, Serial0/0/0 and Serial0/0/1 and nothing else, on a
+      // router that has both a console and an aux port. This table used to print `Console unassigned YES unset
+      // down down` (and `Aux0` beside it) on every model that declares one - 683 sockets on 233 models.
+      // research/console-is-a-line-not-an-interface.md.
       for (const i of dev.interfaces.values()) {
+        if (isConsoleLine(i)) continue;
         // The IP-Address cell is the bare dotted quad. IOS's own samples never print the mask here - the
         // field list defines the column as "IP address assigned to the interface" - and a reader comparing a
         // simulator's table against a box's would find a string the box cannot produce (research note:
@@ -6626,7 +6653,11 @@ class CliSession {
       // calls its ports "Port 1" and its cages "SFP+ 1", so taking `tokens[1]` read the name "Port" and answered
       // `% No interface Port` about a port that exists (#1401). One door was fixed and the other left behind.
       const wanted = tokens.length > 1 ? tokens.slice(1).join(' ') : null;
-      let shown = [...dev.interfaces.values()];
+      // A console or aux socket is a line, not an interface: a box prints no block for one, because `show
+      // interfaces` reports interfaces and the console is configured under `line con 0`. It is filtered here rather
+      // than at the by-name door so that both the listing and a name that points at it answer the same way -
+      // research/console-is-a-line-not-an-interface.md.
+      let shown = [...dev.interfaces.values()].filter(function (i) { return !isConsoleLine(i); });
       if (wanted) {
         const name = ifaceName.resolvePortName(dev, wanted);
         const one = name ? dev.interfaces.get(name) : null;
@@ -6666,6 +6697,9 @@ class CliSession {
           return ['% No interface ' + wanted + ' on ' + (dev.name || 'this device') +
             (ambiguous ? ' (that spelling is ambiguous: more than one port folds onto it)' : '')];
         }
+        // ...and a console socket asked for by name is answered in words, not with a block: the block used to give
+        // an RS-232 line a MAC address, a 1 Gb/s link rate and a duplex, none of which a console port has.
+        if (isConsoleLine(one)) return [consoleIsALine(one.name)];
         shown = [one];
       }
       // A subinterface is an interface: it can hold an address, carry traffic and be configured, so it has to
@@ -6853,6 +6887,10 @@ class CliSession {
         for (const e of allAcls[id]) out.push('access-list ' + id + ' ' + (e.line || e.action));
       }
       for (const i of dev.interfaces.values()) {
+        // A console port has no interface block on a box - its settings live under `line con 0` - so printing
+        // `interface Console` wrote a stanza no Cisco running-config contains and no box could read back.
+        // `line con 0` is not a mode this console has, so the honest config has nothing to say here at all.
+        if (isConsoleLine(i)) continue;
         out.push('interface ' + i.name);
         if (i.description) out.push('  description ' + i.description);
         // Only when forced: a config that emits `speed auto` on every port is noise, and the round trip

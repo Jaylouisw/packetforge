@@ -22,7 +22,7 @@ Modes and their prompts:
 | `enable` | enter enable mode |
 | `configure terminal` | enter config mode, answering with the box's one-line greeting; abbreviable word by word, down to what is still unique - `config t` is accepted, `con` is refused as ambiguous (`configure` / `converge`), and a bare `configure` is `% Incomplete command` |
 | `show version` | vendor, model, category, capabilities |
-| `show ip interface brief` | interface IP / status table (status = whether the port can carry a frame), one row per port and one per EtherChannel bundle (`Port-channel1`, `unassigned YES unset`, `up` only when a member is in it) |
+| `show ip interface brief` | interface IP / status table (status = whether the port can carry a frame), one row per **data** port and one per EtherChannel bundle (`Port-channel1`, `unassigned YES unset`, `up` only when a member is in it); a console or aux socket is a line, not an interface, and has no row (`research/console-is-a-line-not-an-interface.md`) |
 | `show ip route` | routing table: connected, static, OSPF, BGP, and the default - or `Gateway of last resort is not set` when there is none; a box that does not route prints `Default gateway is ...` over the host/redirect cache instead |
 | `show arp` | ARP cache: the neighbours it has heard, with an age and the port each was heard on and whether that port can still carry a frame, plus a local row (age `-`) for every interface holding an IPv4 address |
 | `show mac address-table` | MAC table (switches), per VLAN, with an age per entry and stale entries marked, the box's twenty reserved `All … CPU` rows above the learned ones, titled and ruled as the device prints it and closed by `Total Mac Addresses for this criterion: N`; an address learned through a bundle is named on the port-channel (`Po1`), as the device names it (`research/mac-table-port-channel-name.md`) |
@@ -36,7 +36,7 @@ Modes and their prompts:
 | `show ip ospf` / `show ip ospf neighbour` / `show ip ospf interface` | the process this box runs (`Areas`, `Interfaces`, `Neighbours`, `Routes installed from OSPF`), each adjacency's `Pri`, `State` and `Dead Time` - the Router Dead Interval counting down from that neighbour's last Hello - and what each port costs; a box with no OSPF says so and names the command that would turn it on |
 | `show ip dhcp` / `show ip dhcp binding` / `show ip dhcp pool` | the allocation table under the box's own `Bindings from all pools not associated with VRF:` title: which MAC holds which address, from which pool, and how long is left on the lease - and, per pool, its utilisation mark, its totals and the address it would hand out next; a box with no pools says it is not a DHCP server |
 | `show ip dns` / `show ip dns zone` | the zones this box answers for, as records in zone-file shape, and the name servers it asks; a zone it would refuse to answer is printed with `NOT answered: <reason>` rather than as if it were live, and a device with no zones says it is not a DNS server |
-| `show interfaces` | per-interface detail incl. MAC, peer, link state and what has crossed the port |
+| `show interfaces` | per-interface detail incl. MAC, peer, link state and what has crossed the port; a console or aux socket is not an interface and gets no block - naming one answers in a sentence saying what it is |
 | `show power inline [<port>]` | PoE supplied per PSE port, the box's `Available:/Used:/Remaining:` budget line above the table, and why a powered device was denied |
 | `show vrrp` | the group, its state (`Master`/`Backup`/`Init` with the reason), and the master the election chose |
 | `show running-config` | full configuration |
@@ -211,7 +211,7 @@ takes back.
 | Section | Printed as |
 |---|---|
 | hostname | `hostname <name>` |
-| interfaces | `interface <name>` block: description, `speed`, `duplex`, `clock rate <bps>` (a serial DCE), `encapsulation dot1q <vlan>` (a subinterface), `ip address`, switchport VLAN/trunk, `channel-group`, `ip access-group`, `ip nat inside` / `ip nat outside`, `shutdown`, `vrrp <vrid> …` |
+| interfaces | `interface <name>` block: description, `speed`, `duplex`, `clock rate <bps>` (a serial DCE), `encapsulation dot1q <vlan>` (a subinterface), `ip address`, switchport VLAN/trunk, `channel-group`, `ip access-group`, `ip nat inside` / `ip nat outside`, `shutdown`, `vrrp <vrid> …`. A console or aux socket gets **no** block: a box writes its settings under `line con 0` / `line aux 0`, not as an interface |
 | VLAN table | `vlan <id> [name] <text>` |
 | DHCP pools | `ip dhcp pool <name>` block: network, range, default-router, dns-server, excluded-address, lease, `host <addr> <mac>` |
 | DNS zones | `dns zone <apex>` followed by `dns add <name> <type> <value>` |
@@ -871,6 +871,43 @@ the column, a vendor that prints neither spelling), are in
 A device that is **not part of a topology** has no cables to report on, so its ports keep their old
 answer (`up` unless shut). The command cannot know about a cable it was never told about, and inventing
 `down` for every port of a bare device would be a different wrong answer.
+
+#### A console port is a line, not an interface
+
+A router's console and aux sockets are in the catalogue, because the faceplate draws them and the physical
+layer needs to know they are out-of-band — `canMate()` refuses to mate one with a data port and negotiates a
+*baud rate* between two of them. They are **not** interfaces, and no view that lists interfaces prints one:
+
+```
+Catalyst 2811# show ip interface brief
+Interface              IP-Address      OK? Method Status                Protocol
+FastEthernet0/0        unassigned      YES unset  down                  down
+FastEthernet0/1        unassigned      YES unset  down                  down
+Serial0/0/0            unassigned      YES unset  down                  down
+Serial0/0/1            unassigned      YES unset  down                  down
+```
+
+The 2811 declares `Console` and `Aux0` as well, and none of the three views prints them: not this table, not
+a `Console (console, 1G), MAC …` block in `show interfaces` (with a MAC address and a gigabit line rate
+invented for an RS-232 socket), and not an `interface Console` stanza in `show running-config`. On a box the
+console is a **line** — `show running-config` writes `line con 0` / `line aux 0`, the box's own line view (which
+this console does not have) reports it as `0 CTY` beside the aux port's `129 AUX 9600/9600`, and it runs at
+9600 baud, 8 data bits, 1 stop bit, no parity. A
+box's `show ip interface brief` on a router that has a console lists its Ethernet, serial, loopback and
+bundle ports and nothing else. Asking this console for the socket by name answers in one sentence:
+
+```
+Catalyst 2811# show interfaces Console
+% Console is the console line, not an interface: it carries a terminal at a baud rate, not frames, and a box
+  keeps its settings under `line con 0`
+```
+
+`interface Console` is refused with the same words and leaves the cursor where it was, because opening it let
+`ip address` succeed on a socket that can never carry an address and then hid the address from every table.
+The socket stays in the port list, on the panel and in the topology — a lab may cable a console cable to it;
+it is simply not an interface. `line con 0` itself is not a mode here, so nothing else is claimed about it.
+The captures and what is still open are in
+[research/console-is-a-line-not-an-interface.md](../research/console-is-a-line-not-an-interface.md).
 
 ### Counters
 
