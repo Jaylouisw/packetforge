@@ -52,3 +52,74 @@ they were skipped, and they could not power anything at all.
 the next three Ubiquiti routers/switches with ports that source and no budget; none of their
 pages prints a total either, so each needs the same treatment on its own evidence. Not done
 here: one family per increment.
+
+## Follow-on: the ER-X family, where Ubiquiti does print the operands
+
+The same increment's next three rows - `ER-X`, `ER-X-SFP` and `EdgeRouter-4` - had no
+`sourceUrl` at all, and the two PoE members modelled no PoE: the ER-X's passthrough port
+sourced nothing and its input port was not a PD, so a lab that cabled it to a PoE switch was
+told the router was not powered. All three now cite Ubiquiti.
+
+**A real datasheet exists for this family, and only under one path.** Note that this is the
+first EdgeMAX PDF found in this census:
+
+| surface | result |
+|--|--|
+| <https://dl.ui.com/datasheets/edgemax/EdgeRouter_X_DS.pdf> | 200, `application/pdf`, **3,594,850 B**, 7 pages, "Models: ER-X, ER-X-SFP" |
+| <https://dl.ui.com/guides/edgemax/EdgeRouter_ER-X_QSG.pdf> | 200, `application/pdf`, **1,362,583 B**, 18 pages |
+| <https://dl.ui.com/datasheets/ER-X.pdf> (flat) | 200, 609,911 B - the tech-specs front page |
+| <https://dl.ui.com/qig/er-x/> | 200, 609,911 B - front page, not the `qig` iframe shell |
+| <https://dl.ubnt.com/datasheets/edgerouterx/ER-X_DS.pdf> | 200, 609,911 B - front page |
+| <https://dl.ui.com/datasheets/edgemax/EdgeRouter_4_DS.pdf> | 200, **609,911 B** - front page, so the ER-4 still has no datasheet |
+| <https://dl.ui.com/datasheets/edgemax/EdgeRouter_X_SFP_DS.pdf> / `..._XSFP_DS.pdf` | 200, 609,911 B each - same fallback |
+
+So "no datasheet" conclusions drawn from a 200 on a `dl.ui.com` path are worthless in both
+directions: the ER-X has one, the ER-4 does not, and both answer 200.
+
+### The two models are one PDF, two tables
+
+| | ER-X (page 5) | ER-X-SFP (page 6) |
+|--|--|--|
+| Networking interfaces | Data/PoE **Input** Port (1) 10/100/1000 RJ45; Data Ports (3); Data/PoE **Passthrough** Port (1) | Data/PoE **Output** Port (5) 10/100/1000 RJ45; Data Port (1) 100/1000 SFP |
+| PoE output | passthrough of the input supply (QSG table below) | Passive 24V, pins 4, 5+; 7, 8-; **12W per port; 50W combined** |
+| Power input | 12VDC, 0.5A adapter **or 24V passive PoE** | 24VDC, 2.5A adapter only |
+| Max. power consumption | 5W | 5W (excludes PoE output) |
+
+The per-port table on that page - "Max. PoE Wattage Per Data/PoE Output Port 12W (24V)", "Max.
+PoE Wattage Combined (All 5 Data Ports) 50W" - sits **under the ER-X-SFP heading**. Reading it
+as an ER-X figure would give an ER-X a 50 W PoE budget it cannot supply, which is the same
+one-table-two-models trap as the Dream Wall's non-Pro datasheet.
+
+### The ER-X passthrough has no budget, only a table of input sources
+
+Ubiquiti prints no total for the ER-X because the output *is* the input: the quick-start
+guide's table is the only figure.
+
+| Power input | Passive PoE passthrough |
+|--|--|
+| 24V passive PoE (on eth0/PoE In) | ≈23V, **5W** |
+| 12V, 1A (ERLite-3 Power Adapter) | ≈11V, 5W |
+| 24V, 2.5A (ERPoe-5 Power Adapter) | ≈23V, **11W** |
+
+The catalogue records 5 W / 5 W - the column the datasheet also names as a power method (24V
+passive PoE on eth0) - and the note carries the other two rows so a lab with a bigger supply
+can state 11 W. The datasheet's "*Requires 24V passive PoE or a 12W minimum power adapter*" is
+an adapter rating, not a per-port ceiling; treating it as one would have invented 12 W.
+
+### Trap: the ER-X tech-spec page deletes two of the five ports
+
+<https://techspecs.ui.com/uisp/wired/er-x> (200, 575,859 B) prints
+`Metworking interface: (3) 10/100/1000 RJ45 ports` - the typo is Ubiquiti's - and the other two
+ports in the next row, `PoE interface: (1) ... (Data/PoE input) / (1) ... (Data/PoE
+passthrough)`. The store page says it plainly in prose: "(1) GbE, 24V passive PoE RJ45 input,
+(3) GbE RJ45 ports, (1) GbE PoE passthrough output" (200, 326,228 B). An importer that reads
+the "Networking interface" row alone would model a three-port router.
+
+### One more defect found, not fixed here
+
+`ubiquiti` carries **two** EdgeRouter-4 rows: `devices/ubiquiti/er-4.json` (model `ER-4`) and
+`devices/ubiquiti/edgerouter4.json` (model `EdgeRouter-4`), both citing the same tech-spec
+page. The pair is waived in `test/known-issues.json` (`duplicateLabels`), whose list can only
+shrink, so collapsing it is a catalogue-identity decision (which model string labs keep) and
+belongs in its own increment. This pass corrected the `EdgeRouter-4` row only, and the two
+rows still agree on PoE (neither can sink or source).

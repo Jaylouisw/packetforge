@@ -3,7 +3,7 @@
   "model": "ER-X-SFP",
   "label": "EdgeRouter X SFP",
   "category": "router",
-  "description": "EdgeRouter X variant adding a Gigabit SFP uplink to five GbE ports with PoE passthrough.",
+  "description": "EdgeRouter X SFP (ER-X-SFP) - 5x 10/100/1000 RJ45 with 24V passive PoE out (50 W total, 12 W per port) plus 1x 100/1000 SFP.",
   "capabilities": [
     "l3-forward",
     "firewall",
@@ -11,40 +11,94 @@
     "dhcp-server",
     "dhcp-client",
     "cli",
-    "http-server"
+    "http-server",
+    "poe-pse",
+    "passive-poe"
   ],
   "interfaces": [
     {
       "name": "port1",
       "type": "ethernet",
-      "speed": "1G"
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ],
+      "poeOut": 12,
+      "poeOutClass": "passive"
     },
     {
       "name": "port2",
       "type": "ethernet",
-      "speed": "1G"
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ],
+      "poeOut": 12,
+      "poeOutClass": "passive"
     },
     {
       "name": "port3",
       "type": "ethernet",
-      "speed": "1G"
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ],
+      "poeOut": 12,
+      "poeOutClass": "passive"
     },
     {
       "name": "port4",
       "type": "ethernet",
-      "speed": "1G"
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ],
+      "poeOut": 12,
+      "poeOutClass": "passive"
     },
     {
       "name": "port5",
       "type": "ethernet",
-      "speed": "1G"
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ],
+      "poeOut": 12,
+      "poeOutClass": "passive"
     },
     {
       "name": "sfp1",
       "type": "ethernet",
-      "speed": "1G"
+      "connector": "sfp",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100
+      ]
     }
   ],
   "icon": "router",
-  "color": "#3b82f6"
+  "color": "#3b82f6",
+  "sourceUrl": "https://dl.ui.com/datasheets/edgemax/EdgeRouter_X_DS.pdf",
+  "poe": {
+    "budgetW": 50,
+    "sourceUrl": "https://dl.ui.com/datasheets/edgemax/EdgeRouter_X_DS.pdf",
+    "note": "Ubiquiti prints the total, not a derived one: \"Max. Total PoE Output 50W @ 24V\" and \"Max. PoE Wattage Combined (All 5 Data Ports) 50W\", with \"Max. PoE Wattage Per Data/PoE Output Port 12W (24V)\" and \"PoE Method Passive\". Five ports at 12 W is 60 W, so the 50 W total is the binding limit - it is the vendor's figure for the included 24V, 2.5A (60 W) adapter, 5 W of which the router itself consumes. Output voltage range 22-24VDC, pins 4, 5+; 7, 8- (2-pair)."
+  },
+  "notes": "Ubiquiti sources read 2026-11-19: datasheet https://dl.ui.com/datasheets/edgemax/EdgeRouter_X_DS.pdf (200, application/pdf, 3,594,850 B, 7 pages; the ER-X-SFP table is on page 6) and the tech-spec page https://techspecs.ui.com/uisp/wired/er-x-sfp (200, 582,211 B), which print the same rows. Networking interfaces, datasheet ER-X-SFP table: **Data/PoE Output Port (5) 10/100/1000 RJ45 Ports; Data Port (1) 100/1000 SFP Port** - so this is the sibling that powers five devices, while the plain ER-X powers one. PoE: **PoE Output Passive 24V (Pins 4, 5+; 7, 8-); PoE Out Voltage Range 22-24VDC; Max. PoE Wattage Per Data/PoE Output Port 12W (24V); Max. PoE Wattage Combined (All 5 Data Ports) 50W; PoE Method Passive**. Power: **Max. Power Consumption 5W; Power Input 24VDC, 2.5A Power Adapter (Included); Supported Voltage Range 9 to 26VDC** - adapter only, so no `poeIn`: Ubiquiti names no PoE input for this model, unlike the ER-X's eth0/PoE In. The SFP cage is a **100/1000** SFP port per the datasheet, not a 1G-only cage. Trap: the datasheet URL is the shared EdgeRouter-X one; dl.ui.com/datasheets/edgemax/EdgeRouter_X_SFP_DS.pdf and .../EdgeRouter_XSFP_DS.pdf both answer 200 with the 609,911-byte tech-specs front page rather than a PDF, so the \"no datasheet\" reading those 200s invite is wrong for this model."
 }

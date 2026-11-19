@@ -3,7 +3,7 @@
   "model": "ER-X",
   "label": "EdgeRouter X",
   "category": "router",
-  "description": "Five-port Gigabit EdgeOS router with passive PoE passthrough on port 5, popular budget edge device.",
+  "description": "EdgeRouter X (ER-X) - 5x 10/100/1000 RJ45: eth0 (port1) accepts 24V passive PoE, eth4 (port5) is a 24V passive PoE passthrough. 5 W max.",
   "capabilities": [
     "l3-forward",
     "firewall",
@@ -11,35 +11,80 @@
     "dhcp-server",
     "dhcp-client",
     "cli",
-    "http-server"
+    "http-server",
+    "poe-pse",
+    "passive-poe"
   ],
   "interfaces": [
     {
       "name": "port1",
       "type": "ethernet",
-      "speed": "1G"
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ],
+      "poeIn": 5
     },
     {
       "name": "port2",
       "type": "ethernet",
-      "speed": "1G"
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ],
+      "poeIn": false
     },
     {
       "name": "port3",
       "type": "ethernet",
-      "speed": "1G"
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ],
+      "poeIn": false
     },
     {
       "name": "port4",
       "type": "ethernet",
-      "speed": "1G"
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ],
+      "poeIn": false
     },
     {
       "name": "port5",
       "type": "ethernet",
-      "speed": "1G"
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ],
+      "poeOut": 5,
+      "poeOutClass": "passive"
     }
   ],
   "icon": "router",
-  "color": "#3b82f6"
+  "color": "#3b82f6",
+  "sourceUrl": "https://dl.ui.com/guides/edgemax/EdgeRouter_ER-X_QSG.pdf",
+  "poe": {
+    "budgetW": 5,
+    "sourceUrl": "https://dl.ui.com/guides/edgemax/EdgeRouter_ER-X_QSG.pdf",
+    "note": "The passthrough is a pass-through of the input supply, so Ubiquiti prints no fixed budget: the quick-start guide's table gives the available output per input source - \"24V passive PoE (on eth0/PoE In) = approx. 23V, 5W\", \"12V, 1A (ERLite-3 Power Adapter) = approx. 11V, 5W\", \"24V, 2.5A (ERPoe-5 Power Adapter) = approx. 23V, 11W\". 5 W is the vendor's own figure for the configuration the datasheet also names as a power method (24V passive PoE on eth0), not an arithmetic derivation. Ubiquiti's footnote \"Requires 24V passive PoE or a 12W minimum power adapter\" is a minimum *adapter* rating, not a per-port PoE ceiling - no page states a per-port ceiling for the ER-X (the datasheet's \"Max. PoE Wattage Per Data/PoE Output Port 12W (24V)\" row belongs to the ER-X-SFP table on the same page). A lab that fits a 24V/2.5A supply can declare 11 W."
+  },
+  "notes": "Ubiquiti sources read 2026-11-19: datasheet https://dl.ui.com/datasheets/edgemax/EdgeRouter_X_DS.pdf (HTTP 200, application/pdf, 3,594,850 B, 7 pages, \"Models: ER-X, ER-X-SFP\") and quick-start guide https://dl.ui.com/guides/edgemax/EdgeRouter_ER-X_QSG.pdf (200, application/pdf, 1,362,583 B, 18 pages). Networking interfaces, datasheet ER-X table: **Data/PoE Input Port (1) 10/100/1000 RJ45 Port; Data Ports (3) 10/100/1000 RJ45 Ports; Data/PoE Passthrough Port (1) 10/100/1000 RJ45 Port** - five copper ports, of which one sinks and one sources power. Power: **Max. Power Consumption 5W; Power Input 12VDC, 0.5A Power Adapter (Included) or 24V Passive PoE; Supported Voltage Range 9 to 26VDC**. QSG port names, which the catalogue keeps as port1-port5 in vendor order: **eth0/PoE In** (accepts 24V passive PoE), **eth1-eth3** (data only), **eth4/PoE Out** (passive passthrough). Trap recorded: the tech-spec page (https://techspecs.ui.com/uisp/wired/er-x, 200, 575,859 B) prints \"Metworking interface: (3) 10/100/1000 RJ45 ports\" - a typo, and only the *data* ports - because its next row, \"PoE interface\", carries \"(1) ... (Data/PoE input)\" and \"(1) ... (Data/PoE passthrough)\". Reading the 3 as the port count deletes the PoE pair; the datasheet's five-port table above is the authority. Second trap: no ER-X datasheet exists under the flat or legacy paths - dl.ui.com/datasheets/ER-X.pdf, dl.ui.com/qig/er-x/ and dl.ubnt.com/datasheets/edgerouterx/ER-X_DS.pdf all answer 200 with the 609,911-byte tech-specs front page, the silent fallback this thread has trapped before. The datasheets/edgemax/ path is the one that resolves. **Why `poeIn: false` and not `poe-pd` as a capability:** `isPoePd()` returns true for a whole device as soon as its capability list contains `poe-pd`, and `engine/media.js` then gives every silent copper port a 12.95 W draw - so the device-level token turned port2-port4 into phantom powered devices (15 W of draw the hardware cannot take). The one port that can sink power carries the figure itself."
 }
