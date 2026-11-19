@@ -779,7 +779,7 @@ the `Simulator` constructor — fails 12. Neighbours green: `lldp` 27,
 `show-lldp` 23, `lldp-across-trunk` 32, `flows-survive-save-load` 16, `spec-survives-load` 32,
 `dhcp-leases-survive-save` 32, `state-payload-complete` 16, `examples-generated` 21, `counters-agreement` 32,
 `interface-counters`, `link-state` 69, `stp-port-state` 31, `counter-payload`, `poe` 18, `poe-agreement`,
-`poe-inference`, `config-roundtrip` 46, `pon-splitter` 33.
+`poe-inference`, `config-roundtrip` 47, `pon-splitter` 33.
 
 ### A saved lab forgot who was holding which address
 
@@ -859,7 +859,7 @@ The rule is one sentence: **the config reports what was configured; the views re
   learned gateway as configuration.
 
 `test/ipv6-provenance.test.js` pins it, 33 checks; reverting `engine/` fails 16. Neighbours green: `ipv6` 235,
-`ipv6-slaac` 165, `ipv6-wire` 33, `ping-ipv6` 44, `config-roundtrip` 46, `config-completeness` 59,
+`ipv6-slaac` 165, `ipv6-wire` 33, `ping-ipv6` 44, `config-roundtrip` 47, `config-completeness` 59,
 `state-payload-complete` 16, `examples-generated` 21, `flows-survive-save-load` 16, `show-interfaces-port` 40,
 `show-interfaces-view-keywords` 97, `spec-survives-load` 32.
 
