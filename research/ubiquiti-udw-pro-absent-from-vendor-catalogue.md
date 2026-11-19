@@ -438,3 +438,8 @@ that names `UDW-PRO` and prints its ports and PoE budget - or the requester conf
 **UDW** (`devices/ubiquiti/udw.json`) or the **UDM-Pro**. What has changed is the strength of the
 negative: it no longer rests on rendered pages, but on the catalogue itself, asked per SKU across nine
 storefronts with a control that returns retired rows and foreign-store hits.
+
+*Follow-up (2026-11-19): the same negative was then read off the record the controller adopts hardware
+from — `https://static.ui.com/fingerprint/ui/public.json`, 701 device records, no `UDW-PRO`. See
+`research/ubiquiti-udw-pro-device-fingerprint-census.md`, which also shows why absence there covers
+early-access and retired hardware.*
