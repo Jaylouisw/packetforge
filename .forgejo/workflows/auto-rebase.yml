@@ -192,10 +192,15 @@ jobs:
       # not an array, or a full first page (50 open pull requests, where the mergeable one
       # could be on page two and the reader below would keep paging for it) all leave
       # `work=true`, which is exactly the path that ran before.
-      - name: Is there anything to rebase?
+      - name: Is there anything to rebase, and can this pass push it?
         id: queue
         env:
           TOKEN: ${{ secrets.FORGEJO_TOKEN || secrets.GITHUB_TOKEN || github.token }}
+          # Same name the rebase step gives it, and for the same reason: a push made with
+          # the run's own token raises no `pull_request` event on this instance, so a head
+          # it mints has no checks and can never be armed. A pass holding only that token
+          # cannot rebase anything - it can still arm, which needs no working tree.
+          RUN_TOKEN: ${{ github.token }}
         run: |
           set -u
           api="${GITHUB_API_URL:-http://10.0.10.20:3000/api/v1}"
@@ -231,15 +236,44 @@ jobs:
               *)      echo "could not read the open pull requests (${verdict:-no answer}); running the batch" ;;
             esac
           fi
-          if [ -n "${GITHUB_OUTPUT:-}" ]; then
-            echo "work=$work" >> "$GITHUB_OUTPUT"
-          else
-            echo "::set-output name=work::$work"
+          # Both of this step's answers, written wherever the runner reads them. A
+          # function so the early exit below does not have to repeat the runner's own
+          # output protocol twice.
+          emit() {
+            if [ -n "${GITHUB_OUTPUT:-}" ]; then
+              printf 'work=%s\npush=%s\n' "$work" "$push" >> "$GITHUB_OUTPUT"
+            else
+              echo "::set-output name=work::$work"
+              echo "::set-output name=push::$push"
+            fi
+          }
+          # Whether this pass can push at all, asked here so the checkout can stand down
+          # when the answer is no. The rebase loop already refuses every candidate in that
+          # case (`uncheckable`), but only after the tree has been paid for: run 7506
+          # (2026-11-19T12:20:03Z, a scheduled tick) printed
+          #   `batch=5 rebased=0 current=0 conflicts=0 duplicates=0 armed=0 rearmed=1 red=1
+          #    no_checks=0 uncheckable=2`
+          # with "this pass holds only the run token", and its 21 s included the
+          # checkout's full-depth fetch of 792 refs at 12:20:06.83 -> 12:20:11.51 - a tree
+          # no line of the run read. Of the ten scheduled ticks sampled across 2026-11-19
+          # (runs 6833, 6901, 6985, 7065, 7140, 7209, 7289, 7356, 7421, 7487) every one
+          # printed `rebased=0`, so the tree was unused in all of them.
+          #
+          # The predicate is the loop's own (`TOKEN` unset or equal to `RUN_TOKEN`), asked
+          # earlier; when a user token is configured this answer is `true` and every step
+          # below runs exactly as before.
+          push=true
+          if [ -z "${TOKEN:-}" ] || [ "${TOKEN}" = "${RUN_TOKEN:-}" ]; then
+            push=false
+            emit
+            echo "this pass cannot push (run token only) - a rebase would mint a head nothing checks, so the checkout stands down and only arming runs"
+            exit 0
           fi
+          emit
           exit 0
 
       - name: Check out the queue
-        if: steps.room.outputs.room == 'true' && steps.queue.outputs.work == 'true'
+        if: steps.room.outputs.room == 'true' && steps.queue.outputs.work == 'true' && steps.queue.outputs.push == 'true'
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
@@ -369,28 +403,39 @@ jobs:
           settle=120
           export BATCH="$batch"
 
-          git config user.name  'packetforge-bot'
-          git config user.email 'packetforge@localhost'
+          # The git prologue, and the tree it needs, only when this pass can push: the
+          # checkout above is skipped for a run-token pass (see the `push` output), and a
+          # rebase is impossible for it anyway - the per-candidate guard below refuses every
+          # branch before it touches git. Arming needs neither the tree nor the remote, so
+          # it still runs. With a user token this block is unchanged.
+          can_push=true
+          if [ -z "${TOKEN:-}" ] || [ "${TOKEN}" = "${RUN_TOKEN:-}" ]; then can_push=false; fi
+          if [ "$can_push" = "true" ]; then
+            git config user.name  'packetforge-bot'
+            git config user.email 'packetforge@localhost'
 
-          # Put the token in the remote so the force-push is authenticated. The
-          # checkout action deliberately does not persist credentials.
-          url=$(git remote get-url origin)
-          case "$url" in
-            http://*|https://*) ;;
-            *) echo "origin is not an http(s) remote ($url); cannot authenticate a push" >&2; exit 1 ;;
-          esac
-          scheme=${url%%://*}
-          rest=${url#*://}
-          git remote set-url origin "${scheme}://git:${TOKEN}@${rest}"
+            # Put the token in the remote so the force-push is authenticated. The
+            # checkout action deliberately does not persist credentials.
+            url=$(git remote get-url origin)
+            case "$url" in
+              http://*|https://*) ;;
+              *) echo "origin is not an http(s) remote ($url); cannot authenticate a push" >&2; exit 1 ;;
+            esac
+            scheme=${url%%://*}
+            rest=${url#*://}
+            git remote set-url origin "${scheme}://git:${TOKEN}@${rest}"
 
-          # `main` only. This step used to fetch all 792 refs a second time - the checkout
-          # above had already fetched them, at 9.2 s in run 4962 - and the loop below
-          # fetches each pull-request branch by name immediately before it rebases it, so
-          # the only ref this line has to keep current is the one every rebase is against.
-          # `--prune` is gone with the wildcard: there are no stale remote branches left
-          # to prune, and pruning refs that are no longer fetched would delete the
-          # per-branch remote-tracking refs the rebase loop is standing on.
-          bounded 60 git fetch -q origin '+refs/heads/main:refs/remotes/origin/main'
+            # `main` only. This step used to fetch all 792 refs a second time - the checkout
+            # above had already fetched them, at 9.2 s in run 4962 - and the loop below
+            # fetches each pull-request branch by name immediately before it rebases it, so
+            # the only ref this line has to keep current is the one every rebase is against.
+            # `--prune` is gone with the wildcard: there are no stale remote branches left
+            # to prune, and pruning refs that are no longer fetched would delete the
+            # per-branch remote-tracking refs the rebase loop is standing on.
+            bounded 60 git fetch -q origin '+refs/heads/main:refs/remotes/origin/main'
+          else
+            echo "no working tree: this pass cannot push, so there is no rebase to run - arming continues below"
+          fi
 
           # This instance caps a page at 50 whatever `limit` asks for, so one request
           # sees 50 pull requests no matter what. With 188 open, `limit=500` quietly
