@@ -511,3 +511,81 @@ fingerprint register.
 a Ubiquiti-hosted page, datasheet, quick-start, grant exhibit, storefront entry or KB article naming
 `UDW-PRO` with its ports and PoE budget - or the requester confirming they meant the UDW, already
 catalogued.
+
+## 2026-11-19 17:5x UTC: the Early Access storefront is live and login-gated - the one surface that is *gated* rather than empty
+
+Every earlier section here ends in "absent". This one does not: the channel where an announced-but-unreleased console
+would sit is **deployed and cannot be read anonymously**, which is a different fact and a sharper blocker.
+
+### 1. `ea.store.ui.com` fails TLS, and that is a certificate gap, not a dead host
+
+| host | certificate | SANs | `curl` without `-k` |
+|---|---|---|---|
+| `ea.store.ui.com` | `CN=*.ui.com` | `*.ui.com`, `unifi.ui.com`, `beta.unifi.ui.com` | error 60, no connection |
+| `store.ui.com` | `CN=store.ui.com` | `store.ui.com`, `*.store.ui.com` | 200 |
+
+`*.ui.com` is a single-label wildcard and `ea.store.ui.com` is two labels to the left of the apex, so the presented
+certificate cannot match - **by design, not by decommissioning**. The name still resolves (CloudFront,
+`2600:9000:2038:...`). Recorded because "curl says the certificate is wrong" is exactly how a pass concludes
+"retired" and moves on; the earlier trap list in this file has the same shape for hosts that redirect instead of 404.
+
+### 2. Behind the certificate it is a deployed shop with a global login gate
+
+Measured with `-k`, because the certificate is not the subject here:
+
+| path | status | body | `Location` |
+|---|---|---|---|
+| `/` | **302** | 0 | `account.ui.com/login?redirect=...%2F` |
+| `/us/en` | **302** | 0 | `...redirect=https%3A%2F%2Fea.store.ui.com%2Fus%2Fen` |
+| `/us/en/products/udw-pro` | **302** | 0 | `...%2Fus%2Fen%2Fproducts%2Fudw-pro` |
+| `/nonexistent-xyz` (control) | **302** | 0 | `...%2Fnonexistent-xyz` |
+| `/_next/static/` | **302** | 0 | `...%2F_next%2Fstatic%2F` |
+| `/favicon.ico` | 200 | 5,430 | - (`image/vnd.microsoft.icon`, md5 `9fe014bbdbd4d12c3312fcbc41b0c436`) |
+
+The bogus path is what makes the table mean something: a missing page would answer 404 with content, and a retired
+host would not serve a 5,430-byte favicon from a build. Instead **every** path - a product page, a junk path, and the
+JavaScript bundle directory - is redirected to `account.ui.com/login` with the requested path preserved.
+`account.ui.com/login?redirect=...` answers 200, 1,634 B, `<title>Ubiquiti Account`. So the application is up, and both
+its payload and the bundle that would name the EA `storeId` are behind the same wall.
+
+### 3. The retail store has no anonymous early-access path either
+
+`store.ui.com/us/en/early-access` -> **307** to `/us/en` (26 B), and
+`store.ui.com/us/en/collections/early-access` -> **307** to `/us/en` (6 B). The EA shop is its own host, not a
+category of the retail one.
+
+### 4. The commerce backend will not answer for EA store ids
+
+The per-SKU query takes a `storeId`. `ea`, `ea-us` and `us-ea` each answer **one** masked `INTERNAL_SERVER_ERROR` for
+**both** `udw` (the control) and `udw-pro`. Under the oracle already recorded in this file - invalid input adds an
+error, valid optional input does not - one error on the control means the *store id* was rejected, not that the product
+is missing. Reproduce with
+`node scripts/ubiquiti-storefront-catalogue.js --slug udw,udw-pro --store ea --json`.
+
+### 5. Why this matters for this SKU specifically
+
+The UDW's own commerce row carries `historicalSlugs ["dream-wall","dream-wall-ea","udw","unifi-dream-wall"]` - the Wall
+first existed in the Early Access storefront under an EA slug. A console that has been announced but not yet made
+public is precisely what that channel carries, and it is the only Ubiquiti surface checked across these passes whose
+silence is **not citable**. So the negative is now "absent from every vendor surface readable without credentials, and
+unreadable on the one that is gated" - not "absent everywhere".
+
+Two reconfirmations from the same pass, neither changing the negative:
+
+- `https://uk.store.ui.com/uk/en/category/all-cloud-gateways` - 200, 483,934 B, **16** embedded `StorefrontProduct`
+  records with `displaySku` and `historicalSlugs`; `udw-pro` and `UDW-PRO` occur **zero** times. The UDW's record is
+  `displaySku "UDW (420W)"`, `historicalSlugs ["dream-wall","dream-wall-ea","udw","unifi-dream-wall"]` - the same alias
+  table the API returns, read this time out of rendered HTML on a third storefront.
+- The citation the request was built from, `4gon.co.uk/ubiquiti-unifi-dream-wall-pro-udwpro-p-10111.html`, answers
+  **403** with a Cloudflare interstitial (5,626 B), and `archive.org/wayback/available` returns
+  `{"archived_snapshots": {}}`. The page the body's port list was "inferred from" has **never been archived**, so
+  even the premise cannot be re-derived.
+
+### What unblocks #130, narrowed
+
+Two readings, both cheap for someone who is not an anonymous crawler: (a) open `ea.store.ui.com` signed in to a
+Ubiquiti account and read the `udw-pro` entry's port list - this worker cannot pass the gate; or (b) the requester
+confirming the SKU meant is the catalogued **UDW** (`devices/ubiquiti/udw.json`) or the **UDM-Pro**. The anonymous
+vendor surfaces are exhausted as far as this worker can see.
+
+**No spec change follows.** `devices/ubiquiti/udw.json` is untouched.
