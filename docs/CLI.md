@@ -551,7 +551,7 @@ and what would settle each of them.
 `secondary` adds a second address rather than replacing the primary - which this model, one address per port,
 cannot honour, so `secondary` is refused by name and every other word is refused with the word quoted |
 | `no ip address` | remove the IP; the line takes no argument, so `no ip address <word>` is refused and nothing is removed |
-| `clock rate <bps>` | (serial only) make this end the DCE and clock the line, e.g. `clock rate 64000`. Refused on a non-serial port, and for a rate the port cannot clock |
+| `clock rate <bps>` | (serial only) make this end the DCE and clock the line, e.g. `clock rate 64000`. Refused on a non-serial port. The rates are the vendor's menu plus the port's own; a value in the parser's 300-top range that is not on the menu is rounded and reported as `%Clockrate rounded to nearest value that your hardware can support.`, and one below 300 or above the port is refused with the range quoted (`research/serial-clock-menu.md`) |
 | `no clock rate` | drop the clock, leaving this end as DTE |
 | `ip address dhcp` | make the port a DHCP client; the address it ends up with is the outcome of the exchange, not part of the configuration |
 | `encapsulation dot1q <vlan>` | subinterface only: tag the subinterface's frames with `<vlan>`, and make the parent port a trunk. Refused on a physical port, for a VLAN outside 1-4094, and for any other encapsulation |

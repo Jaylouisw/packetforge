@@ -131,8 +131,16 @@ both halves, because both produce a cable that looks connected and carries nothi
 
 The link's rate is the clock, not the fastest rate the port could reach: clock one end at
 64 kbps and the link is 64 kbps. `clock rate <bps>` is accepted only on a serial port, and
-only for a rate on that port's own ladder — the engine will not let a spec claim a rate the
-hardware could not clock.
+the numbers it takes are the vendor's, not the engine's: the standard rates a serial port's
+`clock rate ?` prints (1200, 2400, 4800, 9600, 19200, 38400, 56000, 64000, 72000, 125000,
+128000, 148000, 250000, 500000, 800000, 1000000, 1300000, 2000000, 4000000), plus the rates
+this port declares, and — as the parser's own `<300-4000000> Choose clockrate from list
+above` line says — any whole number of bits per second between 300 and the port's top rate,
+which is rounded to the nearest rate the port lists and reported in the box's words:
+`%Clockrate rounded to nearest value that your hardware can support.` A rate below 300 or
+above the port is refused with the range quoted. The vendor's evidence, and the one boundary
+still open (the WIC-2T's 2.048 Mbps against the model's declared 1.544 Mbps), are in
+[research/serial-clock-menu.md](../research/serial-clock-menu.md).
 
 `cisco/2811` is the reference device: two onboard 10/100 FastEthernet ports and a WIC-2T in
 the first HWIC slot, giving `Se0/0/0` and `Se0/0/1`. Two of them back to back, one clocked,

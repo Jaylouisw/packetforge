@@ -276,6 +276,16 @@ const IFACE_SWITCHPORT_MODE_WORDS = [
 const IFACE_ENCAP_WORDS = [{ word: 'dot1q', spellings: ['dot1q'] }];
 const IFACE_CLOCK_WORDS = [{ word: 'rate', spellings: ['rate'] }];
 
+// The rates a Cisco serial port's parser offers, in the order the box lists them. The IOS
+// command reference for `clock rate` prints this list (1200 ... 8000000) and says a value of
+// any whole number of bits per second in the parser's range is accepted; a router's own
+// `clock rate ?` prints the menu and, under it, `<300-4000000> Choose clockrate from list
+// above` (transcripts in research/serial-clock-menu.md). The port's declared line rates are
+// the model's own hardware list and are kept alongside these; anything else inside the range
+// is rounded to the nearest rate the port lists, which is what the box does and says it does.
+const SERIAL_CLOCK_RATES = [1200, 2400, 4800, 9600, 19200, 38400, 56000, 64000, 72000,
+  125000, 128000, 148000, 250000, 500000, 800000, 1000000, 1300000, 2000000, 4000000, 8000000];
+
 // The word a typed spelling means, or the words it could mean. An exact spelling wins over a longer one that
 // starts with it (`link` is not made ambiguous by `links`), one prefix match is the answer IOS accepts, and more
 // than one is an ambiguity for the caller to report in its own words. `word: null` means "no command of that name
@@ -2449,9 +2459,14 @@ class CliSession {
   }
 
   // ---------- clock rate, on a serial interface ----------
-  // A synchronous serial link is clocked by its DCE end. The rate is one of the rates the
-  // port's own ladder offers, so a 64 kbps line cannot be claimed on hardware whose lowest
-  // rate is T1 - the same "do not invent a capability" rule the rest of the engine follows.
+  // A synchronous serial link is clocked by its DCE end. What the parser accepts is the
+  // vendor's menu, not the port's link-speed ladder: a box offers the standard rates and,
+  // under them, `<300-4000000> Choose clockrate from list above`, and a rate that is not on
+  // the menu is rounded to the nearest one the hardware supports -
+  //   `%Clockrate rounded to nearest value that your hardware can support.`
+  // - which is the sentence the command reference prints (research/serial-clock-menu.md).
+  // The port's own declared line rates stay in the menu, so a rate this model can clock is
+  // still spelled its way; the top of the range is the fastest rate the port declares.
   _clock(tokens, iface) {
     const t = tokens.map(function (x) { return String(x).toLowerCase(); });
     if (t[0] !== 'rate') return ['% Usage: clock rate <bps>'];
@@ -2472,15 +2487,33 @@ class CliSession {
     if (bps === null || !isFinite(bps) || bps <= 0) {
       return ['% Invalid clock rate: ' + (raw || '(none)') + ' (give bits per second, e.g. 64000)'];
     }
-    const ladder = (iface.speedCaps || []).filter(function (s) {
+    const declared = (iface.speedCaps || []).filter(function (s) {
       return s <= (typeof iface.maxSpeedMbps === 'number' ? iface.maxSpeedMbps : Infinity) + 1e-9;
-    });
-    if (!ladder.some(function (s) { return Math.abs(s * 1e6 - bps) < 1e-6; })) {
-      return ['% ' + Math.round(bps) + ' bps is not a rate ' + iface.name + ' can clock. Choose one of: ' +
-        ladder.map(function (s) { return Math.round(s * 1e6); }).join(', ')];
+    }).map(function (s) { return Math.round(s * 1e6); });
+    const topBps = declared.length ? Math.max.apply(null, declared) : 0;
+    const menu = Array.from(new Set(declared.concat(SERIAL_CLOCK_RATES.filter(function (r) {
+      return r <= topBps;
+    })))).sort(function (a, b) { return a - b; });
+    if (!menu.length) {
+      return ['% ' + Math.round(bps) + ' bps is outside the range ' + iface.name + ' can clock (no rate is declared for this port)'];
     }
-    iface.clockRateBps = Math.round(bps);
-    return ['Clock rate set to ' + Math.round(bps) + ' bps on ' + iface.name + ' (this end is DCE)'];
+    const want = Math.round(bps);
+    if (menu.indexOf(want) !== -1) {
+      iface.clockRateBps = want;
+      return ['Clock rate set to ' + want + ' bps on ' + iface.name + ' (this end is DCE)'];
+    }
+    // Outside the parser's range: below 300 bps or above what this port's hardware reaches.
+    if (want < 300 || want > topBps) {
+      return ['% ' + want + ' bps is outside the range ' + iface.name + ' can clock (300-' + topBps + ' bps)'];
+    }
+    // Inside the range but not on the menu: the box rounds it to the nearest rate it supports
+    // and says so, and the config then holds the rounded rate, not the typed one.
+    let nearest = menu[0];
+    menu.forEach(function (r) {
+      if (Math.abs(r - want) < Math.abs(nearest - want)) nearest = r;
+    });
+    iface.clockRateBps = nearest;
+    return ['%Clockrate rounded to nearest value that your hardware can support.'];
   }
 
   // ---------- 802.1Q encapsulation on a router subinterface ----------

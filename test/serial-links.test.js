@@ -132,9 +132,15 @@ section('5. clock rate refuses things it should');
     run(['interface Fa0/0', 'clock rate 64000']).join('\n')),
     'a non-serial port refuses it');
 
+  // 9600 was refused here until the vendor's menu was read: it is one of the standard rates
+  // a serial port's `clock rate ?` prints (research/serial-clock-menu.md), and the old check
+  // was the port's link-speed ladder, which the parser never consults.
   const slow = run(['interface Se0/0/1', 'clock rate 9600']).join('\n');
-  ok(/% 9600 bps is not a rate/.test(slow), 'a rate below the ladder is refused');
-  ok(/64000, 128000/.test(slow), 'and the refusal lists the rates that would work');
+  ok(/Clock rate set to 9600 bps/.test(slow), 'a standard rate below the link ladder is accepted');
+
+  const above = run(['interface Se0/0/1', 'clock rate 5000000']).join('\n');
+  ok(/% 5000000 bps is outside the range Se0\/0\/1 can clock \(300-1544000 bps\)/.test(above),
+    'a rate above what the port reaches is refused, with the range quoted');
 
   ok(/% Invalid clock rate/.test(run(['interface Se0/0/1', 'clock rate banana']).join('\n')),
     'nonsense is refused');
