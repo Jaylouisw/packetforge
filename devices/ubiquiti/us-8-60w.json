@@ -19,7 +19,8 @@
       "speed": "1G",
       "speedCaps": [
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
       "poeOut": true,
       "poeOutClass": "PoE"
@@ -31,7 +32,8 @@
       "speed": "1G",
       "speedCaps": [
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
       "poeOut": true,
       "poeOutClass": "PoE"
@@ -43,7 +45,8 @@
       "speed": "1G",
       "speedCaps": [
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
       "poeOut": true,
       "poeOutClass": "PoE"
@@ -55,7 +58,8 @@
       "speed": "1G",
       "speedCaps": [
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
       "poeOut": true,
       "poeOutClass": "PoE"
@@ -67,8 +71,10 @@
       "speed": "1G",
       "speedCaps": [
         "1G",
-        "100M"
-      ]
+        "100M",
+        "10M"
+      ],
+      "poeOut": 0
     },
     {
       "name": "eth5",
@@ -77,8 +83,10 @@
       "speed": "1G",
       "speedCaps": [
         "1G",
-        "100M"
-      ]
+        "100M",
+        "10M"
+      ],
+      "poeOut": 0
     },
     {
       "name": "eth6",
@@ -87,8 +95,10 @@
       "speed": "1G",
       "speedCaps": [
         "1G",
-        "100M"
-      ]
+        "100M",
+        "10M"
+      ],
+      "poeOut": 0
     },
     {
       "name": "eth7",
@@ -97,11 +107,18 @@
       "speed": "1G",
       "speedCaps": [
         "1G",
-        "100M"
-      ]
+        "100M",
+        "10M"
+      ],
+      "poeOut": 0
     }
   ],
   "icon": "switch",
   "color": "#14b8a6",
-  "sourceUrl": "https://techspecs.ui.com/unifi/switching/us-8-60w"
+  "sourceUrl": "https://techspecs.ui.com/unifi/switching/us-8-60w",
+  "poe": {
+    "budgetW": 48,
+    "sourceUrl": "https://techspecs.ui.com/unifi/switching/us-8-60w",
+    "note": "48 W, the vendor's own aggregate row: \"Max. PoE Output = Up to PoE / Total PoE Availability = 48W\" beside \"Port Layout = 1 GbE RJ45 8 (4 PoE) (1G/100M/10M)\" and \"PoE Ports = 4 / Max. PoE Wattage per Port by PSE = PoE 15.4W\" (read 2026-11-19). The model name says 60W, and the engine had been parsing 60 W out of \"US-8-60W\" -- 12 W of PoE this adapter cannot supply, against the 48 W the description and this note both state. Same page: Switching Capacity 16 Gbps, Total Non-Blocking Throughput 8 Gbps, Max. Power Consumption 12W excluding PoE output. The vendor prints \"8 (4 PoE)\", so the four data-only ports say poeOut: 0: this label contains \"PoE\", and engine/media.js isPoePse() powers every copper port of a switch that claims PSE, which made all eight of them 15.4 W PSEs - 123.2 W of declared PSE capacity on a 48 W budget."
+  }
 }

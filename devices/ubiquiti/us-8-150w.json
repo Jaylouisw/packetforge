@@ -19,7 +19,8 @@
       "speed": "1G",
       "speedCaps": [
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
       "poeOut": true,
       "poeOutClass": "PoE+"
@@ -31,7 +32,8 @@
       "speed": "1G",
       "speedCaps": [
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
       "poeOut": true,
       "poeOutClass": "PoE+"
@@ -43,7 +45,8 @@
       "speed": "1G",
       "speedCaps": [
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
       "poeOut": true,
       "poeOutClass": "PoE+"
@@ -55,7 +58,8 @@
       "speed": "1G",
       "speedCaps": [
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
       "poeOut": true,
       "poeOutClass": "PoE+"
@@ -67,7 +71,8 @@
       "speed": "1G",
       "speedCaps": [
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
       "poeOut": true,
       "poeOutClass": "PoE+"
@@ -79,7 +84,8 @@
       "speed": "1G",
       "speedCaps": [
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
       "poeOut": true,
       "poeOutClass": "PoE+"
@@ -91,7 +97,8 @@
       "speed": "1G",
       "speedCaps": [
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
       "poeOut": true,
       "poeOutClass": "PoE+"
@@ -103,7 +110,8 @@
       "speed": "1G",
       "speedCaps": [
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
       "poeOut": true,
       "poeOutClass": "PoE+"
@@ -123,5 +131,10 @@
   ],
   "icon": "switch",
   "color": "#14b8a6",
-  "sourceUrl": "https://techspecs.ui.com/unifi/switching/us-8-150w"
+  "sourceUrl": "https://techspecs.ui.com/unifi/switching/us-8-150w",
+  "poe": {
+    "budgetW": 130,
+    "sourceUrl": "https://techspecs.ui.com/unifi/switching/us-8-150w",
+    "note": "130 W, the vendor's own aggregate row: \"Max. PoE Output = Up to PoE+ / Total PoE Availability = 130W\" beside \"Port Layout = 1 GbE RJ45 8 (All PoE+) (1G/100M/10M)\", \"1G SFP = 2\" and \"PoE Ports = PoE+ 8\" (read 2026-11-19). The model name says 150W and the engine had been parsing 150 W out of \"US-8-150W\" -- 20 W the vendor does not publish a source for; every port is 802.3at. Switching Capacity 20 Gbps, Total Non-Blocking Throughput 10 Gbps. No per-port PSE wattage row is printed for this model, so none is recorded: the class is the vendor's, the ceiling is not."
+  }
 }
