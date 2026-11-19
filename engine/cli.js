@@ -5504,7 +5504,6 @@ class CliSession {
     const rows = [];
     const idle = [];
     let supplied = 0;
-    let denied = 0;
     for (const i of pse) {
       const p = byIface.get(i.name);
       const admin = this._poeAdminMode(i);
@@ -5513,7 +5512,6 @@ class CliSession {
         rows.push(pad(i.name, 11) + pad(admin, 7) + pad(p.powered ? 'on' : 'off', 6) + pad(draw, 9) +
           nameOf(p.pd) + (p.powered ? '' : '  (denied)'));
         if (p.powered) supplied += p.draw || 0;
-        else denied++;
         continue;
       }
       // Not in the engine's table: the port supplies nothing, and the reason is one of three, in the same words
@@ -5540,21 +5538,31 @@ class CliSession {
       rows.push(pad(i.name, 11) + pad(admin, 7) + pad('off', 6) + pad('-', 9) + why);
     }
 
+    // The budget summary is the box's first line, above the port table, in the box's own words and unit.
+    // A standalone Catalyst's `show power inline` opens with one line -
+    //   Available:370.0(w) Used:279.9(w) Remaining:90.1(w)
+    // - and only then prints the Interface/Admin/Oper table. The engine printed a `Total: ... W of ... W in
+    // use, ... W left` sentence after the table, which is a different answer in a different place:
+    // research/show-power-inline-summary-line.md has the captures. The stackable 2960-X instead prints a
+    // per-member `Module Available Used Remaining` table here, a shape this single-box model does not have.
+    //
+    // Totals are the device's, so a question about one port does not get them: the number would be about
+    // something else.
+    if (!wanted) {
+      // One decimal, and `Remaining` is `Available - Used` on the printed values - the field table's own
+      // definition - so the three numbers a reader adds up agree with each other as well as with the engine.
+      const round1 = function (n) { return Math.round(Number(n) * 10) / 10; };
+      const watts = function (n) { return round1(n).toFixed(1) + '(w)'; };
+      const avail = round1(entry.budget || 0);
+      const used = round1(supplied);
+      out.push('Available:' + watts(avail) + ' Used:' + watts(used) +
+        ' Remaining:' + watts(avail - used));
+    }
     out.push(pad('Interface', 11) + pad('Admin', 7) + pad('Oper', 6) + pad('Draw', 9) + 'Powered device');
     out.push.apply(out, rows);
     if (idle.length) {
       out.push(idle.length + ' port' + (idle.length === 1 ? '' : 's') + ' with nothing plugged in: ' +
         idle.slice(0, 5).join(', ') + (idle.length > 5 ? ' (+' + (idle.length - 5) + ' more)' : ''));
-    }
-
-    // Totals are the device's, so a question about one port does not get them: the number would be about
-    // something else.
-    if (!wanted) {
-      const round = function (n) { return Math.round(n * 100) / 100; };
-      const left = round((entry.budget || 0) - supplied);
-      out.push('');
-      out.push('Total: ' + round(supplied) + ' W of ' + entry.budget + ' W in use, ' + left + ' W left' +
-        (denied ? ', ' + denied + ' port' + (denied === 1 ? '' : 's') + ' denied' : ', nothing denied'));
     }
     // The denial sentence is the one the timeline emitted, not a second rendering of the same arithmetic.
     for (const i of pse) {

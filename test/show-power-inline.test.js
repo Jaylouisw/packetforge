@@ -87,8 +87,8 @@ console.log('A real allocation is reported port by port:');
   const engine = sim.computePoe()[0];
   const out = cliOf(env, sim).run('show power inline').output;
 
-  ok(out[0].indexOf('Interface') === 0 && /Admin/.test(out[0]) && /Powered device/.test(out[0]),
-    'there is a table with a header', out[0]);
+  ok(out[1].indexOf('Interface') === 0 && /Admin/.test(out[1]) && /Powered device/.test(out[1]),
+    'there is a table with a header', out[1]);
   // The devices are named PDA/PDB by the factory, so the row has to show that name - the point is that the
   // console names the powered device, not that it invents one.
   ok(out.some(function (l) { return /^1\/1\/1\s+auto\s+on\s+12\.95 W\s+PDA/.test(l); }),
@@ -100,13 +100,15 @@ console.log('A real allocation is reported port by port:');
   ok(out.some(function (l) { return /^1\/1\/4\s+auto\s+off\s+-\s+administratively down/.test(l); }),
     'a shut-down port says why it supplies nothing', JSON.stringify(out));
 
-  // The engine's own numbers, not a second copy of them.
-  const total = out.filter(function (l) { return /^Total:/.test(l); })[0] || '';
-  ok(total.indexOf(String(Math.round(engine.used * 100) / 100) + ' W of ' + engine.budget + ' W') !== -1,
-    'the total is the engine\'s own figure', total + ' vs engine ' + JSON.stringify({ used: engine.used, budget: engine.budget }));
-  const deniedCount = engine.ports.filter(function (p) { return !p.powered; }).length;
-  ok(total.indexOf(deniedCount + ' port' + (deniedCount === 1 ? '' : 's') + ' denied') !== -1,
-    'and the denial count', total);
+  // The box's summary line, above the table, carrying the engine's own numbers rather than a second copy.
+  const summary = out[0] || '';
+  const nums = /^Available:([\d.]+)\(w\) Used:([\d.]+)\(w\) Remaining:([\d.]+)\(w\)$/.exec(summary);
+  ok(!!nums, 'the summary is the box\'s `Available:.../Used:.../Remaining:...` line, first', summary);
+  ok(nums && Math.abs(Number(nums[1]) - engine.budget) < 0.06 && Math.abs(Number(nums[2]) - engine.used) < 0.06 &&
+    Math.abs(Number(nums[3]) - (engine.budget - engine.used)) < 0.06,
+    'with the engine\'s own budget, draw and remainder', summary + ' vs engine ' +
+      JSON.stringify({ used: engine.used, budget: engine.budget }));
+  ok(/^Interface\s+Admin\s+Oper/.test(out[1] || ''), 'and the port table follows it', out[1]);
 
   // One sentence, kept by the engine, used by the timeline and by this command.
   const event = (sim.events || []).filter(function (e) { return e.type === 'poe-deny'; })[0];
@@ -171,9 +173,9 @@ console.log('Shutting a PoE port stops the power it was supplying; the mode is u
   ok(engine.used === 0 && !stillAllocated,
     'and the engine allocates no watts to it: the shut port supplies nothing',
     JSON.stringify({ used: engine.used, ports: engine.ports }));
-  const total = out.filter(function (l) { return /^Total:/.test(l); })[0] || '';
-  ok(/^Total: 0 W of 370 W in use, 370 W left/.test(total),
-    'so the device total is the budget it has, not power nobody is drawing', total);
+  const summary = out.filter(function (l) { return /^Available:/.test(l); })[0] || '';
+  ok(/^Available:370\.0\(w\) Used:0\.0\(w\) Remaining:370\.0\(w\)$/.test(summary),
+    'so the device summary is the budget it has, not power nobody is drawing', summary);
 }
 
 console.log('');
@@ -191,8 +193,8 @@ console.log('A wall of idle ports is summarised, not printed one per line:');
   const one = cliOf(env, sim).run('show power inline 1/1/9').output;
   ok(one.some(function (l) { return /^1\/1\/9\s+auto\s+off\s+-\s+nothing plugged in/.test(l); }),
     'and asked about individually', JSON.stringify(one));
-  ok(!one.some(function (l) { return /^Total:/.test(l); }),
-    'a question about one port gets no device-wide total', JSON.stringify(one));
+  ok(!one.some(function (l) { return /^Available:/.test(l); }),
+    'a question about one port gets no device-wide summary', JSON.stringify(one));
 }
 
 console.log('');
@@ -222,7 +224,7 @@ console.log('A device with PSE ports but no budget reports the ports and claims 
   const out = cliOf(env, sim).run('show power inline').output.join('\n');
   ok(/budget not modelled on SW1/.test(out), 'it says the budget is not modelled', out);
   ok(/not measured/.test(out), 'and marks the supply not measured', out);
-  ok(!/Total:/.test(out), 'rather than reporting a total it never computed', out);
+  ok(!/^Available:/m.test(out), 'rather than reporting a summary it never computed', out);
 }
 
 console.log('');
@@ -284,10 +286,10 @@ console.log('The console and the inspector agree, port by port:');
       const cliOn = /\s+on\s+/.test(row);
       if (cliOn !== !!p.powered) bad.push(c.label + ' ' + p.name + ': panel ' + p.powered + ' console ' + cliOn);
     }
-    const total = out.split('\n').filter(function (l) { return /^Total:/.test(l); })[0] || '';
-    const shown = Number((/^Total: ([\d.]+) W/.exec(total) || [])[1]);
-    if (Math.abs(shown - Math.round(panel.used * 100) / 100) > 0.01) {
-      bad.push(c.label + ': console total ' + shown + ' vs panel ' + panel.used);
+    const summary = out.split('\n').filter(function (l) { return /^Available:/.test(l); })[0] || '';
+    const shown = Number((/Used:([\d.]+)\(w\)/.exec(summary) || [])[1]);
+    if (Math.abs(shown - Math.round(panel.used * 10) / 10) > 0.05) {
+      bad.push(c.label + ': console used ' + shown + ' vs panel ' + panel.used);
     }
   }
   ok(bad.length === 0, cases.length + ' allocations: console rows and totals match the panel', JSON.stringify(bad));

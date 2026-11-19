@@ -37,7 +37,7 @@ Modes and their prompts:
 | `show ip dhcp` / `show ip dhcp binding` / `show ip dhcp pool` | the allocation table under the box's own `Bindings from all pools not associated with VRF:` title: which MAC holds which address, from which pool, and how long is left on the lease - and, per pool, its utilisation mark, its totals and the address it would hand out next; a box with no pools says it is not a DHCP server |
 | `show ip dns` / `show ip dns zone` | the zones this box answers for, as records in zone-file shape, and the name servers it asks; a zone it would refuse to answer is printed with `NOT answered: <reason>` rather than as if it were live, and a device with no zones says it is not a DNS server |
 | `show interfaces` | per-interface detail incl. MAC, peer, link state and what has crossed the port |
-| `show power inline [<port>]` | PoE supplied per PSE port, the budget left, and why a powered device was denied |
+| `show power inline [<port>]` | PoE supplied per PSE port, the box's `Available:/Used:/Remaining:` budget line above the table, and why a powered device was denied |
 | `show vrrp` | the group, its state (`Master`/`Backup`/`Init` with the reason), and the master the election chose |
 | `show running-config` | full configuration |
 | `ping <ip> [count]` | ICMP echo from this device |
@@ -2302,20 +2302,22 @@ The table is ordered by number rather than as strings, so groups read `2, 10, 10
 
 ```
 sw1#show power inline
+Available:25.0(w) Used:13.0(w) Remaining:12.0(w)
 Interface  Admin  Oper  Draw     Powered device
 1/1/1      auto   on    12.95 W  PD1
 1/1/2      auto   off   12.95 W  PD2  (denied)
 1/1/3      auto   off   -        the far end is not a powered device
 1/1/4      auto   off   -        administratively down
 22 ports with nothing plugged in: 1/1/5, 1/1/6, 1/1/7, 1/1/8, 1/1/9 (+17 more)
-
-Total: 12.95 W of 25 W in use, 12.05 W left, 1 port denied
   1/1/2: PSE budget exhausted: 12.95 W requested, 12.05 W left
 ```
 
 Every figure comes from the engine's own allocation (`Simulator.computePoe()`), not from a second copy of the
 rule, and every PSE port is accounted for — including the ones the engine leaves out of its table, which are the
-ones an operator is usually asking about:
+ones an operator is usually asking about. The summary line is the box's own: a standalone Catalyst opens
+`show power inline` with `Available:<n>(w) Used:<n>(w) Remaining:<n>(w)` above the port table, to one decimal,
+and `Remaining` is `Available - Used` on the printed values (`research/show-power-inline-summary-line.md`).
+It is the device's, so `show power inline <port>` does not print it:
 
 * `denied` means the device asked and the budget could not supply it; the sentence under the table is the same
   one the timeline emitted for the `poe-deny` event, not a re-rendering of the same arithmetic;

@@ -102,8 +102,8 @@ console.log('\nA 30th Class-4 access point is refused, not averaged:');
   ok(t.getDevice('ap30').poeUnpowered === true, 'the refused access point is marked unpowered');
 
   const said = cli.run('show power inline').output.join('\n');
-  ok(/^Total: 739\.5 W of 740 W in use, 0\.5 W left, 1 port denied$/m.test(said),
-    '`show power inline` prints the same total');
+  ok(/^Available:740\.0\(w\) Used:739\.5\(w\) Remaining:0\.5\(w\)$/m.test(said),
+    '`show power inline` prints the same budget summary');
   ok(/^  Gi1\/0\/30: PSE budget exhausted: 25\.5 W requested, 0\.5 W left$/m.test(said),
     'and the denial sentence once more under the table');
   ok(sw.poeBudget === 740, 'the budget is still the device\'s, not the run\'s');
