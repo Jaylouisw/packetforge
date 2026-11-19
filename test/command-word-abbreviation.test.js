@@ -86,10 +86,11 @@ console.log('A prefix two doors share is refused, in the console\'s own words, n
 });
 
 // A port-channel is not spelled `etherchannel` by the operator, so the refusal must not answer about a word they
-// never typed - the same rule `show port-channel 1` already followed (#1449).
+// never typed - the same rule `show port-channel` already followed (#1449). The word here is a word, not a group
+// number: a number is a filter of the view now (research/show-etherchannel-group-summary.md).
 (function () {
-  const r = typed('sh port-c 1');
-  ok(/^% show port-c does not take "1"/.test(r.said), 'a shortened port-channel keeps its own spelling in the refusal', r.said);
+  const r = typed('sh port-c flurbish');
+  ok(/^% show port-c does not take "flurbish"/.test(r.said), 'a shortened port-channel keeps its own spelling in the refusal', r.said);
 })();
 
 console.log('');

@@ -8,7 +8,7 @@
 // `% Invalid show command`, which is exactly the moment the docs stop being trustworthy.
 //
 // So this file reads docs/CLI.md itself, splits the alternatives (`show vlan [brief] | spanning-tree | …`),
-// fills the placeholders with real values from a real lab, and types each form — 56 forms, 112 commands today.
+// fills the placeholders with real values from a real lab, and types each form — 61 forms, 122 commands today.
 // The test fails on the three answers that mean "the docs and the parser disagree": an invalid command, an
 // unrecognised command, or a throw. A legitimate refusal is fine and is not a failure — a switch really does not
 // have `show ip ospf`, and it says so in a sentence rather than pretending the word is wrong.

@@ -88,7 +88,7 @@ passive }` and is printed inside the interface block (`engine/cli.js:6367-6375`)
    older documents load unchanged.
 6. **S - the prose that now contradicts the code.** `docs/CLI.md:2930` records the `not modelled` answer as a fix;
    rewrite it as history, add a "Per-port tunables" subsection beside `:1900`, add the two commands to the table at
-   `docs/CLI.md:30` and to the help index (`engine/cli.js:6645` area).
+   `docs/CLI.md:30` and to the help index (`engine/cli.js:6666` area).
 7. **M, needs Jay's approval** - not part of this stream: `spanning-tree vlan <id> priority`, i.e. PVST. The
    model's one-tree answer (`STP_ONE_TREE`, `cli.js:649`) is deliberate and this plan does not move it.
 

@@ -2,6 +2,21 @@
 
 ### Fixed
 
+- **`show etherchannel <group> summary` takes the group number, and the counts stay the box's.** A real box
+  accepts a channel-group number in front of the keyword — the 2960-X, 9500 and 9200 command references print
+  their example in that form — and narrows the table to that group's row while the nine-line key and both counts
+  are printed exactly as the unfiltered view prints them. A two-group box answers `show etherchannel 2 summary`
+  with `Number of channel-groups in use: 2` and one row; the same command on a box holding only group 2 answers
+  `1` (a training lab with both switches, and a 2960-S thread). This console refused the number as though it were
+  a typo: `% show etherchannel does not take "1": every group is listed - each group is headed by its number`,
+  which sent an operator who copied a line from a vendor document back to the whole table. The number is now read
+  before the keyword (with or without one, under either spelling of the view), the table keeps the named group's
+  rows, both counts still describe the device, and a number that names no group prints the furniture over no
+  rows — the shape an empty box already prints. A word the view cannot use is still refused, now with the advice
+  that a group number is what narrows the table. `test/show-etherchannel-group-summary.test.js` (25 checks) pins
+  the filtered and unfiltered tables, the counts, the empty selection, the alias and both refusals;
+  [research/show-etherchannel-group-summary.md](research/show-etherchannel-group-summary.md) carries the
+  captures and the two things still open (a number naming no group, and one outside the platform's range).
 - **The `Codes:` legend above `show ip route` is the image's nine lines, not one line of this console's codes.**
   A box prints its whole code list on every `show ip route`, whether or not a route uses any of it: at IOS 15.2E
   that is nine lines, breaking after `B - BGP`, with every continuation starting at column 7 so each code lines
