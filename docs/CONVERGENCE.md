@@ -58,8 +58,19 @@ than in a special "simulation" state:
 
 ## The timers
 
-Each has its standard default and each is overridable in configuration, because a lab that
-demonstrates fast convergence has to be able to configure fast convergence.
+Each has its standard default. Only **one** of the seven can be changed from the console today:
+`vrrp <vrid> advertise <seconds>` (interface mode) writes the advertisement interval, and `converge`
+then reports `3 x advertise 4 s + skew` - 12609.375 ms at the default skew, where the same box at 1 s
+reports 3609.375 ms. The rest are read from configuration keys - `stpForwardDelaySec` and
+`stpMaxAgeSec` on the device config, `ospf.helloSec`, `ospf.exchangeSec` and `ospf.spfDelaySec` under
+`config.ospf`, `dhcpExchangeSec` on the device config - that nothing in `engine/cli.js` writes. A
+fixture can set them; a technician cannot. STP is the plainest case: the console's only
+spanning-tree tunable is the bridge priority, `spanning-tree forward-delay 4` is refused as an
+unknown sub-command whose sentence names `spanning-tree priority <0-61440 in 4096 steps>`, and
+`ospf hello 5` answers `% Usage: ospf router-id <ip> | ospf area <id>`. This page used to say every
+timer was overridable, which no reader could reproduce at a console; the schedule itself already
+prefers configuration over the default (`engine/convergence.js`), so the missing half is the
+commands, not the model.
 
 | Process | Default | Source |
 |---|---|---|
