@@ -328,7 +328,49 @@ jobs:
               if bounded 180 git push \
                    --force-with-lease="refs/heads/${head_ref}:${head_sha}" \
                    origin "HEAD:refs/heads/${head_ref}"; then
-                echo "rebased and pushed #${number}"
+                pushed_sha=$(git rev-parse HEAD)
+                echo "rebased and pushed #${number} to ${pushed_sha}"
+                # A push moves the branch; it does not create a run. On 2026-11-19 the
+                # queue filled with pull requests at 0 check statuses whose heads this job
+                # had force-pushed (#2082): `/commits/<sha>/status` answered
+                # `total_count: 0` and `/actions/tasks` had no row for the sha at all - the
+                # run was never created, so there was nothing to re-run, nothing to read,
+                # and nothing to arm. Refusing the run's own token (the guard above) closes
+                # the case that was measured; it cannot close the class, because only the
+                # answer says whether a run exists for the head this pass minted.
+                #
+                # Measured window: a push the forge does dispatch produces its eight
+                # statuses inside ~25 s. 60 s is the bound, and only a pass that actually
+                # rebased something pays it.
+                reported=""
+                waited=0
+                while [ "$waited" -lt 60 ]; do
+                  reported=$(http -H "$(auth)" "$api/repos/$repo/commits/${pushed_sha}/status" 2>/dev/null \
+                    | node -e 'let d="";process.stdin.on("data",function(c){d+=c}).on("end",function(){try{process.stdout.write(String(JSON.parse(d).total_count||0))}catch(e){process.stdout.write("")}})')
+                  case "${reported:-}" in ''|*[!0-9]*) reported="" ;; esac
+                  [ -n "$reported" ] && [ "$reported" -gt 0 ] && break
+                  sleep 5; waited=$((waited+5))
+                done
+                if [ "${reported:-}" = "0" ]; then
+                  # Put back the head this pass replaced. It still carries the checks it
+                  # reported, and a pull request that is behind main can merge on those,
+                  # while a head nothing checks can never be armed at all. Leased to the
+                  # head this push minted, so a push that landed meanwhile is never
+                  # overwritten, and the restore itself is a force-push the guard above
+                  # already decided is safe to make with this credential.
+                  if bounded 180 git push \
+                       --force-with-lease="refs/heads/${head_ref}:${pushed_sha}" \
+                       origin "${head_sha}:refs/heads/${head_ref}"; then
+                    warn "#${number}: rebased to ${pushed_sha}, but no CI run was created for that head within 60 s, so the branch was put back on ${head_sha}, which still has its checks (#2082). A pull request behind main can merge on the checks it has; a head nothing checks can never be armed."
+                  else
+                    warn "#${number}: rebased to ${pushed_sha} and no CI run was created for that head within 60 s (#2082), and the branch could not be put back on ${head_sha} either - so this pass leaves a head with no checks behind. Push to the branch once CI is dispatching again: the head you push gets checked."
+                  fi
+                  exit 0
+                fi
+                # The head that exists is the one this pass pushed, so the arming decision
+                # below must be about it - `head_sha` still names the commit it replaced,
+                # and a payload naming that commit is a stale decision the forge refuses.
+                head_sha="$pushed_sha"
               else
                 # Not a failure of the pull request: the branch moved underneath us, or
                 # this token cannot write. Say so and stay green.
