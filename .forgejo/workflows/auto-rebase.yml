@@ -451,7 +451,14 @@ jobs:
             done
           }
           
-          pulls=$(fetch_pages | node -e '
+          # One walk per tick, not two. This reply already carries every field both passes
+          # below need - `mergeable`, `head.ref` and `head.sha` - so the arming pass reads
+          # the same list instead of asking the API the identical question again. Measured
+          # on run 8041 (a `workflow_dispatch` of this file on main, 21 s, the same shape
+          # as the scheduled ticks 8003/8008/8012): the tick fetched the open-pull-request
+          # pages twice and probed five candidates it could never rebase, ~4 s of a 21 s
+          # tick that no line of the run used.
+          all_pulls=$(fetch_pages | node -e '
               let d = "";
               process.stdin.on("data", c => d += c).on("end", () => {
                 const prs = [];
@@ -470,20 +477,39 @@ jobs:
                   // stuck red, so a window of `batch` was 2 useful rebases and 3 skipped
                   // ones per tick. The per-run ceiling below is still `batch` actual
                   // rebases, so the matrix count a tick can enqueue is unchanged.
-                  .slice(0, Number(process.env.BATCH || 5) * 4)
+                  //
+                  // The window is applied in bash, on the same list the arming pass
+                  // reads, so slicing it costs no second request.
                   // The head sha is in this same reply - `p.head.sha` - so the
                   // per-candidate `head_of` GET below would be a second read of a
                   // field this pass already holds. It is carried through instead.
                   .forEach(p => console.log(p.number + " " + p.head.ref + " " + (p.head.sha || "")));
               });' 2>/dev/null || true)
 
-          if [ -z "${pulls:-}" ]; then
+          if [ -z "${all_pulls:-}" ]; then
             echo "no mergeable open pull requests"
             exit 0
           fi
 
+          # The batch loop's window, and the arming pass's list: both cut from the one
+          # reply above. `batch * 4` candidates, oldest first, as before.
+          pulls=$(printf '%s\n' "$all_pulls" | head -n $(( batch * 4 )))
+          armable=$(printf '%s\n' "$all_pulls" | awk 'NF { print $1 " " $3 }')
+
           rebased=0; current=0; conflicted=0; dupes=0; armed=0; red=0; looked=0
           no_checks=0; uncheckable=0
+
+          # A pass holding only the run token cannot rebase anything: the guard inside the
+          # loop below refuses every candidate, so the loop's one useful product is the
+          # `checks_failed` read per candidate - five status requests for branches this
+          # pass is not allowed to touch. Skip the probe instead of making it and throwing
+          # the answer away; the count is the same set the warning at the end names, taken
+          # from the list already in hand.
+          if [ "${can_push:-false}" != "true" ]; then
+            pulls=""
+            uncheckable=$(printf '%s\n' "$armable" | grep -c . || true)
+            echo "this pass holds only the run token - no branch can be rebased, so the candidate batch is not probed; arming runs below"
+          fi
 
           # Here-string, not a pipe: `echo ... | while` would run the loop in a
           # subshell and the counters on the summary line would always read zero.
@@ -648,25 +674,18 @@ jobs:
           # `batch` pull requests per push. On a queue this size that is a very long lap.
           #
           # 409 means "already armed", which is the outcome we want either way.
+          # `armable` is the list from the walk at the top of this step: same filter
+          # (`state === open && mergeable === true`), same head sha, from the same reply.
+          # Nothing here needs a fresh read - the only thing this pass changes is the arm
+          # call itself, and the loop below re-reads each head's statuses before making it.
+          #
+          # The list is the reply this tick started with, so the head sha of a branch the
+          # batch loop above force-pushed is its pre-push sha. That branch was already
+          # armed by the batch loop, on the sha it pushed, after polling `mergeable`; this
+          # sweep is for the pull requests that pass did not touch, whose head has not
+          # moved. Nothing is left unarmed by reading the older list: a head minted by a
+          # push cannot have green checks inside the lifetime of one tick.
           rearmed=0
-          armable=$(fetch_pages | node -e '
-              let d = "";
-              process.stdin.on("data", c => d += c).on("end", () => {
-                const prs = [];
-                d.split("\n").forEach(line => {
-                  if (!line.trim()) return;
-                  try {
-                    const a = JSON.parse(line);
-                    if (Array.isArray(a)) prs.push(...a);
-                  } catch (e) {}
-                });
-                prs
-                  .filter(p => p.state === "open" && p.mergeable === true)
-                  // Same reply, same field: the arming loop below needs the head
-                  // sha, and asking each pull request for it again is one GET per
-                  // mergeable pull request per pass.
-                  .forEach(p => console.log(p.number + " " + (p.head.sha || "")));
-              });')
 
           # Here-string, not `for n in $armable`: the list is "number sha" pairs
           # now, and a plain word-split would read a sha as the next pull number.
