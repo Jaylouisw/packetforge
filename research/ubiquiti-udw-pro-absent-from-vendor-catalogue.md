@@ -443,3 +443,71 @@ storefronts with a control that returns retired rows and foreign-store hits.
 from — `https://static.ui.com/fingerprint/ui/public.json`, 701 device records, no `UDW-PRO`. See
 `research/ubiquiti-udw-pro-device-fingerprint-census.md`, which also shows why absence there covers
 early-access and retired hardware.*
+
+## 2026-11-19 17:3x UT: the ISP Design Center is a different host from the Design Center read this morning, and its device enum is plain JavaScript
+
+The 07:5x pass read `https://design.ui.com/` and found a client-rendered SPA where `/api/devices`,
+`/api/models` and friends all answer the same 8,107-byte router shell, so the library behind it could
+not be read. **`https://ispdesign.ui.com/` is a separate application** - a Create-React-App build
+(`/static/js/<chunk>.<hash>.js`), not the `/assets/index-<hash>.js` bundle - and it ships its whole
+device catalogue inside the JavaScript, in the clear, with no API call required.
+
+| probe | status | bytes | md5 |
+|---|---|---|---|
+| `https://ispdesign.ui.com/` | 200, `text/html` shell | 4,165 | `7000750e8514df7b71036ccc10428b3f` |
+| `https://ispdesign.ui.com/static/js/522.5aa1f7ec.js` | 200, holds the model enum | 1,740,400 | `e241753a934d443624d64442c87c4d3c` |
+
+(Nine chunks were fetched; the enum lives in `522`. The host is server-static throughout, so unlike
+`design.ui.com` and `store.ui.com/search`, a 200 here is real content and its silence is citable.)
+
+### The controls, because a miss only counts if a hit is possible
+
+The enum is `Ident:"Label"` pairs over the devices the tool can place in a topology. **80 of its
+members carry a `Pro` suffix**, including routers:
+
+```
+EdgeRouter_8_PRO:"EdgeRouter 8 PRO"      EdgeRouter_Infinity:"EdgeRouter Infinity"
+EdgeRouter_12P:"EdgeRouter 12P"          U7_Pro_Max:"U7 Pro Max"
+```
+
+So Pro-suffixed and `Infinity`-named hardware **is** modelled here; the absence below is not an
+artefact of the enum stripping suffixes.
+
+### What it says about the one box that exists
+
+`Dream_Wall:"Dream Wall"` and `Dream_Wall_2_4_GHz:"Dream Wall (2.4 GHz)"` (the two radio variants of
+one chassis), whose record carries:
+
+```
+sku:"UDW", sys_id:"ea2a", uidb_id:"3904d899-2536-40db-b437-055eb0bd61df",
+wifi_standard:Wifi6, power_consumption:532
+```
+
+**532 W is 420 W + 112 W** - the PoE budget and the max draw excluding PoE that
+`devices/ubiquiti/udw.json` already declares. That is an independent vendor figure agreeing with the
+spec, and it is the only thing this host adds: the records hold radio, antenna, power and description
+fields and **no port list at all** (zero hits for `port_count`, `portProfile` or `ports:[` in the
+chunk), so it is not a census source and cannot fill the Pro's missing fields.
+
+### The Pro, in the same enum
+
+Twelve Dream-family variants are modelled - Machine, Machine 2.4, Wall, Wall 2.4, Router, Router 2.4,
+Router 7 x3, Router 5G Max x3. Across all nine chunks the strings `Dream_Wall_Pro`, `udw-pro`,
+`udwpro` and `Wall Pro` (case-insensitive) occur **zero** times.
+
+### What this does and does not prove
+
+It is the **third independent device register** to be read, after the 701-record
+`static.ui.com/fingerprint/ui/public.json` and the per-SKU commerce API, and it agrees with both.
+
+It is **corroboration, not decision**: this enum carries the base `Dream_Machine:"Dream Machine"`
+(`sku:"UDM"`) and `UCG_Industrial`, but *no* UDM Pro and no UDM Pro Max - so its console coverage is a
+subset of the line-up, and a console missing here need not be missing from the world. The decisive
+negatives remain the ones already recorded: the techspecs gateway grid (16/16 cards, no `udw-pro`),
+the SWX grantee census (no Pro grant), the firmware platform codes (no `UDWPRO`) and the 701-record
+fingerprint register.
+
+**No spec change follows.** `devices/ubiquiti/udw.json` is untouched. What unblocks #130 is unchanged:
+a Ubiquiti-hosted page, datasheet, quick-start, grant exhibit, storefront entry or KB article naming
+`UDW-PRO` with its ports and PoE budget - or the requester confirming they meant the UDW, already
+catalogued.
