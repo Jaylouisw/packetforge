@@ -97,6 +97,30 @@ console.log('A wildcard of all zeroes is a host, however it was typed:');
 }
 
 console.log('');
+console.log('A wildcard of all ones is `any`, however it was typed:');
+{
+  const r = rules(table(lab([
+    'access-list 10 permit 0.0.0.0 255.255.255.255',
+    'access-list 10 deny 0.0.0.0 255.255.255.255 log',
+    'access-list 10 permit 10.0.0.1 255.255.255.255',
+    'access-list 10 permit host 0.0.0.0'
+  ])));
+  ok(/^    10 permit any$/.test(r[0] || ''),
+    'the spelled-out `any` prints as `any`, because that is the entry the box stored',
+    JSON.stringify(r[0]));
+  ok(/^    20 deny any log$/.test(r[1] || ''),
+    'and the same fold keeps a trailing `log`', JSON.stringify(r[1]));
+  ok(/^    30 permit 10\.0\.0\.1, wildcard bits 255\.255\.255\.255$/.test(r[2] || ''),
+    'an all-ones wildcard over a real address keeps its wildcard - no capture shows a box folding that one',
+    JSON.stringify(r[2]));
+  ok(/^    40 permit 0\.0\.0\.0$/.test(r[3] || ''),
+    'a host of 0.0.0.0 is a host, not `any`', JSON.stringify(r[3]));
+  ok(aclLib.displayBody({ kind: 'standard', action: 'deny',
+    source: { ip: '0.0.0.0', wildcard: '255.255.255.255', any: false, host: false } }) === 'deny any',
+    'the renderer folds the pair without being told it was spelled out');
+}
+
+console.log('');
 console.log('The count lands on the line as printed:');
 {
   const env = lab(['access-list 10 deny host 10.0.0.9', 'access-list 10 permit any']);

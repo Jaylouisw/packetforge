@@ -345,19 +345,29 @@ function normalizeAcl(entries) {
 //     (`10 permit 10.1.2.3 log`, `30 deny   192.168.1.0, wildcard bits 0.0.0.255`)
 //
 // A host is printed as the bare address, `any` as `any`, and anything else as `<address>, wildcard bits
-// <wildcard>`. Nothing is normalised that the parse did not already decide: an entry typed
-// `0.0.0.0 255.255.255.255` keeps the wildcard form, because no capture in hand shows whether a box folds
-// it into `any` (research/show-access-lists-standard-address-form.md).
+// <wildcard>`. `any` covers both spellings of the same ACE: an entry typed `0.0.0.0 255.255.255.255` prints
+// `any` too, because that is the object the box stored - the address/wildcard pair is turned into an ACE at
+// parse time and the display is generated from the ACE, not from the keystrokes
+// (research/show-access-lists-any-wildcard.md).
 //
 // Returns null for an entry this function does not speak for - an extended line, or one with no parsed
 // source (an older topology file that stored only the text) - so the caller keeps printing the typed line
 // rather than inventing a rendering.
+// Is this spec the ACE `any`? Two spellings, one object: the keyword, and the address and wildcard
+// `0.0.0.0 255.255.255.255` that the vendor documents as `any`'s expansion. A host of 0.0.0.0
+// (`0.0.0.0 0.0.0.0`) is not this - its wildcard is all zeroes, so every bit is compared.
+function isAnySpec(spec) {
+  if (!spec) return false;
+  if (spec.any) return true;
+  return ipToIntSafe(spec.ip) === 0 && ipToIntSafe(spec.wildcard) === 0xffffffff;
+}
+
 function displayBody(entry) {
   if (!entry || typeof entry !== 'object' || entry.error) return null;
   if (entry.kind !== 'standard' || !entry.source || !entry.action) return null;
   const spec = entry.source;
   let source;
-  if (spec.any) source = 'any';
+  if (isAnySpec(spec)) source = 'any';
   else if (!spec.wildcard || spec.wildcard === WILDCARDS.HOST) source = String(spec.ip);
   else source = String(spec.ip) + ', wildcard bits ' + String(spec.wildcard);
   return entry.action + ' ' + source + (entry.log ? ' log' : '');

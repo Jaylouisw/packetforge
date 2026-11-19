@@ -66,9 +66,8 @@ now asserts the vendor's.
 * **Whether `permit`/`deny` is padded on a standard line.** The captures disagree (`20 deny   any log` with
   three spaces, `30 deny   192.168.1.0, ...` with three, `10 deny 171.69.198.102` with one); this was
   already recorded in [show-access-lists-numbering.md](show-access-lists-numbering.md) and is unchanged.
-* **Whether `0.0.0.0 255.255.255.255` typed on a standard line prints as `any`.** The parser keeps `any`
-  as a flag only when the word was typed; an all-ones wildcard prints in the `wildcard bits` form here.
-  A capture of a box configured with the numeric form would settle it.
+* ~~**Whether `0.0.0.0 255.255.255.255` typed on a standard line prints as `any`.**~~ **Settled:** it does, and
+  the renderer now folds it — [show-access-lists-any-wildcard.md](show-access-lists-any-wildcard.md).
 * **Whether an extended line normalises a host typed as `<addr> 0.0.0.0` to `host <addr>`.** No capture in
   hand was typed that way, so extended lines keep the typed text.
 * **`log-input`, `time-range`, `established`, port ranges and named ACLs.** This console has none of them;
