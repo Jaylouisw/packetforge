@@ -3378,7 +3378,7 @@ interface GigabitEthernet0/0
 ```
 
 **A `no` that names a setting removes the setting; a bare `no` removes the group.** The interface-mode
-handler (`_ifaceMode()`, `engine/cli.js:2052-2449`) reads the vrid, and then the word after it:
+handler (`_ifaceMode()`, `engine/cli.js:2131-2553`) reads the vrid, and then the word after it:
 
 ```
 R1(config-if)#no vrrp 10 preempt
