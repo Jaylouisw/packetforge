@@ -3,7 +3,7 @@
   "model": "UMR-Industrial",
   "label": "Ubiquiti Mobile Router Industrial",
   "category": "router",
-  "description": "DIN-rail industrial LTE router: 2x GbE RJ45, LTE Cat 4, Wi-Fi 4, one PoE input and one PoE output (10 W).",
+  "description": "DIN-rail industrial LTE router: 2x GbE RJ45, LTE Cat 4, WiFi 4 (802.11n 2x2, up to 300 Mbps), 12.5 W max consumption, one PoE+ input and one PoE output capped at 10 W.",
   "capabilities": [
     "l3-forward",
     "nat",
@@ -14,7 +14,8 @@
     "http-server",
     "wireless",
     "poe-pd",
-    "poe-pse"
+    "poe-pse",
+    "802.3at"
   ],
   "interfaces": [
     {
@@ -22,7 +23,7 @@
       "type": "ethernet",
       "connector": "rj45",
       "speed": "1G",
-      "poeIn": 12.95
+      "poeIn": 12.5
     },
     {
       "name": "eth1",
@@ -44,5 +45,13 @@
     }
   ],
   "sourceUrl": "https://techspecs.ui.com/unifi/integrations/umr-industrial-us",
-  "notes": "Vendor figures from the Ubiquiti tech specs page: Networking Interface **(2) GbE RJ45 ports**, **LTE Cat 4** radio, **WiFi 4**, Nano SIM, PoE interface **(1) PoE input and (1) PoE output (max 10 W, requires a PoE+ switch)**, DIN-rail mounting. It is powered *and* powers something else over PoE: the 10 W output budget comes out of whatever the input supplies, and Cat 4 LTE is a floor of roughly 50 Mbit/s class here, well below what the gigabit ports suggest."
+  "notes": "Vendor figures from Ubiquiti's own tech-spec page: Networking Interface **(2) GbE RJ45 ports, LTE Cat 4 radio, WiFi 4**; PoE Interface **(1) PoE input / (1) PoE output (Max. 10W, requires PoE+ switch)**; **Max. Power Consumption 12.5W**; Power Method **PoE+ (48-54V DC), USB Type-C (5V DC), 4-pin ATX DC (9-30V DC)**. Cited 2026-11-19: https://techspecs.ui.com/unifi/integrations/umr-industrial-us (200, 693,659 B) prints all of the above; the -us suffix is not required on that host - .../integrations/umr-industrial 200s to the same 693,659 B - unlike the UMR, where the bare slug falls back to the front page. There is **no datasheet**: dl.ui.com/ds/umr-industrial_ds.pdf, .../umr-industrial-us_ds.pdf and .../umr_industrial_ds.pdf all answer 200 with the 609,911-byte techspecs front page (the silent fallback already trapped for ucg-fiber, uxg-pro and umr-ultra), so the 10 W output ceiling is a tech-spec-only figure. The page writes \"PoE+\" and never prints an IEEE number; 802.3at is that standard's name and it is the upstream requirement for the passthrough. Neither surface numbers the PoE ports, only that there is one of each, so eth0 sinks (12.5 W, the vendor's own max consumption - the previous row carried 12.95 W, the 802.3af class-0 ceiling, which no Ubiquiti page states) and eth1 sources (PoE+, 10 W budget), the same convention as devices/ubiquiti/umr.json and devices/zyxel/gs1900-24ep.json.",
+  "aliases": [
+    "UMR-Industrial-US"
+  ],
+  "poe": {
+    "budgetW": 10,
+    "sourceUrl": "https://techspecs.ui.com/unifi/integrations/umr-industrial-us",
+    "note": "(1) PoE output, max 10 W, and it requires a PoE+ switch upstream - so the passthrough is bounded at 10 W on the one PSE port (eth1). The 10 W is printed only by the tech-spec page: the SKU has no datasheet, and every dl.ui.com/ds spelling lands on the 609,911-byte techspecs front page."
+  }
 }

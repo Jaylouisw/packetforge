@@ -62,3 +62,24 @@ rj45-2     auto   off   12.95 W  CAM1  (denied)
 Before the change the box was skipped by the allocator and the port was simply dead. The 10 W ceiling
 is the vendor's, so refusing a 12.95 W class-0 device is the correct answer rather than a regression;
 what was missing was the number, not the policy.
+
+## 2026-11-19 09:5x UT: the third member of the family, and the same defect
+
+`devices/ubiquiti/umr-industrial.json` is the last mobile router in `devices/ubiquiti/` and carried the
+same two defects the UMR did, one field further along: its `eth1` PSE had **no `poe.budgetW`** (so
+`engine/simulator.js`'s `if (!dev.poeBudget) continue;` skipped it and `show power inline` said nothing
+about why), and its `eth0` sink carried **`poeIn: 12.95`** - the 802.3af class-0 ceiling, not a figure
+Ubiquiti prints. The vendor's own max consumption is **12.5 W**.
+
+| surface | result |
+|---|---|
+| `techspecs.ui.com/unifi/integrations/umr-industrial-us` | **200**, 693,659 B - "(2) GbE RJ45 ports, LTE Cat 4 radio, WiFi 4"; "(1) PoE input / (1) PoE output (Max. 10W, requires PoE+ switch)"; "Max. Power Consumption 12.5W"; "Power Method PoE+ (48-54V DC), USB Type-C (5V DC), 4-pin ATX DC (9-30V DC)"; MIMO 2 x 2, 802.11n to 300 Mbps |
+| `techspecs.ui.com/unifi/integrations/umr-industrial` | **200**, same 693,659 B - unlike the UMR, the `-us` suffix is **not** required here |
+| `dl.ui.com/ds/umr-industrial_ds.pdf`, `.../umr-industrial-us_ds.pdf`, `.../umr_industrial_ds.pdf` | all **200** with the **609,911-byte techspecs front page** - no datasheet, so 10 W is tech-spec-only |
+| `store.ui.com/us/en/products/umr-industrial-us` | 200 after a redirect into `.../collections/unifi-mobile-routing/products/umr-industrial-us`, 589,389 B |
+
+Two traps worth keeping. **The page never prints an IEEE number** - zero occurrences of `802.3` in the
+693,659 bytes; it says "PoE+" and "PoE+ (48-54V DC)", and `802.3at` is that standard's name, recorded as
+such rather than as a vendor string. **Neither surface numbers the PoE ports** either, so `eth0` sinks
+and `eth1` sources, the same convention as `umr.json` and `devices/zyxel/gs1900-24ep.json`: a stated
+count, not a guessed census.
