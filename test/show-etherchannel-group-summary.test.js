@@ -54,20 +54,20 @@ console.log('The number picks the row; the counts stay the device\'s:');
   const all = env.cmd('show etherchannel summary');
   ok(rows(all).length === 2, 'the unfiltered view still prints both groups',
     JSON.stringify(rows(all)));
-  ok(all[9] === 'Number of channel-groups in use: 2', 'the unfiltered count is two groups', all[9]);
+  ok(all[10] === 'Number of channel-groups in use: 2', 'the unfiltered count is two groups', all[10]);
 
   const one = env.cmd('show etherchannel 1 summary');
-  ok(one.length === 9 + 2 + 1 + 1 + 4, 'the key, both counts, the header, the rule and one group\'s block',
+  ok(one.length === 15 + 4, 'the key, both counts, the blank line, the header, the rule and one group\'s block',
     JSON.stringify(one));
-  ok(one.slice(0, 9).join('\n') === all.slice(0, 9).join('\n'),
-    'the nine-line key is the same one the unfiltered view prints');
-  ok(one[9] === 'Number of channel-groups in use: 2',
+  ok(one.slice(0, 10).join('\n') === all.slice(0, 10).join('\n'),
+    'the key - ten lines, its blank one included - is the same one the unfiltered view prints');
+  ok(one[10] === 'Number of channel-groups in use: 2',
     'the first count is the device\'s two groups, not the one row printed', one[9]);
-  ok(one[10] === 'Number of aggregators:           2',
-    'and the second count likewise', JSON.stringify(one[10]));
-  ok(one[11] === 'Group  Port-channel  Protocol    Ports', 'the header is printed', one[11]);
-  ok(one[12] === '------+-------------+-----------+-----------------------------------------------',
-    'and the rule under it', one[12]);
+  ok(one[11] === 'Number of aggregators:           2',
+    'and the second count likewise', JSON.stringify(one[11]));
+  ok(one[13] === 'Group  Port-channel  Protocol    Ports', 'the header is printed', one[13]);
+  ok(one[14] === '------+-------------+-----------+-----------------------------------------------',
+    'and the rule under it', one[14]);
   ok(rows(one).length === 1 && rows(one)[0].indexOf('1 ') === 0,
     'exactly one row, and it is group 1\'s', JSON.stringify(rows(one)));
   ok(one.join('\n').indexOf('Po10') === -1, 'group 10 is not in the answer to a question about group 1');
@@ -81,7 +81,7 @@ console.log('The other group is reachable by its own number:');
   ok(rows(ten).length === 1 && rows(ten)[0].indexOf('10 ') === 0,
     'group 10 is the only row', JSON.stringify(rows(ten)));
   ok(rows(ten)[0].indexOf('Po10(') === 7, 'and it names Po10 in the Port-channel column', rows(ten)[0]);
-  ok(ten[9] === 'Number of channel-groups in use: 2', 'the count is still the device\'s', ten[9]);
+  ok(ten[10] === 'Number of channel-groups in use: 2', 'the count is still the device\'s', ten[10]);
   ok(env.cmd('show etherchannel 1 summary').join('\n').indexOf('10 ') === -1,
     'the two filtered answers do not contain each other\'s row');
 }
@@ -104,11 +104,11 @@ console.log('A number that names no group prints the view with nothing in it:');
 {
   const env = twoGroups();
   const none = env.cmd('show etherchannel 3 summary');
-  ok(none.length === 13, 'the key, both counts, the header and the rule - no rows',
+  ok(none.length === 15, 'the key, both counts, the blank line, the header and the rule - no rows',
     JSON.stringify(none));
-  ok(none[9] === 'Number of channel-groups in use: 2' && none[10] === 'Number of aggregators:           2',
-    'the counts still describe the box', JSON.stringify(none.slice(9, 11)));
-  ok(none[11] === 'Group  Port-channel  Protocol    Ports' && /^-+\+/.test(none[12]),
+  ok(none[10] === 'Number of channel-groups in use: 2' && none[11] === 'Number of aggregators:           2',
+    'the counts still describe the box', JSON.stringify(none.slice(10, 12)));
+  ok(none[13] === 'Group  Port-channel  Protocol    Ports' && /^-+\+/.test(none[14]),
     'the header and rule are printed under them');
   ok(none.every(function (l) { return l.indexOf('% ') !== 0; }), 'and nothing is reported as an error',
     JSON.stringify(none.slice(0, 2)));

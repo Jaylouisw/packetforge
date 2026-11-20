@@ -124,9 +124,91 @@ static bundles and, on the same page, a bundle with no live member reading `Po26
   same state.
 - **The legend's line set.** `M`, `u`, `w` and `d` appear on IOS XE and not on 2960-X 15.2(4)E; `A - formed
   by Auto LAG` appears only where Auto LAG exists. The XE form without `A` is what is printed.
-- **Blank lines inside the key.** The SD-WAN sample has one after `f - failed to allocate aggregator` and two
+- ~~**Blank lines inside the key.** The SD-WAN sample has one after `f - failed to allocate aggregator` and two
   before the counts; the labs' PDF text does not. The model prints the nine lines with no blank ones, which
-  is the majority form.
+  is the majority form.~~ **Settled on 2026-11-20 — see "The blank lines in the key" below.** The "majority
+  form" was an artefact of the sources: PDF and HTML extraction drops empty lines, so a reconstruction from
+  those samples can only ever read as one solid block. Two machine-recorded captures both carry the blank
+  lines, and the model now prints them.
+
+## The blank lines in the key — settled (2026-11-20)
+
+**Question (one, narrow).** `show etherchannel summary` prints the flag key as one solid block here. Does a
+real box put blank lines inside that key, and if so where?
+
+**Verdict: yes — and the gaps are in the device's bytes, not in the transcriber's.** Two `ntc-templates`
+captures, stored as `.raw` (terminal output, spaces and empty lines intact), both print a blank line between
+the `f - failed to allocate aggregator` text and the `M - not in use` line, and both print exactly one blank
+line between `Number of aggregators:` and the `Group` header:
+
+```
+Flags:  D - down        P - bundled in port-channel
+        I - stand-alone s - suspended
+        H - Hot-standby (LACP only)
+        R - Layer3      S - Layer2
+        U - in use      N - not in use, no aggregation
+        f - failed to allocate aggregator
+                                    <- blank
+        M - not in use, no aggregation due to minimum links not met
+        m - not in use, port not aggregated due to minimum links not met
+        u - unsuitable for bundling
+        d - default port
+                                    <- blank
+        w - waiting to be aggregated
+Number of channel-groups in use: 6
+Number of aggregators:           6
+                                    <- blank
+Group  Port-channel  Protocol    Ports
+------+-------------+-----------+-----------------------------------------------
+1      Po1(SU)         LACP      Te6/4(P)       Te3/5(P)       Te9/4(P)
+```
+
+```
+Flags:  D - down        P/bndl - bundled in port-channel
+        I - stand-alone s/susp - suspended
+        H - Hot-standby (LACP only)
+        R - Layer3      S - Layer2
+        U - in use      f - failed to allocate aggregator
+                                    <- blank
+        M - not in use, minimum links not met
+        u - unsuitable for bundling
+        w - waiting to be aggregated
+        d - default port
+                                    <- blank
+                                    <- blank
+Number of channel-groups in use: 1
+Number of aggregators:           1
+                                    <- blank
+Group  Port-channel  Protocol    Ports
+------+-------------+-----------+-----------------------------------------------
+1      Po10(RU)  ...  (the SD-WAN sample's own L3 row)
+```
+
+| Source | What it is | The gaps it shows |
+|---|---|---|
+| [`cisco_ios_show_etherchannel_summary.raw`](https://github.com/networktocode/ntc-templates/blob/master/tests/cisco_ios/show_etherchannel_summary/show_etherchannel_summary.raw) | a Catalyst/IOS session with six groups | blank after the `f` line; blank after `d`, then a `w` block; **no** blank before the counts; one blank before `Group` |
+| [`…summary2.raw`](https://github.com/networktocode/ntc-templates/blob/master/tests/cisco_ios/show_etherchannel_summary/show_etherchannel_summary2.raw) | IOS XE 26-style session (SD-WAN wording, one group) | blank after `U … f`; blank, blank after `d`; one blank before `Group` |
+
+Both files are the same source the repo already trusts for `show mac address-table` alignment
+(`research/mac-table-vlan-cell.md`) and for interface names (`cli.js`, the OSPF neighbour note), and both agree
+on the two positions. They disagree on the *blocks*: IOS splits the key into three blocks (the `w` line stands
+alone), XE into two, and the XE capture therefore shows two blank lines where IOS shows none between `w` and
+the counts.
+
+**What was adopted, and why the rest was not.** This console prints the XE line set (`M`, `u`, `w`, `d`; no
+`N`/`m`), so it prints that line set's blocks: one blank after the `f` text, then `M`, `u`, `w`, `d`, then the
+counts. The gap between the counts and the header is one blank line in both captures. The pre-counts count
+(0 on IOS, 2 on XE) is left as IOS has it — no blank — because the two captures disagree and the number is an
+artefact of which lines the last block holds, not a rule about spacing above a table.
+
+`test/etherchannel-summary-layout.test.js` now pins both gaps, in the populated and the empty table;
+`test/show-etherchannel-group-summary.test.js` and `test/show-etherchannel-views.test.js` count the furniture
+at fifteen lines instead of thirteen; `docs/CLI.md`'s two samples carry the gaps.
+
+The lesson is worth recording because the earlier pass stated the opposite as a fact: *"The model prints the
+nine lines with no blank ones, which is the majority form."* The majority of the sources were transcoded
+artefacts. A vendor page cannot witness a blank line, so absence of a blank line in a PDF is not evidence of
+absence on the box — and for a layout question, `.raw` (or a paste in a `<pre>` block) is the only witness.
 
 ## What is unresolved, and what would settle it
 

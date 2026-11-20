@@ -483,6 +483,14 @@ const ETHERCHANNEL_FLAGS = [
   '        H - Hot-standby (LACP only)',
   '        R - Layer3      S - Layer2',
   '        U - in use      f - failed to allocate aggregator',
+  // The key is not one solid block. A machine-recorded Catalyst session prints a blank line between the
+  // `f - failed to allocate aggregator` text and the `M - not in use` line, and the SD-WAN 26.x capture does
+  // the same - both are `ntc-templates` raws (`cisco_ios/show_etherchannel_summary/…raw`), so the gap is in
+  // the bytes rather than lost to HTML/PDF extraction. The block boundaries move between releases (that
+  // Catalyst splits the key into three blocks, the XE one into two), and this console prints the XE line set
+  // with the one gap the two captures agree on: after the `f` text, before `M`.
+  // research/etherchannel-summary-layout.md, "The blank lines in the key".
+  '',
   '        M - not in use, minimum links not met',
   '        u - unsuitable for bundling',
   '        w - waiting to be aggregated',
@@ -7065,6 +7073,9 @@ class CliSession {
         const countsLabel = 'Number of channel-groups in use: ';
         out.push(countsLabel + ids.length);
         out.push(pad('Number of aggregators:', countsLabel.length) + ids.length);
+        // One blank line between the counts and the header. Both captures print it - the Catalyst one and the
+        // SD-WAN one - so it is the device's furniture, not spacing this console chose.
+        out.push('');
         // A box with no groups prints the key, two zeros, the header and the rule, and stops: the furniture
         // is not part of the answer that has nothing in it. This console used to answer
         // `% No link aggregation groups configured` - a sentence no IOS prints - which hid the view behind an

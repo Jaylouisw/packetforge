@@ -2459,12 +2459,14 @@ Flags:  D - down        P - bundled in port-channel
         H - Hot-standby (LACP only)
         R - Layer3      S - Layer2
         U - in use      f - failed to allocate aggregator
+
         M - not in use, minimum links not met
         u - unsuitable for bundling
         w - waiting to be aggregated
         d - default port
 Number of channel-groups in use: 1
 Number of aggregators:           1
+
 Group  Port-channel  Protocol    Ports
 ------+-------------+-----------+-----------------------------------------------
 1      Po1(SU)         LACP      Fa0/2(P) Fa0/3(D)
@@ -2476,6 +2478,11 @@ The key, the two counts, the header and the rule are the device's, character for
 place where the device is **not** self-consistent: the header spends 14 columns on `Port-channel` and 12 on
 `Protocol`, a row spends 16 and 10, so `Protocol` sits two columns left of `LACP` while `Ports` and the member
 list both start at column 33. That drift is the box's, and lining it up would be tidier than the box.
+
+The two blank lines are the box's as well: one inside the key, between the `f - failed to allocate aggregator`
+text and `M - not in use`, and one above the `Group` header. Both survive in the machine-recorded captures
+(`research/etherchannel-summary-layout.md`), which is where they can be seen at all — a PDF or an HTML page
+loses a blank line, so a reconstruction from those reads as one solid block.
 
 `Po1(SU)` is the bundle's own flags: `S` Layer2, and `U` in use or `D` down — `Po1(SD)` when no member can
 carry a frame, which is the row above saying the same thing about the group as `(D)` says about a member.
@@ -2501,12 +2508,14 @@ Flags:  D - down        P - bundled in port-channel
         H - Hot-standby (LACP only)
         R - Layer3      S - Layer2
         U - in use      f - failed to allocate aggregator
+
         M - not in use, minimum links not met
         u - unsuitable for bundling
         w - waiting to be aggregated
         d - default port
 Number of channel-groups in use: 2
 Number of aggregators:           2
+
 Group  Port-channel  Protocol    Ports
 ------+-------------+-----------+-----------------------------------------------
 2      Po2(SU)         LACP      Fa0/7(P) Fa0/8(P)

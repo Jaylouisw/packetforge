@@ -90,12 +90,17 @@ function flagsIn(line) {
   return out;
 }
 
+// The key as a box prints it: nine flag lines, with a blank line between the `f - failed to allocate
+// aggregator` text and the `M - not in use` line. Both machine-recorded captures in
+// research/etherchannel-summary-layout.md carry that gap (`ntc-templates`, cisco_ios, show_etherchannel_summary
+// .raw and summary2.raw), so it is in the bytes and not an artifact of extraction.
 const KEY_LINES = [
   'Flags:  D - down        P - bundled in port-channel',
   '        I - stand-alone s - suspended',
   '        H - Hot-standby (LACP only)',
   '        R - Layer3      S - Layer2',
   '        U - in use      f - failed to allocate aggregator',
+  '',
   '        M - not in use, minimum links not met',
   '        u - unsuitable for bundling',
   '        w - waiting to be aggregated',
@@ -111,18 +116,20 @@ console.log('The key, the counts and the rule come before the table:');
 {
   const env = lab();
   const lines = bundle(env, 1);
-  ok(JSON.stringify(lines.slice(0, 9)) === JSON.stringify(KEY_LINES),
-    'the nine-line flag key is the device key, line for line',
-    JSON.stringify(lines.slice(0, 9)));
-  ok(lines[9] === 'Number of channel-groups in use: 1', 'then the count of groups', lines[9]);
-  ok(lines[10] === 'Number of aggregators:           1',
-    'then the aggregator count, in the same column as the first number', lines[10]);
-  ok(lines[11] === HEADER, 'then the four-column header, at the device widths', lines[11]);
-  ok(lines[12] === RULE, 'then the rule line, drawn under those columns', lines[12]);
-  ok(lines[13].indexOf('1      Po1(') === 0, 'and only then a group row', lines[13]);
+  ok(JSON.stringify(lines.slice(0, 10)) === JSON.stringify(KEY_LINES),
+    'the nine-line flag key is the device key, line for line, gap included',
+    JSON.stringify(lines.slice(0, 10)));
+  ok(lines[5] === '', 'the gap sits after the `f` text and before `M`', JSON.stringify(lines[5]));
+  ok(lines[10] === 'Number of channel-groups in use: 1', 'then the count of groups', lines[10]);
+  ok(lines[11] === 'Number of aggregators:           1',
+    'then the aggregator count, in the same column as the first number', lines[11]);
+  ok(lines[12] === '', 'then the blank line a box prints above the table', JSON.stringify(lines[12]));
+  ok(lines[13] === HEADER, 'then the four-column header, at the device widths', lines[13]);
+  ok(lines[14] === RULE, 'then the rule line, drawn under those columns', lines[14]);
+  ok(lines[15].indexOf('1      Po1(') === 0, 'and only then a group row', lines[15]);
   // Every flag letter the table prints is explained by the key printed above it.
   const used = new Set();
-  for (const l of lines.slice(13)) for (const f of flagsIn(l)) used.add(f);
+  for (const l of lines.slice(15)) for (const f of flagsIn(l)) used.add(f);
   ok(used.size > 0, 'the table uses flag letters', JSON.stringify([...used]));
   for (const letter of used) {
     ok(KEY_LINES.join('\n').indexOf(letter + ' - ') !== -1,
@@ -198,8 +205,8 @@ console.log('Two groups, counted:');
   say(env, 'channel-group 10 mode on');
   say(env, 'end');
   const lines = say(env, 'show etherchannel summary');
-  ok(lines[9] === 'Number of channel-groups in use: 2', 'the count is of the groups, not the members', lines[9]);
-  ok(lines[10] === 'Number of aggregators:           2', 'and one aggregator per group here', lines[10]);
+  ok(lines[10] === 'Number of channel-groups in use: 2', 'the count is of the groups, not the members', lines[10]);
+  ok(lines[11] === 'Number of aggregators:           2', 'and one aggregator per group here', lines[11]);
   const rows = lines.filter(function (l) { return rowFor([l], parseInt(l, 10)).length > 0; });
   ok(rows.length === 2, 'one row per group', JSON.stringify(rows));
   ok(rows[0].indexOf('1 ') === 0 && rows[1].indexOf('10 ') === 0, 'ordered by number', JSON.stringify(rows));
@@ -221,17 +228,18 @@ console.log('A device with no bundle prints the view with nothing in it, not an 
   const sw = t.addDevice(SWITCH, 'lonely');
   const s = new CliSession(sw, t, new Simulator(t));
   const lines = ((s.run('show etherchannel summary').output) || []).map(String);
-  ok(lines.length === 13, 'the key, the two counts, the header and the rule - thirteen lines, no rows',
+  ok(lines.length === 15, 'the key, the two counts, the blank line, the header and the rule - fifteen lines, no rows',
     JSON.stringify(lines));
-  ok(lines[0] === 'Flags:  D - down        P - bundled in port-channel' && lines[8] === '        d - default port',
-    'the key is the same nine lines it prints over a populated table', JSON.stringify(lines.slice(0, 9)));
-  ok(lines[9] === 'Number of channel-groups in use: 0', 'the first count is zero', lines[9]);
-  ok(/^Number of aggregators: +0$/.test(lines[10]) && lines[10].length === lines[9].length,
-    'and so is the second, ending in the same column', JSON.stringify(lines[10]));
-  ok(lines[11] === 'Group  Port-channel  Protocol    Ports', 'the header is printed with no row under it',
-    lines[11]);
-  ok(lines[12] === '------+-------------+-----------+-----------------------------------------------',
-    'and the rule under the header', lines[12]);
+  ok(lines[0] === 'Flags:  D - down        P - bundled in port-channel' && lines[9] === '        d - default port',
+    'the key is the same ten lines it prints over a populated table', JSON.stringify(lines.slice(0, 10)));
+  ok(lines[10] === 'Number of channel-groups in use: 0', 'the first count is zero', lines[10]);
+  ok(/^Number of aggregators: +0$/.test(lines[11]) && lines[11].length === lines[10].length,
+    'and so is the second, ending in the same column', JSON.stringify(lines[11]));
+  ok(lines[12] === '', 'the blank line above the table is printed too', JSON.stringify(lines[12]));
+  ok(lines[13] === 'Group  Port-channel  Protocol    Ports', 'the header is printed with no row under it',
+    lines[13]);
+  ok(lines[14] === '------+-------------+-----------+-----------------------------------------------',
+    'and the rule under the header', lines[14]);
   ok(lines.every(function (l) { return l.indexOf('% ') !== 0; }), 'no line reports the view as an error',
     JSON.stringify(lines));
 }

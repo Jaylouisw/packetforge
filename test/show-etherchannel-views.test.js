@@ -152,7 +152,8 @@ console.log('A typo is still a typo, and a box with no bundles refuses the views
   ok(detail.length === 1 && detail[0].indexOf('is a view this console does not have') !== -1,
     'a router asked for `detail` is told the view is missing, not shown an empty table', detail[0]);
   const summary = ((rs.run('show etherchannel summary').output) || []).map(String);
-  ok(summary.length === 13, 'and `summary` still prints the empty table it always did', JSON.stringify(summary.slice(-3)));
+  ok(summary.length === 15, 'and `summary` still prints the empty table it always did - key, counts, blank, header, rule',
+    JSON.stringify(summary.slice(-3)));
 }
 
 console.log('');
