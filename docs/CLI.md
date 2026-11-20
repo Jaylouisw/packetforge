@@ -2417,7 +2417,7 @@ port), are in `research/show-spanning-tree-port-order.md`.
 A topology with **no bridges at all has no root**, and `engine/stp.js` answers `null` for it rather than a root
 object with a default priority and no identity. That object is how `root bridge undefined priority 32768` reached
 the console on the models in the catalogue that are not bridges — 1,026 of the 2,038 when #1399 was fixed,
-1,069 of the 2,355 today — the report was naming a hole.
+1,063 of the 2,351 today — the report was naming a hole.
 
 ### Setting the root
 
@@ -4322,6 +4322,6 @@ lists each one and the capture that would settle it.
 `123(config)#` prompt, the name reaching `show running-config`, the line printed once and before the
 name is taken, a second identical rename warning again, the four other breach shapes staying silent as
 written down, four catalogue-style names staying silent (the round-trip guard,
-`test/config-roundtrip.test.js`, replays the 2,202 models that have an Ethernet port to seed a config
+`test/config-roundtrip.test.js`, replays the 2,198 models that have an Ethernet port to seed a config
 on and asserts no complaint), six legal names printing nothing, and `no hostname` restoring the
 default without a warning.
