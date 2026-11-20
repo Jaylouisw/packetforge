@@ -690,11 +690,12 @@ A port whose frames the tree drops could also be a **member of a bundle** the tr
 the payload marks every physical member the tree blocked, not the logical port name — the
 members are what the board draws.
 
-`test/stp-port-state.test.js` pins it, 31 checks: the payload names the one blocked port in a
-triangle and its role, the console row and the payload sentence match word for word, a router
-publishes no tree at all, the four facts keep their own verdicts, `undefined` stays unchanged,
-and the canvas and the inspector both route through the shared rule (checked statically, so
-neither can quietly go back to asking `enabled` on its own).
+`test/stp-port-state.test.js` pins it, 32 checks: the payload names the one blocked port in a
+triangle and its role, the console row prints the device table's `Altn BLK` cells while the payload
+keeps the detail view's `blocking (traffic dropped)` sentence, a router publishes no tree at all,
+the four facts keep their own verdicts, `undefined` stays unchanged, and the canvas and the
+inspector both route through the shared rule (checked statically, so neither can quietly go back
+to asking `enabled` on its own).
 
 ### "No such port" was the answer to a question about a view
 
@@ -781,7 +782,7 @@ reverting the two engine halves it covers — `Topology.fromJSON()`'s neighbour 
 the `Simulator` constructor — fails 12. Neighbours green: `lldp` 27,
 `show-lldp` 23, `lldp-across-trunk` 32, `flows-survive-save-load` 16, `spec-survives-load` 32,
 `dhcp-leases-survive-save` 32, `state-payload-complete` 16, `examples-generated` 21, `counters-agreement` 32,
-`interface-counters`, `link-state` 69, `stp-port-state` 31, `counter-payload`, `poe` 18, `poe-agreement`,
+`interface-counters`, `link-state` 69, `stp-port-state` 32, `counter-payload`, `poe` 18, `poe-agreement`,
 `poe-inference`, `config-roundtrip` 47, `pon-splitter` 33.
 
 ### A saved lab forgot who was holding which address
