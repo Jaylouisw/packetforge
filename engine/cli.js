@@ -5911,15 +5911,18 @@ class CliSession {
         // translations" are different answers: the first means nothing has crossed, the second means it has
         // and nothing needed translating.
         const table = this._natTableAt();
+        const rows = table ? natLib.formatTable(table) : [];
         if (!table) {
           out.push('No translations: no packet needing NAT has crossed this device' +
             (rules.length ? '' : ' (and there are no rules to need one)'));
-        } else {
+        } else if (rows.length) {
           // The library prints the rows; the header belongs with them or the columns are unlabelled.
           out.push(natLib.TABLE_HEADER);
-          const shown = natLib.formatTable(table);
-          out.push.apply(out, Array.isArray(shown) ? shown : String(shown).split(String.fromCharCode(10)));
+          out.push.apply(out, rows);
         }
+        // The box closes the view with its own count and prints nothing else when the table is empty - an IOS XE
+        // box with no translations answers with this one line and no headings (research/show-ip-nat-translations-total.md).
+        out.push('Total number of translations: ' + rows.length);
       } else if (sub === 'statistics' || sub === 'stat') {
         // Which ports a translation may happen on. Without this line a rule that never fires has no explanation:
         // the ports say nothing and the rule looks broken (#1391).

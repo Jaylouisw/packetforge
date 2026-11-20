@@ -2164,6 +2164,22 @@ Each of the three is one answer, so a word after it is refused rather than dropp
 % show ip nat statistics does not take "flurbish": every counter is printed
 ```
 
+The table ends where a box's table ends: with the box's own sentence, `Total number of translations: N`, after
+the last row. An empty table is that sentence **alone** - a box prints no headings over nothing - so the view
+still says `0` instead of leaving a bare header, and the number is the rows just printed (the model's table holds
+only the translations live at the instant asked, so it is also what `show ip nat statistics` calls active):
+
+```
+Pro  Inside global          Inside local           Outside local          Outside global
+icmp 203.0.113.1:1024       192.168.10.50          203.0.113.9            203.0.113.9            pat
+Total number of translations: 1
+```
+
+`research/show-ip-nat-translations-total.md` collects the samples: the sentence in the 15M&T, 15S, IOS XE 3S,
+16.x and 17.x NAT guides, and the SD-WAN guide's empty case (`show ip nat translations` answering with
+`Total number of translations: 0` and nothing else). The 12.4T sample does not print it, so the sentence is
+adopted as the modern shape, not as a universal one.
+
 `verbose` is refused in its own words, because it is a real IOS spelling of a *different* table - one row per
 translation with each address pair spelled out - and this console keeps no such form. Printing the plain table in
 answer to it would have answered a question nobody asked (#2097):
