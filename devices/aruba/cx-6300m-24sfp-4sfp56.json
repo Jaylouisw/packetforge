@@ -3,7 +3,7 @@
   "model": "CX 6300M 24SFP+ 4SFP56",
   "label": "Aruba CX 6300M 24SFP+ 4SFP56 (JL658A)",
   "category": "l3-switch",
-  "description": "Aruba CX 6300M 24SFP+ 4SFP56 - 24x 1/10G SFP+ fiber ports plus 4x 1/10/25G SFP56 uplinks. Fiber aggregation model.",
+  "description": "Aruba CX 6300M 24SFP+ 4SFP56 (JL658A) - 1RU fibre access/aggregation switch (AOS-CX): 24x 1G/10G SFP+ cages (1/1/1-1/1/24) plus 4x SFP56 uplink/stacking cages (1/1/25-1/1/28), modelled at the 1/10/25G rates the engine's SFP56 cage carries (the hardware also runs 50G). No copper access ports: the RJ-45 variants are different SKUs.",
   "capabilities": [
     "l2-forward",
     "l3-forward",
@@ -15,7 +15,12 @@
     "start": 1,
     "count": 24,
     "type": "ethernet",
-    "speed": "10G"
+    "speed": "10G",
+    "connector": "sfp+",
+    "speedCaps": [
+      1000,
+      10000
+    ]
   },
   "interfaces": [
     {
