@@ -3,7 +3,7 @@
   "model": "GS724TP",
   "label": "NETGEAR GS724TP",
   "category": "switch",
-  "description": "24-port gigabit PoE+ smart switch: 24x 1G all PoE+, 2x SFP, 192 W budget.",
+  "description": "24-port gigabit PoE+ smart switch: 24x 1G all PoE+, 2x SFP, 190 W budget.",
   "capabilities": [
     "l2-forward",
     "cli",
@@ -224,5 +224,10 @@
       ]
     }
   ],
-  "notes": "Vendor figures from the GS724TP datasheet: **PoE on all 24 ports**, a **192 W power budget**, plus 2 SFP slots. **192 W over 24 powered ports is 8 W average** - six 30 W 802.3at devices would exhaust it, so a camera plan needs the budget arithmetic before the port count."
+  "poe": {
+    "budgetW": 190,
+    "sourceUrl": "https://www.netgear.com/images/datasheet/switches/gs724tpv2_gs724tpp.pdf",
+    "note": "GS724TPv2 data sheet: \"24 PoE+ (190W PoE budget)\" and \"24 x 1000BASE-T PoE+ Copper ports, 2 x 1000BASE-X Dedicated Fiber SFP ports\" - the port table this file carries. The 192 W figure this entry used to quote belongs to the 2007 GS724TPv1 sheet (802.3af, 15.4 W per port, 225 W max supply, 2 combo copper/SFP slots); the current revision is 190 W. 24 x 30 W = 720 W of port ceiling against 190 W, so the budget is the limit."
+  },
+  "notes": "Vendor figures from the GS724TPv2 data sheet: **24 PoE+ ports**, a **190 W power budget**, 2 dedicated SFP slots. **190 W over 24 powered ports is 7.9 W average** - six 30 W 802.3at devices exhaust it, so a camera plan needs the budget arithmetic before the port count. Two revisions carry the name: the 2007 GS724TPv1 is 802.3af at 15.4 W per port on a 192 W budget with 2 combo copper/SFP slots, and this entry is the PoE+ layout (dedicated SFP) at 190 W. The 192 W figure was imported from the v1 sheet and sat beside 802.3at ports."
 }

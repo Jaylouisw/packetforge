@@ -49,3 +49,9 @@ limit and the note says so.
 - `aruba/2540-48g-poe-4sfp-plus-jl357a` (370 W): `www.arubanetworks.com/assets/ds/DS_2540SwitchSeries.pdf`
   answered **403** to the same crawler client that fetched the four above; the HPE datasheet host
   was not swept. Left for a pass that can read it.
+
+**Follow-up, same day.** All six were closed at 18:1x UTC - the HPE QuickSpecs host answered this
+time, and every other figure was read off the vendor's own page or data sheet. Two were more than a
+missing number: the GS724TP's 192 W was the 802.3af v1's figure beside the PoE+ revision's ports,
+and the Moxa's eight ports were an engine inference at 15.4 W on an 802.3bt switch. See
+`research/poe-budget-prose-six-remaining.md`.

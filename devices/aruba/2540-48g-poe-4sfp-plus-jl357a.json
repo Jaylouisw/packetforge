@@ -439,5 +439,10 @@
       ]
     }
   ],
+  "poe": {
+    "budgetW": 370,
+    "sourceUrl": "https://www.hpe.com/psnow/downloadDoc/HPE+Aruba+Networking+2540+Switch+Series-c05278966.pdf?id=c05278966.pdf",
+    "note": "QuickSpecs, JL357A electrical characteristics: \"PoE power: 370 W PoE+\" against a 459 W maximum power rating and 48.6 W idle. 48 PoE+ ports at 30 W each would want 1440 W, so the budget is the binding limit - 7.7 W average across all 48 ports, the same 370 W the 24-port model carries."
+  },
   "notes": "Vendor figures for **JL357A**: 48 x 1G **all PoE+** with a **370 W budget**, plus 4 x SFP+ (1G/10G), ArubaOS-Switch L3 access with static and RIP routing and ACLs. **370 W across 48 PoE+ ports is 7.7 W average** - the same budget the 24-port carries, so the 48-port is a phone-and-camera cluster at low draw, not 48 powered 802.3at devices (which would want 1440 W)."
 }

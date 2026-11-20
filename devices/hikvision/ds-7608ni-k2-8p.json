@@ -67,5 +67,10 @@
     }
   ],
   "sourceUrl": "https://www.hikvision.com/en/products/IP-Products/Network-Video-Recorders/Pro-Series/ds-7608ni-k2-8p/",
+  "poe": {
+    "budgetW": 80,
+    "sourceUrl": "https://www.hikvision.com/content/dam/hikvision/products/S000000001/S000000132/S000000007/S000000026/OFR000040/M000000568/Data_Sheet/Datasheet-of-DS-7608NI-K2_8P-NVR-D-or-E_4.71.410_20221026.pdf",
+    "note": "Hikvision data sheet: PoE \"Interface: 8, RJ-45 10/100 Mbps self-adaptive\", \"Power: <= 80 W\", \"Standard: IEEE 802.3 af/at\". Eight ports at 25.5 W would want 204 W, so three 802.3at cameras exhaust the recorder."
+  },
   "notes": "Recorder + 8-port PoE switch in one box. PoE out: 802.3af/at, 25.5 W per port, 80 W total budget - four 802.3at PTZs will exhaust it. The PoE ports sit on an internal 192.168.254.0/24 with DHCP enabled, so cameras are double-NATed from the LAN unless bridged. Wired only."
 }

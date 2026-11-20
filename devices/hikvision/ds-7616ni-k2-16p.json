@@ -115,5 +115,10 @@
     }
   ],
   "sourceUrl": "https://www.hikvision.com/en/products/IP-Products/Network-Video-Recorders/Pro-Series/ds-7616ni-k2-16p/",
+  "poe": {
+    "budgetW": 200,
+    "sourceUrl": "https://www.hikvision.com/en/products/IP-Products/Network-Video-Recorders/Pro-Series/ds-7616ni-k2-16p/",
+    "note": "Hikvision specification table: PoE \"Interface: 16, RJ-45 10/100 Mbps self-adaptive Ethernet interface\", \"Power: <= 200 W\", \"Standard: IEEE 802.3 af/at\". Sixteen ports at 25.5 W would want 408 W, so the aggregate is the limit."
+  },
   "notes": "Recorder + 16-port PoE switch. PoE out: 802.3af/at, 25.5 W per port, 200 W total - the number to test against a 16-camera build. Internal PoE subnet with its own DHCP server; only the LAN port is routable from the office network."
 }

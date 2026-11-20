@@ -9,48 +9,66 @@
     "cli",
     "http-server",
     "dhcp-client",
-    "dhcp-server"
+    "dhcp-server",
+    "poe-pse",
+    "802.3bt"
   ],
   "interfaces": [
     {
       "name": "1",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": 90,
+      "poeOutClass": "PoE+++"
     },
     {
       "name": "2",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": 90,
+      "poeOutClass": "PoE+++"
     },
     {
       "name": "3",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": 90,
+      "poeOutClass": "PoE+++"
     },
     {
       "name": "4",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": 90,
+      "poeOutClass": "PoE+++"
     },
     {
       "name": "5",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": 90,
+      "poeOutClass": "PoE+++"
     },
     {
       "name": "6",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": 90,
+      "poeOutClass": "PoE+++"
     },
     {
       "name": "7",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": 90,
+      "poeOutClass": "PoE+++"
     },
     {
       "name": "8",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": 90,
+      "poeOutClass": "PoE+++"
     },
     {
       "name": "sfp1",
@@ -92,5 +110,10 @@
         1000
       ]
     }
-  ]
+  ],
+  "poe": {
+    "budgetW": 150,
+    "sourceUrl": "https://www.moxa.com/getmedia/e08a3f88-7aea-49de-b97a-97c1a5c26580/moxa-eds-g4012-series-datasheet-v1.8.pdf",
+    "note": "EDS-G4012 series data sheet, EDS-G4012-8P-4QGS-LVB(-T) row: \"Max. PoE Power Output per Port: 90 W\" (IEEE 802.3bt), and total PD power consumption that depends on the supply - \"Max. 180 W @ 48 VDC input; Max. 150 W @ 24 VDC input; Max. 62 W @ 12 VDC input\". The field holds one number, so it carries the 24 VDC row (150 W) as the conservative ceiling; the 48 VDC and 12 VDC figures are here and in the description. 8 x 90 W = 720 W of port ceiling against 150 W."
+  }
 }
