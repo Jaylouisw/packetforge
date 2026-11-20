@@ -315,7 +315,7 @@ in or out on Gi0/0/1`. The direction word is never reached - it is consumed as t
 promises are `no ip access-group 102 in`, which takes that one off (`Interface Gi0/0/1: access list
 unapplied in`), and the bare `no ip access-group`, which clears both directions (`Interface Gi0/0/1:
 access list unapplied in and out`). Reading a direction word as the number is the code's to fix
-(`_accessGroup()`, `const want = rest[0] != null ? parseInt(rest[0], 10) : null` at `engine/cli.js:3933` - the
+(`_accessGroup()`, `const want = rest[0] != null ? parseInt(rest[0], 10) : null` at `engine/cli.js:3977` - the
 guard asks whether a word arrived, not whether it is a number, so `in` still parses to `NaN`); until it is,
 this page does not advertise the direction on its own.
 
@@ -3647,7 +3647,7 @@ interface GigabitEthernet0/0
 ```
 
 **A `no` that names a setting removes the setting; a bare `no` removes the group.** The interface-mode
-handler (`_ifaceMode()`, `engine/cli.js:2131-2553`) reads the vrid, and then the word after it:
+handler (`_ifaceMode()`, `engine/cli.js:2380-2425`) reads the vrid, and then the word after it:
 
 ```
 R1(config-if)#no vrrp 10 preempt

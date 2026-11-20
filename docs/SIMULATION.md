@@ -130,7 +130,7 @@ belongs to; the rest of this page's citations were not re-measured in the same p
 | **Modelled** | Frames are really tagged on the wire: `_emitFrame` sets `wireTagged`/`wireVid` from `classifyEgress`, so the event log distinguishes a tagged trunk frame from an untagged access frame. | `engine/simulator.js:3156-3216` (`_emitFrame()`) |
 | **Modelled** | MAC tables are per VLAN; VLAN 1 keeps the flat legacy table. Flooding is scoped to the VLAN. A dynamically learned entry ages out after `MAC_AGE_MS` (300 s) of silence, and the same aged lookup decides forwarding: an entry the table only remembers is not a port a frame may be sent to. | `engine/device.js` `learnMac()`, `macLookup()`, `macRows()`; `engine/simulator.js` |
 | **Modelled** | VLANs 1–4094; 1002–1005 are rejected as reserved. | `engine/vlan.js:24-25`, `engine/vlan.js:28-33` (`RESERVED_VLANS`) |
-| **Approximate** | Router-on-a-stick via subinterfaces works (`Gi0/0.10` creates a tagged logical interface), and `portPvid()` gives an untagged frame the VLAN its port carries untagged - the trunk's `nativeVlan`, or the access VLAN. | `engine/simulator.js:167-174` (`portPvid()`), `engine/device.js:330-360` (`addSubinterface()`), `engine/cli.js:1691` |
+| **Approximate** | Router-on-a-stick via subinterfaces works (`Gi0/0.10` creates a tagged logical interface), and `portPvid()` gives an untagged frame the VLAN its port carries untagged - the trunk's `nativeVlan`, or the access VLAN. | `engine/simulator.js:167-174` (`portPvid()`), `engine/device.js:330-360` (`addSubinterface()`), `engine/cli.js:1722` (the `interface <parent>.<n>` door) |
 | **Modelled** | The voice VLAN. On an access port `switchport voice vlan <id>` is live: `classifyEgress` sends that
 VLAN tagged while the access VLAN goes untagged, `classifyIngress` accepts a tagged frame in it and still refuses
 every other tag, and `show vlan` lists the port under both VLANs. On a trunk the parameter is stored and not
@@ -160,7 +160,7 @@ ports" ([research/voice-vlan-port-mode.md](../research/voice-vlan-port-mode.md))
 | **Modelled** | Blocked ports drop **both** ingress and egress traffic (`stp-block` events). This is what turns a physical loop into a working topology instead of a storm. | `engine/simulator.js:1758`, `engine/simulator.js:1959-1963` |
 | **Modelled** | Path cost derived from the negotiated link rate by the vendor's **short** path-cost table (10 Mb 100, 100 Mb 19, 1 Gb 4, 10 Gb 2, faster 1), and divided by member count for an aggregate. A rate with no row of its own takes the next slower row's cost, so cost never rises with speed. | `engine/stp.js:47`, `engine/simulator.js:802-803` |
 | **Approximate** | Only the **converged result** is computed: no BPDUs, no hello/max-age/forward-delay timers, no listening or learning states, no topology-change notifications. The tree is correct, the convergence is instantaneous and free. | `engine/stp.js:1-17` |
-| **Approximate** | It runs for **every** `l2-forward` device regardless of whether the spec claims `stp`, and there is no way to disable it — `show spanning-tree` reports the tree, and `no spanning-tree` clears the bridge priority back to the default 32768 rather than turning the tree off. | `engine/simulator.js:309`, `engine/cli.js:697` |
+| **Approximate** | It runs for **every** `l2-forward` device regardless of whether the spec claims `stp`, and there is no way to disable it — `show spanning-tree` reports the tree, and `no spanning-tree` clears the bridge priority back to the default 32768 rather than turning the tree off. | `engine/simulator.js:902` (`computeStp()`), `engine/cli.js:856` (the `no spanning-tree` undo row) |
 | **Absent** | RSTP/MSTP/PVST/PVRST, PortFast, BPDU guard/filter, root guard, loop guard, per-VLAN trees. | — |
 
 ### 2.5 Passive devices: taps and splitters
@@ -291,7 +291,7 @@ a `/25` connected route regardless of list order.
 | Verdict | Behaviour | Where |
 |---|---|---|
 | **Modelled** | Hop limit starts at 64, decrements per router, expiry drops the packet. | `engine/simulator.js:761`, `engine/simulator.js:1045-1049` |
-| **Modelled** | Static IPv6 routes and an IPv6 default gateway, longest prefix wins. | `engine/device.js:484-510`, `engine/cli.js:214-227` |
+| **Modelled** | Static IPv6 routes and an IPv6 default gateway, longest prefix wins. | `engine/device.js:1172-1195` (`route6To()`), `engine/cli.js:2999` (`_ipv6Route()`) |
 | **Approximate** | IPv6 route selection has **no administrative distance**: connected is installed first and only a strictly longer static prefix displaces it, so there is no OSPFv3/BGP-v6 to rank. | `engine/device.js:484-500` |
 | **Absent** | ICMPv6 errors (time exceeded, destination unreachable, packet too big), fragmentation, OSPFv3, MP-BGP for IPv6, IPv6 ACLs (see [§5.3](#53-acls)), IPv6 NAT. | — |
 
@@ -347,7 +347,7 @@ snooping, lease expiry during a run (leases are computed at run start, not aged)
 |---|---|---|
 | **Modelled** | Standard (1–99, 1300–1999) and extended (100–199, 2000–2699) lists, wildcard masks, `host`/`any`, `eq`/`gt`/`lt`, service names. | `engine/acl.js:11-26` |
 | **Modelled** | First match wins; falling off the end is the **implicit deny**, marked `implicit: true` so a tool can say why. | `engine/acl.js:407-415` |
-| **Modelled** | Bound per interface and direction (`ip access-group`), evaluated inbound after learning and outbound on the **physical** port after subinterface parent resolution. | `engine/cli.js:3779-3830`, `engine/simulator.js:3115-3121`, `engine/simulator.js:3341-3356` |
+| **Modelled** | Bound per interface and direction (`ip access-group`), evaluated inbound after learning and outbound on the **physical** port after subinterface parent resolution. | `engine/cli.js:3970-4021` (`_accessGroup()`), `engine/simulator.js:2965-2986` (`_aclCheck()`), `engine/simulator.js:3192` (out, on the physical port) and `engine/simulator.js:3417-3427` (in) |
 | **Approximate** | Extended rules can match protocol and ports, but only the fields the engine carries: src/dst IP, protocol, src/dst port. No flags, no ICMP type/code, no TOS, no fragments. | `engine/simulator.js:2900-2907` |
 | **Approximate** | ACLs are **IPv4-only**: anything that is not `0x0800` with an `ip` header passes untouched, including all ARP and all IPv6. | `engine/simulator.js:2897` |
 | **Absent** | Any state. No `established`, no reflexive ACLs, no CBAC/zone-based policy, no connection table consultation — each packet is judged alone. No logging, no counters, no time-ranges, no IPv6 ACLs, no VTY/SNMP ACLs. | — |
@@ -415,7 +415,7 @@ Three OSPF defects were found here — [#42, #43, #44](#10-fixed-defects-kept-vi
 | **Approximate** | The FSM exists (`idle→connect→active→opensent→openconfirm→established`) but is never fed: hold/keepalive timers are validated and carried, never expire, and no session ever drops. | `engine/bgp.js:14-21`, `engine/bgp.js:220-266` |
 | **Approximate** | Next hop is rewritten to the advertising router's address on every advertisement, which is right for eBGP and wrong for an iBGP relay — see defect #41. | `engine/simulator.js:617` |
 | **Absent** | Route reflectors, confederations, peer groups/templates, AFI/SAFI negotiation, IPv6 unicast, communities, route-maps, prefix-lists, `next-hop-self`, dampening, graceful restart. | — |
-| **Absent in the CLI** | `router bgp`, `neighbor … remote-as`, `router-id` only. | `engine/cli.js:1742-1760`, `engine/cli.js:2911` |
+| **Absent in the CLI** | `router bgp`, `neighbor … remote-as`, `router-id` only. | `engine/cli.js:1810-1828` (`router bgp`), `engine/cli.js:3013` (`_bgp()`), `engine/cli.js:3046` (`neighbor ... remote-as`) |
 
 `docs/BGP-POLICY.md` is a **design document**, not a description of the code:
 its tables read "Today … This design changes it to" (`docs/BGP-POLICY.md:39-50`)
@@ -475,7 +475,7 @@ layer exists in `engine/bgp.js` today.
 | **Modelled** | `W_SPEED_DOWNGRADE` warns when the link runs below **either** port's maximum — both ends (two 10G cages with a 1G module), or one end against a slower peer (10G RJ45 into 1G RJ45 negotiates 1000). A link running at an installed module's own rate is exempt, because the part was chosen. | `engine/validation.js:855-899` |
 | **Modelled** | `E_NO_COMMON_SPEED` blocks a pair with no shared rate. | `engine/validation.js:126` |
 | **Approximate** | A radio association deliberately does **not** require an exact match: the client takes the best rate both sides and the band can sustain. | `engine/media.js:709-734` |
-| **Modelled** | A port's rate and duplex are pinnable from the console — `speed auto\|<mbps>` (`speed 100`, `speed 1G`; a rate the catalogue ladder has not got is refused, naming what the port does support) and `duplex auto\|full\|half` — and the write goes back through the same mating rule, so a forced rate no peer shares takes the link down instead of being ignored. `W_DUPLEX_MISMATCH` becomes reachable once one end is forced to half. | `engine/cli.js:2424-2449` (the dispatch branches), `engine/cli.js:2987` `_speed()`, `engine/cli.js:3087` `_duplex()` |
+| **Modelled** | A port's rate and duplex are pinnable from the console — `speed auto\|<mbps>` (`speed 100`, `speed 1G`; a rate the catalogue ladder has not got is refused, naming what the port does support) and `duplex auto\|full\|half` — and the write goes back through the same mating rule, so a forced rate no peer shares takes the link down instead of being ignored. `W_DUPLEX_MISMATCH` becomes reachable once one end is forced to half. | `engine/cli.js:2646-2670` (the dispatch branches), `engine/cli.js:3235` `_speed()`, `engine/cli.js:3335` `_duplex()` |
 | **Absent** | Autonegotiation as a process (no FLP bursts, no parallel detection), half-duplex collisions, duplex mismatch as anything but a warning. | `engine/validation.js:743-749` |
 
 ### 6.3 PoE
