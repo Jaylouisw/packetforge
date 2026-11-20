@@ -38,9 +38,10 @@ const SWITCH = catalog.filter(function (s) { return s.model === 'generic-switch'
 
 // The Port column's rows, as the console printed them: name, role cell, state cell.
 function portRows(lines) {
-  const at = lines.indexOf('Port          Role          Sts');
+  const at = lines.indexOf('Interface           Role Sts Cost');
   if (at === -1) return null;
-  return lines.slice(at + 1);
+  // The header, the rule under it, then the rows.
+  return lines.slice(at + 2);
 }
 
 // Two switches, `members` 1 Gb cables bundled into channel-group 1, plus an optional spare cable that stays a

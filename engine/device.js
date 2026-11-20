@@ -250,8 +250,10 @@ class Device {
     // it comes from: nothing typed it, so nothing serializes it.
     this.dhcpGateway = null;
 
-    // STP state, populated by Simulator.computeStp()
-    this.stp = { blocked: new Set(), states: {}, roles: {} };
+    // STP state, populated by Simulator.computeStp(). `costs` is the path cost each row of
+    // `show spanning-tree` charges - the number the election itself uses, so the table cannot print a
+    // cost the tree did not charge.
+    this.stp = { blocked: new Set(), states: {}, roles: {}, costs: {} };
 
     // persistent configuration
     this.config = {

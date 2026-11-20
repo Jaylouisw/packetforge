@@ -459,6 +459,19 @@ const ETHERCHANNEL_RULE = '------+-------------+-----------+--------------------
 const ETHERCHANNEL_HEADER = 'Group  Port-channel  Protocol    Ports';
 const ETHERCHANNEL_COLUMNS = { group: 7, 'port-channel': 16, protocol: 10 };
 
+// The `show spanning-tree` port table's furniture, transcribed from a machine-recorded Catalyst session
+// (ntc-templates `cisco_ios_show_spanning_tree.raw`): `Interface` padded to 20, then `Role` 5, `Sts` 4,
+// `Cost` 10, `Prio.Nbr` 9, `Type`. Each rule run is one dash shorter than the field above it, the rule every
+// table in this console follows. This view prints the first four fields - `Prio.Nbr` and `Type` are the two
+// it does not model, named as open in research/stp-port-table-cost-column.md - so the rule stops after
+// `Cost` instead of running the capture's 80 characters.
+const STP_TABLE_WIDTHS = { iface: 20, role: 5, sts: 4, cost: 10 };
+const STP_TABLE_HEADER = pad('Interface', STP_TABLE_WIDTHS.iface) + pad('Role', STP_TABLE_WIDTHS.role) +
+  pad('Sts', STP_TABLE_WIDTHS.sts) + 'Cost';
+const STP_TABLE_RULE = Object.keys(STP_TABLE_WIDTHS).map(function (k) {
+  return pad('-'.repeat(STP_TABLE_WIDTHS[k] - 1), STP_TABLE_WIDTHS[k]);
+}).join('').replace(/\s+$/, '');
+
 // The `Codes:` legend above `show ip route`: nine lines of fixed text, not one line of this console's codes.
 //
 // A box prints the whole legend of its image on every `show ip route`, whether the table holds one code from
@@ -6728,13 +6741,13 @@ class CliSession {
     } else if (what === 'spanning-tree') {
       if (tokens.length > 1) {
         return showNoTail('show spanning-tree', tokens.slice(1), 'this device\'s tree is reported',
-          'the Port column names the port each row is about');
+          'the Interface column names the port each row is about');
       }
       // `dev.stp` is written by whichever Simulator computed it last, and every HTTP request builds its own - so a
       // console asked at instant 25000 could print the tree from an earlier pass at Infinity and call a port that is
       // still listening "forwarding" (#1335). The attached simulator recomputes for the instant it was given.
       if (this.sim && typeof this.sim.recomputeStp === 'function') this.sim.recomputeStp();
-      const st = dev.stp || { states: {}, roles: {}, blocked: new Set() };
+      const st = dev.stp || { states: {}, roles: {}, blocked: new Set(), costs: {} };
       // The rows run in **port order**, not in character order. This table sorted its keys as strings, so a box
       // with ten or more ports printed `Gi1/0/1, Gi1/0/10, Gi1/0/11, Gi1/0/12, Gi1/0/2, ...` - an order no
       // capture shows. Two live transcripts disagree with it and agree with each other: a stack member's
@@ -6818,10 +6831,35 @@ class CliSession {
         // where the port is the subject of a sentence. `stpRoleCell`/`stpStateCell` hold the mapping, so the
         // console cannot learn a second spelling, and the payload's sentence (`stpPortText`) stays the words a
         // tooltip quotes. research/stp-port-table-role-and-sts.md.
-        out.push('Port          Role          Sts');
+        // The header, the rule and the row widths are one capture's, character for character: a
+        // Catalyst's table reads
+        //   Interface           Role Sts Cost      Prio.Nbr Type
+        //   ------------------- ---- --- --------- -------- --------------------------------
+        //   Gi0/2               Desg FWD 4         128.3    Shr
+        // (ntc-templates, tests/cisco_ios/show_spanning-tree/cisco_ios_show_spanning_tree.raw - a
+        // machine-recorded session, so the spacing survived; the same header is in the Catalyst 9300 17.12
+        // command reference's sample). The first column is `Interface`, not `Port`, and the Cost cell is
+        // the short path-cost number the election charged (1 Gb = 4 in the capture, 100 Mb = 19 on the
+        // Pearson `show spanning-tree vlan 10` rows). It is read from `computeStp()`'s own per-port record
+        // rather than derived again here, so the table and the tree cannot disagree. `Prio.Nbr` and `Type`
+        // are the two columns still open: the port number is the platform's interface index (that capture
+        // runs Gi0/2 -> 128.3, which no name derivation reproduces) and Type needs portfast and duplex
+        // detection this model does not run. research/stp-port-table-cost-column.md.
+        out.push(STP_TABLE_HEADER);
+        out.push(STP_TABLE_RULE);
+        // A cell that fills its field keeps the space the field would have added - the rule
+        // `vlanMediaLine()` follows - so a long port name pushes the row instead of running into the
+        // next cell.
+        const cell = function (v, w) {
+          const t = String(v === undefined || v === null ? '' : v);
+          return t.length >= w ? t + ' ' : pad(t, w);
+        };
         for (const n of names) {
-          out.push(pad(portLabel(n), 14) + pad(stpLib.stpRoleCell((st.roles || {})[n] || '-'), 14) +
-            stpLib.stpStateCell(st.states[n]));
+          const cost = (st.costs && st.costs[n] !== undefined && st.costs[n] !== null) ? st.costs[n] : null;
+          out.push(cell(portLabel(n), STP_TABLE_WIDTHS.iface) +
+            cell(stpLib.stpRoleCell((st.roles || {})[n] || '-'), STP_TABLE_WIDTHS.role) +
+            cell(stpLib.stpStateCell(st.states[n]), STP_TABLE_WIDTHS.sts) +
+            (cost === null ? '-' : String(cost)));
         }
       }
     } else if (what === 'etherchannel') {

@@ -27,7 +27,7 @@ Modes and their prompts:
 | `show arp` | ARP cache: the neighbours it has heard, with an age and the port each was heard on and whether that port can still carry a frame, plus a local row (age `-`) for every interface holding an IPv4 address |
 | `show mac address-table` | MAC table (switches), per VLAN, with an age per entry and stale entries marked, the box's twenty reserved `All … CPU` rows above the learned ones, titled and ruled as the device prints it and closed by `Total Mac Addresses for this criterion: N`; an address learned through a bundle is named on the port-channel (`Po1`), as the device names it (`research/mac-table-port-channel-name.md`) |
 | `show vlan` / `show vlan brief` | VLAN table: one row per VLAN in the VLAN database, with the **access** ports in it - a trunk port carries the VLAN and appears in no row - and the four reserved defaults (1002-1005) a switch has from boot. `show vlan` is the full view: it then prints the media table (`Type`, `SAID`, `MTU`, `Stp`, `Trans1/2`), the empty `Remote SPAN VLANs` section and the empty private-VLAN table; `brief` stops after the first table |
-| `show spanning-tree` | per-port STP role and state in the table's own cells (`Root`/`Desg`/`Altn`, `FWD`/`BLK`/`LTN`/`LRN`), the bridge priority and the elected root, or "not measured" when nothing has run; the detail view's `alternate blocking` sentence is the payload's tooltip wording, not a cell (`research/stp-port-table-role-and-sts.md`) |
+| `show spanning-tree` | per-port STP role, state and path cost in the table's own cells (`Root`/`Desg`/`Altn`, `FWD`/`BLK`/`LTN`/`LRN`, the short-method `Cost`), the bridge priority and the elected root, or "not measured" when nothing has run; the detail view's `alternate blocking` sentence is the payload's tooltip wording, not a cell (`research/stp-port-table-role-and-sts.md`, `research/stp-port-table-cost-column.md`) |
 | `show etherchannel summary` | the device's own summary: the nine-line flag key, both counts, `Po<N>(SU)` per group, LAG members `(P)` bundled, `(I)` stand-alone or `(D)` unbundled, with the reason; a channel-group number in front of the keyword keeps that group's row only, and leaves both counts as the box's totals |
 | `show lldp` | the protocol's status block: `Global LLDP Information:` with `Status: ACTIVE`, the 30 s advertisement interval, the 120 s hold time it advertises and the 2 s reinitialisation delay - the four lines a Catalyst prints, so "running with nothing heard" is distinguishable from "off", which only `show lldp neighbors` used to look like |
 | `show lldp neighbors` | LLDP neighbours, with the local port marked when it can no longer carry, and each row listed only for as long as the hold time its neighbour advertised |
@@ -2332,9 +2332,10 @@ pools first, so a restored lab translates the same packets it did before.
 ```
 Spanning tree enabled protocol ieee
   Bridge priority 4096 (this bridge is the root), root bridge core-sw1 priority 4096
-Port          Role          Sts
-Fa0/1         Desg          FWD
-Fa0/2         Altn          BLK
+Interface           Role Sts Cost
+------------------- ---- --- ---------
+Fa0/1               Desg FWD 4
+Fa0/2               Altn BLK 4
 ```
 
 The `Role` and `Sts` cells are the device's table cells, not its detail view: a box prints `Root`, `Desg`,
@@ -2343,8 +2344,17 @@ for a detail view this console does not model. The word is refused rather than a
 at the table that does report the tree:
 
 ```
-[sw] show spanning-tree detail -> % show spanning-tree does not take "detail": this device's tree is reported - the Port column names the port each row is about
+[sw] show spanning-tree detail -> % show spanning-tree does not take "detail": this device's tree is reported - the Interface column names the port each row is about
 ```
+
+The header, the rule under it and the column positions are a machine-recorded Catalyst capture's, not this
+console's own layout: `Interface` in a 20-character field, `Role` 5, `Sts` 4, then `Cost`
+(ntc-templates, `cisco_ios_show_spanning_tree.raw`; the Catalyst 9300 17.12 command reference prints the same
+header). The `Cost` cell is the short path cost the election charged that port — 4 for 1 Gb, 19 for 100 Mb — read
+from the same per-port record the root-port choice used, so the table cannot price a link differently from the
+tree that blocked it. `Prio.Nbr` and `Type` are the two columns still missing: the port number is the platform's
+interface index and `Type` needs portfast and duplex detection this model does not run
+(`research/stp-port-table-cost-column.md`).
 
 The detail sentence is still what the runtime payload and the port tooltip say, because there a sentence is the
 right shape; the table uses the words a table uses (`research/stp-port-table-role-and-sts.md`).

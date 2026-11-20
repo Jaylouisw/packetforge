@@ -969,7 +969,7 @@ class Simulator {
     // Reset, then apply decisions back onto physical ports.
     for (const dev of this.topo.devices.values()) {
       if (!dev.isL2()) continue;
-      dev.stp = { blocked: new Set(), states: {}, roles: {} };
+      dev.stp = { blocked: new Set(), states: {}, roles: {}, costs: {} };
     }
     for (const bridgeKey of Object.keys(res.ports || {})) {
       const dev = this.topo.getDevice(bridgeKey);
@@ -979,6 +979,9 @@ class Simulator {
         const info = portMap[logicalName];
         dev.stp.states[logicalName] = info.state;
         dev.stp.roles[logicalName] = info.role;
+        // The cost the election charged this logical port, kept for `show spanning-tree`: the table's
+        // `Cost` cell and the path the tree chose are one number, read from one place.
+        dev.stp.costs[logicalName] = info.cost;
         if (info.state === 'blocking') {
           // mark every physical member of this logical port as blocked
           for (const iface of dev.interfaces.values()) {

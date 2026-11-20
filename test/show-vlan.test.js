@@ -249,7 +249,7 @@ console.log('`show spanning-tree` distinguishes "no loop" from "nothing has look
   const ran = ((new CliSession(env.sw, env.t, env.sim).run('show spanning-tree').output) || [])
     .map(String).join('\n');
   ok(!/Not measured/.test(ran), 'after a run it reports what it computed', ran);
-  ok(/Port\s+Role\s+Sts/.test(ran), 'with the per-port table', ran);
+  ok(/Interface\s+Role\s+Sts/.test(ran), 'with the per-port table', ran);
 }
 
 console.log('');

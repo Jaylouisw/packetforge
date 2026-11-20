@@ -40,6 +40,8 @@ here.
 This console's table is a reduced IOS table: it prints the port name, the role and the state, and
 omits `Cost`, `Prio.Nbr` and `Type`. A reduced table still has to use the vocabulary of the columns
 it keeps, or the one cell an operator compares against a capture is the one that does not match.
+(`Cost` has since been added, with the header and widths transcribed from a machine-recorded capture -
+`research/stp-port-table-cost-column.md`; `Prio.Nbr` and `Type` stay out.)
 The state comes from the convergence model (`engine/convergence.js`), which reports `listening`,
 `learning`, `forwarding` and `blocking`; the first two are exactly `LTN` and `LRN` in the command
 reference's list, so they are mapped rather than left in lower case.
@@ -50,8 +52,10 @@ reference's list, so they are mapped rather than left in lower case.
   to `Root`/`Desg`/`Altn`, and `stpStateCell()` maps `forwarding`/`blocking`/`listening`/`learning`
   to `FWD`/`BLK`/`LTN`/`LRN`. A word outside those sets is returned unchanged - the mapping does not
   invent a cell for a role or state the engine cannot produce.
-* `engine/cli.js` prints `Port          Role          Sts` and the two mapped cells, and no longer
-  appends `(traffic dropped)`; the table row is the device's, not the detail view's.
+* `engine/cli.js` prints the two mapped cells and no longer appends `(traffic dropped)`; the table
+  row is the device's, not the detail view's. (The header it printed at the time was
+  `Port          Role          Sts`; the heading and widths have since become the capture's, and a
+  `Cost` column was added - `research/stp-port-table-cost-column.md`.)
 * The detail-view sentence is still produced by `stpPortText()` and still travels in the runtime
   payload and the faceplate tooltip, where a sentence is the right shape. The console and the
   tooltip now differ in wording because the device differs, not because two code paths drifted.
@@ -62,12 +66,12 @@ reference's list, so they are mapped rather than left in lower case.
 
 ## What remains unresolved
 
-* **The first column's heading.** A box prints `Interface`; this console prints `Port`. The
-  latter is the name this console has used since the table was introduced, and changing it also
-  changes the column width every row is padded to. That is a column-layout question, not this one.
-* **`Cost`, `Prio.Nbr`, `Type`.** The device prints them; this table does not model path cost per
-  row, port priority/number, or link type (P2p/Shr/Edge). Adding them is a new column set, not a
-  cell vocabulary fix.
+* **The first column's heading and the row widths - closed.** A box prints `Interface` in a
+  20-character field; this console printed `Port` in a 14-character one. Both are now the capture's,
+  together with the `Cost` column (`research/stp-port-table-cost-column.md`).
+* **`Prio.Nbr` and `Type`.** The device prints them; this table does not model the port's platform
+  index or the link type (P2p/Shr/Edge), and neither can be derived from what the model holds.
+  `research/stp-port-table-cost-column.md` records what would settle each.
 * **Roles and states the model cannot produce.** `Boun`, `Back`, `BKN*`, `DWN`, `LBK` are in the
   device's vocabulary but not in any election this engine runs. They are deliberately unmapped:
   a mapping with no producing path would be a rule with no fact behind it.
