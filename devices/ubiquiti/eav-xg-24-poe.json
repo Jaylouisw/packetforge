@@ -3,7 +3,7 @@
   "model": "EAV-XG-24-PoE",
   "label": "UniFi Enterprise Audio/Video XG 24 PoE",
   "category": "switch",
-  "description": "UniFi Enterprise Audio/Video XG 24 PoE (EAV-XG-24-PoE) - 1x 1G RJ45 + 24x 10G RJ45 (24 PoE+++) + 4x 100G QSFP28 (100G/40G). 2,150 W PoE budget; Layer 3; 1,280 Gbps switching capacity.",
+  "description": "UniFi Enterprise Audio/Video XG 24 PoE (EAV-XG-24-PoE) - 1x 1G RJ45 + 24x 10G RJ45 (24 PoE+++) + 4x 100G QSFP28 (100G/40G). 2,150 W PoE budget at 200-240 V AC in shared mode with 2x 1,200 W modules (850 W at 100-120 V AC in redundant mode); Layer 3; 1,280 Gbps switching capacity.",
   "capabilities": [
     "l2-forward",
     "l3-forward",
@@ -424,7 +424,12 @@
       ]
     }
   ],
+  "poe": {
+    "budgetW": 2150,
+    "sourceUrl": "https://techspecs.ui.com/unifi/switching/eav-xg-24-poe"
+  },
   "icon": "switch",
   "color": "#14b8a6",
-  "sourceUrl": "https://techspecs.ui.com/unifi/switching/eav-xg-24-poe"
+  "sourceUrl": "https://techspecs.ui.com/unifi/switching/eav-xg-24-poe",
+  "notes": "Vendor rows from the tech specs page read 2026-11-20: **Total PoE Availability - 200-240V AC shared mode: 2,150 W with (2) 1,200 W modules; 100-120V AC shared mode: 1,850 W; 200-240V AC redundant mode: 1,050 W; 100-120V AC redundant mode: 850 W**, **Max. PoE Output up to PoE+++**, per-port wattage by PSE **PoE 15.4 W / PoE+ 30 W / PoE++ 60 W / PoE+++ 90 W**, **2,400 W max power consumption including PoE output**, (2) hot-swappable PSUs and (4) hot-swappable fans. **The budget is a function of mains voltage and PSU mode, not one number**: the same chassis in a 100-120 V rack with redundant feed hands out 850 W, a third of the 2,150 W headline this entry quotes, so the field records the vendor's maximum (shared mode, two 1,200 W modules) and the conditions ride in this note."
 }

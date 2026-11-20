@@ -3,7 +3,7 @@
   "model": "UDB-Switch",
   "label": "UniFi Device Bridge Switch",
   "category": "wireless",
-  "description": "UniFi Device Bridge Switch (UDB-Switch) - 1x 10G RJ45 + 7x 2.5G RJ45. 60 W PoE budget; WiFi 7; up to 5.8 Gbps PHY rate; 25 W max.",
+  "description": "UniFi Device Bridge Switch (UDB-Switch) - 1x 10G RJ45 + 7x 2.5G RJ45, 8 PoE+ ports. 185 W PoE budget with the 210 W AC adapter, 35 W with the 60 W adapter; WiFi 7; up to 5.8 Gbps PHY rate.",
   "capabilities": [
     "l2-forward",
     "wireless",
@@ -89,7 +89,12 @@
       "speed": "5.8G"
     }
   ],
+  "poe": {
+    "budgetW": 185,
+    "sourceUrl": "https://techspecs.ui.com/unifi/wifi/udb-switch"
+  },
   "icon": "ap",
   "color": "#14b8a6",
-  "sourceUrl": "https://techspecs.ui.com/unifi/wifi/udb-switch"
+  "sourceUrl": "https://techspecs.ui.com/unifi/wifi/udb-switch",
+  "notes": "Vendor rows from the tech specs page read 2026-11-20: **Networking interface (1) 10G RJ45 + (7) 2.5G RJ45**, **PoE Interface (8) PoE+ ports**, **Max. PoE Wattage per Port 30 W**, **Total PoE Availability - 60W AC adapter input: 35 W / 210W AC adapter input: 185 W**, supported input voltage 42.5-57 V DC. **The '60 W PoE budget' this entry carried until 2026-11-20 was the smaller adapter's rating, not a PSE allocation**: on that adapter the eight PoE+ ports share 35 W (4.4 W average), and the 185 W figure needs the 210 W adapter. Same defect class as the 150 W power-supply rows corrected in `devices/ubiquiti/us-16-150w.json`."
 }

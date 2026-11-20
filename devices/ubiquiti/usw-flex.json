@@ -3,7 +3,7 @@
   "model": "USW-Flex",
   "label": "UniFi Flex",
   "category": "switch",
-  "description": "UniFi Flex (USW-Flex) - 5x 1G RJ45 (4 PoE+ / 1 PoE++). 60 W PoE budget; 10 Gbps switching capacity.",
+  "description": "UniFi Flex (USW-Flex) - 5x 1G RJ45 (4 PoE+ / 1 PoE++). 46 W PoE budget with the optional 60 W PoE++ adapter, 20 W on a PoE+ input, 8 W on a PoE input; 10 Gbps switching capacity.",
   "capabilities": [
     "l2-forward",
     "cli",
@@ -74,7 +74,12 @@
       "poeOutClass": "PoE++"
     }
   ],
+  "poe": {
+    "budgetW": 46,
+    "sourceUrl": "https://techspecs.ui.com/unifi/switching/usw-flex"
+  },
   "icon": "switch",
   "color": "#14b8a6",
-  "sourceUrl": "https://techspecs.ui.com/unifi/switching/usw-flex"
+  "sourceUrl": "https://techspecs.ui.com/unifi/switching/usw-flex",
+  "notes": "Vendor rows from the tech specs page read 2026-11-20: **Port layout 5 (4 PoE+; 1 PoE++)**, **Max. PoE Output up to PoE+**, **Total PoE Availability - PoE++/60W PoE adapter input: 46 W; PoE+ input: 20 W; PoE input: 8 W**, with the vendor's own note **60W PoE adapter sold separately**, and **51 W max power consumption (including PoE output)**. **The 60 W this entry carried in its description until 2026-11-20 was the adapter's rating, not a PSE allocation**: the switch hands out at most 46 W, 20 W when it is itself fed from an 802.3at port and 8 W from an 802.3af port. Four 15.4 W cameras need 61.6 W, so a Flex on a PoE+ uplink cannot run its whole panel however the budget is configured."
 }
