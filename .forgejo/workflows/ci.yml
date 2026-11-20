@@ -945,17 +945,39 @@ jobs:
           # be a check this step had silently stopped running. Anything other than the
           # expected string, including a package.json that will not parse, runs `npm test`
           # whole - the behaviour this step had before.
-          want="node scripts/audit-port-types.js && node scripts/check-control-bytes.js && node scripts/run-tests.js"
+          #
+          # The fourth command arrived on 2026-11-20 (#2301, commit e0d34f42, 19:08Z:
+          # `node scripts/audit-devices.js` between audit-port-types and check-control-bytes)
+          # and this string did not, so from that push every leg fell through to the
+          # fallback: `npm test` whole, the scans serial in front of the suite,
+          # audit-port-types and check-control-bytes each paid twice, and audit-devices with
+          # no ::error title of its own - a red there was reported as "Full test suite
+          # exited 1". Measured on this tree at 59b1e7eb, three runs each,
+          # PF_TEST_CONCURRENCY=10, node v26 on odin: `npm test` whole 28.7 s against 26.0 s
+          # for the same four commands with the three scans overlapped - 2.7 s of every leg,
+          # and the legs are a pull request's wall clock (tasks 22700/22701/22702, run 8599:
+          # 62/58/58 s, of which the suite is ~40 s).
+          #
+          # So the chain is the four commands package.json actually has, audit-devices runs
+          # beside the other two scans with its own 60 s bound and its own title, and the
+          # mismatch path is a ::warning that names the drift. It stayed silent for 1.5
+          # hours because it was plain text in a log nobody reads; a warning shows up on the
+          # run and on the pull request. Nothing is skipped either way - the fallback still
+          # runs every command, it just pays for them one after another.
+          want="node scripts/audit-port-types.js && node scripts/audit-devices.js && node scripts/check-control-bytes.js && node scripts/run-tests.js"
           have=$(node -e 'process.stdout.write((require("./package.json").scripts || {}).test || "")' 2>/dev/null || echo "")
           if [ "$have" != "$want" ]; then
-            echo "package.json scripts.test is not the three-command chain this step overlaps (${have:-<missing>}) - running npm test whole, as before"
+            echo "::warning title=CI overlap drift::package.json scripts.test is not the four-command chain this step overlaps (${have:-<missing>}) - every leg is paying the scans in front of the suite again; update the chain in this step"
             timeout --signal=TERM --kill-after=15 300 npm test
             test_rc=$?
             audit_rc=0
+            audit_devices_rc=0
             control_rc=0
           else
             timeout --signal=TERM --kill-after=10 60 node scripts/audit-port-types.js > "$dir/audit-port-types.log" 2>&1 &
             audit_pid=$!
+            timeout --signal=TERM --kill-after=10 60 node scripts/audit-devices.js > "$dir/audit-devices.log" 2>&1 &
+            audit_devices_pid=$!
             timeout --signal=TERM --kill-after=10 60 node scripts/check-control-bytes.js > "$dir/check-control-bytes.log" 2>&1 &
             control_pid=$!
             # A red suite that passes alone is not a verdict about the tree.
@@ -1001,6 +1023,8 @@ jobs:
             test_rc=${PIPESTATUS[0]}
             wait "$audit_pid"
             audit_rc=$?
+            wait "$audit_devices_pid"
+            audit_devices_rc=$?
             wait "$control_pid"
             control_rc=$?
           fi
@@ -1055,7 +1079,7 @@ jobs:
             echo "--- node scripts/${log}.js ---"
             cat "$dir/${log}.log"
           done
-          for log in audit-port-types check-control-bytes; do
+          for log in audit-port-types audit-devices check-control-bytes; do
             [ -f "$dir/${log}.log" ] || continue
             echo "--- node scripts/${log}.js ---"
             cat "$dir/${log}.log"
@@ -1083,11 +1107,12 @@ jobs:
           report_static check-canonical-urls "$canonical_urls_rc" "Every project URL points at Forgejo"
           report_static check-ci-disk-hygiene "$disk_hygiene_rc" "Every job that builds an image bounds what it writes"
           report_static audit-port-types "$audit_rc" "Port types declared in every device spec"
+          report_static audit-devices "$audit_devices_rc" "Device specs are cabled and described plausibly"
           report_static check-control-bytes "$control_rc" "No control bytes in source"
           [ "$test_rc" -eq 0 ] && [ "$syntax_rc" -eq 0 ] &&
             [ "$node_surface_rc" -eq 0 ] && [ "$canonical_urls_rc" -eq 0 ] &&
             [ "$disk_hygiene_rc" -eq 0 ] && [ "$audit_rc" -eq 0 ] &&
-            [ "$control_rc" -eq 0 ]
+            [ "$audit_devices_rc" -eq 0 ] && [ "$control_rc" -eq 0 ]
       # Two steps became one: the catalogue check reads what `build-examples.js` writes,
       # so the order is unchanged, and the leg no longer pays a step boundary between
       # them. Same commands, same bounds, same exit status - a stop is still named.
