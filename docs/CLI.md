@@ -12,7 +12,7 @@ Modes and their prompts:
 | enable | `Hostname#` | `enable` (or `en`) |
 | config | `Hostname(config)#` | `configure terminal`, or any unique abbreviation of both words (`config t`, `conf term`, `configure term`) |
 | interface | `Hostname(config-if)#` | `interface <name>` (from config) |
-| subinterface | `Hostname(config-subif)#` | `interface <port>.<vlan>` (from config, or from another interface) |
+| subinterface | `Hostname(config-subif)#` | `interface <port>.<n>` (from config, or from another interface) |
 | dhcp pool | `Hostname(dhcp-config)#` | `ip dhcp pool <name>` (from config) |
 
 ## Global / exec commands
@@ -438,8 +438,8 @@ being put into a VLAN, the refusal stands.
 | `hostname <name>` | set device hostname |
 | `no hostname` | clear it, restoring the device's previous name |
 | `interface <name>` | enter interface config mode |
-| `interface <port>.<vlan>` | create a subinterface, or open an existing one, on that parent port - the prompt is `(config-subif)#`, as a box prints it (`research/subinterface-prompt.md`) |
-| `no interface <port>.<vlan>` | remove a subinterface and its block; a physical port is refused, because a port is not something the console created |
+| `interface <port>.<n>` | create a subinterface, or open an existing one, on that parent port - the prompt is `(config-subif)#`, as a box prints it (`research/subinterface-prompt.md`). `<n>` is the subinterface *number*, 1-4294967293, not a VLAN id (`research/subinterface-number.md`) |
+| `no interface <port>.<n>` | remove a subinterface and its block; a physical port is refused, because a port is not something the console created |
 | `ip route <dest> <mask> <gw> [iface] [<distance 1-255>]` | add static route, at that administrative distance (default 1) |
 | `no ip route <dest> <mask> [gw] [<distance>]` | remove static route - with a distance, only that one |
 | `ip default-gateway <gw>` | set default gateway (hosts) |
@@ -450,7 +450,7 @@ being put into a VLAN, the refusal stands.
 | `exit` / `end` | leave config mode |
 
 **A subinterface can be taken back, and `help` names only the direction that makes one.** `no interface
-<port>.<vlan>` deletes the logical interface and everything in its block; `no int` is the same line. The parent
+<port>.<n>` deletes the logical interface and everything in its block; `no int` is the same line. The parent
 port is untouched — it keeps its own address, and the `switchport mode trunk` that `encapsulation dot1q` set on
 it — because the subinterface was the only object created, so removing it removes only that:
 
@@ -471,7 +471,7 @@ R1(config)#no interface Gi0/0
 The physical-port refusal is the rule rather than a message: a port is in the box's inventory, not in its
 configuration, so the line that would delete one is refused and nothing is removed. An unknown name is the same
 `% Interface not found: <name>` the `interface` line gives. The `help` index prints
-`interface <parent>.<vlan>              (creates a subinterface)` and no removal row beside it, so the console
+`interface <parent>.<n>                 (creates a subinterface; n is 1-4294967293, not a VLAN id)` and no removal row beside it, so the console
 accepts a line its own index does not mention; the `?`-key refusal for a `no` line does name it, in the words of
 the branch it stopped:
 
@@ -649,12 +649,17 @@ cannot honour, so `secondary` is refused by name and every other word is refused
 | `description <text>` | set a description |
 | `exit` | back to config mode |
 
-**A subinterface is a VLAN tag, so the tag is in its config.** `interface Gi0/0.20` prints `encapsulation dot1q 20`
-in `show running-config` even when the line was never typed, because the VLAN in the name is the tag; naming a
-different one (`encapsulation dot1q 30` inside `Gi0/0.20`) stores what was typed and prints that. The command is
-refused on a physical port (`% encapsulation dot1q is only valid on a subinterface (e.g. Gi0/0.10)`) and for a VLAN
-outside 1-4094, anything but `dot1q` is refused as an unsupported encapsulation, and the parent port is made a
-trunk - which is the router-on-a-stick pairing a saved config has to carry.
+**The number names the subinterface; `encapsulation dot1q` names the VLAN.** On IOS the number after the dot
+runs 1-4294967293 and the tag is a separate command taking 1-4094, and the two need not match
+(`research/subinterface-number.md`). This console keeps the one-line router-on-a-stick habit: a number that
+*could* be a VLAN id seeds one, so `interface Gi0/0.20` prints `encapsulation dot1q 20` even when the line was
+never typed, and naming a different one (`encapsulation dot1q 30` inside `Gi0/0.20`) stores what was typed and
+prints that. A number above 4094 is only a name - `interface Gi0/0.5000` opens, prints no encapsulation line,
+and carries no tag until one is typed. The command is refused on a physical port
+(`% encapsulation dot1q is only valid on a subinterface (e.g. Gi0/0.10)`) and for a VLAN outside 1-4094, anything
+but `dot1q` is refused as an unsupported encapsulation, and the parent port is made a trunk - which is the
+router-on-a-stick pairing a saved config has to carry. A number outside 1-4294967293 is refused as a number
+(`% Subinterface number out of range: 0`), which is the parser's answer and not a VLAN error.
 
 **A port has one method.** `ip address dhcp` displaces a static address and says which one it removed;
 `ip address <ip> <mask>` displaces the DHCP client and says so. One port holding both was three lies at once —

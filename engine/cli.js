@@ -1643,10 +1643,16 @@ class CliSession {
         const m = /^(.+)\.(\d+)$/.exec(typed);
         const parent = m ? resolvePortName(this.device, m[1]) : null;
         if (m && parent) {
-          const vid = parseInt(m[2], 10);
-          if (!(vid >= 1 && vid <= 4094)) return ['% VLAN out of range: ' + m[2]];
-          this.device.addSubinterface(parent, vid);
-          name = parent + '.' + vid;
+          // The number after the dot is the subinterface's name, not a VLAN id. IOS takes 1 to
+          // 4294967293 here and sets the VLAN separately with `encapsulation dot1q` (1 to 4094); the
+          // number need not match it (research/subinterface-number.md). This door checked the number
+          // against the VLAN range, so `interface Gi0/0.5000` - a name a box opens - was refused as
+          // `% VLAN out of range: 5000`, and a `.9999` was answered with a VLAN error for a number that
+          // was never a VLAN.
+          const num = parseInt(m[2], 10);
+          if (!(num >= 1 && num <= 4294967293)) return ['% Subinterface number out of range: ' + m[2]];
+          this.device.addSubinterface(parent, num);
+          name = parent + '.' + num;
           out.push('Created subinterface ' + name + ' (parent ' + parent + ')');
         } else {
           return ['% Interface not found: ' + typed];
@@ -7243,7 +7249,10 @@ class CliSession {
         // took effect and left no trace in running-config, so a backup of a WAN lab did not say which end clocks the
         // line - and restoring it gave an unclocked link the validation refuses (#1483).
         if (i.clockRateBps) out.push('  clock rate ' + i.clockRateBps);
-        if (i.parent) out.push('  encapsulation dot1q ' + i.encapVid);
+        // Only a subinterface that terminates a VLAN has an encapsulation line. A port named `.5000`
+        // carries no tag until one is typed, and `encapsulation dot1q null` is a line no box prints
+        // (research/subinterface-number.md).
+        if (i.parent && i.encapVid) out.push('  encapsulation dot1q ' + i.encapVid);
         // The method is printed, not the outcome. A host that has a lease holds both the `dhcp` flag and the
         // address the lease gave it, and printing the address baked a leased value into the backup: restored
         // on another network, the host claimed a stale address and never asked for a new one. A backup has to
@@ -7562,7 +7571,7 @@ class CliSession {
       '  ipv6 nd suppress-ra',
       '  show ipv6 nd                    what this device would advertise',
       '  vlan <id> [name]                       (config mode)',
-      '  interface <parent>.<vlan>              (creates a subinterface)',
+      '  interface <parent>.<n>                 (creates a subinterface; n is 1-4294967293, not a VLAN id)',
       '  encapsulation dot1q <vlan>             (interface mode)',
       '  switchport mode access|trunk            (interface mode)',
       '  switchport access vlan <id>',

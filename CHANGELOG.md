@@ -9,6 +9,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **A subinterface's number is a name, not a VLAN id.** `interface Gi0/0.5000` was refused as
+  `% VLAN out of range: 5000`, because the number after the dot was checked against the 802.1Q range. On IOS
+  the subinterface number runs 1 to 4294967293 and the VLAN is set separately by `encapsulation dot1q`
+  (1 to 4094); the two need not match ([Cisco IOS `interface`](https://www.cisco.com/E-Learning/bulk/public/tac/cim/cib/using_cisco_ios_software/cmdrefs/interface.htm),
+  [Cisco Press, *VLAN Routing with Router 802.1Q Trunks*](https://www.ciscopress.com/articles/article.asp?p=2990405&seqNum=2)).
+  The name now opens, carries no tag until `encapsulation dot1q` is typed (no `encapsulation dot1q null`
+  line is printed), and the tag stored is the one typed - a `.5000` port can terminate VLAN 100. A number
+  outside 1-4294967293 is refused as a number, and the one-line `.10` form still writes
+  `encapsulation dot1q 10`. A `.5000` subinterface also survives save/load, which keyed its rebuild on
+  `encapVid` and dropped it. `test/subinterface-number.test.js` (8 checks),
+  [research/subinterface-number.md](research/subinterface-number.md).
 - **`show ip ospf interface brief` answers as a view, not as a port that is missing.** `brief` is a keyword
   of the command — `show ip [ospf] [process-id] interface [type number] [brief]` — and its table is the
   one-line-per-interface view every IOS box prints: `Interface    PID   Area            IP Address/Mask

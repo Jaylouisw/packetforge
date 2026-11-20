@@ -77,9 +77,11 @@ console.log('The same refusal one level down, on a dot1q subinterface:');
   ok(env.prompt() === 'r1(config-subif)#', 'the subinterface opens its own mode', env.prompt());
   ok(created.length === 1 && /^Created subinterface Gi0\/0\.10/.test(created[0]),
     'and says it was created', JSON.stringify(created));
-  const bad = env.run('interface Gi0/0.5000');
-  ok(bad.length === 1 && bad[0] === '% VLAN out of range: 5000',
-    'a VLAN id outside 1-4094 is refused', JSON.stringify(bad));
+  // A subinterface *number* is not a VLAN id: `.5000` opens (research/subinterface-number.md). `.0` is
+  // the name outside the subinterface range 1-4294967293, so the refusal this scenario needs is that one.
+  const bad = env.run('interface Gi0/0.0');
+  ok(bad.length === 1 && bad[0] === '% Subinterface number out of range: 0',
+    'a subinterface number outside 1-4294967293 is refused', JSON.stringify(bad));
   ok(env.prompt() === 'r1(config-subif)#', 'and the subinterface mode survives the refusal', env.prompt());
   env.run('description stays-on-subif');
   ok(env.desc('Gi0/0.10') === 'stays-on-subif',

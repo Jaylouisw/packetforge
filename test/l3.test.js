@@ -141,10 +141,16 @@ console.log('\nScenario E: CLI validation');
   ok(/only valid on a subinterface/.test(out),
     'encapsulation dot1q rejected on a physical interface');
 
-  const bad = runCommands(L.r, L.t, L.sim, [
+  // `.9999` is a subinterface *number*, and IOS takes 1 to 4294967293 there - so the name opens, and the
+  // VLAN check belongs to `encapsulation dot1q` (research/subinterface-number.md).
+  const big = runCommands(L.r, L.t, L.sim, [
     'configure terminal', 'interface Gi0/0.9999'
   ]).lines.join('\n');
-  ok(/VLAN out of range/.test(bad), 'subinterface with an out-of-range VLAN rejected');
+  ok(/Created subinterface Gi0\/0\.9999/.test(big), 'a subinterface number above 4094 opens');
+  const bad = runCommands(L.r, L.t, L.sim, [
+    'configure terminal', 'interface Gi0/0.9999', 'encapsulation dot1q 9999'
+  ]).lines.join('\n');
+  ok(/VLAN out of range/.test(bad), 'an encapsulation VLAN above 4094 is still refused');
 
   const run = runCommands(L.r, L.t, L.sim, ['show running-config']).lines.join('\n');
   ok(/interface GigabitEthernet0\/0\.10/.test(run) && /encapsulation dot1q 10/.test(run),

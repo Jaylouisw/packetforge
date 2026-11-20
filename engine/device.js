@@ -312,17 +312,28 @@ class Device {
 
   interface(name) { return this.interfaces.get(name); }
 
-  // Create (or return) a router subinterface, e.g. Gi0/0.10 for VLAN 10.
+  // Create (or return) a router subinterface, e.g. Gi0/0.10.
   // The physical parent automatically becomes an 802.1Q trunk.
-  addSubinterface(parentName, vid) {
+  // A subinterface's number is a *name*, not a VLAN. On IOS the number after the dot runs 1 to
+  // 4294967293, while the VLAN a subinterface terminates is set by `encapsulation dot1q` and runs 1 to
+  // 4094 - and the two need not match (research/subinterface-number.md). They were one value here, so a
+  // legal `interface Gi0/0.5000` was refused as an out-of-range VLAN. The number still seeds `encapVid`
+  // when it *could* be a VLAN id, which keeps the one-line router-on-a-stick form this model has always
+  // answered; a number above 4094 seeds nothing, and the port carries no tag until `encapsulation dot1q`
+  // is typed (an explicit third argument overrides the seed, including an explicit `null`).
+  addSubinterface(parentName, number, encapVid) {
     const parent = this.interfaces.get(parentName);
     if (!parent) throw new Error('Unknown parent interface: ' + parentName);
-    const name = parentName + '.' + vid;
+    const num = Number(number);
+    const encap = (encapVid === undefined)
+      ? ((num >= 1 && num <= 4094) ? num : null)
+      : (encapVid === null ? null : Number(encapVid));
+    const name = parentName + '.' + num;
     const existing = this.interfaces.get(name);
     if (existing) return existing;
 
     const iface = new Interface(
-      { name: name, type: 'subinterface', speed: parent.speed, parent: parentName, encapVid: vid },
+      { name: name, type: 'subinterface', speed: parent.speed, parent: parentName, encapVid: encap },
       this.interfaces.size,
       {}
     );
@@ -1679,9 +1690,17 @@ class Device {
       if (Array.isArray(state.interfaces)) {
         for (const is of state.interfaces) {
           let iface = d.interfaces.get(is.name);
-          if (!iface && is.parent && is.encapVid) {
-            // subinterfaces are not part of the device spec: recreate them
-            try { iface = d.addSubinterface(is.parent, is.encapVid); } catch (e) { iface = null; }
+          if (!iface && is.parent) {
+            // Subinterfaces are not part of the device spec: recreate them from the name. A subinterface
+            // whose number is above the VLAN range has a name and no tag, so it must come back too -
+            // keying the rebuild on `encapVid` dropped it on load (research/subinterface-number.md).
+            const sub = /^(.+)\.(\d+)$/.exec(String(is.name || ''));
+            if (sub) {
+              try {
+                iface = d.addSubinterface(is.parent, parseInt(sub[2], 10),
+                  is.encapVid === undefined || is.encapVid === null ? null : is.encapVid);
+              } catch (e) { iface = null; }
+            }
           }
           if (!iface) continue;
           iface.ip = is.ip || null;
