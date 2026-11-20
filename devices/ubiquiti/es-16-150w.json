@@ -20,7 +20,8 @@
       "speed": "1G",
       "speedCaps": [
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
       "poeOut": true,
       "poeOutClass": "PoE+"
@@ -32,7 +33,8 @@
       "speed": "1G",
       "speedCaps": [
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
       "poeOut": true,
       "poeOutClass": "PoE+"
@@ -44,7 +46,8 @@
       "speed": "1G",
       "speedCaps": [
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
       "poeOut": true,
       "poeOutClass": "PoE+"
@@ -56,7 +59,8 @@
       "speed": "1G",
       "speedCaps": [
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
       "poeOut": true,
       "poeOutClass": "PoE+"
@@ -68,7 +72,8 @@
       "speed": "1G",
       "speedCaps": [
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
       "poeOut": true,
       "poeOutClass": "PoE+"
@@ -80,7 +85,8 @@
       "speed": "1G",
       "speedCaps": [
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
       "poeOut": true,
       "poeOutClass": "PoE+"
@@ -92,7 +98,8 @@
       "speed": "1G",
       "speedCaps": [
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
       "poeOut": true,
       "poeOutClass": "PoE+"
@@ -104,7 +111,8 @@
       "speed": "1G",
       "speedCaps": [
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
       "poeOut": true,
       "poeOutClass": "PoE+"
@@ -116,7 +124,8 @@
       "speed": "1G",
       "speedCaps": [
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
       "poeOut": true,
       "poeOutClass": "PoE+"
@@ -128,7 +137,8 @@
       "speed": "1G",
       "speedCaps": [
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
       "poeOut": true,
       "poeOutClass": "PoE+"
@@ -140,7 +150,8 @@
       "speed": "1G",
       "speedCaps": [
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
       "poeOut": true,
       "poeOutClass": "PoE+"
@@ -152,7 +163,8 @@
       "speed": "1G",
       "speedCaps": [
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
       "poeOut": true,
       "poeOutClass": "PoE+"
@@ -164,7 +176,8 @@
       "speed": "1G",
       "speedCaps": [
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
       "poeOut": true,
       "poeOutClass": "PoE+"
@@ -176,7 +189,8 @@
       "speed": "1G",
       "speedCaps": [
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
       "poeOut": true,
       "poeOutClass": "PoE+"
@@ -188,7 +202,8 @@
       "speed": "1G",
       "speedCaps": [
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
       "poeOut": true,
       "poeOutClass": "PoE+"
@@ -200,7 +215,8 @@
       "speed": "1G",
       "speedCaps": [
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
       "poeOut": true,
       "poeOutClass": "PoE+"
@@ -220,5 +236,6 @@
   ],
   "icon": "switch",
   "color": "#14b8a6",
-  "sourceUrl": "https://techspecs.ui.com/uisp/wired/es-16-150w"
+  "sourceUrl": "https://techspecs.ui.com/uisp/wired/es-16-150w",
+  "notes": "Census from the vendor tech-spec table (https://techspecs.ui.com/uisp/wired/es-16-150w, HTTP 200, 574,980 B, read 2026-11-20): Networking interface \"(16) 10/100/1000 Mbps RJ45 ports; (2) 1 Gbps SFP ports\"; PoE interface \"PoE/PoE+ (Pins 1, 2+; 3, 6-); 24V DC passive PoE (Pins 4, 5+; 7, 8-)\"; max per port \"PoE+: 34.2W; Passive PoE: 17W\"; management \"UART console Out-of-Band\". The 16 copper ports were declared 1G/100M although the page states 10/100/1000 Mbps - the 10M rung is now modelled, matching the same fix PR #2249 made across the ECS family. Budget note: this page prints \"Power supply: AC/DC, internal, 150W\" and \"Max. power consumption: 150W\" and no \"Total PoE available\" row, so the 150 W here is still the SKU-named figure and has not been re-sourced by this pass."
 }
