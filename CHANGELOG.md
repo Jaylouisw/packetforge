@@ -9,6 +9,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **`show ip ospf interface brief` answers as a view, not as a port that is missing.** `brief` is a keyword
+  of the command — `show ip [ospf] [process-id] interface [type number] [brief]` — and its table is the
+  one-line-per-interface view every IOS box prints: `Interface    PID   Area            IP Address/Mask
+  Cost  State Nbrs F/C` ([Cisco IOS OSPF Command Reference](http://www.cisco.com/c/en/us/td/docs/ios-xml/ios/iproute_ospf/command/iro-cr-book/ospf-s1.html);
+  the widths are measured off the Academy multiarea lab's `Se0/0/0      1     0               192.168.12.1/30
+  781   P2P   1/1`). This console read the word as a port name and answered `% No interface brief on <box>`,
+  the sentence a misspelt port gets, about a command the box really has. It now refuses the view by name,
+  prints the header it would have, and names the one cell no other view stands in for — the `PID`, which is
+  the id from `router ospf <process-id>`, a command this console does not model — then points at
+  `show ip ospf interface [<port>]`. The table is not printed with `PID` or `State` filled in from nothing:
+  the State election here runs only across a cable with two speakers, and the `C` half of `Nbrs F/C` counts
+  neighbours *detected*, a state the engine does not record. A port genuinely named `brief` still wins over
+  the keyword. `test/show-ip-ospf-interface-brief.test.js` (16 checks) pins the refusal, the header at the
+  measured widths, four abbreviations and the three views that already worked
+  ([research/show-ip-ospf-interface-brief.md](research/show-ip-ospf-interface-brief.md)).
 - **`show vlan brief` names an access EtherChannel by the bundle, not by its members.** A working two-member
   bundle in VLAN 10 printed `Fa0/2, Fa0/3` in the Ports cell — the cables a frame might cross — while
   `show etherchannel summary` on the same box printed `Po1(SU)` over those two members. An IOU switch with

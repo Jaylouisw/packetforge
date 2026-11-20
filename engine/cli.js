@@ -5180,6 +5180,29 @@ class CliSession {
 
     if (sub === 'interface' || sub === 'interfaces') {
       const wanted = portWanted();
+      // `brief` is a keyword of this command, not a port name. The vendor's form is
+      //   show ip [ospf] [process-id] interface [type number] [brief]
+      // (Cisco IOS IP Routing: OSPF Command Reference, ospf-s1.html), and its table is seven cells:
+      //   Interface    PID   Area            IP Address/Mask    Cost  State Nbrs F/C
+      //   Se0/0/0      1     0               192.168.12.1/30    781   P2P   1/1
+      // measured off the CCNA multiarea lab PDF, which is the one capture in hand whose spacing survives
+      // extraction. This console read `brief` as a port name and answered `% No interface brief on <box>` -
+      // the sentence a typo gets, about a view the box really has. Two of the seven cells cannot be filled
+      // honestly: PID is the id from `router ospf <pid>`, a command this console does not have (one unnamed
+      // process), and State is the port's DR/BDR role, which the engine only elects across a cable with two
+      // speakers. research/show-ip-ospf-interface-brief.md records the captures, which cells are derivable
+      // and what would settle the rest; the console therefore names the view and the view that does answer
+      // rather than printing a table with two invented columns.
+      if (wanted.unknown) {
+        const typed = String(wanted.name).trim().split(/\s+/);
+        if (/^b(?:ri(?:e(?:f)?)?)?$/i.test(typed[typed.length - 1])) {
+          out.push('% `' + wanted.name + '` is a view, not a port: this console has no `show ip ospf interface brief`.');
+          out.push('  Its header is `Interface    PID   Area            IP Address/Mask    Cost  State Nbrs F/C`,');
+          out.push('  and the PID cell is the id from `router ospf <pid>`, a command this console does not have.');
+          out.push('  `show ip ospf interface [<port>]` prints the area, the cost and whether the port is adjacent.');
+          return out;
+        }
+      }
       const rows = wanted.name ? ifaces.filter(function (i) { return i.name === wanted.name; }) : ifaces;
       if (!evaluated) {
         out.push('% no OSPF state has been evaluated yet - run a simulation');

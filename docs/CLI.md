@@ -1856,9 +1856,13 @@ capture the widths were measured on reads `Port-channel1` and `Vlan1000`, Cisco'
 columns wide on a GigabitEthernet port, and nothing wraps it - the box prints it that way too. The
 abbreviation is what `show ip ospf interface` prints in this console - its `Interface` column reads
 `Gi0/0/0` - so the family's two views spell the same port differently, as a box's do between this
-command and its `show ip ospf interface brief`. That `brief` view is the vendor's, not this
-console's: the parser reads the word as a port name and refuses it, `% No interface brief on r1`,
-so the abbreviated spelling is the one `show ip ospf interface` already prints. **Pri** is the neighbour's Hello
+command and its `show ip ospf interface brief`. That `brief` view is the box's table and this console
+has none of it: the word was read as a port name and refused with `% No interface brief on r1`, the
+sentence a typo gets, and it now answers as a view named in full - the header the table would print,
+`Interface    PID   Area            IP Address/Mask    Cost  State Nbrs F/C`, and the one cell no
+other view stands in for, the PID, which comes from `router ospf <pid>`, a command this console does
+not have. `research/show-ip-ospf-interface-brief.md` has the captures, the measured widths and which
+of the seven cells the engine could fill. **Pri** is the neighbour's Hello
 priority: 1 here, the hardware default, because `ip ospf priority` is not modelled and the column is
 carried as a number rather than spelled at the console. **Dead Time** is the Router Dead Interval
 counting down from the neighbour's last Hello, and it comes from `convergence.ospfTimers()` - the
