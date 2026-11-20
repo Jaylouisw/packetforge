@@ -204,18 +204,27 @@ What it will **not** close, and why:
 ### The forge's own parser, and the sentence it cannot read
 
 The sweep above reads a negation: *does not close #N* is not a claim, and `--explain` says so. The
-forge does not always agree, and on 2026-11-18 it closed two `[Device]:` requests on their own
-disclaimers, a few hours apart:
+forge does not always agree, and it has now closed three `[Device]:` requests on their own
+disclaimers — two a few hours apart on 2026-11-18, the third two days later:
 
 | pull request | the words | the request | what happened |
 |---|---|---|---|
 | #2000 | *"Refs #803 — does not close it"* and, further down, *"Why it cannot close #803:"* | #803 | `closed` at 16:04:48Z, two seconds after the merge, with no comment |
 | #2005 | *"This PR does not close #130 — UDW-PRO still has no Ubiquiti source"* | #130 | `closed` at 18:00:05Z, also two seconds after the merge, no comment |
+| #2301 | *"Does not close #130 or #803 — the two open device requests are blocked on their vendors"* | #130 | `closed` at 19:08:37Z, three seconds after the merge, no comment; **#803 stayed open** |
 
-Neither close was this sweep: it posts a comment carrying its marker *before* it changes state,
-and neither issue carries one. Both were reopened by hand about twenty minutes later, which is
-where the cost is — a request that leaves the queue has to be found and put back, and the next
-reader of the queue cannot see that it happened.
+None of the three closes was this sweep: it posts a comment carrying its marker *before* it changes
+state, and none of the issues carries one. All three were reopened by hand, the third at 21:24Z the
+same day, which is where the cost is — a request that leaves the queue has to be found and put
+back, and the next reader of the queue cannot see that it happened.
+
+The third close pins the shape down a little further. #2301 named two requests in one disclaimer
+and the forge closed exactly one: `or` is not a separator in its run, so the keyword bound to the
+number directly after it and the second reference was ignored. The risk is therefore not "a number
+near a keyword" but "the number adjacent to it" — a two-request disclaimer loses one request while
+the body reads as if it protected both. It was also written after this section existed, which is
+the argument for running `scripts/check-closing-keywords.js` before pushing rather than trusting
+the rule to be remembered.
 
 The identical shape in #1867 (*"Does **not** close #743"*) and #1873 (*"it does **not** close the
 issue"*) closed nothing. So the forge's rule is not something that can be learned from outside, and

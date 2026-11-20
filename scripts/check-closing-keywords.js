@@ -2,19 +2,25 @@
 'use strict';
 // "Does not close #N" closes #N.
 //
-// Measured twice on 2026-11-18, on this forge, in this repository:
+// Measured three times, twice on 2026-11-18 and once on 2026-11-20, on this forge, in this
+// repository:
 //
 //   * pull request #2000, body "Refs #803 - does not close it" and, further down,
 //     "Why it cannot close #803:"  ->  issue 803 went to closed at 16:04:48Z, two seconds after
 //     the merge, with no comment posted on it;
 //   * pull request #2005, body "This PR does not close #130 - UDW-PRO still has no Ubiquiti
-//     source"  ->  issue 130 went to closed at 18:00:05Z, also with no comment.
+//     source"  ->  issue 130 went to closed at 18:00:05Z, also with no comment;
+//   * pull request #2301, body "Does not close #130 or #803 - the two open device requests are
+//     blocked on their vendors"  ->  issue 130 went to closed at 19:08:37Z, three seconds after
+//     the merge, again with no comment. Issue 803 stayed open: the run does not treat "or" as a
+//     separator, so the keyword bound to the first number and the second reference was ignored.
 //
-// Neither close was scripts/close-merged-issues.js: that script posts a comment before it changes
-// state, and its marker was never written. Both were the forge reading a keyword next to a number
-// in a merged body - the same mechanism that legitimately closed #1526 from #1635 - and both had
-// to be reopened by hand twenty minutes later. The damage is not the minute of work: a reopened
-// request has lost its place in the queue, and a reader who trusts state open learns not to.
+// None of the three closes was scripts/close-merged-issues.js: that script posts a comment before
+// it changes state, and its marker was never written. All three were the forge reading a keyword
+// next to a number in a merged body - the same mechanism that legitimately closed #1526 from
+// #1635 - and all three had to be reopened by hand. The damage is not the minute of work: a
+// reopened request has lost its place in the queue, and a reader who trusts state open learns not
+// to.
 //
 // The same shape sat untouched in #1867 and #1873 ("Does not close #743", "it does not close the
 // issue"), which is why docs/CI.md used to say the two parsers agree. They do not always agree,
