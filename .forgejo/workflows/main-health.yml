@@ -1,0 +1,254 @@
+name: Main health
+
+# `main` is the one commit nothing stands behind.
+#
+# Every pull request is gated: ci.yml runs three Node legs, a server smoke test and an image
+# build, and `Arm auto-merge` refuses to arm until all of them are green. The merged commit
+# gets one push run with the same matrix - and then nothing looks at it again. A red push run
+# is a red X on a run whose number no one opens, on a workflow nobody watches, while the
+# thing it means is "main is broken, and every pull request - and every rebase onto main -
+# inherits the break".
+#
+# Measured on 2026-11-20. Commit 0ff45aa4 ("cli: `ip ospf priority` exists, and the DR
+# election reads it", #2291) landed at 10:09:39Z and broke four checks on its own push run,
+# 8473: `Test (Node 18)` (task 22381), `Test (Node 22)` (task 22383), `Server smoke and
+# Docker build` (task 22389) and the auto-rebase pass on the same head (8472, task 22379).
+# `Test (Node 20)` and the three maintenance jobs on that head were green, so this was not a
+# runner failure - it was that commit. Main then stayed on 0ff45aa4 for 7 h 42 min: no merge
+# landed between 10:09:39Z and 4c29aa46 at 17:51:48Z, and 15 consecutive scheduled
+# Auto-rebase ticks (runs 8476-8490, tasks 22392-22413) went red on it, each in 1-3 s.
+# Nothing on that run, on that pull request, or anywhere else a person looks said "main is
+# red": the 15 red X's were the only signal, they were attached to a maintenance workflow,
+# and they stopped only when a human dispatched a run by hand at 17:52:10Z (run 8493) and
+# merged a two-line docs fix on top. A frozen merge queue with no named cause is the most
+# expensive failure this pipeline has, and it is the one failure nothing reports.
+#
+# So this job reads the status set of main's head and says what it finds, in the one place a
+# person reads: an issue. It opens exactly one, titled `main is red`, listing the failing
+# checks and their run links; a later tick that finds the same head still red adds nothing
+# (the head is written into the issue body, so the same break is reported once); when main's
+# head is green again the issue gets one closing comment and is closed. Nothing is merged,
+# rebased or armed here, and nothing is closed that this job did not open.
+#
+# Measured cost of a quiet tick: two API reads (main's head, its status set) and one issue
+# listing, ~1.4 s of runner time - 96 ticks a day is under 3 minutes, against the ~1100
+# minutes the rest of the pipeline spends. `schedule:` is used because it is the trigger this
+# instance does deliver on a maintenance workflow (Auto-rebase has fired every 30 minutes all
+# day: 25 scheduled runs in the 12 h to 22:27Z), and 15 minutes is the detection latency it
+# buys. `workflow_dispatch` takes a sha and a dry run so the red path can be proven against a
+# commit that is already known to be red without opening an issue.
+
+on:
+  schedule:
+    - cron: '*/15 * * * *'
+  workflow_dispatch:
+    inputs:
+      sha:
+        description: 'Commit to check (default: the head of main)'
+        required: false
+        default: ''
+      dry_run:
+        description: 'true = print what it would do, open and close nothing'
+        required: false
+        default: 'true'
+
+permissions:
+  contents: read
+  issues: write
+
+# A tick that found a 15-minute-old answer has nothing to add to the newer one.
+concurrency:
+  group: main-health
+  cancel-in-progress: true
+
+jobs:
+  watch:
+    name: Check main's head
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Read the head of main, and open or close the one issue that tracks it
+        env:
+          # The run's own token first: unlike the rebase workflows this job only reads a status
+          # set and writes an issue, both of which the automatic token is granted here
+          # (`permissions: issues: write`). A repository secret is still preferred when one
+          # exists, because it is the token the rest of the automation uses.
+          TOKEN: ${{ secrets.FORGEJO_TOKEN || secrets.GITHUB_TOKEN || github.token }}
+          INPUT_SHA: ${{ github.event.inputs.sha }}
+          DRY_RUN: ${{ github.event.inputs.dry_run || 'false' }}
+        run: |
+          set -u
+          api="${GITHUB_API_URL:-http://10.0.10.20:3000/api/v1}"
+          repo="$GITHUB_REPOSITORY"
+          title='main is red'
+          http() { curl -sS --connect-timeout 5 --max-time 20 --retry 2 --retry-delay 1 --retry-connrefused "$@"; }
+          say() { echo "$*"; }
+          warn() { echo "::warning title=Main health::$1"; }
+
+          if [ -z "${TOKEN:-}" ]; then
+            # Not a silent pass: this job's whole product is the read, and a read it could not
+            # make is the one outcome that must not look like "main is fine".
+            warn "no token available - main's status set could not be read, so nothing was checked"
+            exit 0
+          fi
+          auth=(-H "Authorization: token ${TOKEN}")
+          json=(-H 'Content-Type: application/json')
+          dry="false"
+          [ "${DRY_RUN:-false}" = "true" ] && dry="true"
+
+          sha="${INPUT_SHA:-}"
+          if [ -z "$sha" ]; then
+            body=$(http "${auth[@]}" "$api/repos/$repo/branches/main" 2>/dev/null) || body=""
+            sha=$(printf '%s' "$body" | node -e '
+              let d = "";
+              process.stdin.on("data", (c) => { d += c; }).on("end", () => {
+                try { process.stdout.write((JSON.parse(d).commit || {}).id || ""); } catch (e) { process.stdout.write(""); }
+              });')
+          fi
+          case "$sha" in
+            [0-9a-f][0-9a-f]*) ;;
+            *) warn "could not read a commit to check (main's head answered '${sha:-<empty>}') - nothing was compared"
+               exit 0 ;;
+          esac
+          short=$(printf '%s' "$sha" | cut -c1-10)
+          say "checking ${short} on ${repo} (dry run: ${dry})"
+
+          # The status set carries `target_url` as a path on this instance
+          # ("/jaylouisw/packetforge/actions/runs/8473/jobs/1"), so the server is
+          # prepended before it goes into an issue - a link a reader cannot click
+          # is not a link.
+          server="${GITHUB_SERVER_URL:-${api%/api/v1}}"
+          export PK_SERVER="$server"
+
+          st=$(http "${auth[@]}" "$api/repos/$repo/commits/${sha}/status" 2>/dev/null) || st=""
+          report=$(printf '%s' "$st" | node -e '
+            let d = "";
+            process.stdin.on("data", (c) => { d += c; }).on("end", () => {
+              let j; try { j = JSON.parse(d); } catch (e) { console.log("unreadable"); return; }
+              if (!j || !Array.isArray(j.statuses)) { console.log("unreadable"); return; }
+              // A check that reports on the head of main is a check on that commit: every context
+              // counts, including this workflow if it ever gets one. `pending` is not a failure -
+              // a push run is still reporting, and "not finished" is not "broken".
+              const bad = j.statuses.filter((s) => s.status === "failure" || s.status === "error");
+              console.log("total:" + j.statuses.length);
+              console.log("state:" + (j.state || "unknown"));
+              const srv = process.env.PK_SERVER || "";
+              const abs = (u) => (u && !/^https?:/.test(u) ? srv + u : (u || ""));
+              bad.forEach((s) => console.log("bad\t" + (s.context || "?") + "\t" + abs(s.target_url)));
+            });' 2>/dev/null || true)
+          case "${report:-}" in
+            ''|unreadable) warn "the status set for ${short} could not be read - not claiming anything about it"
+                           exit 0 ;;
+          esac
+          total=$(printf '%s\n' "$report" | sed -n 's/^total://p')
+          state=$(printf '%s\n' "$report" | sed -n 's/^state://p')
+          bad=$(printf '%s\n' "$report" | awk -F'\t' '$1 == "bad" { print $2 "\t" $3 }')
+          badn=$(printf '%s\n' "${bad}" | grep -c . || true)
+          say "head ${short}: state=${state} checks=${total} failing=${badn}"
+
+          if [ "${total:-0}" -eq 0 ]; then
+            # A head that has just been pushed has no statuses yet. That is a run in flight, not
+            # a verdict, so this tick says so and leaves the issue alone.
+            say "nothing has reported on ${short} yet - a push run still in flight, nothing to say"
+            exit 0
+          fi
+
+          # The one issue, found by listing open issues and matching the title exactly. The API's
+          # `q=` search tokenises the phrase, so "main is red" also matches any request whose
+          # body contains those three words (it matched two device requests when this was
+          # written) - an exact title comparison is the only reliable test.
+          find_issue() {
+            for page in 1 2 3 4 5; do
+              body=$(http "${auth[@]}" "$api/repos/$repo/issues?state=open&type=issues&limit=50&page=$page" 2>/dev/null) || return 1
+              printf '%s\n' "$body" | node -e '
+                let d = "";
+                process.stdin.on("data", (c) => { d += c; }).on("end", () => {
+                  let a = []; try { a = JSON.parse(d); } catch (e) { a = []; }
+                  const hit = a.find((i) => i && i.title === "main is red" && !i.pull_request);
+                  process.stdout.write(hit ? String(hit.number) : "");
+                  process.exit(0);
+                });' > "${RUNNER_TEMP:-/tmp}/issue.n" 2>/dev/null || true
+              n=$(tr -d '\r\n' < "${RUNNER_TEMP:-/tmp}/issue.n")
+              if [ -n "$n" ]; then printf '%s' "$n"; return 0; fi
+              # A page shorter than 50 is the last one.
+              len=$(printf '%s' "$body" | node -e '
+                let d = "";
+                process.stdin.on("data", (c) => { d += c; }).on("end", () => {
+                  let a = []; try { a = JSON.parse(d); } catch (e) { a = []; }
+                  process.stdout.write(String(a.length));
+                });' 2>/dev/null || echo 0)
+              [ "${len:-0}" -lt 50 ] && return 0
+            done
+            return 0
+          }
+
+          # A listing that could not be read is not "there is no issue": treating the two
+          # the same would open a second issue for a break the first one already reports,
+          # every 15 minutes. So a read failure says so and creates nothing.
+          n=$(find_issue 2>/dev/null)
+          frc=$?
+          if [ "$frc" -ne 0 ]; then
+            warn "could not list the open issues, so the issue for ${short} was neither opened nor updated"
+            exit 0
+          fi
+          case "${n:-}" in ''|*[!0-9]*) n="" ;; esac
+
+          if [ "$badn" -gt 0 ]; then
+            # One line per failing check, with the job URL the status carries - the reader's next
+            # click is the log, so the link is the useful part.
+            listing=$(printf '%s\n' "$bad" | awk -F'\t' 'NF { printf "- `%s`%s\n", $1, ($2 != "" ? " - " $2 : "") }')
+            marker="<!-- head:${sha} -->"
+            if [ -n "$n" ]; then
+              ibody=$(http "${auth[@]}" "$api/repos/$repo/issues/$n" 2>/dev/null | node -e '
+                let d = "";
+                process.stdin.on("data", (c) => { d += c; }).on("end", () => {
+                  try { process.stdout.write(JSON.parse(d).body || ""); } catch (e) { process.stdout.write(""); }
+                });' 2>/dev/null || true)
+              case "${ibody:-}" in
+                *"$marker"*)
+                  say "#${n} already reports this head (${short}) - one report per break, nothing to add"
+                  exit 0 ;;
+              esac
+              say "#${n} already exists and reports an older head - updating it for ${short}"
+              if [ "$dry" = "true" ]; then
+                say "would comment on #${n}:"; printf '%s\n' "$listing"
+                exit 0
+              fi
+              cbody=$(printf '**Still red at `%s`.** Failing on this head:\n\n%s\n\n%s' "$short" "$listing" "$marker")
+              http -o /dev/null -w 'comment: %{http_code}\n' -X POST "${auth[@]}" "${json[@]}" \
+                -d "$(printf '%s' "$cbody" | node -e 'let d="";process.stdin.on("data",c=>d+=c).on("end",()=>process.stdout.write(JSON.stringify({body:d})))')" \
+                "$api/repos/$repo/issues/$n/comments" || true
+              http -o /dev/null -w 'update: %{http_code}\n' -X PATCH "${auth[@]}" "${json[@]}" \
+                -d "$(printf '%s' "$cbody" | node -e 'let d="";process.stdin.on("data",c=>d+=c).on("end",()=>process.stdout.write(JSON.stringify({body:d})))')" \
+                "$api/repos/$repo/issues/$n" || true
+              exit 0
+            fi
+            body=$(printf '`main` is red at `%s`.\n\nFailing on that head:\n\n%s\n\nA red push run is a red X nobody opens: every pull request is now stacked on a broken\n`main`, and every rebase onto it inherits the break, so the merge queue stops until this\nis fixed. This issue is opened by the `Main health` workflow, which closes it on the first\ntick that finds `main` green again.\n\n%s' "$short" "$listing" "$marker")
+            if [ "$dry" = "true" ]; then
+              say "would open an issue titled '${title}':"
+              printf '%s\n' "$body"
+              exit 0
+            fi
+            http -o /dev/null -w 'open: %{http_code}\n' -X POST "${auth[@]}" "${json[@]}" \
+              -d "$(printf '%s' "$body" | node -e 'let d="";process.stdin.on("data",c=>d+=c).on("end",()=>process.stdout.write(JSON.stringify({title:"main is red",body:d})))')" \
+              "$api/repos/$repo/issues" || true
+            say "opened '${title}' for ${short}"
+            exit 0
+          fi
+
+          # Green: nothing failing on this head.
+          if [ -z "$n" ]; then
+            say "main is green at ${short} - no issue to close"
+            exit 0
+          fi
+          if [ "$dry" = "true" ]; then
+            say "would comment on #${n} and close it: main is green at ${short}"
+            exit 0
+          fi
+          cbody=$(printf '**Green again at `%s`.** Every check on that head reported success, so\n`main` is whole and every pull request can rebase onto it again.' "$short")
+          http -o /dev/null -w 'comment: %{http_code}\n' -X POST "${auth[@]}" "${json[@]}" \
+            -d "$(printf '%s' "$cbody" | node -e 'let d="";process.stdin.on("data",c=>d+=c).on("end",()=>process.stdout.write(JSON.stringify({body:d})))')" \
+            "$api/repos/$repo/issues/$n/comments" || true
+          http -o /dev/null -w 'close: %{http_code}\n' -X PATCH "${auth[@]}" "${json[@]}" \
+            -d '{"state":"closed"}' "$api/repos/$repo/issues/$n" || true
+          say "closed #${n}: main is green at ${short}"
