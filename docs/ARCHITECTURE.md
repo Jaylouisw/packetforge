@@ -859,7 +859,7 @@ The rule is one sentence: **the config reports what was configured; the views re
   learned gateway as configuration.
 
 `test/ipv6-provenance.test.js` pins it, 33 checks; reverting `engine/` fails 16. Neighbours green: `ipv6` 235,
-`ipv6-slaac` 165, `ipv6-wire` 33, `ping-ipv6` 44, `config-roundtrip` 47, `config-completeness` 59,
+`ipv6-slaac` 165, `ipv6-wire` 33, `ping-ipv6` 41, `config-roundtrip` 47, `config-completeness` 59,
 `state-payload-complete` 16, `examples-generated` 21, `flows-survive-save-load` 16, `show-interfaces-port` 40,
 `show-interfaces-view-keywords` 97, `spec-survives-load` 32.
 
@@ -898,7 +898,7 @@ Success rate is 100 percent (5/5), round-trip min/avg/max = 0.103/0.103/0.103 ms
 * **nothing IPv4 changed**, name resolution included: `ping nosuchname.lab` still resolves through the lab's servers
   and still explains SERVFAIL.
 
-`test/ping-ipv6.test.js` pins it, 44 checks; reverting `engine/cli.js` fails 30. The help row for `ping` now says
+`test/ping-ipv6.test.js` pins it, 41 checks; reverting `engine/cli.js` fails 30. The help row for `ping` now says
 "IPv4 or IPv6".
 
 A limitation this does not change, and does not hide: the engine answers nothing for a device's **own** address over
@@ -949,9 +949,9 @@ Deliberately not done: the two hosts themselves stay quiet. A real stack detects
 box's ARP claim and logs it (`%IP-4-DUPADDR`), and modelling that is a new protocol behaviour rather than a view
 telling the truth about data it already had — so it is left for a decision, not smuggled in here.
 
-`test/arp-conflict.test.js` pins it, 26 checks; reverting `engine/` fails 10. Neighbours green: `show-arp` 31,
-`arp-ageing` 31, `runtime-agreement` 10, `show-argument-refusal` 77, `show-ip-spellings` 70, `dhcp-bindings` 67,
-`lldp` 27, `vrrp` 94, `ping-ipv6` 44.
+`test/arp-conflict.test.js` pins it, 26 checks; reverting `engine/` fails 10. Neighbours green: `show-arp` 35,
+`arp-ageing` 31, `runtime-agreement` 10, `show-argument-refusal` 84, `show-ip-spellings` 70, `dhcp-bindings` 67,
+`lldp` 27, `vrrp` 94, `ping-ipv6` 41.
 
 ### The log named a mechanism instead of saying what happened
 
