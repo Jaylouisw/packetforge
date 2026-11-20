@@ -153,8 +153,8 @@ installed is checking exactly the thing a silent drop fabricates: the table came
 
 The same for `show arp <address>`, `show vlan <id>`, `show spanning-tree <port>`, `show lldp neighbors <port>`,
 `show ip interface brief <port>`, `show running-config interface <port>`, `show access-lists <n>`,
-`show etherchannel <word>`, `show vrrp <group>` and `show version <x>`. Where a narrower question has an answer, the
-refusal names the command that gives it:
+`show etherchannel <word>`, `show vrrp <group>`, `show version <x>`, `show ip bgp <word>` and
+`show ip bgp summary <word>`. Where a narrower question has an answer, the refusal names the command that gives it:
 
 ```
 sw1#show ip interface brief Gi1/0/1
@@ -2771,6 +2771,23 @@ is the reminder that the line belongs to a vendor. Four Cisco captures across th
 [research/bgp-not-active-refusal.md](../research/bgp-not-active-refusal.md); the *config-mode* refusals
 (`% BGP is not enabled (use "router bgp <as>")`) are unchanged, because they are this console's sentences
 for commands it accepts in global config and a box does not — a separate question, recorded there.
+
+With a process configured the views answer — and a word after them that is not one of their own is
+**refused**, not dropped. Both spellings used to ignore the tail, so `show ip bgp 10.9.9.0/24`,
+`show ip bgp regexp ^65002` and a plain typo all printed the whole table, which is the non-answer
+`show ip route <prefix>` gave before #1403: a table with prefixes in it reads as "yes, that prefix is in there".
+
+```
+r1#show ip bgp 10.9.9.0/24
+% show ip bgp does not take "10.9.9.0/24": every neighbour and every installed prefix are printed - read the row for the prefix under the Network column
+```
+
+`show ip bgp` *does* take an ip-address on a box, as a filter, so the refusal is this console's claim about
+itself — the same trade `show ip route <prefix>` makes — and it names where the answer is rather than stopping at
+no. `show ip bgp summary <word>` refuses the same way. `show ip bgp neighbors` is a view a box has and this console
+does not, and it is not called a stray word: it answers `has no detail view here` and points at the neighbour table
+(the form `show ip nat translations verbose` takes for the same kind of gap). With **no process** the `% BGP not
+active` line is unchanged whatever was typed, because there is no table for a word to be dropped from.
 
 ### Reading `show access-lists`
 

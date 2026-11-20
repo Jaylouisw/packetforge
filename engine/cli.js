@@ -5349,6 +5349,42 @@ class CliSession {
     // (the config-mode refusals below are this console's own sentences and are not what a box says at all).
     if (!cfg || !cfg.as) { out.push('% BGP not active'); return out; }
 
+    // A word after the view is refused, not silently dropped. Both spellings took no argument at all: `args` was
+    // read by nobody, so `show ip bgp 10.9.9.0/24` on a box holding that route printed the whole table - the same
+    // non-answer `show ip route <prefix>` gave before #1403, and the same reason it is wrong (a table with prefixes
+    // in it reads as "yes"). A box refuses the word instead: `sh ip bgp neighbors br` on an IOS XE switch draws
+    // `% Invalid input detected at '^' marker.` (https://community.cisco.com/t5/routing/bgp-using-layer-3-switches/td-p/5075192),
+    // and neither spelling has a free positional word - `show ip bgp`'s keyword list ends at `route-map <name>` and
+    // `show ip bgp summary`'s at `[slow]` (Cisco IOS IP Routing: BGP Command Reference, "show ip bgp" and "show ip
+    // bgp summary", https://cisco.com/c/en/us/td/docs/ios/iproute_bgp/command/reference/irg_book/irg_bgp5.html).
+    //
+    // The first spelling *does* take an ip-address on a box, as a filter, so "does not take" is this console's
+    // claim about itself and not a claim about IOS - the same trade `show ip route <prefix>` makes, and the reason
+    // the sentence names where the answer actually is (the Network column) instead of stopping at the refusal.
+    //
+    // The refusal sits below the state check, not above it: with no process a box answers every one of these
+    // spellings with `% BGP not active` - that is the captured behaviour this view was built to (`research/
+    // bgp-not-active-refusal.md`, `test/bgp-not-active.test.js`) and it holds whatever was typed, because there is
+    // no table for a word to be dropped from. research/show-ip-bgp-argument-refusal.md records the ordering
+    // question that is still open (a box parses before it consults BGP state, so a junk word on a process-less box
+    // draws the caret error there).
+    const sub = String(args[0] || '').toLowerCase();
+    if (sub && sub !== 'summary') {
+      if (sub === 'neighbors' || sub === 'neighbours' || sub === 'neighbor' || sub === 'neighbour') {
+        // A real view this console keeps no form of - the neighbour *detail* block (hold time, capabilities,
+        // message counters). Refusing it as "does not take" would deny a command a box has; the nat console answers
+        // the same shape of gap with its own sentence (`show ip nat translations has no verbose form`), so does this.
+        return ['% show ip bgp ' + args.join(' ') + ' has no detail view here: every neighbour, the AS it is in, its ' +
+          'state and the prefixes it sent are in the table under `show ip bgp`'];
+      }
+      return showNoTail('show ip bgp', args, 'every neighbour and every installed prefix are printed',
+        'read the row for the prefix under the Network column');
+    }
+    if (sub === 'summary' && args.length > 1) {
+      return showNoTail('show ip bgp summary', args.slice(1),
+        'every neighbour is listed with its state and the prefixes it received');
+    }
+
     const rows = dev.bgpNeighbors || [];
     // The election again, for the case where no pass has run over this device: `show ip bgp` printed
     // 0.0.0.0 for a box holding addresses simply because nothing had computed the identifier yet.

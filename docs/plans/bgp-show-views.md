@@ -1,6 +1,7 @@
 # Plan: `show ip bgp` answers seven questions with one table, because the argument is dropped
 
-Status: forward plan, no code. Measured on `f44b8c9`, 2026-11-19. Closes no open issue - the queue holds one
+Status: forward plan; step 2's **refusal half** has landed (a word the view cannot use is refused, not dropped —
+see the change note at the end of this file). Measured on `f44b8c9`, 2026-11-19. Closes no open issue - the queue holds one
 hardware request (#130, UDW-PRO), unrelated. No step needs Jay's approval: every step narrows an existing
 command to the view its own words already name. Nothing new is configured.
 
@@ -75,7 +76,10 @@ show ip bgp bogus            -> byte-identical  (a typo answered with a full tab
    order: neighbour line, remote AS, state, last read/write, hold time, capabilities, message stats), and for
    a tail that is not a view. No code, no `docs/CLI.md`. Every literal line in steps 2-6 must quote this file;
    the house rule is that no vendor sentence ships without a capture behind it.
-2. **S - read the argument.** `_showBgp(args)` dispatches on `args[0]`: `''` and `summary` reach their own
+2. **S - read the argument.** *(Half landed: `args` is now read, `summary` is the only word accepted, every other
+   word is refused in `showNoTail()` shape and `neighbors` is answered as a view this console has no form of —
+   `test/show-ip-bgp-argument-refusal.test.js`, `research/show-ip-bgp-argument-refusal.md`. The dispatch to real
+   per-view functions is steps 3-6 and is still open.)* `_showBgp(args)` dispatches on `args[0]`: `''` and `summary` reach their own
    functions, `neighbors`/`neighbour`/`neighbors <ip>`, `regexp <re>` and a prefix token reach theirs, and
    anything else is refused with the sentence the capture records (the `showNoTail()` shape at
    `engine/cli.js:595` if the capture shows the "takes no word" refusal). Guard order is unchanged: the
@@ -130,3 +134,13 @@ show ip bgp bogus            -> byte-identical  (a typo answered with a full tab
 ## Closes
 
 Nothing. The open queue is #130 (device request, UDW-PRO) and this plan is about a console view.
+
+## Change log
+
+* **Step 2, refusal half (2026-11-20).** `_showBgp(args)` now reads its tail. `summary` is the only word it
+  accepts; any other word is refused with `% show ip bgp does not take "<words>": …`, naming the Network column as
+  where a single prefix is read, and `show ip bgp summary <word>` refuses the same way. `neighbors`,
+  `neighbour(s)` and anything after them answer `has no detail view here` instead — a box has that view and this
+  console has no detail block, so "does not take" would be the wrong sentence. The `% BGP not active` guard still
+  runs first, so `test/bgp-not-active.test.js` is unchanged. `docs/CLI.md`'s refusal list names both spellings.
+  Evidence and the one unresolved ordering question: `research/show-ip-bgp-argument-refusal.md`.
