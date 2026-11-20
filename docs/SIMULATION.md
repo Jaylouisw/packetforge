@@ -124,13 +124,13 @@ belongs to; the rest of this page's citations were not re-measured in the same p
 
 | Verdict | Behaviour | Where |
 |---|---|---|
-| **Modelled** | Per-port config: `mode: access\|trunk`, `accessVlan`, `nativeVlan`, `allowedVlans`. | `engine/vlan.js:6-14` |
-| **Modelled** | **Access**: egress untagged on `accessVlan`; ingress accepts untagged, drops tagged. | `engine/vlan.js:303` |
-| **Modelled** | **Trunk**: egress untagged for `nativeVlan`, tagged for every other allowed VLAN; ingress maps untagged → native VLAN, tagged → VID if allowed, else drops. | `engine/vlan.js:285`, `engine/vlan.js:303` |
-| **Modelled** | Frames are really tagged on the wire: `_emitFrame` sets `wireTagged`/`wireVid` from `classifyEgress`, so the event log distinguishes a tagged trunk frame from an untagged access frame. | `engine/simulator.js:1666-1680` |
+| **Modelled** | Per-port config: `mode: access\|trunk`, `accessVlan`, `nativeVlan`, `allowedVlans`. | `engine/vlan.js:8-14` |
+| **Modelled** | **Access**: egress untagged on `accessVlan`; ingress accepts untagged, drops tagged. | `engine/vlan.js:483-514` (`classifyEgress()`), `engine/vlan.js:518-559` (`classifyIngress()`) |
+| **Modelled** | **Trunk**: egress untagged for `nativeVlan`, tagged for every other allowed VLAN; ingress maps untagged → native VLAN, tagged → VID if allowed, else drops. | `engine/vlan.js:483-514` (`classifyEgress()`), `engine/vlan.js:518-559` (`classifyIngress()`) |
+| **Modelled** | Frames are really tagged on the wire: `_emitFrame` sets `wireTagged`/`wireVid` from `classifyEgress`, so the event log distinguishes a tagged trunk frame from an untagged access frame. | `engine/simulator.js:3156-3216` (`_emitFrame()`) |
 | **Modelled** | MAC tables are per VLAN; VLAN 1 keeps the flat legacy table. Flooding is scoped to the VLAN. A dynamically learned entry ages out after `MAC_AGE_MS` (300 s) of silence, and the same aged lookup decides forwarding: an entry the table only remembers is not a port a frame may be sent to. | `engine/device.js` `learnMac()`, `macLookup()`, `macRows()`; `engine/simulator.js` |
-| **Modelled** | VLANs 1–4094; 1002–1005 are rejected as reserved. | `engine/vlan.js:24-26` |
-| **Approximate** | Router-on-a-stick via subinterfaces works (`Gi0/0.10` creates a tagged logical interface), and `portPvid()` gives an untagged frame the VLAN its port carries untagged - the trunk's `nativeVlan`, or the access VLAN. | `engine/simulator.js:167-173`, `engine/cli.js:2487-2495`, `engine/device.js:289` |
+| **Modelled** | VLANs 1–4094; 1002–1005 are rejected as reserved. | `engine/vlan.js:24-25`, `engine/vlan.js:28-33` (`RESERVED_VLANS`) |
+| **Approximate** | Router-on-a-stick via subinterfaces works (`Gi0/0.10` creates a tagged logical interface), and `portPvid()` gives an untagged frame the VLAN its port carries untagged - the trunk's `nativeVlan`, or the access VLAN. | `engine/simulator.js:167-174` (`portPvid()`), `engine/device.js:330-360` (`addSubinterface()`), `engine/cli.js:1691` |
 | **Modelled** | The voice VLAN. On an access port `switchport voice vlan <id>` is live: `classifyEgress` sends that
 VLAN tagged while the access VLAN goes untagged, `classifyIngress` accepts a tagged frame in it and still refuses
 every other tag, and `show vlan` lists the port under both VLANs. On a trunk the parameter is stored and not
