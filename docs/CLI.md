@@ -2743,14 +2743,47 @@ The table is ordered by number rather than as strings, so groups read `2, 10, 10
 ```
 sw1#show power inline
 Available:25.0(w) Used:13.0(w) Remaining:12.0(w)
-Interface  Admin  Oper       Draw     Powered device
-1/1/1      auto   on         12.95 W  PD1
-1/1/2      auto   power-deny 0.0 W    PD2
-1/1/3      auto   off        -        the far end is not a powered device
-1/1/4      auto   off        -        administratively down
-22 ports with nothing plugged in: 1/1/5, 1/1/6, 1/1/7, 1/1/8, 1/1/9 (+17 more)
+Interface Admin  Oper       Power   Device
+                            (Watts)
+--------- ------ ---------- ------- -------------------
+1/1/1     auto   on         13.0    PD1
+1/1/2     auto   power-deny 0.0     PD2
+1/1/3     auto   off        -       the far end is not a powered device
+1/1/4     auto   off        -       administratively down
+20 ports with nothing plugged in: 1/1/5, 1/1/6, 1/1/7, 1/1/8, 1/1/9 (+15 more)
   1/1/2: PSE budget exhausted: 12.95 W requested, 12.05 W left
 ```
+
+The column names, their widths and the Power cell are the box's, not this console's. A machine-recorded IOS XE
+session prints
+
+```
+Interface Admin  Oper       Power   Device              Class Max
+                            (Watts)
+--------- ------ ---------- ------- ------------------- ----- ----
+Gi1/0/1   auto   on         30.0    AIR-AP1562I-E-K9    4     30.0
+Gi1/0/5   auto   faulty     0.0     n/a                 n/a   30.0
+```
+
+and a 2960+ running 15.0(2)SE6 prints the same three heading lines, with rows like
+`Fa0/9     auto   on         3.3     IP Phone 7821       1     15.4`
+(`research/show-power-inline-columns.md` has both captures).
+
+Both fix the same fields: `Interface` is a 10-character field, `Admin` 7, `Oper` 11, `Power` 8 and `Device` 20;
+the unit is a line of its own under `Power` at column 28, not a suffix on every number; and the rule under the
+header is one dash shorter than each field. The number in the Power cell is a bare figure to a tenth, the
+precision the `Available:/Used:/Remaining:` line above it uses, so a reader who adds the rows up gets the
+printed `Used:`.
+This view printed its own vocabulary here (`Draw`, `Powered device`, `12.95 W`, no rule, no unit line) until it
+was measured against that capture, so a table pasted into a ticket could not be diffed against the one beside
+it (`research/show-power-inline-columns.md`).
+
+Two columns of the box's table are missing on purpose. `Class` needs the powered device's IEEE classification,
+and nothing in this model negotiates one - a port cabled to a phone would have to print `n/a` where the box
+prints `3`. `Max` sits *behind* `Class` in the capture, so printing the watts this catalogue does declare for a
+PSE port after `Device` would put a number under a heading it does not belong to. The table therefore stops at
+the last column it holds data for - header, unit line and rule all end after `Device` - the rule
+`show spanning-tree` follows with `Prio.Nbr` and `Type`.
 
 Every figure comes from the engine's own allocation (`Simulator.computePoe()`), not from a second copy of the
 rule, and every PSE port is accounted for — including the ones the engine leaves out of its table, which are the
@@ -2762,7 +2795,7 @@ It is the device's, so `show power inline <port>` does not print it:
 * `Oper` carries the vendor's four operating states — `on`, `off`, `faulty`, `power-deny` — so a port that
   **detected a powered device and could not supply it** reads `power-deny`, not `off`: the field table defines
   `off` as "No PoE is applied", the word a socket with nothing on it prints, and the two are different answers
-  to "is anything out there". `Draw` on such a row is `0.0 W`, because the column is the power **allocated**;
+  to "is anything out there". `Power` on such a row is `0.0`, because the column is the power **allocated**;
   what the device asked for is in the sentence under the table, which is the same one the timeline emitted for
   the `poe-deny` event rather than a re-rendering of the same arithmetic
   (`research/show-power-inline-power-deny.md`);
@@ -2771,7 +2804,11 @@ It is the device's, so `show power inline <port>` does not print it:
   `power inline never` leaves behind. This console has no `power inline` command, so every PSE port is `auto` —
   including a shut one, whose shutdown is carried by `Oper off` and by the reason column. `up`/`down` is the
   link's word and used to be printed here, which made a shut port read as though its PoE mode had been set;
-* a port with a cable but no powered device behind it says so, rather than looking like a port that works;
+* a port with a cable but no powered device behind it says so, rather than looking like a port that works. This
+  is the one cell that does **not** speak the box's vocabulary: a real switch prints `n/a` in `Device` for every
+  port that detected nothing, which is three different situations here - nothing plugged in, the far end is not
+  a powered device, the port is shut. The reason is printed where a reader looks for it, and the `Power` cell
+  keeps the box's mark for "no allocation record" (`-`);
 * an administratively down port supplies nothing, and says why — the engine does not allocate through it, since
   it walks the active ports only;
 * idle ports are summarised rather than printed one per line: a wall of `nothing plugged in` is how the one row

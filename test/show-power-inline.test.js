@@ -38,7 +38,7 @@ function spec(vendor, model) {
 function lab(opts) {
   opts = opts || {};
   const t = new Topology();
-  const sw = t.addDevice(spec('aruba', 'CX 6000 24G CL4 PoE 4SFP 370W'), 'sw');
+  const sw = t.addDevice(opts.swSpec || spec('aruba', 'CX 6000 24G CL4 PoE 4SFP 370W'), 'sw');
   sw.name = 'SW1';
   const hosts = {};
   for (const c of (opts.cable || [])) {
@@ -87,19 +87,36 @@ console.log('A real allocation is reported port by port:');
   const engine = sim.computePoe()[0];
   const out = cliOf(env, sim).run('show power inline').output;
 
-  ok(out[1].indexOf('Interface') === 0 && /Admin/.test(out[1]) && /Powered device/.test(out[1]),
-    'there is a table with a header', out[1]);
+  // The header is the box's, character for character - a 2960 running 15.0(2)SE6 prints
+  //   Interface Admin  Oper       Power   Device              Class Max
+  // so the five fields this view holds data for are Interface 10, Admin 7, Oper 11, Power 8, then Device, and
+  // the words are the field table's (`Admin`, `Oper`, `Power`, `Device`), not this console's `Draw` /
+  // `Powered device`. research/show-power-inline-columns.md.
+  ok(out[1] === 'Interface Admin  Oper       Power   Device',
+    'the header is the box\'s, through the last column this view has data for', out[1]);
+  // The unit is a line of its own under `Power`, at column 28 (10 + 7 + 11), and the rule under the header is one
+  // dash shorter than each field - the first five runs of the capture's own rule line
+  // (`--------- ------ ---------- ------- ------------------- ----- ----`), stopping after `Device`.
+  ok(out[2] === ' '.repeat(28) + '(Watts)', 'the unit is a line of its own under `Power`', out[2]);
+  ok(out[3] === '--------- ------ ---------- ------- -------------------',
+    'and the rule is the capture\'s five leading runs, one dash shorter than each field', out[3]);
+  ok(out[3].length === 55, 'so the rule ends where the last column printed here ends', String(out[3].length));
   // The devices are named PDA/PDB by the factory, so the row has to show that name - the point is that the
   // console names the powered device, not that it invents one.
-  ok(out.some(function (l) { return /^1\/1\/1\s+auto\s+on\s+12\.95 W\s+PDA/.test(l); }),
-    'the powered port shows its device and its draw', JSON.stringify(out.slice(0, 3)));
+  // The Power cell is a bare number to a tenth, because the column heading is where the unit lives: the capture
+  // reads `Fa0/9     auto   on         3.3     IP Phone 7821`, and the `Available:/Used:/Remaining:` line above
+  // the table is printed to the same precision, so the row and the total add up on the printed values.
+  ok(out.some(function (l) { return /^1\/1\/1\s+auto\s+on\s+13\.0\s+PDA$/.test(l); }),
+    'the powered port shows its device and its draw, with no unit in the cell', JSON.stringify(out.slice(0, 3)));
+  ok(!out.slice(1).some(function (l) { return /^1\/1\/\d+\s/.test(l) && /\d W(\s|$)/.test(l); }),
+    'and no row carries a `W` suffix the column heading already states', JSON.stringify(out.slice(0, 4)));
   // A refused port is in the vendor's fourth Oper state, `power-deny` - "a powered device is detected, but
   // no PoE is available" - and the Power cell is the power allocated, which is none. It used to read
   // `off` (the word for a socket with nothing on it) with the request still printed as if it had been
   // given, which made the hardest row in the table read like an empty port drawing 12.95 W.
   //   research/show-power-inline-power-deny.md
-  ok(out.some(function (l) { return /^1\/1\/2\s+auto\s+power-deny\s+0\.0 W\s+PDB\s*$/.test(l); }),
-    'the refused port is in `power-deny` and draws 0.0 W', JSON.stringify(out.slice(0, 3)));
+  ok(out.some(function (l) { return /^1\/1\/2\s+auto\s+power-deny\s+0\.0\s+PDB\s*$/.test(l); }),
+    'the refused port is in `power-deny` and draws 0.0', JSON.stringify(out.slice(0, 3)));
   // ...and the word belongs to that state alone: a powered port is `on`, a port with no powered device and a
   // shut port are `off`, so the change cannot pass by spraying `power-deny` over the table.
   const operOf = {};
@@ -313,6 +330,26 @@ console.log('The console and the inspector agree, port by port:');
     }
   }
   ok(bad.length === 0, cases.length + ' allocations: console rows and totals match the panel', JSON.stringify(bad));
+}
+
+console.log('');
+console.log('A port name longer than the box\'s 10-character field pushes the row instead of running into it:');
+{
+  // The capture fixes `Interface` at 10 characters, which fits every name a Catalyst prints there (`Fa0/6`,
+  // `Gi1/0/1`). A catalogue model spells its ports in full - this H3C's PSE port is `GigabitEthernet1/0/1`, 20
+  // characters - so the cell that fills its field has to keep the separator the field would have added. Without
+  // that rule the row reads `GigabitEthernet1/0/1auto`, a mode word welded to a port name - the defect
+  // `vlanMediaLine()` already fixed for `show vlan`, in the one table that copied the padding by hand.
+  const env = lab({ swSpec: spec('h3c', 'S5130S-10P-HPWR-EI'), budget: 370,
+    cable: [{ port: 'GigabitEthernet1/0/1', pd: 'a' }] });
+  const sim = new Simulator(env.t);
+  sim.computePoe();
+  const out = cliOf(env, sim).run('show power inline').output;
+  const row = out.filter(function (l) { return l.indexOf('GigabitEthernet1/0/1') === 0; })[0] || '';
+  ok(/^GigabitEthernet1\/0\/1 auto\s/.test(row),
+    'a 20-character port name is followed by one space, then the Admin mode', row);
+  ok(/\son\s+[\d.]+\s+PD[AB]/.test(row),
+    'and the rest of the row still lines up behind it', row);
 }
 
 console.log('\n' + passed + ' passed, ' + failed + ' failed');

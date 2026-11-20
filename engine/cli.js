@@ -83,6 +83,21 @@ function interfaceRangeRefusal(tail, effect) {
 
 function pad(s, w) { s = String(s); return s + ' '.repeat(Math.max(0, w - s.length)); }
 
+// A table cell that **fills** its field keeps the single space the field would have added, so a value as long as
+// its column pushes the row along instead of running into the next cell - `vlanMediaLine()`'s rule, and the one
+// every fixed-width table in this console follows. Fixed widths are the box's, and the values that land in them
+// are not (a port name longer than the capture's 10 characters, a device name of any length), so the rule lives
+// here once rather than in each view that prints a table.
+function tableCell(v, w) {
+  const t = String(v === undefined || v === null ? '' : v);
+  return t.length >= w ? t + ' ' : pad(t, w);
+}
+
+// Watts to the tenth, the precision a box prints them at in `show power inline` - in the Power cell and in the
+// `Available:/Used:/Remaining:` line above it, which is why the rounding lives in one place: a row and the total
+// under it must add up on the printed values, not only on the unrounded ones.
+function poeWatts(n) { return (Math.round(Number(n) * 10) / 10).toFixed(1); }
+
 // The `Vlan` cell of `show mac address-table` is a four-character field with its value **right-aligned**:
 // a learned entry in VLAN 1 prints as `   1`, VLAN 87 as `  87`, and the reserved block's `All` as ` All`
 // - the word is a value in the same field, not a left-hand label. Two machine-recorded Catalyst sessions
@@ -526,6 +541,37 @@ const STP_TABLE_HEADER = pad('Interface', STP_TABLE_WIDTHS.iface) + pad('Role', 
 const STP_TABLE_RULE = Object.keys(STP_TABLE_WIDTHS).map(function (k) {
   return pad('-'.repeat(STP_TABLE_WIDTHS[k] - 1), STP_TABLE_WIDTHS[k]);
 }).join('').replace(/\s+$/, '');
+
+// The `show power inline` port table's furniture, transcribed from a machine-recorded session (ntc-templates
+// `tests/cisco_ios/show_power_inline/cisco_ios_show_power_inline.raw`, so the runs of spaces survived):
+//
+//   Interface Admin  Oper       Power   Device              Class Max
+//                               (Watts)
+//   --------- ------ ---------- ------- ------------------- ----- ----
+//   Gi1/0/1   auto   on         30.0    AIR-AP1562I-E-K9    4     30.0
+//
+// Interface 10 characters, Admin 7, Oper 11, Power 8, Device 20, Class 6, then Max; the unit is a line of its
+// own under `Power` (column 28, the three fields before it added up), not a suffix on every cell; and the rule
+// is one dash shorter than each field above it. `Interface`'s ten is the width a box uses for a port name it
+// abbreviates (`Gi1/0/1`); this catalogue spells some ports in full (`GigabitEthernet1/0/1`), which is what
+// `tableCell()` is for. The same three heading lines are in the Catalyst IR1800, ASR 920, IR8340 and IE3100
+// configuration guides and in the 2960+ 15.0(2)SE6 transcript.
+//
+// This view printed its own vocabulary here - `Draw` and `Powered device`, with a ` W` suffix on every cell - so
+// a table pasted into a ticket could not be diffed against the one beside it. It prints the columns it holds
+// data for and stops at `Device`: `Class` needs the powered device's IEEE classification (nothing here
+// negotiates one) and `Max` sits *behind* `Class` in the capture, so printing Max after Device would put a
+// number under the wrong heading. research/show-power-inline-columns.md.
+const POWER_TABLE_WIDTHS = { iface: 10, admin: 7, oper: 11, power: 8 };
+const POWER_TABLE_HEADER = pad('Interface', POWER_TABLE_WIDTHS.iface) + pad('Admin', POWER_TABLE_WIDTHS.admin) +
+  pad('Oper', POWER_TABLE_WIDTHS.oper) + pad('Power', POWER_TABLE_WIDTHS.power) + 'Device';
+const POWER_TABLE_UNITS = ' '.repeat(POWER_TABLE_WIDTHS.iface + POWER_TABLE_WIDTHS.admin + POWER_TABLE_WIDTHS.oper) +
+  '(Watts)';
+// The capture's remaining two runs (`----- ----`, for Class and Max) are left off, so the rule ends where the
+// last column printed here ends instead of trailing into nothing.
+const POWER_TABLE_RULE = ['iface', 'admin', 'oper', 'power'].map(function (k) {
+  return pad('-'.repeat(POWER_TABLE_WIDTHS[k] - 1), POWER_TABLE_WIDTHS[k]);
+}).join('') + '-'.repeat(19);
 
 // The `Codes:` legend above `show ip route`: nine lines of fixed text, not one line of this console's codes.
 //
@@ -5998,9 +6044,10 @@ class CliSession {
     // A device with PSE ports and no budget is not served by the engine at all, and saying "0 W" would be a
     // measurement it never made.
     if (!entry) {
-      out.push(pad('Interface', 11) + pad('Admin', 7) + 'Supplied');
+      out.push(pad('Interface', POWER_TABLE_WIDTHS.iface) + pad('Admin', POWER_TABLE_WIDTHS.admin) + 'Supplied');
       for (const i of pse) {
-        out.push(pad(i.name, 11) + pad(this._poeAdminMode(i), 7) + 'not measured');
+        out.push(tableCell(i.name, POWER_TABLE_WIDTHS.iface) +
+          tableCell(this._poeAdminMode(i), POWER_TABLE_WIDTHS.admin) + 'not measured');
       }
       out.push('budget not modelled on ' + dev.name +
         ': the ports are reported, the power they could supply is not');
@@ -6030,8 +6077,12 @@ class CliSession {
         //   https://www.cisco.com/c/en/us/td/docs/switches/lan/catalyst2960x/software/15-2_7_e/command_reference/b_1527_2960x_cr/interface_and_hardware_commands.html
         //   research/show-power-inline-power-deny.md
         const oper = p.powered ? 'on' : 'power-deny';
-        const draw = p.powered ? (Math.round((p.draw || 0) * 100) / 100) + ' W' : '0.0 W';
-        rows.push(pad(i.name, 11) + pad(admin, 7) + pad(oper, 11) + pad(draw, 9) + nameOf(p.pd));
+        // One decimal and no unit: the box's Power cell is a bare number in the column the heading already
+        // calls Power, and every capture prints it to a tenth (`3.3`, `13.7`, `0.0`) - the same precision the
+        // `Available:/Used:/Remaining:` line above the table uses, so the row and the total agree when added.
+        const draw = p.powered ? poeWatts(p.draw || 0) : '0.0';
+        rows.push(tableCell(i.name, POWER_TABLE_WIDTHS.iface) + tableCell(admin, POWER_TABLE_WIDTHS.admin) +
+          tableCell(oper, POWER_TABLE_WIDTHS.oper) + tableCell(draw, POWER_TABLE_WIDTHS.power) + nameOf(p.pd));
         if (p.powered) supplied += p.draw || 0;
         continue;
       }
@@ -6056,7 +6107,8 @@ class CliSession {
         idle.push(i.name);
         continue;
       }
-      rows.push(pad(i.name, 11) + pad(admin, 7) + pad('off', 11) + pad('-', 9) + why);
+      rows.push(tableCell(i.name, POWER_TABLE_WIDTHS.iface) + tableCell(admin, POWER_TABLE_WIDTHS.admin) +
+        tableCell('off', POWER_TABLE_WIDTHS.oper) + tableCell('-', POWER_TABLE_WIDTHS.power) + why);
     }
 
     // The budget summary is the box's first line, above the port table, in the box's own words and unit.
@@ -6073,7 +6125,7 @@ class CliSession {
       // One decimal, and `Remaining` is `Available - Used` on the printed values - the field table's own
       // definition - so the three numbers a reader adds up agree with each other as well as with the engine.
       const round1 = function (n) { return Math.round(Number(n) * 10) / 10; };
-      const watts = function (n) { return round1(n).toFixed(1) + '(w)'; };
+      const watts = function (n) { return poeWatts(n) + '(w)'; };
       const avail = round1(entry.budget || 0);
       const used = round1(supplied);
       out.push('Available:' + watts(avail) + ' Used:' + watts(used) +
@@ -6082,7 +6134,9 @@ class CliSession {
     // `Oper` is eleven characters wide, the width the box's own heading holds: "power-deny" is ten
     // characters and would otherwise push the columns behind it one word out of line on exactly the rows
     // that are hardest to read.
-    out.push(pad('Interface', 11) + pad('Admin', 7) + pad('Oper', 11) + pad('Draw', 9) + 'Powered device');
+    out.push(POWER_TABLE_HEADER);
+    out.push(POWER_TABLE_UNITS);
+    out.push(POWER_TABLE_RULE);
     out.push.apply(out, rows);
     if (idle.length) {
       out.push(idle.length + ' port' + (idle.length === 1 ? '' : 's') + ' with nothing plugged in: ' +
@@ -6912,13 +6966,9 @@ class CliSession {
         // detection this model does not run. research/stp-port-table-cost-column.md.
         out.push(STP_TABLE_HEADER);
         out.push(STP_TABLE_RULE);
-        // A cell that fills its field keeps the space the field would have added - the rule
-        // `vlanMediaLine()` follows - so a long port name pushes the row instead of running into the
-        // next cell.
-        const cell = function (v, w) {
-          const t = String(v === undefined || v === null ? '' : v);
-          return t.length >= w ? t + ' ' : pad(t, w);
-        };
+        // A cell that fills its field keeps the space the field would have added - `tableCell()`'s rule, shared
+        // with `show power inline` - so a long port name pushes the row instead of running into the next cell.
+        const cell = tableCell;
         for (const n of names) {
           const cost = (st.costs && st.costs[n] !== undefined && st.costs[n] !== null) ? st.costs[n] : null;
           out.push(cell(portLabel(n), STP_TABLE_WIDTHS.iface) +

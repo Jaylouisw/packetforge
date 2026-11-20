@@ -92,7 +92,9 @@ console.log('\nFour 12.95 W access points fit, and a fifth socket cannot be aske
 
   const cli = new CliSession(t.getDevice('sw1'), t, sim);
   const table = (cli.run('show power inline').output || []).map(String).join('\n');
-  ok(/port1\s+auto\s+on\s+12\.95 W/.test(table), 'the table powers port1');
+  // The Power cell is a bare figure to a tenth - the unit is the `(Watts)` line under the heading, and the box's
+  // column is `Power`, not this console's old `Draw ... W` (research/show-power-inline-columns.md).
+  ok(/port1\s+auto\s+on\s+13\.0\s/.test(table), 'the table powers port1');
   ok(!/^port5\b/m.test(table), 'and has no row for port5, which is not a PSE');
   const refused = (cli.run('show power inline port5').output || []).map(String).join('\n');
   ok(/port5 .*cannot supply power \(it is not a PSE port\)/.test(refused),
