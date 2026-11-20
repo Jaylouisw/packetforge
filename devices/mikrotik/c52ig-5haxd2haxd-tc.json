@@ -1,45 +1,53 @@
 {
   "vendor": "mikrotik",
   "model": "C52iG-5HaxD2HaxD-TC",
-  "label": "hAP ax²",
-  "category": "wireless",
-  "description": "MikroTik hAP ax² (C52iG-5HaxD2HaxD-TC) — 5x 1G RJ45, Wi-Fi 2.4 GHz + 5 GHz. ARM 64bit 4-core IPQ-6010.",
+  "label": "MikroTik hAP ax² (C52iG-5HaxD2HaxD-TC)",
+  "category": "router",
+  "description": "MikroTik hAP ax² - 5x 1G RJ45, dual-band 802.11ax (574 Mbit/s on 2.4 GHz, 1200 Mbit/s on 5 GHz), with passive PoE-in and passive PoE-out on ether1.",
   "capabilities": [
+    "l2-forward",
     "l3-forward",
     "nat",
+    "firewall",
     "dhcp-server",
     "dhcp-client",
-    "firewall",
-    "cli",
-    "http-server",
     "wireless",
     "poe-pse",
-    "passive-poe"
+    "passive-poe",
+    "cli",
+    "http-server"
   ],
   "interfaces": [
     {
       "name": "eth1",
       "type": "ethernet",
-      "speed": "1G"
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "passive"
     },
     {
       "name": "eth2",
       "type": "ethernet",
+      "connector": "rj45",
       "speed": "1G"
     },
     {
       "name": "eth3",
       "type": "ethernet",
+      "connector": "rj45",
       "speed": "1G"
     },
     {
       "name": "eth4",
       "type": "ethernet",
+      "connector": "rj45",
       "speed": "1G"
     },
     {
       "name": "eth5",
       "type": "ethernet",
+      "connector": "rj45",
       "speed": "1G"
     },
     {
@@ -53,7 +61,18 @@
       "speed": "1.2G"
     }
   ],
-  "icon": "ap",
+  "aliases": [
+    "hAP ax2",
+    "hAP ax²",
+    "C52iG-5HaxD2HaxD"
+  ],
+  "notes": "Vendor figures: 5x 10/100/1000 Ethernet ports, 1 of them with PoE-out; wireless 2.4 GHz 574 Mbit/s and 5 GHz 1200 Mbit/s (802.11ax). **The PoE-out port is ether1, not the last port** - MikroTik's hardware manual reads \"PoE-out Passive PoE Ether1, max out per port output (input < 30 V): 600 mA\", and the product table gives \"Total output power 16.8W\" against \"Total output current 0.6\" (0.6 A x 28 V, the top of the 18-28 V PoE-in range). The port sources a fixed input voltage rather than a negotiated 802.3af/at rail, so it is classed `passive`: two earlier copies of this box put the PoE-out on eth5 and called it `PoE+` (802.3at), which is a 48 V standard this port does not speak. This entry absorbed those two files (`hap-ax2.json`, `C52iG-5HaxD2HaxD.json`) - one product, one file.",
+  "poe": {
+    "budgetW": 16.8,
+    "sourceUrl": "https://mikrotik.com/product/hap_ax2",
+    "note": "Total output power 16.8 W (product table, PoE-out block), one PoE-out port (ether1) on a 600 mA ceiling, passive PoE over the 18-28 V input. Manual: https://manual.mikrotik.com/hardware/hap-ax-2/"
+  },
+  "icon": "router",
   "color": "#14b8a6",
   "sourceUrl": "https://mikrotik.com/product/hap_ax2"
 }

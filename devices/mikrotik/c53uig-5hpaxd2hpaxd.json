@@ -1,17 +1,19 @@
 {
   "vendor": "mikrotik",
   "model": "C53UiG+5HPaxD2HPaxD",
-  "label": "hAP ax3 (C53UiG+5HPaxD2HPaxD) dual-band router",
+  "label": "MikroTik hAP ax³ (C53UiG+5HPaxD2HPaxD)",
   "category": "router",
-  "description": "MikroTik hAP ax3 - RouterOS Wi-Fi 6 dual-band router (2.4 GHz 574 Mbps 2x2, 5 GHz 1201 Mbps 2x2) with one 2.5G port that also does PoE in and out, plus four 1G LAN ports. The 2.5G port is eth1, which is also where the device is powered from PoE.",
+  "description": "MikroTik hAP ax³ - 4x 1G RJ45 plus 1x 2.5G RJ45 (eth1, which also carries passive PoE-in and PoE-out), dual-band 802.11ax (574 Mbit/s on 2.4 GHz, 1200 Mbit/s on 5 GHz).",
   "capabilities": [
-    "wireless",
     "l2-forward",
     "l3-forward",
     "nat",
+    "firewall",
     "dhcp-server",
     "dhcp-client",
-    "firewall",
+    "wireless",
+    "poe-pse",
+    "passive-poe",
     "http-server",
     "cli"
   ],
@@ -19,26 +21,33 @@
     {
       "name": "eth1",
       "type": "ethernet",
-      "speed": "2.5G"
+      "connector": "rj45",
+      "speed": "2.5G",
+      "poeOut": true,
+      "poeOutClass": "passive"
     },
     {
       "name": "eth2",
       "type": "ethernet",
+      "connector": "rj45",
       "speed": "1G"
     },
     {
       "name": "eth3",
       "type": "ethernet",
+      "connector": "rj45",
       "speed": "1G"
     },
     {
       "name": "eth4",
       "type": "ethernet",
+      "connector": "rj45",
       "speed": "1G"
     },
     {
       "name": "eth5",
       "type": "ethernet",
+      "connector": "rj45",
       "speed": "1G"
     },
     {
@@ -52,6 +61,17 @@
       "speed": "1.2G"
     }
   ],
+  "aliases": [
+    "hAP ax3",
+    "hAP ax³",
+    "C53UiG"
+  ],
+  "notes": "Vendor figures: 4x 1G Ethernet ports and 1x 2.5G Ethernet port that \"supports PoE-in/out\"; wireless 2.4 GHz 574 Mbit/s and 5 GHz 1200 Mbit/s (802.11ax). **The ax3 has five copper ports, not four**: the 2.5G port is ether1 (the manual's powering block reads \"PoE-out Passive PoE Ether1, max out per port output (input < 30 V): 0.625 A\" and \"PoE-out total output power 15 W\", and the same page lists \"Number of 2.5G Ethernet ports 1 (supports PoE-in/out)\"). An earlier copy of this box (`hap-ax3.json`) recorded four 1G ports, dropped the 2.5G port, put the PoE-out on eth4 and classed it `PoE+`; it also claimed the ax3 \"trades a port for a faster CPU against the ax2\" - it does not, it upgrades one of five. That file is absorbed here.",
+  "poe": {
+    "budgetW": 15,
+    "sourceUrl": "https://manual.mikrotik.com/hardware/hap-ax-3/",
+    "note": "PoE-out total output power 15 W for the single passive PoE-out port (ether1, 0.625 A ceiling at input < 30 V); the product table prints the same ceiling as \"Total output current 0.625\" and \"Total output power 15\" - 0.625 A x 24 V = 15 W. Product page: https://mikrotik.com/product/hap_ax3"
+  },
   "icon": "router",
   "color": "#14b8a6",
   "sourceUrl": "https://mikrotik.com/product/hap_ax3"

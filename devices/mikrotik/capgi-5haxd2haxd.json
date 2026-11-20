@@ -1,41 +1,62 @@
 {
   "vendor": "mikrotik",
   "model": "cAPGi-5HaxD2HaxD",
-  "label": "cAP ax",
+  "label": "MikroTik cAP ax (cAPGi-5HaxD2HaxD)",
   "category": "wireless",
-  "description": "MikroTik cAP ax - ceiling Wi-Fi 6 dual-band 2x2 AP with 2x 1G RJ45 (PoE-in and PoE-out), quad-core ARM, 1 GB RAM.",
+  "description": "MikroTik cAP ax - ceiling 802.11ax access point, 2x 1G RJ45 (802.3af/at PoE-in on either port, passive PoE-out on ether2), dual-band 574 Mbit/s on 2.4 GHz and 1200 Mbit/s on 5 GHz.",
   "capabilities": [
     "l2-forward",
     "l3-forward",
-    "wireless",
-    "cli",
     "nat",
     "firewall",
     "dhcp-server",
-    "dhcp-client"
+    "dhcp-client",
+    "wireless",
+    "poe-pd",
+    "poe-pse",
+    "802.3af",
+    "802.3at",
+    "passive-poe",
+    "http-server",
+    "cli"
   ],
   "interfaces": [
     {
       "name": "eth1",
       "type": "ethernet",
+      "connector": "rj45",
       "speed": "1G"
     },
     {
       "name": "eth2",
       "type": "ethernet",
-      "speed": "1G"
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "passive"
     },
     {
       "name": "wlan1",
       "type": "wireless",
-      "speed": "1G"
+      "speed": "574M"
     },
     {
       "name": "wlan2",
       "type": "wireless",
-      "speed": "1G"
+      "speed": "1.2G"
     }
   ],
+  "aliases": [
+    "cAP ax",
+    "cAPGi"
+  ],
+  "notes": "Vendor figures: 2x 10/100/1000 Ethernet ports, 1 with PoE-out; wireless 2.4 GHz 574 Mbit/s (802.11b/g/n/ax) and 5 GHz 1200 Mbit/s; PoE-in 802.3af/at on 18-57 V. **The PoE-out port is ether2 and it is passive, not 802.3at**: the manual reads \"PoE-Out Passive PoE up to 57V\", \"PoE-Out ports Ether2, max out per port output (input < 30 V): 600 mA, max out per port output (input > 30 V): 400 mA\", with the caveat that over 300 mA the box must be fed from the DC jack. The `802.3af`/`802.3at` tokens describe its own PoE-in, not what it sources. An earlier copy (`cap-ax.json`) classed ether2 `PoE+` and listed the radios at 1G; both are corrected here, and that file is absorbed.",
+  "poe": {
+    "budgetW": 19.2,
+    "sourceUrl": "https://mikrotik.com/product/cap_ax",
+    "note": "Total output power 19.2 W and \"Total output current 0.4\" (product table, PoE-out block); 0.4 A is the manual's >30 V per-port ceiling, and 0.4 A x 48 V = 19.2 W. Manual: https://manual.mikrotik.com/hardware/cap-ax/"
+  },
   "icon": "ap",
-  "color": "#14b8a6"
+  "color": "#14b8a6",
+  "sourceUrl": "https://mikrotik.com/product/cap_ax"
 }
