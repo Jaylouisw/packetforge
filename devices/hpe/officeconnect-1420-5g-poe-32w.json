@@ -3,13 +3,18 @@
   "model": "officeconnect-1420-5g-poe-32w",
   "label": "HPE OfficeConnect 1420 5G PoE+ 32W (JH328A)",
   "category": "switch",
-  "description": "5-port gigabit PoE+ unmanaged switch: 5x 1G, 4x PoE+, 32 W budget.",
+  "description": "5-port gigabit PoE+ unmanaged switch: 5x 1G, 4x PoE+, 32 W PoE budget, no console.",
   "capabilities": [
     "l2-forward",
     "poe-pse",
     "802.3af",
     "802.3at"
   ],
+  "poe": {
+    "budgetW": 32,
+    "sourceUrl": "https://www.hpe.com/psnow/downloadDoc/HPE%20OfficeConnect%201420%20Switch%20Series-c04609036.pdf?id=c04609036.pdf&isFutureVersion=true&ver=10&form=false&preview=false&hf=regular&isLinearized=false&contentDisposition=attachment",
+    "note": "HPE's own figure, not the model name. The 1420 QuickSpecs (v10, 2019) JH328A page prints \"This product provides PoE or PoE+ power across 4 of 5 ports, with a total power budget of 32W\", and the series' power-consumption table in the switch's own guide prints \"Total PoE output 32 W\" with \"Max. PoE power per port 30 W\" and \"Max. PoE ports at full 30 W output: 1\". So the 32 W is a PSE allocation and it buys one 30 W device, not four: 32 W across four PoE+ ports is 8 W each on average. Maximum power rating 40 W including the whole PoE output, 5 W without it."
+  },
   "interfaces": [
     {
       "name": "ge1",
@@ -50,5 +55,6 @@
       "speed": "1G"
     }
   ],
+  "sourceUrl": "https://www.hpe.com/psnow/downloadDoc/HPE%20OfficeConnect%201420%20Switch%20Series-c04609036.pdf?id=c04609036.pdf&isFutureVersion=true&ver=10&form=false&preview=false&hf=regular&isLinearized=false&contentDisposition=attachment",
   "notes": "Vendor figures for **JH328A**: 5 gigabit ports, **PoE+ (802.3at) on 4 of them**, total budget **32 W**. **32 W across four PoE+ ports is 8 W each** - it will run four phones or two 802.3at access points, and it will not run four 30 W devices no matter what the port count suggests."
 }

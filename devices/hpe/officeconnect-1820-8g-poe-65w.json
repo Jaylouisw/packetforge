@@ -3,7 +3,7 @@
   "model": "officeconnect-1820-8g-poe-65w",
   "label": "HPE OfficeConnect 1820 8G PoE+ 65W (J9982A)",
   "category": "switch",
-  "description": "8-port gigabit smart-managed PoE+ switch: 8x 1G, 4x PoE+, 65 W budget.",
+  "description": "8-port gigabit smart-managed PoE+ switch: 8x 1G, 4x PoE+, 65 W PoE budget.",
   "capabilities": [
     "l2-forward",
     "http-server",
@@ -11,6 +11,11 @@
     "802.3af",
     "802.3at"
   ],
+  "poe": {
+    "budgetW": 65,
+    "sourceUrl": "https://www.hpe.com/psnow/downloadDoc/HPE%20OfficeConnect%201820%20Switch%20Series-c04518995.pdf?id=c04518995.pdf&isFutureVersion=true&ver=7&form=false&preview=false&hf=regular&isLinearized=false&contentDisposition=attachment",
+    "note": "HPE's own row, not the model name. The 1820 QuickSpecs (v7, 2022) J9982A Technical Specifications table prints \"PoE power 65 W PoE+\", with \"4 RJ-45 autosensing 10/100/1000 PoE+ ports\" and four further non-PoE RJ-45 ports, maximum power rating 83.9 W and idle power 12.6 W. The same document's PoE+ port availability bullet prints \"Ports 1-4 provide PoE+ on the HPE 1820-8G-PoE+ (65W) switch\". 65 W over four PoE+ ports is 16.25 W average, so it powers two 30 W access points, not four."
+  },
   "interfaces": [
     {
       "name": "ge1",
@@ -69,5 +74,6 @@
       "speed": "1G"
     }
   ],
+  "sourceUrl": "https://www.hpe.com/psnow/downloadDoc/HPE%20OfficeConnect%201820%20Switch%20Series-c04518995.pdf?id=c04518995.pdf&isFutureVersion=true&ver=7&form=false&preview=false&hf=regular&isLinearized=false&contentDisposition=attachment",
   "notes": "Vendor figures for **J9982A**: 8 gigabit ports with **4 ports of PoE+ and a 65 W budget**. Half the ports are unpowered - a pattern that repeats across this whole range and is not obvious from the model name."
 }

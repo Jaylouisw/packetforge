@@ -3,7 +3,7 @@
   "model": "officeconnect-1820-24g-poe-185w",
   "label": "HPE OfficeConnect 1820 24G PoE+ 185W (J9983A)",
   "category": "switch",
-  "description": "24-port gigabit smart-managed switch: 12x 1G PoE+ + 12x 1G, 2x SFP, 185 W budget.",
+  "description": "24-port gigabit smart-managed switch: 12x 1G PoE+ + 12x 1G, 2x SFP, 185 W PoE budget.",
   "capabilities": [
     "l2-forward",
     "http-server",
@@ -11,6 +11,11 @@
     "802.3af",
     "802.3at"
   ],
+  "poe": {
+    "budgetW": 185,
+    "sourceUrl": "https://www.hpe.com/psnow/downloadDoc/HPE%20OfficeConnect%201820%20Switch%20Series-c04518995.pdf?id=c04518995.pdf&isFutureVersion=true&ver=7&form=false&preview=false&hf=regular&isLinearized=false&contentDisposition=attachment",
+    "note": "HPE's own row, not the model name. The 1820 QuickSpecs (v7, 2022) J9983A Technical Specifications table prints \"PoE power 185 W PoE+\", with \"12 RJ-45 autosensing 10/100/1000 PoE+ ports\", twelve further non-PoE RJ-45 ports and \"2 SFP 100/1000 Mbps ports\", maximum power rating 240 W and idle power 28.3 W. Trap inside the same vendor document: its PoE+ port availability bullet says \"Ports 1 - 12 provide PoE+ on the HPE 1820-24G-PoE+ (180W) switch\" while the model list, the configuration section and the technical-spec row all read 185 W for J9983A - the 180 W in that one bullet is the stale figure, and the 185 W spec row is what is modelled. 185 W over twelve PoE+ ports is 15.4 W average."
+  },
   "interfaces": [
     {
       "name": "ge1",
@@ -199,5 +204,6 @@
       ]
     }
   ],
+  "sourceUrl": "https://www.hpe.com/psnow/downloadDoc/HPE%20OfficeConnect%201820%20Switch%20Series-c04518995.pdf?id=c04518995.pdf&isFutureVersion=true&ver=7&form=false&preview=false&hf=regular&isLinearized=false&contentDisposition=attachment",
   "notes": "Vendor figures for **J9983A**: **12 RJ-45 PoE+ ports, 12 RJ-45 non-PoE ports, 2 SFP**, budget **185 W**. **Half of the twenty-four ports cannot power anything** - the model name says \"24G PoE+\" and the datasheet says twelve, which is exactly the kind of gap that ruins a camera plan after the switch is installed."
 }

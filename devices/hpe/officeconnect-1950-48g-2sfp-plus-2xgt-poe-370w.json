@@ -3,7 +3,7 @@
   "model": "officeconnect-1950-48g-2sfp-plus-2xgt-poe-370w",
   "label": "HPE OfficeConnect 1950 48G PoE+ 2SFP+ 2XGT (JG963A)",
   "category": "switch",
-  "description": "48-port gigabit L3 PoE+ switch: 48x 1G all PoE+ (370 W) + 2x SFP+ + 2x 10G copper.",
+  "description": "48-port gigabit L3 PoE+ switch: 48x 1G all PoE+ (370 W) + 2x SFP+ + 2x 10G copper, RJ-45 console.",
   "capabilities": [
     "l2-forward",
     "l3-forward",
@@ -13,6 +13,11 @@
     "802.3af",
     "802.3at"
   ],
+  "poe": {
+    "budgetW": 370,
+    "sourceUrl": "https://www.hpe.com/psnow/downloadDoc/HPE%20OfficeConnect%201950%20Switch%20Series-c04545486.pdf?id=c04545486.pdf&isFutureVersion=true&ver=10&form=false&preview=false&hf=regular&isLinearized=false&contentDisposition=attachment",
+    "note": "HPE's own row, not the model name. The 1950 QuickSpecs (v10, 2018) JG963A Technical Specifications table prints \"PoE power 370 W PoE+\", maximum power rating 470 W, and \"When supplemented with the use of an HPE RPS1600 Redundant Power System, up to 800W of PoE+ can be supplied\" - the 800 W needs the separately sold JG136A RPS. I/O row: \"48 RJ-45 auto-negotiating 10/100/1000 PoE+ ports\", \"2 SFP+ fixed 1000/10000 SFP+ ports\", \"2 RJ-45 1/10GBASE-T ports\", plus \"Additional ports and slots: 1 RJ-45 console port to access limited CLI port\", which was missing from the model. The 48-port carries the same 370 W as the 24-port JG962A: doubling the port count did not double the power."
+  },
   "interfaces": [
     {
       "name": "ge1",
@@ -439,7 +444,12 @@
         1000,
         100
       ]
+    },
+    {
+      "name": "console",
+      "type": "console"
     }
   ],
+  "sourceUrl": "https://www.hpe.com/psnow/downloadDoc/HPE%20OfficeConnect%201950%20Switch%20Series-c04545486.pdf?id=c04545486.pdf&isFutureVersion=true&ver=10&form=false&preview=false&hf=regular&isLinearized=false&contentDisposition=attachment",
   "notes": "Vendor figures for **JG963A**: 48 x 1G all PoE+, 2 x SFP+ 10G, 2 x 10GBASE-T, **370 W budget - the same budget as the 24-port JG962A**. **Doubling the port count did not double the power**: 370 W across 48 ports is 7.7 W average, so it is a phone switch, not a 48-camera switch."
 }
