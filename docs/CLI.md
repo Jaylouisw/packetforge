@@ -3404,15 +3404,26 @@ second stage), which is why a LAN one gigabit hop away behind a neighbour is `[1
 away is `[110/3]`; a configured `ip ospf cost` is a term in that sum, and a loopback's stub link costs 0
 (§12.4.1). `S` and `B` rows print `0` in that column: no cost is computed for them here.
 
-The default gets two forms because there are two ways to configure one:
+The default gets three rows from two mechanisms: a static route, at whatever distance it was typed, and a
+**DHCP lease**, whose router a box that routes installs as a default route at distance 254.
 
 | Row | Source | Distance |
 |---|---|---|
-| `S*  0.0.0.0/0 [254/0] via …` | `ip default-gateway` | 254 |
+| `S*  0.0.0.0/0 [254/0] via …` | a DHCP lease (`ip address dhcp`) | 254 |
 | `S*  0.0.0.0/0 [1/0] via …` | `ip route 0.0.0.0 0.0.0.0 …` | 1 |
 | `S*  0.0.0.0/0 [200/0] via …` | `ip route 0.0.0.0 0.0.0.0 … 200` | 200 |
 
-The last row is the floating default: it is a candidate, it is listed, and the `Gateway of last resort is …`
+`ip default-gateway` is **not** one of them, because it is scoped to the non-routing case and this table is the
+routing shape. On a box with `ip routing` on, the command is retained in `show running-config` and steers
+nothing: a router whose only default is `ip default-gateway 10.0.0.254` still prints `Gateway of last resort is
+not set`, and no `S*` row appears. On a box that does not route, the same command is answered by the
+host/redirect cache shape below instead of a table. Only a lease's router is a route: the row is read from
+`device.dhcpGateway` (`engine/device.js:1405`), which `Simulator.computeDhcp()` fills when the lease carries a
+gateway (`engine/simulator.js:1245`), while the typed `config.defaultGateway` is consulted only when
+`isL3()` is false (`engine/device.js:1126`). The scoping itself, with the vendor sources, is in
+[research/ip-default-gateway-when-routing.md](../research/ip-default-gateway-when-routing.md).
+
+The `[200/0]` row is the floating default: it is a candidate, it is listed, and the `Gateway of last resort is …`
 line above the table does not name it while a distance-1 default exists. A static route at distance 255 is a
 different case - the vendor rule for that number is that the route is *never* installed - so its row says so
 and is excluded from the gateway line.
@@ -3425,7 +3436,7 @@ the shape Cisco's own gateway-of-last-resort note prints, and so does a default 
 
 What separates two candidate defaults is what separates any two routes: the distance in the brackets. The
 `Gateway of last resort is …` line names the one packets actually leave by, so a device holding both shows
-the static route (`[1/0]`) there and lets the configured gateway's `[254/0]` row say it is not installed.
+the static route (`[1/0]`) there and lets the lease's `[254/0]` row say it is not installed.
 Starring only the configured gateway — which is what this console did — put the mark on the one row no real
 router keeps in its table and left the route an operator types looking like a plain `S`
 (`research/show-ip-route-candidate-default.md`).
