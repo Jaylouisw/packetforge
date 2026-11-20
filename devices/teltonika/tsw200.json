@@ -72,5 +72,10 @@
     }
   ],
   "sourceUrl": "https://wiki.teltonika-networks.com/view/TSW200",
-  "notes": "Vendor figures (Teltonika wiki and TSW200 v1 datasheet): eight Gigabit Ethernet ports supporting IEEE 802.3af and 802.3at PoE; datasheet port table states 8 x PoE ports."
+  "notes": "Vendor figures (Teltonika wiki and TSW200 v1 datasheet): eight Gigabit Ethernet ports supporting IEEE 802.3af and 802.3at PoE; datasheet port table states 8 x PoE ports.",
+  "poe": {
+    "budgetW": 240,
+    "sourceUrl": "https://teltonika-networks.com/cdn/products/2023/01/63b81b2e79f7f3-21486183/datasheet/tsw200-datasheet-2024-v10.pdf",
+    "note": "Datasheet (TSW200, 2024-v1.0), POE block, verbatim: \"PoE ports Port 1 - 8\"; \"PoE standards 802.3af and 802.3at Alternative B\" (v1.2 adds \"Alternative A (From batch 42) / Alternative B (From batch 1-41)\"); \"PoE Max Power per Port (at PSE) 30 W\"; \"Total PoE Power Budget (at PSE) 240 W\"; \"Power consumption Idle: 1.81 W / Max: 5.5 W / PoE Max: 245.5 W\". Eight 30 W ports sum to exactly the 240 W ceiling, the same full-fill arithmetic as its TSW100 sibling. Read 2026-11-20; the product page prints the same headline (\"Total power budget at PSE up to 240 W\", https://teltonika-networks.com/products/switches/tsw200)."
+  }
 }

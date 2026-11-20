@@ -3,7 +3,7 @@
   "model": "TSW101",
   "label": "Teltonika TSW101",
   "category": "switch",
-  "description": "Five-port gigabit automotive PoE+ switch: 5x 1 GbE, PoE+.",
+  "description": "Five-port gigabit automotive switch: 5x 1 GbE, PoE+ on four of them. The fifth port is the uplink; the other four power in-vehicle cameras, access points and routers from a 12 V or 24 V vehicle supply.",
   "capabilities": [
     "l2-forward",
     "poe-pse",
@@ -15,7 +15,7 @@
       "type": "ethernet",
       "connector": "rj45",
       "speed": "1G",
-      "poeOut": true,
+      "poeOut": 30,
       "poeOutClass": "PoE+"
     },
     {
@@ -23,7 +23,7 @@
       "type": "ethernet",
       "connector": "rj45",
       "speed": "1G",
-      "poeOut": true,
+      "poeOut": 30,
       "poeOutClass": "PoE+"
     },
     {
@@ -31,7 +31,7 @@
       "type": "ethernet",
       "connector": "rj45",
       "speed": "1G",
-      "poeOut": true,
+      "poeOut": 30,
       "poeOutClass": "PoE+"
     },
     {
@@ -39,7 +39,7 @@
       "type": "ethernet",
       "connector": "rj45",
       "speed": "1G",
-      "poeOut": true,
+      "poeOut": 30,
       "poeOutClass": "PoE+"
     },
     {
@@ -47,10 +47,14 @@
       "type": "ethernet",
       "connector": "rj45",
       "speed": "1G",
-      "poeOut": true,
-      "poeOutClass": "PoE+"
+      "poeOut": false
     }
   ],
   "sourceUrl": "https://teltonika-networks.com/product/t-sw-101/",
-  "notes": "Vendor figures from the TSW101 datasheet: **5x ETH ports, 10/100/1000 Mbps**, all five carrying PoE+. **Gigabit and PoE+ on all five ports** in an automotive-rated body - the same port count as the flat TSF010, ten times the speed per port and power on every one of them."
+  "notes": "Vendor figures (TSW101 datasheet v1.30, https://www.farnell.com/datasheets/4785183.pdf, and the TSW101 flyer 2023 v1.1): \"Ethernet ETH 5 x ETH ports, 10/100/1000 Mbps, supports auto MDI/MDIX crossover\"; \"POE OUT PoE+ ports Port 1 - 4\"; \"PoE standards IEEE 802.3af (PoE, Type 1) and IEEE 802.3at (PoE+, Type 2), Alternative A\"; \"PoE Max Power per Port (at PSE) 30 W\"; \"Total PoE Power Budget (at PSE) 60 W\". The flyer gives the panel split in words - \"5 x 10/100/1000 Ethernet ports: 4 x PoE, 1 x Uplink\" - and the datasheet names the powered sockets \"Port 1 - 4\", so eth5 is the uplink: declared `\"poeOut\": false` rather than left undeclared, because a copper port on a `poe-pse` device with no `poeOut` key is inferred to be a 15.4 W 802.3af source (the row previously had all five sourcing power). The four PSE ports carry the vendor's 30 W per-port ceiling instead of the `true` this row used to hold, the same shape as its TSW100/TSW200 siblings. The 60 W total is supply-dependent - the v1.5 datasheet footnotes 30 W maximum at 12 VDC against 60 W at 24 VDC - and the single budget field carries the ceiling; see the `poe` note. Automotive body: 2-pin power socket, 9-30 VDC, no separate PSU.",
+  "poe": {
+    "budgetW": 60,
+    "sourceUrl": "https://www.farnell.com/datasheets/4785183.pdf",
+    "note": "Datasheet (TSW101, v1.30, 2026-06-01), POE OUT block, verbatim: \"PoE+ ports Port 1 - 4\"; \"PoE standards IEEE 802.3af (PoE, Type 1) and IEEE 802.3at (PoE+, Type 2), Alternative A\"; \"PoE Max Power per Port (at PSE) 30 W\"; \"Total PoE Power Budget (at PSE) 60 W\"; \"Power consumption Idle: 0.64 W / Max: 2.31 W / PoE Max: 62.3 W\"; and the cover: \"4 x PoE+ ports ... 5 x Gigabit Ethernet ports\". The flyer states the split in the panel's own words - \"5 x 10/100/1000 Ethernet ports: 4 x PoE, 1 x Uplink\" (TSW101_Flyer_2023_v1.1) - which is why port 5 carries no `poeOut`. The budget is supply-dependent and the single field cannot hold both: the older v1.5 datasheet footnotes \"* Depends on connected power source. (30 W (max.) @ 12 VDC for total PD consumption; ... 60 W (max.) @ 24 VDC for total PD consumption)\"; the 60 W row is the 24 V figure and therefore the ceiling, and a 12 V vehicle system funds 30 W. Read 2026-11-20."
+  }
 }

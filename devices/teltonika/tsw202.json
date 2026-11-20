@@ -90,5 +90,10 @@
     }
   ],
   "sourceUrl": "https://wiki.teltonika-networks.com/view/TSW202",
-  "notes": "Vendor figures (Teltonika datasheet teltonika-tsw-202): 8 x PoE ports with 802.3af/at and 2 x SFP cages, confirmed by the status-LED line (16 LAN LEDs, 2 SFP LEDs). Managed."
+  "notes": "Vendor figures (Teltonika datasheet teltonika-tsw-202): 8 x PoE ports with 802.3af/at and 2 x SFP cages, confirmed by the status-LED line (16 LAN LEDs, 2 SFP LEDs). Managed.",
+  "poe": {
+    "budgetW": 240,
+    "sourceUrl": "https://teltonika-networks.com/cdn/products/2023/08/64e896612f9829-30532758/datasheet/tsw202-datasheet-2024-v11-profinet.pdf",
+    "note": "Datasheet (TSW202, 2024-v1.1 Profinet), POE OUT block, verbatim: \"PoE ports Port 1 - 8\"; \"PoE standards 802.3af and 802.3at Alternative B\" (the Lithuanian product page gives the batch split: \"Alternative A (From batch 42) / Alternative B (From batch 1-41)\"); \"PoE Max Power per Port (at PSE) 30 W\"; \"Total PoE Power Budget (at PSE) 240 W\"; \"Power consumption Idle: < 3 W / Max: 8 W / PoE Max: 248 W\". Eight 30 W ports against a 240 W ceiling - full fill lands exactly on the budget. Read 2026-11-20; the QSG restates it as \"Max PoE power budget at PSE 240 W*\" with \"* PoE operates properly only when connected power supply outputs 44 V or higher voltage\" (https://wiki.teltonika-networks.com/view/QSG_TSW202)."
+  }
 }

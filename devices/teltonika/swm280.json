@@ -102,73 +102,85 @@
       "name": "eth12",
       "type": "ethernet",
       "connector": "rj45",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": false
     },
     {
       "name": "eth13",
       "type": "ethernet",
       "connector": "rj45",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": false
     },
     {
       "name": "eth14",
       "type": "ethernet",
       "connector": "rj45",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": false
     },
     {
       "name": "eth15",
       "type": "ethernet",
       "connector": "rj45",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": false
     },
     {
       "name": "eth16",
       "type": "ethernet",
       "connector": "rj45",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": false
     },
     {
       "name": "eth17",
       "type": "ethernet",
       "connector": "rj45",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": false
     },
     {
       "name": "eth18",
       "type": "ethernet",
       "connector": "rj45",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": false
     },
     {
       "name": "eth19",
       "type": "ethernet",
       "connector": "rj45",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": false
     },
     {
       "name": "eth20",
       "type": "ethernet",
       "connector": "rj45",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": false
     },
     {
       "name": "eth21",
       "type": "ethernet",
       "connector": "rj45",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": false
     },
     {
       "name": "eth22",
       "type": "ethernet",
       "connector": "rj45",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": false
     },
     {
       "name": "eth23",
       "type": "ethernet",
       "connector": "rj45",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": false
     },
     {
       "name": "SFP-1",
@@ -208,5 +220,10 @@
     }
   ],
   "sourceUrl": "https://wiki.teltonika-networks.com/view/SWM280",
-  "notes": "Vendor figures (Teltonika wiki): 24-port switch combining 12 PoE+ ports, 12 Gigabit Ethernet ports and 4 SFP ports; L2 managed with L3 features. Ports eth0-eth11 carry PoE; eth12-eth23 are the plain Gigabit half, which is the whole point of this model over the SWM282."
+  "notes": "Vendor figures (Teltonika wiki): 24-port switch combining 12 PoE+ ports, 12 Gigabit Ethernet ports and 4 SFP ports; L2 managed with L3 features. Ports eth0-eth11 carry PoE; eth12-eth23 are the plain Gigabit half, which is the whole point of this model over the SWM282. PSE CENSUS: eth12-eth23 are declared `\"poeOut\": false`. The datasheet names the powered sockets \"Port 1-12\" and the model is the mixed variant - twelve PoE+ ports beside twelve plain Gigabit ports - so the second half is a statement about the hardware, not a silence. Undeclared, the engine's inference made all twelve 15.4 W PSE ports: a 300 W budget spendable on twelve outlets the box does not have, and a `show power inline` table twice the vendor's length.",
+  "poe": {
+    "budgetW": 300,
+    "sourceUrl": "https://teltonika-networks.com/cdn/products/2025/03/67d1527c4482d2-16554631/datasheets-and-flyers-pdfs/swm280-datasheet-v102.pdf",
+    "note": "Datasheet (SWM280, v1.02), POE OUT block, verbatim: \"PoE+ ports Port 1-12\"; \"PoE standards IEEE 802.3af (PoE, Type 1) and IEEE 802.3at (PoE+, Type 2), Alternative A\"; \"PoE Max Power per Port (at PSE) 30 W\"; \"Total PoE Power Budget (at PSE) 300 W\"; \"Power consumption Idle: 7.5 W / Max: 325 W / PoE Max: 300\". Twelve PoE+ ports at 30 W each want 360 W, so the 300 W budget binds before the port ceilings do - the twelfth 30 W device is refused on this model and funded on none of its siblings. Read 2026-11-20; the flyer repeats \"up to 30 W per port and a total power budget of 300 W\"."
+  }
 }

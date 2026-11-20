@@ -17,7 +17,8 @@
       "name": "eth0",
       "type": "ethernet",
       "connector": "rj45",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": false
     },
     {
       "name": "eth1",
@@ -49,5 +50,10 @@
     }
   ],
   "sourceUrl": "https://wiki.teltonika-networks.com/view/TSW100",
-  "notes": "Vendor figures (Teltonika wiki): 5 x Gigabit Ethernet ports, 4 of which can power connected devices via PoE 802.3af/802.3at. eth0 is modelled without PoE because the vendor says four of the five ports are PoE-capable; the fifth is the uplink."
+  "notes": "Vendor figures (Teltonika wiki): 5 x Gigabit Ethernet ports, 4 of which can power connected devices via PoE 802.3af/802.3at. eth0 is modelled without PoE because the vendor says four of the five ports are PoE-capable; the fifth is the uplink. PSE CENSUS: eth0 is declared `\"poeOut\": false` because the vendor names the PoE sockets \"Port 1- 4\" and the fifth as the uplink (the datasheet's own installation drawing: \"Connect your main internet router/modem to TSW100 LAN port number 5\"). Left undeclared, the engine's best-effort inference gave this copper port 15.4 W of 802.3af - a fifth outlet the box does not have, and now that a 120 W budget exists, one that could fund a powered device from the uplink.",
+  "poe": {
+    "budgetW": 120,
+    "sourceUrl": "https://teltonika-networks.com/cdn/products/2023/01/63b81b1aa5d306-16407609/datasheet/626552-tsw100-datasheet-2023-v13.pdf",
+    "note": "Datasheet (TSW100, 2023-v1.3), POE block, verbatim: \"PoE ports Port 1- 4\"; \"PoE standards 802.3af and 802.3at\"; \"PoE Max Power per Port (at PSE) 30 W\"; \"PoE Power Budget (at PSE) 120 W\"; \"Power consumption Idle: 2 W / Max (no PoE): 9 W / PoE Max: 129 W\". Four 30 W ports at full fill are exactly 120 W, so the budget and the port ceilings meet with nothing to spare - the 120 W row is what decides a fifth device, not the per-port figure. Read 2026-11-20; the 120 W headline is on the product page too (\"Total power budget at PSE up to 120 W\", https://teltonika-networks.com/products/switches/tsw100). NOT MODELLED, and why this matters to a lab: the switch is bundled with a 48 V / 1.3 A adapter (62.4 W), and the datasheet footnote says \"Provided power supply only allows 60 W PoE power budget at PSE, to reach maximum 120 W at PSE >130 W power supply must be used\" - 120 W is the chassis ceiling at PSE, 60 W is what the box in the carton can do. This simulator models the chassis (its power source is not a field), so the bill of materials is recorded here rather than compiled in."
+  }
 }

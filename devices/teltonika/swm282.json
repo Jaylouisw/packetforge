@@ -17,7 +17,7 @@
       "type": "ethernet",
       "connector": "rj45",
       "speed": "1G",
-      "poeOut": true,
+      "poeOut": 30,
       "poeOutClass": "PoE+"
     },
     {
@@ -25,7 +25,7 @@
       "type": "ethernet",
       "connector": "rj45",
       "speed": "1G",
-      "poeOut": true,
+      "poeOut": 30,
       "poeOutClass": "PoE+"
     },
     {
@@ -33,7 +33,7 @@
       "type": "ethernet",
       "connector": "rj45",
       "speed": "1G",
-      "poeOut": true,
+      "poeOut": 30,
       "poeOutClass": "PoE+"
     },
     {
@@ -41,7 +41,7 @@
       "type": "ethernet",
       "connector": "rj45",
       "speed": "1G",
-      "poeOut": true,
+      "poeOut": 30,
       "poeOutClass": "PoE+"
     },
     {
@@ -49,7 +49,7 @@
       "type": "ethernet",
       "connector": "rj45",
       "speed": "1G",
-      "poeOut": true,
+      "poeOut": 30,
       "poeOutClass": "PoE+"
     },
     {
@@ -57,7 +57,7 @@
       "type": "ethernet",
       "connector": "rj45",
       "speed": "1G",
-      "poeOut": true,
+      "poeOut": 30,
       "poeOutClass": "PoE+"
     },
     {
@@ -65,7 +65,7 @@
       "type": "ethernet",
       "connector": "rj45",
       "speed": "1G",
-      "poeOut": true,
+      "poeOut": 30,
       "poeOutClass": "PoE+"
     },
     {
@@ -73,7 +73,7 @@
       "type": "ethernet",
       "connector": "rj45",
       "speed": "1G",
-      "poeOut": true,
+      "poeOut": 30,
       "poeOutClass": "PoE+"
     },
     {
@@ -81,7 +81,7 @@
       "type": "ethernet",
       "connector": "rj45",
       "speed": "1G",
-      "poeOut": true,
+      "poeOut": 30,
       "poeOutClass": "PoE+"
     },
     {
@@ -89,7 +89,7 @@
       "type": "ethernet",
       "connector": "rj45",
       "speed": "1G",
-      "poeOut": true,
+      "poeOut": 30,
       "poeOutClass": "PoE+"
     },
     {
@@ -97,7 +97,7 @@
       "type": "ethernet",
       "connector": "rj45",
       "speed": "1G",
-      "poeOut": true,
+      "poeOut": 30,
       "poeOutClass": "PoE+"
     },
     {
@@ -105,7 +105,7 @@
       "type": "ethernet",
       "connector": "rj45",
       "speed": "1G",
-      "poeOut": true,
+      "poeOut": 30,
       "poeOutClass": "PoE+"
     },
     {
@@ -113,7 +113,7 @@
       "type": "ethernet",
       "connector": "rj45",
       "speed": "1G",
-      "poeOut": true,
+      "poeOut": 30,
       "poeOutClass": "PoE+"
     },
     {
@@ -121,7 +121,7 @@
       "type": "ethernet",
       "connector": "rj45",
       "speed": "1G",
-      "poeOut": true,
+      "poeOut": 30,
       "poeOutClass": "PoE+"
     },
     {
@@ -129,7 +129,7 @@
       "type": "ethernet",
       "connector": "rj45",
       "speed": "1G",
-      "poeOut": true,
+      "poeOut": 30,
       "poeOutClass": "PoE+"
     },
     {
@@ -137,7 +137,7 @@
       "type": "ethernet",
       "connector": "rj45",
       "speed": "1G",
-      "poeOut": true,
+      "poeOut": 30,
       "poeOutClass": "PoE+"
     },
     {
@@ -145,7 +145,7 @@
       "type": "ethernet",
       "connector": "rj45",
       "speed": "1G",
-      "poeOut": true,
+      "poeOut": 30,
       "poeOutClass": "PoE+"
     },
     {
@@ -153,7 +153,7 @@
       "type": "ethernet",
       "connector": "rj45",
       "speed": "1G",
-      "poeOut": true,
+      "poeOut": 30,
       "poeOutClass": "PoE+"
     },
     {
@@ -161,7 +161,7 @@
       "type": "ethernet",
       "connector": "rj45",
       "speed": "1G",
-      "poeOut": true,
+      "poeOut": 30,
       "poeOutClass": "PoE+"
     },
     {
@@ -169,7 +169,7 @@
       "type": "ethernet",
       "connector": "rj45",
       "speed": "1G",
-      "poeOut": true,
+      "poeOut": 30,
       "poeOutClass": "PoE+"
     },
     {
@@ -177,7 +177,7 @@
       "type": "ethernet",
       "connector": "rj45",
       "speed": "1G",
-      "poeOut": true,
+      "poeOut": 30,
       "poeOutClass": "PoE+"
     },
     {
@@ -185,7 +185,7 @@
       "type": "ethernet",
       "connector": "rj45",
       "speed": "1G",
-      "poeOut": true,
+      "poeOut": 30,
       "poeOutClass": "PoE+"
     },
     {
@@ -193,7 +193,7 @@
       "type": "ethernet",
       "connector": "rj45",
       "speed": "1G",
-      "poeOut": true,
+      "poeOut": 30,
       "poeOutClass": "PoE+"
     },
     {
@@ -201,7 +201,7 @@
       "type": "ethernet",
       "connector": "rj45",
       "speed": "1G",
-      "poeOut": true,
+      "poeOut": 30,
       "poeOutClass": "PoE+"
     },
     {
@@ -242,5 +242,10 @@
     }
   ],
   "sourceUrl": "https://teltonika-networks.com/products/ethernet-switches/SWM282/",
-  "notes": "Vendor figures from the Teltonika product page and datasheet: **24 PoE+ ports supplying up to 30 W per port**, plus **4 SFP ports**. The total PoE budget is stated on the page but the extracted rows cut it off, so this file records the per-port figure only: **do not assume 24 x 30 W = 720 W is available** - on managed switches of this class the aggregate is always lower, and the budget has to be read from the datasheet before a PoE plan is built."
+  "notes": "Vendor figures from the Teltonika product page and datasheet: **24 PoE+ ports supplying up to 30 W per port**, plus **4 SFP ports**. The total PoE budget is stated on the page but the extracted rows cut it off, so this file records the per-port figure only: **do not assume 24 x 30 W = 720 W is available** - on managed switches of this class the aggregate is always lower, and the budget has to be read from the datasheet before a PoE plan is built.",
+  "poe": {
+    "budgetW": 300,
+    "sourceUrl": "https://teltonika-networks.com/cdn/products/2025/03/67d14588252b07-13183319/datasheets-and-flyers-pdfs/swm282-datasheet-v10.pdf",
+    "note": "Datasheet (SWM282, v1.0), POE OUT block, verbatim: \"PoE+ ports Ports 1-24\"; \"PoE standards IEEE 802.3af (PoE, Type 1) and IEEE 802.3at (PoE+, Type 2), Alternative A\"; \"PoE Max Power per Port (at PSE) 30 W\"; \"Total PoE Power Budget (at PSE) 300 W\"; \"Power consumption Idle: 9 W / Max: 330 W / PoE Max: 300\". Twenty-four 30 W ports want 720 W against the same 300 W supply its 12-port sibling carries, so this is the model where the budget, not the port count, is the whole story: ten 30 W devices fill it. Read 2026-11-20."
+  }
 }
