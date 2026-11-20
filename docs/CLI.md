@@ -32,7 +32,7 @@ Modes and their prompts:
 | `show lldp` | the protocol's status block: `Global LLDP Information:` with `Status: ACTIVE`, the 30 s advertisement interval, the 120 s hold time it advertises and the 2 s reinitialisation delay - the four lines a Catalyst prints, so "running with nothing heard" is distinguishable from "off", which only `show lldp neighbors` used to look like |
 | `show lldp neighbors` | LLDP neighbours, with the local port marked when it can no longer carry, and each row listed only for as long as the hold time its neighbour advertised |
 | `show access-lists` | ACL rules, bindings, and how many packets each rule has matched |
-| `show ip bgp` / `show ip bgp summary` | BGP neighbours with their state and reason, and the prefixes installed |
+| `show ip bgp` / `show ip bgp summary` | BGP neighbours with their state (or the prefixes they sent) and reason, and the prefixes installed |
 | `show ip ospf` / `show ip ospf neighbour` / `show ip ospf interface` | the process this box runs (`Areas`, `Interfaces`, `Neighbours`, `Routes installed from OSPF`), each adjacency's `Pri`, `State` and `Dead Time` - the Router Dead Interval counting down from that neighbour's last Hello - and what each port costs; a box with no OSPF says so and names the command that would turn it on |
 | `show ip dhcp` / `show ip dhcp binding` / `show ip dhcp pool` | the allocation table under the box's own `Bindings from all pools not associated with VRF:` title: which MAC holds which address, from which pool, and how long is left on the lease - and, per pool, its utilisation mark, its totals and the address it would hand out next; a box with no pools says it is not a DHCP server |
 | `show ip dns` / `show ip dns zone` | the zones this box answers for, as records in zone-file shape, and the name servers it asks; a zone it would refuse to answer is printed with `NOT answered: <reason>` rather than as if it were live, and a device with no zones says it is not a DNS server |
@@ -2689,12 +2689,28 @@ over a cable that has been pulled.
 ### Reading `show ip bgp`
 
 ```
-Neighbor         V  AS      State           Reason
+Neighbor         V  AS      State/PfxRcd    Reason
 10.0.0.1         4  65001   Idle            egress Gi0 cannot carry a frame (link down)
 
 0 of 1 neighbour(s) established
 0 prefix(es) installed from BGP
 ```
+
+The last cell is the box's own column, and it holds two different kinds of value. While the session is up it
+is the **number of prefixes received** from that neighbour — one per prefix the peer sent, whether or not a
+better path from elsewhere keeps it out of the forwarding table — and while the session is down it is the
+BGP finite-state-machine word (`Idle`, `Active`, `Connect`, `OpenSent`, `OpenConfirm`). No IOS image prints
+the word `Established` in this table: Noction's state guide says it in as many words, *"you won't see the word
+'Established' in the output of the show … summary command: rather, you'll see the number of prefixes
+received from the neighbor"* ([Debugging BGP
+states](https://www.noction.com/blog/debugging-bgp-states)), and Dell's command reference for the field says
+the same ([`show ip bgp summary`](https://www.dell.com/support/manuals/en-lt/dell-emc-os-9/s4048t-on-9.14.2.6-cli-pub/show-ip-bgp-summary)).
+A box with no route to the peer reads `Idle` in that cell, which is the word Cisco's own troubleshooting
+capture shows for that case ([Troubleshoot BGP Basic
+Issues](https://www.cisco.com/c/en/us/support/docs/ip/border-gateway-protocol-bgp/218027-troubleshoot-border-gateway-protocol-bas.html)).
+The `Reason` column beside it is this console's own teaching aid and no box prints it; the columns between
+(`MsgRcvd`, `MsgSent`, `TblVer`, `InQ`, `OutQ`, `Up/Down`) are not modelled yet
+([research/show-ip-bgp-summary-state-cell.md](../research/show-ip-bgp-summary-state-cell.md)).
 
 A session needs a port that can **carry a frame**, not merely a port nobody shut. `_bgpReachable()` used to
 ask `enabled` and nothing else, so a session across an unplugged cable went on calling itself `Established`

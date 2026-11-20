@@ -1884,7 +1884,8 @@ class Simulator {
         .map(function (r) {
           return {
             address: r.peerIp, remoteAs: r.remoteAs, session: r.session,
-            state: r.state, established: r.established, code: r.code, reason: r.reason
+            state: r.state, established: r.established, code: r.code, reason: r.reason,
+            received: 0
           };
         });
     }
@@ -1986,6 +1987,20 @@ class Simulator {
     let sessions = 0;
     for (const s of speakers) {
       sessions += s.adj.length;
+      // How many prefixes this router received from each neighbour, counted now that the
+      // advertisement rounds have settled. A box's `State/PfxRcd` cell carries this number
+      // while the session is established - the cell is never the word "Established"
+      // (research/show-ip-bgp-summary-state-cell.md) - and it is counted from the candidate
+      // lists rather than from the installed table, because a prefix a peer sent and a better
+      // path from another peer won is still a prefix it sent.
+      const receivedByPeer = Object.create(null);
+      for (const key of Object.keys(s.cands || {})) {
+        for (const cand of s.cands[key]) {
+          if (!cand || !cand.fromIp) continue;
+          receivedByPeer[cand.fromIp] = (receivedByPeer[cand.fromIp] || 0) + 1;
+        }
+      }
+      for (const nb of (s.dev.bgpNeighbors || [])) nb.received = receivedByPeer[nb.address] || 0;
       const routes = [];
       for (const key of Object.keys(s.best)) {
         const e = s.best[key];

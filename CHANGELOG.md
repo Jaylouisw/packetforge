@@ -9,6 +9,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **`show ip bgp summary` prints the prefix count its last cell is for, not the word `Established`.** The
+  column is the box's `State/PfxRcd`, and a device puts a *number* there while the session is up — the
+  prefixes received from that neighbour — and the FSM word (`Idle`, `Active`, `Connect`, `OpenSent`,
+  `OpenConfirm`) while it is not: *"you won't see the word 'Established' in the output of the show … summary
+  command: rather, you'll see the number of prefixes received from the neighbor"*
+  ([Noction](https://www.noction.com/blog/debugging-bgp-states); Dell's field description says the same,
+  [`show ip bgp summary`](https://www.dell.com/support/manuals/en-lt/dell-emc-os-9/s4048t-on-9.14.2.6-cli-pub/show-ip-bgp-summary)).
+  This table printed `Established` on every live row, so a reader comparing it with a capture found a value no
+  box produces and could not answer the question the column is opened for: is my peer sending me anything?
+  `Simulator.computeBgp()` now counts, per neighbour, the prefixes that neighbour sent (from the candidate
+  lists, so a prefix a better path keeps out of the forwarding table is still counted — the same distinction
+  the `N more received, not installed` line already draws), and the cell prints that number; a down session
+  keeps `Idle`, the word Cisco's own capture shows for a peer with no route
+  ([Troubleshoot BGP Basic Issues](https://www.cisco.com/c/en/us/support/docs/ip/border-gateway-protocol-bgp/218027-troubleshoot-border-gateway-protocol-bas.html)).
+  The `Reason` column beside it, the `N of M neighbour(s) established` line and the prefix table are
+  unchanged, and the ten-column box layout (`MsgRcvd`, `MsgSent`, `TblVer`, `InQ`, `OutQ`, `Up/Down`) is not
+  invented — the model keeps none of those counters.
+  `test/bgp-summary-state-cell.test.js` (11 checks) pins the header, the count, the `Idle` cell and the
+  absence of the word in the table; `test/bgp-session.test.js` now measures the cell instead of the word, and
+  `docs/CLI.md`'s sample follows.
+  [research/show-ip-bgp-summary-state-cell.md](research/show-ip-bgp-summary-state-cell.md) has the captures,
+  the fault-to-word table and what is still open (the Adj-RIB-In boundary and the `Up/Down` formats).
+
 - **`show ip route` spells the port out, and separates it from the next hop with a comma.** The row printed the
   catalogue's panel name — `C 10.0.1.0/24 is directly connected, Gi0/0` — where every capture of this command
   writes the type word in full (`GigabitEthernet0/0`, `Ethernet2`, `Serial0/0/1`, `Tunnel0`), and it put two

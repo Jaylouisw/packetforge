@@ -172,7 +172,12 @@ console.log('\nAnd the box can tell you, in the command a technician would type:
   sim.reset();
   sim.computeBgp();
   const up = runCommands(lab.r1, lab.t, null, ['enable', 'show ip bgp summary']).lines.join('\n');
-  ok(/Established/.test(up), 'a live session reads Established');
+  // A live session reads a prefix count in the `State/PfxRcd` cell, never the word "Established"
+  // (research/show-ip-bgp-summary-state-cell.md) - the cell rule is pinned in
+  // test/bgp-summary-state-cell.test.js.
+  ok(!/Established/.test(up), 'a live session does not read Established');
+  ok(/State\/PfxRcd/.test(up), 'the cell is the box\'s State/PfxRcd');
+  ok(/10\.0\.12\.2\s+4\s+65002\s+(\d+)\s/.test(up), 'and carries a count of prefixes received');
   ok(/10\.0\.12\.2/.test(up), 'against the peer address');
   ok(/AS number 65001/.test(up), 'under the local AS');
 

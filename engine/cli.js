@@ -4721,10 +4721,12 @@ class CliSession {
   // ---------- show ----------
   // show ip bgp [summary]
   //
-  // The interesting column is State, and the interesting news is that it can be something
-  // other than Established. Before the session walk existed, every configured neighbour was
-  // Established by definition - which is the one thing a lab must not teach, because the
-  // whole skill is reading Active or OpenSent and knowing what it means.
+  // The interesting column is `State/PfxRcd`, and the interesting news is that it can be
+  // something other than a prefix count: a box prints the FSM word there while the session is
+  // not established. Before the session walk existed, every configured neighbour was
+  // established by definition - which is the one thing a lab must not teach, because the whole
+  // skill is reading Active or OpenSent and knowing what it means. The word "Established" is
+  // itself never printed in this cell (research/show-ip-bgp-summary-state-cell.md).
   // `show ip dns [zone [<name>]]`.
   //
   // `dns zone` and `dns add` have been writable since DNS was modelled, and `Simulator.resolveName()` answers
@@ -5309,13 +5311,37 @@ class CliSession {
     out.push('BGP router identifier ' + electedId +
       ', local AS number ' + cfg.as);
     out.push('');
-    out.push(pad('Neighbor', 17) + pad('V', 3) + pad('AS', 8) + pad('State', 16) + 'Reason');
+    // The last cell is the box's `State/PfxRcd`, and it carries two different kinds of value:
+    // while the session is established it is the *number of prefixes received* from that
+    // neighbour, and while it is not it is the finite-state-machine word (Idle, Active,
+    // Connect, OpenSent, OpenConfirm). A real box never prints the word "Established" in
+    // this table - "Note that you won't see the word 'Established' in the output of the show
+    // summary command: rather, you'll see the number of prefixes received from the neighbor"
+    // (https://www.noction.com/blog/debugging-bgp-states), and Dell's command reference for
+    // the same field says so in the field description: "If the neighbor is in Established
+    // stage, the number of network prefixes received ... If the neighbor is not in
+    // Established stage, the current stage is displayed"
+    // (https://www.dell.com/support/manuals/en-lt/dell-emc-os-9/s4048t-on-9.14.2.6-cli-pub/show-ip-bgp-summary).
+    // This table printed the word on every live row, so a reader comparing it with a capture
+    // found a value the box cannot produce, and could not answer the question the column is
+    // opened for: is my peer sending me anything? `State/PfxRcd` is the header the field
+    // actually carries (Cisco, "Understand Basic BGP Troubleshoot",
+    // https://cisco.com/c/en/us/support/docs/ip/border-gateway-protocol-bgp/220604-understand-basic-bgp-troubleshoot.html).
+    // The down-state word stays `Idle`: every way this model refuses a session (a link that
+    // cannot carry a frame, a shut far port, no neighbour statement) leaves the box waiting
+    // to retry, and Cisco's own capture of a peer with "no connected route peer or no route
+    // at all" reads `never  Idle`
+    // (https://www.cisco.com/c/en/us/support/docs/ip/border-gateway-protocol-bgp/218027-troubleshoot-border-gateway-protocol-bas.html).
+    // The `Reason` column beside it is this console's own teaching aid and no box prints it;
+    // what the box has in the columns between (`MsgRcvd`, `MsgSent`, `TblVer`, `InQ`, `OutQ`,
+    // `Up/Down`) is not modelled (research/show-ip-bgp-summary-state-cell.md).
+    out.push(pad('Neighbor', 17) + pad('V', 3) + pad('AS', 8) + pad('State/PfxRcd', 16) + 'Reason');
     if (!rows.length) {
       out.push('(no neighbours have been evaluated yet - run a simulation)');
     } else {
       for (const r of rows) {
         out.push(pad(r.address, 17) + pad('4', 3) + pad(String(r.remoteAs == null ? '?' : r.remoteAs), 8) +
-          pad(r.established ? 'Established' : 'Idle', 16) +
+          pad(r.established ? String(r.received == null ? 0 : r.received) : 'Idle', 16) +
           (r.established ? (r.session === 'ibgp' ? 'iBGP' : 'eBGP') : (r.reason || r.code || '')));
       }
     }
