@@ -230,5 +230,35 @@ console.log('No other `show` command in the console silently drops a tail');
 }
 
 console.log('');
+console.log('`show ipv6 nd` refuses the words that are config commands, not views');
+{
+  // `show ipv6 nd` answered every tail with the same block. Two of the words it dropped are commands the
+  // operator had already typed in this very mode - `ipv6 nd prefix <prefix>/<len>` and `ipv6 nd ra ...` - so
+  // `show ipv6 nd prefix`, the obvious way to ask "which prefixes am I advertising", printed the whole
+  // advertisement and said nothing about the word it ignored. Same drop, same class as #1403/#2097: the
+  // answer is not a refusal, it is a table that answers a different question than the one typed.
+  const t3 = new Topology();
+  t3.addDevice(pick('ISR 4331'), 'nd1');
+  const sim3 = new Simulator(t3);
+  const nd = function (cmd) {
+    const s = new CliSession(t3.getDevice('nd1'), t3, sim3);
+    s.run('enable');
+    for (const c of ['configure terminal', 'hostname ND1', 'ip routing',
+      'interface Gi0/0/0', 'ip address 10.7.0.1 255.255.255.0',
+      'ipv6 address 2001:db8:7::1/64', 'ipv6 nd prefix 2001:db8:7::/64', 'exit', 'end']) s.run(c);
+    return (s.run(cmd).output || []).join('\n');
+  };
+  const whole = nd('show ipv6 nd');
+  ok(/2001:db8:7::\/64/.test(whole), 'the report has a prefix in it, so a drop is visible', whole.split('\n')[0]);
+  for (const word of ['prefix', 'ra', 'ZZZNOPE']) {
+    const out = nd('show ipv6 nd ' + word);
+    ok(isRefusal(out), 'refused: show ipv6 nd ' + word, out.split('\n').slice(0, 2).join(' | '));
+    ok(out.indexOf('"' + word + '"') !== -1, 'quoting the word typed: "' + word + '"', out);
+    ok(out.indexOf('show ipv6 nd') !== -1, 'naming the command that prints it', out);
+    ok(out.split('\n').length === 1, 'one line, not a table: show ipv6 nd ' + word, String(out.split('\n').length));
+  }
+}
+
+console.log('');
 console.log(passed + ' passed, ' + failed + ' failed');
 process.exit(failed ? 1 : 0);

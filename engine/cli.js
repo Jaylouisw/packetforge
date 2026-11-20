@@ -6561,6 +6561,15 @@ class CliSession {
     } else if (what === 'ipv6' && (!tokens[1] || tokens[1] === '?')) {
       out.push.apply(out, showIpv6Usage());
     } else if (what === 'ipv6' && tokens[1] === 'nd') {
+      // `show ipv6 nd <word>` printed the whole advertisement and dropped the word. The two words an operator is
+      // most likely to type - `prefix` and `ra` - are commands they have already typed in config mode, so asking
+      // "which prefixes am I advertising" with `show ipv6 nd prefix` looked like it had been answered by the
+      // Prefixes block below, while a typo looked like a complete answer too. Every other view that takes no
+      // argument refuses the tail (showNoTail, #1403/#2097); this one was the last that did not.
+      if (tokens.length > 2) {
+        return showNoTail('show ipv6 nd', tokens.slice(2), 'the whole advertisement is printed',
+          'the Prefixes block lists every prefix it would advertise, and the Interfaces line names their ports');
+      }
       out.push.apply(out, this._showIpv6Nd());
     } else if (what === 'power' && (tokens[1] || '').toLowerCase() === 'inline') {
       out.push.apply(out, this._showPowerInline(tokens.slice(2)));

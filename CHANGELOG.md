@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **`show ipv6 nd` swallowed every word after it.** The view takes no argument, so it printed the whole
+  advertisement whatever followed - including the two words the operator has already typed in this very mode.
+  `show ipv6 nd prefix`, the obvious way to ask which prefixes the box advertises, answered with the full block
+  and never mentioned the word it had dropped, and a typo read as a complete answer too. It was the last `show`
+  view that dropped a tail: every sibling refuses it through `showNoTail` (#1403, #2097). It now refuses the
+  word by name, says what it does print, and points at the `Prefixes` block and `Interfaces` line that answer
+  the narrower question. `test/show-argument-refusal.test.js` gains 13 checks; the two `cli.js:7744` citations
+  in `docs/BGP-POLICY.md` were re-pointed to `_help()` now that the line moved.
 - **`interface range` is a command the box has, and the console called it a missing port.** A Catalyst takes
   `interface range {port-range | macro macro_name}`, enters `(config-if-range)#`, and applies each line typed
   there to every port in the range - `Device(config)# interface range tengigabitethernet 1/1/1-2` then
