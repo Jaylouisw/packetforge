@@ -2374,6 +2374,38 @@ table. A number that names no group leaves the furniture standing with no row, t
 prints. `research/show-etherchannel-group-summary.md` carries the captures and the two things left open (a
 number naming no group, and a number outside the platform's range).
 
+#### The first member creates the interface
+
+`channel-group` is not only a membership command: on a box it is the command that *builds* the bundle, and it
+says so in one line before anything else:
+
+```
+sw1(config)#interface Gi1/0/1
+sw1(config-if)#channel-group 1 mode active
+Creating a port-channel interface Port-channel 1
+Interface Gi1/0/1 added to channel group 1 (mode active)
+sw1(config-if)#interface Gi1/0/2
+sw1(config-if)#channel-group 1 mode active
+Interface Gi1/0/2 added to channel group 1 (mode active)
+```
+
+The vendor states the rule for the command - "This command automatically creates the port-channel logical
+interface when the channel group gets its first physical port" (Cisco, *Catalyst 2960 and 2960-S Software
+Configuration Guide*, 12.2(55)SE, "Port-Channel Interfaces") - and a 2955 transcript shows the other half of it:
+the receipt on the first member, and no receipt on the second (Cisco, doc 23408). The line belongs
+to the *interface*, not to the command, so a member joining a group that already exists prints only the
+console's own confirmation, and a command that is refused prints no receipt at all.
+
+The spacing is the vendor's, and it disagrees with the interface's own name: the creation line says
+`Port-channel 1`, while `show ip interface brief`, the syslog line for the same interface and
+`show running-config` all spell it `Port-channel1` (doc 23408 prints both in one transcript). A 12.1 Catalyst
+2950 printed the receipt without the space; the 15.x captures have it, and this console follows them
+(`research/channel-group-creating-receipt.md` carries the sources and the variance).
+
+One difference is the model's rather than the box's: this console's bundle exists only while it has members, so
+emptying a group and refilling it prints the creation line again. A box keeps `interface Port-channel1` until
+`no interface port-channel 1`.
+
 #### A member that negotiated nothing is not in the bundle
 
 A `passive` port answers LACP and never starts it, so two passive ends wait for a partner that neither of them

@@ -66,6 +66,18 @@ function portChannelIfaceName(id) {
   return 'Port-channel' + id;
 }
 
+// The line a box prints on the command that *builds* the bundle - `Creating a port-channel interface
+// Port-channel 1` - and on no other command.
+//
+// The vendor inserts a space between the type and the number here, and nowhere else: the interface this line
+// names is spelled `Port-channel1` in `show ip interface brief`, in a syslog line and in `show running-config`.
+// So the sentence is not `portChannelIfaceName()` with a prefix in front of it, and it is built here rather
+// than in the console, so the one place that knows how a bundle is named also knows the one sentence whose
+// spacing disagrees with it (research/channel-group-creating-receipt.md).
+function createReceipt(id) {
+  return 'Creating a port-channel interface Port-channel ' + id;
+}
+
 // The inverse of the two above: a bundle's id, read back from a name an operator typed.
 //
 // A box accepts every spelling of its own interface name - `show interfaces port-channel 1`, and the short
@@ -514,6 +526,7 @@ module.exports = {
   cliMode,
   portChannelName,
   portChannelIfaceName,
+  createReceipt,
   bundleIdFromName,
   HASH_POLICIES,
   normalizeLag,

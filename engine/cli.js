@@ -3662,6 +3662,14 @@ class CliSession {
     }
     const g = existing || { mode: mode, hashPolicy: 'l2', members: [] };
     const out = [];
+    // A box builds the bundle on the command that gives the group its **first** port, and prints one line for
+    // it before anything else: `Creating a port-channel interface Port-channel 1`. The second member joins
+    // without a receipt, because the interface it would create already exists (Cisco doc 23408 prints exactly
+    // that pair - two `channel-group 1 mode active` lines, one receipt). So the line belongs to the creation,
+    // not to the command: a group that already exists prints nothing, and a refused join must not print it
+    // either, which is why it is pushed here, after every refusal above and not before them.
+    // research/channel-group-creating-receipt.md.
+    if (!existing) out.push(lagLib.createReceipt(id));
     if (existing && existing.mode && existing.mode !== mode) {
       // A group is one object: its mode belongs to every member. Changing it from one port silently rewrote
       // what the other ports were configured with, and `show running-config` quietly reprinted them all with
