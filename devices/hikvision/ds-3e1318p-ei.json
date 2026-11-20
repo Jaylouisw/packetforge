@@ -3,7 +3,7 @@
   "model": "ds-3e1318p-ei",
   "label": "Hikvision DS-3E1318P-EI (16-port fast ethernet smart PoE switch)",
   "category": "switch",
-  "description": "Hikvision 16-port fast-ethernet smart-managed PoE switch: 16x 100M PoE+ (130 W budget), 1x 1G uplink, 1x 1G combo.",
+  "description": "Hikvision 16-port fast-ethernet smart-managed PoE switch: 16x 100M PoE+ (230 W budget) plus 2x 1G combo uplinks.",
   "capabilities": [
     "l2-forward",
     "poe-pse",
@@ -205,18 +205,17 @@
       "poeOutClass": "PoE+"
     },
     {
-      "name": "ge-uplink",
+      "name": "combo1",
       "type": "ethernet",
-      "connector": "rj45",
+      "connector": "combo",
       "speed": "1G",
       "speedCaps": [
         1000,
-        100,
-        10
+        100
       ]
     },
     {
-      "name": "combo1",
+      "name": "combo2",
       "type": "ethernet",
       "connector": "combo",
       "speed": "1G",
@@ -226,5 +225,10 @@
       ]
     }
   ],
-  "notes": "Vendor figures from the DS-3E1318P-EI datasheet: **16 x 10/100 Mbps PoE ports, 1 x gigabit RJ45, 1 x gigabit combo**, **total PoE budget 130 W**, 802.3at/af, VLAN, PoE watchdog, 300 m long-range PoE. **130 W across sixteen ports is 8.1 W average**: it is sized for sixteen fixed cameras, not for PTZ or heater loads."
+  "poe": {
+    "budgetW": 230,
+    "sourceUrl": "https://www.hikvision.com/content/dam/hikvision/products/S000000001/S000000048/S000000068/S000005201/OFR011808/M000034940/Data_Sheet/DS-3E1318P-EI_Datasheet_20240428.pdf"
+  },
+  "notes": "Vendor figures from the DS-3E1318P-EI datasheet (2024-04-28, covering DS-3E1318P-EI / V2 / (B)): **16 x 10/100 Mbps PoE ports, 2 x gigabit combos**, 802.3at/af, **total PoE budget 230 W**, max power consumption 250 W (10 W idle), VLAN, PoE watchdog, 300 m long-range PoE. **230 W across sixteen ports is 14.4 W average**: seven 30 W devices fit. The **DS-3E1318P-EI/M** is a different chassis - 1 x gigabit RJ45 + 1 x gigabit combo and a **130 W** budget - and those /M figures, panel included, are what this entry carried until 2026-11-20.",
+  "sourceUrl": "https://www.hikvision.com/content/dam/hikvision/products/S000000001/S000000048/S000000068/S000005201/OFR011808/M000034940/Data_Sheet/DS-3E1318P-EI_Datasheet_20240428.pdf"
 }

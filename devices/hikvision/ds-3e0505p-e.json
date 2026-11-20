@@ -75,5 +75,10 @@
       ]
     }
   ],
-  "notes": "Vendor figures from the DS-3E0505P-E datasheet: **4 x 10/100/1000 Mbps ethernet ports plus 1 x 10/100/1000 Mbps uplink port**, 802.3af/at, **PoE power budget 60 W** (30 W per port), max consumption 5 W. **60 W across four ports is 15 W average** - and it is more PoE budget than the eight-port DS-3E0510P-E carries."
+  "poe": {
+    "budgetW": 60,
+    "sourceUrl": "https://assets.hikvision.com/prd/public/all/doc/m000008118/DS-3E0505P-E_Datasheet_20240308.pdf"
+  },
+  "notes": "Vendor figures from the DS-3E0505P-E datasheet (2024-03-08): **4 x 10/100/1000 Mbps ethernet ports plus 1 x 10/100/1000 Mbps uplink port**, 802.3af/at, **PoE power budget 60 W** (30 W per port), max power consumption 65 W, 5 W idle. **60 W across four ports is 15 W average** - and the DS-3E0505P-E/M is the same chassis on a smaller supply with a 35 W budget, so the suffix is the difference between two 30 W ports and none.",
+  "sourceUrl": "https://assets.hikvision.com/prd/public/all/doc/m000008118/DS-3E0505P-E_Datasheet_20240308.pdf"
 }

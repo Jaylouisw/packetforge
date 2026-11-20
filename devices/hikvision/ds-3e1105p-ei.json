@@ -71,5 +71,10 @@
       ]
     }
   ],
-  "notes": "Vendor figures from the DS-3E1105P-EI datasheet: **4 x 10/100 Mbps PoE ports and 1 x 10/100 Mbps RJ45**, **total PoE budget 60 W**, 6 kV surge protection, PoE watchdog, **\"up to 300 m long-range PoE\"**. **Every port is fast ethernet** - 100 Mbps is fine for a camera and wrong for anything that also carries a trunk."
+  "poe": {
+    "budgetW": 60,
+    "sourceUrl": "https://www.hikvision.com/content/dam/hikvision/usa/data-sheet/DS-3E1105P-EI-DataSheet.pdf"
+  },
+  "notes": "Vendor figures from the DS-3E1105P-EI datasheet (Hikvision USA, 2021): **4 x 10/100 Mbps PoE ports and 1 x 10/100 Mbps RJ45**, **total PoE budget 60 W** (30 W per port), max power consumption 65 W, 6 kV surge protection, PoE watchdog, **\"up to 300 m long-range PoE\"**. **Every port is fast ethernet** - 100 Mbps is fine for a camera and wrong for anything that also carries a trunk. The DS-3E1105P-EI/M is the 45 W build with the same panel.",
+  "sourceUrl": "https://www.hikvision.com/content/dam/hikvision/usa/data-sheet/DS-3E1105P-EI-DataSheet.pdf"
 }

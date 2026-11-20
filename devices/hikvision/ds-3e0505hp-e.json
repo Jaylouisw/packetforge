@@ -3,7 +3,7 @@
   "model": "ds-3e0505hp-e",
   "label": "Hikvision DS-3E0505HP-E (4-port PoE with 60 W Hi-PoE)",
   "category": "switch",
-  "description": "Hikvision 4-port gigabit unmanaged PoE switch: 3x 1G PoE+ (30 W) + 1x 1G Hi-PoE (802.3bt, 60 W) plus 1x 1G uplink, 65 W total.",
+  "description": "Hikvision 4-port gigabit unmanaged PoE switch: 3x 1G PoE+ (30 W) + 1x 1G Hi-PoE (802.3bt, 60 W) plus 1x 1G uplink, 60 W PoE budget.",
   "capabilities": [
     "l2-forward",
     "poe-pse",
@@ -76,5 +76,10 @@
       ]
     }
   ],
-  "notes": "Vendor figures from the DS-3E0505HP-E datasheet: **3 x gigabit PoE ports, 1 x gigabit Hi-PoE port and 1 x gigabit RJ45 uplink**, **port 1 is Hi-PoE: 802.3af/at/bt, 60 W max**; ports 2-4 are 802.3af/at, 30 W; total **65 W**. **The Hi-PoE port is the reason to buy it** - 60 W on port 1 runs a PTZ dome or a heated camera that 802.3at cannot start, and the 65 W total means running it at full draw leaves ~5 W for everything else."
+  "poe": {
+    "budgetW": 60,
+    "sourceUrl": "https://assets.hikvision.com/prd/public/all/doc/m000011310/DS-3E0505HP-E_Datasheet_20240315.pdf"
+  },
+  "notes": "Vendor figures from the DS-3E0505HP-E datasheet (2024-03-15): **3 x gigabit PoE ports, 1 x gigabit Hi-PoE port and 1 x gigabit RJ45 uplink**, **port 1 is Hi-PoE: 802.3af/at/bt, 60 W max**; ports 2-4 are 802.3af/at, 30 W; **PoE power budget 60 W**, max power consumption 65 W (5 W idle). **60 W, not 65 W, is the PSE allocation** - 65 W is what the whole box draws, so quoting it as budget would hand out 5 W the supply does not have. **The Hi-PoE port is the reason to buy it** - 60 W on port 1 runs a PTZ dome or a heated camera that 802.3at cannot start, and taking the full 60 W there leaves nothing for the other three ports.",
+  "sourceUrl": "https://assets.hikvision.com/prd/public/all/doc/m000011310/DS-3E0505HP-E_Datasheet_20240315.pdf"
 }

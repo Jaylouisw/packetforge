@@ -240,5 +240,10 @@
       ]
     }
   ],
-  "notes": "Vendor figures from the DS-3E0518P-E datasheet: **16 x 10/100/1000 Mbps PoE ports, 1 x gigabit RJ45 uplink, 1 x gigabit SFP**, 802.3af/at, **PoE budget 230 W**, max consumption 20 W, 6 kV surge protection. **230 W across sixteen ports is 14 W average** - seven 30 W devices fit, eight do not."
+  "poe": {
+    "budgetW": 230,
+    "sourceUrl": "https://www.hikvision.com/content/dam/hikvision/products/S000000001/S000000048/S000000068/S000000071/OFR000107/M000008120/Data_Sheet/DS-3E0518P-E_Datasheet_20240307.pdf"
+  },
+  "notes": "Vendor figures from the DS-3E0518P-E datasheet (2024-03-07): **16 x 10/100/1000 Mbps PoE ports, 1 x gigabit RJ45 uplink, 1 x gigabit SFP**, 802.3af/at, **PoE budget 230 W**, max power consumption 250 W (20 W idle), 6 kV surge protection. **230 W across sixteen ports is 14 W average** - seven 30 W devices fit, eight do not. The DS-3E0518P-E/M is the 125 W build: half the budget behind the same port count.",
+  "sourceUrl": "https://www.hikvision.com/content/dam/hikvision/products/S000000001/S000000048/S000000068/S000000071/OFR000107/M000008120/Data_Sheet/DS-3E0518P-E_Datasheet_20240307.pdf"
 }

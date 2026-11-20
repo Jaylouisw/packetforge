@@ -3,7 +3,7 @@
   "model": "ds-3e0510p-e",
   "label": "Hikvision DS-3E0510P-E (8-port gigabit PoE switch)",
   "category": "switch",
-  "description": "Hikvision 8-port gigabit unmanaged PoE switch: 8x 1G PoE+ (58 W budget), 1x 1G uplink, 1x 1G SFP.",
+  "description": "Hikvision 8-port gigabit unmanaged PoE switch: 8x 1G PoE+ (110 W budget), 1x 1G uplink, 1x 1G SFP.",
   "capabilities": [
     "l2-forward",
     "poe-pse",
@@ -136,5 +136,10 @@
       ]
     }
   ],
-  "notes": "Vendor figures from the DS-3E0510P-E datasheet: **8 x gigabit PoE ports, 1 x gigabit RJ45 uplink, 1 x gigabit SFP**, 802.3af/at, **PoE budget 58 W**, max consumption 7 W. **58 W across eight powered ports is 7.25 W average** - two 30 W 802.3at devices and it is done. Note it carries **less** budget than the four-port DS-3E0505P-E (60 W): more ports does not mean more power in this range."
+  "poe": {
+    "budgetW": 110,
+    "sourceUrl": "https://assets.hikvision.com/prd/public/all/doc/m000008119/DS-3E0510P-E_Datasheet_20240308.pdf"
+  },
+  "notes": "Vendor figures from the DS-3E0510P-E datasheet (2024-03-08): **8 x gigabit PoE ports, 1 x gigabit RJ45 uplink, 1 x gigabit SFP**, 802.3af/at, **PoE power budget 110 W**, max power consumption 120 W (10 W idle). **110 W across eight ports is 13.75 W average** - three 30 W 802.3at devices fit, four do not. The **DS-3E0510P-E/M** is the 58 W build of the same chassis: 58 W belongs to that SKU, not to this one, and this entry carried it until 2026-11-20.",
+  "sourceUrl": "https://assets.hikvision.com/prd/public/all/doc/m000008119/DS-3E0510P-E_Datasheet_20240308.pdf"
 }

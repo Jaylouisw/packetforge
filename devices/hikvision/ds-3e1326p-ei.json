@@ -321,5 +321,10 @@
       ]
     }
   ],
-  "notes": "Vendor figures from the DS-3E1326P-EI datasheet: **24 x 10/100 Mbps PoE ports, 2 x gigabit combo uplinks, total PoE budget 370 W**, 802.3at/af, PoE watchdog, VLAN, STP/RSTP. **The budget is nearly three times the 16-port DS-3E1318P-EI's 130 W** while the ports are still fast ethernet - the money went into power, not into speed."
+  "poe": {
+    "budgetW": 370,
+    "sourceUrl": "https://www.hikvision.com/content/dam/hikvision/products/S000000001/S000000048/S000000068/S000005201/OFR004644/M000034939/Data_Sheet/Datasheet-of-DS-1326P-EI-Smart-Managed-24-Port-100-Mbps-PoE-Switch_20200331.pdf"
+  },
+  "notes": "Vendor figures from the DS-3E1326P-EI datasheet (2020-03-31, still the model-specific sheet): **24 x 10/100 Mbps PoE ports, 2 x gigabit combo uplinks, total PoE budget 370 W**, 30 W per port, 802.3at/af, PoE watchdog, VLAN, STP/RSTP, max power consumption 400 W. **The budget is 1.6 times the 16-port DS-3E1318P-EI's 230 W** while every access port is still fast ethernet - the money went into power, not into speed.",
+  "sourceUrl": "https://www.hikvision.com/content/dam/hikvision/products/S000000001/S000000048/S000000068/S000005201/OFR004644/M000034939/Data_Sheet/Datasheet-of-DS-1326P-EI-Smart-Managed-24-Port-100-Mbps-PoE-Switch_20200331.pdf"
 }
