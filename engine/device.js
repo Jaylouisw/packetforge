@@ -854,8 +854,10 @@ class Device {
   // A neighbour survives silence only as long as the TTL it advertised. IEEE 802.1AB's Time To Live TLV is "the
   // number of seconds that the recipient LLDP agent is to regard the information associated with this MSAP
   // identifier to be valid" (8.5.4), and a sender that stops announcing is dropped when it lapses; Cisco's
-  // defaults are `lldp timer` 30 s and `lldp holdtime` 120 s, and its `show lldp neighbors` prints the time left
-  // as `Hold-time`. This table had no instant at all, so a neighbour whose port was shut stayed listed for ever -
+  // defaults are `lldp timer` 30 s and `lldp holdtime` 120 s, and IOS repeats that advertised number in the
+  // `Hold-time` column of `show lldp neighbors` - the time *left*, counted down, is the detail view's
+  // `Time remaining` field, which IOS prints instead of a hold time at all (research/lldp-hold-time-column.md).
+  // This table had no instant at all, so a neighbour whose port was shut stayed listed for ever -
   // at any instant asked of it, five times its TTL later, it still named a device that had not announced itself
   // since. `nowMs` is the instant the question is asked at; when the caller has no clock, or the entry carries no
   // reception instant, the row is printed unaged rather than aged against a guess, which is the rule
