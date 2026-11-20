@@ -22,7 +22,7 @@ Modes and their prompts:
 | `enable` | enter enable mode |
 | `configure terminal` | enter config mode, answering with the box's one-line greeting; abbreviable word by word, down to what is still unique - `config t` is accepted, `con` is refused as ambiguous (`configure` / `converge`), and a bare `configure` is `% Incomplete command` |
 | `show version` | vendor, model, category, capabilities |
-| `show ip interface brief` | interface IP / status table (status = whether the port can carry a frame), one row per **data** port and one per EtherChannel bundle (`Port-channel1`, `unassigned YES unset`, `up` only when a member is in it); a console or aux socket is a line, not an interface, and has no row (`research/console-is-a-line-not-an-interface.md`) |
+| `show ip interface brief` | interface IP / status table (status = whether the port can carry a frame), one row per **data** port, one per subinterface directly under the port it rides on (`GigabitEthernet0/0/0`, then `GigabitEthernet0/0/0.10`, before the next socket - `research/interface-brief-subinterface-order.md`), and one per EtherChannel bundle (`Port-channel1`, `unassigned YES unset`, `up` only when a member is in it); a console or aux socket is a line, not an interface, and has no row (`research/console-is-a-line-not-an-interface.md`) |
 | `show ip route` | routing table: connected, static, OSPF, BGP, and the default - or `Gateway of last resort is not set` when there is none; a box that does not route prints `Default gateway is ...` over the host/redirect cache instead |
 | `show arp` | ARP cache: the neighbours it has heard, with an age and the port each was heard on and whether that port can still carry a frame, plus a local row (age `-`) for every interface holding an IPv4 address |
 | `show mac address-table` | MAC table (switches), per VLAN, with an age per entry and stale entries marked, the box's twenty reserved `All … CPU` rows above the learned ones, titled and ruled as the device prints it and closed by `Total Mac Addresses for this criterion: N`; an address learned through a bundle is named on the port-channel (`Po1`), as the device names it (`research/mac-table-port-channel-name.md`) |
@@ -904,6 +904,26 @@ kept before a lease arrives because asking is a method — a client that has not
 the saved configuration — is not distinct here: this model keeps one configuration, so a static address reads
 `manual` whether or not the board has been saved.
 
+**A subinterface has a row, directly under the port it rides on.** The table walks the interface list in
+the device's own order and prints a child immediately after its parent, before the next socket — the order a
+box prints, and the order `show interfaces` prints. On a router-on-a-stick whose `Gi0/0/0` is cabled:
+
+```
+r1#show ip interface brief
+Interface              IP-Address      OK? Method Status                Protocol
+GigabitEthernet0/0/0   unassigned      YES unset  up                    up
+GigabitEthernet0/0/0.10 10.10.0.1       YES manual up                    up
+GigabitEthernet0/0/0.20 10.20.0.1       YES manual up                    up
+GigabitEthernet0/0/1   unassigned      YES unset  down                  down
+GigabitEthernet0/0/2   unassigned      YES unset  down                  down
+```
+
+Both views iterate one walk (`orderWithChildren` in `engine/cli.js`), so they cannot order one list two ways.
+This table used to append every subinterface after every physical port, one screen away from the port it
+rides on, which no box prints (`research/interface-brief-subinterface-order.md`,
+`test/interface-brief-subinterface-order.test.js`). A child that cannot be placed — an orphan whose parent is
+not in the list — is still printed, at the end: a row that cannot be ordered is not a row to hide.
+
 **An EtherChannel is an interface, and it has a row.** A bundle's members are listed as their own ports, and
 the bundle itself is listed too — after them, in bundle-number order — as `Port-channel1` with
 `unassigned  YES unset`, and `up up` only when at least one member is really in the bundle:
@@ -963,8 +983,8 @@ invented for an RS-232 socket), and not an `interface Console` stanza in `show r
 console is a **line** — `show running-config` writes `line con 0` / `line aux 0`, the box's own line view (which
 this console does not have) reports it as `0 CTY` beside the aux port's `129 AUX 9600/9600`, and it runs at
 9600 baud, 8 data bits, 1 stop bit, no parity. A
-box's `show ip interface brief` on a router that has a console lists its Ethernet, serial, loopback and
-bundle ports and nothing else. Asking this console for the socket by name answers in one sentence:
+box's `show ip interface brief` on a router that has a console lists its Ethernet, serial, loopback,
+subinterface and bundle ports and nothing else. Asking this console for the socket by name answers in one sentence:
 
 ```
 Catalyst 2811# show interfaces Console
