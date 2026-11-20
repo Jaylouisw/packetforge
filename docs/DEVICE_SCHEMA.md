@@ -207,11 +207,21 @@ generating a template from observed names, `addDevice()`, an audit — went thro
 | `speedCaps` | the rates the cage actually accepts, as Mbps. A `sfp+` that also takes 1G is `[1000, 10000]`. |
 | `poeIn` | watts this port draws, as a **number**. `true` is wrong — 12.95 and 25.5 are different devices. |
 | `poeOut` | `true` when this port sources power. |
-| `poeOutClass` | `PoE` / `PoE+` / `PoE++` — the standard this port sources. |
+| `poeOutClass` | the class this port sources, in the vendor's words: `PoE` (802.3af), `PoE+` (802.3at), `PoE++` (802.3bt Type 3), `PoE+++` (Type 4) or `passive` - a fixed-voltage vendor class (24/27/54 V), not an IEEE standard. Kept verbatim; nothing in the engine reads it (see below). |
 | `cage`, `comboWith`, `comboRole`, `dualRole` | preserved verbatim; they describe shared cages and switchable ports. |
 
 Anything unrecognised on an interface is **preserved**, not dropped: a field a later version of
 the engine learns to read is better kept than lost at import time.
+
+The class is a record, not a rule. `derivePortHardware()` (`engine/media.js`) builds a port's `hardware`
+from `poeOut`, `poeIn`, the cage and the speed caps and **drops** `poeOutClass`, so the string never
+reaches a view: it is what the datasheet said about this port, and its vocabulary is the catalogue's
+rather than a validator's. It is wider than the four standards today - 261 ports declare `PoE+++`
+(`devices/ubiquiti/ecs-24-poe.json`), 74 across 26 specs declare `passive`
+(`devices/ubiquiti/uisp-r.json`), and 36 write the parenthesised `PoE+ (802.3at)`. Spelling a passive
+port `PoE` is not a cosmetic slip: 802.3af is a negotiated 48 V standard and a 24 V passive port does
+not speak it, which is the pair of faults `test/uisp-r-poe.test.js` and `test/ep-s16-poe.test.js` were
+written for.
 
 ## Serial consoles, USB, FXS
 
