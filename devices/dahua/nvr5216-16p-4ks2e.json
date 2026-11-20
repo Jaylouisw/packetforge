@@ -9,7 +9,10 @@
     "dhcp-client",
     "http-server",
     "dhcp-server",
-    "l2-forward"
+    "l2-forward",
+    "poe-pse",
+    "802.3af",
+    "802.3at"
   ],
   "interfaces": [
     {
@@ -115,7 +118,9 @@
     }
   ],
   "poe": {
-    "budgetW": 130
+    "budgetW": 130,
+    "sourceUrl": "https://www.dahuasecurity.com/asset/upload/product/20180201/DHI-NVR5216_5232-16P-4KS2E_Datasheet_20180201.pdf",
+    "note": "Dahua datasheet DHI-NVR5216/32-16P-4KS2E: \"PoE 16 ports (IEEE802.3af/at), 1-8 ports support ePoE & EoC\"; \"PoE: Max 25.5W for single port\", \"130W total rated power, 80% control for protection\". The 130 W is the rated figure the 80% limiter is applied to, so a lab that plans 16 x 25.5 W = 408 W of draw is planning against a supply it does not have. Replaces the reseller-hosted copy of this datasheet the row used to cite."
   },
-  "sourceUrl": "https://rxtx.com.au/wp-content/uploads/2023/03/Dahua-DHI-NVR5216-16P-4KS2E-Datasheet.pdf"
+  "sourceUrl": "https://www.dahuasecurity.com/asset/upload/product/20180201/DHI-NVR5216_5232-16P-4KS2E_Datasheet_20180201.pdf"
 }

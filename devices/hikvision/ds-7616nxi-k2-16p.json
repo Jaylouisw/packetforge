@@ -9,7 +9,10 @@
     "http-server",
     "dhcp-client",
     "dhcp-server",
-    "l2-forward"
+    "l2-forward",
+    "poe-pse",
+    "802.3af",
+    "802.3at"
   ],
   "interfaces": [
     {
@@ -20,83 +23,121 @@
     {
       "name": "PoE 1",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "PoE 2",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "PoE 3",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "PoE 4",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "PoE 5",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "PoE 6",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "PoE 7",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "PoE 8",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "PoE 9",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "PoE 10",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "PoE 11",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "PoE 12",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "PoE 13",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "PoE 14",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "PoE 15",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "PoE 16",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
     }
   ],
-  "sourceUrl": "https://www.hikvision.com/content/dam/hikvision/products/S000000001/S000000132/S000000007/S000000026/OFR031212/M000141849/Data_Sheet/Datasheet-of-DS-7616NXI-K2_16PD_20240523.pdf"
+  "sourceUrl": "https://www.hikvision.com/content/dam/hikvision/products/S000000001/S000000132/S000000007/S000000026/OFR031212/M000141849/Data_Sheet/Datasheet-of-DS-7616NXI-K2_16PD_20240523.pdf",
+  "poe": {
+    "budgetW": 200,
+    "sourceUrl": "https://www.hikvision.com/content/dam/hikvision/products/S000000001/S000000132/S000000007/S000000026/OFR031212/M000141849/Data_Sheet/Datasheet-of-DS-7616NXI-K2_16PD_20240523.pdf",
+    "note": "Datasheet of DS-7616NXI-K2/16P (D) (2024-05-23): \"PoE Interface 16, RJ-45 10/100 Mbps self-adaptive Ethernet interface\", \"Power <= 200 W\", \"Standard IEEE 802.3af/at\"; LAN is \"1 RJ-45 10/100/1000 Mbps self-adaptive Ethernet interface\". Same 200 W as the DS-7616NI-K2/16P it supersedes, on the same sixteen 10/100 camera ports. Read 2026-11-20 (200, application/pdf, 987,036 B, 5 pp)."
+  },
+  "notes": "PoE out: sixteen 10/100 Mbps camera ports, 802.3af/at, on a 200 W aggregate budget (datasheet \"Power <= 200 W\"); 16 x 30 W of 802.3at ceiling is 480 W, so the supply is the limit. The PoE ports are plug-and-play on the recorder's own subnet, so a camera is not routable from the LAN unless the uplink is bridged. Wired only, no PoE input."
 }

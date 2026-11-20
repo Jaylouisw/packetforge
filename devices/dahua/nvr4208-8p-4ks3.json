@@ -9,7 +9,10 @@
     "http-server",
     "dhcp-client",
     "dhcp-server",
-    "l2-forward"
+    "l2-forward",
+    "poe-pse",
+    "802.3af",
+    "802.3at"
   ],
   "interfaces": [
     {
@@ -20,43 +23,57 @@
     {
       "name": "PoE 1",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "poeOut": 25.5
     },
     {
       "name": "PoE 2",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "poeOut": 25.5
     },
     {
       "name": "PoE 3",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "poeOut": 25.5
     },
     {
       "name": "PoE 4",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "poeOut": 25.5
     },
     {
       "name": "PoE 5",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "poeOut": 25.5
     },
     {
       "name": "PoE 6",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "poeOut": 25.5
     },
     {
       "name": "PoE 7",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "poeOut": 25.5
     },
     {
       "name": "PoE 8",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "poeOut": 25.5
     }
   ],
-  "sourceUrl": "https://www.dahuasecurity.com/products/network-products/network-recorders/Lite-Series/NVR4-4KS3-Series/2HDD/NVR4208-8P-4KS3"
+  "sourceUrl": "https://www.dahuasecurity.com/products/network-products/network-recorders/Lite-Series/NVR4-4KS3-Series/2HDD/NVR4208-8P-4KS3",
+  "poe": {
+    "budgetW": 130,
+    "sourceUrl": "https://www.dahuasecurity.com/products/network-products/network-recorders/Lite-Series/NVR4-4KS3-Series/2HDD/NVR4208-8P-4KS3",
+    "note": "Vendor spec table, PoE Port: \"8 ports, 10/100 Mbps, IEEE 802.3 af/at\"; Power Consumption: \"Total output power of PoE is 130 W, the maximum output power of a single port is 25.5 W\". The 130 W is nearly twice the 72 W of its 4KS3 sibling NVR2108HS-8P and is what buys 802.3at on all eight ports. Read 2026-11-20 (200, 524,439 B, server-rendered)."
+  },
+  "notes": "PoE out: all eight camera ports source 802.3af/at at up to 25.5 W each from a 130 W total budget; 8 x 25.5 W = 204 W of ceiling, so the supply - not the port count - is the limit. The eight PoE ports sit on the NVR's own camera subnet with DHCP served by the recorder, so a camera is not routable from the LAN unless the uplink is bridged."
 }
