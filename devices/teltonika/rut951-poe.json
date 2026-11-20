@@ -3,7 +3,7 @@
   "model": "RUT951-POE+",
   "label": "Teltonika RUT951 PoE+",
   "category": "router",
-  "description": "Industrial PoE+ router: 1x 100 Mbps WAN (PSE out), 3x 100 Mbps LAN, one PD in and two PSE out, 90 W budget.",
+  "description": "Industrial PoE+ router: 1x 100 Mbps WAN and 3x 100 Mbps LAN, with LAN1 an 802.3af/at PD input and three 802.3af/at PSE outputs (WAN, LAN2, LAN3) at 30 W each from a 90 W budget.",
   "capabilities": [
     "l3-forward",
     "nat",
@@ -53,7 +53,7 @@
     {
       "name": "wwan1",
       "type": "wireless",
-      "speed": "300M"
+      "speed": "150M"
     },
     {
       "name": "wlan0",
@@ -61,6 +61,11 @@
       "speed": "300M"
     }
   ],
-  "sourceUrl": "https://teltonika-networks.com/product/rut951/",
-  "notes": "Vendor figures from the RUT951 PoE+ datasheet: **1x WAN port 10/100 Mbps** and **3x LAN ports, 10/100 Mbps**. Power: **LAN1 is an 802.3af/at PD input**, **LAN2, LAN3 and WAN are 802.3af/at PSE outputs**, **30 W max per port** and a **90 W budget**. Two things stand out - the **WAN port can source power**, which is unusual, and the whole power budget sits behind four fast-Ethernet ports."
+  "sourceUrl": "https://www.teltonika-networks.com/products/routers/rut951-poe",
+  "notes": "Vendor figures from the RUT951 PoE+ datasheet v1.06 (2026-02-10): **4 x RJ45 ports, 10/100 Mbps** - **1 x WAN (configurable as LAN) and 3 x LAN**; **LAN1 is an IEEE 802.3af (Type 1) / 802.3at (Type 2) compliant PD port**, and **LAN2, LAN3 and WAN are 802.3af/at compliant PSE ports**, **30 W max per port**, **PoE power budget 90 W**. The WAN port sourcing power is unusual and is the vendor's own wording. The 90 W is conditional, and the datasheet prints the table: powered **via PoE+ (802.3at Type 2) the unit offers limited PoE output - up to 15 W total on 1 port (802.3af Type 1)**; via **802.3af Type 1** or via the **4-pin DC connector below 44 V: no PoE output at all**; via the **4-pin DC connector at >44 V and >=100 W: full PoE+ operation, up to 90 W total across 3 Type 2 ports**. 90 W is recorded because it is the ceiling the vendor publishes and the figure its headline claim names (same treatment as the AT-X530DP supply-dependent budgets); a lab that powers this router from a sub-44 V supply, or from a PoE+ upstream, gets 0 W or 15 W, not 90 W. Input voltage for PoE is **48-57 V DC**; power consumption **idle <5 W, max <6.5 W, PoE max 100 W**. The Cat 4 radio is modelled at **150M**: the datasheet says **4G LTE Cat 4 up to 150 DL/50 UL Mbps**, and 300M is this family's Cat 6 figure (RUT260, RUT360), not a Cat 4 one. LAN1 keeps the engine's 12.95 W Type-1 PD default; the unit's own draw is 6.5 W max, so a Type-2 upstream is really reserving for 6.5 W plus whatever it passes. Wi-Fi is **802.11b/g/n (Wi-Fi 4)** on 2.4 GHz, 2x2, modelled at 300M as elsewhere in this family. Cited 2026-11-20: https://www.teltonika-networks.com/products/routers/rut951-poe (200, 3,082,884 B - names the model and prints `Total power budget of 90W` and `four PoE+ Ethernet ports`); https://solwise.co.uk/downloads/files/Datasheet_RUT951%20PoE+_1.06_19-02-2026.pdf (200, application/pdf, 3,875,741 B, 15 pp, text layer - every port and power row above).",
+  "poe": {
+    "budgetW": 90,
+    "sourceUrl": "https://solwise.co.uk/downloads/files/Datasheet_RUT951%20PoE+_1.06_19-02-2026.pdf",
+    "note": "90 W, the vendor's `PoE Power Budget (at PSE)` row, against `PoE Max Power per Port (at PSE) 30 W Max` over three PSE ports (LAN2, LAN3, WAN). The budget is not unconditional - the datasheet's power-source table gives 90 W only from the 4-pin DC connector at >44 V and >=100 W; a 802.3at Type 2 PoE feed yields 15 W total on one Type 1 port, and an 802.3af feed or a sub-44 V DC supply yields no PoE output. The engine has one static budget, so the published ceiling is recorded and the conditions live here."
+  }
 }
