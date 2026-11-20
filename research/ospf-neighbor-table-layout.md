@@ -59,9 +59,9 @@ order, at what column, and what is the `Dead Time` cell counting?
   that name reaches column 86, so the table's last line is wider than 80 columns - the box's is too,
   and neither wraps it. `show ip ospf interface brief` keeps the abbreviation (`Gi0/0`), which is
   what the same box prints there.
-* `Pri` reads the neighbour's Hello priority, now carried as `ospfNeighbors[].priority`. It is 1 on
-  every port because `ip ospf priority` is not modelled - one value, held as a number so the day the
-  command exists the table reads it instead of being rewritten.
+* `Pri` reads the neighbour's Hello priority, carried as `ospfNeighbors[].priority` and configured
+  with `ip ospf priority <0-255>` (default 1); the election in `computeOspf()` reads the same field,
+  so the cell and the role beside it cannot disagree. See `research/show-ospf-neighbor-state.md`.
 * `Dead Time` is the Router Dead Interval counting down, taken from `convergence.ospfTimers()` -
   the same timers the convergence schedule runs OSPF on, so a lab carrying other numbers sees the
   countdown those numbers produce. Hellos start at t=0 and repeat every `helloSec`, so the last one

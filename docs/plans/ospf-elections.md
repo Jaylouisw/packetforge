@@ -1,6 +1,11 @@
 # Plan: the OSPF `Pri` column is a number nothing can set, and the DR election never reads it
 
-Status: forward plan, no code. Measured on `9d852ed8`, 2026-11-18. Closes no open issue - the queue is four
+Status: **steps 1-3 landed** (`ip ospf priority`, the election reading it, and the `Pri` column in
+`show ip ospf interface`; see `test/ospf-priority.test.js`). One step-2 detail changed on evidence:
+with *both* ends at 0 no DR exists at all, so the link is refused with the RFC 2328 9.4 reason rather
+than printed as a `FULL/DROTHER` pair — the 2WAY row it would really show is the larger "broadcast
+domain adjacency" plan below. Step 4 (the docs) moved with it. Originally measured on `9d852ed8`,
+2026-11-18. Closes no open issue - the queue is four
 hardware requests (#130, #803, #808, #810), none about OSPF. No step needs Jay's approval: nothing new is
 invented, and the Hello field, the column widths and the election rule are all already cited in this repo.
 

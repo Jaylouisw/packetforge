@@ -98,9 +98,11 @@ console.log('The words that were already answered are unchanged:');
 {
   const env = lab();
   const table = say(env, 'show ip ospf interface');
-  ok(/^Interface\s+IP Address\s+Area\s+Cost\s+Cost from\s+Adjacent\s+Passive$/.test(table[0]),
+  // The `Pri` column sits between `Cost from` and `Adjacent`: it is the port's own Hello priority,
+  // the value the neighbour table prints beside the other end.
+  ok(/^Interface\s+IP Address\s+Area\s+Cost\s+Cost from\s+Pri\s+Adjacent\s+Passive$/.test(table[0]),
     '`show ip ospf interface` still heads its one table', table[0]);
-  ok(/^Gi0\/0\/0\s+10\.1\.0\.1\/24\s+0\s+1\s+link rate/.test(table[1]),
+  ok(/^Gi0\/0\/0\s+10\.1\.0\.1\/24\s+0\s+1\s+link rate\s+1\s+no/.test(table[1]),
     'and still prints the port that carries OSPF', table[1]);
   const one = say(env, 'show ip ospf interface Gi0/0/0');
   ok(/^Interface\s+IP Address/.test(one[0]) && one.indexOf(table[1]) !== -1,

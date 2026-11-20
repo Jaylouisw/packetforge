@@ -229,7 +229,7 @@ takes back.
 | spanning tree | `spanning-tree priority <n>` whenever a bridge priority has been set - a typed `32768`, the value the box already assumes, is printed too, because the config records that an operator set one |
 | name servers | `ip name-server <addr>` - a command line takes up to six addresses, space separated, and the printer writes one line for each; the `no` form accepts an address but clears every resolver, not just that one (below) |
 | SCION | `scion <isd-as>` |
-| OSPF | `ospf router-id <ip>`, `ospf area <id>`, and per interface `ip ospf cost <n>`, `ip ospf area <id>`, `ip ospf passive` |
+| OSPF | `ospf router-id <ip>`, `ospf area <id>`, and per interface `ip ospf cost <n>`, `ip ospf area <id>`, `ip ospf priority <0-255>`, `ip ospf passive` |
 | BGP | `router bgp <as>`, `bgp router-id <ip>`, `neighbor <ip> remote-as <as>` |
 | IPv6 addresses | per interface `ipv6 address <prefix>/<len>`, `ipv6 address autoconfig` |
 | IPv6 routing | `ipv6 route <prefix>/<len> <next-hop>`, `ipv6 gateway <addr>` |
@@ -315,7 +315,7 @@ in or out on Gi0/0/1`. The direction word is never reached - it is consumed as t
 promises are `no ip access-group 102 in`, which takes that one off (`Interface Gi0/0/1: access list
 unapplied in`), and the bare `no ip access-group`, which clears both directions (`Interface Gi0/0/1:
 access list unapplied in and out`). Reading a direction word as the number is the code's to fix
-(`_accessGroup()`, `const want = rest[0] != null ? parseInt(rest[0], 10) : null` at `engine/cli.js:3872` - the
+(`_accessGroup()`, `const want = rest[0] != null ? parseInt(rest[0], 10) : null` at `engine/cli.js:3933` - the
 guard asks whether a word arrived, not whether it is a number, so `in` still parses to `NaN`); until it is,
 this page does not advertise the direction on its own.
 
@@ -1845,7 +1845,8 @@ sw1> show ip dhcp binding
 ### Reading OSPF
 
 OSPF has been configurable since it was modelled — `ospf router-id`, `ospf area`, and per interface
-`ip ospf cost | area | passive` — and the engine turns those into adjacencies, an SPF tree and installed routes.
+`ip ospf cost | area | priority | passive` — and the engine turns those into adjacencies, an SPF tree and
+installed routes.
 
 An **area id is a 32-bit number** and is written either way: a decimal value (0-4294967295) or a dotted
 quad. `ospf area 0.0.0.1` is area 1, not area 0 — it used to be read with `parseInt`, which stops at the
@@ -1889,32 +1890,43 @@ sentence a typo gets, and it now answers as a view named in full - the header th
 `Interface    PID   Area            IP Address/Mask    Cost  State Nbrs F/C`, and the one cell no
 other view stands in for, the PID, which comes from `router ospf <pid>`, a command this console does
 not have. `research/show-ip-ospf-interface-brief.md` has the captures, the measured widths and which
-of the seven cells the engine could fill. **Pri** is the neighbour's Hello
-priority: 1 here, the hardware default, because `ip ospf priority` is not modelled and the column is
-carried as a number rather than spelled at the console. **Dead Time** is the Router Dead Interval
+of the seven cells the engine could fill. **Pri** is the neighbour's Hello priority - the value
+configured on the *far* port with `ip ospf priority <0-255>`, default 1. It is the same number the
+role in the State cell was decided by, taken from the same neighbour record, so the two columns
+cannot disagree. **Dead Time** is the Router Dead Interval
 counting down from the neighbour's last Hello, and it comes from `convergence.ospfTimers()` - the
 same timers the OSPF schedule converges on, not a second table - so a converged table prints the
 whole interval (00:00:40 over the default 10 s hello) and a run stopped 15 s in prints 00:00:35.
 
 **State** is two facts in one cell, the way IOS prints it: the adjacency's state, then the role the
 **neighbour** holds on that segment. A broadcast segment elects a designated router and a backup -
-highest interface priority first, then highest router ID, with every port here at the default
-priority 1 - so across a cable with two speakers the higher router ID is the DR, and reads
-`FULL/DR` from the other end, which is itself the BDR. The cell travels with the neighbour and not
-with the box doing the looking: a router in the middle of a chain reads `FULL/BDR` on one port and
-`FULL/DR` on the other. A serial line's default OSPF network type is point-to-point, where no
-election runs at all, and the box prints `FULL/ -`. The cell used to say `Full` - one word where the
-hardware prints a state and a role, which described a segment where nobody had stood for election.
+highest interface priority first, then highest router ID (Cisco's `ip ospf priority` usage guidelines;
+RFC 2328 §9.4) - so with both ports at the default 1 across a cable the higher router ID is the DR,
+and reads `FULL/DR` from the other end, which is itself the BDR. A port configured at priority 0 is
+ineligible for either role: the other end takes the DR alone, there is no second candidate and so no
+BDR, and the priority-0 box still reaches `FULL/DR` because a DROTHER synchronises with the DR. With
+*both* ends at 0 no DR exists at all; a real pair stops at `2WAY/DROTHER` and carries no route, and
+this console - which has no two-way state - refuses the link and prints that reason rather than a
+`FULL` the hardware cannot produce. The cell travels with the neighbour and not with the box doing
+the looking: a router in the middle of a chain reads `FULL/BDR` on one port and `FULL/DR` on the
+other. A serial line's default OSPF network type is point-to-point, where no election runs at all,
+and the box prints `FULL/ -`; `ip ospf priority` is accepted and stored there (IOS accepts it too)
+and changes nothing. The cell used to say `Full` - one word where the hardware prints a state and a
+role, which described a segment where nobody had stood for election.
 `research/show-ospf-neighbor-state.md` has the sources and what is still unmodelled (`ip ospf
-priority`, `ip ospf network`, a third speaker on one segment); `research/ospf-neighbor-table-layout.md`
+network`, a third speaker on one segment); `research/ospf-neighbor-table-layout.md`
 has the column order, the measured widths and what the countdown cell still cannot show.
 
 ```
 r1> show ip ospf interface
-Interface   IP Address       Area  Cost  Cost from   Adjacent  Passive
-Gi0/0/0     10.1.0.1/24      0     25    configured  yes       no
-Gi0/0/1     192.168.1.1/24   0     1     link rate   no        yes
+Interface   IP Address       Area  Cost  Cost from   Pri Adjacent  Passive
+Gi0/0/0     10.1.0.1/24      0     25    configured  200 yes       no
+Gi0/0/1     192.168.1.1/24   0     1     link rate   1   no        yes
 ```
+
+`Pri` is the port's own Hello priority - the value `show ip ospf neighbor` prints beside the other
+end, and the first term of the DR election - so a box that set it can read it back without looking
+across the cable.
 
 `Cost from` answers the question the two numbers alone cannot: **25** because somebody typed `ip ospf cost 25`, or
 **1** because the wire is 100 Mbps and nothing was typed. The derived cost is IOS's own arithmetic -
@@ -4125,6 +4137,7 @@ the low edge, the high edge, above the range — and requires refused, accepted,
 | `spanning-tree priority` | 0-61440 in steps of 4096 | -1, 0, 61440, 61441 |
 | `ipv6 nd ra lifetime` | 0-65535 | 0, 65535, 65536 |
 | `ip ospf cost` | 1-65535 | 0, 1, 65535, 65536 |
+| `ip ospf priority` | 0-255 | -1, 0, 255, 256 |
 | `ping <address> <count>` | 1-50 | 0, 1, 50, 51 |
 
 A refusal is also the place the range is quoted back, so both refusals must *state* it, and any value a refusal

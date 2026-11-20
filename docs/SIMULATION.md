@@ -61,7 +61,7 @@ first.
   for; both come before the announcements because a host with no address cannot be
   asked anything. `traceroute()` and `openFlow()` run the six without those two
   (`engine/simulator.js:759-764`, `engine/simulator.js:4119-4124`).
-  `ping6()` runs five, without LLDP (`engine/simulator.js:2451-2457`).
+  `ping6()` runs five, without LLDP (`engine/simulator.js:2518-2525`).
   `pingScion()` runs PoE and the SCION paths alone
   (`engine/simulator.js:2788-2789`). The protocols are therefore converged before
   packet one, and do not reconverge during the run.
@@ -394,7 +394,7 @@ HSRP and GLBP do not exist.
 | **Modelled** | Adjacency graph from live links, Dijkstra SPF, code `O` routes installed at AD 110, next hop resolved to a directly connected neighbour. | `engine/simulator.js:397-493`, `engine/ospf.js:467` |
 | **Modelled** | Areas: one area per link, an interface area overrides the router area (the ABR pattern), and a link is only usable when both ends agree on the area. | `engine/ospf.js:10-21`, `engine/ospf.js:363` |
 | **Modelled** | Per-interface cost overrides, and interface cost otherwise derived from link rate against a 100 Mbps reference. | `engine/simulator.js:352`, `engine/simulator.js:380` |
-| **Approximate** | No protocol state at all: no hellos, no dead timer, no LSAs, no adjacency FSM. The role beside a neighbour in `show ip ospf neighbour` is derived rather than elected: each end compares the two router IDs on the link, the higher one is the DR, so the lower-ID box reads `FULL/DR` beside that neighbour and the higher-ID box reads `FULL/BDR`, while a serial port — point-to-point, where nobody stands — reads `FULL/ -`. Interface priority, a third speaker on one segment and any wait timer are not modelled. The SPT is recomputed from scratch before each run, so "convergence" is instantaneous and cannot be observed, only its result. | `engine/ospf.js:1-9`, `engine/simulator.js:1364-1404` |
+| **Approximate** | No protocol state at all: no hellos, no dead timer, no LSAs, no adjacency FSM. The role beside a neighbour in `show ip ospf neighbour` is derived rather than elected: each end compares the two ports' configured priorities, then their router IDs, the higher one is the DR (RFC 2328 9.4), so the lower one reads `FULL/DR` beside that neighbour and the higher reads `FULL/BDR`, while a serial port — point-to-point, where nobody stands — reads `FULL/ -`. `ip ospf priority <0-255>` is modelled and printed in both views; a port at 0 is ineligible and the other end takes the DR alone, and with both ends at 0 there is no DR — a real pair stops at `2WAY/DROTHER`, so the link is refused rather than printed as FULL. A third speaker on one segment, two-way rows and any wait timer are not modelled. The SPT is recomputed from scratch before each run, so "convergence" is instantaneous and cannot be observed, only its result. | `engine/ospf.js:1-9`, `engine/simulator.js` `computeOspf()` |
 | **Approximate** | Link metric is a fixed 10 in the simulator's link list; per-interface costs enter through the graph builder. | `engine/simulator.js:441` |
 | **Absent** | Area types (stub/NSSA), virtual links, ABR/ASBR route leaking, authentication, graceful restart, OSPFv3, redistribution. | — |
 
@@ -582,7 +582,7 @@ actually true.
 | Assumption | Reality | Where |
 |---|---|---|
 | "It's a TCP/IP stack." | There is a tiny TCP model — three-way handshake, MSS from path MTU, cumulative ACKs, four-way close — and nothing else: no congestion window, no retransmission timer, no SACK, no TIME_WAIT, no window scaling, no ICMP port-unreachable for stray UDP. | `engine/flow.js:19-24`, `engine/simulator.js:2249` |
-| "Traffic starts connections." | Only an explicit API call does. `openFlow()` is invoked by the server on `POST /flows`; no packet ever triggers a connection on its own. | `engine/simulator.js:4093` |
+| "Traffic starts connections." | Only an explicit API call does. `openFlow()` is invoked by the server on `POST /flows`; no packet ever triggers a connection on its own. | `engine/simulator.js:4172` |
 | "Services respond." | A capability only registers **listeners** — `http-server` means "ports 80 and 443 answer SYN" (`engine/flow.js:77-85`). There is no HTTP request, no TLS handshake, no SSH banner, no FTP, no SMTP. A closed port answers RST, which is the whole application layer. | `engine/simulator.js:2546-2560` |
 | "Congestion happens." | Nothing is ever dropped because of load. There are no queues, no buffers, no contention, no tail drop, no AQM. A link at 100 % of its rate behaves exactly like an idle one. | — |
 | "Loss happens." | Nothing is lost except by an explicit rule: VLAN, ACL, STP, PoE, TTL, no route, NAT failure. A cable 10× over its reach still delivers every packet. | — |

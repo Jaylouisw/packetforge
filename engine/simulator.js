@@ -1433,6 +1433,12 @@ class Simulator {
           // wire is 100 Mbps" are the same route and a different story.
           costSource: (ov && ov.cost) ? 'configured' : 'derived',
           area: (ov && ov.area !== undefined) ? ov.area : (cfg.areaId || 0),
+          // The Hello's Router Priority field, which decides the DR election on a broadcast segment.
+          // IOS's default is 1 and the range is 0-255, with 0 meaning "not eligible to become the
+          // designated router or backup designated router" (Cisco IOS IP Routing: OSPF Command
+          // Reference, `ip ospf priority`); RFC 2328 9.4 discards priority-0 routers before the
+          // election for the same reason. Stored per interface, where IOS configures it.
+          priority: (ov && typeof ov.priority === 'number') ? ov.priority : 1,
           // A passive interface suppresses hellos, not its prefix: it forms no
           // adjacency but still appears in the router LSA as a stub (#43).
           passive: !!(ov && ov.passive)
@@ -1447,7 +1453,7 @@ class Simulator {
         return {
           name: x.name, ip: x.ip, mask: x.mask, area: x.area,
           cost: x.cost, costSource: x.costSource || 'derived',
-          passive: x.passive, adjacent: false
+          priority: x.priority, passive: x.passive, adjacent: false
         };
       });
       dev.ospfConverged = this._converged('ospf', dev);
@@ -1528,20 +1534,55 @@ class Simulator {
       }
       // The half of the State cell the console prints after the slash: which role the *neighbour*
       // holds on this segment. A broadcast segment elects a DR and a BDR - highest interface
-      // priority first, then highest router ID, every port here at the default priority 1 - so with
-      // exactly two speakers on a cable the higher router ID is the DR and the other end the BDR.
-      // A serial line's default OSPF network type is point-to-point, where no election runs at all
-      // and the real box prints `FULL/ -` (research/show-ospf-neighbor-state.md).
+      // priority first, then highest router ID (Cisco's `ip ospf priority` usage guidelines: "the
+      // one with the higher router priority takes precedence. If there is a tie, the router with the
+      // higher router ID takes precedence"; RFC 2328 9.4). A port at priority 0 is ineligible for
+      // both roles, so it stays DROTHER; with one eligible speaker there is no second candidate and
+      // therefore no BDR (RFC 2328 9.4 - the BDR election discards the router that just became DR,
+      // and an empty list elects neither). A serial line's default OSPF network type is
+      // point-to-point, where no election runs at all and the real box prints `FULL/ -`
+      // (research/show-ospf-neighbor-state.md).
       const p2p = isSerialPort(aIf) || isSerialPort(bIf);
+      // Neither end may stand for election. RFC 2328 9.4 discards every priority-0 router before the
+      // election, so with both ends at 0 no DR and no BDR exist on the segment; 7.3 and 10.4 then leave
+      // two DROTHERs synchronising with the DR/BDR and not with each other, which is why a real pair
+      // sits in 2WAY forever and installs no OSPF routes. The box still lists the neighbour -
+      // `2WAY/DROTHER` - but this model has no two-way state, so the link is refused and the console
+      // names the reason rather than printing a `FULL` the hardware cannot produce.
+      if (!p2p && ai.priority === 0 && bi.priority === 0) {
+        a.dev.ospfRejected.push({
+          reason: 'priority', iface: l.a.iface, peerIface: l.b.iface, peer: b.dev.id, peerAddress: bi.ip,
+          priority: 0, peerPriority: 0
+        });
+        b.dev.ospfRejected.push({
+          reason: 'priority', iface: l.b.iface, peerIface: l.a.iface, peer: a.dev.id, peerAddress: ai.ip,
+          priority: 0, peerPriority: 0
+        });
+        continue;
+      }
       let aRole = '-', bRole = '-';
       if (!p2p) {
-        const aNum = net.ipToInt(a.entry.routerId);
-        const bNum = net.ipToInt(b.entry.routerId);
-        // Equal router IDs are a misconfiguration a real box never becomes adjacent over; this model
-        // has no such diagnosis, so the tie falls back to the device id and stays stable.
-        const aDr = aNum > bNum || (aNum === bNum && String(a.id) < String(b.id));
-        aRole = aDr ? 'DR' : 'BDR';
-        bRole = aDr ? 'BDR' : 'DR';
+        const aEligible = ai.priority > 0;
+        const bEligible = bi.priority > 0;
+        if (!aEligible) {
+          aRole = 'DROTHER';
+          bRole = 'DR';
+        } else if (!bEligible) {
+          aRole = 'DR';
+          bRole = 'DROTHER';
+        } else if (ai.priority !== bi.priority) {
+          const aDr = ai.priority > bi.priority;
+          aRole = aDr ? 'DR' : 'BDR';
+          bRole = aDr ? 'BDR' : 'DR';
+        } else {
+          const aNum = net.ipToInt(a.entry.routerId);
+          const bNum = net.ipToInt(b.entry.routerId);
+          // Equal router IDs are a misconfiguration a real box never becomes adjacent over; this model
+          // has no such diagnosis, so the tie falls back to the device id and stays stable.
+          const aDr = aNum > bNum || (aNum === bNum && String(a.id) < String(b.id));
+          aRole = aDr ? 'DR' : 'BDR';
+          bRole = aDr ? 'BDR' : 'DR';
+        }
       }
       links.push({
         a: { router: l.a.deviceId, iface: l.a.iface },
@@ -1561,10 +1602,10 @@ class Simulator {
       for (const l of links) {
         if (l.a.router === r.id) {
           const peer = byId[l.b.router].entry.interfaces.filter(function (x) { return x.name === l.b.iface; })[0];
-          if (peer) nbr[l.b.router] = { ip: peer.ip, iface: l.a.iface, role: l.bRole };
+          if (peer) nbr[l.b.router] = { ip: peer.ip, iface: l.a.iface, role: l.bRole, priority: peer.priority };
         } else if (l.b.router === r.id) {
           const peer = byId[l.a.router].entry.interfaces.filter(function (x) { return x.name === l.a.iface; })[0];
-          if (peer) nbr[l.a.router] = { ip: peer.ip, iface: l.b.iface, role: l.aRole };
+          if (peer) nbr[l.a.router] = { ip: peer.ip, iface: l.b.iface, role: l.aRole, priority: peer.priority };
         }
       }
 
@@ -1576,9 +1617,10 @@ class Simulator {
           address: nbr[peerId].ip,
           iface: nbr[peerId].iface,
           // The neighbour's OSPF interface priority, which its Hello carries (RFC 2328 A.3.2). It is the
-          // default on every port here because `ip ospf priority` is not modelled - one value, carried as a
-          // number rather than spelled at the console, so the day the command exists the table reads it.
-          priority: 1,
+          // value configured on the *far* port (`ip ospf priority`), defaulting to IOS's 1, and it is the
+          // same number the election above compares - one source, so the `Pri` cell cannot disagree with
+          // the `State` cell beside it.
+          priority: nbr[peerId].priority,
           state: 'FULL/' + (nbr[peerId].role === '-' ? ' -' : nbr[peerId].role)
         };
       });

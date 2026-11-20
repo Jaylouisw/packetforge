@@ -33,9 +33,9 @@ segment*. What exactly goes after the slash, and when is there nothing to put th
 
 PacketForge builds one adjacency per cable (`computeOspf()` walks `topo.links`), so every segment
 has exactly two speakers. That makes the election deterministic without modelling a shared LAN:
-the higher router ID is the DR, the other end the BDR. A third speaker on one segment - where a
-DROTHER would read `FULL/DR`, `FULL/BDR` and `2WAY/DROTHER` - cannot arise here, so that branch is
-not written rather than written and untested.
+the higher priority is the DR, ties fall to the router ID, and the other end is the BDR. A third
+speaker on one segment - where a DROTHER would read `FULL/DR`, `FULL/BDR` and `2WAY/DROTHER` -
+cannot arise here, so that branch is not written rather than written and untested.
 
 Serial ports are the one point-to-point case the model has (`hardware.family === 'serial'`, e.g.
 the 2811's `Se0/0/0`). IOS's default OSPF network type on a serial interface is point-to-point, so
@@ -43,11 +43,14 @@ those adjacencies print `FULL/ -` and no role.
 
 ## What is inferred
 
-* **Priority.** There is no `ip ospf priority` command here, so every port sits at IOS's default of
-  1 and the router ID is the only tie-break that can fire. The neighbour record carries the value
-  as a number (`ospfNeighbors[].priority`) rather than spelling 1 into the table, because the Hello
-  packet really does carry the field and the `Pri` column prints it -
-  `research/ospf-neighbor-table-layout.md`.
+* **Priority. Settled and modelled.** `ip ospf priority <0-255>` now exists, defaults to 1, and both
+  the election and the `Pri` column read the value from the same neighbour record. The rule is
+  Cisco's own: higher priority wins, ties fall to the higher router ID, and 0 is ineligible for
+  either role (Cisco IOS IP Routing: OSPF Command Reference, `ip ospf priority`;
+  <https://cisco.com/c/en/us/td/docs/ios-xml/ios/iproute_ospf/command/iro-cr-book.pdf>). RFC 2328
+  9.4 discards priority-0 routers before the election and re-runs the BDR step after the DR is
+  chosen, which is why a segment with one eligible speaker has a DR and no BDR
+  (<https://www.rfc-editor.org/rfc/rfc2328.html#section-9.4>).
 * **Timing.** IOS's election is pre-emptive only when the DR role is vacant: an established DR
   keeps the role even when a higher-ID router appears later, and a box that finishes loading first
   can win a tie on a live network. This model has no boot order, so it applies the textbook
@@ -62,6 +65,10 @@ those adjacencies print `FULL/ -` and no role.
   only route to "no election" is a serial port.
 * Whether IOS prints `FULL/  -` (two spaces) or `FULL/ -` varies by platform/terminal capture; the
   captures above all show one space before the dash, which is what this console prints.
+* **Two-way rows.** With both ends at priority 0 no DR is elected, and a real pair shows
+  `2WAY/DROTHER` rather than disappearing; this model has no two-way state, so the link is refused
+  and the console prints the reason. A capture of that pair (both `ip ospf priority 0`, one
+  `show ip ospf neighbor` from each end) would pin the row's exact state cell and countdown.
 
 ## What evidence would settle the remainder
 
@@ -69,6 +76,22 @@ those adjacencies print `FULL/ -` and no role.
    row appears at all or the adjacency stays out of the table.
 2. The same command on a Catalyst with `ip ospf network point-to-point` on a routed Ethernet port,
    to confirm the role cell follows the network type rather than the media.
-3. `ip ospf priority 200` on one end of a two-router segment: one paste showing `FULL/DR` on the
-   other end settles that the priority outranks the router ID (the doc says so; a capture would
-   pin the column widths too).
+3. ~~`ip ospf priority 200` on one end of a two-router segment.~~ The rule is documented by Cisco and
+   RFC 2328 9.4 and is now implemented (`test/ospf-priority.test.js`); what a capture would still add
+   is the column widths when the priority is not a single digit, which the 3-column `Pri` cell
+   already accommodates for 0-255.
+
+## What changed
+
+* `ip ospf priority <0-255>` is accepted in interface mode (range refused as `% Priority must be
+  0..255`, `no` restores 1), stored per interface, printed in `show running-config`, and read back
+  in `show ip ospf interface` as a new `Pri` column.
+* `computeOspf()` puts the value in the Hello-equivalent record, decides the DR by priority then
+  router ID, and prints the neighbour's own priority in `show ip ospf neighbor`. A port at 0 is
+  ineligible: the other end becomes DR and no BDR is elected. A point-to-point (serial) port stores
+  the value and keeps `FULL/ -`, as IOS does.
+* With **both** ends at 0 no DR exists, so no full adjacency is possible (RFC 2328 7.3/10.4). A real
+  box shows `2WAY/DROTHER`; this model has no two-way state, so the link is refused and the console
+  names the reason and the RFC section instead of printing a `FULL` that cannot exist.
+* `test/ospf-priority.test.js` holds all of the above; `test/stated-range-is-the-enforced-range.test.js`
+  gained the 0-255 probe set.

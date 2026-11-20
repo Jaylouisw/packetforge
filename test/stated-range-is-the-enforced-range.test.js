@@ -102,6 +102,15 @@ const CASES = [
     probes: [0, 1, 65535, 65536], states: /1\.\.65535/
   },
   {
+    // 0 is a legal priority and means "never DR or BDR" (Cisco `ip ospf priority`), so the low
+    // edge must be accepted - a range check written as `!v` would refuse the one value an operator
+    // types deliberately.
+    name: 'ip ospf priority', range: '0-255', who: 'r',
+    setup: function (e) { return ['ospf router-id 1.1.1.1', 'interface ' + ethPorts(e.r)[1]]; },
+    cmd: function (v) { return 'ip ospf priority ' + v; },
+    probes: [-1, 0, 255, 256], states: /0\.\.255/
+  },
+  {
     name: 'ping <count>', range: '1-50', who: 'r', exec: true,
     setup: function (e) { return ['interface ' + ethPorts(e.r)[1], 'ip address 10.99.0.1 255.255.255.0']; },
     cmd: function (v) { return 'ping 10.99.0.1 ' + v; },

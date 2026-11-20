@@ -3148,11 +3148,38 @@ class CliSession {
       ov.area = /^\d+$/.test(raw) ? String(id) : raw;
       return ['OSPF area ' + ov.area + ' on ' + iface.name];
     }
+    if (rest[0] === 'priority') {
+      // `ip ospf priority <0-255>`: the Router Priority field the Hello carries, which decides the DR
+      // election on a multiaccess segment. IOS's default is 1, the range is 0-255, and 0 is legal and
+      // means the port is "ineligible to become the designated router or backup designated router"
+      // (Cisco IOS IP Routing: OSPF Command Reference, `ip ospf priority`). Both facts are stated here
+      // because a reader who types 0 is otherwise entitled to read it as a typo, and this console's
+      // election now honours it. On a point-to-point port the command is accepted and stored - IOS
+      // accepts it too ("Router priority is configured only for interfaces to multiaccess networks")
+      // - and the election simply never runs there, so `FULL/ -` is unchanged.
+      if (negate) {
+        const had = (typeof ov.priority === 'number') ? ov.priority : 1;
+        delete ov.priority;
+        return ['OSPF priority reset to 1 on ' + iface.name +
+          (had === 1 ? ' (it was already the default)' : '')];
+      }
+      const raw = rest[1];
+      if (raw === undefined) return ['% Priority must be 0..255'];
+      if (!/^\d+$/.test(raw) || rest.length > 2) {
+        return ['% Priority must be 0..255' +
+          (rest.length > 2 ? ': the word "' + rest[2] + '" was not used' : '')];
+      }
+      const p = parseInt(raw, 10);
+      if (!(p >= 0 && p <= 255)) return ['% Priority must be 0..255'];
+      ov.priority = p;
+      return ['OSPF priority ' + p + ' on ' + iface.name +
+        (p === 0 ? ' (not eligible to become DR or BDR)' : '')];
+    }
     if (rest[0] === 'passive') {
       ov.passive = !negate;
       return ['OSPF ' + (negate ? 'active' : 'passive') + ' on ' + iface.name];
     }
-    return ['% Usage: ip ospf cost <n> | ip ospf area <id> | ip ospf passive'];
+    return ['% Usage: ip ospf cost <n> | ip ospf area <id> | ip ospf priority <0-255> | ip ospf passive'];
   }
 
   // ---------- line rate and duplex ----------
@@ -5160,6 +5187,11 @@ class CliSession {
         return r.peer + ' runs OSPF in area ' + r.peerArea + ' and this box in area ' + r.area +
           ': a Hello from another area is not accepted, so no adjacency forms';
       }
+      if (r.reason === 'priority') {
+        return 'both ends are at OSPF priority 0 (' + r.peer + ' and this box), so neither may become' +
+          ' DR or BDR: no DR is elected and a pair of DROTHERs stops at 2WAY, never FULL' +
+          ' (RFC 2328 9.4), so no adjacency forms and no route crosses this link';
+      }
       return 'the link was refused';
     };
     const refusalOn = function (name) {
@@ -5234,10 +5266,11 @@ class CliSession {
         return out;
       }
       for (const n of rows) {
-        // Pri is the *neighbour's* interface priority, right-aligned in three columns, and it is 1 on every
-        // port here because nothing can set it: `ip ospf priority` is not modelled, so the value the Hello
-        // carries is always the default. RFC 2328 puts it in the Hello packet; Cisco 13688-16 states the
-        // default ("By default, priorities are set to 1") and that the field is the neighbour's.
+        // Pri is the *neighbour's* interface priority, right-aligned in three columns, and it is the value
+        // configured on the far port with `ip ospf priority` (default 1). RFC 2328 puts the field in the
+        // Hello packet; Cisco 13688-16 states the default ("By default, priorities are set to 1") and that
+        // the field is the neighbour's, and the same number decides the role in the State cell beside it -
+        // both come from the neighbour record the engine built, so the two columns cannot disagree.
         const pri = (n.priority === null || n.priority === undefined) ? 1 : n.priority;
         // The Interface cell names the port in FULL, the way the box names it in this table - not in the
         // panel spelling the catalogue stores. The capture this table's widths were measured on says so
@@ -5369,13 +5402,17 @@ class CliSession {
       // the next field read as one number. Widths come from the data here, as they do in `show lldp
       // neighbors` (#1265), with the old six as the floor so every decimal-only lab is unchanged.
       const areaWidth = rows.reduce(function (w, i) { return Math.max(w, String(i.area).length + 2); }, 6);
+      // `Pri` is the port's own Hello priority - the number the neighbour table prints beside the
+      // other end, and the first term of the election. Without it the value could be set and read
+      // back only from across the cable.
       out.push(pad('Interface', 12) + pad('IP Address', 17) + pad('Area', areaWidth) + pad('Cost', 6) + pad('Cost from', 12) +
-        pad('Adjacent', 10) + 'Passive');
+        pad('Pri', 4) + pad('Adjacent', 10) + 'Passive');
       for (const i of rows) {
         const netLib = require('./net');
         const len = netLib.prefixOf(i.mask);
         out.push(pad(i.name, 12) + pad(i.ip + (len === null ? ' ' + i.mask : '/' + len), 17) +
           pad(String(i.area), areaWidth) + pad(String(i.cost), 6) + pad(i.costSource === 'configured' ? 'configured' : 'link rate', 12) +
+          pad(String(i.priority == null ? 1 : i.priority), 4) +
           pad(i.adjacent ? 'yes' : 'no', 10) + (i.passive ? 'yes' : 'no'));
       }
       out.push('');
@@ -7418,6 +7455,9 @@ class CliSession {
           if (ov) {
             if (ov.cost != null) out.push('  ip ospf cost ' + ov.cost);
             if (ov.area != null) out.push('  ip ospf area ' + ov.area);
+            // The election's first tie-break, and a line the parser takes back, so a saved device
+            // comes up holding the priority it had.
+            if (ov.priority != null) out.push('  ip ospf priority ' + ov.priority);
             if (ov.passive) out.push('  ip ospf passive');
           }
         }
@@ -7720,7 +7760,7 @@ class CliSession {
       '  vrrp <vrid> ip <addr> | priority <1-254> | preempt      (interface mode)',
       '  show vrrp                          the group, its state, and the master it elected',
       '  ospf router-id <ip> | area <id>                        (config mode)',
-      '  ip ospf cost <n> | area <id> | passive                 (interface mode)',
+      '  ip ospf cost <n> | area <id> | priority <0-255> | passive  (interface mode)',
       '  show ip ospf [neighbour | interface] [<port>]  the process, its adjacencies and what each port costs',
       '  show ip dhcp [binding | pool] [<address|mac|name>]  who holds which address, and pool utilisation',
       '  show ip dns [zone [<name>]]                   the zones this device answers for, and its resolvers',
