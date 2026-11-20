@@ -281,38 +281,39 @@ rather than left to whoever reads the datasheet last.
 
 ## 7. `catalogue/optics/hybrid-patch-cords.json`
 
-### 7.1 Loader status — read this before expecting the parts to work
+### 7.1 Loader status — the parts are live
 
-The file is **inert today**. `engine/optical.js:245` (`odnParts()`) loads exactly
-one file, `catalogue/optics/odn.json`, and `patchCords()` (`:278`) filters that
-array. `validation.js` resolves declared parts through `optical.patchCord()`, so
-until a follow-up teaches the loader about the second file:
+`engine/optical.js:267` is `ODN_FILES = ['odn.json', 'hybrid-patch-cords.json']`,
+and `odnParts()` (`:283`) reads both. `patchCords()` (`:333`) returns every
+`kind: "patch-cord"` entry — all 13 — and `validation.js` resolves a declared
+part through `optical.patchCord()` (`:337`), which matches the vendor part
+number, the catalogue `id`, or any `aliasIds`. So:
 
-- `optical.patchCord('ADAEP-ARYL003')` → `null`,
-- `patchCord: 'FCA-S2SR-SCASCU-02M'` on a link → `E_PATCH_CORD_UNKNOWN`,
-- the only parts the engine will accept are the two in `odn.json`: `SMSCSX`
-  (`patch-cord-hybrid-sc-upc-apc`) and `SMLCSX` (`patch-cord-hybrid-lc-upc-apc`).
+- `optical.patchCord('ADAEP-ARYL003')` returns the 3M assembly
+  (`patch-cord-hybrid-sc-upc-apc-3m-adaep`), not `null`,
+- `patchCord: 'FCA-S2SR-SCASCU-02M'` on an SC/UPC↔SC/APC link is accepted and
+  charged its insertion loss,
+- ordinary fibre is still refused: the catalogue supplies the part, it does not
+  loosen the polish rule.
 
-That is deliberate for this change (data only, no engine edits). The recommended
-follow-up is a pure append in `odnParts()`:
+The two files are merged, not concatenated (`odmMerge()`, `:269`). They overlap
+on `SMSCSX` and `SMLCSX`, and the older `odn.json` record keeps its position and
+identity: the hybrid entry fills only the fields the older one lacks
+(`polishBridge`, `insertionLossBasis`, `vendor`), and its catalogue id is kept in
+`aliasIds`. That is why `patchCord('patch-cord-hybrid-sc-upc-apc-fs-smscsx')`
+still finds `SMSCSX`. A missing or malformed file is skipped rather than fatal,
+so a checkout without the hybrid catalogue still runs the rest of the engine.
 
-```js
-// engine/optical.js — follow-up, not part of this change
-_odn = [].concat(Array.isArray(raw) ? raw : [], _loadMany('hybrid-patch-cords.json'));
-```
-
-Because this file is an array of the same shape as `odn.json`, that append needs
-no other change: `patchCords()` picks up `kind: "patch-cord"`, `patchCord()` finds
-them by `partNumber` or `id`, `cordFits()` compares `endA`/`endB`, `cordLossDb()`
-reads `insertionLossDb`, and `hybridCord()` answers both argument orders.
+One wart: `E_PATCH_CORD_UNKNOWN` (`engine/validation.js:596`) still says the part
+is missing from `catalogue/optics/odn.json`, although the lookup now searches both
+files.
 
 **Ordering is user-visible.** `hybridCord()` returns the first match
-(`engine/optical.js:324-327`), and that part number is printed in the
-`E_POLISH_MISMATCH` message. With the file loaded as written, an
-`sc-upc`↔`sc-apc` refusal names `SMSCSX`; add a part above it and the message
-changes. If that instability matters, the loader should prefer an explicit
-`"default": true` entry (or sort by `insertionLossDb`) instead of relying on
-file order.
+(`engine/optical.js:377`), and that part number is printed in the
+`E_POLISH_MISMATCH` message. `odn.json` is read first on purpose, so an
+`sc-upc`↔`sc-apc` refusal names `SMSCSX`; a part added to the hybrid file cannot
+get ahead of it. If the default should be stated rather than positional, an
+explicit `"default": true` entry (or a sort by `insertionLossDb`) would pin it.
 
 ### 7.2 Schema
 
@@ -420,7 +421,8 @@ Field notes:
 | `lengthM` | Stocked lengths, longest-first is not implied. Custom-length families list the stocked ones and say so in `note`. |
 | `note` | Why the entry exists, what the vendor actually measured, and any trap (per-connector vs per-assembly, grade instead of dB, sibling SKU with a different polish). |
 
-Invariants worth a test when the loader lands:
+Invariants worth a test — `test/hybrid-cord-use.test.js` pins the two shape
+rules and id/part-number uniqueness:
 
 ```js
 // every polishBridge entry is same-shape, different-polish
@@ -460,10 +462,10 @@ end, and an insertion loss. Concretely:
 
 ## 8. Open questions for the maintainers
 
-1. **Loader:** fold `hybrid-patch-cords.json` into `odnParts()` (recommended), or
-   merge these entries into `odn.json` and keep one file? One file is simpler;
-   two files keep ODN plant and hybrid assemblies separable. This change assumes
-   two, with a one-line append.
+1. **Loader:** settled — `odnParts()` reads `odn.json` then
+   `hybrid-patch-cords.json` and merges records that share a part number (§7.1).
+   Two files keep ODN plant and hybrid assemblies separable; the merge keeps the
+   older record's identity and aliases the newer id.
 2. **Loss accounting:** adopt the delta convention (§6.2 option 1) as the
    documented meaning of `patchCordLossDb` now, or wait for basis-aware
    accounting (option 2)? The field is already in the catalogue data, so option 2
