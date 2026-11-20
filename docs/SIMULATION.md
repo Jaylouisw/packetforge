@@ -224,12 +224,12 @@ Two different questions, and the forwarding path has to ask the first one first:
 
 ### 3.4 Routing and administrative distance
 
-**Modelled** — `Device.routeTo()` (`engine/device.js:871`), in this order:
+**Modelled** — `Device.routeTo()` (`engine/device.js:1033`), in this order:
 
 1. Connected subnets (AD 0).
 2. Static routes from `ip route` (AD 1).
-3. BGP-learned routes (eBGP 20, iBGP 200) — `engine/device.js:906-923`.
-4. OSPF-learned routes (AD 110) — `engine/device.js:925-940`.
+3. BGP-learned routes (eBGP 20, iBGP 200) — the `bgpRoutes` loop, `engine/device.js:1073-1090`.
+4. OSPF-learned routes (AD 110) — the `ospfRoutes` loop, `engine/device.js:1092-1107`.
 5. A default route handed out by DHCP to a box that routes (AD 254).
 6. `ip default-gateway` (AD 254) — only when nothing else matched, and only on a box that does not route:
    the command is scoped to "when IP routing is disabled", so its line stays in `show running-config` while
@@ -237,7 +237,7 @@ Two different questions, and the forwarding path has to ask the first one first:
 
 Longest prefix always wins; equal-length prefixes are broken by lower
 administrative distance. That ordering is the documented Cisco one, and it is
-enforced by a single comparator (`better(prefix, ad)` at `engine/device.js:874`)
+enforced by a single comparator (`better(prefix, ad)` at `engine/device.js:1036`)
 rather than by the order the loops run in — so a `/24` static really does lose to
 a `/25` connected route regardless of list order.
 
@@ -248,7 +248,7 @@ a `/25` connected route regardless of list order.
   only if you configure both a default gateway and a `0.0.0.0/0` static route
   with a higher AD than 254.
 - No route recursion: a next hop must resolve on a directly connected subnet
-  (`Device.egressFor`, `engine/device.js:1029`), so a static route pointing at a
+  (`Device.egressFor`, `engine/device.js:1207`), so a static route pointing at a
   next hop that is itself only reachable via another route will drop.
 - No ECMP. One best route, one egress port.
 
@@ -256,7 +256,7 @@ a `/25` connected route regardless of list order.
 
 - Route redistribution in any direction (connected ↔ OSPF ↔ BGP). Each protocol
   originates only its own source of truth: OSPF from configured OSPF
-  interfaces, BGP from connected prefixes (`engine/simulator.js:1707-1718`).
+  interfaces, BGP from connected prefixes (`computeBgp()`, `engine/simulator.js:1725-1738`).
 - Route-maps, distribute-lists, offset-lists, policy routing, VRF, tunnels.
 - Fragmentation and reassembly, PMTUD, IP options, jumbo frames.
 
