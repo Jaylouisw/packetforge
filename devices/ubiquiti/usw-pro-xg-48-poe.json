@@ -746,6 +746,11 @@
       ]
     }
   ],
+  "poe": {
+    "budgetW": 1080,
+    "sourceUrl": "https://techspecs.ui.com/unifi/switching/usw-pro-xg-48-poe",
+    "note": "Ubiquiti prints PoE availability per input voltage: 1,080 W at 200-240 V AC and 972 W at 100-120 V AC. 1,080 W is modelled - the figure the vendor lists first and the one this spec's description quotes; a lab supplied at 100-120 V should treat 972 W as the ceiling. All 48 copper ports source up to 90 W (PoE+++, 802.3bt Type 4 Class 8), which is what the 48 poeOut ports declare."
+  },
   "icon": "switch",
   "color": "#14b8a6",
   "sourceUrl": "https://techspecs.ui.com/unifi/switching/usw-pro-xg-48-poe"
