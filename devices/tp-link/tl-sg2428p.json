@@ -243,6 +243,11 @@
       ]
     }
   ],
+  "poe": {
+    "budgetW": 250,
+    "sourceUrl": "https://www.tp-link.com/us/business-networking/omada-switch-poe/tl-sg2428p/v1/",
+    "note": "Vendor spec row: \"PoE+ Ports: 24 Ports\", \"PoE Power Budget: 250 W\"; the V2-V4 power-consumption rows are quoted \"with 250 W PD connected\", so 250 W is the figure the supply is rated for, not a sum of the 24 x 30 W port ceilings."
+  },
   "sourceUrl": "https://www.tp-link.com/us/business-networking/omada-switch-poe/tl-sg2428p/v1/",
   "notes": "Vendor figures from the TP-Link datasheet: 24x 10/100/1000 Mbps RJ45 ports (auto negotiation / auto MDI/MDIX) and 4x gigabit SFP slots; PoE standard 802.3at/af on all 24 copper ports with a 250 W budget. Every copper port is powered here, unlike the TL-SG1016PE where only half the row is."
 }

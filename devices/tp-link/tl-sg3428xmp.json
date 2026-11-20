@@ -60,6 +60,12 @@
       ]
     }
   ],
+  "poe": {
+    "budgetW": 384,
+    "sourceUrl": "https://www.tp-link.com/us/business-networking/omada-switch-poe/tl-sg3428xmp/",
+    "note": "Vendor spec row: \"PoE+ Ports: 24 Ports\", \"PoE Power Budget: 384 W\", \"up to 30 W on each port\" (802.3af/at). TP-Link footnotes the budget as a laboratory figure, not a guarantee; it is the supply, not the 24 x 30 W port ceiling (720 W), that limits a full row of PoE+ loads."
+  },
   "icon": "switch",
-  "color": "#22c55e"
+  "color": "#22c55e",
+  "sourceUrl": "https://www.tp-link.com/us/business-networking/omada-switch-poe/tl-sg3428xmp/"
 }

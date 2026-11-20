@@ -140,5 +140,11 @@
       "poeOutClass": "PoE+"
     }
   ],
-  "notes": "Vendor figures: **16 PoE+ ports with a 76 W total power budget**, and **FlexPoE** - the budget is set by the external power adapter and can be raised to **115 W or 183 W** by buying a bigger one. **76 W across 16 powered ports is 4.75 W average**: four 802.3at devices at 30 W would need 120 W, so the stock adapter cannot run them all, and the fix is a line item, not a setting."
+  "poe": {
+    "budgetW": 76,
+    "sourceUrl": "https://www.netgear.com/business/wired/switches/unmanaged/gs116lp/",
+    "note": "Vendor spec: \"PoE Budget 76W\", 16 PoE+ ports \"up to 30W per port\", 802.3af/802.3at. FlexPoE raises the budget to 115 W or 183 W with a separate power supply; 76 W is the as-shipped figure this model is rated at, and the one modelled here."
+  },
+  "notes": "Vendor figures: **16 PoE+ ports with a 76 W total power budget**, and **FlexPoE** - the budget is set by the external power adapter and can be raised to **115 W or 183 W** by buying a bigger one. **76 W across 16 powered ports is 4.75 W average**: four 802.3at devices at 30 W would need 120 W, so the stock adapter cannot run them all, and the fix is a line item, not a setting.",
+  "sourceUrl": "https://www.netgear.com/business/wired/switches/unmanaged/gs116lp/"
 }

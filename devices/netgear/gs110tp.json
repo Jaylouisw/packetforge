@@ -6,48 +6,66 @@
   "description": "Eight 10/100/1000BASE-T RJ45 ports with 802.3af PoE (15.4 W per port, 46 W total budget) plus two separate dedicated 1G SFP uplinks - the SFP slots are their own positions, not combo cages shared with copper.",
   "capabilities": [
     "l2-forward",
-    "http-server"
+    "http-server",
+    "poe-pse",
+    "802.3af"
   ],
   "interfaces": [
     {
       "name": "port1",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": 15.4,
+      "poeOutClass": "PoE"
     },
     {
       "name": "port2",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": 15.4,
+      "poeOutClass": "PoE"
     },
     {
       "name": "port3",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": 15.4,
+      "poeOutClass": "PoE"
     },
     {
       "name": "port4",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": 15.4,
+      "poeOutClass": "PoE"
     },
     {
       "name": "port5",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": 15.4,
+      "poeOutClass": "PoE"
     },
     {
       "name": "port6",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": 15.4,
+      "poeOutClass": "PoE"
     },
     {
       "name": "port7",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": 15.4,
+      "poeOutClass": "PoE"
     },
     {
       "name": "port8",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": 15.4,
+      "poeOutClass": "PoE"
     },
     {
       "name": "sfp1",
@@ -68,6 +86,11 @@
       ]
     }
   ],
+  "poe": {
+    "budgetW": 46,
+    "sourceUrl": "https://www.netgear.com/images/datasheet/switches/SmartSwitches/GS110TP.pdf",
+    "note": "Datasheet: \"PoE (46 Watts of power budget)\", \"delivering up to 15.4W of power\" per port (802.3af) on all 8 copper ports, from the 48 V / 1.25 A external adapter (59.3 W maximum consumption). 8 x 15.4 W = 123 W of port ceiling against a 46 W supply, so the budget is the limit."
+  },
   "sourceUrl": "https://www.netgear.com/images/datasheet/switches/SmartSwitches/GS110TP.pdf",
   "icon": "switch",
   "color": "#64748b"
