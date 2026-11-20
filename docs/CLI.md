@@ -302,8 +302,21 @@ and `no vlan` printed "VLAN 42 removed" whether or not a VLAN 42 existed:
 | `hostname <name>` | `no hostname` | `% No hostname set (the device is named …)` |
 | `ip dhcp pool <name>` | `no ip dhcp pool <name>` | `% No DHCP pool named <name>` |
 | `dns zone <name>` | `no dns zone <name>` | `% No DNS zone named <name>` |
-| `ip access-group <n> in\|out` | `no ip access-group [<n>] [in\|out]` | `% No access list <n> applied in on <port>` |
+| `ip access-group <n> in\|out` | `no ip access-group <n> [in\|out]` | `% No access list <n> applied in on <port>` |
 | `vlan <id>` | `no vlan <id>` | `% VLAN <id> does not exist` |
+
+**The direction on its own is not a direction.** `help` prints this form as
+`no ip access-group [<acl>] [in|out]`, so the number reads as optional - and the parser reads the word
+standing in the number's place as the number: `parseInt('in', 10)` is `NaN`, every comparison against it
+is true, and nothing is unbound. With 102 applied inside, `no ip access-group in` answers
+`% Access list 102 is applied in on Gi0/0/1, not NaN`; with nothing applied, `% No access list NaN applied
+in or out on Gi0/0/1`. The direction word is never reached - it is consumed as the number - so
+`no ip access-group out` answers about `in` in the same words. The two lines that do what the index
+promises are `no ip access-group 102 in`, which takes that one off (`Interface Gi0/0/1: access list
+unapplied in`), and the bare `no ip access-group`, which clears both directions (`Interface Gi0/0/1:
+access list unapplied in and out`). Reading a direction word as the number is the code's to fix
+(`_accessGroup()`, `want = parseInt(rest[0], 10)` at `engine/cli.js:3786`); until it is, this page does not
+advertise the direction on its own.
 
 **Three printed lines do not have one yet.** `show running-config` writes `bgp router-id <ip>` in the BGP
 block, `dns add <name> <type> <value>` under its zone, and `ipv6 nd ra lifetime <s>` at the top level. The
