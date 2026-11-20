@@ -3470,6 +3470,20 @@ class CliSession {
     if (t[0] === 'mode') {
       const mode = t[1];
       if (mode !== 'access' && mode !== 'trunk') return ['% Usage: switchport mode access|trunk'];
+      // The vendor's syntax line is one line with one keyword in it:
+      //   switchport mode { access | dot1q-tunnel | dynamic { auto | desirable } | private-vlan | trunk }
+      //   no switchport mode { access | dot1q-tunnel | dynamic | trunk }
+      // (Catalyst 2960-S/2960-C 15.2(4)E command reference, `switchport mode`; the same line is in the
+      // 2960-X 15.2(2)E/15.2(7)E books), and the reference's own error table says a word outside that set is
+      // `% Invalid input detected at '^' marker.` with nothing applied. This handler read `tokens[1]` and
+      // dropped the rest, so `switchport mode trunk access` - two modes in one line, the classic paste of a
+      // half-typed line - silently made the port a trunk, and `switchport mode access flurbish` set access and
+      // never mentioned the word. Both are refused here, before anything is written, as `duplex full <word>`
+      // and `speed 100 <word>` already are (research/speed-duplex-grammar.md).
+      if (t.length > 2) {
+        return ['% switchport mode ' + mode + ' takes one mode and nothing after it: the word "' +
+          tokens.slice(2).join(' ') + '" was not used, and the mode is unchanged'];
+      }
       const next = Object.assign({}, iface.vlan, { mode: mode });
       // A trunk with no explicit allowed list must carry everything, otherwise
       // it would silently carry no VLANs at all.
@@ -3555,6 +3569,13 @@ class CliSession {
         return written({ voiceVlan: null }, 'Voice VLAN ' + was + ' removed from ' + iface.name);
       }
       if (leaf[0] === 'mode') {
+        // The `no` form takes one keyword too, and this one dropped a trailing word in the same silence:
+        // `no switchport mode access flurbish` put the port back into access mode and said nothing about the
+        // word. Same rule, same sentence, and the mode is left where it was.
+        if (leaf.length > 2) {
+          return ['% no switchport mode takes one mode and nothing after it: the word "' +
+            tokens.slice(3).join(' ') + '" was not used, and the mode is unchanged'];
+        }
         if (cur.mode === 'access') {
           return ['% ' + iface.name + ' is already in access mode'];
         }

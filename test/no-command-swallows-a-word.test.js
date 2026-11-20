@@ -51,15 +51,23 @@ function flat(o, p, acc) {
   });
   return acc;
 }
+function snapshot(dev) {
+  const ports = {};
+  dev.interfaces.forEach(function (i, n) { ports[n] = JSON.stringify(i.vlan || null); });
+  return JSON.stringify(flat(dev.config, '')) + '|' + JSON.stringify(ports);
+}
 function attempt(who, cmds) {
   const e = env();
   const dev = who === 'r' ? e.r : e.sw;
   const filled = cmds.map(function (s) {
     return s.replace('{RP1}', e.rp[1]).replace('{SP1}', e.sp[1]).replace('{SP2}', e.sp[2]);
   });
-  const before = JSON.stringify(flat(dev.config, ''));
+  // A port's switchport settings live on the interface, not in `dev.config`, so a snapshot of the config alone
+  // could not see `switchport mode` change: this sweep reported "nothing wrote" for a command whose whole
+  // effect was on `iface.vlan.mode`. Both halves are read now.
+  const before = snapshot(dev);
   const lines = runCommands(dev, e.t, new Simulator(e.t), ['enable', 'configure terminal'].concat(filled)).lines;
-  const after = JSON.stringify(flat(dev.config, ''));
+  const after = snapshot(dev);
   const said = lines.filter(function (l) { return !isPrompt(l); });
   const refusals = said.filter(function (l) { return /^\s*%/.test(l); });
   return { said: said, refusals: refusals, changed: before !== after, last: filled[filled.length - 1], dev: dev, e: e };
@@ -186,7 +194,12 @@ section('4. A word after a value the command already has');
     ['speed (router)', 'r', ['interface {RP1}', 'speed 100 ' + WORD]],
     ['duplex (router)', 'r', ['interface {RP1}', 'duplex full ' + WORD]],
     ['no speed (switch)', 's', ['interface {SP1}', 'no speed ' + WORD]],
-    ['no duplex (switch)', 's', ['interface {SP1}', 'no duplex ' + WORD]]
+    ['no duplex (switch)', 's', ['interface {SP1}', 'no duplex ' + WORD]],
+    // `switchport mode` was the one interface command whose value had never been handed a trailing word: the
+    // sweep's case was `switchport mode flurbish`, which the first-word check answers. With a *valid* mode in
+    // front, `switchport mode trunk flurbish` made the port a trunk and never mentioned the word.
+    ['switchport mode (switch)', 's', ['interface {SP1}', 'switchport mode trunk ' + WORD]],
+    ['no switchport mode (switch)', 's', ['interface {SP1}', 'no switchport mode access ' + WORD]]
   ];
   const silent = [], wrote = [];
   for (const c of TAIL) {
@@ -195,7 +208,7 @@ section('4. A word after a value the command already has');
     if (r.refusals.join(' ').toLowerCase().indexOf(WORD) === -1) silent.push(c[0] + ' -> ' + r.refusals[0]);
     if (r.changed) wrote.push(c[0]);
   }
-  ok(TAIL.length === 6, 'the pair is checked in both directions on both device kinds (' + TAIL.length + ' cases)');
+  ok(TAIL.length === 8, 'the pair is checked in both directions on both device kinds, plus switchport mode (' + TAIL.length + ' cases)');
   ok(silent.length === 0, 'no trailing word is swallowed and none is refused without being named',
     silent.join('; '));
   ok(wrote.length === 0, 'and no refused line wrote configuration', wrote.join(', '));

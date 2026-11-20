@@ -17,6 +17,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   word by name, says what it does print, and points at the `Prefixes` block and `Interfaces` line that answer
   the narrower question. `test/show-argument-refusal.test.js` gains 13 checks; the two `cli.js:7744` citations
   in `docs/BGP-POLICY.md` were re-pointed to `_help()` now that the line moved.
+- **`switchport mode` took a second word and obeyed the first one.** Every command reference prints the
+  syntax as one keyword choice - `switchport mode {access | dot1q-tunnel | dynamic {auto | desirable} |
+  private-vlan | trunk}`, and `no switchport mode {access | dot1q-tunnel | dynamic | trunk}` - and the same
+  book's error table says a word outside that set gets `% Invalid input detected at '^' marker.` with nothing
+  applied ([Catalyst 2960-S/2960-C 15.2(4)E commands](http://www.cisco.com/c/en/us/td/docs/switches/lan/catalyst2960/software/release/15-2_4_e/command/reference/cr_2960/cli3.pdf);
+  the same line in the [2960-XR 15.2(5)E](http://cisco.com/c/en/us/td/docs/switches/lan/catalyst2960xr/software/15-2_5_e/command_reference/b_1525e_consolidated_2960xr_cr/m_layer2_2960xr_cr.pdf)
+  and [15.2(2)E](https://www.cisco.com/c/en/us/td/docs/switches/lan/catalyst2960xr/software/15-2_2_e/consolidated_guide/command_reference/b_consolidated_2960-xr_1522e_cr/b_consolidated_2960-xr_1522e_cr_chapter_0100.pdf)
+  books). This console read the second word and dropped the rest, so `switchport mode trunk access` - two modes
+  on one line, the shape a half-edited paste produces - **made the port a trunk**, and `switchport mode access
+  flurbish` set access, both without a word about the word. Both forms now refuse before anything is written:
+  `% switchport mode trunk takes one mode and nothing after it: the word "access" was not used, and the mode is
+  unchanged`, quoting the tail as typed, and `no switchport mode <mode> <word>` answers in the same shape. The
+  port stays where it was - a refused `switchport mode access flurbish` on a working trunk leaves it a trunk,
+  `allowedVlans: all` included - and `show running-config` does not move. `switchport mode dynamic auto` keeps
+  the usage line that names the two modes this console has, because `dynamic` is a two-word value in the
+  vendor's grammar rather than a trailing typo. `test/switchport-mode-grammar.test.js` (23 checks),
+  [`research/switchport-mode-grammar.md`](research/switchport-mode-grammar.md); the
+  `no-command-swallows-a-word` sweep gains the two cases and now snapshots each port's switchport settings, so
+  its "no refused command wrote configuration" check can see a mode change at all (it could not before: the
+  settings live on the interface, not in `config`). Pre-fix that sweep fails with
+  `Switchport mode trunk on Fa0/2`.
+
 - **`interface range` is a command the box has, and the console called it a missing port.** A Catalyst takes
   `interface range {port-range | macro macro_name}`, enters `(config-if-range)#`, and applies each line typed
   there to every port in the range - `Device(config)# interface range tengigabitethernet 1/1/1-2` then
