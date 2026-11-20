@@ -1281,6 +1281,20 @@ jobs:
             echo "docker CLI already present: $(docker --version 2>/dev/null || echo 'unknown version')"
             exit 0
           fi
+          # A CLI is only worth downloading if there is a daemon for it to talk to.
+          # When no socket is mounted the build step below takes its documented
+          # "no daemon in this job" path on purpose - it is not a failure - and
+          # buying a client to discover that costs a download that can itself fail.
+          # On 2026-11-20 the runner lost egress for 7.5 h; every docker job in that
+          # window died here (task 22378, run 8465, 10:11:37Z: "curl: (7) Failed to
+          # connect to download.docker.com") instead of taking the path it already
+          # has for a job with nothing to build against. A socket is the one thing
+          # that decides whether a build was possible at all.
+          if [ -z "${DOCKER_HOST:-}" ] && [ ! -S /var/run/docker.sock ]; then
+            echo "::warning title=Docker CLI::no docker socket in this job and no docker CLI - the image cannot be built here, so only the Dockerfile checks above gate this run"
+            echo "no daemon, nothing to build: the static Dockerfile checks are this job's gate on a runner without a socket"
+            exit 0
+          fi
           curl -fsSL --retry 2 --retry-delay 2 --max-time 60             -o /tmp/docker-cli.tgz             "https://download.docker.com/linux/static/stable/x86_64/docker-${DOCKER_CLI_VERSION}.tgz"             && tar -xzf /tmp/docker-cli.tgz -C /usr/local/bin --strip-components=1 docker/docker             && echo "static docker CLI unpacked into /usr/local/bin" || true
           if ! command -v docker >/dev/null 2>&1; then
             echo "static download unavailable - falling back to the distro package"
@@ -1288,10 +1302,19 @@ jobs:
             # Bounded like everything else here: a distro mirror that answers slowly is
             # a 90 s problem, not an hour-long one. `apt-get install` was the one command
             # in this job that could wait on a mirror indefinitely.
-            timeout --signal=TERM --kill-after=10 90 apt-get -o Acquire::Retries=1 -o Acquire::http::Timeout=20 update -qq
-            timeout --signal=TERM --kill-after=15 240 apt-get install -y -qq docker.io
+            # `|| echo` rather than a bare call: this file runs under `bash -e`, and
+            # `apt-get update` exits 100 the moment a mirror is unreachable - which is
+            # exactly the case this fallback exists for. The step then died on the
+            # update, never reached the install below it, and reported a bare
+            # `exitcode 100` with no `::error` title: five docker jobs on 2026-11-20
+            # (task 22378 run 8465 10:11:37Z, task 22387 run 8469 10:12:21Z, and three
+            # more) all ended that way while the Dockerfile checks and the HTTP smoke
+            # test had passed. The install is attempted from whatever lists the image
+            # already carries; if that fails, the guard under it still fails the step.
+            timeout --signal=TERM --kill-after=10 90 apt-get -o Acquire::Retries=1 -o Acquire::http::Timeout=20 update -qq             || echo "package lists could not be refreshed - trying the install from the lists this image already has"
+            timeout --signal=TERM --kill-after=15 240 apt-get install -y -qq docker.io             || echo "the distro package could not be installed either"
           fi
-          command -v docker || { echo "::error title=Docker CLI::no docker binary and no fallback package - the image build below would be skipped silently"; exit 1; }
+          command -v docker || { echo "::error title=Docker CLI::no docker binary and no fallback package - the image build below would be skipped silently (download.docker.com and the distro mirror were both unreachable)"; exit 1; }
           docker --version
       - name: What the host's disk looks like before this job
         # Printed before the build as well as after it, so a growing volume reads as a trend in the
