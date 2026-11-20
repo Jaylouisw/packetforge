@@ -1145,6 +1145,26 @@ class CliSession {
     return null;
   }
 
+  // The argument of `vlan` is a LIST on a box, not an id. The command reference says so in one sentence: "You can
+  // enter a single VLAN ID, a series of VLAN IDs separated by commas, or a range of VLAN IDs separated by
+  // hyphens" (Catalyst 9600, IOS XE 17.7, VLAN Commands, `vlan`), the configuration guides write the syntax as
+  // `vlan vlan_ID {[-vlan_ID]|[,vlan_ID]}`, and a Catalyst paste of `no vlan 2-1024` is already quoted in
+  // research/default-vlan-refusal-wording.md. This console creates and removes one VLAN per command, and it
+  // answered a range with `% Invalid VLAN id "10-12": a VLAN id is a whole number from 1 to 4094` - a refusal
+  // that says the box's own grammar does not exist, in a sentence an operator can check and find false.
+  //
+  // Accepting the form is a capability (a list creates many VLANs, each with its own receipt, and `no vlan` needs
+  // the same list) and this console is not adding capabilities; what it must not do is misdescribe the vendor's
+  // grammar. So the form is refused in its own words, naming the box's spelling and the one-id-per-line this
+  // console takes instead (research/vlan-list-argument.md). Only the two global doors use it: an access, native
+  // or voice VLAN really does take a single id, and their refusals stay as they are.
+  _vlanListRefusal(token, undo) {
+    const text = String(token === undefined || token === null ? '' : token).trim();
+    if (!/^[0-9]+([-,][0-9]+)+$/.test(text)) return null;
+    return '% VLAN list "' + text + '" is not modelled: a box takes a range (10-12) or a comma-separated list ' +
+      '(10,12) on `vlan`, and this console takes one id per line - nothing was ' + (undo ? 'removed' : 'changed');
+  }
+
   // `?` is the key an operator presses to ask what goes here, and the free-text positions stored the key as the
   // text itself (#1685): `hostname ?` renamed the box to "?" and printed nothing, `dns zone ?` answered
   // "DNS zone ? ready" and wrote `dns zone ?` into the running-config, and `vlan 42 name ?` created VLAN 42
@@ -1352,6 +1372,8 @@ class CliSession {
       // set from the same text, so they cannot disagree.
       if (name) this.device.name = name;
     } else if (head === 'vlan') {
+      const listed = this._vlanListRefusal(tokens[1], false);
+      if (listed) return [listed];
       const bad = this._vlanIdRefusal(tokens[1], 'a VLAN id');
       if (bad) return [bad];
       const id = parseInt(tokens[1], 10);
@@ -1489,6 +1511,8 @@ class CliSession {
       this.device.nameBeforeHostname = null;
       out.push('Hostname cleared (device is now ' + this.device.name + ')');
     } else if (head === 'no' && tokens[1] === 'vlan') {
+      const listed = this._vlanListRefusal(tokens[2], true);
+      if (listed) return [listed];
       const bad = this._vlanIdRefusal(tokens[2], 'a VLAN id');
       if (bad) return [bad];
       const id = parseInt(tokens[2], 10);

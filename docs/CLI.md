@@ -1413,6 +1413,27 @@ sw1(config-if)#switchport voice vlan banana
 % Invalid VLAN id "banana": a voice VLAN is a whole number from 1 to 4094 or "none"
 ```
 
+Three of those five doors take a **single** id, and that is the whole grammar: an access, native or voice VLAN
+is one VLAN. The two global commands are the exception, because on a box their argument is a **list** - Cisco's `vlan`
+reference says it in one sentence: *"You can enter a single VLAN ID, a series of VLAN IDs separated by commas, or
+a range of VLAN IDs separated by hyphens"* (Catalyst 9600, IOS XE 17.7, VLAN Commands), and the configuration
+guides write the syntax as `vlan vlan_ID {[-vlan_ID]|[,vlan_ID]}`. This console creates one VLAN per command, so
+the form is still refused — but it used to be refused as an invalid id, which is a claim about IOS that is false:
+
+```
+sw1(config)#vlan 10-12
+% VLAN list "10-12" is not modelled: a box takes a range (10-12) or a comma-separated list (10,12) on `vlan`, and this console takes one id per line - nothing was changed
+sw1(config)#no vlan 20,22
+% VLAN list "20,22" is not modelled: a box takes a range (10-12) or a comma-separated list (10,12) on `vlan`, and this console takes one id per line - nothing was removed
+```
+
+The refusal is the one line above, it names both of the vendor's spellings and the form this console takes
+instead, and it changes nothing — `show vlan` and `show running-config` are exactly as they were, and the ids the
+advice asks for (`vlan 10`, `vlan 11`, `vlan 12`) do work. What is *absent* is creating or removing several VLANs
+from one command, and the note says so instead of pretending the grammar does not exist
+(`research/vlan-list-argument.md`; the suite is `test/vlan-list-argument.test.js`). A token that is not a list —
+`WORD`, `1.5`, `-5`, `4095`, a dangling `10-` — keeps the per-id refusals above.
+
 These five doors used to accept the word. `vlan WORD` answered **`VLAN NaN created (name: VLAN0NaN)`** and wrote
 `vlan NaN VLAN0NaN` into `show running-config` — a line that is not a VLAN and cannot be typed back — while
 `show vlan` did not list it at all, and the save file wrote the id as `null` and lost it. `switchport access vlan
