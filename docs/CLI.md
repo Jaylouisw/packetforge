@@ -2325,10 +2325,16 @@ Fa0/2         Altn          BLK
 ```
 
 The `Role` and `Sts` cells are the device's table cells, not its detail view: a box prints `Root`, `Desg`,
-`Altn` and `FWD`, `BLK` (plus `LTN`/`LRN` while the tree is still converging), and saves
-`designated forwarding` for `show spanning-tree detail`. The detail sentence is still what the runtime payload
-and the port tooltip say, because there a sentence is the right shape; the table uses the words a table uses
-(`research/stp-port-table-role-and-sts.md`).
+`Altn` and `FWD`, `BLK` (plus `LTN`/`LRN` while the tree is still converging), and keeps `designated forwarding`
+for a detail view this console does not model. The word is refused rather than answered, and the refusal points
+at the table that does report the tree:
+
+```
+[sw] show spanning-tree detail -> % show spanning-tree does not take "detail": this device's tree is reported - the Port column names the port each row is about
+```
+
+The detail sentence is still what the runtime payload and the port tooltip say, because there a sentence is the
+right shape; the table uses the words a table uses (`research/stp-port-table-role-and-sts.md`).
 
 The header names the **bridge priority** and the **root bridge the election chose**. Without it the report
 described a tree but not why it had that shape: priority decides the election before MAC address does, so two
