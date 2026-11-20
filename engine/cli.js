@@ -581,6 +581,45 @@ function briefMethod(iface) {
   return 'unset';
 }
 
+// A subinterface is printed immediately after the port it rides on, in **both** tables that list interfaces.
+//
+// `show interfaces` has walked its list that way since subinterfaces were added to it - the child block follows
+// the parent block - but `show ip interface brief` iterated the device's interface map and appended every
+// subinterface after every physical port, so a router-on-a-stick answered:
+//
+//   GigabitEthernet0/0/0   unassigned   ...
+//   GigabitEthernet0/0/1   unassigned   ...
+//   GigabitEthernet0/0/2   unassigned   ...
+//   GigabitEthernet0/0/0.10 10.10.0.1  ...
+//   GigabitEthernet0/0/0.20 10.20.0.1  ...
+//
+// A box prints `GigabitEthernet0/0/1`, then `0/0/1.1`, `0/0/1.2`, then `0/0/2` - the child sits under its
+// parent, before the next socket (research/interface-brief-subinterface-order.md). Two views of one list must
+// not order it two ways, so the walk lives here and both callers use it.
+//
+// A child is recognised by the `parent` the engine records, and - for a subinterface whose parent field is
+// missing - by the dotted name, which is how a box spells the relationship. Anything the walk cannot place (an
+// orphaned child) is still printed, at the end: a row that cannot be ordered is not a row to hide.
+function orderWithChildren(list) {
+  const byName = new Map(list.map(function (i) { return [i.name, i]; }));
+  const ordered = [];
+  const placed = new Set();
+  for (const i of list) {
+    if (placed.has(i.name)) continue;
+    ordered.push(i); placed.add(i.name);
+    for (const child of list) {
+      if (child === i || placed.has(child.name)) continue;
+      if (child.parent === i.name || String(child.name).indexOf(i.name + '.') === 0) {
+        ordered.push(child); placed.add(child.name);
+      }
+    }
+  }
+  for (const i of ordered) placed.add(i.name);
+  for (const name of byName.keys()) {
+    if (!placed.has(name)) ordered.push(byName.get(name));
+  }
+  return ordered;
+}
 
 // A `show` command that does not take an argument says so, and names the command that answers the question asked.
 //
@@ -5974,8 +6013,13 @@ class CliSession {
       // router that has both a console and an aux port. This table used to print `Console unassigned YES unset
       // down down` (and `Aux0` beside it) on every model that declares one - 683 sockets on 233 models.
       // research/console-is-a-line-not-an-interface.md.
-      for (const i of dev.interfaces.values()) {
-        if (isConsoleLine(i)) continue;
+      // Rows in the device's own order, with each subinterface under its parent - the order a box prints and
+      // the order `show interfaces` prints (research/interface-brief-subinterface-order.md). This table used to
+      // append every subinterface after every physical port, so a router-on-a-stick listed its `.10` and `.20`
+      // below ports the reader had not asked about, one screen away from the port they ride on.
+      const listed = orderWithChildren([...dev.interfaces.values()]
+        .filter(function (x) { return !isConsoleLine(x); }));
+      for (const i of listed) {
         // The IP-Address cell is the bare dotted quad. IOS's own samples never print the mask here - the
         // field list defines the column as "IP address assigned to the interface" - and a reader comparing a
         // simulator's table against a box's would find a string the box cannot produce (research note:
@@ -6927,28 +6971,9 @@ class CliSession {
       // A subinterface is an interface: it can hold an address, carry traffic and be configured, so it has to
       // be in the listing. It was omitted, and `show interfaces` printed 3 of the 4 interfaces on a router -
       // the one that was missing being the one with the address on it. Children follow their parent, which is
-      // the order the blocks are read in.
-      if (!wanted) {
-        const byName = new Map(shown.map(function (i) { return [i.name, i]; }));
-        const ordered = [];
-        const placed = new Set();
-        for (const i of shown) {
-          if (placed.has(i.name)) continue;
-          ordered.push(i); placed.add(i.name);
-          for (const child of shown) {
-            if (child === i || placed.has(child.name)) continue;
-            if (child.parent === i.name || String(child.name).indexOf(i.name + '.') === 0) {
-              ordered.push(child); placed.add(child.name);
-            }
-          }
-        }
-        shown = ordered;
-        // Anything the parent walk did not reach (an orphaned child) is still printed, at the end.
-        for (const i of shown) placed.add(i.name);
-        for (const name of byName.keys()) {
-          if (!placed.has(name)) shown.push(byName.get(name));
-        }
-      }
+      // the order the blocks are read in - the walk `show ip interface brief` uses as well, so the two views
+      // cannot order one list two ways (`orderWithChildren`).
+      if (!wanted) shown = orderWithChildren(shown);
       for (const i of shown) {
         out.push(i.name + ' (' + i.type + ', ' + i.speed + '), MAC ' + net.formatMac(i.mac));
         // The reason travels with the status: this block used to print `status: up` directly above

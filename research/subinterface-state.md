@@ -78,10 +78,11 @@ parent was enabled (nothing could reach a flag already set), and `show running-c
    configured address and does not ask the port's state; a box removes the connected route when the
    interface goes down. That is a routing-table question, not an interface-state one, and is not changed
    here. Evidence: `show ip route` beside `show ip interface brief` with the parent shut.
-3. **Row order in `show ip interface brief`.** Cisco's own samples print children immediately after their
+3. **Row order in `show ip interface brief`.** ~~Cisco's own samples print children immediately after their
    parent (Example 4-35 above); this console appends every subinterface after every physical port, so
-   `Gi0/0.10` lands below `Gi0/2`. `show interfaces` already places children after their parent, so the
-   two views of one list disagree - a separate, layout-sized question.
+   `Gi0/0.10` lands below `Gi0/2`.~~ **Taken up:** three live pastes (1921, 2921, IOSv) print the child
+   directly under its parent, and both views now share one parent-first walk -
+   `research/interface-brief-subinterface-order.md`.
 4. **Non-Ethernet subinterfaces.** On IOS XR POS and serial ports the parent's administrative state drives
    "the subinterface and its PVC", and a PVC is a second gate with no Ethernet equivalent. The catalogue's
    ports are Ethernet, fibre and serial-with-clock, so only the Ethernet form is implemented.
