@@ -21,7 +21,8 @@
       "speedCaps": [
         "2.5G",
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
       "poeOut": true,
       "poeOutClass": "PoE+++"
@@ -34,7 +35,8 @@
       "speedCaps": [
         "2.5G",
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
       "poeOut": true,
       "poeOutClass": "PoE+++"
@@ -47,7 +49,8 @@
       "speedCaps": [
         "2.5G",
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
       "poeOut": true,
       "poeOutClass": "PoE+++"
@@ -60,7 +63,8 @@
       "speedCaps": [
         "2.5G",
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
       "poeOut": true,
       "poeOutClass": "PoE+++"
@@ -73,7 +77,8 @@
       "speedCaps": [
         "2.5G",
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
       "poeOut": true,
       "poeOutClass": "PoE+++"
@@ -86,7 +91,8 @@
       "speedCaps": [
         "2.5G",
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
       "poeOut": true,
       "poeOutClass": "PoE+++"
@@ -99,7 +105,8 @@
       "speedCaps": [
         "2.5G",
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
       "poeOut": true,
       "poeOutClass": "PoE+++"
@@ -112,7 +119,8 @@
       "speedCaps": [
         "2.5G",
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
       "poeOut": true,
       "poeOutClass": "PoE+++"
@@ -125,7 +133,8 @@
       "speedCaps": [
         "2.5G",
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
       "poeOut": true,
       "poeOutClass": "PoE+++"
@@ -138,7 +147,8 @@
       "speedCaps": [
         "2.5G",
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
       "poeOut": true,
       "poeOutClass": "PoE+++"
@@ -151,7 +161,8 @@
       "speedCaps": [
         "2.5G",
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
       "poeOut": true,
       "poeOutClass": "PoE+++"
@@ -164,7 +175,8 @@
       "speedCaps": [
         "2.5G",
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
       "poeOut": true,
       "poeOutClass": "PoE+++"
@@ -177,7 +189,8 @@
       "speedCaps": [
         "2.5G",
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
       "poeOut": true,
       "poeOutClass": "PoE+++"
@@ -190,7 +203,8 @@
       "speedCaps": [
         "2.5G",
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
       "poeOut": true,
       "poeOutClass": "PoE+++"
@@ -203,7 +217,8 @@
       "speedCaps": [
         "2.5G",
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
       "poeOut": true,
       "poeOutClass": "PoE+++"
@@ -216,7 +231,8 @@
       "speedCaps": [
         "2.5G",
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
       "poeOut": true,
       "poeOutClass": "PoE+++"
@@ -231,7 +247,8 @@
         "5G",
         "2.5G",
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
       "poeOut": true,
       "poeOutClass": "PoE+++"
@@ -246,7 +263,8 @@
         "5G",
         "2.5G",
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
       "poeOut": true,
       "poeOutClass": "PoE+++"
@@ -261,7 +279,8 @@
         "5G",
         "2.5G",
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
       "poeOut": true,
       "poeOutClass": "PoE+++"
@@ -276,7 +295,8 @@
         "5G",
         "2.5G",
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
       "poeOut": true,
       "poeOutClass": "PoE+++"
@@ -291,7 +311,8 @@
         "5G",
         "2.5G",
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
       "poeOut": true,
       "poeOutClass": "PoE+++"
@@ -306,7 +327,8 @@
         "5G",
         "2.5G",
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
       "poeOut": true,
       "poeOutClass": "PoE+++"
@@ -321,7 +343,8 @@
         "5G",
         "2.5G",
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
       "poeOut": true,
       "poeOutClass": "PoE+++"
@@ -336,7 +359,8 @@
         "5G",
         "2.5G",
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
       "poeOut": true,
       "poeOutClass": "PoE+++"
@@ -351,7 +375,8 @@
         "5G",
         "2.5G",
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
       "poeOut": true,
       "poeOutClass": "PoE+++"
@@ -366,7 +391,8 @@
         "5G",
         "2.5G",
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
       "poeOut": true,
       "poeOutClass": "PoE+++"
@@ -381,7 +407,8 @@
         "5G",
         "2.5G",
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
       "poeOut": true,
       "poeOutClass": "PoE+++"
@@ -396,7 +423,8 @@
         "5G",
         "2.5G",
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
       "poeOut": true,
       "poeOutClass": "PoE+++"
@@ -411,7 +439,8 @@
         "5G",
         "2.5G",
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
       "poeOut": true,
       "poeOutClass": "PoE+++"
@@ -426,7 +455,8 @@
         "5G",
         "2.5G",
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
       "poeOut": true,
       "poeOutClass": "PoE+++"
@@ -441,7 +471,8 @@
         "5G",
         "2.5G",
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
       "poeOut": true,
       "poeOutClass": "PoE+++"
@@ -456,7 +487,8 @@
         "5G",
         "2.5G",
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
       "poeOut": true,
       "poeOutClass": "PoE+++"
@@ -471,7 +503,8 @@
         "5G",
         "2.5G",
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
       "poeOut": true,
       "poeOutClass": "PoE+++"
@@ -486,7 +519,8 @@
         "5G",
         "2.5G",
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
       "poeOut": true,
       "poeOutClass": "PoE+++"
@@ -501,7 +535,8 @@
         "5G",
         "2.5G",
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
       "poeOut": true,
       "poeOutClass": "PoE+++"
@@ -516,7 +551,8 @@
         "5G",
         "2.5G",
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
       "poeOut": true,
       "poeOutClass": "PoE+++"
@@ -531,7 +567,8 @@
         "5G",
         "2.5G",
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
       "poeOut": true,
       "poeOutClass": "PoE+++"
@@ -546,7 +583,8 @@
         "5G",
         "2.5G",
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
       "poeOut": true,
       "poeOutClass": "PoE+++"
@@ -561,7 +599,8 @@
         "5G",
         "2.5G",
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
       "poeOut": true,
       "poeOutClass": "PoE+++"
@@ -576,7 +615,8 @@
         "5G",
         "2.5G",
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
       "poeOut": true,
       "poeOutClass": "PoE+++"
@@ -591,7 +631,8 @@
         "5G",
         "2.5G",
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
       "poeOut": true,
       "poeOutClass": "PoE+++"
@@ -606,7 +647,8 @@
         "5G",
         "2.5G",
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
       "poeOut": true,
       "poeOutClass": "PoE+++"
@@ -621,7 +663,8 @@
         "5G",
         "2.5G",
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
       "poeOut": true,
       "poeOutClass": "PoE+++"
@@ -636,7 +679,8 @@
         "5G",
         "2.5G",
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
       "poeOut": true,
       "poeOutClass": "PoE+++"
@@ -651,7 +695,8 @@
         "5G",
         "2.5G",
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
       "poeOut": true,
       "poeOutClass": "PoE+++"
@@ -666,7 +711,8 @@
         "5G",
         "2.5G",
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
       "poeOut": true,
       "poeOutClass": "PoE+++"
@@ -681,7 +727,8 @@
         "5G",
         "2.5G",
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
       "poeOut": true,
       "poeOutClass": "PoE+++"
@@ -696,7 +743,8 @@
         "5G",
         "2.5G",
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
       "poeOut": true,
       "poeOutClass": "PoE+++"
@@ -748,5 +796,11 @@
   ],
   "icon": "switch",
   "color": "#14b8a6",
-  "sourceUrl": "https://techspecs.ui.com/unifi/switching/ecs-48-poe"
+  "sourceUrl": "https://techspecs.ui.com/unifi/switching/ecs-48-poe",
+  "poe": {
+    "budgetW": 2150,
+    "sourceUrl": "https://techspecs.ui.com/unifi/switching/ecs-48-poe",
+    "note": "Tech specs print PoE availability as four rows against the (2) 1,200 W hot-swappable modules: 200-240 V AC shared 2,150 W / 100-120 V AC shared 1,750 W / 200-240 V AC redundant 950 W / 100-120 V AC redundant 750 W. 2,150 W is the ceiling - one PSU, or a 120 V feed, or a redundant pair drops it to 1,750 / 950 / 750 W respectively, and the lab must state which. Per-port ceiling is 90 W on all 48 copper ports (802.3bt Type 4, Class 8): 15.4 W PoE / 30 W PoE+ / 60 W PoE++ / 90 W PoE+++."
+  },
+  "notes": "Ethernet census read from the vendor's own Port Layout table: https://techspecs.ui.com/unifi/switching/ecs-48-poe (HTTP 200, 663,600 B, server-rendered, read 2026-11-20) prints three rows - \"2.5 GbE RJ45 = 16 (All PoE+++) (2.5G/1G/100M/10M)\", \"10 GbE RJ45 = 32 (All PoE+++) (10G/5G/2.5G/1G/100M/10M)\", \"25G SFP28 = 4 (25G/10G/1G)\" - and a Hardware block of \"PoE Ports: 48\", so all 48 copper jacks are PSE and the 4 SFP28 are uplinks. Unlike the 48S and 24S rows this page prints no Console row and no OOB management port (Management: Ethernet only), so 52 jacks is the whole box. Both RJ45 banks were missing the 10M rung the page prints before this correction. PoE: the spec carried no budget, so the loader named it from the model string, found no wattage and served 0 W while the description beside it claimed 2,150 W. Also recorded, not modelled as ports: Max. Power Consumption 250 W excluding PoE / 2,400 W including; Switching Capacity 920 Gbps; non-blocking 460 Gbps; 684 Mpps; (2) AC inputs with (2) 1,200 W hot-swappable modules; (4) hot-swappable fans."
 }
