@@ -879,8 +879,36 @@ jobs:
           # The syntax check gets 120 s on the same argument (18.6 s measured for the whole
           # tree). Nothing is skipped, retried or weakened: same suites, same commit, same exit
           # status, and a timeout is reported as a timeout rather than as a failing assertion.
-          timeout --signal=TERM --kill-after=15 120 node scripts/syntax-check.js > "$out" 2>&1 &
-          syntax_pid=$!
+          # One sweep per run, on the Node 18 leg, 8 files at a time - not three.
+          #
+          # The sweep parses every JavaScript file under the seven source directories, and it
+          # ran in all three legs on the identical tree: three answers to one question, each
+          # one a serial `node --check` (~19 s of the 8-core host it was measured on, 32.2 s
+          # on this one on 2026-11-20 over 485 files) competing with a 10-way suite for the
+          # same cores. Measured on this tree, one leg, back to back: `node
+          # scripts/syntax-check.js` alone 32.2 s; the same 485 `node --check` parses 8 at a
+          # time 2.8 s. A parse is a pure function of the file and the parser, so the second
+          # and third copies could only say what the first one said.
+          #
+          # So it runs once, in the leg named for the oldest runtime in the matrix (`engines:
+          # >=18`) - the strictest parser, and the case the sweep exists for - over the same
+          # seven directories and with the same `node --check`, 8 at a time. Every leg still
+          # executes every file: 20 and 22 run the whole suite, which requires the tree.
+          # Same 120 s bound, same exit status, same `Syntax check (all JS)` title, so a file
+          # that does not parse is still red and still names itself; what goes is two
+          # redundant sweeps and their contention with the suites beside them.
+          syntax_rc=0
+          syntax_pid=""
+          if [ "${{ matrix.node }}" = "18" ]; then
+            timeout --signal=TERM --kill-after=15 120 bash -o pipefail -c '
+              set -u
+              list="$1"
+              find engine server devices web scripts examples test -type f -name "*.js" -print0 > "$list"
+              echo "syntax-check: $(tr -cd "\000" < "$list" | wc -c | tr -d " ") JavaScript files, node --check 8 at a time, on $(node --version)"
+              xargs -0 -r -P 8 -n 1 node --check < "$list"
+            ' bash "$dir/syntax-check.list" > "$out" 2>&1 &
+            syntax_pid=$!
+          fi
           # The three static checks, same scripts and same 60 s bound they had as steps of
           # their own, started here so they run over the suite instead of in front of it.
           # Their logs go to the same place the syntax check's does - outside the tree - and
@@ -976,8 +1004,10 @@ jobs:
             wait "$control_pid"
             control_rc=$?
           fi
-          wait "$syntax_pid"
-          syntax_rc=$?
+          if [ -n "${syntax_pid}" ]; then
+            wait "$syntax_pid"
+            syntax_rc=$?
+          fi
           wait "$node_surface_pid"
           node_surface_rc=$?
           wait "$canonical_urls_pid"
@@ -1017,8 +1047,10 @@ jobs:
               fi
             fi
           fi
-          echo "--- node scripts/syntax-check.js ---"
-          cat "$out"
+          if [ -f "$out" ]; then
+            echo "--- node --check, every JavaScript file, on the Node 18 parser ---"
+            cat "$out"
+          fi
           for log in check-node-surface check-canonical-urls check-ci-disk-hygiene; do
             echo "--- node scripts/${log}.js ---"
             cat "$dir/${log}.log"
@@ -1029,9 +1061,9 @@ jobs:
             cat "$dir/${log}.log"
           done
           if [ "$syntax_rc" -eq 124 ] || [ "$syntax_rc" -eq 137 ]; then
-            echo "::error title=Syntax check (all JS)::node scripts/syntax-check.js was still running after 120 s and was stopped - a green run takes ~19 s"
+            echo "::error title=Syntax check (all JS)::the sweep was still running after 120 s and was stopped - 485 files 8 at a time take 2.8 s here, so this is a sweep that stopped moving, not a slow one"
           elif [ "$syntax_rc" -ne 0 ]; then
-            echo "::error title=Syntax check (all JS)::node scripts/syntax-check.js exited ${syntax_rc}"
+            echo "::error title=Syntax check (all JS)::node --check rejected at least one file (exit ${syntax_rc}) - the files and their errors are printed above"
           fi
           if [ "$test_rc" -eq 124 ] || [ "$test_rc" -eq 137 ]; then
             echo "::error title=Full test suite::the suite was still running after 300 s and was stopped - a green leg takes 46-69 s here, so this is a hung suite, not a slow one; the suites that had already reported are above"
