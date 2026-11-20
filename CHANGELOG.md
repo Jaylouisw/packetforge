@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **`show vlan brief` names an access EtherChannel by the bundle, not by its members.** A working two-member
+  bundle in VLAN 10 printed `Fa0/2, Fa0/3` in the Ports cell — the cables a frame might cross — while
+  `show etherchannel summary` on the same box printed `Po1(SU)` over those two members. An IOU switch with
+  `Et0/0`-`Et0/1` bundled and `switchport access vlan 10` on the members prints `10 VLAN0010 active Po1` and
+  an empty VLAN 1 row ([EtherChannel lab](https://lkjil1224.tistory.com/70)); NX-OS and the vendor's
+  `show vlan-switch` sample agree (`research/show-vlan-brief-etherchannel.md`). A member that never negotiated
+  is still a single link and keeps its own name, and the bundle is printed after the physical ports
+  (`test/vlan-brief-etherchannel.test.js`, 13 checks).
 - **`show ip bgp summary` prints the prefix count its last cell is for, not the word `Established`.** The
   column is the box's `State/PfxRcd`, and a device puts a *number* there while the session is up — the
   prefixes received from that neighbour — and the FSM word (`Idle`, `Active`, `Connect`, `OpenSent`,

@@ -1220,6 +1220,13 @@ ports are displayed", and `show vlan all-ports` exists precisely because the def
   those VLANs; it is not a member of them, so a trunk that allows `20,30` is not "in VLAN 1" either. Listing
   trunks was the older rule, which read membership out of `classifyEgress()`: the right answer about forwarding
   and the wrong one for this table (#1638).
+* **an access EtherChannel is one port, named by the bundle.** A working two-member bundle in VLAN 10 prints
+  `Po1`, and its members appear in no cell — not in VLAN 10 and not in VLAN 1 — because the switch forwards on
+  the logical interface. An IOU switch with the members bundled prints `10 VLAN0010 active Po1` over an empty
+  VLAN 1 row (`test/vlan-brief-etherchannel.test.js`; `research/show-vlan-brief-etherchannel.md`). A member
+  that never negotiated LACP still carries traffic as an ordinary single link, so it keeps its own name (the
+  rule the MAC table applies to that state), and the bundle names are printed after the physical ports, the
+  order the vendor's EtherSwitch sample shows (`... Gi4/0, Gi4/1, Po1`).
 
 A VLAN has a row if it is in the VLAN database — configured with `vlan <id> [name] [<text>]`, created by
 `switchport access vlan <id>`, or held from boot (VLAN 1 is there from power-on, named `default`, before anybody

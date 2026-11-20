@@ -6486,6 +6486,21 @@ class CliSession {
         // The same predicate guards `inactiveVlan()` on Device: a box that does not bridge has no VLAN for a
         // port to be inactive in either.
         const bridgePorts = (typeof dev.isL2 !== 'function') || dev.isL2();
+        // An access EtherChannel is ONE port in this cell, named by the bundle, and its members are not
+        // listed beside it. A working two-member bundle whose members are access VLAN 10 printed
+        // `Fa0/2, Fa0/3` here, so the cell named the cables a frame might cross instead of the interface the
+        // switch forwards on - and `show etherchannel summary` on the same box said the two cables were one
+        // `Po1(SU)`. An IOU switch with `Et0/0`-`Et0/1` bundled and `switchport access vlan 10` on the members
+        // prints `10 VLAN0010 active Po1` with an empty VLAN 1 cell (lkjil1224.tistory.com/70); NX-OS and
+        // Arista EOS print the same (`show vlan brief` -> `1 default active Po1`), and the IOS `show
+        // vlan-switch` sample in the vendor's own command reference lists `... Gi4/0, Gi4/1, Po1` - the bundle
+        // named once, after the physical ports (research/show-vlan-brief-etherchannel.md).
+        //
+        // A member that never negotiated is not in the bundle: it forwards as an ordinary single link, so it
+        // stays a port of its own, which is the rule the MAC table already applies to the same state. The
+        // bundle names are appended after the physical ports, the order the `show vlan-switch` sample shows.
+        const lagLib = require('./lag');
+        const bundles = [];
         for (const i of (bridgePorts ? dev.interfaces.values() : [])) {
           // A trunk port is in no row: it carries the VLAN, it is not a member of it, and the vendor's
           // table lists access ports only. Emitting it in every VLAN its allowed list names made a trunk
@@ -6493,8 +6508,16 @@ class CliSession {
           if (i.vlan && i.vlan.mode === 'trunk') continue;
           const verdict = vlanLib.classifyEgress(i.vlan, id);
           if (verdict.action === 'drop') continue;
+          const bundle = (typeof dev.lagFor === 'function') ? dev.lagFor(i.name) : null;
+          const suspended = bundle ? lagLib.memberSuspension(dev, i.name, this.topo) : null;
+          if (bundle && !suspended) {
+            const bundleName = lagLib.portChannelName(bundle.id);
+            if (bundles.indexOf(bundleName) === -1) bundles.push(bundleName);
+            continue;
+          }
           members.push(i.name);
         }
+        for (const b of bundles) members.push(b);
         const name = (named[id] && named[id].name)
           || (id === 1 ? 'default' : 'VLAN' + String(id).padStart(4, '0'));
         out.push.apply(out, vlanRows([id, name, 'active', members]));
