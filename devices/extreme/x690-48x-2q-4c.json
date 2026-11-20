@@ -3,7 +3,7 @@
   "model": "X690-48x-2q-4c",
   "label": "X690-48x-2q-4c",
   "category": "l3-switch",
-  "description": "ExtremeSwitching X690-48x-2q-4c (17350) - 1RU 10G leaf, ExtremeXOS: 48x 1G/10GBASE-X SFP+ (ports 1:1-1:48), 2x 10G/40G QSFP+ (ports 1:49-1:50), 4x 10/25/40/50/100G QSFP28 (ports 1:51-1:54).",
+  "description": "ExtremeSwitching X690-48x-2q-4c (part 17350) - 1RU 10G leaf, ExtremeXOS: 48x 1Gb/10G SFP+ (ports 1:1-1:48), 2x 10Gb/40Gb QSFP+ (ports 1:49-1:50), 4x 10Gb/25Gb/40Gb/50Gb/100Gb QSFP28 (ports 1:51-1:54). All 54 ports are optical cages; the copper twin is the separate X690-48t-2q-4c (17360), which is 48x 10GBASE-T.",
   "capabilities": [
     "l2-forward",
     "l3-forward",
@@ -14,40 +14,89 @@
     "start": 1,
     "count": 48,
     "type": "ethernet",
-    "speed": "10G"
+    "speed": "10G",
+    "connector": "sfp+",
+    "speedCaps": [
+      1000,
+      10000
+    ]
   },
   "interfaces": [
     {
       "name": "1:49",
       "type": "ethernet",
-      "speed": "40G"
+      "speed": "40G",
+      "connector": "qsfp+",
+      "speedCaps": [
+        10000,
+        40000
+      ]
     },
     {
       "name": "1:50",
       "type": "ethernet",
-      "speed": "40G"
+      "speed": "40G",
+      "connector": "qsfp+",
+      "speedCaps": [
+        10000,
+        40000
+      ]
     },
     {
       "name": "1:51",
       "type": "ethernet",
-      "speed": "100G"
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        10000,
+        25000,
+        40000,
+        50000,
+        100000
+      ]
     },
     {
       "name": "1:52",
       "type": "ethernet",
-      "speed": "100G"
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        10000,
+        25000,
+        40000,
+        50000,
+        100000
+      ]
     },
     {
       "name": "1:53",
       "type": "ethernet",
-      "speed": "100G"
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        10000,
+        25000,
+        40000,
+        50000,
+        100000
+      ]
     },
     {
       "name": "1:54",
       "type": "ethernet",
-      "speed": "100G"
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        10000,
+        25000,
+        40000,
+        50000,
+        100000
+      ]
     }
   ],
   "icon": "switch",
-  "color": "#e11d48"
+  "color": "#e11d48",
+  "notes": "Vendor wording (Extreme X690 Quick Reference, 121148-00): \"X690-48x-2q-4c Base unit, 48 1Gb/10Gb SFP+ ports, 2 10Gb/40Gb QSFP+ ports, 4 10Gb/25Gb/40Gb/50Gb/100Gb QSFP28 ports\"; the same document's front-panel legend says \"1Gb/10GBASE-T ports (48t model) or 1Gb/10Gb SFP+ ports (48x model)\". Until this pass the ports carried no connector at all, so every port was modelled as an RJ45 socket (audit-port-types, the #60 shape) - wrong for all 54.",
+  "sourceUrl": "https://documentation.extremenetworks.com/HW_QRG/121148-00_x690_qrg.pdf"
 }

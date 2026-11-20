@@ -3,7 +3,7 @@
   "model": "VSP 7254XSQ",
   "label": "VSP 7254XSQ",
   "category": "l3-switch",
-  "description": "Extreme VSP 7254XSQ - 1RU 10/40G Fabric Connect top-of-rack switch (VOSS, VSP 7200 series): 48x 1G/10G SFP+ in slot 1 (1:1-1:48) and 6x 40G QSFP+ in slot 2 (2:1-2:6).",
+  "description": "Extreme VSP 7254XSQ - 1RU 10/40G Fabric Connect top-of-rack switch (VOSS, VSP 7200 series): 48x 1G/10G SFP/SFP+ in slot 1 (1:1-1:48) and 6x 40G QSFP+ in slot 2 (2:1-2:6). The 48 fibre ports are SFP+ cages, not copper: the 7254XTQ is the 10GBASE-T twin.",
   "capabilities": [
     "l2-forward",
     "l3-forward",
@@ -14,40 +14,77 @@
     "start": 1,
     "count": 48,
     "type": "ethernet",
-    "speed": "10G"
+    "speed": "10G",
+    "connector": "sfp+",
+    "speedCaps": [
+      1000,
+      10000
+    ]
   },
   "interfaces": [
     {
       "name": "2:1",
       "type": "ethernet",
-      "speed": "40G"
+      "speed": "40G",
+      "connector": "qsfp+",
+      "speedCaps": [
+        10000,
+        40000
+      ]
     },
     {
       "name": "2:2",
       "type": "ethernet",
-      "speed": "40G"
+      "speed": "40G",
+      "connector": "qsfp+",
+      "speedCaps": [
+        10000,
+        40000
+      ]
     },
     {
       "name": "2:3",
       "type": "ethernet",
-      "speed": "40G"
+      "speed": "40G",
+      "connector": "qsfp+",
+      "speedCaps": [
+        10000,
+        40000
+      ]
     },
     {
       "name": "2:4",
       "type": "ethernet",
-      "speed": "40G"
+      "speed": "40G",
+      "connector": "qsfp+",
+      "speedCaps": [
+        10000,
+        40000
+      ]
     },
     {
       "name": "2:5",
       "type": "ethernet",
-      "speed": "40G"
+      "speed": "40G",
+      "connector": "qsfp+",
+      "speedCaps": [
+        10000,
+        40000
+      ]
     },
     {
       "name": "2:6",
       "type": "ethernet",
-      "speed": "40G"
+      "speed": "40G",
+      "connector": "qsfp+",
+      "speedCaps": [
+        10000,
+        40000
+      ]
     }
   ],
   "icon": "switch",
-  "color": "#e11d48"
+  "color": "#e11d48",
+  "notes": "Vendor wording (VOSS 8.9 User Guide, \"VSP 7200 Series\"): \"The VSP 7254XSQ has 48 SFP/SFP+ fiber ports. The VSP 7254XTQ has 48 RJ-45 copper ports\"; \"Slot 1 is the grouping of the 48 10 Gbps ports on the left. Slot 2 is the grouping of the 6 40 Gbps ports on the right.\" The spec declared no connector, so all 48 slot-1 ports were modelled as RJ45 sockets (audit-port-types, the #60 shape). Contrast case: 1000BASE-T SFP AA1419043-E6 runs at 1 Gbps only in this switch (PHYless design), which is why 1G stays in speedCaps.",
+  "sourceUrl": "https://documentation.extremenetworks.com/VOSS/SW/89/VOSSUserGuide/GUID-9364F72C-5FD5-4F86-ACCF-4D0C63C690E0.shtml"
 }
