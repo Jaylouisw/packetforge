@@ -38,28 +38,16 @@ function materialise() {
 }
 const all = materialise();
 
-// A description may legitimately say "no SFP cages"; that is documentation, not
-// a promise. Strip the denials before looking for an optics claim.
-function claimsOptics(desc) {
-  // A clause that calls the optics optional, unfitted or an extra-cost module is
-  // not a promise that this box has them: plenty of platforms sell uplinks as
-  // field-fitted modules. Strip such clauses before looking for a real claim.
-  const clauses = String(desc || '').split(/[.;:]/).filter(function (c) {
-    return !/\b(option|optional|unfitted|unpopulated|not fitted|blank|without)\b/i.test(c);
-  });
-  return /\b(sfp|qsfp|xfp)\b/i.test(
-    clauses.join(' ; ')
-      .replace(/\b(no|without|zero|none|not)\b[^.;,]{0,24}\b(sfp|qsfp|xfp)\b/gi, ' ')
-      .replace(/\b(sfp|qsfp|xfp)\b[^.;,]{0,16}\b(none|n\/a|-)\b/gi, ' ')
-  );
-}
+// The prose half of the rule lives with the other audit and is imported here, so the two
+// tools cannot answer it differently: "no SFP cages" is documentation, "optional 4x1G SFP
+// module" names a module nobody fitted, and neither is a promise.
+const { claimsOptics } = require('../scripts/audit-devices');
 
-const OPTICAL = ['sfp', 'sfp+', 'sfp28', 'qsfp+', 'qsfp28', 'qsfpdd', 'qsfp56',
-                 'sc-apc', 'sc-upc', 'lc-upc', 'lc-apc',
-                 // Fibre Channel cages are optical too: an FC switch whose description says
-                 // "48 x 64G SFP+" is not lying about having optics just because the cage
-                 // belongs to the FC family rather than the Ethernet one.
-                 'fc-sfp', 'fc-sfp28', 'fc-sfpdd', 'fc-qsfp28'];
+// "Is this cage optical" comes from engine/media.js's own cage table rather than
+// a list kept here: 'optical' covers SFP through CFP2 and the PON connectors,
+// 'fibre-channel' covers the FC cages. scripts/audit-devices.js asks the same
+// function, so the two audits cannot drift apart again.
+const isOptical = mediaLib.isOpticalCage;
 
 console.log('Every device exposes ports it can actually cable:');
 {
@@ -129,7 +117,7 @@ console.log('\nThe description does not promise hardware the ports lack:');
   for (const x of all) {
     if (!claimsOptics(x.spec.description)) continue;
     const optical = x.ifaces.filter(function (i) {
-      return OPTICAL.indexOf(i.hardware.cage) !== -1;
+      return isOptical(i.hardware.cage);
     });
     if (!optical.length) liars.push(x.spec.vendor + '/' + x.spec.model);
   }
@@ -159,9 +147,11 @@ console.log('\nCages and media agree with each other:');
   for (const x of all) {
     for (const i of x.ifaces) {
       const hw = i.hardware;
-      if (OPTICAL.indexOf(hw.cage) === -1) continue;
       // A copper SFP (1000BASE-T SFP) really does live in a fibre cage, so only
       // flag media that are plain copper cabling rather than copper optics.
+      // Skipping a copper cage is ordinary control flow, not an exemption: this check is
+      // scoped to fibre cages by construction, and no device is excused from it.
+      if (!isOptical(hw.cage)) continue;
       const copper = (hw.media || []).filter(function (m) {
         const def = mediaLib.mediaById(m);
         if (!def) return false;

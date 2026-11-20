@@ -404,6 +404,23 @@ const CAGES = {
   wwan: { name: 'Cellular', family: 'wireless', label: 'Cellular (3GPP) modem' }
 };
 
+// "Can this port take a fibre lead?" -- asked by every audit that reads a description for an
+// optics claim, and until now answered from a hardcoded five-name list in each of them. The
+// table above already knows: 'optical' covers SFP through CFP2 and the PON connectors
+// (SC/APC, SC/UPC, LC/UPC, LC/APC), and 'fibre-channel' covers fc-sfp/fc-sfp28/fc-sfpdd/
+// fc-qsfp28. A Brocade SAN switch modelled with fc-sfpdd cages and a GPON ONT modelled with
+// sc-apc are both fibre-ended; a list that names only the Ethernet cages calls both of them
+// copper and reports 33 devices as lying.
+//
+// 'combo' is deliberately NOT optical: it is one cage position that holds either an RJ45 or
+// an SFP module, and a combo port as modelled is copper until a module is fitted. Counting it
+// here would let a box whose only fibre-capable position is an unpopulated combo uplink pass
+// as a fibre device.
+function isOpticalCage(cage) {
+  const c = CAGES[cage];
+  return !!c && (c.family === 'optical' || c.family === 'fibre-channel');
+}
+
 // Which cages can physically mate with which.
 // Bare connector tokens that are really cages, with the polish implied by the vendor's
 // own connector type. Kept deliberately short: anything else that does not resolve to a
@@ -1560,7 +1577,7 @@ function parsePoeBudget(model) {
 module.exports = {
   CAGE_ALIAS,
   MEDIA, CAGES, CAGE_MATE, CAGE_MEDIA, CAGE_SPEEDS,
-  MEDIA_MATE, mediaMate, isPairedHalf, biDiRefusal,
+  MEDIA_MATE, mediaMate, isPairedHalf, biDiRefusal, isOpticalCage,
   parseSpeedMbps, formatSpeedMbps, HALF_DUPLEX_MAX_MBPS, parsePoeBudget, mediaById,
   cagesMate, derivePortHardware, commonMedia, commonMediaBridged, negotiateSpeed, canMate, preferredMedia,
   copperSfpModuleOf, copperSfpBridge, portWithModule,

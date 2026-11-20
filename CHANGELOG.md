@@ -9,6 +9,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **A catalogue audit called 33 fibre devices copper, and no job ran it.** `scripts/audit-devices.js`
+  answered "does this description promise optics the ports cannot deliver?" from its own
+  `OPTICAL_CAGES = ['sfp','sfp+','sfp28','qsfp+','qsfp28']`, so every Fibre Channel cage
+  (`brocade/g720`, `dell/ds-6630b`, `hpe/sn3600b` — `fc-sfpdd`, `fc-sfp28`, `fc-qsfp28`) and every PON
+  connector (28 GPON ONTs on `sc-apc`/`sc-upc`) read as copper: **33 findings, none of them a defect**,
+  against `0` from the invariant that gates the same rule. Both now call `isOpticalCage()` in
+  `engine/media.js`, which reads the cage table the engine cables from, and both strip an
+  "optional/unfitted module" clause — `watchguard/firebox-m290` and `microsemi/syncserver-s600` ship
+  copper and name an unfitted SFP option, which is documentation, not a promise. The denial strip also
+  runs before the clause split now: `SFP: none` used to be split at the colon into a bare `SFP`.
+  `test/audit-agreement.test.js` (11 checks) pins the three shapes that were wrong, the control that
+  must still fail, and the catalogue-wide agreement between the audit's answer and the invariant's
+  (0 vs 0). The script is now part of `npm test` — 0.43 s — instead of a tool `CHANGELOG` advertised
+  and no job ran. Both audits' verdicts now name what they gated and what they only reported
+  (`audit-port-types`: "Gated: 0 … Reported, not gated: 2,704"). See
+  [`docs/plans/catalogue-audit-agreement.md`](docs/plans/catalogue-audit-agreement.md).
+
 - **`ip default-gateway` is inert on a box that routes, and a DHCP lease is not it.**
   With `ip routing` enabled, `show ip route` printed `S*  0.0.0.0/0  [254/0] via <gw>` under the line
   `Gateway of last resort is not set` - a row no box installs - and `routeTo()` sent uncovered destinations to

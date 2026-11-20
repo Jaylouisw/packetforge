@@ -636,9 +636,16 @@ function main() {
     for (const f of report.failed.slice(0, 10)) console.log('   - ' + f.model + ': ' + f.error);
   }
 
-  console.log('\n' + (report.offenders.length
-    ? report.offenders.length + ' port(s) contradict their declared type.'
-    : 'No port contradicts its declared type.'));
+  // Name both numbers. Everything this script prints above the line is not the same answer as
+  // the verdict: it gates a contradiction between a port and its declared type, and merely
+  // reports coverage gaps (a template that declares no connector, a fibre port drawn as copper).
+  // A green exit that prints "No port contradicts its declared type." under a heading naming
+  // 2,968 undeclared ports reads as "nothing was found" (docs/plans/catalogue-audit-agreement.md).
+  const reported = report.undeclaredTemplatePorts + report.fibreAsCopperPorts;
+  console.log('\nGated: ' + report.offenders.length + ' port(s) contradict their declared type. '
+    + 'Reported, not gated: ' + reported + ' port(s) ('
+    + report.undeclaredTemplatePorts + ' template port(s) whose connector nothing declares, '
+    + report.fibreAsCopperPorts + ' fibre port(s) drawn as copper).');
   return report.offenders.length ? 1 : 0;
 }
 

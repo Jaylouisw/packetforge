@@ -1,8 +1,8 @@
 # Plan: two audits ask one question, and the ungated one is 33 devices wrong
 
-Status: forward plan, no code. Measured on `1855814a`, 2026-11-17. Closes **no** open issue — the
-queue is seven device requests (#130, #742, #743, #803, #807, #808, #810) and none of them is about
-tooling. Scope: `scripts/audit-devices.js`, one additive export in `engine/media.js`, one new suite
+Status: **landed** 2026-11-20 in #2301 (steps 1-6, below). Measured on `1855814a`, 2026-11-17, when it was a
+forward plan. Closes **no** open issue — the queue is two device requests (#130, #803) and neither is
+about tooling. Scope: `scripts/audit-devices.js`, one additive export in `engine/media.js`, one new suite
 under `test/`, `package.json:11`, `docs/CI.md:44`. No engine rule changes verdict.
 
 ## What exists today
@@ -111,3 +111,27 @@ is the tracked home for that coverage. The `otn`/`wdm` media family that #807/#8
 `test/template-expansion.test.js:4` ("186 of 902 specs", 4,476 of 11,190 ports; today 351 of 2,348 and
 8,525 of 29,235) — a docs-in-test tidy-up that belongs with whichever PR touches that suite next, not
 with an audit change.
+
+## What landed, measured
+
+Step 1 (`auditCatalog()`/`claimsOptics()` exported, `require.main` guard), step 3 (`isOpticalCage()` in
+`engine/media.js`, read by both tools), step 4 (the optional-module clause), step 5 (`audit:devices`
+added to the `package.json` test chain and to `docs/CI.md` — the file is kept, not deleted) and step 6
+(both verdicts name what they gated and what they merely reported). One addition the plan did not have:
+the denial strip now runs **before** the clause split, because `SFP: none` was being split at the colon
+into a bare `SFP` and a dropped `none`.
+
+| Run | Before | After |
+|---|---|---|
+| `node scripts/audit-devices.js`, optics line | 33 | **0** |
+| `node test/hardware-invariants.test.js` | 26 passed | 26 passed (same answers, one predicate) |
+| `node test/audit-agreement.test.js` | — (new) | 11 passed |
+| `node scripts/audit-port-types.js`, exit 0 | "No port contradicts its declared type." | "Gated: 0 … Reported, not gated: 2,704" |
+
+The 33 were exactly the table above: 28 PON (`sc-apc`/`sc-upc`), 3 Fibre Channel (`fc-sfp28`,
+`fc-sfpdd`, `fc-qsfp28`: `brocade/g720`, `dell/ds-6630b`, `hpe/sn3600b`), and 2 optional module bays
+(`watchguard/firebox-m290`, `microsemi/syncserver-s600`). The `audit:devices` step costs 0.43 s against
+a suite that already takes minutes.
+
+Still open, deliberately: the 2,704 template ports in 126 specs whose connector nothing declares (#71),
+and the `otn`/`wdm` media family (#807/#808/#810, `docs/plans/stated-configurations.md` step 6).

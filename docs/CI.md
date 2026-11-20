@@ -42,8 +42,8 @@ Four verification checks on a code change, all of which must be green before a m
 
 The test job runs more than the suite (`ci.yml`, the `test` job):
 
-- `npm test` — `audit:ports`, then `check:bytes`, then every `test/*.test.js` that
-  `scripts/run-tests.js` discovers;
+- `npm test` — `audit:ports`, then `audit:devices`, then `check:bytes`, then every
+  `test/*.test.js` that `scripts/run-tests.js` discovers;
 - `scripts/syntax-check.js`, started beside the suite and waited on at the end of the same step;
 - `scripts/check-node-surface.js` — no API newer than the Node 18 floor;
 - `scripts/check-canonical-urls.js` — every project URL points at Forgejo;
@@ -52,14 +52,15 @@ The test job runs more than the suite (`ci.yml`, the `test` job):
   cross-checks every model the built labs name.
 
 This paragraph used to name only the suite, `audit:ports`/`check:bytes`, the syntax check and the
-canonical-URL check. It left out the Node-surface, disk-hygiene, example-lab and catalogue steps, and
+canonical-URL check, and it omitted `audit:devices` — a script `CHANGELOG.md` has advertised since
+it was written but that no job ran (`docs/plans/catalogue-audit-agreement.md`). It left out the Node-surface, disk-hygiene, example-lab and catalogue steps, and
 its silence on the disk-hygiene check contradicted the shared-disk section below, which calls that
 script "a step in the test job".
 
 ### Running the same checks locally
 
 ```bash
-npm test                                # audit:ports, check:bytes, then every suite — what CI runs
+npm test                                # audit:ports, audit:devices, check:bytes, then every suite — what CI runs
 npm run syntax                          # syntax-check across every JS file
 node scripts/check-node-surface.js      # no API newer than the Node 18 floor
 node scripts/check-canonical-urls.js    # every project URL points at Forgejo
@@ -69,6 +70,7 @@ npm run missing:devices                 # every model those labs name exists in 
 npm run smoke                           # starts the server, exercises every route, shuts down
 docker build -t pf .                    # exactly what the Docker job does
 npm run audit:ports                     # per-port type audit
+npm run audit:devices                   # cage/optics accuracy over the whole catalogue
 ```
 
 Two suites are randomised on purpose, and both are seeded so a failure reproduces exactly:
