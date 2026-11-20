@@ -133,8 +133,87 @@ static bundles and, on the same page, a bundle with no live member reading `Po26
 - **`show etherchannel <n> summary`.** A real box accepts a group number, and this console refuses any
   argument (`show etherchannel 1` answers `does not take "1"`). That is a separate question about which
   arguments the view takes, and it is not answered here.
-- **`brief`, `detail`, `port`, `load-balance`.** All of them print the summary. On a box they are different
-  views. Not this question.
+- **`brief`, `detail`, `port`, `load-balance`.** All of them printed the summary while this note was
+
+## The other five views — settled (2026-11-20)
+
+**Question (one, narrow).** The syntax line has six views -
+`show etherchannel [channel-group-number | {detail | port | port-channel | protocol | summary}]` - and this
+console answered every one of them with the summary table. Which of the six can it actually answer, and what
+should it say about the rest?
+
+**Verdict: one of six, and the other five are refused by name.** No engine behaviour was invented: the five
+views print material the engine does not hold, so printing the summary for them was a wrong answer, not a
+narrow one.
+
+### What the vendor's reference says each word means
+
+One page carries the syntax line and a syntax-description entry per word — Catalyst 2960-X Layer 2 Command
+Reference, Cisco IOS 15.2(2)E, `show etherchannel`
+(<https://cisco.com/c/en/us/td/docs/switches/lan/catalyst2960x/software/15-2_2_e/layer2/command_reference/b_Layer2_3_1522e_2960x_cr.pdf>,
+pp. 36-37):
+
+| word | the reference's description | the sample it prints |
+|---|---|---|
+| `detail` | "Displays detailed EtherChannel information" | `Group state = L2 / Ports: 2 / Maxports = 16 / Port-channels: 1 / Protocol: LACP`, then a block per port (admin key, oper key, port state, pseudo port-channel) |
+| `load-balance` | "Displays the load-balance or frame-distribution scheme among ports in the port channel" | the hash policy |
+| `port` | "Displays EtherChannel port information" | a block per member port with its LACP/PAgP state |
+| `port-channel` | "Displays port-channel information" | the bundle's own counters and timers |
+| `protocol` | "Displays the protocol that is being used in the channel" | see below |
+| `summary` | "Displays a one-line summary per channel group" | the table this console prints |
+
+The 3650 3.6E, 3850 16.3 and 9500 16.6/17.10 references print the same line and the same samples; the 9500
+one is HTML, so its spacing survives extraction
+(<https://www.cisco.com/c/en/us/td/docs/switches/lan/catalyst9500/software/release/16-6/command_reference/b_166_9500_cr/b_166_9500_cr_chapter_0111.html>).
+
+The `protocol` sample is the one that shows most plainly that these are not variations on the summary table:
+
+```
+Switch# show etherchannel protocol
+Channel-group listing:
+-----------------------
+Group: 1
+----------
+Protocol: LACP
+Group: 2
+----------
+Protocol: PAgP
+```
+
+Two groups, eight lines, one fact - and the same fact is a column in `show etherchannel summary`.
+
+### Why refusal, and not a model of each view
+
+- `detail`, `port` and `port-channel` print per-port negotiation internals: admin and oper keys, the port's
+  LACP state word, the aggregator MAC, and "time since last port bundled". The engine keeps the mode
+  (`on`/`active`/`passive`) and whether a member is bundled; it keeps none of the rest, and inventing keys and
+  timers is the failure mode this loop exists to avoid.
+- `protocol` is the one view whose fact the engine *does* hold (the Protocol column). A block per group would
+  be a new view built on existing data - a feature, not fidelity - so it is pointed at the column instead.
+- `load-balance` has no counterpart in the engine at all: nothing hashes a frame across members, so there is
+  no policy to report and no document that would make one true.
+
+### What the console does now
+
+- `summary`, `brief` (this console's own synonym for a one-line-per-group view) and the bare command still
+  print the table, unchanged; a channel-group number still narrows it.
+- `detail`, `port`, `port-channel`, `protocol`, `load-balance` (and the shortening `load`) answer with one
+  line beginning `% ` and ending `<view> is a view this console does not have: …`, naming the view the reader
+  typed, saying what it holds on a box, and pointing at `show etherchannel summary` - except
+  `load-balance`, which points nowhere because there is nothing to point at.
+- `show port-channel detail` refuses under the spelling the reader typed; `show port-channel summary` keeps
+  printing the table.
+- A typo (`show etherchannel flurbish`) keeps the sentence it had: `does not take "flurbish"`.
+
+`test/show-etherchannel-views.test.js` pins all of it (43 assertions).
+
+### Still unresolved
+
+- Whether any of these five words is accepted by a *platform without EtherChannel support* (an
+  invalid-input error rather than a view) - the same gap this note records for the empty table.
+- What `show etherchannel load-balance` prints on a Catalyst whose policy was never changed. The default is
+  reported as `src-mac` in most CCNA material and the `load-balance` word is not in the 2960-X sample set
+  above; nothing in hand is a machine-recorded capture, so no default is claimed here.
 
 ## A device with no channel group — settled, and it contradicted what this note first said
 

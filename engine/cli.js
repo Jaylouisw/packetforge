@@ -457,6 +457,37 @@ const ETHERCHANNEL_RULE = '------+-------------+-----------+--------------------
 // Catalyst transcript has `Protocol` two columns left of the words under it. Lining the header up with the
 // rows would be tidier than the box, and wrong.
 const ETHERCHANNEL_HEADER = 'Group  Port-channel  Protocol    Ports';
+// `show etherchannel` is SIX views, and this console has one of them (follow-up to #1620).
+//
+// The vendor's syntax line is
+//   show etherchannel [channel-group-number | {detail | port | port-channel | protocol | summary}]
+//   ... | [detail | load-balance | port | port-channel | protocol | summary]
+// and its syntax-description block gives each word its own meaning: `detail` "detailed EtherChannel
+// information", `load-balance` "the load-balance or frame-distribution scheme among ports in the port
+// channel", `port` "EtherChannel port information", `port-channel` "port-channel information", `protocol`
+// "the protocol that is being used in the channel", `summary` "a one-line summary per channel group". The
+// reference prints an *example under each heading*, and the `protocol` one is a five-line block per group
+// (`Channel-group listing:` / `Group: 1` / `Protocol: LACP`), not a row in a table (Catalyst 2960-X Layer 2
+// Command Reference 15.2(2)E, `show etherchannel`, pp. 36-37; the 3650 3.6E, 3850 16.3 and 9500 17.10
+// references print the same syntax line and the same `show etherchannel protocol` sample).
+//   https://cisco.com/c/en/us/td/docs/switches/lan/catalyst2960x/software/15-2_2_e/layer2/command_reference/b_Layer2_3_1522e_2960x_cr.pdf
+//   https://www.cisco.com/c/en/us/td/docs/switches/lan/catalyst9500/software/release/16-6/command_reference/b_166_9500_cr/b_166_9500_cr_chapter_0111.html
+//
+// This console answered all six with the summary table. The five it cannot answer are not small variations
+// on that table: they are the bundle's internals (each member's LACP/PAgP state, admin and oper keys, the
+// aggregator MAC, the age timers) or a policy this engine does not implement at all (frame distribution).
+// Printing the summary for `show etherchannel detail` answers a different question without saying so - the
+// one thing a console must not do quietly - so each word is refused by name and pointed at the table that
+// does exist. `summary` (and `brief`, this console's own synonym for a one-line-per-group view) still
+// prints it. research/etherchannel-summary-layout.md, "The other five views".
+const ETHERCHANNEL_VIEW_KEYWORDS = {
+  detail: 'on a box it prints each member port\'s negotiation state beside the bundle\'s counters and age timers, and this model keeps neither; `show etherchannel summary` names each group, its protocol and its members.',
+  port: 'on a box it prints one block per member port with its own LACP/PAgP state; `show etherchannel summary` names the members in its Ports column.',
+  'port-channel': 'on a box it prints the bundle\'s own counters and age timers; `show etherchannel summary` names the bundle and the ports that carry it.',
+  protocol: 'on a box it prints each group\'s protocol in a block of its own; the Protocol column of `show etherchannel summary` is that fact, one line per group.',
+  'load-balance': 'on a box it prints the frame-distribution policy, and this engine has no equivalent of it: nothing here hashes a frame across members.',
+  load: 'on a box it prints the frame-distribution policy, and this engine has no equivalent of it: nothing here hashes a frame across members.'
+};
 const ETHERCHANNEL_COLUMNS = { group: 7, 'port-channel': 16, protocol: 10 };
 
 // The `show spanning-tree` port table's furniture, transcribed from a machine-recorded Catalyst session
@@ -6879,10 +6910,21 @@ class CliSession {
         rest = rest.slice(1);
       }
       {
-        const known = { summary: 1, brief: 1, detail: 1, load: 1, port: 1, 'port-channel': 1, protocol: 1 };
+        // One of the six views is here, the other five are refused by name (ETHERCHANNEL_VIEW_KEYWORDS).
+        // A word is checked against the view list before the typo list, because `detail` is not a typo: it is
+        // a real view with real content, and the operator should be told which of the two it is.
+        const named = this._showAliasFrom || 'show etherchannel';
+        for (const t of rest) {
+          const w = String(t).toLowerCase();
+          if (ETHERCHANNEL_VIEW_KEYWORDS[w]) {
+            const shownWord = rest.length === 1 ? w : rest.join(' ');
+            return ['% `' + named + ' ' + shownWord + '` is a view this console does not have: ' +
+              ETHERCHANNEL_VIEW_KEYWORDS[w]];
+          }
+        }
+        const known = { summary: 1, brief: 1 };
         const extra = rest.filter(function (t) { return !known[String(t).toLowerCase()]; });
         if (extra.length) {
-          const named = this._showAliasFrom || 'show etherchannel';
           return showNoTail(named, extra,
             'the whole summary is printed - name a group number to narrow it',
             'e.g. `' + named + ' 1 summary`');

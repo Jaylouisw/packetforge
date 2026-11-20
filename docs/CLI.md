@@ -2496,6 +2496,31 @@ table. A number that names no group leaves the furniture standing with no row, t
 prints. `research/show-etherchannel-group-summary.md` carries the captures and the two things left open (a
 number naming no group, and a number outside the platform's range).
 
+#### The other five views of `show etherchannel` are refused, not faked
+
+`show etherchannel` is six views, not one: after the optional channel-group number the vendor's grammar admits
+`detail`, `port`, `port-channel`, `protocol` and `summary`, and each word has its own page and its own sample
+(Catalyst 2960-X Layer 2 Command Reference 15.2(2)E, `show etherchannel`). `summary` is the one-line table above.
+`protocol` is a block per group - `Channel-group listing:`, then `Group: 1`, then `Protocol: LACP`. `detail`, `port`
+and `port-channel` print each member's LACP/PAgP internals and the bundle's counters and timers, and `load-balance`
+prints the frame-distribution policy.
+
+This console answered all six with the summary table. For the five it cannot answer that is a wrong answer rather
+than a narrow one — the engine keeps no admin/oper keys, no port-state word, no aggregator MAC, no age timers, and
+no hashing policy at all — so each is refused in one line, naming the word the reader typed:
+
+```
+sw1#show etherchannel detail
+% `show etherchannel detail` is a view this console does not have: on a box it prints each member port's negotiation state beside the bundle's counters and age timers, and this model keeps neither; `show etherchannel summary` names each group, its protocol and its members.
+```
+
+`summary`, `brief` and the bare command still print the table, and a channel-group number still narrows it. A
+group number does not rescue a view: `show etherchannel 1 detail` is refused as `show etherchannel detail`, which
+is the view without the filter. `show port-channel detail` refuses under that spelling. `protocol` is pointed at
+the column that already carries its fact — the `Protocol` cell of the summary — rather than given a second page of
+its own, and `load-balance` points nowhere, because there is nothing here to point at.
+`research/etherchannel-summary-layout.md` has the syntax table, the `protocol` sample and what is still open.
+
 #### The first member creates the interface
 
 `channel-group` is not only a membership command: on a box it is the command that *builds* the bundle, and it
