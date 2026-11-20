@@ -298,13 +298,49 @@ function sequenceOf(entry, index) {
 // sec-acl-seq-num). The default is taken from the position the entry was *typed* at, not from where it
 // lands after sorting, so an entry given 5 in front of one that defaulted to 10 keeps its ten.
 //
+// ...except that a **standard** list is not printed in sequence order at all. IOS moves every entry that
+// pins one address - `host 10.1.1.1`, `10.1.1.1 0.0.0.0`, both of which it stores with a wildcard of all
+// zeroes - above the entries that match a range, and it does so in the configuration file as well as in the
+// show output:
+//
+//   "The switch always rewrites the order of standard access lists so that entries with host matches and
+//    entries with matches having a don't care mask of 0.0.0.0 are moved to the top of the list, above any
+//    entries with non-zero don't care masks. Therefore, in show command output and in the configuration
+//    file, the ACEs do not necessarily appear in the order in which they were entered."
+//   (Catalyst 2960-X 15.2(6)E configuration guide, and the same paragraph in the 2960 12.2(25)FX through
+//    15.2(4)E books, the 2960-XR, 3560CX/2960CX, Catalyst 1000 and IE4010/5000 guides)
+//
+// A capture on an IOS router settles the one thing the guides leave open - what happens to the numbers of
+// the moved lines: a named standard list typed in one order prints its two host entries (30, 40) above the
+// /24 entries numbered 10 and 20, each line keeping the number it was given, so the column is no longer
+// monotonic (Cisco Community, "Reordered named access-list",
+// https://community.cisco.com/t5/switching/reordered-named-access-list/td-p/844044). The reply on that
+// thread calls it long-standing IOS behaviour on every router and version. research/standard-ace-host-order.md.
+//
+// Within each group the order is still sequence-then-typed, because that is all the capture shows (the two
+// hosts are 30 then 40 and the ranges are 10, 20, 50, 60, 70 - both readings agree).
+//
 // The display and the first-match evaluation read this one ordering, so the numbers an operator reads are
 // the order the box tests packets in, and neither can drift from the other.
+function isHostEntry(entry) {
+  if (!entry || typeof entry !== 'object' || entry.error) return false;
+  if (entry.kind !== 'standard') return false;
+  const spec = entry.source;
+  if (!spec || spec.any || isAnySpec(spec)) return false;
+  const wild = ipToIntSafe(spec.wildcard === undefined || spec.wildcard === null ? WILDCARDS.HOST : spec.wildcard);
+  return wild === 0;
+}
+
 function numberedEntries(acl) {
   const list = entriesOf(acl);
   return list
     .map(function (entry, index) { return { entry: entry, seq: sequenceOf(entry, index), index: index }; })
-    .sort(function (a, b) { return (a.seq - b.seq) || (a.index - b.index); });
+    .sort(function (a, b) {
+      const aHost = isHostEntry(a.entry) ? 0 : 1;
+      const bHost = isHostEntry(b.entry) ? 0 : 1;
+      if (aHost !== bHost) return aHost - bHost;
+      return (a.seq - b.seq) || (a.index - b.index);
+    });
 }
 
 function sortAcl(entries) {
@@ -409,7 +445,7 @@ function evaluate(acl, pkt) {
   const list = sortAcl(entriesOf(acl));
   for (let i = 0; i < list.length; i++) {
     if (matchEntry(list[i], pkt)) {
-      return { action: list[i].action, matchedIndex: i, implicit: false };
+      return { action: list[i].action, matchedIndex: i, matchedEntry: list[i], implicit: false };
     }
   }
   return { action: 'deny', matchedIndex: null, implicit: true };

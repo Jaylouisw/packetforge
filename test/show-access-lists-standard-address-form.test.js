@@ -62,13 +62,17 @@ console.log('A standard entry prints its address the way a box prints it:');
     'access-list 10 permit any'
   ]);
   const r = rules(table(env));
+  // By content, not by position: a standard list prints its host entries first, so the host typed second is
+  // printed first and keeps its number (research/standard-ace-host-order.md).
+  const row = function (needle) { return r.filter(function (l) { return l.indexOf(needle) !== -1; })[0] || ''; };
   ok(r.length === 3, 'all three rules are listed', r.join(' | '));
-  ok(/^    10 permit 192\.168\.1\.0, wildcard bits 0\.0\.0\.255$/.test(r[0]),
-    'a network prints with a comma and the words `wildcard bits`', JSON.stringify(r[0]));
-  ok(/^    20 deny 10\.0\.1\.10$/.test(r[1]),
-    'a host prints as the bare address - the typed `host` keyword is dropped', JSON.stringify(r[1]));
-  ok(!/host/.test(r[1]), 'and the word `host` is nowhere on the line', r[1]);
-  ok(/^    30 permit any$/.test(r[2]), '`any` stays `any`', JSON.stringify(r[2]));
+  ok(row('192.168.1.0') === '    10 permit 192.168.1.0, wildcard bits 0.0.0.255',
+    'a network prints with a comma and the words `wildcard bits`', JSON.stringify(row('192.168.1.0')));
+  ok(row('10.0.1.10') === '    20 deny 10.0.1.10',
+    'a host prints as the bare address - the typed `host` keyword is dropped', JSON.stringify(row('10.0.1.10')));
+  ok(!/host/.test(row('10.0.1.10')), 'and the word `host` is nowhere on the line', row('10.0.1.10'));
+  ok(row('permit any') === '    30 permit any', '`any` stays `any`', JSON.stringify(row('permit any')));
+  ok(r[0] === row('10.0.1.10'), 'and the host entry leads the list, as a box prints it', r.join(' | '));
 }
 
 console.log('');
@@ -105,16 +109,19 @@ console.log('A wildcard of all ones is `any`, however it was typed:');
     'access-list 10 permit 10.0.0.1 255.255.255.255',
     'access-list 10 permit host 0.0.0.0'
   ])));
-  ok(/^    10 permit any$/.test(r[0] || ''),
+  // Selected by content again: entry 4 is a host, so it is printed above entries 1-3 and keeps its 40.
+  const row = function (needle) { return r.filter(function (l) { return l.indexOf(needle) !== -1; })[0] || ''; };
+  ok(row('permit any') === '    10 permit any',
     'the spelled-out `any` prints as `any`, because that is the entry the box stored',
-    JSON.stringify(r[0]));
-  ok(/^    20 deny any log$/.test(r[1] || ''),
-    'and the same fold keeps a trailing `log`', JSON.stringify(r[1]));
-  ok(/^    30 permit 10\.0\.0\.1, wildcard bits 255\.255\.255\.255$/.test(r[2] || ''),
+    JSON.stringify(row('permit any')));
+  ok(row('deny any') === '    20 deny any log',
+    'and the same fold keeps a trailing `log`', JSON.stringify(row('deny any')));
+  ok(row('10.0.0.1') === '    30 permit 10.0.0.1, wildcard bits 255.255.255.255',
     'an all-ones wildcard over a real address keeps its wildcard - no capture shows a box folding that one',
-    JSON.stringify(r[2]));
-  ok(/^    40 permit 0\.0\.0\.0$/.test(r[3] || ''),
-    'a host of 0.0.0.0 is a host, not `any`', JSON.stringify(r[3]));
+    JSON.stringify(row('10.0.0.1')));
+  ok(row('permit 0.0.0.0') === '    40 permit 0.0.0.0',
+    'a host of 0.0.0.0 is a host, not `any`', JSON.stringify(row('permit 0.0.0.0')));
+  ok(r[0] === row('permit 0.0.0.0'), 'and it is printed first, ahead of the `any` entries', r.join(' | '));
   ok(aclLib.displayBody({ kind: 'standard', action: 'deny',
     source: { ip: '0.0.0.0', wildcard: '255.255.255.255', any: false, host: false } }) === 'deny any',
     'the renderer folds the pair without being told it was spelled out');

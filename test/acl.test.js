@@ -233,7 +233,13 @@ ok(same(sorted.map(function (e) { return e.sequence; }), [10, 20, 30]), 'sortAcl
 ok(same(unsorted.map(function (e) { return e.sequence; }), beforeOrder), 'sortAcl leaves the input untouched');
 
 const autoSeq = acl.normalizeAcl([acl.parseEntry('permit any', 10), acl.parseEntry('deny host 10.0.0.5', 10)]);
-ok(same(autoSeq.map(function (e) { return e.sequence; }), [10, 20]), 'normalizeAcl numbers unsorted entries 10, 20');
+// The numbers still come from the position each entry was typed at (10, then 20) - but a standard list is
+// ordered host-first, so the entry numbered 20 is the one that comes back first, and it keeps its 20
+// (research/standard-ace-host-order.md).
+ok(same(autoSeq.map(function (e) { return e.sequence; }), [20, 10]),
+  'normalizeAcl numbers by typed position and orders a standard list host-first');
+ok(autoSeq[0].action === 'deny' && autoSeq[0].source.ip === '10.0.0.5',
+  'the host entry is the one in front');
 
 const mixed = acl.normalizeAcl([
   acl.parseEntry('permit ip any any', 110),

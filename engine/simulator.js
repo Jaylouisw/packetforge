@@ -3007,7 +3007,10 @@ class Simulator {
     // Keyed by the rule's own text, not by its position. An index key meant that editing a list credited the
     // old rule's traffic to whichever rule now sat at that index - a table confidently reporting that a rule
     // which has never seen a packet denied forty of them (#1267).
-    const entry = list ? list[verdict.matchedIndex] : null;
+    // `evaluate()` reports the entry itself, because its index counts the *ordered* list and `list` is the
+    // array as stored: once a standard list's host entries are moved to the top (engine/acl.js,
+    // research/standard-ace-host-order.md), the two orders differ and an index would credit the wrong line.
+    const entry = verdict.matchedEntry || (list ? list[verdict.matchedIndex] : null);
     const ruleKey = entry ? String(entry.line || (entry.action + ' ' + (entry.protocol || 'ip')))
       : String(verdict.matchedIndex);
     tally.entries[ruleKey] = (tally.entries[ruleKey] || 0) + 1;

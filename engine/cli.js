@@ -6719,6 +6719,8 @@ class CliSession {
         // - an array index, not a sequence - with two spaces of indent, so a reader comparing it with a real
         // box found a column of numbers no box prints, and could not name the line to change. The order is
         // the evaluation order, from the same helper `evaluate()` uses (research/show-access-lists-numbering.md).
+        // That helper also rewrites a standard list host-first, as IOS does, so the numbers here can read
+        // 30, 40, 10, 20 (research/standard-ace-host-order.md).
         for (const slot of aclLib.numberedEntries(acls[id])) {
           const e = slot.entry;
           // Which line is doing the denying is the question this table is opened for. A rule that matched
@@ -7564,9 +7566,18 @@ class CliSession {
         out.push('vlan ' + id + (v.name ? ' ' + v.name : ''));
       }
       // The access lists, for the same reason: a port's binding is printed inside its interface block.
+      // The lines come out in the order the box wrote them, not the order they were typed: IOS rewrites a
+      // standard list so its host entries sit on top, and it does that in the configuration file as well as in
+      // `show access-lists` ("in show command output and in the configuration file, the ACEs do not necessarily
+      // appear in the order in which they were entered" - Catalyst 2960-X 15.2(6)E configuration guide).
+      // research/standard-ace-host-order.md.
       const allAcls = dev.config.acls || {};
+      const aclOrder = require('./acl');
       for (const id of Object.keys(allAcls).sort(function (a, b) { return parseInt(a, 10) - parseInt(b, 10); })) {
-        for (const e of allAcls[id]) out.push('access-list ' + id + ' ' + (e.line || e.action));
+        for (const slot of aclOrder.numberedEntries(allAcls[id])) {
+          const e = slot.entry;
+          out.push('access-list ' + id + ' ' + (e.line || e.action));
+        }
       }
       for (const i of dev.interfaces.values()) {
         // A console port has no interface block on a box - its settings live under `line con 0` - so printing

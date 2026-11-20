@@ -2949,6 +2949,16 @@ An entry typed with a sequence of its own keeps it, and moves to its place in th
 tested, before a `10`. The numbering and the first-match order come from one helper, so the table cannot
 show an order the engine does not use (research/show-access-lists-numbering.md).
 
+A **standard** list is the exception, and it is the box's exception, not this console's: IOS rewrites it so
+that every entry pinning one address (`host 10.1.1.1`, or `10.1.1.1 0.0.0.0`) sits above the entries that
+match a range, and writes the file in that order too — "the switch always rewrites the order of standard
+access lists so that entries with host matches … are moved to the top of the list … Therefore, in show
+command output and in the configuration file, the ACEs do not necessarily appear in the order in which they
+were entered" ([Catalyst 2960-X 15.2(6)E configuration guide](https://www.cisco.com/c/en/us/td/docs/switches/lan/catalyst2960x/software/15_2_6_e/configuration_guide/b_1526e_consolidated_2960x_cg/m_sec_acls_cg_cauvery.html)).
+So a host entry numbered 20 can print above one numbered 10 and keep its 20, and that is the order packets
+are tested in: a range line that would have permitted an address loses to the host line printed above it
+(research/standard-ace-host-order.md). Extended lists are untouched and stay in sequence order.
+
 Each rule carries how many packets it has matched, counted at the one place every frame is tested, so
 permits are counted as well as denies. A rule that has matched nothing prints **no count at all** — saying
 "0 matches" on every line of a twenty-line list is noise, and the absence of a number is the same statement.
