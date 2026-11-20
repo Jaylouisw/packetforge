@@ -84,6 +84,38 @@ console.log('the two parsers are held in step');
 }
 
 console.log('');
+console.log('a disclaimer that was hard-wrapped is still a disclaimer');
+{
+  // The two sentences that closed #803 and #130, wrapped at 80 columns - which is how the bodies
+  // in this repository are written. Splitting the clause on the newline and keeping only the tail
+  // handed NEGATION an empty string, so the wrap turned "does not close #130" into a claim: the
+  // checker said "0 at risk" and parseClosingKeywords returned [130], i.e. the sweeper itself
+  // would have closed the request. The wrap is not a sentence boundary.
+  const one = 'This PR records the census and does not close #130: no source exists.';
+  const wrapped = 'This PR records the census and does not\nclose #130: no source exists.';
+  const wrappedCannot = 'It cannot\nresolve #130 until Ubiquiti publishes the census.';
+
+  ok(atRisk(one).length === 1, 'one line: the disclaimer is reported (control)');
+  const w = atRisk(wrapped);
+  ok(w.length === 1 && w[0].number === 130, 'wrapped: still reported', JSON.stringify(w.map(h => h.number)));
+  ok(w[0] && w[0].kind === 'negated', 'wrapped: negated, not a claim', w[0] && w[0].kind);
+  ok(parseClosingKeywords(wrapped).indexOf(130) === -1, 'wrapped: the sweeper does not close #130', JSON.stringify(parseClosingKeywords(wrapped)));
+  ok(parseClosingKeywords(wrappedCannot).indexOf(130) === -1, 'wrapped after "cannot": the sweeper does not close #130', JSON.stringify(parseClosingKeywords(wrappedCannot)));
+  ok(atRisk(wrappedCannot).length === 1, 'wrapped after "cannot": still reported');
+}
+
+console.log('');
+console.log('a claim that follows a wrap is still a claim');
+{
+  // The fix must not read every line-broken keyword as a disclaimer, or the sweeper stops
+  // closing the requests that really were answered.
+  ok(parseClosingKeywords('The census is complete.\nFixes #130').indexOf(130) !== -1, 'a claim on the line after a full stop still closes', JSON.stringify(parseClosingKeywords('The census is complete.\nFixes #130')));
+  ok(atRisk('The census is complete.\nFixes #130').length === 0, 'and it is not reported as a risk');
+  ok(JSON.stringify(parseClosingKeywords('Fixes #12\nFixes #13')) === '[12,13]', 'two claims on two lines are both claims', JSON.stringify(parseClosingKeywords('Fixes #12\nFixes #13')));
+  ok(atRisk('Port 8 does not take power.\nFixes #130').length === 0, 'a negation in an earlier sentence does not taint the next claim');
+}
+
+console.log('');
 console.log('what it says about a sentence it cannot classify');
 {
   ok(stripMarkup('**This PR does not close #130**') === 'This PR does not close #130', 'emphasis is stripped before reading');

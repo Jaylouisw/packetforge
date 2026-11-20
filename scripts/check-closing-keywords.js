@@ -92,6 +92,19 @@ function hedged(clause) {
   return false;
 }
 
+// The words before a keyword, read back to the last sentence boundary. A line break IS a boundary
+// for CLAIM_START - a claim really can open a line - but it is not one for NEGATION: a body hard
+// wrapped at 80 columns puts "does not" and "close #130" on different lines, and reading only the
+// text after the break hands NEGATION an empty string, which turns a disclaimer into a claim. So
+// when the text immediately before the keyword carries no word of its own, the clause continues on
+// the line above. Measured on the shape that closed #803 and #130, wrapped at 79 columns.
+function clauseBefore(text, index) {
+  const segs = String(text).slice(Math.max(0, index - 40), index).split(/[.!?:;\n]/);
+  let clause = segs.pop();
+  while (!/[A-Za-z0-9]/.test(clause) && segs.length) clause = segs.pop() + ' ' + clause;
+  return clause;
+}
+
 function scan(text) {
   const s = stripMarkup(text);
   const out = [];
@@ -101,7 +114,7 @@ function scan(text) {
   while ((m = RISK.exec(s)) !== null) {
     if (m.index < scannedTo) continue;    // already part of the run before it
     const before = s.slice(0, m.index);
-    const clause = before.slice(Math.max(0, before.length - 40)).split(/[.!?:;\n]/).pop();
+    const clause = clauseBefore(s, m.index);
     let kind = 'claim';
     let why = '';
     if (NEGATION.test(clause)) {

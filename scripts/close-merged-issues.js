@@ -137,6 +137,19 @@ function stripEmphasis(s) {
  * `parseClosingKeywords('Fixes #12, closes #13')` -> `[12, 13]`
  * `parseClosingKeywords('see #12 for context')`   -> `[]`
  */
+// The words before a keyword, read back to the last sentence boundary. A line break IS a boundary
+// for CLAIM_START - a claim really can open a line - but it is not one for NEGATION: a body hard
+// wrapped at 80 columns puts "does not" and "close #130" on different lines, and reading only the
+// text after the break hands NEGATION an empty string, which turns a disclaimer into a claim. So
+// when the text immediately before the keyword carries no word of its own, the clause continues on
+// the line above. Measured on the shape that closed #803 and #130, wrapped at 79 columns.
+function clauseBefore(text, index) {
+  const segs = String(text).slice(Math.max(0, index - 40), index).split(/[.!?:;\n]/);
+  let clause = segs.pop();
+  while (!/[A-Za-z0-9]/.test(clause) && segs.length) clause = segs.pop() + ' ' + clause;
+  return clause;
+}
+
 function parseClosingKeywords(text) {
   const s = stripEmphasis(text);
   const out = [];
@@ -146,7 +159,7 @@ function parseClosingKeywords(text) {
     // The keyword has to open the line or the sentence.
     if (!CLAIM_START.test(s.slice(0, m.index))) continue;
     // ...and must not be negated.
-    const clause = s.slice(Math.max(0, m.index - 40), m.index).split(/[.!?:;\n]/).pop();
+    const clause = clauseBefore(s, m.index);
     if (NEGATION.test(clause)) continue;
     // Then the run of citations that belongs to it, which may carry further keywords with it:
     // "Fixes #12, closes #13 and #14" is one claim citing three issues.
