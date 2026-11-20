@@ -902,8 +902,47 @@ jobs:
             audit_pid=$!
             timeout --signal=TERM --kill-after=10 60 node scripts/check-control-bytes.js > "$dir/check-control-bytes.log" 2>&1 &
             control_pid=$!
-            timeout --signal=TERM --kill-after=15 300 node scripts/run-tests.js
-            test_rc=$?
+            # A red suite that passes alone is not a verdict about the tree.
+            #
+            # This leg runs 394-395 suites at a time (PF_TEST_CONCURRENCY=10 below), and a
+            # handful of them assert wall-clock budgets or bind a loopback port - so a leg
+            # can fail on the host rather than on the commit, while its two siblings run the
+            # identical tree green seconds later. All three of the red `main` runs in the 16
+            # hours to 2026-11-20T02:27Z are exactly that shape, and in each one the failed
+            # leg named a suite whose siblings passed the same commit:
+            #
+            #   run 8124 (task 21480, Test (Node 18), push to main, 2026-11-20T01:38:55Z):
+            #     `394 suite(s) in 52.8 s - 13178 assertions passed, 1 failed`,
+            #     test/server-immutable-json.test.js, `Error: connect ECONNREFUSED
+            #     127.0.0.1:42267` - a loopback port the suite had probed and closed itself.
+            #     Tasks 21481/21482 (Node 20/22) ran the same commit green.
+            #   run 7520 (task 19803, Test (Node 18), 2026-11-19T12:39:43Z): 1 failed,
+            #     test/state-payload-shape.test.js, `a state payload for 200 cables costs
+            #     66.7 ms (budget 60)`. Tasks 19804/19805 green on the same commit.
+            #   run 7345 (task 19316, Test (Node 22), 2026-11-19T09:11:13Z): 7 failed in
+            #     test/link-instant.test.js and test/link-roundtrip.test.js, 12425
+            #     assertions against the 12467 its two siblings reported. Tasks 19314/19315
+            #     green.
+            #
+            # Three red mains in sixteen hours, none of them about the commit they were
+            # attached to, and each one costs a full matrix and blocks the merge behind it.
+            # A retry that hides a real failure is the thing this repository has paid for
+            # before, so this one is deliberately narrow, bounded and loud:
+            #   * it fires only when the suite exited with a failure that is not a timeout
+            #     (124/137 stays red - a hung suite is not a race) and named suite files,
+            #   * it fires only when at most 6 suites failed; a broader failure is a broken
+            #     tree and stays red with nothing re-run,
+            #   * each named suite is re-run once, alone - after every background check in
+            #     this step has been waited for, so nothing else is competing - on the same
+            #     tree, the same runtime, bounded at 90 s, with its own output in the log,
+            #   * if any suite fails alone, the leg is red and that suite's log is above,
+            #   * if they all pass, the leg is green and a `::warning::` names every suite
+            #     that failed in parallel, so the flake is reported rather than erased.
+            # Nothing is skipped or softened: every suite still runs in every leg of the
+            # matrix, and the ones that fail run a second time. Coverage is unchanged; what
+            # changes is which run of a suite decides the colour of the leg.
+            timeout --signal=TERM --kill-after=15 300 node scripts/run-tests.js 2>&1 | tee "$dir/suite.log"
+            test_rc=${PIPESTATUS[0]}
             wait "$audit_pid"
             audit_rc=$?
             wait "$control_pid"
@@ -917,6 +956,39 @@ jobs:
           canonical_urls_rc=$?
           wait "$disk_hygiene_pid"
           disk_hygiene_rc=$?
+          # A suite that failed at 10-way concurrency and passes on its own is the host,
+          # not the tree - see the measured note above the suite. Re-run exactly those, one
+          # at a time, now that every background check in this step has finished.
+          if [ "$test_rc" -ne 0 ] && [ "$test_rc" -ne 124 ] && [ "$test_rc" -ne 137 ] && [ -f "$dir/suite.log" ]; then
+            flaked=$(grep -oE 'test/[A-Za-z0-9._/-]+\.test\.js$' "$dir/suite.log" 2>/dev/null | sort -u | tr '\n' ' ' | sed 's/ *$//')
+            count=$(printf '%s' "$flaked" | wc -w | tr -d ' ')
+            if [ "$count" -eq 0 ]; then
+              echo "the suite exited ${test_rc} and named no suite file - a harness that cannot say what failed is not a flake, so nothing is re-run and the leg stays red"
+            elif [ "$count" -gt 6 ]; then
+              echo "${count} suites failed together (${flaked})- that is a broken tree, not one suite losing a race, so nothing is re-run and the leg stays red"
+            else
+              alone_failed=""
+              for f in $flaked; do
+                if [ ! -f "$f" ]; then
+                  echo "the suite named ${f} but it is not in this tree - the leg stays red"
+                  alone_failed="${alone_failed} ${f}"
+                  continue
+                fi
+                echo "--- re-running ${f} on its own: it failed at ${PF_TEST_CONCURRENCY}-way concurrency, this is the same tree and the same runtime ---"
+                if timeout --signal=TERM --kill-after=10 90 node "$f"; then
+                  echo "${f} passes when it is the only suite running"
+                else
+                  rc=$?
+                  echo "${f} fails on its own too (exit ${rc}) - that is the commit, not the host"
+                  alone_failed="${alone_failed} ${f}"
+                fi
+              done
+              if [ -z "$alone_failed" ]; then
+                echo "::warning title=Suite flake (re-verified)::${count} suite(s) failed at ${PF_TEST_CONCURRENCY}-way concurrency and each one passes on its own on the same tree: ${flaked}. Every suite ran in this leg; these ran a second time in isolation and passed."
+                test_rc=0
+              fi
+            fi
+          fi
           echo "--- node scripts/syntax-check.js ---"
           cat "$out"
           for log in check-node-surface check-canonical-urls check-ci-disk-hygiene; do
