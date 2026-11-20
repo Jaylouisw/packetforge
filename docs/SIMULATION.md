@@ -343,10 +343,10 @@ snooping, lease expiry during a run (leases are computed at run start, not aged)
 | Verdict | Behaviour | Where |
 |---|---|---|
 | **Modelled** | Standard (1–99, 1300–1999) and extended (100–199, 2000–2699) lists, wildcard masks, `host`/`any`, `eq`/`gt`/`lt`, service names. | `engine/acl.js:11-26` |
-| **Modelled** | First match wins; falling off the end is the **implicit deny**, marked `implicit: true` so a tool can say why. | `engine/acl.js:342-350` |
-| **Modelled** | Bound per interface and direction (`ip access-group`), evaluated inbound after learning and outbound on the **physical** port after subinterface parent resolution. | `engine/cli.js:339`, `engine/simulator.js:1792`, `engine/simulator.js:1688-1697` |
-| **Approximate** | Extended rules can match protocol and ports, but only the fields the engine carries: src/dst IP, protocol, src/dst port. No flags, no ICMP type/code, no TOS, no fragments. | `engine/simulator.js:1487` |
-| **Approximate** | ACLs are **IPv4-only**: anything that is not `0x0800` with an `ip` header passes untouched, including all ARP and all IPv6. | `engine/simulator.js:1477` |
+| **Modelled** | First match wins; falling off the end is the **implicit deny**, marked `implicit: true` so a tool can say why. | `engine/acl.js:407-415` |
+| **Modelled** | Bound per interface and direction (`ip access-group`), evaluated inbound after learning and outbound on the **physical** port after subinterface parent resolution. | `engine/cli.js:3779-3830`, `engine/simulator.js:3115-3121`, `engine/simulator.js:3341-3356` |
+| **Approximate** | Extended rules can match protocol and ports, but only the fields the engine carries: src/dst IP, protocol, src/dst port. No flags, no ICMP type/code, no TOS, no fragments. | `engine/simulator.js:2900-2907` |
+| **Approximate** | ACLs are **IPv4-only**: anything that is not `0x0800` with an `ip` header passes untouched, including all ARP and all IPv6. | `engine/simulator.js:2897` |
 | **Absent** | Any state. No `established`, no reflexive ACLs, no CBAC/zone-based policy, no connection table consultation — each packet is judged alone. No logging, no counters, no time-ranges, no IPv6 ACLs, no VTY/SNMP ACLs. | — |
 | **Absent** | The `firewall` capability does nothing. 64 firewall models are catalogued, and 755 of the 2,355 device specs declare the capability; the engine never reads it. A firewall is a router with ACLs you configure by hand. | `engine/device.js:127` |
 
@@ -584,7 +584,7 @@ actually true.
 | "Congestion happens." | Nothing is ever dropped because of load. There are no queues, no buffers, no contention, no tail drop, no AQM. A link at 100 % of its rate behaves exactly like an idle one. | — |
 | "Loss happens." | Nothing is lost except by an explicit rule: VLAN, ACL, STP, PoE, TTL, no route, NAT failure. A cable 10× over its reach still delivers every packet. | — |
 | "There are real timers." | None. No scheduling, no concurrency, no ageing, no expiry. See [§8](#8-time-what-rtt-means-and-what-it-does-not). | `engine/latency.js:32` |
-| "It's a stateful firewall." | ACLs are per-packet, stateless, IPv4-only. The `firewall` capability is inert. | `engine/simulator.js:1477`, `engine/acl.js:342` |
+| "It's a stateful firewall." | ACLs are per-packet, stateless, IPv4-only. The `firewall` capability is inert. | `engine/simulator.js:2894-2913`, `engine/acl.js:407-415` |
 | "Routes redistribute." | They do not. Connected → OSPF and connected → BGP only; no OSPF→BGP, no BGP→OSPF, no static→anything. | `engine/simulator.js:577-588`, `engine/simulator.js:406-419` |
 | "MPLS / VXLAN / GRE / IPsec / LISP / SRv6." | None of them. `grep -ri "mpls\|vxlan" engine/` returns nothing. | — |
 | "DAI, DHCP snooping, IP Source Guard, RA guard." | None. ARP and ND are trusted completely. | — |
