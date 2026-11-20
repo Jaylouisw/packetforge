@@ -1,3 +1,10 @@
+# Changelog
+
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
 ## Unreleased
 
 ### Fixed
@@ -637,15 +644,6 @@
   from other origins on purpose. `test/server-cors.test.js` covers same-origin, foreign, `Origin: null`, an
   absent `Origin`, both catalogues, the preflight and the allow-list against a real server.
 
-# Changelog
-
-All notable changes to this project will be documented in this file.
-
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
-and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
-
-## Unreleased
-
 ### Fixed
 
 - **OSPF refused to form an adjacency between interfaces addressed in different
@@ -746,8 +744,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   shows a connection badge in the status bar, retries with backoff, and re-fetches the
   server's copy on reconnect - reporting it when fewer devices come back than the tab
   was showing (#24).
-
-## [Unreleased]
 
 ### Added
 
