@@ -3,12 +3,13 @@
   "model": "U-LTE-Backup Pro",
   "label": "UniFi LTE Backup Pro",
   "category": "iot",
-  "description": "UniFi LTE Backup Pro - a failover modem for a UniFi gateway: two GbE RJ45 ports (one powered by PoE-in, one passing PoE through) and an LTE Cat 4 radio with an internal antenna pair plus an RP-SMA connector for an external one.",
+  "description": "UniFi LTE Backup Pro - a failover modem for a UniFi gateway: 2x 1G RJ45, one PoE-in port (whose output is not used) and one PoE+ passthrough output at up to 15.4 W, plus an LTE Cat 4 radio (150/50 Mbps) with an internal antenna pair and an RP-SMA connector for an external one.",
   "capabilities": [
     "poe-pd",
     "poe-pse",
     "dhcp-client",
-    "http-server"
+    "http-server",
+    "802.3at"
   ],
   "interfaces": [
     {
@@ -22,14 +23,21 @@
       "name": "eth1",
       "type": "ethernet",
       "connector": "rj45",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "wwan0",
       "type": "wireless",
-      "speed": "100M"
+      "speed": "150M"
     }
   ],
   "sourceUrl": "https://techspecs.ui.com/unifi/integrations/u-lte-backup-pro",
-  "notes": "Vendor figures from Ubiquiti techspecs: (2) GbE RJ45 ports - one PoE in, one PoE passthrough output requiring a PoE source - and an LTE Category 4 radio with (2) internal antennas and (1) female RP-SMA connector for an external antenna. Max power consumption 8.5 W excluding PoE passthrough. The LTE interface is modelled at 100M, the Cat 4 class shared with every other Cat 4 device in the catalogue, because the datasheet names the category rather than a measured rate."
+  "notes": "Vendor figures: **(2) GbE RJ45 ports**, **LTE Category 4 radio** (MIMO 2x2, **download 150 Mbps / upload 50 Mbps**), **(1) PoE in (PoE output not used)** and **(1) PoE passthrough output (requires a PoE+ switch)**, 48V 0.5A PoE adapter or a UniFi PoE switch, supported voltage range 44-57V DC, **max power consumption 8.5 W excluding PoE passthrough**, **max PoE passthrough wattage per port 15.4 W**. Cited 2026-11-19: https://techspecs.ui.com/unifi/integrations/u-lte-backup-pro (200, 624,978 B) prints every row above; https://dl.ui.com/ds/u-lte-backup-pro_ds.pdf (200, application/pdf, 329,546 B, 2 pp, text layer) prints the same census plus the 15.4W footnote; https://store.ui.com/us/en/products/u-lte-backup-pro (200, 402,625 B, landed on its collection URL) repeats the spec table and names the output port \"PoE+ GbE Port (Passthrough)\". The Cat 4 link is modelled at 150M - the vendor prints 150 Mbps download, not just the category, so this is the same figure as the UMR and the other Cat 4 rows rather than a class guess. A management detail, not a port: the unit also carries a 1.54\" LCM display and a factory-reset button.",
+  "poe": {
+    "budgetW": 15.4,
+    "sourceUrl": "https://techspecs.ui.com/unifi/integrations/u-lte-backup-pro",
+    "note": "15.4 W, the vendor's \"Max. PoE passthrough wattage per port\" - published as per-port output, and this box has exactly one passthrough port, so it is also its whole budget. The footnote on both the tech-spec row and the datasheet is \"Requires a PoE+ switch\": the 8.5 W the unit itself draws plus 15.4 W passed through exceeds what an 802.3af source can deliver, which is why the upstream port must be Type 2."
+  }
 }
