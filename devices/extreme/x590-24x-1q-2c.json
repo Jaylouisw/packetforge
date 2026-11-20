@@ -3,7 +3,7 @@
   "model": "X590-24x-1q-2c",
   "label": "X590-24x-1q-2c",
   "category": "l3-switch",
-  "description": "ExtremeSwitching X590-24x-1q-2c (16790) - 1RU 10G/100G aggregation switch, ExtremeXOS: 24x 1G/10GBASE-X SFP+ (ports 1:1-1:24), 1x 10G/40G QSFP+ (port 1:25), 2x 10/25/40/50/100G QSFP28 (ports 1:26-1:27).",
+  "description": "ExtremeSwitching X590-24x-1q-2c (16790) - 1RU 10G/100G aggregation switch, ExtremeXOS: 24x 1 Gb/10GBASE-X SFP+ (ports 1:1-1:24, two of them configurable as stacking ports), 1x 10G/40G QSFP+ (port 1:25), 2x 10/25/40/50/100G QSFP28 (ports 1:26-1:27), plus a rear RJ-45 serial console and a 10/100/1000BASE-T out-of-band management port.",
   "capabilities": [
     "l2-forward",
     "l3-forward",
@@ -14,25 +14,68 @@
     "start": 1,
     "count": 24,
     "type": "ethernet",
-    "speed": "10G"
+    "speed": "10G",
+    "connector": "sfp+",
+    "speedCaps": [
+      1000,
+      10000
+    ]
   },
   "interfaces": [
     {
       "name": "1:25",
       "type": "ethernet",
-      "speed": "40G"
+      "speed": "40G",
+      "connector": "qsfp+",
+      "speedCaps": [
+        10000,
+        40000
+      ]
     },
     {
       "name": "1:26",
       "type": "ethernet",
-      "speed": "100G"
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        10000,
+        25000,
+        40000,
+        50000,
+        100000
+      ]
     },
     {
       "name": "1:27",
       "type": "ethernet",
-      "speed": "100G"
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        10000,
+        25000,
+        40000,
+        50000,
+        100000
+      ]
+    },
+    {
+      "name": "mgmt",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
+    },
+    {
+      "name": "console",
+      "type": "console"
     }
   ],
+  "notes": "Port census from Extreme's own X590-24x-1q-2c 'Switch Ports and Slots' page, which prints '24 fixed autosensing 1 Gb/10GBASE-X SFP+ ports (ports 1-24), two of these ports are configurable as stacking ports', 'one 40-gigabit Ethernet port capable of supporting passive copper QSFP+ and active fiber QSFP+', 'two 100-gigabit Ethernet ports capable of supporting passive copper QSFP28/QSFP+', an 'Ethernet management port (10/100/1000BASE-T)', a 'serial console port implemented as an RJ45 connector' and a front-panel USB port. The 24 access ports are FIBRE cages: the X590 series page draws the line between the copper member and this one - '100Mb/1 Gb/10GBASE-T for the X590-24t-1q-2c model and 1 Gb/10GBASE-X SFP+ for the X590-24x-1q-2c model'. The same ports-and-slots page then calls them '10 Gbps copper connectivity', which is the page contradicting itself one clause later and is the reason these ports carried no connector and rendered as RJ45 sockets (scripts/audit-port-types.js: 'template ports at 10G+ presented as RJ45 copper on a box that describes itself as SFP'); the 1000BASE-X/10GBASE-X SFP+ cage is what the model and the series page both say, so the template now declares sfp+. No PoE: the X590 series is a fibre aggregation box with no PSE in any SKU (PoE budget absent, not unknown). The front-panel USB port is not modelled - no spec in this catalogue models a USB port and it carries no lab cable. Sources: https://documentation.extremenetworks.com/summit/GUID-AA4F240C-1591-4872-916F-888373300091.shtml (200, 131,599 B) and https://documentation.extremenetworks.com/summit/GUID-6F77E8A8-FF5B-42CA-A61C-D3B42CA12F66.shtml (200, 142,529 B). Trap: the /extremeswitching/ path for both GUIDs answers 404, 1,245 B - the live host is /summit/.",
+  "sourceUrl": "https://documentation.extremenetworks.com/summit/GUID-AA4F240C-1591-4872-916F-888373300091.shtml",
   "icon": "switch",
   "color": "#e11d48"
 }
