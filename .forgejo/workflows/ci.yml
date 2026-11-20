@@ -811,6 +811,34 @@ jobs:
         # The tripwires belong in `test/`, which this stream does not write; until they
         # measure the code instead of the host, a leg that reports the queue is worth more
         # than five seconds, and a red main is worth more still.
+        #
+        # Re-measured on 2026-11-20, and 10 is still the answer - now for a measured
+        # reason rather than the old one. The tree this width was picked on has grown
+        # (397-399 suites, 13248-13279 assertions, against 344 / 11933 on 2026-11-18),
+        # and the objection to 16 - that a tripwire firing under load reddens `main` -
+        # was answered at 03:08 today by the re-verification below (2e16ded4). So 13 was
+        # tried on a real pull request and measured against a 10-wide run on the same
+        # tree, twenty minutes apart:
+        #
+        #   run 8265 (10-wide, 399 suites, 04:54:50Z): 61.1 / 57.2 / 50.9 s,
+        #     suite CPU 571 / 530 / 467 s, effective parallelism 9.4 / 9.3 / 9.2
+        #   run 8271 (13-wide, 399 suites, 04:59:56Z): 64.3 / 60.9 / 57.0 s,
+        #     suite CPU 779 / 737 / 685 s, effective parallelism 12.1 / 12.1 / 12.0
+        #
+        # 13 workers did hold 12 of them busy, and every suite still ran (399 suites,
+        # 13279 assertions, 0 failed, in each leg) - but the leg was 3.2 s slower and
+        # burned 36% more CPU-seconds for the same coverage. The width was never the
+        # bound: ten workers already reach 9.4 of ten here, which means every worker has
+        # a core, and the cores behind them belong to the host, not to this workflow.
+        # Adding workers past that point does not shorten the leg, it lengthens each
+        # suite (1.43 s per suite at 10, 1.95 s at 13) and spends the difference on
+        # contention. So the useful reading of the old number stands, with the new
+        # evidence behind it: this leg's wall clock is the host's spare cores, and a
+        # wider pool can only price that contention higher. What would move it is fewer
+        # CPU-seconds per suite, which is `test/`, not this file.
+        #
+        # Nothing about coverage is involved in either direction: 399 suites and 13279
+        # assertions ran green in all six legs above, at both widths.
         env:
           PF_TEST_CONCURRENCY: 10
         run: |
@@ -904,7 +932,7 @@ jobs:
             control_pid=$!
             # A red suite that passes alone is not a verdict about the tree.
             #
-            # This leg runs 394-395 suites at a time (PF_TEST_CONCURRENCY=10 below), and a
+            # This leg runs 397-399 suites at a time (PF_TEST_CONCURRENCY=10 below), and a
             # handful of them assert wall-clock budgets or bind a loopback port - so a leg
             # can fail on the host rather than on the commit, while its two siblings run the
             # identical tree green seconds later. All three of the red `main` runs in the 16
