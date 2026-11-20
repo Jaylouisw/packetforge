@@ -3,7 +3,7 @@
   "model": "UA-G3-SK-Pro",
   "label": "UniFi G3 Starter Kit Pro",
   "category": "iot",
-  "description": "UniFi G3 Starter Kit Pro (UA-G3-SK-Pro) - 5x 1G RJ45 (1x PoE++ passthrough). 802.3bt PoE-in; 30 W max.",
+  "description": "UniFi G3 Starter Kit Pro (UA-G3-SK-Pro) - 5x 1G RJ45 (1 PoE++ input, 4 PoE+ outputs at 30 W/port, 45 W aggregate). 30 W max without PoE output, 50 W with.",
   "capabilities": [
     "l2-forward",
     "http-server",
@@ -22,8 +22,7 @@
         "1G",
         "100M"
       ],
-      "poeOut": true,
-      "poeOutClass": "PoE++"
+      "poeIn": 50
     },
     {
       "name": "eth1",
@@ -32,8 +31,11 @@
       "speed": "1G",
       "speedCaps": [
         "1G",
-        "100M"
-      ]
+        "100M",
+        "10M"
+      ],
+      "poeOut": true,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "eth2",
@@ -42,8 +44,11 @@
       "speed": "1G",
       "speedCaps": [
         "1G",
-        "100M"
-      ]
+        "100M",
+        "10M"
+      ],
+      "poeOut": true,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "eth3",
@@ -52,8 +57,11 @@
       "speed": "1G",
       "speedCaps": [
         "1G",
-        "100M"
-      ]
+        "100M",
+        "10M"
+      ],
+      "poeOut": true,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "eth4",
@@ -62,11 +70,20 @@
       "speed": "1G",
       "speedCaps": [
         "1G",
-        "100M"
-      ]
+        "100M",
+        "10M"
+      ],
+      "poeOut": true,
+      "poeOutClass": "PoE+"
     }
   ],
   "icon": "iot",
   "color": "#14b8a6",
-  "sourceUrl": "https://techspecs.ui.com/unifi/door-access/ua-g3-sk-pro"
+  "sourceUrl": "https://techspecs.ui.com/unifi/door-access/ua-g3-sk-pro",
+  "poe": {
+    "budgetW": 45,
+    "sourceUrl": "https://techspecs.ui.com/unifi/door-access/ua-g3-sk-pro",
+    "note": "Ubiquiti prints one row for the whole PoE side on https://techspecs.ui.com/unifi/door-access/ua-g3-sk-pro: **(1) PoE++ input, 50V DC, 1A; (4) PoE outputs, 50V DC, 30W per port (Max 45W aggregated)**, with **Max. Power Consumption 30W (Without PoE output) / 50W (With PoE output)** and **Power Method PoE++**. 45 W is the PSE allocation - the total across the 4 outputs, not a per-port figure - so 4 x 30 W of cameras (120 W) exceed what this hub can supply, and the engine must refuse the last watt rather than promise 30 W a port. Same shape as `devices/ubiquiti/ua-hub.json`, which was already modelled this way."
+  },
+  "notes": "Ubiquiti tech specs `https://techspecs.ui.com/unifi/door-access/ua-g3-sk-pro` (HTTP 200, read 2026-11-20): **Networking Interface (5) 10/100/1000 Base-T**, **PoE Interface (1) PoE++ input, 50V DC, 1A; (4) PoE outputs, 50V DC, 30W per port (Max 45W aggregated)**, **Max. Power Consumption 30W (Without PoE output) / 50W (With PoE output)**, **Power Method PoE++**. **This entry used to model the uplink as the PoE port**: eth0 declared `poeOut` class PoE++ and the 4 output jacks declared nothing, so the spec advertised a 60 W source on the port that is fed *by* the switch, while the jacks a camera is actually cabled to could source nothing - and with no `poe.budgetW` the loader fell through to the model name, found no wattage and served 0 W (`node scripts/audit-poe-budget.js` listed this file under \"Silent (PoE out, no budget)\"). Direction now follows the vendor row: eth0 is the PoE++ PD input (50V x 1A = 50 W), eth1-eth4 are 30 W PSE outputs behind a 45 W aggregate budget. The page calls them \"PoE outputs\"; they are modelled `PoE+` because the same row gives 30 W per port, which is 802.3at Type 2 whatever the label. The vendor prints 10/100/1000 Base-T, so both banks gained the 10M rung."
 }

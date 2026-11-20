@@ -3,7 +3,7 @@
   "model": "UA-G3-SK",
   "label": "UniFi G3 Starter Kit",
   "category": "iot",
-  "description": "UniFi G3 Starter Kit (UA-G3-SK) - 3x 1G RJ45 (1x PoE++ passthrough). 802.3bt PoE-in; 19 W max.",
+  "description": "UniFi G3 Starter Kit (UA-G3-SK) - 3x 1G RJ45 (1 PoE++ input, 2 PoE+ outputs at 30 W/port, 45 W aggregate). 19 W max without PoE output, 50 W with.",
   "capabilities": [
     "l2-forward",
     "http-server",
@@ -18,23 +18,32 @@
       "type": "ethernet",
       "connector": "rj45",
       "speed": "1G",
-      "poeOut": true,
-      "poeOutClass": "PoE++"
+      "poeIn": 50
     },
     {
       "name": "eth1",
       "type": "ethernet",
       "connector": "rj45",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "eth2",
       "type": "ethernet",
       "connector": "rj45",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
     }
   ],
   "icon": "iot",
   "color": "#14b8a6",
-  "sourceUrl": "https://techspecs.ui.com/unifi/door-access/ua-g3-sk"
+  "sourceUrl": "https://techspecs.ui.com/unifi/door-access/ua-g3-sk",
+  "poe": {
+    "budgetW": 45,
+    "sourceUrl": "https://techspecs.ui.com/unifi/door-access/ua-g3-sk",
+    "note": "Ubiquiti prints one row for the whole PoE side on https://techspecs.ui.com/unifi/door-access/ua-g3-sk: **(1) PoE++ input, 50V DC, 1A; (2) PoE outputs, 50V DC, 30W per port (Max 45W aggregated)**, with **Max. Power Consumption 19W (Without PoE output) / 50W (With PoE output)** and **Power Method PoE++**. 45 W is the PSE allocation - the total across the 2 outputs, not a per-port figure - so 2 x 30 W of cameras (60 W) exceed what this hub can supply, and the engine must refuse the last watt rather than promise 30 W a port. Same shape as `devices/ubiquiti/ua-hub.json`, which was already modelled this way."
+  },
+  "notes": "Ubiquiti tech specs `https://techspecs.ui.com/unifi/door-access/ua-g3-sk` (HTTP 200, read 2026-11-20): **Networking Interface (3) GbE RJ45 ports**, **PoE Interface (1) PoE++ input, 50V DC, 1A; (2) PoE outputs, 50V DC, 30W per port (Max 45W aggregated)**, **Max. Power Consumption 19W (Without PoE output) / 50W (With PoE output)**, **Power Method PoE++**. **This entry used to model the uplink as the PoE port**: eth0 declared `poeOut` class PoE++ and the 2 output jacks declared nothing, so the spec advertised a 60 W source on the port that is fed *by* the switch, while the jacks a camera is actually cabled to could source nothing - and with no `poe.budgetW` the loader fell through to the model name, found no wattage and served 0 W (`node scripts/audit-poe-budget.js` listed this file under \"Silent (PoE out, no budget)\"). Direction now follows the vendor row: eth0 is the PoE++ PD input (50V x 1A = 50 W), eth1-eth2 are 30 W PSE outputs behind a 45 W aggregate budget. The page calls them \"PoE outputs\"; they are modelled `PoE+` because the same row gives 30 W per port, which is 802.3at Type 2 whatever the label."
 }

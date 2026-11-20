@@ -54,5 +54,10 @@
     }
   ],
   "sourceUrl": "https://techspecs.ui.com/unifi/door-access/ua-hub-door",
-  "notes": "Vendor figures from the Ubiquiti tech specs page: **(5) 10/100/1000 Base-T ports**, PoE interface **(1) PoE++ input at 50V DC 1A** and **(4) PoE+ outputs at 50V DC 30 W per port, max 45 W aggregated**, max power 30 W without PoE output and 50 W with. **Four ports rated 30 W each but only 45 W in total** is the number that matters: powering four 30 W devices at once is not possible, so a door build has to budget the aggregate, not the per-port figure."
+  "notes": "Vendor figures from the Ubiquiti tech specs page: **(5) 10/100/1000 Base-T ports**, PoE interface **(1) PoE++ input at 50V DC 1A** and **(4) PoE+ outputs at 50V DC 30 W per port, max 45 W aggregated**, max power 30 W without PoE output and 50 W with. **Four ports rated 30 W each but only 45 W in total** is the number that matters: powering four 30 W devices at once is not possible, so a door build has to budget the aggregate, not the per-port figure.",
+  "poe": {
+    "budgetW": 45,
+    "sourceUrl": "https://techspecs.ui.com/unifi/door-access/ua-hub-door",
+    "note": "The vendor row this spec already quotes - **(4) PoE+ outputs at 50V DC 30 W per port, max 45 W aggregated** - is the PSE allocation, so it belongs in `poe.budgetW`: until 2026-11-20 the four 30 W output ports carried no budget, the loader fell through to the model name, found no wattage and served 0 W. `node scripts/audit-poe-budget.js` listed this file under \"Silent (PoE out, no budget)\" with 4 PSE ports. 45 W, not 4 x 30 W, is what the four jacks share."
+  }
 }

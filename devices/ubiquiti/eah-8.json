@@ -3,7 +3,7 @@
   "model": "EAH-8",
   "label": "Enterprise Access Hub",
   "category": "iot",
-  "description": "Enterprise Access Hub (EAH-8) - 10x 1G RJ45 (8 PoE+). 240 W max.",
+  "description": "Enterprise Access Hub (EAH-8) - 10x 1G RJ45 (8 PoE+ outputs at 30 W/port, 190 W aggregate). 240 W max power consumption.",
   "capabilities": [
     "l2-forward",
     "http-server",
@@ -19,7 +19,8 @@
       "speed": "1G",
       "speedCaps": [
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
       "poeOut": true,
       "poeOutClass": "PoE+"
@@ -31,7 +32,8 @@
       "speed": "1G",
       "speedCaps": [
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
       "poeOut": true,
       "poeOutClass": "PoE+"
@@ -43,7 +45,8 @@
       "speed": "1G",
       "speedCaps": [
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
       "poeOut": true,
       "poeOutClass": "PoE+"
@@ -55,7 +58,8 @@
       "speed": "1G",
       "speedCaps": [
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
       "poeOut": true,
       "poeOutClass": "PoE+"
@@ -67,7 +71,8 @@
       "speed": "1G",
       "speedCaps": [
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
       "poeOut": true,
       "poeOutClass": "PoE+"
@@ -79,7 +84,8 @@
       "speed": "1G",
       "speedCaps": [
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
       "poeOut": true,
       "poeOutClass": "PoE+"
@@ -91,7 +97,8 @@
       "speed": "1G",
       "speedCaps": [
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
       "poeOut": true,
       "poeOutClass": "PoE+"
@@ -103,7 +110,8 @@
       "speed": "1G",
       "speedCaps": [
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
       "poeOut": true,
       "poeOutClass": "PoE+"
@@ -115,7 +123,8 @@
       "speed": "1G",
       "speedCaps": [
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ]
     },
     {
@@ -125,11 +134,18 @@
       "speed": "1G",
       "speedCaps": [
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ]
     }
   ],
   "icon": "iot",
   "color": "#14b8a6",
-  "sourceUrl": "https://techspecs.ui.com/unifi/door-access/eah-8"
+  "sourceUrl": "https://techspecs.ui.com/unifi/door-access/eah-8",
+  "poe": {
+    "budgetW": 190,
+    "sourceUrl": "https://techspecs.ui.com/unifi/door-access/eah-8",
+    "note": "Ubiquiti prints **PoE Interface (8) PoE+ outputs, 50V DC, 30W per port (Max 190W aggregated)** on https://techspecs.ui.com/unifi/door-access/eah-8, beside **Max. PoE Wattage per Port 30W**, **Power Supply AC/DC, internal** and **Max. Power Consumption 240W**. 190 W is the PSE allocation: eight 30 W outputs share it, so only six can run at full rate. **240 W is the box's own consumption, not a PoE budget** - this entry used to print it in its description as \"240 W max\", which is the same defect class as the adapter-rated budgets corrected in `devices/ubiquiti/udb-switch.json` and `devices/ubiquiti/usw-flex.json`."
+  },
+  "notes": "Ubiquiti tech specs `https://techspecs.ui.com/unifi/door-access/eah-8` (HTTP 200, 630,056 B, read 2026-11-20): **Networking Interface (10) 10/100/1000 Base-T**, **PoE Interface (8) PoE+ outputs, 50V DC, 30W per port (Max 190W aggregated)**, **Power Supply AC/DC, internal**, **Max. Power Consumption 240W**, **Max. PoE Wattage per Port 30W**, **Power Method Universal input, 100-240V AC, Max. 4.4A, 50/60 Hz / 32-48V DC Lead Acid Battery, Max. 7.5A @32V**. Two independent readings this entry had collapsed into one: the budget is 190 W (eight 30 W PoE+ outputs, aggregate), the 240 W headline is what the hub draws including its own electronics. The loader found no budget in the spec, no wattage in the model name, and served 0 W to eight PSE ports (`node scripts/audit-poe-budget.js`, \"Silent (PoE out, no budget)\"). eth0-eth7 are the eight PSE jacks the vendor names; eth8-eth9 are the two non-PoE ports of the ten-port bank. All ten jacks also gained the vendor's 10M rung."
 }
