@@ -7496,6 +7496,22 @@ class CliSession {
       }
       out.push('! PacketForge running-config');
       out.push('hostname ' + (dev.config.hostname || dev.name));
+      // One space per submode level. This is the vendor's own written rule, in the words four Cisco guides use
+      // for the format of a configuration file: "Start all commands on a new line with no indentation, unless
+      // the command is within a configuration submode. Indent commands within a first-level configuration
+      // submode one space. Indent commands within a second-level configuration submode two spaces. Indent
+      // commands within subsequent submodes accordingly." The same paragraphs finish by saying that these are
+      // the rules the software itself uses to create the file - "Any configuration file generated on a Cisco
+      // device complies with these rules" (research/running-config-indent.md carries the four pages and the
+      // two raw device captures that show it byte for byte).
+      //
+      // This printer used two spaces for a line inside an `interface` stanza, a DHCP pool or a `dns zone`,
+      // which is the depth of a *second*-level submode: every line of a backup copied out of here differed
+      // from the same box's own file, so a diff against a real device read as a total rewrite. And the two
+      // lines under `router bgp` had no indentation at all, which is the more dangerous half - at the left
+      // margin `bgp router-id` and `neighbor ... remote-as` read as global commands, and a reader (or a
+      // parser that trusted the columns) could not tell which stanza owned them.
+      const IN_SUBMODE = ' ';
       // Five features were configurable, stored, and printed nowhere: a config saved from the device came back
       // without its routing protocol, its name servers, its AS membership or its IPv6 router-advertisement
       // policy, and restoring it produced a different device. The test that was supposed to catch this
@@ -7534,9 +7550,13 @@ class CliSession {
       }
       if (dev.config.bgp && dev.config.bgp.as != null) {
         out.push('router bgp ' + dev.config.bgp.as);
-        if (dev.config.bgp.routerId) out.push('bgp router-id ' + dev.config.bgp.routerId);
+        // Both children are `(config-router)` commands on a box, so both carry the name of the mode they
+        // belong to in their first column: one space. Printed flush left they claimed to be global.
+        if (dev.config.bgp.routerId) out.push(IN_SUBMODE + 'bgp router-id ' + dev.config.bgp.routerId);
         for (const n of (dev.config.bgp.neighbors || [])) {
-          if (n && n.address && n.remoteAs != null) out.push('neighbor ' + n.address + ' remote-as ' + n.remoteAs);
+          if (n && n.address && n.remoteAs != null) {
+            out.push(IN_SUBMODE + 'neighbor ' + n.address + ' remote-as ' + n.remoteAs);
+          }
         }
       }
       {
@@ -7602,25 +7622,25 @@ class CliSession {
         // the same table `show ip interface brief` uses, so one port cannot be named two ways by two views
         // (research/running-config-interface-name.md).
         out.push('interface ' + require('./iface-name').displayName(i.name));
-        if (i.description) out.push('  description ' + i.description);
+        if (i.description) out.push(IN_SUBMODE + 'description ' + i.description);
         // Only when forced: a config that emits `speed auto` on every port is noise, and the round trip
         // already asserts that nothing configured is left out (#1259).
-        if (i.speedMbps) out.push('  speed ' + i.speedMbps);
-        if (i.duplex && i.duplex !== 'full') out.push('  duplex ' + i.duplex);
+        if (i.speedMbps) out.push(IN_SUBMODE + 'speed ' + i.speedMbps);
+        if (i.duplex && i.duplex !== 'full') out.push(IN_SUBMODE + 'duplex ' + i.duplex);
         // A serial line's DCE claim, in the config where an operator looks for it. `clock rate` was a command that
         // took effect and left no trace in running-config, so a backup of a WAN lab did not say which end clocks the
         // line - and restoring it gave an unclocked link the validation refuses (#1483).
-        if (i.clockRateBps) out.push('  clock rate ' + i.clockRateBps);
+        if (i.clockRateBps) out.push(IN_SUBMODE + 'clock rate ' + i.clockRateBps);
         // Only a subinterface that terminates a VLAN has an encapsulation line. A port named `.5000`
         // carries no tag until one is typed, and `encapsulation dot1q null` is a line no box prints
         // (research/subinterface-number.md).
-        if (i.parent && i.encapVid) out.push('  encapsulation dot1q ' + i.encapVid);
+        if (i.parent && i.encapVid) out.push(IN_SUBMODE + 'encapsulation dot1q ' + i.encapVid);
         // The method is printed, not the outcome. A host that has a lease holds both the `dhcp` flag and the
         // address the lease gave it, and printing the address baked a leased value into the backup: restored
         // on another network, the host claimed a stale address and never asked for a new one. A backup has to
         // describe what was configured, or restoring it changes what the device does.
-        if (i.dhcp) out.push('  ip address dhcp');
-        else if (i.ip) out.push('  ip address ' + i.ip + ' ' + i.mask);
+        if (i.dhcp) out.push(IN_SUBMODE + 'ip address dhcp');
+        else if (i.ip) out.push(IN_SUBMODE + 'ip address ' + i.ip + ' ' + i.mask);
         if (i.vlan) {
           // The mode and the VLAN parameters are separate state, and they are printed separately. The
           // parameters used to be printed only in the mode that uses them, so a trunk staged on an access
@@ -7650,11 +7670,11 @@ class CliSession {
           // `switchport trunk encapsulation dot1q` / `switchport trunk native vlan 4` / `switchport mode
           // trunk`. Where the allowed-vlan line sits between those is the one placement no sample showed,
           // so it keeps the position it already had, among the parameters.
-          if (spAccess !== 1) out.push('  switchport access vlan ' + spAccess);
-          if (spNative !== 1) out.push('  switchport trunk native vlan ' + spNative);
-          if (spAllowedText !== null) out.push('  switchport trunk allowed vlan ' + spAllowedText);
-          if (spMode === 'trunk' || spAccess !== 1) out.push('  switchport mode ' + spMode);
-          if (spVoice !== null) out.push('  switchport voice vlan ' + spVoice);
+          if (spAccess !== 1) out.push(IN_SUBMODE + 'switchport access vlan ' + spAccess);
+          if (spNative !== 1) out.push(IN_SUBMODE + 'switchport trunk native vlan ' + spNative);
+          if (spAllowedText !== null) out.push(IN_SUBMODE + 'switchport trunk allowed vlan ' + spAllowedText);
+          if (spMode === 'trunk' || spAccess !== 1) out.push(IN_SUBMODE + 'switchport mode ' + spMode);
+          if (spVoice !== null) out.push(IN_SUBMODE + 'switchport voice vlan ' + spVoice);
         }
         // An IPv6 address lives in config.ip6, not on the interface object, so a printer that walked the
         // interfaces could not have found it even in principle.
@@ -7662,46 +7682,46 @@ class CliSession {
         // command produced, directly under the `ipv6 address autoconfig` line that did produce it. The config keeps
         // the request; the address is operational state (`show interfaces` reports it).
         const v6a = dev.config.ip6 && dev.config.ip6[i.name];
-        if (v6a && v6a.addr && !v6a.autoconfig) out.push('  ipv6 address ' + v6a.addr + '/' + v6a.prefix);
-        if (i.autoconfig) out.push('  ipv6 address autoconfig');
+        if (v6a && v6a.addr && !v6a.autoconfig) out.push(IN_SUBMODE + 'ipv6 address ' + v6a.addr + '/' + v6a.prefix);
+        if (i.autoconfig) out.push(IN_SUBMODE + 'ipv6 address autoconfig');
         // Per-interface OSPF overrides - the same hole one level down: `ip ospf cost`, `ip ospf area` and
         // `ip ospf passive` were stored on the interface and printed nowhere.
         if (dev.config.ospf && Array.isArray(dev.config.ospf.interfaces)) {
           const ov = dev.config.ospf.interfaces.filter(function (x) { return x && x.name === i.name; })[0];
           if (ov) {
-            if (ov.cost != null) out.push('  ip ospf cost ' + ov.cost);
-            if (ov.area != null) out.push('  ip ospf area ' + ov.area);
+            if (ov.cost != null) out.push(IN_SUBMODE + 'ip ospf cost ' + ov.cost);
+            if (ov.area != null) out.push(IN_SUBMODE + 'ip ospf area ' + ov.area);
             // The election's first tie-break, and a line the parser takes back, so a saved device
             // comes up holding the priority it had.
-            if (ov.priority != null) out.push('  ip ospf priority ' + ov.priority);
-            if (ov.passive) out.push('  ip ospf passive');
+            if (ov.priority != null) out.push(IN_SUBMODE + 'ip ospf priority ' + ov.priority);
+            if (ov.passive) out.push(IN_SUBMODE + 'ip ospf passive');
           }
         }
         const lag = dev.lagFor ? dev.lagFor(i.name) : null;
         // Printed in the console's vocabulary, which is the only spelling the parser takes back.
-        if (lag) out.push('  channel-group ' + lag.id + ' mode ' + require('./lag').cliMode(lag.mode));
+        if (lag) out.push(IN_SUBMODE + 'channel-group ' + lag.id + ' mode ' + require('./lag').cliMode(lag.mode));
         // Which side of the translation this port is on. A port declared inside or outside is a fact the config
         // parser accepts, so it belongs in the block that reads it back (#1391).
-        if (i.natRole === 'inside' || i.natRole === 'outside') out.push('  ip nat ' + i.natRole);
+        if (i.natRole === 'inside' || i.natRole === 'outside') out.push(IN_SUBMODE + 'ip nat ' + i.natRole);
         const binds = dev.aclBindings && dev.aclBindings[i.name];
-        if (binds && binds.in != null) out.push('  ip access-group ' + binds.in + ' in');
-        if (binds && binds.out != null) out.push('  ip access-group ' + binds.out + ' out');
-        if (!i.enabled) out.push('  shutdown');
+        if (binds && binds.in != null) out.push(IN_SUBMODE + 'ip access-group ' + binds.in + ' in');
+        if (binds && binds.out != null) out.push(IN_SUBMODE + 'ip access-group ' + binds.out + ' out');
+        if (!i.enabled) out.push(IN_SUBMODE + 'shutdown');
         // A VRRP group belongs to an interface, so it is printed inside that interface's block - the
         // only place the config parser will accept it. It used to be printed nowhere at all: the
         // group existed, `show vrrp` reported it, and a config saved from the device had no trace of
         // it (#1232).
         for (const g of (dev.config.vrrp || [])) {
           if (!g || g.interface !== i.name) continue;
-          for (const ip of (g.ips || [])) out.push('  vrrp ' + g.vrid + ' ip ' + ip);
+          for (const ip of (g.ips || [])) out.push(IN_SUBMODE + 'vrrp ' + g.vrid + ' ip ' + ip);
           if (g.priority !== undefined && g.priority !== null && g.priority !== 100) {
-            out.push('  vrrp ' + g.vrid + ' priority ' + g.priority);
+            out.push(IN_SUBMODE + 'vrrp ' + g.vrid + ' priority ' + g.priority);
           }
-          if (g.preempt === false) out.push('  no vrrp ' + g.vrid + ' preempt');
+          if (g.preempt === false) out.push(IN_SUBMODE + 'no vrrp ' + g.vrid + ' preempt');
           if (g.advertSec !== undefined && g.advertSec !== null && Number(g.advertSec) !== 1) {
-            out.push('  vrrp ' + g.vrid + ' advertise ' + g.advertSec);
+            out.push(IN_SUBMODE + 'vrrp ' + g.vrid + ' advertise ' + g.advertSec);
           }
-          if (g.authText) out.push('  vrrp ' + g.vrid + ' authentication ' + g.authText);
+          if (g.authText) out.push(IN_SUBMODE + 'vrrp ' + g.vrid + ' authentication ' + g.authText);
         }
         // Close the block the way a box closes it: a bare `!` line, the stanza separator every
         // published running-config uses between two `interface` stanzas (the 4000 Series ISR default
@@ -7717,15 +7737,15 @@ class CliSession {
       for (const pool of (dev.config.dhcpPools || [])) {
         if (!pool || !pool.name) continue;
         out.push('ip dhcp pool ' + pool.name);
-        if (pool.network) out.push('  network ' + pool.network + (pool.mask ? ' ' + pool.mask : ''));
-        if (pool.rangeStart) out.push('  range ' + pool.rangeStart + (pool.rangeEnd ? ' ' + pool.rangeEnd : ''));
-        if (pool.gateway) out.push('  default-router ' + pool.gateway);
-        if (pool.dns) out.push('  dns-server ' + pool.dns);
-        for (const ex of (Array.isArray(pool.excluded) ? pool.excluded : [])) out.push('  excluded-address ' + ex);
+        if (pool.network) out.push(IN_SUBMODE + 'network ' + pool.network + (pool.mask ? ' ' + pool.mask : ''));
+        if (pool.rangeStart) out.push(IN_SUBMODE + 'range ' + pool.rangeStart + (pool.rangeEnd ? ' ' + pool.rangeEnd : ''));
+        if (pool.gateway) out.push(IN_SUBMODE + 'default-router ' + pool.gateway);
+        if (pool.dns) out.push(IN_SUBMODE + 'dns-server ' + pool.dns);
+        for (const ex of (Array.isArray(pool.excluded) ? pool.excluded : [])) out.push(IN_SUBMODE + 'excluded-address ' + ex);
         if (typeof pool.leaseSec === 'string' && pool.leaseSec.toLowerCase() === 'infinite') {
           // The word goes back out as the word: a pool saved as seconds would have to invent a number for
           // "never", and the number it invented would be a lease that ends (#fidelity: lease infinite).
-          out.push('  lease infinite');
+          out.push(IN_SUBMODE + 'lease infinite');
         } else if (pool.leaseSec) {
           // Seconds back to the days/hours/minutes the command takes. Only whole minutes survive the
           // round trip, which is every value the command itself can express.
@@ -7747,13 +7767,13 @@ class CliSession {
             // A sub-minute duration has no command that can set it (the CLI takes whole minutes only), so this
             // is reachable only through a hand-edited lab file. Keep the old three-field form there instead of
             // printing a bare `lease 0`, which no box accepts and which would not replay.
-            out.push('  lease ' + (fields.length === 1 && fields[0] === 0 ? '0 0 0' : fields.join(' ')));
+            out.push(IN_SUBMODE + 'lease ' + (fields.length === 1 && fields[0] === 0 ? '0 0 0' : fields.join(' ')));
           }
         }
         // `reservations` is keyed by hardware address and holds the address it is pinned to, while the
         // command reads `host <address> <hardware-address>` - so the key is printed second.
         const reservations = pool.reservations || {};
-        for (const mac of Object.keys(reservations)) out.push('  host ' + reservations[mac] + ' ' + mac);
+        for (const mac of Object.keys(reservations)) out.push(IN_SUBMODE + 'host ' + reservations[mac] + ' ' + mac);
         out.push('exit');
       }
 
@@ -7764,7 +7784,7 @@ class CliSession {
         out.push('dns zone ' + z.name);
         for (const r of (z.records || [])) {
           if (!r || !r.name) continue;
-          out.push('  dns add ' + r.name + ' ' + (r.type || 'A') + ' ' + r.value);
+          out.push(IN_SUBMODE + 'dns add ' + r.name + ' ' + (r.type || 'A') + ' ' + r.value);
         }
       }
 

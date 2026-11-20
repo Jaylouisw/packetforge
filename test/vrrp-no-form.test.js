@@ -90,7 +90,7 @@ console.log('\nThe config this console prints is a config it can read back:');
   const s = session();
   s.run(['no vrrp 42 preempt', 'end']);
   const text = s.run(['show running-config']).join('\n');
-  ok(/(^|\n) {2}no vrrp 42 preempt(\n|$)/.test(text), 'the printer writes `  no vrrp 42 preempt` for the group',
+  ok(/(^|\n) no vrrp 42 preempt(\n|$)/.test(text), 'the printer writes ` no vrrp 42 preempt` for the group',
     text.split('\n').filter(function (l) { return /vrrp/.test(l); }).join(' | '));
 
   // The paste-back: the same text into a fresh device of the same model, as a saved lab would be.

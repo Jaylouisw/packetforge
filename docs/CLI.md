@@ -176,7 +176,7 @@ The output is a restorable backup, and that is a tested invariant rather than an
 (`test/config-roundtrip.test.js`): paste it into a fresh device of the same model at the config prompt
 and you get the same configuration, on the same ports.
 
-Four properties make that work, all of them load-bearing:
+Five properties make that work, all of them load-bearing:
 
 * **Every interface block closes with `!`.** A bare `!` is the line every published running-config prints
   between two `interface` stanzas — the 4000 Series ISR default configuration goes
@@ -198,6 +198,17 @@ Four properties make that work, all of them load-bearing:
   (`research/running-config-interface-name.md`, `test/running-config-interface-name.test.js`).
 * **An interface name is the rest of the line**, because some contain spaces — Ubiquiti's `Port 1`,
   `SFP+ 1`. Splitting on whitespace and taking one token made those devices' configs unreplayable.
+* **A submode line is indented one space.** That is the vendor's own rule for the format of the file,
+  stated as a numbered list in the prerequisites of four guides: top-level commands start with no
+  indentation, "Indent commands within a first-level configuration submode one space", and a
+  second-level submode two spaces - followed by "These indentation rules describe how the software
+  creates configuration files for such commands as `show running-config` … Any configuration file
+  generated on a Cisco device complies with these rules." So the body of an `interface` stanza, of
+  `ip dhcp pool`, of `dns zone`, and the `bgp router-id` / `neighbor` lines under `router bgp` each
+  begin with exactly one space. The printer used two - the depth of a *second*-level submode - which
+  made every stanza line differ from the same box's file, and printed the `router bgp` children at the
+  left margin, where a global command lives (`research/running-config-indent.md`,
+  `test/running-config-indent.test.js`).
 * **The file ends with `end`.** That is the line a real config closes with, and its job is the paste: read
   in global configuration mode it leaves configuration mode, so a pasted backup finishes instead of leaving
   the operator at `(config)#`. The number of bare `!` lines a box puts above it varies by release — one in
@@ -3651,14 +3662,14 @@ for is the one you get.
 
 ```
 ip dhcp pool <name>
-  network <network> [mask|/prefix]
-  default-router <address>
-  dns-server <address...>
-  range <start> <end>
-  excluded-address <address[-address]>
-  lease <days> [hours] [minutes] | infinite
-  host <address> <mac>          # a reservation
-  exit
+ network <network> [mask|/prefix]
+ default-router <address>
+ dns-server <address...>
+ range <start> <end>
+ excluded-address <address[-address]>
+ lease <days> [hours] [minutes] | infinite
+ host <address> <mac>          # a reservation
+ exit
 ```
 
 `host` takes the address and the hardware address in either order, and the hardware address in any notation
@@ -3705,14 +3716,14 @@ A group belongs to an interface, so the commands live inside `interface`:
 
 ```
 interface GigabitEthernet0/0
-  ip address 10.0.0.1 255.255.255.0
-  vrrp <vrid> ip <virtual-address>
-  vrrp <vrid> priority <1-254>        # 100 default; 255 is only ever the address owner's
-  vrrp <vrid> advertise <seconds>
-  vrrp <vrid> preempt                 # on by default; `no vrrp <vrid> preempt` turns it off
-  vrrp <vrid> authentication <text>   # stored, and never used by the election
-  no vrrp <vrid>                      # remove the group
-  no vrrp <vrid> priority|preempt|advertise   # put one setting back to its default
+ ip address 10.0.0.1 255.255.255.0
+ vrrp <vrid> ip <virtual-address>
+ vrrp <vrid> priority <1-254>        # 100 default; 255 is only ever the address owner's
+ vrrp <vrid> advertise <seconds>
+ vrrp <vrid> preempt                 # on by default; `no vrrp <vrid> preempt` turns it off
+ vrrp <vrid> authentication <text>   # stored, and never used by the election
+ no vrrp <vrid>                      # remove the group
+ no vrrp <vrid> priority|preempt|advertise   # put one setting back to its default
 ```
 
 **A `no` that names a setting removes the setting; a bare `no` removes the group.** The interface-mode

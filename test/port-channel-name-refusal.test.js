@@ -125,7 +125,7 @@ console.log('The physical port and the views that name the bundle are unchanged:
   ok(member.indexOf('  status: up, protocol: up') !== -1, 'with its status line', member.join('\n'));
   // The membership line belongs to the configuration view, not to `show interfaces` - a box does not print one
   // in the member's block either. Guard it so the new name test cannot have moved it.
-  ok(/^  channel-group 1 mode active$/m.test(text(env, 'show running-config')),
+  ok(/^ channel-group 1 mode active$/m.test(text(env, 'show running-config')),
     'and `show running-config` still carries its channel-group line under the member');
   const summary = say(env, 'show etherchannel summary');
   const groupRow = summary.filter(function (l) { return /^1\s+Po1\(/.test(l); })[0] || '';

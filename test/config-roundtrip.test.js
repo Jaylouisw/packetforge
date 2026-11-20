@@ -240,7 +240,7 @@ console.log('Nothing configurable is left out of the config (#1232):');
   }
 
   // …and VRRP is inside the interface block, because that is the only place the parser takes it.
-  const vrrpLine = rc.indexOf('  vrrp 42 ip 10.1.2.1');
+  const vrrpLine = rc.indexOf(' vrrp 42 ip 10.1.2.1');
   const ifaceLine = rc.indexOf('interface GigabitEthernet0/0/0');
   const ifaceExit = rc.indexOf('exit', ifaceLine);
   ok(vrrpLine > ifaceLine && vrrpLine < ifaceExit, 'the VRRP group is inside its interface block');
@@ -322,11 +322,11 @@ console.log('The config prints what a port references before the port that refer
   const rc = runningConfig(a);
   const text = rc.join('\n');
   const vlanLine = rc.indexOf('vlan 10 sales');
-  const bindsVlanLine = rc.indexOf('  switchport access vlan 10');
+  const bindsVlanLine = rc.indexOf(' switchport access vlan 10');
   ok(vlanLine !== -1 && bindsVlanLine !== -1 && vlanLine < bindsVlanLine,
     'the VLAN is defined above the port that names it', vlanLine + ' vs ' + bindsVlanLine);
   const aclLine = rc.indexOf('access-list 101 permit tcp any any eq 443');
-  const bindsAclLine = rc.indexOf('  ip access-group 101 in');
+  const bindsAclLine = rc.indexOf(' ip access-group 101 in');
   ok(aclLine !== -1 && bindsAclLine !== -1 && aclLine < bindsAclLine,
     'the access list is defined above the port that binds it', aclLine + ' vs ' + bindsAclLine);
 
@@ -363,7 +363,7 @@ console.log('A VRRP group whose preemption is off survives the round trip:');
     'and the group is still configured, with preemption off', JSON.stringify(a.dev.config.vrrp));
   const rc = runningConfig(a);
   const text = rc.join('\n');
-  ok(text.indexOf('  no vrrp 42 preempt') !== -1, 'the printer writes the line back');
+  ok(text.indexOf(' no vrrp 42 preempt') !== -1, 'the printer writes the line back');
 
   const b = session(spec(/ASR 1001-X/));
   const replayOut = b.run(['enable', 'configure terminal'].concat(rc).concat(['end']));

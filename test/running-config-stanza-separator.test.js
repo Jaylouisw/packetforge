@@ -99,7 +99,7 @@ console.log('A configured stanza keeps its lines, and closes with `!`:');
   configure(r);
   const rc = r.config();
   const at = rc.indexOf('interface GigabitEthernet0/0');
-  ok(rc[at + 1] === '  ip address 10.1.2.3 255.255.255.0', 'the address is inside the stanza',
+  ok(rc[at + 1] === ' ip address 10.1.2.3 255.255.255.0', 'the address is inside the stanza',
     JSON.stringify(rc.slice(at, at + 3)));
   ok(rc[at + 2] === '!', 'and the separator follows it', JSON.stringify(rc[at + 2]));
   const last = rc.lastIndexOf('!');

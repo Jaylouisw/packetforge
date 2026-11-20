@@ -109,7 +109,7 @@ section('5. A value inside the range that is not on the menu is rounded, in the 
   eq(env.clock(), 1300000, 'and the port takes the nearest rate it lists');
   env.run('end');
   const running = env.run('show running-config');
-  ok(/^ {2}clock rate 1300000$/m.test(running), 'running-config prints the rounded rate',
+  ok(/^ clock rate 1300000$/m.test(running), 'running-config prints the rounded rate',
     running.split('\n').filter(function (l) { return /clock/.test(l); }).join(' | '));
   ok(running.indexOf('1234567') === -1, 'and not the number that was typed');
   ok(/DCE, clock rate 1300000/.test(env.run('show interfaces Se0/0/0')),
