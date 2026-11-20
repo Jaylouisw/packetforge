@@ -4,15 +4,18 @@ Status: forward plan. Measured on `99c2dee6`, 2026-11-17. Steps 1-2 have since l
 (`docs/DEVICE_SCHEMA.md` section "A port list may be a stated build"; the E6608, E6608T and E6616 now
 carry their complement in `label`), and step 3 landed the same day, so the "What exists today" table
 below is the state before all three. Steps 4-5 closed #797 and #799. Step 6 is the one that unblocks
-#807, #808 and #810, and it is the only remaining step that needs an engine change.
+#807, #808 and #810, and with step 6b these are the only remaining steps that need an engine
+change. Re-measured 2026-11-20: #803 has left rank 3 - its frame is vendor-sourced and what it
+now lacks is a build *and* an E1/T1 media family, which step 6 does not cover
+(`research/optixtrans-e6616x-port-type-gap.md`, sections 4-5).
 Nothing here changes an engine rule, a test or a workflow.
 
 Every open device request carries the same maintainer sentence - *"blocked on a stated
 configuration"* (#799, #804 on 2026-11-10; #743 twice). The project already knows the answer: name
 the card complement, as `docs/RESOLUTIONS.md:15` says (`OptiXtrans E6616 (14x B1LDCD)`). What is
-missing is not research - the census work is done and on disk - but (a) a schema rule, (b) one
-product decision about an OTN port type, and (c) a queue that stops calling unbuildable requests
-"ready".
+missing is not research - the census work is done and on disk - but (a) a schema rule, (b) two
+product decisions about port types - an OTN one, and the E1/T1 one #803 turned out to need - and
+(c) a queue that stops calling unbuildable requests "ready".
 
 ## What exists today
 
@@ -59,7 +62,8 @@ the closed hedex tree.
 |---|---|---|---|
 | 1 | nothing - the build is written down | #797 M8, #799 M14 | slot row and card census are on disk; both are Ethernet PIC chassis |
 | 2 | a port type the engine does not have | #807 E9605, #808 E9612, #810 E9624 | board list and port counts settled; every port is an OTU line port, not Ethernet |
-| 3 | the vendor never published it | #803 E6616X, #804 E6608T | E6600 board list is hedex-only; the E6608T's cross-connect row is `NA`, so it is a photonic shelf |
+| 2b | a port type the engine does not have **and** a build nobody stated | #803 E6616X | frame vendor-sourced (14 service slots DC / 12 AC, 780 G OTN on licence, 100 G grey per channel, no wavelength plan); the only census - 32 E1/T1 on a `TMB2DMS`, `TMB2TPS` = 1x DMS + 2x PD1 - exists on reseller reprints and names the X in a 配套 table; `engine/media.js` has no E1/T1 cage, so step 6 does not help it |
+| 3 | the vendor never published it | #804 E6608T | E6600 board list is hedex-only; the E6608T's cross-connect row is `NA`, so it is a photonic shelf |
 | 4 | the vendor never published it | #742, #743 OceanProtect | front-end port *types* and a controller count, not ports per controller |
 | 5 | the tool lies about all of the above | all ten | `ready: 10` |
 
@@ -93,7 +97,21 @@ the invented ports.
    media family for `otn`/`wdm` in `engine/media.js` beside `serial` and `coax`, so a line port is
    not offered as an Ethernet cage, and say in `DEVICE_SCHEMA.md` that a stated configuration may
    use it. Until this exists, #807, #808 and #810 cannot be modelled honestly - their only ports
-   are OTU line ports - and #803 and #804 stay blocked on the E6600 board list regardless.
+   are OTU line ports. #804 stays blocked on the E6600 board list regardless, and #803 needs step
+   6b as well as this one.
+6b. **needs Jay's approval - an E1/T1 media family.** Separate from step 6: 803's service ports
+   are 2.048 Mbit/s G.703 (75 Ω BNC / 120 Ω twisted pair) or 1.544 Mbit/s T1, none of which the
+   engine can name. The cheap shape, in `engine/media.js` beside `serial`: three media
+   (`e1-75` BNC 2.048, `e1-120` RJ48 2.048, `t1-100` RJ48 1.544), two cages (`bnc-75`,
+   `rj48-120`), a self-pairing `COMPAT` entry for each, and one classifier line - connector-first,
+   `bnc` → `bnc-75` and `rj48` → `rj48-120` - ahead of the `serial` fallback at `media.js:853`,
+   so a G.703 port stops resolving to the V.35 smart-serial cage. A spec would then write
+   `{"type": "serial", "connector": "bnc", "speed": "2.048M"}`; declaring a distinct `e1` *type*
+   instead means touching `TYPE_LABEL` in `scripts/audit-port-types.js` and every view that
+   switches on type, which is why it is the second choice. This unblocks nothing on its own:
+   803 also needs a stated build (`E6616X DC (n x TMB2TPS)`), and no source states how many
+   `TMB2TPS` groups a 14-slot X carries or the DMS's slot cost against its two PD1s.
+
 7. **S - Pin the convention.** `scripts/audit-devices.js` (or a hygiene test) fails an entry whose
    `notes` match `/stated (build|configuration)|fully populated/i` but whose `label` has no
    parenthesised complement, and prints the count in its existing summary.
@@ -132,11 +150,14 @@ queue's before/after counts in step 3's PR body - the number is the whole point 
 | #797 | NetEngine 8000 M8 | 4 |
 | #799 | NetEngine 8000 M14 | 5 |
 | #807 / #808 / #810 | OptiXtrans E9605 / E9612 / E9624 | 6, then one spec each |
+| #803 | OptiXtrans E6616X | 6b **and** a stated build - 6b alone does not close it |
 
 ## Deliberately left out
 
-#803 and #804: the E6600 board list is not reachable anonymously, so there is no order to state and
-no PR can close them (`research/optixtrans-e6600-xt-census.md` records where the search stopped).
+#804: the E6600 board list is not reachable anonymously, so there is no order to state and no PR
+can close it (`research/optixtrans-e6600-xt-census.md` records where the search stopped). #803 was
+in that sentence until 2026-11-19: its frame and its 2M pair are now sourced, and it is the one
+request here that needs two decisions rather than one (rank 2b, step 6b).
 #742 and #743: Huawei publishes front-end port types and a controller count, not ports per
 controller. #130 (UDW-PRO) has no vendor page at all and is unrelated to any build. Chassis-and-board
 modelling in the engine - cards as installable objects, a topology that changes when you fit one -
