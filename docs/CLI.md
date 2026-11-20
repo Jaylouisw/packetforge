@@ -224,7 +224,7 @@ takes back.
 | DHCP pools | `ip dhcp pool <name>` block: network, range, default-router, dns-server, excluded-address, lease, `host <addr> <mac>` |
 | DNS zones | `dns zone <apex>` followed by `dns add <name> <type> <value>` |
 | ACLs | `access-list <id> <rule>` |
-| routing | `ip route <dest> <mask> <gateway> [iface] [<distance>]`, `ip default-gateway <addr>`, and `ip routing` when the box is not in its platform's default state |
+| routing | `ip route <dest> <mask> <gateway> [iface] [<distance>]` - or the vendor's fully specified order, `ip route <dest> <mask> <iface> <gateway> [<distance>]` - `ip default-gateway <addr>`, and `ip routing` when the box is not in its platform's default state |
 | NAT | `ip nat pool <name> <start> <end> netmask <mask>`, and one `ip nat inside source …` line per rule, printed as the command that creates it (`static <local> <global> [<protocol> <port>]`, or `list <local> pool <name>` or `list <local> interface <if>`, with `overload` on a PAT rule) |
 | spanning tree | `spanning-tree priority <n>` whenever a bridge priority has been set - a typed `32768`, the value the box already assumes, is printed too, because the config records that an operator set one |
 | name servers | `ip name-server <addr>` - a command line takes up to six addresses, space separated, and the printer writes one line for each; the `no` form accepts an address but clears every resolver, not just that one (below) |
@@ -440,8 +440,8 @@ being put into a VLAN, the refusal stands.
 | `interface <name>` | enter interface config mode |
 | `interface <port>.<n>` | create a subinterface, or open an existing one, on that parent port - the prompt is `(config-subif)#`, as a box prints it (`research/subinterface-prompt.md`). `<n>` is the subinterface *number*, 1-4294967293, not a VLAN id (`research/subinterface-number.md`) |
 | `no interface <port>.<n>` | remove a subinterface and its block; a physical port is refused, because a port is not something the console created |
-| `ip route <dest> <mask> <gw> [iface] [<distance 1-255>]` | add static route, at that administrative distance (default 1) |
-| `no ip route <dest> <mask> [gw] [<distance>]` | remove static route - with a distance, only that one |
+| `ip route <dest> <mask> <gw> [iface] [<distance 1-255>]` | add static route, at that administrative distance (default 1). The vendor's fully specified order puts the interface first - `ip route <dest> <mask> <iface> <gw> [<distance>]` - and is accepted too (`research/ip-route-fully-specified.md`) |
+| `no ip route <dest> <mask> [gw|iface] [gw] [<distance>]` | remove static route, in the words that made it (`no ip route <dest> <mask> <iface> <gw> <distance>` for a fully specified one) - with a distance, only that one |
 | `ip default-gateway <gw>` | set default gateway (hosts) |
 | `no vlan <id>` | remove a VLAN (refused while a trunk carries it, or a port holds a trunk parameter or a voice VLAN naming it) |
 | `no ip dhcp pool <name>` | remove a DHCP pool |

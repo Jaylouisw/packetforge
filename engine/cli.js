@@ -1905,12 +1905,31 @@ class CliSession {
       // `{ interface-type interface-number }` form) and the administrative distance. A port name is resolved
       // first, so a device whose ports are named by number keeps its own name; every other bare number is the
       // distance. Anything else is quoted back rather than dropped.
+      //
+      // The fully specified form puts the interface FIRST and the next hop *after* it - the vendor's syntax is
+      // `ip route prefix mask { ip-address | interface-type interface-number [ip-address] } [distance]`
+      // (Cisco IOS IP Routing: Protocol-Independent Command Reference, `ip route`,
+      // https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/iproute_pi/command/iri-cr-book/iri-cr-a1.html ;
+      // the same slot in the 4400 ISR guide,
+      // https://cisco.com/c/en/us/td/docs/routers/access/4400/software/configuration/xe-16-5/isr4400swcfg-xe-16-5-book/bm_isr_4400_sw_config_guide_chapter_0110.html).
+      // This console read every word after the fifth as a port or a distance, so the one form the vendor's own
+      // table documents - and the form a CCNA lab types, `R1(config)# ip route 10.2.3.0 255.255.255.0 g0/0/0
+      // 10.1.2.2` -> `S 10.2.3.0/24 [1/0] via 10.1.2.2, GigabitEthernet0/0/0`
+      // (https://itexamanswers.net/6-1-2-lab-investigate-static-routes-answers.html) - was refused with
+      // `no interface called "10.1.2.2"`. An address in this position is the next hop, once the interface has
+      // been named and no next hop has; a second one is refused rather than replacing the first.
       for (const tok of tokens.slice(5)) {
         const asPort = resolvePortName(this.device, tok);
         if (asPort) {
           if (iface) return ['% ' + dest + '/' + net.prefixOf(mask) + ': ' + iface +
             ' is an interface, so it cannot also be followed by ' + tok];
           iface = asPort;
+          continue;
+        }
+        if (net.isIp(tok)) {
+          if (gw) return ['% ' + dest + '/' + net.prefixOf(mask) + ': a route takes one next hop, and ' +
+            gw + ' is already it'];
+          gw = tok;
           continue;
         }
         if (distance === null && /^\d+$/.test(tok)) {
@@ -1956,14 +1975,28 @@ class CliSession {
       // The words after the prefix repeat the positive form, so the distance may be named here too:
       // `no ip route 10.0.0.0 255.0.0.0 10.0.0.254 200` removes that one route and leaves a distance-1 route
       // to the same prefix alone. A bare number in the gateway slot is a distance, never a next hop.
+      // The removal form repeats the words that made the route, so it reads the same three slots the positive
+      // form does: an interface, a next hop, a distance - in either order the parser takes them. A port in the
+      // fifth slot used to be stored as a *gateway*, so `no ip route 10.9.0.0 255.255.0.0 Gi0/0/1` matched no
+      // row (every directly connected route has `gw: null`) and answered `% Route not found` for a route that
+      // was in the table; and the vendor's fully specified order was not read at all.
       const dest = tokens[3], mask = tokens[4];
       let gw = tokens[5] || null;
+      let iface = null;
       let distance = null;
-      if (gw && /^\d+$/.test(gw) && !resolvePortName(this.device, gw)) {
-        distance = Number(gw);
-        gw = null;
-      } else if (tokens[6] && /^\d+$/.test(tokens[6])) {
-        distance = Number(tokens[6]);
+      if (gw) {
+        const asPort = resolvePortName(this.device, gw);
+        if (asPort) {
+          iface = asPort;
+          gw = null;
+        } else if (/^\d+$/.test(gw)) {
+          distance = Number(gw);
+          gw = null;
+        }
+      }
+      for (const tok of tokens.slice(6)) {
+        if (gw === null && net.isIp(tok)) { gw = tok; continue; }
+        if (distance === null && /^\d+$/.test(tok)) { distance = Number(tok); continue; }
       }
       const before = this.device.config.routes.length;
       this.device.config.routes = this.device.config.routes.filter(function (r) {
@@ -1971,6 +2004,7 @@ class CliSession {
           ? Number(r.distance) : 1;
         return !(r.dest === dest && r.mask === mask &&
           (gw == null || r.gw === gw) &&
+          (iface == null || (r.iface === iface && (gw !== null || !r.gw))) &&
           (distance == null || rowDistance === distance));
       });
       out.push(before > this.device.config.routes.length ? 'Route removed' : '% Route not found');

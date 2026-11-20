@@ -9,6 +9,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **`ip route` takes the vendor's fully specified form: interface first, next hop after it.**
+  `ip route 10.2.3.0 255.255.255.0 Gi0/0/0 10.1.2.2` was refused as
+  `% 10.2.3.0/24: no interface called "10.1.2.2"`, because every word past the fifth was read as a port name
+  or a distance. The vendor's syntax is `ip route prefix mask { ip-address | interface-type interface-number
+  [ip-address] } [distance]` ([Cisco IOS IP Routing: Protocol-Independent Command Reference, `ip route`](https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/iproute_pi/command/iri-cr-book/iri-cr-a1.html)),
+  and a CCNA lab types that line and gets `S 10.2.3.0/24 [1/0] via 10.1.2.2, GigabitEthernet0/0/0`
+  ([lab 6.1.2](https://itexamanswers.net/6-1-2-lab-investigate-static-routes-answers.html)). An address in
+  that slot is now the next hop, a second one is refused by name, and the `no` form reads the same slots -
+  which fixes `no ip route <prefix> <mask> <iface>`, previously `% Route not found` for a route that was in
+  the table. `test/ip-route-fully-specified.test.js` (24 checks),
+  [research/ip-route-fully-specified.md](research/ip-route-fully-specified.md).
 - **`show spanning-tree` prints the `Role` and `Sts` cells a box prints, not the detail view's sentence.**
   The table read `Fa0/1  alternate  blocking  (traffic dropped)`. A Cisco table abbreviates -
   `Fa0/13  Desg FWD 19  128.13  P2p`, `Gi0/1  Root FWD 4  128.25  P2p`, `Gi0/2  Altn BLK 4  128.26  P2p` -
