@@ -3,7 +3,7 @@
   "model": "us-16-150w",
   "label": "Ubiquiti UniFi Switch 16 (US-16-150W)",
   "category": "switch",
-  "description": "UniFi Switch 16 PoE+: 16x 1G PoE+ RJ45 (150 W budget), 2x 1G SFP, serial console.",
+  "description": "UniFi Switch 16 PoE+ (US-16-150W) - 16x 1G RJ45 all PoE/PoE+ with 24V passive PoE on the same ports, 2x 1G SFP, serial console, 122 W PoE budget.",
   "capabilities": [
     "l2-forward",
     "l3-forward",
@@ -246,5 +246,11 @@
       "speed": "115.2k"
     }
   ],
-  "notes": "Vendor figures: **(16) Gigabit RJ45 ports, (2) SFP ports, (1) serial console port**, internal **150 W** supply, 802.3af/at on every copper port. **150 W across sixteen ports is 9.4 W average** - enough for sixteen cameras, not for sixteen 802.3at APs. The two SFP cages are **1G, not SFP+**; the 24- and 48-port models in this family are the ones that carry SFP+ on the larger SKUs."
+  "notes": "Vendor rows, all Ubiquiti-hosted, read 2026-11-20. Datasheet \"https://dl.ui.com/datasheets/unifi/UniFi_PoE_Switch.pdf\" (HTTP 200, 3,962,155 B, 12 pp, text layer; the link the product's own page serves, `https://www.ui.com/downloads/datasheets/unifi/UniFi_PoE_Switch.pdf`, 301s here). Model bullets (printed p.3): \"Model: US-16-150W - (16) Gigabit RJ45 Ports - (2) SFP Ports - (1) Serial Console Port - Non-Blocking Throughput: 18 Gbps - Switching Capacity: 36 Gbps - Forwarding Rate: 26.78 Mpps - Maximum Power Consumption: 150W\". Spec table (printed p.7): Networking Interfaces \"(16) 10/100/1000 Mbps RJ45 Ethernet Ports / (2) 1 Gbps SFP Ethernet Ports\"; Management Interface \"Ethernet In-Band\"; Power Supply \"AC/DC, Internal, 150W DC\"; Max. Power Consumption \"Including PoE Output 150W / Excluding PoE Output 28W\"; PoE Interfaces \"PoE+ IEEE 802.3af/at (Pins 1, 2+; 3, 6-); 24VDC Passive PoE (Pins 4, 5+; 7, 8-)\"; Max. PoE+ Wattage per Port by PSE \"34.2W\"; Max. Passive PoE Wattage per Port \"17W\".\n\nThe correction in this pass is the budget. This row served 150 W - the model-name figure, which is the whole-box ceiling including PoE. Ubiquiti publishes 122 W of PoE availability (see `poe.note`), so the old number handed out 28 W the supply cannot allocate. 122 W across sixteen ports is 7.6 W average, not the 9.4 W this note used to claim: enough for sixteen cameras, not for sixteen 802.3at APs, and the per-port ceiling (34.2 W PoE+ by the datasheet, 32 W by the store page) is what caps a partial fill.\n\nTwo vendor inconsistencies are recorded rather than resolved. (1) The spec table's Management Interface row reads only \"Ethernet In-Band\" while the model bullets on p.3 list \"(1) Serial Console Port\" for this SKU (US-8-150W has neither, US-24-250W and up print \"(1) RJ45 Serial Port Out-of-Band, Ethernet In-Band\" in the table). The console interface stays, on the bullet and on the store page's feature list. (2) Per-port PoE+ ceiling is 34.2 W in the datasheet and 32 W on the storefront, the same split the EdgeSwitch generation shows.\n\nThe two SFP cages are 1G, not SFP+; this datasheet gives the 48-port models the two 10G cages. Copper prints as 10/100/1000 on both vendor surfaces, so `10M` stays in `speedCaps`.",
+  "poe": {
+    "budgetW": 122,
+    "sourceUrl": "https://web.archive.org/web/20231113045611id_/https://store.ui.com/us/en/products/us-16-150w",
+    "note": "Ubiquiti's own row, not a subtraction of ours: the archived store page's spec table prints \"Total available PoE 122W\", repeats it as the key feature \"122W total PoE availability\", tags the SKU `poe:122w`, and titles the shelf row \"Standard 16 PoE (Gen1) US-16-150W (122W)\". The same table gives \"Max. power consumption: Excluding PoE output: 28W / Including PoE output: 150W\" and the datasheet prints the same pair, so 150 W is the supply and whole-box ceiling while 122 W is what powered devices may draw (150 - 28 = 122). Per port by PSE the datasheet prints \"PoE+ 34.2W / Max. Passive PoE 17W\"; the store page prints \"32W / 17W\" for the same two rows. Both are recorded; neither is used as a budget. No live tech-spec page can be cited instead: `techspecs.ui.com/unifi/switching/us-16-150w` is a 307 to `/` (1 byte) and `dl.ui.com/ds/us-16-150w_ds.pdf` a 302 to the techspecs root, so the archived storefront is the vendor surface that survives."
+  },
+  "sourceUrl": "https://dl.ui.com/datasheets/unifi/UniFi_PoE_Switch.pdf"
 }

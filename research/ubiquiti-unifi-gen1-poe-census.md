@@ -55,16 +55,60 @@ be negotiated on a port the vendor rates for it. `10M` added.
 ## Traps recorded
 
 - `https://dl.ui.com/ds/us-8-60w_ds.pdf`, `us-8-150w_ds.pdf` and `us-48-750w_ds.pdf` all answer
-  **302 -> `https://techspecs.ui.com/`**, i.e. the 609,911-byte site front page. There is no
-  datasheet text layer for this family; the rendered tech-spec table is the only vendor surface,
-  so all per-port figures above are tech-spec-only.
-- `https://techspecs.ui.com/unifi/switching/us-16-150w` answers **307 -> `/`, 1 byte**, and
-  `https://store.ui.com/us/en/products/us-16-150w` is a **404**. `us-16-150w.json` therefore keeps
-  its name-parsed 150 W: not published is not the same as published and different, and nothing
-  was invented for it.
+  **302 -> `https://techspecs.ui.com/`**, i.e. the 609,911-byte site front page. **The `dl.ui.com/ds/`
+  convention is the wrong place to look for this family** - corrected 2026-11-20, below: the family
+  datasheet is served from `dl.ui.com/datasheets/unifi/`, where it has a text layer.
+- `https://techspecs.ui.com/unifi/switching/us-16-150w` answers **307 -> `/`, 1 byte**, and the live
+  `https://store.ui.com/us/en/products/us-16-150w` is a **404** - but the *archived* storefront prints the
+  allocation, so the row no longer keeps its name-parsed 150 W. See the 2026-11-20 section.
 - `us-24-250w` is **not** in the cards on `https://techspecs.ui.com/unifi/switching` (200,
   763,907 B, 70 product links) yet its own page answers 200 with the full table. Absence from the
   category grid is not absence of the page for this host - the opposite of the `udw-pro` result on
   the gateway grid, where absence was the finding.
 - `https://store.ui.com/us/en/products/us-8-150w` answers 200 (426,778 B) and corroborates the
   class, but the store row does not print the total; it is cited nowhere for the budget.
+
+## 2026-11-20: the datasheet does exist, and the archived storefront prints the allocation
+
+The trap above ("no datasheet text layer for this family") was true only of the `dl.ui.com/ds/` path. The
+family datasheet lives one directory over and was found from the product's own page, which serves
+`https://www.ui.com/downloads/datasheets/unifi/UniFi_PoE_Switch.pdf` -> **301** ->
+`https://dl.ui.com/datasheets/unifi/UniFi_PoE_Switch.pdf` (**HTTP 200, 3,962,155 B, 12 pp, real text
+layer**). It covers US-8-150W, US-16-150W, US-24-250W/500W, US-48-500W/750W, one spec table per model,
+plus a model-bullet page.
+
+The second route is Wayback. The live storefront 404s for these retired SKUs, but the captures do not:
+`web.archive.org/web/<ts>id_/https://store.ui.com/us/en/products/<sku>` returns the original page with the
+**full spec table and the key-feature list**, and the key-feature list is where Ubiquiti puts the
+allocation in words ("`122W total PoE availability`"). This is the same archived-vendor-page class the
+queue already accepts for the Dream Wall census, and it is a vendor surface: the URL is `store.ui.com`.
+
+### What it settled
+
+| row | was | vendor | where |
+|---|---|---|---|
+| US-16-150W | 150 W (name) | **122 W** | storefront row `Total available PoE = 122W`; datasheet p.7 `Including PoE Output 150W / Excluding PoE Output 28W` |
+| ES-16-150W | 150 W (name) | 150 W, now traced | storefront key feature `150W total PoE availability` |
+| ES-8-150W | 150 W (name) | 150 W, now traced | storefront key feature `150W total PoE availability` |
+
+US-16-150W is the third instance of the class this file already names (US-8-60W 60 -> 48, US-8-150W
+150 -> 130): **the model string carries the supply rating, and the allocation is smaller by the box's own
+draw.** 150 - 28 = 122, and Ubiquiti prints 122 itself, so no subtraction of ours is needed. Under the old
+number `show power inline` handed out 28 W the supply cannot allocate.
+
+### Two census corrections the datasheet forced
+
+- **US-16-150W has a serial console**, at odds with its own spec table: the model bullets (p.3) read
+  `(1) Serial Console Port` while the p.7 `Management Interface` row reads only `Ethernet In-Band`
+  (US-8-150W has no bullet and no table row; US-24-250W and up print `(1) RJ45 Serial Port Out-of-Band,
+  Ethernet In-Band` in the table). A spec that trusted the table alone would delete a real jack. The
+  catalogue declares it, and the note records the conflict.
+- **Per-port PoE+ ceiling differs between the two vendor surfaces**: 34.2 W on the datasheet, 32 W on the
+  storefront, for the same row. Both are recorded; neither is used as a budget.
+
+### Still open in this family
+
+`ES-8-150W` and `ES-16-150W` now declare the out-of-band UART console their pages print (neither did);
+`US-24-250W`/`US-48-*` already had theirs. `node scripts/audit-poe-budget.js` moves this family's
+"inferred from name" count from 11 to 8 - the three 150 W rows are traced; what is left on HPE, Peplink and
+the remaining UniFi Gen1 rows is untouched by this pass.

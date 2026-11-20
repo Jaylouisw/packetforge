@@ -232,10 +232,19 @@
       "type": "ethernet",
       "connector": "sfp",
       "speed": "1G"
+    },
+    {
+      "name": "console",
+      "type": "console"
     }
   ],
   "icon": "switch",
   "color": "#14b8a6",
   "sourceUrl": "https://techspecs.ui.com/uisp/wired/es-16-150w",
-  "notes": "Census from the vendor tech-spec table (https://techspecs.ui.com/uisp/wired/es-16-150w, HTTP 200, 574,980 B, read 2026-11-20): Networking interface \"(16) 10/100/1000 Mbps RJ45 ports; (2) 1 Gbps SFP ports\"; PoE interface \"PoE/PoE+ (Pins 1, 2+; 3, 6-); 24V DC passive PoE (Pins 4, 5+; 7, 8-)\"; max per port \"PoE+: 34.2W; Passive PoE: 17W\"; management \"UART console Out-of-Band\". The 16 copper ports were declared 1G/100M although the page states 10/100/1000 Mbps - the 10M rung is now modelled, matching the same fix PR #2249 made across the ECS family. Budget note: this page prints \"Power supply: AC/DC, internal, 150W\" and \"Max. power consumption: 150W\" and no \"Total PoE available\" row, so the 150 W here is still the SKU-named figure and has not been re-sourced by this pass."
+  "notes": "Census from the vendor tech-spec table (https://techspecs.ui.com/uisp/wired/es-16-150w, HTTP 200, 574,980 B, read 2026-11-20): Networking interface \"(16) 10/100/1000 Mbps RJ45 ports; (2) 1 Gbps SFP ports\"; PoE interface \"PoE/PoE+ (Pins 1, 2+; 3, 6-); 24V DC passive PoE (Pins 4, 5+; 7, 8-)\"; max per port \"PoE+: 34.2W; Passive PoE: 17W\"; management \"UART console Out-of-Band\". The 16 copper ports were declared 1G/100M although the page states 10/100/1000 Mbps - the 10M rung is now modelled, matching the same fix PR #2249 made across the ECS family. Budget, now sourced: the live page prints \"Power supply: AC/DC, internal, 150W\" and \"Max. power consumption: 150W\" and no \"Total PoE available\" row, which is why the 150 W sat in the model name; Ubiquiti states the allocation in words on its own storefront instead - see `poe.note`. Census correction: the page's Management interface row reads \"UART console Out-of-Band\" and this spec declared only the 16 copper ports and 2 cages, so the console is added - 19 jacks, matching the page.",
+  "poe": {
+    "budgetW": 150,
+    "sourceUrl": "https://web.archive.org/web/20240409153711id_/https://store.ui.com/us/en/products/es-16-150w",
+    "note": "Ubiquiti states the allocation, so 150 W is a published figure and not the model-name parse it used to be. The archived store page's key features list reads \"(16) GbE PoE+ ports ... (2) SFP ports ... 150W total PoE availability ... Rack-mountable, 1U\", and its spec table is the one the live tech-spec page still prints: \"Power supply: AC/DC, internal, 150W\", \"Max. power consumption: 150W\", \"PoE interface: PoE/PoE+ (Pins 1, 2+; 3, 6-); 24V DC passive PoE (Pins 4, 5+; 7, 8-)\", \"Max. wattage per port: PoE+ 34.2W / Passive PoE 17W\" - but with no \"Total PoE available\" row, which is the row the storefront supplies in prose. `dl.ui.com/ds/es-16-150w_ds.pdf` answers 302 to the techspecs root, so no datasheet exists to quote instead. Recorded caveat: 150 W of availability from a 150 W supply is tight, and Ubiquiti publishes no including/excluding split for this model (its UniFi sibling US-16-150W does: 150 W including / 28 W excluding = 122 W of availability). 150 W is modelled because the vendor states it as availability, not because it was derived here; a partial fill is capped by the per-port ceilings, not by this number."
+  }
 }

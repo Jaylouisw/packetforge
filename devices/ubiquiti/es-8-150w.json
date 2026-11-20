@@ -3,7 +3,7 @@
   "model": "ES-8-150W",
   "label": "EdgeSwitch 8 PoE",
   "category": "switch",
-  "description": "EdgeSwitch 8 PoE (ES-8-150W) - 8x 1G RJ45 + 2x 1G SFP. 150 W PoE budget; 20 Gbps switching capacity.",
+  "description": "EdgeSwitch 8 PoE (ES-8-150W) - 8x 1G RJ45 (all PoE/PoE+, 24V passive on the same pairs) + 2x 1G SFP, serial console. 150 W total PoE availability; 20 Gbps switching capacity.",
   "capabilities": [
     "l2-forward",
     "cli",
@@ -88,9 +88,19 @@
       "type": "ethernet",
       "connector": "sfp",
       "speed": "1G"
+    },
+    {
+      "name": "console",
+      "type": "console"
     }
   ],
   "icon": "switch",
   "color": "#14b8a6",
-  "sourceUrl": "https://techspecs.ui.com/uisp/wired/es-8-150w"
+  "sourceUrl": "https://techspecs.ui.com/uisp/wired/es-8-150w",
+  "poe": {
+    "budgetW": 150,
+    "sourceUrl": "https://web.archive.org/web/20240906195421id_/https://store.ui.com/us/en/products/es-8-150w",
+    "note": "Ubiquiti states the allocation in words, so this is a published figure rather than the model-name parse it used to be. The archived store page's key features read \"(8) GbE RJ45 ports with 24V passive PoE / (2) SFP ports / 150W total PoE availability / Desktop-mountable\", and its spec table (the live page prints the same Port/PoE rows but no Management row) reads \"PoE interface: (8) PoE/PoE+ 2-pair (+1, 2; -3, 6); (8) 24V/0.7A 2-pair (+4, 5; -7, 8)\", \"Max. power consumption: 20W (Excludes PoE output)\", \"Power supply: Internal AC/DC 150W\", \"Operating voltage: 100-240V AC, 50-60Hz; 42-56V DC\". Recorded caveat: 150 W of availability beside a 20 W excluding-PoE draw and a 150 W supply leaves no headroom, and the vendor publishes no including/excluding split for the PoE figure itself, so 150 W is modelled because Ubiquiti states it as availability, not because it was derived here."
+  },
+  "notes": "Census from the archived Ubiquiti storefront (https://web.archive.org/web/20240906195421id_/https://store.ui.com/us/en/products/es-8-150w, HTTP 200, 20,742 B gzip / 124,166 B decoded, capture 2024-09-06). That capture is the surface that still carries the full table: Networking interface \"(8) 10/100/1000 Mbps RJ45 ports; (2) 1 Gbps SFP ports\"; Management interface \"Ethernet In-Band, UART console Out-of-Band\"; PoE interface \"(8) PoE/PoE+ 2-pair (+1, 2; -3, 6); (8) 24V/0.7A 2-pair (+4, 5; -7, 8)\"; Power supply \"Internal AC/DC 150W\"; Operating voltage \"100-240V AC, 50-60Hz; 42-56V DC\"; Max. power consumption \"20W (Excludes PoE output)\". The live tech-spec page (https://techspecs.ui.com/uisp/wired/es-8-150w, HTTP 200, 583,247 B, read 2026-11-20) prints the Networking and PoE rows and a power block, but **no Management interface row at all** and, like its 16-port sibling, no \"Total PoE available\" row - so the console and the budget are cited to the archived page, not to the live one.\n\nCensus correction: this spec declared the eight copper ports and the two cages but not the out-of-band console the vendor row names, so the console is added here - 11 jacks, matching the archived table."
 }
