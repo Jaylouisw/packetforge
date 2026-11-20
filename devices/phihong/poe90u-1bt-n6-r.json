@@ -5,7 +5,8 @@
   "category": "powerline",
   "description": "SNMP-managed single-port midspan delivering the full 90 W of 802.3bt Type 4 at 56 V/1.6 A over four pairs into a gigabit link, for high-power APs, laptops over PoE and 4K PTZ cameras. It negotiates class 8 power and reports per-port consumption, so the 90 W is only committed after the PD is classified.",
   "capabilities": [
-    "poe-injector"
+    "poe-injector",
+    "802.3bt"
   ],
   "interfaces": [
     {
@@ -25,5 +26,6 @@
     "midspan",
     "802.3bt-type-4",
     "managed"
-  ]
+  ],
+  "notes": "STANDARD CLAIM, corrected 2026-11-20. The vendor page heads the product \"POE Injector 90W Midspan with SNMP - IEEE802.3bt - 1G\" with \"Output Power - 90W, Output Volt - 56V, Output Current - 1.6A, Power/Port - 90\" and \"IEEE802.3bt Compliant\" (https://www.phihong.com/products/power-over-ethernet/poe90u-1bt-n6-r/, read 2026-11-20); the POE90U-1BT-X data sheet repeats \"IEEE802.3bt Compliant\" and \"Total Output Power 90W\" (https://www.phihong.com/wp-content/uploads/POE90U-1BT-X-R.pdf, read 2026-11-20). Only 802.3bt is declared because that is the only standard the sheet names - the same shape as devices/moxa/eds-g4012-8p-4qgs-lvb-t.json, which declares bt alone; the 60 W sibling's sheet names af/at/bt explicitly and so does that entry. It declared no standard at all beside a 90 W port, which is 802.3bt Type 4 (90 W at the PSE, Cisco Catalyst 9000 PoE Configuration Guide, Table 1: https://www.cisco.com/c/en/us/td/docs/switches/lan/c9000/infra/poe/poe-configuration-guide/g-poe/c-poe.html). The file contradicted itself before this: its `role` already read \"802.3bt-type-4\". test/poe-injector-standard.test.js holds the rule."
 }

@@ -6,7 +6,9 @@
   "description": "Weatherproof single-port midspan that injects 60 W of 802.3bt (Type 3) power into a gigabit link, made for pole- or wall-mounted cameras and radios. It performs full bt detection, so it powers standards-based 60W PDs and refuses passive 24V/48V devices.",
   "capabilities": [
     "poe-injector",
-    "802.3at"
+    "802.3af",
+    "802.3at",
+    "802.3bt"
   ],
   "interfaces": [
     {
@@ -25,5 +27,6 @@
   "role": [
     "midspan",
     "802.3bt-type-3"
-  ]
+  ],
+  "notes": "STANDARD CLAIM, corrected 2026-11-20. The vendor page heads the product \"1 port, 60W, IEEE 802.3bt outdoor PoE midspan\" and its compliance row reads \"IEEE 802.3bt type 3, IEEE 802.3af/at (PoE)\" (https://www.microchip.com/en-us/product/PD-9501GCO, read 2026-11-20), so the spec now names all three standards the sheet does. It declared `802.3at` alone beside a 60 W PSE port, which 802.3at cannot carry: its PSE ceiling is 30 W - Cisco Catalyst 9000 PoE Configuration Guide, Table 1 (802.3af Type 1 15.4 W, 802.3at Type 2 30 W, 802.3bt Type 3 60 W, 802.3bt Type 4 90 W), https://www.cisco.com/c/en/us/td/docs/switches/lan/c9000/infra/poe/poe-configuration-guide/g-poe/c-poe.html. The 60 W port, the four-pair injection and the bt detection are unchanged; only the standard the entry claims was wrong. The file contradicted itself before this: its `role` already read \"802.3bt-type-3\". test/poe-injector-standard.test.js holds the rule for every midspan in the catalogue."
 }

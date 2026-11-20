@@ -6,7 +6,9 @@
   "description": "Single-port 802.3bt Type 3 injector that negotiates up to 60 W at 56 V across all four pairs and carries 2.5G data, sized for Wi-Fi 6/6E APs and heaters/PTZ domes. Because it is a true bt PSE with LLDP and class-based power, it will only hand out 60 W to a device that asks for it.",
   "capabilities": [
     "poe-injector",
-    "802.3at"
+    "802.3af",
+    "802.3at",
+    "802.3bt"
   ],
   "interfaces": [
     {
@@ -24,5 +26,6 @@
   "sourceUrl": "https://www.phihong.com/products/power-over-ethernet/poe60u-1bt-2-r/",
   "role": [
     "802.3bt-type-3"
-  ]
+  ],
+  "notes": "STANDARD CLAIM, corrected 2026-11-20. The vendor page heads the product \"IEEE802.3bt PoE Injector - Single-Port - 60W - 2.5G\", lists \"Compliant with IEEE802.3bt Standard\" and \"Power/Port - 60\" (https://www.phihong.com/products/power-over-ethernet/poe60u-1bt-2-r/, read 2026-11-20), and the POE60U-1BT data sheet's Detection Standards row reads \"Output #1 - IEEE802.3af/at/bt, Output #2 - IEEE802.3af/at/bt\" with \"Total Output Power 60W @ 40C\" (https://www.phihong.com/wp-content/uploads/POE60U-1BT-X-R.pdf, read 2026-11-20) - so all three are named, as the sheet names them. It declared `802.3at` alone beside a 60 W port, and 802.3at's PSE ceiling is 30 W (Cisco Catalyst 9000 PoE Configuration Guide, Table 1: https://www.cisco.com/c/en/us/td/docs/switches/lan/c9000/infra/poe/poe-configuration-guide/g-poe/c-poe.html). The file contradicted itself before this: its `role` already read \"802.3bt-type-3\". test/poe-injector-standard.test.js holds the rule."
 }

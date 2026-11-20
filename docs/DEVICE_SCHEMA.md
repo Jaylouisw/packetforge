@@ -223,6 +223,15 @@ port `PoE` is not a cosmetic slip: 802.3af is a negotiated 48 V standard and a 2
 not speak it, which is the pair of faults `test/uisp-r-poe.test.js` and `test/ep-s16-poe.test.js` were
 written for.
 
+The one rule over these tokens is `test/poe-injector-standard.test.js`: a `poe-injector` entry may not
+source more than the highest standard it declares - 15.4 W for `802.3af`, 30 W for `802.3at`, 90 W for
+`802.3bt` - and a midspan above 15.4 W that names no standard fails the same way. Three entries
+declared `802.3at` (or nothing at all) beside a 60 W or 90 W port while their own vendor pages said
+802.3bt, which is the defect [research/poe-injector-standard-claims.md](../research/poe-injector-standard-claims.md)
+records. Switches are deliberately outside the gate: a vendor may pair "PoE+" with a proprietary
+over-power mode above the standard's ceiling (PLANET's 36 W IGS-5225 ports), and no field in the schema
+records that mode.
+
 ## Serial consoles, USB, FXS
 
 They go in `notes`, not in `interfaces`. The engine forwards frames; a console port is a fact about
