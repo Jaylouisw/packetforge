@@ -315,8 +315,9 @@ in or out on Gi0/0/1`. The direction word is never reached - it is consumed as t
 promises are `no ip access-group 102 in`, which takes that one off (`Interface Gi0/0/1: access list
 unapplied in`), and the bare `no ip access-group`, which clears both directions (`Interface Gi0/0/1:
 access list unapplied in and out`). Reading a direction word as the number is the code's to fix
-(`_accessGroup()`, `want = parseInt(rest[0], 10)` at `engine/cli.js:3786`); until it is, this page does not
-advertise the direction on its own.
+(`_accessGroup()`, `const want = rest[0] != null ? parseInt(rest[0], 10) : null` at `engine/cli.js:3825` - the
+guard asks whether a word arrived, not whether it is a number, so `in` still parses to `NaN`); until it is,
+this page does not advertise the direction on its own.
 
 **Three printed lines do not have one yet.** `show running-config` writes `bgp router-id <ip>` in the BGP
 block, `dns add <name> <type> <value>` under its zone, and `ipv6 nd ra lifetime <s>` at the top level. The
