@@ -71,7 +71,8 @@ console.log('The two views are two answers');
   const status = show(env.sw, env.t, env.sim, 'show lldp').join('\n');
   const table = show(env.sw, env.t, env.sim, 'show lldp neighbors').join('\n');
   ok(status !== table, '`show lldp` and `show lldp neighbors` are not the same output');
-  ok(/Neighbour/.test(table) && !/Neighbour/.test(status), 'the table is under the word `neighbors` only');
+  ok(/Capability codes:/.test(table) && !/Capability codes:/.test(status),
+    'the neighbour table is under the word `neighbors` only');
   ok(/Global LLDP Information/.test(status) && !/Global LLDP Information/.test(table),
     'the status block is under the bare command only');
   ok(/Total entries displayed: 1/.test(table), 'and the table still ends with its count', table.split('\n').slice(-1)[0]);

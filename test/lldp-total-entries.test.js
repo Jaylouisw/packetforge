@@ -1,7 +1,7 @@
 'use strict';
 // `show lldp neighbors` ends with a count, and its number is the rows the view printed.
 //
-// The table this console prints is its own - Neighbour, Local port, Port ID, Mgmt address - but the sentence
+// The table this console prints is the vendor's own shape (research/show-lldp-neighbors-columns.md), and the sentence
 // under it is the vendor's, and it is the one line that answers "how many neighbours are there" without
 // counting them by eye. A Catalyst's own configuration example ends the view with it:
 //
@@ -65,10 +65,10 @@ function lines(env, cmd) {
 // The rows are what sits between the column heading and the count: not the heading itself, not the bracketed
 // empty-state prose.
 function rowsOf(out) {
-  const at = out.findIndex(function (l) { return /^ {2}Neighbour /.test(l); });
+  const at = out.findIndex(function (l) { return /^Device ID /.test(l); });
   if (at === -1) return [];
   return out.slice(at + 1).filter(function (l) {
-    return /^ {2}\S/.test(l) && !/^ {2}\(/.test(l) && !TOTAL.test(l);
+    return l !== '' && !/^ {2}\(/.test(l) && !TOTAL.test(l);
   });
 }
 
@@ -99,10 +99,14 @@ console.log('The view ends with the count, and the count is the rows it printed:
     out[out.length - 1]);
   ok(!!total && total.line === total.line.trim(),
     'it sits at the left margin, under the table rather than inside it', JSON.stringify(total && total.line));
-  // No blank line between the last row and the count: the vendor transcript has none, and a blank there
-  // would put the count outside the table it counts.
-  ok(out[out.length - 2] === rows[rows.length - 1], 'nothing separates it from the last row',
+  // One blank line between the last row and the count. A preserved IOS capture
+  // (tests/cisco_ios/show_lldp_neighbors/cisco_ios_show_lldp_neighbors.raw in networktocode/ntc-templates) shows
+  // exactly that shape: legend, blank, header, rows, blank, `Total entries displayed: 5`. The earlier version of
+  // this test asserted the opposite from an HTML transcript whose blank lines had been collapsed.
+  ok(out[out.length - 2] === '', 'one blank line separates the count from the last row',
     JSON.stringify(out.slice(-2)));
+  ok(out[out.length - 3] === rows[rows.length - 1], 'and the last row is the line above it',
+    JSON.stringify(out.slice(-3)));
 }
 
 console.log('');
@@ -123,8 +127,9 @@ console.log('An empty table prints the same line, reading 0:');
   ok(!!total && total.line === 'Total entries displayed: 0', 'spelled the same way as a count with rows',
     total && total.line);
   ok(!!total && out[out.length - 1] === total.line, 'still the last line of the view', out[out.length - 1]);
-  ok(/^ {2}\(none - every neighbour has gone past the hold-time/.test(out[out.length - 2]),
-    'and the prose that says why the table is empty sits above it', JSON.stringify(out.slice(-2)));
+  ok(out[out.length - 2] === '' &&
+    /^ {2}\(none - every neighbour has gone past the hold-time/.test(out[out.length - 3]),
+    'and the prose that says why the table is empty sits above the blank and the count', JSON.stringify(out.slice(-3)));
 }
 
 console.log('');
@@ -139,8 +144,8 @@ console.log('A box that has never heard anything prints 0 under its own sentence
   const cli = new CliSession(t.getDevice('solo'), t, sim);
   const out = (cli.run('show lldp neighbors').output || []).map(String);
   ok(rowsOf(out).length === 0, 'no rows', JSON.stringify(rowsOf(out)));
-  ok(/^ {2}\(none - no LLDP has been heard on any port\)$/.test(out[out.length - 2]),
-    'the empty state is still the sentence that says nothing was heard', JSON.stringify(out.slice(-2)));
+  ok(/^ {2}\(none - no LLDP has been heard on any port\)$/.test(out[out.length - 3]),
+    'the empty state is still the sentence that says nothing was heard', JSON.stringify(out.slice(-3)));
   const total = totalOf(out);
   ok(!!total && total.n === 0, 'and the count is 0 there too, not absent', out.join(' | '));
 }

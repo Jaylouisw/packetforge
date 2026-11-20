@@ -147,8 +147,8 @@ console.log('What must not change:');
     'a live row still carries its port, its neighbour and the hold-time it was given',
     JSON.stringify(rows));
   const lines = L.show('show lldp neighbors');
-  ok(lines[0] === 'LLDP neighbours on Switch (L2)-s1:' && /Port ID/.test(lines[1]),
-    'and the view keeps its shape', lines.join(' | '));
+  ok(lines[0] === 'Capability codes:' && /^Device ID/.test(lines[4]),
+    'and the view keeps the box\'s shape (legend, blank line, header)', lines.join(' | '));
 }
 
 console.log('');

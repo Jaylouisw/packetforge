@@ -749,11 +749,16 @@ port-first spelling — `show interfaces <port> counters` — held to that same 
 ### A reopened lab announced nothing
 
 ```
-sw> show lldp neighbors            save, reopen, ask again
-Neighbour  Local port  Port ID  Mgmt address     Neighbour  Local port  Port ID  Mgmt address
-Router-r1  Fa0/1       Gi0/0    10.0.0.1         (none - no LLDP has been heard on any port)
-PC-p1      Fa0/3       eth0     10.0.0.12
+sw> show lldp neighbors                          after the save, reopened and asked again
+Device ID           Local Intf     Hold-time  Capability      Port ID
+Router-r1           Fa0/1          120        R               Gi0/0
+PC-p1               Fa0/3          120        S               eth0
+
+Total entries displayed: 2
 ```
+
+Before the fix the same view printed `(none - no LLDP has been heard on any port)` for every port, with both
+cables in the document.
 
 Neighbour rows are not stored state — they are *announced*. The board announces when a cable is plugged
 (`refreshNeighbours()`, the call the UI makes after `addLink`), and a load is that same event: every cable in the

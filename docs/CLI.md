@@ -2886,23 +2886,41 @@ say disabled; field reports from a Catalyst 3750 and Cisco's own field notice tr
 research/lldp-default-state.md lays out both sides and what would settle it. The consequence worth knowing: a port
 list that is empty under `show lldp neighbors` is *not* how you find out LLDP is off, because it never is here.
 
-The table itself:
+The table itself is the vendor's, column for column:
 
 ```
-LLDP neighbours on Switch (L2)-sw:
-  Neighbour                                  Local port  Port ID  Mgmt address
-  ASR 1001-X aggregation services router-r1  Fa0/1       Gi0      10.0.0.1
-  PC-pc                                      Fa0/2       eth0     -
+sw#show lldp neighbors
+Capability codes:
+    (R) Router, (B) Bridge, (T) Telephone, (C) DOCSIS Cable Device
+    (W) WLAN Access Point, (P) Repeater, (S) Station, (O) Other
+
+Device ID           Local Intf     Hold-time  Capability      Port ID
+ASR 1001-X aggregatiFa0/1          120        R               Gi0
+PC-pc               Fa0/2          120        S               eth0
+
 Total entries displayed: 2
 ```
 
+Five fixed columns — Device ID at 0, Local Intf at 20, Hold-time at 35, Capability at 46, Port ID at 62 — under
+a four-line legend and one blank line, and one blank line above the count. The layout is not a reflow of a web
+page: it is a preserved IOS capture kept as a test fixture
+(`tests/cisco_ios/show_lldp_neighbors/cisco_ios_show_lldp_neighbors.raw` in
+[networktocode/ntc-templates](https://github.com/networktocode/ntc-templates)), and the same shape is printed by
+the Catalyst 3750 configuration example and by the IOS XR field table. A **Device ID longer than 20 characters is
+cut at 20** and runs flush against its port, exactly as the fixture's `long_name_swt.josh-vGi0/2` does; the field
+table states the rule ("If the device ID has more than 20 characters, the ID will be truncated to 20 characters
+in command output because of display constraints"). The **Capability** column is the System Capabilities TLV's
+letters in bit order — `B`, `R`, or both as `B,R` — and is blank when a neighbour advertised no capabilities.
+research/show-lldp-neighbors-columns.md has the captures and the mapping.
+
 The table is filled from LLDPDUs that actually crossed a link, not from the topology file, so an empty table
-means nothing has announced itself. Column widths come from the data — a fixed 20-character Neighbour column
-ran a 55-character router name into the Local port column, which made the row unreadable field by field.
+means nothing has announced itself. The management address is still on the neighbour record and on the port's
+own block, but it is not one of this view's five columns and no longer printed here: a table whose columns no
+box prints cannot be compared with the one pasted beside it in a ticket.
 
 The closing `Total entries displayed: N` is the vendor's sentence, and `N` is the rows the view printed, not
 the number of neighbours the box has ever heard. A Catalyst ends its own table with exactly that line, at the
-left margin under the last row; so do NX-OS and IOS XR. `show mac address-table` closes its table the same
+left margin one blank line under the last row; so do NX-OS and IOS XR. `show mac address-table` closes its table the same
 way. An empty table gets the same line reading `Total entries displayed: 0` - a Catalyst 9300 asked about a
 port with nothing on it prints the heading and then the zero, and so does an IOS router just given `lldp run`
 that has heard nothing yet. The count cannot say *why* the table is empty, which is what the sentence above it
@@ -2913,10 +2931,10 @@ hold time it advertised runs out, and that is what happens here. The box notes t
 neighbour (`lldpSeenAt`, beside the record rather than in it, because a clock reading is not something the far
 end advertised) and a row older than its own TTL is dropped, so a host that is unplugged or shut stops being
 listed about two minutes later — the default 120 s: `lldp timer` 30 s times the hold multiplier 4, which is
-IEEE 802.1AB's Time To Live TLV and Cisco's `lldp holdtime` default. Until then the Local port is marked with
-the reason, in the same sentence `show arp` and `show mac address-table` use — `(down: link down)`,
-`(down: peer shut down)`, `(administratively down)` — and a fresh LLDPDU from the far end puts the row back and
-restarts its clock.
+IEEE 802.1AB's Time To Live TLV and Cisco's `lldp holdtime` default. Until then the reason rides after the row's
+last column, in the same sentence `show arp` and `show mac address-table` use — `(down: link down)`,
+`(down: peer shut down)`, `(administratively down)` — because the five box columns above it must stay in their
+columns; a fresh LLDPDU from the far end puts the row back and restarts its clock.
 
 Two empty tables are two different answers. `(none - no LLDP has been heard on any port)` is a lab where
 nothing ever announced itself; `(none - every neighbour has gone past the hold-time it advertised without a

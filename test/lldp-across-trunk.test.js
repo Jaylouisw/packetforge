@@ -183,7 +183,10 @@ console.log('Everything that worked still works:');
   ok(L.row('s2', 'Switch (L2)-s1') !== '', 'in both directions', L.show('s2', 'show lldp neighbors').join(' | '));
   const host = L.row('s1', 'PC-a');
   ok(host !== '' && /Fa0\/2/.test(host), 'a host on an access port is still discovered', host);
-  ok(/10\.0\.0\.1/.test(host), 'with its management address', host);
+  // The management address is no longer one of this view's columns - a box's brief table has five, and none is
+  // the address (research/show-lldp-neighbors-columns.md). What the row does carry is the capability letter from
+  // the System Capabilities TLV, and the far port the host is plugged into.
+  ok(/ S +eth0/.test(host), 'with the station capability and the far port', host);
 }
 {
   // A shut port announces nothing, and the neighbour that is already known is not silently forgotten.

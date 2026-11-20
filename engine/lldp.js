@@ -21,6 +21,54 @@ const DEFAULT_TTL_S = 120;
 const DEFAULT_TX_INTERVAL_S = 30;
 const DEFAULT_REINIT_DELAY_S = 2;
 
+// The System Capabilities TLV (type 7): two 2-byte bitmaps, "system" and "enabled", in one TLV. IEEE 802.1AB-2016
+// Table 8-4 fixes the bits; Cisco's `show lldp neighbors` legend fixes the letters and their order, and the brief
+// table prints the letters of the *system* bitmap in bit order, comma-separated (`B,R`). The two vocabularies are
+// joined here once, so the wire and the printer cannot disagree about what a switch advertised.
+//
+// What a device advertises is decided by its own catalogue entry, not by its vendor: every PacketForge device
+// already declares `capabilities` (`l2-forward`, `l3-forward`, `host`, ...), and those are the same facts a real
+// LLDPDU's bitmap carries at the coarsest level - a bridge forwards layer 2, a router forwards layer 3, an end
+// station does neither. The mapping below is therefore a translation, not a guess:
+//
+//   host          -> Station (S), and nothing else: an end station is not a bridge or a router
+//   l2-forward    -> Bridge (B)
+//   l3-forward    -> Router (R)   (so an L3 switch is `B,R`, which is what a Catalyst with `ip routing` sends)
+//   neither       -> 0, printed as an empty Capability cell, which the capture in
+//                    research/show-lldp-neighbors-columns.md shows a real IOS box printing for a neighbour that
+//                    advertised no capabilities TLV
+//
+// Only S, B and R are ever emitted. The legend always lists all eight letters because a box prints the whole
+// legend whatever its neighbours say; W (an AP), T (a telephone), C (a cable device), P (a repeater) and
+// O (other) have no device in this catalogue that announces them, and inventing one from a model name would be
+// the sort of guess this project does not print.
+const LLDP_CAP_BITS = [
+  { bit: 0x0001, letter: 'O' },
+  { bit: 0x0002, letter: 'P' },
+  { bit: 0x0004, letter: 'B' },
+  { bit: 0x0008, letter: 'W' },
+  { bit: 0x0010, letter: 'R' },
+  { bit: 0x0020, letter: 'T' },
+  { bit: 0x0040, letter: 'C' },
+  { bit: 0x0080, letter: 'S' }
+];
+
+function capabilityMask(dev) {
+  const has = function (cap) {
+    return !!(dev && typeof dev.hasCap === 'function' && dev.hasCap(cap));
+  };
+  if (has('host')) return 0x0080;                       // Station only
+  let mask = 0;
+  if (has('l2-forward')) mask |= 0x0004;                // Bridge
+  if (has('l3-forward')) mask |= 0x0010;                // Router
+  return mask;
+}
+
+function capabilityLetters(mask) {
+  return LLDP_CAP_BITS.filter(function (c) { return (mask & c.bit) !== 0; })
+    .map(function (c) { return c.letter; }).join(',');
+}
+
 // Build the Ethernet frame a device sends out of one port.
 function buildFrame(dev, iface, opts) {
   const o = opts || {};
@@ -39,6 +87,7 @@ function buildFrame(dev, iface, opts) {
     + tlv(portDescText ? String(portDescText).length : 0)
     + tlv(String(systemName).length)
     + tlv(dev.model ? String(dev.model).length : 0)
+    + tlv(4)                                                       // system capabilities: two 2-byte bitmaps
     + (iface.ip ? tlv(1 + 1 + 4 + 1 + 2) : 0)                      // management address (IPv4)
     + 2;                                                           // end of LLDPDU
   return {
@@ -53,6 +102,10 @@ function buildFrame(dev, iface, opts) {
       systemName: systemName,
       systemDesc: dev.model || null,
       mgmtIp: iface.ip || null,
+      // The System Capabilities TLV's two bitmaps. A device enables everything it supports, which is what the
+      // second bitmap means; the brief table prints the first.
+      capabilities: capabilityLetters(capabilityMask(dev)),
+      capabilityMask: capabilityMask(dev),
       ttl: o.ttl || DEFAULT_TTL_S,
       // The cage/rate is what a real neighbour entry shows in the port description.
       cage: (iface.hardware && iface.hardware.cage) || null,
@@ -100,6 +153,9 @@ function neighbourFrom(frame, receivedOn) {
     systemName: l.systemName || null,
     systemDesc: l.systemDesc || null,
     mgmtIp: l.mgmtIp || null,
+    // Letters, as the box's brief table prints them. A neighbour whose LLDPDU carried no capabilities TLV -
+    // or one this model cannot map - stores an empty string, and the column prints blank rather than `?`.
+    capabilities: (typeof l.capabilities === 'string') ? l.capabilities : '',
     cage: l.cage || null,
     speedMbps: l.speedMbps || null,
     ttl: (l.ttl === undefined || l.ttl === null || !Number.isFinite(ttl)) ? DEFAULT_TTL_S : ttl,
@@ -118,6 +174,9 @@ module.exports = {
   DEFAULT_REINIT_DELAY_S: DEFAULT_REINIT_DELAY_S,
   buildFrame: buildFrame,
   describePort: describePort,
+  capabilityMask: capabilityMask,
+  capabilityLetters: capabilityLetters,
+  LLDP_CAP_BITS: LLDP_CAP_BITS,
   isLldp: isLldp,
   neighbourFrom: neighbourFrom
 };

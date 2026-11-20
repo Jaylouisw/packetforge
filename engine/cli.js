@@ -6428,48 +6428,59 @@ class CliSession {
           'neighbours are `show lldp neighbors`');
       } else if (tokens.length > 2) {
         return showNoTail('show lldp neighbors', tokens.slice(2), 'every neighbour on every port is listed',
-          'the Local port column says which port each one is on');
+          'the Local Intf column says which port each one is on');
       }
       // The table that answers "what is plugged into this port" - and it is honest,
       // because it is filled from LLDPDUs that actually crossed the link rather than
       // from the topology file. An empty table means nothing has announced itself.
-      out.push('LLDP neighbours on ' + dev.name + ':');
+      // The vendor's brief table, in the vendor's own shape - not this console's. The captures and the field
+      // tables are in research/show-lldp-neighbors-columns.md. Four fixed columns and one variable one:
+      // Device ID 20, Local Intf 15, Hold-time 11, Capability 16, then Port ID; the legend is three lines and a
+      // blank line above the header, and the count is separated from the last row by a blank line.
+      //
+      // The table this console printed before was its own shape (`LLDP neighbours on <device>:` over Neighbour /
+      // Local port / Port ID / Mgmt address, widths taken from the data). That fixed a real readability bug
+      // (#1265) and answered a different question from the one a technician asks: this table gets pasted into a
+      // ticket, and a pasted table whose columns no box prints cannot be compared with the one beside it. The
+      // management address is not lost - it is on the neighbour record and on the port's own block - it was
+      // simply never one of this view's columns.
+      out.push('Capability codes:');
+      out.push('    (R) Router, (B) Bridge, (T) Telephone, (C) DOCSIS Cable Device');
+      out.push('    (W) WLAN Access Point, (P) Repeater, (S) Station, (O) Other');
+      out.push('');
       // A neighbour is listed for as long as the TTL it advertised. The instant comes from the attached
       // simulator, whose `runAtMs` is Infinity until a caller names one - and Infinity is "no clock", in which
       // case nothing is aged rather than everything guessed stale (`device.lldpRows()`).
       const lldpNowMs = (this.sim && Number.isFinite(this.sim.runAtMs)) ? this.sim.runAtMs : null;
       const rows = dev.lldpRows(this.topo, lldpNowMs);
+      // "If the device ID has more than 20 characters, the ID will be truncated to 20 characters in command output
+      // because of display constraints" - IOS XR Interface and Hardware Component Command Reference, `show lldp
+      // neighbors` field table. The commonest capture of it is a long hostname that ends flush against its port
+      // (`long_name_swt.josh-vGi0/2`), which is also what fixes the column at exactly 20.
+      const cut = function (v, w) {
+        const t = String(v === undefined || v === null ? '' : v);
+        return t.length > w ? t.slice(0, w) : t;
+      };
+      out.push(pad('Device ID', 20) + pad('Local Intf', 15) + pad('Hold-time', 11) +
+        pad('Capability', 16) + 'Port ID');
+      for (const r of rows) {
+        // The five printed fields are the five the box prints, in their columns, and nothing else: a neighbour
+        // whose local port cannot carry a frame carries the reason after the last column, because a box would
+        // have aged the entry out and this model keeps it until its TTL does.
+        out.push(pad(cut(r.systemName, 20), 20) + pad(cut(r.port, 15), 15) +
+          pad(String(r.holdTimeS), 11) + pad(r.capabilities || '', 16) + r.portId +
+          (r.note ? ' ' + r.note : ''));
+      }
       if (!rows.length) {
-        out.push('  ' + pad('Neighbour', 20) + pad('Local port', 16) + pad('Port ID', 16) + 'Mgmt address');
         // Two empty tables, two answers. "No LLDP has been heard" is history and would be false about a box that
         // heard a neighbour and then watched its hold-time run out - which is exactly the state an operator
-        // checking a link that just died is looking at.
+        // checking a link that just died is looking at. A box prints neither sentence, so this one line is the
+        // console's own; the count under it is the box's.
         out.push(dev.lldp && dev.lldp.size
           ? '  (none - every neighbour has gone past the hold-time it advertised without a fresh LLDPDU)'
           : '  (none - no LLDP has been heard on any port)');
-      } else {
-        // Column widths come from the data. A fixed 20-character Neighbour column ran a 55-character router
-        // name into the Local port column, so the row could not be read field by field - and the one thing
-        // this table is for is answering "what is on that port" (#1265).
-        const cells = rows.map(function (r) {
-          return {
-            name: r.systemName,
-            port: r.port + (r.note ? ' ' + r.note : ''),
-            portId: r.portId,
-            mgmt: r.mgmtIp
-          };
-        });
-        const w = function (key) {
-          return cells.reduce(function (max, c) { return Math.max(max, String(c[key]).length); }, 0) + 2;
-        };
-        const wName = Math.max(w('name'), 11), wPort = Math.max(w('port'), 12);
-        const wId = Math.max(w('portId'), 9);
-        out.push('  ' + pad('Neighbour', wName) + pad('Local port', wPort) + pad('Port ID', wId) +
-          'Mgmt address');
-        for (const c of cells) {
-          out.push('  ' + pad(c.name, wName) + pad(c.port, wPort) + pad(c.portId, wId) + c.mgmt);
-        }
       }
+      out.push('');
       // The line the vendor's table ends with, and what its number counts: the rows just printed.
       // A Catalyst's own configuration example prints four neighbours and then exactly this sentence -
       // `Total entries displayed: 4` - at the left margin, one line under the last row, with no blank line

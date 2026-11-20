@@ -894,6 +894,9 @@ class Device {
         systemName: (nb && nb.systemName) || '?',
         portId: (nb && nb.portId) || '?',
         mgmtIp: (nb && nb.mgmtIp) || '-',
+        // The letters the far end's System Capabilities TLV carried, as `show lldp neighbors` prints them. An
+        // empty string is not a missing value: a neighbour that advertised no such TLV prints a blank cell.
+        capabilities: (nb && typeof nb.capabilities === 'string') ? nb.capabilities : '',
         // How long the sender said the record is good for, and when it was heard, so a caller with a clock can
         // print what is left of it instead of a constant.
         holdTimeS: ttlS,

@@ -2,9 +2,9 @@
 // A reopened lab announced nothing: every link read "no LLDP has been heard on any port" (#1467).
 //
 //   sw> show lldp neighbors          save, reopen, ask again
-//   Neighbour  Local port  Port ID  Mgmt address        Neighbour  Local port  Port ID  Mgmt address
-//   Router-r1  Fa0/1       Gi0/0    10.0.0.1            (none - no LLDP has been heard on any port)
-//   PC-p1      Fa0/3       eth0     10.0.0.12
+//   Device ID  Local Intf  Hold-time  Capability  Port ID     (none - no LLDP has been heard on any port)
+//   Router-r1  Fa0/1       120        R           Gi0/0
+//   PC-p1      Fa0/3       120        S           eth0
 //
 // Neighbour rows are not stored state: they are announced. The board announces when a cable is plugged
 // (`refreshNeighbours()`, the call the UI makes after `addLink`), and a load is the same event - every cable in the
@@ -59,10 +59,11 @@ function show(t, sim, id, cmd) {
 // The MAC table's title line is indented exactly like a row, so it is excluded by name: it is furniture,
 // not an entry, and a helper that counted it would compare tables by their title.
 function rows(out) {
-  return out.filter(function (l) {
-    return /^\s{2}\S/.test(l) && !/^  (Neighbour|\(none)/.test(l) && !/Mac Address Table\s*$/.test(l);
-  })
-    .map(function (l) { return l.trim().replace(/\s+/g, ' '); });
+  const at = out.findIndex(function (l) { return /^Device ID /.test(l); });
+  if (at === -1) return [];
+  return out.slice(at + 1).filter(function (l) {
+    return l !== '' && !/^  \(/.test(l) && !/^Total entries displayed:/.test(l);
+  }).map(function (l) { return l.trim().replace(/\s+/g, ' '); });
 }
 
 console.log('');
@@ -72,9 +73,11 @@ let before = null;
   const L = liveLab();
   before = rows(show(L.t, L.sim, 'sw', 'show lldp neighbors'));
   ok(before.length === 2, 'two neighbours on the switch', JSON.stringify(before));
-  ok(before.some(function (r) { return /Router-r1 Fa0\/1 Gi0\/0 10\.0\.0\.1/.test(r); }),
-    'the router, with the management address it advertises', JSON.stringify(before));
-  ok(before.some(function (r) { return /PC-p1 Fa0\/3 eth0 10\.0\.0\.12/.test(r); }),
+  // Five columns, the box's: Device ID, Local Intf, Hold-time, Capability, Port ID. The capability letter is
+  // the System Capabilities TLV each device advertises (R for a router, S for a station).
+  ok(before.some(function (r) { return /^Router-r1 Fa0\/1 120 R Gi0\/0$/.test(r); }),
+    'the router, with the capability it advertises', JSON.stringify(before));
+  ok(before.some(function (r) { return /^PC-p1 Fa0\/3 120 S eth0$/.test(r); }),
     'and the host', JSON.stringify(before));
 }
 
