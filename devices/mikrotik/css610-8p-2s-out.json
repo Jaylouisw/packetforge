@@ -16,42 +16,106 @@
     {
       "name": "eth1",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "connector": "rj45"
     },
     {
       "name": "eth2",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "connector": "rj45"
     },
     {
       "name": "eth3",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "connector": "rj45"
     },
     {
       "name": "eth4",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "connector": "rj45"
     },
     {
       "name": "eth5",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "connector": "rj45"
     },
     {
       "name": "eth6",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "connector": "rj45"
     },
     {
       "name": "eth7",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "connector": "rj45"
     },
     {
       "name": "eth8",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "connector": "rj45"
     },
     {
       "name": "SFP+1",
@@ -76,5 +140,11 @@
   ],
   "icon": "switch",
   "color": "#14b8a6",
-  "sourceUrl": "https://mikrotik.com/product/netpower_lite_ups"
+  "sourceUrl": "https://mikrotik.com/product/netpower_lite_ups",
+  "poe": {
+    "budgetW": 120,
+    "sourceUrl": "https://mikrotik.com/product/netpower_lite_ups",
+    "note": "MikroTik's specification table prints \"PoE-out ports Ether1-Ether8\", \"PoE out 802.3af/at\", \"Low voltage PoE-Out current limit 1.0 A\", \"High voltage PoE-Out current limit 0.64 A\" and \"Total output power 120\" - the 120 W ceiling is quoted, not derived, and the marketing copy repeats it as \"120 W total PoE Output\". Per-port ceiling is the current limit at the applied voltage, not a class, so no per-port wattage is declared."
+  },
+  "notes": "Vendor figures from the MikroTik product page specification table (https://mikrotik.com/product/netpower_lite_ups - 200, 387,171 B, the netPower Lite 8P page: \"Product code CSS610-8P-2S+OUT\", read 2026-11-20), unless stated. 8x 10/100/1000 with PoE-out on Ether1-Ether8, 2x 10G SFP+, IP54 outdoor case, SwOS Lite, 88E6193.\n\nWHAT WAS WRONG - the row declared `poe-pse`, `802.3af` and `802.3at` in `capabilities` but not one interface carried `poeOut`, and there was no `poe` block. The engine reads the PSE census from port hardware (scripts/audit-poe-budget.js), so this eight-port PoE switch had eight dry sockets and `show power inline` reported no budget at all. The eight copper ports now carry `poeOut`, and the published 120 W total is the `poe.budgetW`.\n\nNOT MODELLED - the built-in UPS/battery charger and its 22-30 V battery input are power, not interfaces; no passive-PoE class is declared because the page prints only 802.3af/at."
 }

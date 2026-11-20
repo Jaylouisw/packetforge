@@ -17,82 +17,210 @@
     {
       "name": "eth1",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "connector": "rj45"
     },
     {
       "name": "eth2",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "connector": "rj45"
     },
     {
       "name": "eth3",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "connector": "rj45"
     },
     {
       "name": "eth4",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "connector": "rj45"
     },
     {
       "name": "eth5",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "connector": "rj45"
     },
     {
       "name": "eth6",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "connector": "rj45"
     },
     {
       "name": "eth7",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "connector": "rj45"
     },
     {
       "name": "eth8",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "connector": "rj45"
     },
     {
       "name": "eth9",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "connector": "rj45"
     },
     {
       "name": "eth10",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "connector": "rj45"
     },
     {
       "name": "eth11",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "connector": "rj45"
     },
     {
       "name": "eth12",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "connector": "rj45"
     },
     {
       "name": "eth13",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "connector": "rj45"
     },
     {
       "name": "eth14",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "connector": "rj45"
     },
     {
       "name": "eth15",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "connector": "rj45"
     },
     {
       "name": "eth16",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ],
+      "connector": "rj45"
     },
     {
       "name": "SFP+1",
@@ -117,5 +245,11 @@
   ],
   "icon": "switch",
   "color": "#14b8a6",
-  "sourceUrl": "https://mikrotik.com/product/netpower_16p"
+  "sourceUrl": "https://mikrotik.com/product/netpower_16p",
+  "poe": {
+    "budgetUnknown": true,
+    "sourceUrl": "https://mikrotik.com/product/netpower_16p",
+    "note": "MikroTik publishes current limits, never a watt ceiling: \"PoE-out ports Ether1-Ether16\", \"PoE out 802.3af/at\", \"Low voltage PoE-Out current limit 1.1 A\", \"High voltage PoE-Out current limit 0.6 A\", \"Max total out (A) 2.8A (18V-30V) & 1.4A (48V-57V) x2\". The manual splits it per 8-port group: \"Max PoE-out on low (<30 V) voltage 5.6 A (2.8 A per 8port group, max 1.1 A per port)\", \"Max PoE-out on high (>30 V) voltage 2.8 A (1.4 A per 8port group, max 0.6 A per port)\". The box has no onboard converter - it passes the input voltage through - so watts follow the PSU (24 V or 48 V) and a single budgetW would be wrong; left unknown, as crs318-1fi-15fr-2s-out.json and css610-1gi-7r-2s-out.json already are."
+  },
+  "notes": "Vendor figures from the MikroTik product page specification table (https://mikrotik.com/product/netpower_16p - 200, 375,838 B, read 2026-11-20) and the RouterOS hardware manual (https://manual.mikrotik.com/hardware/netpower-16p/ - 200, 53,837 B, read 2026-11-20), unless stated. 16x 10/100/1000 with PoE-out on Ether1-Ether16, 2x SFP+ (10G), \"Max power consumption 316 W\", \"Max power consumption without attachments 16 W\", IP54, two DC inputs (18-30 V and 48-57 V).\n\nWHAT WAS WRONG - the row declared `poe-pse`, `802.3af` and `802.3at` in `capabilities` but no interface carried `poeOut` and there was no `poe` block, so the sixteen powered ports were dry and `show power inline` had no budget to print. The sixteen copper ports now carry `poeOut`, and the `poe` block records the vendor's current limits with the budget marked unknown - the numbers are amperes that scale with the applied input voltage, and multiplying them out would invent a wattage the vendor never printed.\n\nNOT MODELLED - no passive-PoE class (the page prints 802.3af/at only) and no 802.3bt."
 }

@@ -117,5 +117,11 @@
   ],
   "icon": "switch",
   "color": "#14b8a6",
-  "notes": "Vendor figures from the MikroTik product page specification table for the CRS112-8P-4S-IN: 8x 10/100/1000 Ethernet ports, all 8 with PoE-out, 4x SFP ports, 1x RJ45 serial console. The spec had the port count right but no PoE on any of them and no connector on the cages - the -8P in the model name is the PoE, so a lab that planned this switch against a passive-PoE load was drawing a budget the spec did not admit."
+  "notes": "Vendor figures from the MikroTik product page specification table (https://mikrotik.com/product/crs112_8p_4s_in - 200, 364,485 B, read 2026-11-20), unless stated. 8x 10/100/1000 Ethernet ports, all 8 with PoE-out, 4x SFP ports (1G), 1x RJ45 serial console, \"Max power consumption 160 W\", \"Max power consumption without attachments 10 W\", IP20 desktop case.\n\nWHAT WAS WRONG - the port census was right but nothing said how much the eight PSE ports can supply: no `poe` block, so `computePoe()` skipped the box at `if (!dev.poeBudget) continue;` and `show power inline` printed no budget for a switch whose model name is the PoE. The `poe` block now records the vendor's current limits and marks the budget unknown - the printed numbers are amperes that scale with the 18-28 V or 48-57 V input, and turning them into a single wattage would invent a figure MikroTik does not publish. The row also carried no source URL at all; it now cites the product page it was read from.\n\nNOT MODELLED - no passive 24 V class (the page prints 802.3af/at only, though the same current limits apply at low voltage) and no 802.3bt.",
+  "poe": {
+    "budgetUnknown": true,
+    "sourceUrl": "https://mikrotik.com/product/crs112_8p_4s_in",
+    "note": "MikroTik prints current limits, never a watt ceiling: \"PoE-out ports Ether1-Ether8\", \"PoE out 802.3af/at\", \"Low voltage PoE-Out current limit 1 A\", \"High voltage PoE-Out current limit 450 mA\", \"Max total out (A) 2.8A (18V-28V) & 1.4A (48V-57V)\". Watts therefore follow the applied input voltage, so the budget is marked unknown rather than multiplied out."
+  },
+  "sourceUrl": "https://mikrotik.com/product/crs112_8p_4s_in"
 }
