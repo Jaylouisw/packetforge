@@ -16,42 +16,58 @@
     {
       "name": "eth1",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "eth2",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "eth3",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "eth4",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "eth5",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "eth6",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "eth7",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "eth8",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "SFP+1",
@@ -76,5 +92,11 @@
   ],
   "icon": "switch",
   "color": "#14b8a6",
-  "sourceUrl": "https://mikrotik.com/product/css610_8p_2s_in"
+  "sourceUrl": "https://mikrotik.com/product/css610_8p_2s_in",
+  "poe": {
+    "budgetW": 140,
+    "sourceUrl": "https://mikrotik.com/product/css610_8p_2s_in",
+    "note": "Total output power 140 W, PoE-out ports Ether1-Ether8 (802.3af/at), 8 x 1G Ethernet ports with PoE-out. The page prints the total as a bare 140 (watts, in the Powering block) and has no per-port wattage, so the budget is the ceiling the PSU declares."
+  },
+  "notes": "Vendor figures from the MikroTik product page specification table: 8x 10/100/1000 Ethernet ports, PoE-out on Ether1-Ether8 (802.3af/at, 1000 mA low voltage / 560 mA high voltage per port), Total output power 140 W, 2x SFP+ (10G), single PSU powers both switching and PoE."
 }

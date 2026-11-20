@@ -15,42 +15,51 @@
     {
       "name": "eth1",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": false
     },
     {
       "name": "eth2",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": false
     },
     {
       "name": "eth3",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": false
     },
     {
       "name": "eth4",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": false
     },
     {
       "name": "eth5",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": false
     },
     {
       "name": "eth6",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": false
     },
     {
       "name": "eth7",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": false
     },
     {
       "name": "eth8",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "passive"
     },
     {
       "name": "SFP+1",
@@ -75,5 +84,11 @@
   ],
   "icon": "switch",
   "color": "#14b8a6",
-  "sourceUrl": "https://mikrotik.com/product/netpower_lite_7r"
+  "sourceUrl": "https://mikrotik.com/product/netpower_lite_7r",
+  "poe": {
+    "budgetUnknown": true,
+    "sourceUrl": "https://mikrotik.com/product/netpower_lite_7r",
+    "note": "MikroTik publishes current limits only for the single PoE-out port: \"Max total out (A) 600 mA\" (low voltage limit 600 mA, high voltage 450 mA) with PoE out \"Passive PoE\". No watt figure appears anywhere in the specification table, and the ceiling follows the input voltage (12-57 V), so it is left unknown rather than multiplied out."
+  },
+  "notes": "Vendor figures from the MikroTik product page specification table: 8x 10/100/1000 Ethernet ports, **7 reverse PoE (PoE-in) ports and 1 PoE-out port (Ether8, passive PoE)**, \"Number of 1G Ethernet ports with PoE-out 1\", Max total out 600 mA, 2x SFP+ (10G), IP54 outdoor case. The 7R is an apartment reverse-PoE switch: it is powered *from* the subscribers and can pass that voltage out of port 8 only."
 }

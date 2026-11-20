@@ -18,87 +18,120 @@
     {
       "name": "eth1",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "eth2",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "eth3",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "eth4",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "eth5",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "eth6",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "eth7",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "eth8",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "eth9",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE++"
     },
     {
       "name": "eth10",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE++"
     },
     {
       "name": "eth11",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE++"
     },
     {
       "name": "eth12",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE++"
     },
     {
       "name": "eth13",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE++"
     },
     {
       "name": "eth14",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE++"
     },
     {
       "name": "eth15",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE++"
     },
     {
       "name": "eth16",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE++"
     },
     {
       "name": "eth17",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": false
     },
     {
       "name": "SFP+1",
@@ -143,5 +176,11 @@
   ],
   "icon": "switch",
   "color": "#14b8a6",
-  "sourceUrl": "https://mikrotik.com/product/crs320_8p_8b_4s_rm"
+  "sourceUrl": "https://mikrotik.com/product/crs320_8p_8b_4s_rm",
+  "poe": {
+    "budgetW": 963,
+    "sourceUrl": "https://mikrotik.com/product/crs320_8p_8b_4s_rm",
+    "note": "Total output power 963 W (Total output current 17.82 A), PoE-out ports Ether1-Ether8 (802.3af/at, 560 mA limit) and Ether9-Ether16 (802.3bt, 1667 mA limit); 16 of the 17 gigabit ports source power, Ether17 is the management port and takes no PoE part."
+  },
+  "notes": "Vendor figures from the MikroTik product page specification table: 17x 10/100/1000 Ethernet ports, PoE-out on Ether1-Ether8 (af/at) and Ether9-Ether16 (bt), 16 x 1G Ethernet ports with PoE-out, Total output power 963 W / 17.82 A, 4x SFP+ (10G). Ether17 is the extra management port the page describes (\"an extra Gigabit Ethernet port for management purposes\") and is not a PSE."
 }

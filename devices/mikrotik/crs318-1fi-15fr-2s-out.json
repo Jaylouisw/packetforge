@@ -16,82 +16,99 @@
     {
       "name": "eth1",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "poeOut": false
     },
     {
       "name": "eth2",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "poeOut": false
     },
     {
       "name": "eth3",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "poeOut": false
     },
     {
       "name": "eth4",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "poeOut": false
     },
     {
       "name": "eth5",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "poeOut": false
     },
     {
       "name": "eth6",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "poeOut": false
     },
     {
       "name": "eth7",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "poeOut": false
     },
     {
       "name": "eth8",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "poeOut": false
     },
     {
       "name": "eth9",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "poeOut": false
     },
     {
       "name": "eth10",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "poeOut": false
     },
     {
       "name": "eth11",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "poeOut": false
     },
     {
       "name": "eth12",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "poeOut": false
     },
     {
       "name": "eth13",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "poeOut": false
     },
     {
       "name": "eth14",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "poeOut": false
     },
     {
       "name": "eth15",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "poeOut": true,
+      "poeOutClass": "passive"
     },
     {
       "name": "eth16",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "poeOut": false
     },
     {
       "name": "SFP1",
@@ -114,5 +131,11 @@
   ],
   "icon": "switch",
   "color": "#14b8a6",
-  "sourceUrl": "https://mikrotik.com/product/crs318_1fi_15fr_2s_out"
+  "sourceUrl": "https://mikrotik.com/product/crs318_1fi_15fr_2s_out",
+  "poe": {
+    "budgetUnknown": true,
+    "sourceUrl": "https://mikrotik.com/product/crs318_1fi_15fr_2s_out",
+    "note": "MikroTik publishes current limits only: PoE-out port Ether15, \"Passive PoE\", low voltage limit 0.75 A / high voltage 0.5 A, \"Max total out (A) 0.75 A\". No watt figure is printed, and the ceiling scales with the 18-57 V input, so the budget is left unknown."
+  },
+  "notes": "Vendor figures from the MikroTik product page specification table: 16x 10/100 Ethernet ports, **15 reverse PoE (PoE-in) ports and Ether15 as the only PoE-out port** (\"Passive PoE\", 0.75 A), 2x SFP, IP54 outdoor case, \"Number of DC inputs 16 (DC jack, PoE-IN)\" - the fifteen subscriber ports feed the box, port 15 passes that voltage on."
 }

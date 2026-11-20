@@ -17,8 +17,7 @@
       "type": "ethernet",
       "connector": "rj45",
       "speed": "1G",
-      "poeOut": true,
-      "poeOutClass": "passive"
+      "poeOut": false
     },
     {
       "name": "eth2",
@@ -63,5 +62,10 @@
     }
   ],
   "sourceUrl": "https://mikrotik.com/product/RB260GSP",
-  "notes": "Vendor figures from the MikroTik product page specification table: 5x 10/100/1000 Ethernet ports, 1x SFP port, passive PoE in - the page describes it as a 'PoE out Ethernet Smart Switch'. The PoE-out here is **passive**, not 802.3af/at: it passes the input voltage through, so a device expecting negotiation will not come up."
+  "notes": "Vendor figures from the MikroTik product page specification table: 5x 10/100/1000 Ethernet ports with **PoE-out on Ether2-Ether5** (passive PoE, 1 A per port, 2 A max total), 1x SFP, PoE in Passive PoE on Ether1 (11-30 V). Ether1 is the power input and does not source; four of the five copper ports do.",
+  "poe": {
+    "budgetUnknown": true,
+    "sourceUrl": "https://mikrotik.com/product/RB260GSP",
+    "note": "MikroTik publishes current limits only: PoE-out ports Ether2-Ether5, \"Passive PoE\", low voltage limit 1 A, \"Max total out (A) 2 A\", with 11-30 V PoE-in on Ether1. No watt figure is printed; 2 A against the input voltage is arithmetic MikroTik did not do, so the budget stays unknown."
+  }
 }

@@ -8,14 +8,18 @@
     "l2-forward",
     "l3-forward",
     "cli",
-    "dhcp-client"
+    "dhcp-client",
+    "poe-pse",
+    "802.3af",
+    "802.3at"
   ],
   "portTemplate": {
     "prefix": "eth",
     "start": 1,
     "count": 24,
     "type": "ethernet",
-    "speed": "1G"
+    "speed": "1G",
+    "poeOut": true
   },
   "interfaces": [
     {
@@ -60,5 +64,12 @@
     }
   ],
   "icon": "switch",
-  "color": "#14b8a6"
+  "color": "#14b8a6",
+  "poe": {
+    "budgetUnknown": true,
+    "sourceUrl": "https://mikrotik.com/product/crs328_24p_4s_rm",
+    "note": "MikroTik publishes current limits only: PoE-out ports Ether1-Ether24 (802.3af/at), low voltage limit 1000 mA / high voltage 450 mA, \"Max total out (A) 20 A\". No watt figure is printed, so the budget is left unknown rather than multiplied out."
+  },
+  "notes": "Vendor figures from the MikroTik product page specification table: 24x 10/100/1000 Ethernet ports with **PoE-out on Ether1-Ether24** (802.3af/at, 1000 mA low voltage / 450 mA high voltage per port, Max total out 20 A), 4x SFP+ ports (10G). The twenty-four copper ports were already modelled by the port template but carried no PoE claim at all, so the 24P behaved as an unpowered switch.",
+  "sourceUrl": "https://mikrotik.com/product/crs328_24p_4s_rm"
 }

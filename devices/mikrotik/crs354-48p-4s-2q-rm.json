@@ -17,7 +17,8 @@
     {
       "name": "eth1",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "poeOut": false
     },
     {
       "name": "eth2",
@@ -417,5 +418,10 @@
   "icon": "switch",
   "color": "#14b8a6",
   "sourceUrl": "https://mikrotik.com/product/crs354_48p_4s_2q_rm",
-  "notes": "Vendor figures from the MikroTik product page specification table: 48x 10/100/1000 Ethernet ports with **PoE-out on Ether1-Ether48** (802.3af/at), 4x SFP+ ports (10G), 2x QSFP+ ports (40G), 1x 10/100 management port. All forty-eight copper ports are powered - the product page states 'PoE-out ports Ether1-Ether48' - so a lab can budget the whole row. This is the PoE variant; the CRS354-48G-4S+2Q+RM in the catalogue is the same switch without it."
+  "notes": "Vendor figures from the MikroTik product page specification table: 48x 10/100/1000 Ethernet ports with **PoE-out on Ether1-Ether48** (802.3af/at), 4x SFP+ ports (10G), 2x QSFP+ ports (40G), 1x 10/100 management port, Total output power 700 W (27 A at 26 V / 13.2 A at 53 V). All forty-eight copper ports are powered - the product page states \"PoE-out ports Ether1-Ether48\".",
+  "poe": {
+    "budgetW": 700,
+    "sourceUrl": "https://mikrotik.com/product/crs354_48p_4s_2q_rm",
+    "note": "Total output power 700 W; Total output current 27 A at 26 V or 13.2 A at 53 V. PoE-out ports Ether1-Ether48 (802.3af/at). The 100M port is the separate management port the table lists as \"10/100 Ethernet ports 1\" and sources nothing, so this spec keeps it out of the PSE census and gives the 48 gigabit ports the vendor PoE range."
+  }
 }
