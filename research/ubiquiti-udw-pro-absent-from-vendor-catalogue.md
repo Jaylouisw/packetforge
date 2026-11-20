@@ -589,3 +589,25 @@ confirming the SKU meant is the catalogued **UDW** (`devices/ubiquiti/udw.json`)
 vendor surfaces are exhausted as far as this worker can see.
 
 **No spec change follows.** `devices/ubiquiti/udw.json` is untouched.
+
+### 6. The marketing sitemap and the JSON-LD product list (2026-11-20)
+
+Two surfaces above the store, both readable anonymously, both negative:
+
+- `https://ui.com/sitemap.xml` - **200, `application/xml`, 7,794 B, 82 `<loc>` entries**. Unlike the
+  `techspecs.ui.com` sitemap recorded earlier in this thread (a 609,911-byte not-found page), this one is a real
+  index. It carries category pages only - `/cloud-gateways`, `/cloud-gateways/wifi-integrated`,
+  `/cloud-gateways/large-scale` - and **no per-product URL**, so there is nothing to enumerate from it.
+- `https://ui.com/cloud-gateways` - 200, 529,519 B, and it embeds a schema.org `ItemList` of the gateway range.
+  Fourteen `ListItem`s, positions 1-14, every one pointing at a `techspecs.ui.com/unifi/cloud-gateways/<slug>`
+  page: `ef-core, efg, udm-beast, udm-pro-max, udm-se, udm-pro, ucg-max, ucg-fiber, ucg-ultra,
+  ucg-industrial, udr-5g-max, udr7, udw, ux7`. Position 13 is `"name":"Dream Wall"`,
+  `"@id":".../udw#product"`. **Zero** entries name a Dream Wall Pro.
+
+This is the vendor's own marketing taxonomy rather than a third-party grid, and it is the sixth independent
+Ubiquiti surface - after the tech-spec grid, the storefront, the fingerprint register, the SWX grantee census
+and the firmware platform codes - to print the same fourteen-to-sixteen console range with no Pro member. It
+does not change the disposition: still blocked on a vendor artefact naming `UDW-PRO`.
+
+**What did change here:** the same datasheet and tech-spec rows that make the Pro unmodellable *did* settle the
+base UDW's WAN side, which `devices/ubiquiti/udw.json` had never encoded - see the PR that carries this note.
