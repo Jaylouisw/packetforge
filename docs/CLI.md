@@ -3076,8 +3076,8 @@ the line breaks and the seven-space indent are measured in
 An interface address is a row of its own, one line under the subnet that holds it:
 
 ```
-C   10.1.1.0/30  is directly connected, Gi0/0
-L   10.1.1.1/32  is directly connected, Gi0/0
+C   10.1.1.0/30  is directly connected, GigabitEthernet0/0
+L   10.1.1.1/32  is directly connected, GigabitEthernet0/0
 ```
 
 The `L` row is the address, as a `/32`, and its job is to be a *receive* entry: a packet for it is handed to the
@@ -3249,10 +3249,10 @@ configured gateway 254 — and it always did. The table did not say so: it print
 
 ```
 r1#show ip route
-C   10.0.12.0/24  is directly connected, Gi0
-B   10.0.12.0/24  [20/0] via 10.0.12.2  Gi0  (not installed: the C route for this prefix has distance 0)
-O   10.3.3.0/24  [110/2] via 10.0.12.2  Gi0  (not installed: the B route for this prefix has distance 20)
-B   10.3.3.0/24  [20/0] via 10.0.12.2  Gi0
+C   10.0.12.0/24  is directly connected, GigabitEthernet0
+B   10.0.12.0/24  [20/0] via 10.0.12.2, GigabitEthernet0  (not installed: the C route for this prefix has distance 0)
+O   10.3.3.0/24  [110/2] via 10.0.12.2, GigabitEthernet0  (not installed: the B route for this prefix has distance 20)
+B   10.3.3.0/24  [20/0] via 10.0.12.2, GigabitEthernet0
 ```
 
 Two rows, one destination, and now the table says which one a packet follows. A losing row is **not deleted** —
