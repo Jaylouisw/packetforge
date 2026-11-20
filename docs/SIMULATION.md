@@ -209,7 +209,7 @@ Two different questions, and the forwarding path has to ask the first one first:
 | **Modelled** | Replies populate the cache, and pending packets for that next hop are flushed in order. | `engine/simulator.js:2027` |
 | **Modelled** | A request for an address nobody owns is simply unanswered, so the ping times out — the correct symptom, arrived at honestly. | — |
 | **Modelled** | A reply stamps the entry with the instant it was heard. Past `ARP_AGE_MS` (4 h, the IOS default `arp timeout`) the lookup answers nothing, so the frame is ARP'd for instead of being sent to a neighbour that has moved, and the entry is swept from the cache and from the port it was learned on. Using an entry does not reset its age: a cache hit is not hearing from the neighbour. | `engine/device.js` `arpLookup()`, `ageArps()`, `learnArp()` |
-| **Absent** | Gratuitous ARP, proxy ARP, ARP inspection (DAI), static ARP entries, duplicate-address detection. | — |
+| **Absent** | Gratuitous ARP, proxy ARP (it is *not* one default: on by default on the IOS/IOS XE enterprise families, off on NX-OS and IOS XR, and flipped off on the IE3x00 at 26.2.1 - [research/proxy-arp-default.md](../research/proxy-arp-default.md)), ARP inspection (DAI), static ARP entries, duplicate-address detection. | — |
 
 ### 3.3 ICMP
 
