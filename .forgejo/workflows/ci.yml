@@ -1291,7 +1291,25 @@ jobs:
                   // count of one means the daemon is this job and nothing else. No run
                   // identity has to be resolved here - one less expression that can come
                   // back empty and quietly switch the disk bound off.
-                  console.log((j.workflow_runs || []).filter((t) => t.name === "Docker build").length);
+                  //
+                  // The name is matched by suffix, not by equality. #2219 put the smoke
+                  // test in this job, so it is called `Server smoke and Docker build`
+                  // now; the `=== "Docker build"` this replaces matched no task at all
+                  // afterwards - this job included - so the count was 0 on every run and
+                  // this case reads 0 as "alone". Measured 2026-11-20T00:30Z: none of the
+                  // 19 `Server smoke and Docker build` tasks can match that equality, and
+                  // 37 of the 144 docker tasks in the 15 h to then shared the daemon with
+                  // another build, so the 2 GB prune ran under a live build in exactly
+                  // the runs the guard was written for - the race that failed runs 7378,
+                  // 7762, 7883 and 7887 with `unknown parent image ID`. Both names end in
+                  // `Docker build`, and so does the ci.yml that older pull requests still
+                  // run, so a suffix match counts this job whichever name it carries.
+                  const builds = (j.workflow_runs || []).filter((t) => /Docker build$/.test(t.name || ""));
+                  // An empty list is the unreadable case, not the alone case: the task
+                  // for this job is in that list whenever the API answered at all, so
+                  // "no Docker build running" cannot be true.
+                  if (!builds.length) { console.log("unknown"); return; }
+                  console.log(builds.length);
                 });
               ' 2>/dev/null || echo unknown)
             fi
