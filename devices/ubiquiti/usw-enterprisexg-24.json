@@ -3,7 +3,7 @@
   "model": "USW-EnterpriseXG-24",
   "label": "UniFi Switch Enterprise XG 24",
   "category": "l3-switch",
-  "description": "UniFi Switch Enterprise XG 24 (USW-EnterpriseXG-24) - 24x 10G RJ45 (10G/5G/2.5G/1G/100M) + 2x 25G SFP28 (25G/10G/1G). Layer 3; 580 Gbps switching capacity; 290 Gbps non-blocking; 100 W max.",
+  "description": "UniFi Switch Enterprise XG 24 (USW-EnterpriseXG-24) - 24x 10G RJ45 (10G/5G/2.5G/1G/100M) + 2x 25G SFP28 (25G/10G/1G). Layer 3; 580 Gbps switching capacity; 290 Gbps non-blocking; 100 W max, no PoE on any port.",
   "capabilities": [
     "l2-forward",
     "l3-forward",
@@ -22,7 +22,8 @@
         "2.5G",
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth1",
@@ -35,7 +36,8 @@
         "2.5G",
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth2",
@@ -48,7 +50,8 @@
         "2.5G",
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth3",
@@ -61,7 +64,8 @@
         "2.5G",
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth4",
@@ -74,7 +78,8 @@
         "2.5G",
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth5",
@@ -87,7 +92,8 @@
         "2.5G",
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth6",
@@ -100,7 +106,8 @@
         "2.5G",
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth7",
@@ -113,7 +120,8 @@
         "2.5G",
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth8",
@@ -126,7 +134,8 @@
         "2.5G",
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth9",
@@ -139,7 +148,8 @@
         "2.5G",
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth10",
@@ -152,7 +162,8 @@
         "2.5G",
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth11",
@@ -165,7 +176,8 @@
         "2.5G",
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth12",
@@ -178,7 +190,8 @@
         "2.5G",
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth13",
@@ -191,7 +204,8 @@
         "2.5G",
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth14",
@@ -204,7 +218,8 @@
         "2.5G",
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth15",
@@ -217,7 +232,8 @@
         "2.5G",
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth16",
@@ -230,7 +246,8 @@
         "2.5G",
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth17",
@@ -243,7 +260,8 @@
         "2.5G",
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth18",
@@ -256,7 +274,8 @@
         "2.5G",
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth19",
@@ -269,7 +288,8 @@
         "2.5G",
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth20",
@@ -282,7 +302,8 @@
         "2.5G",
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth21",
@@ -295,7 +316,8 @@
         "2.5G",
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth22",
@@ -308,7 +330,8 @@
         "2.5G",
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth23",
@@ -321,7 +344,8 @@
         "2.5G",
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "sfp1",
@@ -348,5 +372,6 @@
   ],
   "icon": "switch",
   "color": "#14b8a6",
-  "sourceUrl": "https://techspecs.ui.com/unifi/switching/usw-enterprisexg-24"
+  "sourceUrl": "https://techspecs.ui.com/unifi/switching/usw-enterprisexg-24",
+  "notes": "PoE re-read 2026-11-20: this switch neither sources power nor takes any.\n\nhttps://techspecs.ui.com/unifi/switching/usw-enterprisexg-24 (HTTP 200, 648,492 B, server-rendered, read 2026-11-20 01:5x UTC) prints \"Port Layout: 10 GbE RJ45 = 24 (10G/5G/2.5G/1G/100M)\" and \"25G SFP28 = 2 (25G/10G/1G)\" - the census already modelled - plus \"Max. Power Consumption 100W\", \"Power Method (1) Universal input, 100-240V AC, 50/60 Hz / (1) USP RPS DC input\", \"Power Supply AC/DC, internal, 100W\" and \"DC Power Backup\". The strings \"PoE\", \"PoE+\" and \"802.3\" occur zero times in those 648,492 bytes.\n\nThe store page carries the same fact as flags instead of prose: https://store.ui.com/us/en/products/usw-enterprisexg-24 (HTTP 200, 439,746 B, read 2026-11-20) sets every PoE row to \"flag\":\"Empty\" - PoE support, Max. PoE Output, Total PoE Availability, PoE Ports (PoE / PoE+ / PoE++ / PoE+++), Max. PoE Wattage per Port by PSE - while Max. Power Consumption is \"100W\" and Power Supply is \"AC/DC, internal, 100W\". Its only PoE-related sentence is a warning that these switches \"are not compatible with the PoE++ requirements of the new E7 Access Points\".\n\nBefore this correction all 24 RJ45 ports were silent about PoE, and the engine's isPoePd() match on \"UniFi\" in the label made every one of them a 12.95 W 802.3af powered device: 310.8 W of draw on a unit the vendor caps at 100 W, and a W_POE_DRAW warning (\"... is PoE-powered but ... supplies no PoE; the device will need its own power supply\") on any cable from any port to a source that supplies none. All 24 now declare poeIn: false. The two SFP28 cages carry no power either way - power only travels on copper.\n\nNo datasheet exists at the slug this line uses for its siblings: https://dl.ui.com/ds/usw-enterprisexg-24_ds.pdf answers 200 with the 609,911-byte techspecs home page, which is that host's not-found. The rendered spec table is therefore the vendor source, with the store page as the second reading.\n\nSame defect class as PR #2118 and #2121 (UXG family), PR #2215 (UDM-Beast) and the UDR7 spec - refs issue 130. The rest of the copper-only UniFi switch line (USW-Pro-48, USW-Pro-Max-48, USW-Pro-XG-48, US-48, USW-48, USW-24) shows the same silence and is left for its own passes."
 }
