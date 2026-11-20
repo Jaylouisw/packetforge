@@ -313,9 +313,11 @@ is true, and nothing is unbound. With 102 applied inside, `no ip access-group in
 in or out on Gi0/0/1`. The direction word is never reached - it is consumed as the number - so
 `no ip access-group out` answers about `in` in the same words. The two lines that do what the index
 promises are `no ip access-group 102 in`, which takes that one off (`Interface Gi0/0/1: access list
-unapplied in`), and the bare `no ip access-group`, which clears both directions (`Interface Gi0/0/1:
-access list unapplied in and out`). Reading a direction word as the number is the code's to fix
-(`_accessGroup()`, `const want = rest[0] != null ? parseInt(rest[0], 10) : null` at `engine/cli.js:3977` - the
+unapplied in`), and the bare `no ip access-group`, which clears both directions and names the ones it
+actually cleared: in the session above - 102 inside, nothing outside - it answers `Interface Gi0/0/1:
+access list unapplied in`, and `access list unapplied in and out` only when both directions were bound.
+Reading a direction word as the number is the code's to fix
+(`_accessGroup()`, `const want = rest[0] != null ? parseInt(rest[0], 10) : null` at `engine/cli.js:4050` - the
 guard asks whether a word arrived, not whether it is a number, so `in` still parses to `NaN`); until it is,
 this page does not advertise the direction on its own.
 
