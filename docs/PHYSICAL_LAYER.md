@@ -111,8 +111,17 @@ the cage-by-cage table. Selected highlights:
 | DAC | `dac-10g`, `dac-10g-active`, `aoc-10g` | 10G | SFP | 7 / 15 / 20 m |
 | DAC | `dac-40g`, `dac-100g` | 40G / 100G | QSFP | 5 / 3 m |
 | serial | `serial-v35` | 64 kbps – 8 Mbps, clocked | V.35 | 15 m |
-| console | `console-rs232`, `usb-console` | 115.2 kbps | RJ45 / USB | 15 m |
+| console | `console-rs232` | 115.2 kbps | RJ45 | 15 m |
+| console | `usb-console` | 12 Mbps (USB full speed) | USB | 5 m |
 | wireless | `wireless-2.4`, `wireless-5`, `wireless-60` | radio | antenna | — |
+
+The two console media are **two different leads, not one row**: `console-rs232` is the 115.2 kbps
+RS-232 line a 15 m lead carries, while `usb-console` is USB CDC-ACM at 12 Mbps (`speedMbps: 12`)
+on a 5 m passive lead (`maxRangeM: 5`) - the pair of numbers in `engine/media.js`, and the reason
+`CONNECTORS.md` gives them a cage each (`console` and `usb`). No model in the catalogue declares a
+USB console socket yet, so the second row is what the `usb` cage offers rather than a cable drawn
+in this tree; the reach is the `maxRangeM` a longer cable is warned against (`W_DISTANCE`,
+`engine/validation.js`).
 
 The full list is served at **`GET /api/media`**.
 
