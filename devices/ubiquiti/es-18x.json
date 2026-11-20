@@ -22,7 +22,7 @@
         "100M"
       ],
       "poeOut": true,
-      "poeOutClass": "PoE"
+      "poeOutClass": "passive"
     },
     {
       "name": "eth1",
@@ -189,5 +189,6 @@
   ],
   "icon": "switch",
   "color": "#14b8a6",
-  "sourceUrl": "https://techspecs.ui.com/uisp/wired/es-18x"
+  "sourceUrl": "https://techspecs.ui.com/uisp/wired/es-18x",
+  "notes": "One port carries 24 V passive PoE, and it is not 802.3af. The tech-spec table (https://techspecs.ui.com/uisp/wired/es-18x, HTTP 200, 580,575 B, read 2026-11-20) prints \"Networking interface: (16) 10/100/1000 Mbps Ethernet RJ45 ports, (2) 1 Gbps SFP ports\", \"PoE interface: (1) 24V passive PoE port (Pins 4, 5+; 7, 8-)\", \"Passive PoE Max. wattage per port: 15W\", \"Power method: 24V DC, 1A power adapter (Included), 24V Passive PoE\" and \"Max. power consumption: 14W (Excludes PoE output)\". Two things the sheet does not say, both left unanswered rather than filled in: it never says *which* of the sixteen copper ports the PoE one is - this entry keeps it on eth0, the first, which is where the ES line puts it, and that is an assumption rather than a citation - and it publishes no total budget. No budget is derived here on purpose: 24 V x 1 A = 24 W, less the 14 W the box draws, leaves 10 W, which is *below* the 15 W per-port maximum, so the adapter and the port cap disagree and neither number is a budget. Recording 15 W would claim headroom the included supply cannot deliver. The class is `passive` for the same reason as devices/ubiquiti/es-16xp.json: a 24 V fixed-voltage port does not negotiate 802.3af."
 }

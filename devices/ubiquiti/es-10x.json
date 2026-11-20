@@ -3,12 +3,11 @@
   "model": "ES-10X",
   "label": "EdgeSwitch 10X",
   "category": "switch",
-  "description": "EdgeSwitch 10X (ES-10X) - 8x 1G RJ45 + 2x 1G SFP. 20 Gbps switching capacity.",
+  "description": "EdgeSwitch 10X (ES-10X) - 8x 1G RJ45 + 2x 1G SFP, 20 Gbps switching capacity. PoE passthrough only: it can be powered over 24 V passive PoE and hand it on; it does not source power on its data ports.",
   "capabilities": [
     "l2-forward",
     "cli",
     "http-server",
-    "poe-pse",
     "passive-poe"
   ],
   "interfaces": [
@@ -20,9 +19,7 @@
       "speedCaps": [
         "1G",
         "100M"
-      ],
-      "poeOut": true,
-      "poeOutClass": "PoE"
+      ]
     },
     {
       "name": "eth1",
@@ -32,9 +29,7 @@
       "speedCaps": [
         "1G",
         "100M"
-      ],
-      "poeOut": true,
-      "poeOutClass": "PoE"
+      ]
     },
     {
       "name": "eth2",
@@ -44,9 +39,7 @@
       "speedCaps": [
         "1G",
         "100M"
-      ],
-      "poeOut": true,
-      "poeOutClass": "PoE"
+      ]
     },
     {
       "name": "eth3",
@@ -56,9 +49,7 @@
       "speedCaps": [
         "1G",
         "100M"
-      ],
-      "poeOut": true,
-      "poeOutClass": "PoE"
+      ]
     },
     {
       "name": "eth4",
@@ -68,9 +59,7 @@
       "speedCaps": [
         "1G",
         "100M"
-      ],
-      "poeOut": true,
-      "poeOutClass": "PoE"
+      ]
     },
     {
       "name": "eth5",
@@ -80,9 +69,7 @@
       "speedCaps": [
         "1G",
         "100M"
-      ],
-      "poeOut": true,
-      "poeOutClass": "PoE"
+      ]
     },
     {
       "name": "eth6",
@@ -92,9 +79,7 @@
       "speedCaps": [
         "1G",
         "100M"
-      ],
-      "poeOut": true,
-      "poeOutClass": "PoE"
+      ]
     },
     {
       "name": "eth7",
@@ -104,9 +89,7 @@
       "speedCaps": [
         "1G",
         "100M"
-      ],
-      "poeOut": true,
-      "poeOutClass": "PoE"
+      ]
     },
     {
       "name": "sfp1",
@@ -123,5 +106,6 @@
   ],
   "icon": "switch",
   "color": "#14b8a6",
-  "sourceUrl": "https://techspecs.ui.com/uisp/wired/es-10x"
+  "sourceUrl": "https://techspecs.ui.com/uisp/wired/es-10x",
+  "notes": "Ubiquiti's own copy for this SKU describes PoE *passthrough*, not PoE output: the store and tech-spec metadata read \"Cost-effective WISP switch with (8) Gigabit RJ45 ports, (2) SFP ports, and PoE passthrough support\", where the ES-10XP beside it reads \"each equipped with a 24V passive PoE output\". Until 2026-11-20 this entry carried `poeOut: true` with `poeOutClass: \"PoE\"` on all eight copper ports - eight 802.3af sources on a box the vendor says passes power through. The arithmetic refuses it too: the tech-spec table (https://techspecs.ui.com/uisp/wired/es-10x, HTTP 200, 574,925 B, read 2026-11-20) gives \"Power method: 24V DC, 1A power adapter (Included), 24V passive PoE\" - a 24 W supply - against \"Max. passive PoE wattage per port: 15W\", which is 120 W if all eight ports sourced, and the ES-10XP's supply is the 2.5 A one for exactly that reason. The PoE interface row (\"24V DC passive PoE (Pins 4, 5+; 7, 8-)\") states the pinout and no port count, so which port receives and which passes through is a question this entry does not answer and does not guess. So the eight source claims are gone, `poe-pse` is dropped (it means \"can source power on its ports\"), and `passive-poe` is kept: the box speaks 24 V passive PoE, it just does not originate it. What would settle the passthrough pair: a quick-start guide or datasheet naming the in/out ports - `https://dl.ui.com/ds/es-10x_ds.pdf` answers 302 to the tech-spec root (no datasheet is published for this SKU, while `udw_ds.pdf` on the same host answers 200 application/pdf) and `https://dl.ui.com/qig/es-10x.pdf` answers 302 likewise."
 }

@@ -16,35 +16,40 @@
       "type": "ethernet",
       "connector": "rj45",
       "speed": "1G",
-      "poeOut": true
+      "poeOut": true,
+      "poeOutClass": "passive"
     },
     {
       "name": "eth1",
       "type": "ethernet",
       "connector": "rj45",
       "speed": "1G",
-      "poeOut": true
+      "poeOut": true,
+      "poeOutClass": "passive"
     },
     {
       "name": "eth2",
       "type": "ethernet",
       "connector": "rj45",
       "speed": "1G",
-      "poeOut": true
+      "poeOut": true,
+      "poeOutClass": "passive"
     },
     {
       "name": "eth3",
       "type": "ethernet",
       "connector": "rj45",
       "speed": "1G",
-      "poeOut": true
+      "poeOut": true,
+      "poeOutClass": "passive"
     },
     {
       "name": "eth4",
       "type": "ethernet",
       "connector": "rj45",
       "speed": "1G",
-      "poeOut": true
+      "poeOut": true,
+      "poeOutClass": "passive"
     },
     {
       "name": "mgmt",
@@ -54,5 +59,5 @@
     }
   ],
   "sourceUrl": "https://techspecs.ui.com/uisp/wired/es-5xp",
-  "notes": "Vendor figures from Ubiquiti techspecs: (5) 10/100/1000 Ethernet ports and (1) 10/100 Ethernet port for management, so the management port is modelled at 100M and named separately from the five data ports. PoE is present on the data ports - the datasheet carries per-port wattage, method and 'PoE configurable per port' rows - but the standard (802.3af/at vs passive 24V) was not captured during intake, so no 802.3 capability is claimed. If your unit negotiates 802.3af, that is a gap worth a comment."
+  "notes": "Vendor figures from Ubiquiti techspecs (https://techspecs.ui.com/uisp/wired/es-5xp, HTTP 200, 574,944 B, read 2026-11-20): \"Networking interface: (5) 10/100/1000 Ethernet ports\" and \"Management interface: (1) 10/100 Ethernet port\", so the management port is modelled at 100M and named separately from the five data ports. The PoE question this entry used to leave open - whether the ports were 802.3af/at or fixed-voltage passive - is answered on the vendor page: \"PoE method: Passive\", \"PoE Out voltage range: 22-24V DC\", \"Max. PoE wattage per port: 11.5W\" and \"PoE configurable per port: Management port N/A, Data ports Off/24V\". So the five data ports are 24 V passive PSE ports and are now classed `passive`, not `PoE`: 802.3af is a negotiated 48 V standard and this box does not speak it, which is the fault test/uisp-r-poe.test.js and test/ep-s16-poe.test.js were written for. No `poe` block: the page's only power figure is \"Max. power consumption: 60W\", which is the whole box including PoE output on a 24 V / 2.5 A adapter, so subtracting a box draw that the sheet never states would be invention - the position devices/ubiquiti/es-48-750w.json takes for the same reason. Five ports at the published 11.5 W per-port maximum would be 57.5 W of the 60 W supply, which is close enough that the adapter is worth knowing about when filling the box."
 }

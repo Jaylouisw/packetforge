@@ -3,7 +3,7 @@
   "model": "ES-10XP",
   "label": "EdgeSwitch 10XP",
   "category": "switch",
-  "description": "EdgeSwitch 10XP (ES-10XP) - 8x 1G RJ45 + 2x 1G SFP. 20 Gbps switching capacity.",
+  "description": "EdgeSwitch 10XP (ES-10XP) - 8x 1G RJ45 all 24 V passive PoE out (15 W per port) + 2x 1G SFP. 20 Gbps switching capacity.",
   "capabilities": [
     "l2-forward",
     "cli",
@@ -22,7 +22,7 @@
         "100M"
       ],
       "poeOut": true,
-      "poeOutClass": "PoE"
+      "poeOutClass": "passive"
     },
     {
       "name": "eth1",
@@ -34,7 +34,7 @@
         "100M"
       ],
       "poeOut": true,
-      "poeOutClass": "PoE"
+      "poeOutClass": "passive"
     },
     {
       "name": "eth2",
@@ -46,7 +46,7 @@
         "100M"
       ],
       "poeOut": true,
-      "poeOutClass": "PoE"
+      "poeOutClass": "passive"
     },
     {
       "name": "eth3",
@@ -58,7 +58,7 @@
         "100M"
       ],
       "poeOut": true,
-      "poeOutClass": "PoE"
+      "poeOutClass": "passive"
     },
     {
       "name": "eth4",
@@ -70,7 +70,7 @@
         "100M"
       ],
       "poeOut": true,
-      "poeOutClass": "PoE"
+      "poeOutClass": "passive"
     },
     {
       "name": "eth5",
@@ -82,7 +82,7 @@
         "100M"
       ],
       "poeOut": true,
-      "poeOutClass": "PoE"
+      "poeOutClass": "passive"
     },
     {
       "name": "eth6",
@@ -94,7 +94,7 @@
         "100M"
       ],
       "poeOut": true,
-      "poeOutClass": "PoE"
+      "poeOutClass": "passive"
     },
     {
       "name": "eth7",
@@ -106,7 +106,7 @@
         "100M"
       ],
       "poeOut": true,
-      "poeOutClass": "PoE"
+      "poeOutClass": "passive"
     },
     {
       "name": "sfp1",
@@ -123,5 +123,7 @@
   ],
   "icon": "switch",
   "color": "#14b8a6",
-  "sourceUrl": "https://techspecs.ui.com/uisp/wired/es-10xp"
+  "poe": {"budgetW": 52, "sourceUrl": "https://techspecs.ui.com/uisp/wired/es-10xp", "note": "DERIVED CEILING, not a quoted budget - Ubiquiti prints no total PoE row for this box, only a per-port cap. The two published figures give the headroom: the included adapter is \"24V DC, 2.5A\" = 60 W, and \"Max. power consumption: 8W (Excluding PoE output)\", so at most 60 - 8 = 52 W can leave the eight PSE ports. Same derivation as devices/ubiquiti/uisp-r.json and devices/antaira/lmp-1002g-sfp-t.json. Eight ports at the vendor's 15 W per-port maximum would be 120 W, so the adapter, not the port count, is what stops a full fill."},
+  "sourceUrl": "https://techspecs.ui.com/uisp/wired/es-10xp",
+  "notes": "The eight copper ports source 24 V passive PoE, not 802.3af: the tech-spec table (https://techspecs.ui.com/uisp/wired/es-10xp, HTTP 200, 575,764 B, read 2026-11-20) prints \"PoE interface: 24V DC passive PoE (Pins 4, 5+; 7, 8-)\" and \"Max. passive PoE wattage per port: 15W\", and the SKU's own description reads \"each equipped with a 24V passive PoE output\". Until 2026-11-20 the ports said `poeOutClass: \"PoE\"`, which in this catalogue's vocabulary is 802.3af - a negotiated 48 V standard a 24 V passive port does not speak, and the fault docs/DEVICE_SCHEMA.md names (test/uisp-r-poe.test.js, test/ep-s16-poe.test.js). The class is now `passive`, which is what `devices/ubiquiti/es-16xp.json` in the same line already declares. The `poe` block is derived, not quoted: see its note. The power adapter is the only difference from the ES-10X (2.5 A here, 1 A there), which is why the 10X is a passthrough box and this one is a PSE."
 }
