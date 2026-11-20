@@ -70,11 +70,11 @@ each is the durable half, because the console grows and they move:
 | `bgp.js:592-612` `compareForBest` / `bestPath` | sort with `comparePaths`, then router-id, then prefix | RFC 4271 §9.1.2.2 *elimination pipeline* (a sortable comparator cannot express the MED rule — see §4.5) |
 | `bgp.js:626-663` `advertise(routes, opts)` | prepends AS on eBGP, sets next hop, copies `localPreference` and `med` unconditionally | strip `LOCAL_PREF` on eBGP, apply the MED non-transitivity rule, apply community suppression, honour `nextHopSelf` |
 | `bgp.js:310-319` `pathIsLoopFree` | correct already (AS_SET members included) | keep, no change |
-| `simulator.js:1941-1994` advertisement loop | `if (e.from === adj.peer.dev.id) continue;` (line 1950), prepend at 1956, the next hop at 1961, and the iBGP→iBGP suppression at 1955 (landed with #41, §6.3) | call `advertise()`/`applyRouteMap()` instead of re-deriving AS path and next hop; keep the iBGP→iBGP suppression |
-| `cli.js:1766-1784` config-mode BGP dispatch | `router bgp` / `no router bgp` / `neighbor` / `bgp` | add `route-map`, `match`, `set` branches |
-| `cli.js:2969` `_bgp(tokens)` | `as`, `router-id`, `<ip> remote-as` | add `always-compare-med`, `default local-preference`, `<ip> route-map`, `<ip> next-hop-self` |
-| `cli.js:3038` `this._dnsZone` | sticky "current zone" context, no new prompt mode | same pattern for the current route-map (§9.2) |
-| `cli.js:7796` `_help()` | command list | add the new lines |
+| `simulator.js:1986-2039` advertisement loop | `if (e.from === adj.peer.dev.id) continue;` (line 1995), prepend at 2001, the next hop at 2006, and the iBGP→iBGP suppression at 2000 (landed with #41, §6.3) | call `advertise()`/`applyRouteMap()` instead of re-deriving AS path and next hop; keep the iBGP→iBGP suppression |
+| `cli.js:1898-1916` config-mode BGP dispatch | `router bgp` / `no router bgp` / `neighbor` / `bgp` | add `route-map`, `match`, `set` branches |
+| `cli.js:3101` `_bgp(tokens)` | `as`, `router-id`, `<ip> remote-as` | add `always-compare-med`, `default local-preference`, `<ip> route-map`, `<ip> next-hop-self` |
+| `cli.js:3170` `this._dnsZone` | sticky "current zone" context, no new prompt mode | same pattern for the current route-map (§9.2) |
+| `cli.js:7922` `_help()` | command list | add the new lines |
 
 Design invariants that must survive the change, because every existing test
 relies on them:
@@ -824,7 +824,7 @@ duplicates" behaviour already required of `neighbor ... remote-as`
 
 ### 9.4 `_help()` additions
 
-Append these lines to `_help()` (`cli.js:7796`), keeping the existing column
+Append these lines to `_help()` (`cli.js:7922`), keeping the existing column
 alignment:
 
 ```
