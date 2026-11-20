@@ -3,7 +3,7 @@
   "model": "ECS-48S-PoE",
   "label": "UniFi Enterprise Campus 48S PoE",
   "category": "switch",
-  "description": "UniFi Enterprise Campus 48S PoE (ECS-48S-PoE) - 1x 1G RJ45 + 32x 2.5G RJ45 (32 PoE+++) + 16x 10G RJ45 (16 PoE+++) + 4x 25G SFP28 (25G/10G/1G) + 2x 100G QSFP28. 2,150 W PoE budget; Layer 3; 680 Gbps switching capacity.",
+  "description": "UniFi Enterprise Campus 48S PoE (ECS-48S-PoE) - 1x 1G RJ45 (OOB management) + 32x 2.5G RJ45 (32 PoE+++) + 16x 10G RJ45 (16 PoE+++) + 4x 25G SFP28 (25G/10G/1G) + 2x 100G QSFP28 + serial console. 2,150 W PoE budget (2x 1,200 W PSUs); Layer 3; 680 Gbps switching capacity.",
   "capabilities": [
     "l2-forward",
     "l3-forward",
@@ -20,7 +20,8 @@
       "speed": "1G",
       "speedCaps": [
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ]
     },
     {
@@ -31,7 +32,8 @@
       "speedCaps": [
         "2.5G",
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
       "poeOut": true,
       "poeOutClass": "PoE+++"
@@ -44,7 +46,8 @@
       "speedCaps": [
         "2.5G",
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
       "poeOut": true,
       "poeOutClass": "PoE+++"
@@ -57,7 +60,8 @@
       "speedCaps": [
         "2.5G",
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
       "poeOut": true,
       "poeOutClass": "PoE+++"
@@ -70,7 +74,8 @@
       "speedCaps": [
         "2.5G",
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
       "poeOut": true,
       "poeOutClass": "PoE+++"
@@ -83,7 +88,8 @@
       "speedCaps": [
         "2.5G",
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
       "poeOut": true,
       "poeOutClass": "PoE+++"
@@ -96,7 +102,8 @@
       "speedCaps": [
         "2.5G",
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
       "poeOut": true,
       "poeOutClass": "PoE+++"
@@ -109,7 +116,8 @@
       "speedCaps": [
         "2.5G",
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
       "poeOut": true,
       "poeOutClass": "PoE+++"
@@ -122,7 +130,8 @@
       "speedCaps": [
         "2.5G",
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
       "poeOut": true,
       "poeOutClass": "PoE+++"
@@ -135,7 +144,8 @@
       "speedCaps": [
         "2.5G",
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
       "poeOut": true,
       "poeOutClass": "PoE+++"
@@ -148,7 +158,8 @@
       "speedCaps": [
         "2.5G",
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
       "poeOut": true,
       "poeOutClass": "PoE+++"
@@ -161,7 +172,8 @@
       "speedCaps": [
         "2.5G",
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
       "poeOut": true,
       "poeOutClass": "PoE+++"
@@ -174,7 +186,8 @@
       "speedCaps": [
         "2.5G",
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
       "poeOut": true,
       "poeOutClass": "PoE+++"
@@ -187,7 +200,8 @@
       "speedCaps": [
         "2.5G",
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
       "poeOut": true,
       "poeOutClass": "PoE+++"
@@ -200,7 +214,8 @@
       "speedCaps": [
         "2.5G",
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
       "poeOut": true,
       "poeOutClass": "PoE+++"
@@ -213,7 +228,8 @@
       "speedCaps": [
         "2.5G",
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
       "poeOut": true,
       "poeOutClass": "PoE+++"
@@ -226,7 +242,8 @@
       "speedCaps": [
         "2.5G",
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
       "poeOut": true,
       "poeOutClass": "PoE+++"
@@ -239,7 +256,8 @@
       "speedCaps": [
         "2.5G",
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
       "poeOut": true,
       "poeOutClass": "PoE+++"
@@ -252,7 +270,8 @@
       "speedCaps": [
         "2.5G",
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
       "poeOut": true,
       "poeOutClass": "PoE+++"
@@ -265,7 +284,8 @@
       "speedCaps": [
         "2.5G",
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
       "poeOut": true,
       "poeOutClass": "PoE+++"
@@ -278,7 +298,8 @@
       "speedCaps": [
         "2.5G",
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
       "poeOut": true,
       "poeOutClass": "PoE+++"
@@ -291,7 +312,8 @@
       "speedCaps": [
         "2.5G",
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
       "poeOut": true,
       "poeOutClass": "PoE+++"
@@ -304,7 +326,8 @@
       "speedCaps": [
         "2.5G",
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
       "poeOut": true,
       "poeOutClass": "PoE+++"
@@ -317,7 +340,8 @@
       "speedCaps": [
         "2.5G",
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
       "poeOut": true,
       "poeOutClass": "PoE+++"
@@ -330,7 +354,8 @@
       "speedCaps": [
         "2.5G",
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
       "poeOut": true,
       "poeOutClass": "PoE+++"
@@ -343,7 +368,8 @@
       "speedCaps": [
         "2.5G",
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
       "poeOut": true,
       "poeOutClass": "PoE+++"
@@ -356,7 +382,8 @@
       "speedCaps": [
         "2.5G",
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
       "poeOut": true,
       "poeOutClass": "PoE+++"
@@ -369,7 +396,8 @@
       "speedCaps": [
         "2.5G",
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
       "poeOut": true,
       "poeOutClass": "PoE+++"
@@ -382,7 +410,8 @@
       "speedCaps": [
         "2.5G",
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
       "poeOut": true,
       "poeOutClass": "PoE+++"
@@ -395,7 +424,8 @@
       "speedCaps": [
         "2.5G",
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
       "poeOut": true,
       "poeOutClass": "PoE+++"
@@ -408,7 +438,8 @@
       "speedCaps": [
         "2.5G",
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
       "poeOut": true,
       "poeOutClass": "PoE+++"
@@ -421,7 +452,8 @@
       "speedCaps": [
         "2.5G",
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
       "poeOut": true,
       "poeOutClass": "PoE+++"
@@ -434,7 +466,8 @@
       "speedCaps": [
         "2.5G",
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
       "poeOut": true,
       "poeOutClass": "PoE+++"
@@ -734,9 +767,19 @@
       "type": "ethernet",
       "connector": "qsfp28",
       "speed": "100G"
+    },
+    {
+      "name": "console",
+      "type": "console"
     }
   ],
   "icon": "switch",
   "color": "#14b8a6",
-  "sourceUrl": "https://techspecs.ui.com/unifi/switching/ecs-48s-poe"
+  "sourceUrl": "https://techspecs.ui.com/unifi/switching/ecs-48s-poe",
+  "poe": {
+    "budgetW": 2150,
+    "sourceUrl": "https://techspecs.ui.com/unifi/switching/ecs-48s-poe",
+    "note": "Tech specs print PoE availability as four rows against the (2) 1,200 W hot-swappable modules: 200-240 V AC shared 2,150 W / 100-120 V AC shared 1,750 W / 200-240 V AC redundant 950 W / 100-120 V AC redundant 750 W. 2,150 W is the ceiling - one PSU, or a 120 V feed, or a redundant pair drops it to 1,750 / 950 / 750 W respectively, and the lab must state which. Per-port ceiling is 90 W on all 48 copper ports (802.3bt Type 4, Class 8): 15.4 W PoE / 30 W PoE+ / 60 W PoE++ / 90 W PoE+++."
+  },
+  "notes": "Ethernet census read from the vendor's own Port Layout table: https://techspecs.ui.com/unifi/switching/ecs-48s-poe (HTTP 200, 676,185 B, server-rendered spec JSON, read 2026-11-20) prints six rows - \"1 GbE RJ45 = 1 (1G/100M/10M)\" with the note \"OOB Management port only\", \"2.5 GbE RJ45 = 32 (All PoE+++)\", \"10 GbE RJ45 = 16 (All PoE+++)\", \"25G SFP28 = 4\", \"100G QSFP28 = 2\" (note: \"Stacking port only, does not support uplink\"), \"Console = 1\". Before this correction the row carried five of those and 55 jacks for a 56-jack 1U switch - the serial console was absent, so nothing could be cabled to the box's out-of-band path. eth0 is the OOB management port the vendor's note names; it and the 32 x 2.5 GbE ports also now declare the 10M rung the page prints.\n\nPoE: 48 PoE+++ ports (32 x 2.5 GbE + 16 x 10 GbE) with no budget in the spec, so the loader named it from the model string, found no wattage and served 0 W while the description beside it claimed 2,150 W. The four-row availability table is now in `poe.budgetW` + `poe.note`.\n\nAlso from the same page, recorded as prose and not modelled as ports: Max. Power Consumption 250 W excluding PoE / 2,400 W including, Switching Capacity 680 Gbps, Forwarding Rate 506 Mpps, (2) AC input hot-swappable 1,200 W modules."
 }
