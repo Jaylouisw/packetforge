@@ -230,7 +230,10 @@ Two different questions, and the forwarding path has to ask the first one first:
 2. Static routes from `ip route` (AD 1).
 3. BGP-learned routes (eBGP 20, iBGP 200) — `engine/device.js:906-923`.
 4. OSPF-learned routes (AD 110) — `engine/device.js:925-940`.
-5. `ip default-gateway` (AD 254) — only when nothing else matched.
+5. A default route handed out by DHCP to a box that routes (AD 254).
+6. `ip default-gateway` (AD 254) — only when nothing else matched, and only on a box that does not route:
+   the command is scoped to "when IP routing is disabled", so its line stays in `show running-config` while
+   `ip routing` is on and steers nothing (`research/ip-default-gateway-when-routing.md`).
 
 Longest prefix always wins; equal-length prefixes are broken by lower
 administrative distance. That ordering is the documented Cisco one, and it is

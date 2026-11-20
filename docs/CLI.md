@@ -850,9 +850,10 @@ rate. The per-echo sentences are gone; `research/ping-report-shape.md` holds the
 `test/ping-report-shape.test.js` pins the four-line report.
 
 Only the two connected subnets are in the table because no default has been configured yet, and the console
-says so between the legend and the first row (`Gateway of last resort is not set`); `ip
-default-gateway` and `ip route 0.0.0.0 0.0.0.0` are the two ways to add one, and their rows — plus the
-`(down: no cable)` a port with nothing plugged into it prints beside its subnet — are in
+says so between the legend and the first row (`Gateway of last resort is not set`); `ip route 0.0.0.0 0.0.0.0`
+adds the default this table can hold, while `ip default-gateway` is the host's way to one and is inert on a box
+that routes (`research/ip-default-gateway-when-routing.md`), and their rows — plus the `(down: no cable)` a port
+with nothing plugged into it prints beside its subnet — are in
 [Reading `show ip route`](#reading-show-ip-route).
 
 ### Reading `show ip interface brief`

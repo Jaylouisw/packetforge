@@ -143,10 +143,14 @@ function lab(kind) {
     return { t: t, r1: r1, r2: r2 };
   }
   if (kind === 'gateway-and-static') {
-    // A configured gateway is distance 254 and loses to a static default at 1. Both rows must be visible, and
-    // both carry `S*`, because each is a candidate default - the distance, not the code, is what separates them.
-    r1.config.defaultGateway = '10.1.2.254';
-    r1.config.routes = [{ dest: '0.0.0.0', mask: '0.0.0.0', gw: '10.1.2.1', iface: null }];
+    // A second default at distance 254 loses to a static default at 1. Both rows must be visible, and both carry
+    // `S*`, because each is a candidate default - the distance, not the code, is what separates them. (The 254 row
+    // used to come from a configured `ip default-gateway`, which a routing box does not install at all:
+    // research/ip-default-gateway-when-routing.md.)
+    r1.config.routes = [
+      { dest: '0.0.0.0', mask: '0.0.0.0', gw: '10.1.2.1', iface: null },
+      { dest: '0.0.0.0', mask: '0.0.0.0', gw: '10.1.2.254', iface: null, distance: 254 }
+    ];
     return { t: t, r1: r1, r2: r2 };
   }
   if (kind === 'iface-only-static') {

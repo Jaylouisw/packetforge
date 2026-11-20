@@ -48,15 +48,17 @@ function ok(cond, msg, detail) {
 const catalog = loadCatalog(path.join(__dirname, '..', 'devices')).filter(function (s) { return !s.error; });
 const ROUTER = catalog.filter(function (s) { return /ASR 1001-X/.test(s.model); })[0];
 
-// A box holding one prefix of every kind the table can print: two connected subnets, a static default, a
-// configured gateway that loses to it, an OSPF route and two BGP routes at different distances.
+// A box holding one prefix of every kind the table can print: two connected subnets, a static default, a second
+// default at 254 that loses to it, an OSPF route and two BGP routes at different distances.
 function build() {
   const dev = new Device('r1', ROUTER);
   const ports = [...dev.interfaces.values()].filter(function (i) { return i.type === 'ethernet'; });
   ports[0].ip = '10.1.2.3'; ports[0].mask = '255.255.255.0';
   ports[1].ip = '10.9.0.1'; ports[1].mask = '255.255.255.0';
-  dev.config.routes = [{ dest: '0.0.0.0', mask: '0.0.0.0', gw: '10.1.2.1', iface: null }];
-  dev.config.defaultGateway = '10.1.2.254';
+  dev.config.routes = [
+    { dest: '0.0.0.0', mask: '0.0.0.0', gw: '10.1.2.1', iface: null },
+    { dest: '0.0.0.0', mask: '0.0.0.0', gw: '10.1.2.254', iface: null, distance: 254 }
+  ];
   dev.ospfRoutes = [{ dest: '10.77.0.0', mask: '255.255.0.0', nextHop: '10.1.2.9', iface: ports[0].name }];
   dev.bgpRoutes = [
     { dest: '203.0.113.0', mask: '255.255.255.0', nextHop: '10.1.2.2', iface: ports[0].name, ad: 20 },

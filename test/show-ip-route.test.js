@@ -32,8 +32,13 @@ function build() {
   const ports = [...dev.interfaces.values()].filter(function (i) { return i.type === 'ethernet'; });
   ports[0].ip = '10.1.2.3'; ports[0].mask = '255.255.255.0';
   ports[1].ip = '10.9.0.1'; ports[1].mask = '255.255.255.0';
-  dev.config.routes = [{ dest: '0.0.0.0', mask: '0.0.0.0', gw: '10.1.2.1', iface: null }];
-  dev.config.defaultGateway = '10.1.2.254';
+  // Two defaults at different distances: the typed route at 1, and a second one at 254. The 254 row used to be
+  // a configured `ip default-gateway`, which a routing box does not install at all
+  // (research/ip-default-gateway-when-routing.md).
+  dev.config.routes = [
+    { dest: '0.0.0.0', mask: '0.0.0.0', gw: '10.1.2.1', iface: null },
+    { dest: '0.0.0.0', mask: '0.0.0.0', gw: '10.1.2.254', iface: null, distance: 254 }
+  ];
   dev.ospfRoutes = [{ dest: '10.77.0.0', mask: '255.255.0.0', nextHop: '10.1.2.9', iface: ports[0].name }];
   dev.bgpRoutes = [
     { dest: '203.0.113.0', mask: '255.255.255.0', nextHop: '10.1.2.2', iface: ports[0].name, ad: 20 },
@@ -120,7 +125,7 @@ console.log('Both defaults are candidate defaults, and the distance tells them a
   const stat = zero.filter(function (l) { return /\[1\/0\]/.test(l); })[0] || '';
   const candidate = zero.filter(function (l) { return /\[254\/0\]/.test(l); })[0] || '';
   ok(/10\.1\.2\.1/.test(stat), 'the static default is the one at distance 1, via its own next hop', stat);
-  ok(/10\.1\.2\.254/.test(candidate), 'the configured gateway keeps distance 254', candidate);
+  ok(/10\.1\.2\.254/.test(candidate), 'the second default keeps the distance it was given', candidate);
   ok(stat !== candidate, 'and the distance in the brackets is what tells the two rows apart, as for any two routes');
   ok(legendText(lines).indexOf('* - candidate default') !== -1,
     'while the legend defines the asterisk those rows use', legendText(lines).split('\n')[5]);
@@ -128,14 +133,14 @@ console.log('Both defaults are candidate defaults, and the distance tells them a
   const gatewayLine = lines.filter(function (l) { return /^Gateway of last resort is/.test(l); })[0];
   ok(!!gatewayLine, 'a "Gateway of last resort" line names the gateway', gatewayLine);
   ok(gatewayLine.split(' ').indexOf('10.1.2.1') !== -1,
-    'naming the default that is installed (the static one), not the configured gateway', gatewayLine);
+    'naming the default that is installed (the one at distance 1), not the other candidate', gatewayLine);
 
-  // With no static default, the configured gateway is the installed default and must be named.
+  // With the distance-1 route gone, the 254 default is the installed one and must be named.
   const only = build();
-  only.dev.config.routes = [];
+  only.dev.config.routes = [{ dest: '0.0.0.0', mask: '0.0.0.0', gw: '10.1.2.254', iface: null, distance: 254 }];
   const onlyLines = show(only);
   const onlyLine = onlyLines.filter(function (l) { return /^Gateway of last resort is/.test(l); })[0] || '';
-  ok(/10\.1\.2\.254/.test(onlyLine), 'a device with only a configured gateway names it', onlyLine);
+  ok(/10\.1\.2\.254/.test(onlyLine), 'a device whose only default is at 254 still names it', onlyLine);
   ok(/^S\*\s+0\.0\.0\.0/m.test(onlyLines.join('\n')), 'and the row is the candidate default');
 }
 
@@ -205,9 +210,8 @@ console.log('The printed table agrees with the data plane:');
     return net.intToIp(prefix === 0 ? 0 : (0xFFFFFFFF << (32 - prefix)) >>> 0);
   }
   // The code says which route this is; the asterisk says it is a candidate default. A `S*` row can therefore
-  // be a static route (typed as `ip route 0.0.0.0 0.0.0.0`) or the engine's own gateway row, so the code is
-  // checked against every type it can stand for rather than against one.
-  const TYPE_OF_CODE = { C: ['connected'], S: ['static'], 'S*': ['static', 'default'], O: ['ospf'], B: ['bgp'] };
+  // be any route to 0.0.0.0/0, so the code is checked against every type it can stand for rather than one.
+  const TYPE_OF_CODE = { C: ['connected'], S: ['static'], 'S*': ['static'], O: ['ospf'], B: ['bgp'] };
 
   const problems = [];
   for (const r of rows) {
@@ -233,9 +237,9 @@ console.log('The printed table agrees with the data plane:');
   }
   ok(problems.length === 0, 'every prefix is routed the way the table makes it look', problems.slice(0, 3).join(' | '));
 
-  // A destination nothing covers leaves by the *installed* default: the static route at distance 1,
-  // not the configured gateway at 254. Both are printed, and the distances are what make the winner
-  // visible - which is the whole reason for printing them.
+  // A destination nothing covers leaves by the *installed* default: the static route at distance 1, not the
+  // second candidate at 254. Both are printed, and the distances are what make the winner visible - which is
+  // the whole reason for printing them.
   const verdict = s.dev.routeTo('8.8.8.8');
   const installed = rows.filter(function (x) { return x.dest === '0.0.0.0'; })
     .sort(function (a, b) { return a.distance - b.distance; })[0];
@@ -247,7 +251,7 @@ console.log('The printed table agrees with the data plane:');
 
   const gatewayLine = lines.filter(function (l) { return /^Gateway of last resort is/.test(l); })[0] || '';
   ok(gatewayLine.indexOf('10.1.2.1') !== -1,
-    'the gateway line names the installed default, not the losing configured gateway', gatewayLine);
+    'the gateway line names the installed default, not the losing candidate', gatewayLine);
   ok(gatewayLine.indexOf('10.1.2.254') === -1, 'and it does not name the one no packet uses', gatewayLine);
 }
 

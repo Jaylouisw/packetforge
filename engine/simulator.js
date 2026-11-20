@@ -1234,10 +1234,21 @@ class Simulator {
           clientIface.ip = result.lease.ip;
           clientIface.mask = result.lease.mask;
           clientIface.dhcpLease = result.lease;
-          if (!dev.config.defaultGateway && result.lease.gateway) {
-            dev.config.defaultGateway = result.lease.gateway;
+          if (result.lease.gateway) {
+            // A box that routes installs the lease's router as a default *route* at distance 254; a host or an
+            // L2 switch has no routing table, so the same number is its default gateway. One lease, two
+            // mechanisms - `ip default-gateway` and a DHCP-installed default are different things.
+            if (dev.isL3()) {
+              dev.dhcpGateway = result.lease.gateway;
+            } else if (!dev.config.defaultGateway) {
+              dev.config.defaultGateway = result.lease.gateway;
+            }
           }
           this.dhcpLeases.push(result.lease);
+        } else if (dev.dhcpGateway && clientIface.dhcpLease === undefined) {
+          // No lease this run means no router from one either; a stale default route would outlive the
+          // address that came with it.
+          dev.dhcpGateway = null;
         }
       }
     }

@@ -29,8 +29,14 @@ function build(routes, opts) {
   const ports = [...dev.interfaces.values()].filter(function (i) { return i.type === 'ethernet'; });
   ports[0].ip = '10.1.2.3'; ports[0].mask = '255.255.255.0';
   ports[1].ip = '10.9.0.1'; ports[1].mask = '255.255.255.0';
-  dev.config.routes = routes || [];
-  if (opts.defaultGateway) dev.config.defaultGateway = opts.defaultGateway;
+  dev.config.routes = (routes || []).slice();
+  // A second default at distance 254. It used to be a configured `ip default-gateway`, which this engine
+  // turned into a row of its own; a routing box installs no route for that command
+  // (research/ip-default-gateway-when-routing.md), so the shape is produced the way a box produces it - a
+  // static default carrying an explicit distance.
+  if (opts.secondDefault) {
+    dev.config.routes.push({ dest: '0.0.0.0', mask: '0.0.0.0', gw: opts.secondDefault, iface: null, distance: 254 });
+  }
   if (opts.ospfRoutes) dev.ospfRoutes = opts.ospfRoutes;
   return { dev: dev, ports: ports, cli: new CliSession(dev, null, null) };
 }
@@ -86,9 +92,9 @@ console.log('A static route to a real network is not a candidate default:');
 console.log('');
 console.log('Two candidates in one table are both starred, and the distance separates them:');
 {
-  // The situation this engine can produce that Cisco's note cannot: a configured gateway (its own
-  // distance-254 row, see the note) beside a typed static default.
-  const env = build(DEFAULT_ROUTE, { defaultGateway: '10.1.2.254' });
+  // Two defaults in one table at different distances: the typed route at 1 and a second one at 254. Both are
+  // candidates for the default, and the distance is what separates them.
+  const env = build(DEFAULT_ROUTE, { secondDefault: '10.1.2.254' });
   const lines = show(env);
   const zero = rowsFor(lines, '0.0.0.0');
   ok(zero.length === 2, 'both defaults are printed', JSON.stringify(zero));
@@ -97,7 +103,7 @@ console.log('Two candidates in one table are both starred, and the distance sepa
     'the typed default is the [1/0] row, via its own next hop',
     zero.filter(function (l) { return /\[1\/0\]/.test(l); })[0]);
   ok(/\b10\.1\.2\.254\b/.test(zero.filter(function (l) { return /\[254\/0\]/.test(l); })[0] || ''),
-    'the configured gateway is the [254/0] row',
+    'the distance-254 default is the [254/0] row',
     zero.filter(function (l) { return /\[254\/0\]/.test(l); })[0]);
   const gwLine = lines.filter(function (l) { return /^Gateway of last resort is/.test(l); })[0] || '';
   ok(gwLine.indexOf('10.1.2.1') !== -1 && gwLine.indexOf('10.1.2.254') === -1,
@@ -123,7 +129,7 @@ console.log('A learned default keeps its own code and takes the star:');
 console.log('');
 console.log('The legend defines the mark the rows use:');
 {
-  const env = build(DEFAULT_ROUTE, { defaultGateway: '10.1.2.254' });
+  const env = build(DEFAULT_ROUTE, { secondDefault: '10.1.2.254' });
   const lines = show(env);
   const legend = legendText(lines);
   const legendLines = legend.split('\n');
@@ -146,7 +152,7 @@ console.log('Every 0.0.0.0/0 row is starred, and nothing else is:');
     { dest: '0.0.0.0', mask: '0.0.0.0', gw: '10.1.2.1', iface: null },
     { dest: '192.0.2.0', mask: '255.255.255.0', gw: '10.1.2.1', iface: null },
     { dest: '172.16.0.0', mask: '255.255.0.0', gw: null, iface: 'Gi1' }
-  ], { defaultGateway: '10.1.2.254' });
+  ], { secondDefault: '10.1.2.254' });
   const rows = env.dev.routesTable();
   const wrong = rows.filter(function (r) {
     const isDefault = r.dest === '0.0.0.0' && r.mask === '0.0.0.0';

@@ -9,6 +9,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **`ip default-gateway` is inert on a box that routes, and a DHCP lease is not it.**
+  With `ip routing` enabled, `show ip route` printed `S*  0.0.0.0/0  [254/0] via <gw>` under the line
+  `Gateway of last resort is not set` - a row no box installs - and `routeTo()` sent uncovered destinations to
+  it, so a lab that configured only `ip default-gateway` forwarded traffic the device drops. The vendor scopes
+  the command to "when IP routing is disabled on a device" ([Cisco IOS IP Routing: Protocol-Independent
+  Configuration Guide, 16.11](https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/iproute_pi/configuration/xe-16-11/iri-xe-16-11-book.pdf);
+  [Catalyst 3750 configuration guide](http://www.cisco.com/c/en/us/td/docs/switches/lan/catalyst3750/software/release/12-2_50_se/configuration/guide/scg/swiprout.pdf)),
+  and operators see it retained but unused ([Cisco Community](https://community.cisco.com/t5/routing/ip-routing-command-on-a-layer-2-switch/td-p/582837)).
+  The gateway now forwards only while routing is off, and the line stays in `show running-config` because the box
+  keeps it. A routing box that takes its address by DHCP still gets a default route at distance 254 from the
+  lease - `S*  0.0.0.0/0  [254/0] via <router>` - which is a different mechanism and stays absent from the file.
+  (`research/ip-default-gateway-when-routing.md`.)
+
 - **`ip route` takes the vendor's fully specified form: interface first, next hop after it.**
   `ip route 10.2.3.0 255.255.255.0 Gi0/0/0 10.1.2.2` was refused as
   `% 10.2.3.0/24: no interface called "10.1.2.2"`, because every word past the fifth was read as a port name

@@ -245,6 +245,10 @@ class Device {
     // lab must not carry one (`arpSeenAt` is here for the same reason). An entry with no instant is not aged.
     this.lldpSeenAt = new Map();
     this.pending = new Map();    // nextHopIp -> [ {egress, frame} ] awaiting ARP
+    // The router a DHCP lease handed this box, when the box routes: it is installed as a default *route* at
+    // distance 254, not as `ip default-gateway` (which is inert while routing is on). Transient, like the lease
+    // it comes from: nothing typed it, so nothing serializes it.
+    this.dhcpGateway = null;
 
     // STP state, populated by Simulator.computeStp()
     this.stp = { blocked: new Set(), states: {}, roles: {} };
@@ -1102,8 +1106,19 @@ class Device {
       }
     }
 
-    // 5. default gateway (hosts / routers)
-    if (!best && this.config.defaultGateway) {
+    // 5. A default handed out by DHCP to a box that routes. This is not `ip default-gateway`: a DHCP client
+    // installs the lease's router as a *default route* at administrative distance 254, which a box shows as
+    // `S*  0.0.0.0/0 [254/0] via <router>` and which is absent from the running-config because a lease put it
+    // there. Kept apart from `config.defaultGateway` (the typed command, inert while routing is on) so a router
+    // with `ip address dhcp` still reaches off-subnet hosts.
+    if (!best && this.isL3() && this.dhcpGateway) {
+      best = { iface: null, via: this.dhcpGateway, type: 'static', prefix: 0, ad: 254 };
+    }
+
+    // 6. default gateway (hosts / L2 switches - `ip default-gateway` is scoped to "when IP routing is
+    // disabled"; on a routing box it is retained in the configuration and steers nothing, so a destination with
+    // no route is unreachable rather than sent to a gateway the box does not use).
+    if (!best && this.config.defaultGateway && !this.isL3()) {
       best = { iface: null, via: this.config.defaultGateway, type: 'default', prefix: 0, ad: 254 };
     }
 
@@ -1366,8 +1381,24 @@ class Device {
         ad: r.ad, asPath: r.asPath
       });
     }
-    if (this.config.defaultGateway) {
+    // `ip default-gateway` is a *host* default, not a route: the vendor's own guide scopes it to "when IP
+    // routing is disabled on a device" (Cisco IOS IP Routing: Protocol-Independent Configuration Guide, 16.11,
+    // "Default Routes"), and the Catalyst 3750 configuration guide's table lists the feature as "IP default
+    // gateway - Disabled" with the step "define a default gateway (router) when IP routing is disabled". On a box
+    // that routes, the command is accepted and kept in the running-config, but it installs no route and no packet
+    // leaves by it - operators hit this as "ip routing broke my default gateway"
+    // (https://community.cisco.com/t5/routing/ip-routing-command-on-a-layer-2-switch/td-p/582837: "While the ip
+    // default-gateway will be retained in the configuration the only time that it will be used is when ip routing
+    // is disabled"). This console printed `S* 0.0.0.0/0 [254/0] via <gw>` for the command on a routing box - a row
+    // no box produces, above the line "Gateway of last resort is not set" that contradicted it. The row appears
+    // only while routing is off, where the gateway is what an L2 box or a host forwards by.
+    if (this.config.defaultGateway && !this.isL3()) {
       rows.push({ code: 'S', dest: '0.0.0.0', mask: '0.0.0.0', gw: this.config.defaultGateway, iface: '-', type: 'default' });
+    }
+    // The lease's router, on a box that routes: `S*  0.0.0.0/0  [254/0] via <router>`, the row a DHCP client
+    // installs and the reason such a line is missing from the running-config (nothing typed it).
+    if (this.isL3() && this.dhcpGateway) {
+      rows.push({ code: 'S', dest: '0.0.0.0', mask: '0.0.0.0', gw: this.dhcpGateway, iface: '-', type: 'static', distance: 254 });
     }
     // Annotate in one pass, so a row cannot reach a surface without its verdict. `checked` says whether the
     // verdict could be computed at all: without a topology there is no cable state, and a row that reports
