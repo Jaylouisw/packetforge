@@ -3,7 +3,7 @@
   "model": "PSW-8-240W-RUG",
   "label": "Peplink PSW-8-240W-RUG",
   "category": "switch",
-  "description": "Rugged industrial 8-port PoE+ SD switch with two 1G SFP cages, 240 W PoE budget.",
+  "description": "Rugged industrial 8-port PoE+ SD switch with two 1G SFP cages and a 90 W PoE budget as shipped (240 W with the optional 180 W PSU).",
   "capabilities": [
     "l2-forward",
     "poe-pse",
@@ -96,5 +96,12 @@
     }
   ],
   "sourceUrl": "https://download.peplink.com/resources/peplink_switch_datasheet.pdf",
-  "notes": "Vendor figures from the Peplink switch datasheet: **8x GE Ports (PoE+), 2x 1G SFP Ports**, 240 W PoE budget. The SFP cages are 1G here, not 10G - this is the rugged access switch, and the SFP+ figures elsewhere in the same datasheet belong to the higher PSW models, which is exactly the confusion that makes row-level verification worth the trouble."
+  "notes": "Vendor figures from the Peplink SD Switch Rugged datasheet (ref sd-switch-rugged-202109-v14, re-exported 2023-11-17): **8x 802.3at (PoE+) GE Ports, 2x SFP Ports** (1G cages, not SFP+), DC Power DIN 2x 54V plus Terminal Block 12V-56V DC, 20 W system power, fanless, -40 to 65 C.\n\nThe PoE budget is the one number the model name gets wrong, and it is the number this catalogue used to take from the name. The 8-port column reads \"20W System, 90W PoE+ Power Budget (supports up to 240W)\", with the footnote \"The bundled PSU provides 90W of PoE power budget. If you require 240W of power budget, please add 180W PSU (ACW-630) to your device.\" The same sheet's Package Content row puts a **120 W** PSU in the box. So a box out of the crate funds 90 W of PoE, not 240 W: 8 x 30 W is the platform's ceiling with the optional supply fitted, and a lab that assumes 240 W will over-commit the switch by 150 W. The 2019 switch datasheet (ref sdswitch-201811-v5) states the identical pair and names the accessory ACW-623 instead of ACW-630; both are 180 W at 54 V.\n\nRecorded as a ceiling the model does not reach rather than silently renamed: the SKU still says 240W, and a reader comparing the two deserves to see why the number differs. research/peplink-psw-poe-budget.md has the quotes, the retailer pages that disagree with each other, and what a bench reading would settle.",
+  "poe": {
+    "budgetW": 90,
+    "standard": "802.3at",
+    "perPortW": 30,
+    "sourceUrl": "https://download.peplink.com/resources/peplink_switch_rugged_datasheet.pdf",
+    "note": "90 W, which is what the box's own supply funds - NOT the 240 W in the model name. Peplink's rugged datasheet (ref sd-switch-rugged-202109-v14) gives the 8-port column as \"20W System, 90W PoE+ Power Budget (supports up to 240W#)\" and footnotes it \"# The bundled PSU provides 90W of PoE power budget. If you require 240W of power budget, please add 180W PSU (ACW-630) to your device.\" The 2019 switch datasheet (ref sdswitch-201811-v5) says the same with the accessory named ACW-623: \"8 ports, 90W power budget (Upgradable to 240W)\" and \"* The bundled PSU provides 90W of PoE+ power budget. Additional ACW-623 (180W PSU) is required to enable up to 240W power budget.\" The Package Content row agrees with the footnote rather than with the name: the 8-port ships with 1x 120W PSU, and 120 W - 20 W system = 100 W of supply, out of which the declared 90 W budget is drawn (the 24-port rugged does the same arithmetic on its 180 W PSU: 180 - 50 = 130 W supply, 120 W budget). 240 W is 8 x 30 W, the full 802.3at class ceiling, and it is only reachable with the extra supply. research/peplink-psw-poe-budget.md."
+  }
 }

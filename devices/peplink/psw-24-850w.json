@@ -225,6 +225,13 @@
       ]
     }
   ],
+  "poe": {
+    "budgetW": 850,
+    "standard": "802.3at",
+    "perPortW": 30,
+    "sourceUrl": "https://download.peplink.com/resources/peplink_switch_ac_datasheet.pdf",
+    "note": "850 W, and here the model name IS the shipped budget: the ordering line reads \"PSW-24-850W PoE enabled (delivers up to 850W) Gigabit (24 ports) and SFP+ (2 ports) switch with redundant power inputs and 3x power supplies\", and the specification row pairs the figure with that supply count - \"850W: 3x Redundant PSU | 50W System, 850W PoE+ Power Budget\". The 2019 sheet prints the same row as \"2-3x Redundant PSU | 50W System, 550W or 850W PoE+ Power Budget\" because the 550 W build is a separate SKU (PSW-24-550W, 2x supplies), not a lower setting of this one. 850 W over 24 ports is 35 W per port average, so 24 PoE+ devices at 30 W leave 130 W spare and a single 60 W device per port is impossible. research/peplink-psw-poe-budget.md."
+  },
   "sourceUrl": "https://download.peplink.com/resources/peplink_switch_datasheet.pdf",
   "notes": "Vendor figures from the Peplink SD switch datasheet: 'PoE enabled (delivers up to 850W) Gigabit **(24 ports) and SFP+ (2 ports)**'. Two things to hold on to: the PoE budget is **850 W for 24 ports**, so powering 24 PoE+ devices at 30 W each (720 W) leaves almost nothing spare and a 60 W device per port is impossible; and these are **SFP+ (10G) cages**, unlike the 1G SFP on the rugged PSW-8 in this catalogue."
 }

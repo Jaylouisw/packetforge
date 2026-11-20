@@ -437,6 +437,13 @@
       ]
     }
   ],
+  "poe": {
+    "budgetW": 800,
+    "standard": "802.3at",
+    "perPortW": 30,
+    "sourceUrl": "https://download.peplink.com/resources/peplink_switch_ac_datasheet.pdf",
+    "note": "800 W, the shipped figure: the ordering line reads \"PSW-48-800W PoE enabled (delivers up to 800W) Gigabit (48 ports) and SFP+ (4 ports) switch with redundant power inputs and 3x power supplies\", and the specification row pairs it with those supplies - \"3x Redundant PSU | 100W System, 800W PoE+ Power Budget\". The 48-port shares 800 W across four times the ports of the 850 W 24-port model, which is 16.6 W per port average: a full 48 x 30 W PoE+ load (1440 W) is 640 W over budget, so the bigger switch powers fewer 30 W devices, not more. research/peplink-psw-poe-budget.md."
+  },
   "sourceUrl": "https://download.peplink.com/resources/peplink_switch_ac_datasheet.pdf",
   "notes": "Vendor figures from the Peplink SD switch datasheet, which prints the 24- and 48-port models side by side: **48x 802.3at (PoE+) GE Ports, 4x SFP+ Ports**, **800 W PoE+ power budget**, 100 W system power, 131 Mpps inter-VLAN routing. **The 48-port model has the smaller budget of the two** - 800 W against the 24-port's 850 W - so a PoE plan cannot assume the bigger switch powers more: 48 ports sharing 800 W is 16 W average."
 }
