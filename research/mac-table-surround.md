@@ -90,10 +90,14 @@ sw#show mac address-table
 
 Vlan    Mac Address         Type        Age     Ports
 ----    -----------         --------    ---     -----
-1       02:00:00:00:01:00   DYNAMIC     0s      Fa0/1
-1       02:00:00:00:02:00   DYNAMIC     -       Fa0/2 (administratively down)
+   1    0200.0000.0100      DYNAMIC     0s      Fa0/1
+   1    0200.0000.0200      DYNAMIC     -       Fa0/2 (administratively down)
 Total Mac Addresses for this criterion: 2
 ```
+
+(The MAC cell is the dotted form every other table here prints, and the Vlan cell is now the device's
+right-aligned field rather than a value in column 0 — both were still in this sample's older shape; see
+[mac-table-vlan-cell.md](mac-table-vlan-cell.md) for the alignment and its captures.)
 
 and filtered, on a port with nothing behind it:
 

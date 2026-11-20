@@ -2228,8 +2228,8 @@ table.
 
 ```
 Vlan    Mac Address         Type        Age     Ports
-1       0200.0000.0100      DYNAMIC     0s      1/1/1
-1       0200.0000.0200      DYNAMIC     140s    1/1/2
+   1    0200.0000.0100      DYNAMIC     0s      1/1/1
+   1    0200.0000.0200      DYNAMIC     140s    1/1/2
 ```
 
 The age is **silence, not a lifetime**: a frame from that address resets it, and a busy host never ages out. The
@@ -2939,32 +2939,39 @@ SW1#show mac address-table
 
 Vlan    Mac Address         Type        Age     Ports
 ----    -----------         --------    ---     -----
-All     0100.0ccc.cccc      STATIC      -       CPU
-All     0100.0ccc.cccd      STATIC      -       CPU
-All     0180.c200.0000      STATIC      -       CPU
-All     0180.c200.0001      STATIC      -       CPU
-All     0180.c200.0002      STATIC      -       CPU
-All     0180.c200.0003      STATIC      -       CPU
-All     0180.c200.0004      STATIC      -       CPU
-All     0180.c200.0005      STATIC      -       CPU
-All     0180.c200.0006      STATIC      -       CPU
-All     0180.c200.0007      STATIC      -       CPU
-All     0180.c200.0008      STATIC      -       CPU
-All     0180.c200.0009      STATIC      -       CPU
-All     0180.c200.000a      STATIC      -       CPU
-All     0180.c200.000b      STATIC      -       CPU
-All     0180.c200.000c      STATIC      -       CPU
-All     0180.c200.000d      STATIC      -       CPU
-All     0180.c200.000e      STATIC      -       CPU
-All     0180.c200.000f      STATIC      -       CPU
-All     0180.c200.0010      STATIC      -       CPU
-All     ffff.ffff.ffff      STATIC      -       CPU
-1       0200.0000.0100      DYNAMIC     0s      Fa0/1
-1       0200.0000.0200      DYNAMIC     140s    Fa0/2 (down: peer shut down)
-20      0200.0000.0900      DYNAMIC     -       Fa0/1 (vlan mismatch)
+ All    0100.0ccc.cccc      STATIC      -       CPU
+ All    0100.0ccc.cccd      STATIC      -       CPU
+ All    0180.c200.0000      STATIC      -       CPU
+ All    0180.c200.0001      STATIC      -       CPU
+ All    0180.c200.0002      STATIC      -       CPU
+ All    0180.c200.0003      STATIC      -       CPU
+ All    0180.c200.0004      STATIC      -       CPU
+ All    0180.c200.0005      STATIC      -       CPU
+ All    0180.c200.0006      STATIC      -       CPU
+ All    0180.c200.0007      STATIC      -       CPU
+ All    0180.c200.0008      STATIC      -       CPU
+ All    0180.c200.0009      STATIC      -       CPU
+ All    0180.c200.000a      STATIC      -       CPU
+ All    0180.c200.000b      STATIC      -       CPU
+ All    0180.c200.000c      STATIC      -       CPU
+ All    0180.c200.000d      STATIC      -       CPU
+ All    0180.c200.000e      STATIC      -       CPU
+ All    0180.c200.000f      STATIC      -       CPU
+ All    0180.c200.0010      STATIC      -       CPU
+ All    ffff.ffff.ffff      STATIC      -       CPU
+   1    0200.0000.0100      DYNAMIC     0s      Fa0/1
+   1    0200.0000.0200      DYNAMIC     140s    Fa0/2 (down: peer shut down)
+  20    0200.0000.0900      DYNAMIC     -       Fa0/1 (vlan mismatch)
 Total Mac Addresses for this criterion: 23
 ```
 
+* **The Vlan cell is a right-aligned field, not a label in column 0.** A learnt entry in VLAN 1 prints `   1`
+  and the reserved block's `All` prints as ` All` — the word is a value inside the same four-character field, and
+  its right edge sits under the last dash of the heading's `----` rule. The console's `Age` column widens the
+  field to eight characters, but the value keeps the device's alignment (right edge in column 3), so the MAC
+  column still begins in column 8. A box renders this in a fixed-width field and the browser collapses the
+  leading space when a sample is pasted from Cisco's HTML, which is how `All` came to be printed in column 0
+  here; `research/mac-table-vlan-cell.md` has the raw captures.
 * **The table is titled, ruled and counted, the way the device prints it.** `Total Mac Addresses for this
   criterion: N` counts the rows just printed — so under `interface <port>` it is that port's entries, not the
   switch's, and a view that matched nothing reads `…: 0` rather than losing the line. The underline under the
@@ -3000,7 +3007,7 @@ Total Mac Addresses for this criterion: 23
 
   Vlan    Mac Address         Type        Age     Ports
   ----    -----------         --------    ---     -----
-  1       0200.0000.0100      DYNAMIC     0s      Port 1
+     1    0200.0000.0100      DYNAMIC     0s      Port 1
   Total Mac Addresses for this criterion: 1
   ```
 

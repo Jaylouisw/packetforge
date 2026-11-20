@@ -44,8 +44,11 @@ function body(lines) {
   const total = lines.findIndex(function (l) { return /^Total Mac Addresses for this criterion:/.test(l); });
   return lines.slice(head + 2, total < 0 ? lines.length : total).filter(function (l) { return l.trim() !== ''; });
 }
-const reservedRows = function (lines) { return body(lines).filter(function (l) { return /^All\s/.test(l); }); };
-const learnedRows = function (lines) { return body(lines).filter(function (l) { return /^\d+\s/.test(l); }); };
+// A row starts with the Vlan cell, which is a right-aligned four-character field: ` All` for the reserved
+// block, `   1` for a learned address (research/mac-table-vlan-cell). So the row begins with spaces before
+// either word, and the patterns allow for them.
+const reservedRows = function (lines) { return body(lines).filter(function (l) { return /^\s*All\s/.test(l); }); };
+const learnedRows = function (lines) { return body(lines).filter(function (l) { return /^\s*\d+\s/.test(l); }); };
 const totalOf = function (lines) {
   const last = lines[lines.length - 1];
   const m = last.match(/^Total Mac Addresses for this criterion: (\d+)$/);
@@ -124,7 +127,7 @@ console.log('The total counts them, and the learned rows follow:');
   ok(learnedRows(out).length === 2, 'the two hosts are still listed', String(learnedRows(out).length));
   ok(totalOf(out) === 22, 'twenty reserved rows plus two learned ones is 22', String(totalOf(out)));
   const all = body(out);
-  ok(reservedRows(out).length === 20 && all.slice(20).every(function (l) { return /^\d+\s/.test(l); }),
+  ok(reservedRows(out).length === 20 && all.slice(20).every(function (l) { return /^\s*\d+\s/.test(l); }),
     'the reserved block is above every learned row, never interleaved', all.slice(19).join(' | '));
   const first = all[20].trim().split(/\s+/);
   ok(first[0] === '1' && first[2] === 'DYNAMIC' && /^Fa0\/[12]$/.test(first[4]),

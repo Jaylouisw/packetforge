@@ -59,6 +59,23 @@ function consoleIsALine(name) {
 
 function pad(s, w) { s = String(s); return s + ' '.repeat(Math.max(0, w - s.length)); }
 
+// The `Vlan` cell of `show mac address-table` is a four-character field with its value **right-aligned**:
+// a learned entry in VLAN 1 prints as `   1`, VLAN 87 as `  87`, and the reserved block's `All` as ` All`
+// - the word is a value in the same field, not a left-hand label. Two machine-recorded Catalyst sessions
+// keep the leading spaces that a pasted web sample loses: ntc-templates'
+// `cisco_ios_show_mac-address-table4.raw` and `...table13.raw` both print
+// `Vlan    Mac Address       Type        Ports` over ` All    0100.0ccc.cccc    STATIC      CPU` and
+// `   1    ...` (https://github.com/networktocode/ntc-templates/tree/master/tests/cisco_ios/show_mac-address-table).
+//
+// The console's table carries one column the vendor's does not (`Age`), so its Vlan column is eight characters
+// wide rather than four. The value keeps the device's alignment inside that column - right-aligned to the same
+// right edge, column 3, that the four-dash rule of the heading marks - so the field grew to the right and the
+// cell did not change sides.
+function macVlanCell(v) {
+  const s = String(v);
+  return ' '.repeat(Math.max(0, 4 - s.length)) + pad(s, 8 - Math.max(0, 4 - s.length));
+}
+
 // The reserved entries a Catalyst has in its forwarding table before anyone configures anything, and the reason a
 // student's first `show mac address-table` on real hardware is not the empty table this console used to print.
 // Every row is `All` in the Vlan column (they belong to no VLAN), `STATIC`, and `CPU` in Ports, because the box
@@ -6940,7 +6957,7 @@ class CliSession {
       const reserved = (only || !(dev.category === 'switch' || dev.category === 'l3-switch'))
         ? [] : RESERVED_MAC_TABLE_ROWS;
       for (const mac of reserved) {
-        out.push(pad('All', 8) + pad(mac, 20) + pad('STATIC', 12) + pad('-', 8) + 'CPU');
+        out.push(macVlanCell('All') + pad(mac, 20) + pad('STATIC', 12) + pad('-', 8) + 'CPU');
       }
       let rows = dev.macRows(this.topo, nowMs);
       // The filter matches the port the table names *and* the member a bundled frame arrived on: a real box
@@ -6957,7 +6974,7 @@ class CliSession {
         // Where the entry points, and whether that is still somewhere a frame for this VLAN can go. A MAC learned
         // before its port was shut or moved says why it cannot be the way to that address (#1255).
         const age = (r.age === null || r.age === undefined) ? '-' : (r.age + 's');
-        out.push(pad(r.vlan, 8) + pad(net.formatMac(r.mac), 20) + pad('DYNAMIC', 12) + pad(age, 8) +
+        out.push(macVlanCell(r.vlan) + pad(net.formatMac(r.mac), 20) + pad('DYNAMIC', 12) + pad(age, 8) +
           r.port + (r.note ? ' ' + r.note : ''));
       }
       // The count is of the rows this view just printed - which is what the device's sentence counts: "for this

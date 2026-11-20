@@ -81,9 +81,11 @@ console.log('The count at the end is of the rows just printed:');
   // counts them (research/mac-table-reserved-rows.md) - so the total over two learned entries is 22.
   ok(out[out.length - 1] === 'Total Mac Addresses for this criterion: 22',
     'the whole table ends with its total, reserved rows included', JSON.stringify(out[out.length - 1]));
-  const rows = out.filter(function (l) { return /^\d+\s/.test(l); }).length;
+  const rows = out.filter(function (l) { return /^\s*\d+\s/.test(l); }).length;
   ok(rows === 2, 'and the learned rows above it are the two the hosts sent', String(rows));
-  const reserved = out.filter(function (l) { return /^All\s/.test(l); });
+  // The Vlan cell is a right-aligned four-character field, so a reserved row reads ` All`, not `All`
+  // (research/mac-table-vlan-cell.md).
+  const reserved = out.filter(function (l) { return /^\s*All\s/.test(l); });
   ok(reserved.length === 20 && /CPU$/.test(reserved[0]),
     'twenty reserved CPU rows precede them, and the total counts those too',
     String(reserved.length));
@@ -91,7 +93,7 @@ console.log('The count at the end is of the rows just printed:');
   const filtered = lines(env, 'show mac address-table interface Fa0/1');
   ok(filtered[filtered.length - 1] === 'Total Mac Addresses for this criterion: 1',
     'a filtered view counts the filter, not the box', JSON.stringify(filtered[filtered.length - 1]));
-  ok(filtered.filter(function (l) { return /^\d+\s/.test(l); }).length === 1,
+  ok(filtered.filter(function (l) { return /^\s*\d+\s/.test(l); }).length === 1,
     'which is the one row it printed');
   // The title and the rule travel with the filter too: the device reprints the table's furniture.
   ok(filtered[0] === '          Mac Address Table' && filtered[1] === RULE,

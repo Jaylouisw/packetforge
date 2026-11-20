@@ -24,6 +24,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   the keyword. `test/show-ip-ospf-interface-brief.test.js` (16 checks) pins the refusal, the header at the
   measured widths, four abbreviations and the three views that already worked
   ([research/show-ip-ospf-interface-brief.md](research/show-ip-ospf-interface-brief.md)).
+- **`show mac address-table` puts the VLAN id in a right-aligned field, not in column 0.** The first column is a
+  four-character field whose right edge is the last dash of the heading's `----` rule: a learned entry in VLAN 1
+  prints `   1`, VLAN 87 `  87`, and the reserved block's `All` prints ` All` — the word is a value in the same
+  field, not a left-hand label. Machine-recorded Catalyst sessions keep the spaces that Cisco's HTML collapses
+  (` All    0100.0ccc.cccc    STATIC      CPU` / `   1    30a3.30a3.a1c3    DYNAMIC     Po1`
+  [raw capture](https://github.com/networktocode/ntc-templates/blob/master/tests/cisco_ios/show_mac-address-table/cisco_ios_show_mac-address-table4.raw),
+  a second capture with a two-digit id, and the NetAcad 7.2.7 lab's PDF). This table printed every id in column 0,
+  the shape a browser-wrapped paste shows, so the one column an operator scans for an entry's VLAN was in the
+  wrong place on every row (`research/mac-table-vlan-cell.md`). The console's own `Age` column widens the field to
+  eight characters, so the value keeps the device's right edge (column 3) and the MAC cell keeps column 8
+  (`test/mac-table-vlan-cell.test.js`, 15 checks).
 - **`show vlan brief` names an access EtherChannel by the bundle, not by its members.** A working two-member
   bundle in VLAN 10 printed `Fa0/2, Fa0/3` in the Ports cell — the cables a frame might cross — while
   `show etherchannel summary` on the same box printed `Po1(SU)` over those two members. An IOU switch with

@@ -62,7 +62,9 @@ function lab(mode) {
 
 function rows(env, dev, cmd) {
   return ((new CliSession(dev, env.t, env.sim).run(cmd || 'show mac address-table').output) || [])
-    .map(String).filter(function (l) { return /^\d+\s+[0-9a-f]{4}\./.test(l); });
+    // The Vlan cell is a right-aligned four-character field, so a row begins with spaces before its id
+    // (research/mac-table-vlan-cell.md).
+    .map(String).filter(function (l) { return /^\s*\d+\s+[0-9a-f]{4}\./.test(l); });
 }
 function cell(line, i) {
   return String(line || '').trim().split(/\s+/)[i];

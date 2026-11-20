@@ -136,7 +136,9 @@ console.log('A filter the command accepts is applied, not dropped');
   const one = show(t, 'sw1', 'show mac address-table interface Port 1', sim);
   ok(/Port 1/.test(one), 'the filtered table holds Port 1', one);
   ok(!/Port 2/.test(one), 'and not Port 2', one);
-  ok(one.split('\n').filter(function (l) { return /^\d+\s+\S+\s+DYNAMIC\s/.test(l); }).length === 1,
+  // The Vlan cell is a right-aligned four-character field, so the row starts with spaces before the id
+  // (research/mac-table-vlan-cell.md).
+  ok(one.split('\n').filter(function (l) { return /^\s*\d+\s+\S+\s+DYNAMIC\s/.test(l); }).length === 1,
     'it is one row under a header', one.replace(/\n/g, ' | '));
 
   const intForm = show(t, 'sw1', 'show mac address-table int Port 2', sim);
