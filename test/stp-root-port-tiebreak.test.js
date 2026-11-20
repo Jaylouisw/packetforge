@@ -143,8 +143,8 @@ console.log('\nwhat an operator sees: `show spanning-tree` on the non-root bridg
   const row = function (port) {
     return out.filter(function (l) { return l.trim().split(/\s+/)[0] === port; })[0] || '';
   };
-  ok(/root\s+forwarding/.test(row('Fa0/2')), 'sw2 lists Fa0/2 as root, forwarding', row('Fa0/2'));
-  ok(/alternate\s+blocking/.test(row('Fa0/1')), 'sw2 lists Fa0/1 as alternate, blocking', row('Fa0/1'));
+  ok(/Root\s+FWD/.test(row('Fa0/2')), 'sw2 lists Fa0/2 as Root, FWD', row('Fa0/2'));
+  ok(/Altn\s+BLK/.test(row('Fa0/1')), 'sw2 lists Fa0/1 as Altn, BLK', row('Fa0/1'));
 }
 
 console.log('\n' + passed + ' passed, ' + failed + ' failed');

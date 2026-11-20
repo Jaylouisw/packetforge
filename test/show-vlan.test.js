@@ -249,7 +249,7 @@ console.log('`show spanning-tree` distinguishes "no loop" from "nothing has look
   const ran = ((new CliSession(env.sw, env.t, env.sim).run('show spanning-tree').output) || [])
     .map(String).join('\n');
   ok(!/Not measured/.test(ran), 'after a run it reports what it computed', ran);
-  ok(/Port\s+Role\s+State/.test(ran), 'with the per-port table', ran);
+  ok(/Port\s+Role\s+Sts/.test(ran), 'with the per-port table', ran);
 }
 
 console.log('');
@@ -265,13 +265,13 @@ console.log('A blocking port is reported as blocking, and its frames are really 
   const tables = [s1, s2].map(function (d) {
     return ((new CliSession(d, t, sim).run('show spanning-tree').output) || []).map(String).join('\n');
   }).join('\n');
-  const blocking = /blocking/.test(tables);
+  const blocking = /\bBLK\b/.test(tables);
   ok(blocking, 'one of the two switches reports a blocking port for the loop', tables);
   const blockedPorts = [s1, s2].some(function (d) {
     return d.stp && d.stp.states && Object.keys(d.stp.states).some(function (p) { return d.stp.states[p] === 'blocking'; });
   });
   ok(blockedPorts, 'and the device model has the same port blocked, so the table is not decoration');
-  ok(/traffic dropped/.test(tables), 'the row says what blocking means for traffic', tables);
+  ok(/\bAltn\s+BLK\b/.test(tables), 'the row carries the cell a box prints for a blocked alternate, Altn BLK', tables);
 }
 
 console.log('\n' + passed + ' passed, ' + failed + ' failed');

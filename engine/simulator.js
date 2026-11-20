@@ -3589,9 +3589,9 @@ class Simulator {
     // Every refusal is kept with its port, because when nothing is left the frame's fate has to be explained and
     // the three refusals are three different answers. It used to be explained as "no egress ports in VLAN <vid>"
     // whatever had refused, so a frame that died because the only other port was blocked by the spanning tree was
-    // reported as a VLAN problem - on a box where `show spanning-tree` already said "(traffic dropped)" for that
-    // same port, and where the port was in the VLAN all along. The words a counter prints are what an operator
-    // acts on, so they have to name the door that was actually shut.
+    // reported as a VLAN problem - on a box where `show spanning-tree` already printed the port as `Altn BLK`
+    // (`blocking (traffic dropped)` in the detail view), and where the port was in the VLAN all along. The words
+    // a counter prints are what an operator acts on, so they have to name the door that was actually shut.
     const usable = [];
     const refused = [];
     for (const name of candidates) {
@@ -3691,7 +3691,8 @@ class Simulator {
   //
   // A port the spanning tree blocks is not a port outside the VLAN, and the two answers send an operator to
   // different places: the VLAN one has them re-checking membership that was never wrong, while the tree one points
-  // at the port `show spanning-tree` already prints as "blocking (traffic dropped)". So the tree is named first,
+  // at the port `show spanning-tree` already prints as `Altn BLK` (detail view: `blocking (traffic dropped)`).
+  // So the tree is named first,
   // ahead of a VLAN refusal, because a refusal by the tree holds however the ports are configured.
   // Why this port may not carry a frame out in this VLAN, or null if it may.
   //

@@ -42,7 +42,7 @@ function star(ports) {
 
 function rows(session) {
   const out = session.run('show spanning-tree').output.map(String);
-  const head = out.indexOf('Port          Role          State');
+  const head = out.indexOf('Port          Role          Sts');
   return head < 0 ? [] : out.slice(head + 1).filter(Boolean).map(function (l) { return l.split(/\s+/)[0]; });
 }
 

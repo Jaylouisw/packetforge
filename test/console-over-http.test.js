@@ -10,7 +10,7 @@
 //     API even though the cable endpoint reports a schedule and takes `atMs`;
 //   * `show spanning-tree` printed `dev.stp`, which is written by whichever Simulator computed it last. A console
 //     asked at instant 25000 printed the tree from an earlier pass at Infinity, calling a port that was still
-//     listening "forwarding".
+//     listening "FWD" (the table's `LTN`/`LRN`/`FWD` cells).
 const fs = require('fs');
 const os = require('os');
 const path = require('path');
@@ -135,9 +135,9 @@ const HOST = specs.find(function (s) { return /Raspberry Pi 5/.test(s.model); })
         return ((r.body.output || '').split('\n').filter(function (l) { return /1\/1\/1/.test(l); })[0] || '').trim();
       };
       // 20000 + listening + learning + forwarding delays: at 25000 the port cannot be forwarding yet.
-      ok(/listening|learning/.test(lineOf(during)),
+      ok(/\bLTN\b|\bLRN\b/.test(lineOf(during)),
         'at 25000 the port is still coming up', JSON.stringify(lineOf(during)));
-      ok(/forwarding/.test(lineOf(after)),
+      ok(/\bFWD\b/.test(lineOf(after)),
         'and asked with no instant, once everything has settled, it forwards', JSON.stringify(lineOf(after)));
       ok(during.body.convergence.fromMs === 20000,
         'the answer says when the board last changed', String(during.body.convergence && during.body.convergence.fromMs));
@@ -153,7 +153,7 @@ const HOST = specs.find(function (s) { return /Raspberry Pi 5/.test(s.model); })
       };
       ok(a.body.runAtMs === 25000 && b.body.runAtMs === null,
         'each request names its own instant', JSON.stringify([a.body.runAtMs, b.body.runAtMs]));
-      ok(/listening|learning/.test(lineOf(a)) && /forwarding/.test(lineOf(b)),
+      ok((/\bLTN\b|\bLRN\b/.test(lineOf(a))) && /\bFWD\b/.test(lineOf(b)),
         'and the answers differ accordingly, in the same session', JSON.stringify([lineOf(a), lineOf(b)]));
     }
   } finally {

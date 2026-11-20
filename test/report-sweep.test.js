@@ -154,7 +154,7 @@ console.log('A root is named by something a person can act on');
   ok(/this bridge is the root/.test(otherOut) === false, 'a non-root does not claim to be one', otherOut.split('\n')[1]);
   ok(/root bridge core-a priority/.test(otherOut), 'and names the root by its hostname, with its priority',
     otherOut.split('\n')[1]);
-  ok(/\(traffic dropped\)/.test(otherOut), 'and the blocked port still says what it does to a frame', otherOut);
+  ok(/\bAltn\s+BLK\b/.test(otherOut), 'and the blocked port carries the cells a box prints: Altn BLK', otherOut);
 }
 
 console.log('');

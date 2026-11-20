@@ -6731,11 +6731,15 @@ class CliSession {
           const m = /^lag-(\d+)$/.exec(String(name));
           return m ? lagLib.portChannelName(m[1]) : String(name);
         };
-        out.push('Port          Role          State');
+        // The two cells are the device's abbreviations, not its detail-view sentences: a box's table prints
+        // `Fa0/16  Desg FWD 19  128.18  P2p` and keeps `designated forwarding` for `show spanning-tree detail`,
+        // where the port is the subject of a sentence. `stpRoleCell`/`stpStateCell` hold the mapping, so the
+        // console cannot learn a second spelling, and the payload's sentence (`stpPortText`) stays the words a
+        // tooltip quotes. research/stp-port-table-role-and-sts.md.
+        out.push('Port          Role          Sts');
         for (const n of names) {
-          const role = (st.roles || {})[n] || '-';
-          out.push(pad(portLabel(n), 14) + pad(role, 14) + st.states[n] +
-            (st.states[n] === 'blocking' ? '   (traffic dropped)' : ''));
+          out.push(pad(portLabel(n), 14) + pad(stpLib.stpRoleCell((st.roles || {})[n] || '-'), 14) +
+            stpLib.stpStateCell(st.states[n]));
         }
       }
     } else if (what === 'etherchannel') {

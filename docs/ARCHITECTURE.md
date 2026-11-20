@@ -640,10 +640,13 @@ The console said so plainly:
 
 ```
 s1> show spanning-tree
-Port          Role          State
-Fa0/1         root          forwarding
-Fa0/2         alternate     blocking   (traffic dropped)
+Port          Role          Sts
+Fa0/1         Root          FWD
+Fa0/2         Altn          BLK
 ```
+
+(The table prints the device's cells; at the time of the bug it spelled them out as
+`alternate  blocking  (traffic dropped)`, and that sentence is still the payload's tooltip wording.)
 
 The board drew `Fa0/2` exactly like `Fa0/1`: green, patched, healthy. The one rule all
 three views ask — `portState()` in `web/faceplate.js` — knew about a shut port, an unplugged

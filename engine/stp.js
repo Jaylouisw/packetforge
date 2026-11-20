@@ -367,14 +367,43 @@ function runStp(input) {
 
 // The words for one port's spanning-tree state, in one place (#1441).
 //
-// `show spanning-tree` printed `blocking   (traffic dropped)` for a port the tree had shut, and the board painted
-// the same port green: `portState()` in the faceplate - the single rule the canvas, the panel and the inspector all
-// ask - knew about shut ports, unplugged sockets, link-down cables and a shut peer, and nothing about the tree. So
-// the one view an operator looks at when a link will not pass traffic said the port was fine, and the console said
-// the frame was dropped. The sentence is written here so both surfacing paths print the same words.
+// The board painted a port the tree had shut green: `portState()` in the faceplate - the single rule the
+// canvas, the panel and the inspector all ask - knew about shut ports, unplugged sockets, link-down cables
+// and a shut peer, and nothing about the tree. The sentence is the detail view's voice - a box says
+// `Port 1 (FastEthernet0/1) of VLAN0001 is alternate blocking` - and is what the tooltip and the payload
+// quote. The `show spanning-tree` table prints the cells instead (`Altn BLK`), which is the same verdict in
+// the words that view uses; `stpRoleCell`/`stpStateCell` below own that spelling.
 function stpPortText(state) {
   if (state === 'blocking') return 'blocking (traffic dropped)';
   return String(state);
+}
+
+// The port table's two cells, which a box abbreviates and this console used to spell out.
+//
+// `show spanning-tree` prints `Fa0/16  Desg FWD 19  128.18  P2p` - the role as four or five letters and the
+// state as three - while `show spanning-tree detail` is where the long words live, because there the port is
+// the subject of a sentence (`Port 1 (FastEthernet0/1) of VLAN0001 is designated forwarding`). Both spellings
+// are the device's, in different views, and the payload's sentence (`stpPortText`, above) is the detail view's
+// voice: it is what a tooltip says about the port, not what a table cell says. This console printed the
+// sentence in the cell and had no other word, so a pasted table read `Fa0/1  alternate  blocking  (traffic
+// dropped)` where every capture reads `Fa0/1  Altn BLK`. research/stp-port-table-role-and-sts.md has the
+// captures, and records the half still open (Cost, `Prio.Nbr` and Type are columns this table does not print).
+//
+// Only the roles and states this model can put in the table are mapped. The states are four, not two: a
+// console asked while the tree is converging prints `listening`/`learning` from `convergence.js` (the port is
+// between the election and forwarding), and a box calls those `LTN`/`LRN` - two of the seven `Sts` values the
+// Catalyst 9300 command reference lists. A word that is not here is returned unchanged rather than invented:
+// `BKN*` (bridge assurance inconsistent) and `DIS` are real cells this model can never print, and a mapping
+// for them would be a rule with no fact behind it.
+const STP_ROLE_CELLS = { root: 'Root', designated: 'Desg', alternate: 'Altn' };
+const STP_STATE_CELLS = { forwarding: 'FWD', blocking: 'BLK', listening: 'LTN', learning: 'LRN' };
+function stpRoleCell(role) {
+  const key = String(role);
+  return Object.prototype.hasOwnProperty.call(STP_ROLE_CELLS, key) ? STP_ROLE_CELLS[key] : key;
+}
+function stpStateCell(state) {
+  const key = String(state);
+  return Object.prototype.hasOwnProperty.call(STP_STATE_CELLS, key) ? STP_STATE_CELLS[key] : key;
 }
 
 module.exports = {
@@ -383,6 +412,8 @@ module.exports = {
   SHORT_PATH_COST,
   costForSpeedMbps,
   validateBridgePriority,
+  stpRoleCell,
+  stpStateCell,
   stpPortText,
   comparePortIds,
   runStp

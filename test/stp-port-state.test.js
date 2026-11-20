@@ -139,21 +139,23 @@ function request(port, method, urlPath, body) {
       JSON.stringify((s.runtime.r9 || {}).stp));
 
     console.log('');
-    console.log('The console and the payload use the same words:');
+    console.log('The console prints the device table cells; the payload keeps the detail-view sentence:');
     const row = (await conf(shut.dev, ['show spanning-tree'])).body.lines.join('\n');
     const rowLine = row.split('\n').filter(function (l) { return l.indexOf(shut.port) === 0; })[0] || '';
-    ok(/blocking\s+\(traffic dropped\)/.test(rowLine),
-      '`show spanning-tree` prints a row for that port saying the traffic is dropped', rowLine);
-    ok(rowLine.replace(/\s+/g, ' ').indexOf(shut.row.text) !== -1,
-      'and the payload\'s sentence appears in that row word for word',
-      rowLine.replace(/\s+/g, ' ') + ' vs ' + shut.row.text);
+    ok(/\bAltn\s+BLK\b/.test(rowLine),
+      '`show spanning-tree` prints `Altn BLK` for that port, the cells a Cisco table prints', rowLine);
+    ok(!/traffic dropped/.test(rowLine),
+      'and no `(traffic dropped)` note, a sentence no device table carries', rowLine);
+    ok(shut.row.text === 'blocking (traffic dropped)',
+      'while the payload keeps the detail view\'s sentence, `blocking (traffic dropped)`',
+      String(shut.row && shut.row.text));
 
     console.log('');
     console.log('The one rule every view asks now takes the tree into account:');
     const blockedVerdict = faceplate.portState({ enabled: true, cabled: true, blocked: true });
     ok(blockedVerdict.state === 'blocked', 'a cabled, up, blocked port is not reported as up', JSON.stringify(blockedVerdict));
     ok(faceplate.portStateText({ enabled: true, cabled: true, blocked: true }) === 'blocking (traffic dropped)',
-      'the tooltip sentence is the console\'s sentence',
+      'the tooltip sentence is the detail view\'s sentence',
       faceplate.portStateText({ enabled: true, cabled: true, blocked: true }));
     ok(blockedVerdict.state !== 'down',
       'a blocked port is not painted as a fault: a redundant lab blocks ports by design', JSON.stringify(blockedVerdict));

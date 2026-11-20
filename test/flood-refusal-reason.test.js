@@ -4,7 +4,8 @@
 // `_forwardL2()` filters its flood candidates - blocked ports, ports outside the VLAN, the ingress port-channel -
 // and when nothing was left it emitted one sentence whatever had refused: `no egress ports in VLAN <vid>`. On a
 // switch whose only other port the tree had blocked, that sentence is false twice over. The port is *in* the VLAN;
-// and the same box already answers `show spanning-tree` with `Fa0/4  alternate  blocking  (traffic dropped)`.
+// and the same box already answers `show spanning-tree` with `Fa0/4  Altn  BLK` (the detail view's
+// `alternate blocking` sentence is the tooltip's, not the table's).
 //
 // Two surfaces on one box telling an operator different stories, and the counter is the one that gets acted on: it
 // says VLAN, so the VLAN is re-checked, and the VLAN was never the problem. It is also the sentence `_lastDiscard()`
@@ -74,9 +75,9 @@ const A = (function () {
 })();
 
 ok(A.pinged, 'the ping itself still works (the tree only cut the redundant path)');
-ok(/alternate\s+blocking/.test(A.tree), 'the premise: s3 prints one port as alternate/blocking');
+ok(/\bAltn\s+BLK\b/.test(A.tree), 'the premise: s3 prints one port as Altn/BLK');
 
-const blockedPort = (A.tree.match(/(Fa\d+\/\d+)\s+alternate\s+blocking/) || [])[1];
+const blockedPort = (A.tree.match(/(Fa\d+\/\d+)\s+Altn\s+BLK/) || [])[1];
 ok(!!blockedPort, 'the blocked port is named in `show spanning-tree`', blockedPort);
 
 ok(A.drops.length === 1, 'exactly one frame was lost at s3 (the redundant copy)', 'drops=' + A.drops.length);
@@ -100,7 +101,7 @@ ok((A.counters.drops.byReason || {})['no egress ports: spanning tree blocks Fa0/
   'and counts it once, not once per blocked candidate');
 
 // The same box, both surfaces, one story: the sentence the counter uses names a port the tree table calls blocking.
-ok(new RegExp(blockedPort + '\\s+alternate\\s+blocking[\\s\\S]*no egress ports: spanning tree blocks ' + blockedPort)
+ok(new RegExp(blockedPort + '\\s+Altn\\s+BLK[\\s\\S]*no egress ports: spanning tree blocks ' + blockedPort)
   .test(A.tree + '\n' + A.ifaces),
   'the two surfaces on this box point at the same port');
 

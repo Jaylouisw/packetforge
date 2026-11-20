@@ -27,7 +27,7 @@ Modes and their prompts:
 | `show arp` | ARP cache: the neighbours it has heard, with an age and the port each was heard on and whether that port can still carry a frame, plus a local row (age `-`) for every interface holding an IPv4 address |
 | `show mac address-table` | MAC table (switches), per VLAN, with an age per entry and stale entries marked, the box's twenty reserved `All … CPU` rows above the learned ones, titled and ruled as the device prints it and closed by `Total Mac Addresses for this criterion: N`; an address learned through a bundle is named on the port-channel (`Po1`), as the device names it (`research/mac-table-port-channel-name.md`) |
 | `show vlan` / `show vlan brief` | VLAN table: one row per VLAN in the VLAN database, with the **access** ports in it - a trunk port carries the VLAN and appears in no row - and the four reserved defaults (1002-1005) a switch has from boot. `show vlan` is the full view: it then prints the media table (`Type`, `SAID`, `MTU`, `Stp`, `Trans1/2`), the empty `Remote SPAN VLANs` section and the empty private-VLAN table; `brief` stops after the first table |
-| `show spanning-tree` | per-port STP role and state, the bridge priority and the elected root, or "not measured" when nothing has run |
+| `show spanning-tree` | per-port STP role and state in the table's own cells (`Root`/`Desg`/`Altn`, `FWD`/`BLK`/`LTN`/`LRN`), the bridge priority and the elected root, or "not measured" when nothing has run; the detail view's `alternate blocking` sentence is the payload's tooltip wording, not a cell (`research/stp-port-table-role-and-sts.md`) |
 | `show etherchannel summary` | the device's own summary: the nine-line flag key, both counts, `Po<N>(SU)` per group, LAG members `(P)` bundled, `(I)` stand-alone or `(D)` unbundled, with the reason; a channel-group number in front of the keyword keeps that group's row only, and leaves both counts as the box's totals |
 | `show lldp` | the protocol's status block: `Global LLDP Information:` with `Status: ACTIVE`, the 30 s advertisement interval, the 120 s hold time it advertises and the 2 s reinitialisation delay - the four lines a Catalyst prints, so "running with nothing heard" is distinguishable from "off", which only `show lldp neighbors` used to look like |
 | `show lldp neighbors` | LLDP neighbours, with the local port marked when it can no longer carry, and each row listed only for as long as the hold time its neighbour advertised |
@@ -2319,10 +2319,16 @@ pools first, so a restored lab translates the same packets it did before.
 ```
 Spanning tree enabled protocol ieee
   Bridge priority 4096 (this bridge is the root), root bridge core-sw1 priority 4096
-Port          Role          State
-Fa0/1         designated    forwarding
-Fa0/2         root          blocking   (traffic dropped)
+Port          Role          Sts
+Fa0/1         Desg          FWD
+Fa0/2         Altn          BLK
 ```
+
+The `Role` and `Sts` cells are the device's table cells, not its detail view: a box prints `Root`, `Desg`,
+`Altn` and `FWD`, `BLK` (plus `LTN`/`LRN` while the tree is still converging), and saves
+`designated forwarding` for `show spanning-tree detail`. The detail sentence is still what the runtime payload
+and the port tooltip say, because there a sentence is the right shape; the table uses the words a table uses
+(`research/stp-port-table-role-and-sts.md`).
 
 The header names the **bridge priority** and the **root bridge the election chose**. Without it the report
 described a tree but not why it had that shape: priority decides the election before MAC address does, so two

@@ -5,15 +5,17 @@
 // `engine/segment.js`), which is the right shape: the tree really does see one port. The CLI printed that key as
 // the port's name, so a switch with a bundle answered:
 //
-//   Port          Role          State
-//   lag-1         designated    forwarding
+//   Port          Role          Sts
+//   lag-1         Desg          FWD
 //
 // No device prints `lag-1`. A Cisco summary table names the bundle `Po1` in the Interface column, at every
 // generation and on every platform whose output was read: `Po1 Root FWD 100000 128.65 P2p` (Catalyst 2950),
 // `Po1 Desg FWD 10000 128.3433 P2p` (Catalyst 9600, Cisco doc 221588), `Po1 Desg FWD 20000 128.833 P2p`
 // (Cisco's STP troubleshooting guide) and `Po1 Root FWD 9 128.27 P2p` (Cisco Learning Network). The long form
 // belongs to prose, not to this cell: the same captures print `Port 27 (Port-channel1) of VLAN0001 is root
-// forwarding` in the detail view, where the name is the subject of a sentence.
+// forwarding` in the detail view, where the name is the subject of a sentence. The role and state cells are
+// the device's abbreviations too - `Desg`, `FWD`, `Altn`, `BLK` - and `stpRoleCell()`/`stpStateCell()` own that
+// mapping for every view (`research/stp-port-table-role-and-sts.md`).
 //
 // `engine/lag.js` already owns both spellings - `portChannelName()` for a cell, `portChannelIfaceName()` for a
 // subject - and the MAC table and `show etherchannel summary` take their `Po1` from it. This suite pins the third
@@ -22,6 +24,7 @@
 const path = require('path');
 const { CliSession } = require('../engine/cli');
 const { Topology, Simulator, runCommands } = require('../engine');
+const stpLib = require('../engine/stp');
 const { loadCatalog } = require('../devices/registry');
 
 let passed = 0, failed = 0;
@@ -33,9 +36,9 @@ function ok(cond, msg, detail) {
 const catalog = loadCatalog(path.join(__dirname, '..', 'devices')).filter(function (s) { return !s.error; });
 const SWITCH = catalog.filter(function (s) { return s.model === 'generic-switch'; })[0];
 
-// The Port column's rows, as the console printed them: name, role, state and the optional dropped-traffic note.
+// The Port column's rows, as the console printed them: name, role cell, state cell.
 function portRows(lines) {
-  const at = lines.indexOf('Port          Role          State');
+  const at = lines.indexOf('Port          Role          Sts');
   if (at === -1) return null;
   return lines.slice(at + 1);
 }
@@ -78,8 +81,8 @@ console.log('The row reports the verdict the election gave the bundle');
   const b = bundle(2, false);
   const v = b.sim.stpResult.ports.s1['lag-1'];
   const cells = String(b.rows[0] || '').trim().split(/\s+/);
-  ok(cells[1] === v.role, 'role is the engine\'s (' + v.role + ')', b.rows[0]);
-  ok(cells[2] === v.state, 'state is the engine\'s (' + v.state + ')', b.rows[0]);
+  ok(cells[1] === stpLib.stpRoleCell(v.role), 'role is the engine\'s, in the cell spelling (' + v.role + ')', b.rows[0]);
+  ok(cells[2] === stpLib.stpStateCell(v.state), 'state is the engine\'s, in the cell spelling (' + v.state + ')', b.rows[0]);
 }
 
 console.log('');
@@ -94,7 +97,7 @@ console.log('A physical port beside the bundle keeps its own name');
 }
 
 console.log('');
-console.log('A blocking bundle is still named `Po1`, and still says why it carries nothing');
+console.log('A blocking bundle is still named `Po1`, and carries the cells a box prints');
 {
   // Three switches in a triangle, s1 and s2 carrying a bundle on each side of s3. s3 has two paths to the root and
   // blocks one of them; the blocked bundle is the case where a wrong label reads as a port that does not exist.
@@ -113,12 +116,12 @@ console.log('A blocking bundle is still named `Po1`, and still says why it carri
   }
   sim.computeStp();
   const rows = portRows(new CliSession(t.getDevice('s3'), t, sim).run('show spanning-tree').output.map(String));
-  const blocked = (rows || []).filter(function (r) { return /blocking/.test(r); });
+  const blocked = (rows || []).filter(function (r) { return /\bBLK\b/.test(r); });
   ok(blocked.length > 0, 'the topology has a blocking port', JSON.stringify(rows));
-  ok(blocked.some(function (r) { return /^Po1\s+alternate\s+blocking/.test(r); }),
-    'the blocked bundle is `Po1 alternate blocking`', JSON.stringify(blocked));
-  ok(blocked.every(function (r) { return /\(traffic dropped\)/.test(r); }),
-    'and each blocking row still says traffic is dropped', JSON.stringify(blocked));
+  ok(blocked.some(function (r) { return /^Po1\s+Altn\s+BLK/.test(r); }),
+    'the blocked bundle is `Po1 Altn BLK`', JSON.stringify(blocked));
+  ok(blocked.every(function (r) { return !/\(traffic dropped\)/.test(r); }),
+    'and no row carries a sentence the device table does not print', JSON.stringify(blocked));
 }
 
 console.log('');

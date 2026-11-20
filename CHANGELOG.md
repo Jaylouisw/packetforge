@@ -9,6 +9,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **`show spanning-tree` prints the `Role` and `Sts` cells a box prints, not the detail view's sentence.**
+  The table read `Fa0/1  alternate  blocking  (traffic dropped)`. A Cisco table abbreviates -
+  `Fa0/13  Desg FWD 19  128.13  P2p`, `Gi0/1  Root FWD 4  128.25  P2p`, `Gi0/2  Altn BLK 4  128.26  P2p` -
+  and the command reference's field table fixes those values (`Desg`, `Root`, `Altn`; `BLK`, `LTN`, `LRN`,
+  `FWD`, ...), while `Port 1 (...) of VLAN0001 is alternate blocking` is the wording of
+  `show spanning-tree detail`. `(traffic dropped)` is not a device string in any view. The table now maps
+  the engine's roles and states through `stpRoleCell()`/`stpStateCell()`, including the converging
+  `LTN`/`LRN` cells, and the detail-view sentence stays in the payload and tooltip, where a sentence
+  belongs. `test/stp-port-table-role-and-sts.test.js` (26 checks),
+  [research/stp-port-table-role-and-sts.md](research/stp-port-table-role-and-sts.md).
 - **A subinterface's number is a name, not a VLAN id.** `interface Gi0/0.5000` was refused as
   `% VLAN out of range: 5000`, because the number after the dot was checked against the 802.1Q range. On IOS
   the subinterface number runs 1 to 4294967293 and the VLAN is set separately by `encapsulation dot1q`
