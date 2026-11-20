@@ -57,6 +57,30 @@ function consoleIsALine(name) {
     'terminal at a baud rate, not frames, and a box keeps its settings under `line ' + (aux ? 'aux 0' : 'con 0') + '`';
 }
 
+// The `range` keyword of `interface range`: a real global-config command this console cannot model.
+//
+// `interface range {port-range | macro macro_name}` enters interface-range configuration mode and applies every
+// line typed there to every port in the range - `Device(config)# interface range tengigabitethernet 1/1/1-2` /
+// `Device(config-if-range)# shut` (Cisco IOS XE 17 Interface Characteristics Configuration Guide, "Example:
+// Configuring a range of interfaces"). This console opens one port per line and has no range mode, so the words
+// cannot do what they say. It used to read the keyword as a port name and answer `% Interface not found: range
+// Fa0/1 - 3` - the sentence a misspelt socket gets, about a command the box really has, and a reader would go
+// looking for a socket called `range`. The refusal names the command instead, in the same shape as the
+// `vlan 10-12` list refusal: what a box does, what this console does, and that nothing changed
+// (research/interface-range-refusal.md).
+function interfaceRangeRefusal(tail, effect) {
+  const named = String(tail || '').trim();
+  // `?` is the help key, not a range: answering `interface range "?"` would quote the operator's question mark
+  // back as the thing that was refused. The sentence names the command and says why it cannot run here.
+  if (named === '?') {
+    return '% "?" is the help key, not a value: `interface range {<first> - <last> | macro <name>}` is a ' +
+      'command this console does not model - it opens one port per line';
+  }
+  return '% interface range' + (named ? ' "' + named + '"' : '') + ' is not modelled: a box takes ' +
+    '`interface range <first> - <last>` (or `interface range macro <name>`) and applies each line to every ' +
+    'port in it, and this console opens one port per line - ' + effect;
+}
+
 function pad(s, w) { s = String(s); return s + ' '.repeat(Math.max(0, w - s.length)); }
 
 // The `Vlan` cell of `show mac address-table` is a four-character field with its value **right-aligned**:
@@ -1675,6 +1699,11 @@ class CliSession {
           ' access VLAN no longer exists (vlan ' + id + ' ' + (one ? 'brings it back' : 'brings them back') + ')');
       }
     } else if (head === 'no' && (tokens[1] === 'interface' || tokens[1] === 'int')) {
+      // `no interface range {port-range | macro name}` removes a range a box keeps only for the life of the
+      // session; the keyword is refused by name rather than read as a port, like the positive form below.
+      if (String(tokens[2] || '').toLowerCase() === 'range') {
+        return [interfaceRangeRefusal(tokens.slice(3).join(' '), 'nothing was removed')];
+      }
       const typed = tokens.slice(2).join(' ');
       const name = resolvePortName(this.device, typed);
       const vi = name ? this.device.interfaces.get(name) : null;
@@ -1698,6 +1727,11 @@ class CliSession {
       out.push('Access list ' + n + ' removed');
     } else if (head === 'interface' || head === 'int') {
       if (!tokens[1]) return ['% Incomplete command'];
+      // The range keyword is looked for before the port table, because `range` is a keyword on every IOS switch
+      // and no panel names a socket `range ...`: the tail is a range or a macro name, never a port.
+      if (String(tokens[1]).toLowerCase() === 'range') {
+        return [interfaceRangeRefusal(tokens.slice(2).join(' '), 'no port was opened')];
+      }
       // An interface name is the whole rest of the line, because some of them contain spaces:
       // Ubiquiti calls its ports "Port 1" and its cages "SFP+ 1", so `interface Port 1` was read as
       // an interface called "Port" and refused - which made those devices' own running-config

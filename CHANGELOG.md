@@ -9,6 +9,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **`interface range` is a command the box has, and the console called it a missing port.** A Catalyst takes
+  `interface range {port-range | macro macro_name}`, enters `(config-if-range)#`, and applies each line typed
+  there to every port in the range - `Device(config)# interface range tengigabitethernet 1/1/1-2` then
+  `Device(config-if-range)# shut` ([IOS XE 17 Interface Characteristics Configuration Guide](https://www.cisco.com/c/en/us/td/docs/switches/lan/c9000/infra/interface-characteristics/interface-characteristics-configuration-guide.html);
+  the [Catalyst 2960 command reference, 12.2(44)SE](http://www.cisco.com/en/US/docs/switches/lan/catalyst2960/software/release/12.2_44_se/command/reference/cli1.html)
+  prints the same prompt for `interface range gigabitethernet0/1 - 2`). This console opens one port per line,
+  so it answered `% Interface not found: range Fa0/1 - 3` - the sentence a misspelt socket gets, about a
+  command the box really has, which sends the reader looking for a port called `range`. The keyword is now
+  refused by name in the shape of the `vlan 10-12` list refusal - what a box does, what this console does, and
+  that no port was opened - and `no interface range ...` ends `nothing was removed`. The refusal changes
+  nothing: no port opens, the cursor stays where the line was typed (the rule in
+  [`research/interface-refusal-mode.md`](research/interface-refusal-mode.md)), and `show running-config` is
+  unchanged. A line with no keyword (`interface Fa0/1 - 3`) is still a port name and keeps the
+  missing-socket sentence. `test/interface-range-refusal.test.js` (42 assertions in 8 tests),
+  [`research/interface-range-refusal.md`](research/interface-range-refusal.md).
+
 - **A catalogue audit called 33 fibre devices copper, and no job ran it.** `scripts/audit-devices.js`
   answered "does this description promise optics the ports cannot deliver?" from its own
   `OPTICAL_CAGES = ['sfp','sfp+','sfp28','qsfp+','qsfp28']`, so every Fibre Channel cage

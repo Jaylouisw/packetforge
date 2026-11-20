@@ -482,6 +482,29 @@ R1(config)#no interface ?
 
 That gap is the code's to close; this page records that the console takes the line.
 
+**`interface range` is a command the box has, and the console says so.** IOS takes
+`interface range {port-range | macro macro_name}`, enters `(config-if-range)#`, and applies every line typed
+there to every port in the range - `Device(config)# interface range tengigabitethernet 1/1/1-2` then
+`Device(config-if-range)# shut` (Cisco IOS XE 17 Interface Characteristics Configuration Guide, *Example:
+Configuring a range of interfaces*; the Catalyst 2960 command reference, 12.2(44)SE, prints the same mode for
+`interface range gigabitethernet0/1 - 2`). This console opens one port per line and has no range mode, so it
+refuses the line by name:
+
+```
+s1(config)#interface range Fa0/1 - 3
+% interface range "Fa0/1 - 3" is not modelled: a box takes `interface range <first> - <last>` (or `interface range macro <name>`) and applies each line to every port in it, and this console opens one port per line - no port was opened
+s1(config)#
+```
+
+The words are the console's own, in the shape of the `vlan 10-12` list refusal: what a box does, what this
+console does, and that nothing changed. It used to read the keyword as a port name and answer
+`% Interface not found: range Fa0/1 - 3` - the sentence a misspelt socket gets, about a command the box really
+has, which sends the reader looking for a socket called `range`. `no interface range ...` answers in the same
+sentence and ends `nothing was removed`; a range typed with no keyword (`interface Fa0/1 - 3`) is still a port
+name and keeps the missing-socket sentence. The refused line changes nothing - no port is opened, the cursor
+stays where it was typed, and `show running-config` is unchanged. The sources are in
+[research/interface-range-refusal.md](../research/interface-range-refusal.md).
+
 ## Interface-mode commands
 
 A port answers to any spelling it is silkscreened or configured under, so `interface ether1` opens the
