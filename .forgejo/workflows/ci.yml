@@ -375,10 +375,49 @@ jobs:
             # `packetforge:ci-<sha>` can only be held by this commit's own builds, and the
             # cleanup below removes exactly the tag this run created. Nothing consumes the
             # image - it exists to prove the Dockerfile builds - so the name is free.
-            timeout --signal=TERM --kill-after=20 180 docker build -t packetforge:ci-run-${{ github.run_id }} .
+            #
+            # The tag fixed the *shared-tag* half of that, and not the rest of it. Measured
+            # after #2193 and after the unique tag: run 8834 (task 23298, push to main,
+            # 2026-11-21T01:12:53Z) and run 8287 (task 21914, push to main,
+            # 2026-11-20T05:12:58Z) both died 5 s in with
+            #   failed to export image: failed to set parent sha256:572e12ed7a9a...:
+            #   unknown parent image ID sha256:572e12ed7a9a...
+            # on commits whose three test legs were green, and `arm` needs this job, so
+            # each of those held a merge until somebody re-ran it by hand. Both times two
+            # or three builds shared the daemon: 8834 started 01:12:37 beside 8830
+            # (01:12:31); 8287 started 05:12:44 beside 8285 (05:12:40) and 8281 (05:12:34).
+            # The prune guard was not the deleter this time - 8830's log at 01:12:49.5
+            # reads "not pruning this time: 2 Docker build(s) are running". The legacy
+            # builder's cache is content addressed and shared, so two builds of the same
+            # early layers race for the same intermediate and the one that loses cannot
+            # export it.
+            #
+            # So: one retry, and only for that signature. A Dockerfile that is really
+            # broken prints a Dockerfile error and is not retried at all; a build that hit
+            # the shared-cache race rebuilds from whatever cache entry is left, ~10 s.
+            # Both attempts are printed in full and the reason is an annotation, so the
+            # retry is never silent. Same command, same tag, same 180 s bound per attempt
+            # (363 s worst case, inside this job's 10 minutes).
+            log="${RUNNER_TEMP:-/tmp}/docker-build.log"
+            : > "$log"
+            build_once() {
+              timeout --signal=TERM --kill-after=20 180 docker build -t packetforge:ci-run-${{ github.run_id }} . 2>&1 | tee "$log"
+              return "${PIPESTATUS[0]}"
+            }
+            build_once
             rc=$?
             if [ "$rc" -eq 124 ] || [ "$rc" -eq 137 ]; then
               echo "::error title=Docker build::docker build was still running after 180 s and was stopped - a green build here takes 10-20 s, so this is a build that stopped moving, not a slow one"
+            fi
+            if [ "$rc" -ne 0 ] && [ "$rc" -ne 124 ] && [ "$rc" -ne 137 ] &&
+               grep -qE 'unknown parent image ID|failed to export image' "$log"; then
+              echo "::warning title=Docker build::attempt 1 died exporting against the shared build cache (unknown parent image ID) - that is the race two concurrent builds on this daemon produce, not a verdict about the Dockerfile; rebuilding once"
+              sleep 3
+              build_once
+              rc=$?
+              if [ "$rc" -ne 0 ]; then
+                echo "::error title=Docker build::the retry after the shared-cache export race also failed (exit ${rc}) - this is a real build failure, not the race"
+              fi
             fi
             exit "$rc"
           else
