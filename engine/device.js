@@ -17,7 +17,8 @@ const ARP_AGE_MS = 14400000;
 const LLDP_DEFAULT_TTL_S = 120;
 // device.js -- Device + Interface model (vendor-agnostic).
 const net = require('./net');
-const { resolvePortName, displayName } = require('./iface-name');
+const ifaceName = require('./iface-name');
+const { resolvePortName, displayName } = ifaceName;
 const media = require('./media');
 const vlanLib = require('./vlan');
 
@@ -906,7 +907,19 @@ class Device {
         note: iface ? this.portCarrierNote(iface, topo) : '(gone)'
       });
     }
-    rows.sort(function (a, b) { return String(a.port).localeCompare(String(b.port)); });
+    // A neighbour table is read down the Local Intf column, and the box orders that column by the port,
+    // not by the spelling: a capture with ten or more ports runs 9, 10, 11 ... (Cisco Nexus 3500 NX-API
+    // CLI reference, `show lldp neighbors`, lists Eth1/9, Eth1/10, Eth1/11 ... Eth1/48; the Catalyst 1300
+    // CLI guide runs gi1/0/1, gi1/0/2, gi1/0/3; Aruba's `show lldp neighbor` runs GE0/0/1, GE0/0/2).
+    // `localeCompare` put `Gi1/0/10` above `Gi1/0/2` - string order, which no box prints and which on a
+    // 24-port switch puts the tenth socket before the second. `comparePortNames` is the panel-order
+    // comparator the PoE allocator already uses (run by run, numeric runs as numbers).
+    //
+    // The order is not a claim that every platform sorts: an IOS-XE ASR 920 sample groups its rows by
+    // neighbour and prints Te0/2/6 before Te0/2/1, so IOS-XE evidently does not guarantee one. Where the
+    // table *is* port-indexed, though, the order is the panel's, and no capture orders it as text.
+    // research/show-lldp-neighbor-row-order.md has the captures and the counter-example.
+    rows.sort(function (a, b) { return ifaceName.comparePortNames(a.port, b.port); });
     return rows;
   }
 
