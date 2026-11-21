@@ -30,7 +30,7 @@
         "100M",
         "10M"
       ],
-      "poeOut": true,
+      "poeOut": 60,
       "poeOutClass": "PoE++",
       "role": "lan"
     },
@@ -44,7 +44,7 @@
         "100M",
         "10M"
       ],
-      "poeOut": true,
+      "poeOut": 60,
       "poeOutClass": "PoE++",
       "role": "lan"
     },
@@ -58,7 +58,7 @@
         "100M",
         "10M"
       ],
-      "poeOut": true,
+      "poeOut": 60,
       "poeOutClass": "PoE++",
       "role": "lan"
     },
@@ -72,7 +72,7 @@
         "100M",
         "10M"
       ],
-      "poeOut": true,
+      "poeOut": 60,
       "poeOutClass": "PoE++",
       "role": "lan"
     },
@@ -86,7 +86,7 @@
         "100M",
         "10M"
       ],
-      "poeOut": true,
+      "poeOut": 30,
       "poeOutClass": "PoE+",
       "role": "lan"
     },
@@ -100,7 +100,7 @@
         "100M",
         "10M"
       ],
-      "poeOut": true,
+      "poeOut": 30,
       "poeOutClass": "PoE+",
       "role": "lan"
     },
@@ -114,7 +114,7 @@
         "100M",
         "10M"
       ],
-      "poeOut": true,
+      "poeOut": 30,
       "poeOutClass": "PoE+",
       "role": "lan"
     },
@@ -128,7 +128,7 @@
         "100M",
         "10M"
       ],
-      "poeOut": true,
+      "poeOut": 30,
       "poeOutClass": "PoE+",
       "role": "lan"
     },
@@ -142,7 +142,7 @@
         "100M",
         "10M"
       ],
-      "poeOut": true,
+      "poeOut": 15.4,
       "poeOutClass": "PoE",
       "role": "lan"
     },
@@ -156,7 +156,7 @@
         "100M",
         "10M"
       ],
-      "poeOut": true,
+      "poeOut": 15.4,
       "poeOutClass": "PoE",
       "role": "lan"
     },
@@ -170,7 +170,7 @@
         "100M",
         "10M"
       ],
-      "poeOut": true,
+      "poeOut": 15.4,
       "poeOutClass": "PoE",
       "role": "lan"
     },
@@ -184,7 +184,7 @@
         "100M",
         "10M"
       ],
-      "poeOut": true,
+      "poeOut": 15.4,
       "poeOutClass": "PoE",
       "role": "lan"
     },
@@ -322,5 +322,5 @@
     "sourceUrl": "https://techspecs.ui.com/unifi/cloud-gateways/udw"
   },
   "sourceUrl": "https://techspecs.ui.com/unifi/cloud-gateways/udw",
-  "notes": "Power: none of these copper ports accepts PoE. Vendor page https://techspecs.ui.com/unifi/cloud-gateways/udw (HTTP 200, 704,702 B, read 2026-11-19, server-rendered tech-spec table) says \"Power Method = Universal AC input 100-240V AC, 7A Max., 50/60 Hz\"; a box fed from mains, a USB-C supply or a DC jack has no PoE-PD front end, so eth12 / eth13 / eth14 / eth15 / eth16 / eth17 now declare poeIn: false. Without that declaration the engine's isPoePd() match on \"unifi\" gave each silent copper port a 12.95 W 802.3af draw - the defect PR #2118 and PR #2121 fixed across the UXG family (refs #130).\n\nWiFi: the Dream Wall carries an 802.11ax (WiFi 6) access point of its own, so the row can serve wireless clients instead of being a wired-only gateway. Source rows, identical on both Ubiquiti surfaces: https://dl.ui.com/ds/udw_ds.pdf (HTTP 200, 544,909 B, 3 pages, text layer reads \"MIMO 2.4 GHz 2 x 2 / 5 GHz 4 x 4\", \"Throughput rate 2.4 GHz 300 Mbps / 5 GHz 2.4 Gbps\", \"WiFi standards 802.11a/b/g/n/ac/ax / WiFi 4/WiFi 5/WiFi 6\") and https://techspecs.ui.com/unifi/cloud-gateways/udw (HTTP 200, 704,702 B, read 2026-11-19). Hence radio0 = 2.4 GHz at 300 Mbps (2x2) and radio1 = 5 GHz at 2.4 Gbps (4x4). Each radio declares `bands` because engine/media.js otherwise derives the band set from the rate alone, and a 2.4 Gbps 802.11ax radio would be credited with a 6 GHz band the chassis does not have. Ubiquiti's own device fingerprint lists ACCESS_POINT among the UDW's deviceCapabilities (https://static.ui.com/fingerprint/ui/public.json, sku UDW, sysid ea2a).\n\nWAN side, from the same two surfaces (read 2026-11-20). The datasheet text layer says \"Networking interface (17) LAN: GbE RJ45 ports / (1) WAN: 2.5 GbE RJ45 port\" and \"SFP+ interface (1) LAN: 10G SFP+ port / (1) WAN: 10G SFP+ port\" (https://dl.ui.com/ds/udw_ds.pdf, 200, 544,909 B, 3 pp); the tech-spec table adds \"Max. WAN Port Count 8\", \"Default WAN Ports (1) 2.5 GbE RJ45 / (1) 10G SFP+\" and \"Port Layout ... 2.5 GbE RJ45 1 (2.5G/1G/100M)\" (https://techspecs.ui.com/unifi/cloud-gateways/udw, 200, 704,702 B). The row had shipped all eighteen copper ports as interchangeable eth0-eth17 with no WAN role, so a lab could not cable `ip nat outside` to the uplink Ubiquiti designates, and the 2.5G port was indistinguishable from the 1G LAN bank. eth17 is therefore wan1 with role \"wan\"; the two cages declare dualRole [\"wan\",\"lan\"] because the datasheet prints one LAN and one WAN cage without numbering them, and because the vendor's own 8-WAN ceiling means port role is configuration, not wiring. The seventeen 1G LAN ports keep their names.\n\nLAN bank is a bridge, not seventeen routed ports (measured 2026-11-20). `https://techspecs.ui.com/unifi/cloud-gateways/udw` (HTTP 200, 704,702 B, server-rendered tech-spec table, read 2026-11-20) prints \"MAC Address Table Size = 8,000\" under Networking and \"VLAN = 802.1Q\" under Software, and the Overview section counts the bank as one row, \"1 GbE RJ45 = 17 (4 PoE++; 4 PoE+; 4 PoE / 1G/100M/10M)\". The live storefront payload for the same SKU (`https://store.ui.com/us/en/products/udw`, HTTP 200, 568,234 B, `__NEXT_DATA__` -> `props.pageProps.collection.products[0].technicalSpecification`) repeats both rows and adds a \"LACP Port Aggregation\" row. An 8,000-entry MAC table is a bridge table and 802.1Q tagging is a switch feature: a gateway whose seventeen LAN sockets were seventeen routed interfaces would hold neither, and it would have no use for a LAG. The row shipped without `l2-forward`, so the console refused the two things UniFi users do first - `switchport access vlan 10` answered \"cannot switch frames: it has no l2-forward capability\", and two hosts on eth0/eth1 in 192.168.1.0/24 could not resolve each other's ARP because the box dropped their frames as \"not addressed to this device\" - and an address configured on eth0 was answered on eth0 alone, not across the bank. Both work now; `channel-group` is accepted, `no switchport` still makes a LAN port routed, and the WAN port keeps its address and role.\n\nWAN/LAN separation, from the rows above (measured 2026-11-21). The datasheet splits the chassis as `Networking interface (17) LAN: GbE RJ45 ports / (1) WAN: 2.5 GbE RJ45 port` (https://dl.ui.com/ds/udw_ds.pdf, HTTP 200, 544,909 B, 3 pp, text layer read 2026-11-21) and the tech-spec table names the uplink a second time - `Default WAN Ports (1) 2.5 GbE RJ45 (1) 10G SFP+`, beside `Max. WAN Port Count 8` (https://techspecs.ui.com/unifi/cloud-gateways/udw, HTTP 200, 704,702 B, read 2026-11-21). `role` is the field that decides which L3 surface answers an address (engine/device.js, `ownsIpOn`: \"WAN and LAN are separate L3 surfaces ... role separation outranks the VLAN shortcut\"), and it only fires when BOTH sides declare one. The seventeen LAN sockets carried none, so the invariant this repo already asserts for the RT-AX89X - \"the WAN port does not answer the LAN address\" in test/port-roles.test.js - was silently false here: with 192.168.1.1/24 on eth0, `ownsIpOn(wan1, '192.168.1.1')` returned true, and a host cabled to wan1 inside that subnet got an ICMP reply from the LAN gateway, i.e. the LAN address was served on the WAN socket. All seventeen copper LAN ports now declare `role: \"lan\"` (wan1 keeps `role: \"wan\"`). Measured after the change: the WAN socket no longer owns the LAN address, a host on eth5 still reaches the address held on eth0 (the bank still answers bank-wide), and an address on wan1 is still answered on wan1. The two SFP+ cages keep `dualRole` with no `role`, and `Max. WAN Port Count 8` stays unmodelled, for one reason: the vendor prints one LAN and one WAN cage without numbering them and an 8-WAN ceiling without naming the sockets, so any per-socket assignment here would be invented. Gate: test/ubiquiti-wan-lan-role-separation.test.js."
+  "notes": "Power: none of these copper ports accepts PoE. Vendor page https://techspecs.ui.com/unifi/cloud-gateways/udw (HTTP 200, 704,702 B, read 2026-11-19, server-rendered tech-spec table) says \"Power Method = Universal AC input 100-240V AC, 7A Max., 50/60 Hz\"; a box fed from mains, a USB-C supply or a DC jack has no PoE-PD front end, so eth12 / eth13 / eth14 / eth15 / eth16 / eth17 now declare poeIn: false. Without that declaration the engine's isPoePd() match on \"unifi\" gave each silent copper port a 12.95 W 802.3af draw - the defect PR #2118 and PR #2121 fixed across the UXG family (refs #130).\n\nWiFi: the Dream Wall carries an 802.11ax (WiFi 6) access point of its own, so the row can serve wireless clients instead of being a wired-only gateway. Source rows, identical on both Ubiquiti surfaces: https://dl.ui.com/ds/udw_ds.pdf (HTTP 200, 544,909 B, 3 pages, text layer reads \"MIMO 2.4 GHz 2 x 2 / 5 GHz 4 x 4\", \"Throughput rate 2.4 GHz 300 Mbps / 5 GHz 2.4 Gbps\", \"WiFi standards 802.11a/b/g/n/ac/ax / WiFi 4/WiFi 5/WiFi 6\") and https://techspecs.ui.com/unifi/cloud-gateways/udw (HTTP 200, 704,702 B, read 2026-11-19). Hence radio0 = 2.4 GHz at 300 Mbps (2x2) and radio1 = 5 GHz at 2.4 Gbps (4x4). Each radio declares `bands` because engine/media.js otherwise derives the band set from the rate alone, and a 2.4 Gbps 802.11ax radio would be credited with a 6 GHz band the chassis does not have. Ubiquiti's own device fingerprint lists ACCESS_POINT among the UDW's deviceCapabilities (https://static.ui.com/fingerprint/ui/public.json, sku UDW, sysid ea2a).\n\nWAN side, from the same two surfaces (read 2026-11-20). The datasheet text layer says \"Networking interface (17) LAN: GbE RJ45 ports / (1) WAN: 2.5 GbE RJ45 port\" and \"SFP+ interface (1) LAN: 10G SFP+ port / (1) WAN: 10G SFP+ port\" (https://dl.ui.com/ds/udw_ds.pdf, 200, 544,909 B, 3 pp); the tech-spec table adds \"Max. WAN Port Count 8\", \"Default WAN Ports (1) 2.5 GbE RJ45 / (1) 10G SFP+\" and \"Port Layout ... 2.5 GbE RJ45 1 (2.5G/1G/100M)\" (https://techspecs.ui.com/unifi/cloud-gateways/udw, 200, 704,702 B). The row had shipped all eighteen copper ports as interchangeable eth0-eth17 with no WAN role, so a lab could not cable `ip nat outside` to the uplink Ubiquiti designates, and the 2.5G port was indistinguishable from the 1G LAN bank. eth17 is therefore wan1 with role \"wan\"; the two cages declare dualRole [\"wan\",\"lan\"] because the datasheet prints one LAN and one WAN cage without numbering them, and because the vendor's own 8-WAN ceiling means port role is configuration, not wiring. The seventeen 1G LAN ports keep their names.\n\nLAN bank is a bridge, not seventeen routed ports (measured 2026-11-20). `https://techspecs.ui.com/unifi/cloud-gateways/udw` (HTTP 200, 704,702 B, server-rendered tech-spec table, read 2026-11-20) prints \"MAC Address Table Size = 8,000\" under Networking and \"VLAN = 802.1Q\" under Software, and the Overview section counts the bank as one row, \"1 GbE RJ45 = 17 (4 PoE++; 4 PoE+; 4 PoE / 1G/100M/10M)\". The live storefront payload for the same SKU (`https://store.ui.com/us/en/products/udw`, HTTP 200, 568,234 B, `__NEXT_DATA__` -> `props.pageProps.collection.products[0].technicalSpecification`) repeats both rows and adds a \"LACP Port Aggregation\" row. An 8,000-entry MAC table is a bridge table and 802.1Q tagging is a switch feature: a gateway whose seventeen LAN sockets were seventeen routed interfaces would hold neither, and it would have no use for a LAG. The row shipped without `l2-forward`, so the console refused the two things UniFi users do first - `switchport access vlan 10` answered \"cannot switch frames: it has no l2-forward capability\", and two hosts on eth0/eth1 in 192.168.1.0/24 could not resolve each other's ARP because the box dropped their frames as \"not addressed to this device\" - and an address configured on eth0 was answered on eth0 alone, not across the bank. Both work now; `channel-group` is accepted, `no switchport` still makes a LAN port routed, and the WAN port keeps its address and role.\n\nWAN/LAN separation, from the rows above (measured 2026-11-21). The datasheet splits the chassis as `Networking interface (17) LAN: GbE RJ45 ports / (1) WAN: 2.5 GbE RJ45 port` (https://dl.ui.com/ds/udw_ds.pdf, HTTP 200, 544,909 B, 3 pp, text layer read 2026-11-21) and the tech-spec table names the uplink a second time - `Default WAN Ports (1) 2.5 GbE RJ45 (1) 10G SFP+`, beside `Max. WAN Port Count 8` (https://techspecs.ui.com/unifi/cloud-gateways/udw, HTTP 200, 704,702 B, read 2026-11-21). `role` is the field that decides which L3 surface answers an address (engine/device.js, `ownsIpOn`: \"WAN and LAN are separate L3 surfaces ... role separation outranks the VLAN shortcut\"), and it only fires when BOTH sides declare one. The seventeen LAN sockets carried none, so the invariant this repo already asserts for the RT-AX89X - \"the WAN port does not answer the LAN address\" in test/port-roles.test.js - was silently false here: with 192.168.1.1/24 on eth0, `ownsIpOn(wan1, '192.168.1.1')` returned true, and a host cabled to wan1 inside that subnet got an ICMP reply from the LAN gateway, i.e. the LAN address was served on the WAN socket. All seventeen copper LAN ports now declare `role: \"lan\"` (wan1 keeps `role: \"wan\"`). Measured after the change: the WAN socket no longer owns the LAN address, a host on eth5 still reaches the address held on eth0 (the bank still answers bank-wide), and an address on wan1 is still answered on wan1. The two SFP+ cages keep `dualRole` with no `role`, and `Max. WAN Port Count 8` stays unmodelled, for one reason: the vendor prints one LAN and one WAN cage without numbering them and an 8-WAN ceiling without naming the sockets, so any per-socket assignment here would be invented. Gate: test/ubiquiti-wan-lan-role-separation.test.js.\n\nPoE per-socket ceiling, from the vendor's own table (measured 2026-11-21). All twelve powered sockets carried the bare direction bit `poeOut: true`, which `Device.poeDraw()` (engine/device.js) adds as **1 W** and the faceplate's `num()` renders as nothing: two 25.5 W U7-Pros on eth0/eth4 made `poeDraw()` answer **2 W**, and the 420 W budget could not be spent because `pseDraw()` (engine/validation.js) sums the same field and never saw a load above twelve watts. Both Ubiquiti surfaces print the per-class PSE ceiling: `Max. PoE wattage per port by PSE PoE: 15.4W / PoE+: 30W / PoE++: 60W` (https://techspecs.ui.com/unifi/cloud-gateways/udw, HTTP 200, 704,702 B, server-rendered table, read 2026-11-21; the same three rows in the datasheet text layer, https://dl.ui.com/ds/udw_ds.pdf, HTTP 200, 544,909 B, 3 pp). Each socket now declares the ceiling for the class it already carried — eth0-eth3 60 W PoE++, eth4-eth7 30 W PoE+, eth8-eth11 15.4 W PoE. The class-to-socket ordering is unchanged: neither surface numbers which four sockets are which (`PoE interface (4) PoE / (4) PoE+ / (4) PoE++`), so this pass replaced only the figure, not the assignment. The four-of-each panel sums to 421.6 W against the published 420 W budget, which is the vendor's own arithmetic and stays stated here rather than reconciled: the budget, not the socket sum, is what `show power inline` spends."
 }
