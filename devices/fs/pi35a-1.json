@@ -3,7 +3,7 @@
   "model": "PI35A-1",
   "label": "FS PI35A-1 PoE injector",
   "category": "powerline",
-  "description": "Single-port gigabit PoE injector: one gigabit data input and one gigabit PoE output.",
+  "description": "Single-port gigabit PoE injector: one gigabit data input and one gigabit 802.3at PoE output rated 30 W at the port, fed by a 35 W adapter. It is a PSE in its own right, not a passthrough - the 30 W comes from the mains brick, so a lab can power a 25.5 W class-4 device from a dumb switch port.",
   "capabilities": [
     "poe-pse",
     "802.3af",
@@ -21,10 +21,16 @@
       "type": "ethernet",
       "connector": "rj45",
       "speed": "1G",
-      "poeOut": true,
+      "poeOut": 30,
       "poeOutClass": "PoE+"
     }
   ],
   "sourceUrl": "https://resource.fs.com/mall/file/datasheet/single-port-101001000m-gigabit-poe-injector.pdf",
-  "notes": "Vendor figures from the FS datasheet: 1x 10/100/1000 Mbps data input and 1x 10/100/1000 Mbps PoE output. It is modelled as two gigabit ports because that is what it is - a pass-through - so a lab can place it between a switch and a powered device and see the link break if either side is wrong."
+  "notes": "Vendor figures from the FS datasheet (3 pp, text layer), p.2 table: three models - PSM-CW6AP, PI18A-1, PI35A-1 - with 'PoE Standards' 802.3af/at, 802.3af, 802.3af/at; 'Total Power' 30W, 18W, 35W; 'PoE Port Power' 30W, 15.4W, 30W. PI35A-1 is the third column in every row, which is why it is 802.3at and not the 15.4 W af model. 1x 10/100/1000 Mbps data input and 1x 10/100/1000 Mbps PoE output, 52 V DC out. It is modelled as two gigabit ports because that is what it is - a pass-through in the data path - so a lab can place it between a switch and a powered device and see the link break if either side is wrong; in the power path it is a source, which is why the PSE sits on the output jack and the input jack carries no PoE role.",
+  "poe": {
+    "budgetW": 30,
+    "standard": "802.3at",
+    "sourceUrl": "https://resource.fs.com/mall/file/datasheet/single-port-101001000m-gigabit-poe-injector.pdf",
+    "note": "30 W, the vendor's PoE Port Power for this model, with 802.3af backward compatibility at 15.4 W. The same table prints Total Power 35 W for the PI35A-1 - that is the injector's own adapter rating (100-240 VAC, 0.56 A max, 52 V DC out), not a figure a cable can carry, so the budget is the port ceiling and not 35: the extra 5 W is the injector's conversion loss. Figures read from the three-column table by cell position, not by run order - PSM-CW6AP gets 30 W/30 W, PI18A-1 18 W/15.4 W (802.3af only), PI35A-1 35 W/30 W."
+  }
 }
