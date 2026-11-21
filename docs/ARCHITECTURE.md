@@ -1127,8 +1127,9 @@ A list that long is classified once per frame per port, so the parser is not all
 seconds) fails if that ever regresses.
 
 `test/trunk-allowed-add-remove.test.js` pins the verbs, 58 checks; `test/trunk-allowed-remove-from-all.test.js` pins the
-removal from the default list and the shape it is printed in - 47 checks, three of them on what a *pair*
-of ids prints as (`157,158` stays two ids; only a run of three or more folds, #2414).
+removal from the default list, the empty list a subtraction of the last VLANs reaches, and the shape it is printed
+in: 55 checks, three of them on what a *pair* of ids prints as (`157,158` stays two ids; only a run of three or more
+folds, #2414).
 
 ### The request that was answered with nothing
 
