@@ -9,6 +9,7 @@
     "cli",
     "http-server",
     "poe-pse",
+    "802.3af",
     "802.3at",
     "passive-poe"
   ],
@@ -23,7 +24,7 @@
         "100M",
         "10M"
       ],
-      "poeOut": true,
+      "poeOut": 34.2,
       "poeOutClass": "PoE+"
     },
     {
@@ -36,7 +37,7 @@
         "100M",
         "10M"
       ],
-      "poeOut": true,
+      "poeOut": 34.2,
       "poeOutClass": "PoE+"
     },
     {
@@ -49,7 +50,7 @@
         "100M",
         "10M"
       ],
-      "poeOut": true,
+      "poeOut": 34.2,
       "poeOutClass": "PoE+"
     },
     {
@@ -62,7 +63,7 @@
         "100M",
         "10M"
       ],
-      "poeOut": true,
+      "poeOut": 34.2,
       "poeOutClass": "PoE+"
     },
     {
@@ -75,7 +76,7 @@
         "100M",
         "10M"
       ],
-      "poeOut": true,
+      "poeOut": 34.2,
       "poeOutClass": "PoE+"
     },
     {
@@ -88,7 +89,7 @@
         "100M",
         "10M"
       ],
-      "poeOut": true,
+      "poeOut": 34.2,
       "poeOutClass": "PoE+"
     },
     {
@@ -101,7 +102,7 @@
         "100M",
         "10M"
       ],
-      "poeOut": true,
+      "poeOut": 34.2,
       "poeOutClass": "PoE+"
     },
     {
@@ -114,7 +115,7 @@
         "100M",
         "10M"
       ],
-      "poeOut": true,
+      "poeOut": 34.2,
       "poeOutClass": "PoE+"
     },
     {
@@ -127,7 +128,7 @@
         "100M",
         "10M"
       ],
-      "poeOut": true,
+      "poeOut": 34.2,
       "poeOutClass": "PoE+"
     },
     {
@@ -140,7 +141,7 @@
         "100M",
         "10M"
       ],
-      "poeOut": true,
+      "poeOut": 34.2,
       "poeOutClass": "PoE+"
     },
     {
@@ -153,7 +154,7 @@
         "100M",
         "10M"
       ],
-      "poeOut": true,
+      "poeOut": 34.2,
       "poeOutClass": "PoE+"
     },
     {
@@ -166,7 +167,7 @@
         "100M",
         "10M"
       ],
-      "poeOut": true,
+      "poeOut": 34.2,
       "poeOutClass": "PoE+"
     },
     {
@@ -179,7 +180,7 @@
         "100M",
         "10M"
       ],
-      "poeOut": true,
+      "poeOut": 34.2,
       "poeOutClass": "PoE+"
     },
     {
@@ -192,7 +193,7 @@
         "100M",
         "10M"
       ],
-      "poeOut": true,
+      "poeOut": 34.2,
       "poeOutClass": "PoE+"
     },
     {
@@ -205,7 +206,7 @@
         "100M",
         "10M"
       ],
-      "poeOut": true,
+      "poeOut": 34.2,
       "poeOutClass": "PoE+"
     },
     {
@@ -218,7 +219,7 @@
         "100M",
         "10M"
       ],
-      "poeOut": true,
+      "poeOut": 34.2,
       "poeOutClass": "PoE+"
     },
     {
@@ -231,7 +232,7 @@
         "100M",
         "10M"
       ],
-      "poeOut": true,
+      "poeOut": 34.2,
       "poeOutClass": "PoE+"
     },
     {
@@ -244,7 +245,7 @@
         "100M",
         "10M"
       ],
-      "poeOut": true,
+      "poeOut": 34.2,
       "poeOutClass": "PoE+"
     },
     {
@@ -257,7 +258,7 @@
         "100M",
         "10M"
       ],
-      "poeOut": true,
+      "poeOut": 34.2,
       "poeOutClass": "PoE+"
     },
     {
@@ -270,7 +271,7 @@
         "100M",
         "10M"
       ],
-      "poeOut": true,
+      "poeOut": 34.2,
       "poeOutClass": "PoE+"
     },
     {
@@ -283,7 +284,7 @@
         "100M",
         "10M"
       ],
-      "poeOut": true,
+      "poeOut": 34.2,
       "poeOutClass": "PoE+"
     },
     {
@@ -296,7 +297,7 @@
         "100M",
         "10M"
       ],
-      "poeOut": true,
+      "poeOut": 34.2,
       "poeOutClass": "PoE+"
     },
     {
@@ -309,7 +310,7 @@
         "100M",
         "10M"
       ],
-      "poeOut": true,
+      "poeOut": 34.2,
       "poeOutClass": "PoE+"
     },
     {
@@ -322,7 +323,7 @@
         "100M",
         "10M"
       ],
-      "poeOut": true,
+      "poeOut": 34.2,
       "poeOutClass": "PoE+"
     },
     {
@@ -335,7 +336,7 @@
         "100M",
         "10M"
       ],
-      "poeOut": true,
+      "poeOut": 34.2,
       "poeOutClass": "PoE+"
     },
     {
@@ -348,7 +349,7 @@
         "100M",
         "10M"
       ],
-      "poeOut": true,
+      "poeOut": 34.2,
       "poeOutClass": "PoE+"
     },
     {
@@ -361,7 +362,7 @@
         "100M",
         "10M"
       ],
-      "poeOut": true,
+      "poeOut": 34.2,
       "poeOutClass": "PoE+"
     },
     {
@@ -374,7 +375,7 @@
         "100M",
         "10M"
       ],
-      "poeOut": true,
+      "poeOut": 34.2,
       "poeOutClass": "PoE+"
     },
     {
@@ -387,7 +388,7 @@
         "100M",
         "10M"
       ],
-      "poeOut": true,
+      "poeOut": 34.2,
       "poeOutClass": "PoE+"
     },
     {
@@ -400,7 +401,7 @@
         "100M",
         "10M"
       ],
-      "poeOut": true,
+      "poeOut": 34.2,
       "poeOutClass": "PoE+"
     },
     {
@@ -413,7 +414,7 @@
         "100M",
         "10M"
       ],
-      "poeOut": true,
+      "poeOut": 34.2,
       "poeOutClass": "PoE+"
     },
     {
@@ -426,7 +427,7 @@
         "100M",
         "10M"
       ],
-      "poeOut": true,
+      "poeOut": 34.2,
       "poeOutClass": "PoE+"
     },
     {
@@ -439,7 +440,7 @@
         "100M",
         "10M"
       ],
-      "poeOut": true,
+      "poeOut": 34.2,
       "poeOutClass": "PoE+"
     },
     {
@@ -452,7 +453,7 @@
         "100M",
         "10M"
       ],
-      "poeOut": true,
+      "poeOut": 34.2,
       "poeOutClass": "PoE+"
     },
     {
@@ -465,7 +466,7 @@
         "100M",
         "10M"
       ],
-      "poeOut": true,
+      "poeOut": 34.2,
       "poeOutClass": "PoE+"
     },
     {
@@ -478,7 +479,7 @@
         "100M",
         "10M"
       ],
-      "poeOut": true,
+      "poeOut": 34.2,
       "poeOutClass": "PoE+"
     },
     {
@@ -491,7 +492,7 @@
         "100M",
         "10M"
       ],
-      "poeOut": true,
+      "poeOut": 34.2,
       "poeOutClass": "PoE+"
     },
     {
@@ -504,7 +505,7 @@
         "100M",
         "10M"
       ],
-      "poeOut": true,
+      "poeOut": 34.2,
       "poeOutClass": "PoE+"
     },
     {
@@ -517,7 +518,7 @@
         "100M",
         "10M"
       ],
-      "poeOut": true,
+      "poeOut": 34.2,
       "poeOutClass": "PoE+"
     },
     {
@@ -530,7 +531,7 @@
         "100M",
         "10M"
       ],
-      "poeOut": true,
+      "poeOut": 34.2,
       "poeOutClass": "PoE+"
     },
     {
@@ -543,7 +544,7 @@
         "100M",
         "10M"
       ],
-      "poeOut": true,
+      "poeOut": 34.2,
       "poeOutClass": "PoE+"
     },
     {
@@ -556,7 +557,7 @@
         "100M",
         "10M"
       ],
-      "poeOut": true,
+      "poeOut": 34.2,
       "poeOutClass": "PoE+"
     },
     {
@@ -569,7 +570,7 @@
         "100M",
         "10M"
       ],
-      "poeOut": true,
+      "poeOut": 34.2,
       "poeOutClass": "PoE+"
     },
     {
@@ -582,7 +583,7 @@
         "100M",
         "10M"
       ],
-      "poeOut": true,
+      "poeOut": 34.2,
       "poeOutClass": "PoE+"
     },
     {
@@ -595,7 +596,7 @@
         "100M",
         "10M"
       ],
-      "poeOut": true,
+      "poeOut": 34.2,
       "poeOutClass": "PoE+"
     },
     {
@@ -608,7 +609,7 @@
         "100M",
         "10M"
       ],
-      "poeOut": true,
+      "poeOut": 34.2,
       "poeOutClass": "PoE+"
     },
     {
@@ -621,7 +622,7 @@
         "100M",
         "10M"
       ],
-      "poeOut": true,
+      "poeOut": 34.2,
       "poeOutClass": "PoE+"
     },
     {
@@ -634,7 +635,7 @@
         "100M",
         "10M"
       ],
-      "poeOut": true,
+      "poeOut": 34.2,
       "poeOutClass": "PoE+"
     },
     {
@@ -689,5 +690,5 @@
     "sourceUrl": "https://techspecs.ui.com/uisp/wired/es-48-750w",
     "note": "NO PUBLISHED TOTAL POE BUDGET. The page prints, under Hardware, \"Power supply: AC/DC, internal, 750W\" and \"Max. power consumption: Includes PoE output: 750W; Excludes PoE output: 64W\"; under PoE Per Port it prints only \"Max. PoE+ wattage per port by PSE: 34.2W\" and \"Max. passive PoE wattage per port: 17W\". Unlike its 500 W sibling there is no \"Total PoE available\" row, so 750 W is the PSU/whole-box ceiling - the arithmetic ceiling for PDs would be 750-64 = 686 W, and that subtraction is ours, not Ubiquiti's. Modelled unknown on purpose, the same call made for ES-24-500W: a PSU rating must not be served as a PSE allocation. The 48 ports and their 802.3at class are modelled, so the engine reports the ports and refuses the arithmetic instead of powering a lab from a derived number."
   },
-  "notes": "Census from the vendor tech-spec table (https://techspecs.ui.com/uisp/wired/es-48-750w, HTTP 200, 582,768 B, server-rendered table, read 2026-11-20): Networking interface \"(48) 10/100/1000 Mbps RJ45 Ethernet ports; (2) 1/10 Gbps SFP+ Ethernet ports; (2) 1 Gbps SFP Ethernet ports\"; PoE Per Port \"PoE/PoE+ (Pins 1, 2+; 3, 6-); 24V DC passive PoE (Pins 4, 5+; 7, 8-)\"; Management interface \"(1) RJ45 serial port, Ethernet In/Out-Band\". Before this pass the 48 copper ports carried no connector, no poeOut and no budget at all. Also added: the serial console (52 jacks for 53 physical), the connector on the two 1G SFP cages, and the 10M rung, which this page states explicitly as \"10/100/1000 Mbps\" (the 500 W sibling prints only \"GbE\", hence the difference between the two files)."
+  "notes": "Census from the vendor tech-spec table (https://techspecs.ui.com/uisp/wired/es-48-750w, HTTP 200, 582,768 B, server-rendered table, read 2026-11-20): Networking interface \"(48) 10/100/1000 Mbps RJ45 Ethernet ports; (2) 1/10 Gbps SFP+ Ethernet ports; (2) 1 Gbps SFP Ethernet ports\"; PoE Per Port \"PoE/PoE+ (Pins 1, 2+; 3, 6-); 24V DC passive PoE (Pins 4, 5+; 7, 8-)\"; Management interface \"(1) RJ45 serial port, Ethernet In/Out-Band\". Before this pass the 48 copper ports carried no connector, no poeOut and no budget at all. Also added: the serial console (52 jacks for 53 physical), the connector on the two 1G SFP cages, and the 10M rung, which this page states explicitly as \"10/100/1000 Mbps\" (the 500 W sibling prints only \"GbE\", hence the difference between the two files). Per-port ceiling added 2026-11-21, not inferred from the PoE class: the same tech-spec page prints \"Max. PoE wattage per port by PSE - PoE+: 34.2W / Passive PoE: 17W\" and \"Voltage range PoE mode - PoE+: 50-57V / Passive PoE: 20-27V\", and the quick-start guide (https://dl.ui.com/qsg/ES-48-500W_ES-48-750W/ES-48-500W_ES-48-750W_EN.html, HTTP 200, 24,302 B, read 2026-11-21) repeats both ceilings and states \"The PoE settings for ports 1-48 are set to PoE+ auto by default, so 802.3af/at devices can be plugged in and automatically receive PoE\". Before this pass the 48 copper sockets carried `poeOut: true`, a bare direction bit: engine/media.js `poeDraw()` bills it as 1 W and the faceplate's `num()` prints nothing, so on a chassis Ubiquiti rates at 34.2 W per socket a 30 W 802.3at AP was refused power on all 48 ports. 34.2 is the PoE+ PSE ceiling; the 17 W 24 V passive ceiling sits on the same jacks and is not additive, and neither number is the whole-box allocation."
 }

@@ -9,6 +9,7 @@
     "cli",
     "http-server",
     "poe-pse",
+    "802.3af",
     "802.3at",
     "passive-poe"
   ],
@@ -20,9 +21,10 @@
       "speed": "1G",
       "speedCaps": [
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
-      "poeOut": true,
+      "poeOut": 34.2,
       "poeOutClass": "PoE+"
     },
     {
@@ -32,9 +34,10 @@
       "speed": "1G",
       "speedCaps": [
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
-      "poeOut": true,
+      "poeOut": 34.2,
       "poeOutClass": "PoE+"
     },
     {
@@ -44,9 +47,10 @@
       "speed": "1G",
       "speedCaps": [
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
-      "poeOut": true,
+      "poeOut": 34.2,
       "poeOutClass": "PoE+"
     },
     {
@@ -56,9 +60,10 @@
       "speed": "1G",
       "speedCaps": [
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
-      "poeOut": true,
+      "poeOut": 34.2,
       "poeOutClass": "PoE+"
     },
     {
@@ -68,9 +73,10 @@
       "speed": "1G",
       "speedCaps": [
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
-      "poeOut": true,
+      "poeOut": 34.2,
       "poeOutClass": "PoE+"
     },
     {
@@ -80,9 +86,10 @@
       "speed": "1G",
       "speedCaps": [
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
-      "poeOut": true,
+      "poeOut": 34.2,
       "poeOutClass": "PoE+"
     },
     {
@@ -92,9 +99,10 @@
       "speed": "1G",
       "speedCaps": [
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
-      "poeOut": true,
+      "poeOut": 34.2,
       "poeOutClass": "PoE+"
     },
     {
@@ -104,9 +112,10 @@
       "speed": "1G",
       "speedCaps": [
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
-      "poeOut": true,
+      "poeOut": 34.2,
       "poeOutClass": "PoE+"
     },
     {
@@ -116,9 +125,10 @@
       "speed": "1G",
       "speedCaps": [
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
-      "poeOut": true,
+      "poeOut": 34.2,
       "poeOutClass": "PoE+"
     },
     {
@@ -128,9 +138,10 @@
       "speed": "1G",
       "speedCaps": [
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
-      "poeOut": true,
+      "poeOut": 34.2,
       "poeOutClass": "PoE+"
     },
     {
@@ -140,9 +151,10 @@
       "speed": "1G",
       "speedCaps": [
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
-      "poeOut": true,
+      "poeOut": 34.2,
       "poeOutClass": "PoE+"
     },
     {
@@ -152,9 +164,10 @@
       "speed": "1G",
       "speedCaps": [
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
-      "poeOut": true,
+      "poeOut": 34.2,
       "poeOutClass": "PoE+"
     },
     {
@@ -164,9 +177,10 @@
       "speed": "1G",
       "speedCaps": [
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
-      "poeOut": true,
+      "poeOut": 34.2,
       "poeOutClass": "PoE+"
     },
     {
@@ -176,9 +190,10 @@
       "speed": "1G",
       "speedCaps": [
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
-      "poeOut": true,
+      "poeOut": 34.2,
       "poeOutClass": "PoE+"
     },
     {
@@ -188,9 +203,10 @@
       "speed": "1G",
       "speedCaps": [
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
-      "poeOut": true,
+      "poeOut": 34.2,
       "poeOutClass": "PoE+"
     },
     {
@@ -200,9 +216,10 @@
       "speed": "1G",
       "speedCaps": [
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
-      "poeOut": true,
+      "poeOut": 34.2,
       "poeOutClass": "PoE+"
     },
     {
@@ -212,9 +229,10 @@
       "speed": "1G",
       "speedCaps": [
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
-      "poeOut": true,
+      "poeOut": 34.2,
       "poeOutClass": "PoE+"
     },
     {
@@ -224,9 +242,10 @@
       "speed": "1G",
       "speedCaps": [
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
-      "poeOut": true,
+      "poeOut": 34.2,
       "poeOutClass": "PoE+"
     },
     {
@@ -236,9 +255,10 @@
       "speed": "1G",
       "speedCaps": [
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
-      "poeOut": true,
+      "poeOut": 34.2,
       "poeOutClass": "PoE+"
     },
     {
@@ -248,9 +268,10 @@
       "speed": "1G",
       "speedCaps": [
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
-      "poeOut": true,
+      "poeOut": 34.2,
       "poeOutClass": "PoE+"
     },
     {
@@ -260,9 +281,10 @@
       "speed": "1G",
       "speedCaps": [
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
-      "poeOut": true,
+      "poeOut": 34.2,
       "poeOutClass": "PoE+"
     },
     {
@@ -272,9 +294,10 @@
       "speed": "1G",
       "speedCaps": [
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
-      "poeOut": true,
+      "poeOut": 34.2,
       "poeOutClass": "PoE+"
     },
     {
@@ -284,9 +307,10 @@
       "speed": "1G",
       "speedCaps": [
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
-      "poeOut": true,
+      "poeOut": 34.2,
       "poeOutClass": "PoE+"
     },
     {
@@ -296,9 +320,10 @@
       "speed": "1G",
       "speedCaps": [
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
-      "poeOut": true,
+      "poeOut": 34.2,
       "poeOutClass": "PoE+"
     },
     {
@@ -308,9 +333,10 @@
       "speed": "1G",
       "speedCaps": [
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
-      "poeOut": true,
+      "poeOut": 34.2,
       "poeOutClass": "PoE+"
     },
     {
@@ -320,9 +346,10 @@
       "speed": "1G",
       "speedCaps": [
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
-      "poeOut": true,
+      "poeOut": 34.2,
       "poeOutClass": "PoE+"
     },
     {
@@ -332,9 +359,10 @@
       "speed": "1G",
       "speedCaps": [
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
-      "poeOut": true,
+      "poeOut": 34.2,
       "poeOutClass": "PoE+"
     },
     {
@@ -344,9 +372,10 @@
       "speed": "1G",
       "speedCaps": [
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
-      "poeOut": true,
+      "poeOut": 34.2,
       "poeOutClass": "PoE+"
     },
     {
@@ -356,9 +385,10 @@
       "speed": "1G",
       "speedCaps": [
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
-      "poeOut": true,
+      "poeOut": 34.2,
       "poeOutClass": "PoE+"
     },
     {
@@ -368,9 +398,10 @@
       "speed": "1G",
       "speedCaps": [
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
-      "poeOut": true,
+      "poeOut": 34.2,
       "poeOutClass": "PoE+"
     },
     {
@@ -380,9 +411,10 @@
       "speed": "1G",
       "speedCaps": [
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
-      "poeOut": true,
+      "poeOut": 34.2,
       "poeOutClass": "PoE+"
     },
     {
@@ -392,9 +424,10 @@
       "speed": "1G",
       "speedCaps": [
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
-      "poeOut": true,
+      "poeOut": 34.2,
       "poeOutClass": "PoE+"
     },
     {
@@ -404,9 +437,10 @@
       "speed": "1G",
       "speedCaps": [
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
-      "poeOut": true,
+      "poeOut": 34.2,
       "poeOutClass": "PoE+"
     },
     {
@@ -416,9 +450,10 @@
       "speed": "1G",
       "speedCaps": [
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
-      "poeOut": true,
+      "poeOut": 34.2,
       "poeOutClass": "PoE+"
     },
     {
@@ -428,9 +463,10 @@
       "speed": "1G",
       "speedCaps": [
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
-      "poeOut": true,
+      "poeOut": 34.2,
       "poeOutClass": "PoE+"
     },
     {
@@ -440,9 +476,10 @@
       "speed": "1G",
       "speedCaps": [
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
-      "poeOut": true,
+      "poeOut": 34.2,
       "poeOutClass": "PoE+"
     },
     {
@@ -452,9 +489,10 @@
       "speed": "1G",
       "speedCaps": [
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
-      "poeOut": true,
+      "poeOut": 34.2,
       "poeOutClass": "PoE+"
     },
     {
@@ -464,9 +502,10 @@
       "speed": "1G",
       "speedCaps": [
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
-      "poeOut": true,
+      "poeOut": 34.2,
       "poeOutClass": "PoE+"
     },
     {
@@ -476,9 +515,10 @@
       "speed": "1G",
       "speedCaps": [
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
-      "poeOut": true,
+      "poeOut": 34.2,
       "poeOutClass": "PoE+"
     },
     {
@@ -488,9 +528,10 @@
       "speed": "1G",
       "speedCaps": [
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
-      "poeOut": true,
+      "poeOut": 34.2,
       "poeOutClass": "PoE+"
     },
     {
@@ -500,9 +541,10 @@
       "speed": "1G",
       "speedCaps": [
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
-      "poeOut": true,
+      "poeOut": 34.2,
       "poeOutClass": "PoE+"
     },
     {
@@ -512,9 +554,10 @@
       "speed": "1G",
       "speedCaps": [
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
-      "poeOut": true,
+      "poeOut": 34.2,
       "poeOutClass": "PoE+"
     },
     {
@@ -524,9 +567,10 @@
       "speed": "1G",
       "speedCaps": [
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
-      "poeOut": true,
+      "poeOut": 34.2,
       "poeOutClass": "PoE+"
     },
     {
@@ -536,9 +580,10 @@
       "speed": "1G",
       "speedCaps": [
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
-      "poeOut": true,
+      "poeOut": 34.2,
       "poeOutClass": "PoE+"
     },
     {
@@ -548,9 +593,10 @@
       "speed": "1G",
       "speedCaps": [
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
-      "poeOut": true,
+      "poeOut": 34.2,
       "poeOutClass": "PoE+"
     },
     {
@@ -560,9 +606,10 @@
       "speed": "1G",
       "speedCaps": [
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
-      "poeOut": true,
+      "poeOut": 34.2,
       "poeOutClass": "PoE+"
     },
     {
@@ -572,9 +619,10 @@
       "speed": "1G",
       "speedCaps": [
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
-      "poeOut": true,
+      "poeOut": 34.2,
       "poeOutClass": "PoE+"
     },
     {
@@ -584,9 +632,10 @@
       "speed": "1G",
       "speedCaps": [
         "1G",
-        "100M"
+        "100M",
+        "10M"
       ],
-      "poeOut": true,
+      "poeOut": 34.2,
       "poeOutClass": "PoE+"
     },
     {
@@ -640,5 +689,5 @@
     "sourceUrl": "https://techspecs.ui.com/uisp/wired/es-48-500w",
     "note": "Published row: \"Total PoE available = 500W\". Per-port ceiling \"PoE+: 34.2W\" (802.3at Type 2, 50-57V); 24V passive PoE 17W per port on the same jacks, not additive. Max power consumption 64W excludes PoE output, so the published 500 W allocation - not the 500 W PSU - is what a PD may draw."
   },
-  "notes": "Census from the vendor tech-spec table (https://techspecs.ui.com/uisp/wired/es-48-500w, HTTP 200, 583,292 B, server-rendered table, read 2026-11-20): Networking interface \"(48) GbE RJ45 ports / (2) 1/10G SFP+ ports / (2) 1G SFP ports\"; PoE interface \"(48) PoE/PoE+ 2-pair (Pins 1, 2+; 3, 6-) / (48) 24V DC passive PoE 2-pair\"; Management interface \"(1) RJ45 serial port, Ethernet In/Out-Band\". Before this pass the 48 copper ports carried no connector, no poeOut and no budget, so a 48-port PoE+ switch supplied nothing and `show power inline` refused the arithmetic. Also added here: the serial console (52 jacks modelled for 53 physical) and the connector on the two 1G SFP cages. Speed ladder: the page prints \"GbE RJ45\" with no 10M rung, so 1G/100M only; the SFP+ cages keep 10G/1G."
+  "notes": "Census from the vendor tech-spec table (https://techspecs.ui.com/uisp/wired/es-48-500w, HTTP 200, 583,292 B, server-rendered table, read 2026-11-20): Networking interface \"(48) GbE RJ45 ports / (2) 1/10G SFP+ ports / (2) 1G SFP ports\"; PoE interface \"(48) PoE/PoE+ 2-pair (Pins 1, 2+; 3, 6-) / (48) 24V DC passive PoE 2-pair\"; Management interface \"(1) RJ45 serial port, Ethernet In/Out-Band\". Before this pass the 48 copper ports carried no connector, no poeOut and no budget, so a 48-port PoE+ switch supplied nothing and `show power inline` refused the arithmetic. Also added here: the serial console (52 jacks modelled for 53 physical) and the connector on the two 1G SFP cages. Speed ladder: the page prints \"GbE RJ45\" with no 10M rung, so 1G/100M only; the SFP+ cages keep 10G/1G. Per-port ceiling added 2026-11-21, not inferred from the PoE class: the same tech-spec page prints \"Max. PoE wattage per port by PSE - PoE+: 34.2W / Passive PoE: 17W\" and \"Voltage range PoE mode - PoE+: 50-57V / Passive PoE: 20-27V\", and the quick-start guide (https://dl.ui.com/qsg/ES-48-500W_ES-48-750W/ES-48-500W_ES-48-750W_EN.html, HTTP 200, 24,302 B, read 2026-11-21) repeats both ceilings and states \"The PoE settings for ports 1-48 are set to PoE+ auto by default, so 802.3af/at devices can be plugged in and automatically receive PoE\". Before this pass the 48 copper sockets carried `poeOut: true`, a bare direction bit: engine/media.js `poeDraw()` bills it as 1 W and the faceplate's `num()` prints nothing, so on a chassis Ubiquiti rates at 34.2 W per socket a 30 W 802.3at AP was refused power on all 48 ports. 34.2 is the PoE+ PSE ceiling; the 17 W 24 V passive ceiling sits on the same jacks and is not additive, and neither number is the whole-box allocation. Speed ladder: the tech-spec row prints only \"(48) GbE RJ45 ports\", which is why these sockets ended at 100M - but the quick-start guide that covers both 48-port models (Model: ES-48-500W, ES-48-750W) states \"RJ45 (Ports 1 - 48) ... RJ45 ports support Power over Ethernet (PoE) and 10/100/1000 Ethernet connections\", so the ten-megabit rung is restored on all 48 and the 750 W sibling (whose own row prints \"10/100/1000 Mbps\") needs no such repair."
 }
