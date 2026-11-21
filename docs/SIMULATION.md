@@ -425,13 +425,16 @@ Three OSPF defects were found here — [#42, #43, #44](#10-fixed-defects-kept-vi
 | **Approximate** | The FSM exists (`idle→connect→active→opensent→openconfirm→established`) but is never fed: hold/keepalive timers are validated and carried, never expire, and no session ever drops. | `engine/bgp.js:14-21`, `engine/bgp.js:220-266` |
 | **Approximate** | Next hop is rewritten to the advertising router's address on every advertisement, which is right for eBGP and wrong for an iBGP relay — see defect #41. | `engine/simulator.js:617` |
 | **Absent** | Route reflectors, confederations, peer groups/templates, AFI/SAFI negotiation, IPv6 unicast, communities, route-maps, prefix-lists, `next-hop-self`, dampening, graceful restart. | — |
-| **Absent in the CLI** | `router bgp`, `neighbor … remote-as`, `router-id` only. | `engine/cli.js:1937-1938` (`router bgp`), `engine/cli.js:3239` (`_bgp()`), `engine/cli.js:3273-3282` (`neighbor ... remote-as`) |
+| **Absent in the CLI** | `router bgp`, `neighbor … remote-as`, `router-id` only. | `engine/cli.js:1944-1945` (`router bgp`), `engine/cli.js:3246` (`_bgp()`), `engine/cli.js:3279-3286` (`neighbor ... remote-as`) |
 
 All three pointers in that last row were re-read off this tree (#2399, #2406). The row cited
 `engine/cli.js:1901-1902`, `:3168` and `:3202-3211`, which is where they sat when `eb5159fd` measured them; #2399
 inserted 36 lines above the `router bgp` door and #2406 a further 35 above `_bgp()`, so `1901` now falls inside the
 `no dns zone` handler and `3168`/`3202` inside `_ipv6Nd()`'s prefix parser - a reader following either learned how a
 zone is deleted, or how a router-advertisement lifetime is validated, not what BGP commands this console has.
+They were read a third time on this tree (`89c0c818`): the console had grown above the BGP branches, and
+the three pointers now sit at 1944, 3246 and 3279 — 7, 7 and 6 lines below the numbers the first re-read
+recorded, which is why the row above carries this tree's figures.
 
 `docs/BGP-POLICY.md` is a **design document**, not a description of the code:
 its tables read "Today … This design changes it to" (`docs/BGP-POLICY.md:39-50`)
