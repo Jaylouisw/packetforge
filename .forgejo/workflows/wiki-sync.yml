@@ -33,9 +33,50 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - uses: actions/checkout@v4
-        with:
-          persist-credentials: false
+      # No `actions/checkout` here, for the two reasons the other five workflows in this
+      # directory already give - this was the last one still paying for it.
+      #
+      # Cost. The runner pre-clones every `uses:` action into /data/.cache/act, one
+      # directory per action revision, before a job's first step, and it does not reuse
+      # that clone between runs - on the same volume Forgejo's own data lives on, the
+      # volume that has already filled once. That is the price of a tree this job only
+      # needs for `docs/wiki/*.md`.
+      #
+      # Reliability. Two clones of the same revision into the same path, seconds apart,
+      # is the one failure in this pipeline that has put a red X on a green tree:
+      # run 3122 task 6834 died with `Unable to checkout ...: remove
+      # /data/.cache/act/e5/877e.../.gitignore: no such file or directory` while its
+      # siblings ran the identical suite to completion. No action, no shared cache
+      # directory, no race.
+      #
+      # `git` is in the image and this job needs one commit. Same fetch as
+      # close-merged-issues.yml and closed-audit.yml: shallow, detached, credentials
+      # per command through an inline helper so nothing is written into .git/config,
+      # with a 120 s bound because `timeout-minutes` above is not a bound this runner
+      # enforces (ci.yml documents three tasks that outlived it).
+      - name: Check out this commit, from git
+        env:
+          TOKEN: ${{ secrets.GITHUB_TOKEN || github.token }}
+        run: |
+          set -eu
+          server="${GITHUB_SERVER_URL:-}"
+          if [ -z "$server" ]; then
+            api="${GITHUB_API_URL:-http://10.0.10.20:3000/api/v1}"
+            server="${api%/api/v1}"
+          fi
+          url="${server}/${GITHUB_REPOSITORY}.git"
+          sha="${{ github.sha }}"
+          git init -q .
+          git remote add origin "$url"
+          if [ -n "${TOKEN:-}" ]; then
+            timeout 120 git -c credential.helper='!f() { echo username=pf-ci; echo "password=${TOKEN}"; }; f' \
+              -c http.lowSpeedLimit=1000 -c http.lowSpeedTime=30 fetch -q --depth=1 origin "$sha"
+          else
+            timeout 120 git -c http.lowSpeedLimit=1000 -c http.lowSpeedTime=30 fetch -q --depth=1 origin "$sha"
+          fi
+          git checkout -q -f --detach FETCH_HEAD
+          git clean -qfdx
+          echo "checked out $(git rev-parse HEAD) of ${url} with git - no action cache involved"
 
       - name: Push docs/wiki to the wiki repository
         env:
@@ -64,7 +105,19 @@ jobs:
           repo="${path##*/}"; repo="${repo%.git}"
           wiki_url="${scheme}://git:${WIKI_TOKEN}@${host}/${owner}/${repo}.wiki.git"
 
-          git clone --quiet "$wiki_url" wiki
+          # Both of this job's git calls are bounded, because `timeout-minutes: 5` at the
+          # top is a label on this runner rather than a kill: task 14673 (run 5763, pull
+          # #1915) held a slot for 6363 s against a 10-minute bound. A peer that accepts
+          # the connection and then stops answering is the stall this host produced twice
+          # on 2026-11-18, and an unbounded clone of the wiki is that stall holding a
+          # runner slot for as long as it likes. 90 s against a job that takes 11 s end
+          # to end (task 23222, run 9263, a dispatch of this workflow on main) is not a
+          # slow-network tripwire; a timeout here is reported as a timeout and fails the
+          # step.
+          if ! timeout --signal=TERM --kill-after=15 90 git clone --quiet "$wiki_url" wiki; then
+            echo "::error title=Wiki sync::the wiki repository could not be cloned in 90 s - the sync did not run, and the next docs/wiki push will try again" >&2
+            exit 1
+          fi
           cd wiki
 
           # `main` is the branch Forgejo renders. Land on it explicitly in case
@@ -94,5 +147,8 @@ jobs:
           git -c user.name='packetforge-bot' \
               -c user.email='packetforge@localhost' \
               commit -q -m "Sync from docs/wiki (${GITHUB_SHA})"
-          git push -q origin main
+          if ! timeout --signal=TERM --kill-after=15 90 git push -q origin main; then
+            echo "::error title=Wiki sync::the push to the wiki repository did not finish in 90 s" >&2
+            exit 1
+          fi
           echo "Pushed wiki at ${GITHUB_SHA}."
