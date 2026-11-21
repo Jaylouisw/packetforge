@@ -3,15 +3,19 @@
   "model": "JGS516PE",
   "label": "NETGEAR JGS516PE",
   "category": "switch",
-  "description": "16-port gigabit smart managed plus switch with PoE on 8 ports.",
+  "description": "16-port gigabit smart managed plus switch with 802.3af PoE on ports 1-8 sharing an 85 W budget.",
   "capabilities": [
     "l2-forward",
     "poe-pse",
     "802.3af",
-    "802.3at",
     "cli",
     "http-server"
   ],
+  "poe": {
+    "budgetW": 85,
+    "sourceUrl": "https://www.downloads.netgear.com/files/GDC/JGS516PE/JGS516PE_JGS524PE_IG_EN.pdf",
+    "note": "JGS516PE/JGS524PE installation guide, Specifications: \"Ports | JGS516PE: 16, of which ports 1-8 are PoE ports\" and \"Power budget | JGS516PE: 15.4W per port for ports 1-8 Maximum power budget for the switch: 85W\"; \"Power consumption | JGS516PE: 110W maximum with PoE\". The Gigabit Ethernet Plus Switches data sheet agrees on both: the JGS516PE row is \"16\" copper ports, \"8\" \"PoE 802.3af Ports\", \"85W\" - and the 123 W on the same page is the JGS524PE's maximum power consumption, which is where the 123 W budget claim came from."
+  },
   "interfaces": [
     {
       "name": "ge1",
@@ -19,7 +23,7 @@
       "connector": "rj45",
       "speed": "1G",
       "poeOut": true,
-      "poeOutClass": "PoE+"
+      "poeOutClass": "PoE"
     },
     {
       "name": "ge2",
@@ -27,7 +31,7 @@
       "connector": "rj45",
       "speed": "1G",
       "poeOut": true,
-      "poeOutClass": "PoE+"
+      "poeOutClass": "PoE"
     },
     {
       "name": "ge3",
@@ -35,7 +39,7 @@
       "connector": "rj45",
       "speed": "1G",
       "poeOut": true,
-      "poeOutClass": "PoE+"
+      "poeOutClass": "PoE"
     },
     {
       "name": "ge4",
@@ -43,7 +47,7 @@
       "connector": "rj45",
       "speed": "1G",
       "poeOut": true,
-      "poeOutClass": "PoE+"
+      "poeOutClass": "PoE"
     },
     {
       "name": "ge5",
@@ -51,7 +55,7 @@
       "connector": "rj45",
       "speed": "1G",
       "poeOut": true,
-      "poeOutClass": "PoE+"
+      "poeOutClass": "PoE"
     },
     {
       "name": "ge6",
@@ -59,7 +63,7 @@
       "connector": "rj45",
       "speed": "1G",
       "poeOut": true,
-      "poeOutClass": "PoE+"
+      "poeOutClass": "PoE"
     },
     {
       "name": "ge7",
@@ -67,7 +71,7 @@
       "connector": "rj45",
       "speed": "1G",
       "poeOut": true,
-      "poeOutClass": "PoE+"
+      "poeOutClass": "PoE"
     },
     {
       "name": "ge8",
@@ -75,56 +79,64 @@
       "connector": "rj45",
       "speed": "1G",
       "poeOut": true,
-      "poeOutClass": "PoE+"
+      "poeOutClass": "PoE"
     },
     {
       "name": "ge9",
       "type": "ethernet",
       "connector": "rj45",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": false
     },
     {
       "name": "ge10",
       "type": "ethernet",
       "connector": "rj45",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": false
     },
     {
       "name": "ge11",
       "type": "ethernet",
       "connector": "rj45",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": false
     },
     {
       "name": "ge12",
       "type": "ethernet",
       "connector": "rj45",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": false
     },
     {
       "name": "ge13",
       "type": "ethernet",
       "connector": "rj45",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": false
     },
     {
       "name": "ge14",
       "type": "ethernet",
       "connector": "rj45",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": false
     },
     {
       "name": "ge15",
       "type": "ethernet",
       "connector": "rj45",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": false
     },
     {
       "name": "ge16",
       "type": "ethernet",
       "connector": "rj45",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": false
     }
   ],
-  "notes": "Vendor figures: **16 gigabit ports with PoE on 8 of them** (the -PE suffix means a powered subset, not a powered whole). **Budget figures differ between NETGEAR's own listings for this SKU - 85 W and 123 W both appear** - so read the label on the unit rather than the web page before planning a 30 W load."
+  "notes": "Vendor figures from NETGEAR's Gigabit Ethernet Plus Switches data sheet and the JGS516PE/JGS524PE installation guide: **16 gigabit copper ports, of which ports 1-8 are 802.3af PoE ports (15.4 W per port) and ports 9-16 carry no power**, with a **total PoE budget of 85 W** - 8 x 15.4 W = 123.2 W of port ceiling against 85 W, so the budget is the limit. The 123 W figure that appears on some listings is this switch's maximum power consumption with PoE (110 W here, 123 W for the 24-port JGS524PE), not a PoE budget."
 }
