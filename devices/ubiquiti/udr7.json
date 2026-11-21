@@ -29,7 +29,8 @@
         "100M"
       ],
       "poeOut": true,
-      "poeOutClass": "PoE"
+      "poeOutClass": "PoE",
+      "role": "lan"
     },
     {
       "name": "eth1",
@@ -41,7 +42,8 @@
         "1G",
         "100M"
       ],
-      "poeIn": false
+      "poeIn": false,
+      "role": "lan"
     },
     {
       "name": "eth2",
@@ -53,7 +55,8 @@
         "1G",
         "100M"
       ],
-      "poeIn": false
+      "poeIn": false,
+      "role": "lan"
     },
     {
       "name": "eth3",
@@ -65,7 +68,8 @@
         "1G",
         "100M"
       ],
-      "poeIn": false
+      "poeIn": false,
+      "role": "wan"
     },
     {
       "name": "sfp1",
@@ -75,7 +79,8 @@
       "speedCaps": [
         "10G",
         "1G"
-      ]
+      ],
+      "role": "wan"
     },
     {
       "name": "radio0",
@@ -110,5 +115,5 @@
     "sourceUrl": "https://techspecs.ui.com/unifi/cloud-gateways/udr7",
     "note": "15.4 W, the whole published budget: the tech-spec table lists \"2.5 GbE RJ45 = 4 (1 PoE)\" and, under Hardware, \"PoE Budget = 15.4W\", \"PoE = 15.4W\", \"Voltage Range PoE Mode = 44-57V\" (read 2026-11-19). One 802.3af port at its 15.4 W maximum exactly uses the budget, which is why eth0 is the only poeOut port modelled. This model has no datasheet in its documents list - the product page names only https://ui.com/qig/udr7 (InstallationGuide) - so the rendered spec table is the vendor source."
   },
-  "notes": "Power: none of these copper ports accepts PoE. Vendor page https://techspecs.ui.com/unifi/cloud-gateways/udr7 (HTTP 200, 694,590 B, read 2026-11-19, server-rendered tech-spec table) says \"Power Method = Universal AC input, 100-240V AC, 1.5A Max, 50/60 Hz\"; a box fed from mains, a USB-C supply or a DC jack has no PoE-PD front end, so eth1 / eth2 / eth3 now declare poeIn: false. Without that declaration the engine's isPoePd() match on \"unifi\" gave each silent copper port a 12.95 W 802.3af draw - the defect PR #2118 and PR #2121 fixed across the UXG family (refs #130).\n\nWiFi: the Dream Router 7 carries a tri-band 802.11be (WiFi 7) access point - the Integrated WiFi table on https://techspecs.ui.com/unifi/cloud-gateways/udr7 (HTTP 200, 694,590 B, read 2026-11-19, server-rendered) prints \"Throughput 6 GHz 5.7 Gbps / 5 GHz 4.3 Gbps / 2.4 GHz 688 Mbps\" and \"MIMO 6 GHz 2 x 2 / 5 GHz 2 x 2 / 2.4 GHz 2 x 2\", \"WiFi Standard 802.11a/b/g/n/ac/ax/be (WiFi 6/6E, WiFi 7)\". So radio0 = 2.4 GHz 688 Mbps, radio1 = 5 GHz 4.3 Gbps, radio2 = 6 GHz 5.7 Gbps. This model has no datasheet on dl.ui.com (https://dl.ui.com/ds/udr7_ds.pdf answers 302 to the marketing home page), so the rendered tech-spec table is the vendor source. `bands` is declared per radio: engine/media.js derives bands from the rate alone and a 4.3 Gbps 802.11be radio would otherwise claim 6 GHz as well.\n\nLayer 2: Ubiquiti's controller device database classifies this SKU as a switch - https://static.ui.com/fingerprint/ui/public.json (HTTP 200, 832,585 B, read 2026-11-21) lists UDR7 deviceCapabilities GATEWAY, SWITCH, ACCESS_POINT, NETWORK_APPLICATION, PROTECT_APPLICATION, CONTROLLER, APPLICATION_MODE, HAS_CLIENTS and draws its panel as `01 02 03 04 05` - and the vendor tech-spec table publishes the bridge's forwarding database at https://techspecs.ui.com/unifi/cloud-gateways/udr7 (HTTP 200, 694,590 B, read 2026-11-21), which prints \"MAC Address Table Size = 2,000\" with \"VLAN/Subnet-based Traffic Segmentation\" ticked. No LACP row appears, so no LAG is claimed. A MAC address table is a bridge FDB; a gateway that only routed would hold neither it nor a LAG. While the row shipped without `l2-forward` its copper sockets were routed interfaces: `switchport access vlan 10` was answered with \"cannot switch frames: it has no l2-forward capability\", and two hosts on eth0 and eth1 in 192.168.1.0/24 could not resolve each other's ARP (\"not addressed to this device\"). The page's WAN side is unchanged and still not pinned: \"Default WAN Ports = (1) 10G SFP+ / (1) 2.5 GbE RJ45\", \"Max. WAN Port Count = 4\", and the diagram is one unbroken run of five, so no copper socket is renamed WAN here."
+  "notes": "Power: none of these copper ports accepts PoE. Vendor page https://techspecs.ui.com/unifi/cloud-gateways/udr7 (HTTP 200, 694,590 B, read 2026-11-19, server-rendered tech-spec table) says \"Power Method = Universal AC input, 100-240V AC, 1.5A Max, 50/60 Hz\"; a box fed from mains, a USB-C supply or a DC jack has no PoE-PD front end, so eth1 / eth2 / eth3 now declare poeIn: false. Without that declaration the engine's isPoePd() match on \"unifi\" gave each silent copper port a 12.95 W 802.3af draw - the defect PR #2118 and PR #2121 fixed across the UXG family (refs #130).\n\nWiFi: the Dream Router 7 carries a tri-band 802.11be (WiFi 7) access point - the Integrated WiFi table on https://techspecs.ui.com/unifi/cloud-gateways/udr7 (HTTP 200, 694,590 B, read 2026-11-19, server-rendered) prints \"Throughput 6 GHz 5.7 Gbps / 5 GHz 4.3 Gbps / 2.4 GHz 688 Mbps\" and \"MIMO 6 GHz 2 x 2 / 5 GHz 2 x 2 / 2.4 GHz 2 x 2\", \"WiFi Standard 802.11a/b/g/n/ac/ax/be (WiFi 6/6E, WiFi 7)\". So radio0 = 2.4 GHz 688 Mbps, radio1 = 5 GHz 4.3 Gbps, radio2 = 6 GHz 5.7 Gbps. This model has no datasheet on dl.ui.com (https://dl.ui.com/ds/udr7_ds.pdf answers 302 to the marketing home page), so the rendered tech-spec table is the vendor source. `bands` is declared per radio: engine/media.js derives bands from the rate alone and a 4.3 Gbps 802.11be radio would otherwise claim 6 GHz as well.\n\nLayer 2: Ubiquiti's controller device database classifies this SKU as a switch - https://static.ui.com/fingerprint/ui/public.json (HTTP 200, 832,585 B, read 2026-11-21) lists UDR7 deviceCapabilities GATEWAY, SWITCH, ACCESS_POINT, NETWORK_APPLICATION, PROTECT_APPLICATION, CONTROLLER, APPLICATION_MODE, HAS_CLIENTS and draws its panel as `01 02 03 04 05` - and the vendor tech-spec table publishes the bridge's forwarding database at https://techspecs.ui.com/unifi/cloud-gateways/udr7 (HTTP 200, 694,590 B, read 2026-11-21), which prints \"MAC Address Table Size = 2,000\" with \"VLAN/Subnet-based Traffic Segmentation\" ticked. No LACP row appears, so no LAG is claimed. A MAC address table is a bridge FDB; a gateway that only routed would hold neither it nor a LAG. While the row shipped without `l2-forward` its copper sockets were routed interfaces: `switchport access vlan 10` was answered with \"cannot switch frames: it has no l2-forward capability\", and two hosts on eth0 and eth1 in 192.168.1.0/24 could not resolve each other's ARP (\"not addressed to this device\"). The page's WAN side is unchanged and still not pinned: \"Default WAN Ports = (1) 10G SFP+ / (1) 2.5 GbE RJ45\", \"Max. WAN Port Count = 4\", and the diagram is one unbroken run of five, so no copper socket is renamed WAN here.\\n\\nLAN/WAN separation, read 2026-11-21. Ubiquiti's controller database (https://static.ui.com/fingerprint/ui/public.json, 832,585 B) publishes this SKU's per-socket role map: `ports` = {\"eth0\":\"LAN\",\"eth1\":\"LAN\",\"eth2\":\"LAN\",\"eth3\":\"WAN\",\"eth4\":\"WAN2\"} over a five-socket panel, and its `linkNegotiation` block is the only positional part of that record - eth2 at portIdx 3 and eth3 at portIdx 4 negotiate 2500/1000/100/10 FDX, eth4 at portIdx 5 only 10000/1000 FDX, so eth4 is the SFP+ cage. The tech-spec table prints the same split in words: \"Port Layout = 2.5 GbE RJ45 4 (1 PoE) (2.5G/1G/100M/10M) / 10G SFP+ 1 (10G/1G)\", \"Max. WAN Port Count = 4\", \"Default WAN Ports = (1) 10G SFP+ / (1) 2.5 GbE RJ45\" (https://techspecs.ui.com/unifi/cloud-gateways/udr7, 694,590 B, read 2026-11-21). So eth0-eth2 are the LAN bank, eth3 is the 2.5G RJ45 WAN and sfp1 is the controller's eth4 - the default 10G SFP+ WAN2. Until the roles were written, `ownsIpOn`'s separation (`owner.role && inIface.role && owner.role !== inIface.role`) was a no-op on this row: with 192.168.1.1/24 on eth0, `ownsIpOn(eth3, '192.168.1.1')` returned true and a host cabled to the WAN socket inside that prefix got an ICMP reply from the LAN gateway. The defaults are the vendor's; re-assigning a socket to WAN or LAN is a configuration change, and the default map is what is modelled here."
 }

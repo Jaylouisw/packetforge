@@ -61,7 +61,12 @@ const ROWS = [
   // The Dream Machine itself, added 2026-11-21: four 1G LAN sockets and the one 1G uplink, all five named in the
   // spec, with the controller database's `ports` map naming `eth4` as the uplink and the datasheet printing
   // "(4) LAN: GbE RJ45 ports / (1) WAN: GbE RJ45 port".
-  { model: 'UDM', lan: 'LAN 1', wan: 'WAN', lanCount: 4, second: 'LAN 2' }
+  { model: 'UDM', lan: 'LAN 1', wan: 'WAN', lanCount: 4, second: 'LAN 2' },
+  // The two Dream Routers, added 2026-11-21: four 2.5G RJ45 plus one 10G SFP+. The controller names the
+  // sockets eth0-eth4 and puts the uplinks on eth3 (2.5G RJ45) and eth4 (SFP+); the tech-spec table prints
+  // "Default WAN Ports (1) 10G SFP+ / (1) 2.5 GbE RJ45" over a "2.5 GbE RJ45 4 / 10G SFP+ 1" panel.
+  { model: 'UDR7', lan: 'eth0', wan: 'eth3', lanCount: 3, second: 'eth1' },
+  { model: 'UDR-5G-Max', lan: 'eth0', wan: 'eth3', lanCount: 3, second: 'eth1' }
 ];
 
 ROWS.forEach(function (row) {
@@ -159,6 +164,21 @@ console.log('\nThe radios and the cages keep what the vendor does say');
     ok(cages.length === 2, model + ' keeps its two SFP+ cages');
     ok(cages.every(function (i) { return !i.role && !i.dualRole; }),
       'and neither cage claims a WAN or LAN role the datasheet does not number');
+  });
+
+  // The two Dream Routers' one cage is the controller's eth4: it is the default 10G SFP+ WAN, so it carries
+  // role "wan" rather than sitting role-less. That is the vendor's `ports` map, not a guess at the panel.
+  ['UDR7', 'UDR-5G-Max'].forEach(function (model) {
+    const s = spec(model);
+    const cages = s.interfaces.filter(function (i) { return i.connector === 'sfp+'; });
+    ok(cages.length === 1, model + ' has one 10G SFP+ cage');
+    ok(cages[0].role === 'wan', 'and it declares role "wan" - the default second WAN', String(cages[0].role));
+    const t2 = new Topology();
+    const r2 = t2.addDevice(s); r2.name = 'GW';
+    const l = r2.interfaces.get('eth0');
+    l.ip = '192.168.1.1'; l.mask = '255.255.255.0';
+    ok(!r2.ownsIpOn(r2.interfaces.get(cages[0].name), '192.168.1.1'),
+      model + ': the SFP+ WAN does not answer the LAN address');
   });
 
   const t = new Topology();

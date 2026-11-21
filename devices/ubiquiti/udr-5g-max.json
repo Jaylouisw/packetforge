@@ -29,7 +29,8 @@
         "100M"
       ],
       "poeOut": true,
-      "poeOutClass": "PoE"
+      "poeOutClass": "PoE",
+      "role": "lan"
     },
     {
       "name": "eth1",
@@ -41,7 +42,8 @@
         "1G",
         "100M"
       ],
-      "poeIn": false
+      "poeIn": false,
+      "role": "lan"
     },
     {
       "name": "eth2",
@@ -53,7 +55,8 @@
         "1G",
         "100M"
       ],
-      "poeIn": false
+      "poeIn": false,
+      "role": "lan"
     },
     {
       "name": "eth3",
@@ -65,7 +68,8 @@
         "1G",
         "100M"
       ],
-      "poeIn": false
+      "poeIn": false,
+      "role": "wan"
     },
     {
       "name": "sfp1",
@@ -75,7 +79,8 @@
       "speedCaps": [
         "10G",
         "1G"
-      ]
+      ],
+      "role": "wan"
     },
     {
       "name": "wwan0",
@@ -114,5 +119,5 @@
     "budgetW": 15.4,
     "sourceUrl": "https://techspecs.ui.com/unifi/cloud-gateways/udr-5g-max"
   },
-  "notes": "Vendor figures from the tech specs page, read 2026-11-19 (structured spec table, not the rendered images): **2.5 GbE RJ45 = 4 (1 PoE) (2.5G/1G/100M)**, **10G SFP+ = 1 (10G/1G)**, **Max. WAN port count 4**, default WAN ports **(1) 10G SFP+ / (1) 2.5 GbE RJ45**, **PoE Budget 15.4 W** with the single PoE port rated 15.4 W (802.3af, 44-57 V), **Max. Power Consumption 34.5 W (excluding PoE output)**, **Cellular: 5G NR Sub-6** - 5G NSA 3.4 Gbps down / 560 Mbps up, 5G SA 1.8 Gbps / 650 Mbps, 4G LTE 1.6 Gbps / 210 Mbps, **(2) Nano SIM + (1) Nano-SIM or eSIM**.\n\nThe modem is modelled as `wwan0` at the vendor's 3.4 Gbps 5G NSA downlink, the convention `u5g-max`, `u5g`, `u5g-max-outdoor`, `u-lte-backup-pro` and `umr` already use; the engine resolves the name to a cellular cage and offers LTE / LTE-A / 5G sub-6 media from that rate. Without it the row was a router with four RJ45s and no WAN of the kind the request asks for.\n\nThe PoE budget and the single port's 802.3af ceiling are the same 15.4 W figure on the vendor page - that is one PoE port, not a budget that happens to match.\nPower: none of these copper ports accepts PoE. Vendor page https://techspecs.ui.com/unifi/cloud-gateways/udr-5g-max (HTTP 200, 876,426 B, read 2026-11-19, server-rendered tech-spec table) says \"Power Method = DC jack (54V DC/1.1A)\"; a box fed from mains, a USB-C supply or a DC jack has no PoE-PD front end, so eth1 / eth2 / eth3 now declare poeIn: false. Without that declaration the engine's isPoePd() match on \"unifi\" gave each silent copper port a 12.95 W 802.3af draw - the defect PR #2118 and PR #2121 fixed across the UXG family (refs #130).\n\nWiFi: the tri-band 802.11be (WiFi 7) access point is modelled as radio0 (2.4 GHz 688 Mbps), radio1 (5 GHz 4.3 Gbps) and radio2 (6 GHz 5.7 Gbps), from the Integrated WiFi table on https://techspecs.ui.com/unifi/cloud-gateways/udr-5g-max (HTTP 200, 876,426 B, read 2026-11-19): \"Throughput 6 GHz 5.7 Gbps / 5 GHz 4.3 Gbps / 2.4 GHz 688 Mbps\", \"MIMO 6 GHz 2 x 2 / 5 GHz 2 x 2 / 2.4 GHz 2 x 2\", \"WiFi Standard 802.11a/b/g/n/ac/ax/be (WiFi 6/6E, WiFi 7)\". It was previously left out on the reasoning that no console row in the catalogue carried radios, so modelling it here would read as if only this model had WiFi; the whole Dream console family (UDW, UDR, UDR7, this) now carries them, so that objection is gone. `bands` is declared per radio because engine/media.js otherwise infers the band set from the rate alone, giving a 4.3 Gbps 802.11be radio a 6 GHz band regardless of name.\n\nLayer 2: Ubiquiti's controller device database classifies this SKU as a switch - https://static.ui.com/fingerprint/ui/public.json (HTTP 200, 832,585 B, read 2026-11-21) lists UDR-5G-Max deviceCapabilities GATEWAY, SWITCH, ACCESS_POINT, NETWORK_APPLICATION, PROTECT_APPLICATION, CONTROLLER, APPLICATION_MODE, MOBILE_BROADBAND_GATEWAY, HAS_CLIENTS and draws its panel as `01 02 03 04 05` - and the vendor tech-spec table publishes the bridge's forwarding database at https://techspecs.ui.com/unifi/cloud-gateways/udr-5g-max (HTTP 200, 876,426 B, read 2026-11-21), which prints \"MAC Address Table Size = 2,000\"; neither an LACP nor a segmentation row appears, so neither is claimed. A MAC address table is a bridge FDB; a gateway that only routed would hold neither it nor a LAG. While the row shipped without `l2-forward` its copper sockets were routed interfaces: `switchport access vlan 10` was answered with \"cannot switch frames: it has no l2-forward capability\", and two hosts on eth0 and eth1 in 192.168.1.0/24 could not resolve each other's ARP (\"not addressed to this device\"). WAN side unchanged and not pinned: \"Default WAN Ports = (1) 10G SFP+ / (1) 2.5 GbE RJ45\", \"Max. WAN Port Count = 4\", one unbroken five-socket run in the diagram, so no copper socket is renamed WAN here."
+  "notes": "Vendor figures from the tech specs page, read 2026-11-19 (structured spec table, not the rendered images): **2.5 GbE RJ45 = 4 (1 PoE) (2.5G/1G/100M)**, **10G SFP+ = 1 (10G/1G)**, **Max. WAN port count 4**, default WAN ports **(1) 10G SFP+ / (1) 2.5 GbE RJ45**, **PoE Budget 15.4 W** with the single PoE port rated 15.4 W (802.3af, 44-57 V), **Max. Power Consumption 34.5 W (excluding PoE output)**, **Cellular: 5G NR Sub-6** - 5G NSA 3.4 Gbps down / 560 Mbps up, 5G SA 1.8 Gbps / 650 Mbps, 4G LTE 1.6 Gbps / 210 Mbps, **(2) Nano SIM + (1) Nano-SIM or eSIM**.\n\nThe modem is modelled as `wwan0` at the vendor's 3.4 Gbps 5G NSA downlink, the convention `u5g-max`, `u5g`, `u5g-max-outdoor`, `u-lte-backup-pro` and `umr` already use; the engine resolves the name to a cellular cage and offers LTE / LTE-A / 5G sub-6 media from that rate. Without it the row was a router with four RJ45s and no WAN of the kind the request asks for.\n\nThe PoE budget and the single port's 802.3af ceiling are the same 15.4 W figure on the vendor page - that is one PoE port, not a budget that happens to match.\nPower: none of these copper ports accepts PoE. Vendor page https://techspecs.ui.com/unifi/cloud-gateways/udr-5g-max (HTTP 200, 876,426 B, read 2026-11-19, server-rendered tech-spec table) says \"Power Method = DC jack (54V DC/1.1A)\"; a box fed from mains, a USB-C supply or a DC jack has no PoE-PD front end, so eth1 / eth2 / eth3 now declare poeIn: false. Without that declaration the engine's isPoePd() match on \"unifi\" gave each silent copper port a 12.95 W 802.3af draw - the defect PR #2118 and PR #2121 fixed across the UXG family (refs #130).\n\nWiFi: the tri-band 802.11be (WiFi 7) access point is modelled as radio0 (2.4 GHz 688 Mbps), radio1 (5 GHz 4.3 Gbps) and radio2 (6 GHz 5.7 Gbps), from the Integrated WiFi table on https://techspecs.ui.com/unifi/cloud-gateways/udr-5g-max (HTTP 200, 876,426 B, read 2026-11-19): \"Throughput 6 GHz 5.7 Gbps / 5 GHz 4.3 Gbps / 2.4 GHz 688 Mbps\", \"MIMO 6 GHz 2 x 2 / 5 GHz 2 x 2 / 2.4 GHz 2 x 2\", \"WiFi Standard 802.11a/b/g/n/ac/ax/be (WiFi 6/6E, WiFi 7)\". It was previously left out on the reasoning that no console row in the catalogue carried radios, so modelling it here would read as if only this model had WiFi; the whole Dream console family (UDW, UDR, UDR7, this) now carries them, so that objection is gone. `bands` is declared per radio because engine/media.js otherwise infers the band set from the rate alone, giving a 4.3 Gbps 802.11be radio a 6 GHz band regardless of name.\n\nLayer 2: Ubiquiti's controller device database classifies this SKU as a switch - https://static.ui.com/fingerprint/ui/public.json (HTTP 200, 832,585 B, read 2026-11-21) lists UDR-5G-Max deviceCapabilities GATEWAY, SWITCH, ACCESS_POINT, NETWORK_APPLICATION, PROTECT_APPLICATION, CONTROLLER, APPLICATION_MODE, MOBILE_BROADBAND_GATEWAY, HAS_CLIENTS and draws its panel as `01 02 03 04 05` - and the vendor tech-spec table publishes the bridge's forwarding database at https://techspecs.ui.com/unifi/cloud-gateways/udr-5g-max (HTTP 200, 876,426 B, read 2026-11-21), which prints \"MAC Address Table Size = 2,000\"; neither an LACP nor a segmentation row appears, so neither is claimed. A MAC address table is a bridge FDB; a gateway that only routed would hold neither it nor a LAG. While the row shipped without `l2-forward` its copper sockets were routed interfaces: `switchport access vlan 10` was answered with \"cannot switch frames: it has no l2-forward capability\", and two hosts on eth0 and eth1 in 192.168.1.0/24 could not resolve each other's ARP (\"not addressed to this device\"). WAN side unchanged and not pinned: \"Default WAN Ports = (1) 10G SFP+ / (1) 2.5 GbE RJ45\", \"Max. WAN Port Count = 4\", one unbroken five-socket run in the diagram, so no copper socket is renamed WAN here.\\n\\nLAN/WAN separation, read 2026-11-21. Ubiquiti's controller database (https://static.ui.com/fingerprint/ui/public.json, 832,585 B) publishes this SKU's per-socket role map: `ports` = {\"eth0\":\"LAN\",\"eth1\":\"LAN\",\"eth2\":\"LAN\",\"eth3\":\"WAN\",\"eth4\":\"WAN2\"} over a five-socket panel, and its `linkNegotiation` block places eth2 at portIdx 3 and eth3 at portIdx 4 with 2500/1000/100/10 FDX, eth4 at portIdx 5 with 10000/1000 FDX only - the SFP+ cage. The tech-spec table prints the same split in words: \"Port Layout = 2.5 GbE RJ45 4 (1 PoE) (2.5G/1G/100M) / 10G SFP+ 1 (10G/1G)\", \"Max. WAN Port Count = 4\", \"Default WAN Ports = (1) 10G SFP+ / (1) 2.5 GbE RJ45\" (https://techspecs.ui.com/unifi/cloud-gateways/udr-5g-max, 876,426 B, read 2026-11-21). So eth0-eth2 are the LAN bank, eth3 is the 2.5G RJ45 WAN and sfp1 is the controller's eth4, the default 10G SFP+ WAN2. Before the roles were written `ownsIpOn`'s separation (`owner.role && inIface.role && owner.role !== inIface.role`) was a no-op on this row: with 192.168.1.1/24 on eth0, `ownsIpOn(eth3, '192.168.1.1')` returned true and a host on the WAN socket inside that prefix was answered by the LAN gateway. The defaults are the vendor's; re-assignment is a configuration change and is not modelled."
 }
