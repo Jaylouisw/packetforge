@@ -3,12 +3,13 @@
   "model": "ES-5XP",
   "label": "EdgeSwitch 5 XP",
   "category": "switch",
-  "description": "EdgeSwitch 5 XP (ES-5XP) - five gigabit RJ45 ports with PoE configurable per port, plus a separate 10/100 management port. The small PoE switch in the EdgeSwitch XP line.",
+  "description": "EdgeSwitch 5 XP (ES-5XP) - five gigabit RJ45 data ports, each sourcing configurable 24 V passive PoE at 11.5 W, plus a separate 10/100 management port that carries no PoE. The small PoE switch in the EdgeSwitch XP line, on an included 24 V / 2.5 A adapter.",
   "capabilities": [
     "l2-forward",
     "cli",
     "http-server",
-    "poe-pse"
+    "poe-pse",
+    "passive-poe"
   ],
   "interfaces": [
     {
@@ -16,7 +17,7 @@
       "type": "ethernet",
       "connector": "rj45",
       "speed": "1G",
-      "poeOut": true,
+      "poeOut": 11.5,
       "poeOutClass": "passive"
     },
     {
@@ -24,7 +25,7 @@
       "type": "ethernet",
       "connector": "rj45",
       "speed": "1G",
-      "poeOut": true,
+      "poeOut": 11.5,
       "poeOutClass": "passive"
     },
     {
@@ -32,7 +33,7 @@
       "type": "ethernet",
       "connector": "rj45",
       "speed": "1G",
-      "poeOut": true,
+      "poeOut": 11.5,
       "poeOutClass": "passive"
     },
     {
@@ -40,7 +41,7 @@
       "type": "ethernet",
       "connector": "rj45",
       "speed": "1G",
-      "poeOut": true,
+      "poeOut": 11.5,
       "poeOutClass": "passive"
     },
     {
@@ -48,16 +49,22 @@
       "type": "ethernet",
       "connector": "rj45",
       "speed": "1G",
-      "poeOut": true,
+      "poeOut": 11.5,
       "poeOutClass": "passive"
     },
     {
       "name": "mgmt",
       "type": "ethernet",
       "connector": "rj45",
-      "speed": "100M"
+      "speed": "100M",
+      "poeOut": false
     }
   ],
   "sourceUrl": "https://techspecs.ui.com/uisp/wired/es-5xp",
-  "notes": "Vendor figures from Ubiquiti techspecs (https://techspecs.ui.com/uisp/wired/es-5xp, HTTP 200, 574,944 B, read 2026-11-20): \"Networking interface: (5) 10/100/1000 Ethernet ports\" and \"Management interface: (1) 10/100 Ethernet port\", so the management port is modelled at 100M and named separately from the five data ports. The PoE question this entry used to leave open - whether the ports were 802.3af/at or fixed-voltage passive - is answered on the vendor page: \"PoE method: Passive\", \"PoE Out voltage range: 22-24V DC\", \"Max. PoE wattage per port: 11.5W\" and \"PoE configurable per port: Management port N/A, Data ports Off/24V\". So the five data ports are 24 V passive PSE ports and are now classed `passive`, not `PoE`: 802.3af is a negotiated 48 V standard and this box does not speak it, which is the fault test/uisp-r-poe.test.js and test/ep-s16-poe.test.js were written for. No `poe` block: the page's only power figure is \"Max. power consumption: 60W\", which is the whole box including PoE output on a 24 V / 2.5 A adapter, so subtracting a box draw that the sheet never states would be invention - the position devices/ubiquiti/es-48-750w.json takes for the same reason. Five ports at the published 11.5 W per-port maximum would be 57.5 W of the 60 W supply, which is close enough that the adapter is worth knowing about when filling the box."
+  "notes": "Vendor figures from Ubiquiti's EdgeSwitch XP datasheet (https://dl.ui.com/datasheets/edgemax/EdgeSwitch_XP_DS.pdf, HTTP 200, application/pdf, 3,915,117 B, 7 pp, text layer, read 2026-11-21) and the tech-spec page (https://techspecs.ui.com/uisp/wired/es-5xp, HTTP 200, 574,944 B, rendered table, same day). p.5, the ES-5XP page, prints \"Networking Interfaces: Management Port (1) 10/100 Ethernet Port, Data Ports (5) 10/100/1000 Ethernet Ports\", \"PoE Out Voltage Range 22-24VDC\", \"Max. PoE Wattage Per Data Port 11.5 W\", \"PoE Method Passive\", \"PoE Configurable Per Port: Management Port N/A, Data Ports Off/24V\" and \"Power Input 24VDC, 2.5A Power Adapter (Included)\"; the tech-spec page prints the same rows as \"(5) 10/100/1000 Ethernet ports\", \"(1) 10/100 Ethernet port\", \"24V DC, 2.5A power adapter (Included)\", \"Max. power consumption 60W\", \"PoE Out voltage range 22-24VDC\", \"Max. PoE wattage per port 11.5W\", \"PoE method Passive\" and \"PoE configurable per port: Management port: N/A / Data ports: Off/24V\".\n\n**What this entry got wrong until 2026-11-21.** The census and the passive classification were already right, but the watts were not modelled: all five data ports carried the bare `poeOut: true` bit, which `poeDraw()` bills as **1 W** and the faceplate prints as no figure, and there was no `poe` block, so `pseDraw()` had nothing to sum against and `show power inline` reported the budget as not modelled. Measured before the change: five 11.5 W PowerBeam ACs on eth0-eth4 were all accepted and `poeDraw()` answered **5 W for 57.5 W of load**. The five ports now declare 11.5 W in the passive class.\n\n**The management port was a phantom 802.3af PSE.** On a `poe-pse` device, `media.js` infers a 15.4 W class-0 PSE for any copper port with no declared figure, so `mgmt` was counted as a sixth power port on a five-port PoE switch - and 802.3af is a negotiated 48 V standard this box does not speak. p.5's \"Management Port N/A\" is the vendor saying it carries no PoE, so `mgmt` now carries `\"poeOut\": false`, the same fix PR #2433 applied to the ES-16XP's two management sockets.\n\n**Passive, not 802.3af/at.** 22-24 V DC fixed output, configured per port Off/24V: a standard 802.3af/at PD will not negotiate on any of the five ports, which is why the ports are classed `passive` and why the spec advertises the datasheet's `passive-poe` fact. 11.5 W is the published per-port maximum at 24 V - there is no 48 V mode on the 5XP (the 8XP and 16XP are the dual-voltage members).",
+  "poe": {
+    "budgetW": 60,
+    "sourceUrl": "https://dl.ui.com/datasheets/edgemax/EdgeSwitch_XP_DS.pdf",
+    "note": "60 W is the datasheet's own figure for this model, quoted not derived: p.5 \"Power Input 24VDC, 2.5A Power Adapter (Included)\" and \"Max. Power Consumption 60 W\", and 24 V x 2.5 A is 60 W, so the row is the included adapter's ceiling. Ubiquiti prints no row labelled \"PoE budget\" for the ES-5XP and, unlike its EdgeRouter pages (which say \"Max. power consumption 16 W (excluding PoE output)\"), does not say whether the box's own draw sits inside the 60 W. It is therefore recorded as an input envelope, the same reading devices/ubiquiti/es-16xp.json takes of that chassis's \"300 watts of power\": five data ports at the published 11.5 W each total 57.5 W, which fits the adapter only if the box draws 2.5 W or less, and that margin is the reason the number is visible here rather than hidden. The tech-spec page prints the same table (\"24V DC, 2.5A power adapter (Included)\", \"Max. power consumption 60W\") and no total either. A lab that fits its own supply inside the 24 V input can declare its own figure."
+  }
 }
