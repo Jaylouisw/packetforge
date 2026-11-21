@@ -123,7 +123,7 @@ console.log('The rule itself, on names no device carries:');
     ['Te1/1/1', 'TenGigabitEthernet1/1/1'],
     ['Twe1/0/1', 'TwentyFiveGigE1/0/1'],
     ['Fo1/0/1', 'FortyGigabitEthernet1/0/1'],
-    ['Hu1/0/1', 'HundredGigabitEthernet1/0/1'],
+    ['Hu1/0/1', 'HundredGigE1/0/1'],
     ['Se0/0/0', 'Serial0/0/0'],
     ['Vl10', 'Vlan10'],
     ['Lo0', 'Loopback0'],

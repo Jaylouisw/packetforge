@@ -9,6 +9,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **A 100G port was printed as `HundredGigabitEthernet`, a word no IOS box says.** IOS XE's interface-type
+  lists pair `TwentyFiveGigE or twe`, `FortyGigabitEthernet or fo` and `HundredGigE or hu` in one sentence —
+  the 40G word is spelled out and the 100G word is not — and a Catalyst 9500 prints `interface HundredGigE1/0/2`
+  in running-config and `HundredGigE1/0/1 is up, line protocol is down` from `show interfaces`.
+  `HundredGigabitEthernet` is real, but it is FSOS's name, and FSOS catalogue ports already carry it. The
+  display table's `hu` expansion therefore printed the C9500-24Y4C's four cages as 27-character
+  `HundredGigabitEthernet1/0/1` rows that pushed the address cell past the brief table's 23-column field; they
+  now read `HundredGigE1/0/1`, and every typed spelling (`Hu1/0/1`, `hundredgige 1/0/1`,
+  `HundredGigabitEthernet1/0/1`) still resolves to the same port, whose stored key is unchanged.
+  `test/hundredgige-spelling.test.js` pins the brief row, its column, the stanza header, the typed spellings
+  and an FSOS box keeping its own long word; [`research/hundredgige-interface-spelling.md`](research/hundredgige-interface-spelling.md)
+  records the sources and the one cell still open — whether `show ip interface brief` abbreviates any
+  high-speed type, which one Cat9k transcript suggests it may.
 - **An EdgeSwitch 18X powered a device from fifteen sockets that cannot source power, and missed the one that
   can.** Ubiquiti's datasheet names both ends of the passthrough in one sentence — "Sixteen Gigabit RJ45 ports
   offer copper connectivity with **PoE input on port 1** and **PoE passthrough on port 16**" — against a tech-spec

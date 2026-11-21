@@ -72,7 +72,10 @@ same device, and `docs/CLI.md` printed both examples.
   comes near the width. It is strong evidence that the header came from a sample with long rows, which is
   what the samples above are.
 * **Which abbreviations expand.** `gi`/`fa`/`te`/`twe`/`fo`/`hu`/`se`/`vl`/`lo`/`po` are the type words
-  `engine/iface-name.js` already treats as aliases of one type, and the long form is the word IOS prints.
+  `engine/iface-name.js` already treats as aliases of one type, and the long form is the word IOS prints -
+  with one correction since: `hu` expands to `HundredGigE`, not `HundredGigabitEthernet`, because that is
+  what IOS XE's own type list says (`HundredGigE or hu`). This note's first version took the long word from
+  FSOS's catalogue; research/hundredgige-interface-spelling.md has the sources.
   `ge` is expanded because VRP's own `display ip interface brief` prints `GigabitEthernet0/0/1`.
   `eth`/`et` are deliberately **not** expanded: RouterOS prints `ether1`, Edgecore prints `Eth1/1`, and
   those boxes' console spellings are what this console must keep. `ma` is not expanded either (Nexus
@@ -84,11 +87,13 @@ same device, and `docs/CLI.md` printed both examples.
 
 ## What is unresolved
 
-* **A name wider than the field.** `FortyGigabitEthernet1/0/1` is 26 characters and
-  `HundredGigabitEthernet1/0/1` is 27, past the 23-column field. `briefLine()` pushes the rest of the row
-  right rather than truncating, which is what a table does with a name it will not shorten — but no
-  capture of a 40G/100G port in this command was found, so whether IOS shifts, widens or truncates is
-  unmeasured.
+* **A name wider than the field.** `FortyGigabitEthernet1/0/1` is 26 characters, past the 23-column field.
+  `briefLine()` pushes the rest of the row right rather than truncating, which is what a table does with a
+  name it will not shorten — but no capture of a 40G port in this command was found, so whether IOS shifts,
+  widens or truncates is unmeasured. The 100G case this bullet used to name (`HundredGigabitEthernet1/0/1`,
+  27) was a wrong spelling: the vendor's word is `HundredGigE1/0/1`, 18 characters, which fits
+  (research/hundredgige-interface-spelling.md). Whether the command abbreviates any high-speed type at all
+  is its own open question, recorded there.
 * **The rest of the console.** `show vlan`'s Ports list, `show etherchannel summary`, `show power inline`
   and the MAC table's `Ports` column print `Fa0/1`/`Gi1/0/1`, and the vendor's own samples of those
   commands do the same. The short names that remain are the ones a box abbreviates, not an oversight —

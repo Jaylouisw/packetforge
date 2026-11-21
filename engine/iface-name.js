@@ -102,7 +102,14 @@ const DISPLAY_ABBREV = new Map([
   ['te', 'TenGigabitEthernet'],
   ['twe', 'TwentyFiveGigE'],
   ['fo', 'FortyGigabitEthernet'],
-  ['hu', 'HundredGigabitEthernet'],
+  // IOS XE does *not* spell this one out. Its own interface-type lists pair ``100-Gigabit
+  // Ethernet (HundredGigE or hu)`` while keeping ``FortyGigabitEthernet or fo`` and
+  // ``TwentyFiveGigE or twe`` - the 40G word is long and the 100G word is not. A Catalyst
+  // 9500's running-config prints ``interface HundredGigE1/0/2`` and its interface block prints
+  // ``HundredGigE1/0/1 is up``; no IOS capture prints ``HundredGigabitEthernet``. FSOS does
+  // print that long word, but its catalogue ports already carry it and pass through untouched.
+  // research/hundredgige-interface-spelling.md has the sources and what is still open.
+  ['hu', 'HundredGigE'],
   ['se', 'Serial'],
   ['vl', 'Vlan'],
   ['lo', 'Loopback'],
