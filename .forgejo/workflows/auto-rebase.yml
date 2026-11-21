@@ -435,6 +435,64 @@ jobs:
               });'
           }
 
+          # A green pull request is merged here, not only armed.
+          #
+          # `merge_when_checks_succeed` is the request that means what this pass means, and
+          # on this instance its scheduled queue stopped draining. Measured on 2026-11-21:
+          # five pull requests sat green, mergeable and based exactly on main's head with
+          # nothing merging them - #2429 (armed 13:51:30Z), #2430 (13:54:56Z), #2431
+          # (13:58:44Z), #2432 (14:21:56Z) and #2433 (14:30:14Z) - while the last merge on
+          # the repository was #2428 at 13:38:01Z and the five before it had merged 4-16
+          # minutes after their arm (#2424 16 min, #2427 8 min, #2428 4 min). Both scheduled
+          # ticks in that window re-armed all five (every answer 409 "already scheduled")
+          # and merged none, while the same merge POST from outside the run merges such a
+          # head immediately. The checks are not the blocker; the queued entry is.
+          #
+          # So the pass asks for the merge itself: a plain squash merge pinned to the head
+          # whose statuses `checks_green` just read. No check of this workflow is on a pull
+          # request's head (its statuses land on `main`), so the server has nothing pending
+          # to hold. If Forgejo answers 409 "already scheduled", the stale schedule is
+          # cancelled and the merge retried once - that is exactly the state the queue was
+          # stuck in. Every other answer falls back to the arm call this pass has always
+          # made, so nothing is merged that the old path would not have armed.
+          #
+          # Nothing is weakened: same status reader (`checks_green`), same `mergeable`
+          # poll above, and the merge is pinned to `head_commit_id`, so a head that moved
+          # after the read cannot be merged. A red or pending check never reaches this call:
+          # both callers return before it.
+          merge_when_green() {   # $1 = pull number, $2 = head sha
+            n="$1"; sha="$2"
+            bodyf="${RUNNER_TEMP:-/tmp}/merge-$n.json"
+            code=$(http -o "$bodyf" -w '%{http_code}' -X POST \
+              -H "Authorization: token $TOKEN" -H 'Content-Type: application/json' \
+              -d "$(printf '{"Do":"squash","head_commit_id":"%s"}' "$sha")" \
+              "$api/repos/$repo/pulls/$n/merge" 2>/dev/null || echo 000)
+            if [ "$code" = "409" ] && grep -q 'already scheduled' "$bodyf" 2>/dev/null; then
+              echo "PR #$n: a scheduled merge is already queued on ${sha} - cancelling the stale schedule and merging directly" >&2
+              http -o /dev/null -X DELETE -H "Authorization: token $TOKEN" \
+                "$api/repos/$repo/pulls/$n/merge" >/dev/null 2>&1 || true
+              code=$(http -o "$bodyf" -w '%{http_code}' -X POST \
+                -H "Authorization: token $TOKEN" -H 'Content-Type: application/json' \
+                -d "$(printf '{"Do":"squash","head_commit_id":"%s"}' "$sha")" \
+                "$api/repos/$repo/pulls/$n/merge" 2>/dev/null || echo 000)
+            fi
+            case "$code" in
+              200|201) echo merged; return 0 ;;
+            esac
+            if [ "$code" = "409" ] && grep -q 'already been merged' "$bodyf" 2>/dev/null; then
+              echo merged; return 0
+            fi
+            # Fall back to the scheduled arm: the path this pass has always taken.
+            code=$(http -o /dev/null -w '%{http_code}' -X POST \
+              -H "Authorization: token $TOKEN" -H 'Content-Type: application/json' \
+              -d "$(printf '{"Do":"squash","head_commit_id":"%s","merge_when_checks_succeed":true}' "$sha")" \
+              "$api/repos/$repo/pulls/$n/merge" 2>/dev/null || echo 000)
+            case "$code" in
+              200|201|409) echo armed ;;
+              *)           echo "refused:$code" ;;
+            esac
+          }
+
           # A rebase cannot fix a red check, and a red check cannot merge, so force-pushing
           # a branch that is already failing buys nothing and costs a whole five-job matrix.
           #
@@ -575,7 +633,7 @@ jobs:
           pulls=$(printf '%s\n' "$all_pulls" | head -n $(( batch * 4 )))
           armable=$(printf '%s\n' "$all_pulls" | awk 'NF { print $1 " " $3 }')
 
-          rebased=0; current=0; conflicted=0; dupes=0; armed=0; red=0; looked=0
+          rebased=0; current=0; conflicted=0; dupes=0; armed=0; merged=0; red=0; looked=0
           no_checks=0; uncheckable=0
 
           # A pass holding only the run token cannot rebase anything: the guard inside the
@@ -735,12 +793,11 @@ jobs:
               echo "PR #$n: checks are not green yet - ci.yml's Arm auto-merge job merges it once they are"
               continue
             fi
-            payload=$(printf '{"Do":"squash","head_commit_id":"%s","merge_when_checks_succeed":true}' "$head_sha")
-            code=$(http -o /dev/null -w '%{http_code}' -X POST -H "Authorization: token $TOKEN" -H 'Content-Type: application/json' -d "$payload" "$api/repos/$repo/pulls/$n/merge")
-            case "$code" in
-              200|201) armed=$((armed+1)); echo "PR #$n: armed for squash merge on green checks" ;;
-              409)     armed=$((armed+1)); echo "PR #$n: already armed" ;;
-              *)       echo "PR #$n: arm refused (http $code)" ;;
+            outcome=$(merge_when_green "$n" "$head_sha")
+            case "$outcome" in
+              merged) merged=$((merged+1)); echo "PR #$n: merged now - every check on ${head_sha} is green" ;;
+              armed)  armed=$((armed+1)); echo "PR #$n: armed for squash merge on green checks" ;;
+              *)      echo "PR #$n: arm refused (http ${outcome#refused:})" ;;
             esac
           done <<< "$pulls"
 
@@ -775,15 +832,15 @@ jobs:
               echo "PR #$n: checks are not green yet - ci.yml's Arm auto-merge job merges it once they are"
               continue
             fi
-            payload=$(printf '{"Do":"squash","head_commit_id":"%s","merge_when_checks_succeed":true}' "$head_sha")
-            code=$(http -o /dev/null -w '%{http_code}' -X POST -H "Authorization: token $TOKEN" -H 'Content-Type: application/json' -d "$payload" "$api/repos/$repo/pulls/$n/merge")
-            case "$code" in
-              200|201|409) rearmed=$((rearmed+1)) ;;
-              *)           echo "PR #$n: arm refused (http $code)" ;;
+            outcome=$(merge_when_green "$n" "$head_sha")
+            case "$outcome" in
+              merged) merged=$((merged+1)); echo "PR #$n: merged now - every check on ${head_sha} is green" ;;
+              armed)  rearmed=$((rearmed+1)) ;;
+              *)      echo "PR #$n: arm refused (http ${outcome#refused:})" ;;
             esac
           done <<< "$armable"
 
           if [ "$uncheckable" -gt 0 ]; then
             echo "::warning title=Auto-rebase::${uncheckable} pull request(s) left unrebased: this pass holds only the run token, and a push made with it raises no pull_request event, so the head it mints would have no checks and could never be armed. Set the FORGEJO_TOKEN repository secret to a user token - measured, a user token's push produces the eight statuses inside 25 s."
           fi
-          echo "batch=$batch rebased=$rebased current=$current conflicts=$conflicted duplicates=$dupes armed=$armed rearmed=$rearmed red=$red no_checks=$no_checks uncheckable=$uncheckable"
+          echo "batch=$batch rebased=$rebased current=$current conflicts=$conflicted duplicates=$dupes armed=$armed rearmed=$rearmed merged=$merged red=$red no_checks=$no_checks uncheckable=$uncheckable"
