@@ -676,7 +676,7 @@ and what would settle each of them.
 | `ip address <ip> <mask>` | assign an IP (e.g. `192.168.1.1 255.255.255.0`); the mask must be a run of ones then zeros and may be written as a prefix length (`24`), and the address must be a host address of that subnet (not its network or broadcast address, except on a `/31`, and never inside `0.0.0.0/8` or `127.0.0.0/8`, which are refused by name under any mask). No word may follow the mask: IOS's syntax is `ip address ip-address mask [secondary]`, and
 `secondary` adds a second address rather than replacing the primary - which this model, one address per port,
 cannot honour, so `secondary` is refused by name and every other word is refused with the word quoted |
-| `no ip address` | remove the IP; the line takes no argument, so `no ip address <word>` is refused and nothing is removed |
+| `no ip address [<ip> <mask>]` | remove the IP. The bare line removes what the port holds; the two-word form names the address, and removes it only when it is the one the port holds - a mismatch is answered `% Invalid address:` with the held address printed, and nothing is removed. The mask may be a prefix length (`24`). `secondary` is refused by name (one address per port), a single address with no mask is `% Incomplete command`, and any other word is refused with the word quoted and nothing removed ([research/no-ip-address-named-form.md](../research/no-ip-address-named-form.md)) |
 | `clock rate <bps>` | (serial only) make this end the DCE and clock the line, e.g. `clock rate 64000`. Refused on a non-serial port. The rates are the vendor's menu plus the port's own; a value in the parser's 300-top range that is not on the menu is rounded and reported as `%Clockrate rounded to nearest value that your hardware can support.`, and one below 300 or above the port is refused with the range quoted (`research/serial-clock-menu.md`) |
 | `no clock rate` | drop the clock, leaving this end as DTE |
 | `ip address dhcp` | make the port a DHCP client; the address it ends up with is the outcome of the exchange, not part of the configuration |
@@ -715,6 +715,19 @@ keyword cannot be honoured: it is refused by name (`% ip address <ip> <mask> sec
 this port, which this console does not model: one address per port, and the address was not changed`), any other
 word is refused with the word quoted, and in both cases nothing is written. The same silence covered `ip address
 dhcp 5` and `no ip address foo`, which are refused the same way.
+
+**`no ip address` takes the address too.** The other half of that syntax block is
+`no ip address ip-address mask [secondary]`, and it is the form a configuration file uses to take back one
+address rather than whatever the port happens to hold. This console refused every word after `no ip address`,
+so that line - and Cisco's own workaround for CSCvr84846, which types `no ip address 192.168.1.100 255.255.255.0`
+on a live SVI - could not be replayed. The form is now accepted and the address is **matched**: the port must
+hold that address under that mask (a prefix length is accepted, as `ip address` accepts one), or the answer is
+`% Invalid address: Fa0/1 holds 10.0.0.1/24, not 10.0.0.9/24 - nothing was removed` and the configuration does
+not move. The `% Invalid address` fragment is the vendor's - one operator's paste of the mismatch - but the
+sentence after it is this console's, because no capture in hand shows the rest, and whether the mask must match
+as well as the address is inferred rather than witnessed
+([research/no-ip-address-named-form.md](../research/no-ip-address-named-form.md)). A DHCP client is refused by
+name there (its address is leased, not configured) and the bare form still removes the client.
 
 `show running-config` prints the **method**, not the outcome: a host that has leased `10.0.0.100` prints `ip
 address dhcp`, because a backup that bakes in a leased address claims that address on any network it is

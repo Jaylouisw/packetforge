@@ -944,7 +944,7 @@ const NO_FORMS = [
   { modes: ['config'], match: ['neighbor'], syntax: 'no neighbor <address>', effect: 'removes a BGP neighbour', undo: 'removed' },
   { modes: ['config'], match: ['ospf'], syntax: 'no ospf <process>', effect: 'removes the OSPF process', undo: 'removed' },
   { modes: ['iface'], match: ['description'], syntax: 'no description', effect: 'clears the description on this port', undo: 'cleared' },
-  { modes: ['iface'], match: ['ip', 'address'], syntax: 'no ip address', effect: 'clears the address on this port', undo: 'cleared' },
+  { modes: ['iface'], match: ['ip', 'address'], syntax: 'no ip address [<ip> <mask>]', effect: 'clears the address on this port, or the one named when it is the one the port holds', undo: 'cleared' },
   { modes: ['iface'], match: ['ip', 'nat'], syntax: 'no ip nat inside | no ip nat outside', effect: "clears this port's NAT role", undo: 'cleared' },
   { modes: ['iface'], match: ['vrrp'], syntax: 'no vrrp <vrid>', effect: 'removes a VRRP group from this port', undo: 'removed' },
   { modes: ['iface'], match: ['shutdown'], syntax: 'no shutdown', effect: 'opens this port', undo: 'changed' },
@@ -2626,12 +2626,68 @@ class CliSession {
           (wasDhcp ? ' (DHCP client removed)' : ''));
       }
     } else if (head === 'no' && tokens[1] === 'ip' && tokens[2] === 'address') {
-      // `no ip address` takes no argument: it removes what the port holds. A word after it was dropped
-      // and the address was removed anyway, so a typo in a line meant to *remove a named secondary*
-      // address took the primary with it.
-      if (tokens[3]) {
-        return ['% no ip address takes no argument: it removes the address this port holds (the word "' +
-          tokens.slice(3).join(' ') + '" was not used, and nothing was removed)'];
+      // Two forms, not one. The bare `no ip address` removes what the port holds; the reference's `no`
+      // line also takes the address being removed - `no ip address ip-address mask [secondary]`
+      // (Cisco, `ip address`, https://www.cisco.com/E-Learning/bulk/public/tac/cim/cib/using_cisco_ios_software/cmdrefs/ip_address.htm,
+      // whose syntax block prints both lines) - and a Cisco defect record's own workaround is an operator
+      // doing exactly that on a live SVI:
+      //
+      //     (config-if)#no ip address 192.168.1.100 255.255.255.0
+      //     (config-if)#ip address 192.168.1.100 255.255.255.0
+      //
+      // (CSCvr84846, https://www.findbugzero.com/operational-defect-database/vendors/cisco/defects/CSCvr84846).
+      // The named address is matched, not ignored: the answer given to the same two-word form with an
+      // address the port does not hold is "you need to match the current ip of the interface"
+      // (https://community.spiceworks.com/t/removal-of-an-ip-from-a-vlan-in-a-cisco-switch/1057490, where
+      // the box answered `Invalid address` and kept its address).
+      //
+      // This branch used to refuse every word here, so the documented form - and the only way to remove
+      // one named address from a file replayed against a port that holds a different one - was answered
+      // with a sentence claiming the command takes no argument at all. What the word did before that
+      // refusal existed was worse: it was dropped and the primary was removed anyway.
+      //
+      // `secondary` stays refused by name: one address per port is all this model has
+      // (research/ip-address-trailing-word.md), so the form that removes *only* a secondary cannot be
+      // honoured.
+      const netLib = require('./net');
+      const named = tokens.slice(3);
+      if (named.length) {
+        const namedSecondary = named.length > 1 && named.slice(1).some(function (w) {
+          return String(w).toLowerCase() === 'secondary';
+        });
+        if (namedSecondary) {
+          return ['% no ip address <ip> <mask> secondary removes a secondary address, which this console ' +
+            'does not model: one address per port, and nothing was removed'];
+        }
+        // One word is the documented form with its mask left off, which a box refuses as incomplete.
+        if (named.length === 1 && netLib.isIp(named[0])) {
+          return ['% Incomplete command: no ip address <address> <mask> - a named removal needs both'];
+        }
+        const twoWords = named.length === 2 && netLib.isIp(named[0]) && netLib.isContiguousMask(named[1]);
+        if (twoWords) {
+          const wantedPrefix = netLib.prefixOf(named[1]);
+          // A leased address is not a configured one: a DHCP client's address is written by the box at run
+          // time and never appears as an `ip address` line, so naming it here is not a removal the file
+          // could have asked for. The bare form removes the client.
+          if (iface.dhcp === true) {
+            return ['% Invalid address: ' + named[0] + '/' + wantedPrefix + ' is not configured on ' +
+              iface.name + ' (it is a DHCP client, and `no ip address` removes the client), and nothing ' +
+              'was removed'];
+          }
+          const holds = iface.ip ? iface.ip + '/' + netLib.prefixOf(iface.mask) : null;
+          const matches = !!holds && netLib.ipToInt(named[0]) === netLib.ipToInt(iface.ip) &&
+            wantedPrefix === netLib.prefixOf(iface.mask);
+          if (!matches) {
+            // The vendor's two words are `Invalid address`; the sentence after them is this console's,
+            // because no capture in hand shows more than the two words (research/no-ip-address-named-form.md).
+            return ['% Invalid address: ' + iface.name + ' holds ' + (holds || 'no address') + ', not ' +
+              named[0] + '/' + wantedPrefix + ' - nothing was removed'];
+          }
+          iface.ip = null; iface.mask = null; iface.dhcp = false;
+          return ['IP address ' + holds + ' removed from ' + iface.name];
+        }
+        return ['% no ip address takes an address and a mask, or nothing (the word "' +
+          named.join(' ') + '" was not used, and nothing was removed)'];
       }
       // "IP address removed" was the answer whether or not there was one to remove, and whether the port was
       // asking DHCP for one or not.

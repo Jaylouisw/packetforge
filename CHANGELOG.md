@@ -9,6 +9,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **`no ip address` refused the address the syntax line says it takes.** Cisco's `ip address` reference prints
+  two syntax lines, and the second is `no ip address ip-address mask [secondary]`; a Cisco defect record's own
+  workaround is an operator typing `no ip address 192.168.1.100 255.255.255.0` on a live SVI. This console
+  answered every word after `no ip address` with `% no ip address takes no argument: ...`, so a configuration
+  file that takes back one named address could not be replayed against a port holding another one - and the
+  refusal was telling the reader the command has no such form. The two-word form is now accepted and the
+  address is matched, mask included (a prefix length counts, as `ip address` takes one): a match removes the
+  address and says which, a mismatch answers `% Invalid address: Fa0/1 holds 10.0.0.1/24, not 10.0.0.9/24 -
+  nothing was removed` and leaves the configuration byte-identical — the answer the forum thread records, where
+  the box printed `Invalid address` and the operator was told to match the current IP. `secondary` stays refused
+  by name (one address per port), an address with no mask is `% Incomplete command`, a DHCP client is refused by
+  name there because its address is leased rather than configured, and a word that is not an address keeps the
+  refusal it had. `test/no-ip-address-named-form.test.js` (46 checks);
+  [`research/no-ip-address-named-form.md`](research/no-ip-address-named-form.md) records what is witnessed and
+  what is not — the full sentence around `Invalid address`, and whether the mask must match, are both still
+  open.
 - **`show ipv6 nd` swallowed every word after it.** The view takes no argument, so it printed the whole
   advertisement whatever followed - including the two words the operator has already typed in this very mode.
   `show ipv6 nd prefix`, the obvious way to ask which prefixes the box advertises, answered with the full block
