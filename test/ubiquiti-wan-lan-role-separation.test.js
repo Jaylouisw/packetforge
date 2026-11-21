@@ -43,7 +43,9 @@ function replied(sim, from, to) {
 // Every row below is a vendor-stated split: the controller database's `ports` map names the uplink
 // (static.ui.com/fingerprint/ui/public.json, `sku` = the model) and the product page repeats it in words
 // ("Default WAN Ports ...", "Max. WAN Port Count ..."). The UCG and UXG rows were added 2026-11-21: their
-// LAN banks carried no role either, so the separation did not fire on them.
+// LAN banks carried no role either, so the separation did not fire on them. The three Dream Machine rows
+// (UDM-Pro, UDM-Pro-Max, UDM-SE) followed the same day: eight 1G LAN sockets plus a 2.5G/1G uplink, all
+// nine numbered `eth0`-`eth8` by the controller, with the uplink at `eth8`.
 const ROWS = [
   { model: 'UDW', lan: 'eth0', wan: 'wan1', lanCount: 17, second: 'eth5' },
   { model: 'UDR', lan: 'eth0', wan: 'eth4', lanCount: 4, second: 'eth1' },
@@ -52,7 +54,10 @@ const ROWS = [
   { model: 'UXG-Lite', lan: 'eth0', wan: 'eth1', lanCount: 1, second: null },
   { model: 'UXG-Max', lan: 'eth0', wan: 'eth4', lanCount: 4, second: 'eth1' },
   { model: 'UX', lan: 'lan', wan: 'wan', lanCount: 1, second: null },
-  { model: 'UX7', lan: 'eth0', wan: 'eth1', lanCount: 1, second: null }
+  { model: 'UX7', lan: 'eth0', wan: 'eth1', lanCount: 1, second: null },
+  { model: 'UDM-Pro', lan: 'port1', wan: 'wan1', lanCount: 8, second: 'port2' },
+  { model: 'UDM-Pro-Max', lan: 'Port 1', wan: 'WAN', lanCount: 8, second: 'Port 2' },
+  { model: 'UDM-SE', lan: 'Port 1', wan: 'WAN', lanCount: 8, second: 'Port 2' }
 ];
 
 ROWS.forEach(function (row) {
@@ -140,6 +145,17 @@ console.log('\nThe radios and the cages keep what the vendor does say');
   ok(cages.length === 2, 'the UDW still carries its two SFP+ cages');
   ok(cages.every(function (i) { return (i.dualRole || []).join(',') === 'wan,lan'; }),
     'both stay dual-role - the datasheet prints one LAN and one WAN cage without numbering them');
+
+  // The Dream Machine cages are the one place these rows stop short of a role: the datasheet prints
+  // "SFP+ interface (1) LAN: 10G SFP+ / (1) WAN: 10G SFP+" without numbering the two cages, so which of
+  // `sfp1`/`sfp2` is the WAN cage is not stated. They keep no role and no dualRole rather than invent one.
+  ['UDM-Pro', 'UDM-Pro-Max', 'UDM-SE'].forEach(function (model) {
+    const s = spec(model);
+    const cages = s.interfaces.filter(function (i) { return i.connector === 'sfp+'; });
+    ok(cages.length === 2, model + ' keeps its two SFP+ cages');
+    ok(cages.every(function (i) { return !i.role && !i.dualRole; }),
+      'and neither cage claims a WAN or LAN role the datasheet does not number');
+  });
 
   const t = new Topology();
   const r = t.addDevice(spec('UDR')); r.name = 'GW';

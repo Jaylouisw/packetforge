@@ -22,63 +22,72 @@
       "name": "WAN",
       "type": "ethernet",
       "speed": "2.5G",
-      "poeIn": false
+      "poeIn": false,
+      "role": "wan"
     },
     {
       "name": "Port 1",
       "type": "ethernet",
       "speed": "1G",
       "poeOut": true,
-      "poeOutClass": "PoE+"
+      "poeOutClass": "PoE+",
+      "role": "lan"
     },
     {
       "name": "Port 2",
       "type": "ethernet",
       "speed": "1G",
       "poeOut": true,
-      "poeOutClass": "PoE+"
+      "poeOutClass": "PoE+",
+      "role": "lan"
     },
     {
       "name": "Port 3",
       "type": "ethernet",
       "speed": "1G",
       "poeOut": true,
-      "poeOutClass": "PoE"
+      "poeOutClass": "PoE",
+      "role": "lan"
     },
     {
       "name": "Port 4",
       "type": "ethernet",
       "speed": "1G",
       "poeOut": true,
-      "poeOutClass": "PoE"
+      "poeOutClass": "PoE",
+      "role": "lan"
     },
     {
       "name": "Port 5",
       "type": "ethernet",
       "speed": "1G",
       "poeOut": true,
-      "poeOutClass": "PoE"
+      "poeOutClass": "PoE",
+      "role": "lan"
     },
     {
       "name": "Port 6",
       "type": "ethernet",
       "speed": "1G",
       "poeOut": true,
-      "poeOutClass": "PoE"
+      "poeOutClass": "PoE",
+      "role": "lan"
     },
     {
       "name": "Port 7",
       "type": "ethernet",
       "speed": "1G",
       "poeOut": true,
-      "poeOutClass": "PoE"
+      "poeOutClass": "PoE",
+      "role": "lan"
     },
     {
       "name": "Port 8",
       "type": "ethernet",
       "speed": "1G",
       "poeOut": true,
-      "poeOutClass": "PoE"
+      "poeOutClass": "PoE",
+      "role": "lan"
     },
     {
       "name": "SFP+ 1",
@@ -109,5 +118,5 @@
     "sourceUrl": "https://techspecs.ui.com/unifi/cloud-gateways/udm-se",
     "note": "180 W, from the tech-spec table row \"PoE Budget = 180W\" (with \"PoE = 15.4W\", \"PoE+ = 30W\", \"Voltage Range PoE Mode = PoE: 44-57V / PoE+: 50-57V\"), read 2026-11-19: https://techspecs.ui.com/unifi/cloud-gateways/udm-se . The same box's datasheet, https://dl.ui.com/ds/udm_se_ds.pdf (200, 358,669 B, text layer), prints the placement and per-port maxima but not the aggregate - \"PoE interface (6) PoE (Pair A 1, 2+; 3, 6-) / (2) PoE+\" and \"Max. PoE wattage per port by PSE PoE: 15.4W / PoE+: 30W\" - which is what the two PoE+ and six PoE poeOutClass values on ports 1-8 already follow. 8 ports at their class maxima is 152.4 W, inside the 180 W budget. The aggregate exists on the vendor page only; the datasheet is cited here so the placement is not read off the same table as the total."
   },
-  "notes": "Power: none of these copper ports accepts PoE. Vendor page https://techspecs.ui.com/unifi/cloud-gateways/udm-se (HTTP 200, 682,320 B, read 2026-11-19, server-rendered tech-spec table) says \"Power Method = (1) Universal AC input, 100-240V AC, 4.4A Max., 50/60 Hz (1) USP-RPS DC input, 52V DC, 3.94A\"; a box fed from mains, a USB-C supply or a DC jack has no PoE-PD front end, so WAN now declare poeIn: false. Without that declaration the engine's isPoePd() match on \"unifi\" gave each silent copper port a 12.95 W 802.3af draw - the defect PR #2118 and PR #2121 fixed across the UXG family (refs #130).\n\n**LAN bank (layer 2), read 2026-11-21.** Both vendor surfaces print the same three rows: `MAC Address Table Size = 4,000`, `LACP Port Aggregation = True` with the note \"GbE RJ45 ports 1-8\", and `VLAN/Subnet-based Traffic Segmentation = True`, beside `1 GbE RJ45 = 8` and `2.5 GbE RJ45 = 1` (the WAN port) - https://techspecs.ui.com/unifi/cloud-gateways/udm-se (HTTP 200, 682,320 B), and the storefront's own payload repeats each row at https://store.ui.com/us/en/products/udm-se (HTTP 200, 602,395 B). A 4,000-entry MAC table is a bridge forwarding database, and a LAG over the eight 1G sockets cannot be built from routed ports, so Port 1-Port 8 forward at layer 2 and the row declares `l2-forward` (MAC learning + flooding only; VLAN, LAG and STP ride on it). Measured on the pre-change spec: hosts on Port 1 and Port 2 in 192.168.1.0/24 could not resolve each other's ARP, and `switchport access vlan 10` answered \"cannot switch frames: it has no l2-forward capability\". `no switchport` still makes a LAN port routed; the WAN port keeps its address. The two 10G SFP+ cages keep their addresses as well."
+  "notes": "Power: none of these copper ports accepts PoE. Vendor page https://techspecs.ui.com/unifi/cloud-gateways/udm-se (HTTP 200, 682,320 B, read 2026-11-19, server-rendered tech-spec table) says \"Power Method = (1) Universal AC input, 100-240V AC, 4.4A Max., 50/60 Hz (1) USP-RPS DC input, 52V DC, 3.94A\"; a box fed from mains, a USB-C supply or a DC jack has no PoE-PD front end, so WAN now declare poeIn: false. Without that declaration the engine's isPoePd() match on \"unifi\" gave each silent copper port a 12.95 W 802.3af draw - the defect PR #2118 and PR #2121 fixed across the UXG family (refs #130).\n\n**LAN bank (layer 2), read 2026-11-21.** Both vendor surfaces print the same three rows: `MAC Address Table Size = 4,000`, `LACP Port Aggregation = True` with the note \"GbE RJ45 ports 1-8\", and `VLAN/Subnet-based Traffic Segmentation = True`, beside `1 GbE RJ45 = 8` and `2.5 GbE RJ45 = 1` (the WAN port) - https://techspecs.ui.com/unifi/cloud-gateways/udm-se (HTTP 200, 682,320 B), and the storefront's own payload repeats each row at https://store.ui.com/us/en/products/udm-se (HTTP 200, 602,395 B). A 4,000-entry MAC table is a bridge forwarding database, and a LAG over the eight 1G sockets cannot be built from routed ports, so Port 1-Port 8 forward at layer 2 and the row declares `l2-forward` (MAC learning + flooding only; VLAN, LAG and STP ride on it). Measured on the pre-change spec: hosts on Port 1 and Port 2 in 192.168.1.0/24 could not resolve each other's ARP, and `switchport access vlan 10` answered \"cannot switch frames: it has no l2-forward capability\". `no switchport` still makes a LAN port routed; the WAN port keeps its address. The two 10G SFP+ cages keep their addresses as well.\n\nWAN/LAN separation, read 2026-11-21. Ubiquiti's controller device database numbers the sockets and names the uplink: https://static.ui.com/fingerprint/ui/public.json (HTTP 200, 832,585 B, `devices` entry with `sku` = UDM-SE) prints `ports` = {\"eth0\": \"LAN\", \"eth1\": \"LAN\", \"eth2\": \"LAN\", \"eth3\": \"LAN\", \"eth4\": \"LAN\", \"eth5\": \"LAN\", \"eth6\": \"LAN\", \"eth7\": \"LAN\", \"eth8\": \"WAN\", \"eth9\": \"WAN2\", \"eth10\": \"LAN\", \"plus\": [10, 11], \"standard\": 9} with `numberOfPorts` 11 - nine RJ45 sockets, the ninth the uplink, then the two 10G cages. The product page repeats the split in words: \"Default WAN Ports (1) 10G SFP+ / (1) 2.5 GbE RJ45\", beside \"1 GbE RJ45 = 8 (1G/100M/10M)\", \"2.5 GbE RJ45 = 1 (2.5G/1G/100M/10M)\" and \"MAC Address Table Size = 4,000\" at https://techspecs.ui.com/unifi/cloud-gateways/udm-se (HTTP 200, 682,320 B, read 2026-11-21). `role` is the field `engine/device.js` `ownsIpOn` reads (\"WAN and LAN are separate L3 surfaces ... role separation outranks the VLAN shortcut\"), and it fires only when BOTH sides carry one, so a LAN bank with no role leaves the invariant this repo already asserts for the RT-AX89X (test/port-roles.test.js, \"the WAN port does not answer the LAN address\") silently false: with 192.168.1.1/24 on Port 1, `ownsIpOn(WAN, '192.168.1.1')` returned the LAN interface, i.e. a host cabled to WAN inside that subnet was answered by the LAN gateway. WAN now declares role \"wan\" and Port 1 through Port 8 \"lan\"; measured after the change, WAN no longer owns the LAN address, Port 2 still reaches the address held on Port 1 (the bank still answers bank-wide), and WAN still answers an address of its own. The two SFP+ cages keep their names and no `role`: the datasheet prints one LAN and one WAN cage without numbering them, so which of `sfp1`/`sfp2` is the WAN cage is not a wiring fact this catalogue can state - the same restraint `udw.json` records for its cages. Gate: test/ubiquiti-wan-lan-role-separation.test.js."
 }
