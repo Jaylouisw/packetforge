@@ -3,63 +3,148 @@
   "model": "USW-Flex-2.5G-8-PoE",
   "label": "UniFi Switch Flex 2.5G PoE",
   "category": "switch",
-  "description": "Ubiquiti USW-Flex-2.5G-8-PoE - 8x 2.5GbE RJ45 all PoE++ (196W with AC adapter), 1x 10GbE RJ45 PoE+++ input, 1x 10G SFP+.",
+  "description": "Ubiquiti USW-Flex-2.5G-8-PoE - 8x 2.5GbE RJ45, every one a PoE++ PSE at the vendor's 64 W per-port ceiling, plus 1x 10GbE RJ45 that is the switch's PoE+++ power input rather than an output, and 1x 10G SFP+. PoE budget depends on how the box is fed: 196 W on the optional 210 W AC adapter, 76 W on a PoE+++ uplink, 46 W on PoE++, 16 W on PoE+.",
   "capabilities": [
     "l2-forward",
     "cli",
-    "http-server"
+    "http-server",
+    "poe-pse",
+    "802.3af",
+    "802.3at",
+    "802.3bt"
   ],
   "interfaces": [
     {
       "name": "Port 1",
       "type": "ethernet",
-      "speed": "2.5G"
+      "connector": "rj45",
+      "speed": "2.5G",
+      "speedCaps": [
+        2500,
+        1000,
+        100,
+        10
+      ],
+      "poeOut": 64,
+      "poeOutClass": "PoE++"
     },
     {
       "name": "Port 2",
       "type": "ethernet",
-      "speed": "2.5G"
+      "connector": "rj45",
+      "speed": "2.5G",
+      "speedCaps": [
+        2500,
+        1000,
+        100,
+        10
+      ],
+      "poeOut": 64,
+      "poeOutClass": "PoE++"
     },
     {
       "name": "Port 3",
       "type": "ethernet",
-      "speed": "2.5G"
+      "connector": "rj45",
+      "speed": "2.5G",
+      "speedCaps": [
+        2500,
+        1000,
+        100,
+        10
+      ],
+      "poeOut": 64,
+      "poeOutClass": "PoE++"
     },
     {
       "name": "Port 4",
       "type": "ethernet",
-      "speed": "2.5G"
+      "connector": "rj45",
+      "speed": "2.5G",
+      "speedCaps": [
+        2500,
+        1000,
+        100,
+        10
+      ],
+      "poeOut": 64,
+      "poeOutClass": "PoE++"
     },
     {
       "name": "Port 5",
       "type": "ethernet",
-      "speed": "2.5G"
+      "connector": "rj45",
+      "speed": "2.5G",
+      "speedCaps": [
+        2500,
+        1000,
+        100,
+        10
+      ],
+      "poeOut": 64,
+      "poeOutClass": "PoE++"
     },
     {
       "name": "Port 6",
       "type": "ethernet",
-      "speed": "2.5G"
+      "connector": "rj45",
+      "speed": "2.5G",
+      "speedCaps": [
+        2500,
+        1000,
+        100,
+        10
+      ],
+      "poeOut": 64,
+      "poeOutClass": "PoE++"
     },
     {
       "name": "Port 7",
       "type": "ethernet",
-      "speed": "2.5G"
+      "connector": "rj45",
+      "speed": "2.5G",
+      "speedCaps": [
+        2500,
+        1000,
+        100,
+        10
+      ],
+      "poeOut": 64,
+      "poeOutClass": "PoE++"
     },
     {
       "name": "Port 8",
       "type": "ethernet",
-      "speed": "2.5G"
+      "connector": "rj45",
+      "speed": "2.5G",
+      "speedCaps": [
+        2500,
+        1000,
+        100,
+        10
+      ],
+      "poeOut": 64,
+      "poeOutClass": "PoE++"
     },
     {
       "name": "Port 9",
       "type": "ethernet",
-      "speed": "10G"
+      "connector": "rj45",
+      "speed": "10G",
+      "speedCaps": [
+        10000,
+        5000,
+        2500,
+        1000,
+        100
+      ],
+      "poeIn": 90
     },
     {
       "name": "SFP+ 1",
       "type": "ethernet",
-      "speed": "10G",
       "connector": "sfp+",
+      "speed": "10G",
       "speedCaps": [
         1000,
         10000
@@ -70,6 +155,8 @@
   "color": "#3b82f6",
   "poe": {
     "budgetW": 196,
-    "sourceUrl": "https://techspecs.ui.com/unifi/switching/usw-flex-2-5g-8-poe"
-  }
+    "sourceUrl": "https://techspecs.ui.com/unifi/switching/usw-flex-2-5g-8-poe",
+    "note": "196 W is the vendor's own maximum, and it needs the optional 210 W AC adapter: \"Total PoE Availability: PoE+++ input: 76W / PoE++ input: 46W / PoE+ input: 16W / 210W AC adapter input: 196W\" with \"AC/DC adapter (Excluded)\" under Power Method."
+  },
+  "notes": "All rows read from Ubiquiti's own tech-spec table on 2026-11-21 (https://techspecs.ui.com/unifi/switching/usw-flex-2-5g-8-poe, 200, 632,312 B, server-rendered): \"Port Layout: 2.5 GbE RJ45 8 (All PoE++) (2.5G/1G/100M/10M) / 10 GbE RJ45 1 (PoE+++) (10G/5G/2.5G/1G/100M) / 10G SFP+ 1 (10G/1G)\"; \"PoE Ports: PoE++ 8\"; \"Max. PoE Wattage per Port by PSE: PoE 15.4W / PoE+ 32W / PoE++ 64W\"; \"Max. PoE Output: Up to PoE++\"; \"Power Method: (1) AC/DC adapter (Excluded), (1) PoE+++\"; \"Power Input Method: DC Input / PoE\"; \"Max. Power Consumption: 14W (Excluding PoE output) with PoE input, 17W with AC adapter input\". The eight 2.5G sockets are all PoE++ per the vendor, so each declares the 64 W PSE ceiling rather than the 802.3af default the engine was deriving for every copper port. The 10G RJ45 socket is the box's power INLET, not a ninth PSE: the page lists it as \"PoE+++\" under Power Method and puts \"Max. PoE Output\" at PoE++ only, so it declares poeIn and no poeOut. The 90 W is the vendor's own arithmetic and not a standards guess - 76 W available to the eight ports plus 14 W maximum consumption with PoE input is exactly the 90 W an 802.3bt Type 4 source must supply. Ubiquiti prints availability, not input draw, so the input figure is derived from those two printed rows. No datasheet text layer exists for this SKU: https://dl.ui.com/ds/usw-flex-2-5g-8-poe_ds.pdf answers 200 with the 609,911-byte techspecs front page, so the table above is the only vendor surface."
 }
