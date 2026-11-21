@@ -9,6 +9,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **`no channel-group 1 mode on` removed the port on a line the box refuses.** The setting form's grammar
+  is `channel-group <n> mode {…}`; the undo's is `no channel-group` with no `mode` keyword — four command
+  references print the pair, and a 2022 CCNA transcript shows the answer to the mixture:
+  `% Invalid input detected at '^' marker.` This console read the id, discarded every word after it, and took
+  the port out of the bundle, so a typo that hardware rejects changed the link and reported success. Any token
+  after the id is now refused before membership is read and before the removal receipt is built —
+  `% no channel-group takes the group number and nothing after it: the word "mode on" was not used, and
+  nothing was changed` — while the bare form, the numbered form and `no channel-group 9999` are unchanged.
+  `test/channel-group-undo-grammar.test.js` (20 checks);
+  [`research/no-channel-group-undo-grammar.md`](research/no-channel-group-undo-grammar.md) records the syntax
+  lines, the capture and the two things left unwitnessed (the caret line, other vendors' grammar).
 - **`show arp` printed the panel's abbreviation where a box spells the interface out.** Every primary capture of
   this table prints the whole name - `Ethernet0/0` in the TAC command reference, `GigabitEthernet0/0/6` in the
   IOS XE ARP guide, `GigabitEthernet0/0/2` in the ASR FAQ this repo already quotes, `FastEthernet0/3/0/6` on a

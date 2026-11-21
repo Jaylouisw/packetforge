@@ -3934,10 +3934,29 @@ class CliSession {
       //
       // A bare `no channel-group` keeps its old meaning - the group the port is actually in - because that
       // is what an operator types when they do not remember the number.
+      // The `no` form takes the group number and nothing after it. The vendor's grammar is
+      // `channel-group <n> mode {...}` for the setting form and `no channel-group [<n>]` for the undo -
+      // there is no `mode` keyword on the `no` side - and a box answers a line that adds one with the
+      // parser's refusal. A 2022 CCNA transcript on a Catalyst shows the exact line and answer:
+      //
+      //   Switch(config-if)#no channel-group 1 mode on
+      //   % Invalid input detected at '^' marker.
+      //   https://community.cisco.com/t5/switching/remove-commands/td-p/4667709
+      //
+      // This console read the id and dropped every word after it, so `no channel-group 1 mode on` took the
+      // port out of the bundle and said it had done what was asked. That is the same silence `shutdown <word>`
+      // and `switchport mode <a> <b>` were fixed for (#1495, #2315): a line the box refuses must not be a
+      // line that changes a link. The id is validated first, so `no channel-group mode on` still gets the
+      // sentence about `mode` not being a group number.
       const named = (t[1] == null || t[1] === '') ? null : t[1];
       if (named !== null) {
         const chk = this._channelGroupId(tokens[1]);
         if (chk.error) return [chk.error];
+        if (tokens.length > 2) {
+          const extra = tokens.slice(2).join(' ');
+          return ['% no channel-group takes the group number and nothing after it: the word "' + extra +
+            '" was not used, and nothing was changed'];
+        }
       }
       const was = Object.keys(dev.config.lags).filter(function (id) {
         return (dev.config.lags[id].members || []).indexOf(iface.name) !== -1;

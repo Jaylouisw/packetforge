@@ -328,7 +328,7 @@ unapplied in`), and the bare `no ip access-group`, which clears both directions 
 actually cleared: in the session above - 102 inside, nothing outside - it answers `Interface Gi0/0/1:
 access list unapplied in`, and `access list unapplied in and out` only when both directions were bound.
 Reading a direction word as the number is the code's to fix
-(`_accessGroup()`, `const want = rest[0] != null ? parseInt(rest[0], 10) : null` at `engine/cli.js:4142` - the
+(`_accessGroup()`, `const want = rest[0] != null ? parseInt(rest[0], 10) : null` at `engine/cli.js:4176` - the
 guard asks whether a word arrived, not whether it is a number, so `in` still parses to `NaN`); until it is,
 this page does not advertise the direction on its own.
 
@@ -2783,6 +2783,20 @@ port out of the bundle that was carrying traffic, and every view afterwards agre
 outside `1-4096` is now refused as an id, and a port that is in no group says where it looked. A bare
 `no channel-group` keeps its old meaning - the group the port is actually in - because that is what you type
 when you do not remember the number.
+
+The undo takes the group number and **nothing after it** — the vendor's syntax is
+`channel-group <n> mode {…}` for the setting form and `no channel-group` for the undo, and a box answers the
+two mixed together with its parser's refusal. This console used to read the number and drop the rest, so the
+half-remembered line removed the port:
+
+```
+sw1(config-if)#no channel-group 1 mode on
+% no channel-group takes the group number and nothing after it: the word "mode on" was not used, and nothing was changed
+```
+
+The refusal comes before any question about membership, so a port in another group gets the grammar sentence
+rather than "is not in channel group …", and a port in the named group keeps its place in it.
+`research/no-channel-group-undo-grammar.md` carries the syntax lines and the transcript.
 
 A port belongs to **one** bundle. A second `channel-group` **moves** it, and says where from -
 `Interface Fa0/1 moved from channel group 2 to 10 (mode on)`. Before this each line added membership to another
