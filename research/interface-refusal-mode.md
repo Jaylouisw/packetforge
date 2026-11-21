@@ -77,7 +77,9 @@ So the name in `interface Fa9/9` is a value the parser rejects, which is the fir
 * **A refused *subinterface* on a real box.** `interface Gi0/0.5000` here is refused by the VLAN-range check
   (`% VLAN out of range: 5000`, this console's own sentence). No capture of a box refusing a VLAN id above
   4094 in a subinterface name was found; the parse shape (caret, no mode change) is assumed to be the same,
-  and the fix treats it the same because it is the same door.
+  and the fix treats it the same because it is the same door. What a box prints for an out-of-range id *is*
+  now witnessed for the `vlan` door - the parser's caret error, with the range advertised per image - in
+  [vlan-id-range-per-door-and-per-image.md](vlan-id-range-per-door-and-per-image.md).
 
 ## What changed
 
