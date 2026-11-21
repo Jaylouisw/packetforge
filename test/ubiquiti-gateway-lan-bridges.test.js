@@ -1,5 +1,5 @@
 'use strict';
-// The LAN banks of the seven UniFi gateways that publish a MAC address table (#130 fallback rows).
+// The LAN banks of the eight UniFi gateways that publish a MAC address table (#130 fallback rows).
 //
 // Ubiquiti prints a bridge FDB for each of these SKUs on its own tech-spec page - UDM-Pro-Max and UDM-SE "MAC
 // Address Table Size = 4,000" plus "LACP Port Aggregation" over "GbE RJ45 ports 1-8", UDM-Pro "4,000" with
@@ -41,7 +41,12 @@ const ROWS = [
   { model: 'UCG-Ultra', lan: ['port1', 'port2'], wan: 'wan1', copper: 5, lag: false,
     table: '2,000', url: 'https://techspecs.ui.com/unifi/cloud-gateways/ucg-ultra' },
   { model: 'UCG-Fiber', lan: ['Port 1', 'Port 2'], wan: 'WAN', copper: 5, lag: false,
-    table: '4,000', url: 'https://techspecs.ui.com/unifi/cloud-gateways/ucg-fiber' }
+    table: '4,000', url: 'https://techspecs.ui.com/unifi/cloud-gateways/ucg-fiber' },
+  // The Dream Router is the residential box in the same family: fingerprint deviceCapabilities carry SWITCH, the
+  // tech-spec table prints MAC Address Table Size = 1,000 and VLAN segmentation, and the datasheet prints VLAN 802.1Q.
+  // Its five copper sockets are four LAN plus the one WAN the datasheet splits out ("LAN: (4) / WAN: (1)"); no LACP.
+  { model: 'UDR', lan: ['eth0', 'eth1'], wan: 'eth4', copper: 5, lag: false,
+    table: '1,000', url: 'https://techspecs.ui.com/unifi/cloud-gateways/udr' }
 ];
 
 ROWS.forEach(function (row) {
