@@ -850,6 +850,23 @@ jobs:
           # did not execute and no syntax-check output appeared in the log.
           set +e
           set -u
+          # Width follows the leg's own work: the same 430 suites cost the Node 18 runtime
+          # about a fifth more CPU than they cost Node 22 (571 against 467 CPU-seconds for
+          # the 399 suites of run 8265), so at an equal width the floor is always the leg
+          # still running when its two siblings have reported, and the pull request's wall
+          # clock is that leg. Measured on this tree at 3387122b, one leg at a time on an
+          # idle host, 430 suites / 14367 assertions green in every run: 10 workers
+          # 28.5 s, 11 workers 27.0 s, 12 workers 24.9 s. So the floor gets 12 and the
+          # other two keep the 10 that was measured best for them - 32 workers of the 40
+          # cores this host has, against the 39 that made every leg 3.2 s slower in run
+          # 8271. Coverage is unchanged: same suites, same assertions, same runtime in
+          # every leg; only how many of that leg's suites run at once changes, and the
+          # isolated re-run below still decides any suite that loses a race at the new
+          # width.
+          if [ "${{ matrix.node }}" = "18" ]; then
+            export PF_TEST_CONCURRENCY=12
+          fi
+          echo "suite width: ${PF_TEST_CONCURRENCY} workers on Node ${{ matrix.node }}"
           # Outside the working tree: a log file in the repo root is one more thing a
           # later step might trip over, and nothing here needs to read it back.
           dir="${RUNNER_TEMP:-/tmp}"
