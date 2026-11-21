@@ -459,7 +459,7 @@ layer exists in `engine/bgp.js` today.
 
 | Verdict | Behaviour | Where |
 |---|---|---|
-| **Modelled** | 20 cages and 65 media across nine families (copper, fiber, dac, coax, dsl, powerline, serial, console, wireless). Count them with `node -e "console.log(Object.keys(require('./engine/media').MEDIA).length)"`. | `engine/media.js:54`, `engine/media.js:157` |
+| **Modelled** | 28 cages and 90 media across ten families (copper, `fiber`, `fibre-channel`, dac, coax, dsl, powerline, serial, console, wireless). Count them with `node -e "console.log(Object.keys(require('./engine/media').MEDIA).length)"`, and the same line with `CAGE_MEDIA` for the cages. | `engine/media.js:75`, `engine/media.js:549` |
 | **Modelled** | Port hardware is derived from a terse spec (`{name, type, speed}` → cage, media, speed caps, PoE in/out). | `engine/media.js:562-641` |
 | **Modelled** | An unrecognised cage is reported as unknown — no silent fallback to RJ45 and no fake media set. | `engine/media.js:574-586` |
 | **Modelled** | The three-test mating rule: cages mate → shared medium → common speed. | `engine/media.js:744-786` |
