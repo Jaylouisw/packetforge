@@ -1,0 +1,638 @@
+{
+  "vendor": "huawei",
+  "model": "OptiXtrans E6616X",
+  "label": "OptiXtrans E6616X MS-OTN platform, DC chassis, 14x TMB3EGS4 (56x FE/GE)",
+  "category": "switch",
+  "description": "Huawei OptiXtrans E6616X - 5U MS-OTN shelf, 14 service slots in the DC chassis (12 under 1500 W AC power), OTN(fgOTN)/PKT/SDH cross-connect and a grey 100 Gbit/s per-channel ceiling with no WDM line. Modelled as a stated build: 14x TMB3EGS4 EoS boards, 56x FE/GE ports, each an SFP cage taking an LC optical or RJ-45 electrical module.",
+  "capabilities": [
+    "cli",
+    "l2-forward"
+  ],
+  "interfaces": [
+    {
+      "name": "1/1",
+      "type": "ethernet",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ],
+      "connector": "sfp"
+    },
+    {
+      "name": "1/2",
+      "type": "ethernet",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ],
+      "connector": "sfp"
+    },
+    {
+      "name": "1/3",
+      "type": "ethernet",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ],
+      "connector": "sfp"
+    },
+    {
+      "name": "1/4",
+      "type": "ethernet",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ],
+      "connector": "sfp"
+    },
+    {
+      "name": "2/1",
+      "type": "ethernet",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ],
+      "connector": "sfp"
+    },
+    {
+      "name": "2/2",
+      "type": "ethernet",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ],
+      "connector": "sfp"
+    },
+    {
+      "name": "2/3",
+      "type": "ethernet",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ],
+      "connector": "sfp"
+    },
+    {
+      "name": "2/4",
+      "type": "ethernet",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ],
+      "connector": "sfp"
+    },
+    {
+      "name": "3/1",
+      "type": "ethernet",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ],
+      "connector": "sfp"
+    },
+    {
+      "name": "3/2",
+      "type": "ethernet",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ],
+      "connector": "sfp"
+    },
+    {
+      "name": "3/3",
+      "type": "ethernet",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ],
+      "connector": "sfp"
+    },
+    {
+      "name": "3/4",
+      "type": "ethernet",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ],
+      "connector": "sfp"
+    },
+    {
+      "name": "4/1",
+      "type": "ethernet",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ],
+      "connector": "sfp"
+    },
+    {
+      "name": "4/2",
+      "type": "ethernet",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ],
+      "connector": "sfp"
+    },
+    {
+      "name": "4/3",
+      "type": "ethernet",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ],
+      "connector": "sfp"
+    },
+    {
+      "name": "4/4",
+      "type": "ethernet",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ],
+      "connector": "sfp"
+    },
+    {
+      "name": "5/1",
+      "type": "ethernet",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ],
+      "connector": "sfp"
+    },
+    {
+      "name": "5/2",
+      "type": "ethernet",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ],
+      "connector": "sfp"
+    },
+    {
+      "name": "5/3",
+      "type": "ethernet",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ],
+      "connector": "sfp"
+    },
+    {
+      "name": "5/4",
+      "type": "ethernet",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ],
+      "connector": "sfp"
+    },
+    {
+      "name": "6/1",
+      "type": "ethernet",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ],
+      "connector": "sfp"
+    },
+    {
+      "name": "6/2",
+      "type": "ethernet",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ],
+      "connector": "sfp"
+    },
+    {
+      "name": "6/3",
+      "type": "ethernet",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ],
+      "connector": "sfp"
+    },
+    {
+      "name": "6/4",
+      "type": "ethernet",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ],
+      "connector": "sfp"
+    },
+    {
+      "name": "7/1",
+      "type": "ethernet",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ],
+      "connector": "sfp"
+    },
+    {
+      "name": "7/2",
+      "type": "ethernet",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ],
+      "connector": "sfp"
+    },
+    {
+      "name": "7/3",
+      "type": "ethernet",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ],
+      "connector": "sfp"
+    },
+    {
+      "name": "7/4",
+      "type": "ethernet",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ],
+      "connector": "sfp"
+    },
+    {
+      "name": "8/1",
+      "type": "ethernet",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ],
+      "connector": "sfp"
+    },
+    {
+      "name": "8/2",
+      "type": "ethernet",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ],
+      "connector": "sfp"
+    },
+    {
+      "name": "8/3",
+      "type": "ethernet",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ],
+      "connector": "sfp"
+    },
+    {
+      "name": "8/4",
+      "type": "ethernet",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ],
+      "connector": "sfp"
+    },
+    {
+      "name": "9/1",
+      "type": "ethernet",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ],
+      "connector": "sfp"
+    },
+    {
+      "name": "9/2",
+      "type": "ethernet",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ],
+      "connector": "sfp"
+    },
+    {
+      "name": "9/3",
+      "type": "ethernet",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ],
+      "connector": "sfp"
+    },
+    {
+      "name": "9/4",
+      "type": "ethernet",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ],
+      "connector": "sfp"
+    },
+    {
+      "name": "10/1",
+      "type": "ethernet",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ],
+      "connector": "sfp"
+    },
+    {
+      "name": "10/2",
+      "type": "ethernet",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ],
+      "connector": "sfp"
+    },
+    {
+      "name": "10/3",
+      "type": "ethernet",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ],
+      "connector": "sfp"
+    },
+    {
+      "name": "10/4",
+      "type": "ethernet",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ],
+      "connector": "sfp"
+    },
+    {
+      "name": "11/1",
+      "type": "ethernet",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ],
+      "connector": "sfp"
+    },
+    {
+      "name": "11/2",
+      "type": "ethernet",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ],
+      "connector": "sfp"
+    },
+    {
+      "name": "11/3",
+      "type": "ethernet",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ],
+      "connector": "sfp"
+    },
+    {
+      "name": "11/4",
+      "type": "ethernet",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ],
+      "connector": "sfp"
+    },
+    {
+      "name": "12/1",
+      "type": "ethernet",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ],
+      "connector": "sfp"
+    },
+    {
+      "name": "12/2",
+      "type": "ethernet",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ],
+      "connector": "sfp"
+    },
+    {
+      "name": "12/3",
+      "type": "ethernet",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ],
+      "connector": "sfp"
+    },
+    {
+      "name": "12/4",
+      "type": "ethernet",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ],
+      "connector": "sfp"
+    },
+    {
+      "name": "13/1",
+      "type": "ethernet",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ],
+      "connector": "sfp"
+    },
+    {
+      "name": "13/2",
+      "type": "ethernet",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ],
+      "connector": "sfp"
+    },
+    {
+      "name": "13/3",
+      "type": "ethernet",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ],
+      "connector": "sfp"
+    },
+    {
+      "name": "13/4",
+      "type": "ethernet",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ],
+      "connector": "sfp"
+    },
+    {
+      "name": "14/1",
+      "type": "ethernet",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ],
+      "connector": "sfp"
+    },
+    {
+      "name": "14/2",
+      "type": "ethernet",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ],
+      "connector": "sfp"
+    },
+    {
+      "name": "14/3",
+      "type": "ethernet",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ],
+      "connector": "sfp"
+    },
+    {
+      "name": "14/4",
+      "type": "ethernet",
+      "speed": "1G",
+      "speedCaps": [
+        1000,
+        100,
+        10
+      ],
+      "connector": "sfp"
+    }
+  ],
+  "icon": "switch",
+  "color": "#dc2626",
+  "sourceUrl": "https://e.huawei.com/en/products/optical-transmission/optixtrans-e6600",
+  "notes": "Stated card complement, not a fixed chassis figure: the E6616X is a 5U shelf with 14 service slots in its DC chassis (12 in the 1500 W AC chassis; every AC X SKU the price list carries is 1500 W, so there is no 10-slot AC variant as on the E6616), so \"14x TMB3EGS4\" is what 56 FE/GE ports means. A partly filled shelf, or the same shelf with the 2M boards the field record shows, is a different box - model it separately rather than reusing this one. Same convention as devices/huawei/optixtrans-e6616.json and devices/huawei/optixtrans-e9605.json.\n\nFrame, from the E6616X column of the E6600 specification table (read 2026-11-17, https://e.huawei.com/en/products/optical-transmission/optixtrans-e6600): 221.5 x 220 x 442 mm, Number of Service Board Slots DC chassis 14 / AC chassis 12, cross-connect OTN(fgOTN)/PKT/SDH, and N/A in both wavelength rows - the X has no DWDM/CWDM line, its maximum single-channel rate is 100 Gbit/s grey. The V100R026C00 brochure adds the board that reaches it: TM65UXCL, 780G OTN cross-connect (620G without the licence), 620G OSU, 820G packet, 160G VC-4 / 20G VC-3/VC-12 SDH.\n\nBoard validity and port census are one reading, from the TMB3EGS4 chapter of the OptiXtrans E6600 Hardware Description: table 1 (单板配套关系) prints the row \"TMB3EGS4 | E6616X | TM65UXCL | V100R022C10SPC010\" - the board, the subrack, the cross-connect it needs and the first software release that carries it - and table 3 (单板接口说明) prints the panel as TX1/RX1 to TX4/RX4, connector type \"LC或RJ-45\", NMS port index 1-4: four ports, each an SFP cage that takes an optical (LC) or electrical (RJ-45) module, so the connector is sfp (a cage, not a copper socket) and the electrical-module option is recorded here rather than as a second port; a lab cabling one of these to a copper peer needs an electrical SFP, not a plain patch lead. Port speed 1G is the ceiling the board states in its port-mode row: GE electrical 10/100/1000 full duplex and autoneg, GE optical 1000M, FE optical 100M. Board size 193.80 x 19.80 x 205.90 mm (one slot), 61 W typical / 66 W maximum, which is what makes 14 of them fit a 14-slot shelf. Read 2026-11-21 from the verbatim partner copy at https://www.szhuaxunjia.com/product/2302.html (HTTP 200, 67,351 B); the vendor copy (OptiXtrans E6600 Hardware Description, EDOC1100558549 and its editions) answers 302/401 to every anonymous request, so the mirror is the readable copy of that chapter and is cited as a mirror, not as a Huawei host.\n\nThe build is a choice, and this note is where it is declared: no Huawei document states a typical configuration for an E6616X, so the chassis is modelled the way the E6616 and E9605 are - every service slot filled with one board this document lists as valid in the X. The 2M build the one public deployment record shows (Ningbo Rail Transit: TM65K32AFB + 65UXCL + B2PD1 + B2DMS) is deliberately NOT modelled: its ports are 32x E1/T1 per TMB2DMS and the engine has no E1/T1 port type (engine/media.js knows ethernet, wireless, console, dsl, pon, coax, powerline and serial only), so a spec would have to call a G.703 tributary rj45 or coax and cable it at the wrong rate. research/optixtrans-e6616x-port-type-gap.md records that gap; this spec takes the Ethernet board instead, where the census and the cage are both stated. Port names are \"<service slot>/<port>\", slots 1-14, ports 1-4 in the board's own NMS numbering.\n\nL2: the board bridges (EPLAN/EVPLAN over an IEEE 802.1d MAC bridge, 16k MAC table, 4095 VLANs, STP/RSTP, LAG on panel ports), so l2-forward is declared. The SDH/OTN mapping behind it (VC-4/VC-3/VC-12 into the cross-connect) is not modelled as a capability.",
+  "aliases": [
+    "E6616X",
+    "TMB3EGS4",
+    "EGS4"
+  ]
+}
