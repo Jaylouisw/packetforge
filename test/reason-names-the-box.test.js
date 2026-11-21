@@ -105,7 +105,9 @@ console.log('A switch that refuses the frame is named too, and named once:');
   };
   cfg('a', ['interface eth0', 'ip address 10.5.0.1 255.255.255.0']);
   cfg('b', ['interface eth0', 'ip address 10.5.0.2 255.255.255.0']);
-  cfg('s2', ['interface Fa0/1', 'switchport mode trunk', 'switchport trunk native vlan 20']);
+  // The native VLAN has to exist for the frame it files to be switchable at all; the mismatch is what is
+  // being measured here, not a VLAN that nobody created.
+  cfg('s2', ['vlan 20', 'interface Fa0/1', 'switchport mode trunk', 'switchport trunk native vlan 20']);
   const why = String(sim.ping('a', '10.5.0.2', { count: 1 }).replies[0].reason);
   ok(/switchport mismatch/.test(why), 'the frame died on the mismatch', why);
   ok(/\(dropped by s2\)$/.test(why), 'and the far switch, not the near one, is named', why);

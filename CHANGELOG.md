@@ -9,6 +9,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **`no vlan 22` was refused while a trunk's allowed list named 22, though the box deletes the VLAN and leaves
+  the line alone.** Deleting a VLAN is a VLAN-database operation: the interface line is configuration and
+  survives it, and the trunk stops carrying the VLAN because a trunk port is a member of a VLAN only while that
+  VLAN exists. Two operators answer the exact question on Cisco Community - "No, you need to remove it manually
+  from the trunk interface" and "only deleting it (`no vlan 30`) won't make it disappear from the interface's
+  config" - and the Catalyst 9300 trunk guide makes membership the intersection of enabled, existing and
+  allowed. The console answered `% VLAN 22 is still carried by 1 port(s): Fa0/3 - move them off it first`, a
+  sentence no box prints, and kept the VLAN. It now commits the deletion, prints
+  `Fa0/3 stops carrying VLAN 22: the switchport configuration is unchanged (vlan 22 brings it back)`, and leaves
+  `switchport trunk allowed vlan ...` and `switchport trunk native vlan ...` exactly as typed; re-creating the
+  VLAN restores carriage with no interface command. The data path agrees in both directions: a VLAN the database
+  does not hold carries nothing, so tagged and native-VLAN frames are dropped at ingress (and nothing is learned
+  in a VLAN `show vlan` no longer prints) and again at egress, while LLDP - a link protocol, not customer
+  traffic - stays exempt as it already was from the allowed list. Ports that only *reference* a VLAN without
+  carrying it (a native or allowed list stored on a non-trunk port, a voice VLAN) still refuse, because no
+  source says what a box does with a reference that is not in force.
+  `test/vlan-delete-leaves-port-inactive.test.js` (39 checks) and `test/show-interfaces-port.test.js` (47) pin
+  the receipt, the untouched backup, the drop counter and the MAC table; two labs that used a native VLAN as a
+  mismatch fixture now create the id they name; [`research/trunk-allowed-vlan-on-vlan-delete.md`](research/trunk-allowed-vlan-on-vlan-delete.md)
+  records the sources and the native-VLAN paste still open.
+
 - **A trunk pruned with `switchport trunk allowed vlan remove 1-4094` was refused, though a box takes it.** The
   command subtracts a list from the one the port carries, the default is 1-4094, and `none` is a documented
   allowed-list value meaning an empty list — so a trunk carrying nothing is a state a device can be in. The

@@ -440,6 +440,28 @@ class Device {
     return (named && named[id]) ? null : id;
   }
 
+  // Does this box's VLAN database hold this id?
+  //
+  // VLAN 1 and the four media defaults are always there (`vlanIsBuiltIn`); every other id exists only while it
+  // is in `config.vlans`. The data path asks this because trunk membership is *derived*, not stored: a trunk
+  // carries a VLAN only while the VLAN exists, is enabled, and is in the allowed list, so deleting the VLAN
+  // stops the traffic while leaving the `switchport trunk allowed vlan ...` line exactly as typed. Two
+  // operators answer the configuration half on Cisco Community ("No, you need to remove it manually from the
+  // trunk interface"; "only deleting it ("no vlan 30") won't make it disappear from the interface's config"),
+  // and the Catalyst 9300 trunk guide states the three-part membership test
+  // (research/trunk-allowed-vlan-on-vlan-delete.md).
+  //
+  // A device with no VLAN database at all - a router, a coupler, a passive tap - is not a bridge and is not
+  // asked: `null` here means "no opinion", so callers check `=== false` before dropping a frame.
+  knowsVlan(id) {
+    const vid = Number(id);
+    if (!Number.isInteger(vid)) return false;
+    if (vlanLib.vlanIsBuiltIn(vid)) return true;
+    const named = this.config && this.config.vlans ? this.config.vlans : null;
+    if (!named) return null;
+    return !!named[vid];
+  }
+
   // Can this port actually carry a frame, and if not, why not (#1237)?
   //
   // The CLI used to answer "is it shut down" and call that the status, so a port with no cable - the

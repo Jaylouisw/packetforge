@@ -64,8 +64,13 @@ function warnings(topo) {
   return (validateTopology(topo).issues || []).filter(function (i) { return i.code === 'W_SWITCHPORT_MISMATCH'; });
 }
 
+// A trunk whose native VLAN is not VLAN 1 needs that VLAN to exist before the untagged frames it files can be
+// switched: a native VLAN that is not in the database is a separate defect (`no vlan` leaves the line and the
+// port stops carrying it), so each lab below creates the id it names, and the only thing left to fail is the
+// mismatch this file is about.
 const TRUNK = function (native) {
-  return ['interface Fa0/1', 'switchport mode trunk', 'switchport trunk native vlan ' + native];
+  const lines = Number(native) === 1 ? [] : ['vlan ' + native];
+  return lines.concat(['interface Fa0/1', 'switchport mode trunk', 'switchport trunk native vlan ' + native]);
 };
 
 console.log('');

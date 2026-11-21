@@ -280,7 +280,7 @@ r1(config)#no hostname
 % No hostname set (the device is named ASR 1001-X aggregation services router-r1)
 
 r1(config)#no vlan 20
-% VLAN 20 is still carried by 1 port(s): Fa0/3 - move them off it first
+% VLAN 20 is still referenced by 1 port(s): Fa0/3 (trunk allowed, stored) - clear that first
 
 r1(config-if)#no ip access-group 103 in
 % Access list 102 is applied in on Gi0, not 103
@@ -361,17 +361,22 @@ Two of those refusals are there for more than tidiness:
 
 * `no ip access-group 103 in` while **102** is applied refuses and names 102. Silently clearing "whatever is
   bound" would remove a policy the operator did not ask about.
-* `no vlan 20` still refuses while a **trunk** carries it, or while any port holds a trunk parameter that
-  names it, and says which:
-  * **carried by a trunk** — asked of the data plane's own rule, not a second copy of it, so a trunk allowing
-    all VLANs counts (`still carried by 1 port(s): Fa0/4`) and a native VLAN is marked `(native)`;
-  * **referenced** — a VLAN named on a port that does not carry it as its data VLAN: a native VLAN or an allowed
-    list stored on a port that is not in trunk mode yet, or the **voice VLAN**, which an access port carries
-    tagged and a trunk only stores (the name says which: `(voice)` against `(voice, no effect)`). The refusal
-    names every field it found
-    (`still referenced by 1 port(s): Fa0/3 (trunk native, stored, trunk allowed, stored, voice, no effect) -
-    clear that first`). The voice VLAN was the reference this check did not look at, so `no vlan 20` removed a
-    VLAN a port was configured with and left `switchport voice vlan 20` in the running config (#1701).
+* `no vlan 20` is **not** refused while a **trunk** carries it. Deleting a VLAN is a database operation and
+  never rewrites an interface line - two operators answer the configuration half on Cisco Community ("No, you
+  need to remove it manually from the trunk interface"; "only deleting it (\"no vlan 30\") won't make it
+  disappear from the interface's config") - so the trunk keeps `switchport trunk allowed vlan ...` exactly as
+  typed and simply stops carrying 20, because membership is derived: a trunk port is a member of a VLAN only
+  while that VLAN exists. The receipt names the ports
+  (`Fa0/4 stops carrying VLAN 20: the switchport configuration is unchanged (vlan 20 brings it back)`), a
+  native VLAN is marked `(native)`, and the data path drops frames in a VLAN the database does not hold even
+  when a trunk's list still names it (`research/trunk-allowed-vlan-on-vlan-delete.md`).
+* `no vlan 20` still refuses while a port only **references** the VLAN: a native VLAN or an allowed list stored
+  on a port that is not in trunk mode yet, or the **voice VLAN**, which an access port carries tagged and a
+  trunk only stores (the name says which: `(voice)` against `(voice, no effect)`). The refusal names every
+  field it found
+  (`still referenced by 1 port(s): Fa0/3 (trunk native, stored, trunk allowed, stored, voice, no effect) -
+  clear that first`). The voice VLAN was the reference this check did not look at, so `no vlan 20` removed a
+  VLAN a port was configured with and left `switchport voice vlan 20` in the running config (#1701).
 
   Removing a VLAN cleared a port's staged native VLAN in silence and left `show running-config` printing no
   `vlan 20` while `show vlan` still listed it from the member ports — two descriptions of one switch that

@@ -139,27 +139,38 @@ console.log('...and says what the port does with a frame:');
 }
 
 console.log('');
-console.log('`no vlan <id>` counts every port that depends on the VLAN:');
+console.log('`no vlan <id>` names every port that was carrying it, and leaves their lines alone:');
 {
-  // A trunk allowing all VLANs carries the one being removed. The old guard looked only at an allowed list
-  // stored as an array, so this port was invisible and the VLAN went out from under it.
+  // A trunk allowing all VLANs carries the one being removed. Deleting the VLAN is a database operation
+  // and never rewrites an interface line - "No, you need to remove it manually from the trunk interface"
+  // (Cisco Community, "deleting VLAN") - so the port keeps its settings and simply stops carrying the VLAN
+  // (research/trunk-allowed-vlan-on-vlan-delete.md).
   const env = lab();
   env.run(['enable', 'configure terminal', 'vlan 20',
     'interface Fa0/4', 'switchport mode trunk', 'exit', 'end']);
-  const out = env.run(['enable', 'configure terminal', 'no vlan 20', 'end'])
-    .filter(function (l) { return /^%|VLAN 20 removed/.test(l); });
-  ok(out.length === 1 && /still carried by 1 port\(s\): Fa0\/4/.test(out[0]),
-    'a trunk allowing all VLANs counts as carrying it', JSON.stringify(out));
-  ok(env.d.config.vlans && env.d.config.vlans[20], 'and the VLAN is still there');
+  const out = env.run(['enable', 'configure terminal', 'no vlan 20', 'end']);
+  ok(!out.some(function (l) { return /^%/.test(l); }), 'a trunk carrying the VLAN does not refuse the removal',
+    JSON.stringify(out));
+  ok(out.some(function (l) { return /VLAN 20 removed/.test(l); }), 'the VLAN is removed', JSON.stringify(out));
+  ok(out.some(function (l) { return /Fa0\/4 stops carrying VLAN 20/.test(l); }),
+    'and the trunk that carried it is named', JSON.stringify(out));
+  ok(/configuration is unchanged/.test(out.join(' ')), 'with the fact that its lines stay as typed',
+    JSON.stringify(out));
+  ok(!(env.d.config.vlans && env.d.config.vlans[20]), 'the VLAN is gone from the database');
+  ok(/switchport mode trunk/.test(env.run(['enable', 'show running-config']).join('\n')),
+    'and the trunk is still a trunk in the backup');
+  ok(/switchport: trunk/.test(env.run(['enable', 'show interfaces Fa0/4']).join('\n')),
+    'with its switchport settings still printed for the port');
 
-  // The native VLAN on a trunk is named as such.
+  // The native VLAN on a trunk is named as such, and its line survives too.
   const env2 = lab();
   env2.run(['enable', 'configure terminal', 'vlan 20',
     'interface Fa0/2', 'switchport mode trunk', 'switchport trunk native vlan 20', 'exit', 'end']);
-  const out2 = env2.run(['enable', 'configure terminal', 'no vlan 20', 'end'])
-    .filter(function (l) { return /^%|VLAN 20 removed/.test(l); });
-  ok(/still carried by 1 port\(s\): Fa0\/2 \(native\)/.test(out2.join(' ')),
+  const out2 = env2.run(['enable', 'configure terminal', 'no vlan 20', 'end']);
+  ok(out2.some(function (l) { return /Fa0\/2 \(native\) stops carrying VLAN 20/.test(l); }),
     'a native VLAN is named as the native VLAN', JSON.stringify(out2));
+  ok(/switchport trunk native vlan 20/.test(env2.run(['enable', 'show running-config']).join('\n')),
+    'and `switchport trunk native vlan 20` is still in the backup', JSON.stringify(out2));
 }
 
 console.log('');
@@ -192,30 +203,26 @@ console.log('A port that only references the VLAN protects it too:');
 }
 
 console.log('');
-console.log('...and only a trunk that carries it stops the removal:');
+console.log('...and a trunk and an access port on it both lose it, each in its own way:');
 {
-  // An access port does not stop it. The device deletes the VLAN and leaves the access port assigned to it
-  // and inactive until the VLAN comes back (Catalyst 9200, "Deleting a VLAN"); a trunk is the other half of
-  // that question, and is left refusing because the evidence for what a deletion does to an allowed list is
-  // not good enough to model yet.
+  // The device deletes the VLAN whatever carries it. The access port keeps `switchport access vlan 20` and
+  // goes inactive; the trunk keeps `switchport trunk allowed vlan 10,20` and stops carrying 20, because a
+  // trunk is a member of a VLAN only while the VLAN exists (Catalyst 9300, Configuring VLAN Trunks;
+  // research/trunk-allowed-vlan-on-vlan-delete.md).
   const env = lab();
   env.run(['enable', 'configure terminal', 'vlan 20',
     'interface Fa0/1', 'switchport access vlan 20', 'exit',
     'interface Fa0/2', 'switchport mode trunk', 'switchport trunk allowed vlan 10,20', 'exit', 'end']);
-  const out = env.run(['enable', 'configure terminal', 'no vlan 20', 'end'])
-    .filter(function (l) { return /^%/.test(l); });
-  ok(/still carried by 1 port\(s\): Fa0\/2/.test(out.join(' ')), 'the trunk is the carrier that counts', JSON.stringify(out));
-  ok(!/Fa0\/1/.test(out.join(' ')), 'and the access port is not named as a reason to keep the VLAN', JSON.stringify(out));
-
-  // Take the trunk out of the VLAN and the deletion goes through, taking Fa0/1 down with it.
-  // The allowed list is staged on the port even out of trunk mode, so it has to be cleared as well - which is
-  // the "still referenced" refusal doing its job.
-  env.run(['enable', 'configure terminal', 'interface Fa0/2', 'switchport mode access',
-    'no switchport trunk allowed vlan', 'exit', 'end']);
-  const done = env.run(['enable', 'configure terminal', 'no vlan 20', 'end']);
-  ok(!done.some(function (l) { return /^%/.test(l); }), 'with no trunk on it the VLAN is deleted', JSON.stringify(done));
+  const out = env.run(['enable', 'configure terminal', 'no vlan 20', 'end']);
+  ok(!out.some(function (l) { return /^%/.test(l); }), 'neither port refuses the removal', JSON.stringify(out));
+  ok(out.some(function (l) { return /Fa0\/2 stops carrying VLAN 20/.test(l); }),
+    'the trunk is named as a port that stops carrying it', JSON.stringify(out));
+  ok(out.some(function (l) { return /Fa0\/1 is now inactive/.test(l); }),
+    'and the access port as one that goes inactive', JSON.stringify(out));
   const block = env.run(['show interfaces Fa0/1']).join('\n');
-  ok(/status: down \(inactive\)/.test(block), 'and the access port is reported down (inactive)', block);
+  ok(/status: down \(inactive\)/.test(block), 'the access port is reported down (inactive)', block);
+  ok(/switchport trunk allowed vlan 10,20/.test(env.run(['enable', 'show running-config']).join('\n')),
+    'and the trunk keeps the allowed list it was given');
 }
 
 console.log('');

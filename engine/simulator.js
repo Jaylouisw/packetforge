@@ -3212,6 +3212,15 @@ class Simulator {
       this._emit({ type: 'vlan-drop', dev: dev.id, iface: port.name, vlan: v, reason: 'VLAN ' + v + ' not allowed on egress' });
       return;
     }
+    // The egress half of the same predicate: a trunk's allowed list is configuration, so a frame built or
+    // still queued in a VLAN the database no longer holds does not leave by it either. Link-scoped frames are
+    // exempt above, on the same ground as the allowed list.
+    if (!linkScoped && dev.isL2() && port.vlan && port.vlan.mode === 'trunk' && dev.knowsVlan &&
+        dev.knowsVlan(v) === false) {
+      this._emit({ type: 'vlan-drop', dev: dev.id, iface: port.name, vlan: v,
+        reason: 'VLAN ' + v + ' is not in the VLAN database' });
+      return;
+    }
     const out = Object.assign({}, frame, {
       vid: v,
       wireTagged: egress.action === 'tagged',
@@ -3393,6 +3402,23 @@ class Simulator {
         return;
       }
       vid = res.vlanId;
+    }
+
+    // A VLAN the database does not hold carries nothing, however a trunk's allowed list is written. `no vlan
+    // 22` leaves `switchport trunk allowed vlan 10-30` exactly as typed - two operators answer the
+    // configuration half on Cisco Community ("No, you need to remove it manually from the trunk interface";
+    // "only deleting it (\"no vlan 30\") won't make it disappear from the interface's config") - and membership
+    // is derived, not stored: a trunk port "can become a member of a VLAN if the VLAN is enabled, if VTP knows
+    // of the VLAN, and if the VLAN is in the allowed list" (Catalyst 9300, Configuring VLAN Trunks). Without
+    // this, a VLAN deleted while a trunk's list named it kept forwarding, and the frame was learned in a VLAN
+    // `show vlan` no longer printed.
+    //
+    // LLDP is a link protocol, not customer traffic: it is untagged, it does not depend on a VLAN existing,
+    // and the same reasoning that keeps the allowed list from filtering it keeps this gate off it too (#1457).
+    if (dev.isL2() && dev.knowsVlan && !lldp.isLldp(frame) && dev.knowsVlan(vid) === false) {
+      this._emit({ type: 'vlan-drop', dev: dev.id, iface: inIface, vlan: vid,
+        reason: 'VLAN ' + vid + ' is not in the VLAN database', discard: true });
+      return;
     }
 
     const f = (frame.vid === vid) ? frame : Object.assign({}, frame, { vid: vid });

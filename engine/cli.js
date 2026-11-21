@@ -1726,17 +1726,21 @@ class CliSession {
       // but the device keeps them agreeing a different way, by dropping the VLAN's row and the port's place in
       // it, which is what `show vlan` does now that a missing access VLAN stops adding itself to the table.
       //
-      // Two kinds of port still refuse, and both are named:
+      // A trunk that carries it does not refuse the removal either, and its configuration is left exactly as
+      // typed: `no vlan 22` never rewrites `switchport trunk allowed vlan 10-30`. Two operators answer the
+      // question directly on Cisco Community - "if you delete a VLAN ... will this automatically remove that
+      // vlan number from any 'switchport trunk allowed vlan x,x' commands" / "No, you need to remove it
+      // manually from the trunk interface", and "only deleting it ("no vlan 30") won't make it disappear from
+      // the interface's config" - and carriage is derived rather than stored: a trunk port "can become a member
+      // of a VLAN if the VLAN is enabled, if VTP knows of the VLAN, and if the VLAN is in the allowed list"
+      // (Catalyst 9300, Configuring VLAN Trunks). So the port stops carrying it while the line stays, which is
+      // what the receipt below says (research/trunk-allowed-vlan-on-vlan-delete.md).
       //
-      //   * a trunk that carries it - whether deleting a VLAN rewrites that trunk's allowed list, leaves it
-      //     exactly as typed while the VLAN drops out of the *active* list, or refuses, is not settled by any
-      //     source found, so the refusal stays rather than inventing an outcome
-      //     (research/trunk-allowed-vlan-on-vlan-delete.md records the evidence and the one paste that would
-      //     settle it);
-      //   * a port that only references it - a native VLAN or an allowed list stored on a port that is not in
-      //     trunk mode yet. Those used to be missed, and removing the VLAN then rewrote the port's staged
-      //     configuration in silence: `no vlan 20` said "VLAN 20 removed" and a port that had been staged for
-      //     VLAN 20 quietly came back with native VLAN 1.
+      // One kind of port still refuses: a port that only *references* the VLAN - a native VLAN or an allowed
+      // list stored on a port that is not in trunk mode yet, or a voice VLAN. Those used to be missed, and
+      // removing the VLAN then rewrote the port's staged configuration in silence: `no vlan 20` said "VLAN 20
+      // removed" and a port that had been staged for VLAN 20 quietly came back with native VLAN 1. Nothing found
+      // says what a box does with a reference that is not in force, so the refusal stays rather than guessing.
       const accessCarriers = [];
       const trunkCarriers = [];
       const staged = [];
@@ -1774,10 +1778,6 @@ class CliSession {
       const list = function (arr) {
         return arr.slice(0, 5).join(', ') + (arr.length > 5 ? ' (+' + (arr.length - 5) + ' more)' : '');
       };
-      if (trunkCarriers.length) {
-        return ['% VLAN ' + id + ' is still carried by ' + trunkCarriers.length + ' port(s): ' + list(trunkCarriers) +
-          ' - move them off it first'];
-      }
       if (staged.length) {
         return ['% VLAN ' + id + ' is still referenced by ' + staged.length + ' port(s): ' + list(staged) +
           ' - clear that first'];
@@ -1786,6 +1786,13 @@ class CliSession {
       // The entries learned in it name a VLAN that is no longer there.
       this.device.flushMacsOnVlan(id);
       out.push('VLAN ' + id + ' removed');
+      // The trunks keep their lines; they stop carrying the VLAN because the database no longer holds it.
+      if (trunkCarriers.length) {
+        const one = trunkCarriers.length === 1;
+        out.push(list(trunkCarriers) + (one ? ' stops' : ' stop') + ' carrying VLAN ' + id +
+          ': the switchport configuration is unchanged (vlan ' + id + ' ' +
+          (one ? 'brings it' : 'brings them') + ' back)');
+      }
       if (accessCarriers.length) {
         const one = accessCarriers.length === 1;
         out.push(list(accessCarriers) + (one ? ' is' : ' are') + ' now inactive: ' + (one ? 'its' : 'their') +
