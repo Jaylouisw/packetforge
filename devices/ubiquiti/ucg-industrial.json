@@ -28,7 +28,7 @@
         "1G",
         "100M"
       ],
-      "poeOut": true,
+      "poeOut": 90,
       "poeOutClass": "PoE+++"
     },
     {
@@ -41,7 +41,7 @@
         "1G",
         "100M"
       ],
-      "poeOut": true,
+      "poeOut": 90,
       "poeOutClass": "PoE+++"
     },
     {
@@ -54,7 +54,7 @@
         "1G",
         "100M"
       ],
-      "poeOut": true,
+      "poeOut": 30,
       "poeOutClass": "PoE+"
     },
     {
@@ -67,7 +67,7 @@
         "1G",
         "100M"
       ],
-      "poeOut": true,
+      "poeOut": 30,
       "poeOutClass": "PoE+"
     },
     {
@@ -82,7 +82,7 @@
         "1G",
         "100M"
       ],
-      "poeOut": true,
+      "poeOut": 90,
       "poeOutClass": "PoE+++"
     },
     {
@@ -102,7 +102,7 @@
   "poe": {
     "budgetW": 270,
     "sourceUrl": "https://techspecs.ui.com/unifi/cloud-gateways/ucg-industrial",
-    "note": "The budget is a function of the power input, and the vendor states both numbers in one row: \"PoE Budget = DC input: 270W / ATX power: 75W\" (Hardware section, read 2026-11-19: https://techspecs.ui.com/unifi/cloud-gateways/ucg-industrial). 270 W is recorded because it is the ceiling, the same convention as devices/allied-telesis/at-x530dp-28ghxm.json; the same chassis on ATX power has 75 W. The five PSE ports are the vendor's own census - \"2.5 GbE RJ45 = 4 (2 PoE+++, 2 PoE+)\", \"10 GbE RJ45 = 1 (PoE+++)\" - with per-port maxima \"PoE+ = 30W\", \"PoE+++ = 90W\", \"Voltage Range PoE Mode = 50-57V\". 3 x 90 W + 2 x 30 W is 330 W, so the budget is what stops a full-power fill; it is not a sum of the ports."
+    "note": "The budget is a function of the power input, and the vendor states both numbers in one row: \"PoE Budget = DC input: 270W / ATX power: 75W\" (Hardware section, read 2026-11-19: https://techspecs.ui.com/unifi/cloud-gateways/ucg-industrial). 270 W is recorded because it is the ceiling, the same convention as devices/allied-telesis/at-x530dp-28ghxm.json; the same chassis on ATX power has 75 W. The five PSE ports are the vendor's own census - \"2.5 GbE RJ45 = 4 (2 PoE+++, 2 PoE+)\", \"10 GbE RJ45 = 1 (PoE+++)\" - with per-port maxima \"PoE+ = 30W\", \"PoE+++ = 90W\", \"Voltage Range PoE Mode = 50-57V\". 3 x 90 W + 2 x 30 W is 330 W, so the budget is what stops a full-power fill; it is not a sum of the ports. Per-socket ceiling, measured 2026-11-21: all five PSE sockets carried `poeOut: true` - 1 W each to `Device.poeDraw()` - although this same note already quotes the vendor's ceiling rows \"PoE+ = 30W\" and \"PoE+++ = 90W\" (https://techspecs.ui.com/unifi/cloud-gateways/ucg-industrial, HTTP 200, 699,443 B, re-read 2026-11-21, unchanged). The census row behind the assignment is \"2.5 GbE RJ45 = 4 (2 PoE+++, 2 PoE+)\" and \"10 GbE RJ45 = 1 (PoE+++)\": eth0/eth1 and the 10G eth4 now declare 90 W, eth2/eth3 30 W. The panel sums to 330 W (3 x 90 + 2 x 30) against the published 270 W DC-input budget, so the budget - not the socket sum - is what `show power inline` spends, the same arithmetic the UDW row records."
   },
   "notes": "\n\nLayer 2: Ubiquiti's controller device database classifies this SKU as a switch - https://static.ui.com/fingerprint/ui/public.json (HTTP 200, 832,585 B, read 2026-11-21) lists UCG-Industrial deviceCapabilities GATEWAY, ACCESS_POINT, SWITCH, CONTROLLER, APPLICATION_MODE, HAS_CLIENTS and draws its panel as `01 02 03 04 05 06` - and the vendor tech-spec table publishes the bridge's forwarding database at https://techspecs.ui.com/unifi/cloud-gateways/ucg-industrial (HTTP 200, 699,443 B, read 2026-11-21), which prints \"MAC Address Table Size = 4,000\" with \"VLAN/Subnet-based Traffic Segmentation\" ticked; no LACP row appears, so no LAG is claimed. A MAC address table is a bridge FDB; a gateway that only routed would hold neither it nor a LAG. While the row shipped without `l2-forward` its copper sockets were routed interfaces: `switchport access vlan 10` was answered with \"cannot switch frames: it has no l2-forward capability\", and two hosts on eth0 and eth2 in 192.168.1.0/24 could not resolve each other's ARP (\"not addressed to this device\"). WAN side unchanged: \"Default WAN Ports = (1) 10G SFP+ / (1) 10 GbE RJ45 / (1) 2.5 GbE RJ45\", \"Max. WAN Port Count = 5\", and the diagram is one unbroken six-socket run, so no copper socket is renamed WAN here."
 }
