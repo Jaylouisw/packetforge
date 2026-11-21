@@ -58,7 +58,7 @@ sim.computeStp();
 
 function table(devId) {
   const lines = new CliSession(t.getDevice(devId), t, sim).run('show spanning-tree').output.map(String);
-  const at = lines.indexOf('Interface           Role Sts Cost');
+  const at = lines.indexOf('Interface           Role Sts Cost      Type');
   // The header, the rule under it, then one row per port.
   return { lines: lines, rows: at < 0 ? [] : lines.slice(at + 2).filter(Boolean) };
 }
@@ -67,7 +67,7 @@ function table(devId) {
 // abbreviates those too: `LTN` (listening) then `LRN` (learning) before `FWD`.
 sim.setRunTime(1000);
 const early = table('s1');
-ok(early.rows.some(function (r) { return /\sLTN\s+\d+$/.test(r); }),
+ok(early.rows.some(function (r) { return /\sLTN\s+\d+\s+(P2p|Shr|-)$/.test(r); }),
   'a port still listening reads `LTN`, not `listening`', early.rows.join(' | '));
 ok(!/listening|learning|forwarding|blocking/.test(early.lines.join('\n')),
   'and no cell is spelled out', early.lines.join('\n'));
@@ -80,8 +80,8 @@ const cells = rows.map(function (r) { return r.trim().split(/\s+/); });
 
 ok(s2.rows.length > 0 && s3.rows.length > 0, 'both switches print a port table',
   JSON.stringify(s2.lines) + ' / ' + JSON.stringify(s3.lines));
-ok(cells.every(function (c) { return c.length === 4; }),
-  'each row is name, role, state, cost and nothing else (the two columns still open are not invented)',
+ok(cells.every(function (c) { return c.length === 5; }),
+  'each row is name, role, state, cost and link type and nothing else (Prio.Nbr is still not invented)',
   JSON.stringify(rows));
 ok(cells.every(function (c) { return ['Root', 'Desg', 'Altn'].indexOf(c[1]) !== -1; }),
   'every role cell is one of the table\'s words', JSON.stringify(cells.map(function (c) { return c[1]; })));
@@ -106,8 +106,8 @@ console.log('\nThe payload and the table are two voices of one verdict, not two 
   const blockedName = blocked && Array.from(blocked)[0];
   const row = s3.rows.filter(function (r) { return r.indexOf(blockedName + ' ') === 0; })[0] || '';
   ok(!!blockedName, 'the election blocked one port on s3', String(blockedName));
-  ok(new RegExp('^' + blockedName + '\\s+Altn\\s+BLK\\s+\\d+$').test(row.trim()),
-    'the table names it `Altn BLK`, followed by the cost the election charged', row);
+  ok(new RegExp('^' + blockedName + '\\s+Altn\\s+BLK\\s+\\d+\\s+(P2p|Shr|-)$').test(row.trim()),
+    'the table names it `Altn BLK`, followed by the cost the election charged and the link type', row);
   ok(stpLib.stpPortText('blocking') === 'blocking (traffic dropped)',
     'while the payload sentence still explains what BLK does to a frame');
 }

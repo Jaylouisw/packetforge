@@ -9,6 +9,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **`show spanning-tree` had a `Type` column in the header's vocabulary and no cell under it.** Cisco derives
+  RSTP's link type from the port's duplex - "The link type is automatically derived from the duplex mode of a
+  port. A port that operates in full-duplex is assumed to be point-to-point, while a half-duplex port is
+  considered as a shared port by default" (Cisco TAC 24062) - and every captured table prints it: the
+  ntc-templates `Shr` rows on a box whose ports were half duplex, `Fa0/13  Desg FWD 19  128.13  P2p Edge` on a
+  2960. This console printed four fields and stopped, so the one cell that tells an operator a link is a shared
+  segment was missing. A row now ends `P2p` on a full-duplex port and `Shr` on a half-duplex one, read from the
+  port the row names (a bundle's from its members, which `validateLag()` will not let disagree); two ends of a
+  duplex mismatch print exactly the pair a box does. No row claims `Edge`, because `spanning-tree portfast` is a
+  command this console refuses, and a port with no duplex answer prints `-` rather than a guessed link type.
+  `test/stp-port-table-type-column.test.js` (33 checks); four suites that pin the table's header, rule and cells
+  were updated; [`research/stp-port-table-type-column.md`](research/stp-port-table-type-column.md) records the
+  sources and the four things still unwitnessed (`Edge`, `Peer(STP)`-style suffixes, the `link-type` override,
+  and what a box prints for a port with no link).
 - **`no channel-group 1 mode on` removed the port on a line the box refuses.** The setting form's grammar
   is `channel-group <n> mode {…}`; the undo's is `no channel-group` with no `mode` keyword — four command
   references print the pair, and a 2022 CCNA transcript shows the answer to the mixture:

@@ -640,10 +640,10 @@ The console said so plainly:
 
 ```
 s1> show spanning-tree
-Interface           Role Sts Cost
-------------------- ---- --- ---------
-Fa0/1               Root FWD 4
-Fa0/2               Altn BLK 4
+Interface           Role Sts Cost      Type
+------------------- ---- --- --------- -------
+Fa0/1               Root FWD 4         P2p
+Fa0/2               Altn BLK 4         P2p
 ```
 
 (The table prints the device's cells; at the time of the bug it spelled them out as

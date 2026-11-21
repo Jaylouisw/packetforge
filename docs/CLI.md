@@ -2397,10 +2397,10 @@ pools first, so a restored lab translates the same packets it did before.
 ```
 Spanning tree enabled protocol ieee
   Bridge priority 4096 (this bridge is the root), root bridge core-sw1 priority 4096
-Interface           Role Sts Cost
-------------------- ---- --- ---------
-Fa0/1               Desg FWD 4
-Fa0/2               Altn BLK 4
+Interface           Role Sts Cost      Type
+------------------- ---- --- --------- -------
+Fa0/1               Desg FWD 4         P2p
+Fa0/2               Altn BLK 4         P2p
 ```
 
 The `Role` and `Sts` cells are the device's table cells, not its detail view: a box prints `Root`, `Desg`,
@@ -2413,13 +2413,20 @@ at the table that does report the tree:
 ```
 
 The header, the rule under it and the column positions are a machine-recorded Catalyst capture's, not this
-console's own layout: `Interface` in a 20-character field, `Role` 5, `Sts` 4, then `Cost`
+console's own layout: `Interface` in a 20-character field, `Role` 5, `Sts` 4, `Cost` 10, then `Type`
 (ntc-templates, `cisco_ios_show_spanning_tree.raw`; the Catalyst 9300 17.12 command reference prints the same
 header). The `Cost` cell is the short path cost the election charged that port — 4 for 1 Gb, 19 for 100 Mb — read
 from the same per-port record the root-port choice used, so the table cannot price a link differently from the
-tree that blocked it. `Prio.Nbr` and `Type` are the two columns still missing: the port number is the platform's
-interface index and `Type` needs portfast and duplex detection this model does not run
-(`research/stp-port-table-cost-column.md`).
+tree that blocked it.
+
+The `Type` cell is the RSTP link type, which the vendor derives from the port's duplex: "full duplex tells the
+switch to use port type point-to-point, with half duplex telling the switch to use port type shared" (CCNA
+200-301 Official Cert Guide, Appendix O). So a full-duplex port reads `P2p` and a half-duplex one `Shr`, and two
+ends of a duplex mismatch disagree in exactly the way the hardware does. The vendor's other input to that cell,
+PortFast, is not modelled here — `spanning-tree portfast` is refused by name — so no row ever says `Edge`; a row
+whose port has no duplex answer prints `-` rather than a guessed link type. `Prio.Nbr` is the one column still
+missing, because the port number is the platform's interface index and no name here carries it
+(`research/stp-port-table-type-column.md`, `research/stp-port-table-cost-column.md`).
 
 The detail sentence is still what the runtime payload and the port tooltip say, because there a sentence is the
 right shape; the table uses the words a table uses (`research/stp-port-table-role-and-sts.md`).

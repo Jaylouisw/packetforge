@@ -540,12 +540,15 @@ const ETHERCHANNEL_COLUMNS = { group: 7, 'port-channel': 16, protocol: 10 };
 // The `show spanning-tree` port table's furniture, transcribed from a machine-recorded Catalyst session
 // (ntc-templates `cisco_ios_show_spanning_tree.raw`): `Interface` padded to 20, then `Role` 5, `Sts` 4,
 // `Cost` 10, `Prio.Nbr` 9, `Type`. Each rule run is one dash shorter than the field above it, the rule every
-// table in this console follows. This view prints the first four fields - `Prio.Nbr` and `Type` are the two
-// it does not model, named as open in research/stp-port-table-cost-column.md - so the rule stops after
-// `Cost` instead of running the capture's 80 characters.
-const STP_TABLE_WIDTHS = { iface: 20, role: 5, sts: 4, cost: 10 };
+// table in this console follows. This view prints the capture's fields in their order but skips the one it
+// cannot state - `Prio.Nbr` is the platform's interface index, which no name derivation here reproduces - so
+// `Type` follows `Cost` instead of standing where the capture puts it, and the rule stops after `Type`
+// instead of running the capture's 80 characters. `Type`'s own field is wider than its three-letter cells
+// because the capture's is: a reduced table's width is this console's, the words in the cell are the
+// device's (research/stp-port-table-type-column.md).
+const STP_TABLE_WIDTHS = { iface: 20, role: 5, sts: 4, cost: 10, type: 8 };
 const STP_TABLE_HEADER = pad('Interface', STP_TABLE_WIDTHS.iface) + pad('Role', STP_TABLE_WIDTHS.role) +
-  pad('Sts', STP_TABLE_WIDTHS.sts) + 'Cost';
+  pad('Sts', STP_TABLE_WIDTHS.sts) + pad('Cost', STP_TABLE_WIDTHS.cost) + 'Type';
 const STP_TABLE_RULE = Object.keys(STP_TABLE_WIDTHS).map(function (k) {
   return pad('-'.repeat(STP_TABLE_WIDTHS[k] - 1), STP_TABLE_WIDTHS[k]);
 }).join('').replace(/\s+$/, '');
@@ -7075,13 +7078,31 @@ class CliSession {
           const m = /^lag-(\d+)$/.exec(String(name));
           return m ? lagLib.portChannelName(m[1]) : String(name);
         };
+        // The `Type` cell's duplex comes from the port the row names. A bundle row names `lag-N`, and a bundle
+        // has no duplex of its own: `validateLag()` refuses members that disagree on it, so the members' one
+        // answer is the bundle's. No members, or members that disagree (a hand-edited document), answers null
+        // and the cell is `-` rather than a guess.
+        const portDuplex = function (name) {
+          const one = dev.interfaces.get(name);
+          if (one) return one.duplex;
+          const m = /^lag-(\d+)$/.exec(String(name));
+          if (!m) return null;
+          const lag = (dev.config.lags || {})[m[1]] || null;
+          const seen = ((lag && Array.isArray(lag.members)) ? lag.members : [])
+            .map(function (n) { return dev.interfaces.get(n); })
+            .filter(Boolean)
+            .map(function (i) { return String(i.duplex || '').trim().toLowerCase(); })
+            .filter(Boolean);
+          if (!seen.length) return null;
+          return seen.every(function (d) { return d === seen[0]; }) ? seen[0] : null;
+        };
         // The two cells are the device's abbreviations, not its detail-view sentences: a box's table prints
         // `Fa0/16  Desg FWD 19  128.18  P2p` and keeps `designated forwarding` for `show spanning-tree detail`,
         // where the port is the subject of a sentence. `stpRoleCell`/`stpStateCell` hold the mapping, so the
         // console cannot learn a second spelling, and the payload's sentence (`stpPortText`) stays the words a
         // tooltip quotes. research/stp-port-table-role-and-sts.md.
-        // The header, the rule and the row widths are one capture's, character for character: a
-        // Catalyst's table reads
+        // The header, the rule and the row widths are one capture's, character for character, in the
+        // columns this console prints: a Catalyst's table reads
         //   Interface           Role Sts Cost      Prio.Nbr Type
         //   ------------------- ---- --- --------- -------- --------------------------------
         //   Gi0/2               Desg FWD 4         128.3    Shr
@@ -7090,10 +7111,11 @@ class CliSession {
         // command reference's sample). The first column is `Interface`, not `Port`, and the Cost cell is
         // the short path-cost number the election charged (1 Gb = 4 in the capture, 100 Mb = 19 on the
         // Pearson `show spanning-tree vlan 10` rows). It is read from `computeStp()`'s own per-port record
-        // rather than derived again here, so the table and the tree cannot disagree. `Prio.Nbr` and `Type`
-        // are the two columns still open: the port number is the platform's interface index (that capture
-        // runs Gi0/2 -> 128.3, which no name derivation reproduces) and Type needs portfast and duplex
-        // detection this model does not run. research/stp-port-table-cost-column.md.
+        // rather than derived again here, so the table and the tree cannot disagree. `Prio.Nbr` is the one
+        // column still open: the port number is the platform's interface index (that capture runs
+        // Gi0/2 -> 128.3, which no name derivation reproduces). `Type` is printed from the row's duplex, the
+        // rule the vendor documents - `P2p` full, `Shr` half, never `Edge` because portfast is not modelled
+        // (research/stp-port-table-type-column.md).
         out.push(STP_TABLE_HEADER);
         out.push(STP_TABLE_RULE);
         // A cell that fills its field keeps the space the field would have added - `tableCell()`'s rule, shared
@@ -7101,10 +7123,13 @@ class CliSession {
         const cell = tableCell;
         for (const n of names) {
           const cost = (st.costs && st.costs[n] !== undefined && st.costs[n] !== null) ? st.costs[n] : null;
+          // The `Type` cell is RSTP's link type, read off the row's port: `P2p` for full duplex, `Shr` for
+          // half, `-` when the model has no answer (research/stp-port-table-type-column.md).
           out.push(cell(portLabel(n), STP_TABLE_WIDTHS.iface) +
             cell(stpLib.stpRoleCell((st.roles || {})[n] || '-'), STP_TABLE_WIDTHS.role) +
             cell(stpLib.stpStateCell(st.states[n]), STP_TABLE_WIDTHS.sts) +
-            (cost === null ? '-' : String(cost)));
+            cell(cost === null ? '-' : String(cost), STP_TABLE_WIDTHS.cost) +
+            (stpLib.stpTypeCell(portDuplex(n)) || '-'));
         }
       }
     } else if (what === 'etherchannel') {

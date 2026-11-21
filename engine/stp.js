@@ -406,6 +406,28 @@ function stpStateCell(state) {
   return Object.prototype.hasOwnProperty.call(STP_STATE_CELLS, key) ? STP_STATE_CELLS[key] : key;
 }
 
+// The table's `Type` cell: RSTP's link type, which a Catalyst derives from the port's duplex.
+//
+// "Cisco Catalyst switches determine the RSTP port type based on two port settings: the current duplex
+// (full or half) and whether the PortFast feature is enabled. First, full duplex tells the switch to use
+// port type point-to-point, with half duplex telling the switch to use port type shared." (Odom, CCNA
+// 200-301 Official Cert Guide, Appendix O - the same paragraph and the same `show spanning-tree vlan 10`
+// transcript appear in the CCNA Portable Command Guide's Appendix B.) That transcript prints `P2p` on the
+// full-duplex rows and `Fa0/18  Desg FWD 19  128.18  Shr` on the port with a hub hung off it, and a 2960
+// transcript prints `Fa0/41  Desg FWD 100  128.45  Shr Edge` beside its `P2p Edge` rows.
+//
+// Only the duplex half of that rule is modelled: `spanning-tree portfast` is a command this console refuses
+// by name (`STP_UNMODELLED`), so no port can be an edge port here and the `Edge` suffix is never printed - a
+// cell that said it would claim a configuration the box cannot hold. A duplex that is neither `full` nor
+// `half` answers null, and the printer draws `-` rather than naming a link type the model has not decided.
+// research/stp-port-table-type-column.md has the captures and the half still open.
+function stpTypeCell(duplex) {
+  const d = String(duplex === null || duplex === undefined ? '' : duplex).trim().toLowerCase();
+  if (d === 'half') return 'Shr';
+  if (d === 'full') return 'P2p';
+  return null;
+}
+
 module.exports = {
   STP_DEFAULT_PRIORITY,
   DEFAULT_PORT_COST,
@@ -414,6 +436,7 @@ module.exports = {
   validateBridgePriority,
   stpRoleCell,
   stpStateCell,
+  stpTypeCell,
   stpPortText,
   comparePortIds,
   runStp
