@@ -351,7 +351,7 @@ snooping, lease expiry during a run (leases are computed at run start, not aged)
 | **Approximate** | Extended rules can match protocol and ports, but only the fields the engine carries: src/dst IP, protocol, src/dst port. No flags, no ICMP type/code, no TOS, no fragments. | `engine/simulator.js:2900-2907` |
 | **Approximate** | ACLs are **IPv4-only**: anything that is not `0x0800` with an `ip` header passes untouched, including all ARP and all IPv6. | `engine/simulator.js:2897` |
 | **Absent** | Any state. No `established`, no reflexive ACLs, no CBAC/zone-based policy, no connection table consultation — each packet is judged alone. No logging, no counters, no time-ranges, no IPv6 ACLs, no VTY/SNMP ACLs. | — |
-| **Absent** | The `firewall` capability does nothing. 64 firewall models are catalogued, and 752 of the 2,351 device specs declare the capability; the engine never reads it. A firewall is a router with ACLs you configure by hand. | `engine/device.js:127` |
+| **Absent** | The `firewall` capability does nothing. 64 firewall models are catalogued, and 752 of the 2,352 device specs declare the capability; the engine never reads it. A firewall is a router with ACLs you configure by hand. | `engine/device.js:127` |
 
 ### 5.3b Link state — **in the data path** (since #1057)
 
@@ -667,7 +667,7 @@ so the next reader does not have to rediscover them.
 | `docs/BGP-POLICY.md` | A full policy design — local-pref, MED, communities, route-maps | A design document. Only the decision-order subset in `engine/bgp.js` exists. |
 
 Six rows have left this table since it was written. Two were the README's counts, which now match the
-tree — **90** media types across **ten** families and **28** connector cages, and **2,351 models across
+tree — **90** media types across **ten** families and **28** connector cages, and **2,352 models across
 258 vendors** in 25 categories:
 
 ```bash
