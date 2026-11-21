@@ -789,7 +789,7 @@ the `Simulator` constructor — fails 12. Neighbours green: `lldp` 27,
 `show-lldp` 24, `lldp-across-trunk` 32, `flows-survive-save-load` 16, `spec-survives-load` 32,
 `dhcp-leases-survive-save` 32, `state-payload-complete` 16, `examples-generated` 21, `counters-agreement` 32,
 `interface-counters`, `link-state` 69, `stp-port-state` 32, `counter-payload`, `poe` 21, `poe-agreement`,
-`poe-inference`, `config-roundtrip` 47, `pon-splitter` 33.
+`poe-inference`, `config-roundtrip` 60, `pon-splitter` 33.
 
 ### A saved lab forgot who was holding which address
 
@@ -869,7 +869,7 @@ The rule is one sentence: **the config reports what was configured; the views re
   learned gateway as configuration.
 
 `test/ipv6-provenance.test.js` pins it, 33 checks; reverting `engine/` fails 16. Neighbours green: `ipv6` 235,
-`ipv6-slaac` 165, `ipv6-wire` 33, `ping-ipv6` 41, `config-roundtrip` 47, `config-completeness` 59,
+`ipv6-slaac` 165, `ipv6-wire` 33, `ping-ipv6` 41, `config-roundtrip` 60, `config-completeness` 59,
 `state-payload-complete` 16, `examples-generated` 21, `flows-survive-save-load` 16, `show-interfaces-port` 40,
 `show-interfaces-view-keywords` 97, `spec-survives-load` 32.
 
@@ -960,7 +960,7 @@ box's ARP claim and logs it (`%IP-4-DUPADDR`), and modelling that is a new proto
 telling the truth about data it already had — so it is left for a decision, not smuggled in here.
 
 `test/arp-conflict.test.js` pins it, 26 checks; reverting `engine/` fails 10. Neighbours green: `show-arp` 35,
-`arp-ageing` 31, `runtime-agreement` 10, `show-argument-refusal` 84, `show-ip-spellings` 70, `dhcp-bindings` 67,
+`arp-ageing` 31, `runtime-agreement` 10, `show-argument-refusal` 97, `show-ip-spellings` 70, `dhcp-bindings` 67,
 `lldp` 27, `vrrp` 94, `ping-ipv6` 41.
 
 ### The log named a mechanism instead of saying what happened
