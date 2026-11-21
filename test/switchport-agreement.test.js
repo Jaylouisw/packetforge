@@ -70,7 +70,10 @@ ok(typeof web.vlanSummary === 'function', 'web vlanSummary is exported');
 const modes = ['access', 'trunk', undefined];
 const accessVlans = [undefined, 1, 20, 4094];
 const nativeVlans = [undefined, null, 1, 20, 30];
-const allowedLists = [undefined, 'all', [], [10, 20], [20], '10,20'];
+const allowedLists = [undefined, 'all', [], [10, 20], [20], '10,20',
+  // A pair is two ids, not a range, and a run of four is a range: both spellings have to come out the
+  // same on the console and in the panel (research/trunk-allowed-two-id-run.md).
+  [157, 158], [59, 157, 158, 160], [10, 11, 12]];
 // The voice VLAN is a switchport parameter like the others, so it belongs in the matrix: an unset field, one
 // that is in the allowed list and one that is not (#1368).
 const voiceVlans = [undefined, null, 20, 30];
@@ -154,7 +157,14 @@ console.log('The sentence agrees with the data plane about every VLAN it mention
           }
         }
       } else {
-        const listed = /allowed ([\d,]+)/.exec(sentence)[1].split(',').map(Number);
+        // A list can carry a range (`10-12`), so the sentence is read as the ids it names, not as the
+        // characters between the commas.
+        const listed = [];
+        for (const part of /allowed ([0-9,-]+)/.exec(sentence)[1].split(',')) {
+          const rng = /^(\d+)-(\d+)$/.exec(part);
+          if (rng) { for (let v = Number(rng[1]); v <= Number(rng[2]); v++) listed.push(v); }
+          else listed.push(Number(part));
+        }
         for (const vid of listed) if (!carried(cfg, vid)) bad.push('lists ' + vid + ' but drops it: ' + JSON.stringify(cfg));
         for (const vid of probes) {
           if (listed.indexOf(vid) === -1 && carried(cfg, vid) && !(voiceCarried && vid === voiceVid)) {

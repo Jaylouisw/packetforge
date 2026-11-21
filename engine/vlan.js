@@ -317,17 +317,36 @@ function vlanListIncludes(listSpec, vid) {
 // ---------------------------------------------------------------------------
 // formatVlanList / allVlansExcept
 // ---------------------------------------------------------------------------
-// A VLAN list as the box prints it: consecutive ids fold into a range.
+// A VLAN list as the box prints it: a run of consecutive ids folds into a range, but a pair does not.
 //
 // A Catalyst prints a trunk's allowed list as `1-4,7,11,13-4094`, not one number per VLAN - the allowed list
 // in a c3550 transcript of `switchport trunk allowed vlan remove 5-10,12` plus `add 7`
 // (research/trunk-allowed-remove-from-all.md). Keeping that shape matters once a list can be "all but one
 // VLAN": the same configuration is one short line (`1,3-1001,1006-4094`) instead of 4,090 numbers, which is
 // what makes it something an operator can read, diff and type back.
+//
+// The threshold is three ids, not two. A range is written only where it is **shorter** than the comma list it
+// replaces - `3-5` for `3,4,5`, but `81,82` (five characters either way) stays spelled out. Three
+// `show running-config` captures print a pair as two ids and no capture prints a pair as a range:
+//
+//   switchport trunk allowed vlan 1,81,82,171,999            (Cisco support doc 68100, `w-backbone-6k`)
+//   switchport trunk allowed vlan 59,157,158,160             (MEXSWP04-NAP, `sh run int fa2/0/39`)
+//   switchport trunk allowed vlan 55,56,59,155,157,158,160,200 (MEXSW09-NAP, `sh run int gi1/0/3`)
+//
+// while the c3550 folds a run of four (`1-4`) and the four-thousand-long tail (`13-4094`). Folding a pair was this
+// file's guess - the research note recorded it as the unsettled half - and it made a replayed backup differ
+// from the line the box prints, which is what a diff against a real device compares.
+// research/trunk-allowed-two-id-run.md carries the captures and the arithmetic.
 function formatVlanList(ids) {
   const list = Array.isArray(ids) ? ids.slice() : [];
   list.sort(function (a, b) { return Number(a) - Number(b); });
   const out = [];
+  // One band as the box writes it: one id, two ids, or a range from three up.
+  const band = function (a, b) {
+    if (a === b) return String(a);
+    if (b === a + 1) return a + ',' + b;
+    return a + '-' + b;
+  };
   let lo = null;
   let hi = null;
   for (let i = 0; i < list.length; i++) {
@@ -336,10 +355,10 @@ function formatVlanList(ids) {
     if (lo === null) { lo = v; hi = v; continue; }
     if (v === hi) continue;
     if (v === hi + 1) { hi = v; continue; }
-    out.push(lo === hi ? String(lo) : lo + '-' + hi);
+    out.push(band(lo, hi));
     lo = v; hi = v;
   }
-  if (lo !== null) out.push(lo === hi ? String(lo) : lo + '-' + hi);
+  if (lo !== null) out.push(band(lo, hi));
   return out.join(',');
 }
 

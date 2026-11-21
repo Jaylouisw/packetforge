@@ -41,7 +41,9 @@ number per VLAN (`10,20,30`), which is not the shape a switch uses.
 2. The top of that list is **4094**, not 1005: the c3550 transcript ends `13-4094`. Some older prose says
    "VLANs 1 through 1005 are allowed on each trunk by default" (the same TAC article says it), but the box that
    was actually asked printed 4094, so the default list is the whole assignable range.
-3. The printed form folds runs into ranges: `1-4,7,11,13-4094`. A backup line is written the same way
+3. The printed form folds runs of three or more into ranges (`1-4,7,11,13-4094`); a run of two stays two ids
+   (`157,158`), which the three captures in
+   [trunk-allowed-two-id-run.md](trunk-allowed-two-id-run.md) show. A backup line is written the same way
    (`switchport trunk allowed vlan 1-3,100`).
 4. `no switchport trunk allowed vlan` restores the default, and then nothing is printed in the running config.
 5. Removing VLAN 1 is not an error - it is the documented way to stop a trunk carrying VLAN 1 for data, while
@@ -54,9 +56,9 @@ number per VLAN (`10,20,30`), which is not the shape a switch uses.
   the backup prints the effective list and the effective list is what `show interfaces ... trunk` prints. The
   c3550 transcript proves the effective list; the 3650 paste proves backups use ranges. Nobody published the
   two together.
-* **A two-id run.** The transcript proves a run of four (`1-4`) folds and a single id (`11`) does not. Whether
-  a pair prints `3-4` or `3,4` is not settled by any capture collected here; this simulator folds a pair, which
-  is the same rule applied consistently and re-parses to the same list either way.
+* ~~**A two-id run.**~~ Settled: a pair prints as two ids (`157,158`), and only runs of three or more fold
+  (`1-4`). Three `show running-config` captures and the arithmetic behind them are in
+  [trunk-allowed-two-id-run.md](trunk-allowed-two-id-run.md); `formatVlanList()` now follows it.
 
 ## What is unresolved
 

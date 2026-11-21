@@ -1967,14 +1967,21 @@
     return known[c] || String(c || '').toUpperCase();
   }
 
-  // Mirror of engine/vlan.js `formatVlanList()`: consecutive ids fold into a range, so a trunk that allows
-  // everything but one VLAN reads `1,3-1001,1006-4094` rather than 4,090 numbers. A switch prints its allowed
-  // list this way (`1-4,7,11,13-4094` in a c3550 transcript), and the console sentence carries the same list,
-  // so the panel has to print it the same way or the two views of one port disagree.
+  // Mirror of engine/vlan.js `formatVlanList()`: a run of three or more ids folds into a range, a pair stays
+  // two ids, so a trunk that allows everything but one VLAN reads `1,3-1001,1006-4094` rather than 4,090
+  // numbers. A switch prints its allowed list this way (`1-4,7,11,13-4094` in a c3550 transcript, and
+  // `1,81,82,171,999` / `59,157,158,160` in two `show running-config` captures), and the console sentence
+  // carries the same list, so the panel has to print it the same way or the two views of one port disagree.
+  // The threshold and its evidence are in research/trunk-allowed-two-id-run.md.
   function vlanListText(ids) {
     const list = Array.isArray(ids) ? ids.slice() : [];
     list.sort(function (a, b) { return Number(a) - Number(b); });
     const out = [];
+    const band = function (a, b) {
+      if (a === b) return String(a);
+      if (b === a + 1) return a + ',' + b;
+      return a + '-' + b;
+    };
     let lo = null;
     let hi = null;
     for (let i = 0; i < list.length; i++) {
@@ -1983,10 +1990,10 @@
       if (lo === null) { lo = v; hi = v; continue; }
       if (v === hi) continue;
       if (v === hi + 1) { hi = v; continue; }
-      out.push(lo === hi ? String(lo) : lo + '-' + hi);
+      out.push(band(lo, hi));
       lo = v; hi = v;
     }
-    if (lo !== null) out.push(lo === hi ? String(lo) : lo + '-' + hi);
+    if (lo !== null) out.push(band(lo, hi));
     return out.join(',');
   }
 

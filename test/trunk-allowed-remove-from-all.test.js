@@ -75,10 +75,19 @@ function session() {
 }
 
 console.log('');
-console.log('A list is printed the way a switch prints one - consecutive ids folded into a range:');
+console.log('A list is printed the way a switch prints one - a run of three or more folds, a pair does not:');
 {
   ok(vlanLib.formatVlanList([1, 3, 4, 5, 7]) === '1,3-5,7', 'gaps and runs', vlanLib.formatVlanList([1, 3, 4, 5, 7]));
-  ok(vlanLib.formatVlanList([3, 4]) === '3-4', 'a pair folds too, as the box prints it', vlanLib.formatVlanList([3, 4]));
+  // A pair is spelled out, because `81-82` is no shorter than `81,82`. Three `show running-config` captures
+  // print one that way - `1,81,82,171,999` (Cisco support doc 68100), `59,157,158,160` (MEXSWP04-NAP) and
+  // `55,56,59,155,157,158,160,200` (MEXSW09-NAP) - while the c3550 folds a run of four (`1-4`).
+  // research/trunk-allowed-two-id-run.md.
+  ok(vlanLib.formatVlanList([3, 4]) === '3,4', 'a pair stays two ids, as the captured backups print it',
+    vlanLib.formatVlanList([3, 4]));
+  ok(vlanLib.formatVlanList([157, 158]) === '157,158', 'the pair the 3750 backup shows, character for character',
+    vlanLib.formatVlanList([157, 158]));
+  ok(vlanLib.formatVlanList([81, 82]) === '81,82', 'and the pair in the Catalyst 6500 capture',
+    vlanLib.formatVlanList([81, 82]));
   ok(vlanLib.formatVlanList([5, 3, 4]) === '3-5', 'the order the caller passed does not matter',
     vlanLib.formatVlanList([5, 3, 4]));
   ok(vlanLib.formatVlanList([]) === '', 'an empty list prints as nothing, so the caller keeps its own word for it',

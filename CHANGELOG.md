@@ -9,6 +9,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **A trunk's allowed list folded a pair of VLANs into a range no switch prints.** `switchport trunk allowed vlan
+  remove 5-10,12` folds runs into ranges (a c3550 prints `1-4,7,11,13-4094`), and this printer folded *every*
+  run — so a backup of a port carrying 157 and 158 read `157-158`, where three captured `show running-config`
+  blocks print `59,157,158,160`, `1,81,82,171,999` and `55,56,59,155,157,158,160,200`. The rule the captures
+  fit is arithmetic: a range is written only where it is shorter than the list it replaces, so three or more
+  consecutive ids fold and a pair stays two ids (`81-82` is exactly as long as `81,82`). `formatVlanList()`
+  follows it, and the panel's mirror with it, so the backup, the console's receipt and the `switchport:`
+  sentence of `show interfaces` all read `157,158`. `test/running-config-allowed-vlan-two-id-run.test.js`
+  (12 checks) pins the captured pairs, the two folds, the whole five-line `fa2/0/39` block and the round trip;
+  [`research/trunk-allowed-two-id-run.md`](research/trunk-allowed-two-id-run.md) carries the captures and the
+  open half (a device-computed run of exactly three).
 - **A 100G port was printed as `HundredGigabitEthernet`, a word no IOS box says.** IOS XE's interface-type
   lists pair `TwentyFiveGigE or twe`, `FortyGigabitEthernet or fo` and `HundredGigE or hu` in one sentence —
   the 40G word is spelled out and the 100G word is not — and a Catalyst 9500 prints `interface HundredGigE1/0/2`
