@@ -133,10 +133,13 @@ console.log('A list that names the media defaults is answered, not performed:');
     'and the sentence is the rule a named removal gets', out[0]);
   ok(same(L.allowed(), before), 'the list is untouched', JSON.stringify(L.allowed()));
 
+  // `except 1-4094` names the whole space, so the inversion leaves the four media defaults - the same list
+  // `remove 1-4094` leaves, and a state `switchport trunk allowed vlan none` can store. The line is committed.
   const full = L.put('switchport trunk allowed vlan except 1-4094');
-  ok(/no VLANs/.test(full[0]), 'the whole id space leaves nothing that can carry a frame', full[0]);
-  ok(!/Unrecognized/.test(full[0]), 'and the verb is not blamed for it', full[0]);
-  ok(/1002/.test(full[0]) === false, 'the answer is the dead-trunk refusal, not a sentence about 1002', full[0]);
+  ok(!/^%/.test(full[0]), 'the whole id space is accepted', full[0]);
+  ok(/1002-1005/.test(full[0]), 'and the answer names the four media defaults that remain', full[0]);
+  ok(JSON.stringify(L.allowed()) === JSON.stringify([1002, 1003, 1004, 1005]),
+    'which is what the stored list is', JSON.stringify(L.allowed()));
 }
 
 console.log('');

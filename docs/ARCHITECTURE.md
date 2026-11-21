@@ -1096,9 +1096,10 @@ Four decisions worth keeping:
 * **An edit that changes nothing says so.** `add 10` when 10 is already allowed prints `already allows VLANs 10: the list
   is unchanged (10,20)`, and `remove 99` when 99 was never allowed is refused with the list it left alone. A silent
   success on a no-op teaches an operator that the command worked when nothing moved.
-* **One footgun is refused, not committed.** Removing the last VLAN would leave a trunk carrying nothing, so it is
-  refused with both ways out named. `add 30` on an all-trunk is already true and says so. The empty list is still
-  reachable on purpose: `switchport trunk allowed vlan none` is the command's own word for it and is accepted
+* **An empty list is a state, not a footgun.** Removing the last VLAN leaves a trunk carrying nothing, which is
+  what `switchport trunk allowed vlan none` asks for and what a box stores; the subtraction reaches the same state
+  and commits it rather than refusing it (`research/trunk-allowed-remove-everything.md`). `add 30` on an all-trunk
+  is already true and says so. The empty list is the command's own word for it and is accepted
   (`research/trunk-allowed-vlan-none.md`).
 * **`remove 10` on a trunk that allows all is the device's arithmetic, not an error.** It used to be refused because
   the remainder is 4,090 ids — "a line no operator would type and no diff would survive". That was a fact about this

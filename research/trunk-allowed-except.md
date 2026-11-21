@@ -94,21 +94,26 @@ is for:
    `except`, exactly as it says for `add` and `remove` — and both of those carry a note that extended-range ids
    *are* valid on the allowed list. `except` carries no such note, while `vlan-atom` is defined as 1-4094. This
    console reads the list as 1-4094, the same way `add`/`remove` do.
-4. **`none`.** Documented as "an empty list", and the console does not implement it: an allowed list with no
-   assignable VLAN is the dead trunk this project already refuses to build by subtraction, and no capture shows
-   what `show interfaces trunk` prints for a trunk in that state.
+4. **`none`.** Documented as "an empty list", and the console did not implement it when this note was
+   written: an allowed list with no assignable VLAN was the dead trunk this project refused to build by
+   subtraction. `none` is now accepted (`research/trunk-allowed-vlan-none.md`), and the full inversion commits
+   the pinned remainder instead of refusing it (`research/trunk-allowed-remove-everything.md`). No capture
+   shows what `show interfaces trunk` prints for a trunk in that state.
 
 ## What changed
 
 * `engine/cli.js`: the allowed-list door reads `except` as a verb (`inverting`), parses the list with
   `keepReserved` like the other forms, and replaces the stored list with `vlanLib.allVlansExcept(<named,
-  non-reserved>)`. The dead-trunk refusal is asked first (so `except 1-4094` gets it, not a sentence about
-  1002), a named media default gets the existing "cannot be removed" answer, and the reply names the ids the
-  inversion left out: `Trunk on Fa0/1 allows VLANs 2-998,1000-4094 (all but 1,999)`. The refusal that used to
-  list four forms now lists five.
-* `test/trunk-allowed-except.test.js`: the lab's string, replacement-not-subtraction, the pinned-default and
-  dead-trunk answers, the backup round-trip (the printed line typed back is a no-op), the mode note, and the
-  word-after-the-verb cases.
+  non-reserved>)`. The dead-trunk check is asked first (so `except 1-4094` reached it, not a sentence about
+  1002); the follow-up run now commits that remainder instead of refusing it
+  (`research/trunk-allowed-remove-everything.md`). A named media default gets the existing "cannot be removed"
+  answer, and the reply names the ids the inversion left out:
+  `Trunk on Fa0/1 allows VLANs 2-998,1000-4094 (all but 1,999)`. The refusal that used to list four forms now
+  lists five.
+* `test/trunk-allowed-except.test.js`: the lab's string, replacement-not-subtraction, the pinned-default
+  answer (the dead-trunk answer was later replaced by acceptance, `research/trunk-allowed-remove-everything.md`),
+  the backup round-trip (the printed line typed back is a no-op), the mode note, and the word-after-the-verb
+  cases.
 * `test/trunk-allowed-add-remove.test.js` asserted `% Unrecognized "except"` as the example of a word the
   console quotes back; that assertion was the defect, so the example is now `banana` and `except` is listed
   among the forms.

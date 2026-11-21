@@ -55,10 +55,9 @@ changed here.
   `none` while the port is operationally *trunking* (the 9300 example above is a port whose `Status` is
   `other`). The state is the same; only the row's status differs.
 * `switchport trunk allowed vlan remove 1-4094` on a default trunk should reach the same empty list, since
-  `none` is a legal destination. This console still refuses that removal as "would leave the trunk allowing
-  no VLANs" - a sentence no box prints. It is left alone here: the arithmetic runs through the pinned
-  1002-1005 block, and the question "what does a box print for that removal" is a second question, not this
-  one.
+  `none` is a legal destination. The console refused that removal as "would leave the trunk allowing no
+  VLANs" - a sentence no box prints - at the time of this note; the follow-up run accepts it and commits the
+  pinned remainder (`research/trunk-allowed-remove-everything.md`).
 * `engine/vlan.js`'s `validatePortConfig()` still reports `E_TRUNK_NO_VLANS` for an empty allowed list. No
   command path calls it on a whole port config (it is the import/API lint), so it cannot refuse what the CLI
   now accepts, but the two opinions about the same state should be reconciled in a run of their own.
