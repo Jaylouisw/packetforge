@@ -216,9 +216,9 @@ the engine learns to read is better kept than lost at import time.
 The class is a record, not a rule. `derivePortHardware()` (`engine/media.js`) builds a port's `hardware`
 from `poeOut`, `poeIn`, the cage and the speed caps and **drops** `poeOutClass`, so the string never
 reaches a view: it is what the datasheet said about this port, and its vocabulary is the catalogue's
-rather than a validator's. It is wider than the four standards today - 261 ports declare `PoE+++`
-(`devices/ubiquiti/ecs-24-poe.json`), 74 across 26 specs declare `passive`
-(`devices/ubiquiti/uisp-r.json`), and 36 write the parenthesised `PoE+ (802.3at)`. Spelling a passive
+rather than a validator's. It is wider than the four standards today - 269 ports declare `PoE+++`
+(`devices/ubiquiti/ecs-24-poe.json`), 94 across 35 specs declare `passive`
+(`devices/ubiquiti/uisp-r.json`), and 34 write the parenthesised `PoE+ (802.3at)`. Spelling a passive
 port `PoE` is not a cosmetic slip: 802.3af is a negotiated 48 V standard and a 24 V passive port does
 not speak it, which is the pair of faults `test/uisp-r-poe.test.js` and `test/ep-s16-poe.test.js` were
 written for.
