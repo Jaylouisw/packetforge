@@ -300,8 +300,8 @@ a `/25` connected route regardless of list order.
 | Verdict | Behaviour | Where |
 |---|---|---|
 | **Modelled** | Hop limit starts at 64, decrements per router, expiry drops the packet. | `engine/simulator.js:761`, `engine/simulator.js:1045-1049` |
-| **Modelled** | Static IPv6 routes and an IPv6 default gateway, longest prefix wins. | `engine/device.js:1172-1195` (`route6To()`), `engine/cli.js:2999` (`_ipv6Route()`) |
-| **Approximate** | IPv6 route selection has **no administrative distance**: connected is installed first and only a strictly longer static prefix displaces it, so there is no OSPFv3/BGP-v6 to rank. | `engine/device.js:484-500` |
+| **Modelled** | Static IPv6 routes and an IPv6 default gateway, longest prefix wins. | `engine/device.js:1185-1210` (`route6To()`), `engine/cli.js:3225` (`_ipv6Route()`) |
+| **Approximate** | IPv6 route selection has **no administrative distance**: connected is installed first and only a strictly longer static prefix displaces it, so there is no OSPFv3/BGP-v6 to rank. | `engine/device.js:1189-1200` |
 | **Absent** | ICMPv6 errors (time exceeded, destination unreachable, packet too big), fragmentation, OSPFv3, MP-BGP for IPv6, IPv6 ACLs (see [§5.3](#53-acls)), IPv6 NAT. | — |
 
 ---
