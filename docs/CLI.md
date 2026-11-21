@@ -1484,7 +1484,9 @@ instead, and it changes nothing — `show vlan` and `show running-config` are ex
 advice asks for (`vlan 10`, `vlan 11`, `vlan 12`) do work. What is *absent* is creating or removing several VLANs
 from one command, and the note says so instead of pretending the grammar does not exist
 (`research/vlan-list-argument.md`; the suite is `test/vlan-list-argument.test.js`). A token that is not a list —
-`WORD`, `1.5`, `-5`, `4095`, a dangling `10-` — keeps the per-id refusals above.
+`WORD`, `1.5`, `-5`, `4095`, a dangling `10-` — keeps the per-id refusals above. The sentence for an id outside
+1-4094 is this console's own: a box refuses it in the parser's words, and the range the parser advertises belongs to
+the running image — `<1-4094>` on a LAN Base 2960, `<1-1005>` on a LAN Lite one (research/vlan-id-range-per-door-and-per-image.md).
 
 These five doors used to accept the word. `vlan WORD` answered **`VLAN NaN created (name: VLAN0NaN)`** and wrote
 `vlan NaN VLAN0NaN` into `show running-config` — a line that is not a VLAN and cannot be typed back — while

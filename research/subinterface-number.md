@@ -31,7 +31,9 @@ and the two need not match. `interface Gi0/0.5000` therefore opens on a box, and
   a contradiction of the shape; the model takes the classic range and refuses above it.
 * **That the refusal of an out-of-range number is the parser's.** No capture of a caret on `interface
   Gi0/0.0` was found. This project does not print carets (`research/parse-error-caret.md`), so the console
-  says `% Subinterface number out of range: 0` - its own sentence, naming the number, not a VLAN.
+  says `% Subinterface number out of range: 0` - its own sentence, naming the number, not a VLAN. The
+  out-of-range *tag* on the same image is now witnessed once at the `vlan` door (parser caret, range per
+  image) in [vlan-id-range-per-door-and-per-image.md](vlan-id-range-per-door-and-per-image.md).
 * **That a subinterface above 4094 carries no tag.** A box creates the interface with no encapsulation
   configured, and `show running-config` prints only `interface GigabitEthernet0/0.5000`; frames are not
   tagged until `encapsulation dot1q` is typed. That is the documented default ("no encapsulation") rather
