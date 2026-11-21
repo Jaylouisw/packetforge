@@ -3749,12 +3749,27 @@ class CliSession {
       }
       const refuseWord = function () {
         return ['% Unrecognized "' + String(rest[0]) + '": this console takes a list (10,20), a range (10-20), ' +
-          '"all", "add <list>", "except <list>" or "remove <list>"'];
+          '"all", "none", "add <list>", "except <list>" or "remove <list>"'];
       };
       if (!editing && spec === 'all') {
         iface.vlan = vlanLib.normalizePortConfig(Object.assign({}, iface.vlan, { allowedVlans: 'all' }));
         this.device.flushMacsOnPort(iface.name);
         return ['Trunk on ' + iface.name + ' allows all VLANs' + allowedNote];
+      }
+      // `none` is the command's second single-word list, and it is a list like any other: the vlan-list form is
+      // `all | none | [add | remove | except] vlan-atom` and "none specifies an empty list" (Catalyst 9300 17.13
+      // command reference, `switchport trunk` - Usage Guidelines; the keyword is in the syntax line of every
+      // IOS 15.x/16.x/17.x trunk guide, and a box's own `?` help prints `none  no VLANs`). The 12.2 SE book for
+      // the 2960 predates it: `{add | all | except | remove} vlan-list` has no `none`, so this is a keyword of
+      // the later images, which is what this console's other switchport grammar follows. A trunk that allows
+      // nothing is a state a box can be put in on purpose - it is how an operator stops normal VLAN traffic on a
+      // link without shutting the port - so it is stored as the empty list rather than refused as a dead trunk
+      // (research/trunk-allowed-vlan-none.md). Every view already reads that state: `switchportSentence()`
+      // prints `allowed none`, `classifyEgress()` drops every VLAN, and the running-config prints the line.
+      if (!editing && !inverting && spec === 'none') {
+        iface.vlan = vlanLib.normalizePortConfig(Object.assign({}, iface.vlan, { allowedVlans: [] }));
+        this.device.flushMacsOnPort(iface.name);
+        return ['Trunk on ' + iface.name + ' allows no VLANs' + allowedNote];
       }
       // The allowed list is read with `keepReserved`: 1002-1005 are members of every trunk's allowed list -
       // the default list is `1-4094` and a switch will not remove them - so naming one here is not the error
@@ -7708,16 +7723,20 @@ class CliSession {
             ? null : Number(i.vlan.voiceVlan);
           const spNative = Number(i.vlan.nativeVlan) || 1;
           const spAllowed = i.vlan.allowedVlans;
-          // An empty list is the engine's "unset", not a configuration: no command can produce it
-          // (`switchport trunk allowed vlan` with no list is `% Incomplete command`), so printing it would
-          // emit a line the console cannot read back - which is what `no switchport` used to leave behind.
+          // An empty allowed list is a configuration after all: `switchport trunk allowed vlan none` is the
+          // keyword that produces it, so a trunk carrying nothing prints the line an operator typed, in the
+          // word the box uses for it (research/trunk-allowed-vlan-none.md). It is printed only in trunk mode:
+          // an access port normalises an unset allowed list to the empty array, and `switchport reset` leaves
+          // one behind, so the empty array alone does not say a command produced it.
           // Printed the way a switch prints an allowed list: ranges folded together (`1,3-1001,1006-4094`),
           // not one number per VLAN. A number-per-line backup of a trunk that removed one VLAN would be a
           // 4,090-entry wall no operator wrote and no diff would survive, and a real box does not write it
           // either - a Catalyst prints `switchport trunk allowed vlan 1-3,100`
           // (research/trunk-allowed-remove-from-all.md).
-          const spAllowedText = (spAllowed === 'all' || !Array.isArray(spAllowed) || spAllowed.length === 0)
-            ? null : vlanLib.formatVlanList(spAllowed);
+          const spAllowedText = (spAllowed === 'all' || !Array.isArray(spAllowed))
+            ? null
+            : (spAllowed.length ? vlanLib.formatVlanList(spAllowed)
+              : (spMode === 'trunk' ? 'none' : null));
           // The lines come out in the order a real switch writes them, not the order this file happens to
           // know them in: the VLAN parameters first, then the mode they select, then the phone-facing voice
           // line. Two Cisco-published `show running-config` samples settle it
