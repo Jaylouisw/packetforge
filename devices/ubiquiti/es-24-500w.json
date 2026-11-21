@@ -3,150 +3,350 @@
   "model": "ES-24-500W",
   "label": "EdgeSwitch 24 PoE (500W)",
   "category": "switch",
-  "description": "Ubiquiti EdgeSwitch 24 PoE (500W) - 24x 1G RJ45 with 802.3at PoE+ plus 2x 1G SFP cages. The 500 W figure is the power-supply and total-consumption rating; Ubiquiti publishes no PoE budget for this model.",
+  "description": "Ubiquiti EdgeSwitch 24 PoE (500W) - 24x 10/100/1000 RJ45, every one a PoE+ PSE at the vendor's 34.2 W per-port ceiling (and 24V passive at 17 W per port), plus 2x 1G SFP cages and an RJ45 serial console. The 500 W figure is the internal PSU and the total consumption including PoE; Ubiquiti publishes no PoE allocation for this model, so the budget stays unknown rather than assumed.",
   "capabilities": [
     "l2-forward",
     "cli",
-    "http-server"
+    "http-server",
+    "poe-pse",
+    "802.3af",
+    "802.3at",
+    "passive-poe"
   ],
   "interfaces": [
     {
       "name": "Port 1",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "rj45",
+      "speedCaps": [
+        "1G",
+        "100M",
+        "10M"
+      ],
+      "poeOut": 34.2,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "Port 2",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "rj45",
+      "speedCaps": [
+        "1G",
+        "100M",
+        "10M"
+      ],
+      "poeOut": 34.2,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "Port 3",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "rj45",
+      "speedCaps": [
+        "1G",
+        "100M",
+        "10M"
+      ],
+      "poeOut": 34.2,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "Port 4",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "rj45",
+      "speedCaps": [
+        "1G",
+        "100M",
+        "10M"
+      ],
+      "poeOut": 34.2,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "Port 5",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "rj45",
+      "speedCaps": [
+        "1G",
+        "100M",
+        "10M"
+      ],
+      "poeOut": 34.2,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "Port 6",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "rj45",
+      "speedCaps": [
+        "1G",
+        "100M",
+        "10M"
+      ],
+      "poeOut": 34.2,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "Port 7",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "rj45",
+      "speedCaps": [
+        "1G",
+        "100M",
+        "10M"
+      ],
+      "poeOut": 34.2,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "Port 8",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "rj45",
+      "speedCaps": [
+        "1G",
+        "100M",
+        "10M"
+      ],
+      "poeOut": 34.2,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "Port 9",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "rj45",
+      "speedCaps": [
+        "1G",
+        "100M",
+        "10M"
+      ],
+      "poeOut": 34.2,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "Port 10",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "rj45",
+      "speedCaps": [
+        "1G",
+        "100M",
+        "10M"
+      ],
+      "poeOut": 34.2,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "Port 11",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "rj45",
+      "speedCaps": [
+        "1G",
+        "100M",
+        "10M"
+      ],
+      "poeOut": 34.2,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "Port 12",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "rj45",
+      "speedCaps": [
+        "1G",
+        "100M",
+        "10M"
+      ],
+      "poeOut": 34.2,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "Port 13",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "rj45",
+      "speedCaps": [
+        "1G",
+        "100M",
+        "10M"
+      ],
+      "poeOut": 34.2,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "Port 14",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "rj45",
+      "speedCaps": [
+        "1G",
+        "100M",
+        "10M"
+      ],
+      "poeOut": 34.2,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "Port 15",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "rj45",
+      "speedCaps": [
+        "1G",
+        "100M",
+        "10M"
+      ],
+      "poeOut": 34.2,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "Port 16",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "rj45",
+      "speedCaps": [
+        "1G",
+        "100M",
+        "10M"
+      ],
+      "poeOut": 34.2,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "Port 17",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "rj45",
+      "speedCaps": [
+        "1G",
+        "100M",
+        "10M"
+      ],
+      "poeOut": 34.2,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "Port 18",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "rj45",
+      "speedCaps": [
+        "1G",
+        "100M",
+        "10M"
+      ],
+      "poeOut": 34.2,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "Port 19",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "rj45",
+      "speedCaps": [
+        "1G",
+        "100M",
+        "10M"
+      ],
+      "poeOut": 34.2,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "Port 20",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "rj45",
+      "speedCaps": [
+        "1G",
+        "100M",
+        "10M"
+      ],
+      "poeOut": 34.2,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "Port 21",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "rj45",
+      "speedCaps": [
+        "1G",
+        "100M",
+        "10M"
+      ],
+      "poeOut": 34.2,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "Port 22",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "rj45",
+      "speedCaps": [
+        "1G",
+        "100M",
+        "10M"
+      ],
+      "poeOut": 34.2,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "Port 23",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "rj45",
+      "speedCaps": [
+        "1G",
+        "100M",
+        "10M"
+      ],
+      "poeOut": 34.2,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "Port 24",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "rj45",
+      "speedCaps": [
+        "1G",
+        "100M",
+        "10M"
+      ],
+      "poeOut": 34.2,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "SFP 1",
       "type": "ethernet",
       "speed": "1G",
-      "connector": "sfp",
       "speedCaps": [
-        1000
-      ]
+        "1G"
+      ],
+      "connector": "sfp"
     },
     {
       "name": "SFP 2",
       "type": "ethernet",
       "speed": "1G",
-      "connector": "sfp",
       "speedCaps": [
-        1000
-      ]
+        "1G"
+      ],
+      "connector": "sfp"
+    },
+    {
+      "name": "console",
+      "type": "console"
     }
   ],
   "icon": "switch",
@@ -155,6 +355,7 @@
     "budgetW": null,
     "budgetUnknown": true,
     "sourceUrl": "https://techspecs.ui.com/uisp/wired/es-24-500w",
-    "note": "NO PUBLISHED POE BUDGET. The spec sheet lists only 'Power supply: internal 500 W' and 'max power consumption 500 W including PoE' - 500 W is the PSU rating, not an allocation to powered devices, and with 30 W internal draw at most ~470 W is"
-  }
+    "note": "STILL NO PUBLISHED POE BUDGET, and the pass that added per-port direction did not invent one. The tech-spec page prints \"Power supply: AC/DC, internal, 500W\" and \"Max. power consumption: Includes PoE output: 500W / Excludes PoE output: 30W\" and no \"Total PoE available\" row - unlike its ES-24-250W sibling, whose page prints \"Total PoE available = 250W\". The quick-start guide (dl.ui.com/qsg/ES-24-250W_ES-24-500W/) prints the same 500 W without an allocation either. 500 W is the PSU rating and the whole-box ceiling including PoE, not watts reserved for powered devices, so budgetW stays null with budgetUnknown true. The per-port ceilings the page does print - 34.2 W PoE+ by PSE, 17 W 24V passive on the same jacks, not additive - are on the ports."
+  },
+  "notes": "Census from Ubiquiti's own two surfaces, read 2026-11-21. https://techspecs.ui.com/uisp/wired/es-24-500w (HTTP 200, 582,269 B, server-rendered table): Networking interface \"(24) 10/100/1000 Mbps RJ45 Ethernet ports / (2) 1 Gbps SFP ports\"; Management interface \"(1) RJ45 serial port, Ethernet In/Out-Band\"; Power supply \"AC/DC, internal, 500W\"; Max. power consumption \"Includes PoE output: 500W / Excludes PoE output: 30W\"; PoE interface \"PoE/PoE+ (Pins 1, 2+; 3, 6-) / 24V DC passive PoE (Pins 4, 5+; 7, 8-)\"; \"Max. PoE+ wattage per port by PSE 34.2W\"; \"Max. passive PoE wattage per port 17W\". The installation guide the same page links, https://dl.ui.com/qsg/ES-24-250W_ES-24-500W/ES-24-250W_ES-24-500W_EN.html (HTTP 200, 22,805 B), repeats the interface counts and the same 34.2 W / 17 W per-port ceilings, adds \"RJ45 PoE LED (Ports 1 - 24) ... Amber IEEE 802.3af/802.3at / Green 24V Passive\", and states \"The PoE settings for ports 1-24 are set to PoE+ auto by default, so 802.3af/at devices can be plugged in and automatically receive PoE\" - the shipped configuration, which is why the class word here is PoE+ and not passive. Before this pass the 24 copper ports carried no connector, no speedCaps and no poeOut, so engine/media.js derivePortHardware() handed every socket the 802.3af default of 15.4 W on a switch that supplies 34.2 W, and the serial console was absent (26 jacks modelled for 27 physical). Nothing here was inferred from the ES-24-250W: same enclosure, same guide, but each field above is a row on this model's own page."
 }
