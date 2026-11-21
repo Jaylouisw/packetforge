@@ -4,14 +4,14 @@
 protocol, the inside global, the inside local, the outside local — at which column does each heading start,
 and does the vendor print anything after `Outside global`?
 
-**Verdict: the column count is settled (five, no sixth field); the column widths are unresolved.**
-Two Cisco documents disagree on where the address columns start — 4/20/35/50 in one and 4/23/42/61 in
-another, and a third header on the same page at 4/25/44/63 — and neither geometry matches this console, which
-sits at 5/28/51/74 and appends a sixth word. Nothing in `engine/` was changed: choosing either geometry would
-be a coin flip, and dropping the sixth field is a change to a shape that three test assertions and one doc
-line currently describe, so it is recorded here as a decision with its evidence rather than taken this run.
+**Verdict: the column count is settled (five, no sixth field) and was adopted on 2026-11-21; the column
+widths are unresolved.** Two Cisco documents disagree on where the address columns start — 4/20/35/50 in one
+and 4/23/42/61 in another, and a third header on the same page at 4/25/44/63 — so the console keeps its own
+23-wide address cells. What every intact sample does agree on is where the **protocol field ends**: column 4.
+The console started it at 5 and appended a sixth word (`pat`/`static`), which no vendor sample has; both were
+fixed this run (see "What changed on 2026-11-21" below).
 
-## What PacketForge prints today
+## What PacketForge printed on 2026-11-20, before this was adopted
 
 Measured by running the engine (three PAT translations: udp, tcp, icmp):
 
@@ -87,13 +87,71 @@ Three things are not in doubt, because every sample agrees on them:
 * Failing either, the platform formatter is not public and the honest state stays: two geometries,
   platform-undetermined.
 
-## What was not changed, and the follow-up it leaves
+## What this run left alone, and the follow-up it handed on
 
-* **Widths**: unchanged. `pad(..., 5)` and `pad(..., 23)` stay until a geometry can be attributed to a
-  platform this simulator models.
-* **The sixth field**: this is the one settled fact that would change output, and it was still not taken,
-  because it is a shape change rather than a one-column shift — `test/nat.test.js:357`, `:361` and
-  `test/protocol-regression.test.js:1048` all assert the trailing word, and `docs/CLI.md:1144` already
-  describes the five-column table. A follow-up that drops it must move all four together and check the
-  static/PAT distinction is still reachable (`show ip nat rules` names the rule; `verbose` is where the
-  vendor puts its flags).
+(The sixth field and the protocol boundary were taken on 2026-11-21 — see the section at the end.)
+
+* **Widths**: unchanged then, and still unchanged. The address cells stay 23 wide until a geometry can be
+  attributed to a platform this simulator models.
+* **The sixth field**: this was the one settled fact that would change output, and it was still not taken in
+  the first run, because it is a shape change rather than a one-column shift — `test/nat.test.js:357`, `:361`
+  and `test/protocol-regression.test.js:1048` all asserted the trailing word, and `docs/CLI.md:1144` already
+  described the five-column table. The follow-up had to move all four together and check the static/PAT
+  distinction is still reachable (`show ip nat rules` names the rule; `verbose` is where the vendor puts its
+  flags). That is what the next run did.
+
+## What changed on 2026-11-21
+
+The two facts above were adopted in `engine/nat.js`:
+
+1. **The sixth field is gone.** `formatTable()` no longer appends `e.type`. The rows now end at the
+   outside-global cell, as every sample in the table above does. The type is still reachable: `show ip nat
+   rules` prints the rule that created the entry (with `overload` for PAT) and `show ip nat statistics`
+   counts rules by type, so no information was deleted from the console — it was moved to where a box keeps
+   it. `test/nat.test.js`, `test/protocol-regression.test.js` and `docs/CLI.md` were moved with it, as the
+   follow-up note below asked.
+2. **The inside-global column starts at column 4.** The protocol cell is four characters wide (`Pro `,
+   `tcp `, `udp `, `--- `), which is the boundary every intact sample shows; this console started it at 5,
+   one column right of all of them. The header is now built from the same stop positions as the rows
+   (`tableRow()`), so the two cannot drift apart — before, the heading was a hand-written literal and the
+   rows were three `pad(..., 23)` calls.
+3. **"No protocol" is spelled as the box spells it.** A portless static entry used to print this model's
+   internal `any` in the protocol column; Cisco's own sample prints `---` there
+   (`--- 172.16.68.5 10.10.10.1 --- ---`, NAT terms article cited above). Only that column is affected:
+   `any` as a *rule* value is unchanged in the running-config and in `show ip nat rules`.
+
+The address-field widths are **still** the console's own 23, deliberately: 16/15/15 (Catalyst 9600 command
+reference) and 19/19/19 (12.4T and Catalyst 9000 samples) have not been attributed to a platform, and picking
+one would be the coin flip the earlier run refused.
+
+### The four-character protocol, and what a row does when it overruns
+
+`icmp` is exactly as wide as the protocol field. The rule adopted is *stops*: each cell is written and then
+padded to the next column's fixed position, with a minimum of one space, so a cell that overruns its stop
+pushes nothing after it. On a row whose protocol is `icmp` the inside-global address therefore begins one
+column right of the heading's, while every later column still lines up with the heading.
+
+That is inference from one capture, not a measured rule: Cisco's Catalyst 9000 NAT configuration note
+(https://cisco.com/c/en/us/support/docs/switches/catalyst-9300-series-switches/217419-configure-and-verify-nat-on-catalyst-900.pdf)
+carries the two shapes together —
+
+```
+Pro Inside global      Inside local      Outside local      Outside global
+icmp 172.16.10.10:4    192.168.1.100:4   10.20.30.40:4      10.20.30.40:4
+```
+
+— where the `icmp` row's first address sits one column right of `Inside global` and the remaining columns still
+fall on the heading's. The spacing was read from the PDF's text layer through a search index rather than from a
+terminal capture, so the *widths* in that block cannot be trusted; only the relationship (second column shifted,
+later columns not) is used.
+
+Cisco's NAT terms article (https://www.cisco.com/c/en/us/support/docs/ip/network-address-translation-nat/4606-8.html)
+also confirms two things this run relied on: five columns in the plain table, and a portless static entry
+printed as bare addresses (`--- 172.16.68.5 10.10.10.1 — ---`) with no `:0` suffix.
+
+### Still unresolved
+
+* Which platform prints 16/15/15 and which 19/19/19. A raw `show tech-support` or a pasted session log with
+  the spaces intact, from one named release, would settle it; no such capture is in hand.
+* Whether a real box computes a heading's width from the widest cell below it (which would explain why one
+  vendor page carries two headings for one command), or whether those two headings are two platforms.

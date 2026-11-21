@@ -790,13 +790,44 @@ function translateInbound(table, pkt, step) {
 // `show ip nat translations`
 // ---------------------------------------------------------------------------
 
-const TABLE_HEADER = 'Pro  Inside global          Inside local           ' +
-  'Outside local          Outside global';
+// Five columns and no sixth. Every vendor sample of the plain table ends at `Outside global`; the
+// translation's type (static / dynamic / PAT) is not a column of it - IOS prints that only under
+// `verbose`, as `flags:` on a continuation line - so the `pat`/`static` word this table used to append
+// named nothing a box prints (research/show-ip-nat-translations-columns.md, and the 12.4T / Catalyst 9600
+// 17.18 / IOS XE 17.x samples collected there). The distinction stays readable where a box keeps it:
+// `show ip nat rules` prints the rule that made the entry, and `show ip nat statistics` counts the rules
+// by type.
+//
+// The protocol cell is **four** characters wide (`Pro ` in the heading, `tcp `, `udp `, `--- ` in a row),
+// which is where every intact vendor sample starts the inside-global column. This table started it at 5,
+// one column right of all of them. The three address cells keep this console's own 23 columns: the vendor
+// documents in hand disagree on their widths (16/15/15 on the Catalyst 9600 command-reference page,
+// 19/19/19 in the 12.4T and Catalyst 9000 samples), and no rule that decides between them has been read,
+// so only the field boundary every sample agrees on is adopted here.
+const PROTO_WIDTH = 4;
+const ADDR_WIDTH = 23;
 
-function pad(s, width) {
-  const text = String(s);
-  return text.length >= width ? text : text + ' '.repeat(width - text.length);
+// The column each cell must have reached before the next one is written. A cell that overruns its stop
+// (a four-character `icmp` in a four-wide protocol field) pushes nothing: the next cell still starts at its
+// own stop, one space past the overrun, which is what a captured Catalyst 9000 row shows - the `icmp` line
+// runs one column right, and every address column below it still lines up with the heading. The protocol
+// cell of a translation that has no protocol (a portless static entry) reads `---`, as a box prints it.
+const COLUMN_STOPS = [PROTO_WIDTH, PROTO_WIDTH + ADDR_WIDTH,
+  PROTO_WIDTH + 2 * ADDR_WIDTH, PROTO_WIDTH + 3 * ADDR_WIDTH];
+
+function tableRow(cells) {
+  let out = '';
+  cells.forEach(function (cell, i) {
+    out += str(cell) || '---';
+    if (i < cells.length - 1) {
+      const stop = COLUMN_STOPS[i];
+      out += ' '.repeat(Math.max(1, stop - out.length));
+    }
+  });
+  return out;
 }
+
+const TABLE_HEADER = tableRow(['Pro', 'Inside global', 'Inside local', 'Outside local', 'Outside global']);
 
 function fmtAddr(ip, port) {
   const i = str(ip);
@@ -830,12 +861,13 @@ function formatTable(table) {
   });
 
   return list.map(function (e) {
-    return pad(e.protocol || 'any', 5) +
-      pad(fmtAddr(e.insideGlobal, e.globalPort), 23) +
-      pad(fmtAddr(e.insideLocal, e.localPort), 23) +
-      pad(fmtAddr(e.dstIp, e.dstPort), 23) +
-      pad(fmtAddr(e.dstIp, e.dstPort), 23) +
-      str(e.type);
+    // A box writes `---` in the protocol column when there is no protocol to name - a portless static
+    // entry prints `--- 172.16.68.5 10.10.10.1 --- ---` - so the model's own "no protocol" value (`any`)
+    // is spelled the way the box spells it, in this column only.
+    const proto = str(e.protocol).toLowerCase() === 'any' ? '---' : e.protocol;
+    return tableRow([proto, fmtAddr(e.insideGlobal, e.globalPort),
+      fmtAddr(e.insideLocal, e.localPort), fmtAddr(e.dstIp, e.dstPort),
+      fmtAddr(e.dstIp, e.dstPort)]);
   });
 }
 

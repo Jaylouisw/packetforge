@@ -71,7 +71,9 @@ console.log('A table with rows ends with the count, after the last row:');
   ok(TOTAL.test(last), 'the last line is the count, and nothing follows it', JSON.stringify(last));
   ok(Number(TOTAL.exec(last)[1]) === live,
     'and the number is the rows it just printed', last + ' vs ' + String(live));
-  ok(lines[0] === 'Pro  Inside global          Inside local           Outside local          Outside global',
+  // `Pro ` is four wide - the column every intact vendor sample starts the inside-global field in - and
+  // the three address cells keep this console's 23 columns (research/show-ip-nat-translations-columns.md).
+  ok(lines[0] === 'Pro Inside global          Inside local           Outside local          Outside global',
     'the headings still come first', JSON.stringify(lines[0]));
   const totals = lines.filter(function (l) { return TOTAL.test(l); });
   ok(totals.length === 1, 'exactly one count line is printed', String(totals.length));

@@ -2310,10 +2310,20 @@ still says `0` instead of leaving a bare header, and the number is the rows just
 only the translations live at the instant asked, so it is also what `show ip nat statistics` calls active):
 
 ```
-Pro  Inside global          Inside local           Outside local          Outside global
-icmp 203.0.113.1:1024       192.168.10.50          203.0.113.9            203.0.113.9            pat
+Pro Inside global          Inside local           Outside local          Outside global
+icmp 203.0.113.1:1024      192.168.10.50          203.0.113.9            203.0.113.9
 Total number of translations: 1
 ```
+
+Five columns, and the table stops at `Outside global`: the translation's type is **not** a column of the plain
+table. Every vendor sample ends at the outside-global address, and a box prints `static` / `extended` only under
+`show ip nat translations verbose`, as a `flags:` line under the row. This table used to append the type as a
+sixth word; the type is still readable where a box keeps it - `show ip nat rules` prints the rule that made the
+entry (with `overload` for PAT) and `show ip nat statistics` counts the rules by type
+([research/show-ip-nat-translations-columns.md](../research/show-ip-nat-translations-columns.md)). The protocol
+cell is four characters wide, so the inside-global column starts at column 4 as it does in every intact sample;
+the three address cells keep this console's own 23 columns, because the documents in hand disagree on their
+widths and nothing read here decides between them.
 
 `research/show-ip-nat-translations-total.md` collects the samples: the sentence in the 15M&T, 15S, IOS XE 3S,
 16.x and 17.x NAT guides, and the SD-WAN guide's empty case (`show ip nat translations` answering with
