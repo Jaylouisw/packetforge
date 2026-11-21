@@ -1097,7 +1097,9 @@ Four decisions worth keeping:
   is unchanged (10,20)`, and `remove 99` when 99 was never allowed is refused with the list it left alone. A silent
   success on a no-op teaches an operator that the command worked when nothing moved.
 * **One footgun is refused, not committed.** Removing the last VLAN would leave a trunk carrying nothing, so it is
-  refused with both ways out named. `add 30` on an all-trunk is already true and says so.
+  refused with both ways out named. `add 30` on an all-trunk is already true and says so. The empty list is still
+  reachable on purpose: `switchport trunk allowed vlan none` is the command's own word for it and is accepted
+  (`research/trunk-allowed-vlan-none.md`).
 * **`remove 10` on a trunk that allows all is the device's arithmetic, not an error.** It used to be refused because
   the remainder is 4,090 ids — "a line no operator would type and no diff would survive". That was a fact about this
   console's *printing*, not about the command: a switch prints an allowed list with runs folded into ranges, so the same
@@ -1106,7 +1108,7 @@ Four decisions worth keeping:
   `Trunk on Fa0/1 allows VLANs 1-9,11-4094 (removed 10)`, the backup writes that same line, and
   `show interfaces` says `allowed 1-9,11-4094` — a sentence and a backup that are now shaped like the box's.
 * **A word is named as a word.** `banana` prints `% Unrecognized "banana": this console takes a list (10,20), a range
-  (10-20), "all", "add <list>", "except <list>" or "remove <list>"` — not a glued token. A genuinely malformed numeric
+  (10-20), "all", "none", "add <list>", "except <list>" or "remove <list>"` — not a glued token. A genuinely malformed numeric
   list still gets the library's own message. (`except 20` was the example here until `except` became a form of the
   command: it inverts the named list over 1-4094 instead of editing the port's own, `research/trunk-allowed-except.md`.)
 * **Everything that worked is untouched.** `10, 20` with spaces, `40 - 42` ranges, `all`, `no switchport trunk allowed

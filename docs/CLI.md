@@ -2149,7 +2149,7 @@ with the forms the command takes:
 
 ```
 sw1(config-if)#switchport trunk allowed vlan banana
-% Unrecognized "banana": this console takes a list (10,20), a range (10-20), "all", "add <list>", "except <list>" or "remove <list>"
+% Unrecognized "banana": this console takes a list (10,20), a range (10-20), "all", "none", "add <list>", "except <list>" or "remove <list>"
 sw1(config-if)#switchport trunk allowed vlan add
 % Incomplete command: switchport trunk allowed vlan add <list>
 ```
@@ -2179,6 +2179,22 @@ sw1(config-if)#switchport trunk allowed vlan except 1-4094
 The line the backup prints is the computed list, not the word `except` - `switchport trunk allowed vlan
 2-998,1000-4094` - so a saved board restores the same set by the path the other forms use
 ([research/trunk-allowed-except.md](../research/trunk-allowed-except.md)).
+
+`none` is the command's second single-word list, and the one that reaches the empty list without arithmetic.
+`remove` refuses to take a trunk's last VLAN, but `none` is how an operator stops normal VLAN traffic on a link
+without shutting the port, so it is accepted and prints the state back in the same sentence:
+
+```
+sw1(config-if)#switchport trunk allowed vlan none
+Trunk on Fa0/1 allows no VLANs
+```
+
+The word is stored as an empty list rather than as a word: `show interfaces` reads `allowed none`, and the
+backup writes the line an operator typed - `switchport trunk allowed vlan none` - so a saved trunk returns as
+a trunk that carries nothing, while `no switchport trunk allowed vlan` restores `all`. The keyword belongs to
+the later images: the vlan-list form reads `all | none | [add | remove | except] vlan-atom` in IOS
+15.x/16.x/17.x, where the 12.2 SE book for the 2960 has `{add | all | except | remove}` and no `none`
+([research/trunk-allowed-vlan-none.md](../research/trunk-allowed-vlan-none.md)).
 
 A range is two ids, written low-to-high the way every Cisco `vlan-list` note writes one — "two VLAN numbers, the
 lower one first". A transposed pair is refused rather than read upside down, and the two ids are named back in
@@ -3912,8 +3928,8 @@ not: `_traceroute()` reads `tokens[0]` and nothing else, so `traceroute 10.0.0.1
 indexed and not implemented.
 
 The opposite gap sits one word deeper, where the guard cannot look. The index row for a trunk's allowed list reads
-`switchport trunk allowed vlan <list|all>`, and the console also takes `add <list>`, `remove <list>` and
-`except <list>` ("A trunk's allowed list is edited in place: `add` and `remove`", and `except`, the verb that
+`switchport trunk allowed vlan <list|all>`, and the console also takes `add <list>`, `remove <list>`,
+`except <list>` and `none` ("A trunk's allowed list is edited in place: `add` and `remove`", and `except`, the verb that
 replaces the list instead of editing it); `switchport voice vlan <id>` - the line that puts a phone on its own VLAN,
 prints in `show running-config` and survives a saved board ("The voice VLAN") - has no row in the index at all.
 `test/help-completeness.test.js` compares the *first word* of a line against the dispatcher's vocabulary, and
