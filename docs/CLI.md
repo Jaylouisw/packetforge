@@ -2142,10 +2142,10 @@ sw1(config-if)#no switchport trunk allowed vlan
 Trunk on Fa0/1 allows all VLANs again
 ```
 
-A `remove` that would empty the list is refused rather than committed, with both ways out named — a trunk carrying
-no VLAN is not something to arrive at by subtraction. A `remove` on a trunk that still allows the default `all` is
-not refused, because a switch subtracts from it; the remainder prints the way the box prints a list, runs folded
-into ranges — but only a run of **three or more**: `157,158` is two ids, because `157-158` is no shorter, and
+A `remove` that empties the list is committed, not refused: a trunk carrying no VLAN is a state a switch can be put
+in, and the subtraction stores it exactly as `none` does. A `remove` on a trunk that still allows the default `all`
+is not refused either, because a switch subtracts from it; the remainder prints the way the box prints a list, runs
+folded into ranges — but only a run of **three or more**: `157,158` is two ids, because `157-158` is no shorter, and
 three captures of the backup line show it ([research/trunk-allowed-two-id-run.md](../research/trunk-allowed-two-id-run.md)):
 
 ```
