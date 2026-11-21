@@ -3,7 +3,7 @@
   "model": "N-SW",
   "label": "NanoSwitch",
   "category": "switch",
-  "description": "NanoSwitch (N-SW) - 4x 1G RJ45 (3 PoE). Passive PoE-in.",
+  "description": "NanoSwitch (N-SW) - 4x 1G RJ45: one 24V passive PoE-in socket that powers the unit, three 24V passive PoE passthrough sockets (24 W per port, 30 W total across the three).",
   "capabilities": [
     "l2-forward",
     "cli",
@@ -18,33 +18,40 @@
       "type": "ethernet",
       "connector": "rj45",
       "speed": "1G",
-      "poeOut": true,
-      "poeOutClass": "PoE"
+      "poeOut": 24,
+      "poeOutClass": "passive"
     },
     {
       "name": "eth1",
       "type": "ethernet",
       "connector": "rj45",
       "speed": "1G",
-      "poeOut": true,
-      "poeOutClass": "PoE"
+      "poeOut": 24,
+      "poeOutClass": "passive"
     },
     {
       "name": "eth2",
       "type": "ethernet",
       "connector": "rj45",
       "speed": "1G",
-      "poeOut": true,
-      "poeOutClass": "PoE"
+      "poeOut": 24,
+      "poeOutClass": "passive"
     },
     {
       "name": "eth3",
       "type": "ethernet",
       "connector": "rj45",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": 1.5
     }
   ],
   "icon": "switch",
   "color": "#14b8a6",
-  "sourceUrl": "https://techspecs.ui.com/uisp/wired/n-sw"
+  "sourceUrl": "https://techspecs.ui.com/uisp/wired/n-sw",
+  "poe": {
+    "budgetW": 30,
+    "sourceUrl": "https://techspecs.ui.com/uisp/wired/n-sw",
+    "note": "30 W is the vendor's total, not a per-port figure: techspecs 'Total passive PoE Max. Wattaget' = '24V, 2-pair, 1A for 3 ports (30W)' beside 'Passive PoE Max. Wattage per port' = '24V, 2-pair, 1A per port (24W)'. Three sockets at 24 W each reach 72 W, so the aggregate is what has to bind here; the 24 W per-port ceiling alone would let two full loads through."
+  },
+  "notes": "Vendor figures from Ubiquiti's tech-spec page for this SKU (`https://techspecs.ui.com/uisp/wired/n-sw`, HTTP 200, 575,565 B, server-rendered `<td class=\"key\">` table, crawler user-agent, read 2026-11-21): `Networking interface = (4) GbE RJ45 ports [(1) PoE-in, (3) PoE passthrough]`, `Power method = Passive 24V, 2-pair PoE-in`, `Supported voltage range = 21.6-30V`, `Power consumption = Typical: 1.5W / Max.: 30W`, `Power supply = POE-24-30W-G PoE adapter (Not included)`, `Passive PoE Max. Wattage per port = 24V, 2-pair, 1A per port (24W)`, `Total passive PoE Max. Wattaget = 24V, 2-pair, 1A for 3 ports (30W)`. The row had shipped the four sockets as three bare `poeOut: true` plus one with no power field at all: the bare direction bit is what `Device.poeDraw()` (engine/device.js) adds as **1 W** and what `pseDraw()` (engine/validation.js) sums, so all three passthrough sockets fully loaded made `poeDraw()` answer 3 W, and with no `poe.budgetW` the faceplate said the budget was not modelled at all. Each passthrough socket now declares the vendor's 24 W per-port ceiling and `poe.budgetW` is the vendor's 30 W aggregate; three 24 W loads (72 W) are now refused with E_POE_BUDGET instead of accepted at 3 W. The sockets are 24 V **passive**, so `poeOutClass` is `passive`, not `PoE`/802.3af as it read before: the vendor prints `Power method: Passive 24V` and offers no negotiation, so a standard 802.3af/at PD will not come up on them. The PD socket is `eth3` and carries `poeIn: 1.5`, the vendor's typical consumption; that is the whole of what the engine can bill, because a passthrough switch forwards its downstream load rather than drawing it, and `poeIn` is a static per-port figure. The vendor prints no port numbers (only `(1) PoE-in, (3) PoE passthrough`), so this pass fixed the count, the wattages and the class without renumbering the panel: the three sockets that already carried `poeOut` stay the PSE sockets and the fourth becomes the input."
 }
