@@ -4258,6 +4258,44 @@ Same shape as `ip route flurbish` in #1495 — the *empty string* was validated 
 
 A genuinely bad value is still quoted back (`Invalid name server "flurbish"`), so the two problems now read differently.
 
+### `show` on its own called the command invalid
+
+The same shape one level up, where the missing part is a *word* rather than a value. A bare `show`, and the two
+view words that are only half a command, were all refused as words the console had never heard of:
+
+```
+sw1#show
+% Invalid show command: (empty)
+sw1#show mac
+% Invalid show command: mac
+sw1#show power
+% Invalid show command: power
+```
+
+IOS separates the two faults: `% Invalid input detected at '^' marker.` is for a word the parser does not know at
+that position, while `% Incomplete command.` means "You did not enter all the keywords or values required by this
+command" (Command Reference, IOS XE 17.18.x, Catalyst 9200, "Using the Command-Line Interface", Table 3; the same
+table in 15.2(7)E and 17.15.x). A 3750 transcript shows the same parser answering that way to a keyword chain one
+word short — `SW1#clear mac address-table` -> `% Incomplete command.` The console also already knew both
+completions: they are the two rows of `show ?` that print extra words.
+
+```
+sw1#show
+% Incomplete command: name a view after `show` (type `show ?` for the list)
+sw1#show mac
+% Incomplete command: `show mac` is a view word with nothing after it - the box says `show mac address-table`
+sw1#show pow
+% Incomplete command: `show pow` is a view word with nothing after it - the box says `show power inline`
+```
+
+The spelling echoed back is the one typed, so `show m` is not answered as though `mac` had been typed. What did not
+change: a word the console does not know is still `% Invalid show command: <word>`; an ambiguous prefix is still
+ambiguous (`show po`); and the completed views print as before. The hint after the sentence is this console's habit
+(`% Incomplete command: give a VLAN id (1-4094)`), not the box's — the vendor line stops at the full stop;
+[`research/show-incomplete-view-word.md`](../research/show-incomplete-view-word.md) records that choice and the two
+neighbouring questions left open (a shortened tail word, `addr`, and a tail typed in capitals, `Address-Table`).
+`test/show-incomplete-view-word.test.js`: 23 checks; with the old handler, 9 passed / 14 failed.
+
 ## Two things measured and left alone
 
 **Whitespace is already robust.** A lab is pasted, not typed, so the sweep's seven commands were also run with double spaces, a tab, a leading space, a trailing space, three trailing spaces and a mix: **42 variant runs, 0 differences** in either the answer or the resulting config. That property is pinned by a test rather than assumed.

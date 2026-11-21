@@ -9,6 +9,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **A bare `show`, and `show mac` / `show power`, were refused as words the console does not know.** `show` on
+  its own answered `% Invalid show command: (empty)`, and the two half-commands answered `% Invalid show command:
+  mac` and `… power`, though both are doors whose word is the rest of the line (`show mac address-table`,
+  `show power inline`) — the same two rows `show ?` prints with their extra words. IOS separates the faults:
+  `% Invalid input detected at '^' marker.` is for a word the parser does not know at that position, while
+  `% Incomplete command.` is "You did not enter all the keywords or values required by this command" (Command
+  Reference, IOS XE 17.18.x, Catalyst 9200, "Using the Command-Line Interface", Table 3; 15.2(7)E and 17.15.x carry
+  the same table), and a 3750 transcript shows that sentence for a keyword chain one word short
+  (`SW1#clear mac address-table` -> `% Incomplete command.`). All three now answer `% Incomplete command: …` and
+  name the word that completes the line, echoing the spelling typed (`show m`, `show pow`). An unknown word is
+  still `% Invalid show command: <word>`, an ambiguous prefix is still ambiguous, and both completed views print as
+  before. `test/show-incomplete-view-word.test.js` (23 checks; the old handler passed 9 and failed 14) pins the
+  three shapes at `#` and from `do` in config mode;
+  [`research/show-incomplete-view-word.md`](research/show-incomplete-view-word.md) records the sources, the house
+  hint after the vendor sentence, and the two neighbouring questions left open (`show mac addr`, `show mac
+  Address-Table`).
+
 - **`no vlan 22` was refused while a trunk's allowed list named 22, though the box deletes the VLAN and leaves
   the line alone.** Deleting a VLAN is a VLAN-database operation: the interface line is configuration and
   survives it, and the trunk stops carrying the VLAN because a trunk port is a member of a VLAN only while that

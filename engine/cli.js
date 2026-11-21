@@ -6510,7 +6510,18 @@ class CliSession {
     //    sequitur.
     //  * an ambiguous prefix is refused before any door opens, because there is no door to open.
     this._showAliasFrom = null;
-    const typedView = String(tokens[0] || '').toLowerCase();
+    const typedView = String(tokens[0] || '').trim().toLowerCase();
+    // `show` on its own is a command **missing its word**, not a word the console does not know. It answered
+    // `% Invalid show command: (empty)`, which tells an operator the command is not recognised - the one thing that
+    // is certainly not true about `show` - while IOS's own error-message table defines the other reply as
+    // "You did not enter all the keywords or values required by this command": `% Incomplete command.`
+    // (Command Reference, IOS XE 17.18.x, Catalyst 9200, "Using the Command-Line Interface", Table 3; the same
+    // table in the 15.2(7)E 2960-X and 17.15.x 9600 books). The hint is this console's usual one on that sentence
+    // (`% Incomplete command: give a VLAN id ...`); the list it points at is the dispatcher's own table, so the two
+    // cannot drift. research/show-incomplete-view-word.md carries the captures and the open half.
+    if (!typedView) {
+      return ['% Incomplete command: name a view after `show` (type `show ?` for the list)'];
+    }
     // `?` is the console's index key, and the view word after `show` is one of the two positions where a *complete*
     // table exists (see the note over EXEC_WORDS) - the one condition this console asks before it agrees to answer a
     // question about what may stand somewhere. It answered `% Invalid show command: ?` instead, calling the key
@@ -6521,6 +6532,17 @@ class CliSession {
     if (viewWord.rivals.length) {
       return ['% Ambiguous command "show ' + typedView + '": ' + viewWord.rivals.join(' | ') +
         ' (type more characters)'];
+    }
+    // Two doors are a word *plus* a word: `show mac address-table` and `show power inline`, the tails in
+    // `SHOW_VIEW_TAILS`. The bare word was answered `% Invalid show command: mac`, which says the console has never
+    // heard of `mac` - it has, it just needs the word that completes it. A 3750 transcript shows the same shape from
+    // the same parser one command family over: `SW1#clear mac address-table` -> `% Incomplete command.`
+    // (https://community.cisco.com/t5/switching/clearing-mac-address-help-how-to/td-p/3325072). The reply names the
+    // completion, because "incomplete" without it leaves the operator to find the missing word themselves, and the
+    // spelling echoed back is the one they typed: `show m` is not answered as if the word `mac` had been typed.
+    if (viewWord.word && SHOW_VIEW_TAILS[viewWord.word] && tokens.length === 1) {
+      return ['% Incomplete command: `show ' + typedView + '` is a view word with nothing after it - the box says ' +
+        '`show ' + viewWord.word + ' ' + SHOW_VIEW_TAILS[viewWord.word] + '`'];
     }
     if (viewWord.word && viewWord.word !== typedView) {
       if (viewWord.word === 'etherchannel') this._showAliasFrom = 'show ' + typedView;
