@@ -108,7 +108,10 @@ console.log('The words that were already answered are unchanged:');
   ok(/^Interface\s+IP Address/.test(one[0]) && one.indexOf(table[1]) !== -1,
     '`show ip ospf interface <port>` still narrows to that port', one.join(' | '));
   const nbr = say(env, 'show ip ospf neighbour');
-  ok(/^Neighbor ID\s+Pri\s+State/.test(nbr[0]),
+  // The spelling reaches the same door. This lab has no adjacency, so the door answers with its reason and
+  // no heading - a box with an empty neighbour table prints nothing at all
+  // (research/show-ospf-neighbor-empty-output.md).
+  ok(/^% no adjacencies|^% no neighbour on/.test(nbr[0]),
     '`show ip ospf neighbour` is untouched', nbr[0]);
 }
 

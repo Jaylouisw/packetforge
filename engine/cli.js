@@ -5659,8 +5659,17 @@ class CliSession {
       // 12, Address 16, Interface. research/ospf-neighbor-table-layout.md has the sources and the columns
       // measured off that file.
       const deadCell = this._ospfDeadTimeCell(dev);
-      out.push(pad('Neighbor ID', 16) + pad('Pri', 3) + '   ' + pad('State', 16) + pad('Dead Time', 12) +
-        pad('Address', 16) + 'Interface');
+      // The header is furniture for rows, and a box prints it only when there are rows to head. An empty
+      // neighbour table is `nothing at all` on a live IOS XE 17.18.2 box - the troubleshooting page this
+      // note cites prints `R2# show ip ospf neighbor` with no header, no blank row and no count, and the
+      // capture is machine-recorded ("No output on this page was typed by hand"). This console pushed the
+      // header before it asked whether anything was in the table, so a lab with no adjacency printed a
+      // six-column heading over a sentence - a table no box could produce. The sentence below stays: it is
+      // this console's own answer for a table it can explain, the same trade `show lldp neighbors` makes,
+      // but it no longer stands under a heading that claims a table.
+      // research/show-ospf-neighbor-empty-output.md.
+      const neighbourHeader = pad('Neighbor ID', 16) + pad('Pri', 3) + '   ' + pad('State', 16) +
+        pad('Dead Time', 12) + pad('Address', 16) + 'Interface';
       if (!rows.length) {
         if (!evaluated) {
           out.push('(no OSPF state has been evaluated yet - run a simulation)');
@@ -5688,6 +5697,7 @@ class CliSession {
         }
         return out;
       }
+      out.push(neighbourHeader);
       for (const n of rows) {
         // Pri is the *neighbour's* interface priority, right-aligned in three columns, and it is the value
         // configured on the far port with `ip ospf priority` (default 1). RFC 2328 puts the field in the

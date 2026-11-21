@@ -407,5 +407,38 @@ console.log('Convergence is stated, not implied:');
 }
 
 console.log('');
+console.log('An empty neighbour table is not a table: no header over no rows');
+{
+  // A live IOS XE 17.18.2 box with no adjacency answers `show ip ospf neighbor` with nothing at all -
+  // no header, no blank row, no count (machine-recorded capture, research/show-ospf-neighbor-empty-output.md).
+  // This console printed the six-column header first and asked about rows afterwards, so the answer to a
+  // lab with no neighbour was a heading over a sentence: a table no box produces. The sentence stays (it
+  // explains a table this console can explain); the heading now appears only when it heads rows.
+  const t = lab();
+  configure(t, 'r1', ['ospf router-id 1.1.1.1', 'interface Gi0/0/0', 'interface Gi0/0/1']);
+  const sim = new Simulator(t);
+  sim.computeOspf();
+
+  const empty = show(t, sim, 'r1', 'show ip ospf neighbor');
+  ok(!/^Neighbor ID/.test(empty), 'with no neighbour there is no header', empty);
+  ok(/no adjacencies/.test(empty), 'and the console still says why the table is empty', empty);
+
+  const onePort = show(t, sim, 'r1', 'show ip ospf neighbor Gi0/0/0');
+  ok(!/^Neighbor ID/.test(onePort), 'the port form is no different: no header over no rows', onePort);
+  ok(/no neighbour on Gi0\/0\/0/.test(onePort), 'and names the port it is about', onePort);
+
+  // The header is not gone - it heads the rows it was written for. r2 runs OSPF on the r1 link, so the
+  // same view on the same instant has one row and therefore one heading.
+  configure(t, 'r2', ['ospf router-id 2.2.2.2', 'interface Gi0/0/0']);
+  sim.computeOspf();
+  const filled = show(t, sim, 'r1', 'show ip ospf neighbor');
+  const lines = filled.split('\n');
+  ok(lines[0] === 'Neighbor ID     Pri   State           Dead Time   Address         Interface',
+    'a populated table still opens with the device\'s header', lines[0]);
+  ok(lines.filter(function (l) { return /^2\.2\.2\.2 /.test(l); }).length === 1,
+    'and the row under it is the neighbour', filled);
+}
+
+console.log('');
 console.log(passed + ' passed, ' + failed + ' failed');
 if (failed) process.exit(1);

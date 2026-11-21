@@ -182,7 +182,11 @@ console.log('An unknown port in the OSPF reports is not a port that carries no O
   const ifc = show('r1', 'show ip ospf interface NOSUCH');
   ok(/^% No interface NOSUCH on /.test(ifc), 'show ip ospf interface says the same sentence', ifc);
   const real = show('r1', 'show ip ospf neighbor ' + RP);
-  ok(!isRefusal(real) && /no neighbour on|Neighbor ID/.test(real), 'a port that exists is still described', real.split('\n')[0]);
+  // A port that exists is *described*, not refused by name: the sentence names the port and says it has no
+  // neighbour. It no longer opens with the table header - a box with no neighbour prints no header at all
+  // (research/show-ospf-neighbor-empty-output.md), so the distinguishing marker is the port, not the heading.
+  ok(/no neighbour on /.test(real) && !/No interface/.test(real),
+    'a port that exists is still described', real.split('\n')[0]);
   const converged = show('r1', 'show ip ospf process');
   ok(/Routing Process/.test(converged), 'the process report is unchanged', converged.split('\n')[0]);
 }

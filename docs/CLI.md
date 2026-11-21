@@ -2035,7 +2035,10 @@ and changes nothing. The cell used to say `Full` - one word where the hardware p
 role, which described a segment where nobody had stood for election.
 `research/show-ospf-neighbor-state.md` has the sources and what is still unmodelled (`ip ospf
 network`, a third speaker on one segment); `research/ospf-neighbor-table-layout.md`
-has the column order, the measured widths and what the countdown cell still cannot show.
+has the column order, the measured widths and what the countdown cell still cannot show. The heading
+above the rows is written for rows: a box with no adjacency answers this command with nothing at all -
+no header, no blank line, no count - so an empty table here prints the console's one-line reason and
+no heading (`research/show-ospf-neighbor-empty-output.md`).
 
 ```
 r1> show ip ospf interface
