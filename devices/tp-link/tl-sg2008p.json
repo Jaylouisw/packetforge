@@ -3,7 +3,7 @@
   "model": "TL-SG2008P",
   "label": "TP-Link TL-SG2008P",
   "category": "switch",
-  "description": "8-port gigabit JetStream smart switch with PoE+: 8x 10/100/1000 RJ45, 802.3af/at on ports 1-4 and a 62 W power supply.",
+  "description": "8-port gigabit JetStream smart switch with PoE+: 8x 10/100/1000 RJ45, 802.3af/at on ports 1-4 and a 62 W PoE budget.",
   "capabilities": [
     "l2-forward",
     "l3-forward",
@@ -50,27 +50,37 @@
       "name": "eth4",
       "type": "ethernet",
       "connector": "rj45",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": false
     },
     {
       "name": "eth5",
       "type": "ethernet",
       "connector": "rj45",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": false
     },
     {
       "name": "eth6",
       "type": "ethernet",
       "connector": "rj45",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": false
     },
     {
       "name": "eth7",
       "type": "ethernet",
       "connector": "rj45",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": false
     }
   ],
-  "sourceUrl": "https://www.tp-link.com/us/business-networking/omada-switch-poe/tl-sg2008p/",
-  "notes": "Vendor figures from the TP-Link datasheet: interface is 8x 10/100/1000 Mbps RJ45 ports (ports 1-4 support 802.3at/af PoE+), auto negotiation / auto MDI/MDIX; PoE standard 802.3af/at on 4 ports with a 62 W power supply. Half the row is PoE and half is not, which is what the port model shows."
+  "sourceUrl": "https://www.omadanetworks.com/us/business-networking/omada-switch-access/tl-sg2008p/",
+  "notes": "Vendor figures from the TP-Link datasheet: interface is 8x 10/100/1000 Mbps RJ45 ports (ports 1-4 support 802.3at/af PoE+), auto negotiation / auto MDI/MDIX; PoE standard 802.3af/at on ports 1-4 against a 62 W budget (the vendor's 62 W is the PD-side allowance - its max-consumption row reads 77.3 W with 62 W of PD attached - so it is recorded in poe.budgetW, not left as prose). Half the row is PoE and half is not, which is what the port model shows; ports 5-8 are declared poeOut:false because engine/media.js fills a silent poeOut on every RJ45 port of a switch that claims poe-pse, and the silence was producing four invented 15.4 W PSE ports that then drew on the 62 W budget. The page moved from tp-link.com to omadanetworks.com when the line was rebranded, and this SKU is now marked End of Sale there with the SG2008P as its successor (modelled at devices/tp-link/SG2008P.json); the port census and the 62 W budget are the same on both pages.",
+  "poe": {
+    "budgetW": 62,
+    "standard": "802.3at",
+    "sourceUrl": "https://www.omadanetworks.com/us/business-networking/omada-switch-access/tl-sg2008p/",
+    "note": "Vendor table, row \"PoE Ports (RJ45)\": \"Standard: 802.3af/at compliant / PoE Ports: 4 Ports / Power Supply: 62 W*\" (https://www.omadanetworks.com/us/business-networking/omada-switch-access/tl-sg2008p/, HTTP 200, 187,036 B, read 2026-11-21; the tp-link.com path for this SKU now 301s here). The 62 W is what the PoE ports may deliver, not the adapter's rating: the adapter is 53.5 V DC / 1.31 A (70.1 W) and the V3 max-consumption row is \"77.3 W (110 V/60 Hz) (with 62 W PD connected)\" - 62 W of PD load plus ~15 W of chassis. Four 802.3af loads (61.6 W) fit; four class-4 25.5 W loads (102 W) do not."
+  }
 }

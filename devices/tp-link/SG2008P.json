@@ -3,53 +3,76 @@
   "model": "SG2008P",
   "label": "TP-Link Omada SG2008P",
   "category": "switch",
-  "description": "Fanless 8-port Gigabit smart switch with 4 PoE+ ports and 62 W power budget.",
+  "description": "Fanless 8-port Gigabit smart switch: 8x 1G RJ45, 802.3at/af PoE+ on ports 1-4 against a 62 W budget.",
   "capabilities": [
     "l2-forward",
-    "cli"
+    "cli",
+    "poe-pse",
+    "802.3af",
+    "802.3at"
   ],
   "interfaces": [
     {
       "name": "port1",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "port2",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "port3",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "port4",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "port5",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": false
     },
     {
       "name": "port6",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": false
     },
     {
       "name": "port7",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": false
     },
     {
       "name": "port8",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": false
     }
   ],
   "icon": "switch",
-  "color": "#22c55e"
+  "color": "#22c55e",
+  "poe": {
+    "budgetW": 62,
+    "standard": "802.3at",
+    "sourceUrl": "https://www.omadanetworks.com/us/business-networking/omada-switch-access/sg2008p/",
+    "note": "Vendor table, row \"PoE Ports (RJ45)\": \"Standard: 802.3af/at compliant / PoE Ports: 4 Ports / Power Supply: 62 W*\" (https://www.omadanetworks.com/us/business-networking/omada-switch-access/sg2008p/, HTTP 200, 187,036 B, read 2026-11-21); the same page's summary line calls it \"62 W Power Budget\" and the interface row says \"8x 10/100/1000 Mbps RJ45 Ports (Ports 1-4 Support 802.3at/af PoE+)\". The 62 W is the PD-side allowance, not the adapter's rating: the adapter row is \"AC/DC Adapter (Input: 100-240V AC; Output: 53.5V DC/1.31A)\" = 70.1 W, and \"Max. Power Consumption: 73.4 W (220 V/50 Hz @ 25 C) (with 62 W PD connected)\" - 62 W of PD load plus about 11 W of chassis. Four 802.3af loads (4 x 15.4 W = 61.6 W) fit; four class-4 25.5 W loads (102 W) do not, and the allocator refuses the third."
+  },
+  "sourceUrl": "https://www.omadanetworks.com/us/business-networking/omada-switch-access/sg2008p/",
+  "notes": "PoE is the whole point of this SKU and the spec had none of it: the description promised \"4 PoE+ ports and 62 W power budget\" while every port carried no poeOut and the capabilities list omitted poe-pse, so `show power inline` answered \"% No PoE on ...: no port on this device can supply power\" for a switch sold as a PoE switch. Fixed against the vendor table quoted in poe.note: ports 1-4 source 802.3at/af (PoE+), against a 62 W budget. Ports 5-8 are declared poeOut:false rather than left silent, because engine/media.js fills a silent poeOut on every RJ45 port of a switch that claims poe-pse - a silence here would have invented four more PSE ports and let a lab cable a powered device into a port that has no power supply behind it. The vendor's own max-consumption row (73.4 W with 62 W of PD attached) is what makes 62 W the PoE budget rather than a PSU rating. research/tp-link-sg2008p-poe-budget.md carries the quotes."
 }
