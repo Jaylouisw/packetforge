@@ -113,14 +113,21 @@ definition it belongs to; the rest of this page's citations were not re-measured
 
 | Verdict | Behaviour | Where |
 |---|---|---|
-| **Modelled** | Source MAC is learned on ingress, into a table **scoped to the frame's VLAN**. | `engine/simulator.js:1734`, `engine/device.js:331` |
-| **Modelled** | Known unicast → one egress port. Unknown unicast, broadcast and multicast → flood within the VLAN only. | `engine/simulator.js:1895-2020` |
-| **Modelled** | A flood never returns out of the ingress port, and never out of the LAG it arrived on. | `engine/simulator.js:1955-1970` |
-| **Modelled** | A learned entry pointing back at the ingress port is dropped with `loop`, rather than forwarded. | `engine/simulator.js:1957` |
-| **Approximate** | Learning happens before the ACL and the STP egress checks, so a frame that is then dropped still taught the switch a MAC. Real hardware does the same; worth knowing when reading a table after a denied flow. | `engine/simulator.js:1734` vs `1792` |
-| **Approximate** | Multicast is treated as broadcast: no IGMP snooping, no per-group filtering. This is deliberate — IPv6 neighbour discovery would never arrive otherwise. | `engine/simulator.js:1842` |
+| **Modelled** | Source MAC is learned on ingress, into a table **scoped to the frame's VLAN**. | `engine/simulator.js:3413` (`learnMac()` on the way in), `engine/device.js:934` (`learnMac()`, one table per VLAN) |
+| **Modelled** | Known unicast → one egress port. Unknown unicast, broadcast and multicast → flood within the VLAN only. | `engine/simulator.js:3605-3639` (`_forwardL2()`) |
+| **Modelled** | A flood never returns out of the ingress port, and never out of the LAG it arrived on. | `engine/simulator.js:3611` (the ingress port is not a candidate), `engine/simulator.js:3766` (`_egressRefusal()` answers `bundle`) |
+| **Modelled** | A learned entry pointing back at the ingress port is dropped with `loop`, rather than forwarded. | `engine/simulator.js:3629-3631` |
+| **Approximate** | Learning happens before the ACL and the STP egress checks, so a frame that is then dropped still taught the switch a MAC. Real hardware does the same; worth knowing when reading a table after a denied flow. | `engine/simulator.js:3413` (learning) before `3420` (the inbound ACL) and `3657` (the egress filter, whose first refusal is the spanning tree's) |
+| **Approximate** | Multicast is treated as broadcast: no IGMP snooping, no per-group filtering. This is deliberate — IPv6 neighbour discovery would never arrive otherwise. | `engine/simulator.js:3451-3452` (`isMulticastMac()` folded into `flood`) |
 | **Modelled** | A dynamically learned entry ages out after **300 s** of silence (`MAC_AGE_MS`), and the aged lookup is what the data path uses, not just what the report prints: an entry the table only remembers is not a port a frame may be sent to. The `Age` column in `show mac address-table` is that silence, refreshed by traffic, not a lifetime. | `engine/device.js:6` (`MAC_AGE_MS`), `macLookup()` and `ageMacs()` |
 | **Absent** | MAC move detection, per-port MAC limits, port security, storm control, error counters, CRC/FCS errors, collisions. | — |
+
+Every number in that table was re-read off this tree (`d1ad8f93`), because all six had slid into the BGP block: `1734`
+and `1792` were route-installation lines, `1842` a "neighbour is not on a connected subnet" refusal, `1895-2020`
+the session walk, and `1955-1970` the `bgp` event's payload - so a reader following any of them learned how a prefix
+is installed, not how a frame is learned. `engine/device.js:331`, cited for the VLAN-scoped table, is
+`addSubinterface()`; the table is `learnMac()` at 934. Only the learning-and-flooding rows are re-measured here; the
+rest of this page's citations were not, in this pass.
 
 ### 2.2 VLANs (802.1Q)
 
@@ -171,7 +178,7 @@ ports" ([research/voice-vlan-port-mode.md](../research/voice-vlan-port-mode.md))
 |---|---|---|
 | **Modelled** | A **passive tap** (`category: tap` with no capabilities, or `passive: true`) passes frames between its network ports unchanged and duplicates them to monitor ports. A frame arriving on a monitor port is refused (`tap-inject-refused`) — a tap is not a hub. | `engine/simulator.js:1798-1821`, `engine/device.js:323` |
 | **Modelled** | A **passive splitter** (`category: splitter`) replicates to every other leg, unchanged, in both directions. No learning, no lookup, no VLAN rewrite. | `engine/simulator.js:1824-1834`, `engine/device.js:317` |
-| **Modelled** | Neither can learn: the MAC-learning step explicitly skips them, so a tap cannot be credited with a table it could not hold. | `engine/simulator.js:1734` |
+| **Modelled** | Neither can learn: the MAC-learning step explicitly skips them, so a tap cannot be credited with a table it could not hold. | `engine/simulator.js:3413` (`!isSplitter() && !isPassiveTap()`) |
 | **Approximate** | SFP-based taps (the active/aggregating kind) are treated as passive if the spec says so; there is no aggregation port, no timestamping, no oversubscription. | — |
 
 ### 2.6 Bridge groups
