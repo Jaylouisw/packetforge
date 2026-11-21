@@ -2646,8 +2646,9 @@ and `port-channel` print each member's LACP/PAgP internals and the bundle's coun
 prints the frame-distribution policy.
 
 This console answered all six with the summary table. For the five it cannot answer that is a wrong answer rather
-than a narrow one — the engine keeps no admin/oper keys, no port-state word, no aggregator MAC, no age timers, and
-no hashing policy at all — so each is refused in one line, naming the word the reader typed:
+than a narrow one — the engine keeps no admin/oper keys, no port-state word, no aggregator MAC and no age timers,
+and the hash policy it does keep (`hashPolicy` on the group, `engine/lag.js:94`, `l2`/`l3`/`l3l4`) has no console
+verb behind it — so each is refused in one line, naming the word the reader typed:
 
 ```
 sw1#show etherchannel detail
@@ -2658,7 +2659,11 @@ sw1#show etherchannel detail
 group number does not rescue a view: `show etherchannel 1 detail` is refused as `show etherchannel detail`, which
 is the view without the filter. `show port-channel detail` refuses under that spelling. `protocol` is pointed at
 the column that already carries its fact — the `Protocol` cell of the summary — rather than given a second page of
-its own, and `load-balance` points nowhere, because there is nothing here to point at.
+its own, and `load-balance` points nowhere, because no console verb reads or sets the policy - not because there is none
+to read. The group carries `hashPolicy` (`'l2'` written when `channel-group` creates the bundle, `engine/cli.js:4140`;
+`lag.js`'s own default is `l3l4`, `engine/lag.js:98`) and the data path hashes every frame onto one member with it
+(`engine/simulator.js:3710`, `selectMember()` at `engine/lag.js:264`), so the refusal's second clause - `nothing here
+hashes a frame across members` - overstates: what is missing is the view and the verb, not the hash.
 `research/etherchannel-summary-layout.md` has the syntax table, the `protocol` sample and what is still open.
 
 #### The first member creates the interface
