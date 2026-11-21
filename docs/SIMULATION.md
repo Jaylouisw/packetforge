@@ -47,12 +47,12 @@ first.
 - A frame is a plain object (`{dstMac, srcMac, etherType, ip, icmp, arp, l4, flow}`),
   built by `ethFrame()` at `engine/simulator.js:142`.
 - Transmissions go on a FIFO array and `_run()` drains it synchronously, one
-  `step++` per delivery (`engine/simulator.js:3158-3169`). There is no timer, no
+  `step++` per delivery (`engine/simulator.js:3232-3241`). There is no timer, no
   coroutine and no scheduling: a run is a single-threaded loop that ends when the
   queue is empty.
 - Guard rails are loop detectors, not physics: `maxSteps = 8000`
   (`engine/simulator.js:210`) and a 100 000-iteration runaway guard
-  (`engine/simulator.js:3163`). Exceeding either emits a `limit` event.
+  (`engine/simulator.js:3237`). Exceeding either emits a `limit` event.
 - Before the first packet, a run recomputes the world **once**, and which steps it
   runs is the entry point's own. `ping()` runs eight, in this order: spanning tree,
   PoE, the VRRP election, the DHCP pull, LLDP, router advertisements, OSPF, BGP
@@ -60,23 +60,25 @@ first.
   that takes its gateway from DHCP should pull the address something already answers
   for; both come before the announcements because a host with no address cannot be
   asked anything. `traceroute()` and `openFlow()` run the six without those two
-  (`engine/simulator.js:759-764`, `engine/simulator.js:4119-4124`).
-  `ping6()` runs five, without LLDP (`engine/simulator.js:2518-2525`).
+  (`engine/simulator.js:759-764`, `engine/simulator.js:4194-4199`).
+  `ping6()` runs five, without LLDP (`engine/simulator.js:2522-2528`).
   `pingScion()` runs PoE and the SCION paths alone
-  (`engine/simulator.js:2788-2789`). The protocols are therefore converged before
+  (`engine/simulator.js:2860-2861`). The protocols are therefore converged before
   packet one, and do not reconverge during the run.
 - Layer decisions are gated by `hasCap()`, through the predicates that name each
-  token — `isL2()`, `isL3()`, `isHost()` (`engine/device.js:663-715`), with `isL3()`
+  token — `isL2()`, `isL3()`, `isHost()` (`engine/device.js:681-733`), with `isL3()`
   also requiring `ip routing` to be on — and the only capabilities the forwarding path
   actually consults are `l2-forward`, `l3-forward` and `host`
-  (`engine/simulator.js:3472-3482`).
+  (`engine/simulator.js:3546-3556`).
 
-The pointers above were re-measured against this tree, because they had slid: `_run()`'s loop was cited at
-3105-3112 and the 100 000-iteration guard at 3110, and 3110 is inside the VLAN egress-drop branch - a reader
-following it learned what `goneVlan` does, not where a run is bounded. `npm run check:citations` cannot catch
-this class: it judges a citation only when the sentence names exactly one function and one line, and a bare
-range or a bare number names no function to check it against. Each number above was read off the definition it
-belongs to; the rest of this page's citations were not re-measured in the same pass.
+The pointers above were read off this tree (`d3b779f0`), because they had slid a second time: `_run()`'s loop
+was cited at 3105-3112, then at 3158-3169, and 3158-3168 is now `_emitFrame()`'s PoE refusal - a reader following
+it learned why an unpowered port cannot transmit, not where a run is bounded. The same pass found `openFlow()`'s
+six-step set 75 lines into a flow refusal (`E_ACL_DENY`), the forwarding gate 74 lines into the LLDP neighbour
+table, and `device.js`'s predicate block 18 lines above the three predicates it names. `npm run check:citations`
+cannot catch this class: it judges a citation only when the sentence names exactly one function and one line, and
+a bare range or a bare number names no function to check it against. Each number above was read off the
+definition it belongs to; the rest of this page's citations were not re-measured in the same pass.
 
 **Approximate**
 
@@ -87,7 +89,7 @@ belongs to; the rest of this page's citations were not re-measured in the same p
   (`ARP_AGE_MS`). The rest do not: no ND reachable-time, no DHCP lease expiry by
   wall clock. An entry that nothing dated — written by a fixture — never ages.
   See §3.2 and [CLI.md](CLI.md#what-the-mac-table-remembers-and-for-how-long).
-- The capability list at `engine/device.js:122-131` advertises more than the
+- The capability list at `engine/device.js:151-162` advertises more than the
   forwarding path consumes: `poe-pse`, `poe-pd`, `firewall`, `wireless`,
   `dhcp-server`, `dhcp-client` are never read there. VLANs, LAGs and STP apply to
   any `l2-forward` device whether or not it claims them, which is why `vlan`,
