@@ -3,7 +3,7 @@
   "model": "GS305EPP",
   "label": "NETGEAR GS305EPP",
   "category": "switch",
-  "description": "5-port gigabit smart switch with 4 PoE+ ports.",
+  "description": "5-port gigabit smart switch with 4 PoE+ ports sharing a 120 W budget; port 5 is the unpowered uplink.",
   "capabilities": [
     "l2-forward",
     "cli",
@@ -48,8 +48,14 @@
       "name": "ge5",
       "type": "ethernet",
       "connector": "rj45",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": false
     }
   ],
-  "notes": "Vendor figures from the GS305EP/GS308EP series datasheet: **5 gigabit ports of which 4 carry PoE+** at up to 30 W per port. **One port is unpowered** - the uplink - which is the right shape for a small camera cluster but leaves nothing spare if the uplink is also meant to power a device."
+  "notes": "Vendor figures from the GS305EP/GS305EPP/GS308EP/GS308EPP data sheet and the GS305EPP user manual: **5 gigabit copper ports, of which ports 1-4 carry PoE+ (802.3at) at up to 30 W per port and port 5 is the unpowered uplink**. Total PoE budget **120 W** - 4 x 30 W, so every powered port can be filled at its class ceiling. The GS305EP is the same 5-port body with a 63 W budget; the budget here is the P's.",
+  "poe": {
+    "budgetW": 120,
+    "sourceUrl": "https://www.downloads.netgear.com/files/GDC/GS305EP/GS305EP-EPP_GS308EP-EPP_UM_EN.pdf",
+    "note": "GS305EPP user manual, Hardware: \"The switches provide 5 Gigabit Ethernet copper ports with 4 ports supporting up to 30W PoE+ (802.3at) per port\"; \"Model GS305EPP: The maximum PoE power budget of the switch across all active ports is 120W.\" The LED section is explicit about which socket is left out: \"On models GS305EP and GS305EPP, ports 1 through 4 are PoE+ ports. Port 5 is an Ethernet (uplink) port.\" The data sheet's PoE table agrees - 4 PoE ports, 4 PoE+ 802.3at ports, Total PoE/PoE+ Budget 120W for GS305EPP (63W belongs to the GS305EP)."
+  }
 }
