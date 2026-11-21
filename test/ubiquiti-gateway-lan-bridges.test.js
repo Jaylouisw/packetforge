@@ -29,14 +29,17 @@ function PC() { return spec('generic-pc'); }
 
 const ROWS = [
   { model: 'UDM-Pro-Max', lan: ['Port 1', 'Port 2'], wan: 'WAN', copper: 9, lag: true,
+    lagNote: 'the vendor states LACP over ports 1-8',
     table: '4,000', url: 'https://techspecs.ui.com/unifi/cloud-gateways/udm-pro-max' },
   { model: 'UCG-Max', lan: ['Port 1', 'Port 2'], wan: 'WAN', copper: 5, lag: false,
     table: '2,000', url: 'https://techspecs.ui.com/unifi/cloud-gateways/ucg-max' },
   { model: 'UXG-Max', lan: ['eth1', 'eth2'], wan: 'eth0', copper: 5, lag: false,
     table: '2,000', url: 'https://techspecs.ui.com/unifi/cloud-gateways/uxg-max' },
   { model: 'UDM-Pro', lan: ['port1', 'port2'], wan: 'wan1', copper: 9, lag: true,
+    lagNote: 'the vendor states LACP over ports 1-8',
     table: '4,000', url: 'https://techspecs.ui.com/unifi/cloud-gateways/udm-pro' },
   { model: 'UDM-SE', lan: ['Port 1', 'Port 2'], wan: 'WAN', copper: 9, lag: true,
+    lagNote: 'the vendor states LACP over ports 1-8',
     table: '4,000', url: 'https://techspecs.ui.com/unifi/cloud-gateways/udm-se' },
   { model: 'UCG-Ultra', lan: ['port1', 'port2'], wan: 'wan1', copper: 5, lag: false,
     table: '2,000', url: 'https://techspecs.ui.com/unifi/cloud-gateways/ucg-ultra' },
@@ -46,7 +49,26 @@ const ROWS = [
   // tech-spec table prints MAC Address Table Size = 1,000 and VLAN segmentation, and the datasheet prints VLAN 802.1Q.
   // Its five copper sockets are four LAN plus the one WAN the datasheet splits out ("LAN: (4) / WAN: (1)"); no LACP.
   { model: 'UDR', lan: ['eth0', 'eth1'], wan: 'eth4', copper: 5, lag: false,
-    table: '1,000', url: 'https://techspecs.ui.com/unifi/cloud-gateways/udr' }
+    table: '1,000', url: 'https://techspecs.ui.com/unifi/cloud-gateways/udr' },
+  // The seven Dream/Router/Gateway rows the fingerprint calls `SWITCH` and whose tech-spec table (or, for the UDM,
+  // whose datasheet) also prints a bridge forwarding table. `rj45: true` counts RJ45 sockets only, because EF-Core
+  // and UDM-Beast carry QSFP28/SFP28 cages that the older expression counted as copper.
+  // UDM: fingerprint `SWITCH`, panel `01 02 03 04 __ 05`; the tech-spec URL has no table, the datasheet prints
+  // "VLAN 802.1Q" beside "(4) LAN: GbE RJ45 / (1) WAN: GbE RJ45".
+  { model: 'UDM', lan: ['LAN 1', 'LAN 2'], wan: 'WAN', copper: 5, rj45: true, lag: false,
+    table: 'datasheet VLAN 802.1Q + fingerprint SWITCH', url: 'https://dl.ui.com/ds/udm_ds.pdf' },
+  { model: 'UDR7', lan: ['eth0', 'eth1'], wan: 'sfp1', copper: 4, rj45: true, lag: false,
+    table: '2,000', url: 'https://techspecs.ui.com/unifi/cloud-gateways/udr7' },
+  { model: 'UDR-5G-Max', lan: ['eth0', 'eth1'], wan: 'sfp1', copper: 4, rj45: true, lag: false,
+    table: '2,000', url: 'https://techspecs.ui.com/unifi/cloud-gateways/udr-5g-max' },
+  { model: 'UXG-Fiber', lan: ['eth0', 'eth1'], wan: 'SFP+-1', copper: 5, rj45: true, lag: false,
+    table: '4,000', url: 'https://techspecs.ui.com/unifi/cloud-gateways/uxg-fiber' },
+  { model: 'UCG-Industrial', lan: ['eth0', 'eth2'], wan: 'sfp1', copper: 5, rj45: true, lag: false,
+    table: '4,000', url: 'https://techspecs.ui.com/unifi/cloud-gateways/ucg-industrial' },
+  { model: 'UDM-Beast', lan: ['eth2', 'eth3'], wan: 'sfp3', copper: 10, rj45: true, lag: true,
+    table: '32,000', url: 'https://techspecs.ui.com/unifi/cloud-gateways/udm-beast' },
+  { model: 'EF-Core', lan: ['eth2', 'eth3'], wan: 'sfp5', copper: 11, rj45: true, lag: true,
+    table: '130,000', url: 'https://techspecs.ui.com/unifi/cloud-gateways/ef-core' }
 ];
 
 ROWS.forEach(function (row) {
@@ -60,9 +82,11 @@ ROWS.forEach(function (row) {
   ok(caps.indexOf('l2-forward') !== -1, 'it declares l2-forward', caps.join(','));
   ok(caps.indexOf('l3-forward') !== -1 && caps.indexOf('nat') !== -1,
     'and stays a gateway: l3-forward and nat are still declared', caps.join(','));
-  ok(gwSpec.interfaces.filter(function (i) { return i.type === 'ethernet' && i.connector !== 'sfp+'; }).length === row.copper,
-    'the copper census is the one the vendor prints: ' + row.copper + ' sockets',
-    String(gwSpec.interfaces.filter(function (i) { return i.type === 'ethernet' && i.connector !== 'sfp+'; }).length));
+  const copper = gwSpec.interfaces.filter(function (i) {
+    return row.rj45 ? i.connector === 'rj45' : (i.type === 'ethernet' && i.connector !== 'sfp+');
+  }).length;
+  ok(copper === row.copper,
+    'the copper census is the one the vendor prints: ' + row.copper + ' sockets', String(copper));
 
   const t = new Topology();
   const gw = t.addDevice(gwSpec, 'gw');
@@ -98,7 +122,7 @@ ROWS.forEach(function (row) {
   if (row.lag) {
     const lag = say('channel-group 1 mode active');
     ok(!lag.some(function (l) { return /^\s*%/.test(l); }),
-      'channel-group is accepted: the vendor states LACP over ports 1-8', JSON.stringify(lag));
+      'channel-group is accepted: ' + (row.lagNote || 'the vendor lists LACP Port Aggregation'), JSON.stringify(lag));
   }
 
   say('no switchport');

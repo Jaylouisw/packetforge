@@ -42,3 +42,31 @@ Fixed this pass: `UDR` (MAC Address Table Size 1,000, VLAN segmentation, `VLAN 8
 datasheet, fingerprint `SWITCH`). Each remaining row needs its own count read off its tech-spec page
 before the same change - the `4 + 1` and `4 + 0` diagrams differ, so the WAN socket is not always
 the separated one.
+
+## Worklist closed, 2026-11-21 (second pass)
+
+All seven remaining rows now declare `l2-forward`. Each was read off its own tech-spec page before the
+change; the pages are server-rendered and answer 200 to a bot UA, while an unknown slug 307s to the
+609,911 B techspecs front page, so the byte count is the test. Read 2026-11-21, bytes as returned.
+
+| SKU | MAC Address Table Size | LACP row | VLAN segmentation row | page bytes | fingerprint |
+|---|---|---|---|---|---|
+| UDM | *(no table on the tech-spec page)* | absent | absent | 608,032 | `SWITCH`, `01 02 03 04 __ 05` |
+| UDR7 | 2,000 | absent | ticked | 694,590 | `SWITCH`, `01 02 03 04 05` |
+| UDR-5G-Max | 2,000 | absent | absent | 876,426 | `SWITCH`, `01 02 03 04 05` |
+| UXG-Fiber | 4,000 | absent | absent | 649,433 | `SWITCH`, `01 02 03 04 05 06 07` |
+| UCG-Industrial | 4,000 | absent | ticked | 699,443 | `SWITCH`, `01 02 03 04 05 06` |
+| UDM-Beast | 32,000 | ticked | absent | 679,909 | `SWITCH`, `01 03 05 07 09 __ 11 13` / `02 04 06 08 10 __ 12 14` |
+| EF-Core | 130,000 | ticked | absent | 674,322 | `SWITCH`, `01 03 05 07 09 11 13 __ 15 23 __ 31` / `02 04 06 08 10 12 14 __ 19 27 __ __` |
+
+The UDM is the exception and the reason is recorded rather than glossed: its tech-spec page carries the
+model name and no specification table at all (125 text cells, no `MAC Address Table Size` row), so the
+evidence is the datasheet (`https://dl.ui.com/ds/udm_ds.pdf`, 200, 747,030 B, three pages, text layer
+1,936 chars) which prints `VLAN 802.1Q` in Software beside `(4) LAN: GbE RJ45 ports / (1) WAN: GbE RJ45
+port`, plus the fingerprint's `SWITCH` classification. That is weaker than a printed FDB size and is
+labelled as such in the spec note.
+
+WAN roles were deliberately left alone: none of these pages pins a copper socket to WAN. UDR7 and
+UDR-5G-Max print `Default WAN Ports = (1) 10G SFP+ / (1) 2.5 GbE RJ45` with `Max. WAN Port Count = 4`
+over one unbroken five-socket diagram; UCG-Industrial prints three default WAN ports over a six-socket
+run. Naming a copper socket WAN there would be a guess, and a wrong one would move a saved lab's uplink.

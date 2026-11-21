@@ -6,6 +6,7 @@
   "description": "UniFi Cloud Gateway Industrial (UCG-Industrial) - 4x 2.5G RJ45 (2 PoE+++ / 2 PoE+) + 1x 10G RJ45 (PoE+++) + 1x 10G SFP+ (10G/1G). WiFi 6/7; 28 W max.",
   "capabilities": [
     "l3-forward",
+    "l2-forward",
     "cli",
     "http-server",
     "nat",
@@ -102,5 +103,6 @@
     "budgetW": 270,
     "sourceUrl": "https://techspecs.ui.com/unifi/cloud-gateways/ucg-industrial",
     "note": "The budget is a function of the power input, and the vendor states both numbers in one row: \"PoE Budget = DC input: 270W / ATX power: 75W\" (Hardware section, read 2026-11-19: https://techspecs.ui.com/unifi/cloud-gateways/ucg-industrial). 270 W is recorded because it is the ceiling, the same convention as devices/allied-telesis/at-x530dp-28ghxm.json; the same chassis on ATX power has 75 W. The five PSE ports are the vendor's own census - \"2.5 GbE RJ45 = 4 (2 PoE+++, 2 PoE+)\", \"10 GbE RJ45 = 1 (PoE+++)\" - with per-port maxima \"PoE+ = 30W\", \"PoE+++ = 90W\", \"Voltage Range PoE Mode = 50-57V\". 3 x 90 W + 2 x 30 W is 330 W, so the budget is what stops a full-power fill; it is not a sum of the ports."
-  }
+  },
+  "notes": "\n\nLayer 2: Ubiquiti's controller device database classifies this SKU as a switch - https://static.ui.com/fingerprint/ui/public.json (HTTP 200, 832,585 B, read 2026-11-21) lists UCG-Industrial deviceCapabilities GATEWAY, ACCESS_POINT, SWITCH, CONTROLLER, APPLICATION_MODE, HAS_CLIENTS and draws its panel as `01 02 03 04 05 06` - and the vendor tech-spec table publishes the bridge's forwarding database at https://techspecs.ui.com/unifi/cloud-gateways/ucg-industrial (HTTP 200, 699,443 B, read 2026-11-21), which prints \"MAC Address Table Size = 4,000\" with \"VLAN/Subnet-based Traffic Segmentation\" ticked; no LACP row appears, so no LAG is claimed. A MAC address table is a bridge FDB; a gateway that only routed would hold neither it nor a LAG. While the row shipped without `l2-forward` its copper sockets were routed interfaces: `switchport access vlan 10` was answered with \"cannot switch frames: it has no l2-forward capability\", and two hosts on eth0 and eth2 in 192.168.1.0/24 could not resolve each other's ARP (\"not addressed to this device\"). WAN side unchanged: \"Default WAN Ports = (1) 10G SFP+ / (1) 10 GbE RJ45 / (1) 2.5 GbE RJ45\", \"Max. WAN Port Count = 5\", and the diagram is one unbroken six-socket run, so no copper socket is renamed WAN here."
 }
