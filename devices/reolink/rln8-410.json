@@ -3,12 +3,15 @@
   "model": "RLN8-410",
   "label": "8-channel PoE NVR",
   "category": "nvr",
-  "description": "8-channel 4K NVR with one SATA bay, one 10/100 RJ45 uplink and eight 10/100 PoE camera ports. Supports 802.3af/at at up to 25 W per port; Reolink does not publish an aggregate PoE budget.",
+  "description": "8-channel 4K NVR with one SATA bay, one 10/100 RJ45 uplink and eight 10/100 PoE camera ports. Reolink rates the PoE ports 802.3af/at at 25 W each and publishes no aggregate budget, so the eight sockets can be reported but not summed.",
   "capabilities": [
     "host",
     "dhcp-client",
     "http-server",
-    "dhcp-server"
+    "dhcp-server",
+    "poe-pse",
+    "802.3af",
+    "802.3at"
   ],
   "interfaces": [
     {
@@ -20,51 +23,64 @@
       "name": "PoE 1",
       "type": "ethernet",
       "speed": "100M",
-      "poeOut": 25.5
+      "poeOut": 25,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "PoE 2",
       "type": "ethernet",
       "speed": "100M",
-      "poeOut": 25.5
+      "poeOut": 25,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "PoE 3",
       "type": "ethernet",
       "speed": "100M",
-      "poeOut": 25.5
+      "poeOut": 25,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "PoE 4",
       "type": "ethernet",
       "speed": "100M",
-      "poeOut": 25.5
+      "poeOut": 25,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "PoE 5",
       "type": "ethernet",
       "speed": "100M",
-      "poeOut": 25.5
+      "poeOut": 25,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "PoE 6",
       "type": "ethernet",
       "speed": "100M",
-      "poeOut": 25.5
+      "poeOut": 25,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "PoE 7",
       "type": "ethernet",
       "speed": "100M",
-      "poeOut": 25.5
+      "poeOut": 25,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "PoE 8",
       "type": "ethernet",
       "speed": "100M",
-      "poeOut": 25.5
+      "poeOut": 25,
+      "poeOutClass": "PoE+"
     }
   ],
   "sourceUrl": "https://reolink.com/product/rln8-410/",
-  "notes": "PoE out: 802.3af/at, 25 W per port (declared as 25.5 W per port here), but no published total budget - left out deliberately; do not assume 8 x 25 W is available. Uplink is only 10/100, so eight 4K streams will saturate it. Wired only."
+  "notes": "Vendor figures read 2026-11-21 from https://home-cdn.reolink.us/files/docs/specs/RLN8-410-PoE-NVR-Specifications.pdf (200, application/pdf, 36,246 B, text layer, hardware N7MB01), https://reolink.com/product/rln8-410/ (200, 470,157 B) and the two support articles https://support.reolink.com/articles/29093193132825-How-Many-Cameras-Can-be-Added-to-Reolink-NVRs/ and https://support.reolink.com/articles/39154522558617-Overview-of-Monitoring-PoE-Camera-Power-Usage-via-Reolink-NVRs/ (both 200, read today): 1 x RJ-45 10/100 Mbps LAN/WAN, 8 x RJ-45 10/100 Mbps PoE, Max. Power Per Port 25W, IEEE 802.3af/at, Power Supply DC 48V~53V. WHAT WAS WRONG: every PoE port said 25.5 W, the 802.3at class-4 ceiling, on a box whose own sheet says 25 W - the description already said 25 W, so the ports contradicted the file they sat in - and the spec had no poe block at all, so eight PSEs reached the audit as silent and show power inline had nothing to divide. Ports now carry 25 W and class PoE+, matching the sheet, and the block records that the aggregate exists and is unpublished instead of leaving silence that reads like an omission. Uplink is only 10/100, so eight 4K streams will saturate it. Wired only.",
+  "poe": {
+    "budgetUnknown": true,
+    "sourceUrl": "https://home-cdn.reolink.us/files/docs/specs/RLN8-410-PoE-NVR-Specifications.pdf",
+    "note": "What Reolink publishes for the N7MB01 hardware (read 2026-11-21): the PoE table has exactly two rows, Max. Power Per Port 25W and Supported Standard IEEE 802.3af/at; the general table gives Power Supply DC 48V~53V and Power Consumption <10W (Without HDD&PoE). There is no total. A total is known to exist but never printed: the support article How Many Cameras Can be Added to Reolink NVRs says the NVR has a fixed total power budget and that it is one of the factors in how many cameras connect, and Overview of Monitoring PoE Camera Power Usage says the alert fires when total PoE power approaches or exceeds the power adapter rated capacity - so the ceiling is the supply, and the supply is listed only as DC 48V~53V (the older V2 sheet narrows it to DC 48V/1.875-2.5A, 90 to 120 W, against eight ports at 25 W = 200 W). Marked unknown rather than multiplied out or read off the supply: a PSU rating is not a PSE ceiling, and Reolink prints no number between them."
+  }
 }
