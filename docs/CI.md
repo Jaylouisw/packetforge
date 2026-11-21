@@ -22,6 +22,7 @@ minute.
 | `pr-rebase.yml` | pull request opened, pushed to, or reopened | The rebase that actually runs: rebases that one pull request onto current `main` and arms squash auto-merge - but only when every reported check on the new head is green, otherwise it says so and leaves the merge to `ci.yml`'s `Arm auto-merge` job. Every failure path warns and exits 0; a job that fails before it can report why comments the reason on the pull request |
 | `closed-audit.yml` | push to `main`, manual dispatch (`limit`, default 120) | Matches recently closed requests against the catalogue and prints any close that names no file in `devices/`; a report, never a red build |
 | `close-merged-issues.yml` | push to `main`, manual dispatch (`dry_run`, default `true`; `issues`, default 300) | Closes the issues this merge answered: the ones a closing keyword in the pushed commits or the merged pull request body cites, and the `[Device]:` requests the catalogue now demonstrably has. Idempotent, never reopens, never a red build (*What a merge closes*, below) |
+| `main-health.yml` | a 15-minute schedule, manual dispatch (`sha`, default `main`'s head; `dry_run`, default `true`) | Reads the status set of `main`'s head and opens **one** issue, titled `main is red`, naming each failing check beside the run link its status carries; a later tick that finds the same head red adds nothing - the head is written into the issue body, so the same break is reported once - and the first tick that finds it green comments and closes it. Nothing is merged, rebased or armed, and a tick that cannot read the status set warns rather than claiming `main` is fine (#2326) |
 | `wiki-sync.yml` | push to `main` that touches `docs/wiki/**`, manual dispatch | Mirrors `docs/wiki/*.md` into the separate `<owner>/<repo>.wiki` repository, removing pages deleted upstream; needs the `WIKI_TOKEN` secret and fails without it |
 
 `.github/workflows/` was deleted in #1059. While it existed, the GitHub workflow
@@ -377,7 +378,7 @@ to run on the host, are in
   for the queue's health.
 - **Only badge a workflow this repository still has.** `.forgejo/workflows/` holds
   `ci.yml`, `auto-rebase.yml`, `pr-rebase.yml`, `closed-audit.yml`,
-  `close-merged-issues.yml` and `wiki-sync.yml`;
+  `close-merged-issues.yml`, `main-health.yml` and `wiki-sync.yml`;
   `codeql.yml` was deleted with the move off GitHub. Forgejo renders a badge for a
   workflow it cannot find as `failure` forever — it is not a red build, it is a link
   to a file that is not there. The README carried one until #1470, which made the
@@ -397,10 +398,12 @@ run that is waiting its turn, and only the difference tells you which bug you ha
 
 ## The automation token
 
-Three workflows need to write: `auto-rebase.yml`, `pr-rebase.yml` and `wiki-sync.yml`. The
-automatic Actions token is enough to read the API and to arm a merge, but it is scoped tightly
-enough that pushing a branch with it is unreliable — and a rebase that cannot be pushed is the
-whole job.
+Three workflows need a token that can push: `auto-rebase.yml`, `pr-rebase.yml` and
+`wiki-sync.yml`. The automatic Actions token is enough to read the API and to arm a merge, but it
+is scoped tightly enough that pushing a branch with it is unreliable — and a rebase that cannot be
+pushed is the whole job. `main-health.yml` writes too, but only issues, which the
+`permissions: issues: write` it declares already grants the automatic token: it prefers the secret
+and accepts the run's own token when there is none, warning instead of passing quietly.
 
 So the write token lives in a repository secret named **`FORGEJO_TOKEN`**
 (*Settings → Actions → Secrets*). Both rebase workflows read it with a fallback chain:
