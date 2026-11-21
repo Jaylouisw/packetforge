@@ -3,7 +3,7 @@
   "model": "EAP235-Wall",
   "label": "TP-Link EAP235-Wall",
   "category": "wireless",
-  "description": "AC1200 wall-plate access point with a four-port faceplate: one gigabit uplink (PoE in) and three gigabit downlinks, one of them with PoE passthrough.",
+  "description": "AC1200 wall-plate access point with a four-port faceplate: one gigabit uplink (PoE in) and three gigabit downlinks, one of them with PoE passthrough. The passthrough port is a 13 W PSE and only exists when the uplink is fed 802.3at - on 802.3af the AP itself runs and the passthrough port is dead.",
   "capabilities": [
     "wireless",
     "poe-pd",
@@ -38,7 +38,7 @@
       "type": "ethernet",
       "connector": "rj45",
       "speed": "1G",
-      "poeOut": true,
+      "poeOut": 13,
       "poeOutClass": "PoE+"
     },
     {
@@ -53,5 +53,11 @@
     }
   ],
   "sourceUrl": "https://www.tp-link.com/us/business-networking/omada-wifi-wall-plate/eap235-wall/v1.20/",
-  "notes": "Vendor figures from the TP-Link datasheet: uplink 1x gigabit Ethernet port, downlink 3x gigabit Ethernet ports of which one supports PoE passthrough; 802.3af/at PoE input. The radios are modelled as AC1200 (300M + 867M) from the product's stated class; the per-band rate row was not captured on this page, so the figure follows the family rather than a quoted row - worth a comment if the exact rates matter."
+  "notes": "Vendor figures from the TP-Link page for the US model, https://www.tp-link.com/us/business-networking/omada-wifi-wall-plate/eap235-wall/v1.20/ (HTTP 200, 188,991 B, read 2026-11-21): Interface - \"Uplink: 1x Gigabit Ethernet Port / Downlink: 3x Gigabit Ethernet Ports (One port supports PoE pass-through.)\"; Power Supply - \"802.3af/at PoE\"; PoE Out - \"PoE Passthrough (Pins 1,2+; 3,6-) / PoE Out (requires 802.3at PoE input and the maximum output is 13 W)\"; Max. Power Consumption - \"9.8W (PoE Out Not Included) / 24.4W (PoE Out Included)\". The two consumption rows are the check on the passthrough figure: 24.4 - 9.8 is 14.6 W, but only 13 W of that can leave the passthrough jack - the vendor's stated output, not the subtraction, is what is modelled, the remaining 1.6 W being the converter's own loss. Radios are AC1200 (300M + 867M) from the product's stated class; the per-band rate row was not captured on this page, so the figure follows the family rather than a quoted row. The uplink stays at the 12.95 W 802.3af class-3 allowance because that is what the AP alone draws (9.8 W); the box requests the 802.3at class only once the passthrough jack is in use. The passthrough's precondition is not expressible in the spec schema today - `poe.budgetW` is unconditional - which is stated in the poe note rather than hidden.",
+  "poe": {
+    "budgetW": 13,
+    "standard": "802.3at",
+    "sourceUrl": "https://www.tp-link.com/us/business-networking/omada-wifi-wall-plate/eap235-wall/v1.20/",
+    "note": "13 W, the vendor's stated maximum output on the single passthrough port, quoted as \"PoE Out (requires 802.3at PoE input and the maximum output is 13 W)\". One PSE port, so the device total is the port ceiling - and the condition is part of the figure: with an 802.3af uplink the passthrough port supplies nothing at all, while the AP still powers up and draws 9.8 W. In use the box pulls 24.4 W, which is 802.3at class 4 (25.5 W), so the upstream port that feeds it must be a PoE+ port before this budget exists. The catalogue cannot yet say \"this PSE exists only when the input is 802.3at\", so a lab that feeds the AP from an 802.3af port will still see eth3 allocate 13 W: the condition is recorded here and in the description, and it wants a schema field before the engine can refuse it."
+  }
 }

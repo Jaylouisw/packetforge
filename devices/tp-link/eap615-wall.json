@@ -3,7 +3,7 @@
   "model": "EAP615-Wall",
   "label": "TP-Link EAP615-Wall",
   "category": "wireless",
-  "description": "AX1800 wall-plate Wi-Fi 6 access point: one gigabit uplink (PoE in), three gigabit downlinks with PoE passthrough on one, dual-band 802.11ax.",
+  "description": "AX1800 wall-plate Wi-Fi 6 access point: one gigabit uplink (PoE in), three gigabit downlinks with a 12 W PoE passthrough on one, dual-band 802.11ax. The passthrough port is a PSE only while the uplink is fed 802.3at; on 802.3af the AP runs and the passthrough jack stays dark.",
   "capabilities": [
     "wireless",
     "poe-pd",
@@ -38,7 +38,7 @@
       "type": "ethernet",
       "connector": "rj45",
       "speed": "1G",
-      "poeOut": true,
+      "poeOut": 12,
       "poeOutClass": "PoE+"
     },
     {
@@ -53,5 +53,11 @@
     }
   ],
   "sourceUrl": "https://www.tp-link.com/us/business-networking/omada-sdn-access-point/eap615-wall/v1/",
-  "notes": "Vendor figures from the TP-Link datasheet: uplink 1x 10/100/1000 Mbps Ethernet port, downlink 3x 10/100/1000 Mbps Ethernet ports (one supporting PoE out); IEEE 802.11ax/ac/n/g/b/a; 802.3af/at PoE input. Modelled as AX1800 - 574M on 2.4 GHz and 1.2G on 5 GHz - which is the 2x2 Wi-Fi 6 split for that class."
+  "notes": "Vendor figures from the TP-Link page for the US model, https://www.tp-link.com/us/business-networking/omada-sdn-access-point/eap615-wall/v1/ (HTTP 200, 230,762 B, read 2026-11-21): Interface - \"Uplink: 1x 10/100/1000 Mbps Ethernet Port / Downlink: 3x 10/100/1000 Mbps Ethernet Ports (One port supports PoE OUT. The PoE OUT feature requires 802.3at PoE+ input. The maximum power output for POE pass-through is 13 W (EU version) or 12 W (US version), based on laboratory testing.)\"; Max. Power Consumption - \"EU: 10W (802.3at PoE, PoE Out off) / US: 11.5W (802.3at PoE, PoE Out off)\". The 12 W modelled is the US figure because this spec is sourced from the /us/ page; the EU unit is 13 W. Radios are AX1800 - 574M on 2.4 GHz and 1.2G on 5 GHz - the 2x2 Wi-Fi 6 split for that class. The uplink keeps the 12.95 W 802.3af class-3 allowance, which covers the 11.5 W the AP draws with the passthrough off. The passthrough's 802.3at precondition is not expressible in the spec schema today - `poe.budgetW` is unconditional - which the poe note says outright.",
+  "poe": {
+    "budgetW": 12,
+    "standard": "802.3at",
+    "sourceUrl": "https://www.tp-link.com/us/business-networking/omada-sdn-access-point/eap615-wall/v1/",
+    "note": "12 W, the US unit's stated maximum passthrough output (\"The maximum power output for POE pass-through is 13 W (EU version) or 12 W (US version), based on laboratory testing.\"). One PSE port, so the device total is the port ceiling. The vendor makes the figure conditional twice over: the passthrough exists only when an 802.3at port feeds the AP - an 802.3af uplink powers the 11.5 W radio and leaves this jack dead - and 12 W is a laboratory maximum, not a standard class. The schema has no field for \"this PSE is conditional on the input\", so an AP fed from an 802.3af port still shows eth3 allocating 12 W in `show power inline`; the condition is recorded here and in the description until a field exists to gate it."
+  }
 }
