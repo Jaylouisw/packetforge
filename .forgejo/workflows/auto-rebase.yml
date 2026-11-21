@@ -467,8 +467,14 @@ jobs:
               -H "Authorization: token $TOKEN" -H 'Content-Type: application/json' \
               -d "$(printf '{"Do":"squash","head_commit_id":"%s"}' "$sha")" \
               "$api/repos/$repo/pulls/$n/merge" 2>/dev/null || echo 000)
-            if [ "$code" = "409" ] && grep -q 'already scheduled' "$bodyf" 2>/dev/null; then
-              echo "PR #$n: a scheduled merge is already queued on ${sha} - cancelling the stale schedule and merging directly" >&2
+            # A 409 here is the interesting one: on this instance a merge POST against a
+            # head that already has a scheduled auto-merge is answered 409 with the pull
+            # request itself (no `message`), and nothing merges. That is the stuck state -
+            # #2429 sat in it for 47 min while #2430-#2433 queued behind it, and the whole
+            # queue drained 21 s apart the moment the head was posted again by hand. So the
+            # stale schedule is cancelled and the same pinned merge is sent once more.
+            if [ "$code" = "409" ]; then
+              echo "PR #$n: a merge is already queued on ${sha} - cancelling the stale schedule and merging directly" >&2
               http -o /dev/null -X DELETE -H "Authorization: token $TOKEN" \
                 "$api/repos/$repo/pulls/$n/merge" >/dev/null 2>&1 || true
               code=$(http -o "$bodyf" -w '%{http_code}' -X POST \
@@ -479,9 +485,11 @@ jobs:
             case "$code" in
               200|201) echo merged; return 0 ;;
             esac
-            if [ "$code" = "409" ] && grep -q 'already been merged' "$bodyf" 2>/dev/null; then
-              echo merged; return 0
-            fi
+            # The 409 body above is ambiguous by design, so ask the question the merge
+            # endpoint answers unambiguously: 204 means this pull request is merged.
+            merged_code=$(http -o /dev/null -w '%{http_code}' -H "Authorization: token $TOKEN" \
+              "$api/repos/$repo/pulls/$n/merge" 2>/dev/null || echo 000)
+            if [ "$merged_code" = "204" ]; then echo merged; return 0; fi
             # Fall back to the scheduled arm: the path this pass has always taken.
             code=$(http -o /dev/null -w '%{http_code}' -X POST \
               -H "Authorization: token $TOKEN" -H 'Content-Type: application/json' \
