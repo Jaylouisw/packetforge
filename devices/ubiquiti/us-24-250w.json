@@ -21,8 +21,11 @@
       "speed": "1G",
       "speedCaps": [
         "1G",
+        "100M",
         "10M"
-      ]
+      ],
+      "poeOut": 34,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "eth1",
@@ -31,8 +34,11 @@
       "speed": "1G",
       "speedCaps": [
         "1G",
+        "100M",
         "10M"
-      ]
+      ],
+      "poeOut": 34,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "eth2",
@@ -41,8 +47,11 @@
       "speed": "1G",
       "speedCaps": [
         "1G",
+        "100M",
         "10M"
-      ]
+      ],
+      "poeOut": 34,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "eth3",
@@ -51,8 +60,11 @@
       "speed": "1G",
       "speedCaps": [
         "1G",
+        "100M",
         "10M"
-      ]
+      ],
+      "poeOut": 34,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "eth4",
@@ -61,8 +73,11 @@
       "speed": "1G",
       "speedCaps": [
         "1G",
+        "100M",
         "10M"
-      ]
+      ],
+      "poeOut": 34,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "eth5",
@@ -71,8 +86,11 @@
       "speed": "1G",
       "speedCaps": [
         "1G",
+        "100M",
         "10M"
-      ]
+      ],
+      "poeOut": 34,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "eth6",
@@ -81,8 +99,11 @@
       "speed": "1G",
       "speedCaps": [
         "1G",
+        "100M",
         "10M"
-      ]
+      ],
+      "poeOut": 34,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "eth7",
@@ -91,8 +112,11 @@
       "speed": "1G",
       "speedCaps": [
         "1G",
+        "100M",
         "10M"
-      ]
+      ],
+      "poeOut": 34,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "eth8",
@@ -101,8 +125,11 @@
       "speed": "1G",
       "speedCaps": [
         "1G",
+        "100M",
         "10M"
-      ]
+      ],
+      "poeOut": 34,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "eth9",
@@ -111,8 +138,11 @@
       "speed": "1G",
       "speedCaps": [
         "1G",
+        "100M",
         "10M"
-      ]
+      ],
+      "poeOut": 34,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "eth10",
@@ -121,8 +151,11 @@
       "speed": "1G",
       "speedCaps": [
         "1G",
+        "100M",
         "10M"
-      ]
+      ],
+      "poeOut": 34,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "eth11",
@@ -131,8 +164,11 @@
       "speed": "1G",
       "speedCaps": [
         "1G",
+        "100M",
         "10M"
-      ]
+      ],
+      "poeOut": 34,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "eth12",
@@ -141,8 +177,11 @@
       "speed": "1G",
       "speedCaps": [
         "1G",
+        "100M",
         "10M"
-      ]
+      ],
+      "poeOut": 34,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "eth13",
@@ -151,8 +190,11 @@
       "speed": "1G",
       "speedCaps": [
         "1G",
+        "100M",
         "10M"
-      ]
+      ],
+      "poeOut": 34,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "eth14",
@@ -161,8 +203,11 @@
       "speed": "1G",
       "speedCaps": [
         "1G",
+        "100M",
         "10M"
-      ]
+      ],
+      "poeOut": 34,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "eth15",
@@ -171,8 +216,11 @@
       "speed": "1G",
       "speedCaps": [
         "1G",
+        "100M",
         "10M"
-      ]
+      ],
+      "poeOut": 34,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "eth16",
@@ -181,8 +229,11 @@
       "speed": "1G",
       "speedCaps": [
         "1G",
+        "100M",
         "10M"
-      ]
+      ],
+      "poeOut": 34,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "eth17",
@@ -191,8 +242,11 @@
       "speed": "1G",
       "speedCaps": [
         "1G",
+        "100M",
         "10M"
-      ]
+      ],
+      "poeOut": 34,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "eth18",
@@ -201,8 +255,11 @@
       "speed": "1G",
       "speedCaps": [
         "1G",
+        "100M",
         "10M"
-      ]
+      ],
+      "poeOut": 34,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "eth19",
@@ -211,8 +268,11 @@
       "speed": "1G",
       "speedCaps": [
         "1G",
+        "100M",
         "10M"
-      ]
+      ],
+      "poeOut": 34,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "eth20",
@@ -221,8 +281,11 @@
       "speed": "1G",
       "speedCaps": [
         "1G",
+        "100M",
         "10M"
-      ]
+      ],
+      "poeOut": 34,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "eth21",
@@ -231,8 +294,11 @@
       "speed": "1G",
       "speedCaps": [
         "1G",
+        "100M",
         "10M"
-      ]
+      ],
+      "poeOut": 34,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "eth22",
@@ -241,8 +307,11 @@
       "speed": "1G",
       "speedCaps": [
         "1G",
+        "100M",
         "10M"
-      ]
+      ],
+      "poeOut": 34,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "eth23",
@@ -251,8 +320,11 @@
       "speed": "1G",
       "speedCaps": [
         "1G",
+        "100M",
         "10M"
-      ]
+      ],
+      "poeOut": 34,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "SFP-1",
@@ -274,10 +346,10 @@
     }
   ],
   "sourceUrl": "https://techspecs.ui.com/unifi/switching/us-24-250w",
-  "notes": "Vendor figures: 1GbE RJ45 x24 all PoE+ (1G/100M/10M), 1G SFP x2 (1G); max PoE output up to PoE+; total PoE availability 250 W. First-generation model - the SFP cages are 1G, not the 1G/10G the later Pro line has.",
+  "notes": "Vendor figures, read 2026-11-21 from https://techspecs.ui.com/unifi/switching/us-24-250w (HTTP 200, 638,959 B, rendered spec table): Port Layout \"1 GbE RJ45 24 (All PoE+) (1G/100M/10M) / 1G SFP 2 (1G)\"; \"PoE Ports PoE+ 24\"; \"Max. PoE Wattage per Port by PSE PoE 17W / PoE+ 34W\"; \"Max. PoE Output Up to PoE+\"; \"Total PoE Availability 250W\"; \"Max. Power Consumption 30W (Excluding PoE output)\". First-generation model - the SFP cages are 1G, not the 1G/10G the later Pro line has. Every metal port also listed only 1G/10M before this pass while the same page prints \"(1G/100M/10M)\"; the hundred-megabit rung is now on all 24. The 24 copper ports declared no poeOut before this pass, so engine/media.js derivePortHardware() filled the silence with the 802.3af default of 15.4 W and the faceplate printed \"PoE out 15.4 W\" on sockets the vendor rates at 34 W PoE+ - on a chassis whose 250 W aggregate then could not be described by its own per-port figure. 34 W and 250 W are both the vendor's; the first is a per-socket ceiling, the second the PSE allocation, and they are not meant to multiply.",
   "poe": {
     "budgetW": 250,
     "sourceUrl": "https://techspecs.ui.com/unifi/switching/us-24-250w",
-    "note": "250 W, the vendor's own aggregate row: \"Max. PoE Output = Up to PoE+ / Total PoE Availability = 250W\" beside \"Port Layout = 1 GbE RJ45 24 (All PoE+) (1G/100M/10M)\", \"1G SFP = 2\" and \"PoE Ports = PoE+ 24\"; per-port maxima are printed on this page and are not the 802.3at defaults: \"Max. PoE Wattage per Port by PSE = PoE 17W / PoE+ 34W\" (read 2026-11-19). Max. Power Consumption 30W excluding PoE output. The figure the engine had been using came from the model name, which happens to agree here -- it is now traced to the document instead of to the SKU string."
+    "note": "250 W, the vendor's own aggregate row: \"Max. PoE Output = Up to PoE+ / Total PoE Availability = 250W\" beside \"Port Layout = 1 GbE RJ45 24 (All PoE+) (1G/100M/10M)\", \"1G SFP = 2\" and \"PoE Ports = PoE+ 24\"; per-port maxima are printed on this page and are not the 802.3at defaults: \"Max. PoE Wattage per Port by PSE = PoE 17W / PoE+ 34W\" (read 2026-11-21). Max. Power Consumption 30W excluding PoE output. The figure the engine had been using came from the model name, which happens to agree here -- it is now traced to the document instead of to the SKU string."
   }
 }

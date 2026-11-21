@@ -22,7 +22,7 @@
         "1G",
         "100M"
       ],
-      "poeOut": true,
+      "poeOut": 34.2,
       "poeOutClass": "PoE+"
     },
     {
@@ -34,7 +34,7 @@
         "1G",
         "100M"
       ],
-      "poeOut": true,
+      "poeOut": 34.2,
       "poeOutClass": "PoE+"
     },
     {
@@ -46,7 +46,7 @@
         "1G",
         "100M"
       ],
-      "poeOut": true,
+      "poeOut": 34.2,
       "poeOutClass": "PoE+"
     },
     {
@@ -58,7 +58,7 @@
         "1G",
         "100M"
       ],
-      "poeOut": true,
+      "poeOut": 34.2,
       "poeOutClass": "PoE+"
     },
     {
@@ -70,7 +70,7 @@
         "1G",
         "100M"
       ],
-      "poeOut": true,
+      "poeOut": 34.2,
       "poeOutClass": "PoE+"
     },
     {
@@ -82,7 +82,7 @@
         "1G",
         "100M"
       ],
-      "poeOut": true,
+      "poeOut": 34.2,
       "poeOutClass": "PoE+"
     },
     {
@@ -94,7 +94,7 @@
         "1G",
         "100M"
       ],
-      "poeOut": true,
+      "poeOut": 34.2,
       "poeOutClass": "PoE+"
     },
     {
@@ -106,7 +106,7 @@
         "1G",
         "100M"
       ],
-      "poeOut": true,
+      "poeOut": 34.2,
       "poeOutClass": "PoE+"
     },
     {
@@ -118,7 +118,7 @@
         "1G",
         "100M"
       ],
-      "poeOut": true,
+      "poeOut": 34.2,
       "poeOutClass": "PoE+"
     },
     {
@@ -130,7 +130,7 @@
         "1G",
         "100M"
       ],
-      "poeOut": true,
+      "poeOut": 34.2,
       "poeOutClass": "PoE+"
     },
     {
@@ -142,7 +142,7 @@
         "1G",
         "100M"
       ],
-      "poeOut": true,
+      "poeOut": 34.2,
       "poeOutClass": "PoE+"
     },
     {
@@ -154,7 +154,7 @@
         "1G",
         "100M"
       ],
-      "poeOut": true,
+      "poeOut": 34.2,
       "poeOutClass": "PoE+"
     },
     {
@@ -166,7 +166,7 @@
         "1G",
         "100M"
       ],
-      "poeOut": true,
+      "poeOut": 34.2,
       "poeOutClass": "PoE+"
     },
     {
@@ -178,7 +178,7 @@
         "1G",
         "100M"
       ],
-      "poeOut": true,
+      "poeOut": 34.2,
       "poeOutClass": "PoE+"
     },
     {
@@ -190,7 +190,7 @@
         "1G",
         "100M"
       ],
-      "poeOut": true,
+      "poeOut": 34.2,
       "poeOutClass": "PoE+"
     },
     {
@@ -202,7 +202,7 @@
         "1G",
         "100M"
       ],
-      "poeOut": true,
+      "poeOut": 34.2,
       "poeOutClass": "PoE+"
     },
     {
@@ -214,7 +214,7 @@
         "1G",
         "100M"
       ],
-      "poeOut": true,
+      "poeOut": 34.2,
       "poeOutClass": "PoE+"
     },
     {
@@ -226,7 +226,7 @@
         "1G",
         "100M"
       ],
-      "poeOut": true,
+      "poeOut": 34.2,
       "poeOutClass": "PoE+"
     },
     {
@@ -238,7 +238,7 @@
         "1G",
         "100M"
       ],
-      "poeOut": true,
+      "poeOut": 34.2,
       "poeOutClass": "PoE+"
     },
     {
@@ -250,7 +250,7 @@
         "1G",
         "100M"
       ],
-      "poeOut": true,
+      "poeOut": 34.2,
       "poeOutClass": "PoE+"
     },
     {
@@ -262,7 +262,7 @@
         "1G",
         "100M"
       ],
-      "poeOut": true,
+      "poeOut": 34.2,
       "poeOutClass": "PoE+"
     },
     {
@@ -274,7 +274,7 @@
         "1G",
         "100M"
       ],
-      "poeOut": true,
+      "poeOut": 34.2,
       "poeOutClass": "PoE+"
     },
     {
@@ -286,7 +286,7 @@
         "1G",
         "100M"
       ],
-      "poeOut": true,
+      "poeOut": 34.2,
       "poeOutClass": "PoE+"
     },
     {
@@ -298,7 +298,7 @@
         "1G",
         "100M"
       ],
-      "poeOut": true,
+      "poeOut": 34.2,
       "poeOutClass": "PoE+"
     },
     {
@@ -332,5 +332,5 @@
     "sourceUrl": "https://techspecs.ui.com/uisp/wired/es-24-250w",
     "note": "Published row: \"Total PoE available = 250W\". Per-port ceiling \"PoE+: 34.2W\" (802.3at Type 2 at 50-57V); 24V passive PoE is 17W per port on the same jacks and is not additive with the 802.3at budget. Max power consumption 30W excludes PoE output. The 250 W is a PSE allocation printed beside the 250 W internal PSU, not a PSU rating read as a ceiling."
   },
-  "notes": "Census from the vendor tech-spec table (https://techspecs.ui.com/uisp/wired/es-24-250w, HTTP 200, 583,341 B, server-rendered table, read 2026-11-20): Networking interface \"(24) GbE RJ45 ports; (2) 1G SFP ports\"; PoE interface \"(24) PoE/PoE+ 2-pair (Pins 1, 2+; 3, 6-); (24) 24V DC passive PoE 2-pair\"; Management interface \"(1) RJ45 serial port, Ethernet In/Out-Band\". As written before this pass the row had 24 plain 1G ports with no connector, no poeOut and no budget, so an AP on Port 5 was refused power by a switch whose own page prints 250 W - the same defect class as #2244/#2249. The serial console was absent (26 jacks modelled for 27 physical), and the SFP cages named no connector. Speed ladder: the page prints \"GbE RJ45\" and no 10M rung, so 1G/100M only."
+  "notes": "Census from the vendor tech-spec table (https://techspecs.ui.com/uisp/wired/es-24-250w, HTTP 200, 583,341 B, server-rendered table, read 2026-11-20): Networking interface \"(24) GbE RJ45 ports; (2) 1G SFP ports\"; PoE interface \"(24) PoE/PoE+ 2-pair (Pins 1, 2+; 3, 6-); (24) 24V DC passive PoE 2-pair\"; Management interface \"(1) RJ45 serial port, Ethernet In/Out-Band\". As written before this pass the row had 24 plain 1G ports with no connector, no poeOut and no budget, so an AP on Port 5 was refused power by a switch whose own page prints 250 W - the same defect class as #2244/#2249. The serial console was absent (26 jacks modelled for 27 physical), and the SFP cages named no connector. Speed ladder: the page prints \"GbE RJ45\" and no 10M rung, so 1G/100M only. Per-port watts (2026-11-21): the row carried `poeOut: true` - a bare \"this socket sources power\" bit - which the faceplate cannot print and `Device.poeDraw()` adds as 1 W. The same tech-spec table prints \"Max. PoE+ Wattage per Port by PSE 34.2W\", so the 24 sockets now carry 34.2 and the class word instead of a boolean."
 }
