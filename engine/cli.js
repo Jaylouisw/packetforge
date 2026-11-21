@@ -3003,6 +3003,41 @@ class CliSession {
     const parts = spec.split('/');
     const parsed = v6.parseIpv6(parts[0]);
     if (!parsed.valid) return ['% Invalid IPv6 address "' + parts[0] + '"'];
+    // `ipv6 address <addr>/<len>` is the GLOBAL form, and fe80::/10 is not a global address: a box keeps
+    // its link-local in a different command, `ipv6 address <addr> link-local`, and refuses a link-local
+    // address handed to this one. Two live captures, character for character:
+    //   R01(config-if)#ipv6 address FE80::1/64
+    //   % Link local requires link-local keyword
+    //     (fastreroute.com, "Configure, Verify, and Troubleshoot IPv6 Addressing" - the same page then shows
+    //      `ipv6 address 2001::2 link-local` -> `% Invalid link-local address`, and its running-config keeps
+    //      `ipv6 address FE80::1 link-local` with no prefix length)
+    //   R887VAM(config-if)#ipv6 address link-local FE80::/10 eui-64
+    //   % Link local requires link-local keyword
+    //     (community.cisco.com/t5/ipv6/link-local-requires-link-local-keyword/td-p/3038567, IOS 15.5(3)M5)
+    // The vendor's own grammar says the same thing: `ipv6 address` configures a global prefix, and
+    // "IPv6 link-local addresses must be configured ... by using the ipv6 address link-local command"
+    // (Cisco IOS IPv6 Command Reference, ipv6-i1.html). RFC 4291 2.5.6 fixes the block at fe80::/10.
+    //
+    // This console stored `fe80::1/64` as the interface's global address and advertised `fe80::/64` in its
+    // router advertisements with the autonomous flag set - a promise that hosts should form link-local
+    // addresses from it, which no box makes. The refusal is the box's own sentence, so a reader comparing
+    // the console with hardware sees the line they know. There is no manual link-local here (the address is
+    // derived from the MAC, device.linkLocal6), so the hint names the derived address rather than sending
+    // the reader to a keyword form this console would refuse again.
+    // research/ipv6-address-link-local-refusal.md holds the captures and the half that is still open.
+    const keyword = String(tokens[1] || '').toLowerCase();
+    const linkLocal = v6.isLinkLocal(parts[0]);
+    const derived = this.device.linkLocal6(iface);
+    if (keyword === 'link-local') {
+      if (!linkLocal) return ['% Invalid link-local address'];
+      return ['% This console has no manually configured link-local address: it derives one from the ' +
+        'port\'s MAC (' + iface.name + ' is ' + derived + ').'];
+    }
+    if (linkLocal) {
+      return ['% Link local requires link-local keyword',
+        '  This console derives the link-local from the port\'s MAC (' + iface.name + ' is ' + derived +
+        '); it has no manual form.'];
+    }
     const len = parts.length > 1 ? parseInt(parts[1], 10) : 64;
     if (!(len >= 0 && len <= 128)) return ['% Invalid prefix length "' + parts[1] + '"'];
     if (!this.device.config.ip6) this.device.config.ip6 = {};

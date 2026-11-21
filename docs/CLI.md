@@ -328,7 +328,7 @@ unapplied in`), and the bare `no ip access-group`, which clears both directions 
 actually cleared: in the session above - 102 inside, nothing outside - it answers `Interface Gi0/0/1:
 access list unapplied in`, and `access list unapplied in and out` only when both directions were bound.
 Reading a direction word as the number is the code's to fix
-(`_accessGroup()`, `const want = rest[0] != null ? parseInt(rest[0], 10) : null` at `engine/cli.js:4176` - the
+(`_accessGroup()`, `const want = rest[0] != null ? parseInt(rest[0], 10) : null` at `engine/cli.js:4258` - the
 guard asks whether a word arrived, not whether it is a number, so `in` still parses to `NaN`); until it is,
 this page does not advertise the direction on its own.
 
@@ -756,10 +756,34 @@ Interface mode:
 
 | Command | Effect |
 |---------|--------|
-| `ipv6 address <addr>/<len>` | assign a static global address |
+| `ipv6 address <addr>/<len>` | assign a static **global** address; a `fe80::/10` address is refused (see below) |
 | `ipv6 address autoconfig` | take an address from a router advertisement (SLAAC) |
 | `no ipv6 address` | remove the static address |
 | `no ipv6 address autoconfig` | stop autoconfiguring and drop the learned address |
+
+**A link-local is not this command's to take.** `ipv6 address <addr>/<len>` is the
+global form, and `fe80::/10` is not a global prefix (RFC 4291 §2.5.6). IOS keeps a
+link-local in a different form of the command - `ipv6 address <addr> link-local`,
+which takes no prefix length - and refuses the mix-up in its own words:
+
+```
+R1(config-if)# ipv6 address fe80::1/64
+% Link local requires link-local keyword
+  This console derives the link-local from the port's MAC (Gi0/0 is fe80::ff:fe00:0);
+  it has no manual form.
+R1(config-if)# ipv6 address 2001:db8::1 link-local
+% Invalid link-local address
+```
+
+The first line of each answer is the box's (`% Link local requires link-local
+keyword` on IOS 15.x and 15.5(3)M5; `% Invalid link-local address` for a global
+address given the keyword). The second line is this console's: it keeps **no**
+per-interface link-local, because every interface derives one from its MAC and
+`show interfaces` prints it beside the global address (`ipv6: 2001:db8:1::1/64,
+link-local fe80::ff:fe00:0`). Nothing is stored for any of the three refusals, so
+`show running-config`, `show interfaces` and `show ipv6 nd` cannot report - or
+advertise - a link-local address that was never taken. The same address therefore
+never reaches a router advertisement as a SLAAC prefix.
 
 A router advertises a prefix **only on the link where it holds an address inside
 that prefix**, because a prefix is a promise to route the traffic addressed in
