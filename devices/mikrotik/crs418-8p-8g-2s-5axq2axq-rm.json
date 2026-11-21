@@ -18,87 +18,112 @@
     {
       "name": "eth1",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": false
     },
     {
       "name": "eth2",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": false
     },
     {
       "name": "eth3",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": false
     },
     {
       "name": "eth4",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": false
     },
     {
       "name": "eth5",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": false
     },
     {
       "name": "eth6",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": false
     },
     {
       "name": "eth7",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": false
     },
     {
       "name": "eth8",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": false
     },
     {
       "name": "eth9",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "eth10",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "eth11",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "eth12",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "eth13",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "eth14",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "eth15",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "eth16",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "eth17",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": false
     },
     {
       "name": "SFP+1",
@@ -108,7 +133,8 @@
       "speedCaps": [
         1000,
         10000
-      ]
+      ],
+      "poeOut": false
     },
     {
       "name": "SFP+2",
@@ -118,7 +144,8 @@
       "speedCaps": [
         1000,
         10000
-      ]
+      ],
+      "poeOut": false
     },
     {
       "name": "radio0",
@@ -133,5 +160,11 @@
   ],
   "icon": "switch",
   "color": "#14b8a6",
-  "sourceUrl": "https://mikrotik.com/product/crs418_8p_8g_2s_wifi"
+  "sourceUrl": "https://mikrotik.com/product/crs418_8p_8g_2s_wifi",
+  "poe": {
+    "budgetW": 150,
+    "sourceUrl": "https://mikrotik.com/product/crs418_8p_8g_2s_wifi",
+    "note": "Total output power 150 W, PoE-out ports Ether9-Ether16 (802.3af/at, 8 x 1G ports with PoE-out; each port can also be set to 24 V passive PoE). Ether1-Ether8 and the Ether17 management port do not source power."
+  },
+  "notes": "Vendor figures from the MikroTik product page specification table (https://mikrotik.com/product/crs418_8p_8g_2s_wifi, HTTP 200, 448,215 B, read 2026-11-21): \"10/100/1000 Ethernet ports: 17\", \"Number of 1G Ethernet ports with PoE-out: 8\", \"PoE-out ports: Ether9-Ether16\", \"PoE out: 802.3af/at\", \"Total output power: 150\", \"SFP+ ports: 2\", plus the marketing row \"8x PoE Output ports (802.3af/at and 24V Passive PoE Output) \\u2014 up to 150 W total output\". A 24 V passive mode is selectable per port but 802.3at is the negotiated standard the engine models, so the ports are classed PoE+ (the row's own 0.56 A high-voltage limit is per port, 30 W at 54 V). Max power consumption 227 W with attachments fitted, 43 W without. Same 8-of-17 split as the non-WiFi CRS418-8P-8G-2S+RM: the \"8P\" names the PoE block, not the first eight ports. This row was imported with `poe-pse` and no per-port flags, so the engine's switch inference lit all seventeen copper sockets as 15.4 W PSEs; test/crs418-wifi-poe.test.js is the guard."
 }
