@@ -70,14 +70,18 @@ Every refusal is answered before anything is written: `test/speed-duplex-grammar
 `show running-config` before and after each one, and `test/no-command-swallows-a-word.test.js` gained a fourth
 section that hands a *good* value plus a stray word to both commands on both device kinds.
 
+## Settled since: `duplex nonegotiate` is not a keyword
+
+The `duplex` page lists only `auto | full | half` in every book read — the 2960-X 15.2(2)E / (4)E / (5)E /
+(6)E / (7)E, the Catalyst 1000 15.2(7)E, the 3850 3SE, the 9300 16.8, and the Catalyst 3550 12.2(25)SEE
+that this note hoped would be the older page listing `nonegotiate`. The only `nonegotiate` in that chapter
+belongs to `speed`, and only on a 1000BASE-x SFP port, so the console's `% Usage: duplex auto | full | half`
+is right in substance; a box prints `% Invalid input detected at '^' marker.` instead, which is the caret
+question and unchanged. The pages, and the companion finding that a 100BASE-FX port starts in **half**
+duplex, are in [research/100base-fx-default-duplex.md](100base-fx-default-duplex.md).
+
 ## What remains unresolved
 
-* **`duplex nonegotiate`.** The `duplex` page of the 15.2(6)E book lists only `auto | full | half`, so a word
-  outside those three is refused here, `nonegotiate` included. Older Catalyst 2960 pages are reported to list
-  `nonegotiate` on both commands, which would make this console's `% Usage: duplex auto | full | half` a
-  wrong refusal for a keyword a fiber port accepts. No page in hand shows that syntax line, so nothing was
-  changed for it; what would settle it is a Catalyst 2960 (not 2960-X) command-reference `duplex` page from
-  the 12.2 train, or a transcript of `duplex nonegotiate` answering anything but a parse error.
 * **The same trailing word, ten other commands.** The sweep that found `speed`/`duplex` also measured these,
   and every one of them still reads its value and drops the word after it, changing state:
   `switchport mode access <word>`, `switchport access vlan 20 <word>`, `switchport voice vlan 20 <word>`,
