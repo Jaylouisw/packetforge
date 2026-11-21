@@ -44,15 +44,13 @@ helper with the numbers dropped, so display order and match order cannot drift a
 
 ## What remains unresolved
 
-* **Whether `deny` is padded to line the address up with `permit`.** The captures disagree, and so do the
-  documents: the real `show_ip_access-lists.raw` capture prints `    20 deny   any log` in a **standard**
-  list (three spaces, aligning with `permit `), while the same capture's **extended** lists print
-  `    30 deny ip …` with a single space; the 3560 guide's standard list shows `10 deny 171.69.198.102`
-  with one space; and one fixture ([`show_access-list2.raw`](https://raw.githubusercontent.com/networktocode/ntc-templates/master/tests/cisco_ios/show_access-list/cisco_ios_show_access-list2.raw))
-  has no indent and no padding at all, which looks like a stripped paste rather than a box's output. Since
-  the answer the evidence supports is "standard lists pad, extended lists do not, except when they don't",
-  nothing was changed here — the console prints one space, as it did, and the question is recorded instead
-  of guessed.
+* ~~**Whether `deny` is padded to line the address up with `permit`.**~~ **Settled after this note was
+  written: a standard line pads the action to seven columns (`deny   `), an extended line does not.** A
+  typeset Cisco Press chapter prints a standard list and an extended list on the same page with exactly
+  that difference, and the raw captures draw the same line; the single-space standard samples are all HTML
+  pages, where the browser collapses the run. `displayBody()` now pads, and
+  [research/show-access-lists-action-column.md](show-access-lists-action-column.md) carries the sources,
+  the one fixture line that disagrees, and the change.
 * **Old IOS.** The 11.x-era command reference
   ([E-Learning `show_access-lists.htm`](https://www.cisco.com/E-Learning/bulk/public/tac/cim/cib/using_cisco_ios_software/cmdrefs/show_access-lists.htm))
   prints no sequence numbers and no indent at all. This console models the modern table, as the rest of it

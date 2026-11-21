@@ -398,6 +398,17 @@ function isAnySpec(spec) {
   return ipToIntSafe(spec.ip) === 0 && ipToIntSafe(spec.wildcard) === 0xffffffff;
 }
 
+// The action is a seven-column field in a **standard** list: `permit` plus one space, `deny` plus three, so
+// the address starts in the same column on every line of the list. The form was read off one page of a Cisco
+// Press chapter that prints a standard list and an extended one together - `10 deny   192.168.11.0, wildcard
+// bits 0.0.0.255 log (5 matches)` above `10 deny ip 192.168.10.0 0.0.0.255 host 209.165.200.225 (4 matches)`
+// (Pearson sample chapter for 158713201X, the official CCNA/CCNP ACL material) - so the two-shaped rule is the
+// book's, not a guess from a web page whose HTML collapses runs of spaces. An extended line keeps one space:
+// `displayBody()` returns null for it and the console prints the typed text, which is why the field lives here
+// and not in the printer. research/show-access-lists-action-column.md has the four other captures (a raw
+// ntc-templates session, a NetAcad slide, a university's ACL handout, and the one line that disagrees).
+const STANDARD_ACTION_WIDTH = 7;
+
 function displayBody(entry) {
   if (!entry || typeof entry !== 'object' || entry.error) return null;
   if (entry.kind !== 'standard' || !entry.source || !entry.action) return null;
@@ -406,7 +417,7 @@ function displayBody(entry) {
   if (isAnySpec(spec)) source = 'any';
   else if (!spec.wildcard || spec.wildcard === WILDCARDS.HOST) source = String(spec.ip);
   else source = String(spec.ip) + ', wildcard bits ' + String(spec.wildcard);
-  return entry.action + ' ' + source + (entry.log ? ' log' : '');
+  return String(entry.action).padEnd(STANDARD_ACTION_WIDTH, ' ') + source + (entry.log ? ' log' : '');
 }
 
 // ---------------------------------------------------------------------------

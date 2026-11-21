@@ -3129,6 +3129,12 @@ An entry typed with a sequence of its own keeps it, and moves to its place in th
 tested, before a `10`. The numbering and the first-match order come from one helper, so the table cannot
 show an order the engine does not use (research/show-access-lists-numbering.md).
 
+A **standard** line carries its action in a seven-column field — `permit` plus one space, `deny` plus three —
+so every address in the list starts in the same column; an **extended** line is not padded and prints
+`deny ip …` after one space. The field was read off a Cisco Press certification chapter that prints a
+standard list and an extended list on the same page, and the raw captures separate the two kinds the same
+way (research/show-access-lists-action-column.md).
+
 A **standard** list is the exception, and it is the box's exception, not this console's: IOS rewrites it so
 that every entry pinning one address (`host 10.1.1.1`, or `10.1.1.1 0.0.0.0`) sits above the entries that
 match a range, and writes the file in that order too — "the switch always rewrites the order of standard

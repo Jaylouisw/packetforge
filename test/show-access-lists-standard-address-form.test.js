@@ -68,7 +68,7 @@ console.log('A standard entry prints its address the way a box prints it:');
   ok(r.length === 3, 'all three rules are listed', r.join(' | '));
   ok(row('192.168.1.0') === '    10 permit 192.168.1.0, wildcard bits 0.0.0.255',
     'a network prints with a comma and the words `wildcard bits`', JSON.stringify(row('192.168.1.0')));
-  ok(row('10.0.1.10') === '    20 deny 10.0.1.10',
+  ok(row('10.0.1.10') === '    20 deny   10.0.1.10',
     'a host prints as the bare address - the typed `host` keyword is dropped', JSON.stringify(row('10.0.1.10')));
   ok(!/host/.test(row('10.0.1.10')), 'and the word `host` is nowhere on the line', row('10.0.1.10'));
   ok(row('permit any') === '    30 permit any', '`any` stays `any`', JSON.stringify(row('permit any')));
@@ -87,7 +87,7 @@ console.log('The sequence number, the indent and a trailing `log` are unchanged:
   ok(/^    10 permit 10\.0\.0\.0, wildcard bits 0\.255\.255\.255 log$/.test(first),
     'the number sits four columns in, the address carries its wildcard, and `log` ends the line',
     JSON.stringify(first));
-  ok(/^    5 deny 172\.16\.0\.0, wildcard bits 0\.0\.255\.255$/.test(five),
+  ok(/^    5 deny   172\.16\.0\.0, wildcard bits 0\.0\.255\.255$/.test(five),
     'a hand-typed sequence is still printed once, in front of the canonical body', JSON.stringify(five));
   ok(!/5\s+5\s/.test(five), 'and the body does not carry a second copy of it', five);
 }
@@ -114,8 +114,8 @@ console.log('A wildcard of all ones is `any`, however it was typed:');
   ok(row('permit any') === '    10 permit any',
     'the spelled-out `any` prints as `any`, because that is the entry the box stored',
     JSON.stringify(row('permit any')));
-  ok(row('deny any') === '    20 deny any log',
-    'and the same fold keeps a trailing `log`', JSON.stringify(row('deny any')));
+  ok(row('deny   any') === '    20 deny   any log',
+    'and the same fold keeps a trailing `log`', JSON.stringify(row('deny   any')));
   ok(row('10.0.0.1') === '    30 permit 10.0.0.1, wildcard bits 255.255.255.255',
     'an all-ones wildcard over a real address keeps its wildcard - no capture shows a box folding that one',
     JSON.stringify(row('10.0.0.1')));
@@ -123,7 +123,7 @@ console.log('A wildcard of all ones is `any`, however it was typed:');
     'a host of 0.0.0.0 is a host, not `any`', JSON.stringify(row('permit 0.0.0.0')));
   ok(r[0] === row('permit 0.0.0.0'), 'and it is printed first, ahead of the `any` entries', r.join(' | '));
   ok(aclLib.displayBody({ kind: 'standard', action: 'deny',
-    source: { ip: '0.0.0.0', wildcard: '255.255.255.255', any: false, host: false } }) === 'deny any',
+    source: { ip: '0.0.0.0', wildcard: '255.255.255.255', any: false, host: false } }) === 'deny   any',
     'the renderer folds the pair without being told it was spelled out');
 }
 
@@ -134,7 +134,7 @@ console.log('The count lands on the line as printed:');
   const res = env.sim.ping('pc', '10.0.0.1', { count: 3 });
   ok(res.replies.every(function (x) { return !x.success; }), 'the three pings are denied');
   const r = rules(table(env));
-  ok(/^    10 deny 10\.0\.0\.9 \(3 matches\)$/.test(r[0] || ''),
+  ok(/^    10 deny   10\.0\.0\.9 \(3 matches\)$/.test(r[0] || ''),
     'the printed deny line carries the three matches', JSON.stringify(r[0]));
   ok(!/match/.test(r[1] || ''), 'the permit that never matched still carries no count', r[1]);
 }

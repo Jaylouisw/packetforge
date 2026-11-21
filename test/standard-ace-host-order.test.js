@@ -77,11 +77,11 @@ console.log('A standard list prints its host entry above the range entry, number
   const env = lab(NETWORK_FIRST);
   const rows = ruleLines(run(env, 'show access-lists'));
   ok(rows.length === 2, 'both rules are printed', rows.join(' | '));
-  ok(indexOfRule(run(env, 'show access-lists'), '20 deny 10.0.0.9') === 0,
+  ok(indexOfRule(run(env, 'show access-lists'), '20 deny   10.0.0.9') === 0,
     'the host deny (sequence 20) is the first line', rows.join(' | '));
   ok(indexOfRule(run(env, 'show access-lists'), '10 permit 10.0.0.0, wildcard bits 0.0.0.255') === 1,
     'the range permit (sequence 10) follows it', rows.join(' | '));
-  ok(/^\s+20 deny 10\.0\.0\.9$/.test(rows[0]), 'the moved line keeps the number it was given', rows[0]);
+  ok(/^\s+20 deny   10\.0\.0\.9$/.test(rows[0]), 'the moved line keeps the number it was given', rows[0]);
 }
 
 console.log('');
@@ -114,7 +114,7 @@ console.log('A host spelled with a zero wildcard is the same entry:');
 {
   const env = lab(['access-list 10 permit 10.0.0.0 0.0.0.255', 'access-list 10 deny 10.0.0.9 0.0.0.0']);
   const rows = ruleLines(run(env, 'show access-lists'));
-  ok(indexOfRule(run(env, 'show access-lists'), 'deny 10.0.0.9') === 0,
+  ok(indexOfRule(run(env, 'show access-lists'), 'deny   10.0.0.9') === 0,
     '`10.0.0.9 0.0.0.0` is moved to the top too', rows.join(' | '));
 }
 
@@ -123,7 +123,7 @@ console.log('What is not a host, and what is not a standard list:');
 {
   const env = lab(['access-list 10 permit 10.0.0.0 0.0.0.255', 'access-list 10 deny any']);
   const rows = ruleLines(run(env, 'show access-lists'));
-  ok(indexOfRule(run(env, 'show access-lists'), 'permit 10.0.0.0') === 0 && /deny any/.test(rows[1] || ''),
+  ok(indexOfRule(run(env, 'show access-lists'), 'permit 10.0.0.0') === 0 && /deny   any/.test(rows[1] || ''),
     '`any` has a wildcard of all ones and stays below the range entry', rows.join(' | '));
 
   const ext = lab(['access-list 101 permit ip 10.0.0.0 0.0.0.255 any', 'access-list 101 deny ip host 10.0.0.9 any'], 101);
