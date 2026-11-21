@@ -9,6 +9,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **A bridge priority off the `4096` ladder was refused in a sentence no box prints.** `spanning-tree
+  priority 4500` answered `% 4500 is not a valid bridge priority: it must be a multiple of 4096 ... the nearest
+  valid values are 4096 and 8192` - true, and helpful, and not what the hardware says. A Catalyst prints four
+  lines instead: `% Bridge Priority must be in increments of 4096.`, `% Allowed values are:`, and then its
+  sixteen allowed values eight to a line in a six-character column (`0     4096  8192  12288 ...` above
+  `32768 36864 ... 61440`). The value check does not echo the number it rejected, and the block is command
+  neutral - the same four lines come from `spanning-tree vlan <id> priority` and `spanning-tree mst <n>
+  priority` in Cisco's own guides. The console now prints them verbatim; the out-of-range refusal (`61441`) is
+  unchanged and still names the range before the step rule runs. `test/stp-priority.test.js` pins the four lines
+  byte for byte and replays all sixteen listed values to prove none is itself refused;
+  `test/command-answers-the-question.test.js` moved to the new wording. Sources: the
+  [Catalyst 4500 12.2(37)SG guide](https://www.cisco.com/c/en/us/td/docs/switches/lan/catalyst4500/12-2/37sg/configuration/guides/config/spantree.pdf)
+  (Courier text layer keeps the column), the
+  [15.2(5)Ex guide](https://www.cisco.com/c/en/us/td/docs/switches/lan/catalyst4500/XE3-9-0E/15-25E/configuration/guide/xe-390-configuration/spantree.pdf)
+  and a [Cisco Community PVST+ transcript](https://community.cisco.com/t5/switching/spanning-tree-vlan-priority-issue/td-p/2506756);
+  [`research/stp-priority-step-refusal.md`](research/stp-priority-step-refusal.md) records the wrap and indent
+  questions the captures leave open.
 - **A DHCP pool with no `range` was refused, though `range` is optional on the box.** The commonest DHCP
   configuration in the world - `ip dhcp pool LAN` / `network 10.4.5.0 255.255.255.0` / `default-router
   10.4.5.1` - was answered `% Pool LAN is incomplete - ... both rangeStart and rangeEnd are required.

@@ -103,8 +103,9 @@ section('3. `priority` still does what it did');
 
   const ctx2 = lab();
   const bad = answer(ctx2, ['interface ' + ctx2.port, 'spanning-tree priority 5000']);
-  ok(/5000 is not a valid bridge priority/.test(bad), 'a priority off the 4096 ladder is refused with the reason', bad);
-  ok(/nearest valid values are 4096 and 8192/.test(bad), 'and names the neighbours a reader can use', bad);
+  ok(/^% Bridge Priority must be in increments of 4096\.$/m.test(bad), 'a priority off the 4096 ladder is refused in the box\'s own words', bad);
+  ok(/^% Allowed values are:$/m.test(bad), 'with the list heading under it', bad);
+  ok(/^0     4096  8192  12288 16384 20480 24576 28672$/m.test(bad), 'and the values a box would take', bad);
   ok(ctx2.sw.config.stpPriority == null, 'nothing is stored when it is refused', String(ctx2.sw.config.stpPriority));
 
   const ctx3 = lab();

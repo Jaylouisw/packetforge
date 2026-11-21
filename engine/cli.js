@@ -924,6 +924,39 @@ const STP_UNMODELLED = ['portfast', 'edge', 'bpduguard', 'bpdufilter', 'cost', '
 // and not true (#1509). `vlan` is not a verb, which is why hoisting the unmodelled verbs in #1501 missed it.
 const STP_ONE_TREE = 'This device runs one spanning tree, not one per VLAN';
 
+// The answer a box gives a bridge priority that is inside the range but off the 4096 ladder. It is the value check's
+// own message, not a sentence about the command: the entered number is not echoed back, and the second half is the
+// sixteen values the box would have taken, eight to a line at its default 80-column width. Two Catalyst 4500
+// configuration-guide PDFs keep the Courier spacing in their text layer, and in both every value sits in a
+// six-character field - `0` followed by five spaces, so the `4096` of the first line starts in the same column as
+// the `32768` of the second, and the five-digit values are separated by one space:
+//
+//   % Bridge Priority must be in increments of 4096.
+//   % Allowed values are:
+//   0     4096  8192  12288 16384 20480 24576 28672
+//   32768 36864 40960 45056 49152 53248 57344 61440
+//
+// (Catalyst 4500 Software Configuration Guide 12.2(37)SG, "Configuring MST Instance Parameters", spantree.pdf;
+// the same block in the 15.1(2)SGx and IOS XE 3.9.xE books). research/stp-priority-step-refusal.md carries the
+// captures, the two things they do not settle - the wrap at a wider `terminal width`, and the indent - and the
+// fact that the line is the *value* check's, so it comes from `spanning-tree vlan <id> priority` and
+// `spanning-tree mst <n> priority` on the boxes that were captured, not from the global form this console has.
+const STP_PRIORITY_STEPS = [0, 4096, 8192, 12288, 16384, 20480, 24576, 28672,
+  32768, 36864, 40960, 45056, 49152, 53248, 57344, 61440];
+
+// Six-wide cells, trailing padding trimmed: the box's own column, without the trailing spaces a capture would not
+// show anyway and this repo's control-byte check would refuse.
+function stpPriorityStepRefusal() {
+  const row = function (from) {
+    return STP_PRIORITY_STEPS.slice(from, from + 8)
+      .map(function (v) { return pad(String(v), 6); }).join('').replace(/\s+$/, '');
+  };
+  return ['% Bridge Priority must be in increments of 4096.',
+    '% Allowed values are:',
+    row(0),
+    row(8)];
+}
+
 // `no` reads only the tokens it needs and ignores the rest, so a `?` typed at the end of a `no` line where the
 // operator expected help was read as *another token to ignore* and the line acted (#1694): `no vlan 42 name ?`
 // removed VLAN 42, `no hostname ?` cleared the name, `no description ?` cleared the port. The key is not a
@@ -1455,13 +1488,16 @@ class CliSession {
       // "the nearest valid values are 61440 and 65536". 65536 is not a bridge priority, so the correction
       // the console handed back led straight into a second refusal (#1505). The range is asked first, and in
       // the words the neighbouring refusals already use.
-      const problem = (p < 0 || p > 61440)
-        ? 'the range is 0 to 61440'
-        : (p % 4096 !== 0
-          ? 'it must be a multiple of 4096 (the low 12 bits are the system ID extension); the nearest valid values are ' +
-            (Math.floor(p / 4096) * 4096) + ' and ' + Math.ceil(p / 4096) * 4096
-          : null);
-      if (problem) return ['% ' + p + ' is not a valid bridge priority: ' + problem];
+      if (p < 0 || p > 61440) {
+        return ['% ' + p + ' is not a valid bridge priority: the range is 0 to 61440'];
+      }
+      // In range but off the 4096 ladder: a box has an answer of its own for exactly this value, and it is the
+      // one a student will meet on hardware - two sentences and the sixteen values it would have taken, in a
+      // six-wide column. The console used to explain the rule instead ("it must be a multiple of 4096 ... the
+      // nearest valid values are 4096 and 8192"), which was true but was a sentence no box prints; the table it
+      // is replaced by names every value the check accepts, so it cannot recommend one that is then refused.
+      // research/stp-priority-step-refusal.md.
+      if (p % 4096 !== 0) return stpPriorityStepRefusal();
       const was = dev.config.stpPriority;
       dev.config.stpPriority = p;
       out.push('Bridge priority set to ' + p + ' (lower wins the root election)' +

@@ -92,10 +92,36 @@ console.log('');
 console.log('A priority the standard cannot express is refused, not rounded:');
 {
   const env = triangle();
-  const bad = run(env, 's3', ['enable', 'configure terminal', 'spanning-tree priority 4500']);
-  ok(/% 4500 is not a valid bridge priority/.test(bad), 'a value that is not a multiple of 4096 is refused', bad.slice(0, 80));
-  ok(/multiple of 4096/.test(bad), 'and the refusal names the rule');
-  ok(/nearest valid values are 4096 and 8192/.test(bad), 'and offers the two values that would work', bad.slice(0, 160));
+  // The answers are read line by line, not as one joined blob: the shape of this message is its lines.
+  const badSession = new CliSession(env.t.getDevice('s3'), env.t, env.sim);
+  badSession.run('enable'); badSession.run('configure terminal');
+  const bad = (badSession.run('spanning-tree priority 4500') || {}).output.map(String);
+  // The box's own answer, not a sentence about the command: two lines of message and its sixteen allowed values in
+  // a six-wide column, eight to a line at the default width (research/stp-priority-step-refusal.md). The entered
+  // number is not echoed back - a box's value check does not quote the value it rejected.
+  const tail = bad.slice(-4);
+  ok(tail[0] === '% Bridge Priority must be in increments of 4096.',
+    'a value in range but off the 4096 ladder draws the box\'s own sentence', tail[0]);
+  ok(tail[1] === '% Allowed values are:', 'and the heading of the list it prints after it', tail[1]);
+  ok(tail[2] === '0     4096  8192  12288 16384 20480 24576 28672',
+    'eight values on the first line, each in a six-character field', JSON.stringify(tail[2]));
+  ok(tail[3] === '32768 36864 40960 45056 49152 53248 57344 61440',
+    'and the other eight on the second', JSON.stringify(tail[3]));
+  ok(!bad.join(' ').includes('4500'), 'the entered number is not echoed back', bad.join(' | ').slice(0, 120));
+  // Every value the refusal offers must be one this check accepts: a table of corrections that are themselves
+  // refused is the defect #1505 removed from the old "nearest valid values" sentence, in longer form.
+  const offered = (tail[2] + ' ' + tail[3]).split(/\s+/).map(Number);
+  ok(offered.length === 16 && offered.every(function (v) { return Number.isInteger(v); }),
+    'the list holds sixteen numbers', JSON.stringify(offered).slice(0, 120));
+  const refusedOffers = [];
+  for (const v of offered) {
+    const again = new CliSession(env.t.getDevice('s3'), env.t, env.sim);
+    again.run('enable'); again.run('configure terminal');
+    const said = (again.run('spanning-tree priority ' + v) || {}).output.map(String);
+    if (said.some(function (l) { return /%/.test(l); })) refusedOffers.push(v + ': ' + said.join(' '));
+    again.run('no spanning-tree priority');
+  }
+  ok(refusedOffers.length === 0, 'and every value it lists is one the command accepts', refusedOffers.join('; '));
   ok(env.t.getDevice('s3').config.stpPriority === null, 'nothing was stored');
 
   const high = run(env, 's3', ['enable', 'configure terminal', 'spanning-tree priority 65536']);

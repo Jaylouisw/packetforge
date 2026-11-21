@@ -2490,12 +2490,23 @@ no spanning-tree priority
 
 The bridge priority is `0`–`61440` in steps of `4096` (the low 12 bits are the system ID extension), and **lower
 wins**. `0` is legal and is the best priority there is. A value that is not a step is refused rather than
-rounded, because rounding silently picks a root the operator did not ask for:
+rounded, because rounding silently picks a root the operator did not ask for - and it is refused in the box's
+own words, the two sentences and the sixteen values a Catalyst prints, eight to a line at its default width:
 
 ```
-% 4500 is not a valid bridge priority: it must be a multiple of 4096 (the low 12 bits are the system ID
-  extension); the nearest valid values are 4096 and 8192
+% Bridge Priority must be in increments of 4096.
+% Allowed values are:
+0     4096  8192  12288 16384 20480 24576 28672
+32768 36864 40960 45056 49152 53248 57344 61440
 ```
+
+The value check does not echo the number it rejected, so neither does this one; the table it prints is the set
+`spanning-tree priority` accepts, value for value. Two Catalyst 4500 configuration-guide PDFs keep the Courier
+column in their text layer (`0` in a six-character field, so `4096` starts under `32768`), which is where the
+spacing comes from; what they cannot settle - the wrap at a wider `terminal width`, and whether the list is
+indented - is recorded in [research/stp-priority-step-refusal.md](../research/stp-priority-step-refusal.md). The
+range is still this console's own sentence (`% 61441 is not a valid bridge priority: the range is 0 to 61440`),
+because the captures are of the *step* check, not of IOS's parser refusing a number out of its `<0-61440>`.
 
 This model runs **one spanning tree for the device**, so IOS's per-VLAN spelling is refused with that reason
 rather than accepted and quietly applied to everything:
@@ -4385,8 +4396,9 @@ leaves nothing behind: no entry in the bundle table, no membership on the port, 
 The range was tested *last*, so the step rule answered first and computed its neighbours arithmetically
 (`Math.ceil(61441 / 4096) * 4096`), past the top of the range. `65536` is not a bridge priority: the handler that
 suggested it refuses it. The range is now asked before the step, so the value one step too far is answered with
-the range in the same words the neighbouring refusals use, and the only values ever suggested are ones the check
-accepts.
+the range in the same words the neighbouring refusals use; a value that is merely off the ladder is answered with
+the box's own allowed-values table, and every value in that table is one the check accepts (the regression walks
+all sixteen).
 
 Measured at the same time and correct as it stands: `encapsulation dot1q` and `ip access-group` refuse a *physical
 port* and a *list that does not exist*, and both answer in terms of the real problem rather than the number.
