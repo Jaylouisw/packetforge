@@ -3,292 +3,696 @@
   "model": "USW-Pro-Max-48-PoE",
   "label": "UniFi Switch Pro Max 48 PoE",
   "category": "l3-switch",
-  "description": "Ubiquiti USW-Pro-Max-48-PoE - 32x 1GbE RJ45 (24 PoE+ / 8 PoE++) + 16x 2.5GbE RJ45 (8 PoE+ / 8 PoE++), 720W, 4x 10G SFP+.",
+  "description": "Ubiquiti USW-Pro-Max-48-PoE - 32x 1GbE + 16x 2.5GbE RJ45, every socket a PoE PSE: 32 at the vendor's 32 W PoE+ ceiling and 16 at the 64 W PoE++ ceiling, 720 W total PoE availability; 4x 10G SFP+; Layer 3 UniFi switch.",
   "capabilities": [
     "l2-forward",
     "l3-forward",
     "cli",
-    "http-server"
+    "http-server",
+    "poe-pse",
+    "802.3af",
+    "802.3at",
+    "802.3bt"
   ],
   "interfaces": [
     {
       "name": "Port 1",
       "type": "ethernet",
-      "speed": "1G"
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        "1G",
+        "100M",
+        "10M"
+      ],
+      "poeOut": 32,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "Port 2",
       "type": "ethernet",
-      "speed": "1G"
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        "1G",
+        "100M",
+        "10M"
+      ],
+      "poeOut": 32,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "Port 3",
       "type": "ethernet",
-      "speed": "1G"
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        "1G",
+        "100M",
+        "10M"
+      ],
+      "poeOut": 32,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "Port 4",
       "type": "ethernet",
-      "speed": "1G"
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        "1G",
+        "100M",
+        "10M"
+      ],
+      "poeOut": 32,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "Port 5",
       "type": "ethernet",
-      "speed": "1G"
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        "1G",
+        "100M",
+        "10M"
+      ],
+      "poeOut": 32,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "Port 6",
       "type": "ethernet",
-      "speed": "1G"
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        "1G",
+        "100M",
+        "10M"
+      ],
+      "poeOut": 32,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "Port 7",
       "type": "ethernet",
-      "speed": "1G"
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        "1G",
+        "100M",
+        "10M"
+      ],
+      "poeOut": 32,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "Port 8",
       "type": "ethernet",
-      "speed": "1G"
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        "1G",
+        "100M",
+        "10M"
+      ],
+      "poeOut": 32,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "Port 9",
       "type": "ethernet",
-      "speed": "1G"
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        "1G",
+        "100M",
+        "10M"
+      ],
+      "poeOut": 32,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "Port 10",
       "type": "ethernet",
-      "speed": "1G"
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        "1G",
+        "100M",
+        "10M"
+      ],
+      "poeOut": 32,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "Port 11",
       "type": "ethernet",
-      "speed": "1G"
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        "1G",
+        "100M",
+        "10M"
+      ],
+      "poeOut": 32,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "Port 12",
       "type": "ethernet",
-      "speed": "1G"
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        "1G",
+        "100M",
+        "10M"
+      ],
+      "poeOut": 32,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "Port 13",
       "type": "ethernet",
-      "speed": "1G"
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        "1G",
+        "100M",
+        "10M"
+      ],
+      "poeOut": 32,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "Port 14",
       "type": "ethernet",
-      "speed": "1G"
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        "1G",
+        "100M",
+        "10M"
+      ],
+      "poeOut": 32,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "Port 15",
       "type": "ethernet",
-      "speed": "1G"
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        "1G",
+        "100M",
+        "10M"
+      ],
+      "poeOut": 32,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "Port 16",
       "type": "ethernet",
-      "speed": "1G"
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        "1G",
+        "100M",
+        "10M"
+      ],
+      "poeOut": 32,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "Port 17",
       "type": "ethernet",
-      "speed": "1G"
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        "1G",
+        "100M",
+        "10M"
+      ],
+      "poeOut": 32,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "Port 18",
       "type": "ethernet",
-      "speed": "1G"
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        "1G",
+        "100M",
+        "10M"
+      ],
+      "poeOut": 32,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "Port 19",
       "type": "ethernet",
-      "speed": "1G"
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        "1G",
+        "100M",
+        "10M"
+      ],
+      "poeOut": 32,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "Port 20",
       "type": "ethernet",
-      "speed": "1G"
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        "1G",
+        "100M",
+        "10M"
+      ],
+      "poeOut": 32,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "Port 21",
       "type": "ethernet",
-      "speed": "1G"
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        "1G",
+        "100M",
+        "10M"
+      ],
+      "poeOut": 32,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "Port 22",
       "type": "ethernet",
-      "speed": "1G"
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        "1G",
+        "100M",
+        "10M"
+      ],
+      "poeOut": 32,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "Port 23",
       "type": "ethernet",
-      "speed": "1G"
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        "1G",
+        "100M",
+        "10M"
+      ],
+      "poeOut": 32,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "Port 24",
       "type": "ethernet",
-      "speed": "1G"
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        "1G",
+        "100M",
+        "10M"
+      ],
+      "poeOut": 32,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "Port 25",
       "type": "ethernet",
-      "speed": "1G"
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        "1G",
+        "100M",
+        "10M"
+      ],
+      "poeOut": 64,
+      "poeOutClass": "PoE++"
     },
     {
       "name": "Port 26",
       "type": "ethernet",
-      "speed": "1G"
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        "1G",
+        "100M",
+        "10M"
+      ],
+      "poeOut": 64,
+      "poeOutClass": "PoE++"
     },
     {
       "name": "Port 27",
       "type": "ethernet",
-      "speed": "1G"
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        "1G",
+        "100M",
+        "10M"
+      ],
+      "poeOut": 64,
+      "poeOutClass": "PoE++"
     },
     {
       "name": "Port 28",
       "type": "ethernet",
-      "speed": "1G"
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        "1G",
+        "100M",
+        "10M"
+      ],
+      "poeOut": 64,
+      "poeOutClass": "PoE++"
     },
     {
       "name": "Port 29",
       "type": "ethernet",
-      "speed": "1G"
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        "1G",
+        "100M",
+        "10M"
+      ],
+      "poeOut": 64,
+      "poeOutClass": "PoE++"
     },
     {
       "name": "Port 30",
       "type": "ethernet",
-      "speed": "1G"
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        "1G",
+        "100M",
+        "10M"
+      ],
+      "poeOut": 64,
+      "poeOutClass": "PoE++"
     },
     {
       "name": "Port 31",
       "type": "ethernet",
-      "speed": "1G"
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        "1G",
+        "100M",
+        "10M"
+      ],
+      "poeOut": 64,
+      "poeOutClass": "PoE++"
     },
     {
       "name": "Port 32",
       "type": "ethernet",
-      "speed": "1G"
+      "connector": "rj45",
+      "speed": "1G",
+      "speedCaps": [
+        "1G",
+        "100M",
+        "10M"
+      ],
+      "poeOut": 64,
+      "poeOutClass": "PoE++"
     },
     {
       "name": "Port 33",
       "type": "ethernet",
-      "speed": "2.5G"
+      "connector": "rj45",
+      "speed": "2.5G",
+      "speedCaps": [
+        "2.5G",
+        "1G",
+        "100M",
+        "10M"
+      ],
+      "poeOut": 32,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "Port 34",
       "type": "ethernet",
-      "speed": "2.5G"
+      "connector": "rj45",
+      "speed": "2.5G",
+      "speedCaps": [
+        "2.5G",
+        "1G",
+        "100M",
+        "10M"
+      ],
+      "poeOut": 32,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "Port 35",
       "type": "ethernet",
-      "speed": "2.5G"
+      "connector": "rj45",
+      "speed": "2.5G",
+      "speedCaps": [
+        "2.5G",
+        "1G",
+        "100M",
+        "10M"
+      ],
+      "poeOut": 32,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "Port 36",
       "type": "ethernet",
-      "speed": "2.5G"
+      "connector": "rj45",
+      "speed": "2.5G",
+      "speedCaps": [
+        "2.5G",
+        "1G",
+        "100M",
+        "10M"
+      ],
+      "poeOut": 32,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "Port 37",
       "type": "ethernet",
-      "speed": "2.5G"
+      "connector": "rj45",
+      "speed": "2.5G",
+      "speedCaps": [
+        "2.5G",
+        "1G",
+        "100M",
+        "10M"
+      ],
+      "poeOut": 32,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "Port 38",
       "type": "ethernet",
-      "speed": "2.5G"
+      "connector": "rj45",
+      "speed": "2.5G",
+      "speedCaps": [
+        "2.5G",
+        "1G",
+        "100M",
+        "10M"
+      ],
+      "poeOut": 32,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "Port 39",
       "type": "ethernet",
-      "speed": "2.5G"
+      "connector": "rj45",
+      "speed": "2.5G",
+      "speedCaps": [
+        "2.5G",
+        "1G",
+        "100M",
+        "10M"
+      ],
+      "poeOut": 32,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "Port 40",
       "type": "ethernet",
-      "speed": "2.5G"
+      "connector": "rj45",
+      "speed": "2.5G",
+      "speedCaps": [
+        "2.5G",
+        "1G",
+        "100M",
+        "10M"
+      ],
+      "poeOut": 32,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "Port 41",
       "type": "ethernet",
-      "speed": "2.5G"
+      "connector": "rj45",
+      "speed": "2.5G",
+      "speedCaps": [
+        "2.5G",
+        "1G",
+        "100M",
+        "10M"
+      ],
+      "poeOut": 64,
+      "poeOutClass": "PoE++"
     },
     {
       "name": "Port 42",
       "type": "ethernet",
-      "speed": "2.5G"
+      "connector": "rj45",
+      "speed": "2.5G",
+      "speedCaps": [
+        "2.5G",
+        "1G",
+        "100M",
+        "10M"
+      ],
+      "poeOut": 64,
+      "poeOutClass": "PoE++"
     },
     {
       "name": "Port 43",
       "type": "ethernet",
-      "speed": "2.5G"
+      "connector": "rj45",
+      "speed": "2.5G",
+      "speedCaps": [
+        "2.5G",
+        "1G",
+        "100M",
+        "10M"
+      ],
+      "poeOut": 64,
+      "poeOutClass": "PoE++"
     },
     {
       "name": "Port 44",
       "type": "ethernet",
-      "speed": "2.5G"
+      "connector": "rj45",
+      "speed": "2.5G",
+      "speedCaps": [
+        "2.5G",
+        "1G",
+        "100M",
+        "10M"
+      ],
+      "poeOut": 64,
+      "poeOutClass": "PoE++"
     },
     {
       "name": "Port 45",
       "type": "ethernet",
-      "speed": "2.5G"
+      "connector": "rj45",
+      "speed": "2.5G",
+      "speedCaps": [
+        "2.5G",
+        "1G",
+        "100M",
+        "10M"
+      ],
+      "poeOut": 64,
+      "poeOutClass": "PoE++"
     },
     {
       "name": "Port 46",
       "type": "ethernet",
-      "speed": "2.5G"
+      "connector": "rj45",
+      "speed": "2.5G",
+      "speedCaps": [
+        "2.5G",
+        "1G",
+        "100M",
+        "10M"
+      ],
+      "poeOut": 64,
+      "poeOutClass": "PoE++"
     },
     {
       "name": "Port 47",
       "type": "ethernet",
-      "speed": "2.5G"
+      "connector": "rj45",
+      "speed": "2.5G",
+      "speedCaps": [
+        "2.5G",
+        "1G",
+        "100M",
+        "10M"
+      ],
+      "poeOut": 64,
+      "poeOutClass": "PoE++"
     },
     {
       "name": "Port 48",
       "type": "ethernet",
-      "speed": "2.5G"
+      "connector": "rj45",
+      "speed": "2.5G",
+      "speedCaps": [
+        "2.5G",
+        "1G",
+        "100M",
+        "10M"
+      ],
+      "poeOut": 64,
+      "poeOutClass": "PoE++"
     },
     {
       "name": "SFP+ 1",
       "type": "ethernet",
-      "speed": "10G",
       "connector": "sfp+",
+      "speed": "10G",
       "speedCaps": [
-        1000,
-        10000
+        "10G",
+        "1G"
       ]
     },
     {
       "name": "SFP+ 2",
       "type": "ethernet",
-      "speed": "10G",
       "connector": "sfp+",
+      "speed": "10G",
       "speedCaps": [
-        1000,
-        10000
+        "10G",
+        "1G"
       ]
     },
     {
       "name": "SFP+ 3",
       "type": "ethernet",
-      "speed": "10G",
       "connector": "sfp+",
+      "speed": "10G",
       "speedCaps": [
-        1000,
-        10000
+        "10G",
+        "1G"
       ]
     },
     {
       "name": "SFP+ 4",
       "type": "ethernet",
-      "speed": "10G",
       "connector": "sfp+",
+      "speed": "10G",
       "speedCaps": [
-        1000,
-        10000
+        "10G",
+        "1G"
       ]
     }
   ],
@@ -297,5 +701,6 @@
   "poe": {
     "budgetW": 720,
     "sourceUrl": "https://techspecs.ui.com/unifi/switching/usw-pro-max-48-poe"
-  }
+  },
+  "notes": "Every figure on this row is Ubiquiti's, read 2026-11-21. https://techspecs.ui.com/unifi/switching/usw-pro-max-48-poe (HTTP 200, 661,949 B, rendered spec table) prints '1 GbE RJ45 32 (24 PoE+; 8 PoE++) (1G/100M/10M)', '2.5 GbE RJ45 16 (8 PoE+; 8 PoE++) (2.5G/1G/100M/10M)', '10G SFP+ 4 (10G/1G)', 'Max. PoE Output Up to PoE++', 'Total PoE Availability 720W', 'PoE Ports PoE+ 32 / PoE++ 16', 'Max. PoE Wattage per Port by PSE PoE 15.4W / PoE+ 32W / PoE++ 64W'. There is no datasheet text layer to cross-check: https://dl.ui.com/ds/usw-pro-max-48-poe_ds.pdf answers 200 with the 609,911-byte techspecs front page, not a PDF. The 32 PoE+ and 16 PoE++ counts land exactly on the two speed banks, so the PoE++ sockets are modelled as the upper 8 of each bank - Ports 25-32 on the 1G bank and Ports 41-48 on the 2.5G bank - the ordering this catalogue already applies to USW-Pro-Max-24-PoE; undeclared, all 48 sockets reported the 15.4 W 802.3af default instead. Before this correction no copper port on the row declared poeOut, so engine/media.js's undeclared-port default gave every socket the 802.3af ceiling of 15.4 W and web/faceplate.js printed 'PoE out 15.4 W' on sockets the datasheet rates 802.3at/802.3bt. The SFP+ cages are not PSE ports and stay undeclared."
 }
