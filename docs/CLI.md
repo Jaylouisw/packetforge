@@ -529,7 +529,7 @@ afterwards depends on the view, exactly as it does on a box: the panel spelling 
 this console's own shapes (`show interfaces`, and the refusals), while a vendor-shaped view prints what the
 vendor prints there - the type word spelled out in `show ip interface brief` and in a `show running-config`
 stanza header, and the abbreviation in the tables that abbreviate (`show vlan`, `show etherchannel summary`,
-the MAC table). `research/interface-brief-name-spelling.md` and
+the MAC table), and spelled out in the two that spell out (`show ip interface brief`, `show arp`). `research/interface-brief-name-spelling.md` and
 `research/running-config-interface-name.md` carry the captures.
 
 **A name that opens nothing leaves the session where it was.** `interface Fa9/9` on a box with no slot 9 is
@@ -3118,9 +3118,9 @@ so that entry is dropped at once rather than read as a missing value and default
 ```
 R1#show arp
 Protocol  Address          Age (min)  Hardware Addr     Type    Interface
-Internet  10.0.0.1         -          0200.0000.0100    ARPA    Gi0
-Internet  10.0.0.9         20         0200.0000.0200    ARPA    Gi0
-Internet  10.0.0.10        -          0200.0000.0300    ARPA    Gi0 (down: link down)
+Internet  10.0.0.1         -          0200.0000.0100    ARPA    GigabitEthernet0
+Internet  10.0.0.9         20         0200.0000.0200    ARPA    GigabitEthernet0
+Internet  10.0.0.10        -          0200.0000.0300    ARPA    GigabitEthernet0 (down: link down)
 ```
 
 The first row is the router's own address on `Gi0`: a real box lists its own interface addresses in this table,
@@ -3138,7 +3138,12 @@ virtual MAC in `show vrrp` (`0000.5e00.010a`).
   constant rather than a guess. It sits between the hardware address and the interface, which is where
   Cisco's own `show arp` field list puts it (research/show-arp-type-column.md).
 * **Interface** is the port the neighbour was heard on — where to look next. On a local row it is the port that
-  holds the address.
+  holds the address. It is the interface's **whole name**, `GigabitEthernet0/0`, not the faceplate's `Gi0/0`:
+  every published capture of this table spells it out (`GigabitEthernet0/0/6` in the IOS XE ARP guide,
+  `Ethernet0/0` in the TAC command reference, `GigabitEthernet0/0/2` in the ASR capture quoted below,
+  `FastEthernet0/3/0/6` on a CRS router), so this console expands the stored panel name for the cell exactly as
+  `show ip interface brief` does - the tables that abbreviate are the ones the vendor abbreviates
+  (`show vlan`, `show etherchannel summary`, the MAC table). `research/show-arp-interface-spelling.md`.
 * **A hyphen in Age (min) means the address is local.** Every interface holding an IPv4 address gets one row of
   its own: the interface's MAC in Hardware Addr, its name in Interface, and `-` where an age would be. It is not a
   neighbour, it is not aged, and it does not disappear when the port goes down — the address is still configured
@@ -3146,7 +3151,7 @@ virtual MAC in `show vrrp` (`0000.5e00.010a`).
   (`research/show-arp-local-address.md`).
 * **A VRRP group's address is local on the master, and is printed as such.** The elected master answers ARP
   for a group address with the group's virtual MAC (`0000.5e00.01xx`), so the address is its own by the same
-  test: `Internet  10.0.0.254  -  0000.5e00.0101  ARPA  Gi0/0/0`. Cisco checks a first-hop group by reading
+  test: `Internet  10.0.0.254  -  0000.5e00.0101  ARPA  GigabitEthernet0/0/0`. Cisco checks a first-hop group by reading
   exactly this row - its HSRP guide prints `Internet 10.2.0.20 - 0000.0c07.ac01 ARPA Ethernet0/2` - and a VRRP
   sample shows the same shape with the `0000.5e00.01xx` MAC (`research/show-arp-vrrp-virtual-address.md`).
   A backup prints no such row: what a real backup holds is learned from the master's gratuitous ARP, and this

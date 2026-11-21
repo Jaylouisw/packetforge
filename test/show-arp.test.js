@@ -16,6 +16,7 @@ const { Topology, Simulator, runCommands } = require('../engine');
 const { CliSession } = require('../engine/cli');
 const { loadCatalog } = require('../devices/registry');
 const net = require('../engine/net');
+const { displayName } = require('../engine/iface-name');
 
 let passed = 0, failed = 0;
 function ok(cond, msg, detail) {
@@ -77,14 +78,20 @@ console.log('Every learned neighbour is listed, and the Interface column holds s
   ok(/Interface/.test(out.header), 'the header still names the Interface column');
 
   // The port is the one the neighbour was heard on, not a guess: checked against what the engine recorded.
+  // The cell is the interface's whole name, the spelling a box prints in this table (every capture in
+  // research/show-arp-interface-spelling.md reads `GigabitEthernet0/0/6`, `Ethernet0/0`, `FastEthernet0/3/0/6`
+  // - never `Gi0/0/6`), so the recorded name is expanded the same way `show ip interface brief` expands it.
   const portOf = function (ip) { return env.r.arpPorts.get(ip); };
+  const shownPortOf = function (ip) { return displayName(portOf(ip)); };
   const rowFor = function (ip) { return out.fields.filter(function (f) { return f[1] === ip; })[0] || []; };
-  ok(rowFor('10.0.0.9')[5] === portOf('10.0.0.9'),
+  ok(rowFor('10.0.0.9')[5] === shownPortOf('10.0.0.9'),
     'the interface printed is the port the engine learned it on',
     JSON.stringify({ printed: rowFor('10.0.0.9')[5], recorded: portOf('10.0.0.9') }));
   ok(portOf('10.0.0.9') === eth(env.r)[0].name,
     'and that port is the one facing the switch', String(portOf('10.0.0.9')));
-  ok(rowFor('10.0.0.10')[5] === portOf('10.0.0.10'), 'for the other neighbour too');
+  ok(rowFor('10.0.0.9')[5] === 'GigabitEthernet0',
+    'spelled out, as the hardware spells an interface name in this table', rowFor('10.0.0.9')[5]);
+  ok(rowFor('10.0.0.10')[5] === shownPortOf('10.0.0.10'), 'for the other neighbour too');
 
   // The MAC column is the data plane's, not a decoration.
   // The value is the table's, printed the way the device prints a hardware address: 0200.0000.0900.
@@ -98,7 +105,8 @@ console.log('Every learned neighbour is listed, and the Interface column holds s
   ok(rowFor('10.0.0.1')[2] === '-', "the router's own address has a hyphen for its age", JSON.stringify(rowFor('10.0.0.1')));
   ok(rowFor('10.0.0.1')[3] === net.formatMac(eth(env.r)[0].mac),
     'and the hardware address of the port that holds it', JSON.stringify(rowFor('10.0.0.1')[3]));
-  ok(rowFor('10.0.0.1')[5] === eth(env.r)[0].name, 'with the port named beside it', JSON.stringify(rowFor('10.0.0.1')[5]));
+  ok(rowFor('10.0.0.1')[5] === displayName(eth(env.r)[0].name), 'with the port named beside it',
+    JSON.stringify(rowFor('10.0.0.1')[5]));
 
   ok(out.fields[0][1] === '10.0.0.1',
     'and the rows are in numeric address order (.1, .9, .10)',
@@ -134,7 +142,7 @@ console.log('A neighbour on a port that is gone is not presented as reachable:')
   const env = lab();
   env.sim.ping('nine', '10.0.0.1', { count: 1 });
   const before = rows(env);
-  ok(before.fields[0][5] === eth(env.r)[0].name, 'the entry starts out clean', before.fields[0][5]);
+  ok(before.fields[0][5] === displayName(eth(env.r)[0].name), 'the entry starts out clean', before.fields[0][5]);
 
   runCommands(env.r, env.t, env.sim, ['configure terminal', 'interface ' + eth(env.r)[0].name,
     'shutdown', 'end']);
@@ -147,7 +155,7 @@ console.log('A neighbour on a port that is gone is not presented as reachable:')
   const neighbour = after.fields.filter(function (f) { return f[1] === '10.0.0.9'; })[0] || [];
   ok(/administratively down/.test(after.body[1] || ''), 'but it says the port cannot carry a frame',
     after.body[1]);
-  ok(neighbour[5] === eth(env.r)[0].name, 'and the port is still named',
+  ok(neighbour[5] === displayName(eth(env.r)[0].name), 'and the port is still named',
     JSON.stringify(neighbour[5]));
   ok(after.fields[0][1] === '10.0.0.1' && after.fields[0][2] === '-',
     'the local entry is untouched by the shutdown', after.body[0]);
@@ -190,9 +198,11 @@ console.log('A recorded port that no longer exists is reported as gone:');
   env.r.arpPorts.set('10.0.0.201', 'Gi9/9');
   const out = rows(env);
   const row = out.fields.filter(function (f) { return f[1] === '10.0.0.201'; })[0] || [];
-  ok(/Gi9\/9/.test(out.body.join(' ')), 'the port it named is printed', out.body.join(' | '));
+  // A stored name that no longer resolves is still spelled the way this table spells a name: the recorded
+  // `Gi9/9` is printed as the interface it names, `GigabitEthernet9/9`, with the `(gone)` marker beside it.
+  ok(/GigabitEthernet9\/9/.test(out.body.join(' ')), 'the port it named is printed', out.body.join(' | '));
   ok(/gone/.test(out.body.join(' ')), 'and marked as gone', out.body.join(' | '));
-  ok(row[5] === 'Gi9/9', 'rather than silently dropped', JSON.stringify(row));
+  ok(row[5] === 'GigabitEthernet9/9', 'rather than silently dropped', JSON.stringify(row));
 }
 
 console.log('');
@@ -205,7 +215,7 @@ console.log('A device with no topology still prints a table:');
   const lines = ((new CliSession(r, null, null).run('show arp').output) || []).map(String);
   ok(lines.length === 2, 'header and one row', lines.join(' | '));
   ok(lines[1].trim().split(/\s+/).length === 6, 'with six columns', lines[1]);
-  ok(lines[1].trim().split(/\s+/)[5] === eth(r)[0].name,
+  ok(lines[1].trim().split(/\s+/)[5] === displayName(eth(r)[0].name),
     'and the port, with no link state to report', lines[1]);
   ok(!/\(/.test(lines[1]), 'without inventing a state it cannot know', lines[1]);
 }

@@ -85,7 +85,9 @@ console.log('A second box answering for an address is recorded, and the table sa
   ok(!!row.conflict && row.conflict.port === 'Gi0/0/1', 'and the port they were heard on', row.conflict && row.conflict.port);
 
   const table = show(lab.t, lab.sim, 'r1', 'show ip arp');
-  ok(/is claimed by 2 hardware addresses on Gi0\/0\/1/.test(table),
+  // The sentence names the port the way the rows above it do, with the interface's whole name
+  // (research/show-arp-interface-spelling.md).
+  ok(/is claimed by 2 hardware addresses on GigabitEthernet0\/0\/1/.test(table),
     'the view says it in a sentence, not only in the data', table);
   // Both MACs print dotted, in the same form as the rows above them.
   const fmt = require('../engine/net').formatMac;

@@ -24,6 +24,7 @@ const { Topology, Simulator, runCommands } = require('../engine');
 const { CliSession } = require('../engine/cli');
 const { loadCatalog } = require('../devices/registry');
 const net = require('../engine/net');
+const { displayName } = require('../engine/iface-name');
 
 let passed = 0, failed = 0;
 function ok(cond, msg, detail) {
@@ -76,7 +77,9 @@ console.log('The address on the box is a row in its own ARP table:');
   ok(row[3] === net.formatMac(eth(env.r)[0].mac),
     'the hardware address of the port that holds it, printed dotted', JSON.stringify(row[3]));
   ok(row[4] === 'ARPA', 'ARPA in the Type column, as every Ethernet row is', JSON.stringify(row[4]));
-  ok(row[5] === eth(env.r)[0].name, 'and the port named in the Interface column', JSON.stringify(row[5]));
+  // The cell is the interface's whole name: this file's own transcripts read `GigabitEthernet0/0/2` and
+  // `Vlan1`, never `Gi0/0/2` (research/show-arp-interface-spelling.md).
+  ok(row[5] === displayName(eth(env.r)[0].name), 'and the port named in the Interface column', JSON.stringify(row[5]));
 }
 
 console.log('');
@@ -101,7 +104,7 @@ console.log('A learned neighbour is still printed beside it, with its own port:'
   ok(heard[3] === net.formatMac(env.r.arp.get('10.0.0.10')),
     'with the learned hardware address, not the port\'s', JSON.stringify(heard[3]));
   ok(heard[3] !== local[3], 'so the two rows carry different hardware addresses', JSON.stringify([local[3], heard[3]]));
-  ok(heard[5] === eth(env.r)[0].name, 'and the port it was heard on', JSON.stringify(heard[5]));
+  ok(heard[5] === displayName(eth(env.r)[0].name), 'and the port it was heard on', JSON.stringify(heard[5]));
   const order = fields(env.r, env.t, env.sim).map(function (f) { return f[1]; });
   ok(order.join(',') === '10.0.0.1,10.0.0.10', 'rows stay in numeric address order', order.join(','));
 }
@@ -128,7 +131,8 @@ console.log('A subinterface with an address gets its own row, under its own name
   const row = rowFor(env.r, env.t, env.sim, '10.0.10.1');
   ok(row.length === 6, 'the subinterface address is listed', JSON.stringify(row));
   ok(row[2] === '-', 'with a hyphen age, as a local address', JSON.stringify(row[2]));
-  ok(row[5] === sub, 'and its own name in the Interface column', JSON.stringify(row[5]));
+  ok(row[5] === displayName(sub), 'and its own name in the Interface column', JSON.stringify(row[5]));
+  ok(row[5] === 'GigabitEthernet0.10', 'spelled out, parent and subinterface number whole', row[5]);
   ok(row[3] === net.formatMac(eth(env.r)[0].mac),
     'borrowing the parent port\'s hardware address', JSON.stringify(row[3]));
 }

@@ -86,7 +86,9 @@ console.log('The column is a number, and it is the silence');
   env.sim.setRunTime(1800000);                   // 30 min in: 20 min of silence
   const at20 = rowFor(env, '10.0.0.2');
   ok(!!at20.row && at20.row[COL.age] === '20', 'at 30 min it says 20, in minutes', at20.row && at20.row[COL.age]);
-  ok(at20.row[COL.iface] === 'Gi0/0/0', 'and still names the port it was heard on', at20.row[COL.iface]);
+  // Whole name: this table spells an interface out, as `show ip interface brief` does
+  // (research/show-arp-interface-spelling.md).
+  ok(at20.row[COL.iface] === 'GigabitEthernet0/0/0', 'and still names the port it was heard on', at20.row[COL.iface]);
 }
 
 console.log('');

@@ -75,7 +75,9 @@ console.log('The master lists the virtual address as its own:');
   ok(vip[3] === '0000.5e00.0101', 'Hardware Addr is the group virtual MAC, dotted as this table writes MACs',
     vip[3]);
   ok(vip[4] === 'ARPA', 'Type is ARPA', vip[4]);
-  ok(vip[5] === 'Gi0/0/0', 'Interface is the port the group is on', vip[5]);
+  // Whole name, as the HSRP capture in the note spells it: `ARPA Ethernet0/2`, not `Et0/2`
+  // (research/show-arp-interface-spelling.md).
+  ok(vip[5] === 'GigabitEthernet0/0/0', 'Interface is the port the group is on', vip[5]);
   // The MAC printed has to be the MAC the data plane uses, or the table and the wire disagree.
   ok(env.r1.macForIp('10.0.0.254', 'Gi0/0/0') === '00:00:5e:00:01:01',
     'and it is the MAC macForIp() answers ARP with', env.r1.macForIp('10.0.0.254', 'Gi0/0/0'));
@@ -86,7 +88,8 @@ console.log('The interface row is still there, and there is exactly one of each:
 {
   const env = lab();
   const own = rowFor(env.r1, env.t, env.sim, '10.0.0.1');
-  ok(own[2] === '-' && own[5] === 'Gi0/0/0', 'the port own address keeps its local row', JSON.stringify(own));
+  ok(own[2] === '-' && own[5] === 'GigabitEthernet0/0/0', 'the port own address keeps its local row',
+    JSON.stringify(own));
   const ips = rows(env.r1, env.t, env.sim).map(function (f) { return f[1]; });
   ok(ips.length === 2, 'two rows on the master: the port address and the group address', JSON.stringify(ips));
   ok(ips[0] === '10.0.0.1' && ips[1] === '10.0.0.254', 'and they are in address order', JSON.stringify(ips));

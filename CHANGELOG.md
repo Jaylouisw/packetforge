@@ -9,6 +9,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **`show arp` printed the panel's abbreviation where a box spells the interface out.** Every primary capture of
+  this table prints the whole name - `Ethernet0/0` in the TAC command reference, `GigabitEthernet0/0/6` in the
+  IOS XE ARP guide, `GigabitEthernet0/0/2` in the ASR FAQ this repo already quotes, `FastEthernet0/3/0/6` on a
+  CRS - and none prints `Gi0/0/6`; a switch's rows read `Vlan1`, not `Vl1`. The console wrote the stored
+  (faceplate) name straight into the cell, so the same box said `GigabitEthernet0/0` in
+  `show ip interface brief` and `Gi0/0` one command later, and a row could not be diffed against a real
+  device's. The Interface cell - the neighbour rows, the box's own local rows and a VRRP group's - now calls
+  the same `ifaceName.displayName()` the brief table uses, and the conflict paragraph under the table names the
+  port the same way; the stored name is untouched, so `interface GigabitEthernet0/0` typed from a row still
+  resolves. `test/show-arp.test.js`, `test/show-arp-local-address.test.js`,
+  `test/show-arp-vrrp-virtual-address.test.js`, `test/arp-ageing.test.js` and `test/arp-conflict.test.js` (132
+  checks) now assert the printed cell is the recorded port **in the hardware's spelling**, three of them
+  literally; [`research/show-arp-interface-spelling.md`](research/show-arp-interface-spelling.md) records the
+  captures, the one contradicting (retyped) blog sample, and what is still unwitnessed.
 - **`no ip address` refused the address the syntax line says it takes.** Cisco's `ip address` reference prints
   two syntax lines, and the second is `no ip address ip-address mask [secondary]`; a Cisco defect record's own
   workaround is an operator typing `no ip address 192.168.1.100 255.255.255.0` on a live SVI. This console

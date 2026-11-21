@@ -13,11 +13,11 @@ const MODE_DHCP_POOL = 'dhcp-pool';
 // One port, many spellings - and one table for it. This used to be a second copy of
 // engine/iface-name.js, kept in step by hand; two copies of a naming rule drift, which is the
 // failure mode this repo has already been bitten by (#1247).
-const { PORT_NAME_RULES, portKey, resolvePortName } = require('./iface-name');
+const { PORT_NAME_RULES, portKey, resolvePortName, displayName } = require('./iface-name');
 // A console port is a line, not an interface. The predicate lives with the port model that owns `type`, so the
 // three views that list interfaces and the `interface` door all ask the same question (research note cited there).
 const { isConsoleLine } = require('./device');
-const ifaceName = { resolvePortName };
+const ifaceName = { resolvePortName, displayName };
 // Rates are spelled the way the catalogue spells them, by the parser the catalogue uses: `speed 1G` and
 // `speed 1000` must land on the same port rate, and a second parser here would be a second answer.
 const mediaLib = require('./media');
@@ -6473,7 +6473,7 @@ class CliSession {
         // of this command prints `GigabitEthernet1/0/1`, not `Gi1/0/1` (research/interface-brief-name-spelling.md).
         // The stored name stays the panel's short spelling; only the printed cell is expanded, so a
         // name typed from this row still resolves.
-        out.push(briefLine([require('./iface-name').displayName(i.name), ip, 'YES', briefMethod(i),
+        out.push(briefLine([ifaceName.displayName(i.name), ip, 'YES', briefMethod(i),
           link.status, link.protocol]));
       }
       // An EtherChannel is an interface, and a box lists it here beside the ports that make it up: every
@@ -7268,7 +7268,15 @@ class CliSession {
         const ip = r.ip, mac = r.mac;
         // The reason travels with the status here too: "down" alone sends you looking for a cable
         // when the cable is fine and the far port is shut (#1253).
-        let note = r.port === '-' ? '-' : r.port + (r.note ? ' ' + r.note : '');
+        //
+        // The Interface cell spells the type out, in this table as `show ip interface brief` does: every
+        // published capture of `show arp` / `show ip arp` prints the interface's whole name -
+        // `GigabitEthernet0/0/6` in the IOS XE ARP guide, `Ethernet0/0` in the TAC command reference,
+        // `GigabitEthernet0/0/2` in the ASR capture this file already quotes, `FastEthernet0/3/0/6` on a CRS -
+        // and none prints `Gi0/0/6`. This table printed the stored (panel) spelling, so the row could not be
+        // lined up against a box's own output (research/show-arp-interface-spelling.md). The stored name is
+        // untouched; only the printed cell is expanded, so a name typed from this row still resolves.
+        let note = r.port === '-' ? '-' : ifaceName.displayName(r.port) + (r.note ? ' ' + r.note : '');
         // Minutes, or '-' for an entry nothing dated: a device prints '-' for what it cannot age, and so does
         // this one (#1397).
         const age = (r.age === null || r.age === undefined) ? '-' : String(r.age);
@@ -7296,7 +7304,7 @@ class CliSession {
         const held = new Set(rows.map(function (r) { return r[0]; }));
         for (const i of dev.interfaces.values()) {
           if (!i.ip || !i.mac || held.has(i.ip)) continue;
-          rows.push([i.ip, net.formatMac(i.mac), '-', i.name]);
+          rows.push([i.ip, net.formatMac(i.mac), '-', ifaceName.displayName(i.name)]);
           held.add(i.ip);
         }
         // An address a VRRP group holds is the box's own too, and it is the last fact this table was
@@ -7316,7 +7324,7 @@ class CliSession {
           if (!claimIface) continue;
           for (const vip of (claim.ips || [])) {
             if (!vip || held.has(vip)) continue;
-            rows.push([vip, net.formatMac(claim.mac || claimIface.mac), '-', claimIface.name]);
+            rows.push([vip, net.formatMac(claim.mac || claimIface.mac), '-', ifaceName.displayName(claimIface.name)]);
             held.add(vip);
           }
         }
@@ -7336,7 +7344,8 @@ class CliSession {
         if (!clash || !clash.macs || clash.macs.length < 2) continue;
         out.push('');
         out.push(r.ip + ' is claimed by ' + clash.macs.length + ' hardware addresses on ' +
-          (clash.port || 'this segment') + ': ' + clash.macs.map(function (m) { return net.formatMac(m); }).join(', '));
+          (clash.port ? ifaceName.displayName(clash.port) : 'this segment') + ': ' +
+          clash.macs.map(function (m) { return net.formatMac(m); }).join(', '));
         out.push('  this row shows the one that answered last; traffic to ' + r.ip +
           ' goes to whichever answers next');
       }
