@@ -7,7 +7,8 @@ PacketForge is a working foundation, not a finished product. Priorities below.
 Three states, and no fourth: **Modelled** (in the data path), **Partial** (some of it, and the row says
 which part) and **Absent** (a gap worth picking up). Detail lives in [`SIMULATION.md`](SIMULATION.md) and
 the section numbers below are its own; this page is the gap list, so a row flips in the PR that lands it
-rather than being remembered later.
+rather than being remembered later. The same rule holds for the checkboxes below: a ticked box is work
+this tree already does, and the row says where, in the code rather than in a promise.
 
 | state | subsystem | where |
 |---|---|---|
@@ -43,7 +44,10 @@ rather than being remembered later.
 - [ ] Per-vendor **CLI translators** (Juniper `set`, Huawei, MikroTik) over the
       unified config model.
 - [ ] Authentication + per-user topologies.
-- [ ] Persistent storage (SQLite / file) for topologies.
+- [x] Persistent storage (SQLite / file) for topologies - one JSON file per board under
+      `PF_DATA/topologies/`, written synchronously before the answer is sent (`saveTopologyNow()`,
+      [`server/index.js`](../server/index.js); [ARCHITECTURE.md](ARCHITECTURE.md#what-is-on-the-disk)).
+      No database, and no dependency.
 - [ ] A **pcap export** of the simulated frames (replay in Wireshark).
 - [ ] Embeddable build (single-file `dist/`) and a hosted demo.
 
@@ -51,7 +55,8 @@ rather than being remembered later.
 
 - [ ] More device models + a community device-pack format.
 - [ ] Unit tests for the simulator's edge cases (loops, ARP retries, TTL).
-- [ ] CI (the test suite needs no dependencies, so any runner works).
+- [x] CI - `.forgejo/workflows/ci.yml` runs the suite on Node 18, 20 and 22, with the live-server smoke
+      test beside the image build; [CI.md](CI.md) is the page that says what each job proves.
 
 ## Contributing
 
