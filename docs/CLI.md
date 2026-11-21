@@ -2195,14 +2195,15 @@ Trunk on Fa0/1 allows VLANs 2-998,1000-4094 (all but 1,999)
 ```
 
 The run passes straight through 1002-1005 for the same reason a removal's remainder does: the four media defaults
-cannot come out of a trunk, so a list that names one is answered with that rule instead of performed, and a list
-that would leave nothing behind is the dead trunk the console already refuses:
+cannot come out of a trunk, so a list that names one is answered with that rule instead of performed. A list that
+would invert the whole id space leaves only those defaults, and that state is committed - a trunk carrying nothing
+is a state a box can be put in, as `none` shows:
 
 ```
 sw1(config-if)#switchport trunk allowed vlan except 1002
 % VLANs 1002 stay on every trunk: the four media defaults (1002-1005) are always allowed and cannot be removed
 sw1(config-if)#switchport trunk allowed vlan except 1-4094
-% that would leave the trunk allowing no VLANs: name what it should carry instead (switchport trunk allowed vlan <list>) or restore it with "no switchport trunk allowed vlan"
+Trunk on Fa0/1 allows VLANs 1002-1005 (all but 1-1001,1006-4094)
 ```
 
 The line the backup prints is the computed list, not the word `except` - `switchport trunk allowed vlan
@@ -2210,13 +2211,17 @@ The line the backup prints is the computed list, not the word `except` - `switch
 ([research/trunk-allowed-except.md](../research/trunk-allowed-except.md)).
 
 `none` is the command's second single-word list, and the one that reaches the empty list without arithmetic.
-`remove` refuses to take a trunk's last VLAN, but `none` is how an operator stops normal VLAN traffic on a link
-without shutting the port, so it is accepted and prints the state back in the same sentence:
+It is how an operator stops normal VLAN traffic on a link without shutting the port, so it is accepted and prints
+the state back in the same sentence:
 
 ```
 sw1(config-if)#switchport trunk allowed vlan none
 Trunk on Fa0/1 allows no VLANs
 ```
+
+A subtraction reaches the same empty list, and stores it the same way: `remove 10,20` on a trunk allowing only
+`10,20` answers `Trunk on Fa0/1 allows no VLANs (removed 10,20)` and the backup writes `switchport trunk allowed
+vlan none`.
 
 The word is stored as an empty list rather than as a word: `show interfaces` reads `allowed none`, and the
 backup writes the line an operator typed - `switchport trunk allowed vlan none` - so a saved trunk returns as
@@ -2243,8 +2248,11 @@ afterwards is what the backup and the inspector both print, so an edited trunk s
 `show interfaces` repeats them as `switchport: trunk · native 1 · allowed 1-9,11-4094`.
 
 One last line, because it is the reason the removal arithmetic looks the way it does: 1002-1005 are in every
-allowed list, so `remove 1-1001,1006-4094` leaves only them, and that is the dead trunk the console refuses to
-build rather than a list it silently commits. `remove 1-4094` names the whole id space and gets the same refusal.
+allowed list, so `remove 1-1001,1006-4094` leaves only them - and that list is committed, because the same state
+is reachable on purpose with `none` (`Trunk on Fa0/1 allows VLANs 1002-1005 (removed 1-1001,1006-4094)`). A
+`remove 1-4094` names the whole id space, the pinned defaults survive it, and the backup writes `switchport
+trunk allowed vlan 1002-1005` for either form
+([research/trunk-allowed-remove-everything.md](../research/trunk-allowed-remove-everything.md)).
 
 ### NAT: configuring it, and reading what it did
 

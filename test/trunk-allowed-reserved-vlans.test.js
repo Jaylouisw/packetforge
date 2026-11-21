@@ -114,18 +114,23 @@ console.log('And they cannot be removed, which is what the device documents:');
 }
 
 console.log('');
-console.log('A whole-id-space removal leaves only the media defaults, which is a dead trunk:');
+console.log('A whole-id-space removal leaves only the media defaults, and is committed:');
 {
   const L = session();
   const out = L.put('switchport trunk allowed vlan remove 1-4094');
-  ok(/^%/.test(out[0]), 'it is refused rather than committed', out[0]);
-  ok(/no VLANs/.test(out[0]) && /no switchport trunk allowed vlan/.test(out[0]),
-    'and the way back is named', out[0]);
-  ok(L.allowed() === 'all', 'the default list is untouched', JSON.stringify(L.allowed()));
+  ok(!/^%/.test(out[0]), 'it is accepted rather than refused', out[0]);
+  ok(/1002-1005/.test(out[0]) && /stay/.test(out[0]),
+    'the sentence names the media defaults that cannot come off', out[0]);
+  ok(JSON.stringify(L.allowed()) === JSON.stringify([1002, 1003, 1004, 1005]),
+    'which is what the stored list says', JSON.stringify(L.allowed()));
+  ok(L.config() === 'switchport trunk allowed vlan 1002-1005', 'and the backup prints it', L.config());
 
-  const excl = L.put('switchport trunk allowed vlan remove 1-1001,1006-4094');
-  ok(/^%/.test(excl[0]) && /no VLANs/.test(excl[0]),
-    'removing every assignable id is the same refusal', excl[0]);
+  const E = session();
+  const excl = E.put('switchport trunk allowed vlan remove 1-1001,1006-4094');
+  ok(!/^%/.test(excl[0]) && /1002-1005/.test(excl[0]),
+    'removing every assignable id reaches the same list', excl[0]);
+  ok(JSON.stringify(E.allowed()) === JSON.stringify([1002, 1003, 1004, 1005]),
+    'and stores it', JSON.stringify(E.allowed()));
 }
 
 console.log('');

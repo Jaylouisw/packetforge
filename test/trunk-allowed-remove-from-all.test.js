@@ -196,22 +196,44 @@ console.log('Removing VLAN 1 is how a trunk is told to stop carrying it:');
 }
 
 console.log('');
-console.log('A removal that would empty the trunk is still refused:');
+console.log('A removal that takes every frame-carrying VLAN is accepted - `none` is a state a box can be in:');
 {
   const L = session();
   const out = L.put('switchport trunk allowed vlan remove 1-1001,1006-4094');
-  ok(/^%/.test(out[0]), 'removing every assignable VLAN is refused', out[0].slice(0, 80));
-  ok(/no VLANs/.test(out[0]) && /no switchport trunk allowed vlan/.test(out[0]),
-    'naming the way back', out[0].slice(0, 120));
-  ok(L.allowed() === 'all', 'and the default list is untouched', JSON.stringify(L.allowed()));
+  ok(!/^%/.test(out[0]), 'removing every assignable VLAN is accepted', out[0].slice(0, 80));
+  ok(/1002-1005/.test(out[0]), 'the receipt names the four media defaults that stay', out[0]);
+  ok(JSON.stringify(L.allowed()) === JSON.stringify([1002, 1003, 1004, 1005]),
+    'which is what the stored list is', JSON.stringify(L.allowed()));
+  ok(L.config() === 'switchport trunk allowed vlan 1002-1005',
+    'and the backup prints that list', L.config());
 
-  // `1-4094` names every id, so what is left after the subtraction is the four media defaults - a list no
-  // Ethernet port can join. The refusal is the same dead-trunk one, and it is about the VLANs, not about the
-  // word `remove`, which it used to say instead.
-  const reserved = L.put('switchport trunk allowed vlan remove 1-4094');
-  ok(/no VLANs/.test(reserved[0]),
-    'a range through the whole id space leaves nothing to carry', reserved[0].slice(0, 90));
+  // `1-4094` names every id, 1002-1005 included. They cannot be removed from a trunk, so the subtraction
+  // leaves exactly the four media defaults - the same list the narrower removal above reaches.
+  const L2 = session();
+  const reserved = L2.put('switchport trunk allowed vlan remove 1-4094');
+  ok(!/^%/.test(reserved[0]), 'a range through the whole id space is accepted', reserved[0].slice(0, 90));
   ok(!/Unrecognized/.test(reserved[0]), 'and does not call the verb unrecognized', reserved[0].slice(0, 60));
+  ok(/1002-1005 stay/.test(reserved[0]), 'the sentence says why the media defaults remain', reserved[0]);
+  ok(L2.config() === 'switchport trunk allowed vlan 1002-1005', 'and the backup is the same list', L2.config());
+
+  // The field practice: prune the trunk to nothing, then add what it should carry.
+  const added = L2.put('switchport trunk allowed vlan add 10,20');
+  ok(/allows VLANs 10,20,1002-1005 \(added 10,20\)/.test(added[0]),
+    'a following add builds the list an operator wants', added[0]);
+}
+
+console.log('');
+console.log('A subtraction that takes the last frame-carrying VLAN stores the empty list `none` stores:');
+{
+  const L = session();
+  L.put('switchport trunk allowed vlan 10,20');
+  const out = L.put('switchport trunk allowed vlan remove 10,20');
+  ok(!/^%/.test(out[0]), 'removing the whole explicit list is accepted', out[0]);
+  ok(/allows no VLANs/.test(out[0]), 'and says the port carries none', out[0]);
+  ok(L.config() === 'switchport trunk allowed vlan none',
+    'the backup prints the word the box prints for an empty list', L.config());
+  ok(vlanLib.normalizePortConfig(L.port()).allowedVlans.length === 0,
+    'the stored list is empty, not the string "none"', JSON.stringify(L.port().allowedVlans));
 }
 
 console.log('');

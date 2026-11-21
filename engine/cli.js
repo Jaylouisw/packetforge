@@ -3879,13 +3879,17 @@ class CliSession {
         const pinned = parsed.vlans.filter(function (v) { return vlanLib.isReservedVlan(v); });
         const named = parsed.vlans.filter(function (v) { return !vlanLib.isReservedVlan(v); });
         const next = vlanLib.allVlansExcept(named);
-        // The dead-trunk question is asked first, the same order `remove` asks it in: `except 1-4094` names the
-        // whole id space, and the remaining four media defaults carry no Ethernet frame, so the answer is the
-        // refusal the console gives `remove 1-4094`, not a sentence about 1002 that hides a trunk carrying nothing.
+        // `except <every id>` names the whole space, so the inversion leaves only the four media defaults - a
+        // trunk whose allowed list holds nothing that can carry a frame. A box can be put in that state on
+        // purpose (`switchport trunk allowed vlan none` stores the empty list; `remove 1-4094` is used in the
+        // field to prune a trunk before adding the VLANs it should carry), so the line is committed rather
+        // than refused. The four defaults stay because a switch documents that they cannot be removed from a
+        // trunk (research/trunk-allowed-remove-everything.md).
         if (!next.some(function (v) { return !vlanLib.isReservedVlan(v); })) {
-          return ['% that would leave the trunk allowing no VLANs: name what it should carry instead ' +
-            '(switchport trunk allowed vlan <list>) or restore it with "no switchport trunk allowed vlan"' +
-            allowedNote];
+          iface.vlan = vlanLib.normalizePortConfig(Object.assign({}, iface.vlan, { allowedVlans: next }));
+          this.device.flushMacsOnPort(iface.name);
+          return ['Trunk on ' + iface.name + ' allows VLANs ' + vlanLib.formatVlanList(next) +
+            ' (all but ' + vlanLib.formatVlanList(named) + ')' + allowedNote];
         }
         if (pinned.length) {
           return ['% VLANs ' + vlanLib.formatVlanList(pinned) + ' stay on every trunk: the four media defaults (' +
@@ -3934,14 +3938,10 @@ class CliSession {
         const allPinned = parsed.vlans.filter(function (v) { return vlanLib.isReservedVlan(v); });
         const allGone = parsed.vlans.filter(function (v) { return !vlanLib.isReservedVlan(v); });
         const next = vlanLib.allVlansExcept(allGone);
-        // "No VLANs left" is about the VLANs that can carry a frame: the four media defaults are in the
-        // list but no Ethernet port can join them, so a remainder of only those is the dead trunk this
-        // console refuses to build (the same refusal it gave before 1002-1005 were put back in the list).
-        if (!next.some(function (v) { return !vlanLib.isReservedVlan(v); })) {
-          return ['% that would leave the trunk allowing no VLANs: name what it should carry instead ' +
-            '(switchport trunk allowed vlan <list>) or restore it with "no switchport trunk allowed vlan"' +
-            allowedNote];
-        }
+        // A subtraction that takes every frame-carrying VLAN (`remove 1-1001,1006-4094`, or `remove 1-4094`)
+        // leaves the four media defaults. The box accepts it - the same state `none` stores - so the result is
+        // committed, not refused: the receipt below names the remainder and the pinned defaults
+        // (research/trunk-allowed-remove-everything.md).
         iface.vlan = vlanLib.normalizePortConfig(Object.assign({}, iface.vlan, { allowedVlans: next }));
         this.device.flushMacsOnPort(iface.name);
         return ['Trunk on ' + iface.name + ' allows VLANs ' + vlanLib.formatVlanList(next) +
@@ -3967,9 +3967,14 @@ class CliSession {
           ': the list is unchanged (' + (current.length ? vlanLib.formatVlanList(current) : 'none') + ')' + allowedNote];
       }
       const next = current.filter(function (v) { return gone.indexOf(v) === -1; });
-      if (!next.some(function (v) { return !vlanLib.isReservedVlan(v); })) {
-        return ['% that would leave the trunk allowing no VLANs: name what it should carry instead ' +
-          '(switchport trunk allowed vlan <list>) or restore it with "no switchport trunk allowed vlan"'];
+      // The last frame-carrying VLAN coming off leaves the empty list that `switchport trunk allowed vlan
+      // none` stores; a subtraction reaches the same state, so it is stored the same way rather than refused
+      // (research/trunk-allowed-remove-everything.md).
+      if (!next.length) {
+        iface.vlan = vlanLib.normalizePortConfig(Object.assign({}, iface.vlan, { allowedVlans: [] }));
+        this.device.flushMacsOnPort(iface.name);
+        return ['Trunk on ' + iface.name + ' allows no VLANs (removed ' +
+          vlanLib.formatVlanList(gone) + ')' + allowedNote];
       }
       iface.vlan = vlanLib.normalizePortConfig(Object.assign({}, iface.vlan, { allowedVlans: next }));
       this.device.flushMacsOnPort(iface.name);

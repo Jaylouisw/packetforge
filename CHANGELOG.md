@@ -9,6 +9,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **A trunk pruned with `switchport trunk allowed vlan remove 1-4094` was refused, though a box takes it.** The
+  command subtracts a list from the one the port carries, the default is 1-4094, and `none` is a documented
+  allowed-list value meaning an empty list — so a trunk carrying nothing is a state a device can be in. The
+  console answered `% that would leave the trunk allowing no VLANs: name what it should carry instead …`, a
+  sentence no box prints, and left the default list untouched. Two field configurations use exactly this line
+  to prune a trunk before adding the VLANs it should carry
+  (`remove 1-4094` then `add 10,11,54,55,512,599,1000,3407` on an SF350-48; `remove 1-4094` on a gi5 trunk in a
+  Cisco Community configuration), and it is the same destination `switchport trunk allowed vlan none` stores.
+  The subtraction now commits: `remove 1-4094` and `remove 1-1001,1006-4094` store the four media defaults
+  (`1002-1005`, which cannot come off a trunk), `remove 10,20` on a list of `10,20` stores the empty list, and
+  the backup prints `switchport trunk allowed vlan 1002-1005` or `… none`. `except 1-4094` reaches the same
+  pinned remainder and is committed the same way. The three suites that pinned the refusal now pin the
+  accepted line, the stored list, the backup and the prune-then-add sequence;
+  [`research/trunk-allowed-remove-everything.md`](research/trunk-allowed-remove-everything.md) records the
+  captures and the open half (whether a box prints `1002-1005` or `none` after the full removal).
+
 - **A trunk's allowed list folded a pair of VLANs into a range no switch prints.** `switchport trunk allowed vlan
   remove 5-10,12` folds runs into ranges (a c3550 prints `1-4,7,11,13-4094`), and this printer folded *every*
   run — so a backup of a port carrying 157 and 158 read `157-158`, where three captured `show running-config`

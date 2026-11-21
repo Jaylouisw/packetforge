@@ -139,15 +139,14 @@ console.log('Edits that change nothing say so instead of pretending:');
 }
 
 console.log('');
-console.log('The two footguns are refused, not committed:');
+console.log('Emptying a list is a state, not a footgun; adding to `all` is a no-op:');
 {
   const L = session();
   L.put('switchport trunk allowed vlan 10,20');
   const empty = L.put('switchport trunk allowed vlan remove 10,20');
-  ok(/^%/.test(empty[0]), 'removing every VLAN is refused', empty[0]);
-  ok(/no VLANs/.test(empty[0]) && /no switchport trunk allowed vlan/.test(empty[0]),
-    'naming both ways out of the situation', empty[0]);
-  ok(JSON.stringify(L.allowed()) === '[10,20]', 'and the trunk is left as it was', JSON.stringify(L.allowed()));
+  ok(!/^%/.test(empty[0]), 'removing every VLAN is accepted', empty[0]);
+  ok(/no VLANs/.test(empty[0]), 'and says what the port now carries', empty[0]);
+  ok(JSON.stringify(L.allowed()) === '[]', 'the stored list is the empty one', JSON.stringify(L.allowed()));
 
   const all = session();       // a trunk with no list: it allows all
   ok(all.allowed() === 'all', 'a fresh trunk allows all VLANs', JSON.stringify(all.allowed()));

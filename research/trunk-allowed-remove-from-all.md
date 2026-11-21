@@ -79,10 +79,9 @@ number per VLAN (`10,20,30`), which is not the shape a switch uses.
 ## What this run changed
 
 * `engine/cli.js` - the `remove` branch of `switchport trunk allowed vlan`: on a trunk still holding `all`, the
-  new list is `allVlansExcept(removed)` instead of a refusal. Removing every assignable VLAN is still refused
-  (a trunk carrying nothing is not a configuration this console will write), and `remove 1-4094` no longer
-  answers `% Unrecognized "remove"` - the range is refused for the reserved VLANs it spans, which is the real
-  reason.
+  new list is `allVlansExcept(removed)` instead of a refusal. At the time of this note a removal that left no
+  frame-carrying VLAN was still refused; the follow-up run commits the pinned remainder instead
+  (`research/trunk-allowed-remove-everything.md`), so `remove 1-4094` stores `1002-1005`.
 * `engine/vlan.js` - `formatVlanList()` (runs folded into ranges) and `allVlansExcept()`. The running-config
   printer, the console's own replies and `switchportSentence()` use the folded form, so a trunk that removed
   one VLAN reads `allowed 1,3-1001,1006-4094` in one line instead of 4,089 numbers.

@@ -82,8 +82,10 @@ removable VLANs from the trunk" - the four defaults are not removable.
   inventing a platform rule from a single EtherSwitch note. What it does *not* do is refuse them, which was wrong
   on every platform in the table.
 * **The dead-trunk refusal.** `remove 1-1001,1006-4094` on a real box would leave `1002-1005`, a list no Ethernet
-  port can join. This console keeps its own refusal there ("that would leave the trunk allowing no VLANs"), which
-  is the console speaking, not the device; the alternative was a trunk that looks configured and carries nothing.
+  port can join. This console refused it ("that would leave the trunk allowing no VLANs"), which was the console
+  speaking, not the device. The removal is now committed, because a box can be put in a trunk-carrying-nothing
+  state on purpose with `none`; the stored list is `1002-1005`
+  ([trunk-allowed-remove-everything.md](trunk-allowed-remove-everything.md)).
 
 ## What was changed
 
