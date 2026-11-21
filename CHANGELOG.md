@@ -9,6 +9,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **A DHCP pool with no `range` was refused, though `range` is optional on the box.** The commonest DHCP
+  configuration in the world - `ip dhcp pool LAN` / `network 10.4.5.0 255.255.255.0` / `default-router
+  10.4.5.1` - was answered `% Pool LAN is incomplete - ... both rangeStart and rangeEnd are required.
+  (E_DHCP_BAD_RANGE)`, and a client on that subnet got no address at all. Cisco's own DHCP-server
+  walkthrough configures exactly that pool and shows `Leased addresses : 77` beside the row `10.4.5.1 -
+  10.4.5.254`; a pool with no `range` serves its whole subnet, and the range only narrows it. `range` is now
+  optional, the derived range runs network+1 to broadcast-1 (every address for a /31 or /32), a half-typed
+  range is still refused, and `no range` returns a pool to its subnet instead of marking it broken. The
+  allocator also skips the gateway now, as `poolCapacity()` already claimed: a pool whose range covered .1
+  was offering the router's own address to the first client that asked.
+  `test/dhcp-range-is-optional.test.js` (21 checks) pins the derived range, the served lease, `show ip dhcp
+  pool`'s subnet row and `no range`; source:
+  [`Cisco SD-WAN DHCP server guide`](https://www.cisco.com/c/en/us/support/docs/routers/sd-wan/221087-configure-and-troubleshoot-a-dhcp-server.html).
 - **The Catalyst 9300-48P was a PoE+ switch that could not source a watt.** Its own description said "48x 1G PoE+
   (437 W budget)" while the row carried no PSE port and no `poe` block, so `show power inline` answered "% No PoE ...
   no port on this device can supply power" and the budget fell through to the model-name parser (0 W, source `name`).

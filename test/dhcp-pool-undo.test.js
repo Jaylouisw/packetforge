@@ -158,15 +158,25 @@ console.log('Removing what is not there refuses and names the pool and the leaf:
 }
 
 console.log('');
-console.log('Deleting the range leaves the pool incomplete, and says that - not that it failed:');
+console.log('Deleting the range leaves a pool that serves its whole subnet, and says what it removed:');
 {
   const env = withPool();
   const msgs = apply(env, ['ip dhcp pool P1', 'no range']);
-  const verdict = msgs.filter(function (m) { return /incomplete/.test(m); })[0] || '';
-  ok(/Pool P1 is incomplete/.test(verdict), 'the message is about the pool', JSON.stringify(msgs));
-  ok(!/E_DHCP_BAD_RANGE: DHCP pool/.test(verdict), 'not a bare error code that reads like a rejection',
-    verdict);
+  ok(msgs.some(function (m) { return /^Range cleared from pool P1/.test(m); }),
+    'it says what it removed, not that the pool is broken', JSON.stringify(msgs));
+  ok(!msgs.some(function (m) { return /^%/.test(m); }), 'and raises no error', JSON.stringify(msgs));
   ok(config(env).indexOf('range 10.5.0.10') === -1, 'the range really is gone');
+  // With no range the pool serves everything its `network` names, so it is still a pool that can answer:
+  // the view keeps its row and the whole subnet is offerable. `range` is optional on the box
+  // (research/dhcp-range-is-optional.md).
+  const dhcp = require('../engine/dhcp');
+  const pool = env.d.config.dhcpPools.filter(function (x) { return x.name === 'P1'; })[0];
+  const normalized = dhcp.normalizePool(pool);
+  ok(dhcp.validatePool(normalized).ok === true, 'and the pool is still valid',
+    JSON.stringify(dhcp.validatePool(normalized)));
+  // 254 usable in the /24, less the gateway and the two exclusions.
+  ok(dhcp.poolCapacity(normalized) === 251, 'offering the subnet but for the gateway and the two exclusions',
+    String(dhcp.poolCapacity(normalized)));
 }
 
 console.log('');

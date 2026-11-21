@@ -3752,18 +3752,27 @@ lease rather than read as a synonym — see
 [research/dhcp-infinite-lease.md](../research/dhcp-infinite-lease.md) for what the evidence does and does not settle.
 
 A pool is a named object on the device, not a property of an interface: one server can hold several
-and a client picks by the subnet its own interface sits in. The pool is validated once, when the
-sub-mode is left — `network` before `range` is the second keystroke, not an error. The verdict is
-phrased as a statement about the **pool**, not about the command just typed, because after `no range`
-the pool is incomplete and that is exactly the state that was asked for; the library's error code
-rides at the end in parentheses so it is greppable without being the message:
+and a client picks by the subnet its own interface sits in.
+
+`range` is **optional**, as it is on the box: a pool with a `network` and no `range` serves that whole
+subnet, and a `range` narrows it. Every Cisco configuration example here is `ip dhcp pool` + `network`
++ options, and the 850/870 chapter's own `show ip dhcp pool` prints the row `10.10.0.1 - 10.10.0.254`
+for a pool that never named a range
+([Cisco 850/870, Configuring a LAN with DHCP and VLANs](http://www.cisco.com/en/US/docs/routers/access/800/850/software/configuration/guide/dhcpvlan.html));
+see [research/dhcp-range-is-optional.md](../research/dhcp-range-is-optional.md). The gateway is never
+offered to a client, whether it falls inside a configured range or inside the derived one.
+
+The pool is validated once, when the sub-mode is left — `network` before `range` is the second
+keystroke, not an error. The verdict is phrased as a statement about the **pool**, not about the
+command just typed, so a pool that cannot serve says why; the library's error code rides at the end in
+parentheses so it is greppable without being the message:
 
 ```
 R1(config)#ip dhcp pool lan
 Created DHCP pool lan
-R1(dhcp-config)#network 10.0.0.0 255.255.255.0
+R1(dhcp-config)#default-router 10.0.0.1
 R1(dhcp-config)#exit
-% Pool lan is incomplete - DHCP pool lan: both rangeStart and rangeEnd are required. (E_DHCP_BAD_RANGE)
+% Pool lan is incomplete - DHCP pool lan: no network address was given. (E_DHCP_BAD_NETWORK)
 ```
 
 A client is configured with `ip address dhcp` on its interface. The exchange runs before the first

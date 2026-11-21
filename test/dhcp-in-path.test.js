@@ -336,12 +336,14 @@ t('CLI: the pool sub-mode validates on exit, not on every keystroke');
 {
   const L = lab(0);
   // One session: a sub-mode only exists inside the session that entered it.
+  // No `network`: a pool with a network and no range is complete, because the range defaults to the
+  // subnet. The missing network is what the sub-mode has to complain about, once, on the way out.
   const session = L.cli(L.r, ['enable', 'configure terminal', 'ip dhcp pool lan',
-    'network 10.0.0.0 255.255.255.0', 'exit']);
+    'default-router 10.0.0.1', 'exit']);
   ok(session.some(function (l) { return /Created DHCP pool lan/.test(l); }), 'a pool can be created');
-  const typing = session.filter(function (l) { return /E_DHCP_BAD_RANGE/.test(l); });
+  const typing = session.filter(function (l) { return /E_DHCP_BAD_NETWORK/.test(l); });
   eq(typing.length, 1, 'a half-typed pool is only judged once, on the way out');
-  ok(session.some(function (l) { return /rangeStart and rangeEnd/.test(l); }),
+  ok(session.some(function (l) { return /no network address was given/.test(l); }),
     'with the library\'s own message, not a second opinion');
 
   const bad = L.cli(L.r, ['enable', 'configure terminal', 'ip dhcp pool bad!name']);

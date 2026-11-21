@@ -168,9 +168,11 @@ console.log('Nothing measured is not the same as nothing there:');
 
   // A pool that cannot serve prints the reason and no row: an index and a lease count for a pool that answers
   // nothing would be a measurement of nothing.
-  const broken = lab(['ip dhcp pool half', 'network 10.9.0.0 255.255.255.0', 'exit']);
+  // A pool with no `network` at all. (A pool with a network and no range is *not* broken: the range
+  // defaults to the subnet, research/dhcp-range-is-optional.md.)
+  const broken = lab(['ip dhcp pool half', 'default-router 10.9.0.1', 'exit']);
   const lines = show(broken, null, 'show ip dhcp pool half');
-  ok(/^% this pool is not serving yet: .*rangeStart and rangeEnd are required/.test(
+  ok(/^% this pool is not serving yet: .*no network address was given/.test(
     lineWith(lines, /^% this pool is not serving yet/)), 'a broken pool says why, on a % line',
     lines.join(' | '));
   ok(lineWith(lines, /^ Current index/) === '', 'and prints no table row it cannot fill');
