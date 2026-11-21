@@ -3,16 +3,20 @@
   "model": "GSM7226LP",
   "label": "NETGEAR ProSAFE GSM7226LP (M4100-26G-POE)",
   "category": "switch",
-  "description": "24-port gigabit PoE+ managed switch: 24x 1G all PoE+, 2 shared SFP.",
+  "description": "24-port gigabit PoE managed switch: 24x 1G all 802.3af PoE, 2 shared SFP.",
   "capabilities": [
     "l2-forward",
     "l3-forward",
     "poe-pse",
     "802.3af",
-    "802.3at",
     "cli",
     "http-server"
   ],
+  "poe": {
+    "budgetW": 192,
+    "sourceUrl": "https://www.downloads.netgear.com/files/GDC/datasheet/en/M4100.pdf",
+    "note": "M4100 data sheet, Hardware at a Glance: M4100-26G-POE (GSM7226LP) = \"24 PoE 802.3af\" ports, \"192W\" PoE budget, \"Up to 380W (EPS)\". 24 x 15.4 W = 369.6 W of port ceiling against 192 W, so the budget is the limit and the EPS is not modelled."
+  },
   "interfaces": [
     {
       "name": "ge1",
@@ -20,7 +24,7 @@
       "connector": "rj45",
       "speed": "1G",
       "poeOut": true,
-      "poeOutClass": "PoE+"
+      "poeOutClass": "PoE"
     },
     {
       "name": "ge2",
@@ -28,7 +32,7 @@
       "connector": "rj45",
       "speed": "1G",
       "poeOut": true,
-      "poeOutClass": "PoE+"
+      "poeOutClass": "PoE"
     },
     {
       "name": "ge3",
@@ -36,7 +40,7 @@
       "connector": "rj45",
       "speed": "1G",
       "poeOut": true,
-      "poeOutClass": "PoE+"
+      "poeOutClass": "PoE"
     },
     {
       "name": "ge4",
@@ -44,7 +48,7 @@
       "connector": "rj45",
       "speed": "1G",
       "poeOut": true,
-      "poeOutClass": "PoE+"
+      "poeOutClass": "PoE"
     },
     {
       "name": "ge5",
@@ -52,7 +56,7 @@
       "connector": "rj45",
       "speed": "1G",
       "poeOut": true,
-      "poeOutClass": "PoE+"
+      "poeOutClass": "PoE"
     },
     {
       "name": "ge6",
@@ -60,7 +64,7 @@
       "connector": "rj45",
       "speed": "1G",
       "poeOut": true,
-      "poeOutClass": "PoE+"
+      "poeOutClass": "PoE"
     },
     {
       "name": "ge7",
@@ -68,7 +72,7 @@
       "connector": "rj45",
       "speed": "1G",
       "poeOut": true,
-      "poeOutClass": "PoE+"
+      "poeOutClass": "PoE"
     },
     {
       "name": "ge8",
@@ -76,7 +80,7 @@
       "connector": "rj45",
       "speed": "1G",
       "poeOut": true,
-      "poeOutClass": "PoE+"
+      "poeOutClass": "PoE"
     },
     {
       "name": "ge9",
@@ -84,7 +88,7 @@
       "connector": "rj45",
       "speed": "1G",
       "poeOut": true,
-      "poeOutClass": "PoE+"
+      "poeOutClass": "PoE"
     },
     {
       "name": "ge10",
@@ -92,7 +96,7 @@
       "connector": "rj45",
       "speed": "1G",
       "poeOut": true,
-      "poeOutClass": "PoE+"
+      "poeOutClass": "PoE"
     },
     {
       "name": "ge11",
@@ -100,7 +104,7 @@
       "connector": "rj45",
       "speed": "1G",
       "poeOut": true,
-      "poeOutClass": "PoE+"
+      "poeOutClass": "PoE"
     },
     {
       "name": "ge12",
@@ -108,7 +112,7 @@
       "connector": "rj45",
       "speed": "1G",
       "poeOut": true,
-      "poeOutClass": "PoE+"
+      "poeOutClass": "PoE"
     },
     {
       "name": "ge13",
@@ -116,7 +120,7 @@
       "connector": "rj45",
       "speed": "1G",
       "poeOut": true,
-      "poeOutClass": "PoE+"
+      "poeOutClass": "PoE"
     },
     {
       "name": "ge14",
@@ -124,7 +128,7 @@
       "connector": "rj45",
       "speed": "1G",
       "poeOut": true,
-      "poeOutClass": "PoE+"
+      "poeOutClass": "PoE"
     },
     {
       "name": "ge15",
@@ -132,7 +136,7 @@
       "connector": "rj45",
       "speed": "1G",
       "poeOut": true,
-      "poeOutClass": "PoE+"
+      "poeOutClass": "PoE"
     },
     {
       "name": "ge16",
@@ -140,7 +144,7 @@
       "connector": "rj45",
       "speed": "1G",
       "poeOut": true,
-      "poeOutClass": "PoE+"
+      "poeOutClass": "PoE"
     },
     {
       "name": "ge17",
@@ -148,7 +152,7 @@
       "connector": "rj45",
       "speed": "1G",
       "poeOut": true,
-      "poeOutClass": "PoE+"
+      "poeOutClass": "PoE"
     },
     {
       "name": "ge18",
@@ -156,7 +160,7 @@
       "connector": "rj45",
       "speed": "1G",
       "poeOut": true,
-      "poeOutClass": "PoE+"
+      "poeOutClass": "PoE"
     },
     {
       "name": "ge19",
@@ -164,7 +168,7 @@
       "connector": "rj45",
       "speed": "1G",
       "poeOut": true,
-      "poeOutClass": "PoE+"
+      "poeOutClass": "PoE"
     },
     {
       "name": "ge20",
@@ -172,7 +176,7 @@
       "connector": "rj45",
       "speed": "1G",
       "poeOut": true,
-      "poeOutClass": "PoE+"
+      "poeOutClass": "PoE"
     },
     {
       "name": "ge21",
@@ -180,7 +184,7 @@
       "connector": "rj45",
       "speed": "1G",
       "poeOut": true,
-      "poeOutClass": "PoE+"
+      "poeOutClass": "PoE"
     },
     {
       "name": "ge22",
@@ -188,7 +192,7 @@
       "connector": "rj45",
       "speed": "1G",
       "poeOut": true,
-      "poeOutClass": "PoE+"
+      "poeOutClass": "PoE"
     },
     {
       "name": "ge23",
@@ -196,7 +200,7 @@
       "connector": "rj45",
       "speed": "1G",
       "poeOut": true,
-      "poeOutClass": "PoE+"
+      "poeOutClass": "PoE"
     },
     {
       "name": "ge24",
@@ -204,7 +208,7 @@
       "connector": "rj45",
       "speed": "1G",
       "poeOut": true,
-      "poeOutClass": "PoE+"
+      "poeOutClass": "PoE"
     },
     {
       "name": "sfp1",
@@ -225,5 +229,5 @@
       ]
     }
   ],
-  "notes": "Vendor figures from the M4100 datasheet: **M4100-26G-POE is a 24 x 1000Base-T PoE** switch with 2 SFP. **The 2 SFP cages are shared with copper ports**, so using fibre costs two of the twenty-four - unlike the GS724Tv4's dedicated cages."
+  "notes": "Vendor figures from the M4100 data sheet: **M4100-26G-POE is 26 x 1000Base-T, 24 of them PoE 802.3af**, with **4 shared SFP** cages and a **192 W** budget (380 W with the EPS). The 24 powered ports are 802.3af (15.4 W), not PoE+ - the 802.3at model on the same sheet is the M4100-24G-POE+ (GSM7224P, 380 W). The port census here is still 24 RJ45 + 2 SFP, and the sheet's 26 + 4 shared cages is a separate question not settled by the PoE figures (research/netgear-gsm7226lp-poe-budget.md)."
 }
