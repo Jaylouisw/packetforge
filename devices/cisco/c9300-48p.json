@@ -7,14 +7,19 @@
   "capabilities": [
     "l2-forward",
     "l3-forward",
-    "cli"
+    "cli",
+    "poe-pse",
+    "802.3af",
+    "802.3at"
   ],
   "portTemplate": {
     "prefix": "Gi1/0/",
     "start": 1,
     "count": 48,
     "type": "ethernet",
-    "speed": "1G"
+    "speed": "1G",
+    "poeOut": true,
+    "poeOutClass": "PoE+"
   },
   "interfaces": [
     {
@@ -91,5 +96,12 @@
     }
   ],
   "icon": "switch",
-  "color": "#0ea5e9"
+  "color": "#0ea5e9",
+  "poe": {
+    "budgetW": 437,
+    "standard": "802.3at",
+    "perPortW": 30,
+    "sourceUrl": "https://www.cisco.com/c/en/us/products/collateral/switches/catalyst-9300-series-switches/nb-06-cat9300-ser-data-sheet-cte-en.html",
+    "note": "Cisco Catalyst 9300 data sheet, Table 1: \"C9300-48P | 48 POE+ | Modular Uplinks | 715W AC | 437W\", and Table 3: 437 W on the default PWR-C1-715WAC, 787 W with a 350 W secondary, 1152 W with a 715 W secondary, 1440 W with a 1100 W secondary. 30 W per port (\"PoE+ on all ports (30W per port)\"); the 1440 W ceiling is the footnote's \"limited by port number and port rating\"."
+  }
 }

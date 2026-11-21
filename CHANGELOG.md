@@ -9,6 +9,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **The Catalyst 9300-48P was a PoE+ switch that could not source a watt.** Its own description said "48x 1G PoE+
+  (437 W budget)" while the row carried no PSE port and no `poe` block, so `show power inline` answered "% No PoE ...
+  no port on this device can supply power" and the budget fell through to the model-name parser (0 W, source `name`).
+  Cisco's Catalyst 9300 data sheet prints the row in Table 1 (`C9300-48P | 48 POE+ | Modular Uplinks | 715W AC |
+  437W`), the 437 W default (787/1152/1440 W with larger secondary supplies) in Table 3, and "PoE+ on all ports
+  (30W per port)" in the PoE feature list. The row now declares `poe-pse`/802.3af/802.3at, 30 W on Gi1/0/1-48 and a
+  437 W budget; the eight Gi1/1/x modular uplinks still source nothing, as the data sheet's "Modular Uplinks"
+  column says. `test/c9300-48p-poe.test.js` (29 checks) pins the spec and the arithmetic: 17 Class-4 access points
+  fit at 433.5 W and the 18th is refused with "25.5 W requested, 3.5 W left". Source:
+  [`Catalyst 9300 Series data sheet`](https://www.cisco.com/c/en/us/products/collateral/switches/catalyst-9300-series-switches/nb-06-cat9300-ser-data-sheet-cte-en.html).
 - **`show spanning-tree` had a `Type` column in the header's vocabulary and no cell under it.** Cisco derives
   RSTP's link type from the port's duplex - "The link type is automatically derived from the duplex mode of a
   port. A port that operates in full-duplex is assumed to be point-to-point, while a half-duplex port is
