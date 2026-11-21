@@ -1047,7 +1047,8 @@ section('7. NAT: PAT, static and dynamic translation');
 
   const lines = nat.formatTable(table);
   eq(lines.length, 2, 'show ip nat translations prints one line per translation');
-  ok(lines.every(function (l) { return /pat$/.test(l); }), 'each line ends with the translation type');
+  // No sixth field: a box's plain table stops at `Outside global` (research/show-ip-nat-translations-columns.md).
+  ok(lines.every(function (l) { return !/(?:^|\s)pat$/.test(l); }), 'no line appends a translation type');
 
   // Fixed in #54 (engine/nat.js, flowKeyOf): a PAT translation was keyed on the
   // inside address, the destination and the protocol but not on the inside

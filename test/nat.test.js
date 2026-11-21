@@ -354,15 +354,55 @@ ok(hasCode(nat.validateRule({ type: 'static', insideLocal: '192.168.1.10' }).err
   const patLine = lines.filter(function (l) { return /:1024\b/.test(l); })[0] || '';
   ok(patLine.indexOf('203.0.113.5:1024') !== -1, 'the pat line shows the global address and port');
   ok(patLine.indexOf('192.168.1.10:52000') !== -1, 'the pat line shows the inside local and port');
-  ok(/\bpat\s*$/.test(patLine), 'the pat line ends with its translation type');
+  // Five columns, and no sixth: every vendor sample of the plain table ends at `Outside global`, and the
+  // translation type appears only under `verbose`, as `flags:` (research/show-ip-nat-translations-columns.md).
+  // This line used to end with `pat`.
+  ok(!/(?:^|\s)(?:pat|static|dynamic)\s*$/.test(patLine), 'the row ends at the outside global cell');
 
   const staticLine = lines.filter(function (l) { return l.indexOf('203.0.113.7') !== -1; })[0] || '';
   ok(staticLine.indexOf('192.168.1.50') !== -1, 'the static line shows the inside local address');
-  ok(/\bstatic\s*$/.test(staticLine), 'the static line ends with its translation type');
+  ok(!/(?:^|\s)(?:pat|static|dynamic)\s*$/.test(staticLine),
+    'the static rule\'s row does not name its type either - the rule does, in `show ip nat rules`');
   ok(nat.formatTable(t).join('\n') === lines.join('\n'), 'formatTable output is stable across calls');
   ok(typeof nat.TABLE_HEADER === 'string' && nat.TABLE_HEADER.indexOf('Inside global') !== -1,
     'TABLE_HEADER documents the columns for the CLI');
   ok(nat.formatTable(null).length === 0, 'formatTable tolerates a missing table');
+}
+
+// The heading and the rows share one set of column stops, and the protocol field is where every intact
+// vendor sample ends it - column 4 (research/show-ip-nat-translations-columns.md). A four-character
+// protocol does not push the columns after it.
+{
+  const heading = nat.TABLE_HEADER;
+  ok(heading.indexOf('Inside global') === 4, 'the inside-global column starts at column 4',
+    JSON.stringify(heading));
+  ok(heading.indexOf('Outside global') !== -1 && heading.indexOf('Inside local') === 27,
+    'the address columns keep their own 23-wide stops', JSON.stringify(heading));
+
+  const t = tableWith(patRule({ protocol: 'any' }));
+  nat.translateOutbound(t, pkt({ protocol: 'icmp', srcPort: 77, dstPort: 77 }), 10);
+  const row = nat.formatTable(t)[0] || '';
+  ok(row.slice(0, 5) === 'icmp ', 'a four-character protocol keeps one space after it', JSON.stringify(row));
+  const global = row.indexOf('203.0.113.5');
+  ok(global === 5, 'so that row\'s inside-global cell sits one column right of the heading\'s',
+    JSON.stringify(row));
+  // The columns after it still land on the heading's stops: one overrun does not shift the rest.
+  const outsideGlobal = row.lastIndexOf('203.0.113.9');
+  ok(outsideGlobal === heading.indexOf('Outside global'),
+    'and every later column still lines up with the heading', JSON.stringify(row) + ' at ' + outsideGlobal);
+}
+
+// A translation with no protocol prints `---` in that column, not this model's internal `any`: Cisco's own
+// sample of a portless static entry is `--- 172.16.68.5 10.10.10.1 --- ---`
+// (https://www.cisco.com/c/en/us/support/docs/ip/network-address-translation-nat/4606-8.html, collected in
+// research/show-ip-nat-translations-columns.md).
+{
+  const t = tableWith({ type: 'static', insideLocal: '192.168.1.50', insideGlobal: '203.0.113.7' });
+  nat.translateOutbound(t, pkt({ srcIp: '192.168.1.50', srcPort: 41000 }), 20);
+  const row = nat.formatTable(t)[0] || '';
+  ok(row.slice(0, 4) === '--- ', 'a portless static entry shows --- where the protocol goes',
+    JSON.stringify(row));
+  ok(row.indexOf('any') === -1, 'and never the model\'s own word for "no protocol"', JSON.stringify(row));
 }
 
 // ---------------------------------------------------------------------------
