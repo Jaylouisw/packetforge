@@ -21,5 +21,10 @@
       "poeOut": 24
     }
   ],
-  "sourceUrl": "https://mikrotik.com/product/RBGPOE"
+  "sourceUrl": "https://mikrotik.com/product/RBGPOE",
+  "poe": {
+    "budgetUnknown": true,
+    "sourceUrl": "https://mikrotik.com/product/RBGPOE",
+    "note": "No wattage to record, and none invented. MikroTik's specification table prints \"Input voltage 18-57 V\", \"Output Voltage Same as input\" and a current limit only - \"Max. Current 2A\" (https://mikrotik.com/product/RBGPOE, read 2026-11-21). A bare injector with no PSU has no output wattage until an adapter is attached: the ceiling moves with the supply, so 24 V x 1 A would be a number MikroTik never published. Marked unknown so the port is reported and the arithmetic is refused, the same disposition as mikrotik/CRS112-8P-4S."
+  }
 }

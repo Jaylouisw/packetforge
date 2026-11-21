@@ -24,6 +24,11 @@
     }
   ],
   "sourceUrl": "https://www.microchip.com/en-us/product/PD-9501GCO",
+  "poe": {
+    "budgetW": 60,
+    "sourceUrl": "https://www.microchip.com/en-us/product/PD-9501GCO",
+    "note": "Product page rows \"Number of ports: 1\" and \"PoE output: 60W\", with the description reading \"guaranteeing 60 Watts of power\" (read 2026-11-21). Single port, so the device total is the port ceiling."
+  },
   "role": [
     "midspan",
     "802.3bt-type-3"

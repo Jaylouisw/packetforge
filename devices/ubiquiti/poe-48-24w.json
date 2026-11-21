@@ -21,5 +21,10 @@
       "poeOut": 24
     }
   ],
-  "sourceUrl": "https://www.ui.com/accessories/poe-adapter/"
+  "sourceUrl": "https://www.ui.com/accessories/poe-adapter/",
+  "poe": {
+    "budgetW": 24,
+    "sourceUrl": "https://dl.ui.com/datasheets/poe/PoE_Adapters_DS.pdf",
+    "note": "Data sheet model table, column \"POE-48-24W\": \"Output Voltage 48VDC @ 0.5A\" = 24 W (read 2026-11-21). One port, so the device total is the port ceiling; in this part number 48 is the volts and 24 is the watts, which is exactly the pair the model-name parser cannot tell apart."
+  }
 }

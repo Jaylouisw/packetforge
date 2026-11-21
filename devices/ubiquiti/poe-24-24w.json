@@ -21,5 +21,10 @@
       "poeOut": 24
     }
   ],
-  "sourceUrl": "https://www.ui.com/accessories/poe-adapter/"
+  "sourceUrl": "https://www.ui.com/accessories/poe-adapter/",
+  "poe": {
+    "budgetW": 24,
+    "sourceUrl": "https://dl.ui.com/datasheets/poe/PoE_Adapters_DS.pdf",
+    "note": "Data sheet model table, column \"POE-24-24W, POE-24-24W-WH\": \"Output Voltage 24VDC @ 1.0A\" = 24 W (read 2026-11-21); the store listing heads the same part \"PoE Injector, 24VDC, 24W\". One port, so the device total is the port ceiling."
+  }
 }

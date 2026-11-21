@@ -24,6 +24,11 @@
     }
   ],
   "sourceUrl": "https://www.phihong.com/products/power-over-ethernet/poe60u-1bt-2-r/",
+  "poe": {
+    "budgetW": 60,
+    "sourceUrl": "https://www.phihong.com/wp-content/uploads/POE60U-1BT-X-R.pdf",
+    "note": "Data sheet output table, POE60U-1BT-2-R column: \"Output Power 60W @40°C; 30W @50°C\" (read 2026-11-21); the product page heads it \"IEEE802.3bt PoE Injector - Single-Port - 60W\" with \"Power/Port - 60\" (https://www.phihong.com/products/power-over-ethernet/poe60u-1bt-2-r/). One port, so the device total is the port ceiling. 60 W is the 40 °C rating: the same sheet derates the unit to 30 W at 50 °C, which the engine models as one published ceiling rather than an ambient-dependent curve."
+  },
   "role": [
     "802.3bt-type-3"
   ],

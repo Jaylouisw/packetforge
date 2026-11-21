@@ -22,6 +22,11 @@
     }
   ],
   "sourceUrl": "https://www.phihong.com/products/power-over-ethernet/poe90u-1bt-n6-r/",
+  "poe": {
+    "budgetW": 90,
+    "sourceUrl": "https://www.phihong.com/wp-content/uploads/POE90U-1BT-X-R.pdf",
+    "note": "The sheet is headed \"90W Single Port Multi-Gig Power over Ethernet\", and its model table carries the N6 part in the same column set: \"POE90U-1BT-N6-R 1G 56V >10mA 1.6A 54-57V\" (read 2026-11-21). The product page prints \"Output Power - 90W, Output Current - 1.6A, Power/Port - 90\" (https://www.phihong.com/products/power-over-ethernet/poe90u-1bt-n6-r/). One port, so the device total is the port ceiling."
+  },
   "role": [
     "midspan",
     "802.3bt-type-4",

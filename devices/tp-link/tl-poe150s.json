@@ -21,5 +21,10 @@
       "poeOut": 15.4
     }
   ],
-  "sourceUrl": "https://www.tp-link.com/us/business-networking/antenna-and-accessory/tl-poe150s/"
+  "sourceUrl": "https://www.tp-link.com/us/business-networking/antenna-and-accessory/tl-poe150s/",
+  "poe": {
+    "budgetW": 15.4,
+    "sourceUrl": "https://www.tp-link.com/us/business-networking/antenna-and-accessory/tl-poe150s/",
+    "note": "HARDWARE FEATURES row \"Power Supply | 15.4W (Max. 48VDC)\" on the vendor page for POE150S (TL-POE150S) - tp-link.com now redirects to the Omada host, https://www.omadanetworks.com/us/business-networking/omada-accessory-poe-adapter/poe150s/ (read 2026-11-21). One port, so the device total is the port ceiling, and 15.4 W is 802.3af's PSE maximum rather than a TP-Link over-power mode."
+  }
 }

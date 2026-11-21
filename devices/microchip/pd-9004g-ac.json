@@ -56,6 +56,11 @@
     }
   ],
   "sourceUrl": "https://ww1.microchip.com/downloads/en/DeviceDoc/PD-9004G_Datasheet_00003976B.pdf",
+  "poe": {
+    "budgetW": 120,
+    "sourceUrl": "https://ww1.microchip.com/downloads/en/DeviceDoc/PD-9004G_Datasheet_00003976B.pdf",
+    "note": "DERIVED, not quoted as a single total: the data sheet prints \"Number of Ports 4\", \"Provides up to 30W per port for all ports\" and the specifications row \"Output Power 30W\" (DS00003976B, read 2026-11-21), so the chassis total is 4 x 30 W = 120 W. Microchip publishes no \"Total Output Power\" line for the PD-9004G; the multiplication is the vendor's own \"for all ports\" claim, and it matches the 120 W already stated in this row's description."
+  },
   "role": [
     "midspan"
   ]

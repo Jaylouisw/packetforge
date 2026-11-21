@@ -23,6 +23,11 @@
     }
   ],
   "sourceUrl": "https://www.microchip.com/en-us/product/PD-9001GR/AT/AC",
+  "poe": {
+    "budgetW": 30,
+    "sourceUrl": "https://ww1.microchip.com/downloads/en/DeviceDoc/PD-9001GR_Datasheet_00003973B.pdf",
+    "note": "Feature bullet \"Output power of 30W is guaranteed\" and the specifications row \"Output Power 30W\" (data sheet DS00003973B, read 2026-11-21). Single port, so the device total is the port ceiling; the same sheet derates the unit to 22.5 W above 40 °C, which is not modelled."
+  },
   "role": [
     "midspan"
   ]
