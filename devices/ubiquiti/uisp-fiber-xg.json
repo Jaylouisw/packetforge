@@ -3,7 +3,7 @@
   "model": "UISP-FIBER-XG",
   "label": "Fiber XG",
   "category": "ont",
-  "description": "Fiber XG (UISP-FIBER-XG) - 1x PON (10G) + 1x 2.5G RJ45 (1x PoE passthrough). Passive PoE-in; 6 W max.",
+  "description": "Fiber XG (UISP-FIBER-XG) - 1x XGPON (10G downstream / 2.44G upstream) + 1x 2.5G RJ45. The RJ45 jack is also the power inlet: 24 V DC passive PoE (2-pair, 4,5+ / 7,8-), or USB-C 5 V. Max 6 W; there is no PoE output - the vendor lists exactly one PoE interface, \"(1) PoE in, 24V DC passive PoE\".",
   "capabilities": [
     "l3-forward",
     "nat",
@@ -11,9 +11,8 @@
     "dhcp-server",
     "dhcp-client",
     "http-server",
-    "poe-pse",
-    "passive-poe",
-    "poe-pd"
+    "poe-pd",
+    "passive-poe"
   ],
   "interfaces": [
     {
@@ -26,8 +25,7 @@
         "1G",
         "100M"
       ],
-      "poeOut": true,
-      "poeOutClass": "PoE"
+      "poeIn": 6
     },
     {
       "name": "pon1",
@@ -38,5 +36,6 @@
   ],
   "icon": "ont",
   "color": "#14b8a6",
-  "sourceUrl": "https://techspecs.ui.com/uisp/fiber/uisp-fiber-xg"
+  "sourceUrl": "https://techspecs.ui.com/uisp/fiber/uisp-fiber-xg",
+  "notes": "Vendor figures, read 2026-11-21 from the tech-spec table, the datasheet PDF (3 pp, text layer) and the US store listing - all three print the same rows. \"Networking interface (1) SC/APC, ITU-G.987 XGPON WAN port, (1) 100/1,000/2,500 MbE RJ45 LAN ports\"; \"PoE interface (1) PoE in, 24V DC passive PoE\"; \"Max. power consumption 6W\"; \"Power supply Passive PoE 2-pair (4, 5+; 7, 8-)\"; \"Supported voltage range 10-30V DC passive PoE\". The single RJ45 port is therefore the power INLET, not a PSE: there is no passthrough and no 802.3af/at detection on this box. It is modelled with poeIn 6 (the vendor's max consumption) and no poeOut. Earlier revisions carried `poeOut: true` with `poeOutClass: \"PoE\"` on eth0, which made the ONU advertise a 1 W 802.3af PSE on the jack it is powered from. PON downstream 9.95 Gbit/s, upstream 2.44 Gbit/s, 20 km reach."
 }
