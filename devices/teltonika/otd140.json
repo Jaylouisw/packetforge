@@ -3,7 +3,7 @@
   "model": "OTD140",
   "label": "Teltonika OTD140",
   "category": "router",
-  "description": "Outdoor 4G Cat 4 router: 2x 100 Mbps ETH ports, PoE in on one and PoE out on the other.",
+  "description": "Outdoor 4G Cat 4 router: 2x 100 Mbps ETH ports, PoE in on one and a single 802.3af (Alternative B) PoE out on the other, 15 W at the PSE. The out jack is a real source - a 12.95 W camera hangs off it - but it is not PoE+: a 25.5 W class-4 device is refused 15 W.",
   "capabilities": [
     "l3-forward",
     "nat",
@@ -31,8 +31,8 @@
       "type": "ethernet",
       "connector": "rj45",
       "speed": "100M",
-      "poeOut": true,
-      "poeOutClass": "PoE+"
+      "poeOut": 15,
+      "poeOutClass": "PoE"
     },
     {
       "name": "wwan1",
@@ -46,5 +46,11 @@
     }
   ],
   "sourceUrl": "https://teltonika-networks.com/product/otd140/",
-  "notes": "Vendor figures from the OTD140 datasheet: **2x ETH ports (can be configured as WAN), 10/100 Mbps**, and the power rows read **PoE ports 1 x PoE In**, **PoE standards 802.3af/at**, with a PoE out section on the second port. So the box can be powered by the cable it also passes power through - and **both copper ports are fast Ethernet**, which is the smallest number in an outdoor cellular deployment that otherwise looks modern."
+  "poe": {
+    "budgetW": 15,
+    "standard": "802.3af",
+    "sourceUrl": "https://download.kamami.pl/p1207980-Datasheet_OTD140_1.20.pdf",
+    "note": "15 W, the vendor's own 'PoE Max Power per Port (at PSE)' row for the single PoE-out jack, under the heading POE OUT: 'PoE ports 1 x PoE Out', 'PoE standards 802.3af Alternative B', 'PoE Max Power per Port (at PSE) 15 W Max (power supply unit dependent)' - datasheet v1.20, 2026-07-24, p.2 (https://download.kamami.pl/p1207980-Datasheet_OTD140_1.20.pdf, HTTP 200, 2,264,361 B, 11 pp, text layer read 2026-11-21). A second copy of the same revision, 2024-v1 (https://www.sicetelecom.it/wp-content/MU/datasheet/Teltonika-Router-TELTONIKA-Teltonika-outdoor-4G-ROU-OTD140-SICE-Distributore-Italiano.pdf, HTTP 200, 748,708 B, 10 pp), carries the same three cells on p.3. Because the box has exactly one PSE socket, its per-port ceiling is also its whole budget. The revision's own power rows agree: 'Power consumption Idle: < 2.5 W / Max: < 6 W / PoE Max < 21 W' (v1.20 p.7) is 6 W of router plus 15 W of PoE out, so 21 W total - a 24 W output would need a 30 W input the printed row does not allow. NOT USED: the 24 W figure in the earlier datasheet v1.6 (2024) and in the OTD140 flyer v1.4 ('PoE Out: 802.3af/at ... max 24W'), which also classed the jack as 802.3at. That row predates the correction; 802.3af cannot carry 24 W (15.4 W is the class ceiling) and the 21 W consumption row that ships with the 15 W figure cannot fund it. 'Alternative B' is 802.3af power over the spare pairs - still negotiated 802.3af, not passive 24 V - which is why the class is PoE and not passive."
+  },
+  "notes": "Vendor figures from the OTD140 datasheet v1.20 (2026-07-24): **2x ETH ports (can be configured as WAN), 10/100 Mbps** (p.2), POE IN 'PoE ports 1 x PoE In', 'PoE standards 802.3af/at', and POE OUT 'PoE ports 1 x PoE Out', 'PoE standards 802.3af Alternative B', 'PoE Max Power per Port (at PSE) 15 W Max (power supply unit dependent)' (p.2), power 'Input voltage range for PoE 42.5-57.0 VDC' and 'Power consumption Idle: < 2.5 W / Max: < 6 W / PoE Max < 21 W' (p.7). So the box can be powered by the cable it also passes power through - and **both copper ports are fast Ethernet**, which is the smallest number in an outdoor cellular deployment that otherwise looks modern. THIS ROW USED TO SAY POE+: eth2 carried `poeOut: true` with `poeOutClass: \"PoE+\"` and the device had no `poe` block, so `Device.poeBudget` fell through to the model-name parser (no wattage in 'OTD140'), stayed 0, and `computePoe()` skipped the box at `if (!dev.poeBudget) continue;` - `show power inline` answered 'budget not modelled' and a camera cabled to the PoE-out jack stayed dark on a router whose whole point is to power one. `poeOut: true` is also the boolean `Device.poeDraw()` bills as 1 W. The jack now declares its 15 W ceiling, the class is the 802.3af the sheet prints, and the `poe` block gives the one-port PSE its budget. NOT MODELLED: the PoE-in class of the upstream port (eth1 declares the 12.95 W class-0 draw the sheet's 802.3af/at row covers) and the coupling between the two - a box fed by 802.3at cannot spare the full 15 W while also drawing 12.95 W, and this engine budgets each PSE independently. The sibling OTD144 is untouched: its own datasheet was not read in this run."
 }
