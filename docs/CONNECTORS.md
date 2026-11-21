@@ -499,7 +499,10 @@ Everything the rules engine can emit, and where it comes from:
 | `E_SELF_LINK` | error | validation | A device cabled to itself |
 | `E_PORT_IN_USE` | error | validation | Port already carries a link |
 | `E_COMBO_OCCUPIED` | error | **topology.js** | The other half of the combo cage is in use |
+| `E_SERIAL_NO_CLOCK` | error | validation | Neither end of a serial link supplies a clock, so the line carries nothing |
+| `E_SERIAL_TWO_CLOCKS` | error | validation | Both ends of a serial link supply a clock; a serial cable has one DCE end |
 | `E_CONSOLE_TO_DATA` | error | validation | Console port paired with a data port |
+| `E_PROTOCOL_MISMATCH` | error | media `canMate` | Ends carry different protocols (console against data, Fibre Channel against Ethernet): the connector may mate, no frame crosses |
 | `E_WIRELESS_TO_WIRED` | error | media `canMate` | Radio against a wired cage |
 | `E_POLISH_MISMATCH` | error | media `canMate` | Same ferrule shape, different polish |
 | `E_PATCH_CORD_UNKNOWN` | error | validation | Declared patch cord is not in the catalogue |
@@ -518,6 +521,7 @@ Everything the rules engine can emit, and where it comes from:
 | `W_SPEED_DOWNGRADE` | warning | validation | Link below the maximum of a port on it — both ends, or one end facing a slower peer. Module-capped links are exempt |
 | `W_POE_DRAW` | warning | validation | Powered device on a port that supplies no PoE |
 | `W_HYBRID_CORD` | warning | validation | Hybrid UPC/APC cord joining two polishes; legal, costs its IL |
+| `W_SWITCHPORT_MISMATCH` | warning | validation | The cable's ends classify frames differently (native or access VLAN, trunk against access, different allowed lists) |
 | `E_LINK_UNCHECKABLE` | error | validation | `validateTopology` could not get a verdict for a cable; the per-cable validator threw |
 | `E_NOT_A_TOPOLOGY` | error | validation | `validateTopology` was handed neither a topology nor an issue list |
 
