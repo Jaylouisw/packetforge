@@ -27,7 +27,8 @@
         "100M",
         "10M"
       ],
-      "poeIn": false
+      "poeIn": false,
+      "role": "wan"
     },
     {
       "name": "port1",
@@ -39,7 +40,8 @@
         "100M",
         "10M"
       ],
-      "poeIn": false
+      "poeIn": false,
+      "role": "lan"
     },
     {
       "name": "port2",
@@ -51,7 +53,8 @@
         "100M",
         "10M"
       ],
-      "poeIn": false
+      "poeIn": false,
+      "role": "lan"
     },
     {
       "name": "port3",
@@ -63,7 +66,8 @@
         "100M",
         "10M"
       ],
-      "poeIn": false
+      "poeIn": false,
+      "role": "lan"
     },
     {
       "name": "port4",
@@ -75,10 +79,11 @@
         "100M",
         "10M"
       ],
-      "poeIn": false
+      "poeIn": false,
+      "role": "lan"
     }
   ],
   "icon": "router",
   "color": "#3b82f6",
-  "notes": "Vendor figures read 2026-11-19 from https://techspecs.ui.com/unifi/cloud-gateways/ucg-ultra (HTTP 200, 657,109 B): Port Layout = (4) 1 GbE & (1) 2.5 GbE, Max. WAN Port Count 4, Max. Power Consumption 6.2 W, Power Method = USB type C (5V DC/3A), Power Supply = USB type C (5V DC/3A) (adapter included). The page prints no PoE row at all - zero occurrences of 'PoE' or '802.3' in 657,109 bytes. https://store.ui.com/us/en/products/ucg-ultra (HTTP 200, 550,854 B) agrees and is the machine-readable confirmation: PoE Support flag Empty, PoE Budget flag Empty, Max. PoE Wattage per Port by PSE flag Empty, Power Method 'USB type C (5V DC/3A)'. (The store page's 'PoE'-bearing strings - 'PoE Integrated AC Adapter', 'PoE-powered 5G RedCap antenna', Power Method 'PoE / IEEE 802.3af' - are cross-sell specifications for other SKUs in the same payload, not this console.) There is no UCG-Ultra datasheet: https://dl.ui.com/ds/ucg-ultra.pdf and https://dl.ui.com/ds/ucg-ultra_ds.pdf both answer 302 -> https://techspecs.ui.com, the miss this project already recorded for uxg-fiber. All five copper ports therefore say poeIn: false: isPoePd() matches 'unifi' in the label, and without the explicit false every silent port became a 12.95 W 802.3af draw - 64.75 W on a 6.2 W box fed by a 5 V USB-C adapter.\n\n**LAN bank (layer 2), read 2026-11-21.** Both vendor surfaces carry `MAC Address Table Size = 2,000` and `VLAN/Subnet-based Traffic Segmentation = True`, beside `1 GbE RJ45 = 4` - https://techspecs.ui.com/unifi/cloud-gateways/ucg-ultra (HTTP 200, 657,109 B), and the storefront payload repeats both rows at https://store.ui.com/us/en/products/ucg-ultra (HTTP 200, 550,987 B). `LACP Port Aggregation` is the one L2 row this box leaves Empty on both surfaces, so the four 1G sockets bridge without a LAG and the row declares `l2-forward` without claiming bundle support. A 2,000-entry MAC table is a bridge forwarding database, so port1-port4 forward at layer 2 (MAC learning + flooding). Measured on the pre-change spec: hosts on port1 and port2 in 192.168.1.0/24 could not resolve each other's ARP, and `switchport access vlan 10` answered \"cannot switch frames: it has no l2-forward capability\". `no switchport` still makes a LAN port routed; the WAN port keeps its address."
+  "notes": "Vendor figures read 2026-11-19 from https://techspecs.ui.com/unifi/cloud-gateways/ucg-ultra (HTTP 200, 657,109 B): Port Layout = (4) 1 GbE & (1) 2.5 GbE, Max. WAN Port Count 4, Max. Power Consumption 6.2 W, Power Method = USB type C (5V DC/3A), Power Supply = USB type C (5V DC/3A) (adapter included). The page prints no PoE row at all - zero occurrences of 'PoE' or '802.3' in 657,109 bytes. https://store.ui.com/us/en/products/ucg-ultra (HTTP 200, 550,854 B) agrees and is the machine-readable confirmation: PoE Support flag Empty, PoE Budget flag Empty, Max. PoE Wattage per Port by PSE flag Empty, Power Method 'USB type C (5V DC/3A)'. (The store page's 'PoE'-bearing strings - 'PoE Integrated AC Adapter', 'PoE-powered 5G RedCap antenna', Power Method 'PoE / IEEE 802.3af' - are cross-sell specifications for other SKUs in the same payload, not this console.) There is no UCG-Ultra datasheet: https://dl.ui.com/ds/ucg-ultra.pdf and https://dl.ui.com/ds/ucg-ultra_ds.pdf both answer 302 -> https://techspecs.ui.com, the miss this project already recorded for uxg-fiber. All five copper ports therefore say poeIn: false: isPoePd() matches 'unifi' in the label, and without the explicit false every silent port became a 12.95 W 802.3af draw - 64.75 W on a 6.2 W box fed by a 5 V USB-C adapter.\n\n**LAN bank (layer 2), read 2026-11-21.** Both vendor surfaces carry `MAC Address Table Size = 2,000` and `VLAN/Subnet-based Traffic Segmentation = True`, beside `1 GbE RJ45 = 4` - https://techspecs.ui.com/unifi/cloud-gateways/ucg-ultra (HTTP 200, 657,109 B), and the storefront payload repeats both rows at https://store.ui.com/us/en/products/ucg-ultra (HTTP 200, 550,987 B). `LACP Port Aggregation` is the one L2 row this box leaves Empty on both surfaces, so the four 1G sockets bridge without a LAG and the row declares `l2-forward` without claiming bundle support. A 2,000-entry MAC table is a bridge forwarding database, so port1-port4 forward at layer 2 (MAC learning + flooding). Measured on the pre-change spec: hosts on port1 and port2 in 192.168.1.0/24 could not resolve each other's ARP, and `switchport access vlan 10` answered \"cannot switch frames: it has no l2-forward capability\". `no switchport` still makes a LAN port routed; the WAN port keeps its address.\n\nWAN/LAN role separation, read 2026-11-21. The vendor numbers the sockets and names the uplink. Ubiquiti's controller device database (`https://static.ui.com/fingerprint/ui/public.json`, HTTP 200, 832,585 B, `devices` entry with `sku` = UCG-Ultra) prints `ports` = {\"eth0\": \"LAN\", \"eth1\": \"LAN\", \"eth2\": \"LAN\", \"eth3\": \"LAN\", \"eth4\": \"WAN\"} with `switchPorts` [1, 2, 3, 4] and `numberOfPorts` 5; the product page prints the same split in words - `Default WAN Ports (1) 2.5 GbE RJ45`, `Max. WAN Port Count 4` - at https://techspecs.ui.com/unifi/cloud-gateways/ucg-ultra (HTTP 200, 657,109 B). `role` is the field `engine/device.js` `ownsIpOn` reads (`owner.role && inIface.role && owner.role !== inIface.role`, \"WAN and LAN are separate L3 surfaces ... role separation outranks the VLAN shortcut\") and it fires only when BOTH sides carry one, so a LAN bank with no role leaves the invariant false: with 192.168.1.1/24 on `port1`, `ownsIpOn(wan1, '192.168.1.1')` returned true, and a host cabled to `wan1` inside that subnet was answered by the LAN gateway. `wan1` now declares role \"wan\" and `port1`-`port2`-`port3`-`port4` \"lan\"; measured after the change, `wan1` no longer owns the LAN address, `port2` still reaches the address held on `port1` (the bank still answers bank-wide), and `wan1` still answers its own. The vendor's `Max. WAN Port Count 4` is a ceiling with no per-socket assignment, so no port here claims `dualRole`: a lab that needs a second WAN still has to be told which socket the firmware gives up."
 }

@@ -20,34 +20,39 @@
       "name": "WAN",
       "type": "ethernet",
       "speed": "2.5G",
-      "poeIn": false
+      "poeIn": false,
+      "role": "wan"
     },
     {
       "name": "Port 1",
       "type": "ethernet",
       "speed": "2.5G",
-      "poeIn": false
+      "poeIn": false,
+      "role": "lan"
     },
     {
       "name": "Port 2",
       "type": "ethernet",
       "speed": "2.5G",
-      "poeIn": false
+      "poeIn": false,
+      "role": "lan"
     },
     {
       "name": "Port 3",
       "type": "ethernet",
       "speed": "2.5G",
-      "poeIn": false
+      "poeIn": false,
+      "role": "lan"
     },
     {
       "name": "Port 4",
       "type": "ethernet",
       "speed": "2.5G",
-      "poeIn": false
+      "poeIn": false,
+      "role": "lan"
     }
   ],
   "icon": "router",
   "color": "#3b82f6",
-  "notes": "Power: none of these copper ports accepts PoE. Vendor page https://techspecs.ui.com/unifi/cloud-gateways/ucg-max (HTTP 200, 668,564 B, read 2026-11-19, server-rendered tech-spec table) says \"Power Method = USB type C (5V DC/5A)\"; a box fed from mains, a USB-C supply or a DC jack has no PoE-PD front end, so WAN / Port 1 / Port 2 / Port 3 / Port 4 now declare poeIn: false. Without that declaration the engine's isPoePd() match on \"unifi\" gave each silent copper port a 12.95 W 802.3af draw - the defect PR #2118 and PR #2121 fixed across the UXG family (refs #130).\n\nLAN bank is one bridge (measured 2026-11-20 23:5x UTC). `https://techspecs.ui.com/unifi/cloud-gateways/ucg-max` (HTTP 200, 668,564 B, server-rendered spec table) prints **MAC Address Table Size = 2,000** in its Networking section beside `Port Layout - 2.5 GbE RJ45 = 5 (2.5G/1G/100M/10M)`, `Max. WAN Port Count = 4` and `Default WAN Ports (1) 2.5 GbE RJ45`; the storefront payload (`https://store.ui.com/us/en/category/cloud-gateways-compact/collections/cloud-gateway-max/products/ucg-max` - the address `/us/en/products/ucg-max` 307s to - HTTP 200, 646,522 B) carries the same 2,000 row. A 2,000-entry MAC table is a bridge FDB, and a box that only routed would hold none, so Port 1-Port 4 forward at layer 2 and the row declares `l2-forward`. Ubiquiti publishes no LACP and no 802.1Q row for this SKU on either surface, so the token is claimed for MAC learning only - which is the fact the vendor states. Without it `switchport access vlan` and `channel-group` were refused and two LAN hosts in one subnet could not ARP each other; `no switchport` still routes a port and the WAN port keeps its address."
+  "notes": "Power: none of these copper ports accepts PoE. Vendor page https://techspecs.ui.com/unifi/cloud-gateways/ucg-max (HTTP 200, 668,564 B, read 2026-11-19, server-rendered tech-spec table) says \"Power Method = USB type C (5V DC/5A)\"; a box fed from mains, a USB-C supply or a DC jack has no PoE-PD front end, so WAN / Port 1 / Port 2 / Port 3 / Port 4 now declare poeIn: false. Without that declaration the engine's isPoePd() match on \"unifi\" gave each silent copper port a 12.95 W 802.3af draw - the defect PR #2118 and PR #2121 fixed across the UXG family (refs #130).\n\nLAN bank is one bridge (measured 2026-11-20 23:5x UTC). `https://techspecs.ui.com/unifi/cloud-gateways/ucg-max` (HTTP 200, 668,564 B, server-rendered spec table) prints **MAC Address Table Size = 2,000** in its Networking section beside `Port Layout - 2.5 GbE RJ45 = 5 (2.5G/1G/100M/10M)`, `Max. WAN Port Count = 4` and `Default WAN Ports (1) 2.5 GbE RJ45`; the storefront payload (`https://store.ui.com/us/en/category/cloud-gateways-compact/collections/cloud-gateway-max/products/ucg-max` - the address `/us/en/products/ucg-max` 307s to - HTTP 200, 646,522 B) carries the same 2,000 row. A 2,000-entry MAC table is a bridge FDB, and a box that only routed would hold none, so Port 1-Port 4 forward at layer 2 and the row declares `l2-forward`. Ubiquiti publishes no LACP and no 802.1Q row for this SKU on either surface, so the token is claimed for MAC learning only - which is the fact the vendor states. Without it `switchport access vlan` and `channel-group` were refused and two LAN hosts in one subnet could not ARP each other; `no switchport` still routes a port and the WAN port keeps its address.\n\nWAN/LAN role separation, read 2026-11-21. The vendor numbers the sockets and names the uplink. Ubiquiti's controller device database (`https://static.ui.com/fingerprint/ui/public.json`, HTTP 200, 832,585 B, `devices` entry with `sku` = UCG-Max) prints `ports` = {\"eth0\": \"LAN\", \"eth1\": \"LAN\", \"eth2\": \"LAN\", \"eth3\": \"LAN\", \"eth4\": \"WAN\"} with `switchPorts` [1, 2, 3, 4] and `numberOfPorts` 5; the product page prints the same split in words - `Default WAN Ports (1) 2.5 GbE RJ45`, `Max. WAN Port Count 4` - at https://techspecs.ui.com/unifi/cloud-gateways/ucg-max (HTTP 200, 668,564 B). `role` is the field `engine/device.js` `ownsIpOn` reads (`owner.role && inIface.role && owner.role !== inIface.role`, \"WAN and LAN are separate L3 surfaces ... role separation outranks the VLAN shortcut\") and it fires only when BOTH sides carry one, so a LAN bank with no role leaves the invariant false: with 192.168.1.1/24 on `Port 1`, `ownsIpOn(WAN, '192.168.1.1')` returned true, and a host cabled to `WAN` inside that subnet was answered by the LAN gateway. `WAN` now declares role \"wan\" and `Port 1`-`Port 2`-`Port 3`-`Port 4` \"lan\"; measured after the change, `WAN` no longer owns the LAN address, `Port 2` still reaches the address held on `Port 1` (the bank still answers bank-wide), and `WAN` still answers its own. The vendor's `Max. WAN Port Count 4` is a ceiling with no per-socket assignment, so no port here claims `dualRole`: a lab that needs a second WAN still has to be told which socket the firmware gives up."
 }

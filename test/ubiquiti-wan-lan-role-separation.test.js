@@ -40,10 +40,26 @@ function replied(sim, from, to) {
   return evs.some(function (e) { return e.type === 'icmp-received'; });
 }
 
-['UDW', 'UDR'].forEach(function (model) {
-  const lanPort = 'eth0';
-  const wanPort = model === 'UDW' ? 'wan1' : 'eth4';
-  const lanCount = model === 'UDW' ? 17 : 4;
+// Every row below is a vendor-stated split: the controller database's `ports` map names the uplink
+// (static.ui.com/fingerprint/ui/public.json, `sku` = the model) and the product page repeats it in words
+// ("Default WAN Ports ...", "Max. WAN Port Count ..."). The UCG and UXG rows were added 2026-11-21: their
+// LAN banks carried no role either, so the separation did not fire on them.
+const ROWS = [
+  { model: 'UDW', lan: 'eth0', wan: 'wan1', lanCount: 17, second: 'eth5' },
+  { model: 'UDR', lan: 'eth0', wan: 'eth4', lanCount: 4, second: 'eth1' },
+  { model: 'UCG-Ultra', lan: 'port1', wan: 'wan1', lanCount: 4, second: 'port2' },
+  { model: 'UCG-Max', lan: 'Port 1', wan: 'WAN', lanCount: 4, second: 'Port 2' },
+  { model: 'UXG-Lite', lan: 'eth0', wan: 'eth1', lanCount: 1, second: null },
+  { model: 'UXG-Max', lan: 'eth0', wan: 'eth4', lanCount: 4, second: 'eth1' },
+  { model: 'UX', lan: 'lan', wan: 'wan', lanCount: 1, second: null },
+  { model: 'UX7', lan: 'eth0', wan: 'eth1', lanCount: 1, second: null }
+];
+
+ROWS.forEach(function (row) {
+  const model = row.model;
+  const lanPort = row.lan;
+  const wanPort = row.wan;
+  const lanCount = row.lanCount;
 
   console.log('\n' + model + ': the vendor\'s LAN bank carries a LAN role and the uplink a WAN role');
   {
@@ -52,7 +68,7 @@ function replied(sim, from, to) {
     const copper = (s.interfaces || []).filter(function (i) {
       return i.type === 'ethernet' && i.connector !== 'sfp+' && i.name !== wanPort;
     });
-    ok(copper.length === lanCount, lanCount + ' copper LAN ports, as the datasheet prints', String(copper.length));
+    ok(copper.length === lanCount, lanCount + ' copper LAN port(s), as the vendor prints', String(copper.length));
     ok(copper.every(function (i) { return i.role === 'lan'; }),
       'every one of them declares role "lan"',
       copper.filter(function (i) { return i.role !== 'lan'; }).map(function (i) { return i.name; }).join(','));
@@ -70,9 +86,11 @@ function replied(sim, from, to) {
     wan.ip = '203.0.113.1'; wan.mask = '255.255.255.252';
 
     ok(!r.ownsIpOn(wan, '192.168.1.1'), 'the address held on ' + lanPort + ' is not owned by ' + wanPort);
-    const other = r.interfaces.get(model === 'UDW' ? 'eth5' : 'eth1');
-    ok(!!r.ownsIpOn(other, '192.168.1.1'),
-      'but another LAN port in the bank still reaches it (' + other.name + ')');
+    if (row.second) {
+      const other = r.interfaces.get(row.second);
+      ok(!!r.ownsIpOn(other, '192.168.1.1'),
+        'but another LAN port in the bank still reaches it (' + other.name + ')');
+    }
     ok(!!r.ownsIpOn(wan, '203.0.113.1'), 'and ' + wanPort + ' still answers its own address');
   }
 
@@ -96,14 +114,16 @@ function replied(sim, from, to) {
     const ai = a.interfaces.get('eth0');
     ai.ip = '192.168.1.10'; ai.mask = '255.255.255.0';
 
-    const b = t.addDevice(PC()); b.name = 'LAN-B';
-    t.connect(b.id, 'eth0', r.id, model === 'UDW' ? 'eth5' : 'eth1');
-    const bi = b.interfaces.get('eth0');
-    bi.ip = '192.168.1.20'; bi.mask = '255.255.255.0';
-
     const sim = new Simulator(t);
     ok(replied(sim, a.id, '192.168.1.1'), 'a host on ' + lanPort + ' reaches the LAN address');
-    ok(replied(sim, b.id, '192.168.1.1'), 'a host on the other side of the bank reaches it too');
+    if (row.second) {
+      const b = t.addDevice(PC()); b.name = 'LAN-B';
+      t.connect(b.id, 'eth0', r.id, row.second);
+      const bi = b.interfaces.get('eth0');
+      bi.ip = '192.168.1.20'; bi.mask = '255.255.255.0';
+      const sim2 = new Simulator(t);
+      ok(replied(sim2, b.id, '192.168.1.1'), 'a host on the other side of the bank reaches it too');
+    }
     ok(!replied(sim, w.id, '192.168.1.1'), 'a host on ' + wanPort + ' does NOT');
   }
 });

@@ -19,16 +19,18 @@
       "type": "ethernet",
       "connector": "rj45",
       "speed": "1G",
-      "poeIn": false
+      "poeIn": false,
+      "role": "lan"
     },
     {
       "name": "eth1",
       "type": "ethernet",
       "connector": "rj45",
       "speed": "1G",
-      "poeIn": false
+      "poeIn": false,
+      "role": "wan"
     }
   ],
   "sourceUrl": "https://techspecs.ui.com/unifi/cloud-gateways/uxg-lite",
-  "notes": "Vendor figures read 2026-11-19 from techspecs.ui.com/unifi/cloud-gateways/uxg-lite (HTTP 200, 643,116 B): Port Layout = 1 GbE RJ45 x2 (1G/100M/10M), Max. WAN Port Count 1, Default WAN Ports (1) GbE RJ45, IDS/IPS Throughput 1 Gbps, Form Factor compact desktop, Max. Power Consumption 3.83 W, Power Method = USB type C (5V DC/3A), Supported Voltage Range 100-240V AC, Heat Dissipation 13 BTU/hr. The ports are assignable, so both are plain eth ports here.\nPower: the vendor powers this box from a USB-C 5 V/3 A adapter and publishes no PoE input. store.ui.com/us/en/products/uxg-lite (HTTP 200, 534,758 B) carries the same table with PoE Budget flagged Empty and Power Method \"USB type C (5V DC/3A)\". Both copper ports therefore say poeIn: false: isPoePd() in engine/media.js matches \"unifi\" in the model/label and would otherwise infer a 12.95 W 802.3af draw (25.9 W) on a box that cannot accept it. Same correction as uxg-pro.json (PR #2118) and udm-pro-max.json (PR #2111). Trap: dl.ui.com/ds/uxg-lite_ds.pdf is a miss - it follows with no redirect but lands on the 609,911-byte techspecs front page, so this SKU has no published datasheet to cross-check against."
+  "notes": "Vendor figures read 2026-11-19 from techspecs.ui.com/unifi/cloud-gateways/uxg-lite (HTTP 200, 643,116 B): Port Layout = 1 GbE RJ45 x2 (1G/100M/10M), Max. WAN Port Count 1, Default WAN Ports (1) GbE RJ45, IDS/IPS Throughput 1 Gbps, Form Factor compact desktop, Max. Power Consumption 3.83 W, Power Method = USB type C (5V DC/3A), Supported Voltage Range 100-240V AC, Heat Dissipation 13 BTU/hr. The ports are assignable, so both are plain eth ports here.\nPower: the vendor powers this box from a USB-C 5 V/3 A adapter and publishes no PoE input. store.ui.com/us/en/products/uxg-lite (HTTP 200, 534,758 B) carries the same table with PoE Budget flagged Empty and Power Method \"USB type C (5V DC/3A)\". Both copper ports therefore say poeIn: false: isPoePd() in engine/media.js matches \"unifi\" in the model/label and would otherwise infer a 12.95 W 802.3af draw (25.9 W) on a box that cannot accept it. Same correction as uxg-pro.json (PR #2118) and udm-pro-max.json (PR #2111). Trap: dl.ui.com/ds/uxg-lite_ds.pdf is a miss - it follows with no redirect but lands on the 609,911-byte techspecs front page, so this SKU has no published datasheet to cross-check against.\n\nWAN/LAN role separation, read 2026-11-21. The vendor numbers the sockets and names the uplink. Ubiquiti's controller device database (`https://static.ui.com/fingerprint/ui/public.json`, HTTP 200, 832,585 B, `devices` entry with `sku` = UXG-Lite) prints `ports` = {\"eth0\": \"LAN\", \"eth1\": \"WAN\"} with `switchPorts` absent and `numberOfPorts` 2; the product page prints the same split in words - `Default WAN Ports (1) GbE RJ45`, `Max. WAN Port Count 1` - at https://techspecs.ui.com/unifi/cloud-gateways/uxg-lite (HTTP 200, 643,116 B). `role` is the field `engine/device.js` `ownsIpOn` reads (`owner.role && inIface.role && owner.role !== inIface.role`, \"WAN and LAN are separate L3 surfaces ... role separation outranks the VLAN shortcut\") and it fires only when BOTH sides carry one, so a LAN bank with no role leaves the invariant false: with 192.168.1.1/24 on `eth0`, `ownsIpOn(eth1, '192.168.1.1')` returned true, and a host cabled to `eth1` inside that subnet was answered by the LAN gateway. `eth1` now declares role \"wan\" and `eth0` \"lan\"; measured after the change, `eth1` no longer owns the LAN address, `eth0` still owns its address, and `eth1` still answers its own. The vendor's `Max. WAN Port Count 1` is a ceiling with no per-socket assignment, so no port here claims `dualRole`: a lab that needs a second WAN still has to be told which socket the firmware gives up."
 }
