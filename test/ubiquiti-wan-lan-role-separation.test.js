@@ -68,7 +68,14 @@ const ROWS = [
   // sockets eth0-eth4 and puts the uplinks on eth3 (2.5G RJ45) and eth4 (SFP+); the tech-spec table prints
   // "Default WAN Ports (1) 10G SFP+ / (1) 2.5 GbE RJ45" over a "2.5 GbE RJ45 4 / 10G SFP+ 1" panel.
   { model: 'UDR7', lan: 'eth0', wan: 'eth3', lanCount: 3, second: 'eth1' },
-  { model: 'UDR-5G-Max', lan: 'eth0', wan: 'eth3', lanCount: 3, second: 'eth1' }
+  { model: 'UDR-5G-Max', lan: 'eth0', wan: 'eth3', lanCount: 3, second: 'eth1' },
+  // The two Fiber chassis, added 2026-11-21: four 2.5G RJ45 plus one 10G RJ45 and two SFP+ cages. The controller
+  // names the copper sockets eth0-eth3 LAN and eth4 WAN; the tech-spec table prints "Default WAN Ports (1) 10G SFP+
+  // (1) 10 GbE RJ45" over "2.5 GbE RJ45 4 / 10 GbE RJ45 1 / 10G SFP+ 2". UXG-Fiber already used the controller's
+  // names, so its mapping is by name; UCG-Fiber's four LAN sockets are named Port 1-Port 4, which the page's port
+  // classes pin to eth0-eth3.
+  { model: 'UCG-Fiber', lan: 'Port 1', wan: 'WAN', lanCount: 4, second: 'Port 2' },
+  { model: 'UXG-Fiber', lan: 'eth0', wan: 'eth4', lanCount: 4, second: 'eth1' }
 ];
 
 ROWS.forEach(function (row) {
@@ -181,6 +188,18 @@ console.log('\nThe radios and the cages keep what the vendor does say');
       model + ': the WAN cage does not answer the LAN address');
     ok(r3.ownsIpOn(r3.interfaces.get(cages[1].name), '192.168.1.1'),
       model + ': the LAN cage still does');
+  });
+
+  // The two Fiber chassis' cages stay role-less: the controller numbers them eth5 (LAN) and eth6 (WAN2), but
+  // neither row's cage names are Ubiquiti's - the tech-spec page prints one "10G SFP+ 2" row - so naming a cage
+  // would be an ordering guess that moves a saved uplink.
+  ['UCG-Fiber', 'UXG-Fiber'].forEach(function (model) {
+    const s = spec(model);
+    const cages = s.interfaces.filter(function (i) { return i.connector === 'sfp+'; });
+    ok(cages.length === 2, model + ' keeps its two SFP+ cages');
+    ok(cages.every(function (i) { return !i.role; }),
+      'and both stay role-less: the vendor numbers them only by controller index',
+      cages.map(function (i) { return i.name + '=' + i.role; }).join(' '));
   });
 
   // The two Dream Routers' one cage is the controller's eth4: it is the default 10G SFP+ WAN, so it carries
