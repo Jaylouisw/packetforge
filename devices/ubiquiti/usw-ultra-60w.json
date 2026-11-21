@@ -23,7 +23,7 @@
         "100M",
         "10M"
       ],
-      "poeOut": true,
+      "poeOut": 30,
       "poeOutClass": "PoE+"
     },
     {
@@ -36,7 +36,7 @@
         "100M",
         "10M"
       ],
-      "poeOut": true,
+      "poeOut": 30,
       "poeOutClass": "PoE+"
     },
     {
@@ -49,7 +49,7 @@
         "100M",
         "10M"
       ],
-      "poeOut": true,
+      "poeOut": 30,
       "poeOutClass": "PoE+"
     },
     {
@@ -62,7 +62,7 @@
         "100M",
         "10M"
       ],
-      "poeOut": true,
+      "poeOut": 30,
       "poeOutClass": "PoE+"
     },
     {
@@ -75,7 +75,7 @@
         "100M",
         "10M"
       ],
-      "poeOut": true,
+      "poeOut": 30,
       "poeOutClass": "PoE+"
     },
     {
@@ -88,7 +88,7 @@
         "100M",
         "10M"
       ],
-      "poeOut": true,
+      "poeOut": 30,
       "poeOutClass": "PoE+"
     },
     {
@@ -101,7 +101,7 @@
         "100M",
         "10M"
       ],
-      "poeOut": true,
+      "poeOut": 30,
       "poeOutClass": "PoE+"
     },
     {
@@ -123,7 +123,7 @@
   "poe": {
     "budgetW": 52,
     "sourceUrl": "https://techspecs.ui.com/unifi/switching/usw-ultra-60w",
-    "note": "52 W models this SKU's 60 W AC-adapter configuration. Ubiquiti publishes PoE availability as a function of how the unit is powered, not as one number. techspecs 'Total PoE Availability': PoE++ input 42 W, PoE+ input 16 W, 60 W PoE adapter input 42 W, 60 W AC adapter input 52 W, 210 W AC adapter input 202 W. Max. PoE Output is PoE+ (30 W per port by PSE), so no port sources 802.3bt: port 8 of the 8 RJ45 is a PoE++ INPUT for powering the switch, and the store page states 'PoE input is supported for switch operation, with PoE+/PoE++ input or AC power required for PoE output'. The 60W/210W/60W-PoE-adapter rows are configurations of the same chassis, so a lab that powers this unit from a different adapter inherits that row, not this one."
+    "note": "52 W models this SKU's 60 W AC-adapter configuration. Ubiquiti publishes PoE availability as a function of how the unit is powered, not as one number. techspecs 'Total PoE Availability': PoE++ input 42 W, PoE+ input 16 W, 60 W PoE adapter input 42 W, 60 W AC adapter input 52 W, 210 W AC adapter input 202 W. Max. PoE Output is PoE+ (30 W per port by PSE), so no port sources 802.3bt: port 8 of the 8 RJ45 is a PoE++ INPUT for powering the switch, and the store page states 'PoE input is supported for switch operation, with PoE+/PoE++ input or AC power required for PoE output'. The 60W/210W/60W-PoE-adapter rows are configurations of the same chassis, so a lab that powers this unit from a different adapter inherits that row, not this one. Port ceilings now carried per port: techspecs 'PoE Ports: PoE+ 7' and 'Max. PoE Wattage per Port by PSE: PoE+ 30W' (read 2026-11-21), so eth0-eth6 declare 30 W each instead of the bare direction bit, which the engine reads as 1 W."
   },
   "sourceUrl": "https://techspecs.ui.com/unifi/switching/usw-ultra-60w"
 }
