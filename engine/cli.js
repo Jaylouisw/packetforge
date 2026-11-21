@@ -856,8 +856,28 @@ const SHOW_IP_ALIASES = {
   vrrp: 'vrrp'
 };
 
-// `show ip interface` alone means the per-port detail; `show ip interface brief` is a view of its own and must keep its
-// own door, so this alias only answers when nothing follows it.
+// `show ip interface` means the per-port detail, and so does the box's port form of the same view. The vendor
+// syntax is `show ip interface [type number] [brief]` (Cisco IOS Interface and Hardware Component Command
+// Reference, `show ip interface` - "To display the usability status of interfaces configured for IP";
+// https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/interface/command/ir-cr-book/ir-s5.html) and a 6500 capture
+// prints the port form over an address:
+//
+//   Router# show ip interface vlan 1
+//   Vlan1 is up, line protocol is up
+//     Internet address is 10.6.58.4/24
+//     ...
+//   https://www.cisco.com/c/en/us/td/docs/switches/lan/catalyst6500/ios/12-2ZY/command/reference/cmdref/show2.html
+//
+// `brief` is a view of its own and keeps its own door (`show ip interface brief <port>` already refuses a port in
+// its own words); every other word here is the port a box would accept, and a line the detail view cannot use is
+// answered in that view's words, the same way `show ip arp <address>` is.
+//
+// This console answered `show ip interface Gi0/0` with `% Invalid show command: ip interface Gi0/0` - the
+// sentence a misspelt view gets, about a view it prints and a port it knows. A real box answers with the IP
+// block for that port; this console's IP view is its interface detail view (the alias below), so the port form
+// reaches that same block for one port rather than a second, invented one.
+// research/show-ip-interface-port-form.md holds the captures and the open half - the IP-only lines (MTU, helper
+// address, directed-broadcast, ACL directions) a box prints that this console keeps no state for.
 const SHOW_IP_BARE_ALIASES = { interface: 'interfaces' };
 
 const SHOW_IP_POINTERS = {
@@ -6464,7 +6484,14 @@ class CliSession {
     const sub = String(rest[0] || '').toLowerCase();
     if (!sub || sub === '?') return { lines: showIpUsage() };
     if (SHOW_IP_ALIASES[sub]) return { rewrite: [SHOW_IP_ALIASES[sub]].concat(rest.slice(1)) };
-    if (rest.length === 1 && SHOW_IP_BARE_ALIASES[sub]) return { rewrite: [SHOW_IP_BARE_ALIASES[sub]] };
+    const bareAlias = SHOW_IP_BARE_ALIASES[sub];
+    if (bareAlias && rest.length === 1) return { rewrite: [bareAlias] };
+    if (bareAlias) {
+      const next = String(rest[1] === undefined || rest[1] === null ? '' : rest[1]).toLowerCase();
+      // `brief` is the other view and keeps its door. Anything else - a port name, a tail word after one, or the
+      // index key - is answered by the detail view in its own words, the way `show ip arp <address>` already is.
+      if (next !== 'brief') return { rewrite: [bareAlias].concat(rest.slice(1)) };
+    }
     if (rest.length === 1 && SHOW_IP_POINTERS[sub]) {
       return { lines: ['% `show ip ' + sub + '` is not a view here: ' + SHOW_IP_POINTERS[sub]] };
     }
