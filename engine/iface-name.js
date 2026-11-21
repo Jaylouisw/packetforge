@@ -127,6 +127,40 @@ function displayName(name) {
   return shown + m[2];
 }
 
+// The Interface cell of `show ip interface brief`, which is one column 23 characters wide
+// (`engine/cli.js` BRIEF_COLUMNS). A name that would fill that field - leaving no space before the
+// IP-Address cell - is printed with its type word abbreviated instead of spelled out, and a name
+// that fits is printed in full:
+//
+//   GigabitEthernet1/0/1     (20)  ->  GigabitEthernet1/0/1
+//   Te1/1/1                  (23)  ->  Te1/1/1               (TenGigabitEthernet1/1/1 is 23)
+//   Fo1/1/1                  (25)  ->  Fo1/1/1               (FortyGigabitEthernet1/1/1 is 25)
+//   TwentyFiveGigE1/1/1      (19)  ->  TwentyFiveGigE1/1/1
+//   Hu1/0/1                  (16)  ->  HundredGigE1/0/1
+//   Gi0/0/1.10               (23)  ->  Gi0/0/1.10            (GigabitEthernet0/0/1.10 is 23)
+//
+// The rule and its captures are in research/interface-brief-type-abbreviation.md: a Catalyst
+// 9300-48UXM's own table (Cisco's Zero-Touch Provisioning guide, 17.1 through 17.18) prints Tw/Te/Fo
+// short beside TwentyFiveGigE and GigabitEthernet long, a live 9200 prints Te1/1/1 in the brief table
+// while its running-config and `show ip route` say TenGigabitEthernet1/1/1, and a published
+// router-on-a-stick session prints GigabitEthernet0/0/1 beside Gi0/0/1.10. Every one of those rows
+// falls on the same 23-column boundary, which is why the boundary - not a list of types - is the rule.
+//
+// Only the name is shortened; the analogue names in the other tables (`show vlan`, the MAC table,
+// `show etherchannel summary`) keep the spelling their own captures show, which is why this lives in
+// its own function rather than inside displayName().
+const BRIEF_NAME_WIDTH = 23;
+
+function briefName(name) {
+  const s = String(name === undefined || name === null ? '' : name).trim();
+  const full = displayName(s);
+  // A name the table cannot shorten - `eth1`, `xe-0/0/0`, an FSOS `HundredGigabitEthernet0/1` - is
+  // already the panel spelling, and displayName() returned it untouched; the width check then returns
+  // the same string. No invented abbreviation is attempted for a type this table does not know.
+  if (full.length >= BRIEF_NAME_WIDTH) return s;
+  return full;
+}
+
 // The comparison key for a port name: case-insensitive, with every known console spelling
 // folded onto the panel spelling, and the interface type folded onto its one name
 // ('GigabitEthernet1/0/1', 'gi 1/0/1' and 'GE1/0/1' are one key). A subinterface keeps its
@@ -287,5 +321,5 @@ function resolveInterface(device, typed) {
   return { name: name, iface: device.interfaces.get(name) || null };
 }
 
-module.exports = { PORT_NAME_RULES, TYPE_SPELLINGS, DISPLAY_ABBREV, portKey, foldInterfaceType, displayName,
-  expandTypePrefix, resolvePortName, resolveInterface, comparePortNames, portRuns };
+module.exports = { PORT_NAME_RULES, TYPE_SPELLINGS, DISPLAY_ABBREV, BRIEF_NAME_WIDTH, portKey, foldInterfaceType,
+  displayName, briefName, expandTypePrefix, resolvePortName, resolveInterface, comparePortNames, portRuns };

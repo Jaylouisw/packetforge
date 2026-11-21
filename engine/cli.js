@@ -13,11 +13,11 @@ const MODE_DHCP_POOL = 'dhcp-pool';
 // One port, many spellings - and one table for it. This used to be a second copy of
 // engine/iface-name.js, kept in step by hand; two copies of a naming rule drift, which is the
 // failure mode this repo has already been bitten by (#1247).
-const { PORT_NAME_RULES, portKey, resolvePortName, displayName } = require('./iface-name');
+const { PORT_NAME_RULES, portKey, resolvePortName, displayName, briefName } = require('./iface-name');
 // A console port is a line, not an interface. The predicate lives with the port model that owns `type`, so the
 // three views that list interfaces and the `interface` door all ask the same question (research note cited there).
 const { isConsoleLine } = require('./device');
-const ifaceName = { resolvePortName, displayName };
+const ifaceName = { resolvePortName, displayName, briefName };
 // Rates are spelled the way the catalogue spells them, by the parser the catalogue uses: `speed 1G` and
 // `speed 1000` must land on the same port rate, and a second parser here would be a second answer.
 const mediaLib = require('./media');
@@ -6582,11 +6582,15 @@ class CliSession {
         // list includes `unset - Unset`, and its sample output pairs `unassigned  YES unset  ...`.
         // briefMethod() is that rule, and briefLine() is what lands the row under its heading; the fixed-width
         // pad() chain put every row a column off because the header and the rows were counted separately (#1521).
-        // The Interface cell spells the type out, as a box's own table does: every published capture
-        // of this command prints `GigabitEthernet1/0/1`, not `Gi1/0/1` (research/interface-brief-name-spelling.md).
-        // The stored name stays the panel's short spelling; only the printed cell is expanded, so a
-        // name typed from this row still resolves.
-        out.push(briefLine([ifaceName.displayName(i.name), ip, 'YES', briefMethod(i),
+        // The Interface cell spells the type out where the word fits the 23-column field, and
+        // abbreviates it where it does not: `GigabitEthernet1/0/1` and `TwentyFiveGigE1/1/1` fit and
+        // print long, `TenGigabitEthernet1/1/1` (23) and `FortyGigabitEthernet1/1/1` (25) do not and
+        // print `Te1/1/1`/`Fo1/1/1`, and a subinterface follows the same boundary (`Gi0/0/1.10`).
+        // `briefName()` holds that rule; a live 9200's own brief table prints `Te1/1/1` beside a
+        // running-config that says `TenGigabitEthernet1/1/1`
+        // (research/interface-brief-type-abbreviation.md). The stored name stays the panel's short
+        // spelling; only the printed cell changes, so a name typed from this row still resolves.
+        out.push(briefLine([ifaceName.briefName(i.name), ip, 'YES', briefMethod(i),
           link.status, link.protocol]));
       }
       // An EtherChannel is an interface, and a box lists it here beside the ports that make it up: every

@@ -87,13 +87,12 @@ same device, and `docs/CLI.md` printed both examples.
 
 ## What is unresolved
 
-* **A name wider than the field.** `FortyGigabitEthernet1/0/1` is 26 characters, past the 23-column field.
-  `briefLine()` pushes the rest of the row right rather than truncating, which is what a table does with a
-  name it will not shorten — but no capture of a 40G port in this command was found, so whether IOS shifts,
-  widens or truncates is unmeasured. The 100G case this bullet used to name (`HundredGigabitEthernet1/0/1`,
-  27) was a wrong spelling: the vendor's word is `HundredGigE1/0/1`, 18 characters, which fits
-  (research/hundredgige-interface-spelling.md). Whether the command abbreviates any high-speed type at all
-  is its own open question, recorded there.
+* **A name wider than the field — since settled.** This bullet used to record that
+  `FortyGigabitEthernet1/0/1` (26) had no capture and that IOS might shift, widen or truncate it. It
+  abbreviates: `show ip interface brief` shortens the type word at 23 characters, which is why a 40G row
+  reads `Fo1/1/1` and a 22-character subinterface still reads `GigabitEthernet0/0/1.1`. The rule, the
+  captures and the exactly-known edge are in
+  [interface-brief-type-abbreviation.md](interface-brief-type-abbreviation.md); the table now applies it.
 * **The rest of the console.** `show vlan`'s Ports list, `show etherchannel summary`, `show power inline`
   and the MAC table's `Ports` column print `Fa0/1`/`Gi1/0/1`, and the vendor's own samples of those
   commands do the same. The short names that remain are the ones a box abbreviates, not an oversight —

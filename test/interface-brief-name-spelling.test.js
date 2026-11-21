@@ -4,9 +4,12 @@
 // Every published capture of the command prints `GigabitEthernet1/0/1`, `FastEthernet0/1` and `Vlan1`,
 // never `Gi1/0/1` - while the catalogue stores what the panel says (short). The table therefore printed
 // `Gi1/0/1` under a header that is the vendor's own, character for character, and whose 23-column
-// Interface field was drawn for the long spelling. One rule, two surfaces: the brief row and the
-// `show interfaces` block header name the port the way a box does, and the stored name is untouched, so
-// a name pasted out of either view still resolves when it is typed back.
+// Interface field was drawn for the long spelling. The stored name is untouched, so a name pasted out of
+// either view still resolves when it is typed back.
+//
+// One boundary qualifies the rule: a name of 23 characters or more is abbreviated in this table
+// (`Te1/1/1`, `Tw1/0/1`, `Fo1/1/1`, `Gi0/0/1.600`), because the full word would fill the field - see
+// test/interface-brief-type-abbreviation.test.js and research/interface-brief-type-abbreviation.md.
 //
 // research/interface-brief-name-spelling.md carries the samples and the parts that are still open.
 const path = require('path');
@@ -76,11 +79,13 @@ console.log('A subinterface and a 10G cage are spelled out by the same rule:');
 
   const ten = session('C1000-24FP-4X-L', 'sw1');
   const tlines = ten.say('show ip interface brief');
-  ok(tlines.some(function (l) { return /^TenGigabitEthernet1\/0\/1\s/.test(l); }),
-    'a 10G cage reads TenGigabitEthernet1/0/1');
-  // TenGigabitEthernet1/0/1 is 23 characters, exactly the field width: the rest of the row still starts
-  // where the heading starts it.
-  const row = tlines.filter(function (l) { return /^TenGigabitEthernet1\/0\/1\s/.test(l); })[0];
+  // TenGigabitEthernet1/0/1 is 23 characters - it fills the interface field - and a box abbreviates it
+  // rather than run the name into the address cell: research/interface-brief-type-abbreviation.md.
+  ok(tlines.some(function (l) { return /^Te1\/0\/1\s/.test(l); }),
+    'a 10G cage reads Te1/0/1, the boundary case');
+  ok(!tlines.some(function (l) { return /^TenGigabitEthernet/.test(l); }),
+    'and no row prints the 23-character spelling');
+  const row = tlines.filter(function (l) { return /^Te1\/0\/1\s/.test(l); })[0];
   ok(row.indexOf('10.0.0.0') === -1 && row.split(/\s+/)[1] === 'unassigned',
     'and the address cell still sits in its column', row);
 }

@@ -120,7 +120,10 @@ test('a .5000 subinterface is listed with its address', () => {
   env.run('ip address 10.9.0.1 255.255.255.0');
   env.run('end');
   const brief = env.run('show ip interface brief');
-  assert.match(brief, /^GigabitEthernet0\/0\.5000\s+10\.9\.0\.1\s+YES manual/m, brief);
+  // `GigabitEthernet0/0.5000` would be 23 characters - the width of the Interface field - so the row
+  // abbreviates the type word, as a box does at that boundary
+  // (research/interface-brief-type-abbreviation.md).
+  assert.match(brief, /^Gi0\/0\.5000\s+10\.9\.0\.1\s+YES manual/m, brief);
 });
 
 test('a .5000 subinterface survives save and load', () => {
