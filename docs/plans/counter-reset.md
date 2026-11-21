@@ -56,6 +56,12 @@ console prints `0 packets input` rather than `counters: not measured`.
 spelling works (`:1324` is the existing pattern). Bare `clear counters` clears every port; a name that matches
 nothing is refused by name with the sentence the other views use (`% No interface ...`, `:4376`). Then
 `_help()` (`:6309`) and the counters section of `docs/CLI.md`. The acknowledgement names what was cleared.
+
+The wording is not a guess: `research/clear-counters-wording.md` has both confirmation lines verbatim
+(`Clear "show interface" counters on all interfaces [confirm]` and `... on this interface [confirm]`), the
+`%CLEAR-5-COUNTERS` receipt printed after the answer, and the sources for each. Note what that note also
+shows: the vendor's line comes *before* the clear and has to be answered, which the one-line
+`CliSession.run()` cannot do yet - so step 2 is a decision about that, not only about a string.
 Depends on step 1.
 
 **3. Signpost the view (S).** The `show interfaces` block says how to zero what it printed, in the voice of the
