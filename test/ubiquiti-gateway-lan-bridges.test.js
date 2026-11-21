@@ -1,9 +1,10 @@
 'use strict';
-// The LAN banks of the three UniFi gateways that publish a MAC address table (#130 fallback rows).
+// The LAN banks of the seven UniFi gateways that publish a MAC address table (#130 fallback rows).
 //
-// Ubiquiti prints a bridge FDB for each of these SKUs on its own tech-spec page - UDM-Pro-Max "MAC Address
-// Table Size = 4,000" plus "LACP Port Aggregation" over "GbE RJ45 ports 1-8", UCG-Max and UXG-Max "2,000"
-// (https://techspecs.ui.com/unifi/cloud-gateways/<sku>, read 2026-11-20). A MAC table is the bridge's
+// Ubiquiti prints a bridge FDB for each of these SKUs on its own tech-spec page - UDM-Pro-Max and UDM-SE "MAC
+// Address Table Size = 4,000" plus "LACP Port Aggregation" over "GbE RJ45 ports 1-8", UDM-Pro "4,000" with
+// the same LAG note, UCG-Fiber "4,000", UCG-Max, UCG-Ultra and UXG-Max "2,000"
+// (https://techspecs.ui.com/unifi/cloud-gateways/<sku>, read 2026-11-20 and 2026-11-21). A MAC table is the bridge's
 // forwarding database; a gateway that only routed would hold neither it nor a LAG. While the rows shipped
 // without `l2-forward`, the LAN sockets were routed interfaces: `switchport access vlan` was answered with
 // "cannot switch frames", `channel-group` was refused, and two hosts on adjacent LAN ports in one subnet could
@@ -32,7 +33,15 @@ const ROWS = [
   { model: 'UCG-Max', lan: ['Port 1', 'Port 2'], wan: 'WAN', copper: 5, lag: false,
     table: '2,000', url: 'https://techspecs.ui.com/unifi/cloud-gateways/ucg-max' },
   { model: 'UXG-Max', lan: ['eth1', 'eth2'], wan: 'eth0', copper: 5, lag: false,
-    table: '2,000', url: 'https://techspecs.ui.com/unifi/cloud-gateways/uxg-max' }
+    table: '2,000', url: 'https://techspecs.ui.com/unifi/cloud-gateways/uxg-max' },
+  { model: 'UDM-Pro', lan: ['port1', 'port2'], wan: 'wan1', copper: 9, lag: true,
+    table: '4,000', url: 'https://techspecs.ui.com/unifi/cloud-gateways/udm-pro' },
+  { model: 'UDM-SE', lan: ['Port 1', 'Port 2'], wan: 'WAN', copper: 9, lag: true,
+    table: '4,000', url: 'https://techspecs.ui.com/unifi/cloud-gateways/udm-se' },
+  { model: 'UCG-Ultra', lan: ['port1', 'port2'], wan: 'wan1', copper: 5, lag: false,
+    table: '2,000', url: 'https://techspecs.ui.com/unifi/cloud-gateways/ucg-ultra' },
+  { model: 'UCG-Fiber', lan: ['Port 1', 'Port 2'], wan: 'WAN', copper: 5, lag: false,
+    table: '4,000', url: 'https://techspecs.ui.com/unifi/cloud-gateways/ucg-fiber' }
 ];
 
 ROWS.forEach(function (row) {
