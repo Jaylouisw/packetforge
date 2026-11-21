@@ -5125,6 +5125,62 @@ class CliSession {
     if (!literal && typed.indexOf(':') !== -1) {
       return ['% Invalid traceroute target: ' + typed + ' (this console traces IPv4 paths only)'];
     }
+
+    // The hop limit the index has promised since #1484 and the parser never read: `traceroute <target> max 5`
+    // ran the default thirty-hop walk and swallowed `max 5` without a word, so a lab that asked for a cap got an
+    // uncapped trace and no way to tell. The keyword here is `max`, the spelling this console's own index
+    // advertises and one Cisco reference's keyword (`traceroute {ip-address | host-name} interface ...
+    // [max max]`, NFVIS Command Reference, "the maximum time-to-live (TTL) ... The default value is 30"); the
+    // IOS-like platforms spell the same cap `ttl <max-ttl>` (CBS 250/350: `[ttl max-ttl]`, "Range: 1-255") or
+    // `ttl <min_ttl> <max_ttl>` (ASA). Adopting `ttl` would be a second grammar rather than the completion of
+    // this one, so it is recorded in research/traceroute-hop-cap.md and not added here.
+    //
+    // The range is the vendors': 1-255. `ttl max-ttl` is `(Range: 1-255)` in the CBS 250/350 reference, and the
+    // ASR 5000 reference says `maxttl` is "an integer from 1 through 255 ... Default: 30". A value outside it is
+    // refused, not clamped - a silent clamp is the same defect as a silent swallow.
+    //
+    // Anything else after the target is refused rather than ignored: `traceroute 10.0.0.1 5` used to answer a
+    // question about a five-hop trace with a thirty-hop one, which is the one thing a console must not do
+    // quietly. `ping` refuses a stray token the same way (#1379).
+    let capHops = null;
+    let capAsked = null;
+    let capProblem = null;
+    let strayToken = null;
+    for (let i = 1; i < tokens.length; i++) {
+      const tok = String(tokens[i] === undefined || tokens[i] === null ? '' : tokens[i]);
+      if (tok.toLowerCase() !== 'max') {
+        if (strayToken === null) strayToken = tok;
+        continue;
+      }
+      const value = tokens[i + 1];
+      if (capAsked !== null) {
+        // Two caps are one question too many, and taking either one would answer a line the box would have
+        // refused at the second keyword.
+        if (!capProblem) {
+          capProblem = 'the hop limit was given twice (max ' + capAsked + ', then max ' +
+            (value === undefined || value === null ? '(none)' : String(value)) + ')';
+        }
+        i++;
+        continue;
+      }
+      if (value === undefined || value === null) {
+        if (!capProblem) capProblem = 'Invalid hop limit: "max" needs a number from 1 to 255';
+        continue;
+      }
+      const text = String(value);
+      if (!/^[0-9]+$/.test(text) || Number(text) < 1 || Number(text) > 255) {
+        if (!capProblem) capProblem = 'Hop limit must be a whole number from 1 to 255 (asked for ' + text + ')';
+        i++;
+        continue;
+      }
+      capAsked = Number(text);
+      capHops = capAsked;
+      i++;
+    }
+    if (capProblem !== null) return ['% ' + capProblem];
+    if (strayToken !== null) {
+      return ['% Unrecognized "' + strayToken + '" (traceroute <address|name> [max <1-255>])'];
+    }
     if (!this.sim) return ['% Simulator not attached'];
     let target = typed;
     let shown = typed;
@@ -5143,7 +5199,12 @@ class CliSession {
     }
     out.push('Type escape sequence to abort.');
     out.push('Tracing the route to ' + shown);
-    const res = this.sim.traceroute(this.device.id, target);
+    // The cap goes to the walk, which stops at the TTL it names. What a box prints when it stops there is
+    // nothing beyond the last hop line - "The traceroute command terminates when the destination is reached or
+    // when this value is reached" (Cisco 13730, "Maximum Time to Live [30]"; the CBS 250/350 reference says the
+    // same) - and the `% destination not reached` sentence below is this console's own summary of an unfinished
+    // walk, printed for a capped trace exactly as it is for one a pulled cable stopped (docs/CLI.md).
+    const res = this.sim.traceroute(this.device.id, target, capHops === null ? undefined : { maxHops: capHops });
     for (const hop of res.hops) {
       // A hop that answered prints its address and then one result per probe, in `msec` - the vendor's own
       // shape (`1 172.16.12.2 4 msec 4 msec 4 msec`). A destination-unreachable is one of those results and not
@@ -5159,7 +5220,12 @@ class CliSession {
       else out.push(hopNumberField(hop.ttl) + '  ' + probeCells(hop.probes) +
         (hop.dropped ? '  (' + hop.dropped + ')' : ''));
     }
-    if (!res.success) out.push('% destination not reached after ' + res.hops.length + ' hops');
+    if (!res.success) {
+      // One hop is singular: a one-hop cap (`max 1`) makes this line the ordinary case, and "after 1 hops"
+      // is not a sentence the console should print.
+      out.push('% destination not reached after ' + res.hops.length +
+        (res.hops.length === 1 ? ' hop' : ' hops'));
+    }
     return out;
   }
 
@@ -8198,7 +8264,7 @@ class CliSession {
       // Two whole features were reachable and unlisted: `clock rate` (serial links, #1483) and `traceroute`
       // (#1484). `help` is how an operator finds out what the console can do, so an unlisted verb is a verb only
       // its author knows about (#1491).
-      '  traceroute|tracert <address|name> [max <n>]   each hop that answers, from its own time-exceeded',
+      '  traceroute|tracert <address|name> [max <1-255>]   each hop that answers, from its own time-exceeded',
       // `speed auto|forced <mbps>` was the promise here and `_speed()` has never had a `forced` keyword: it parses
       // `auto` or a rate (`100`, `1000`, `1G`), and its own usage line says so. A documented spelling the parser
       // refuses is worse than a missing one, because the help is the thing a technician trusts first (#1501).

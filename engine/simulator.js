@@ -753,7 +753,10 @@ class Simulator {
   // figures agree to the last digit; that is stated in the docs rather than dressed up with invented jitter.
   traceroute(srcId, dstIp, opts) {
     opts = opts || {};
-    const maxHops = Math.min(Math.max(parseInt(opts.maxHops, 10) || 30, 1), 64);
+    // 30 is the vendor default and 255 the top of the range a `traceroute` hop cap may take (CBS 250/350:
+    // `ttl max-ttl ... (Range: 1-255)`; ASR 5000: `maxttl` "an integer from 1 through 255"), so the console's
+    // own cap and this clamp cannot disagree about what `max 255` means (research/traceroute-hop-cap.md).
+    const maxHops = Math.min(Math.max(parseInt(opts.maxHops, 10) || 30, 1), 255);
     const probeCount = Math.min(Math.max(parseInt(opts.probes, 10) || 3, 1), 10);
     this.reset();
     this.computeStp();

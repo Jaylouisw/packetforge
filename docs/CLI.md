@@ -1779,7 +1779,7 @@ PC1#traceroute 10.0.3.9
 Type escape sequence to abort.
 Tracing the route to 10.0.3.9
   1  *  *  *  (link down)
-% destination not reached after 1 hops
+% destination not reached after 1 hop
 ```
 
 That is PC1's own cable pulled: `show interfaces eth0` says `status: down (link down)` and counts `link down` in
@@ -1851,6 +1851,37 @@ code 0 - a router with no route - so its refusal is `!N`, which is the letter a 
 
 The other silence is a hop that answered nothing at all: it prints three stars in the address column -
 ` 2  *  *  *  (link down)` - because there is no address to print.
+
+### The hop limit
+
+`max <n>` is the cap on how far the walk goes, and it is the number a technician lowers to keep a trace inside the
+part of the network they are debugging:
+
+```
+r1#traceroute 10.0.3.9 max 2
+Type escape sequence to abort.
+Tracing the route to 10.0.3.9
+  1  10.0.1.254  0.002 msec  0.002 msec  0.002 msec
+  2  10.0.2.2  0.103 msec  0.103 msec  0.103 msec
+% destination not reached after 2 hops
+```
+
+The cap stops the walk at the TTL it names, so no probe is sent beyond it and no hop beyond it is printed. A cap at
+or above the path length changes nothing: `max 30` and `max 255` print exactly what the bare command prints. The
+range is the vendors' — 1 to 255 — because that is what a `traceroute` hop limit accepts (Cisco 13730's
+`Maximum Time to Live [30]`, the CBS 250/350 reference's `ttl max-ttl ... (Range: 1-255)`, the ASR 5000 reference's
+`maxttl` "an integer from 1 through 255"). A value outside it, a missing value, a second `max`, or any other word
+after the target is refused by name rather than ignored: `traceroute 10.0.0.1 5` used to answer a question about a
+five-hop trace with a thirty-hop one.
+
+What a box prints after the last hop of a capped trace is nothing — Cisco 13730 says the command "terminates when
+the destination is reached or when this value is reached", and no reference shows a closing line — so the hop rows
+are the whole vendor-visible output. The `% destination not reached` sentence above is this console's own summary
+of an unfinished walk (it appears for a pulled cable too, see above); it is printed for a capped trace as well,
+with the count of hops actually walked.
+
+`research/traceroute-hop-cap.md` gathers the references, the two spellings this console does not adopt
+(`ttl <max-ttl>` and `ttl <min_ttl> <max_ttl>`) and what is still open.
 
 ### Reading DHCP
 
@@ -4031,12 +4062,11 @@ All of them were documented in `docs/CLI.md` and reachable at the console; the i
 
 The opposite direction is a hand-written list on purpose: it has to describe modes as well as words (`['clock rate <bps>', 'iface', ROUTER]`), and parsing the index's prose to recover modes would be testing a prose parser. Every row in it is typed at a real device and must be accepted — 102 of them now: the fourteen added here, plus one more in each of the two groups that name the pool's sub-mode, because `lease` became two rows (`lease <days> <hours> <minutes>` and `lease infinite`) when the pool learned the word (#1776), plus `ip routing` and `no ip routing` — the switch that decides whether a box forwards between networks at all (#1869). The number is a reading, not a memory: the guard prints how many rows it typed.
 
-One of those index rows is still larger than the command behind it: the traceroute row in `help` reads
-`traceroute|tracert <address|name> [max <n>]`. The name half is real now — `traceroute srv.lab` resolves through
-the lab's DNS and prints the lookup and the double target line a box prints ("Tracing a name"). The hop limit is
-not: `_traceroute()` reads `tokens[0]` and nothing else, so `traceroute 10.0.0.1 max 5` runs the default 30-hop walk
-(`Simulator.traceroute()`'s `opts.maxHops` is never passed) and swallows `max 5` without a word. That half is still
-indexed and not implemented.
+The traceroute row in `help` reads `traceroute|tracert <address|name> [max <1-255>]`, and both halves are real:
+`traceroute srv.lab` resolves through the lab's DNS and prints the lookup and the double target line a box prints
+("Tracing a name"), and `max <n>` caps the walk ("The hop limit"). A parameter the index advertises and the parser
+never reads is the same defect as a verb the index omits, one word deeper: until November 2026 this row's `max <n>`
+was swallowed in silence and every trace ran thirty hops.
 
 The opposite gap sits one word deeper, where the guard cannot look. The index row for a trunk's allowed list reads
 `switchport trunk allowed vlan <list|all>`, and the console also takes `add <list>`, `remove <list>`,
