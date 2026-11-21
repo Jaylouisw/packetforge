@@ -298,25 +298,52 @@ jobs:
     name: Server smoke and Docker build
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    needs: changes
-    # A device spec cannot change how the server boots or how the image builds. For a
-    # data-only diff this job reports success without taking a runner for ten minutes.
+    # No `needs: changes`. This job used to be created only after `Classify the change`
+    # had finished, and on a four-slot runner whose three test legs hold three of those
+    # slots for ~60 s, that edge was the reason this job kept losing the fourth one to
+    # whatever else the host was running (a merge's `close`/`audit` pass, a `pr-rebase`,
+    # another pull request's leg). Measured over the 33 pull-request runs 8952-9164
+    # (/actions/tasks): this job was *created* 31-70 s after the legs (median +45 s), and
+    # in 15 of those 33 runs it finished after every leg had reported - median +2 s, worst
+    # +20 s (run 8976), which is merge latency and nothing else, because `arm` waits for
+    # this job. Run 9164 is the shape of it: legs 08:25:27-08:26:30, this job created
+    # 08:26:12 and done 08:26:35.
     #
-    # `always()` for the reason the test jobs below measure: a classifier that dies must
-    # run the gate, not skip it. An absent `data_only` therefore means "run", and the only
-    # value that stands this job down is the `true` the classifier writes after reading a
-    # diff it could see. Reproduced in run 6201, where a deliberately failing classify job
+    # Both answers the edge carried are now asked inside the first step of this job, which
+    # already checks the commit out: the liveness call the classifier's `live` output came
+    # from, and the `scripts/classify-change.js` run its `data_only` output came from. The
+    # job therefore claims its slot at the same second the legs do instead of after
+    # another job has taken it, and the two questions cost one shallow fetch of the base
+    # commit (~1 s) in a job that already pays a checkout.
+    #
+    # A device spec cannot change how the server boots or how the image builds. For a
+    # data-only diff this job still reports success without building anything - the `skip`
+    # and `data_only` outputs below stand its steps down, with the same rule and the same
+    # script the classifier used, not a cheaper one.
+    #
+    # `always()` for the reason the test jobs below measure: a step that dies must run the
+    # gate, not skip it. An absent or unreadable answer therefore means "run", and the only
+    # value that stands the steps down is the `true` written after reading a diff this job
+    # could actually see. Reproduced in run 6201, where a deliberately failing classify job
     # had both of these jobs report `skipped`; run 6076 is the same failure in the wild.
-    if: always() && needs.changes.outputs.data_only != 'true' && needs.changes.outputs.live != 'false'
+    if: always()
     steps:
       # Same git checkout as the `changes` job - see the measured note there: 4.7-10.2 s of
       # every job in this workflow was the checkout action's clone, and the three test legs
       # clone that action into one shared directory within seconds of each other.
       - name: Check out this commit, from git
+        id: gate
         env:
           TOKEN: ${{ secrets.FORGEJO_TOKEN || secrets.GITHUB_TOKEN || github.token }}
         run: |
           set -eu
+          # The two questions this job used to wait for another job to answer. They are
+          # asked here because this step already has the tree: the liveness call stands a
+          # merged or closed pull request down, and `classify-change.js` is the same script
+          # with the same arguments the classifier job runs, so `data_only` means exactly
+          # what it meant there. Every failure path below answers "run".
+          echo "skip=false" >> "${GITHUB_OUTPUT:-/dev/null}"
+          echo "data_only=false" >> "${GITHUB_OUTPUT:-/dev/null}"
           # The runner's working directory is the repository root. Derive the git URL from
           # the instance URL the runner itself is configured with, never a hardcoded host.
           server="${GITHUB_SERVER_URL:-}"
@@ -374,6 +401,51 @@ jobs:
           # line the tree is the commit's own files and nothing else.
           git clean -qfdx
           echo "checked out $(git rev-parse HEAD) of ${url} with git - no action cache involved"
+          if [ "${{ github.event_name }}" != "pull_request" ]; then
+            exit 0
+          fi
+          api="${GITHUB_API_URL:-http://10.0.10.20:3000/api/v1}"
+          number="${{ github.event.pull_request.number }}"
+          json=$(curl -sS --connect-timeout 5 --max-time 20 --retry 2 --retry-delay 1 \
+                   --retry-connrefused -H "Authorization: token ${TOKEN:-}" \
+                   "$api/repos/$GITHUB_REPOSITORY/pulls/$number" 2>/dev/null || true)
+          if printf '%s' "${json:-}" | grep -q '"merged":true'; then
+            echo "skip=true" >> "${GITHUB_OUTPUT:-/dev/null}"
+            echo "pull #${number} is already merged - this job cannot gate anything, so its steps stand down"
+            exit 0
+          fi
+          if printf '%s' "${json:-}" | grep -q '"state":"closed"'; then
+            echo "skip=true" >> "${GITHUB_OUTPUT:-/dev/null}"
+            echo "pull #${number} is closed - this job cannot gate anything, so its steps stand down"
+            exit 0
+          fi
+          if [ -z "${json:-}" ]; then
+            echo "could not ask whether pull #${number} is still open - no reply from ${api} - building anyway"
+          else
+            echo "pull #${number} is open - building unless the diff is data-only"
+          fi
+          base="${{ github.event.pull_request.base.sha }}"
+          if [ -z "${base:-}" ]; then
+            echo "no base sha - treating this as a code change and building"
+            exit 0
+          fi
+          if ! timeout 60 git -c http.lowSpeedLimit=1000 -c http.lowSpeedTime=30 fetch -q --depth=1 origin "$base"; then
+            echo "the base commit ${base} could not be fetched - treating this as a code change and building"
+            exit 0
+          fi
+          out="${RUNNER_TEMP:-/tmp}/docker-classify.out"
+          : > "$out"
+          if GITHUB_OUTPUT="$out" timeout --signal=TERM --kill-after=10 120 node scripts/classify-change.js --base "$base" --head HEAD; then
+            data_only=$(sed -n 's/^data_only=//p' "$out" | tail -1)
+          else
+            data_only=""
+            echo "the diff could not be classified within 120 s - treating this as a code change and building"
+          fi
+          case "${data_only:-}" in
+            true) echo "data_only=true" >> "${GITHUB_OUTPUT:-/dev/null}"
+                  echo "this diff is data-only - the smoke test and the image build cannot be changed by it" ;;
+            *)    echo "data_only=false" >> "${GITHUB_OUTPUT:-/dev/null}" ;;
+          esac
       # No setup-node here: this job already runs on Node 20, and downloading Node 20
       # onto Node 20 was most of a 48 s job. Measured through the actions API on
       # 2026-11-16 over the 22 successful smoke jobs between 06:37 and 08:17 (tasks
@@ -388,6 +460,7 @@ jobs:
       # asserted: an image bump that changes the runtime should be visible in the log, not
       # a red check on a pull request that never touched the server.
       - name: Which runtime is running this
+        if: steps.gate.outputs.skip != 'true' && steps.gate.outputs.data_only != 'true'
         run: node --version && npm --version
       # The smoke client is the one thing here that can wait forever: `req()` settles on the
       # response's `end` or on `error`, and a connection accepted and then never answered is
@@ -403,6 +476,7 @@ jobs:
       # in the test legs relies on the same thing), and the last step of this job waits for
       # that file and reports it with the same `::error title=Server smoke test` title.
       - name: Drive the API end to end, beside the image build
+        if: steps.gate.outputs.skip != 'true' && steps.gate.outputs.data_only != 'true'
         run: |
           set -eu
           dir="${RUNNER_TEMP:-/tmp}"
@@ -412,8 +486,10 @@ jobs:
           nohup sh -c 'timeout --signal=TERM --kill-after=15 180 node scripts/smoke-http.js > "$1/smoke-http.log" 2>&1; echo $? > "$1/smoke-http.rc"' sh "$dir" > "$dir/smoke-http.nohup" 2>&1 &
           echo $! > "$dir/smoke-http.pid"
       - name: Dockerfile static checks
+        if: steps.gate.outputs.skip != 'true' && steps.gate.outputs.data_only != 'true'
         run: timeout --signal=TERM --kill-after=10 60 node scripts/check-dockerfile.js
       - name: Install Docker CLI
+        if: steps.gate.outputs.skip != 'true' && steps.gate.outputs.data_only != 'true'
         # This step needs one binary that can talk to the host's socket, and
         # `apt-get install docker.io` was buying a container runtime to get it:
         # 78.4 MB across ~40 packages, including systemd, apparmor, dbus and
@@ -472,6 +548,7 @@ jobs:
           command -v docker || { echo "::error title=Docker CLI::no docker binary and no fallback package - the image build below would be skipped silently (download.docker.com and the distro mirror were both unreachable)"; exit 1; }
           docker --version
       - name: What the host's disk looks like before this job
+        if: steps.gate.outputs.skip != 'true' && steps.gate.outputs.data_only != 'true'
         # Printed before the build as well as after it, so a growing volume reads as a trend in the
         # log rather than as a single number someone has to remember.
         # `docker system df` talks to the host daemon over the mounted socket, so an
@@ -480,6 +557,7 @@ jobs:
           timeout --signal=TERM --kill-after=5 30 df -h / || true
           timeout --signal=TERM --kill-after=5 30 docker system df 2>/dev/null || true
       - name: Build image (only where a docker daemon is available)
+        if: steps.gate.outputs.skip != 'true' && steps.gate.outputs.data_only != 'true'
         run: |
           # Actions runs this file as `bash -e`, so without this the first non-zero
           # exit ends the step at that line - before `rc` is read and before the
@@ -537,10 +615,22 @@ jobs:
       # would be skipped. `--keep-storage` bounds the cache instead of dropping it, so the next
       # build still gets a warm start; docker 20.10 has no `--keep-storage`, hence the fallback.
       - name: Bound what the build left behind
+        # `if: always()`, not `if: always() && ...`: the disk-hygiene check in this tree
+        # requires that exact condition on the step that prunes, because a build that
+        # failed is the one that leaves the most behind. The two answers this job answers
+        # for itself are read inside the step instead, and both of them mean "nothing was
+        # built, so nothing was written" - which is a different thing from "skip the
+        # cleanup of a build that ran".
         if: always()
         env:
           TOKEN: ${{ secrets.FORGEJO_TOKEN || secrets.GITHUB_TOKEN || github.token }}
+          GATE_SKIP: ${{ steps.gate.outputs.skip }}
+          GATE_DATA_ONLY: ${{ steps.gate.outputs.data_only }}
         run: |
+          if [ "${GATE_SKIP:-}" = "true" ] || [ "${GATE_DATA_ONLY:-}" = "true" ]; then
+            echo "this job built nothing (skip=${GATE_SKIP:-false} data_only=${GATE_DATA_ONLY:-false}) - nothing was written to the host, so there is nothing to reclaim"
+            exit 0
+          fi
           if ! command -v docker >/dev/null 2>&1 || ! docker info >/dev/null 2>&1; then
             echo "No docker daemon here - nothing was written to the host, so nothing to reclaim."
             exit 0
@@ -646,7 +736,7 @@ jobs:
       # a build that dies is exactly when the smoke result is most worth reading - and a
       # failed build step must not swallow the smoke step's verdict.
       - name: Report the server smoke test
-        if: always()
+        if: always() && steps.gate.outputs.skip != 'true' && steps.gate.outputs.data_only != 'true'
         run: |
           set +e
           dir="${RUNNER_TEMP:-/tmp}"
