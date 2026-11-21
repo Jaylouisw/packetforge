@@ -8,48 +8,75 @@
     "l2-forward",
     "l3-forward",
     "cli",
-    "http-server"
+    "http-server",
+    "poe-pse",
+    "802.3af",
+    "802.3at"
   ],
   "interfaces": [
     {
       "name": "Port 1",
       "type": "ethernet",
-      "speed": "2.5G"
+      "speed": "2.5G",
+      "connector": "rj45",
+      "poeOut": 32,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "Port 2",
       "type": "ethernet",
-      "speed": "2.5G"
+      "speed": "2.5G",
+      "connector": "rj45",
+      "poeOut": 32,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "Port 3",
       "type": "ethernet",
-      "speed": "2.5G"
+      "speed": "2.5G",
+      "connector": "rj45",
+      "poeOut": 32,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "Port 4",
       "type": "ethernet",
-      "speed": "2.5G"
+      "speed": "2.5G",
+      "connector": "rj45",
+      "poeOut": 32,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "Port 5",
       "type": "ethernet",
-      "speed": "2.5G"
+      "speed": "2.5G",
+      "connector": "rj45",
+      "poeOut": 32,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "Port 6",
       "type": "ethernet",
-      "speed": "2.5G"
+      "speed": "2.5G",
+      "connector": "rj45",
+      "poeOut": 32,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "Port 7",
       "type": "ethernet",
-      "speed": "2.5G"
+      "speed": "2.5G",
+      "connector": "rj45",
+      "poeOut": 32,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "Port 8",
       "type": "ethernet",
-      "speed": "2.5G"
+      "speed": "2.5G",
+      "connector": "rj45",
+      "poeOut": 32,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "SFP+ 1",
@@ -77,5 +104,6 @@
   "poe": {
     "budgetW": 120,
     "sourceUrl": "https://techspecs.ui.com/unifi/switching/usw-enterprise-8-poe"
-  }
+  },
+  "notes": " Each figure is the vendor's. https://dl.ui.com/ds/usw-enterprise-8-poe_ds.pdf (HTTP 200, application/pdf, 526,714 B, 2 pp) prints \"Networking interface (8) 1/2.5 GbE RJ45 / (2) 1/10 Gbps SFP+\", \"PoE interface (8) PoE/PoE+ (Pins 1, 2+; 3, 6-)\", \"Max. PoE+ wattage per port by PSE 32W\" and \"Max PoE power 120W\"; https://techspecs.ui.com/unifi/switching/usw-enterprise-8-poe (HTTP 200, 648,955 B, rendered spec table, read 2026-11-21) prints the same counts as rows (\"2.5 GbE RJ45 = 8 (All PoE+) (2.5G/1G/100/10M)\", \"PoE+ = 8\", \"Total PoE Availability = 120W\"). Before this correction no copper port on this row declared poeOut. The engine's isPoePse() heuristic still gave each one a PSE, but at the undeclared 802.3af default of 15.4 W (engine/media.js, `if (port.poeOut === null ...) port.poeOut = 15.4`), so the faceplate tooltip and the port detail panel reported \"PoE out 15.4 W\" on a port the datasheet rates 802.3at at 32 W by PSE - the one figure an operator reads when asking whether the socket can power a 25.5 W AP. All 8 copper ports now declare the vendor's per-port PSE ceiling (32 W) and the vendor's class word (\"PoE/PoE+\"), and the row declares poe-pse/802.3af/802.3at instead of leaving the per-port figure to the undeclared-port default. The SFP+ cages are not PSE ports and stay undeclared."
 }
