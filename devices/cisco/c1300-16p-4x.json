@@ -33,7 +33,7 @@
   },
   "interfaces": [
     {
-      "name": "Gi1/0/17",
+      "name": "Te1/0/1",
       "type": "ethernet",
       "connector": "sfp+",
       "speed": "10G",
@@ -43,7 +43,7 @@
       ]
     },
     {
-      "name": "Gi1/0/18",
+      "name": "Te1/0/2",
       "type": "ethernet",
       "connector": "sfp+",
       "speed": "10G",
@@ -53,7 +53,7 @@
       ]
     },
     {
-      "name": "Gi1/0/19",
+      "name": "Te1/0/3",
       "type": "ethernet",
       "connector": "sfp+",
       "speed": "10G",
@@ -63,7 +63,7 @@
       ]
     },
     {
-      "name": "Gi1/0/20",
+      "name": "Te1/0/4",
       "type": "ethernet",
       "connector": "sfp+",
       "speed": "10G",
@@ -82,7 +82,7 @@
     "kind": "switching capacity",
     "note": "Cisco Table 1 states 112 Gbps switching capacity and 83.32 Mpps forwarding rate for the C1300-16P-4X, the full-duplex aggregate of every port at line rate (16 x 1G downlinks plus 4 x 10G SFP+), so nothing is oversubscribed (https://www.cisco.com/c/en/us/products/collateral/switches/catalyst-1300-series-switches/nb-06-cat1300-ser-data-sheet-cte-en.pdf)."
   },
-  "notes": "Datasheet Table 1 and the model comparison table: 16 x 10/100/1000BASE-T downlinks plus 4 x 10G SFP+ uplinks; 112 Gbps switching capacity, 83.32 Mpps forwarding rate, 1.5 MB shared packet buffer, 512 MB flash, ARM dual-core CPU, 1 GB DDR4, 16 K MAC entries, up to 4094 VLANs, 8 LACP groups. PoE: the datasheet PoE table gives 120 W dedicated to PoE across 16 ports at 30 W PoE+ (802.3at) each, with 802.3af also supported; worst-case power at 110 V is 24.7 W system-only and 157.6 W with PoE loaded. Cooling: Fanless per the comparison table. Cisco states front-panel stacking (up to 8 switches, 400 ports managed as one system) for the 4X and MGP SKUs only, and this model is in that C1300 Family 1 list. Management: Cisco Business Dashboard and mobile app, on-device web UI, CLI and SNMPv1/v2c/v3, per the comparison table; the datasheet also states dual images, a DHCP server, RIP v2, static routing and PBR. Ports live in the Gi1/0/x space the uplinks continue from, because the datasheet prints a total of 20 Ethernet ports for this model; the RJ-45 console port and the USB Type C port are both front-panel per the datasheet hardware table. Sources: https://www.cisco.com/c/en/us/products/collateral/switches/catalyst-1300-series-switches/nb-06-cat1300-ser-data-sheet-cte-en.pdf and https://www.cisco.com/c/en/us/products/switches/catalyst-1300-series-switches/models-comparison.html.",
+  "notes": "Datasheet Table 1 and the model comparison table: 16 x 10/100/1000BASE-T downlinks plus 4 x 10G SFP+ uplinks; 112 Gbps switching capacity, 83.32 Mpps forwarding rate, 1.5 MB shared packet buffer, 512 MB flash, ARM dual-core CPU, 1 GB DDR4, 16 K MAC entries, up to 4094 VLANs, 8 LACP groups. PoE: the datasheet PoE table gives 120 W dedicated to PoE across 16 ports at 30 W PoE+ (802.3at) each, with 802.3af also supported; worst-case power at 110 V is 24.7 W system-only and 157.6 W with PoE loaded. Cooling: Fanless per the comparison table. Cisco states front-panel stacking (up to 8 switches, 400 ports managed as one system) for the 4X and MGP SKUs only, and this model is in that C1300 Family 1 list. Management: Cisco Business Dashboard and mobile app, on-device web UI, CLI and SNMPv1/v2c/v3, per the comparison table; the datasheet also states dual images, a DHCP server, RIP v2, static routing and PBR. The four 10G SFP+ cages are Te1/0/1 to Te1/0/4, not the numbers after the downlink group: the Catalyst 1300 CLI guide fixes the naming twice - its Managing Ports Via CLI section (TenGigabitEthernetX/0/Y for 10gig ports, Y the uplink port number 1-4) and its show interfaces status sample, which prints te1/0/1 at 10G beside gi1/0/N copper rows. A datasheet total Ethernet port count says nothing about how the CLI numbers the cages (research/c1300-4x-uplink-naming.md). the RJ-45 console port and the USB Type C port are both front-panel per the datasheet hardware table. Sources: https://www.cisco.com/c/en/us/products/collateral/switches/catalyst-1300-series-switches/nb-06-cat1300-ser-data-sheet-cte-en.pdf and https://www.cisco.com/c/en/us/products/switches/catalyst-1300-series-switches/models-comparison.html.",
   "icon": "switch",
   "color": "#ef4444",
   "sourceUrl": "https://www.cisco.com/c/en/us/products/collateral/switches/catalyst-1300-series-switches/nb-06-cat1300-ser-data-sheet-cte-en.pdf",
