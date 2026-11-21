@@ -3,7 +3,7 @@
   "model": "ES-16XP",
   "label": "Ubiquiti EdgeSwitch 16 XP",
   "category": "switch",
-  "description": "Rackmount 8-port gigabit switch with configurable passive PoE (off/24V/48V) on every data port, plus a 10/100 management port.",
+  "description": "Rackmount 1U chassis holding two EdgeSwitch 8XP systems: 16 gigabit RJ45 data ports with configurable passive PoE (off/24V/48V) on every data port, two 10/100 management ports (one per 8XP system) and a 300 W supply.",
   "capabilities": [
     "l2-forward",
     "poe-pse",
@@ -17,7 +17,7 @@
       "type": "ethernet",
       "connector": "rj45",
       "speed": "1G",
-      "poeOut": true,
+      "poeOut": 11.5,
       "poeOutClass": "passive"
     },
     {
@@ -25,7 +25,7 @@
       "type": "ethernet",
       "connector": "rj45",
       "speed": "1G",
-      "poeOut": true,
+      "poeOut": 11.5,
       "poeOutClass": "passive"
     },
     {
@@ -33,7 +33,7 @@
       "type": "ethernet",
       "connector": "rj45",
       "speed": "1G",
-      "poeOut": true,
+      "poeOut": 11.5,
       "poeOutClass": "passive"
     },
     {
@@ -41,7 +41,7 @@
       "type": "ethernet",
       "connector": "rj45",
       "speed": "1G",
-      "poeOut": true,
+      "poeOut": 11.5,
       "poeOutClass": "passive"
     },
     {
@@ -49,7 +49,7 @@
       "type": "ethernet",
       "connector": "rj45",
       "speed": "1G",
-      "poeOut": true,
+      "poeOut": 11.5,
       "poeOutClass": "passive"
     },
     {
@@ -57,7 +57,7 @@
       "type": "ethernet",
       "connector": "rj45",
       "speed": "1G",
-      "poeOut": true,
+      "poeOut": 11.5,
       "poeOutClass": "passive"
     },
     {
@@ -65,7 +65,7 @@
       "type": "ethernet",
       "connector": "rj45",
       "speed": "1G",
-      "poeOut": true,
+      "poeOut": 11.5,
       "poeOutClass": "passive"
     },
     {
@@ -73,16 +73,93 @@
       "type": "ethernet",
       "connector": "rj45",
       "speed": "1G",
-      "poeOut": true,
+      "poeOut": 11.5,
+      "poeOutClass": "passive"
+    },
+    {
+      "name": "eth9",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": 11.5,
+      "poeOutClass": "passive"
+    },
+    {
+      "name": "eth10",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": 11.5,
+      "poeOutClass": "passive"
+    },
+    {
+      "name": "eth11",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": 11.5,
+      "poeOutClass": "passive"
+    },
+    {
+      "name": "eth12",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": 11.5,
+      "poeOutClass": "passive"
+    },
+    {
+      "name": "eth13",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": 11.5,
+      "poeOutClass": "passive"
+    },
+    {
+      "name": "eth14",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": 11.5,
+      "poeOutClass": "passive"
+    },
+    {
+      "name": "eth15",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": 11.5,
+      "poeOutClass": "passive"
+    },
+    {
+      "name": "eth16",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": 11.5,
       "poeOutClass": "passive"
     },
     {
       "name": "mgmt0",
       "type": "ethernet",
       "connector": "rj45",
-      "speed": "100M"
+      "speed": "100M",
+      "poeOut": false
+    },
+    {
+      "name": "mgmt1",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "100M",
+      "poeOut": false
     }
   ],
   "sourceUrl": "https://techspecs.ui.com/uisp/wired/es-16xp",
-  "notes": "Vendor figures from the Ubiquiti tech specs page: Networking interface **(8) 10/100/1000 Ethernet ports**, Management interface **(1) 10/100 Ethernet port**, max power consumption 150 W, PoE method **passive, configurable per port Off/24V/48V**, max PoE per data port **23 W at 48 V, 11.5 W at 24 V**. Two traps: the model name says **16 XP but the sheet lists eight data ports and one management port**, and the PoE is **passive with a per-port voltage choice, not 802.3af/at** - a standard PD that expects negotiation will not come up on it."
+  "notes": "Census from Ubiquiti's own EdgeSwitch XP datasheet (https://dl.ui.com/datasheets/edgemax/EdgeSwitch_XP_DS.pdf, HTTP 200, application/pdf, 3,915,117 B, 7 pp, text layer, read 2026-11-21) and the tech-spec page (https://techspecs.ui.com/uisp/wired/es-16xp, HTTP 200, 575,584 B, rendered table, same day).\n\n**The chassis is two switches, not one.** p.1 names the models \"ES-5XP, ES-8-XP, ES-16XP\"; p.2 says the 16XP \"features dual EdgeSwitch 8XP systems in a rack-mountable, 1U form factor with 300 watts of power supporting up to 16 devices\"; p.7 prints \"Hardware Configuration (2) EdgeSwitch 8XPs\", 480 x 44.5 x 186 mm, 3.95 kg, 1U. p.4 lists \"16 Gigabit PoE Ports\". The per-port rows live on the ES-8XP page (p.6), which the tech-spec page heads with \"* Specifications apply to each 8-Port EdgeSwitch ES-8XP unit\": \"Data Ports (8) 10/100/1000 Ethernet Ports\", \"Management Port (1) 10/100 Ethernet Port\". Two units therefore expose 16 data ports and 2 management ports - which is why this entry now models eth1-eth16 plus mgmt0/mgmt1 instead of eight ports.\n\n**What this entry got wrong until 2026-11-21:** it read the per-unit asterisk as a chassis fact and modelled eight data ports and one management port, recording the shortfall as a trap - \"the model name says 16 XP but the sheet lists eight data ports\". The sheet lists eight ports *per 8XP system*; the model name was right and half the switch was missing, so a lab could cable eight of its sixteen sockets and no more.\n\n**PoE is passive and dual-voltage, not 802.3af/at.** p.6: \"PoE Method Passive\", \"PoE Out Voltage Range 45-48VDC / 22-24VDC\", \"PoE Configurable Per Port: Management Port N/A, Data Ports Off/24V/48V\", \"Max PoE Wattage Per Data Port 11.5 W (24 V), 23 W (48V)\". Ports are modelled at 11.5 W, the 24 V figure, because a port carries one voltage at a time and the engine bills one number per port; a port switched to 48 V can supply 23 W and the 300 W envelope (see the poe note) is what binds there. A standard 802.3af/at PD will not negotiate on any of these ports.\n\n**Management ports are not power ports.** p.6 prints `PoE Configurable Per Port: Management Port N/A` for the 8XP, so mgmt0/mgmt1 carry `\"poeOut\": false`. Without that the engine's own inference (media.js: a copper port on a `poe-pse` device with no declared figure) bills each management socket as a 15.4 W 802.3af PSE, which is how the pre-2026-11-21 file came to be counted as nine PSE ports on a nine-socket switch.",
+  "poe": {
+    "budgetW": 300,
+    "sourceUrl": "https://dl.ui.com/datasheets/edgemax/EdgeSwitch_XP_DS.pdf",
+    "note": "300 W is the datasheet's chassis figure, quoted not derived: p.2 \"EdgeSwitch 16XP features dual EdgeSwitch 8XP systems in a rack-mountable, 1U form factor with 300 watts of power supporting up to 16 devices\" and the p.4 feature list \"16 Gigabit PoE Ports ... 300 W Power\", against the per-unit \"Max. Power Consumption 150 W\" on the ES-8XP page (p.6). Ubiquiti does not print a row labelled \"PoE budget\" and does not say whether the chassis's own draw sits inside the 300 W, so this is an input envelope, not a measured budget: at 24 V (11.5 W a port) 16 ports total 184 W and all fit; at 48 V (23 W a port) 16 ports would be 368 W, so the supply, not the port count, is what stops a full 48 V fill. A lab that fits its own supply can state its own figure."
+  }
 }
