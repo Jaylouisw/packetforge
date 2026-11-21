@@ -959,7 +959,7 @@ Deliberately not done: the two hosts themselves stay quiet. A real stack detects
 box's ARP claim and logs it (`%IP-4-DUPADDR`), and modelling that is a new protocol behaviour rather than a view
 telling the truth about data it already had — so it is left for a decision, not smuggled in here.
 
-`test/arp-conflict.test.js` pins it, 26 checks; reverting `engine/` fails 10. Neighbours green: `show-arp` 35,
+`test/arp-conflict.test.js` pins it, 26 checks; reverting `engine/` fails 10. Neighbours green: `show-arp` 36,
 `arp-ageing` 31, `runtime-agreement` 10, `show-argument-refusal` 97, `show-ip-spellings` 70, `dhcp-bindings` 67,
 `lldp` 27, `vrrp` 94, `ping-ipv6` 41.
 
