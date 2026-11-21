@@ -5,7 +5,7 @@
 // cable was in, not whether the link was up, not whether the far port was shut. So:
 //
 //   pull the cable -> show ip bgp: 1 of 1 neighbour(s) established
-//                     show ip route: B  10.0.0.0 /24  [20/0] via 10.0.0.1  Gi0
+//                     show ip route: B  10.0.0.0/24 [20/0] via 10.0.0.1  Gi0
 //
 // a route whose next hop could not be reached, and a session that had been dead since the cable came out.
 // And `show ip bgp` printed a count of prefixes with no way to see which ones or off which peer.
@@ -65,7 +65,7 @@ console.log('A session over a live cable is established, and its prefixes are li
   ok(up.up === 1 && up.of === 1, 'one neighbour, established', up.text);
   const rows = bRows(env, env.r2);
   ok(rows.length === 1, 'the peer installed a B row', rows.join(' | '));
-  ok(/10\.0\.0\.0\/24  /.test(rows.join('\n')), 'for the advertised prefix', rows.join(' | '));
+  ok(/10\.0\.0\.0\/24 /.test(rows.join('\n')), 'for the advertised prefix', rows.join(' | '));
 
   // The prefix table: which prefix, off which next hop, with what path - the question the count could not
   // answer.

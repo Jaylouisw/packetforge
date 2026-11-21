@@ -2,7 +2,7 @@
 // `show ip route` prints the destination as ONE field: `10.1.2.0/24`, not an address padded out to a
 // column with the mask hanging off it at column 20.
 //
-// The console printed `C   10.1.2.0       /24  is directly connected, Gi0/0/0` - the address padded to 15
+// The console printed `C   10.1.2.0       /24 is directly connected, Gi0/0/0` - the address padded to 15
 // characters, then a slash, then the length. No IOS prints that shape. Every sample joins the pair:
 //
 //   C 10.44.192.0/24 is directly connected, GigabitEthernet0/0
@@ -102,7 +102,7 @@ console.log('Each kind of row, in the reading order the device uses');
 {
   const connected = rows.filter(function (l) { return /^C\s/.test(l) && / is directly connected,/.test(l); });
   ok(connected.length === 2, 'two connected rows', connected.join(' | '));
-  ok(connected.every(function (l) { return /^C\s+\d+\.\d+\.\d+\.\d+\/\d+\s{2}is directly connected, \S+/.test(l); }),
+  ok(connected.every(function (l) { return /^C\s+\d+\.\d+\.\d+\.\d+\/\d+ is directly connected, \S+/.test(l); }),
     'C, then the prefix as one field, then is directly connected, and the port', connected.join(' | '));
   ok(connected.some(function (l) { return l.indexOf('10.1.2.0/24') !== -1; }),
     'the first subnet reads 10.1.2.0/24, not 10.1.2.0 with its mask adrift', connected.join(' | '));
@@ -112,7 +112,7 @@ console.log('Each kind of row, in the reading order the device uses');
   // adrift - because it goes through the same printer.
   const local = rows.filter(function (l) { return /^L\s/.test(l); });
   ok(local.length === 2, 'two local host rows, one per address', local.join(' | '));
-  ok(local.every(function (l) { return /^L\s+\d+\.\d+\.\d+\.\d+\/32\s{2}is directly connected, \S+$/.test(l); }),
+  ok(local.every(function (l) { return /^L\s+\d+\.\d+\.\d+\.\d+\/32 is directly connected, \S+$/.test(l); }),
     'L, then the address as one /32 field, then the port - no bracket, no next hop', local.join(' | '));
   ok(local.some(function (l) { return l.indexOf('10.1.2.3/32') !== -1; }),
     'the local row is the address, not the subnet', local.join(' | '));
@@ -121,17 +121,17 @@ console.log('Each kind of row, in the reading order the device uses');
 
   const def = rows.filter(function (l) { return l.indexOf('0.0.0.0/0') !== -1; });
   ok(def.length === 2, 'both candidate defaults print 0.0.0.0/0 as one field', def.join(' | '));
-  ok(def.every(function (l) { return /^S\*\s+0\.0\.0\.0\/0\s{2}\[\d+\/0\] via \S+/.test(l); }),
+  ok(def.every(function (l) { return /^S\*\s+0\.0\.0\.0\/0 \[\d+\/0\] via \S+/.test(l); }),
     'and each is S*, /0, then [distance/metric] via a next hop', def.join(' | '));
   ok(def.some(function (l) { return /\[1\/0\] via 10\.1\.2\.1/.test(l); }),
     'the typed static default is the one at distance 1', def.join(' | '));
 
   const ospf = rows.filter(function (l) { return l.indexOf('O  ') === 0; })[0] || '';
-  ok(/^O\s+10\.77\.0\.0\/16\s{2}\[110\/\d+\] via 10\.1\.2\.9/.test(ospf),
+  ok(/^O\s+10\.77\.0\.0\/16 \[110\/\d+\] via 10\.1\.2\.9/.test(ospf),
     'the OSPF row keeps its /16 beside the network and its cost in the bracket', ospf);
 
   const bgp = rows.filter(function (l) { return l.indexOf('B  ') === 0; })[0] || '';
-  ok(/^B\s+203\.0\.113\.0\/24\s{2}\[20\/0\] via 10\.1\.2\.2/.test(bgp),
+  ok(/^B\s+203\.0\.113\.0\/24 \[20\/0\] via 10\.1\.2\.2/.test(bgp),
     'the eBGP row reads the same way', bgp);
 }
 

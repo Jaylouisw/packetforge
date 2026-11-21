@@ -6,8 +6,8 @@
 // every topology link between two such interfaces. A topology link exists while its state is `down`, and
 // nothing asked. So:
 //
-//   cable in   O   192.168.9.0/24  [110/0] via 10.0.0.1  Gi0
-//   cable out  O   192.168.9.0/24  [110/0] via 10.0.0.1  Gi0      <- same row, next hop unreachable
+//   cable in   O   192.168.9.0/24 [110/0] via 10.0.0.1  Gi0
+//   cable out  O   192.168.9.0/24 [110/0] via 10.0.0.1  Gi0      <- same row, next hop unreachable
 //   ping 192.168.9.1  ->  false, "no ARP reply from 10.0.0.1"
 //
 // BGP had the same defect one iteration earlier (#1269); OSPF had no link-state check at all.

@@ -66,9 +66,11 @@ which has always built its network cell as `dest + '/' + maskBits(mask)` (`web/a
   inserts a blank line between prefix groups. This console uses four characters for every code and no
   blank lines; a reader diffing against a particular build will see the gap, and which build to match is
   a decision this increment did not take.
-* **The two-space separator** before `is directly connected` / `[distance/metric]` (and before the
-  console's own trailing notes) is house style, not IOS, which uses one space. It was left alone: it is a
-  different question from whether the mask belongs to the address.
+* ~~**The two-space separator** before `is directly connected` / `[distance/metric]` is house style, not
+  IOS.~~ **Settled:** [show-ip-route-field-separator.md](show-ip-route-field-separator.md) measured 22
+  byte-preserving captures (64 `is directly connected` rows, 113 `[d/m] via` rows) and found one space in
+  every one; the console now prints one. The two spaces before its own trailing notes stay, as a marker
+  for a sentence no box writes.
 * **Lines this console does not print**: `10.0.0.0/8 is variably subnetted, 4 subnets, 2 masks`, the
   `L - local` code and its `/32` rows, and the blank line between prefix groups. A box with a LAN
   interface prints all three; this table prints neither, so its rows cannot be compared group by group

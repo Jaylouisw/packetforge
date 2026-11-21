@@ -93,9 +93,9 @@ console.log('An OSPF route carries its cost, not a zero:');
   ok(/\[110\/3\]/.test(third), 'r1 reaches the LAN behind r3 at [110/3]', third);
   const all = show(env, env.r2, 'show ip route');
   ok(!/\[110\/0\]/.test(all), 'no OSPF row prints a metric of 0 any more', all);
-  ok(/192\.168\.1\.0\/24  \[110\/2\] via 10\.0\.12\.1/.test(all),
+  ok(/192\.168\.1\.0\/24 \[110\/2\] via 10\.0\.12\.1/.test(all),
     'the row reads in the device order: prefix, bracket, next hop', all);
-  ok(/C\s+10\.0\.12\.0\/24  is directly connected/.test(all) && !/is directly connected.*\[/.test(all),
+  ok(/C\s+10\.0\.12\.0\/24 is directly connected/.test(all) && !/is directly connected.*\[/.test(all),
     'and a connected route still has no bracket at all', all);
 }
 

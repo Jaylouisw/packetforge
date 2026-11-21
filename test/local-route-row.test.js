@@ -97,7 +97,7 @@ console.log('The console prints the pair in the box\'s order and shape:');
   const longPort = require('../engine/iface-name').displayName(port.name);
   ok(cLine.indexOf('10.1.1.0/30') !== -1 && cLine.indexOf('is directly connected, ' + longPort) !== -1,
     'the connected row is the subnet, directly connected on the port', cLine);
-  ok(/^L\s+10\.1\.1\.1\/32\s{2}is directly connected, \S+/.test(lLine),
+  ok(/^L\s+10\.1\.1\.1\/32 is directly connected, \S+/.test(lLine),
     'the local row is the address, said the same way - no bracket, no next hop', lLine);
   ok(out.indexOf(cLine) === out.indexOf(lLine) - 1,
     'and it sits on the line directly under its subnet, as the box prints it', out.join(' | '));

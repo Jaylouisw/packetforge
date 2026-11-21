@@ -63,9 +63,9 @@ console.log('A connected row names the port in the box\'s spelling');
   const l = rowFor(lines, '10.1.2.3/32');
   const long = displayName(port.name);
   ok(long !== port.name, 'the port this test uses is stored short and printed long', port.name + ' -> ' + long);
-  ok(c === 'C   10.1.2.0/24  is directly connected, ' + long,
+  ok(c === 'C   10.1.2.0/24 is directly connected, ' + long,
     'the C row spells the type word out, as a sentence', c);
-  ok(l === 'L   10.1.2.3/32  is directly connected, ' + long,
+  ok(l === 'L   10.1.2.3/32 is directly connected, ' + long,
     'the L row does too', l);
   ok(c.indexOf('is directly connected, ' + port.name) === -1,
     'and the short cell spelling is gone from the sentence', c);
@@ -85,9 +85,9 @@ console.log('A fully specified static separates the interface from the next hop 
   const lines = show(dev, null, null, 'show ip route');
   const full = rowFor(lines, '10.8.0.0/16');
   const nextHopOnly = rowFor(lines, '172.16.0.0/16');
-  ok(full === 'S   10.8.0.0/16  [1/0] via 10.1.2.9, ' + displayName(ports[1].name),
+  ok(full === 'S   10.8.0.0/16 [1/0] via 10.1.2.9, ' + displayName(ports[1].name),
     'the row reads "via <next hop>, <interface>", the vendor\'s fully specified form', full);
-  ok(nextHopOnly === 'S   172.16.0.0/16  [1/0] via 10.1.2.9',
+  ok(nextHopOnly === 'S   172.16.0.0/16 [1/0] via 10.1.2.9',
     'a next-hop-only route still names no interface and adds no dangling comma', nextHopOnly);
   const row = dev.routesTable(null).filter(function (r) { return r.dest === '10.8.0.0'; })[0];
   ok(row.iface === ports[1].name,
@@ -121,7 +121,7 @@ console.log('An OSPF row is the same sentence, with the comma');
   sim.computeOspf();
   const lines = show(r2, t, sim, 'show ip route');
   const o = rowFor(lines, '192.168.9.0/24');
-  ok(o === 'O   192.168.9.0/24  [110/2] via 10.0.0.1, ' + displayName(a1),
+  ok(o === 'O   192.168.9.0/24 [110/2] via 10.0.0.1, ' + displayName(a1),
     'the O row spells the port out, after a comma', o);
   ok(!/\s{2}GigabitEthernet/.test(o),
     'two spaces no longer stand where the vendor prints ", "', o);

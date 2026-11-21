@@ -1435,7 +1435,7 @@ class Device {
     if (this.config.defaultGateway && !this.isL3()) {
       rows.push({ code: 'S', dest: '0.0.0.0', mask: '0.0.0.0', gw: this.config.defaultGateway, iface: '-', type: 'default' });
     }
-    // The lease's router, on a box that routes: `S*  0.0.0.0/0  [254/0] via <router>`, the row a DHCP client
+    // The lease's router, on a box that routes: `S*  0.0.0.0/0 [254/0] via <router>`, the row a DHCP client
     // installs and the reason such a line is missing from the running-config (nothing typed it).
     if (this.isL3() && this.dhcpGateway) {
       rows.push({ code: 'S', dest: '0.0.0.0', mask: '0.0.0.0', gw: this.dhcpGateway, iface: '-', type: 'static', distance: 254 });
@@ -1494,8 +1494,8 @@ class Device {
     // The table used to print every candidate it held, so a BGP route for a subnet the box is *directly
     // connected to* appeared beside the connected route as an equal:
     //
-    //     C   10.0.12.0/24  is directly connected, Gi0
-    //     B   10.0.12.0/24  [20/0] via 10.0.12.2  Gi0
+    //     C   10.0.12.0/24 is directly connected, Gi0
+    //     B   10.0.12.0/24 [20/0] via 10.0.12.2  Gi0
     //
     // Two rows for one destination, and only one of them can be installed. `routeTo()` - the thing that
     // actually forwards - has always chosen by longest prefix then lowest distance, so the engine knew the
