@@ -90,16 +90,17 @@ classful static):
 ```
 Codes: C - connected, S - static, O - OSPF, B - BGP, * - candidate default
 Gateway of last resort is not set
-C   10.1.1.0/24  is directly connected, Gi0/0
-C   10.2.2.0/24  is directly connected, Gi0/1
-S   172.16.0.0/16  [1/0] via 10.1.1.254
+C   10.1.1.0/24 is directly connected, Gi0/0
+C   10.2.2.0/24 is directly connected, Gi0/1
+S   172.16.0.0/16 [1/0] via 10.1.1.254
 ```
 
 A box would print the `10.0.0.0/8` group header above the first two rows and drop their `/24` (one mask in the
 group), and leave the `S` row alone (classful-complete, ungrouped). Doing that here is not a wording change:
 it repaints **every row** of the view, removes the prefix length from the commonest lab table, changes the
-docs' examples, and has to be decided against the console's own two-space separator and four-character code
-field - all of which the previous note deliberately left alone. That is a change with its own test surface
+docs' examples, and has to be decided against the console's four-character code field - which the
+previous note deliberately left alone (the separator after the prefix is no longer one of them: it is the
+device's one space, `research/show-ip-route-field-separator.md`). That is a change with its own test surface
 (`test/show-ip-route-*.test.js`), not a footnote to this one, so this increment stops at the evidence. What a
 change would have to decide, with the answers this note supplies:
 

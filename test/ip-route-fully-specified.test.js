@@ -69,7 +69,7 @@ console.log('The documented order - interface, then next hop - is accepted and p
   const row = rowFor(s, '10.2.3.0/24');
   ok(row.length === 1, 'the table holds one row for it', row.join(' | '));
   const long = require('../engine/iface-name').displayName(p);
-  ok(/^S\s+10\.2\.3\.0\/24\s{2}\[1\/0\] via 10\.1\.2\.2, /.test(row[0] || ''),
+  ok(/^S\s+10\.2\.3\.0\/24 \[1\/0\] via 10\.1\.2\.2, /.test(row[0] || ''),
     'and it reads S, the prefix, [1/0] via the hop, then the port', row[0]);
   ok((row[0] || '').indexOf(', ' + long) !== -1, 'naming the port after the comma', row[0]);
   const r = s.dev.routeTo('10.2.3.9');
@@ -98,7 +98,7 @@ console.log('The order this console already took still works, and the row is the
   const p = s.ports[1].name;
   s.cfg(['ip route 10.2.5.0 255.255.255.0 10.1.2.2 ' + p]);
   const row = rowFor(s, '10.2.5.0/24');
-  ok(/^S\s+10\.2\.5\.0\/24\s{2}\[1\/0\] via 10\.1\.2\.2, /.test(row[0] || ''),
+  ok(/^S\s+10\.2\.5\.0\/24 \[1\/0\] via 10\.1\.2\.2, /.test(row[0] || ''),
     'next hop first, then the port, prints the same shape', row[0]);
   const stored = s.dev.config.routes.filter(function (r) { return r.dest === '10.2.5.0'; })[0];
   ok(stored && stored.gw === '10.1.2.2' && stored.iface === p,

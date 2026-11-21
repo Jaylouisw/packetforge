@@ -146,7 +146,7 @@ asking whether `192.0.2.0/24` was installed printed:
 
 ```
 Codes: C - connected, S - static, O - OSPF, B - BGP
-C   10.0.0.0/24  is directly connected, GigabitEthernet0
+C   10.0.0.0/24 is directly connected, GigabitEthernet0
 ```
 
 A different prefix, printed as the answer to a question about this one. An operator checking whether a prefix is
@@ -903,10 +903,10 @@ Codes: L - local, C - connected, S - static, R - RIP, M - mobile, B - BGP
        a - application route
        + - replicated route, % - next hop override, p - overrides from PfR
 Gateway of last resort is not set
-C   10.0.1.0/24  is directly connected, GigabitEthernet0/0
-L   10.0.1.1/32  is directly connected, GigabitEthernet0/0
-C   10.0.2.0/24  is directly connected, GigabitEthernet0/1
-L   10.0.2.1/32  is directly connected, GigabitEthernet0/1
+C   10.0.1.0/24 is directly connected, GigabitEthernet0/0
+L   10.0.1.1/32 is directly connected, GigabitEthernet0/0
+C   10.0.2.0/24 is directly connected, GigabitEthernet0/1
+L   10.0.2.1/32 is directly connected, GigabitEthernet0/1
 R1# ping 10.0.1.10
 Type escape sequence to abort.
 Sending 5, 100-byte ICMP Echos to 10.0.1.10, timeout is 2 seconds:
@@ -3013,8 +3013,8 @@ An installed route can still lead nowhere. When its egress port cannot carry a f
 same words the other tables use:
 
 ```
-C   10.0.0.0/24  is directly connected, GigabitEthernet0  (down: link down)
-S   172.20.0.0/16  [1/0] via 10.0.0.1  (down: link down)
+C   10.0.0.0/24 is directly connected, GigabitEthernet0  (down: link down)
+S   172.20.0.0/16 [1/0] via 10.0.0.1  (down: link down)
 ```
 
 A connected route or a static route stays listed when its port goes down — they are configuration, not
@@ -3473,7 +3473,7 @@ Route added: 192.168.9.0/24 out Gi0
   no next hop: this resolves by ARP on that segment, which needs proxy ARP on the far side
 
 r1#show ip route
-S   192.168.9.0/24  is directly connected, GigabitEthernet0  (no next hop: ARP for the destination on that segment)
+S   192.168.9.0/24 is directly connected, GigabitEthernet0  (no next hop: ARP for the destination on that segment)
 ```
 
 Anything that is neither an address nor a port is refused, naming it and the route:
@@ -3511,6 +3511,16 @@ What IOS pads is the *code*, to a wider field than this console uses; the prefix
 one token read as a whole. `test/show-ip-route-prefix-one-field.test.js` pins the rule on every kind of row
 (connected, static, static default, configured gateway, OSPF, eBGP).
 
+The **separator after the prefix is one space**, not two: `C 10.44.192.0/24 is directly connected,
+GigabitEthernet0/0`, `S 192.168.1.0/24 [1/0] via 10.44.192.2`. This console printed two, which no IOS or IOS-XE
+capture in hand writes. The only two-space run in a real table is the *leading* indent of a continuation row
+that carries no prefix of its own — a multi-next-hop or subnetted row, where the bracket starts the line. The
+separator was measured byte for byte in
+[`research/show-ip-route-field-separator.md`](../research/show-ip-route-field-separator.md), and
+`test/show-ip-route-field-separator.test.js` pins it on every row shape. The two spaces before this console's
+own `(down: …)` / `(not installed: …)` annotations stay: a box prints no annotation, so that gap marks a
+sentence the hardware never wrote.
+
 The **interface is a field of the sentence**, in the box's spelling: the type word is written out
 (`GigabitEthernet0/0`, not the `Gi0/0` a table cell uses), and when it follows a next hop it is introduced by
 `, ` — `S 10.8.0.0/16 [1/0] via 10.1.2.9, GigabitEthernet0/0`. The command reference prints the same row for a
@@ -3538,8 +3548,8 @@ the line breaks and the seven-space indent are measured in
 An interface address is a row of its own, one line under the subnet that holds it:
 
 ```
-C   10.1.1.0/30  is directly connected, GigabitEthernet0/0
-L   10.1.1.1/32  is directly connected, GigabitEthernet0/0
+C   10.1.1.0/30 is directly connected, GigabitEthernet0/0
+L   10.1.1.1/32 is directly connected, GigabitEthernet0/0
 ```
 
 The `L` row is the address, as a `/32`, and its job is to be a *receive* entry: a packet for it is handed to the
@@ -3723,10 +3733,10 @@ configured gateway 254 — and it always did. The table did not say so: it print
 
 ```
 r1#show ip route
-C   10.0.12.0/24  is directly connected, GigabitEthernet0
-B   10.0.12.0/24  [20/0] via 10.0.12.2, GigabitEthernet0  (not installed: the C route for this prefix has distance 0)
-O   10.3.3.0/24  [110/2] via 10.0.12.2, GigabitEthernet0  (not installed: the B route for this prefix has distance 20)
-B   10.3.3.0/24  [20/0] via 10.0.12.2, GigabitEthernet0
+C   10.0.12.0/24 is directly connected, GigabitEthernet0
+B   10.0.12.0/24 [20/0] via 10.0.12.2, GigabitEthernet0  (not installed: the C route for this prefix has distance 0)
+O   10.3.3.0/24 [110/2] via 10.0.12.2, GigabitEthernet0  (not installed: the B route for this prefix has distance 20)
+B   10.3.3.0/24 [20/0] via 10.0.12.2, GigabitEthernet0
 ```
 
 Two rows, one destination, and now the table says which one a packet follows. A losing row is **not deleted** —

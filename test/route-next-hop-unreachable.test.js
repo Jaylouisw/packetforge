@@ -6,7 +6,7 @@
 //
 //   r1(config)# ip route 192.168.50.0 255.255.255.0 172.16.9.1
 //   r1> show ip route
-//   S   192.168.50.0/24  [1/0] via 172.16.9.1          <- no caveat: reads as an installed route
+//   S   192.168.50.0/24 [1/0] via 172.16.9.1          <- no caveat: reads as an installed route
 //   r1> ping 192.168.50.5
 //   "no usable egress interface"                          <- the data plane could not use it at all
 //

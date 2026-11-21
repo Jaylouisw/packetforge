@@ -4,8 +4,8 @@
 //
 // The console printed the bracket form with a placeholder next hop:
 //
-//   S   192.168.2.0/24  [1/0] via -  Gi0/0/0
-//   S*  0.0.0.0/0  [1/0] via -  Gi0/0/0
+//   S   192.168.2.0/24 [1/0] via -  Gi0/0/0
+//   S*  0.0.0.0/0 [1/0] via -  Gi0/0/0
 //
 // No IOS prints that. `ip route <prefix> <mask> <interface>` is the vendor's "directly connected static
 // route", and the table says so in the same words a connected route uses:
@@ -97,17 +97,17 @@ console.log('An interface-only static is printed as a directly connected network
   const byPrefix = function (pfx) { return lines.filter(function (l) { return l.indexOf(pfx) !== -1; })[0] || ''; };
 
   const plain = byPrefix('192.168.2.0/24');
-  ok(/^S\s+192\.168\.2\.0\/24\s{2}is directly connected, /.test(plain),
+  ok(/^S\s+192\.168\.2\.0\/24 is directly connected, /.test(plain),
     'it reads S, the prefix, then "is directly connected,"', plain);
   ok(plain.indexOf('[1/0]') === -1 && !/\bvia\b/.test(plain),
     'with no bracket and no "via" - there is no next hop to name', plain);
 
   const def = byPrefix('0.0.0.0/0');
-  ok(/^S\*\s+0\.0\.0\.0\/0\s{2}is directly connected, /.test(def),
+  ok(/^S\*\s+0\.0\.0\.0\/0 is directly connected, /.test(def),
     'a default pointed at an interface keeps its candidate-default star and says directly connected', def);
 
   const dist = byPrefix('10.9.0.0/16');
-  ok(/^S\s+10\.9\.0\.0\/16\s{2}is directly connected, /.test(dist),
+  ok(/^S\s+10\.9\.0\.0\/16 is directly connected, /.test(dist),
     'and so does one configured with a distance: the bracket is not printed', dist);
   // The distance is not lost, only unprinted - it still decides which route wins.
   const row200 = (s.dev.routesTable ? s.dev.routesTable() : []).filter(function (r) {
@@ -127,7 +127,7 @@ console.log('An interface-only static is printed as a directly connected network
   // (research/show-ip-route-interface-spelling.md).
   const pLong = require('../engine/iface-name').displayName(p);
   const full = byPrefix('10.8.0.0/16');
-  ok(/^S\s+10\.8\.0\.0\/16\s{2}\[1\/0\] via 10\.9\.0\.9, /.test(full),
+  ok(/^S\s+10\.8\.0\.0\/16 \[1\/0\] via 10\.9\.0\.9, /.test(full),
     'the fully specified form is not directly connected: it keeps its bracket and next hop', full);
   ok(full.indexOf(', ' + pLong) !== -1, 'and still names the exit interface beside the next hop', full);
   const fullRow = (s.dev.routesTable ? s.dev.routesTable() : []).filter(function (r) {
@@ -148,7 +148,7 @@ console.log('The connected row it now shares a shape with is unchanged');
   const s = build();
   const lines = show(s, 'show ip route');
   const c = rows(lines).filter(function (l) { return l.indexOf('10.1.2.0/24') !== -1; })[0] || '';
-  ok(/^C\s+10\.1\.2\.0\/24\s{2}is directly connected, /.test(c),
+  ok(/^C\s+10\.1\.2\.0\/24 is directly connected, /.test(c),
     'a connected route still reads C, prefix, "is directly connected,"', c);
 }
 
@@ -158,7 +158,7 @@ console.log('A static with a next hop and no interface is untouched');
   const s = build();
   s.cfg(['ip route 172.16.0.0 255.255.0.0 10.1.2.254']);
   const r = rows(show(s, 'show ip route')).filter(function (l) { return l.indexOf('172.16.0.0/16') !== -1; })[0] || '';
-  ok(/^S\s+172\.16\.0\.0\/16\s{2}\[1\/0\] via 10\.1\.2\.254$/.test(r),
+  ok(/^S\s+172\.16\.0\.0\/16 \[1\/0\] via 10\.1\.2\.254$/.test(r),
     'the recursive row keeps its bracket, its next hop and no interface', r);
 }
 

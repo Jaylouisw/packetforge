@@ -6865,7 +6865,10 @@ class CliSession {
           // A connected route stays listed - it is configuration, and `routeTo()` still finds it - but a
           // port that cannot carry a frame is why the ping to that very address fails. Saying nothing left
           // the reader with a route row that reads "directly connected" about a port with no cable (#1271).
-          out.push(codeField + dest + '  is directly connected, ' + (r.ifaceDisplay || r.iface) +
+          // One space between the prefix and the sentence, not two: every IOS and IOS-XE capture in hand
+          // writes `10.44.192.0/24 is directly connected`, never two spaces - the separator is the build's,
+          // and no build pads it. research/show-ip-route-field-separator.md carries the byte-level captures.
+          out.push(codeField + dest + ' is directly connected, ' + (r.ifaceDisplay || r.iface) +
             (r.note ? '  ' + r.note : '') + (r.shadow ? '  ' + r.shadow : ''));
           continue;
         }
@@ -6887,8 +6890,11 @@ class CliSession {
         // (research/show-ip-route-interface-spelling.md). A protocol-learned row on the hardware carries a
         // third field between the two - the route's age, `00:11:43` - which this engine does not track; the
         // note records that as the half still open rather than printing a made-up time.
+        // ...and the same one space before the bracket: `S 192.168.1.0/24 [1/0] via`, as every capture
+        // prints it (research/show-ip-route-field-separator.md). The two spaces kept for `note`/`shadow`
+        // below are this console's own annotations, which no box prints at all.
         out.push(codeField + dest +
-          '  [' + r.distance + '/' + r.metric + '] via ' + r.gw +
+          ' [' + r.distance + '/' + r.metric + '] via ' + r.gw +
           (r.iface && r.iface !== '-' ? ', ' + (r.ifaceDisplay || r.iface) : '') +
           (r.note ? '  ' + r.note : '') + (r.shadow ? '  ' + r.shadow : ''));
       }
