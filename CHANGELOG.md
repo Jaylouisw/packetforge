@@ -9,6 +9,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **An EdgeSwitch 18X powered a device from fifteen sockets that cannot source power, and missed the one that
+  can.** Ubiquiti's datasheet names both ends of the passthrough in one sentence — "Sixteen Gigabit RJ45 ports
+  offer copper connectivity with **PoE input on port 1** and **PoE passthrough on port 16**" — against a tech-spec
+  row that only says "(1) 24V passive PoE port". The catalogue entry had put that one port on `eth0` (the first,
+  an assumption its own note admitted) and, because a PoE switch's ports are otherwise inferred, `derivePortHardware()`
+  filled `eth1`–`eth15` with 15.4 W of 802.3af on a 24 V passive box. `show power inline` therefore listed sixteen
+  PSE ports where the hardware has one, and a device cabled to any of fifteen of them would have been shown as
+  powered. `eth15` (port 16) is now the outlet at the vendor's 15 W per-port ceiling, classed `passive`; `eth0`
+  (port 1) declares the inlet at the box's own 14 W `Max. Power Consumption`; `eth1`–`eth14` declare `poeOut: false`
+  so the switch-wide inference cannot re-promote them. The budget is a **derived** 10 W (24 W adapter − 14 W draw,
+  the same arithmetic as the ES-10XP's 52 W), marked derived because Ubiquiti prints no total PoE row.
+  `test/es-10x-passthrough.test.js` pins the outlet, the absence of every other PSE, the inlet, the derived budget
+  and the console's answer; source:
+  [ES-18X datasheet](https://media.dustin.eu/media/d200001001720050/edgeswitch-18x-product-data-sheet-brochure.pdf),
+  with the [EdgeSwitch X datasheet](https://dl.ui.com/ds/edgeswitch_x_ds.pdf) showing the same construction on the
+  ES-10X; [`research/es-18x-passthrough-port.md`](research/es-18x-passthrough-port.md) records the sources and the
+  four questions they leave open (adapter-only operation, which ceiling binds, the outlet's out-of-box state, the
+  inlet's idle draw).
 - **A bridge priority off the `4096` ladder was refused in a sentence no box prints.** `spanning-tree
   priority 4500` answered `% 4500 is not a valid bridge priority: it must be a multiple of 4096 ... the nearest
   valid values are 4096 and 8192` - true, and helpful, and not what the hardware says. A Catalyst prints four

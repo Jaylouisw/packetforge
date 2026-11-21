@@ -17,11 +17,17 @@
 //   https://techspecs.ui.com/uisp/wired/es-10xp  575,764 B  same rows with a 2.5 A adapter; LEDs row says
 //        "RJ45 ports: link/speed/activity, PoE"
 //   https://techspecs.ui.com/uisp/wired/es-18x   580,575 B  "PoE interface (1) 24V passive PoE port"
+//        - which the ES-18X datasheet names: "PoE input on port 1 and PoE passthrough on port 16"
+//        (https://media.dustin.eu/media/d200001001720050/edgeswitch-18x-product-data-sheet-brochure.pdf,
+//        extracted 2026-11-21). The entry had put its one declared outlet on eth0 because the tech-spec
+//        row does not say which port it is, and the `poe-pse` capability then made the engine promote
+//        the other fifteen copper ports to 15.4 W sources - sixteen PSE ports where the box has one.
 //   https://techspecs.ui.com/uisp/wired/es-5xp   574,944 B  "PoE method Passive"; "PoE Out voltage range
 //        22-24V DC"; "Max. PoE wattage per port 11.5W"; "PoE configurable per port ... Data ports: Off/24V"
 // The 10XP budget is DERIVED (60 W adapter - 8 W box draw), the same shape as devices/ubiquiti/uisp-r.json.
 const path = require('path');
-const { Topology } = require('../engine');
+const { Topology, Simulator } = require('../engine');
+const { CliSession } = require('../engine/cli');
 const { loadCatalog } = require('../devices/registry');
 
 let passed = 0, failed = 0;
@@ -74,12 +80,49 @@ ok(XP && XP.poe && /techspecs\.ui\.com\/uisp\/wired\/es-10xp/.test(String(XP.poe
 ok(XP && XP.poe && /DERIVED/.test(String(XP.poe.note)),
   'and says it is derived rather than quoted');
 
-console.log('\nThe single-PoE and five-port siblings are classed the same way:');
+console.log('\nThe 18X has one PoE outlet, and it is port 16 - not port 1, and not all sixteen:');
 ok(X18 && X18.interfaces.filter(function (i) { return i.poeOut; }).length === 1,
   'the 18X has exactly one PoE port');
 ok(X18 && X18.interfaces.filter(function (i) { return i.poeOut; })
   .every(function (i) { return i.poeOutClass === 'passive'; }), 'classed passive');
-ok(X18 && !X18.poe, 'and claims no budget: the page publishes a per-port cap only');
+{
+  // The vendor names the sockets: "PoE input on port 1 and PoE passthrough on port 16". Ports are
+  // catalogued from 1, so p1 is eth0 and p16 is eth15.
+  const t = new Topology();
+  const sw = X18 ? t.addDevice(X18, 'sw1') : null;
+  if (sw) sw.name = 'SW1';
+  const ifaces = sw ? [...sw.interfaces.values()] : [];
+  const sourcing = ifaces.filter(function (i) { return i.hardware.poeOut; })
+    .map(function (i) { return i.name + '=' + i.hardware.poeOut; });
+  ok(JSON.stringify(sourcing) === '["eth15=15"]',
+    'exactly one PSE, eth15 (port 16), at the vendor\'s 15 W per-port ceiling (' + (sourcing.join(',') || 'none') + ')');
+  ok(ifaces.filter(function (i) { return i.name !== 'eth15' && i.hardware.poeOut; }).length === 0,
+    'and no other port sources power - the switch-wide inference used to promote all sixteen');
+  const sinking = ifaces.filter(function (i) { return i.hardware.poeIn; })
+    .map(function (i) { return i.name + '=' + i.hardware.poeIn; });
+  ok(JSON.stringify(sinking) === '["eth0=14"]',
+    'the inlet is eth0 (port 1) at the box\'s own 14 W max draw (' + (sinking.join(',') || 'none') + ')');
+  ok(X18 && X18.poe && X18.poe.budgetW === 10,
+    'the derived budget is 10 W: the 24 W adapter less the 14 W the box draws (' +
+    (X18 && X18.poe && X18.poe.budgetW) + ')');
+  ok(X18 && X18.poe && /DERIVED/.test(String(X18.poe.note)),
+    'and the note says it is derived rather than quoted');
+  ok(X18 && X18.poe && /edgeswitch-18x/.test(String(X18.poe.sourceUrl)),
+    'citing the ES-18X datasheet it was derived from');
+  if (sw) {
+    const sim = new Simulator(t);
+    sim.computePoe();
+    const out = new CliSession(sw, t, sim).run('show power inline').output;
+    // Nothing is plugged into the one outlet, so the table has no data rows and the port is named once,
+    // in the line below it - the view's own way of keeping a wall of empty rows out of the answer.
+    const named = out.filter(function (l) { return /eth15/.test(l); });
+    ok(named.length > 0 && named.every(function (l) { return /nothing plugged in: eth15$/.test(l); }),
+      'the console names the outlet as the one port with nothing plugged in (' + (named.join(' / ') || 'none') + ')');
+    ok(!out.some(function (l) { return /^eth(0|1|2|3|4|5|6|7|8|9|10|11|12|13|14)\s/.test(l); }),
+      'and names none of the fifteen sockets that source nothing');
+    ok(/^Available:10\.0\(w\)/.test(out[0] || ''), 'and prints the derived budget above the table', out[0]);
+  }
+}
 ok(X5 && X5.interfaces.filter(function (i) { return i.poeOut; }).length === 5,
   'the 5XP has five PoE ports');
 ok(X5 && X5.interfaces.filter(function (i) { return i.poeOut; })

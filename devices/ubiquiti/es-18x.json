@@ -3,13 +3,14 @@
   "model": "ES-18X",
   "label": "EdgeSwitch 18X",
   "category": "switch",
-  "description": "EdgeSwitch 18X (ES-18X) - 16x 1G RJ45 + 2x 1G SFP. 36 Gbps switching capacity.",
+  "description": "EdgeSwitch 18X (ES-18X) - 16x 1G RJ45 + 2x 1G SFP. eth0 accepts 24 V passive PoE; eth15 is the 24 V passive PoE passthrough outlet (15 W). 36 Gbps switching capacity.",
   "capabilities": [
     "l2-forward",
     "cli",
     "http-server",
     "poe-pse",
-    "passive-poe"
+    "passive-poe",
+    "poe-pd"
   ],
   "interfaces": [
     {
@@ -21,8 +22,7 @@
         "1G",
         "100M"
       ],
-      "poeOut": true,
-      "poeOutClass": "passive"
+      "poeIn": 14
     },
     {
       "name": "eth1",
@@ -32,7 +32,9 @@
       "speedCaps": [
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false,
+      "poeOut": false
     },
     {
       "name": "eth2",
@@ -42,7 +44,9 @@
       "speedCaps": [
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false,
+      "poeOut": false
     },
     {
       "name": "eth3",
@@ -52,7 +56,9 @@
       "speedCaps": [
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false,
+      "poeOut": false
     },
     {
       "name": "eth4",
@@ -62,7 +68,9 @@
       "speedCaps": [
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false,
+      "poeOut": false
     },
     {
       "name": "eth5",
@@ -72,7 +80,9 @@
       "speedCaps": [
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false,
+      "poeOut": false
     },
     {
       "name": "eth6",
@@ -82,7 +92,9 @@
       "speedCaps": [
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false,
+      "poeOut": false
     },
     {
       "name": "eth7",
@@ -92,7 +104,9 @@
       "speedCaps": [
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false,
+      "poeOut": false
     },
     {
       "name": "eth8",
@@ -102,7 +116,9 @@
       "speedCaps": [
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false,
+      "poeOut": false
     },
     {
       "name": "eth9",
@@ -112,7 +128,9 @@
       "speedCaps": [
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false,
+      "poeOut": false
     },
     {
       "name": "eth10",
@@ -122,7 +140,9 @@
       "speedCaps": [
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false,
+      "poeOut": false
     },
     {
       "name": "eth11",
@@ -132,7 +152,9 @@
       "speedCaps": [
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false,
+      "poeOut": false
     },
     {
       "name": "eth12",
@@ -142,7 +164,9 @@
       "speedCaps": [
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false,
+      "poeOut": false
     },
     {
       "name": "eth13",
@@ -152,7 +176,9 @@
       "speedCaps": [
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false,
+      "poeOut": false
     },
     {
       "name": "eth14",
@@ -162,7 +188,9 @@
       "speedCaps": [
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false,
+      "poeOut": false
     },
     {
       "name": "eth15",
@@ -172,7 +200,10 @@
       "speedCaps": [
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false,
+      "poeOut": 15,
+      "poeOutClass": "passive"
     },
     {
       "name": "sfp1",
@@ -190,5 +221,10 @@
   "icon": "switch",
   "color": "#14b8a6",
   "sourceUrl": "https://techspecs.ui.com/uisp/wired/es-18x",
-  "notes": "One port carries 24 V passive PoE, and it is not 802.3af. The tech-spec table (https://techspecs.ui.com/uisp/wired/es-18x, HTTP 200, 580,575 B, read 2026-11-20) prints \"Networking interface: (16) 10/100/1000 Mbps Ethernet RJ45 ports, (2) 1 Gbps SFP ports\", \"PoE interface: (1) 24V passive PoE port (Pins 4, 5+; 7, 8-)\", \"Passive PoE Max. wattage per port: 15W\", \"Power method: 24V DC, 1A power adapter (Included), 24V Passive PoE\" and \"Max. power consumption: 14W (Excludes PoE output)\". Two things the sheet does not say, both left unanswered rather than filled in: it never says *which* of the sixteen copper ports the PoE one is - this entry keeps it on eth0, the first, which is where the ES line puts it, and that is an assumption rather than a citation - and it publishes no total budget. No budget is derived here on purpose: 24 V x 1 A = 24 W, less the 14 W the box draws, leaves 10 W, which is *below* the 15 W per-port maximum, so the adapter and the port cap disagree and neither number is a budget. Recording 15 W would claim headroom the included supply cannot deliver. The class is `passive` for the same reason as devices/ubiquiti/es-16xp.json: a 24 V fixed-voltage port does not negotiate 802.3af."
+  "notes": "WHAT THE VENDOR SAYS - \"Sixteen Gigabit RJ45 ports offer copper connectivity with PoE input on port 1 and PoE passthrough on port 16.\" (ES-18X datasheet, https://media.dustin.eu/media/d200001001720050/edgeswitch-18x-product-data-sheet-brochure.pdf, extracted 2026-11-21), with \"PoE Interfaces: (1) 24V Passive PoE Port (Pins 4, 5+; 7, 8-)\", \"Passive PoE Max Wattage: 15W per Port\" and \"Passive PoE Voltage Range 24V\". The tech-spec table says the same in shorter rows (https://techspecs.ui.com/uisp/wired/es-18x, HTTP 200, 580,575 B, read 2026-11-20): \"(1) 24V passive PoE port\", \"Power method: 24V DC, 1A power adapter (Included), 24V Passive PoE\". HostiFi's EdgeMAX PoE table agrees on the direction - \"24v in on port 1 ... 24v out on port 16\" (https://support.hostifi.com/en/articles/8386547-edgemax-which-devices-use-active-poe-and-passive-poe). The construction is the family's: the EdgeSwitch X datasheet puts the ES-10X's \"PoE input on port 1 and 24V PoE passthrough on port 8\" (https://dl.ui.com/ds/edgeswitch_x_ds.pdf).\n\nWHAT WAS WRONG - the entry declared `poeOut: true` on eth0 and a `poe-pse` capability beside `category: switch`, so derivePortHardware() promoted every other RJ45 port to a 15.4 W 802.3af source: sixteen PSE ports where the datasheet names one. The one declared port was also the wrong socket - the previous note recorded that the sheet \"never says which of the sixteen copper ports the PoE one is\", so the entry assumed the first; the datasheet says the last (port 16), and that port 1 is the inlet. `show power inline` on this switch listed all sixteen sockets as sources, and would have powered a device on fifteen of them. research/es-18x-passthrough-port.md records the question, the sources and what is still open.\n\nWHAT IT IS NOW - eth15 (port 16) is the outlet: `poeOut: 15`, class `passive` (24 V fixed voltage, not 802.3af). eth0 (port 1) is the inlet: `poeIn: 14`, the box's own \"Max. Power Consumption: 14W (Excludes PoE Output)\", the same shape devices/ubiquiti/er-10x.json uses for its 8 W inlet. eth1-eth14 carry `poeOut: false` so the switch-wide inference cannot re-promote them; `poe-pd` was added because the box can be powered from port 1.\n\nNOT MODELLED - the box also ships with an adapter, so `poeIn` on eth0 is an option rather than a requirement; a cable from a non-PSE upstream raises the engine's W_POE_DRAW warning (\"the device will need its own power supply\"), which describes the lab, not the box, since the box in its carton has one. The outlet is software-selectable (\"Supports PoE pass-through on port 16\") and carries the input voltage; there is no field for either.",
+  "poe": {
+    "budgetW": 10,
+    "sourceUrl": "https://media.dustin.eu/media/d200001001720050/edgeswitch-18x-product-data-sheet-brochure.pdf",
+    "note": "DERIVED CEILING, not a quoted budget - Ubiquiti prints no total PoE row for this switch. The ES-18X datasheet (the Ubiquiti PDF, ©2020, mirrored at the sourceUrl above) gives \"Passive PoE Max Wattage 15W per Port\", \"Power Supply 24VDC, 1.0A Power Adapter (Included) 24V Passive PoE\" (24 W) and \"Max. Power Consumption 14W (Excludes PoE Output)\". 24 - 14 = 10 W is what the included adapter can leave for the one outlet, and it is below the 15 W the port itself can pass, so the adapter is what binds. The arithmetic is ours, not the vendor's - the same derivation devices/ubiquiti/es-10xp.json (60 - 8 = 52 W) and devices/ubiquiti/uisp-r.json use, and the reason the number is marked DERIVED rather than quoted. A lab that feeds the unit from 24 V passive PoE on eth0 instead of the adapter passes the upstream supply through the outlet, so a bigger source could state more; the 24 W adapter is the case this number describes."
+  }
 }
