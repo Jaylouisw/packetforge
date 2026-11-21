@@ -4104,7 +4104,7 @@ sw1(config)#do ping 10.0.0.1
 % `do` runs a show command from config mode here: `do show <command>` (for anything else, leave config mode with `end`)
 ```
 
-`test/command-answers-the-question.test.js` pins all three: 27 checks, 27 passed. With the old handler: **11 passed / 16 failed**, each naming the neighbour's answer it used to give.
+`test/command-answers-the-question.test.js` pins all three: 28 checks, 28 passed. It was 27 when #1494 landed and #2399 added the check on the words a box uses for a priority off the 4096 ladder, which is why the pre-fix tally adds up to 27: with the old handler, **11 passed / 16 failed**, each naming the neighbour's answer it used to give.
 
 ## A word the console does not know is never swallowed
 
