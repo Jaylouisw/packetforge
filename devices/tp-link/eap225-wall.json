@@ -3,7 +3,7 @@
   "model": "EAP225-Wall",
   "label": "TP-Link EAP225-Wall",
   "category": "wireless",
-  "description": "AC1200 wall-plate access point: one 10/100 uplink (PoE in), two 10/100 downlink ports and a third 10/100 port with PoE passthrough, dual-band Wi-Fi 5.",
+  "description": "AC1200 wall-plate access point: one 10/100 uplink (PoE in), two 10/100 downlink ports and a third 10/100 port with a 13 W PoE passthrough, dual-band Wi-Fi 5. The passthrough port is a PSE only while the uplink is fed 802.3at; on 802.3af the AP runs and the passthrough jack stays dead.",
   "capabilities": [
     "wireless",
     "poe-pd",
@@ -38,7 +38,7 @@
       "type": "ethernet",
       "connector": "rj45",
       "speed": "100M",
-      "poeOut": true,
+      "poeOut": 13,
       "poeOutClass": "PoE+"
     },
     {
@@ -53,5 +53,11 @@
     }
   ],
   "sourceUrl": "https://www.tp-link.com/us/business-networking/omada-sdn-access-point/eap225-wall/v2/",
-  "notes": "Vendor figures from the TP-Link datasheet: 1x 10/100 Mbps Ethernet uplink port that accepts 802.3af/at as a powered device, 2x 10/100 Mbps Ethernet ports, and 1x 10/100 Mbps port with PoE passthrough; 5 GHz up to 867 Mbps and 2.4 GHz up to 300 Mbps (IEEE 802.11n/g/b/ac). Note the uplink is fast Ethernet on this model - the Wi-Fi is faster than the wire, which is a real constraint when planning backhaul."
+  "notes": "Vendor figures from the TP-Link/Omada page for the UK model, https://www.omadanetworks.com/uk/business-networking/omada-wifi-wall-plate/eap225-wall/ (HTTP 200, 153,844 B, text/html, read 2026-11-21; www.tp-link.com/uk/... 301s here): Interface - \"Uplink: 1x 10/100 Mbps Ethernet Port / Downlink: 3x 10/100 Mbps Ethernet Ports (One port supports PoE OUT. The PoE OUT feature requires 802.3at PoE+ input and the maximum output is 13 W.)\"; Power Supply - \"802.3af/802.3at PoE\"; Max. Power Consumption - \"9 watts /25.5 watts (PoE Out Included)\". The US v2 page named in sourceUrl, https://www.tp-link.com/us/business-networking/omada-sdn-access-point/eap225-wall/v2/ (HTTP 200, 224,096 B, read 2026-11-21; the same v2 content is also served under the /omada-wifi-wall-plate/ shelf slug, 181,584 B), carries the same port census as \"1 x 10/100Mbps with PoE pass-thru (requires 802.3at PoE+ power supply on PD port.)\" but prints no output wattage - which is why the 13 W traces to the UK page. The two consumption rows are the check on that figure: 25.5 - 9 is 16.5 W, more than the 13 W the jack is allowed to pass, so 25.5 W is the 802.3at class-4 ceiling the box may draw rather than a measured sum, and the vendor's stated output - not the subtraction - is what is modelled. The UK page also marks the model \"Product EOL : Replace with EAP235- Wall\"; the successor is already catalogued at devices/tp-link/eap235-wall.json, whose passthrough is the same 13 W. The uplink keeps the 12.95 W 802.3af class-3 allowance because 9 W is what the AP alone draws; the box asks for the 802.3at class only once the passthrough is in use. The passthrough's 802.3at precondition is not expressible in the spec schema today - `poe.budgetW` is unconditional - which the poe note says outright. Radios are AC1200 (300M + 867M from the interface rows), the family class rather than a per-band row quoted on this page; the uplink being fast Ethernet while the radios are AC is the real planning constraint on this model.",
+  "poe": {
+    "budgetW": 13,
+    "standard": "802.3at",
+    "sourceUrl": "https://www.omadanetworks.com/uk/business-networking/omada-wifi-wall-plate/eap225-wall/",
+    "note": "13 W, the vendor's stated maximum output on the single passthrough port, quoted as \"the maximum output is 13 W\" (UK page, read 2026-11-21). One PSE port, so the device total is the port ceiling - and the condition is part of the figure: with an 802.3af uplink the passthrough supplies nothing at all, while the AP still powers up and draws 9 W. In use the box pulls 25.5 W including PoE Out, which is 802.3at class 4, so the upstream port feeding it must be PoE+ before this budget exists. The catalogue cannot yet say \"this PSE exists only when the input is 802.3at\", so a lab that feeds the AP from an 802.3af port will still see eth3 allocate 13 W: the condition is recorded here and in the description, and it wants a schema field before the engine can refuse it."
+  }
 }
