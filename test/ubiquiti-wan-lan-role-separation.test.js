@@ -151,6 +151,57 @@ ROWS.forEach(function (row) {
   }
 });
 
+console.log('\nEFG: the controller\'s six-port map names the WAN socket and the LAN cages');
+{
+  // The Enterprise Firewall shipped with no role on any of its six sockets, so the separation was a no-op on it
+  // too (measured 2026-11-21: `ownsIpOn(eth0, '192.168.1.1')` returned true with 192.168.1.1/24 on eth1).
+  // static.ui.com/fingerprint/ui/public.json (`sku` = EFG) numbers the panel eth0..eth5 with `ports` = eth0 WAN,
+  // eth1 LAN, eth2 LAN, eth3 LAN, eth4 WAN2, eth5 LAN, `plus` [3,4] and `sfp28` [5,6]; the tech-spec page prints
+  // "Default WAN Ports (1) 25G SFP28 / (1) 2.5 GbE RJ45" over "2.5 GbE RJ45 2 / 10G SFP+ 2 / 25G SFP28 2".
+  // This row's own names eth0/eth1 are Ubiquiti's, and both SFP+ cages are LAN whatever their order, so those
+  // four carry roles. The SFP28 pair is one WAN2 and one LAN and the row's sfp3/sfp4 are not vendor names, so
+  // they stay dual-role and role-less rather than guess which cage the controller calls eth4.
+  const s = spec('EFG');
+  ok(!!s, 'the EFG is in the catalogue');
+  const byName = {};
+  (s.interfaces || []).forEach(function (i) { byName[i.name] = i; });
+  ok(byName.eth0 && byName.eth0.role === 'wan', 'eth0 (2.5G RJ45, controller "WAN") declares role "wan"');
+  ['eth1', 'sfp1', 'sfp2'].forEach(function (n) {
+    ok(byName[n] && byName[n].role === 'lan', n + ' (controller LAN) declares role "lan"');
+  });
+  ['sfp3', 'sfp4'].forEach(function (n) {
+    ok(byName[n] && !byName[n].role && (byName[n].dualRole || []).join(',') === 'wan,lan',
+      n + ' stays dual-role with no role: the controller numbers one WAN2 and one LAN, the row does not name which');
+  });
+
+  const t = new Topology();
+  const r = t.addDevice(s); r.name = 'GW';
+  const lan = r.interfaces.get('eth1');
+  lan.ip = '192.168.1.1'; lan.mask = '255.255.255.0';
+  const wan = r.interfaces.get('eth0');
+  wan.ip = '203.0.113.1'; wan.mask = '255.255.255.252';
+  ok(!r.ownsIpOn(wan, '192.168.1.1'), 'the WAN socket does not own the LAN address');
+  ok(!!r.ownsIpOn(r.interfaces.get('sfp1'), '192.168.1.1'), 'an SFP+ LAN cage still reaches it');
+  ok(!!r.ownsIpOn(wan, '203.0.113.1'), 'and the WAN socket still answers its own address');
+
+  const t2 = new Topology();
+  const r2 = t2.addDevice(s); r2.name = 'GW';
+  const rep = r2.interfaces.get('eth1');
+  rep.ip = '192.168.1.1'; rep.mask = '255.255.255.0';
+  const w = t2.addDevice(PC()); w.name = 'WAN-HOST';
+  t2.connect(w.id, 'eth0', r2.id, 'eth0');
+  const wi = w.interfaces.get('eth0');
+  wi.ip = '192.168.1.50'; wi.mask = '255.255.255.0';
+  w.arp.set('192.168.1.1', rep.mac);
+  const a = t2.addDevice(PC()); a.name = 'LAN-A';
+  t2.connect(a.id, 'eth0', r2.id, 'eth1');
+  const ai = a.interfaces.get('eth0');
+  ai.ip = '192.168.1.10'; ai.mask = '255.255.255.0';
+  const sim = new Simulator(t2);
+  ok(replied(sim, a.id, '192.168.1.1'), 'a host on the LAN port reaches the LAN address');
+  ok(!replied(sim, w.id, '192.168.1.1'), 'a host on the WAN port does NOT');
+}
+
 console.log('\nThe radios and the cages keep what the vendor does say');
 {
   const u = spec('UDR');
