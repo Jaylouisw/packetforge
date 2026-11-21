@@ -8,128 +8,203 @@
     "l2-forward",
     "l3-forward",
     "cli",
-    "http-server"
+    "http-server",
+    "poe-pse",
+    "802.3af",
+    "802.3at"
   ],
   "interfaces": [
     {
       "name": "Port 1",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "rj45",
+      "poeOut": 34.2,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "Port 2",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "rj45",
+      "poeOut": 34.2,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "Port 3",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "rj45",
+      "poeOut": 34.2,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "Port 4",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "rj45",
+      "poeOut": 34.2,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "Port 5",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "rj45",
+      "poeOut": 34.2,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "Port 6",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "rj45",
+      "poeOut": 34.2,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "Port 7",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "rj45",
+      "poeOut": 34.2,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "Port 8",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "rj45",
+      "poeOut": 34.2,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "Port 9",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "rj45",
+      "poeOut": 34.2,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "Port 10",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "rj45",
+      "poeOut": 34.2,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "Port 11",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "rj45",
+      "poeOut": 34.2,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "Port 12",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "rj45",
+      "poeOut": 34.2,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "Port 13",
       "type": "ethernet",
-      "speed": "2.5G"
+      "speed": "2.5G",
+      "connector": "rj45",
+      "poeOut": 34.2,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "Port 14",
       "type": "ethernet",
-      "speed": "2.5G"
+      "speed": "2.5G",
+      "connector": "rj45",
+      "poeOut": 34.2,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "Port 15",
       "type": "ethernet",
-      "speed": "2.5G"
+      "speed": "2.5G",
+      "connector": "rj45",
+      "poeOut": 34.2,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "Port 16",
       "type": "ethernet",
-      "speed": "2.5G"
+      "speed": "2.5G",
+      "connector": "rj45",
+      "poeOut": 34.2,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "Port 17",
       "type": "ethernet",
-      "speed": "2.5G"
+      "speed": "2.5G",
+      "connector": "rj45",
+      "poeOut": 34.2,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "Port 18",
       "type": "ethernet",
-      "speed": "2.5G"
+      "speed": "2.5G",
+      "connector": "rj45",
+      "poeOut": 34.2,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "Port 19",
       "type": "ethernet",
-      "speed": "2.5G"
+      "speed": "2.5G",
+      "connector": "rj45",
+      "poeOut": 34.2,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "Port 20",
       "type": "ethernet",
-      "speed": "2.5G"
+      "speed": "2.5G",
+      "connector": "rj45",
+      "poeOut": 34.2,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "Port 21",
       "type": "ethernet",
-      "speed": "2.5G"
+      "speed": "2.5G",
+      "connector": "rj45",
+      "poeOut": 34.2,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "Port 22",
       "type": "ethernet",
-      "speed": "2.5G"
+      "speed": "2.5G",
+      "connector": "rj45",
+      "poeOut": 34.2,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "Port 23",
       "type": "ethernet",
-      "speed": "2.5G"
+      "speed": "2.5G",
+      "connector": "rj45",
+      "poeOut": 34.2,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "Port 24",
       "type": "ethernet",
-      "speed": "2.5G"
+      "speed": "2.5G",
+      "connector": "rj45",
+      "poeOut": 34.2,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "SFP+ 1",
@@ -157,5 +232,6 @@
   "poe": {
     "budgetW": 400,
     "sourceUrl": "https://techspecs.ui.com/unifi/switching/usw-enterprise-24-poe"
-  }
+  },
+  "notes": " Each figure is the vendor's. https://dl.ui.com/ds/usw-enterprise-24-poe_ds.pdf (HTTP 200, application/pdf, 397,353 B, 2 pp) prints \"Networking interface (12) 10/100/1000 MbE RJ45 / (12) 100/1000/2500 MbE RJ45 / (2) 1/10G SFP+\", \"PoE interface (24) PoE/PoE+ (Pins 1, 2+; 3, 6-)\", \"Max. PoE+ wattage per port by PSE 34.2W\" and \"PoE budget 400W\"; https://techspecs.ui.com/unifi/switching/usw-enterprise-24-poe (HTTP 200, 650,004 B, rendered spec table, read 2026-11-21) prints the same counts as rows (\"1 GbE RJ45 = 12 (All PoE+) ... / 2.5 GbE RJ45 = 12 (All PoE+) ...\", \"PoE+ = 24\", \"Total PoE Availability = 400W\"). Before this correction no copper port on this row declared poeOut. The engine's isPoePse() heuristic still gave each one a PSE, but at the undeclared 802.3af default of 15.4 W (engine/media.js, `if (port.poeOut === null ...) port.poeOut = 15.4`), so the faceplate tooltip and the port detail panel reported \"PoE out 15.4 W\" on a port the datasheet rates 802.3at at 34.2 W by PSE - the one figure an operator reads when asking whether the socket can power a 25.5 W AP. All 24 copper ports now declare the vendor's per-port PSE ceiling (34.2 W) and the vendor's class word (\"PoE/PoE+\"), and the row declares poe-pse/802.3af/802.3at instead of leaving the per-port figure to the undeclared-port default. The SFP+ cages are not PSE ports and stay undeclared."
 }
