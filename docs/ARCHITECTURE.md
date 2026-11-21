@@ -361,7 +361,7 @@ written before the check looks like.
 
 ### The live-sync socket
 
-`server/ws.js` is a hand-written RFC 6455 server (about 140 lines, no dependencies) used for live multi-client
+`server/ws.js` is a hand-written RFC 6455 server (about 230 lines, no dependencies) used for live multi-client
 sync. It speaks one client message, `{"type":"subscribe","topologyId":"default"}`, and answers every message it
 receives:
 
