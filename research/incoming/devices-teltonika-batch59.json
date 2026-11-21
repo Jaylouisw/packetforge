@@ -88,7 +88,7 @@
     "model": "RUT276",
     "label": "Teltonika RUT276 (RedCap 5G)",
     "category": "router",
-    "description": "Compact 5G RedCap router: 1x 100 Mbps WAN, 1x 100 Mbps LAN, PoE in and out.",
+    "description": "Compact 5G RedCap router: 1x 100 Mbps WAN, 1x 100 Mbps LAN, 802.3af Class 0 PoE in on the LAN port (12.94 W) plus passive PoE on the same socket, and no PoE out.",
     "capabilities": [
       "l3-forward",
       "nat",
@@ -100,22 +100,23 @@
       "wireless",
       "wifi-ap",
       "poe-pd",
-      "poe-pse"
+      "802.3af"
     ],
     "interfaces": [
       {
         "name": "wan1",
         "type": "ethernet",
         "connector": "rj45",
-        "speed": "100M"
+        "speed": "100M",
+        "role": "wan"
       },
       {
         "name": "lan1",
         "type": "ethernet",
         "connector": "rj45",
         "speed": "100M",
-        "poeOut": true,
-        "poeOutClass": "PoE+"
+        "poeIn": 12.94,
+        "role": "lan"
       },
       {
         "name": "wwan1",
@@ -128,8 +129,8 @@
         "speed": "300M"
       }
     ],
-    "sourceUrl": "https://teltonika-networks.com/product/rut276/",
-    "notes": "Vendor figures from the RUT276 datasheet: **1x WAN port 10/100 Mbps** and **1x LAN port, 10/100 Mbps**, with a 5G RedCap modem and PoE on the LAN side. Two ports, both fast Ethernet - the compact RedCap line trades copper speed for size, and the PoE output is what makes a second port unnecessary."
+    "sourceUrl": "https://www.teltonika-networks.com/products/routers/rut276",
+    "notes": "Vendor figures from the RUT276 datasheet v1.05 (2026-07-24, https://download.kamami.pl/p1207999-Datasheet_RUT276_1.05.pdf, p.7): **1 x WAN port 10/100 Mbps** and **1 x LAN port, 10/100 Mbps**, and the only power-over-Ethernet rows sit under POE IN - \\\"PoE IN ports 1 x PoE In\\\", \\\"Active PoE input 802.3af Class 0 (12.94 W) on LAN port\\\" - plus passive PoE 16-57 VDC on the same socket. There is no POE OUT section and no PSE budget in either datasheet revision (v1.04 prints the value row as a stale \\\"PoE OUT ports\\\" label). The box is a PD on its LAN port; an earlier reading took that label for a PSE."
   },
   {
     "vendor": "teltonika",

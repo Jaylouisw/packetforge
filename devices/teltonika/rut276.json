@@ -3,7 +3,7 @@
   "model": "RUT276",
   "label": "Teltonika RUT276 (RedCap 5G)",
   "category": "router",
-  "description": "Compact 5G RedCap router: 1x 100 Mbps WAN, 1x 100 Mbps LAN, with PoE in on the WAN port and PoE out on the LAN port.",
+  "description": "Compact 5G RedCap router: 1x 100 Mbps WAN, 1x 100 Mbps LAN, 802.3af Class 0 PoE in on the LAN port (12.94 W) plus passive PoE on the same socket, and no PoE out at all.",
   "capabilities": [
     "l3-forward",
     "nat",
@@ -14,22 +14,23 @@
     "http-server",
     "wireless",
     "poe-pd",
-    "poe-pse"
+    "802.3af"
   ],
   "interfaces": [
     {
       "name": "wan1",
       "type": "ethernet",
       "connector": "rj45",
-      "speed": "100M"
+      "speed": "100M",
+      "role": "wan"
     },
     {
       "name": "lan1",
       "type": "ethernet",
       "connector": "rj45",
       "speed": "100M",
-      "poeOut": true,
-      "poeOutClass": "PoE+"
+      "poeIn": 12.94,
+      "role": "lan"
     },
     {
       "name": "wwan1",
@@ -42,6 +43,6 @@
       "speed": "300M"
     }
   ],
-  "sourceUrl": "https://teltonika-networks.com/product/rut276/",
-  "notes": "Vendor figures from the RUT276 datasheet: **1x WAN port 10/100 Mbps** and **1x LAN port, 10/100 Mbps**, with a 5G RedCap modem and PoE on the LAN side. Two ports, both fast Ethernet - the compact RedCap line trades copper speed for size, and the PoE output is what makes a second port unnecessary."
+  "sourceUrl": "https://www.teltonika-networks.com/products/routers/rut276",
+  "notes": "Vendor figures from the RUT276 datasheet v1.05, 2026-07-24 (`https://download.kamami.pl/p1207999-Datasheet_RUT276_1.05.pdf`, HTTP 200, 4,182,657 B, 14 pp, text layer read 2026-11-21; the same rows appear in v1.04, 2026-05-15, `https://cdn.bueromarkt-ag.de/downloads/produktdatenblaetter/rut276000000.pdf`, HTTP 200, 4,320,815 B, 15 pp, page 8): **WAN 1 x WAN port 10/100 Mbps** and **LAN 1 x LAN port, 10/100 Mbps** (p.2). The only power-over-Ethernet rows in either revision sit under the heading **POE IN** (p.7 of v1.05): \\\"PoE IN ports = 1 x PoE In\\\", \\\"PoE standards = Active PoE input 802.3af Class 0 (12.94 W) on LAN port\\\", and \\\"PoE (passive): Passive PoE over spare pairs 4,5 (+) / 7,8 (-). Possibility to power up through LAN port. Passive PoE voltage: 16 - 57 VDC.\\\" Neither revision has a POE OUT section, a per-port PSE wattage or a PoE budget: this box is a powered device on its LAN socket, not a PSE. (v1.04 prints the value row as \\\"PoE OUT ports = 1 x PoE In\\\" - a template leftover that v1.05 corrects to \\\"PoE IN ports\\\" - which is where this row's original reading came from.) The row had declared the opposite: `lan1` carried `poeOut: true` with `poeOutClass: \\\"PoE+\\\"`, which `Device.poeDraw()` (engine/device.js) adds as 1 W and `pseDraw()` (engine/validation.js) counts against a budget the vendor never published, while nothing declared `poeIn` at all - so a lab could not power the router from the cable the datasheet says powers it. `lan1` now declares `poeIn: 12.94` and no `poeOut`; `poe-pse` is gone from the capability list and `802.3af` is in it. The two sockets also carry the roles the sheet names - `wan1` \\\"wan\\\", `lan1` \\\"lan\\\" - because `ownsIpOn()`'s separation (`owner.role && inIface.role && owner.role !== inIface.role`) only fires when both sides declare one; with neither, an address held on the LAN port was answered from the WAN socket, the defect #2385 and #2419 fixed on the UXG and EFG gateways. The product page moved from `teltonika-networks.com/product/rut276/` (now 404) to `https://www.teltonika-networks.com/products/routers/rut276` (HTTP 200, 3,082,758 B, read 2026-11-21)."
 }
