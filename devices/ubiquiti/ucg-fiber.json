@@ -27,6 +27,7 @@
         "2.5G",
         "1G"
       ],
+      "role": "wan",
       "poeIn": false
     },
     {
@@ -53,6 +54,7 @@
       "name": "Port 1",
       "type": "ethernet",
       "speed": "2.5G",
+      "role": "lan",
       "poeOut": 30,
       "poeOutClass": "PoE+"
     },
@@ -60,19 +62,22 @@
       "name": "Port 2",
       "type": "ethernet",
       "speed": "2.5G",
-      "poeIn": false
+      "poeIn": false,
+      "role": "lan"
     },
     {
       "name": "Port 3",
       "type": "ethernet",
       "speed": "2.5G",
-      "poeIn": false
+      "poeIn": false,
+      "role": "lan"
     },
     {
       "name": "Port 4",
       "type": "ethernet",
       "speed": "2.5G",
-      "poeIn": false
+      "poeIn": false,
+      "role": "lan"
     }
   ],
   "icon": "router",
@@ -83,5 +88,5 @@
     "sourceUrl": "https://store.ui.com/us/en/products/ucg-fiber",
     "note": "30 W, and one PSE port. The rendered tech-spec table prints the budget without naming a port - \"PoE Budget = 30W\" and \"Voltage Range PoE Mode = 50-57V\" beside \"2.5 GbE RJ45 = 4 (2.5G/1G/100M/10M) / 10 GbE RJ45 = 1 (10G/2.5G/1G) / 10G SFP+ = 2 (10G/1G)\", and its 'Max. PoE Wattage per Port by PSE' group is present but empty (https://techspecs.ui.com/unifi/cloud-gateways/ucg-fiber, read 2026-11-19); the 'Port 1 PoE+' reading in research/ubiquiti-cloud-gateway-poe-budgets.md therefore recorded the budget and left the row without a PSE. The vendor's own store page for the same SKU (displaySku \"UCG-Fiber (30W)\") states the class and the count in its key features: \"Integrated 4-port switch with (1) PoE+ port\" (https://store.ui.com/us/en/products/ucg-fiber, read 2026-11-19). So one of the four 2.5G RJ45 ports is 802.3at. Which one is not published on either host, so Port 1 carries it - the same convention as devices/zyxel/gs1900-24ep.json, where the datasheet gives the count and the guide withholds the numbering. 30 W budget = one 802.3at port at its 30 W PSE ceiling, so the budget never binds above a single full-power AP."
   },
-  "notes": "Power: none of these copper ports accepts PoE. Vendor page https://techspecs.ui.com/unifi/cloud-gateways/ucg-fiber (HTTP 200, 667,242 B, read 2026-11-19, server-rendered tech-spec table) says \"Power Method = DC jack (54V DC/1.1A)\"; a box fed from mains, a USB-C supply or a DC jack has no PoE-PD front end, so WAN / Port 2 / Port 3 / Port 4 now declare poeIn: false. Without that declaration the engine's isPoePd() match on \"unifi\" gave each silent copper port a 12.95 W 802.3af draw - the defect PR #2118 and PR #2121 fixed across the UXG family (refs #130).\n\n**LAN bank (layer 2), read 2026-11-21.** Both vendor surfaces carry `MAC Address Table Size = 4,000` and `VLAN/Subnet-based Traffic Segmentation = True`, beside `2.5 GbE RJ45 = 4` - https://techspecs.ui.com/unifi/cloud-gateways/ucg-fiber (HTTP 200, 667,242 B), and the storefront payload repeats both rows (HTTP 200, 595,995 B; https://store.ui.com/us/en/products/ucg-fiber answers 307 to its own category path, so the redirect was followed). `LACP Port Aggregation` is the one L2 row this box leaves Empty on both surfaces, so the four 2.5G sockets bridge without a LAG and the row declares `l2-forward` without claiming bundle support. A 4,000-entry MAC table is a bridge forwarding database, so Port 1-Port 4 forward at layer 2 (MAC learning + flooding). Measured on the pre-change spec: hosts on Port 1 and Port 2 in 192.168.1.0/24 could not resolve each other's ARP, and `switchport access vlan 10` answered \"cannot switch frames: it has no l2-forward capability\". `no switchport` still makes a LAN port routed; the WAN port keeps its address."
+  "notes": "Power: none of these copper ports accepts PoE. Vendor page https://techspecs.ui.com/unifi/cloud-gateways/ucg-fiber (HTTP 200, 667,242 B, read 2026-11-19, server-rendered tech-spec table) says \"Power Method = DC jack (54V DC/1.1A)\"; a box fed from mains, a USB-C supply or a DC jack has no PoE-PD front end, so WAN / Port 2 / Port 3 / Port 4 now declare poeIn: false. Without that declaration the engine's isPoePd() match on \"unifi\" gave each silent copper port a 12.95 W 802.3af draw - the defect PR #2118 and PR #2121 fixed across the UXG family (refs #130).\n\n**LAN bank (layer 2), read 2026-11-21.** Both vendor surfaces carry `MAC Address Table Size = 4,000` and `VLAN/Subnet-based Traffic Segmentation = True`, beside `2.5 GbE RJ45 = 4` - https://techspecs.ui.com/unifi/cloud-gateways/ucg-fiber (HTTP 200, 667,242 B), and the storefront payload repeats both rows (HTTP 200, 595,995 B; https://store.ui.com/us/en/products/ucg-fiber answers 307 to its own category path, so the redirect was followed). `LACP Port Aggregation` is the one L2 row this box leaves Empty on both surfaces, so the four 2.5G sockets bridge without a LAG and the row declares `l2-forward` without claiming bundle support. A 4,000-entry MAC table is a bridge forwarding database, so Port 1-Port 4 forward at layer 2 (MAC learning + flooding). Measured on the pre-change spec: hosts on Port 1 and Port 2 in 192.168.1.0/24 could not resolve each other's ARP, and `switchport access vlan 10` answered \"cannot switch frames: it has no l2-forward capability\". `no switchport` still makes a LAN port routed; the WAN port keeps its address.\n\nWAN/LAN separation, read 2026-11-21. Ubiquiti's own controller database names every socket on this panel: `https://static.ui.com/fingerprint/ui/public.json` (HTTP 200, 832,585 B, key `sku` = UCG-Fiber) gives `numberOfPorts` 7 and `ports` = {eth0: LAN, eth1: LAN, eth2: LAN, eth3: LAN, eth4: WAN, eth5: LAN, eth6: WAN2}, with `linkNegotiation` putting eth0-eth3 at portIdx 1-4 (2500/1000/100/10 FDX), eth4 at portIdx 5 (10000/5000/2500/1000/100/10 FDX) and eth5/eth6 at portIdx 6/7 (10000/1000 FDX only). The tech-spec page says the same split in words - \"Port Layout 2.5 GbE RJ45 4 (2.5G/1G/100M/10M) / 10 GbE RJ45 1 (10G/2.5G/1G) / 10G SFP+ 2 (10G/1G)\", \"Default WAN Ports (1) 10G SFP+ (1) 10 GbE RJ45\", \"Max. WAN Port Count 6\" (https://techspecs.ui.com/unifi/cloud-gateways/ucg-fiber, HTTP 200, 667,242 B). The row had shipped all five copper sockets with no `role`, so `ownsIpOn`'s separation (`owner.role && inIface.role && owner.role !== inIface.role`, engine/device.js) never fired: with 192.168.1.1/24 on Port 1, `ownsIpOn(WAN, '192.168.1.1')` returned the LAN bank and a host cabled to the 10G RJ45 uplink inside that prefix got an ICMP reply from the LAN gateway. WAN (the 10G RJ45, controller eth4) now declares role \"wan\" and Port 1-Port 4 (eth0-eth3) declare role \"lan\". The two SFP+ cages stay role-less on purpose: the controller does number them (eth5 LAN, eth6 WAN2), but this row's cage names are not vendor-issued - the page prints one \"10G SFP+\" row of two - so which cage is eth5 would be a coin flip, and a wrong guess moves a lab's saved uplink. Max WAN Port Count 6 stays unmodelled for the same reason."
 }
