@@ -20,39 +20,44 @@
       "type": "ethernet",
       "connector": "rj45",
       "speed": "1G",
-      "poeIn": false
+      "poeIn": false,
+      "role": "wan"
     },
     {
       "name": "LAN 1",
       "type": "ethernet",
       "connector": "rj45",
       "speed": "1G",
-      "poeIn": false
+      "poeIn": false,
+      "role": "lan"
     },
     {
       "name": "LAN 2",
       "type": "ethernet",
       "connector": "rj45",
       "speed": "1G",
-      "poeIn": false
+      "poeIn": false,
+      "role": "lan"
     },
     {
       "name": "LAN 3",
       "type": "ethernet",
       "connector": "rj45",
       "speed": "1G",
-      "poeIn": false
+      "poeIn": false,
+      "role": "lan"
     },
     {
       "name": "LAN 4",
       "type": "ethernet",
       "connector": "rj45",
       "speed": "1G",
-      "poeIn": false
+      "poeIn": false,
+      "role": "lan"
     }
   ],
   "icon": "router",
   "color": "#14b8a6",
-  "notes": "Port census from the vendor datasheet, 'Networking interface': (4) LAN GbE RJ45 ports, (1) WAN GbE RJ45 port; no SFP and no PoE on this model. Max. power consumption 26 W. The tech-spec page (https://techspecs.ui.com/unifi/cloud-gateways/udm, 608,032 B, read 2026-11-18) prints no networking-interface row, so the datasheet is the source of the counts.\nPower: none of these copper ports accepts PoE. Vendor page https://dl.ui.com/ds/udm_ds.pdf (HTTP 200, 747,030 B, read 2026-11-19, three-page PDF with a text layer) says \"Power method: Universal AC input, 100-240V AC, 0.6A Max., 50/60 Hz; Power supply: AC/DC, internal, 50 W\"; a box fed from mains, a USB-C supply or a DC jack has no PoE-PD front end, so WAN / LAN 1 / LAN 2 / LAN 3 / LAN 4 now declare poeIn: false. Without that declaration the engine's isPoePd() match on \"unifi\" gave each silent copper port a 12.95 W 802.3af draw - the defect PR #2118 and PR #2121 fixed across the UXG family (refs #130).\n\nLayer 2: Ubiquiti's controller device database classifies this SKU as a switch - https://static.ui.com/fingerprint/ui/public.json (HTTP 200, 832,585 B, read 2026-11-21) lists UDM deviceCapabilities GATEWAY, SWITCH, ACCESS_POINT, NETWORK_APPLICATION, CONTROLLER, APPLICATION_MODE, HAS_CLIENTS and draws its panel as `01 02 03 04 __ 05`: four LAN sockets and the WAN set apart. The datasheet this row already cites, https://dl.ui.com/ds/udm_ds.pdf (HTTP 200, 747,030 B, three pages with a text layer, read 2026-11-21), prints \"Networking interface: (4) LAN: GbE RJ45 ports / (1) WAN: GbE RJ45 port\" and, in Software, \"VLAN 802.1Q\"; the tech-spec URL https://techspecs.ui.com/unifi/cloud-gateways/udm (HTTP 200, 608,032 B, read 2026-11-21) carries the model name but no specification table - the unknown-slug control 307s to the 609,911 B techspecs front page - so the datasheet is the source here. While the row shipped without `l2-forward` its four LAN sockets were routed interfaces: `switchport access vlan 10` was answered with \"cannot switch frames: it has no l2-forward capability\", and two hosts on LAN 1 and LAN 2 in 192.168.1.0/24 could not resolve each other's ARP (\"not addressed to this device\"). The WAN socket stays a separate routed port - it is the one the diagram sets apart and the only one the datasheet calls WAN - so it is not part of the bridge and takes an address as before.",
+  "notes": "Port census from the vendor datasheet, 'Networking interface': (4) LAN GbE RJ45 ports, (1) WAN GbE RJ45 port; no SFP and no PoE on this model. Max. power consumption 26 W. The tech-spec page (https://techspecs.ui.com/unifi/cloud-gateways/udm, 608,032 B, read 2026-11-18) prints no networking-interface row, so the datasheet is the source of the counts.\nPower: none of these copper ports accepts PoE. Vendor page https://dl.ui.com/ds/udm_ds.pdf (HTTP 200, 747,030 B, read 2026-11-19, three-page PDF with a text layer) says \"Power method: Universal AC input, 100-240V AC, 0.6A Max., 50/60 Hz; Power supply: AC/DC, internal, 50 W\"; a box fed from mains, a USB-C supply or a DC jack has no PoE-PD front end, so WAN / LAN 1 / LAN 2 / LAN 3 / LAN 4 now declare poeIn: false. Without that declaration the engine's isPoePd() match on \"unifi\" gave each silent copper port a 12.95 W 802.3af draw - the defect PR #2118 and PR #2121 fixed across the UXG family (refs #130).\n\nLayer 2: Ubiquiti's controller device database classifies this SKU as a switch - https://static.ui.com/fingerprint/ui/public.json (HTTP 200, 832,585 B, read 2026-11-21) lists UDM deviceCapabilities GATEWAY, SWITCH, ACCESS_POINT, NETWORK_APPLICATION, CONTROLLER, APPLICATION_MODE, HAS_CLIENTS and draws its panel as `01 02 03 04 __ 05`: four LAN sockets and the WAN set apart. The datasheet this row already cites, https://dl.ui.com/ds/udm_ds.pdf (HTTP 200, 747,030 B, three pages with a text layer, read 2026-11-21), prints \"Networking interface: (4) LAN: GbE RJ45 ports / (1) WAN: GbE RJ45 port\" and, in Software, \"VLAN 802.1Q\"; the tech-spec URL https://techspecs.ui.com/unifi/cloud-gateways/udm (HTTP 200, 608,032 B, read 2026-11-21) carries the model name but no specification table - the unknown-slug control 307s to the 609,911 B techspecs front page - so the datasheet is the source here. While the row shipped without `l2-forward` its four LAN sockets were routed interfaces: `switchport access vlan 10` was answered with \"cannot switch frames: it has no l2-forward capability\", and two hosts on LAN 1 and LAN 2 in 192.168.1.0/24 could not resolve each other's ARP (\"not addressed to this device\"). The WAN socket stays a separate routed port - it is the one the diagram sets apart and the only one the datasheet calls WAN - so it is not part of the bridge and takes an address as before.\n\nWAN/LAN roles: Ubiquiti's controller device database publishes a per-socket role map - https://static.ui.com/fingerprint/ui/public.json (HTTP 200, 832,585 B, read 2026-11-21), `sku` = UDM, `unifi.network.ports` = {\"eth0\":\"LAN\",\"eth1\":\"LAN\",\"eth2\":\"LAN\",\"eth3\":\"LAN\",\"eth4\":\"WAN\"} - and the datasheet this row already cites, https://dl.ui.com/ds/udm_ds.pdf (HTTP 200, 747,030 B, three pages with a text layer, read 2026-11-21), prints \"Networking interface: (4) LAN: GbE RJ45 ports / (1) WAN: GbE RJ45 port\" beside the fingerprint's `01 02 03 04 __ 05` panel drawing, which sets the fifth socket apart. The spec already names the sockets WAN and LAN 1-4, so no socket had to be guessed: WAN takes role \"wan\" and the four LAN sockets \"lan\". Without both sides carrying a role, engine/device.js `ownsIpOn` (`owner.role && inIface.role && owner.role !== inIface.role`) did not separate the surfaces: with 192.168.1.1/24 on LAN 1, `ownsIpOn(WAN, '192.168.1.1')` returned the LAN 1 interface (truthy - measured at this tree by stripping the roles), and a host cabled to the WAN socket inside that prefix got an ICMP reply from the LAN gateway.",
   "sourceUrl": "https://dl.ui.com/ds/udm_ds.pdf"
 }

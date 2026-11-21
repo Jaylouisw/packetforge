@@ -57,7 +57,11 @@ const ROWS = [
   { model: 'UX7', lan: 'eth0', wan: 'eth1', lanCount: 1, second: null },
   { model: 'UDM-Pro', lan: 'port1', wan: 'wan1', lanCount: 8, second: 'port2' },
   { model: 'UDM-Pro-Max', lan: 'Port 1', wan: 'WAN', lanCount: 8, second: 'Port 2' },
-  { model: 'UDM-SE', lan: 'Port 1', wan: 'WAN', lanCount: 8, second: 'Port 2' }
+  { model: 'UDM-SE', lan: 'Port 1', wan: 'WAN', lanCount: 8, second: 'Port 2' },
+  // The Dream Machine itself, added 2026-11-21: four 1G LAN sockets and the one 1G uplink, all five named in the
+  // spec, with the controller database's `ports` map naming `eth4` as the uplink and the datasheet printing
+  // "(4) LAN: GbE RJ45 ports / (1) WAN: GbE RJ45 port".
+  { model: 'UDM', lan: 'LAN 1', wan: 'WAN', lanCount: 4, second: 'LAN 2' }
 ];
 
 ROWS.forEach(function (row) {
