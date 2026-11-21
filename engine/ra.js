@@ -181,6 +181,11 @@ function addressPrefixes(addresses) {
   for (const e of list) {
     if (!e || typeof e.addr !== 'string') continue;
     if (Number(e.prefix) !== 64) continue;
+    // A link-local prefix is never a global one - the rule `canAutoconfigure()` already applies to a
+    // prefix option this router *receives*. The `ipv6 address` door now refuses a fe80::/10 address, so
+    // this can only be reached by a board saved before that (a config that held `fe80::1/64` as a global
+    // address); the advertisement must not repeat it. RFC 4291 2.5.6.
+    if (ipv6.isLinkLocal(e.addr)) continue;
     const parsed = ipv6.parsePrefix6(e.addr + '/64');
     if (!parsed.valid) continue;
     const network = ipv6.networkAddress6(parsed);
