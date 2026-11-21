@@ -102,6 +102,40 @@ permissions:
 # `mergeable`, rebases one branch at a time, and force-pushes only onto pull-request
 # branches. Worse case is one pass finding a branch already current.
 
+# Forgejo cancels a superseded run of the same workflow on a push unless the workflow
+# says otherwise: with no `concurrency` block, "any other invocations of the same
+# workflow will be canceled automatically" (Forgejo Actions reference, v15). This
+# workflow fires on every push to main, and merges arrive in bursts - six in 40 s on
+# 2026-11-21 16:37-16:38Z - so a quarter of its runs never finished: 94 of the 413
+# auto-rebase runs in the 51 hours to 16:30Z (23%), and 18 of the 41 push runs in the
+# 13 hours to 16:30Z (44%).
+#
+# A cancelled run is not neutral here: Forgejo writes the cancellation to the commit as
+# a `failure` status, and main-health.yml reads every failing status on main's head.
+# Run 8178 (push, 9a70a2fb, 2026-11-20T03:08:04Z, cancelled 19 s in) is the one that
+# did it: its status is still `Auto-rebase / Rebase open PRs and arm auto-merge (push)
+# failure`, and main-health named it in the "main is red" issue #2325 at 22:35Z beside
+# a genuinely red Node 18 leg - a green merge reported as a red main. Run 9557
+# (2026-11-21T16:37:41Z) is the same shape: cancelled at 16:37:56, and its commit
+# 726c65f9 carries `failure` for a pass that never got to look at anything.
+#
+# `cancel-in-progress: false` with no `group` is the documented way to switch that
+# implicit cancellation off, and with no group there is nothing that can queue and
+# deadlock - which is why this file has no group and keeps none (see the note above the
+# schedule). Measured on this instance the same day, on a probe workflow with the same
+# trigger and a 30 s job: without the block, run 9553 was cancelled 14 s in when 9554
+# was pushed (16:33:49Z); with it, runs 9555 and 9556 both ran to success (31 s each),
+# the earlier one finishing after the later one had started.
+#
+# Overlapping passes are safe for the reason the schedule note already gives: each pass
+# reads `mergeable`, rebases one branch at a time, and force-pushes only onto
+# pull-request branches, so the worst case is one pass finding a branch already current.
+# The cost is bounded - 94 cancelled runs in two days, median run ~7 s - and it buys a
+# pass for every head of main instead of one for whichever push happened to be last,
+# plus the false red on an otherwise green merge.
+concurrency:
+  cancel-in-progress: false
+
 jobs:
   rebase:
     name: Rebase open PRs and arm auto-merge
