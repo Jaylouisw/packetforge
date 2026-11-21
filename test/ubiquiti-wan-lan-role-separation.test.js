@@ -17,7 +17,9 @@
 // "Default WAN Ports (1) GbE RJ45" (https://techspecs.ui.com/unifi/cloud-gateways/udr).
 //
 // What must not regress: the bank still answers bank-wide, the WAN socket still answers its own address, the
-// radios still reach the LAN address, and the cages keep their dual role (the datasheet does not number them).
+// radios still reach the LAN address, and the cages keep their dual role - on the Dream Machines with the roles the
+// controller's positional map gives them (2026-11-21), on the Dream Wall with none, because there the map's counts
+// do not close.
 const path = require('path');
 const { Topology, Simulator } = require('../engine');
 const { loadCatalog } = require('../devices/registry');
@@ -155,15 +157,30 @@ console.log('\nThe radios and the cages keep what the vendor does say');
   ok(cages.every(function (i) { return (i.dualRole || []).join(',') === 'wan,lan'; }),
     'both stay dual-role - the datasheet prints one LAN and one WAN cage without numbering them');
 
-  // The Dream Machine cages are the one place these rows stop short of a role: the datasheet prints
-  // "SFP+ interface (1) LAN: 10G SFP+ / (1) WAN: 10G SFP+" without numbering the two cages, so which of
-  // `sfp1`/`sfp2` is the WAN cage is not stated. They keep no role and no dualRole rather than invent one.
+  // The Dream Machine cages carry roles, and they are the controller's, not the datasheet's: the datasheet
+  // prints "SFP+ interface (1) LAN: 10G SFP+ / (1) WAN: 10G SFP+" without numbering the two cages, but
+  // static.ui.com/fingerprint/ui/public.json closes the count for this chassis - numberOfPorts 11 = standard 9
+  // + the two entries in plus [10, 11] - and names eth9 (portIdx 10) "WAN2" and eth10 (portIdx 11) "LAN".
+  // So the first cage is the default second WAN and the second is LAN (read 2026-11-21).
   ['UDM-Pro', 'UDM-Pro-Max', 'UDM-SE'].forEach(function (model) {
     const s = spec(model);
     const cages = s.interfaces.filter(function (i) { return i.connector === 'sfp+'; });
     ok(cages.length === 2, model + ' keeps its two SFP+ cages');
-    ok(cages.every(function (i) { return !i.role && !i.dualRole; }),
-      'and neither cage claims a WAN or LAN role the datasheet does not number');
+    ok(cages[0].role === 'wan' && cages[1].role === 'lan',
+      'and they carry the controller\'s WAN2 / LAN, in panel order',
+      cages.map(function (i) { return i.name + '=' + i.role; }).join(' '));
+    ok(cages.every(function (i) { return (i.dualRole || []).join(',') === 'wan,lan'; }),
+      'both stay reassignable, as UniFi reassigns them');
+
+    const t3 = new Topology();
+    const r3 = t3.addDevice(s); r3.name = 'GW';
+    const lan3 = s.interfaces.filter(function (i) { return i.role === 'lan'; })[0];
+    r3.interfaces.get(lan3.name).ip = '192.168.1.1';
+    r3.interfaces.get(lan3.name).mask = '255.255.255.0';
+    ok(!r3.ownsIpOn(r3.interfaces.get(cages[0].name), '192.168.1.1'),
+      model + ': the WAN cage does not answer the LAN address');
+    ok(r3.ownsIpOn(r3.interfaces.get(cages[1].name), '192.168.1.1'),
+      model + ': the LAN cage still does');
   });
 
   // The two Dream Routers' one cage is the controller's eth4: it is the default 10G SFP+ WAN, so it carries
