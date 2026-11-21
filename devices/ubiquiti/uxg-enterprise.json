@@ -19,14 +19,16 @@
       "type": "ethernet",
       "connector": "rj45",
       "speed": "2.5G",
-      "poeIn": false
+      "poeIn": false,
+      "role": "wan"
     },
     {
       "name": "eth1",
       "type": "ethernet",
       "connector": "rj45",
       "speed": "2.5G",
-      "poeIn": false
+      "poeIn": false,
+      "role": "lan"
     },
     {
       "name": "SFP+-1",
@@ -36,7 +38,8 @@
       "speedCaps": [
         "10G",
         "1G"
-      ]
+      ],
+      "role": "lan"
     },
     {
       "name": "SFP+-2",
@@ -46,7 +49,8 @@
       "speedCaps": [
         "10G",
         "1G"
-      ]
+      ],
+      "role": "lan"
     },
     {
       "name": "SFP28-1",
@@ -57,7 +61,8 @@
         "25G",
         "10G",
         "1G"
-      ]
+      ],
+      "role": "wan"
     },
     {
       "name": "SFP28-2",
@@ -68,9 +73,10 @@
         "25G",
         "10G",
         "1G"
-      ]
+      ],
+      "role": "lan"
     }
   ],
   "sourceUrl": "https://techspecs.ui.com/unifi/cloud-gateways/uxg-enterprise",
-  "notes": "Vendor figures read 2026-11-19 from techspecs.ui.com/unifi/cloud-gateways/uxg-enterprise (HTTP 200, 671,598 B): Port Layout = 2.5 GbE RJ45 x2 (2.5G/1G/100M/10M), 10G SFP+ x2 (10G/1G), 25G SFP28 x2 (25G/10G/1G); Max. WAN Port Count 5, Default WAN Ports (1) 25G SFP28 / (1) 2.5 GbE RJ45, IDS/IPS Throughput 12.5 Gbps, 10,000 SSL/TLS inspection sessions, 10 million concurrent sessions, Form Factor rack mount 1U (442.4 x 43.7 x 325 mm), Max. Power Consumption 82 W, Power Method = Universal AC input, 100-240V AC, 7A Max., 50/60 Hz, Power Supply (2) hot-swappable 150 W CRPS, Heat Dissipation 280 BTU/hr.\nPower: dual hot-swap AC supplies, no PoE input and no PoE budget - store.ui.com/us/en/products/uxg-enterprise (HTTP 200, 539,028 B) flags PoE Budget Empty and repeats the AC power method. The two copper ports say poeIn: false so isPoePd()'s \"unifi\" match cannot draw 25.9 W on an AC-fed 1U gateway. The four cages never drew power anyway (a cage cannot carry watts). Same correction as uxg-pro.json (PR #2118). Trap: dl.ui.com/ds/uxg-enterprise_ds.pdf lands on the 609,911-byte techspecs front page, not a datasheet."
+  "notes": "Vendor figures read 2026-11-19 from techspecs.ui.com/unifi/cloud-gateways/uxg-enterprise (HTTP 200, 671,598 B): Port Layout = 2.5 GbE RJ45 x2 (2.5G/1G/100M/10M), 10G SFP+ x2 (10G/1G), 25G SFP28 x2 (25G/10G/1G); Max. WAN Port Count 5, Default WAN Ports (1) 25G SFP28 / (1) 2.5 GbE RJ45, IDS/IPS Throughput 12.5 Gbps, 10,000 SSL/TLS inspection sessions, 10 million concurrent sessions, Form Factor rack mount 1U (442.4 x 43.7 x 325 mm), Max. Power Consumption 82 W, Power Method = Universal AC input, 100-240V AC, 7A Max., 50/60 Hz, Power Supply (2) hot-swappable 150 W CRPS, Heat Dissipation 280 BTU/hr.\nPower: dual hot-swap AC supplies, no PoE input and no PoE budget - store.ui.com/us/en/products/uxg-enterprise (HTTP 200, 539,028 B) flags PoE Budget Empty and repeats the AC power method. The two copper ports say poeIn: false so isPoePd()'s \"unifi\" match cannot draw 25.9 W on an AC-fed 1U gateway. The four cages never drew power anyway (a cage cannot carry watts). Same correction as uxg-pro.json (PR #2118). Trap: dl.ui.com/ds/uxg-enterprise_ds.pdf lands on the 609,911-byte techspecs front page, not a datasheet.\n\nWAN/LAN separation, read 2026-11-21. Ubiquiti's controller database names every socket by its panel position: `https://static.ui.com/fingerprint/ui/public.json` (HTTP 200, 832,585 B, `sku` = UXG-Enterprise) gives `numberOfPorts` 6 = `standard` 2 + `plus` [3, 4] + `sfp28` [5, 6], `ports` = {eth0: WAN, eth1: LAN, eth2: LAN, eth3: LAN, eth4: WAN2, eth5: LAN} with `networkGroups` identical, and `linkNegotiation` pinning eth0/eth1 to 2500 FDX (portIdx 1/2), eth2/eth3 to 10000/1000 FDX (portIdx 3/4) and eth4/eth5 to 25000/10000/1000 FDX (portIdx 5/6) - so positions 1-2 are the two 2.5G RJ45, 3-4 the two 10G SFP+ and 5-6 the two 25G SFP28. The tech-spec page says the same split in words: \"Port Layout 2.5 GbE RJ45 2 (2.5G/1G/100M/10M) / 10G SFP+ 2 (10G/1G) / 25G SFP28 2 (25G/10G/1G)\", \"Default WAN Ports (1) 25G SFP28 (1) 2.5 GbE RJ45\", \"Max. WAN Port Count 5\" (https://techspecs.ui.com/unifi/cloud-gateways/uxg-enterprise, HTTP 200, 671,598 B, read 2026-11-21), and the storefront repeats the panel as \"(2) 25G SFP28, (2) 10G SFP+, and (2) 2.5 GbE RJ45 ports (two interfaces remappable to WAN)\" (https://store.ui.com/us/en/products/uxg-enterprise, HTTP 200, 539,158 B). There is still no datasheet for this SKU: dl.ui.com/ds/uxg-enterprise_ds.pdf answers 200 with the 609,911-byte techspecs front page, not a PDF (re-measured 2026-11-21). The row had shipped all six sockets with no `role`, so `ownsIpOn`'s separation (`owner.role && inIface.role && owner.role !== inIface.role`, engine/device.js) never fired: with 192.168.1.1/24 on eth1, `ownsIpOn(eth0, '192.168.1.1')`, `ownsIpOn(SFP+-2, ...)` and `ownsIpOn(SFP28-1, ...)` all returned true and a host cabled to any of those sockets inside that prefix got an ICMP reply from the LAN gateway. Roles now follow the controller positionally: eth0 \"wan\", eth1 \"lan\", SFP+-1 and SFP+-2 \"lan\" (eth2/eth3), SFP28-1 \"wan\" (eth4, the default second WAN) and SFP28-2 \"lan\" (eth5). `dualRole` is withheld: the store page says two interfaces are remappable to WAN and \"Max. WAN Port Count\" is 5, but neither surface names which two, so a per-port reassignment claim would be a guess."
 }

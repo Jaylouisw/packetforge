@@ -21,7 +21,8 @@
       "speedCaps": [
         10000,
         1000
-      ]
+      ],
+      "role": "wan"
     },
     {
       "name": "sfp+2",
@@ -31,7 +32,8 @@
       "speedCaps": [
         10000,
         1000
-      ]
+      ],
+      "role": "lan"
     },
     {
       "name": "rj45-wan",
@@ -43,7 +45,8 @@
         100,
         10
       ],
-      "poeIn": false
+      "poeIn": false,
+      "role": "wan"
     },
     {
       "name": "rj45-lan",
@@ -55,10 +58,11 @@
         100,
         10
       ],
-      "poeIn": false
+      "poeIn": false,
+      "role": "lan"
     }
   ],
-  "notes": "Vendor figures read 2026-11-19 from three Ubiquiti hosts. The datasheet `https://dl.ui.com/ds/uxg-pro_ds.pdf` (HTTP 200, `application/pdf`, 433,832 B, two pages, text layer read - not a scan) is the one that settles the census, because it is the only one of the three that enumerates the copper ports as ports: **Networking interface - LAN: (1) 1 GbE RJ45 port / (1) 10G SFP+ port; WAN: (1) 1 GbE RJ45 port / (1) 10G SFP+ port**. Four sockets, two of them cages, one 1G and one 10G per side - which is the four interfaces above and nothing more. The same sheet gives **Power supply = AC/DC, internal, 50W**, **Max. power consumption = 30W**, **Power method = (1) Universal AC input, 125V AC, 2.7A max., 60 Hz / (1) RPS DC input, 11.5V DC, 2.87A** (worldwide: 200-240V AC, 1.7A), **Management interface = Ethernet**, **Button = Factory reset**, **Certifications = CE, FCC, IC**.\n\n`https://techspecs.ui.com/unifi/cloud-gateways/uxg-pro` (HTTP 200, 649,578 B) carries the structured table: **Max. WAN Port Count = 3**, **Default WAN Ports = (1) 10G SFP+ / (1) GbE RJ45**, **Port Layout - 10G SFP+ = 2 (10G/1G)**, **IDS/IPS Throughput = 3.5 Gbps**, **Form Factor = Rack mount (1U)**, **Redundancy = DC Power Backup** (note: with UniFi RPS), **Max. Power Consumption = 30W**, **Power Supply = AC/DC, internal, 50W**, **UniFi Network 8.3.32 and later**. Its Port Layout group enumerates the two 10G cages and no RJ45 row at all - the group is not a total, so the copper pair is cited from the datasheet rather than counted off this page. Max WAN 3 is reached by reassigning the LAN cage, not by a fifth port.\n\n`https://store.ui.com/us/en/products/uxg-pro` (HTTP 200, 504,342 B, `displaySku` `UXG-Pro`) agrees on the ports in prose - **\"(1) 10G SFP+* and (1) GbE WAN port\"** and **\"(1) 10G SFP+* and (1) GbE LAN port\"** - and settles PoE by saying the field does not apply: **PoE Budget**, **Max. PoE Wattage per Port by PSE - PoE / PoE+ / PoE++ / PoE+++** and **Voltage Range PoE Mode** are all Empty, and the datasheet lists no PoE port and no budget at all. No PSE port, no `poe` block, and nothing here for a PoE budget to fund.\n\nThe two copper ports carry `poeIn: false` deliberately. `isPoePd()` in `engine/media.js` matches `unifi` in the model/label and would otherwise infer a 12.95 W 802.3af **draw** on each copper socket - 25.9 W a lab would spend against a switch budget - on a box the vendor powers from a 50 W internal AC/DC supply and an 11.5 V RPS DC input, with no PoE input published for either. Same correction as `udm-pro-max.json` (PR #2111).\n\nTwo traps recorded so they are not re-walked: `https://dl.ui.com/ds/uxg_pro_ds.pdf` answers **302 to `https://techspecs.ui.com/`** with a 288-byte body, so the datasheet key is hyphenated per SKU and an underscore spelling is a miss, not a datasheet; and `https://techspecs.ui.com/unifi/cloud-gateways/uxg` answers **307, 1 byte**, i.e. no such page, while the `uxg-pro` path is a real 200. Vendor-vs-vendor quirk left unmodelled: techspecs prints the CPU as a quad-core Cortex-A53 at 1.5 GHz, the datasheet says Cortex-A57 at 1.7 GHz; neither is a field this catalogue carries.",
+  "notes": "Vendor figures read 2026-11-19 from three Ubiquiti hosts. The datasheet `https://dl.ui.com/ds/uxg-pro_ds.pdf` (HTTP 200, `application/pdf`, 433,832 B, two pages, text layer read - not a scan) is the one that settles the census, because it is the only one of the three that enumerates the copper ports as ports: **Networking interface - LAN: (1) 1 GbE RJ45 port / (1) 10G SFP+ port; WAN: (1) 1 GbE RJ45 port / (1) 10G SFP+ port**. Four sockets, two of them cages, one 1G and one 10G per side - which is the four interfaces above and nothing more. The same sheet gives **Power supply = AC/DC, internal, 50W**, **Max. power consumption = 30W**, **Power method = (1) Universal AC input, 125V AC, 2.7A max., 60 Hz / (1) RPS DC input, 11.5V DC, 2.87A** (worldwide: 200-240V AC, 1.7A), **Management interface = Ethernet**, **Button = Factory reset**, **Certifications = CE, FCC, IC**.\n\n`https://techspecs.ui.com/unifi/cloud-gateways/uxg-pro` (HTTP 200, 649,578 B) carries the structured table: **Max. WAN Port Count = 3**, **Default WAN Ports = (1) 10G SFP+ / (1) GbE RJ45**, **Port Layout - 10G SFP+ = 2 (10G/1G)**, **IDS/IPS Throughput = 3.5 Gbps**, **Form Factor = Rack mount (1U)**, **Redundancy = DC Power Backup** (note: with UniFi RPS), **Max. Power Consumption = 30W**, **Power Supply = AC/DC, internal, 50W**, **UniFi Network 8.3.32 and later**. Its Port Layout group enumerates the two 10G cages and no RJ45 row at all - the group is not a total, so the copper pair is cited from the datasheet rather than counted off this page. Max WAN 3 is reached by reassigning the LAN cage, not by a fifth port.\n\n`https://store.ui.com/us/en/products/uxg-pro` (HTTP 200, 504,342 B, `displaySku` `UXG-Pro`) agrees on the ports in prose - **\"(1) 10G SFP+* and (1) GbE WAN port\"** and **\"(1) 10G SFP+* and (1) GbE LAN port\"** - and settles PoE by saying the field does not apply: **PoE Budget**, **Max. PoE Wattage per Port by PSE - PoE / PoE+ / PoE++ / PoE+++** and **Voltage Range PoE Mode** are all Empty, and the datasheet lists no PoE port and no budget at all. No PSE port, no `poe` block, and nothing here for a PoE budget to fund.\n\nThe two copper ports carry `poeIn: false` deliberately. `isPoePd()` in `engine/media.js` matches `unifi` in the model/label and would otherwise infer a 12.95 W 802.3af **draw** on each copper socket - 25.9 W a lab would spend against a switch budget - on a box the vendor powers from a 50 W internal AC/DC supply and an 11.5 V RPS DC input, with no PoE input published for either. Same correction as `udm-pro-max.json` (PR #2111).\n\nTwo traps recorded so they are not re-walked: `https://dl.ui.com/ds/uxg_pro_ds.pdf` answers **302 to `https://techspecs.ui.com/`** with a 288-byte body, so the datasheet key is hyphenated per SKU and an underscore spelling is a miss, not a datasheet; and `https://techspecs.ui.com/unifi/cloud-gateways/uxg` answers **307, 1 byte**, i.e. no such page, while the `uxg-pro` path is a real 200. Vendor-vs-vendor quirk left unmodelled: techspecs prints the CPU as a quad-core Cortex-A53 at 1.5 GHz, the datasheet says Cortex-A57 at 1.7 GHz; neither is a field this catalogue carries.\n\nWAN/LAN separation, read 2026-11-21. The datasheet settles the split socket by socket: `https://dl.ui.com/ds/uxg-pro_ds.pdf` (HTTP 200, application/pdf, 433,832 B, two pages, text layer read) prints \"Networking interface LAN: (1) 1 GbE RJ45 port / (1) 10G SFP+ port; WAN: (1) 1 GbE RJ45 port / (1) 10G SFP+ port\" - four sockets, one copper and one cage per side. Ubiquiti's controller database numbers them: `https://static.ui.com/fingerprint/ui/public.json` (HTTP 200, 832,585 B, `sku` = UXG-Pro) gives `numberOfPorts` 4 = `standard` [0, 1] + `plus` [2, 3], `ports` = {eth0: WAN, eth1: LAN, eth2: WAN2, eth3: LAN2}, and `linkNegotiation` with eth0/eth1 at 1000 FDX (portIdx 1/2) and eth2/eth3 at 10000/1000 FDX (portIdx 3/4) - so eth2 is the first cage and the default second WAN, eth3 the second cage and LAN2. The tech-spec page says it in words: \"Default WAN Ports (1) 10G SFP+ (1) GbE RJ45\", \"Max. WAN Port Count 3\", \"10G SFP+ 2 (10G/1G)\" (https://techspecs.ui.com/unifi/cloud-gateways/uxg-pro, HTTP 200, 649,578 B). The row had shipped all four sockets with no `role` - the names said wan and lan, but nothing in the engine reads a name - so `ownsIpOn`'s separation never fired: with 192.168.1.1/24 on rj45-lan, `ownsIpOn(rj45-wan, '192.168.1.1')`, `ownsIpOn(sfp+1, ...)` and `ownsIpOn(sfp+2, ...)` all returned true and a host cabled to any of them inside that prefix got an ICMP reply from the LAN gateway. sfp+1 now declares \"wan\", sfp+2 \"lan\", rj45-wan \"wan\" and rj45-lan \"lan\". `dualRole` is withheld: a \"Max. WAN Port Count\" of 3 says at least one socket can be reassigned, but no vendor surface names which.",
   "role": [
     "vpn"
   ],

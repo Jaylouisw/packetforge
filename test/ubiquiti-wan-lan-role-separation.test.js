@@ -217,6 +217,74 @@ console.log('\nThe radios and the cages keep what the vendor does say');
       model + ': the SFP+ WAN does not answer the LAN address');
   });
 
+  // The UXG chassis pair, added 2026-11-21. Both shipped every socket with no `role` at all - the Pro even named
+  // its copper `rj45-wan` / `rj45-lan`, but nothing in the engine reads a name - so `ownsIpOn`'s separation never
+  // fired and a host cabled to an uplink inside the LAN prefix was answered by the LAN gateway. The controller
+  // database closes the port arithmetic on both chassis (Enterprise: numberOfPorts 6 = standard 2 + plus [3, 4] +
+  // sfp28 [5, 6], eth0/eth1 at portIdx 1/2 on 2500 FDX, eth2/eth3 at 3/4 on 10000, eth4/eth5 at 5/6 on 25000;
+  // Pro: 4 = standard [0, 1] + plus [2, 3], eth0/eth1 at portIdx 1/2 on 1000, eth2/eth3 at 3/4 on 10000) and
+  // names the uplinks WAN / WAN2, while the UXG-Pro datasheet prints one copper and one cage per side
+  // ("LAN: (1) 1 GbE RJ45 port / (1) 10G SFP+ port; WAN: (1) 1 GbE RJ45 port / (1) 10G SFP+ port").
+  const UXG = [
+    { model: 'UXG-Enterprise',
+      roles: { 'eth0': 'wan', 'eth1': 'lan', 'SFP+-1': 'lan', 'SFP+-2': 'lan', 'SFP28-1': 'wan', 'SFP28-2': 'lan' },
+      lan: 'eth1', peer: 'SFP+-2',
+      wan: [['eth0', 'rj45', '2.5G'], ['SFP28-1', 'sfp28', '25G']] },
+    { model: 'uxg-pro',
+      roles: { 'rj45-wan': 'wan', 'rj45-lan': 'lan', 'sfp+1': 'wan', 'sfp+2': 'lan' },
+      lan: 'rj45-lan', peer: 'sfp+2',
+      wan: [['rj45-wan', 'rj45', '1G'], ['sfp+1', 'sfp+', '10G']] }
+  ];
+  UXG.forEach(function (row) {
+    const model = row.model;
+    const s = spec(model);
+    ok(!!s, 'the ' + model + ' is in the catalogue');
+    const eth = (s.interfaces || []).filter(function (i) { return i.type === 'ethernet'; });
+    ok(eth.length === Object.keys(row.roles).length,
+      model + ': ' + Object.keys(row.roles).length + ' sockets, as the vendor prints', String(eth.length));
+    ok(eth.every(function (i) { return i.role === row.roles[i.name]; }),
+      'every socket carries the controller\'s role, none left role-less',
+      eth.filter(function (i) { return i.role !== row.roles[i.name]; })
+        .map(function (i) { return i.name + '=' + i.role; }).join(','));
+    ok(eth.every(function (i) { return !i.dualRole; }),
+      'and none invents a reassignment: the page prints Max. WAN without naming which sockets');
+
+    const t3 = new Topology();
+    const g3 = t3.addDevice(s); g3.name = 'GW';
+    const rep3 = g3.interfaces.get(row.lan);
+    rep3.ip = '192.168.1.1'; rep3.mask = '255.255.255.0';
+    ok(!!g3.ownsIpOn(g3.interfaces.get(row.peer), '192.168.1.1'),
+      model + ': the rest of the LAN side still reaches the address (' + row.peer + ')');
+
+    const lanHost = t3.addDevice(PC()); lanHost.name = 'LAN-A';
+    t3.connect(lanHost.id, 'eth0', g3.id, row.lan);
+    const li = lanHost.interfaces.get('eth0');
+    li.ip = '192.168.1.10'; li.mask = '255.255.255.0';
+    ok(replied(new Simulator(t3), lanHost.id, '192.168.1.1'),
+      'a host on ' + row.lan + ' reaches the LAN address');
+
+    row.wan.forEach(function (w) {
+      ok(!g3.ownsIpOn(g3.interfaces.get(w[0]), '192.168.1.1'),
+        model + ': ' + w[0] + ' does not own the LAN address');
+      // The overlapping-subnet ping: the WAN host sits inside 192.168.1.0/24, so only role separation
+      // stops the gateway answering it from the LAN bank.
+      const t4 = new Topology();
+      const g4 = t4.addDevice(s); g4.name = 'GW';
+      const rep4 = g4.interfaces.get(row.lan);
+      rep4.ip = '192.168.1.1'; rep4.mask = '255.255.255.0';
+      const wHost = t4.addDevice({ vendor: 'generic', model: 'generic-pc', label: 'PC', category: 'host',
+        capabilities: ['host', 'cli'],
+        interfaces: [{ name: 'eth0', type: 'ethernet', connector: w[1], speed: w[2] }] });
+      wHost.name = 'WAN-HOST';
+      t4.connect(wHost.id, 'eth0', g4.id, w[0]);
+      const wi = wHost.interfaces.get('eth0');
+      wi.ip = '192.168.1.50'; wi.mask = '255.255.255.0';
+      wHost.arp.set('192.168.1.1', rep4.mac);
+      ok(!replied(new Simulator(t4), wHost.id, '192.168.1.1'),
+        'a host cabled to ' + w[0] + ' inside the LAN prefix gets no reply');
+    });
+  });
+
   const t = new Topology();
   const r = t.addDevice(spec('UDR')); r.name = 'GW';
   const rep = r.interfaces.get('eth0');
