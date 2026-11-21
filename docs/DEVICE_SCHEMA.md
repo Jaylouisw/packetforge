@@ -65,7 +65,7 @@ where that complement lives:
 
 `tap` covers passive and active network taps, including packet brokers. `splitter` is for passive
 optical splits — a different device with a different failure mode. `ap` is in use once, by
-`devices/huawei/wifi-extender-ax3000.json`; the catalogue's other 218 wireless devices — access points and
+`devices/huawei/wifi-extender-ax3000.json`; the catalogue's other 215 wireless devices — access points and
 wireless routers from MikroTik, Ubiquiti, Aruba and others — are `wireless`, so the two are not spellings of
 one category: `web/canvas.js` draws them with the same icon, and `devices/registry.js` sorts `ap` after
 every category named in its `CATEGORY_ORDER`, because `ap` is not in that array.
