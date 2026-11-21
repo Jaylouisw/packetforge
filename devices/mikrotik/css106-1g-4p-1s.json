@@ -3,7 +3,7 @@
   "model": "CSS106-1G-4P-1S",
   "label": "RB260GSP",
   "category": "switch",
-  "description": "MikroTik RB260GSP (CSS106-1G-4P-1S) — 5x 1G RJ45, 1x SFP.",
+  "description": "MikroTik RB260GSP (CSS106-1G-4P-1S) — 5x 1G RJ45, 1x SFP, passive PoE-out on Ether2-Ether5.",
   "capabilities": [
     "l2-forward",
     "cli",
@@ -15,33 +15,47 @@
     {
       "name": "eth1",
       "type": "ethernet",
-      "speed": "1G"
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": false
     },
     {
       "name": "eth2",
       "type": "ethernet",
-      "speed": "1G"
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "passive"
     },
     {
       "name": "eth3",
       "type": "ethernet",
-      "speed": "1G"
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "passive"
     },
     {
       "name": "eth4",
       "type": "ethernet",
-      "speed": "1G"
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "passive"
     },
     {
       "name": "eth5",
       "type": "ethernet",
-      "speed": "1G"
+      "connector": "rj45",
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "passive"
     },
     {
       "name": "SFP1",
       "type": "ethernet",
-      "speed": "1G",
       "connector": "sfp",
+      "speed": "1G",
       "speedCaps": [
         1000
       ]
@@ -49,5 +63,11 @@
   ],
   "icon": "switch",
   "color": "#14b8a6",
-  "sourceUrl": "https://mikrotik.com/product/RB260GSP"
+  "sourceUrl": "https://mikrotik.com/product/RB260GSP",
+  "notes": "Vendor figures from the MikroTik product page specification table (read 2026-11-21): 'PoE-out ports Ether2-Ether5', 'PoE out Passive PoE', 'Low voltage PoE-Out current limit 1 A', 'Max total out (A) 2 A', and 'Number of DC inputs 2 (DC jack, PoE-IN)' with 'PoE in Passive PoE' at 11-30 V. Ether1 is the power inlet and does not source; the four outlets are Ether2-Ether5. This is the product-code entry for the same box as devices/mikrotik/rb260gsp.json (research/rb260gsp-two-entries.md).",
+  "poe": {
+    "budgetUnknown": true,
+    "sourceUrl": "https://mikrotik.com/product/RB260GSP",
+    "note": "MikroTik publishes current limits only: PoE-out on Ether2-Ether5, passive PoE, 1 A per port and 'Max total out (A) 2 A' against an 11-30 V input window. No watt figure is printed, and 2 A x the input voltage is arithmetic the vendor did not do, so the budget stays unknown rather than invented."
+  }
 }
