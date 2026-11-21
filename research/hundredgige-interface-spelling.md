@@ -59,18 +59,17 @@ are directly evidenced above.
 
 **Unresolved.**
 
-* **The `show ip interface brief` cell for a 100G port.** No capture with a 100G row in that table was
-  found; every Cisco sample of the command shows GigabitEthernet rows. Worse, one live Cat9k transcript
-  prints `Te1/1/1` and `Fo1/1/1` *short* in that table beside `TwentyFiveGigE1/1/1`
-  ([Cisco Community](https://community.cisco.com/t5/switching/can-access-internet-but-can-t-ping-8-8-8-8/td-p/4833672)) -
-  so the table may abbreviate some high-speed types after all, which would make the 100G cell `Hu1/0/1`
-  rather than `HundredGigE1/0/1`. This run prints the long form, for the same reason every other row in the
-  table is long: it is the interface's name. If the abbreviation turns out to be real, the brief table needs
-  its own rule (which types abbreviate, and on which platforms) and this note and
-  `research/interface-brief-name-spelling.md` both need revising.
-* **The 40G row's width.** `FortyGigabitEthernet1/0/1` is 26 characters, past the 23-column field, and no
-  capture of a 40G row in `show ip interface brief` was found either. Whether IOS shifts the rest of the row,
-  widens the field or truncates is unmeasured; the engine shifts, as it always has.
+* **The `show ip interface brief` cell for a 100G port - resolved, and the cell stays long.** The
+  abbreviation suspected here is real but it is a width rule, not a type list: the brief table spells a
+  name out while it is shorter than its 23-column field and abbreviates it at 23. `Te1/1/1` (23) and
+  `Fo1/1/1` (25) are short, `TwentyFiveGigE1/1/1` (19) and `GigabitEthernet0/0/1.1` (22) are long, and
+  `HundredGigE1/0/1` (16) therefore stays long - which is what this run already printed, now for a stated
+  reason rather than by default. The captures, the arithmetic and the one inference left (no 100G row was
+  itself captured) are in
+  [interface-brief-type-abbreviation.md](interface-brief-type-abbreviation.md).
+* **The 40G row's width - resolved.** IOS neither shifts, widens nor truncates `FortyGigabitEthernet1/0/1`;
+  it abbreviates it to `Fo1/1/1` (Cisco's Zero-Touch Provisioning captures, 17.1-17.18), and the row fits
+  the field. The engine now does the same in this table.
 * **Cisco IOS (not XE) 100G naming.** Every source above is IOS XE. Classic IOS on a 100G line card
   (`HundredGigabitEthernet` on some ASR 9000 IOS XR images, `HundredGigE` on XR) is a different family and
   not modelled separately; this console imitates the Catalyst IOS/IOS XE family, which is where the

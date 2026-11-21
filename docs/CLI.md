@@ -999,8 +999,8 @@ box prints, and the order `show interfaces` prints. On a router-on-a-stick whose
 r1#show ip interface brief
 Interface              IP-Address      OK? Method Status                Protocol
 GigabitEthernet0/0/0   unassigned      YES unset  up                    up
-GigabitEthernet0/0/0.10 10.10.0.1       YES manual up                    up
-GigabitEthernet0/0/0.20 10.20.0.1       YES manual up                    up
+Gi0/0/0.10             10.10.0.1       YES manual up                    up
+Gi0/0/0.20             10.20.0.1       YES manual up                    up
 GigabitEthernet0/0/1   unassigned      YES unset  down                  down
 GigabitEthernet0/0/2   unassigned      YES unset  down                  down
 ```
@@ -1031,19 +1031,25 @@ predicate. `research/port-channel-in-interface-brief.md` carries the captures an
 The header is padded from the same widths as the rows, so a heading cannot sit one column to the right of the
 values beneath it — `Method` above `manual`, `Status` above `down`.
 
-**The Interface cell spells the type out.** A box's own table prints `GigabitEthernet1/0/1` and
-`FastEthernet0/1`, never `Gi1/0/1`: every published capture of this command does, on a 2960 and on a 9200,
-and its 23-column Interface field is exactly the room `TenGigabitEthernet1/1/1` needs. The catalogue keeps
-the panel's short spelling, so `interface Gi1/0/1`, `interface GigabitEthernet1/0/1` and a name pasted out
-of this table all reach the same port; only the printed cell is expanded. `show interfaces` still heads
-each block with the panel spelling (`Gi1/0/1`), because that block is this console's own shape rather than
-a vendor table, and the brief table is the vendor's. Tables that abbreviate on a real box still abbreviate
-here — `show vlan`'s Ports list, `show etherchannel summary`'s members and the MAC table's `Ports` column
-print `Fa0/1`/`Gi1/0/1` exactly as a box does — and the other vendor-shaped view, the `show running-config`
-stanza header, spells the type out for the same reason
-(`research/running-config-interface-name.md`). The samples, and the parts still open (a name wider than
-the column, a vendor that prints neither spelling), are in
-[research/interface-brief-name-spelling.md](../research/interface-brief-name-spelling.md).
+**The Interface cell spells the type out where it fits, and abbreviates it where it does not.** A box's own
+table prints `GigabitEthernet1/0/1` (20 characters) and `FastEthernet0/1`, never `Gi1/0/1`; it prints
+`Te1/1/1`, `Tw1/0/1` and `Fo1/1/1` where the full names would be 23, 23 and 25 — the 23-column Interface
+field is the boundary, not a list of types. One capture proves it on a single box: a Catalyst 9300-48UXM's
+`show ip interface brief` (Cisco's Zero-Touch Provisioning guide, 17.1 through 17.18) prints `Tw1/0/1`,
+`Te1/1/1` and `Fo1/1/1` short beside `GigabitEthernet1/0/1` and `TwentyFiveGigE1/1/1` long. A live 9200
+prints `Te1/1/1` in this table while its `show running-config` and `show ip route` say
+`TenGigabitEthernet1/1/1`, and a subinterface follows the same rule (`GigabitEthernet0/0/1` beside
+`Gi0/0/1.10`, whose full name is 23). The catalogue keeps the panel's short spelling, so `interface Te1/1/1`,
+`interface TenGigabitEthernet1/1/1` and a name pasted out of this table all reach the same port; only the
+printed cell changes, and only in this view — `show interfaces` still heads each block with the panel
+spelling (`Gi1/0/1`), because that block is this console's own shape rather than a vendor table. Tables that
+abbreviate on a real box still abbreviate here — `show vlan`'s Ports list, `show etherchannel summary`'s
+members and the MAC table's `Ports` column print `Fa0/1`/`Gi1/0/1` exactly as a box does — and the other
+vendor-shaped view, the `show running-config` stanza header, spells the type out (`interface
+TenGigabitEthernet1/1/1`) for the same reason (`research/running-config-interface-name.md`). The captures,
+the arithmetic behind the boundary, and what is still open (the exact 22/23 edge, and a vendor whose word
+this table does not know) are in
+[research/interface-brief-type-abbreviation.md](../research/interface-brief-type-abbreviation.md).
 
 A device that is **not part of a topology** has no cables to report on, so its ports keep their old
 answer (`up` unless shut). The command cannot know about a cable it was never told about, and inventing

@@ -42,8 +42,10 @@ function router() {
     t: t, r: r, s: s,
     say: function (c) { return ((s.run(c).output) || []).map(String); },
     names: function () {
+      // The Interface cell abbreviates a name that would fill its 23-character field, so a short row
+      // (`Gi0/0/0.10`) is as much an interface row as a long one: research/interface-brief-type-abbreviation.md.
       return this.say('show ip interface brief')
-        .filter(function (l) { return /^(GigabitEthernet|Serial|FastEthernet|Loopback|Vlan)/.test(l); })
+        .filter(function (l) { return /^(GigabitEthernet|Gi|Serial|Se|FastEthernet|Fa|Loopback|Lo|Vlan|Vl)\d/.test(l); })
         .map(function (l) { return l.split(/\s+/)[0]; });
     },
     subif: function (parent, id, addr) {
@@ -65,12 +67,12 @@ console.log('Two subinterfaces ride on the first port: both sit between it and t
   env.subif('Gi0/0/0', 20, '10.20.0.1');
   const seen = env.names();
   ok(JSON.stringify(seen) === JSON.stringify([
-    'GigabitEthernet0/0/0', 'GigabitEthernet0/0/0.10', 'GigabitEthernet0/0/0.20',
+    'GigabitEthernet0/0/0', 'Gi0/0/0.10', 'Gi0/0/0.20',
     'GigabitEthernet0/0/1', 'GigabitEthernet0/0/2'
   ]), 'the order is parent, .10, .20, then the other two ports', JSON.stringify(seen));
-  ok(seen.indexOf('GigabitEthernet0/0/0.10') === seen.indexOf('GigabitEthernet0/0/0') + 1,
+  ok(seen.indexOf('Gi0/0/0.10') === seen.indexOf('GigabitEthernet0/0/0') + 1,
     'the first child is the row directly under its parent');
-  ok(seen.indexOf('GigabitEthernet0/0/2') > seen.indexOf('GigabitEthernet0/0/0.20'),
+  ok(seen.indexOf('GigabitEthernet0/0/2') > seen.indexOf('Gi0/0/0.20'),
     'and the last child still comes before the next physical port');
   ok(seen.filter(function (n) { return /\./.test(n); }).length === 2,
     'no child was dropped and none was duplicated', JSON.stringify(seen));
@@ -84,8 +86,8 @@ console.log('Children follow their own parent, not the first parent in the table
   env.subif('Gi0/0/0', 10, '10.10.0.1');
   const seen = env.names();
   ok(JSON.stringify(seen) === JSON.stringify([
-    'GigabitEthernet0/0/0', 'GigabitEthernet0/0/0.10',
-    'GigabitEthernet0/0/1', 'GigabitEthernet0/0/1.30',
+    'GigabitEthernet0/0/0', 'Gi0/0/0.10',
+    'GigabitEthernet0/0/1', 'Gi0/0/1.30',
     'GigabitEthernet0/0/2'
   ]), 'each child is under its own parent, in creation order', JSON.stringify(seen));
 }
@@ -101,10 +103,10 @@ console.log('A shut parent keeps its children under it:');
   env.s.run('end');
   const seen = env.names();
   ok(JSON.stringify(seen) === JSON.stringify([
-    'GigabitEthernet0/0/0', 'GigabitEthernet0/0/0.10', 'GigabitEthernet0/0/1', 'GigabitEthernet0/0/2'
+    'GigabitEthernet0/0/0', 'Gi0/0/0.10', 'GigabitEthernet0/0/1', 'GigabitEthernet0/0/2'
   ]), 'the parent and its child stay together when the parent goes down', JSON.stringify(seen));
   const row = env.say('show ip interface brief').filter(function (l) {
-    return l.split(/\s+/)[0] === 'GigabitEthernet0/0/0.10';
+    return l.split(/\s+/)[0] === 'Gi0/0/0.10';
   })[0];
   ok(/administratively down\s+down/.test(row), 'and the child reads the parent\'s state, not a cable it never had', row);
 }
@@ -118,7 +120,11 @@ console.log('`show interfaces` and `show ip interface brief` order the list the 
   const blocks = env.say('show interfaces')
     .filter(function (l) { return /^\S+ \((\w+), /.test(l); })
     .map(function (l) { return require('../engine/iface-name').displayName(l.split(' ')[0]); });
-  const brief = env.names();
+  // The block header spells a name out; the brief row abbreviates it at the field boundary. The claim
+  // here is one ORDER, so both sides are normalized to the long spelling before they are compared.
+  const brief = env.names().map(function (n) {
+    return require('../engine/iface-name').displayName(require('../engine/iface-name').resolvePortName(env.r, n) || n);
+  });
   ok(JSON.stringify(blocks) === JSON.stringify(brief),
     'the two views print one sequence', JSON.stringify(blocks) + ' vs ' + JSON.stringify(brief));
 }
