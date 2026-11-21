@@ -415,7 +415,7 @@ Three OSPF defects were found here — [#42, #43, #44](#10-fixed-defects-kept-vi
 | **Approximate** | The FSM exists (`idle→connect→active→opensent→openconfirm→established`) but is never fed: hold/keepalive timers are validated and carried, never expire, and no session ever drops. | `engine/bgp.js:14-21`, `engine/bgp.js:220-266` |
 | **Approximate** | Next hop is rewritten to the advertising router's address on every advertisement, which is right for eBGP and wrong for an iBGP relay — see defect #41. | `engine/simulator.js:617` |
 | **Absent** | Route reflectors, confederations, peer groups/templates, AFI/SAFI negotiation, IPv6 unicast, communities, route-maps, prefix-lists, `next-hop-self`, dampening, graceful restart. | — |
-| **Absent in the CLI** | `router bgp`, `neighbor … remote-as`, `router-id` only. | `engine/cli.js:1810-1828` (`router bgp`), `engine/cli.js:3013` (`_bgp()`), `engine/cli.js:3046` (`neighbor ... remote-as`) |
+| **Absent in the CLI** | `router bgp`, `neighbor … remote-as`, `router-id` only. | `engine/cli.js:1901-1902` (`router bgp`), `engine/cli.js:3168` (`_bgp()`), `engine/cli.js:3202-3211` (`neighbor ... remote-as`) |
 
 `docs/BGP-POLICY.md` is a **design document**, not a description of the code:
 its tables read "Today … This design changes it to" (`docs/BGP-POLICY.md:39-50`)
