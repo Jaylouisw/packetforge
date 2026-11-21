@@ -23,7 +23,8 @@
         "2.5G",
         "1G",
         "100M"
-      ]
+      ],
+      "role": "wan"
     },
     {
       "name": "eth1",
@@ -34,7 +35,8 @@
         "2.5G",
         "1G",
         "100M"
-      ]
+      ],
+      "role": "lan"
     },
     {
       "name": "sfp1",
@@ -44,7 +46,8 @@
       "speedCaps": [
         "10G",
         "1G"
-      ]
+      ],
+      "role": "lan"
     },
     {
       "name": "sfp2",
@@ -54,7 +57,8 @@
       "speedCaps": [
         "10G",
         "1G"
-      ]
+      ],
+      "role": "lan"
     },
     {
       "name": "sfp3",
@@ -65,6 +69,10 @@
         "25G",
         "10G",
         "1G"
+      ],
+      "dualRole": [
+        "wan",
+        "lan"
       ]
     },
     {
@@ -76,10 +84,15 @@
         "25G",
         "10G",
         "1G"
+      ],
+      "dualRole": [
+        "wan",
+        "lan"
       ]
     }
   ],
   "icon": "firewall",
   "color": "#14b8a6",
-  "sourceUrl": "https://techspecs.ui.com/unifi/cloud-gateways/efg"
+  "sourceUrl": "https://techspecs.ui.com/unifi/cloud-gateways/efg",
+  "notes": "WAN/LAN separation, read 2026-11-21. Ubiquiti's controller database numbers all six sockets: `https://static.ui.com/fingerprint/ui/public.json` (HTTP 200, 832,585 B, key `sku` = EFG) gives `numberOfPorts` 6 and `ports` = {eth0: WAN, eth1: LAN, eth2: LAN, eth3: LAN, eth4: WAN2, eth5: LAN}, with `plus` [3,4] (10G SFP+) and `sfp28` [5,6] (25G SFP28), and `linkNegotiation` puts eth0/eth1 at portIdx 1/2 (2500/1000/100/10 FDX), eth2/eth3 at 3/4 (10000/1000 FDX) and eth4/eth5 at 5/6 (25000/10000/1000 FDX). The tech-spec page states the same split in words: \"Default WAN Ports (1) 25G SFP28 (1) 2.5 GbE RJ45\" beside \"Max. WAN Port Count 5\" and \"Port Layout 2.5 GbE RJ45 2 (2.5G/1G/100M/10M) / 10G SFP+ 2 (10G/1G) / 25G SFP28 2 (25G/10G/1G)\" (https://techspecs.ui.com/unifi/cloud-gateways/efg, HTTP 200, 678,934 B, server-rendered table, read 2026-11-21). The row shipped all six sockets with no `role`, so `ownsIpOn`'s separation (`owner.role && inIface.role && owner.role !== inIface.role`, engine/device.js) never fired: with 192.168.1.1/24 on eth1, `ownsIpOn(eth0, '192.168.1.1')` returned true - the LAN gateway answered on the WAN socket. eth0 (the 2.5G RJ45 the controller calls WAN) now declares role \"wan\"; eth1 (LAN) and both 10G SFP+ cages (controller eth2/eth3, both LAN) declare role \"lan\". The two 25G SFP28 cages carry `dualRole` [wan,lan] and no `role`: the controller names one WAN2 and one LAN, but this row's cage names sfp3/sfp4 are not vendor-issued and the page prints one \"25G SFP28 2\" row, so which cage is eth4 would be an ordering guess that moves a lab's saved uplink. \"Max. WAN Port Count 5\" stays unmodelled for the same reason."
 }
