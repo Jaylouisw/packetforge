@@ -171,6 +171,17 @@ test('the cleanup step runs after the build, and removes the image it created', 
   assert.match(bound, /docker system df/, 'the job must report what it left behind');
 });
 
+// #2366: "checks out" is a property of the step that gets the tree, not of the tool it
+// uses. The `actions/checkout` action and the `git init` + fetch shape the rest of this
+// repository uses both count; what the invariant below pins is that the room guard comes
+// first, and that the tree still arrives.
+function checksOut(text) {
+  if (/uses:\s*actions\/checkout@/.test(text)) return true;
+  const lines = text.split(String.fromCharCode(10));
+  return lines.some(function (l) { return /\bgit init\b/.test(l); }) &&
+    lines.some(function (l) { return /\bfetch\b/.test(l); });
+}
+
 // #1508: `auto-rebase` ticks every ten minutes. While the volume was full it checked the
 // repository out into the runner workspace and then failed at the first write, so six red
 // crosses an hour spent the bytes it was waiting for and were indistinguishable from a real
@@ -183,7 +194,7 @@ test('the rebase tick measures the room it needs before it checks out', () => {
   const texts = steps(job.lines).map(function (s) { return s.text; });
 
   const guardAt = texts.findIndex(function (t) { return /df\s+-Pk/.test(t); });
-  const checkoutAt = texts.findIndex(function (t) { return /uses:\s*actions\/checkout@/.test(t); });
+  const checkoutAt = texts.findIndex(checksOut);
   assert.notStrictEqual(guardAt, -1,
     'the job must measure free space (`df -Pk`): it checks out and force-pushes onto the same volume Forgejo keeps its data on');
   assert.notStrictEqual(checkoutAt, -1, 'the job must still check out');
@@ -222,6 +233,30 @@ test('the rebase tick measures the room it needs before it checks out', () => {
   assert.ok(workAt > guardAt, 'the work must come after the guard');
   assert.ok(gated(texts[workAt]),
     "the rebase must be gated on the same verdict: a checkout that was skipped leaves nothing to rebase");
+});
+
+// #2366: the runner pre-clones every `uses:` action of a job into /data/.cache/act before
+// the job's first step, and does not reuse the clone between runs. So a single action line
+// makes the whole tick unstartable whenever the runner cannot reach the forge's git host:
+// on 2026-11-20 `auto-rebase` died 16 times in `Set up job` (runs 8472, 8476-8490, 7 h 20 m
+// with no rebase and no scheduled arming) while every other workflow - none of which use an
+// action - ran straight through the same outage. The tree is the only thing the job needs
+// an action for, and `git init` + one fetch gets it: the same shape pr-rebase.yml and
+// close-merged-issues.yml use, none of whose jobs can fail this way.
+test('the rebase tick can start with the forge unreachable', () => {
+  const yml = fs.readFileSync(path.join(ROOT, '.forgejo/workflows/auto-rebase.yml'), 'utf8');
+  const job = jobBlocks(yml).find(function (j) { return j.name === 'rebase'; });
+  assert.ok(job, 'auto-rebase.yml must still have a `rebase` job');
+
+  const uses = job.lines.filter(function (l) { return /^\s*uses:/.test(l); });
+  assert.deepStrictEqual(uses, [],
+    'the runner fetches every `uses:` action before step one, so one of them makes this job ' +
+    'unstartable without egress to the forge - check out with `git` instead (found: ' +
+    uses.map(function (l) { return l.trim(); }).join(', ') + ')');
+
+  const texts = steps(job.lines).map(function (s) { return s.text; });
+  assert.ok(texts.some(checksOut),
+    'the job must still get a working tree: the rebase loop checks each branch out and replays it');
 });
 
 // #1651: the guard decides whether to spend the bytes a checkout needs, from a number

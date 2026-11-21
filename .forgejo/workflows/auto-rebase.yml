@@ -52,8 +52,8 @@ on:
   # scheduled ticks, median 27 s, 63.6 runner-minutes a day - 5.8% of the ~1100
   # minutes the whole pipeline spends - for a pass that cannot rebase and whose
   # arming duplicates ci.yml's. Task 20330 (run 7714, 2026-11-19T16:20:04Z) is the
-  # shape of all of them: 3.9 s fetching actions/checkout, 3.1 s listing four open
-  # pull requests, 8.2 s of status calls, then
+  # shape of all of them: 3.9 s fetching actions/checkout (#2366 removed that
+  # dependency), 3.1 s listing four open pull requests, 8.2 s of status calls, then
   # `batch=5 rebased=0 current=0 conflicts=0 duplicates=0 armed=0 rearmed=1 ...`.
   #
   # So the net stays and stops being paid for six times an hour. Every push to main
@@ -180,17 +180,29 @@ jobs:
       # which is how the snippet in #1508 would still have spent the bytes. The stand-down is the
       # step output above, and these two steps are gated on it: skipped checkout, skipped work,
       # green job, reason in the log.
-      # `actions/checkout` stays, and it is a measured decision rather than an oversight.
-      # Replacing it with `git init` + one blobless fetch of `main` - the shape pr-rebase.yml
-      # uses - is faster: run 4968, dispatched from a branch that did exactly that, took 5 s
-      # for the tick where run 4967, from main with the same "no mergeable open pull requests"
-      # answer, took 17 s. It cannot land from here, because
-      # `test/ci-disk-hygiene.test.js` asserts "the job must still check out" against a
-      # `uses: actions/checkout@` line in this job, and that test is not this stream's to
-      # change. Whoever owns test/ can finish the job: the replacement removes the 3.8 s the
-      # runner spends cloning the action into /data/.cache/act and the 9.2 s fetch of 792 refs
-      # (run 4962, 1794903679.3 -> 1794903693.9 - the same shared cache directory that gave run
-      # 3122 task 6834 a red X on a green tree).
+      # #2366: the tree arrives through `git`, not through `actions/checkout`.
+      #
+      # The runner pre-clones every `uses:` action of a job into /data/.cache/act before the
+      # job's first step, and that clone is what failed here: on 2026-11-20 the runner lost
+      # egress to data.forgejo.org and 16 consecutive ticks (runs 8472, 8476-8490, tasks
+      # 22392-22413, 10:30Z-17:30Z) spent 2-3 s in `Set up job`, printed
+      #   could not fetch remote 'origin': ... Failed to connect to data.forgejo.org:443
+      # and cancelled every real step - 7 h 20 m with no pull request rebased and no scheduled
+      # arming, and 16 red runs that read like code failures. This was the only workflow left
+      # with a `uses:`; ci.yml and the rest have none, which is why the test legs, smoke,
+      # docker and the arm job kept running through the same outage.
+      #
+      # What replaces it is the same two commands pr-rebase.yml and close-merged-issues.yml
+      # use: `git init` and one blobless fetch of `main`. Measured before the action was in the
+      # way: run 4968, dispatched from a branch that did exactly that, took 5 s for the tick
+      # where run 4967 answered the same "no mergeable open pull requests" in 17 s - 3.8 s
+      # cloning the action into /data/.cache/act and 9.2 s fetching 792 refs (run 4962,
+      # 1794903679.3 -> 1794903693.9, the same shared cache directory that gave run 3122 task
+      # 6834 a red X on a green tree).
+      #
+      # Nothing about the result changes: the same commits, the same gate
+      # on `room`, and a fetch that cannot reach the forge warns and stands the pass down green
+      # instead of holding the job hostage to a pre-step this file cannot see.
       #
       # What is left here is the second copy of the same fetch, and it is a cleanup rather
       # than a speedup: the objects are already in the workspace, so repeating
@@ -209,9 +221,10 @@ jobs:
       # question is answered. Run 5154, 12:20:39 -> 12:20:56: the room guard prints at
       # 12:20:45.6, `git fetch --prune ... +refs/heads/*` runs 12:20:47.5 -> 12:20:54.7 (7.2 s),
       # the checkout completes at 12:20:55.7, and the next line of the log is
-      # `no mergeable open pull requests`. Add the ~3.8 s the runner spends cloning
-      # `actions/checkout` into `/data/.cache/act` before step one and it is ~12 s of a 17 s
-      # tick spent fetching 792 refs for a decision that did not look at them.
+      # `no mergeable open pull requests`. Add the ~3.8 s the runner spent cloning
+      # `actions/checkout` into `/data/.cache/act` before step one (the action is gone as of
+      # #2366) and it is ~12 s of a 17 s tick spent fetching 792 refs for a decision that did
+      # not look at them.
       #
       # So the question is asked first, for one bounded call, and the checkout stands down
       # when the answer is "nothing mergeable is open". Nothing gets weaker: only a positive
@@ -302,10 +315,47 @@ jobs:
 
       - name: Check out the queue
         if: steps.room.outputs.room == 'true' && steps.queue.outputs.work == 'true' && steps.queue.outputs.push == 'true'
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          persist-credentials: false
+        env:
+          TOKEN: ${{ secrets.FORGEJO_TOKEN || secrets.GITHUB_TOKEN || github.token }}
+        run: |
+          set -eu
+          server="${GITHUB_SERVER_URL:-}"
+          if [ -z "$server" ]; then
+            api="${GITHUB_API_URL:-http://10.0.10.20:3000/api/v1}"
+            server="${api%/api/v1}"
+          fi
+          url="${server}/${GITHUB_REPOSITORY}.git"
+          git init -q .
+          git remote add origin "$url"
+          # Credentials per command, through an inline helper that reads the token from the
+          # environment: nothing is written into .git/config, so the token cannot outlive this
+          # step - the property `persist-credentials: false` gave the action. Not
+          # `http.extraheader`, which this instance answers with "Credentials are incorrect or
+          # have expired" even for a repository anybody can read (close-merged-issues.yml).
+          fetch_main() {
+            if [ -n "${TOKEN:-}" ]; then
+              timeout 90 git -c credential.helper='!f() { echo username=pf-ci; echo "password=${TOKEN}"; }; f' \
+                -c http.lowSpeedLimit=1000 -c http.lowSpeedTime=30 \
+                fetch -q --no-tags --filter=blob:none origin "$@"
+            else
+              timeout 90 git -c http.lowSpeedLimit=1000 -c http.lowSpeedTime=30 \
+                fetch -q --no-tags --filter=blob:none origin "$@"
+            fi
+          }
+          # `blob:none` is a request, not a requirement: a server that does not know the filter
+          # answers with a warning and the full pack, and every command below still works. The
+          # file contents are fetched on demand, which only happens when a branch really is
+          # behind and the rebase has to replay it.
+          #
+          # Fails open, like every other failure path in this workflow: a maintenance job must
+          # not be the reason a pull request looks broken. The rebase step re-fetches `main` on
+          # its own and reports its own failure, so a transient error here costs one retry
+          # rather than a red X.
+          if ! fetch_main "+refs/heads/main:refs/remotes/origin/main"; then
+            echo "::warning title=Auto-rebase::could not fetch main from ${url} - nothing was rebased and no branch was touched."
+            exit 0
+          fi
+          echo "fetched origin/main (blobless) into $PWD - checked out with git, no action cache involved"
 
       - name: Rebase and arm
         if: steps.room.outputs.room == 'true' && steps.queue.outputs.work == 'true'
@@ -442,8 +492,9 @@ jobs:
             git config user.name  'packetforge-bot'
             git config user.email 'packetforge@localhost'
 
-            # Put the token in the remote so the force-push is authenticated. The
-            # checkout action deliberately does not persist credentials.
+            # Put the token in the remote so the force-push is authenticated. The checkout
+            # step above deliberately does not persist credentials, so the remote it leaves
+            # behind is the bare URL with no user:password in it.
             url=$(git remote get-url origin)
             case "$url" in
               http://*|https://*) ;;
