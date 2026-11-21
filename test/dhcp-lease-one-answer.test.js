@@ -210,10 +210,11 @@ function request(port, method, urlPath, body) {
       const text = await bindingText('r1');
       ok(!/10\.91\.0\.1[01]/.test(text), "a re-created server with the same id does not inherit the dead device's bindings", text);
 
-      const pool = await conf('r1', ['configure terminal', 'ip dhcp pool HALF', 'network 10.99.0.0 255.255.255.0', 'end']);
+      // A pool with no `network`: the range would default to the subnet, but there is no subnet to name.
+      const pool = await conf('r1', ['configure terminal', 'ip dhcp pool HALF', 'default-router 10.99.0.1', 'end']);
       const view = await poolText('r1', 'HALF');
       ok(view.indexOf('undefined') === -1, '`show ip dhcp pool` never prints "undefined"', view);
-      ok(/rangeStart and rangeEnd are required/.test(view), 'a pool that cannot serve says why', view);
+      ok(/no network address was given/.test(view), 'a pool that cannot serve says why', view);
     }
   } catch (e) {
     ok(false, 'the lab could be exercised', e && e.message);

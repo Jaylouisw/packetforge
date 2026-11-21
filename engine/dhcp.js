@@ -321,11 +321,39 @@ function poolSummary(pool, taken) {
 
 function maskIntOf(p) { return parseMask(p.mask); }
 function networkIntOf(p) { return parseIp(p.network); }
+
+// The addresses a subnet can hand to a host: network+1 through broadcast-1. A /31 and a /32 have no
+// network or broadcast address to lose (RFC 3021), so those two keep every address.
+function subnetHostInts(netInt, maskInt) {
+  const bcast = (netInt | (~maskInt >>> 0)) >>> 0;
+  const size = (bcast - netInt + 1) >>> 0;
+  return size > 2 ? { start: netInt + 1, end: bcast - 1 } : { start: netInt, end: bcast };
+}
+
+// The addresses this pool may offer.
+//
+// `range` is optional on the box, not required: a pool with a `network` and no `range` serves that whole
+// subnet, which is the shape of every configuration example Cisco publishes and of the 850/870 capture whose
+// `show ip dhcp pool` prints `10.10.0.1 - 10.10.0.254` for a pool that never named a range
+// (research/dhcp-range-is-optional.md). Only a pool that names one end of a range and not the other is
+// unreadable, and validatePool() says so.
 function rangeInts(p) {
   const start = parseIp(p.rangeStart);
   const end = parseIp(p.rangeEnd);
-  if (start === null || end === null) return null;
-  return { start: start, end: end };
+  if (start !== null && end !== null) return { start: start, end: end };
+  if (trimStr(p.rangeStart) !== '' || trimStr(p.rangeEnd) !== '') return null;
+  const netInt = networkIntOf(p);
+  const maskInt = maskIntOf(p);
+  if (netInt === null || maskInt === null) return null;
+  return subnetHostInts(netInt, maskInt);
+}
+
+// The range as the console writes it: the configured pair when there is one, else the subnet's own, so a
+// sentence about "the pool range" never prints two empty strings.
+function rangeText(p) {
+  const r = rangeInts(p);
+  if (r === null) return (p.rangeStart || p.rangeEnd) ? (p.rangeStart + '-' + p.rangeEnd) : 'the pool range';
+  return net.intToIp(r.start) + '-' + net.intToIp(r.end);
 }
 
 function excludedInts(p) {
@@ -434,9 +462,12 @@ function validatePool(pool) {
   }
 
   // --- range --------------------------------------------------------------
-  if (p.rangeStart === '' || p.rangeEnd === '') {
-    err('E_DHCP_BAD_RANGE', where + 'both rangeStart and rangeEnd are required.');
-  } else {
+  // No `range` at all is legal - the pool serves its whole subnet (`rangeInts()` derives it) - so only a
+  // half-typed range is an error here. `range 10.0.0.10` on its own is refused by the console before it is
+  // stored; this guard is for a pool spec that reached the library some other way.
+  if ((p.rangeStart === '') !== (p.rangeEnd === '')) {
+    err('E_DHCP_BAD_RANGE', where + 'a range takes both ends: range <start> <end>.');
+  } else if (p.rangeStart !== '' && p.rangeEnd !== '') {
     const startInt = parseIp(p.rangeStart);
     const endInt = parseIp(p.rangeEnd);
     if (startInt === null || endInt === null) {
@@ -512,7 +543,7 @@ function validatePool(pool) {
     if (range !== null && range.start <= range.end && (ipInt < range.start || ipInt > range.end)) {
       err('E_DHCP_RESERVATION_OUT_OF_RANGE',
         where + 'reservation ' + ip + ' (' + mac + ') is outside the pool range ' +
-        p.rangeStart + '-' + p.rangeEnd + '.');
+        rangeText(p) + '.');
     }
   }
 
@@ -531,10 +562,11 @@ function validatePool(pool) {
   }
 
   // --- is anything left to hand out? --------------------------------------
-  if (range !== null && parseIp(p.rangeStart) !== null && parseIp(p.rangeEnd) !== null &&
-    parseIp(p.rangeStart) <= parseIp(p.rangeEnd)) {
+  // Asked of the range the pool will actually walk, derived or configured, so a pool whose whole subnet is
+  // excluded is refused for the same reason a pool whose configured range is all excluded is.
+  if (range !== null && range.start <= range.end) {
     let usable = 0;
-    for (let n = parseIp(p.rangeStart); n <= parseIp(p.rangeEnd); n++) {
+    for (let n = range.start; n <= range.end; n++) {
       if (isEndpointInt(p, n)) continue;
       if (isExcludedInt(p, n)) continue;
       const owner = reservationOwner(p, n);
@@ -544,7 +576,7 @@ function validatePool(pool) {
     }
     if (usable === 0) {
       err('E_DHCP_NO_HOSTS',
-        where + 'every address in ' + p.rangeStart + '-' + p.rangeEnd +
+        where + 'every address in ' + rangeText(p) +
         ' is excluded, reserved or a network/broadcast address.');
     }
   }
@@ -657,6 +689,12 @@ function nextFreeIp(pool, state) {
   const range = rangeInts(p);
   if (range === null) return null;
 
+  // The pool's gateway is the address the box answers on, so it is not an address the box may hand out.
+  // `poolCapacity()` and `poolSummary()` have always counted it that way; the allocator did not, and a pool
+  // whose range covered .1 offered .1 to the first client that asked - the router's own address, which is the
+  // one address on the subnet a client can never use (research/dhcp-range-is-optional.md).
+  const gw = parseIp(p.gateway);
+
   const reserved = {};
   for (const key of Object.keys(p.reservations)) {
     const n = parseIp(p.reservations[key]);
@@ -666,6 +704,7 @@ function nextFreeIp(pool, state) {
   for (let n = range.start; n <= range.end; n++) {
     if (isEndpointInt(p, n)) continue;
     if (isExcludedInt(p, n)) continue;
+    if (gw !== null && n === gw) continue;
     const ip = net.intToIp(n);
     if (reserved[ip]) continue;
     if (s.byIp.has(ip)) continue;
@@ -681,6 +720,10 @@ function isAllocatable(p, s, n, mac) {
   if (n < range.start || n > range.end) return false;
   if (isEndpointInt(p, n)) return false;
   if (isExcludedInt(p, n)) return false;
+  // The gateway half of the same rule `nextFreeIp()` applies, so an OFFER and the REQUEST that follows it
+  // cannot disagree about the one address the box answers on.
+  const gw = parseIp(p.gateway);
+  if (gw !== null && n === gw) return false;
 
   const ip = net.intToIp(n);
   const owner = reservationOwner(p, n);
@@ -814,8 +857,7 @@ function handleRequest(pool, state, req) {
 
   const range = rangeInts(p);
   if (range === null || want < range.start || want > range.end) {
-    return nakMessage(p, 'OUTSIDE_POOL', ip + ' is outside the pool range ' +
-      p.rangeStart + '-' + p.rangeEnd + '.');
+    return nakMessage(p, 'OUTSIDE_POOL', ip + ' is outside the pool range ' + rangeText(p) + '.');
   }
   if (isEndpointInt(p, want)) {
     return nakMessage(p, 'OUTSIDE_POOL', ip + ' is a network or broadcast address.');

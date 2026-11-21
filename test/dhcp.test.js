@@ -215,9 +215,11 @@ ok(hasCode(allReserved.errors, 'E_DHCP_NO_HOSTS'),
 
 const empty = dhcp.validatePool({});
 eq(empty.ok, false, 'an empty spec is rejected');
-ok(empty.errors.length >= 2, 'an empty spec reports every missing field (' + empty.errors.length + ')');
+ok(empty.errors.length >= 1, 'an empty spec reports every missing field (' + empty.errors.length + ')');
 ok(hasCode(empty.errors, 'E_DHCP_BAD_NETWORK'), 'an empty spec reports E_DHCP_BAD_NETWORK');
-ok(hasCode(empty.errors, 'E_DHCP_BAD_RANGE'), 'an empty spec reports E_DHCP_BAD_RANGE');
+// A pool with no `range` is legal: it serves the subnet its `network` names
+// (research/dhcp-range-is-optional.md). The range is only an error when one end of it is missing.
+ok(!hasCode(empty.errors, 'E_DHCP_BAD_RANGE'), 'a missing range is not an error');
 
 // ---------------------------------------------------------------------------
 // 5. ipInPool
