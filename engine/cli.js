@@ -2377,7 +2377,15 @@ class CliSession {
       const oStart = netLib.networkOf(other.ip, other.mask);
       const oEnd = netLib.broadcastOf(other.ip, other.mask);
       if (start <= oEnd && oStart <= end) {
-        return '% ' + netLib.intToIp(start) + ' overlaps with ' + other.name;
+        // The port is named in its full type spelling, whatever the operator typed to get there - the same
+        // expansion `show ip interface brief` and the `show arp` Interface column use. Two transcripts show the
+        // rule operating on a shortened typed name: `int g0/1` draws `% 10.1.0.0 overlaps with
+        // GigabitEthernet0/0` (learningnetwork.cisco.com/s/question/0D53i00000Ksv3lCAB/two-interfaces-on-the-
+        // same-subnet), and `int eth0/1` draws `% 10.10.12.0 overlaps with Ethernet0/0` (Cisco Community,
+        // 82006-VRF-Lite.pdf). Every other capture in hand prints the long form too - FastEthernet0/0,
+        // GigabitEthernet0/0/0.10 - and none prints `Gi0/1`; the one community sentence that quotes `Gi0/0` is
+        // a retyped paraphrase with no `%` in it. research/ip-address-overlap.md records the captures.
+        return '% ' + netLib.intToIp(start) + ' overlaps with ' + ifaceName.displayName(other.name);
       }
     }
     return null;

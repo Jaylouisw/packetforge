@@ -593,11 +593,13 @@ already holds is refused, in the vendor's one line, and nothing is applied:
 
 ```
 R1(config-if)#ip address 192.168.254.32 255.255.255.192
-% 192.168.254.0 overlaps with Gi0/0
+% 192.168.254.0 overlaps with GigabitEthernet0/0
 ```
 
 The number is the network of the address *being typed*, under the mask being typed, and the line names the
-port that got there first. Overlap is asked of the two address ranges rather than of "the same subnet",
+port that got there first — in its full type spelling, whatever was typed to reach it (`int g0/1` is answered
+about `GigabitEthernet0/0`), the same expansion `show ip interface brief` and the `show arp` Interface column
+use. Overlap is asked of the two address ranges rather than of "the same subnet",
 because `10.1.1.1/16` and `10.1.2.1/24` are different subnets that still cover the same host — a box refuses
 those too, in either order. A subinterface collides exactly like a port (`Gi0/0/0.20` against `Gi0/0/0`), the
 same port may be re-addressed freely, `no ip address` frees the subnet, and the same subnet on another device
@@ -611,7 +613,7 @@ it is where the collision surfaces, in the same one line, and the port stays dow
 R1(config-if)#shutdown
 R1(config-if)#ip address 172.20.101.1 255.255.255.0
 R1(config-if)#no shutdown
-% 172.20.101.0 overlaps with Gi0/0
+% 172.20.101.0 overlaps with GigabitEthernet0/0
 ```
 
 Closing the incumbent first is what the box expects the operator to do, and the same `no shutdown` then

@@ -16,7 +16,15 @@
 //   * https://learningnetwork.cisco.com/s/question/0D53i00000KsxMfCAJ/subinterfaces
 //     (`% 192.168.1.0 overlaps with GigabitEthernet0/1.10` - a subinterface collides like any other port)
 //
-// This console took the address and wrote it down, so a lab could hold two ports in one subnet and two
+// The interface named in that line is spelled the way the box always spells one: the full type word, whatever
+// the operator typed to reach the port. `int g0/1` draws `% 10.1.0.0 overlaps with GigabitEthernet0/0`
+// (https://learningnetwork.cisco.com/s/question/0D53i00000Ksv3lCAB/two-interfaces-on-the-same-subnet) and
+// `int eth0/1` draws `% 10.10.12.0 overlaps with Ethernet0/0`
+// (https://community.cisco.com/kxiwq67737/attachments/kxiwq67737/4461-docs-network-infrastructure/4344/1/82006-VRF-Lite.pdf).
+// This console printed the catalogue's panel spelling (`Gi0/1`), so the line could not be diffed against a
+// captured one - the same fault `show ip interface brief` and the `show arp` Interface column were fixed for.
+//
+// This console also took the address and wrote it down, so a lab could hold two ports in one subnet and two
 // connected routes printed in `show ip route` for a network a router has only one wire for.
 const path = require('path');
 const { Topology, Simulator } = require('../engine');
@@ -67,7 +75,7 @@ console.log('The vendor refuses the second subnet, and nothing is applied:');
   ok(first.join(' ').indexOf('192.168.254.1/26') !== -1, 'the first port takes the address',
     JSON.stringify(first));
   const out = env.say(b, '192.168.254.32', '255.255.255.192');
-  ok(out.length === 1 && out[0] === '% 192.168.254.0 overlaps with ' + a,
+  ok(out.length === 1 && out[0] === '% 192.168.254.0 overlaps with ' + displayName(a),
     'the refusal is one line, naming the incumbent and the attempted network', JSON.stringify(out));
   ok(env.ipOf(b) === null, 'the second port holds no address', String(env.ipOf(b)));
   ok(/unassigned .*unset/.test(env.brief(b)), 'and `show ip interface brief` still says unassigned/unset',
@@ -84,14 +92,14 @@ console.log('\nOverlap is asked of the two ranges, not of "the same subnet":');
   const a = env.eth[0].name, b = env.eth[1].name;
   env.say(a, '10.1.1.1', '255.255.0.0');
   let out = env.say(b, '10.1.2.1', '255.255.255.0');
-  ok(out[0] === '% 10.1.2.0 overlaps with ' + a,
+  ok(out[0] === '% 10.1.2.0 overlaps with ' + displayName(a),
     'a narrower address inside a wider one is refused, and the message carries the narrower network',
     JSON.stringify(out));
   const env2 = lab();
   const c = env2.eth[0].name, d = env2.eth[1].name;
   env2.say(c, '172.16.5.1', '255.255.255.0');
   const out2 = env2.say(d, '172.16.0.1', '255.255.0.0');
-  ok(out2[0] === '% 172.16.0.0 overlaps with ' + c,
+  ok(out2[0] === '% 172.16.0.0 overlaps with ' + displayName(c),
     'a wider address that swallows an existing one is refused too', JSON.stringify(out2));
 }
 
@@ -142,13 +150,23 @@ console.log('\nThe subnet is freed by the command that frees the address:');
 console.log('\nA subinterface collides exactly like a port:');
 {
   const env = lab();
-  const a = env.eth[0].name;
+  const a = env.eth[0].name, b = env.eth[1].name;
   env.say(a, '10.5.0.1', '255.255.255.0');
   const made = env.cli.run('interface ' + a + '.20').output;
   ok(made.join(' ').indexOf('.20') !== -1, 'a subinterface is created', JSON.stringify(made));
   const out = env.cli.run('ip address 10.5.0.2 255.255.255.0').output;
-  ok(out.length === 1 && out[0] === '% 10.5.0.0 overlaps with ' + a,
+  ok(out.length === 1 && out[0] === '% 10.5.0.0 overlaps with ' + displayName(a),
     'and refuses an address in the parent\'s subnet, naming the parent', JSON.stringify(out));
+  // The incumbent may be a subinterface, and the box names it with the suffix attached to the parent's long
+  // name - `% 10.1.10.0 overlaps with GigabitEthernet0/0/0.10` (Cisco Community td-p/4531370). The cell goes
+  // through the same expansion, which keeps the `.20` because the suffix is part of the name it is given.
+  const second = env.cli.run('interface ' + a + '.21').output;
+  env.cli.run('ip address 10.5.1.1 255.255.255.0').output;
+  env.cli.run('exit');
+  const clash = env.say(b, '10.5.1.2', '255.255.255.0');
+  ok(second.join(' ').indexOf('.21') !== -1 &&
+    clash.length === 1 && clash[0] === '% 10.5.1.0 overlaps with ' + displayName(a + '.21'),
+    'a subinterface incumbent is named with its suffix on the long spelling', JSON.stringify(clash));
 }
 
 
@@ -184,7 +202,7 @@ console.log('\n' + 'A shut port takes an overlapping address, and `no shutdown` 
   }).length === 0, 'and its subnet is in no connected route while it is shut',
     env.cli.run('show ip route').output.join(' | '));
   const refused = open(b);
-  ok(refused.length === 1 && refused[0] === '% 172.20.101.0 overlaps with ' + a,
+  ok(refused.length === 1 && refused[0] === '% 172.20.101.0 overlaps with ' + displayName(a),
     '`no shutdown` is refused in the same one line the box uses at address entry, naming the live port', JSON.stringify(refused));
   ok(env.r1.interfaces.get(b).enabled === false && /administratively down/.test(env.brief(b)),
     'and the port stays administratively down', env.brief(b));
