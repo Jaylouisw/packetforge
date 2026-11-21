@@ -1144,9 +1144,19 @@ function isPoePse(dev, portName) {
   // name. A port that accepts power is not a port that supplies it.
   if (/poe[\s_-]?in\b|pdin|poe[\s_-]?pd\b/i.test(name)) return false;
   if (/poe/i.test(name)) return true;
+  // A label can mention PoE in order to deny it. "EnGenius ECS1528 (24x 1G, 4x SFP+, no PoE)"
+  // contains the word, so a plain `/poe/i` read it as a claim and put 24 *guessed* 802.3af PSE
+  // ports on a switch whose own vendor comparison table prints "PoE Capable Ports: -" and
+  // "Total PoE Budget: -" (https://www.engeniustech.com/eu/products/network-switches/ecs2512fp/,
+  // the model-comparison table, read 2026-11-21; the same three rows for ECS1528, ECS2512 and
+  // ECS5512). The negation is removed before the claim is read, and only the negation: a label
+  // that says "24-port PoE switch, no PoE on the uplinks" keeps the first half and still claims.
   const model = String(dev.model || '') + ' ' + String(dev.label || '');
   const caps = dev.capabilities || [];
-  const claimsPse = /poe/i.test(model) || caps.indexOf('poe-pse') !== -1;
+  const unnegated = model
+    .replace(/\b(?:no|non|without|zero)[\s-]*poe(?:\+{1,2})?\b/gi, ' ')
+    .replace(/\bpoe[\s-]*free\b/gi, ' ');
+  const claimsPse = /poe/i.test(unnegated) || caps.indexOf('poe-pse') !== -1;
   if (!claimsPse) return false;
   // On a PoE switch every access port sources power, and the ports are usually just
   // 'port1..24' or '1/1/1..' - there is no per-port marker to look for.

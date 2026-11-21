@@ -97,6 +97,40 @@ t('off a switch, power is only sourced where the datasheet says so', () => {
     offenders.length + ' port(s) source power only because the engine guessed it, on a non-switch');
 });
 
+t('a label that denies PoE is not a claim that the box sources it', () => {
+  // The EnGenius non-PoE rows carry their own denial in the label: "EnGenius ECS1528
+  // (24x 1G, 4x SFP+, no PoE)". A `/poe/i` test over the label read that word as the claim,
+  // and the engine inferred 802.3af on every copper port of three switches whose vendor
+  // comparison table prints "PoE Capable Ports: -" and "Total PoE Budget: -" for each of
+  // them (https://www.engeniustech.com/eu/products/network-switches/ecs2512fp/). The rule
+  // strips the negation before it looks for the word, so the three rows source nothing.
+  const offenders = [];
+  const denying = all.filter(x => /\bno\s+poe\b/i.test(String(x.spec.label || '')));
+  for (const { spec, ifaces } of denying) {
+    const pse = ifaces.filter(p => p.hardware.poeOut);
+    if (pse.length) offenders.push(spec.vendor + '/' + spec.model + ' (' + pse.length + ' PSE)');
+  }
+  assert.deepStrictEqual(offenders, [],
+    offenders.length + ' device(s) source power although their own label says no PoE');
+});
+
+t('the EnGenius non-PoE trio sources nothing, and the console says so', () => {
+  const { Simulator, runCommands } = require('../engine');
+  for (const model of ['ECS1528', 'ECS2512', 'ECS5512']) {
+    const spec = catalogue.find(s => String(s.model) === model);
+    assert.ok(spec, model + ' must exist in the catalogue');
+    const topo = new Topology();
+    const dev = topo.addDevice(spec);
+    const sim = new Simulator(topo);
+    sim.computePoe();
+    const pse = ports(dev).filter(p => p.hardware.poeOut).map(p => p.name);
+    assert.deepStrictEqual(pse, [], model + ' must not source power (vendor table prints "-" for PoE)');
+    const lines = runCommands(dev, topo, sim, ['show power inline']).lines;
+    assert.ok(lines.some(l => /^% No PoE on /.test(l)),
+      model + ' must answer with the no-PoE refusal, got: ' + lines.slice(-2).join(' / '));
+  }
+});
+
 t('a device that only accepts PoE never sources it', () => {
   // Each of these says "PoE-in" in its own description. Their specs declared every port a PSE
   // anyway, which is a claim the hardware does not support: an EdgeRouter 10X with 10 self-
