@@ -10,7 +10,12 @@ reviewed pull request, and what to do when the usual route fails.
    catalogue hits.
 2. **A spec is written** as `devices/<vendor>/<model>.json`. Only the ports and capabilities the
    engine can act on belong in it - a serial console, a USB port or an FXS line is a note, not an
-   interface.
+   interface. Before the push, `node scripts/check-new-devices.js` asks the one question the merge
+   cannot: whether that model is already in `devices/` under another spelling. Two workers wrote
+   `oceanprotect-x8100.json` and `oceanprotect-x9100.json` in the same week, each green on its own
+   base, and the merge then died on `CONFLICT (add/add)` with every Node leg red before a test ran.
+   `--staged` checks what is staged instead of the diff against `origin/main`; the same gate runs
+   inside `node scripts/premerge-check.js`.
 3. **The importer checks it** (`node scripts/import-devices.js --apply`): schema, duplicate
    spellings, unknown interface types, unknown capabilities. A capability it does not recognise is
    named in the run and kept as declared; a near-miss of a real one is refused as a typo. It

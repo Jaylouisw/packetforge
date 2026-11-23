@@ -26,6 +26,14 @@ const path = require('node:path');
 
 const SUITES = ['test/hardware-invariants.test.js', 'test/spec-vs-description.test.js'];
 
+// Suites are not enough on this tree. A merge can die before any of them starts: two
+// branches that each add a spec for the same box are both green alone, and the forge's
+// pull_request run — built from a merge of head into main — refuses them with
+// `CONFLICT (add/add)` on three red Node legs. That happened twice to the Huawei
+// OceanProtect pair. scripts/check-new-devices.js reuses the sweeper's normaliser to ask
+// "is this model already here?" of the same merge tree, so it belongs in the same run.
+const CHECKS = ['scripts/check-new-devices.js'];
+
 function git(args, opts = {}) {
   return execFileSync('git', args, { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], ...opts });
 }
@@ -82,6 +90,33 @@ function main(argv) {
             .slice(0, 6)
             .join('\n    ') || lines.slice(-4).join('\n    ');
           failures.push({ suite, detail });
+        }
+      }
+
+      // The duplicate gate, on the same merge tree and given exactly the device specs this
+      // branch adds relative to the merge base. --root is the tree just built; --base is
+      // `origin/main`, so a file main already carries is named as the add/add it is.
+      const added = git(['diff', '--name-only', '--diff-filter=A', '--no-renames', mergeBase, ref, '--', 'devices'])
+        .split('\n')
+        .filter(Boolean);
+      for (const check of CHECKS) {
+        const list = path.join(tmp, `added-${results.length}.txt`);
+        fs.writeFileSync(list, added.length ? added.join('\n') + '\n' : '');
+        // The checker comes from this checkout, not from the merge tree: a branch that adds
+        // it would otherwise be checked by a tree built from origin/main, which does not
+        // have it yet. What is checked is still the merge tree — `--root` says so.
+        const run = spawnSync(
+          process.execPath,
+          [path.join(__dirname, 'check-new-devices.js'), '--root', worktree, '--files-from', list, '--base', 'origin/main'],
+          { cwd: worktree, encoding: 'utf8' }
+        );
+        if (run.status !== 0) {
+          const lines = `${run.stdout || ''}${run.stderr || ''}`.split('\n');
+          const detail = lines
+            .filter((l) => /refusing|already|conflict|^\s+\S/.test(l))
+            .slice(0, 8)
+            .join('\n    ') || lines.slice(-4).join('\n    ');
+          failures.push({ suite: check, detail });
         }
       }
       results.push({ branch, ok: failures.length === 0, failures });
