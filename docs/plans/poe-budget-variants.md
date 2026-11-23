@@ -1,27 +1,33 @@
-# Plan: a PoE budget is one number, and five boxes carry somebody else's
+# Plan: a PoE budget is one number, and four boxes carry somebody else's
 
-Status: forward plan, no code. Re-measured 2026-11-23 on `d680bc8c`. Closes **no** open issue — the
-queue is three tooling items (#2470, #2471, #2466) and each already has an open PR. Scope:
+Status: forward plan, no code. Re-measured 2026-11-23 on `5415d70d`. Closes **no** open issue — the
+open queue is one build item (#2477), which carries its own PR. Scope:
 `scripts/audit-poe-budget.js`, `engine/device.js:217-223`, `engine/cli.js:6440`, `web/app.js:2081`,
-`package.json:11`, `docs/DEVICE_SCHEMA.md`, five device specs, one new suite. No allocation rule
+`package.json:11`, `docs/DEVICE_SCHEMA.md`, four device specs, one new suite. No allocation rule
 changes a verdict.
 
 ## What changed since the last revision (2026-11-18, `bf587889`)
 
 The promotion campaign this plan deferred to (#2012, closed) did its job. `node
 scripts/audit-poe-budget.js` reported **128 silent / 39 prose / 20 name-inferred / 16 unknown** then,
-and reports **5 / 0 / 0 / 26** now:
+and reports **4 / 0 / 0 / 26** now:
 
 ```
-Models: 2352, of which 409 source PoE on at least one port
-Silent: 5   fs/AP-T565, ubiquiti/UDB-Pro, planet/POE-E201, ubiquiti/F-POE-G2, ubiquiti/UACC-LR-Endpoint
+Models: 2352, of which 408 source PoE on at least one port
+Silent: 4   ubiquiti/UDB-Pro, planet/POE-E201, ubiquiti/F-POE-G2, ubiquiti/UACC-LR-Endpoint
 Inferred from the model name: 0
 Marked unknown on purpose: 26
 Budget with no PSE port: 0
 ```
 
+**Then #2475 landed one minute after this revision did.** `fs/AP-T565` was never a passthrough box: it
+was an indoor AP's datasheet mis-filed as the outdoor T565, giving the model five copper jacks and a
+PoE+ PSE on `eth4`. The correct datasheet has one RJ45 inlet at 802.3af and one SFP cage, no PSE at
+all, so the cohort is four, not five, and the PSE count is 408. Counts in this page are the ones the
+audit printed on `5415d70d`.
+
 That inverts the ordering. The gate (old step 9) waited on "silent reaches 0", and silent cannot reach
-0: every one of the five remaining devices is a **passthrough** box, and the audit has no word for
+0: every one of the four remaining devices is a **passthrough** box, and the audit has no word for
 one. The field work is no longer the blocker — a missing state is.
 
 ## What exists today
@@ -33,13 +39,12 @@ budget is discarded when the device has no PSE port (`:311-316`). There is no fi
 port sources power that arrived from upstream", and `grep -rn passthrough engine/ docs/DEVICE_SCHEMA.md`
 returns nothing.
 
-**The five, and the documents that say so.** Each has one `poeOut` port and `poe: null`:
+**The four, and the documents that say so.** Each has one `poeOut` port and `poe: null`:
 `planet/POE-E201` — its own description says it "passes the PSE's negotiated power through ... rather
 than creating a new budget"; `ubiquiti/F-POE-G2` — "optical-to-PoE transport ... 16-57V DC in";
 `ubiquiti/UACC-LR-Endpoint` — "PoE+++ input with passthrough up to PoE++"; `ubiquiti/UDB-Pro` — "PoE
-input with passive PoE output"; `fs/AP-T565` — "one of them a PoE port". These are not unsourced
-figures: all five resolve through the name parser, find nothing, and land at 0 W — boxes whose
-budget belongs to a device upstream of them.
+input with passive PoE output". These are not unsourced figures: all four resolve through the name
+parser, find nothing, and land at 0 W — boxes whose budget belongs to a device upstream of them.
 
 **The audit cannot be asked.** `scripts/audit-poe-budget.js:120` is a bare `process.exit(main())` — no
 `require.main` guard, no export — so no suite can call it, and it appears in neither
@@ -65,7 +70,7 @@ sample description. `CONTRIBUTING.md` says nothing either.
 
 ## What is missing, ranked
 
-1. **A state for a budget that is upstream.** Without it the silent cohort has a floor of 5, so the
+1. **A state for a budget that is upstream.** Without it the silent cohort has a floor of 4, so the
    gate cannot land and the audit keeps printing a number nobody can act on.
 2. **A callable audit.** The premise of a gate — run this and trust the exit code — is untestable
    while the script cannot be imported.
@@ -79,11 +84,10 @@ sample description. `CONTRIBUTING.md` says nothing either.
 1. **S — Make the audit askable, and give it the fifth state.** Guard `main()` behind
    `require.main === module`; export `auditPoeBudget(cat)`; add a `passthrough` cohort fed by
    `spec.poe.passthrough === true`, printed on its own line and **excluded from `silent` and from the
-   `--strict` failure count**. Flags, existing cohorts and exit codes unchanged; the five current
+   `--strict` failure count**. Flags, existing cohorts and exit codes unchanged; the four current
    silent specs keep printing until step 2.
-2. **S — Mark the five, one PR per vendor.** Set `poe.passthrough: true` where the page says the watts
-   arrive from upstream (POE-E201, F-POE-G2, UACC-LR-Endpoint, UDB-Pro, AP-T565), citing the line in
-   `notes`. Where a vendor does publish a figure for the port, that becomes `budgetW` instead — decided
+2. **S — Mark the four, one PR per vendor.** Set `poe.passthrough: true` where the page says the watts
+   arrive from upstream (POE-E201, F-POE-G2, UACC-LR-Endpoint, UDB-Pro), citing the line in `notes`. Where a vendor does publish a figure for the port, that becomes `budgetW` instead — decided
    per file. After this, `--strict` exits 0 on the real catalogue.
 3. **S — Gate it.** `node scripts/audit-poe-budget.js --strict` into `package.json:11`, after
    `audit-devices`. The collision this plan used to warn about is gone: `audit-devices` landed in that
@@ -108,7 +112,9 @@ sample description. `CONTRIBUTING.md` says nothing either.
   working power. A PR body claiming otherwise is the failure mode.
 - **A permissive fifth state is a way to silence the audit.** Anything can be called passthrough. Step
   4 fixtures and the step 5 definition are what keep it a fact about a port rather than an escape.
-- **Counts rot fast** — 128 to 5 in five days. Every PR quotes the audit output it produced.
+- **Counts rot fast** — 128 to 4 in five days, and the fifth went away inside the minute between
+  #2473 and #2475, for a reason that was not a budget at all. Every PR quotes the audit output it
+  produced.
 - **Variants invite a picker.** Nothing here lets an operator choose an input; making them selectable
   is new product surface and out of scope.
 
@@ -122,8 +128,8 @@ New `test/poe-budget-gate.test.js` (step 4). Regression: `test/poe.test.js`,
 
 ## Issues this would close
 
-None. #2012 is closed and its cohort is drained; #130 is closed. The three open issues are CI tooling
-and are carried by open PRs #2470 / #2471 / #2466.
+None. #2012 is closed and its cohort is drained; #130 is closed. The only open issue is the build item
+#2477, which carries its own PR.
 
 ## Deliberately left out
 
