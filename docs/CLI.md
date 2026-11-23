@@ -177,7 +177,7 @@ The output is a restorable backup, and that is a tested invariant rather than an
 (`test/config-roundtrip.test.js`): paste it into a fresh device of the same model at the config prompt
 and you get the same configuration, on the same ports.
 
-Five properties make that work, all of them load-bearing:
+Six properties make that work, all of them load-bearing:
 
 * **Every interface block closes with `!`.** A bare `!` is the line every published running-config prints
   between two `interface` stanzas — the 4000 Series ISR default configuration goes
