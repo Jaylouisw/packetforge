@@ -3,7 +3,7 @@
   "model": "OTD144",
   "label": "Teltonika OTD144",
   "category": "router",
-  "description": "Outdoor Wi-Fi 4G Cat 4 router: 2x 100 Mbps Ethernet, PoE in on one and PoE out on the other.",
+  "description": "Outdoor Wi-Fi 4G Cat 4 router: 2x 100 Mbps Ethernet, 802.3af/at PoE in on the left port and 15 W of 802.3af Mode B PoE out on the right one.",
   "capabilities": [
     "l3-forward",
     "nat",
@@ -24,15 +24,15 @@
       "type": "ethernet",
       "connector": "rj45",
       "speed": "100M",
-      "poeIn": 12.95
+      "poeIn": 21
     },
     {
       "name": "eth2",
       "type": "ethernet",
       "connector": "rj45",
       "speed": "100M",
-      "poeOut": true,
-      "poeOutClass": "PoE+"
+      "poeOut": 15,
+      "poeOutClass": "PoE"
     },
     {
       "name": "wwan1",
@@ -45,6 +45,12 @@
       "speed": "300M"
     }
   ],
-  "sourceUrl": "https://www.mouser.com/datasheet/3/3785/1/OTD144_Datasheet_v1.pdf",
-  "notes": "Vendor figures: **two 10/100 Mbps Ethernet ports**, one **PoE in** and one **PoE out**, LTE Cat 4, integrated Wi-Fi, **IP55**. The difference from the OTD140 is the Wi-Fi radio on the same two-port chassis - and **the ports are still fast Ethernet**, so the wireless is served by a 100 Mbps uplink."
+  "poe": {
+    "budgetW": 15,
+    "standard": "802.3af",
+    "sourceUrl": "https://solwise.co.uk/downloads/files/Datasheet_OTD144_06-10-2026.pdf",
+    "note": "15 W on the single outlet, same chassis as the OTD140. Datasheet v1.22 (2026-09-24): \"PoE ports 1 x PoE Out\", \"PoE standards 802.3af Alternative B\", \"PoE Max Power per Port (at PSE) 15 W Max (power supply unit dependent)\", beside \"PoE ports 1 x PoE In\", \"PoE standards 802.3af/at\" and \"Power consumption Idle: < 2.5 W / Max: < 6 W / PoE Max < 21 W\". Flyer v1.1 (2025) prints the outlet as \"PoE Out: 802.3af/at (42.5 - 57 VDC, max 15 W - power supply unit dependent)\": the wattage agrees, the /at does not, and the newer datasheet plus the wiki's \"802.3af standard for the PSE port\" are what the class follows. 6 W of router plus 15 W of outlet is the 21 W inlet ceiling."
+  },
+  "sourceUrl": "https://wiki.teltonika-networks.com/view/OTD144",
+  "notes": "Read 2026-11-21. The previous sourceUrl (https://www.mouser.com/datasheet/3/3785/1/OTD144_Datasheet_v1.pdf) answers 200 with 13,897 bytes of text/html - a landing page, not a datasheet - so it is replaced. PORT CENSUS - datasheet v1.22, 2026-09-24, https://solwise.co.uk/downloads/files/Datasheet_OTD144_06-10-2026.pdf (application/pdf, text layer): \"2 x RJ45 ports, 10/100 Mbps\", \"1 x PoE In\" / \"802.3af/at\", \"1 x PoE Out\" / \"802.3af Alternative B\" / \"15 W Max (power supply unit dependent)\", \"Power consumption Idle: < 2.5 W / Max: < 6 W / PoE Max < 21 W\". https://wiki.teltonika-networks.com/view/OTD144_Interfaces (200) gives \"2 x RJ45 ethernet ports\", \"2 x SIM slot\", \"2.4 GHz radio\", \"4G LTE Cat 4\". https://wiki.teltonika-networks.com/view/OTD144_Powering_Options (200, 63,454 B): \"802.3af/at for the PD (Powered Device) port and 802.3af standard for the PSE (Power Source Equipment) port\", \"Working voltage levels: 42.5-57.0 V\", Mode B pinout DC+ on 4/5, DC- on 7/8.\n\nWHAT WAS WRONG - the same defect as its non-Wi-Fi sibling: eth1 declared poeIn 12.95 (the 802.3af class ceiling) where the vendor rates the inlet 802.3af/at and 21 W, and eth2 carried poeOut true with poeOutClass \"PoE+\" - 802.3at, which no current Teltonika document claims for the outlet. poeDraw() billed the outlet 1 W.\n\nWHAT IT IS NOW - eth1 sinks 21 W, eth2 sources 15 W classed 802.3af, and the poe block states the 15 W so the budget is a document, not a name-parse.\n\nNOT MODELLED - the \"power supply unit dependent\" condition (a 15.4 W 802.3af upstream cannot make 15 W appear at eth2), the idle draw, and the second SIM slot. The Wi-Fi rate (300M) predates this read; no Teltonika text layer prints per-band Wi-Fi 4 rates, so it is left as it was rather than re-guessed."
 }

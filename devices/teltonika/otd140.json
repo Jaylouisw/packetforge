@@ -3,7 +3,7 @@
   "model": "OTD140",
   "label": "Teltonika OTD140",
   "category": "router",
-  "description": "Outdoor 4G Cat 4 router: 2x 100 Mbps ETH ports, PoE in on one and PoE out on the other.",
+  "description": "Outdoor 4G Cat 4 router: 2x 100 Mbps ETH ports, 802.3af/at PoE in on the left port and 15 W of 802.3af Mode B PoE out on the right one (21 W max at the inlet, 6 W of it the router).",
   "capabilities": [
     "l3-forward",
     "nat",
@@ -24,15 +24,15 @@
       "type": "ethernet",
       "connector": "rj45",
       "speed": "100M",
-      "poeIn": 12.95
+      "poeIn": 21
     },
     {
       "name": "eth2",
       "type": "ethernet",
       "connector": "rj45",
       "speed": "100M",
-      "poeOut": true,
-      "poeOutClass": "PoE+"
+      "poeOut": 15,
+      "poeOutClass": "PoE"
     },
     {
       "name": "wwan1",
@@ -45,6 +45,12 @@
       "speed": "300M"
     }
   ],
-  "sourceUrl": "https://teltonika-networks.com/product/otd140/",
-  "notes": "Vendor figures from the OTD140 datasheet: **2x ETH ports (can be configured as WAN), 10/100 Mbps**, and the power rows read **PoE ports 1 x PoE In**, **PoE standards 802.3af/at**, with a PoE out section on the second port. So the box can be powered by the cable it also passes power through - and **both copper ports are fast Ethernet**, which is the smallest number in an outdoor cellular deployment that otherwise looks modern."
+  "poe": {
+    "budgetW": 15,
+    "standard": "802.3af",
+    "sourceUrl": "https://download.kamami.pl/p1207980-otd140-flyer-2024-v18.pdf",
+    "note": "15 W, the vendor's stated maximum on the single outlet. Flyer v1.8 (2024): \"PoE Out: 802.3af (42.5 - 57 VDC, max 15W) Alternative B\" and \"Powering options (PoE In) RJ45, PoE In: 802.3af/at (42.5 - 57 VDC, max 21W)\". The 15 W is conditional on the supply: the same box draws \"Idle: < 2.5 W / Max: < 6 W / PoE Max < 21 W\", and 6 + 15 is the 21 W inlet ceiling, so a 21 W PoE+ source is what makes the full output available. The outlet is 802.3af Alternative B, DC on the spare pairs - pins 4/5 positive, 7/8 negative - per the pinout at https://wiki.teltonika-networks.com/view/OTD140_Powering_Options. REVISION DRIFT: flyer and datasheet v1.6 printed \"PoE Out: 802.3af/at ... max 24W\"; v1.8, the current revision, prints 802.3af and 15 W, so the older 24 W figure and the 802.3at class this entry used to carry are not modelled."
+  },
+  "sourceUrl": "https://teltonika-networks.com/products/routers/otd140",
+  "notes": "Read 2026-11-21 from Teltonika material. PORT CENSUS - flyer v1.8 (2024), https://download.kamami.pl/p1207980-otd140-flyer-2024-v18.pdf (200, application/pdf, 967,315 B, text layer): \"Ethernet 2 x RJ45 ports, 10/100 Mbps: 2 x ETH ports (can be configured as WAN)\", \"Powering options (PoE In) RJ45, PoE In: 802.3af/at (42.5 - 57 VDC, max 21W)\", \"PoE Out: 802.3af (42.5 - 57 VDC, max 15W) Alternative B\", \"Power consumption Idle: < 2.5 W / Max: < 6 W / PoE Max < 21 W\". https://wiki.teltonika-networks.com/view/OTD140_Powering_Options (200, 57,164 B) states the standard per direction: \"OTD140 devices support active PoE standard: 802.3af/at for the PD (Powered Device) port and 802.3af standard for the PSE (Power Source Equipment) port\", \"Working voltage levels: 42.5-57.0 V\", plus the Mode B pinout (DC+ on 4/5, DC- on 7/8). https://wiki.teltonika-networks.com/view/OTD140_Interfaces (200) confirms \"2 x RJ45 ethernet ports\", \"2 x SIM slot\", \"4G LTE Cat 4\".\n\nWHAT WAS WRONG - the entry declared eth1 poeIn 12.95 (the 802.3af class ceiling) on a port the vendor rates 802.3af/at with a 21 W inlet, and eth2 poeOut true with poeOutClass \"PoE+\" (802.3at), which the vendor does not claim for the outlet: the PSE port is 802.3af, 15 W. With only the boolean, poeDraw() billed the outlet 1 W and show power inline could not say what the box could supply.\n\nWHAT IT IS NOW - eth1 sinks 21 W (the vendor's \"max 21W\" inlet, the same number as the \"PoE Max < 21 W\" consumption row); eth2 sources 15 W classed 802.3af, and the poe block carries the 15 W so the ceiling is a document rather than an inference. The two are consistent by construction: 21 W in, 6 W of router, 15 W out.\n\nNOT MODELLED - the \"power supply unit dependent\" condition. The catalogue has no field for \"this outlet reaches 15 W only if the upstream PSE can deliver 21 W\"; a lab feeding eth1 from a 15.4 W 802.3af port will see eth2 allocate its full 15 W where the real box would have about 9 W left. The < 2.5 W idle draw is also not modelled, and the second SIM slot, the UART pads and the reset button are not ports."
 }
