@@ -15,7 +15,7 @@
 
 const path = require('path');
 const { Topology, Simulator, runCommands } = require('../engine');
-const segment = require('../engine/segment');
+const segment = require('../engine/segment.ts');
 const { loadCatalog } = require('../devices/registry');
 
 let passed = 0, failed = 0;

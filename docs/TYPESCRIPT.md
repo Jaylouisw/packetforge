@@ -8,6 +8,7 @@ This page is the toolchain that makes that rule enforceable. Nothing here is a p
 what `package.json`, `tsconfig.json` and the `Typecheck` job already do.
 
 - [What the rule means](#what-the-rule-means)
+- [Migrated so far](#migrated-so-far)
 - [What is installed](#what-is-installed)
 - [Why there is no build step](#why-there-is-no-build-step)
 - [The Node floor](#the-node-floor)
@@ -30,6 +31,25 @@ what `package.json`, `tsconfig.json` and the `Typecheck` job already do.
 
 There is no exception for "a quick script". `scripts/check-control-bytes.ts` is 75 lines of
 throwaway-shaped guard code and it is typed; that is the point of it being the first one.
+
+## Migrated so far
+
+The ledger. One row per converted file, and the row is added by the commit that does the
+conversion — a file that is not in this table has not been converted, whatever its extension says.
+Line counts are `wc -l` on the converted file, so they include the annotations.
+
+| File | Lines | Converted by |
+|---|---|---|
+| `engine/segment.ts` | 236 | `53bee0cf` (#2483) |
+
+The SHA is the commit in the converting branch; the pull request number is the handle that survives
+the squash merge onto `main`, so cite the number when the commit id has moved on.
+
+The first row is also the template: `engine/segment.js` went from 130 lines to 236, and the net 106
+lines are the interfaces describing the shapes the walk reads. Nothing was left untyped; the
+two places a type is written by hand rather than inferred are `engine/lag.js`'s
+`memberSuspension()`, which is still JavaScript, and `VlanConfig.mode`, which is `string` because
+the untyped `Interface` constructor cannot prove the union `'access' | 'trunk'`.
 
 ## What is installed
 
@@ -111,7 +131,7 @@ npm run check:no-any     # just the scan for `any`
 | `types: ["node"]` | Only `@types/node` may declare globals implicitly: a stray ambient `@types` package is how a typecheck starts passing on types that do not exist |
 | `erasableSyntaxOnly: true` | The runtime erases; it does not transform. `enum`, `namespace` and parameter properties have no erasure and refuse to load (TS1294 at the typecheck instead). This flag is the reason that failure happens on the author's machine rather than on somebody's first run |
 | `verbatimModuleSyntax: false` | CJS output would make `import type` handling stricter than the eraser is; off is the honest setting here |
-| `include: scripts/**/*.ts`, `test/**/*.test.ts` | The converted files. Widen this as files are converted, never by turning on `allowJs` |
+| `include: engine/**/*.ts`, `scripts/**/*.ts`, `test/**/*.test.ts` | The converted files, by directory. `engine` joined the list when `engine/segment.ts` became the first non-`scripts` conversion: a converted file outside the `include` list is a file `tsc` never reads, and a green typecheck that proves nothing. Widen this as files are converted, never by turning on `allowJs` |
 
 ## What a converted module looks like
 

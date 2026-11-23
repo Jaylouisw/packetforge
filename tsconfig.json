@@ -49,6 +49,6 @@
     // converted.
     "allowJs": false
   },
-  "include": ["scripts/**/*.ts", "test/**/*.test.ts"],
+  "include": ["engine/**/*.ts", "scripts/**/*.ts", "test/**/*.test.ts"],
   "exclude": ["node_modules"]
 }

@@ -113,7 +113,7 @@ function pingLossSentence(replies) {
   return 'Echoes lost: ' + dropsSentence({ total: total, byReason: byReason });
 }
 const vrrpLib = require('./vrrp');
-const segmentLib = require('./segment');
+const segmentLib = require('./segment.ts');
 const mediaModel = require('./media');
 
 // Two routers advertise the same OSPF network; when the SPF cost ties, the
