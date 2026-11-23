@@ -130,7 +130,9 @@ console.log('Each kind of row, in the reading order the device uses');
   ok(/^O\s+10\.77\.0\.0\/16 \[110\/\d+\] via 10\.1\.2\.9/.test(ospf),
     'the OSPF row keeps its /16 beside the network and its cost in the bracket', ospf);
 
-  const bgp = rows.filter(function (l) { return l.indexOf('B  ') === 0; })[0] || '';
+  // By prefix, not by position: the table prints its rows in address order now, and this lab holds a
+  // second eBGP row (198.18.0.0/16) that sorts before this one.
+  const bgp = rows.filter(function (l) { return l.indexOf('B  ') === 0 && /203\.0\.113\.0\/24/.test(l); })[0] || '';
   ok(/^B\s+203\.0\.113\.0\/24 \[20\/0\] via 10\.1\.2\.2/.test(bgp),
     'the eBGP row reads the same way', bgp);
 }

@@ -3538,6 +3538,20 @@ the rest of the row is the vendor's. `test/show-ip-route-interface-spelling.test
 comma and the absence of an invented age, and `research/show-ip-route-interface-spelling.md` carries the
 captures and the half still open.
 
+The **rows come out in address order**, whatever letter stands in front of them. IOS 15.x prints the table
+"in the increasing order of all network entries", so a static route to `10.2.0.0/16` is printed between the
+connected rows for `10.0.0.0/24` and `10.5.0.0/16`, an OSPF route to `10.7.0.0/16` after them, and the
+candidate default `S* 0.0.0.0/0` is the **first** row of the table because 0.0.0.0 is the lowest entry. This
+console grouped the view by code instead - every connected/local pair, then every static in the order it was
+typed, then the protocols - which put the default last and made a pasted table impossible to diff against a
+capture; 12.4 and earlier did not follow this rule either (their display followed an internal hash table, so
+the order inside a classful block looked haphazard, and the default could print last), which is why the
+command reference's own samples disagree with each other. The 15.x rule is the one this console owes, since
+its legend and its `L` rows are 15.x shapes; a stable sort keeps two rows for the *same* prefix in the order
+the tie-break decided, so a losing candidate still prints under the row it names
+([research/show-ip-route-row-order.md](../research/show-ip-route-row-order.md);
+`test/show-ip-route-row-order.test.js` pins the order, the interleaving and the same-prefix case).
+
 The legend is the **image's nine lines**, not one line of this console's own codes: a box prints its whole
 code list on every `show ip route`, whether or not a route uses it, and wraps it after `B - BGP`, with the
 eight continuations starting at column 7 so every code aligns under the `L`. It therefore defines `RIP`,

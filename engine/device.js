@@ -1539,6 +1539,47 @@ class Device {
       row.unusable = verdict.unusable;
       row.checked = !!topo;
     }
+
+    // The order the box prints the table in (#fidelity: show ip route row order).
+    //
+    // The rows leave this function in the order they were built - every connected/local pair in interface
+    // order, then every configured static in the order it was typed, then OSPF, then BGP - so the console
+    // grouped the table by CODE. A box does not: it prints the routing table in the order the table holds
+    // its network entries, and the code is a letter in front of a row, not a section of the view.
+    //
+    // Cisco's own answer to "is the default route looked at first or last?" carries the measurement: in
+    // 12.4T the display followed the hash table inside each classful network ("C 1.0.1.0, C 1.0.0.0,
+    // C 1.0.3.0, C 1.0.2.0 ..."), and "In IOS 15.x ... the routing table is automatically displayed in the
+    // increasing order of all network entries", shown with 1.0.0.0/24 ... 1.0.7.0/24, then 172.19.x,
+    // 172.20.x, 192.168.0.0/25, 192.168.0.128/25. The same thread states what the order is NOT: it has no
+    // bearing on lookup ("the default route ... is always tried as the very last routing table entry").
+    // https://community.cisco.com/t5/routing/is-the-default-route-looked-at-first-or-last/td-p/2661554
+    //
+    // A classful-era capture shows the other half - the code is not a grouping key even when the table is
+    // ordered by major network: `S 172.16.1.0 [1/0] via 172.16.2.2` is printed ABOVE the two connected rows
+    // for 172.16.2.0 and 172.16.3.0 it sits between by address (US CyberPatriot, "Complex Networks using
+    // static routes", R1). And Cisco's gateway-of-last-resort note prints `S* 0.0.0.0/0` as the first row
+    // under the gateway sentence on IOS 15M, which is the same rule: 0.0.0.0 is the lowest network entry.
+    //
+    // Key: the network address as one 32-bit number, then the prefix length for two rows that share an
+    // address (10.0.0.0/8 beside 10.0.0.0/16). The trie a box walks prints a parent before its children,
+    // so the shorter mask comes first; that half is inferred from the structure rather than read off a
+    // capture, and research/show-ip-route-row-order.md records it as the open point. The sort is stable,
+    // so two rows for the SAME prefix keep the order the tie-break above just decided.
+    const sortKey = function (row) {
+      try {
+        return { addr: net.ipToInt(row.dest), len: net.prefixOf(row.mask) };
+      } catch (e) {
+        // A destination that is not a dotted quad cannot be placed on the number line; it goes last rather
+        // than turning a view into a thrown error.
+        return { addr: Infinity, len: 32 };
+      }
+    };
+    rows.sort(function (a, b) {
+      const ka = sortKey(a), kb = sortKey(b);
+      if (ka.addr !== kb.addr) return ka.addr < kb.addr ? -1 : 1;
+      return ka.len - kb.len;
+    });
     return rows;
   }
 
