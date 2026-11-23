@@ -322,10 +322,27 @@ check('trunk native VLAN missing from the allowed list', function () {
   assert.strictEqual(r.ok, false);
   assert.strictEqual(hasCode(r.errors, 'E_NATIVE_NOT_ALLOWED'), true);
 });
-check('trunk with an empty allowed list', function () {
+check('trunk with an empty allowed list is `none`, not an error', function () {
+  // `switchport trunk allowed vlan none` stores exactly this list, and the command reference defines
+  // `none` as "an empty list". The validator was the last surface that called the state impossible
+  // (research/trunk-allowed-none-is-not-an-error.md).
   const r = vlan.validatePortConfig({ mode: 'trunk', nativeVlan: 10, allowedVlans: [] });
+  assert.deepStrictEqual(r, { ok: true, errors: [], warnings: [] });
+  assert.strictEqual(vlan.classifyEgress({ mode: 'trunk', nativeVlan: 10, allowedVlans: [] }, 10).action, 'drop');
+  assert.strictEqual(vlan.switchportSentence({ mode: 'trunk', nativeVlan: 1, allowedVlans: [] }),
+    'trunk · native 1 · allowed none');
+});
+check('a trunk whose allowed list cannot be parsed is still an error', function () {
+  const r = vlan.validatePortConfig({ mode: 'trunk', nativeVlan: 10, allowedVlans: '10,banana' });
   assert.strictEqual(r.ok, false);
-  assert.strictEqual(hasCode(r.errors, 'E_TRUNK_NO_VLANS'), true);
+  assert.ok(r.errors.length > 0);
+});
+check('two `none` trunks are compatible, and `none` against `all` is not', function () {
+  const none = { mode: 'trunk', nativeVlan: 1, allowedVlans: [] };
+  const all = { mode: 'trunk', nativeVlan: 1, allowedVlans: 'all' };
+  assert.strictEqual(vlan.framesCompatible(none, { mode: 'trunk', nativeVlan: 1, allowedVlans: [] }), true);
+  assert.strictEqual(vlan.framesCompatible(none, all), false);
+  assert.ok(/none/.test(vlan.mismatchReason(none, all)));
 });
 check('a clean trunk validates', function () {
   const r = vlan.validatePortConfig({ mode: 'trunk', nativeVlan: 10, allowedVlans: [10, 20, 30] });

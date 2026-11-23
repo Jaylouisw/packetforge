@@ -658,19 +658,17 @@ function validatePortConfig(cfg, ctx) {
 
   // ---- trunk membership ----
   let allowedIsAll = (norm.allowedVlans === 'all');
-  let listParseFailed = false;
 
   if (norm.mode === 'trunk') {
     if (!allowedIsAll && raw.allowedVlans !== undefined && raw.allowedVlans !== null) {
-      // An explicitly empty list is reported as E_TRUNK_NO_VLANS, not as a
-      // parse failure, so do not hand it to the parser.
+      // An explicitly empty list is the `none` configuration - a trunk that carries nothing - so it is not
+      // a list to hand to the parser.
       const rawEmpty =
         (typeof raw.allowedVlans === 'string' && raw.allowedVlans.trim() === '') ||
         (Array.isArray(raw.allowedVlans) && raw.allowedVlans.length === 0);
       if (!rawEmpty) {
         const parsed = parseVlanList(raw.allowedVlans, { keepReserved: true });
         if (!parsed.ok) {
-          listParseFailed = true;
           for (let i = 0; i < parsed.errors.length; i++) {
             err(parsed.errors[i].code, parsed.errors[i].message);
           }
@@ -682,9 +680,12 @@ function validatePortConfig(cfg, ctx) {
       }
     }
 
-    if (!allowedIsAll && norm.allowedVlans.length === 0 && !listParseFailed) {
-      err('E_TRUNK_NO_VLANS', 'trunk port has an empty allowed VLAN list');
-    }
+    // No E_TRUNK_NO_VLANS. An empty allowed list is `switchport trunk allowed vlan none`, and the command
+    // reference defines that word as exactly this state: "none specifies an empty list" (Catalyst 9300 17.13
+    // VLAN Commands, switchport trunk). The console has accepted the word since research/trunk-allowed-vlan-none.md
+    // and prints the state back; this check was the last place that called it impossible, so a board saved
+    // with a dead trunk failed its own lint. `classifyEgress()` drops every VLAN on the list, which is the
+    // data-plane meaning of `none` and the reason no membership error applies.
 
     if (!allowedIsAll && norm.allowedVlans.length > 0) {
       if (!vlanListIncludes(norm.allowedVlans, norm.nativeVlan)) {

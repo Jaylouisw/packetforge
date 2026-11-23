@@ -58,9 +58,10 @@ changed here.
   `none` is a legal destination. The console refused that removal as "would leave the trunk allowing no
   VLANs" - a sentence no box prints - at the time of this note; the follow-up run accepts it and commits the
   pinned remainder (`research/trunk-allowed-remove-everything.md`).
-* `engine/vlan.js`'s `validatePortConfig()` still reports `E_TRUNK_NO_VLANS` for an empty allowed list. No
-  command path calls it on a whole port config (it is the import/API lint), so it cannot refuse what the CLI
-  now accepts, but the two opinions about the same state should be reconciled in a run of their own.
+* `engine/vlan.js`'s `validatePortConfig()` still reported `E_TRUNK_NO_VLANS` for an empty allowed list when this
+  note was written. No command path calls it on a whole port config (it is the import/API lint), so it could not
+  refuse what the CLI accepts, but the two opinions about the same state disagreed. Reconciled in
+  [trunk-allowed-none-is-not-an-error.md](trunk-allowed-none-is-not-an-error.md).
 
 ## What changed
 
