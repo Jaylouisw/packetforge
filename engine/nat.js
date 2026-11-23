@@ -887,6 +887,37 @@ function formatRuleLine(rule) {
   return head + ' list ' + str(rule.insideLocal) + ' ' + where + (r.type === NAT_TYPES.PAT ? ' overload' : '');
 }
 
+// A static translation is not state: it exists because a rule says so, and `expireTranslations()` never ages
+// one out - the rule is what keeps it alive. So when the rule goes, the entry goes with it (#2465). Left behind,
+// the entry kept reversing packets from outside to a host whose replies now left with their private source
+// address, half a translation on every flow, while the console said the rule had been removed. Dynamic and PAT
+// entries are state and are left alone: they serve out their timeout.
+function pruneStaticTranslations(table) {
+  const tbl = ensureTable(table);
+  let any = false;
+  for (const e of tbl.translations) {
+    if (e && e.type === NAT_TYPES.STATIC) { any = true; break; }
+  }
+  if (!any) return 0;
+  const live = new Set();
+  for (const raw of tbl.rules) {
+    const r = ruleShape(raw);
+    if (r.type !== NAT_TYPES.STATIC) continue;
+    live.add(staticEntryKey(r.insideLocal, r.insideGlobal, r.port));
+  }
+  const before = tbl.translations.length;
+  tbl.translations = tbl.translations.filter(function (e) {
+    if (!e || e.type !== NAT_TYPES.STATIC) return true;
+    return live.has(staticEntryKey(e.insideLocal, e.insideGlobal, e.globalPort));
+  });
+  return before - tbl.translations.length;
+}
+
+function staticEntryKey(local, global, port) {
+  const p = portOf(port);
+  return str(local) + '|' + str(global) + '|' + (p === null ? '' : p);
+}
+
 module.exports = {
   NAT_TYPES,
   validateRule,
@@ -904,5 +935,6 @@ module.exports = {
   timeoutFor,
   DNS_ALG_PORT,
   expireTranslations,
+  pruneStaticTranslations,
   formatRuleLine
 };

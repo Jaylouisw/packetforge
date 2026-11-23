@@ -4664,18 +4664,25 @@ class Simulator {
   // The table is per device and lives with the device, so translations survive
   // from the SYN to the FIN exactly as they do on real hardware.
   _natTableOf(dev) {
-    if (!dev.natTable) {
-      const cfg = dev.config.nat || {};
-      const table = natLib.createNatTable();
-      table.rules = ((cfg.rules || dev.config.natRules) || []).slice();
-      for (const fwd of (cfg.portForwards || [])) table.rules.push(fwd);
-      dev.natTable = table;
-    }
+    const cfg = dev.config.nat || {};
+    // The rule set is re-read on every lookup. It used to be copied from the config in the same `if` that
+    // created the table, so the copy was taken at the first packet that needed translating and then frozen: a
+    // rule added afterwards never fired, and one `no ip nat inside source` had removed kept translating while
+    // the console printed that it was gone (#2465). A shallow copy of the config's own rule objects - `nat.js`
+    // never mutates a rule, and a 1,024-address pool must not be cloned per packet. Translations are left
+    // alone: a removed rule stops making new entries, and the entries it made serve out their timeout, which
+    // is what a box does.
+    const table = dev.natTable || (dev.natTable = natLib.createNatTable());
+    table.rules = ((cfg.rules || dev.config.natRules) || []).slice();
+    for (const fwd of (cfg.portForwards || [])) table.rules.push(fwd);
+    // A static entry is configuration, not state, so an entry whose rule has gone is dropped here rather than
+    // left to age (which it never does). Otherwise the box removed the rule and went on reversing outside
+    // packets to a host whose replies left unreaddressed (#2465).
+    natLib.pruneStaticTranslations(table);
     // Age the table at the instant being asked about. `natLib.expireTranslations()` has existed since the model
     // was written and nothing ever called it, so a dynamic or PAT translation was in force for the life of the
     // run: a two-address pool stayed exhausted by connections that ended minutes ago, and `show ip nat
     // translations` listed entries past their timeout (#1393).
-    const cfg = dev.config.nat || {};
     const removed = natLib.expireTranslations(dev.natTable, cfg.timeouts, this._natNowSec());
     if (removed) this._natExpired = (this._natExpired || 0) + removed;
     return dev.natTable;

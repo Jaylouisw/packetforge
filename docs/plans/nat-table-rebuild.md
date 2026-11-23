@@ -1,7 +1,7 @@
 # Plan: the NAT table is built once and never rebuilt, so a rule the console removed keeps translating
 
-Status: forward plan, no code. Measured on `b9ecb8c6`, 2026-11-23. Closes **no open issue** - the queue holds
-zero open issues and one open PR (#2452, the Teltonika PoE wattage). Every step below repairs a surface that
+Status: forward plan; step 1 has landed (see the change note at the end of this file). Measured on `b9ecb8c6`,
+2026-11-23; opened as #2465. Every step below repairs a surface that
 already exists; nothing here adds a translation type. Scope: `engine/simulator.js` (one method), `engine/nat.js`
 (the rule shape and one rewrite), `engine/cli.js` (`_natConfig`, `_help()`, one new EXEC word), `docs/CLI.md`,
 `docs/SIMULATION.md`, three new suites.
@@ -152,3 +152,13 @@ None. The queue is empty of issues; the only open item is PR #2452 (Teltonika Po
 - `show ip nat translations verbose` - the refusal at `engine/cli.js:6597` is research-pinned and stays.
 - A hits column in the translation table (breaks the five-column evidence).
 - An HTTP endpoint to read or clear NAT state from the browser; the console is the only client today.
+
+## Change note
+
+- 2026-11-23, step 1 (#2465). `_natTableOf()` re-reads `table.rules` from `config.nat` on every lookup, and
+  `natLib.pruneStaticTranslations()` drops a static entry whose rule has gone. The prune was not in the plan and
+  the plan's own "keep `table.translations` untouched" could not hold for static rules: `expireTranslations()`
+  never ages a static entry out (the rule is what keeps it alive), so a removed port forward went on reversing
+  outside packets to a host whose replies now left unreaddressed - half a translation per flow, which is the
+  half-config the issue is about. Dynamic and PAT entries, which are state, still serve out their timeout.
+  `test/nat-rule-reload.test.js`, 25 assertions. Steps 2-6 are untouched.
