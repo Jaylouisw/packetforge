@@ -40,5 +40,5 @@ curl -sS -X POST -H "Authorization: token $TOK" -H 'Content-Type: application/js
   `Fixes #N`; a PR that does not closes nothing and says `Refs #N`.
 - **PRs as a request surface: off.** External PRs are not a triage input; issues are.
 - Push with `git -c credential.helper= push` — a bare push hangs on the credential helper.
-- Labels are part of the record: `device-request` on hardware asks, `blocked-on-build` when
-  the vendor publishes the field's type but not its value. See `triage-labels.md`.
+- Labels are part of the record — `device-request` and `blocked-on-build`, both defined in
+  `triage-labels.md`.
