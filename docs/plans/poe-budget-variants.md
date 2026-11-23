@@ -26,8 +26,18 @@ PoE+ PSE on `eth4`. The correct datasheet has one RJ45 inlet at 802.3af and one 
 all, so the cohort is four, not five, and the PSE count is 408. Counts in this page are the ones the
 audit printed on `5415d70d`.
 
+**2026-11-23, one increment later: `planet/POE-E201` leaves this cohort, and not through `passthrough`.**
+PLANET prints a figure for its own jack - `PoE Power | "PoE Out" Port: 44~52V DC, max. 26 watts`
+(https://www.planet.com.tw/storage/products/49453/C-POE-E201v2_L.pdf, read 2026-11-23) - which is
+exactly step 2's other branch: `poe.budgetW: 26`, and the jack ceiling replaced the 802.3at class
+figure (30 W) the row had shipped with. `test/planet-poe-e201-budget.test.js` pins it, including the
+contradiction: the product page's own `PoE Output at maximum 36 watts` cannot be true against a
+30.8 W input maximum, so it is recorded in the spec's `poe.note` and not modelled. **Silent is now
+3** - ubiquiti/UDB-Pro, ubiquiti/F-POE-G2, ubiquiti/UACC-LR-Endpoint - and all three really do carry
+somebody else's watts, which is the state this plan exists to add.
+
 That inverts the ordering. The gate (old step 9) waited on "silent reaches 0", and silent cannot reach
-0: every one of the four remaining devices is a **passthrough** box, and the audit has no word for
+0: every one of the three remaining devices is a **passthrough** box, and the audit has no word for
 one. The field work is no longer the blocker — a missing state is.
 
 ## What exists today
@@ -39,7 +49,7 @@ budget is discarded when the device has no PSE port (`:311-316`). There is no fi
 port sources power that arrived from upstream", and `grep -rn passthrough engine/ docs/DEVICE_SCHEMA.md`
 returns nothing.
 
-**The four, and the documents that say so.** Each has one `poeOut` port and `poe: null`:
+**The three that remain, and the documents that say so.** (The fourth, `planet/POE-E201`, now carries `poe.budgetW: 26` from its own sheet.) Each has one `poeOut` port and `poe: null`:
 `planet/POE-E201` — its own description says it "passes the PSE's negotiated power through ... rather
 than creating a new budget"; `ubiquiti/F-POE-G2` — "optical-to-PoE transport ... 16-57V DC in";
 `ubiquiti/UACC-LR-Endpoint` — "PoE+++ input with passthrough up to PoE++"; `ubiquiti/UDB-Pro` — "PoE
