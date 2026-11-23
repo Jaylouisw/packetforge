@@ -1227,8 +1227,9 @@ port were trunking — the same distinction `show vlan` makes by listing the por
 The sentence is written once, in `engine/vlan.js` (`switchportSentence`), and mirrored in `web/app.js` for the
 inspector panel — the browser cannot `require` the engine. The panel used to print its own rendering (`access
 1`), and it had already drifted: it knew nothing about staged parameters, and `|| 1` made an unset trunk native
-VLAN indistinguishable from a native VLAN of 1. `test/switchport-agreement.test.js` compares the two across 360
-port states and checks every claim the sentence makes against `classifyEgress`.
+VLAN indistinguishable from a native VLAN of 1. `test/switchport-agreement.test.js` compares the two across 2,160
+port states - the matrix's size is a reading, not a memory: the guard prints it on every run - and checks every
+claim the sentence makes against `classifyEgress`.
 
 #### Line rate and duplex
 
