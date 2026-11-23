@@ -78,6 +78,11 @@ jobs:
     name: Server smoke and Docker build
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    env:
+      # Pinned rather than floating: a CI gate that changes what it downloads from the
+      # internet between runs is not a gate. Job-level because two steps now name it -
+      # the checkout, which starts the fetch, and the step that unpacks it.
+      DOCKER_CLI_VERSION: 24.0.7
     # No dependency on a classifier job: this job is the classifier for the diff it is
     # about to build. It used to be created only after `Classify the change`
     # had finished, and on a four-slot runner whose three test legs hold three of those
@@ -205,6 +210,26 @@ jobs:
           else
             echo "pull #${number} is open - building unless the diff is data-only"
           fi
+          # The Docker CLI the `Install Docker CLI` step needs is a 60 MB fetch from
+          # download.docker.com, and until now it sat on the serial path: measured on
+          # run 10063 (task 25992, 2026-11-23T22:30:52.3Z the Dockerfile checks done,
+          # 22:30:59.45Z "static docker CLI unpacked"), 7.1 s of a 41.1 s job spent
+          # waiting on one file before the disk snapshot and the build could start.
+          # This step spends another ~5 s classifying the diff it just fetched, and the
+          # two share nothing but the network, so the tarball is started here - after the
+          # git fetch, so the two never compete for the same link - and the step that
+          # needs it waits on the file instead of starting the download. A prefetch that
+          # is missing, late or half-written changes nothing: the step below falls
+          # through to the same bounded curl and the same apt fallback it has always had,
+          # and the only thing this can move is the clock.
+          cli_dir="${RUNNER_TEMP:-/tmp}/docker-cli-prefetch"
+          rm -rf "$cli_dir"
+          mkdir -p "$cli_dir"
+          if ! command -v docker >/dev/null 2>&1 && [ -S /var/run/docker.sock ]; then
+            echo "fetching the static docker CLI beside the diff classification"
+            nohup sh -c "curl -fsSL --retry 2 --retry-delay 2 --max-time 60 -o '$cli_dir/docker-cli.tgz.part' 'https://download.docker.com/linux/static/stable/x86_64/docker-$DOCKER_CLI_VERSION.tgz' && mv '$cli_dir/docker-cli.tgz.part' '$cli_dir/docker-cli.tgz' && touch '$cli_dir/ok' || touch '$cli_dir/failed'" > "$cli_dir/download.log" 2>&1 &
+            cli_pid=$!
+          fi
           base="${{ github.event.pull_request.base.sha }}"
           if [ -z "${base:-}" ]; then
             echo "no base sha - treating this as a code change and building"
@@ -227,6 +252,15 @@ jobs:
                   echo "this diff is data-only - the smoke test and the image build cannot be changed by it" ;;
             *)    echo "data_only=false" >> "${GITHUB_OUTPUT:-/dev/null}" ;;
           esac
+          # A data-only diff never installs a CLI - every step below stands down - so a
+          # fetch started for it is 60 MB nobody reads. Stop it here instead of letting it
+          # finish, and leave the same `failed` marker the step below treats as "no
+          # prefetch": the download it would otherwise wait on is already on its way out.
+          if [ "${cli_pid:-}" != "" ] && [ "${data_only:-}" = "true" ]; then
+            touch "$cli_dir/failed"
+            kill "$cli_pid" 2>/dev/null || true
+            echo "this diff is data-only - the docker CLI fetch started above is not needed, so it was stopped"
+          fi
       # No setup-node here: this job already runs on Node 20, and downloading Node 20
       # onto Node 20 was most of a 48 s job. Measured through the actions API on
       # 2026-11-16 over the 22 successful smoke jobs between 06:37 and 08:17 (tasks
@@ -286,8 +320,6 @@ jobs:
         # blocked mirror costs the old 26 seconds rather than the build check;
         # if neither path yields a binary the step fails loudly instead of
         # letting the build fall back to "no daemon" and claim a pass.
-        env:
-          DOCKER_CLI_VERSION: 24.0.7
         run: |
           if command -v docker >/dev/null 2>&1; then
             echo "docker CLI already present: $(docker --version 2>/dev/null || echo 'unknown version')"
@@ -307,7 +339,24 @@ jobs:
             echo "no daemon, nothing to build: the static Dockerfile checks are this job's gate on a runner without a socket"
             exit 0
           fi
-          curl -fsSL --retry 2 --retry-delay 2 --max-time 60             -o /tmp/docker-cli.tgz             "https://download.docker.com/linux/static/stable/x86_64/docker-${DOCKER_CLI_VERSION}.tgz"             && tar -xzf /tmp/docker-cli.tgz -C /usr/local/bin --strip-components=1 docker/docker             && echo "static docker CLI unpacked into /usr/local/bin" || true
+          # The tarball the checkout step started fetching, if it is here and complete.
+          cli_dir="${RUNNER_TEMP:-/tmp}/docker-cli-prefetch"
+          if [ -f "$cli_dir/download.log" ] && [ ! -f "$cli_dir/ok" ] && [ ! -f "$cli_dir/failed" ]; then
+            echo "waiting for the docker CLI fetch started during the checkout"
+            for _ in $(seq 1 20); do
+              if [ -f "$cli_dir/ok" ] || [ -f "$cli_dir/failed" ]; then break; fi
+              sleep 1
+            done
+          fi
+          if [ -f "$cli_dir/ok" ] && [ -s "$cli_dir/docker-cli.tgz" ]; then
+            tar -xzf "$cli_dir/docker-cli.tgz" -C /usr/local/bin --strip-components=1 docker/docker && echo "static docker CLI unpacked into /usr/local/bin (fetched beside the checkout)" || true
+          fi
+          # Still absent - no prefetch, a prefetch that failed, or a tarball that would
+          # not unpack: the same bounded download this step has always done, with the
+          # same apt fallback under it.
+          if ! command -v docker >/dev/null 2>&1; then
+            curl -fsSL --retry 2 --retry-delay 2 --max-time 60 -o /tmp/docker-cli.tgz "https://download.docker.com/linux/static/stable/x86_64/docker-${DOCKER_CLI_VERSION}.tgz" && tar -xzf /tmp/docker-cli.tgz -C /usr/local/bin --strip-components=1 docker/docker && echo "static docker CLI unpacked into /usr/local/bin" || true
+          fi
           if ! command -v docker >/dev/null 2>&1; then
             echo "static download unavailable - falling back to the distro package"
             export DEBIAN_FRONTEND=noninteractive
@@ -324,7 +373,7 @@ jobs:
             # test had passed. The install is attempted from whatever lists the image
             # already carries; if that fails, the guard under it still fails the step.
             timeout --signal=TERM --kill-after=10 90 apt-get -o Acquire::Retries=1 -o Acquire::http::Timeout=20 update -qq             || echo "package lists could not be refreshed - trying the install from the lists this image already has"
-            timeout --signal=TERM --kill-after=15 240 apt-get install -y -qq docker.io             || echo "the distro package could not be installed either"
+            timeout --signal=TERM --kill-after=15 240 apt-get install -y -qq docker.io || echo "the distro package could not be installed either"
           fi
           command -v docker || { echo "::error title=Docker CLI::no docker binary and no fallback package - the image build below would be skipped silently (download.docker.com and the distro mirror were both unreachable)"; exit 1; }
           docker --version
