@@ -273,10 +273,43 @@ jobs:
       # and the matrix is what holds that line - it runs the suite on 22 and 24. This job's
       # job is the HTTP surface, so the version is printed rather than
       # asserted: an image bump that changes the runtime should be visible in the log, not
-      # a red check on a pull request that never touched the server.
+      # a red check on a pull request that never touched the server. That held while every file the
+      # smoke client loaded was JavaScript; a `.ts` module in the require graph makes the runtime a
+      # property of the tree under test, so it is asserted now (issue #2488).
+      # The runtime this job needs is now a fact about the source, not a preference.
+      # Until 2026-11-23 every file the smoke client loaded was JavaScript, so the job could
+      # print the runner image's Node and let the matrix hold the version line. That stopped
+      # being true the moment `engine/segment.ts` landed: a `.ts` module in the server's
+      # require graph cannot be loaded below 22.18, and the runner image ships 20.20.2 - the
+      # job went red with `simulator.js:116:20` in the crash stack and a green image build
+      # beside it (run 10054, issue #2488). Same pinned tarball, same symlink-over and same
+      # assertion as the Typecheck job, so this job tests the floor the repo declares.
+      - name: Provide the runtime the smoke client needs
+        if: steps.gate.outputs.skip != 'true' && steps.gate.outputs.data_only != 'true'
+        run: |
+          set -eu
+          DIST=v22.23.5
+          dest="/opt/node-${DIST}"
+          url="https://nodejs.org/dist/${DIST}/node-${DIST}-linux-x64.tar.gz"
+          if [ ! -x "${dest}/bin/node" ]; then
+            rm -rf "$dest" "$dest.tar.gz"
+            mkdir -p "$dest"
+            curl -fsSL --retry 3 --retry-delay 2 --retry-connrefused --connect-timeout 10 --max-time 180 -o "${dest}.tar.gz" "$url" ||
+              { echo "first fetch of ${url} failed - retrying once in 5 s"; sleep 5; curl -fsSL --retry 3 --connect-timeout 10 --max-time 180 -o "${dest}.tar.gz" "$url"; }
+            tar -xzf "${dest}.tar.gz" -C "$dest" --strip-components=1
+          fi
+          [ -x "${dest}/bin/node" ]
+          for b in node npm npx; do ln -sf "${dest}/bin/${b}" "/usr/local/bin/${b}"; done
+
       - name: Which runtime is running this
         if: steps.gate.outputs.skip != 'true' && steps.gate.outputs.data_only != 'true'
-        run: node --version && npm --version
+        run: |
+          set -eu
+          node --version && npm --version
+          case "$(node --version)" in
+            v22.*|v23.*|v24.*|v25.*|v26.*) ;;
+            *) echo "::error title=Server smoke and Docker build::the smoke client ran on $(node --version), below the 22.18 floor the repo declares"; exit 1 ;;
+          esac
       # The smoke client is the one thing here that can wait forever: `req()` settles on the
       # response's `end` or on `error`, and a connection accepted and then never answered is
       # neither - the promise never settles and Node exits only when something outside it
