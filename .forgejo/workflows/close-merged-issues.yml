@@ -141,7 +141,11 @@ jobs:
           # that, and the ones this job could not close are exactly the ones a human must look at -
           # so it says so here and leaves the build alone, the rule every maintenance job in this
           # repository follows (docs/CI.md, "Why a maintenance job never fails a pull request").
-          if [ "$rc" -ne 0 ]; then
+          if [ "$rc" -eq 3 ]; then
+            # The one exit that is not about an issue: a dry run issued writes, which the write
+            # funnel is supposed to make impossible. The STOP block above names what it sent.
+            echo "::warning title=Close merged issues::the sweep was a dry run but issued writes - see the STOP block above; that is a bug in the script, not a tracker problem"
+          elif [ "$rc" -ne 0 ]; then
             echo "::warning title=Close merged issues::the sweep exited ${rc} - nothing was reopened, see the log above for which issues it could not handle"
           fi
           exit 0

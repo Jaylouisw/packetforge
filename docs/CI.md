@@ -261,6 +261,16 @@ it rather than a closed one with no explanation).
 The script is dry-run by default and a manual dispatch keeps that: `dry_run` defaults to
 `true`, and only the push run applies.
 
+A dry run decides and never writes, and that is structural rather than a flag each call site
+remembers to test: a run of this script in dry-run mode once closed #742 and #743 for real,
+because "dry" was a property of two branches instead of a property of the write path. Every
+mutation now goes through one funnel (`makeWriteFunnel`), which in a dry run throws
+`DRY_RUN_WRITE_REFUSED` before it touches the client; the sweeps are handed a client with only
+`get` on it, so a write path that survives that refusal has no method to reach for. The suite
+drives both sweeps with a counting stub and asserts it received nothing in a dry run, and a
+dry run that somehow does write prints what it sent and exits 3, so it cannot read as a clean
+"0 were touched".
+
 ```bash
 # what would this close, over the last 25 merges?
 FORGEJO_TOKEN=... node scripts/close-merged-issues.js --limit 25 --explain

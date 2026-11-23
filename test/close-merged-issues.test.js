@@ -20,7 +20,9 @@ const {
   deviceMarker,
   sweepKeywords,
   sweepDevices,
-  keywordComment
+  keywordComment,
+  makeWriteFunnel,
+  readOnly
 } = require(path.join(__dirname, '..', 'scripts', 'close-merged-issues.js'));
 
 let passed = 0, failed = 0;
@@ -37,8 +39,10 @@ function fakeTracker(spec) {
   const issues = spec.issues || {};
   const prs = spec.prs || {};
   const calls = [];
+  const mutations = [];
   return {
     calls: calls,
+    mutations: mutations,
     issues: issues,
     writes: function () { return calls.filter(function (c) { return c[0] !== 'GET'; }); },
     get: async function (p) {
@@ -66,6 +70,7 @@ function fakeTracker(spec) {
     },
     post: async function (p, body) {
       calls.push(['POST', p, body]);
+      mutations.push(['POST', p, body]);
       const m = /^\/issues\/(\d+)\/comments$/.exec(p);
       if (m) {
         const issue = issues[m[1]];
@@ -78,6 +83,7 @@ function fakeTracker(spec) {
     },
     patch: async function (p, body) {
       calls.push(['PATCH', p, body]);
+      mutations.push(['PATCH', p, body]);
       const m = /^\/issues\/(\d+)$/.exec(p);
       if (m) {
         const issue = issues[m[1]];
@@ -298,6 +304,149 @@ const INDEX = buildDeviceIndex(SPECS);
     await sweepDevices({ api: api, index: INDEX, issues: [reopened], dryRun: false, log: function () {} });
     ok(api.writes().length === 0, 'a device request a human reopened is not re-closed');
     ok(reopened.state === 'open', 'and stays open');
+  }
+
+  console.log('');
+  console.log('The write funnel - the one place that writes, and a dry run cannot reach the client:');
+  {
+    const issue = { number: 42, title: 'a request', state: 'open', comments: [] };
+    const api = fakeTracker({ issues: { 42: issue } });
+    const funnel = makeWriteFunnel({ api: api, apply: false });
+    let commentCode = null, closeCode = null;
+    try { await funnel.comment(42, 'body'); } catch (e) { commentCode = e.code; }
+    try { await funnel.close(42); } catch (e) { closeCode = e.code; }
+    ok(commentCode === 'DRY_RUN_WRITE_REFUSED', 'a dry-run funnel refuses the comment', String(commentCode));
+    ok(closeCode === 'DRY_RUN_WRITE_REFUSED', 'and refuses the close', String(closeCode));
+    ok(api.mutations.length === 0, 'and the client was never touched', JSON.stringify(api.mutations));
+    ok(issue.state === 'open' && (issue.comments || []).length === 0, 'the issue is still open and uncommented');
+    ok(funnel.sent.length === 0 && funnel.refused.length === 2, 'the funnel says it sent nothing and refused twice',
+      funnel.sent.length + '/' + funnel.refused.length);
+  }
+  {
+    const issue = { number: 42, title: 'a request', state: 'open', comments: [] };
+    const api = fakeTracker({ issues: { 42: issue } });
+    const funnel = makeWriteFunnel({ api: api, apply: true });
+    await funnel.comment(42, 'body');
+    await funnel.close(42);
+    ok(api.mutations.length === 2, 'an apply funnel issues exactly one comment and one close',
+      JSON.stringify(api.mutations));
+    ok(api.mutations[0][0] === 'POST' && /\/comments$/.test(api.mutations[0][1]), 'the comment first');
+    ok(api.mutations[1][0] === 'PATCH' && api.mutations[1][1] === '/issues/42', 'then the close');
+    ok(issue.state === 'closed', 'and the issue ends closed');
+    ok(funnel.refused.length === 0, 'nothing was refused in apply mode');
+  }
+  {
+    const api = fakeTracker({});
+    const ro = readOnly(api);
+    ok(typeof ro.get === 'function', 'a read-only client can read');
+    ok(ro.post === undefined && ro.patch === undefined && ro.put === undefined && ro.delete === undefined,
+      'and has nothing to write with', Object.keys(ro).join(','));
+  }
+
+  {
+    // A call site that asked the funnel for the wrong mode must die loudly, not be filed as one
+    // issue's error while the run prints "0 were touched" over whatever it wrote.
+    const issue = { number: 42, title: 'a request', state: 'open', comments: [] };
+    const api = fakeTracker({ issues: { 42: issue } });
+    const funnel = makeWriteFunnel({ api: api, apply: false });
+    let thrown = null, res = null;
+    try {
+      res = await sweepKeywords({
+        api: readOnly(api), funnel: funnel, index: INDEX, dryRun: false,
+        commits: [{ sha: 'abcdef1234567890', message: 'router: add (#100)\n\nFixes #42' }],
+        log: function () {}
+      });
+    } catch (e) { thrown = e; }
+    ok(thrown && thrown.code === 'DRY_RUN_WRITE_REFUSED',
+      'a sweep in apply mode over a dry-run funnel throws instead of filing a per-issue error',
+      thrown ? thrown.code : 'nothing thrown');
+    ok(res === null && (issue.comments || []).length === 0 && api.mutations.length === 0,
+      'and nothing was written before it did');
+  }
+
+  console.log('');
+  console.log('Both sweeps, dry run, through a counting client - zero writes, and the funnel is never asked:');
+  {
+    const issues = {
+      42: { number: 42, title: 'a request', state: 'open', comments: [] },
+      43: { number: 43, title: 'another request', state: 'open', comments: [] },
+      130: { number: 130, title: '[Device]: Teltonika RUTX12 Dual LTE 4G CAT6', state: 'open', comments: [] }
+    };
+    const api = fakeTracker({
+      issues: issues,
+      prs: { 100: { number: 100, state: 'closed', merged: true, merged_at: '2026-01-01T00:00:00Z', body: 'Fixes #42 and fixes #43' } }
+    });
+    const funnel = makeWriteFunnel({ api: api, apply: false });
+    const kw = await sweepKeywords({
+      api: readOnly(api), funnel: funnel, index: INDEX, dryRun: true,
+      commits: [{ sha: 'abcdef1234567890', message: 'router: add two (#100)' }],
+      log: function () {}
+    });
+    const dev = await sweepDevices({
+      api: readOnly(api), funnel: funnel, index: INDEX, dryRun: true,
+      issues: [issues[130]], log: function () {}
+    });
+    ok(api.mutations.length === 0, 'a dry run of both sweeps made zero mutating calls', JSON.stringify(api.mutations));
+    ok(kw.writes === 0 && dev.writes === 0, 'neither sweep asked the funnel to write', kw.writes + '/' + dev.writes);
+    ok(kw.errors.length === 0 && dev.errors.length === 0, 'and neither died on a refusal',
+      JSON.stringify(kw.errors.concat(dev.errors)));
+    ok(kw.wouldClose.length === 2 && dev.wouldClose.length === 1, 'both still decide what they would close',
+      kw.wouldClose.length + '/' + dev.wouldClose.length);
+    ok(issues[42].state === 'open' && issues[43].state === 'open' && issues[130].state === 'open',
+      'every issue is still open');
+    ok(funnel.refused.length === 0 && funnel.sent.length === 0, 'the funnel was never even asked');
+  }
+
+  console.log('');
+  console.log('Both sweeps, apply, through the same funnel - six calls for three issues, none refused:');
+  {
+    const issues = {
+      42: { number: 42, title: 'a request', state: 'open', comments: [] },
+      43: { number: 43, title: 'another request', state: 'open', comments: [] },
+      130: { number: 130, title: '[Device]: Teltonika RUTX12 Dual LTE 4G CAT6', state: 'open', comments: [] }
+    };
+    const api = fakeTracker({
+      issues: issues,
+      prs: { 100: { number: 100, state: 'closed', merged: true, merged_at: '2026-01-01T00:00:00Z', body: 'Fixes #42 and fixes #43' } }
+    });
+    const funnel = makeWriteFunnel({ api: api, apply: true });
+    const kw = await sweepKeywords({
+      api: readOnly(api), funnel: funnel, index: INDEX, dryRun: false,
+      commits: [{ sha: 'abcdef1234567890', message: 'router: add two (#100)' }],
+      log: function () {}
+    });
+    const dev = await sweepDevices({
+      api: readOnly(api), funnel: funnel, index: INDEX, dryRun: false,
+      issues: [issues[130]], log: function () {}
+    });
+    const order = api.mutations.map(function (m) { return m[0] + ' ' + m[1]; });
+    ok(api.mutations.length === 6, 'apply issues exactly six mutating calls for three issues', order.join(' | '));
+    ok(JSON.stringify(order) === JSON.stringify([
+      'POST /issues/42/comments', 'PATCH /issues/42',
+      'POST /issues/43/comments', 'PATCH /issues/43',
+      'POST /issues/130/comments', 'PATCH /issues/130'
+    ]), 'POST then PATCH per issue, no more, none refused', order.join(' | '));
+    ok(kw.writes === 2 && dev.writes === 1, 'each sweep counts the issues it wrote', kw.writes + '/' + dev.writes);
+    ok(funnel.refused.length === 0, 'none was refused');
+    ok(issues[42].state === 'closed' && issues[43].state === 'closed' && issues[130].state === 'closed',
+      'all three ended closed');
+  }
+
+  console.log('');
+  console.log('The source - the funnel is the only write path, and it is marked so a scan can say it:');
+  {
+    const src = fs.readFileSync(path.join(__dirname, '..', 'scripts', 'close-merged-issues.js'), 'utf8');
+    const begin = src.indexOf('BEGIN WRITE FUNNEL');
+    const end = src.indexOf('END WRITE FUNNEL');
+    ok(begin !== -1 && end !== -1 && end > begin, 'the funnel region is marked in the source');
+    const inside = begin !== -1 && end > begin ? src.slice(begin, end) : '';
+    const outside = src.slice(0, begin) + src.slice(end);
+    const outsideHits = outside.match(/\.(post|patch|put|delete)\(/g) || [];
+    ok(outsideHits.length === 0, 'no mutating client call outside the funnel', outsideHits.join(' '));
+    ok(/\.post\(/.test(inside) && /\.patch\(/.test(inside), 'the funnel is where the comment and the close are issued');
+    const sweeps = src.slice(src.indexOf('async function sweepKeywords'), src.indexOf('function arg('));
+    ok(!/\.(post|patch)\(/.test(sweeps), 'and neither sweep calls a write method itself');
+    ok(/readOnly\(api\)/.test(src), 'main hands the sweeps a read-only client');
   }
 
   console.log('');
