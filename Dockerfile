@@ -1,7 +1,11 @@
 # syntax=docker/dockerfile:1
 
 # PacketForge — zero-dependency app, so there is no build/install stage.
-FROM node:20-alpine
+# The runtime the package declares: `engines.node` is `>=22.18.0` in package.json, and
+# 22.18 is where Node strips the type annotations off a `.ts` file with no flag and no
+# build step (docs/TYPESCRIPT.md). An image on 20 would be the one host in this
+# repository that cannot run the language the repository writes.
+FROM node:22-alpine
 
 WORKDIR /app
 

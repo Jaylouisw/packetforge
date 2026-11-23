@@ -2,10 +2,16 @@
 /**
  * The local interpreter is not the CI floor.
  *
- * CI runs the suite on Node 18, 20 and 22. A dev machine on a newer Node can use an API the oldest
- * job cannot run, watch a green suite, and push a commit that fails twenty minutes later on a job
- * whose failure reads like a flaky runner. This suite runs the static guard, and proves the guard
- * can fail by pointing it at a file that uses a post-18 API.
+ * CI runs the suite on Node 22 and 24, and `engines.node` declares `>=22.18.0` - the first release
+ * that runs a `.ts` file with no flag and no build step (docs/TYPESCRIPT.md). A dev machine on a
+ * newer Node can use an API the newest job cannot run, watch a green suite, and push a commit that
+ * fails twenty minutes later on a job whose failure reads like a flaky runner.
+ *
+ * The guard's own floor is deliberately older than that: it still bans everything newer than Node
+ * 18, so what it passes is safe on 22 (docs/CI.md). This suite runs the guard, proves it can fail
+ * by pointing it at a file that uses a post-18 API, and asserts the one direction that must never
+ * drift - that package.json declares a floor at least as new as the guard's, so the guard is never
+ * checking a runtime the package has already dropped.
  */
 'use strict';
 
@@ -75,8 +81,14 @@ ok(listed.code === 0 && listed.out.indexOf('to' + 'Sorted') !== -1, '--list prin
 ok(listed.out.indexOf('group' + 'By') !== -1, 'including the object-grouping helpers');
 
 const pkg = JSON.parse(fs.readFileSync(path.join(ROOT, 'package.json'), 'utf8'));
-ok(String(pkg.engines && pkg.engines.node || '').indexOf('18') !== -1,
-  'package.json still declares the Node 18 floor');
+const declared = String(pkg.engines && pkg.engines.node || '');
+// The number, not the string: the floor moved from 18 to 22.18 when the repository started
+// writing TypeScript, and it will move again. What must hold every time is the direction - the
+// declared floor is never older than the APIs this guard permits, or the guard is checking a
+// runtime nobody claims to support.
+const floorMajor = Number((/^[^0-9]*(\d+)/.exec(declared) || [])[1]);
+ok(floorMajor >= 18,
+  'package.json declares ' + (declared || 'no floor') + ', at least the Node 18 the guard holds');
 
 console.log('\n' + passed + ' passed, ' + failed + ' failed');
 process.exit(failed ? 1 : 0);

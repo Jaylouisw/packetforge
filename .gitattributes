@@ -3,7 +3,9 @@
 
 # Source files: always LF (prevents CRLF noise on Windows).
 *.js  text eol=lf
+*.ts  text eol=lf
 *.json text eol=lf
+*.d.ts text eol=lf
 *.yml text eol=lf
 *.yaml text eol=lf
 *.md  text eol=lf

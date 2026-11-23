@@ -17,7 +17,7 @@ minute.
 
 | File | Trigger | What it does |
 |---|---|---|
-| `ci.yml` | pull request to `main`, push to `main`, manual dispatch | The matrix: tests on three Node versions, a live server smoke test, a Docker build — and, on an open pull request, a final `Arm auto-merge` job that merges it once every check has reported green (#1725) |
+| `ci.yml` | pull request to `main`, push to `main`, manual dispatch | The matrix — the suite on Node 22 and 24 — a `Typecheck` job, a live server smoke test, a Docker build — and, on an open pull request, a final `Arm auto-merge` job that merges it once every check has reported green (#1725) |
 | `auto-rebase.yml` | push to `main`, manual dispatch, and a 30-minute schedule the host never dispatches (the backstop, not the tick: #2180 stopped the ten-minute pass that could not rebase) | Rebases open pull requests onto current `main` and re-arms auto-merge only for a head whose reported checks are all green - anything else is left to `ci.yml`'s `Arm auto-merge` job; stands down green, before its checkout, when the host has less than 512 MB free (#1508); checks out with `git` rather than `actions/checkout`, so a tick can start when the runner cannot reach the forge - the runner pre-fetches every `uses:` action before step one (#2366) |
 | `pr-rebase.yml` | pull request opened, pushed to, or reopened | The rebase that actually runs: rebases that one pull request onto current `main` and arms squash auto-merge - but only when every reported check on the new head is green, otherwise it says so and leaves the merge to `ci.yml`'s `Arm auto-merge` job. Every failure path warns and exits 0; a job that fails before it can report why comments the reason on the pull request |
 | `closed-audit.yml` | push to `main`, manual dispatch (`limit`, default 120) | Matches recently closed requests against the catalogue and prints any close that names no file in `devices/`; a report, never a red build |
@@ -32,25 +32,31 @@ could never pass.
 
 ## What a pull request goes through
 
-Four verification checks on a code change, all of which must be green before a merge. A **data-only** diff is gated on the three test legs only — `Server smoke and Docker build` reports success without building anything. The last of the four is one job, not two (#2219): the smoke client runs beside the image build in the same slot, and the job's `::error` titles still name which of the two checks went red. One more job status sits alongside them and is not a check on the diff: `Arm auto-merge`, which is the merge decision itself (*Merging*, below). There is no classifier job: the data-only question is asked inside the job that spends its answer, the first step of `Server smoke and Docker build`, and the test legs run for every diff (`What runs, and why a device PR runs less of it`, below, says why):
+Four verification checks on a code change, all of which must be green before a merge. A **data-only** diff is gated on the two test legs and the typecheck only — `Server smoke and Docker build` reports success without building anything. The last of the four is one job, not two (#2219): the smoke client runs beside the image build in the same slot, and the job's `::error` titles still name which of the two checks went red. One more job status sits alongside them and is not a check on the diff: `Arm auto-merge`, which is the merge decision itself (*Merging*, below). There is no classifier job: the data-only question is asked inside the job that spends its answer, the first step of `Server smoke and Docker build`, and the test legs run for every diff (`What runs, and why a device PR runs less of it`, below, says why):
 
 | Check | Catches |
 |---|---|
-| `Test (Node 18)` | Syntax or API that only works on newer Node. The floor is 18. |
-| `Test (Node 20)` | Nothing Node 18 and 22 together cannot — kept for the middle of the support window |
-| `Test (Node 22)` | Behaviour that regressed on the newest runtime |
+| `Test (Node 22)` | Syntax or API that only works on newer Node. The floor is 22.18 and this is the leg that holds it — the oldest runtime that can run a `.ts` file with no build step (`docs/TYPESCRIPT.md`) |
+| `Test (Node 24)` | Behaviour that regressed on the newest runtime in the window |
+| `Typecheck` | A type error, and any `any` (`tsc --noEmit`, then `scripts/check-no-any.ts`). One answer about one tree, so one job — not a copy per Node version |
 | `Server smoke and Docker build` | A server that boots but cannot serve (every API route, the catalogue, WebSocket upgrade) **or** a `Dockerfile` that does not build. One status, two checks: the smoke client runs beside the image build in the same job, and the failure titles still separate them. Present as a build-syntax proxy, not a full image test |
 
 The test job runs more than the suite (`ci.yml`, the `test` job):
 
 - `npm test` — `audit:ports`, then `audit:devices`, then `check:bytes`, then every
-  `test/*.test.js` that `scripts/run-tests.js` discovers;
+  `test/*.test.js` **and** `test/*.test.ts` that `scripts/run-tests.js` discovers;
 - `scripts/syntax-check.js`, started beside the suite and waited on at the end of the same step;
-- `scripts/check-node-surface.js` — no API newer than the Node 18 floor;
+- `scripts/check-node-surface.js` — no API newer than Node 18 (stricter than the declared 22.18 floor, on purpose);
 - `scripts/check-canonical-urls.js` — every project URL points at Forgejo;
 - `scripts/check-ci-disk-hygiene.js` — every job that builds an image bounds what it writes;
 - `examples/build-examples.js`, then `scripts/missing-devices.js examples --no-issues`, which
   cross-checks every model the built labs name.
+
+The `typecheck` job is separate and adds the two things nothing else can check: `tsc --noEmit`
+over the TypeScript the repository has written, and `scripts/check-no-any.ts` over the same files.
+It is the only job in this workflow that installs anything — `typescript` is the repository's only
+devDependency. What that toolchain is, and why there is no build step, is
+[`TYPESCRIPT.md`](TYPESCRIPT.md); it is the page to read before writing a line of it.
 
 This paragraph used to name only the suite, `audit:ports`/`check:bytes`, the syntax check and the
 canonical-URL check, and it omitted `audit:devices` — a script `CHANGELOG.md` has advertised since
@@ -63,6 +69,8 @@ script "a step in the test job".
 ```bash
 npm test                                # audit:ports, audit:devices, check:bytes, then every suite — what CI runs
 npm run syntax                          # syntax-check across every JS file
+npm run typecheck                       # tsc --noEmit, then the scan that bans `any`
+npm run check:any                       # just the `any` scan
 node scripts/check-node-surface.js      # no API newer than the Node 18 floor
 node scripts/check-canonical-urls.js    # every project URL points at Forgejo
 npm run check:ci-disk                   # every image-building job bounds what it writes
@@ -86,11 +94,17 @@ Both print the seed with every failure. To reproduce one, use that seed in the g
 top of the file; nothing about the run depends on wall-clock time or on the order of the
 surrounding suites.
 
-If `npm test` is green locally and CI is red, check the Node version: CI runs 18
-as well as 22, and a newer-than-18 API — `Array.prototype.findLast`,
-`structuredClone`, `Object.groupBy` — is the usual culprit. `scripts/check-node-surface.js`
-is a step of every matrix leg, ahead of the suite, precisely so that failure is named
-instead of mysterious.
+If `npm test` is green locally and CI is red, check the Node version: CI runs 22 and 24, and
+a newer-than-22 API — `Promise.try`, `RegExp.escape`, `Error.isError` — is the usual culprit.
+`scripts/check-node-surface.js` runs in every leg, ahead of the suite, precisely so that failure
+is named instead of mysterious. It still bans everything newer than **Node 18**, which is now
+stricter than the declared floor rather than equal to it: the floor moved to 22.18 for type
+stripping, and the surface guard was deliberately not loosened with it, because a gate that
+widens whenever a number changes is not a gate.
+
+If a `.ts` file behaves differently under `node` than under `tsc` says it should, that is the
+`Typecheck` job's business, not the matrix's: the two run the same file through different
+readers. See [`TYPESCRIPT.md`](TYPESCRIPT.md).
 
 ## Concurrency: what gets cancelled and what does not
 
@@ -111,11 +125,11 @@ it sounds: grouping pushes by branch instead, which is what `github.ref` gives y
 meant that a burst of merges cancelled its own verification and `main` went
 untested. See #1076.
 
-Every job also carries a `timeout-minutes` bound — 5 in `arm`, 10 in `test` and
-`Server smoke and Docker build` — but on this runner that bound is a label, not a
+Every job also carries a `timeout-minutes` bound — 5 in `changes` and `arm`, 10 in
+`test` and `Server smoke and Docker build` — but on this runner that bound is a label, not a
 bound. It is not enforced: measured on 2026-11-17, task 12980 (run 5238, pull #1851)
-reported `Failing after 13m48s` under the five minutes of the classifier job that has since
-been deleted, task 10860 (run 4596) 12m45s, and task 2694 (run 1342) 27,702 s — and for every second of each,
+reported `Failing after 13m48s` under the `changes` job's five minutes, task 10860
+(run 4596) 12m45s, and task 2694 (run 1342) 27,702 s — and for every second of each,
 all five jobs of that pull request read `Blocked by required conditions`. A hung job
 on a single runner is not a slow job, it is a stopped queue, and a queue held for an
 afternoon by a job the scheduler was supposed to have killed cannot be diagnosed
@@ -123,7 +137,7 @@ afterwards either: a task killed from outside exits without a log.
 
 So the bound that holds is in the step, and there is one on the thing that can wait.
 Every fetch in `ci.yml` is wrapped in `timeout 90` — at most two attempts per leg, and
-`timeout 60` for the base commit the Docker job's classify step diffs — with a git abort after 30 s
+`timeout 60` for the base commit the classifier diffs — with a git abort after 30 s
 below 1 kB/s; the test leg's suite gets `timeout 300`, the Docker build `timeout
 180` and the smoke client `timeout 180`, because the smoke client is 11 s median and
 30 s at its slowest green run, so a slow-but-working run still passes and a hung one
@@ -261,17 +275,6 @@ it rather than a closed one with no explanation).
 The script is dry-run by default and a manual dispatch keeps that: `dry_run` defaults to
 `true`, and only the push run applies.
 
-Dry-run here is a property of the code rather than a promise about it. Every mutating
-request — the comment, the state change, anything added later — is issued by one funnel,
-`makeWriteFunnel()` in `scripts/close-merged-issues.js`, which refuses with `WriteRefused`
-unless apply mode was decided at the top of `main()`; and the sweeps are handed a client
-built by `readOnly()`, which has no `post`/`patch` method on it at all. A dry run therefore
-has no write path to forget to check: `test/close-merged-issues.test.js` drives both sweeps
-against a counting client and asserts zero mutating calls in a dry run and exactly one
-comment plus one state change per issue when apply is on. This is written down because an
-earlier version tested a `dryRun` flag at each call site, and a run that printed
-`DRY RUN - nothing will be closed` closed #742 and #743 for real.
-
 ```bash
 # what would this close, over the last 25 merges?
 FORGEJO_TOKEN=... node scripts/close-merged-issues.js --limit 25 --explain
@@ -355,7 +358,7 @@ to run on the host, are in
 | A run on `main` says *cancelled* | Should not happen after #1076 | Open an issue — this is the bug that fix exists to prevent |
 | `auto-rebase` has run but nothing moved | Every open PR was already up to date, or all rebases conflicted | Check the run log for the per-PR summary line |
 | `auto-rebase` is green and did not even check out | The host was short of disk, so the tick stood down instead of spending the bytes it was waiting for | The first step prints how many MB it measured in the workspace and names the threshold; see the disk section above and #1507 |
-| A check fails only in CI | Node version, or a path that differs on Linux | Run `npm test` on Node 18; check case-sensitivity in file paths |
+| A check fails only in CI | Node version, or a path that differs on Linux | Run `npm test` on Node 22; check case-sensitivity in file paths |
 
 ## Known gaps
 
@@ -455,31 +458,29 @@ empty block.
 
 ## What runs, and why a device PR runs less of it
 
-`ci.yml` has no classifier job. The first step of **`Server smoke and Docker build`** diffs the
-pull request against its base and answers one question: can this diff change runtime
-behaviour? Only that job's steps stand down on a `data-only` answer, which is why the table
-below has one column that changes and two that do not.
+`ci.yml` starts with a **`Classify the change`** job. It diffs the pull request against its
+base and answers one question: can this diff change runtime behaviour?
 
-| the diff touches | `Test (Node 18/20/22)` | `Server smoke and Docker build` |
+| the diff touches | `Test (Node 22/24)` and `Typecheck` | `Server smoke and Docker build` |
 |---|---|---|
-| only `devices/**/*.json`, `docs/*.md`, `research/*.json`, top-level `*.md` | three legs | nothing built (success) |
-| anything else (scripts, tests, workflows, server, engine, web, config) | three legs | yes |
+| only `devices/**/*.json`, `docs/*.md`, `research/*.json`, top-level `*.md` | two legs, one typecheck | skipped |
+| anything else (scripts, tests, workflows, server, engine, web, config) | two legs, one typecheck | yes |
 
 Only the last column differs, and that is deliberate: there is no such thing as a data-only
 test leg.
 
-`npm test` still runs for a data-only change, and on **all three** Node versions: the diff
+`npm test` still runs for a data-only change, and on **both** Node versions: the diff
 teaches the suite nothing, so cutting the matrix would buy speed with coverage the leg never had.
 The `test` job carries that history in its own comment — a data-only `if:` that read
 `matrix.node` was evaluated before the matrix existed, so every leg died about two seconds in (runs
 1398, 1401, 1402), and a matrix built from an expression collapses to a single unnamed leg that
-runs the suite once and reports it three times. Three versions, always. What the classification still
+runs the suite once and reports it three times. Three versions, always. What the classifier still
 saves is the job where the slots were actually going: `Server smoke and Docker build` skips a
 JSON-only diff entirely, up to ten minutes of one slot against roughly a minute for the suite. A
 device spec cannot change how the server boots or whether the image builds, and paying that job to
 learn that is how a two-runner host ends up with a queue that never reaches the next pull request.
 
-The classification is deliberately hostile to the "skip" answer (`scripts/classify-change.js`):
+The classifier is deliberately hostile to the "skip" answer (`scripts/classify-change.js`):
 
 - an **empty** diff is a code change — nothing to inspect is not evidence of safety;
 - an **unknown base sha** (shallow clone, force-push, new branch) is a code change;

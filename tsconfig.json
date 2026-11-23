@@ -1,0 +1,54 @@
+{
+  // PacketForge is a zero-runtime-dependency, no-build repository. Node runs the
+  // `.ts` files themselves (type stripping), so `tsc` here is a checker and
+  // nothing else: `noEmit` is not a preference, it is the whole model. The rules
+  // behind every line below are in docs/TYPESCRIPT.md.
+  "compilerOptions": {
+    // Node 22.18 is the floor package.json declares, and it strips types without
+    // downlevelling anything: the target is just what the runtime already is.
+    "target": "es2022",
+    "lib": ["es2022"],
+
+    // CommonJS, because package.json says `"type": "commonjs"`: a `.ts` file in
+    // that package is loaded as CommonJS, where `import ... from` is a runtime
+    // syntax error. The type system is told the same shape the loader uses.
+    "module": "commonjs",
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+
+    // `@types/node` is a dev-only type package: node runs the .ts files, so it is
+    // never loaded at runtime, and it replaces the hand-declared Node surface that
+    // went stale the first time another branch imported `node:child_process`.
+    "types": ["node"],
+
+    // Strict, with `any` unavailable rather than merely discouraged.
+    "strict": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "noImplicitReturns": true,
+    "noImplicitOverride": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+
+    // The strip-types runtime erases, it does not transform: an `enum`, a
+    // `namespace` or a parameter property is runtime code with nothing to erase,
+    // and refuses to load. `erasableSyntaxOnly` refuses it at the typecheck
+    // instead of on somebody's first run.
+    "erasableSyntaxOnly": true,
+    // `import type` stays written as `import type`: the loader must never be
+    // handed an import it is expected to elide.
+    "verbatimModuleSyntax": false,
+
+    // No output, ever. `node scripts/x.ts` is the build.
+    "noEmit": true,
+
+    // Legacy JavaScript stays out of the typecheck until it is touched: 500-odd
+    // `.js` files predate the rule, and a checker that went red on all of them
+    // would be switched off within a week. A file enters this program when it is
+    // converted.
+    "allowJs": false
+  },
+  "include": ["scripts/**/*.ts", "test/**/*.test.ts"],
+  "exclude": ["node_modules"]
+}

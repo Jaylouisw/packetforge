@@ -190,17 +190,30 @@ The audit does not judge whether an exemption is *correct* — only that it is c
 findable. If you are adding a rule and a class of devices fails it, that is a decision about the
 catalogue: either fix the devices, or open an issue and reference it.
 
-## The Node 18 floor is real
+## The Node floor is real, and it is 22.18
 
-CI runs the suite on Node 18, 20 and 22. If you develop on something newer, `npm test` can be green
-locally and the Node 18 job can fail twenty minutes later, which reads like a flaky runner rather
-than "you used a Node 20 API". `scripts/check-node-surface.js` closes that gap statically, so it
-needs no second interpreter installed:
+CI runs the suite on Node 22 and 24. The floor is **22.18**, and `package.json` declares exactly
+that, because 22.18 is where Node runs a `.ts` file directly — no build step, no loader, no flag.
+The repository writes TypeScript now ([`docs/TYPESCRIPT.md`](docs/TYPESCRIPT.md)), so a leg older
+than that cannot execute a single converted script or suite: it fails on the first type annotation
+with `SyntaxError: Missing initializer in const declaration`. Node 18 and 20 were dropped from the
+matrix for that reason and not to save runner time.
+
+If you develop on something newer, `npm test` can be green locally and the Node 22 leg can fail
+twenty minutes later, which reads like a flaky runner rather than "you used a Node 24 API".
+`scripts/check-node-surface.js` closes part of that gap statically, so it needs no second
+interpreter installed:
 
 ```
 node scripts/check-node-surface.js          # fails on any post-18 API
 node scripts/check-node-surface.js --list   # what is banned, and what to write instead
 ```
 
-It runs in CI as a step of every matrix leg, ahead of the suite, so the leg that would have
-failed names the API instead of failing somewhere inside `npm test`.
+It is deliberately more conservative than the floor: it still bans everything newer than Node 18,
+so what it passes is safe on 22, and it was not loosened when the floor moved. It runs in CI as a
+step of every matrix leg, ahead of the suite, so the leg that would have failed names the API
+instead of failing somewhere inside `npm test`.
+
+The rest of the rule — every new file is `.ts`, `any` appears nowhere, and a legacy `.js` file is
+converted when it is touched rather than in a sweep — is in [`docs/TYPESCRIPT.md`](docs/TYPESCRIPT.md).
+`npm run typecheck` is the whole toolchain: `tsc --noEmit`, then the scan that bans `any`.

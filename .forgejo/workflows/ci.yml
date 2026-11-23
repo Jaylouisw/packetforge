@@ -236,8 +236,8 @@ jobs:
       # tarball were 25 s of a 229 s leg) and still assert their runtime in-job.
       #
       # The runtime that matters here is "the one the smoke script was written against",
-      # and the three-leg matrix is what holds that line - it runs the suite on 18, 20 and
-      # 22. This job's job is the HTTP surface, so the version is printed rather than
+      # and the matrix is what holds that line - it runs the suite on 22 and 24. This job's
+      # job is the HTTP surface, so the version is printed rather than
       # asserted: an image bump that changes the runtime should be visible in the log, not
       # a red check on a pull request that never touched the server.
       - name: Which runtime is running this
@@ -613,8 +613,9 @@ jobs:
   # So the merge moves to the one job that has the answer. `needs` supplies the
   # results, and the statuses API is asked as well, because a leg skipped for a
   # data-only diff is a legitimate `skipped` while a leg that never reported is not.
-  # The three CI test legs are required by name: a status set that has not yet grown
-  # them is a run that has not started, not a run that passed.
+  # The CI test legs are required by name: a status set that has not yet grown
+  # them is a run that has not started, not a run that passed. The floor is the size of
+  # the matrix - two legs now, and it was three while the matrix had three.
   #
   # Nothing here can turn a red pull request green, and nothing here can go red on a
   # pull request that is fine: every failure is a `::warning::` and an unmerged but
@@ -666,7 +667,7 @@ jobs:
     # (the `still open?` step below, which is the `changes` job's `liveness` call moved):
     # the job cannot change an outcome there, and on a shared runner it is the difference
     # between a live pull request waiting minutes or hours. Every open pull request still
-    # gets all three Node versions.
+    # gets both legs of the matrix.
     #
     # `always()`, which now has no dependency to be woken by and simply says "never let a
     # previous job's colour decide whether this one reports". A skipped test leg is not a
@@ -693,13 +694,32 @@ jobs:
     # expression instead is no better: act resolves it to a single unnamed leg, so the suite runs
     # once and silently reports coverage it never had.
     #
-    # So: three versions, always. The data-only saving that survives is the one that is honest -
+    # So: both versions, always. The data-only saving that survives is the one that is honest -
     # `smoke` and `docker` skip a JSON-only diff entirely, which is where the runner slots were
     # actually going (ten minutes each, versus ~60 s for the suite).
     strategy:
       fail-fast: false
+      # 18 and 20 are gone, and that is the point of this change rather than a narrowing
+      # of the window by accident. The repository writes TypeScript (docs/TYPESCRIPT.md)
+      # and runs it with no build step, which Node can do from 22.18 - the same number
+      # `engines.node` in package.json now declares. A leg on 18 or 20 cannot execute a
+      # single converted script or suite: it fails on the first annotation with
+      # `SyntaxError: Missing initializer in const declaration`, because the language the
+      # repository writes is the one it cannot parse. Keeping those legs would not be
+      # wider coverage, it would be a permanently red check on every change that follows
+      # the rule, which is how a gate becomes wallpaper.
+      #
+      # 22 is the declared floor and therefore the leg that has to keep working; 24 is the
+      # current LTS. The pair is the support window, and its size is not an accident either:
+      # two legs, one docker job and the `typecheck` job below are exactly the four jobs
+      # this runner runs at once, so the matrix no longer queues behind itself.
+      #
+      # Every Node-version-dependent step in this job was re-pointed at 22 in the same
+      # commit - the width switch, the syntax sweep, the runtime download. A step keyed on
+      # a major that no longer exists does not fail, it silently stops running, which is
+      # the one failure mode this job must never have.
       matrix:
-        node: [18, 20, 22]
+        node: [22, 24]
     steps:
       # The question the `changes` job used to answer for the whole matrix, asked by the
       # leg that is about to spend a slot. Same call, same rule, same direction of
@@ -776,8 +796,8 @@ jobs:
           # file name does not match and that step downloads its own, which is the behaviour
           # this job had before this block existed.
           case "${{ matrix.node }}" in
-            18) PFDIST=v18.20.8 ;;
             22) PFDIST=v22.23.5 ;;
+            24) PFDIST=v24.22.3 ;;
             *) PFDIST="" ;;
           esac
           if [ -n "$PFDIST" ]; then
@@ -926,11 +946,15 @@ jobs:
         run: |
           set -eu
           case "$MAJOR" in
-            20) DIST="" ;;
-            18) DIST=v18.20.8 ;;
             22) DIST=v22.23.5 ;;
+            24) DIST=v24.22.3 ;;
             *) echo "::error title=Test (Node ${MAJOR})::no pinned Node release for major ${MAJOR} - add it to this step"; exit 1 ;;
           esac
+          # Neither leg runs the runner image's own runtime any more: 22 and 24 are both
+          # newer than the image, so both are provisioned the same way the 18 and 22 legs
+          # always were. The empty branch stays because the next major that does run on the
+          # image should not have to rediscover it - and if it ever fires, the assertion at
+          # the end of this step is what decides, exactly as before.
           if [ -z "$DIST" ]; then
             echo "Node ${MAJOR} is the runner image's own runtime - nothing to download"
           else
@@ -993,9 +1017,9 @@ jobs:
           esac
           echo "::error title=Test (Node ${want})::this leg is running ${got} - it would report coverage for a runtime it never tested"
           exit 1
-      # `node scripts/check-control-bytes.js` used to run here as its own step, and this is
+      # `node scripts/check-control-bytes.ts` used to run here as its own step, and this is
       # the one place in the workflow where a check really was paid for twice: `npm test`
-      # is `node scripts/audit-port-types.js && node scripts/check-control-bytes.js && node
+      # is `node scripts/audit-port-types.js && node scripts/check-control-bytes.ts && node
       # scripts/run-tests.js` (package.json), so the byte scan already runs as the second
       # command of the step further down - same tree, same leg, same exit status. The leg
       # fails either way, and it names the offending file either way.
@@ -1186,20 +1210,23 @@ jobs:
           # did not execute and no syntax-check output appeared in the log.
           set +e
           set -u
-          # Width follows the leg's own work: the same 430 suites cost the Node 18 runtime
-          # about a fifth more CPU than they cost Node 22 (571 against 467 CPU-seconds for
-          # the 399 suites of run 8265), so at an equal width the floor is always the leg
-          # still running when its two siblings have reported, and the pull request's wall
-          # clock is that leg. Measured on this tree at 3387122b, one leg at a time on an
-          # idle host, 430 suites / 14367 assertions green in every run: 10 workers
-          # 28.5 s, 11 workers 27.0 s, 12 workers 24.9 s. So the floor gets 12 and the
-          # other two keep the 10 that was measured best for them - 32 workers of the 40
-          # cores this host has, against the 39 that made every leg 3.2 s slower in run
-          # 8271. Coverage is unchanged: same suites, same assertions, same runtime in
-          # every leg; only how many of that leg's suites run at once changes, and the
-          # isolated re-run below still decides any suite that loses a race at the new
-          # width.
-          if [ "${{ matrix.node }}" = "18" ]; then
+          # Width follows the leg's own work: the oldest runtime in the matrix costs more
+          # CPU per suite than the newest - measured 571 against 467 CPU-seconds for the
+          # 399 suites of run 8265, on the Node 18 and Node 22 legs that were the matrix
+          # then - so at an equal width the floor is always the leg still running when its
+          # sibling has reported, and the pull request's wall clock is that leg. The width
+          # therefore follows the floor major, which is why the case below is 22 and not
+          # the 18 it was: a leg that is not in the matrix never runs this block at all, so
+          # a stale number here would silently drop back to the default. Measured on this
+          # tree at 3387122b, one leg at a time on an idle host, 430 suites / 14367
+          # assertions green in every run: 10 workers 28.5 s, 11 workers 27.0 s, 12 workers
+          # 24.9 s. So the floor gets 12 and the other keeps the 10 that was measured best
+          # for it - 22 workers of the 40 cores this host has, against the 39 that made
+          # every leg 3.2 s slower in run 8271. Coverage is unchanged: same suites, same
+          # assertions, same runtime in every leg; only how many of that leg's suites run
+          # at once changes, and the isolated re-run below still decides any suite that
+          # loses a race at the new width.
+          if [ "${{ matrix.node }}" = "22" ]; then
             export PF_TEST_CONCURRENCY=12
           fi
           echo "suite width: ${PF_TEST_CONCURRENCY} workers on Node ${{ matrix.node }}"
@@ -1232,7 +1259,7 @@ jobs:
           # The syntax check gets 120 s on the same argument (18.6 s measured for the whole
           # tree). Nothing is skipped, retried or weakened: same suites, same commit, same exit
           # status, and a timeout is reported as a timeout rather than as a failing assertion.
-          # One sweep per run, on the Node 18 leg, 8 files at a time - not three.
+          # One sweep per run, on the Node 22 leg, 8 files at a time - not three.
           #
           # The sweep parses every JavaScript file under the seven source directories, and it
           # ran in all three legs on the identical tree: three answers to one question, each
@@ -1244,15 +1271,18 @@ jobs:
           # and third copies could only say what the first one said.
           #
           # So it runs once, in the leg named for the oldest runtime in the matrix (`engines:
-          # >=18`) - the strictest parser, and the case the sweep exists for - over the same
-          # seven directories and with the same `node --check`, 8 at a time. Every leg still
-          # executes every file: 20 and 22 run the whole suite, which requires the tree.
+          # >=22.18`) - the strictest parser in it, and the case the sweep exists for - over
+          # the same seven directories and with the same `node --check`, 8 at a time. It is
+          # keyed on 22 because 22 is now the oldest leg: the key moved with the matrix in
+          # the same commit, since a sweep keyed on a major that no longer exists does not
+          # fail, it just stops running. Every leg still executes every file: 24 runs the
+          # whole suite, which requires the tree.
           # Same 120 s bound, same exit status, same `Syntax check (all JS)` title, so a file
           # that does not parse is still red and still names itself; what goes is two
           # redundant sweeps and their contention with the suites beside them.
           syntax_rc=0
           syntax_pid=""
-          if [ "${{ matrix.node }}" = "18" ]; then
+          if [ "${{ matrix.node }}" = "22" ]; then
             timeout --signal=TERM --kill-after=15 120 bash -o pipefail -c '
               set -u
               list="$1"
@@ -1273,7 +1303,7 @@ jobs:
           timeout --signal=TERM --kill-after=10 60 node scripts/check-ci-disk-hygiene.js > "$dir/check-ci-disk-hygiene.log" 2>&1 &
           disk_hygiene_pid=$!
           # `npm test` is three commands in a row - `node scripts/audit-port-types.js &&
-          # node scripts/check-control-bytes.js && node scripts/run-tests.js` - and the
+          # node scripts/check-control-bytes.ts && node scripts/run-tests.js` - and the
           # first two are read-only scans of the tree the suite is about to read. They sat
           # in front of the suite, so every leg paid for both before a single suite began:
           # measured on this tree on 2026-11-19 (same working copy, three runs each) 1.02 s
@@ -1317,7 +1347,11 @@ jobs:
           # hours because it was plain text in a log nobody reads; a warning shows up on the
           # run and on the pull request. Nothing is skipped either way - the fallback still
           # runs every command, it just pays for them one after another.
-          want="node scripts/audit-port-types.js && node scripts/audit-devices.js && node scripts/check-control-bytes.js && node scripts/run-tests.js"
+          # This string moved with package.json when `check-control-bytes` became `.ts` -
+          # which is the whole reason the comparison exists: the chain changed, and a step
+          # that had kept naming the old path would have fallen through to `npm test` whole
+          # and quietly paid the scans serially again.
+          want="node scripts/audit-port-types.js && node scripts/audit-devices.js && node scripts/check-control-bytes.ts && node scripts/run-tests.js"
           have=$(node -e 'process.stdout.write((require("./package.json").scripts || {}).test || "")' 2>/dev/null || echo "")
           if [ "$have" != "$want" ]; then
             echo "::warning title=CI overlap drift::package.json scripts.test is not the four-command chain this step overlaps (${have:-<missing>}) - every leg is paying the scans in front of the suite again; update the chain in this step"
@@ -1331,7 +1365,7 @@ jobs:
             audit_pid=$!
             timeout --signal=TERM --kill-after=10 60 node scripts/audit-devices.js > "$dir/audit-devices.log" 2>&1 &
             audit_devices_pid=$!
-            timeout --signal=TERM --kill-after=10 60 node scripts/check-control-bytes.js > "$dir/check-control-bytes.log" 2>&1 &
+            timeout --signal=TERM --kill-after=10 60 node scripts/check-control-bytes.ts > "$dir/check-control-bytes.log" 2>&1 &
             control_pid=$!
             # A red suite that passes alone is not a verdict about the tree.
             #
@@ -1425,7 +1459,7 @@ jobs:
             fi
           fi
           if [ -f "$out" ]; then
-            echo "--- node --check, every JavaScript file, on the Node 18 parser ---"
+            echo "--- node --check, every JavaScript file, on the Node 22 parser ---"
             cat "$out"
           fi
           for log in check-node-surface check-canonical-urls check-ci-disk-hygiene; do
@@ -1488,6 +1522,153 @@ jobs:
           fi
           exit "$rc"
 
+  # The typecheck. `tsc --noEmit` is the only thing that ever reads the annotations: there
+  # is no build step to fail (docs/TYPESCRIPT.md), so this job is where a type error is
+  # found rather than at somebody's first run.
+  #
+  # `node --check` cannot stand in for it. The syntax sweep above parses `.js` as `.js`;
+  # handed a `.ts` file it rejects the first annotation (`SyntaxError: Missing initializer
+  # in const declaration`), which is the same wall Node 18 and 20 hit. A `.ts` file is
+  # checked by something that knows what a type is, and that is this job.
+  #
+  # It is a job of its own rather than a step of the legs because a type error is not a
+  # difference between two Node versions: it is one answer about one tree, and three copies
+  # would be three checkouts and three installs to learn the same thing. It is dispatched
+  # last and that is safe now - the matrix is two legs, so `docker`, both legs and this job
+  # are exactly the four jobs this runner runs at once and no leg queues behind this one.
+  #
+  # `npm ci` is the only install anywhere in this workflow, and this is the only job that
+  # needs one: `typescript` and `@types/node` are dev-only type packages, and every other job
+  # runs the app as the zero-dependency program it is. `--ignore-scripts` because an install
+  # has no business executing package code in CI.
+  #
+  # No liveness stand-down and no `if: always()`: nothing above it can make this job
+  # skipped, and 40 s on a pull request somebody already closed is cheaper than the forty
+  # lines the stand-down costs. Its status is in the set `arm` reads like any other check,
+  # and a red typecheck is a pull request that does not merge.
+  typecheck:
+    name: Typecheck
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out this commit, from git
+        env:
+          TOKEN: ${{ secrets.FORGEJO_TOKEN || secrets.GITHUB_TOKEN || github.token }}
+        run: |
+          set -eu
+          # The runner's working directory is the repository root. Derive the git URL from
+          # the instance URL the runner itself is configured with, never a hardcoded host.
+          server="${GITHUB_SERVER_URL:-}"
+          if [ -z "$server" ]; then
+            api="${GITHUB_API_URL:-http://10.0.10.20:3000/api/v1}"
+            server="${api%/api/v1}"
+          fi
+          url="${server}/${GITHUB_REPOSITORY}.git"
+          sha="${{ github.sha }}"
+          git init -q .
+          git remote add origin "$url"
+          # One commit, three attempts. The fetch is the only step in this job that talks to a
+          # network, and the network answers this runner with aborts that say nothing about
+          # the commit: task 13960 (run 5540, Test (Node 22), push 52cff888) died 34 s in
+          # with `Operation too slow. Less than 1000 bytes/sec transferred the last 30
+          # seconds` while its Node 18 and Node 20 siblings ran the same commit green in
+          # 54 s and 53 s, and the smoke and Docker jobs of that run went on to pass - a
+          # red X on a tree with nothing wrong with it, and a pull request that cannot
+          # merge until somebody re-runs it by hand. That is the one failure a retry is
+          # honest for: a second attempt asks the same server for the same commit, and if
+          # every attempt fails the job still fails, with the same status and the same
+          # message. Nothing is hidden - a commit that does not exist, a token that is not
+          # accepted and a repository that is gone all fail every attempt.
+          # Three, not more: 3 x 90 s plus 10 s of backoff is a 280 s ceiling, which is
+          # below the 300 s a single attempt used to get, so a dead server costs this job
+          # less than it did before while a blip no longer costs a whole run. 90 s is also
+          # 25x the 3.5 s checkout measured here (run 5719, task 14549), so a slow but
+          # working server still passes.
+          attempt=1
+          rc=1
+          while [ "$attempt" -le 3 ]; do
+            if [ -n "${TOKEN:-}" ]; then
+              timeout 90 git -c "http.extraheader=Authorization: token ${TOKEN}" -c http.lowSpeedLimit=1000 -c http.lowSpeedTime=30 fetch -q --depth=1 origin "$sha" && rc=0 || rc=$?
+            else
+              timeout 90 git -c http.lowSpeedLimit=1000 -c http.lowSpeedTime=30 fetch -q --depth=1 origin "$sha" && rc=0 || rc=$?
+            fi
+            if [ "$rc" -eq 0 ]; then
+              break
+            fi
+            if [ "$attempt" -lt 3 ]; then
+              echo "fetch of ${sha} failed on attempt ${attempt} of 3 (rc ${rc}) - retrying in 5 s; a transport abort is not a verdict about the commit"
+              sleep 5
+              attempt=$((attempt + 1))
+            else
+              break
+            fi
+          done
+          if [ "$rc" -ne 0 ]; then
+            echo "::error title=Checkout::${sha} could not be fetched after ${attempt} attempt(s) (rc ${rc}) - no tree means nothing in this job could be tested, so it fails rather than passing on an empty directory"
+            exit "$rc"
+          fi
+          git checkout -q -f --detach FETCH_HEAD
+          # The action emptied the directory before it checked out; this is the same
+          # guarantee, applied to whatever the runner left in the workspace: after this
+          # line the tree is the commit's own files and nothing else.
+          git clean -qfdx
+          echo "checked out $(git rev-parse HEAD) of ${url} with git - no action cache involved"
+      # `npm ci`, not `npm install`: the lockfile is the whole point, and a job that resolves
+      # its own dependency tree is a job that tests a tree nobody reviewed. The bound is 300 s
+      # on the same argument every other step in this workflow uses - a step that gives up on
+      # its own keeps its log, a runner kill does not.
+      # The runner image is Node 20, and this job is the one place that cannot use it: the
+      # floor is 22.18 because that is where type stripping is on by default, so a typecheck
+      # under 20 does not check the language the repo writes - it parses `.ts` as JavaScript
+      # and dies with `Missing initializer in const declaration` (run 10054, 11 s in, on the
+      # first pull request that added a `.ts` file). Same pinned tarball and same symlink-over
+      # as the test legs, so the runtime under test is the floor, not whatever the image ships.
+      - name: Provide the runtime the typecheck runs on
+        run: |
+          set -eu
+          DIST=v22.23.5
+          dest="/opt/node-${DIST}"
+          url="https://nodejs.org/dist/${DIST}/node-${DIST}-linux-x64.tar.gz"
+          rm -rf "$dest" "$dest.tar.gz"
+          mkdir -p "$dest"
+          curl -fsSL --retry 3 --retry-delay 2 --retry-connrefused --connect-timeout 10 --max-time 180 -o "${dest}.tar.gz" "$url" ||
+            { echo "first fetch of ${url} failed - retrying once in 5 s"; sleep 5; curl -fsSL --retry 3 --connect-timeout 10 --max-time 180 -o "${dest}.tar.gz" "$url"; }
+          tar -xzf "${dest}.tar.gz" -C "$dest" --strip-components=1
+          [ -x "${dest}/bin/node" ]
+          for b in node npm npx; do ln -sf "${dest}/bin/${b}" "/usr/local/bin/${b}"; done
+          echo "typecheck runtime: $(command -v node) $(node --version) / npm $(npm --version)"
+          case "$(node --version)" in
+            v22.*|v23.*|v24.*|v25.*|v26.*) ;;
+            *) echo "::error title=Typecheck::the typecheck ran on $(node --version), below the 22.18 floor the repo declares"; exit 1 ;;
+          esac
+
+      - name: Install the one devDependency
+        run: |
+          set -eu
+          timeout --signal=TERM --kill-after=10 300 npm ci --ignore-scripts --no-audit --no-fund
+          echo "typescript $(./node_modules/.bin/tsc --version) on $(node --version)"
+      # Two checks, two steps, so a red log names which one it was: the compiler's own
+      # verdict, and the scan for the escape hatch (`scripts/check-no-any.ts` - `tsc` has no
+      # flag that bans `any`, and a linter would be a second devDependency).
+      - name: Typecheck (tsc --noEmit)
+        run: |
+          set +e
+          timeout --signal=TERM --kill-after=10 300 ./node_modules/.bin/tsc --noEmit
+          rc=$?
+          if [ "$rc" -eq 124 ] || [ "$rc" -eq 137 ]; then
+            echo "::error title=Typecheck::tsc --noEmit was still running after 300 s and was stopped"
+          fi
+          exit "$rc"
+      - name: No `any` anywhere
+        run: |
+          set +e
+          timeout --signal=TERM --kill-after=10 120 node scripts/check-no-any.ts
+          rc=$?
+          if [ "$rc" -eq 124 ] || [ "$rc" -eq 137 ]; then
+            echo "::error title=No any::the scan was still running after 120 s and was stopped"
+          fi
+          exit "$rc"
+
   # One slot, two checks. `Server smoke test` and `Docker build` were separate jobs, and on
   # this runner they could not overlap: three slots are held by the test legs for ~60 s and
   # the fourth carried `Classify the change`, then the smoke test, then the image build, one
@@ -1514,14 +1695,17 @@ jobs:
   # the end of the job, beside the build's, instead of 11 s into it - the same move the test
   # legs already made for their static checks, and the job is red either way.
   #
-  # This is the sixth status a run posts, where it used to be seven. `arm` below requires the
-  # three test legs by name and every status on the head to be green; it does not name these
-  # two, so it agrees with the server about "green" exactly as before.
+  # `arm` below requires the two CI test legs by name and every status on the head to be
+  # green; it does not name this job's two checks, so it agrees with the server about
+  # "green" exactly as before.
   arm:
     name: Arm auto-merge
     runs-on: ubuntu-latest
     timeout-minutes: 5
-    needs: [test, docker]
+    # `typecheck` in `needs` is ordering, not the verdict - the status set read below is
+    # the verdict, and a red typecheck is in it either way. What the edge buys is that the
+    # merge decision is never made before the last check has reported.
+    needs: [test, docker, typecheck]
     # `always()` so a red leg still runs this gate and reports why it did not merge, and
     # no `changes` edge any more: the liveness question that edge carried for this job is
     # asked in the step below, in the same shape the test legs use.
@@ -1586,7 +1770,7 @@ jobs:
               const bad  = s.filter((x) => x.status !== "success");
               if (!s.length)  { console.log("no check has reported yet"); return; }
               if (bad.length) { console.log("not successful: " + bad.map((x) => (x.context || "?") + "=" + x.status).join(", ")); return; }
-              if (legs < 3)   { console.log("only " + legs + " of the three CI test legs have reported"); return; }
+              if (legs < 2)   { console.log("only " + legs + " of the two CI test legs have reported"); return; }
               console.log("");
             });
           ')

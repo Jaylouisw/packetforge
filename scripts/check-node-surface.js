@@ -114,8 +114,9 @@ function main() {
       console.error('  ' + f.file + ': ' + f.what + ' (' + f.since + ') - use ' + f.instead);
     }
     console.error('');
-    console.error('CI tests Node 18/20/22. A green local run on ' + process.versions.node +
-      ' does not mean the matrix is green.');
+    console.error('CI runs the suite on Node 22 and 24; this guard holds the older Node 18');
+    console.error('surface on purpose, so a green local run on ' + process.versions.node + ' on the newest');
+    console.error('runtime says nothing about the floor. See docs/CI.md.');
     process.exit(1);
   }
 

@@ -84,10 +84,21 @@ const requestedConcurrency = Number(value('--concurrency') || process.env.PF_TES
 function discover() {
   if (!fs.existsSync(TEST_DIR)) return [];
   return fs.readdirSync(TEST_DIR)
-    .filter((f) => f.endsWith('.test.js'))
+    // `.test.js` is every suite the repository wrote before it moved to TypeScript;
+    // `.test.ts` is every suite it writes now (docs/TYPESCRIPT.md). Both are discovered
+    // by one glob because a suite written in either language is a suite CI must run -
+    // the language a check is written in is not a reason for it not to run. The sort is
+    // over file names, so the `.js` suites keep exactly the order and count they had.
+    .filter((f) => f.endsWith('.test.js') || f.endsWith('.test.ts'))
     .sort()
     .map((f) => path.join(TEST_DIR, f))
     .filter((p) => !filter || p.replace(/\\/g, '/').includes(filter));
+}
+
+// `foo.test.js` and `foo.test.ts` are both suite `foo`: the label is the name, not the
+// file, and two spellings of one name in a log would read as two suites.
+function labelOf(suite) {
+  return path.basename(suite).replace(/\.test\.(?:js|ts)$/, '');
 }
 
 // A suite's own summary is the most honest count it can give us; the exit code is the
@@ -243,7 +254,7 @@ function runSuite(suite) {
       settled = true;
       clearTimeout(killer);
       const rel = path.relative(ROOT, suite).replace(/\\/g, '/');
-      const label = path.basename(suite, '.test.js');
+      const label = labelOf(suite);
       const t = tally(suite, out, status);
       const how = killed ? 'killed after 300 s' : (signal ? 'signal ' + signal : 'exit ' + status);
       resolve({
