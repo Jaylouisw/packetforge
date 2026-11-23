@@ -96,7 +96,7 @@ Not 22.0, not 20, and not "18 with a flag": a floor that needs a flag is a floor
 ```bash
 npm run typecheck        # tsc --noEmit && node scripts/check-no-any.ts
 npx tsc --noEmit         # just the compiler
-npm run check:any        # just the scan for `any`
+npm run check:no-any     # just the scan for `any`
 ```
 
 `tsconfig.json` is the policy, and every line of it is deliberate:
@@ -260,7 +260,7 @@ These are not hypothetical. Each one was hit while this toolchain was built.
 | Gate | What it catches |
 |---|---|
 | `npm run typecheck` (`tsc --noEmit`) | types, in every file in the `include` list |
-| `npm run check:any` (`scripts/check-no-any.ts`) | `any` — annotation, assertion, generic or `Record` value |
+| `npm run check:no-any` (`scripts/check-no-any.ts`) | `any` — annotation, assertion, generic or `Record` value |
 | `npm test` → `scripts/run-tests.js` | `.test.ts` suites, discovered beside the `.js` ones |
 | `node scripts/syntax-check.js` | a `.js` file that does not parse (`.ts` is `tsc`'s job) |
 | `node scripts/check-node-surface.js` | an API newer than Node 18, which is stricter than the 22.18 floor |

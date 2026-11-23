@@ -70,7 +70,7 @@ script "a step in the test job".
 npm test                                # audit:ports, audit:devices, check:bytes, then every suite — what CI runs
 npm run syntax                          # syntax-check across every JS file
 npm run typecheck                       # tsc --noEmit, then the scan that bans `any`
-npm run check:any                       # just the `any` scan
+npm run check:no-any                    # just the `any` scan
 node scripts/check-node-surface.js      # no API newer than the Node 18 floor
 node scripts/check-canonical-urls.js    # every project URL points at Forgejo
 npm run check:ci-disk                   # every image-building job bounds what it writes
