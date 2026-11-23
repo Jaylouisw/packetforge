@@ -39,18 +39,16 @@
   {
     "vendor": "fs",
     "model": "AP-T565",
-    "label": "FS AP-T565",
+    "label": "FS AP-T565 (Wi-Fi 6 outdoor AP, copper + fibre)",
     "category": "wireless",
-    "description": "Outdoor Wi-Fi 6 access point: five gigabit Ethernet ports, one of them a PoE port, dual-band 802.11ax to 1775 Mbps combined.",
+    "description": "FS AP-T565 - Wi-Fi 6 (802.11ax) IP68 outdoor AP, 2x2 dual-radio, 1x 1G RJ45 with 802.3af PoE-in (12.95 W max), 1x 1G SFP, 1x RJ45 console.",
     "capabilities": [
       "wireless",
-      "wifi-ap",
-      "poe-pd",
-      "poe-pse",
-      "802.3af",
-      "802.3at",
+      "l2-forward",
+      "http-server",
       "cli",
-      "http-server"
+      "poe-pd",
+      "802.3af"
     ],
     "interfaces": [
       {
@@ -61,30 +59,13 @@
         "poeIn": 12.95
       },
       {
-        "name": "eth1",
+        "name": "sfp0",
         "type": "ethernet",
-        "connector": "rj45",
-        "speed": "1G"
-      },
-      {
-        "name": "eth2",
-        "type": "ethernet",
-        "connector": "rj45",
-        "speed": "1G"
-      },
-      {
-        "name": "eth3",
-        "type": "ethernet",
-        "connector": "rj45",
-        "speed": "1G"
-      },
-      {
-        "name": "eth4",
-        "type": "ethernet",
-        "connector": "rj45",
+        "connector": "sfp",
         "speed": "1G",
-        "poeOut": true,
-        "poeOutClass": "PoE+"
+        "speedCaps": [
+          1000
+        ]
       },
       {
         "name": "wlan0",
@@ -97,8 +78,8 @@
         "speed": "1.2G"
       }
     ],
-    "sourceUrl": "https://resource.fs.com/mall/file/datasheet/ap-w6d1775c-access-point-datasheet.pdf",
-    "notes": "Vendor figures from the FS datasheet: 4x 10/100/1000 Mbps RJ45 ports plus 1x 10/100/1000 Mbps RJ45 (PoE) port - five copper ports in total, one of them the PoE port - 802.11ax, and a stated maximum rate of up to 1775 Mbps. 1775 Mbps is the AX1800 aggregate, so the radios are modelled at 574M (2.4 GHz) and 1.2G (5 GHz) rather than putting the aggregate on one interface."
+    "sourceUrl": "https://img-en.fs.com/file/datasheet/ap-t565-access-point-datasheet.pdf",
+    "notes": "Vendor figures from the FS AP-T565 datasheet, product characteristics table: Service Port **1x 10/100/1000Base-T Ethernet port, 1x 1G SFP port**; Management Port **1x RJ45 Console port**; Power Supply **IEEE 802.3af PoE, DC 48V/0.35A**; Power Consumption **<12.95 W**; radios **2.4G/5G 2x2 MIMO**, maximum access rate **2.402 Gbps** (single radio) and **1.775 Gbps in 2.4G+5G mode**, which is the 574M + 1.2G pair modelled here. FS's product page (https://www.fs.com/products/149657.html) repeats it: 'one SFP interface and one 10/100/1000M interface with PoE/local power supply', Power-over-Ethernet **802.3af**, PoE injector sold separately. This supersedes the previous version of this file, which cited https://resource.fs.com/mall/file/datasheet/ap-w6d1775c-access-point-datasheet.pdf - an **indoor** Wi-Fi 6 AP with five copper jacks - and so gave the T565 five Ethernet ports and a PoE+ PSE on eth4. The T565 datasheet has no PSE at all: its single RJ45 jack is the PoE **inlet**, 802.3af only, which is why nothing here sources power. The console port is recorded here rather than as an interface because it carries no frames."
   },
   {
     "vendor": "fs",
