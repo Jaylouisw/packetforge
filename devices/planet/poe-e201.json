@@ -3,26 +3,35 @@
   "model": "POE-E201",
   "label": "Gigabit 802.3af/at PoE extender (100m per hop)",
   "category": "powerline",
-  "description": "Two-port inline extender with a PoE IN and a PoE OUT jack that regenerates both gigabit data and 802.3af/at power for another 100 m, chainable up to 500 m. It passes the PSE's negotiated power through with a small loss rather than creating a new budget, so downstream watts come out of the upstream switch port.",
+  "description": "Two-port inline extender with a PoE IN and a PoE OUT jack that regenerates both gigabit data and 802.3af/at power for another 100 m, chainable up to 500 m. PLANET rates the PoE OUT jack at 26 W against a 30.8 W PoE IN ceiling and a 2.6 W system load, so the box forwards the upstream PSE power rather than creating any of its own: what a downstream device can draw is the smaller of the upstream port and 26 W.",
   "capabilities": [
     "802.3af",
-    "802.3at"
+    "802.3at",
+    "poe-pd",
+    "poe-pse"
   ],
   "interfaces": [
     {
       "name": "poe_in",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": 30.8
     },
     {
       "name": "poe_out",
       "type": "ethernet",
       "speed": "1G",
-      "poeOut": 30
+      "poeOut": 26,
+      "poeOutClass": "PoE+"
     }
   ],
   "sourceUrl": "https://www.planet.com.tw/en/product/poe-e201-v2",
   "role": [
     "poe-extender"
-  ]
+  ],
+  "poe": {
+    "budgetW": 26,
+    "sourceUrl": "https://www.planet.com.tw/storage/products/49453/C-POE-E201v2_L.pdf",
+    "note": "PoE ceilings and budget, from PLANET's own catalogue sheet (https://www.planet.com.tw/storage/products/49453/C-POE-E201v2_L.pdf, HTTP 200, 951,342 B, 4 pp, text layer, read 2026-11-23), Specifications -> Power over Ethernet: `PoE Power Supply Type | \"PoE In\" Port: IEEE 802.3at Power over Ethernet Plus end-span/mid-span PD class 4 PD | Per \"PoE Out\" Port: IEEE 802.3at Power over Ethernet Plus end-span PSE`, `PoE Power | \"PoE In\" Port: 48~56V DC, max. 30.8 watts | \"PoE Out\" Port: 44~52V DC, max. 26 watts`, with `Power Consumption: 2.6 watts (system maximum)`.\n\nThe quick-install guide repeats the output figure (https://www.planet.com.tw/storage/products/49453/EM-POE-E201_v2.0.pdf, HTTP 200, 1,389,185 B, read 2026-11-23): `PoE Power 44~52V DC, 510mA; max. 26 watts` and `System Power 2.6 watts (System on)`.\n\nThe row used to carry `poeOut: 30` - the 802.3at PSE class ceiling rather than PLANET's own jack - and no `poe` block at all, which is the silent cohort `scripts/audit-poe-budget.js` reports: `show power inline` printed \"budget not modelled\" and a 25.5 W PoE+ access point cabled to poe_out had no ceiling or total to be reasoned against. Both numbers are now the vendor's: 26 W on the PSE port, and 26 W as the device total, because the single PSE socket is the whole of what the extender can hand on. poe_in declares 30.8 W, the input ceiling PLANET prints, and the row now declares `poe-pd` - it is powered by the jack the upstream switch feeds, so a switch bills it instead of treating the extender as an unpowered two-port box.\n\nTHE CONTRADICTION, recorded rather than modelled: the product page's own Power Consumption row reads `2.6 watts (system maximum) /PoE Output at maximum 36 watts` (https://www.planet.com.tw/en/product/poe-e201-v2, HTTP 200, 103,569 B, read 2026-11-23, the same table the sheet is rendered from). 36 W out of a jack whose printed input maximum is 30.8 W is not physically possible, and 30.8 W in minus the printed 2.6 W system load leaves 28.2 W at the very most. The sheet and the QIG both say 26 W, so 26 W is what the port and the budget carry; the 36 W line is a vendor error on one surface and is deliberately not the model."
+  }
 }
