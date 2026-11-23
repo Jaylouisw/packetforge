@@ -142,7 +142,9 @@ repository if the instance default is private (Settings → Advanced → *This r
 
 ## 6. What this repo enforces
 
-- `scripts/canonical.js` — the single definition of where the project lives. Change it there.
+- `scripts/canonical.ts` — the single definition of where the project lives. Change it there. It is
+  TypeScript and every `.js` caller requires it as `require('./canonical.ts')`, extension and all,
+  because CommonJS resolves `.js`, `.json` and `.node` and never a bare `.ts`.
 - `scripts/check-canonical-urls.js` — fails the build if any tracked file points at the old GitHub
   repository, or if the README's clone URL and CI badge do not match the canonical base. It found
   three stale links plus two scripts still calling `gh` the first time it ran.

@@ -68,7 +68,7 @@ script "a step in the test job".
 
 ```bash
 npm test                                # audit:ports, audit:devices, check:bytes, then every suite — what CI runs
-npm run syntax                          # syntax-check across every JS file
+npm run syntax                          # syntax-check across every JS and TS file
 npm run typecheck                       # tsc --noEmit, then the scan that bans `any`
 npm run check:no-any                    # just the `any` scan
 node scripts/check-node-surface.js      # no API newer than the Node 18 floor

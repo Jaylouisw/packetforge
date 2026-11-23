@@ -8,19 +8,25 @@
  * is where work happens, so the first instruction a contributor followed took them somewhere else -
  * and nothing failed when it happened, because a stale URL is invisible to every other test.
  *
- * This makes it a build failure. The canonical base lives in `scripts/canonical.js`; change it there
- * and this reports every place that needs to follow.
+ * This makes it a build failure. The canonical base lives in `scripts/canonical.ts`; change it
+ * there and this reports every place that needs to follow.
  */
 'use strict';
 
 const fs = require('fs');
 const path = require('path');
-const canonical = require('./canonical');
+// `.ts`, extension and all: CommonJS resolves `.js`, `.json` and `.node`, so a bare
+// `require('./canonical')` would not find the TypeScript file. The runtime strips the
+// annotations, so what comes back here is the same plain object it always was.
+const canonical = require('./canonical.ts');
 
 const ROOT = path.join(__dirname, '..');
 
 const SKIP_DIRS = new Set(['.git', 'node_modules', 'dist', 'coverage', '.github-cache']);
-const CHECK_EXT = new Set(['.md', '.js', '.json', '.yml', '.yaml', '.html', '.txt']);
+// `.ts` is in this list because the canonical definition itself is now TypeScript: a stale URL in
+// a converted file is the same stale URL, and a guard that stopped looking at the file it reads
+// its own base from would be the one blind spot it could not report.
+const CHECK_EXT = new Set(['.md', '.js', '.ts', '.json', '.yml', '.yaml', '.html', '.txt']);
 
 function walk(dir, out) {
   for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {

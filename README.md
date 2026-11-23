@@ -154,7 +154,7 @@ See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the full design.
 ```bash
 npm test                          # engine + CLI tests
 node examples/build-examples.js   # regenerates + self-verifies the example labs
-npm run syntax                    # syntax-check every JS file
+npm run syntax                    # syntax-check every JS and TS file
 ```
 
 ---

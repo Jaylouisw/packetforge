@@ -38,7 +38,7 @@ const INCOMING = process.env.PF_INCOMING ? path.resolve(process.env.PF_INCOMING)
 const REPO = process.env.PF_REPO || 'Jaylouisw/packetforge';
 // The canonical host, from the one file that defines it. A hardware request link that points
 // somewhere other than where development happens is a dead end for the person following it.
-const canonical = require('./canonical');
+const canonical = require('./canonical.ts');
 const tracker = require('./forgejo-api');
 const TEMPLATE_URL = canonical.issue('device_request.yml');
 

@@ -11,10 +11,10 @@
  *
  *   FORGEJO_TOKEN   a token with read access to issues (required for anything but public repos on
  *                   an instance that allows anonymous reads)
- *   PF_REPO         "owner/name" override, default from scripts/canonical.js
+ *   PF_REPO         "owner/name" override, default from scripts/canonical.ts
  */
 
-const canonical = require('./canonical');
+const canonical = require('./canonical.ts');
 
 const OWNER = process.env.PF_REPO ? process.env.PF_REPO.split('/')[0] : canonical.OWNER;
 const NAME = process.env.PF_REPO ? process.env.PF_REPO.split('/')[1] : canonical.NAME;

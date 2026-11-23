@@ -20,7 +20,9 @@ const path = require('path');
 const crypto = require('crypto');
 const { spawnSync } = require('child_process');
 const { check } = require('../scripts/check-canonical-urls');
-const canonical = require('../scripts/canonical');
+// The extension is mandatory: CommonJS resolves '', '.js', '.json', '.node' - never '.ts' -
+// so a converted sibling is loaded by spelling it.
+const canonical = require('../scripts/canonical.ts');
 
 let passed = 0, failed = 0;
 function ok(cond, name) {

@@ -61,7 +61,7 @@ node server/index.js        # UI + JSON API on http://localhost:8000
 Run the checks locally before submitting:
 
 ```bash
-npm run syntax                    # syntax-check every JS file
+npm run syntax                    # syntax-check every JS and TS file
 npm run test:engine               # engine tests
 npm run test:cli                  # CLI tests
 npm run examples                  # rebuild + verify the example labs
