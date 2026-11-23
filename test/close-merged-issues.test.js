@@ -18,6 +18,8 @@ const {
   deviceMatch,
   markerFor,
   deviceMarker,
+  makeWriteFunnel,
+  readOnly,
   sweepKeywords,
   sweepDevices,
   keywordComment
@@ -90,12 +92,46 @@ function fakeTracker(spec) {
   };
 }
 
+// A client that counts what was asked of it, and that can be built with no write method on it at
+// all (`{ readOnly: true }`) - which is exactly what a real dry run hands the sweeps. `mutations`
+// counts the mutating requests the client actually saw, not the words the script printed: the
+// suite that predated this one asserted on text, and a dry run closed #742 and #743 for real while
+// it passed. Every dry-run assertion below is `mutations.length === 0`, and the apply assertions
+// name the exact calls, so a write path added outside the funnel is a red test rather than a
+// reopened issue.
+function countingClient(spec, opts) {
+  const inner = fakeTracker(spec || {});
+  const mutations = [];
+  const reads = [];
+  const client = {
+    mutations: mutations,
+    reads: reads,
+    get: async function (p) { reads.push(p); return inner.get(p); }
+  };
+  if (!(opts && opts.readOnly)) {
+    client.post = async function (p, body) { mutations.push({ method: 'POST', path: p, body: body }); return inner.post(p, body); };
+    client.patch = async function (p, body) { mutations.push({ method: 'PATCH', path: p, body: body }); return inner.patch(p, body); };
+    client.put = async function (p, body) { mutations.push({ method: 'PUT', path: p, body: body }); return {}; };
+    client.delete = async function (p) { mutations.push({ method: 'DELETE', path: p }); return {}; };
+  }
+  return client;
+}
+
+// "POST /issues/42/comments" - the shape of a mutating call, for an exact-list assertion.
+function shapes(mutations) {
+  return mutations.map(function (m) { return m.method + ' ' + m.path; });
+}
+
 const SPECS = [
   { vendor: 'teltonika', model: 'RUTX12', file: 'devices/teltonika/rutx12.json', category: 'router' },
   { vendor: 'aruba', model: '2530-48 (J9781A)', file: 'devices/aruba/2530-48.json', category: 'switch' },
   { vendor: 'ubiquiti', model: 'U6-Pro', file: 'devices/ubiquiti/u6-pro.json', category: 'wireless' },
   { vendor: 'roku', model: 'U6-Pro', file: 'devices/roku/u6-pro.json', category: 'iot' },
   { vendor: 'ubiquiti', model: 'Ultra', file: 'devices/ubiquiti/ultra.json', category: 'router' },
+  // UDW and UDW-PRO are two different boxes, which is why one being modelled does not answer a
+  // request for the other. The pair is here so the near-miss guard is exercised by a sweep, not just
+  // by deviceMatch() on its own.
+  { vendor: 'ubiquiti', model: 'UDW', file: 'devices/ubiquiti/udw.json', category: 'router' },
   { vendor: 'huawei', model: 'OptiXtrans E6616', file: 'devices/huawei/optixtrans-e6616.json', category: 'switch' }
 ];
 const INDEX = buildDeviceIndex(SPECS);
@@ -159,6 +195,11 @@ const INDEX = buildDeviceIndex(SPECS);
   ok(deviceMatch('[Device]: OptiXtrans E6616X', INDEX) === null,
     'a variant is a different product: E6616X is not the catalogues E6616');
   ok(deviceMatch('[Device]: Teltonika RUTX12 POE+', INDEX) === null, 'the PoE+ variant is not the plain unit');
+  // The other near miss, and the one a suffix makes tempting: UDW is modelled, UDW-PRO is a
+  // different box at a different price. A close on the shared prefix would be a wrong close.
+  ok(deviceMatch('[Device]: Ubiquiti UDW', INDEX) !== null, 'the UDW is in the catalogue');
+  ok(deviceMatch('[Device]: Ubiquiti UDW-PRO', INDEX) === null,
+    'and UDW-PRO is not the UDW with a suffix - it stays unmatched');
   ok(deviceMatch('[Device]: Ubiquiti Iso-Beam-19 RF Isolator Shield for NanoBeam NBE-M5-19', INDEX) === null,
     'an accessory naming the device it clips onto is not a request for that device');
   ok(deviceMatch('[Device]: Some Unreleased Thing 9000', INDEX) === null, 'an unknown device matches nothing');
@@ -298,6 +339,234 @@ const INDEX = buildDeviceIndex(SPECS);
     await sweepDevices({ api: api, index: INDEX, issues: [reopened], dryRun: false, log: function () {} });
     ok(api.writes().length === 0, 'a device request a human reopened is not re-closed');
     ok(reopened.state === 'open', 'and stays open');
+  }
+
+  console.log('');
+  console.log('The write funnel - a dry run has no write path to forget to check:');
+  {
+    const client = countingClient({});
+    const funnel = makeWriteFunnel(client, { apply: false });
+
+    let threw = null;
+    try { await funnel.comment(42, 'a comment'); } catch (e) { threw = e; }
+    ok(threw && threw.code === 'DRY_RUN_WRITE_REFUSED', 'a comment in a dry run is refused, by name',
+      threw && (threw.code || threw.message));
+    ok(client.mutations.length === 0, 'and the client under it was never touched',
+      JSON.stringify(shapes(client.mutations)));
+    ok(funnel.sent.length === 0, 'the funnel issued nothing');
+    ok(funnel.refused.length === 1, 'it recorded the attempt, so this suite can see one', String(funnel.refused.length));
+
+    threw = null;
+    try { await funnel.close(42); } catch (e) { threw = e; }
+    ok(threw && threw.code === 'DRY_RUN_WRITE_REFUSED', 'so is a state change');
+    ok(client.mutations.length === 0 && funnel.sent.length === 0,
+      'still nothing written after a comment and a close were both attempted',
+      JSON.stringify(shapes(client.mutations)));
+    ok(funnel.refused.length === 2, 'two attempts, two refusals', String(funnel.refused.length));
+
+    threw = null;
+    try { await funnel.send('DELETE', '/issues/42'); } catch (e) { threw = e; }
+    ok(threw && threw.code === 'DRY_RUN_WRITE_REFUSED', 'a delete - the verb nobody has needed yet - is refused too');
+
+    const applying = makeWriteFunnel(countingClient({ issues: { 42: { number: 42, title: 'x', state: 'open', comments: [] } } }), { apply: true });
+    threw = null;
+    try { await applying.send('GET', '/issues/42'); } catch (e) { threw = e; }
+    ok(threw && threw.code === 'DRY_RUN_WRITE_REFUSED',
+      'and the funnel will not be talked into a read either - it is the write path, not a client');
+
+    const live = countingClient({ issues: { 42: { number: 42, title: 'x', state: 'open', comments: [] } } });
+    const open = makeWriteFunnel(live, { apply: true });
+    await open.comment(42, 'a comment');
+    await open.close(42);
+    ok(JSON.stringify(shapes(live.mutations)) === JSON.stringify(['POST /issues/42/comments', 'PATCH /issues/42']),
+      'apply mode issues exactly one comment and one close, in that order', JSON.stringify(shapes(live.mutations)));
+    ok(open.sent.length === 2 && open.refused.length === 0, 'and neither was refused');
+
+    // `readOnly()` is what `main()` hands the sweeps. It is not a policy, it is a client without the
+    // methods: a sweep that grew a `api.post(...)` would be a TypeError, not a closed issue.
+    const view = readOnly(live);
+    ok(typeof view.get === 'function' && view.post === undefined && view.patch === undefined &&
+       view.put === undefined && view.delete === undefined,
+      'the client a sweep is given has no write method on it at all', Object.keys(view).join(','));
+  }
+
+  console.log('');
+  console.log('The funnel is structural - a mutating call outside it fails this suite:');
+  {
+    const file = path.join(__dirname, '..', 'scripts', 'close-merged-issues.js');
+    const src = fs.readFileSync(file, 'utf8');
+    const start = src.indexOf('FUNNEL-START');
+    const end = src.indexOf('FUNNEL-END');
+    ok(start !== -1 && end > start, 'the funnel region is marked in the script (FUNNEL-START / FUNNEL-END)');
+    const outside = [];
+    const mutating = /\.(post|patch|put|delete)\s*\(/g;
+    let m;
+    while ((m = mutating.exec(src))) {
+      if (m.index < start || m.index > end) {
+        outside.push(src.slice(0, m.index).split('\n').length + ': ' + m[0]);
+      }
+    }
+    ok(outside.length === 0,
+      'no mutating client method is called anywhere outside makeWriteFunnel()',
+      outside.join(', '));
+    const viaFunnel = (src.match(/write\.(comment|close)\(/g) || []).length;
+    ok(viaFunnel === 4, 'comment and close go through the funnel in both sweeps (2 calls each)', String(viaFunnel));
+  }
+
+  console.log('');
+  console.log('A run that ignores the mode cannot be quiet: the funnel throws, the sweep dies:');
+  {
+    // This is what a re-added write path would look like: the sweep is told to apply, but the
+    // funnel it was handed is not in apply mode. The old code checked `dryRun` at each call site and
+    // would have printed "0 were touched" over this; the funnel makes it an exception.
+    const client = countingClient({ issues: { 42: { number: 42, title: 'x', state: 'open', comments: [] } } });
+    const funnel = makeWriteFunnel(client, { apply: false });
+    let threw = null;
+    try {
+      await sweepKeywords({
+        api: readOnly(client), write: funnel, index: INDEX, dryRun: false,
+        commits: [{ sha: 'abcdef1234567890', message: 'router: add the RUTX12 (#100)\n\nFixes #42' }],
+        log: function () {}
+      });
+    } catch (e) { threw = e; }
+    ok(threw && threw.code === 'DRY_RUN_WRITE_REFUSED',
+      'the sweep raises WriteRefused instead of reporting a close', threw && (threw.code || threw.message));
+    ok(client.mutations.length === 0, 'and the tracker still saw nothing', JSON.stringify(shapes(client.mutations)));
+    ok(funnel.refused.length === 1 && funnel.sent.length === 0, 'one attempt, refused, never sent');
+  }
+
+  console.log('');
+  console.log('The two issues a dry run closed for real (#742, #743) - end to end, through the sweep:');
+  {
+    // The bodies are the ones in the tracker: PR #1873 and PR #1867, both merged, both naming a
+    // number within a keyword's reach, neither claiming the issue is fixed.
+    const issues = {
+      742: { number: 742, title: 'IW: IOM census', state: 'open', comments: [] },
+      743: { number: 743, title: 'IW: IOM port census', state: 'open', comments: [] }
+    };
+    const prs = {
+      1873: { number: 1873, state: 'closed', merged: true, merged_at: '2026-11-18T00:00:00Z',
+        body: 'Refs #742 - this PR records measurements; it does **not** close the issue.' },
+      1867: { number: 1867, state: 'closed', merged: true, merged_at: '2026-11-18T00:00:00Z',
+        body: 'Does **not** close #743 - the IOM census is still unpublished, and no spec is written from research notes.' }
+    };
+    const client = countingClient({ issues: issues, prs: prs });
+    const res = await sweepKeywords({
+      api: readOnly(client), index: INDEX, dryRun: true,
+      commits: [
+        { sha: 'aaaaaaa1111111', message: 'iw: record the IOM measurements (#1873)' },
+        { sha: 'bbbbbbb2222222', message: 'docs: IOM notes (#1867)' }
+      ],
+      log: function () {}
+    });
+    ok(res.wouldClose.length === 0, 'neither merged body proposes a close', JSON.stringify(res.wouldClose));
+    ok(res.considered === 0, 'and neither is even considered, because no sentence claims a fix', String(res.considered));
+    ok(client.mutations.length === 0, 'so a dry run of them writes nothing', JSON.stringify(shapes(client.mutations)));
+
+    // The other half of the same rule: 'Fixes #N.' at the start of a sentence is a claim, and the
+    // sweep has to act on it. A guard that suppressed both would be as wrong as one that closed both.
+    const fixed = countingClient({
+      issues: { 742: { number: 742, title: 'IW: IOM census', state: 'open', comments: [] } },
+      prs: { 1873: { number: 1873, state: 'closed', merged: true, merged_at: '2026-11-18T00:00:00Z',
+        body: 'The census is rendered now.\n\nFixes #742.' } }
+    });
+    const positive = await sweepKeywords({
+      api: fixed, index: INDEX, dryRun: false,
+      commits: [{ sha: 'ccccccc3333333', message: 'iw: render the IOM census (#1873)' }],
+      log: function () {}
+    });
+    ok(positive.wouldClose.length === 0 && positive.closed.length === 1 && positive.closed[0].number === 742,
+      'while "Fixes #742." at the start of a sentence closes it', JSON.stringify(positive.closed));
+    ok(JSON.stringify(shapes(fixed.mutations)) === JSON.stringify(['POST /issues/742/comments', 'PATCH /issues/742']),
+      'and that closes it with exactly one comment and one state change', JSON.stringify(shapes(fixed.mutations)));
+  }
+
+  console.log('');
+  console.log('The whole sweep, counted: both sweeps, dry run writes nothing, apply writes the exact calls:');
+  {
+    function scenario() {
+      const issues = {
+        42: { number: 42, title: 'a request', state: 'open', comments: [] },
+        743: { number: 743, title: 'IW: IOM port census', state: 'open', comments: [] },
+        130: { number: 130, title: '[Device]: Teltonika RUTX12 Dual LTE 4G CAT6', state: 'open', comments: [] },
+        149: { number: 149, title: '[Device]: Ubiquiti UDW', state: 'open', comments: [] },
+        150: { number: 150, title: '[Device]: Ubiquiti UDW-PRO', state: 'open', comments: [] },
+        132: { number: 132, title: '[Device]: OptiXtrans E6616X', state: 'open', comments: [] },
+        131: { number: 131, title: 'RUTX12 loses its LTE bearer after 24 h', state: 'open', comments: [] }
+      };
+      const prs = {
+        900: { number: 900, state: 'closed', merged: true, merged_at: '2026-11-18T00:00:00Z', body: 'Fixes #42' },
+        901: { number: 901, state: 'closed', merged: true, merged_at: '2026-11-18T00:00:00Z',
+          body: 'Refs #743 - this PR records measurements; it does **not** close the issue.' }
+      };
+      return {
+        issues: issues,
+        prs: prs,
+        commits: [
+          { sha: 'aaaaaaa1111111', message: 'router: add the RUTX12 (#900)' },
+          { sha: 'bbbbbbb2222222', message: 'iw: record the IOM measurements (#901)' }
+        ],
+        order: [130, 131, 132, 149, 150, 743, 42]
+      };
+    }
+
+    const s = scenario();
+    // The dry-run client has no write method on it at all: if a sweep reached for one, it would be a
+    // TypeError recorded as an error, and the assertion below on `writes` would fail with it.
+    const dryClient = countingClient({ issues: s.issues, prs: s.prs }, { readOnly: true });
+    const dryKeyword = await sweepKeywords({
+      api: dryClient, index: INDEX, commits: s.commits, dryRun: true, log: function () {}
+    });
+    const dryDevice = await sweepDevices({
+      api: dryClient, index: INDEX, dryRun: true, log: function () {},
+      issues: s.order.map(function (n) { return s.issues[n]; })
+    });
+    ok(dryKeyword.errors.length === 0 && dryDevice.errors.length === 0,
+      'both sweeps run in a dry run without needing a write method',
+      JSON.stringify(dryKeyword.errors.concat(dryDevice.errors)));
+    const proposed = dryKeyword.wouldClose.concat(dryDevice.wouldClose)
+      .map(function (w) { return w.number; }).sort(function (a, b) { return a - b; });
+    ok(JSON.stringify(proposed) === JSON.stringify([42, 130, 149]),
+      'it proposes exactly #42 (cited), #130 (RUTX12) and #149 (UDW)', proposed.join(','));
+    ok(dryClient.mutations.length === 0, 'and the tracker saw zero mutating requests', JSON.stringify(shapes(dryClient.mutations)));
+    ok(dryKeyword.writes === 0 && dryDevice.writes === 0,
+      'and the funnel was never even asked to send one', String(dryKeyword.writes) + '/' + String(dryDevice.writes));
+    ok(s.issues[42].state === 'open' && s.issues[130].state === 'open' && s.issues[149].state === 'open' &&
+       s.issues[743].state === 'open' && s.issues[150].state === 'open',
+      'nothing is closed, #743 and the UDW-PRO near miss least of all');
+
+    const s2 = scenario();
+    const liveClient = countingClient({ issues: s2.issues, prs: s2.prs });
+    const funnel = makeWriteFunnel(liveClient, { apply: true });
+    const appliedKeyword = await sweepKeywords({
+      api: readOnly(liveClient), write: funnel, index: INDEX, commits: s2.commits, dryRun: false, log: function () {}
+    });
+    const appliedDevice = await sweepDevices({
+      api: readOnly(liveClient), write: funnel, index: INDEX, dryRun: false, log: function () {},
+      issues: s2.order.map(function (n) { return s2.issues[n]; })
+    });
+    const expected = [
+      'POST /issues/42/comments',
+      'PATCH /issues/42',
+      'POST /issues/130/comments',
+      'PATCH /issues/130',
+      'POST /issues/149/comments',
+      'PATCH /issues/149'
+    ];
+    ok(JSON.stringify(shapes(liveClient.mutations)) === JSON.stringify(expected),
+      'apply issues exactly six calls: one comment and one close for each of the three issues',
+      JSON.stringify(shapes(liveClient.mutations)));
+    ok(appliedKeyword.closed.length === 1 && appliedDevice.closed.length === 2 &&
+       funnel.sent.length === 6 && funnel.refused.length === 0,
+      'and the funnel accounts for all six, with none refused');
+    const perIssue = {};
+    for (const mu of liveClient.mutations) perIssue[mu.path.split('/')[2]] = (perIssue[mu.path.split('/')[2]] || 0) + 1;
+    ok(JSON.stringify(perIssue) === JSON.stringify({ 42: 2, 130: 2, 149: 2 }),
+      'two calls per issue, never three', JSON.stringify(perIssue));
+    ok(s2.issues[743].state === 'open' && s2.issues[150].state === 'open' && s2.issues[132].state === 'open' &&
+       s2.issues[131].state === 'open',
+      'while the negated body, the UDW-PRO variant, the E6616X variant and the bug report all stay open');
+    ok((s2.issues[743].comments || []).length === 0, 'and #743 gets no comment either');
   }
 
   console.log('');

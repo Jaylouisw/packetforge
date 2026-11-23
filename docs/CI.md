@@ -261,6 +261,17 @@ it rather than a closed one with no explanation).
 The script is dry-run by default and a manual dispatch keeps that: `dry_run` defaults to
 `true`, and only the push run applies.
 
+Dry-run here is a property of the code rather than a promise about it. Every mutating
+request — the comment, the state change, anything added later — is issued by one funnel,
+`makeWriteFunnel()` in `scripts/close-merged-issues.js`, which refuses with `WriteRefused`
+unless apply mode was decided at the top of `main()`; and the sweeps are handed a client
+built by `readOnly()`, which has no `post`/`patch` method on it at all. A dry run therefore
+has no write path to forget to check: `test/close-merged-issues.test.js` drives both sweeps
+against a counting client and asserts zero mutating calls in a dry run and exactly one
+comment plus one state change per issue when apply is on. This is written down because an
+earlier version tested a `dryRun` flag at each call site, and a run that printed
+`DRY RUN - nothing will be closed` closed #742 and #743 for real.
+
 ```bash
 # what would this close, over the last 25 merges?
 FORGEJO_TOKEN=... node scripts/close-merged-issues.js --limit 25 --explain

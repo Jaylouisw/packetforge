@@ -24,6 +24,12 @@
 //
 // What it will not do, on purpose:
 //
+//   - write anything at all without `--apply`. Not "checks a flag at each call site" - there is one
+//     funnel (`makeWriteFunnel()`) and the sweeps are handed a client with no write method on it,
+//     so a dry run that tried to write would have nothing to write with. On 2026-11-18 a dry run of
+//     an earlier version of this file closed #742 and #743 for real, and the suite could not tell
+//     because it asserted on printed text; see `test/close-merged-issues.test.js` for the counting
+//     stub that replaced those assertions;
 //   - reopen anything, ever;
 //   - close an issue that a keyword did not cite and that is not present in `devices/`;
 //   - treat a bare "#N" as a citation - "see #12" and "related to #12" name an issue without
@@ -327,6 +333,90 @@ function alreadyHandled(comments, marker) {
 }
 
 // ---------------------------------------------------------------------------------------------
+// FUNNEL-START - the only region of this file that may name a mutating request.
+// The write funnel: the only code in this file that may change anything on the tracker.
+//
+// A dry run used to be a boolean tested at each call site, and on 2026-11-18 a run that printed
+// "DRY RUN - nothing will be closed" closed #742 and #743 for real. The suite passed: it asserted
+// on the printed text and on a stub's recorded calls, which proves the output looked dry and never
+// proved the run was.
+//
+// So the mode is not a flag any more, it is the shape of what the sweeps hold. Two things enforce
+// it independently, and neither is a call-site check:
+//
+//   - `readOnly()` is what a sweep is given instead of the client. A sweep cannot call `api.post`
+//     because there is no `api.post` on the object it has.
+//   - every mutating request is issued here, in `send()`, and `send()` throws `WriteRefused` unless
+//     apply mode was decided once, in `main()`. A comment, a state change, or anything added later
+//     goes through the funnel or it does not go anywhere.
+//
+// The refusal throws rather than returning a soft error: a call site that forgot its dry-run branch
+// must die loudly, not print "0 were touched" over a write. `refused` records the attempt so a test
+// can assert the funnel was never even asked in a dry run, which is stronger than asserting the
+// write failed.
+
+const WRITE_METHODS = ['POST', 'PATCH', 'PUT', 'DELETE'];
+
+class WriteRefused extends Error {
+  constructor(message, detail) {
+    super(message);
+    this.name = 'WriteRefused';
+    this.code = 'DRY_RUN_WRITE_REFUSED';
+    this.method = (detail || {}).method;
+    this.path = (detail || {}).path;
+  }
+}
+
+// A client with no write methods on it. This is what the sweeps get: reading is all they need, and
+// taking the rest away is what makes a re-added write path a TypeError instead of a closed issue.
+function readOnly(client) {
+  return {
+    get: function (p) { return client.get(p); }
+  };
+}
+
+/**
+ * The funnel. `sent` is every mutating request it actually issued; `refused` every one it declined.
+ * Both are exposed so a caller (and the test) can assert on what happened rather than on what was
+ * printed.
+ */
+function makeWriteFunnel(client, opts) {
+  const apply = !!(opts && opts.apply);
+  const sent = [];
+  const refused = [];
+
+  async function send(method, p, body) {
+    const upper = String(method || '').toUpperCase();
+    if (WRITE_METHODS.indexOf(upper) === -1) {
+      throw new WriteRefused('not a mutating request: ' + method + ' ' + p, { method: method, path: p });
+    }
+    if (!apply) {
+      refused.push({ method: upper, path: p, body: body });
+      throw new WriteRefused('dry run: refusing ' + upper + ' ' + p + ' - only --apply may write',
+        { method: upper, path: p });
+    }
+    const fn = client && client[upper.toLowerCase()];
+    if (typeof fn !== 'function') throw new Error('the tracker client has no ' + upper.toLowerCase() + '()');
+    sent.push({ method: upper, path: p });
+    return fn.call(client, p, body);
+  }
+
+  return {
+    apply: apply,
+    sent: sent,
+    refused: refused,
+    send: send,
+    comment: function (number, body) {
+      return send('POST', '/issues/' + Number(number) + '/comments', { body: body });
+    },
+    close: function (number) {
+      return send('PATCH', '/issues/' + Number(number), { state: 'closed' });
+    }
+  };
+}
+// FUNNEL-END - nothing below this line may issue a mutating request except through the funnel.
+
+// ---------------------------------------------------------------------------------------------
 // The two sweeps. Both take an API client and a log function, so the tests can drive them
 // without a tracker: `api.get/post/patch(path)` in, decisions out.
 
@@ -373,7 +463,11 @@ async function sweepKeywords(opts) {
   const index = opts.index;
   const dryRun = opts.dryRun !== false;
   const log = opts.log || function () {};
-  const out = { considered: 0, closed: [], wouldClose: [], skipped: [], errors: [] };
+  // The funnel, built once. A caller may hand one in (`main()` does, because apply mode is decided
+  // there); otherwise it is built from `dryRun`, so a caller cannot get a writing funnel without
+  // saying apply. Nothing below calls `api.post` or `api.patch` - there is no other write path.
+  const write = opts.write || makeWriteFunnel(api, { apply: !dryRun });
+  const out = { considered: 0, closed: [], wouldClose: [], skipped: [], errors: [], writes: 0 };
   const seen = new Set();
   const prCache = new Map();
 
@@ -449,17 +543,23 @@ async function sweepKeywords(opts) {
         continue;
       }
       try {
-        await api.post('/issues/' + number + '/comments', { body: keywordComment(sha, merged ? prNumber : null, message) });
-        await api.patch('/issues/' + number, { state: 'closed' });
+        // Both calls go through the funnel - comment first, so a failure between them leaves an
+        // open issue with a note on it rather than a closed one with no explanation. A dry run
+        // never reaches here; if one ever did, the funnel throws and this run dies loudly instead
+        // of reporting a clean sweep over a write.
+        await write.comment(number, keywordComment(sha, merged ? prNumber : null, message));
+        await write.close(number);
         out.closed.push({ number: number, reason: reason, commit: sha });
         log('  closed ' + label + ': ' + reason);
       } catch (e) {
+        if (e && e.code === 'DRY_RUN_WRITE_REFUSED') throw e;
         out.errors.push({ number: number, reason: e.message });
         log('  FAILED ' + label + ': ' + e.message);
       }
     }
   }
   if (!out.considered) log('  no closing keyword in these commits');
+  out.writes = write.sent.length;
   return out;
 }
 
@@ -478,7 +578,9 @@ async function sweepDevices(opts) {
   const log = opts.log || function () {};
   const explain = !!opts.explain;
   const limit = Number(opts.limit || 300);
-  const out = { examined: 0, closed: [], wouldClose: [], skipped: [], present: [], unreachable: [], errors: [] };
+  // Same funnel rule as the keyword sweep: one write path, and it refuses unless apply mode is on.
+  const write = opts.write || makeWriteFunnel(api, { apply: !dryRun });
+  const out = { examined: 0, closed: [], wouldClose: [], skipped: [], present: [], unreachable: [], errors: [], writes: 0 };
 
   let issues = opts.issues;
   if (!issues) {
@@ -522,15 +624,17 @@ async function sweepDevices(opts) {
       continue;
     }
     try {
-      await api.post('/issues/' + issue.number + '/comments', { body: deviceComment(entry) });
-      await api.patch('/issues/' + issue.number, { state: 'closed' });
+      await write.comment(issue.number, deviceComment(entry));
+      await write.close(issue.number);
       out.closed.push({ number: issue.number, reason: reason, device: entry });
       log('  closed #' + issue.number + ': ' + reason);
     } catch (e) {
+      if (e && e.code === 'DRY_RUN_WRITE_REFUSED') throw e;
       out.errors.push({ number: issue.number, reason: e.message });
       log('  FAILED #' + issue.number + ': ' + e.message);
     }
   }
+  out.writes = write.sent.length;
   return out;
 }
 
@@ -653,6 +757,11 @@ async function main() {
 
   const base = await pickApiBase(tok);
   const api = makeApi(base, tok);
+  // Apply mode is decided here and nowhere else. `write` is the one thing that can change the
+  // tracker; in a dry run it refuses every request, and the sweeps are handed `readOnly(api)` - a
+  // client with no `post`/`patch` on it - so a dry run has no write path to forget to check.
+  const write = makeWriteFunnel(api, { apply: apply });
+  const reader = readOnly(api);
   const index = loadDeviceIndex();
 
   console.log('close-merged-issues');
@@ -678,7 +787,9 @@ async function main() {
   let keywordResult = null;
   if (!deviceOnly) {
     console.log('keyword sweep - issues a merged commit claims to fix');
-    keywordResult = await sweepKeywords({ api: api, index: index, commits: commits, dryRun: dryRun, log: console.log });
+    keywordResult = await sweepKeywords({
+      api: reader, write: write, index: index, commits: commits, dryRun: dryRun, log: console.log
+    });
     console.log('');
   }
 
@@ -686,7 +797,7 @@ async function main() {
   if (!keywordsOnly) {
     console.log('device sweep - [Device]: requests the catalogue already answers');
     deviceResult = await sweepDevices({
-      api: api, index: index, dryRun: dryRun, log: console.log, explain: explain, limit: issueLimit
+      api: reader, write: write, index: index, dryRun: dryRun, log: console.log, explain: explain, limit: issueLimit
     });
     console.log('  open [Device] requests examined: ' + deviceResult.examined +
       ', present in devices/: ' + deviceResult.present.length);
@@ -704,6 +815,14 @@ async function main() {
   console.log(dryRun
     ? 'dry run: ' + wouldClose.length + ' issue(s) would be closed, 0 were touched'
     : 'closed ' + closed.length + ' issue(s)');
+
+  // The last thing a dry run does is confirm it was one. The funnel cannot have sent anything
+  // without apply mode, so this can only fire if that guarantee has been broken - and then a clean
+  // report over a write is the one outcome worth failing on.
+  if (dryRun && write.sent.length) {
+    console.error('dry run wrote to the tracker ' + write.sent.length + ' time(s): ' + JSON.stringify(write.sent));
+    process.exitCode = 3;
+  }
 
   if (process.argv.includes('--json')) {
     console.log(JSON.stringify({ dryRun: dryRun, wouldClose: wouldClose, closed: closed, keyword: keywordResult, device: deviceResult }, null, 2));
@@ -737,6 +856,9 @@ module.exports = {
   markerFor: markerFor,
   deviceMarker: deviceMarker,
   alreadyHandled: alreadyHandled,
+  makeWriteFunnel: makeWriteFunnel,
+  readOnly: readOnly,
+  WriteRefused: WriteRefused,
   sweepKeywords: sweepKeywords,
   sweepDevices: sweepDevices,
   keywordComment: keywordComment,
