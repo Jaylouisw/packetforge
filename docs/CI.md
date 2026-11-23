@@ -32,7 +32,7 @@ could never pass.
 
 ## What a pull request goes through
 
-Four verification checks on a code change, all of which must be green before a merge. A **data-only** diff is gated on the three test legs only — `Server smoke and Docker build` is skipped for it (*What runs, and why a device PR runs less of it*, below). The last of the four is one job, not two (#2219): the smoke client runs beside the image build in the same slot, and the job's `::error` titles still name which of the two checks went red. Two more job statuses sit alongside them and are not checks on the diff: `Classify the change`, which decides what runs, and `Arm auto-merge`, which is the merge decision itself (*Merging*, below):
+Four verification checks on a code change, all of which must be green before a merge. A **data-only** diff is gated on the three test legs only — `Server smoke and Docker build` reports success without building anything. The last of the four is one job, not two (#2219): the smoke client runs beside the image build in the same slot, and the job's `::error` titles still name which of the two checks went red. One more job status sits alongside them and is not a check on the diff: `Arm auto-merge`, which is the merge decision itself (*Merging*, below). There is no classifier job: the data-only question is asked inside the job that spends its answer, the first step of `Server smoke and Docker build`, and the test legs run for every diff (`What runs, and why a device PR runs less of it`, below, says why):
 
 | Check | Catches |
 |---|---|
@@ -111,11 +111,11 @@ it sounds: grouping pushes by branch instead, which is what `github.ref` gives y
 meant that a burst of merges cancelled its own verification and `main` went
 untested. See #1076.
 
-Every job also carries a `timeout-minutes` bound — 5 in `changes` and `arm`, 10 in
-`test` and `Server smoke and Docker build` — but on this runner that bound is a label, not a
+Every job also carries a `timeout-minutes` bound — 5 in `arm`, 10 in `test` and
+`Server smoke and Docker build` — but on this runner that bound is a label, not a
 bound. It is not enforced: measured on 2026-11-17, task 12980 (run 5238, pull #1851)
-reported `Failing after 13m48s` under the `changes` job's five minutes, task 10860
-(run 4596) 12m45s, and task 2694 (run 1342) 27,702 s — and for every second of each,
+reported `Failing after 13m48s` under the five minutes of the classifier job that has since
+been deleted, task 10860 (run 4596) 12m45s, and task 2694 (run 1342) 27,702 s — and for every second of each,
 all five jobs of that pull request read `Blocked by required conditions`. A hung job
 on a single runner is not a slow job, it is a stopped queue, and a queue held for an
 afternoon by a job the scheduler was supposed to have killed cannot be diagnosed
@@ -123,7 +123,7 @@ afterwards either: a task killed from outside exits without a log.
 
 So the bound that holds is in the step, and there is one on the thing that can wait.
 Every fetch in `ci.yml` is wrapped in `timeout 90` — at most two attempts per leg, and
-`timeout 60` for the base commit the classifier diffs — with a git abort after 30 s
+`timeout 60` for the base commit the Docker job's classify step diffs — with a git abort after 30 s
 below 1 kB/s; the test leg's suite gets `timeout 300`, the Docker build `timeout
 180` and the smoke client `timeout 180`, because the smoke client is 11 s median and
 30 s at its slowest green run, so a slow-but-working run still passes and a hung one
@@ -455,12 +455,14 @@ empty block.
 
 ## What runs, and why a device PR runs less of it
 
-`ci.yml` starts with a **`Classify the change`** job. It diffs the pull request against its
-base and answers one question: can this diff change runtime behaviour?
+`ci.yml` has no classifier job. The first step of **`Server smoke and Docker build`** diffs the
+pull request against its base and answers one question: can this diff change runtime
+behaviour? Only that job's steps stand down on a `data-only` answer, which is why the table
+below has one column that changes and two that do not.
 
 | the diff touches | `Test (Node 18/20/22)` | `Server smoke and Docker build` |
 |---|---|---|
-| only `devices/**/*.json`, `docs/*.md`, `research/*.json`, top-level `*.md` | three legs | skipped |
+| only `devices/**/*.json`, `docs/*.md`, `research/*.json`, top-level `*.md` | three legs | nothing built (success) |
 | anything else (scripts, tests, workflows, server, engine, web, config) | three legs | yes |
 
 Only the last column differs, and that is deliberate: there is no such thing as a data-only
@@ -471,13 +473,13 @@ teaches the suite nothing, so cutting the matrix would buy speed with coverage t
 The `test` job carries that history in its own comment — a data-only `if:` that read
 `matrix.node` was evaluated before the matrix existed, so every leg died about two seconds in (runs
 1398, 1401, 1402), and a matrix built from an expression collapses to a single unnamed leg that
-runs the suite once and reports it three times. Three versions, always. What the classifier still
+runs the suite once and reports it three times. Three versions, always. What the classification still
 saves is the job where the slots were actually going: `Server smoke and Docker build` skips a
 JSON-only diff entirely, up to ten minutes of one slot against roughly a minute for the suite. A
 device spec cannot change how the server boots or whether the image builds, and paying that job to
 learn that is how a two-runner host ends up with a queue that never reaches the next pull request.
 
-The classifier is deliberately hostile to the "skip" answer (`scripts/classify-change.js`):
+The classification is deliberately hostile to the "skip" answer (`scripts/classify-change.js`):
 
 - an **empty** diff is a code change — nothing to inspect is not evidence of safety;
 - an **unknown base sha** (shallow clone, force-push, new branch) is a code change;
