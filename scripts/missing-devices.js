@@ -27,7 +27,7 @@
 const fs = require('fs');
 const path = require('path');
 const { loadCatalog } = require('../devices/registry');
-const { field, slug } = require('./request-queue');
+const { field, slug, isDeviceRequest } = require('./request-queue');
 
 const ROOT = path.join(__dirname, '..');
 // Same override convention as scripts/import-devices.js: tests point these at a
@@ -206,7 +206,10 @@ async function scanIssues() {
   // Forgejo, through its API. The old version shelled out to `gh`, which on a machine that has it
   // installed and authenticated answers about the GitHub mirror instead - a backlog nobody works
   // on, reported as fact.
-  const scan = await tracker.scanRequests({ labels: 'device-request', max: 500 });
+  // Select by the same predicate the queue uses (#2524): a "[Device]:" title without the
+  // device-request label is still a request, and asking the tracker to filter by label here
+  // made this report and the closing sweep disagree about the same issue.
+  const scan = await tracker.scanRequests({ max: 500, filter: isDeviceRequest });
   if (!scan.available) {
     return { available: false, reason: scan.reason, count: 0, requests: [] };
   }

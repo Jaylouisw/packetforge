@@ -42,6 +42,30 @@ function field(body, label) {
 // Applied by hand, read here. A request carrying it is never counted ready.
 const BLOCKED_LABEL = 'blocked-on-build';
 
+// What counts as a request: the label *or* the title.
+//
+// The label is applied by a workflow after filing, so it can be absent on a real request - #2521
+// sat open carrying only the "device" label, and every reader that asked the tracker for
+// labels=device-request answered "queue is empty" while the app's /api/requests listed it (#2524).
+// The title shape is what the rest of this repo already uses: server/requests.js and
+// scripts/sweep-device-requests.js both test the same prefix regex, and the closer
+// (close-merged-issues.js) considers "[Device]:" titles for the same reason. Matching it here too
+// means the reader and the closer can no longer disagree about whether an issue is a request.
+const QUEUE_LABEL = 'device-request';
+const REQUEST_TITLE = /^\[(device|hardware)\]/i;
+
+function labelNames(issue) {
+  const raw = (issue && issue.labels) || [];
+  if (!Array.isArray(raw)) return [];
+  return raw.map(function (l) { return typeof l === 'string' ? l : (l && l.name) || ''; })
+    .filter(function (l) { return l; });
+}
+
+function isDeviceRequest(issue) {
+  if (labelNames(issue).indexOf(QUEUE_LABEL) !== -1) return true;
+  return REQUEST_TITLE.test(String((issue && issue.title) || ''));
+}
+
 // The label says "blocked"; the thread says on what. Quote the maintainer's own
 // sentence - the newest comment that mentions the block, else the newest comment -
 // because a summary written by this script drifts away from the evidence.
@@ -111,7 +135,9 @@ async function main() {
 
   let issues;
   try {
-    issues = await tracker.listOpenIssues({ labels: 'device-request', max: 500 });
+    // No labels filter: the predicate below is the one definition of a request. Asking the
+    // tracker to pre-filter by label is what left #2521 invisible here while it was open (#2524).
+    issues = (await tracker.listOpenIssues({ max: 500 })).filter(isDeviceRequest);
   } catch (e) {
     console.error('Could not read issues from ' + REPO + '.');
     console.error(String(e.message).split('\n')[0]);
@@ -152,6 +178,8 @@ async function main() {
       category: category,
       datasheet: datasheet || null,
       poe: poe || null,
+      labels: labelNames(it),
+      labelled: labelNames(it).indexOf(QUEUE_LABEL) !== -1,
       blockedOnBuild: (it.labels || []).indexOf(BLOCKED_LABEL) !== -1,
       blocker: null,
       ready: missing.length === 0 && !dup && (it.labels || []).indexOf(BLOCKED_LABEL) === -1,
@@ -217,6 +245,10 @@ async function main() {
     '   blocked-on-build: ' + blockedOnBuild.length +
     '   waiting on requester: ' + blocked.length + '   already catalogued: ' + dupes.length);
   console.log('  catalog: ' + catalog.length + ' models');
+  const unlabelled = queue.filter(function (q) { return !q.labelled; });
+  if (unlabelled.length) {
+    console.log('  in by title, not by label: ' + unlabelled.length);
+  }
 
   if (ready.length) {
     console.log('\nReady to implement (vendor, model and datasheet all present):');
@@ -253,6 +285,17 @@ async function main() {
     for (const q of dupes) console.log('  #' + q.number + '  ' + q.vendor + ' ' + q.model);
   }
 
+  // A request reaches this queue by its title as well as by its label (#2524). Say so: a reader
+  // that asks the tracker by label - and there is one - would not see these.
+  if (unlabelled.length) {
+    console.log('');
+    console.log('In the queue by title alone - apply "' + QUEUE_LABEL + '" so a label-only reader sees them:');
+    for (const q of unlabelled) {
+      console.log('  #' + q.number + '  ' + q.title);
+      console.log('        labels: ' + (q.labels.length ? q.labels.join(', ') : 'none'));
+    }
+  }
+
   if (!queue.length) {
     console.log('\nQueue is empty. Nothing to do — the catalog grew by whatever requests were merged.');
   }
@@ -263,6 +306,8 @@ module.exports = {
   slug: slug,
   blockerLine: blockerLine,
   BLOCKED_LABEL: BLOCKED_LABEL,
+  QUEUE_LABEL: QUEUE_LABEL,
+  isDeviceRequest: isDeviceRequest,
   CATEGORY_MAP: CATEGORY_MAP,
   parseIssue: null
 };

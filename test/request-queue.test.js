@@ -3,7 +3,7 @@
 // device, and the maintainer loop reads that queue. If the parsing is wrong, a
 // complete request looks empty and a well-formed one gets told it is missing
 // fields - so the parsing itself is tested.
-const { field, slug, CATEGORY_MAP, blockerLine, BLOCKED_LABEL } = require('../scripts/request-queue');
+const { field, slug, CATEGORY_MAP, blockerLine, BLOCKED_LABEL, QUEUE_LABEL, isDeviceRequest } = require('../scripts/request-queue');
 
 let passed = 0, failed = 0;
 function ok(cond, msg) {
@@ -106,6 +106,29 @@ console.log('\nA blocked request quotes the thread, it does not summarise it:');
 
   ok(blockerLine([{ body: 'x'.repeat(500) }]).length === 220,
     'a long comment is capped, so one paragraph cannot flood the queue');
+}
+
+console.log('\nA request is the label or the title, because the label can be missing:');
+{
+  ok(QUEUE_LABEL === 'device-request', 'the canonical label is the one triage applies');
+  ok(isDeviceRequest({ number: 1, title: '[Device]: TP-Link TL-SG1005P', labels: ['device-request'] }) === true,
+    'the label alone is a request, whatever the title');
+  ok(isDeviceRequest({ number: 2521, title: '[Device]: Aruba CX 8360 v2 family', labels: ['device'] }) === true,
+    'a [Device]: title without the label is still a request (#2521)');
+  ok(isDeviceRequest({ number: 2, title: '[hardware] MikroTik CRS310', labels: [] }) === true,
+    'the [hardware] spelling counts too, as the server and the sweeper read it');
+  ok(isDeviceRequest({ number: 3, title: 'crash: show ip route throws', labels: ['device-request'] }) === true,
+    'a labelled issue is a request even when its title is a bug report');
+  ok(isDeviceRequest({ number: 4, title: 'show ip route prints the wrong gateway', labels: ['bug'] }) === false,
+    'a bug report that names a device is not a request');
+  ok(isDeviceRequest({ number: 5, title: 'device: something', labels: [] }) === false,
+    'the word alone is not the shape - only the bracketed prefix is');
+  ok(isDeviceRequest({ number: 6, title: '[Device] no colon', labels: [] }) === true,
+    'the colon is punctuation, not part of the shape');
+  ok(isDeviceRequest({ number: 7, title: 'anything', labels: [{ name: 'device-request' }] }) === true,
+    'labels in the raw API shape are read by name');
+  ok(isDeviceRequest(null) === false && isDeviceRequest({}) === false,
+    'a missing issue is not a request');
 }
 
 console.log('\n' + passed + ' passed, ' + failed + ' failed');

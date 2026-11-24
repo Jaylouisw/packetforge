@@ -26,6 +26,9 @@ If you already have the JSON, skip the form and open a PR — see
 1. **Automatic acknowledgement.** A workflow labels the issue `device-request` and
    comments with what is present and what is missing. Nothing waits on a human to
    tell you the datasheet link is blank.
+   If the workflow misses the label, the title still counts: `scripts/request-queue.js` selects on
+   a `[Device]:` title as well as on `device-request`, so a request cannot go unread because a
+   label was not applied.
 2. **Triage.** `node scripts/request-queue.js` lists every open request, checks
    each against the catalog (so duplicates are caught), and separates "ready to
    implement" from "waiting on the requester" and from "blocked on a field the

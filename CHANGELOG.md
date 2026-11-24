@@ -9,6 +9,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **The maintainer's own queue could not see a device request that was missing its label: #2521 sat
+  open carrying only `device`.** `scripts/request-queue.js` asked the tracker for
+  `labels=device-request`, so a request filed before the triage workflow labelled it was answered as
+  "Queue is empty" — while the app's `/api/requests`, `scripts/sweep-device-requests.js` and
+  `scripts/close-merged-issues.js` all read the `[Device]:` title and listed it. The reader and the
+  closer therefore disagreed about whether the same issue was a request. Both `request-queue.js` and
+  `scripts/missing-devices.js` now select on the label *or* the title through one exported predicate,
+  `isDeviceRequest`, matching the regex the server and the sweeper already use, and the queue prints
+  an issue that arrived by title alone with its labels so the missing one can be applied.
+  `test/request-queue.test.js` pins ten cases, including the one that matters: `[Device]:` with only
+  `device` is a request, and a bug report that mentions a device is not.
 - **A keyword typed in capitals was refused as an unknown view: `show ip ROUTE`, `show ip interface BRIEF`,
   `show mac ADDRESS-TABLE`.** A box matches the words of a command in any case - IOS says so itself ("You can
   enter commands in uppercase, lowercase, or mixed case. Only passwords are case sensitive", and "Cisco IOS

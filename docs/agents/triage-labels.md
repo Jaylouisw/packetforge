@@ -24,6 +24,15 @@ Two labels carry meaning the roles cannot express, and both belong on hardware r
 already recorded which document would settle it, so the next pass reads the comment instead
 of repeating the search.
 
+`device-request` is a convenience, not the definition. The label is applied by a workflow *after*
+filing, so a real request can exist without it: #2521 did, carrying only `device`, and every reader
+that asked the tracker for `labels=device-request` answered "queue is empty" while the app's
+`/api/requests` listed it. The title is what the rest of the repository already reads -
+`server/requests.js`, `scripts/sweep-device-requests.js` and `scripts/close-merged-issues.js` all
+match the `[Device]:` / `[hardware]` prefix - and since #2524 `scripts/request-queue.js` and
+`scripts/missing-devices.js` select on label *or* title too. The queue prints such an issue as
+"in by title, not by label", naming its labels, so the missing one can be applied.
+
 ## Applying
 
 ```sh
