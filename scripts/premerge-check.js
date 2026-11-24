@@ -119,6 +119,29 @@ function main(argv) {
           failures.push({ suite: check, detail });
         }
       }
+
+      // A converted module is importable only if every caller spells the extension, and CommonJS
+      // never infers `.ts`. Both conversions so far broke exactly this way - in a file the
+      // conversion did not touch, so the diff looked complete and a suite went red instead. This
+      // resolves the merge tree the way the loader will: every `require()` in scripts, engine,
+      // server, web and test, against the extensions CommonJS actually tries. It also notes the
+      // latent ones, a `.ts` file whose relative require still lands on a `.js` sibling, which is
+      // the next conversion's breakage and not this branch's to fix. The checker comes from this
+      // checkout for the same reason the duplicate gate does, and the tree it reads is the merge
+      // tree, given as its path argument.
+      const modules = spawnSync(
+        process.execPath,
+        [path.join(__dirname, 'check-module-paths.ts'), worktree],
+        { cwd: worktree, encoding: 'utf8' }
+      );
+      if (modules.status !== 0) {
+        const lines = `${modules.stdout || ''}${modules.stderr || ''}`.split('\n');
+        const detail = lines
+          .filter((l) => /no such module|exists; CommonJS/.test(l))
+          .slice(0, 10)
+          .join('\n    ') || lines.slice(-4).join('\n    ');
+        failures.push({ suite: 'scripts/check-module-paths.ts', detail });
+      }
       results.push({ branch, ok: failures.length === 0, failures });
     } catch (error) {
       results.push({ branch, ok: false, error: String(error.message || error).split('\n')[0] });

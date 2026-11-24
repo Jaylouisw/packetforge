@@ -66,7 +66,8 @@
     "smoke": "node scripts/smoke-http.js",
     "wiki:build": "node scripts/build-wiki.js",
     "wiki:publish": "node scripts/publish-wiki.js",
-    "check:no-any": "node scripts/check-no-any.ts"
+    "check:no-any": "node scripts/check-no-any.ts",
+    "check:module-paths": "node scripts/check-module-paths.ts"
   },
   "keywords": [
     "network",

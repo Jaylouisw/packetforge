@@ -273,7 +273,12 @@ These are not hypothetical. Each one was hit while this toolchain was built.
    `as const`, a module, and an explicit field assignment.
 
 5. **Extensions are real.** `require('./sibling.ts')` is the file; `require('./sibling')` will not
-   resolve a `.ts` from CommonJS. Name the extension in a relative require of a `.ts` file.
+   resolve a `.ts` from CommonJS. Name the extension in a relative require of a `.ts` file. So
+   converting a module means sweeping its importers, and `node scripts/check-module-paths.ts`
+   (`npm run check:module-paths`) is what proves the sweep is complete: it resolves every
+   `require()` in `scripts/`, `engine/`, `server/`, `web/` and `test/` the way CommonJS actually
+   will, reports the ones that no longer resolve, and names the `.ts` file still requiring a `.js`
+   sibling — the latent breakage, in a file no conversion touched.
 
 ## Where this is enforced
 
@@ -281,6 +286,7 @@ These are not hypothetical. Each one was hit while this toolchain was built.
 |---|---|
 | `npm run typecheck` (`tsc --noEmit`) | types, in every file in the `include` list |
 | `npm run check:no-any` (`scripts/check-no-any.ts`) | `any` — annotation, assertion, generic or `Record` value |
+| `npm run check:module-paths` (`scripts/check-module-paths.ts`) | a `require()` whose specifier CommonJS will not resolve, and a `.ts` file still requiring a `.js` sibling |
 | `npm test` → `scripts/run-tests.js` | `.test.ts` suites, discovered beside the `.js` ones |
 | `node scripts/syntax-check.js` | a `.js` file that does not parse (`.ts` is `tsc`'s job) |
 | `node scripts/check-node-surface.js` | an API newer than Node 18, which is stricter than the 22.18 floor |
