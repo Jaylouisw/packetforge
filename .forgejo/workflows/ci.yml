@@ -810,6 +810,42 @@ jobs:
           fi
           url="${server}/${GITHUB_REPOSITORY}.git"
           sha="${{ github.sha }}"
+          # The pinned runtime this job typechecks on is 45 MB from nodejs.org, and until now
+          # it sat on the serial path: the step below fetched it, unpacked it, and only then
+          # did `npm ci` and the compiler start. The other two jobs that need a pinned Node
+          # (the smoke and Docker job, and both test legs) already start that same download
+          # here, before the git fetch, and let the checkout run over it - this job was the
+          # last one paying for it end to end.
+          #
+          # Measured on the test legs (the note in their `still_open` step): the tarball is
+          # 3.5-6.1 s of a leg whose checkout is 2.6 s of git, so overlapping the two leaves
+          # a fraction of a second on the clock instead of the whole download. This job is
+          # 22 s (144 typecheck runs to 2026-11-24T08:27Z: median 22 s, p90 31 s, max 43 s)
+          # and the same 45 MB sits at the front of it, so the same trick moves the same
+          # seconds - and a runner slot on a host with two of them.
+          #
+          # Nothing here can fail this step or change its verdict: the download is detached,
+          # every outcome is a marker file, and a prefetch that is late, killed or
+          # half-written leaves the step below exactly the code it had before - the same
+          # bounded curl, the same single retry, the same `[ -x ... ]` assertion and the same
+          # `check-node-floor.js` verdict afterwards. The release name is repeated there on
+          # purpose: if the two ever disagree the marker does not match and that step fetches
+          # its own, which is the behaviour this job had before this block.
+          PFDIST=v22.23.5
+          PFDIR="${RUNNER_TEMP:-/tmp}/node-prefetch"
+          mkdir -p "$PFDIR"
+          rm -f "$PFDIR/$PFDIST.started" "$PFDIR/$PFDIST.ok" "$PFDIR/$PFDIST.failed" "$PFDIR/$PFDIST.pid"
+          if [ ! -x "/opt/node-$PFDIST/bin/node" ]; then
+            echo "starting the ${PFDIST} download here, so the checkout below runs over it"
+            touch "$PFDIR/$PFDIST.started"
+            # Unpacked here, not in the step below: the extraction is 1.3 s and it does not
+            # need to be serial with anything either. The tree lands in a temporary directory
+            # and is renamed onto /opt/node-<release> once `bin/node` is executable, so a
+            # reader never sees a half-unpacked tree, and the marker is written only after
+            # that rename.
+            nohup sh -c "curl -fsSL --retry 3 --retry-delay 2 --retry-connrefused --connect-timeout 10 --max-time 180 -o '$PFDIR/$PFDIST.tar.gz.part' 'https://nodejs.org/dist/$PFDIST/node-$PFDIST-linux-x64.tar.gz' && rm -rf '/opt/node-$PFDIST.tmp' && mkdir -p '/opt/node-$PFDIST.tmp' && tar -xzf '$PFDIR/$PFDIST.tar.gz.part' -C '/opt/node-$PFDIST.tmp' --strip-components=1 && rm -rf '/opt/node-$PFDIST' && mv '/opt/node-$PFDIST.tmp' '/opt/node-$PFDIST' && [ -x '/opt/node-$PFDIST/bin/node' ] && touch '$PFDIR/$PFDIST.ok' || { rm -rf '$PFDIR/$PFDIST.tar.gz.part' '/opt/node-$PFDIST.tmp'; touch '$PFDIR/$PFDIST.failed'; }" > "$PFDIR/download.log" 2>&1 &
+            echo $! > "$PFDIR/$PFDIST.pid"
+          fi
           git init -q .
           git remote add origin "$url"
           # One commit, three attempts. The fetch is the only step in this job that talks to a
@@ -874,11 +910,40 @@ jobs:
           DIST=v22.23.5
           dest="/opt/node-${DIST}"
           url="https://nodejs.org/dist/${DIST}/node-${DIST}-linux-x64.tar.gz"
-          rm -rf "$dest" "$dest.tar.gz"
-          mkdir -p "$dest"
-          curl -fsSL --retry 3 --retry-delay 2 --retry-connrefused --connect-timeout 10 --max-time 180 -o "${dest}.tar.gz" "$url" ||
-            { echo "first fetch of ${url} failed - retrying once in 5 s"; sleep 5; curl -fsSL --retry 3 --connect-timeout 10 --max-time 180 -o "${dest}.tar.gz" "$url"; }
-          tar -xzf "${dest}.tar.gz" -C "$dest" --strip-components=1
+          # The download this step used to pay for serially may already be running, or
+          # finished: the checkout step above started it, tarball and unpack both, before the
+          # git fetch. Wait for it, bounded, and use the tree it produced. Anything other
+          # than a complete, executable /opt/node-<release> falls through to the same two
+          # attempts this step has always made, so the only thing the prefetch can change is
+          # the clock.
+          PFDIR="${RUNNER_TEMP:-/tmp}/node-prefetch"
+          if [ -e "$PFDIR/${DIST}.started" ] && [ ! -e "$PFDIR/${DIST}.ok" ] && [ ! -e "$PFDIR/${DIST}.failed" ]; then
+            echo "waiting for the ${DIST} download started during the checkout"
+            for _ in $(seq 1 60); do
+              if [ -e "$PFDIR/${DIST}.ok" ] || [ -e "$PFDIR/${DIST}.failed" ]; then break; fi
+              sleep 1
+            done
+            # Still nothing after 60 s: the detached attempt is wedged or died with the step
+            # that started it. Stop it before taking the tree apart, so the two cannot write
+            # to /opt/node-${DIST} at once.
+            if [ ! -e "$PFDIR/${DIST}.ok" ] && [ ! -e "$PFDIR/${DIST}.failed" ]; then
+              if [ -s "$PFDIR/${DIST}.pid" ]; then
+                kill "$(cat "$PFDIR/${DIST}.pid")" 2>/dev/null || true
+                pkill -TERM -P "$(cat "$PFDIR/${DIST}.pid")" 2>/dev/null || true
+                sleep 2
+              fi
+              touch "$PFDIR/${DIST}.failed"
+            fi
+          fi
+          if [ -e "$PFDIR/${DIST}.ok" ] && [ -x "${dest}/bin/node" ]; then
+            echo "unpacked ${DIST} from the download that overlapped the checkout"
+          else
+            rm -rf "$dest" "$dest.tar.gz"
+            mkdir -p "$dest"
+            curl -fsSL --retry 3 --retry-delay 2 --retry-connrefused --connect-timeout 10 --max-time 180 -o "${dest}.tar.gz" "$url" ||
+              { echo "first fetch of ${url} failed - retrying once in 5 s"; sleep 5; curl -fsSL --retry 3 --connect-timeout 10 --max-time 180 -o "${dest}.tar.gz" "$url"; }
+            tar -xzf "${dest}.tar.gz" -C "$dest" --strip-components=1
+          fi
           [ -x "${dest}/bin/node" ]
           for b in node npm npx; do ln -sf "${dest}/bin/${b}" "/usr/local/bin/${b}"; done
           echo "typecheck runtime: $(command -v node) $(node --version) / npm $(npm --version)"
