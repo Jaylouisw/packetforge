@@ -4749,6 +4749,6 @@ still working after a refusal.
 `123(config)#` prompt, the name reaching `show running-config`, the line printed once and before the
 name is taken, a second identical rename warning again, the four other breach shapes staying silent as
 written down, four catalogue-style names staying silent (the round-trip guard,
-`test/config-roundtrip.test.js`, replays the 2,205 models that have an Ethernet port to seed a config
+`test/config-roundtrip.test.js`, replays the 2,207 models that have an Ethernet port to seed a config
 on and asserts no complaint), six legal names printing nothing, and `no hostname` restoring the
 default without a warning.
