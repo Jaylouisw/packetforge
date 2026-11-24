@@ -349,6 +349,40 @@ const IFACE_SWITCHPORT_MODE_WORDS = [
 const IFACE_ENCAP_WORDS = [{ word: 'dot1q', spellings: ['dot1q'] }];
 const IFACE_CLOCK_WORDS = [{ word: 'rate', spellings: ['rate'] }];
 
+// The words that may stand at the head of a `(dhcp-config)#` line, and after `no` in the same block, one entry per
+// branch `_dhcpPoolMode()` compares against. Cisco writes the abbreviation rule for "commands and keywords" and
+// names no mode in it (Cisco IOS XE 16 Fundamentals Configuration Guide, "Using the Cisco IOS Command-Line
+// Interface"), and this console already applies it in the interface sub-mode - but a DHCP pool still refused every
+// shortening, so `net 192.168.10.0 255.255.255.0`, `def 192.168.10.1` and `exi` answered `% Unrecognized DHCP pool
+// command`, which is the sentence a typo gets. Operators write it that way on real gear: research/
+// dhcp-pool-keyword-abbreviation.md collects the transcripts, and the two-word `excluded address` form is why the
+// entry below carries both spellings of one door.
+const DHCP_POOL_WORDS = [
+  { word: 'network', spellings: ['network'] },
+  { word: 'range', spellings: ['range'] },
+  { word: 'default-router', spellings: ['default-router'] },
+  { word: 'dns-server', spellings: ['dns-server'] },
+  { word: 'lease', spellings: ['lease'] },
+  { word: 'host', spellings: ['host'] },
+  { word: 'excluded-address', spellings: ['excluded-address', 'excluded'] },
+  { word: 'exit', spellings: ['exit'] },
+  { word: 'end', spellings: ['end'] },
+  { word: 'no', spellings: ['no'] },
+  { word: 'help', spellings: ['help'] }
+];
+
+// The same words after `no`, minus the two that leave the mode and plus the one that removes the pool itself.
+const DHCP_POOL_NO_WORDS = [
+  { word: 'network', spellings: ['network'] },
+  { word: 'range', spellings: ['range'] },
+  { word: 'default-router', spellings: ['default-router'] },
+  { word: 'dns-server', spellings: ['dns-server'] },
+  { word: 'lease', spellings: ['lease'] },
+  { word: 'host', spellings: ['host'] },
+  { word: 'excluded-address', spellings: ['excluded-address', 'excluded'] },
+  { word: 'pool', spellings: ['pool'] }
+];
+
 // The rates a Cisco serial port's parser offers, in the order the box lists them. The IOS
 // command reference for `clock rate` prints this list (1200 ... 8000000) and says a value of
 // any whole number of bits per second in the parser's range is accepted; a router's own
@@ -4581,10 +4615,31 @@ class CliSession {
   _dhcpPoolMode(tokens) {
     const out = [];
     const dhcpLib = require('./dhcp');
-    const head = tokens[0].toLowerCase();
+    let head = tokens[0].toLowerCase();
     if (head === 'help' || head === '?') return this._help();
     const noKeyed = this._noHelpKeyRefusal(tokens);
     if (noKeyed) return [noKeyed];
+
+    // The same uniqueness rule the prompt's first word and the interface sub-mode already use, applied to the two
+    // positions where this mode keeps a complete table of what may stand there. An exact spelling always wins, so
+    // `no` is the negation and not a rival of `network`, and a shortening that could be two words is refused with
+    // both named rather than guessed - `e` could be `exit`, `end` or `excluded-address`, and a box says so.
+    const resolveAt = function (pos, table) {
+      const r = resolveCommandWord(tokens[pos], table);
+      if (r.rivals.length) {
+        return { refuse: '% Ambiguous DHCP pool command "' + tokens.slice(0, pos + 1).join(' ') + '": ' +
+          r.rivals.join(' | ') + ' (type more characters)' };
+      }
+      if (r.word) tokens[pos] = r.word;
+      return {};
+    };
+    const headWord = resolveAt(0, DHCP_POOL_WORDS);
+    if (headWord.refuse) return [headWord.refuse];
+    head = tokens[0].toLowerCase();
+    if (head === 'no') {
+      const noWord = resolveAt(1, DHCP_POOL_NO_WORDS);
+      if (noWord.refuse) return [noWord.refuse];
+    }
     const pools = (this.device.config && this.device.config.dhcpPools) || [];
     const pool = pools.filter(function (p) {
       return p.name === this.pool;
@@ -4649,8 +4704,10 @@ class CliSession {
       if (!tokens[1] || !tokens[2]) return incomplete('Incomplete command: range <start> <end>');
       pool.rangeStart = tokens[1];
       pool.rangeEnd = tokens[2];
-    } else if (head === 'excluded-address' || (head === 'excluded' && tokens[1] === 'address')) {
-      const from = head === 'excluded' ? 2 : 1;
+    } else if (head === 'excluded-address') {
+      // `excluded address <ip>` is the same door spelled in two words, and the middle word is part of the name, not
+      // a value: an address is never the string `address`, so the typed line decides where the values start.
+      const from = String(tokens[1] || '').toLowerCase() === 'address' ? 2 : 1;
       const addrs = tokens.slice(from).filter(Boolean);
       if (!addrs.length) return incomplete('Incomplete command: excluded-address <address[-address]>');
       pool.excluded = (Array.isArray(pool.excluded) ? pool.excluded : []).concat(addrs);
@@ -4662,9 +4719,14 @@ class CliSession {
       // `Incomplete command: lease <days> [hours] [minutes]` - which is the wrong diagnosis, since nothing was
       // missing; the console simply did not know the word. An operator with a printer pool therefore could not
       // ask for the lease that pool actually wants, and the refusal taught them to look for a missing number
-      // (#fidelity: lease infinite). Keywords are not abbreviated in a sub-mode (research/command-word-
-      // abbreviation.md states the boundary), so the whole word is what is accepted.
-      const word = String(tokens[1] || '').toLowerCase();
+      // (#fidelity: lease infinite). `infinite` is a keyword of the same grammar, so it shortens like the mode's
+      // own words do: `lease inf` is that form, and a number is never a prefix of it, so the numeric form is
+      // untouched (research/dhcp-pool-keyword-abbreviation.md).
+      const typedWord = String(tokens[1] || '').toLowerCase();
+      // `infinite` is a keyword of the same grammar, so it shortens like one: `lease inf` is that form, not a
+      // missing number. A number is never a prefix of the word, so the numeric form cannot be caught by this.
+      const word = (typedWord && !/^\d+$/.test(typedWord) && 'infinite'.indexOf(typedWord) === 0)
+        ? 'infinite' : typedWord;
       if (word === 'infinite') {
         if (tokens.length > 2) {
           return ['% Invalid input: "' + tokens.join(' ') + '" (lease <days> [hours] [minutes] | infinite)'];
@@ -4729,10 +4791,10 @@ class CliSession {
         if (pool.leaseSec == null) return ['% No lease in pool ' + pool.name + ' (the default applies)'];
         delete pool.leaseSec;
         out.push('Lease cleared from pool ' + pool.name + ' (the default applies)');
-      } else if (what === 'excluded-address' || (what === 'excluded' && tokens[2] === 'address')) {
+      } else if (what === 'excluded-address') {
         // Naming one address removes that one; naming none clears the list. Clearing the whole list when one
         // address was named is how a box quietly starts handing out an address that was reserved for a printer.
-        const from = what === 'excluded' ? 3 : 2;
+        const from = String(tokens[2] || '').toLowerCase() === 'address' ? 3 : 2;
         const named = tokens.slice(from).filter(Boolean);
         const have = Array.isArray(pool.excluded) ? pool.excluded : [];
         if (!have.length) return ['% No excluded addresses in pool ' + pool.name];

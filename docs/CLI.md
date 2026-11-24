@@ -60,7 +60,8 @@ narrow `terminal width`, and the NX-OS/IOS XR spellings - are in
 abbreviation of a command word "to the number of characters that allow a unique abbreviation", and this console
 follows that rule at every place where it holds a complete list of the words that may appear there: the **first
 word** of a line, the **view word after `show`**, the **first word of a config line** (with the word after `do`
-resolved as the EXEC word it is), and, inside an interface block, the **first word and the keyword after it**.
+resolved as the EXEC word it is), inside an interface block the **first word and the keyword after it**, and inside
+a DHCP pool block the **first word and the word after `no`**.
 
 | typed | answered as |
 |-------|-------------|
@@ -83,6 +84,10 @@ resolved as the EXEC word it is), and, inside an interface block, the **first wo
 | `encap dot1q 10`, `cl rate 64000` | `encapsulation dot1q 10`, `clock rate 64000` |
 | `ip o cost 10`, `ip ac 101 in` | `ip ospf cost 10`, `ip access-group 101 in` |
 | `no ip add` | `no ip address` |
+| `net 10.0.0.0 255.0.0.0`, `def 10.0.0.1` | `network 10.0.0.0 255.0.0.0`, `default-router 10.0.0.1` |
+| `dns 8.8.8.8`, `rang 10.0.0.100 10.0.0.110` | `dns-server 8.8.8.8`, `range 10.0.0.100 10.0.0.110` |
+| `lea inf`, `ho 10.0.0.5 aa:bb:cc:00:00:05` | `lease infinite`, `host 10.0.0.5 aa:bb:cc:00:00:05` |
+| `no lea`, `no po`, `exi` | `no lease`, `no pool`, `exit` |
 
 A shortening two words share is refused, and the refusal names the words it could have been - the same sentence
 `configure` has answered with since it learned to abbreviate:
@@ -110,7 +115,14 @@ sw1(config-if)#no s
 ```
 
 A prefix that is ambiguous changes no state: `e` at `(config)#` does not leave config mode, it says which doors it
-could have opened, and `no s` at `(config-if)#` neither closes the port nor switches anything.
+could have opened, and `no s` at `(config-if)#` neither closes the port nor switches anything. The pool block is
+the same rule with its own vocabulary - `e` there is `excluded-address | exit | end`, `n` is `network | no`, and
+`h` is `host | help`:
+
+```
+r1(dhcp-config)#e
+% Ambiguous DHCP pool command "e": excluded-address | exit | end (type more characters)
+```
 
 The rule stops where this console has no complete list of the words that could appear. The words after `show ip`
 are not shortened - type `show ip interface brief` in full; `sh ip int br` is refused as an unknown view - and a
@@ -118,7 +130,9 @@ keyword such as `brief` is not shortened either, nor is a value such as a port n
 rather than guessing one. The **second** word of a config line is at that boundary too: `ip ro 10.0.0.0 255.0.0.0
 10.0.0.1` is still refused, because this console cannot enumerate the words after `ip`. An interface block's
 keyword positions are the exception, because their sets are closed: the word after `ip`, `ipv6`, `switchport`,
-`encapsulation`, `clock` and `no`, and the value of `switchport mode` (`access|trunk`). Everything else there is
+`encapsulation`, `clock` and `no`, the value of `switchport mode` (`access|trunk`), and the eight words a DHCP pool
+takes (`network`, `range`, `default-router`, `dns-server`, `lease`, `host`, `excluded-address`, `pool` after `no`)
+together with the `infinite` value of `lease`. Everything else there is
 a value and is left exactly as typed - `desc de uplink` sets the description "de uplink", and `sw ac vlan 20`
 keeps its `20`. One divergence is stated rather than hidden: `sp` at `(config-if)#` is `speed` here, because
 `spanning-tree` is not one of the words that prompt's dispatcher compares against (it hands the line to the
