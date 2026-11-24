@@ -109,7 +109,10 @@ That has three consequences worth stating plainly:
 3. **Nothing is downlevelled.** `target` is `es2022` because the floor is 22.18 — syntax the
    runtime has is syntax the source may use. `scripts/check-node-surface.js` still holds the
    stricter Node 18 API surface, so "the runtime has it" and "the repository may use it" are two
-   different questions and both have an answer.
+   different questions and both have an answer. That scan reads `.js`, `.mjs`, `.cjs` **and**
+   `.ts`: a `.ts` file is stripped and then run by the same `node`, so the surface it reaches is
+   the surface a `.js` file reaches, and a gate that skipped it would go quiet on exactly the
+   files this repository is converting.
 
 ## The Node floor
 
@@ -298,5 +301,5 @@ These are not hypothetical. Each one was hit while this toolchain was built.
 | `npm run check:module-paths` (`scripts/check-module-paths.ts`) | a `require()` whose specifier CommonJS will not resolve, and a `.ts` file still requiring a `.js` sibling |
 | `npm test` → `scripts/run-tests.js` | `.test.ts` suites, discovered beside the `.js` ones |
 | `node scripts/syntax-check.js` | a `.js` file that does not parse (`.ts` is `tsc`'s job) |
-| `node scripts/check-node-surface.js` | an API newer than Node 18, which is stricter than the 22.18 floor |
-| `Typecheck` in CI | the first two, on every push and pull request |
+| `node scripts/check-node-surface.js` | an API newer than Node 18, which is stricter than the 22.18 floor — in every `.js`, `.mjs`, `.cjs` and `.ts` file, because `node` runs all four |
+| `Typecheck` in CI | `tsc`, `check:no-any` and `check:module-paths` — three steps, three `::error` titles — on every push and pull request |
