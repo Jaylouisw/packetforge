@@ -315,7 +315,7 @@ a `/25` connected route regardless of list order.
 |---|---|---|
 | **Modelled** | A complete DHCPv4 model: pool normalisation, validation, DISCOVER→OFFER, REQUEST→ACK/NAK, renewals, reservations, exclusions, lease expiry — all pure and deterministic. | `engine/dhcp.js` |
 | **Wired** | `Simulator.computeDhcp()` runs before the first packet of a run: every interface with `ip address dhcp` sends a DISCOVER into its broadcast domain, a server whose own interface sits in a pool's subnet answers, and the lease is installed on the interface (address, mask, gateway, DNS, lease time). | `engine/simulator.js` `computeDhcp()` |
-| **Broadcast domain** | Walked rather than assumed: bridges pass the DISCOVER on, routers stop it, a spanning-tree blocked port passes nothing, and a VLAN boundary is a boundary. | `engine/segment.js` |
+| **Broadcast domain** | Walked rather than assumed: bridges pass the DISCOVER on, routers stop it, a spanning-tree blocked port passes nothing, and a VLAN boundary is a boundary. | `engine/segment.ts` |
 | **In the timeline** | The exchange is an event, so a lab can see the ACK and read the pool it came from. | `{ type: 'dhcp', phase: 'ack', ip, pool, serverIp, leaseSec }` |
 | **In the CLI** | `ip dhcp pool <name>` with `network`, `default-router`, `dns-server`, `range`, `excluded-address`, `lease`, `host` (reservation, address and MAC in either order). The pool is validated once, on leaving the sub-mode — a half-typed pool is not an error. | `engine/cli.js` `_dhcpPoolMode()` |
 | **Reported** | `show ip dhcp binding [<address\|mac>]` and `show ip dhcp pool [<name>]` read the server's own allocation table (`Simulator.dhcpBindings()` → `dhcp.leaseTable()`), so the console and the engine cannot disagree about who holds an address. Expiry is applied at the instant asked (`expireLeases()`), so a lapsed lease frees its address instead of holding it for the life of the run. | `engine/cli.js` `_showDhcp()`, `engine/simulator.js` `dhcpBindings()` |
@@ -375,7 +375,7 @@ decoration, and a lab could show a cut link passing traffic.
 |---|---|---|
 | **Enforced** | A frame crossing a down link is dropped with `reason: 'link down'` and the link id. | `Simulator._run()` dequeue |
 | **In the tree** | A port whose cable is down is not a bridge port, so a redundant topology heals around the failure. | `Simulator.computeStp()` |
-| **In the segment walk** | DHCP will not offer a lease across a cut cable. | `engine/segment.js` |
+| **In the segment walk** | DHCP will not offer a lease across a cut cable. | `engine/segment.ts` |
 | **Flushed** | A topology change empties every bridge MAC table — a stale entry is how a real network black-holes. | `Simulator.setLinkState()` |
 | **Re-based** | The convergence schedule restarts from the instant of the change. | `engine/convergence.js` `fromMs` |
 | **In the drawing** | A down cable is dashed and red, and carries `data-link-state` for anything that wants to know. | `web/canvas.js` |
@@ -531,7 +531,7 @@ layer exists in `engine/bgp.js` today.
 
 | Verdict | Behaviour | Where |
 |---|---|---|
-| **Modelled** | Length is a property of the lead (`Link.lengthM`), not a maximum reach; null means "not stated". | `engine/link.js:14-36` |
+| **Modelled** | Length is a property of the lead (`Link.lengthM`), not a maximum reach; null means "not stated". | `engine/link.ts:137`, `engine/link.ts:169` |
 | **Modelled** | `W_DISTANCE` fires only when a length **and** a medium reach are both known. An unstated length produces no warning rather than an invented one. | `engine/validation.js:717-726` |
 | **Modelled** | `W_COPPER_LONGRUN` at 90 m for the horizontal-run limit. | `engine/validation.js:157`, `engine/validation.js:728-736` |
 | **Approximate** | Length affects **latency only** ([§8](#8-time-what-rtt-means-and-what-it-does-not)). An over-length cable still passes every packet perfectly — the warning is the entire model of the failure. | — |
@@ -636,7 +636,7 @@ changed what a lab does, which is why the pointer is here rather than in a chang
 
 | Field | What reads it now |
 |---|---|
-| `Link.state` | a frame crossing a down cable is dropped with `reason: 'link down'` and the link id (`engine/simulator.js:3099`), and the switch logic in `engine/segment.js` will not carry a frame over one ([LINK-STATE.md](LINK-STATE.md)) |
+| `Link.state` | a frame crossing a down cable is dropped with `reason: 'link down'` and the link id (`engine/simulator.js:3337`), and the switch logic in `engine/segment.ts` will not carry a frame over one ([LINK-STATE.md](LINK-STATE.md)) |
 | LAG `mode` | `negotiationVerdict()` through `memberSuspension()`: two `passive` ends never form a bundle, and neither does a far end in no channel group at all (`test/lacp-passive-both-ends.test.js` + `test/lacp-one-sided-group.test.js`, 54 assertions) |
 | `voiceVlan` | `classifyEgress()` and `classifyIngress()` carry it on an access port as one tagged VLAN beside the untagged access VLAN, and ignore it on a trunk (`engine/vlan.js`, #1368) |
 | `iface.dhcp` | `Simulator.computeDhcp()` collects every port carrying the flag as a client and applies the lease it is given (`engine/simulator.js:1172`) |
