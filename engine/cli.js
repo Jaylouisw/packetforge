@@ -8218,7 +8218,23 @@ class CliSession {
       const vlans = dev.config.vlans || {};
       for (const id of Object.keys(vlans).sort(function (a, b) { return Number(a) - Number(b); })) {
         const v = vlans[id] || {};
-        out.push('vlan ' + id + (v.name ? ' ' + v.name : ''));
+        // The name is written only when it is **not** the one a box makes up for itself. Every VLAN the
+        // switch holds has a name whether or not anyone typed one - `VLANxxxx` for any id, `default` for
+        // VLAN 1 (Cisco's own Ethernet VLAN defaults table: "VLAN name: VLANxxxx, where xxxx represents
+        // four numeric digits (including leading zeros) equal to the VLAN ID number") - so a file that
+        // repeated it carried a line the hardware does not have. Cisco's transparent-mode capture lists
+        // VLANs created and never named as `vlan 20-21,50-51` and `vlan 1`, with no `name` sub-line: the
+        // box omits the value a box would have chosen, exactly as it omits every other default (which is
+        // why `show running-config all` exists). research/running-config-vlan-default-name.md has the
+        // captures, the one outlier that writes the generated name, and what would settle it.
+        //
+        // The *placement* of a name that was typed is still this console's own: a box prints `vlan 20` and
+        // then ` name twenty` one space in, because `name` is a vlan sub-mode command, and this console has
+        // no vlan sub-mode (its own refusal says so). Printing the name on the same line is the shape a
+        // saved config can be replayed in, and that round trip is what these lines are for.
+        const generatedName = (Number(id) === vlanLib.VLAN_DEFAULT)
+          ? 'default' : 'VLAN' + String(id).padStart(4, '0');
+        out.push('vlan ' + id + ((v.name && v.name !== generatedName) ? ' ' + v.name : ''));
       }
       // The access lists, for the same reason: a port's binding is printed inside its interface block.
       // The lines come out in the order the box wrote them, not the order they were typed: IOS rewrites a

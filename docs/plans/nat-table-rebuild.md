@@ -64,7 +64,7 @@ is `p.dstPort = rule.port` (`:767`).
    simulator counts expired entries into `this._natExpired` (`:4680`); neither is printed anywhere. Pool
    utilisation (addresses in use) is absent from `show ip nat statistics`.
 6. **The help index has no NAT line, config or views**, and the guard cannot see it: `_help()`
-   (`engine/cli.js:8296`) names `show ip dhcp`, `show ip dns`, `show vrrp`, `show ip ospf`, `show ip bgp` and
+   (`engine/cli.js:8312`) names `show ip dhcp`, `show ip dns`, `show vrrp`, `show ip ospf`, `show ip bgp` and
    nothing for NAT; `test/help-completeness.test.js:72-79` derives its vocabulary from `head === '<word>'`, and
    NAT lives under `head === 'ip'` (`:1461`, `:1468`), so a whole feature can be missing with that suite green.
 

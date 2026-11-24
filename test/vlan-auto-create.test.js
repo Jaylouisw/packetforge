@@ -72,8 +72,12 @@ console.log('The three views agree about it:');
   const env = lab();
   env.run(['interface ' + env.p, 'switchport access vlan 44', 'end']);
   const cfg = env.run(['show running-config']).filter(function (l) { return l.trim(); });
-  ok(cfg.some(function (l) { return l.trim() === 'vlan 44 VLAN0044'; }),
-    '`show running-config` carries the VLAN line',
+  // The line carries the id alone. VLAN 44's name is `VLAN0044` only because nothing named it, and a box
+  // does not write the name it would have generated (research/running-config-vlan-default-name.md): Cisco's
+  // transparent-mode capture lists never-named VLANs as `vlan 20-21,50-51` with no `name` sub-line. This
+  // assertion used to pin `vlan 44 VLAN0044`, which is the line the console printed, not the line a box does.
+  ok(cfg.some(function (l) { return l.trim() === 'vlan 44'; }),
+    '`show running-config` carries the VLAN line, with the id alone',
     JSON.stringify(cfg.filter(function (l) { return /^vlan /.test(l); })));
   const show = env.run(['show vlan']);
   const row = show.filter(function (l) { return /^44\s/.test(l); })[0];

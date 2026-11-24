@@ -172,10 +172,12 @@ console.log('ip access-group:');
 console.log('');
 console.log('vlan:');
 {
+  // The printed line is the box's: the id alone, because `VLAN0042` is the name the switch would have
+  // generated and a running-config does not write that back (research/running-config-vlan-default-name.md).
   roundTrip('vlan',
     ['configure terminal', 'vlan 42', 'end'],
     ['configure terminal', 'no vlan 42', 'end'],
-    /^vlan 42 /m);
+    /^vlan 42$/m);
 
   // A VLAN an access port is in can be deleted, because on the device it can: the VLAN goes and the port
   // stays assigned to it, inactive, until the VLAN comes back (Catalyst 9200 "Deleting a VLAN"; see
