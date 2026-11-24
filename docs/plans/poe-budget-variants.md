@@ -1,6 +1,8 @@
 # Plan: a PoE budget is one number, and four boxes carry somebody else's
 
-Status: forward plan, no code. Re-measured 2026-11-23 on `5415d70d`. Closes **no** open issue — the
+Status: forward plan; steps 1 and 4 are **landed** (2026-11-24) - the audit is importable and carries a
+`passthrough` and a `misdeclared` cohort, pinned by `test/poe-budget-gate.test.js`. Steps 2, 3 and 5-7
+are open. Re-measured 2026-11-23 on `5415d70d`. Closes **no** open issue — the
 open queue is one build item (#2477), which carries its own PR. Scope:
 `scripts/audit-poe-budget.js`, `engine/device.js:217-223`, `engine/cli.js:6440`, `web/app.js:2081`,
 `package.json:11`, `docs/DEVICE_SCHEMA.md`, four device specs, one new suite. No allocation rule
@@ -39,6 +41,26 @@ somebody else's watts, which is the state this plan exists to add.
 That inverts the ordering. The gate (old step 9) waited on "silent reaches 0", and silent cannot reach
 0: every one of the three remaining devices is a **passthrough** box, and the audit has no word for
 one. The field work is no longer the blocker — a missing state is.
+
+## Landed 2026-11-24: the audit is askable, and it has a word for a passthrough
+
+`scripts/audit-poe-budget.js` now ends `module.exports = { auditPoeBudget, main }` and guards the run
+behind `require.main === module`, so a suite can call it. `passthrough` is a cohort fed by
+`spec.poe.passthrough === true`, printed on its own line and excluded from `silent` and from the
+`--strict` failure count.
+
+One cohort was added that this plan did not name. A `passthrough` flag is a label, and the plan's own
+risk list says a label is a way to silence an audit unless something stops it being used as one, so a
+flag that sits beside a `budgetW`, or on a box with no PSE port, lands in **`misdeclared`** and fails
+`--strict` exactly like a silent one. `test/poe-budget-gate.test.js` pins all five shapes plus one
+internal-consistency check on the real catalogue (no device in two cohorts) and the exit-code
+agreement; 18 assertions, green.
+
+Measured on the merged catalogue that day: 2,352 models, 408 sourcing, **silent 3** (ubiquiti/UDB-Pro,
+ubiquiti/F-POE-G2, ubiquiti/UACC-LR-Endpoint), unknown 26, passthrough 0, misdeclared 0.
+`--strict` therefore still **exits 1** - step 3 (the `package.json` gate) cannot land until step 2 has
+marked the three Ubiquiti boxes, because a gate that is red on arrival teaches people to ignore it.
+No spec sets the flag yet, which is why step 5's documentation can follow rather than block.
 
 ## What exists today
 
@@ -91,7 +113,7 @@ sample description. `CONTRIBUTING.md` says nothing either.
 
 ## Ordered steps
 
-1. **S — Make the audit askable, and give it the fifth state.** Guard `main()` behind
+1. **S — Make the audit askable, and give it the fifth state.** **[LANDED 2026-11-24]** Guard `main()` behind
    `require.main === module`; export `auditPoeBudget(cat)`; add a `passthrough` cohort fed by
    `spec.poe.passthrough === true`, printed on its own line and **excluded from `silent` and from the
    `--strict` failure count**. Flags, existing cohorts and exit codes unchanged; the four current
@@ -102,7 +124,7 @@ sample description. `CONTRIBUTING.md` says nothing either.
 3. **S — Gate it.** `node scripts/audit-poe-budget.js --strict` into `package.json:11`, after
    `audit-devices`. The collision this plan used to warn about is gone: `audit-devices` landed in that
    line with #2301, so this is the only edit there.
-4. **S — Prove the gate can fail.** `test/poe-budget-gate.test.js`: call the export on three fixtures —
+4. **S — Prove the gate can fail.** **[LANDED 2026-11-24]** `test/poe-budget-gate.test.js`: call the export on three fixtures —
    a silent PSE (fails), a `budgetUnknown` one (passes), a `passthrough` one (passes, counted) — and
    assert the cohort names, not just the exit code.
 5. **S — Document the field.** `docs/DEVICE_SCHEMA.md`: the resolution ladder, what `budgetUnknown`
