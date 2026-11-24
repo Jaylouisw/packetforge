@@ -464,10 +464,17 @@ jobs:
           # (#1719 merged 19:59:54 while its own run 4091 finished at 20:00:51).
           #
           # Green means: at least one check has reported, none of them is anything but a
-          # success, and the three CI test legs are among them - a status set that has
-          # not grown them yet is a run that has not reached the suite, not a run that
+          # success, and both CI test legs are among them - a status set that has not
+          # grown them yet is a run that has not reached the suite, not a run that
           # passed it. Anything else is left unarmed for ci.yml's `Arm auto-merge` job,
           # the only gate that runs after the checks it depends on.
+          #
+          # The floor is a *floor*, and it has to be lowered when the matrix narrows.
+          # It was 3 while ci.yml ran three legs; ci.yml's matrix became [22, 24] in
+          # PR #2477 (2026-11-23T22:56Z) and a floor of 3 then could not be met by any
+          # commit at all, so every pull request read as "checks are not green yet" and
+          # this pass stopped arming and stopped merging - silently, because a tick that
+          # arms nothing still exits 0. Two is the floor ci.yml's own gate uses.
           checks_green() {   # $1 = head sha
             st=$(http -H "Authorization: token $TOKEN" "$api/repos/$repo/commits/$1/status" 2>/dev/null || true)
             [ -z "$st" ] && return 1
@@ -482,7 +489,9 @@ jobs:
                 const s = (j.statuses || []).filter((x) => !/^Auto-rebase \//.test(x.context || ""));
                 const legs = s.filter((x) => /^CI \/ Test \(Node \d+\)/.test(x.context || "")).length;
                 const bad  = s.filter((x) => x.status !== "success");
-                process.exit(s.length && !bad.length && legs >= 3 ? 0 : 1);
+                // 2, not 3 - see the note above: a floor above the width of the matrix
+                // makes every head read as not-green.
+                process.exit(s.length && !bad.length && legs >= 2 ? 0 : 1);
               });'
           }
 

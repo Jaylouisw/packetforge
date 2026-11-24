@@ -2,7 +2,7 @@ name: Main health
 
 # `main` is the one commit nothing stands behind.
 #
-# Every pull request is gated: ci.yml runs three Node legs, a server smoke test and an image
+# Every pull request is gated: ci.yml runs two Node legs, a server smoke test and an image
 # build, and `Arm auto-merge` refuses to arm until all of them are green. The merged commit
 # gets one push run with the same matrix - and then nothing looks at it again. A red push run
 # is a red X on a run whose number no one opens, on a workflow nobody watches, while the

@@ -433,7 +433,9 @@ jobs:
                 const s = (j.statuses || []).filter((x) => !/^PR rebase \//.test(x.context || ""));
                 const legs = s.filter((x) => /^CI \/ Test \(Node \d+\)/.test(x.context || "")).length;
                 const bad  = s.filter((x) => x.status !== "success");
-                process.exit(s.length && !bad.length && legs >= 3 ? 0 : 1);
+                // 2, not 3: the matrix is [22, 24] since PR #2477 and a floor of 3 can
+                // never be met by a two-leg matrix - see the note above this function.
+                process.exit(s.length && !bad.length && legs >= 2 ? 0 : 1);
               });'
           }
 
