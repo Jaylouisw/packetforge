@@ -311,7 +311,7 @@ takes back.
 |---|---|
 | hostname | `hostname <name>` |
 | interfaces | `interface <name>` block: description, `speed`, `duplex`, `clock rate <bps>` (a serial DCE), `encapsulation dot1q <vlan> [native]` (a subinterface), `ip address`, switchport VLAN/trunk, `channel-group`, `ip access-group`, `ip nat inside` / `ip nat outside`, `shutdown`, `vrrp <vrid> …`. A console or aux socket gets **no** block: a box writes its settings under `line con 0` / `line aux 0`, not as an interface |
-| VLAN table | `vlan <id> [name] <text>` |
+| VLAN table | `vlan <id>`, or `vlan <id> <text>` with the name on the same line, and the name only when it is not the one a switch makes up for itself (`VLANxxxx`, zero-padded, and `default` for VLAN 1) - a file omits every value the box would have chosen, which is the rule stated below with the bridge priority as its one exception. VLAN 1 therefore writes no line at all, and a name typed as `VLAN0030` is dropped exactly as a generated one is. No `name` keyword is printed: `name` is a VLAN sub-mode command this console does not have, so the one-line form is the only one its parser takes back (`research/running-config-vlan-default-name.md`) |
 | DHCP pools | `ip dhcp pool <name>` block: network, range, default-router, dns-server, excluded-address, lease, `host <addr> <mac>` |
 | DNS zones | `dns zone <apex>` followed by `dns add <name> <type> <value>` |
 | ACLs | `access-list <id> <rule>` |
