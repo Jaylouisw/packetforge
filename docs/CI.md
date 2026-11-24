@@ -39,7 +39,7 @@ Four verification checks on a code change, all of which must be green before a m
 | `Test (Node 22)` | Syntax or API that only works on newer Node. The floor is 22.18 and this is the leg that holds it — the oldest runtime that can run a `.ts` file with no build step (`docs/TYPESCRIPT.md`) |
 | `Test (Node 24)` | Behaviour that regressed on the newest runtime in the window |
 | `Typecheck` | A type error, and any `any` (`tsc --noEmit`, then `scripts/check-no-any.ts`). One answer about one tree, so one job — not a copy per Node version |
-| `Server smoke and Docker build` | A server that boots but cannot serve (every API route, the catalogue, WebSocket upgrade) **or** a `Dockerfile` that does not build. One status, two checks: the smoke client runs beside the image build in the same job, and the failure titles still separate them. Present as a build-syntax proxy, not a full image test |
+| `Server smoke and Docker build` | A server that boots but cannot serve (every API route, the catalogue, WebSocket upgrade) **or** a `Dockerfile` that does not build. One status, two checks: the smoke client runs beside the image build in the same job, and the failure titles still separate them. Runs on a pinned Node it downloads and then asserts against the 22.18 floor (`scripts/check-node-floor.js`) - the runner image ships 20, which cannot load `engine/segment.ts` (#2488). Present as a build-syntax proxy, not a full image test |
 
 The test job runs more than the suite (`ci.yml`, the `test` job):
 

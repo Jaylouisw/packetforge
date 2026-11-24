@@ -306,10 +306,11 @@ jobs:
         run: |
           set -eu
           node --version && npm --version
-          case "$(node --version)" in
-            v22.*|v23.*|v24.*|v25.*|v26.*) ;;
-            *) echo "::error title=Server smoke and Docker build::the smoke client ran on $(node --version), below the 22.18 floor the repo declares"; exit 1 ;;
-          esac
+          # The floor it was provisioned at, compared as a version and not as a major number:
+          # `case "$(node --version)" in v22.*)` used to stand here and it accepted 22.0.0 through
+          # 22.17.9, every one of which is below the floor and cannot load `engine/segment.ts`.
+          # That is the same failure this step was added to catch, reported as a pass (#2488).
+          node scripts/check-node-floor.js --title "Server smoke and Docker build"
       # The smoke client is the one thing here that can wait forever: `req()` settles on the
       # response's `end` or on `error`, and a connection accepted and then never answered is
       # neither - the promise never settles and Node exits only when something outside it
@@ -1719,10 +1720,9 @@ jobs:
           [ -x "${dest}/bin/node" ]
           for b in node npm npx; do ln -sf "${dest}/bin/${b}" "/usr/local/bin/${b}"; done
           echo "typecheck runtime: $(command -v node) $(node --version) / npm $(npm --version)"
-          case "$(node --version)" in
-            v22.*|v23.*|v24.*|v25.*|v26.*) ;;
-            *) echo "::error title=Typecheck::the typecheck ran on $(node --version), below the 22.18 floor the repo declares"; exit 1 ;;
-          esac
+          # Same comparison as the smoke job, and for the same reason: a `v22.*` glob accepted
+          # 22.0.0-22.17.9, which is below the floor and parses `.ts` as JavaScript (#2488).
+          node scripts/check-node-floor.js --title Typecheck
 
       - name: Install the one devDependency
         run: |
