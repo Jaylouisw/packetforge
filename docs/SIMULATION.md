@@ -416,26 +416,29 @@ Three OSPF defects were found here — [#42, #43, #44](#10-fixed-defects-kept-vi
 
 | Verdict | Behaviour | Where |
 |---|---|---|
-| **Modelled** | A session forms only when **both** sides list the other as a neighbour with a matching remote-as. Half a peering is not a peering. | `engine/simulator.js:534-564` |
-| **Modelled** | Advertisement runs to convergence in rounds (max 12) before the first packet, originating every connected prefix. | `engine/simulator.js:577-638` |
-| **Modelled** | Split horizon: a route is never advertised back to the peer it was learned from. | `engine/simulator.js:609` |
-| **Modelled** | Best path: weight, local-preference, locally originated, shortest AS path, lowest origin, lowest MED, eBGP over iBGP, lowest router ID — in that order. | `engine/bgp.js:408-436` |
+| **Modelled** | A session forms only when **both** sides list the other as a neighbour with a matching remote-as. Half a peering is not a peering. | `engine/simulator.js:1810-1889` |
+| **Modelled** | Advertisement runs to convergence in rounds (max 12) before the first packet, originating every connected prefix. | `engine/simulator.js:1989-2040` |
+| **Modelled** | Split horizon: a route is never advertised back to the peer it was learned from. | `engine/simulator.js:1998` |
+| **Modelled** | Best path: weight, local-preference, locally originated, shortest AS path, lowest origin, lowest MED, eBGP over iBGP, lowest router ID — in that order. | `engine/bgp.js:526-559` |
 | **Modelled** | AS-path loop prevention including AS_SET members; 4-byte ASNs; eBGP prepend, iBGP no-prepend. | `engine/bgp.js:308`, `engine/bgp.js:503` |
-| **Modelled** | Administrative distance 20 for eBGP, 200 for iBGP, installed into the routing table. | `engine/simulator.js:618` |
+| **Modelled** | Administrative distance 20 for eBGP, 200 for iBGP, installed into the routing table. | `engine/simulator.js:2016` |
 | **Approximate** | MED is compared only between paths learned from the same neighbouring AS - `neighbourAs()` reads the leftmost AS of the AS_PATH, and `medComparable()` skips the comparison only when both paths name one and the two differ, as RFC 4271 9.1.2.2(c) requires. `bgp always-compare-med` and `bgp deterministic-med` are not modelled, and `bestPath()` sorts rather than eliminating, which only matters with three or more candidates. | `engine/bgp.js:18-20`, `engine/bgp.js:488-509` |
 | **Approximate** | The FSM exists (`idle→connect→active→opensent→openconfirm→established`) but is never fed: hold/keepalive timers are validated and carried, never expire, and no session ever drops. | `engine/bgp.js:14-21`, `engine/bgp.js:220-266` |
-| **Approximate** | Next hop is rewritten to the advertising router's address on every advertisement, which is right for eBGP and wrong for an iBGP relay — see defect #41. | `engine/simulator.js:617` |
+| **Approximate** | Next hop is rewritten to the advertising router's address on every advertisement, which is right for eBGP and wrong for an iBGP relay — see defect #41. | `engine/simulator.js:2009` |
 | **Absent** | Route reflectors, confederations, peer groups/templates, AFI/SAFI negotiation, IPv6 unicast, communities, route-maps, prefix-lists, `next-hop-self`, dampening, graceful restart. | — |
-| **Absent in the CLI** | `router bgp`, `neighbor … remote-as`, `router-id` only. | `engine/cli.js:1944-1945` (`router bgp`), `engine/cli.js:3246` (`_bgp()`), `engine/cli.js:3279-3286` (`neighbor ... remote-as`) |
+| **Absent in the CLI** | `router bgp`, `neighbor … remote-as`, `router-id` only. | `engine/cli.js:2009-2010` (`router bgp`), `engine/cli.js:3361` (`_bgp()`), `engine/cli.js:3394-3405` (`neighbor ... remote-as`) |
 
 All three pointers in that last row were re-read off this tree (#2399, #2406). The row cited
 `engine/cli.js:1901-1902`, `:3168` and `:3202-3211`, which is where they sat when `eb5159fd` measured them; #2399
 inserted 36 lines above the `router bgp` door and #2406 a further 35 above `_bgp()`, so `1901` now falls inside the
 `no dns zone` handler and `3168`/`3202` inside `_ipv6Nd()`'s prefix parser - a reader following either learned how a
 zone is deleted, or how a router-advertisement lifetime is validated, not what BGP commands this console has.
-They were read a third time on this tree (`89c0c818`): the console had grown above the BGP branches, and
-the three pointers now sit at 1944, 3246 and 3279 — 7, 7 and 6 lines below the numbers the first re-read
-recorded, which is why the row above carries this tree's figures.
+They were read a third time on this tree (`89c0c818`), where they sat at 1944, 3246 and 3279 — 7, 7 and 6
+lines below the numbers the first re-read recorded — and a fourth time once the console had grown again: they
+now sit at 2009, 3361 and 3394, which is 65, 115 and 115 lines below the third reading, and is why the row above
+carries these figures. The same pass re-read the two `engine/simulator.js` pointers in the rows above, which had
+fallen inside `ping()`'s own convergence preamble: the next-hop rewrite is at 2009 and the eBGP/iBGP distance at
+2016, with split horizon at 1998 and the advertisement rounds at 1989-2040.
 
 `docs/BGP-POLICY.md` is a **design document**, not a description of the code:
 its tables read "Today … This design changes it to" (`docs/BGP-POLICY.md:39-50`)
