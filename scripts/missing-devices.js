@@ -27,7 +27,7 @@
 const fs = require('fs');
 const path = require('path');
 const { loadCatalog } = require('../devices/registry');
-const { field, slug } = require('./request-queue');
+const { field, slug, requestOrigin } = require('./request-queue');
 
 const ROOT = path.join(__dirname, '..');
 // Same override convention as scripts/import-devices.js: tests point these at a
@@ -181,8 +181,14 @@ function scanTopologies(files) {
 // The issue form renders '### Vendor' / '### Exact model name' blocks. Hand-filed
 // issues do not, so the title ("[Device]: Vendor Model") is the fallback -- and a
 // request with no vendor is still worth reporting, just not writable.
+//
+// What counts as a request is `requestOrigin`, the same predicate request-queue.js selects
+// with: the label can be missing from a real request (#2521), and a bug that mentions
+// "[Device]:" mid-title is not a request for hardware.
 function parseIssueRequests(issues) {
-  return (issues || []).map(function (it) {
+  return (issues || []).filter(function (it) {
+    return !!requestOrigin(it);
+  }).map(function (it) {
     const body = it.body || '';
     let vendor = field(body, 'Vendor').toLowerCase();
     let model = field(body, 'Exact model name') || field(body, 'Model');
@@ -206,7 +212,12 @@ async function scanIssues() {
   // Forgejo, through its API. The old version shelled out to `gh`, which on a machine that has it
   // installed and authenticated answers about the GitHub mirror instead - a backlog nobody works
   // on, reported as fact.
-  const scan = await tracker.scanRequests({ labels: 'device-request', max: 500 });
+  // Not `labels: 'device-request'`: that would answer "[]" for a request whose label never
+  // landed, and "[]" is indistinguishable from an empty queue. Select with the shared predicate.
+  const scan = await tracker.scanRequests({
+    max: 500,
+    filter: function (it) { return !!requestOrigin(it); }
+  });
   if (!scan.available) {
     return { available: false, reason: scan.reason, count: 0, requests: [] };
   }

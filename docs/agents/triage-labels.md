@@ -17,12 +17,19 @@ Two labels carry meaning the roles cannot express, and both belong on hardware r
 
 | Label              | Meaning                                                                                                                        |
 | ------------------ | ------------------------------------------------------------------------------------------------------------------------------ |
-| `device-request`   | A `[Device]:` issue: someone wants a manufacturer or model added to the catalogue.                                              |
+| `device-request`   | A `[Device]:` issue: someone wants a manufacturer or model added to the catalogue. Applied by a workflow after filing, so it can be missing - see below. |
 | `blocked-on-build` | The vendor publishes the *type* of the field (slots, port kinds, capacities) but not its *value*. An honest close is impossible. |
 
 `blocked-on-build` is the label that stops the same request being re-walked: the thread has
 already recorded which document would settle it, so the next pass reads the comment instead
 of repeating the search.
+
+The label is applied *after* filing, so it is a convenience, not the definition. A request is
+selected by its label **or** by its `[Device]:` / `[Hardware]:` title, through one predicate
+(`requestOrigin` in `scripts/request-queue.js`) that `scripts/missing-devices.js` shares.
+Filtering on the label alone once turned a live request into an empty queue (#2521, which
+carried only `device`), and the queue now marks a title-only request `[no device-request
+label]` so the label can be applied.
 
 ## Applying
 

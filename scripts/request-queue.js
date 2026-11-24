@@ -42,6 +42,47 @@ function field(body, label) {
 // Applied by hand, read here. A request carrying it is never counted ready.
 const BLOCKED_LABEL = 'blocked-on-build';
 
+// The queue is defined by the `device-request` label - but a workflow applies that label
+// *after* filing, so it is a convenience, not a guarantee. #2521 was a real request carrying
+// only `device`: the label-filtered query answered `[]` while the tracker held it open, and
+// `[]` reads exactly like "nobody asked for anything". So a request is its label OR its
+// title shape, and `requestOrigin` says which one matched, so the queue can ask for the label.
+const REQUEST_LABEL = 'device-request';
+const REQUEST_TITLE = /^\s*\[(device|hardware)\]/i;
+
+function labelNames(issue) {
+  const labels = issue && Array.isArray(issue.labels) ? issue.labels : [];
+  return labels.map(function (l) {
+    return String(typeof l === 'string' ? l : ((l && (l.name || l.label)) || '')).toLowerCase();
+  });
+}
+
+// 'label' - it carries the label. 'title' - filed as a request, but the label never landed.
+// null - not a request. Exported because scripts/missing-devices.js has to ask the same
+// question: two dialects drift, and the reader that drifts is the one that drops work.
+function requestOrigin(issue) {
+  if (!issue) return null;
+  if (labelNames(issue).indexOf(REQUEST_LABEL) !== -1) return 'label';
+  if (REQUEST_TITLE.test(String(issue.title == null ? '' : issue.title))) return 'title';
+  return null;
+}
+
+// Every request in a tracker list, in tracker order, with the reason it was selected.
+function selectRequests(issues) {
+  const out = [];
+  for (const it of (Array.isArray(issues) ? issues : [])) {
+    const origin = requestOrigin(it);
+    if (origin) out.push({ issue: it, origin: origin });
+  }
+  return out;
+}
+
+// A title-only request is one missing its label; say so on the line, because the fix is a
+// label a maintainer applies in one command, and silence is how #2521 sat in an "empty" queue.
+function labelNote(q) {
+  return q && q.origin === 'title' ? '  [no ' + REQUEST_LABEL + ' label]' : '';
+}
+
 // The label says "blocked"; the thread says on what. Quote the maintainer's own
 // sentence - the newest comment that mentions the block, else the newest comment -
 // because a summary written by this script drifts away from the evidence.
@@ -111,7 +152,9 @@ async function main() {
 
   let issues;
   try {
-    issues = await tracker.listOpenIssues({ labels: 'device-request', max: 500 });
+    // Every open issue, not `labels: 'device-request'` - see requestOrigin: the label can be
+    // missing from a real request, and asking the tracker for it turns that request into `[]`.
+    issues = await tracker.listOpenIssues({ max: 500 });
   } catch (e) {
     console.error('Could not read issues from ' + REPO + '.');
     console.error(String(e.message).split('\n')[0]);
@@ -119,7 +162,8 @@ async function main() {
   }
 
   // Hand-filed issues may not use the form; fall back to the title.
-  const queue = issues.map(function (it) {
+  const queue = selectRequests(issues).map(function (sel) {
+    const it = sel.issue;
     const body = it.body || '';
     let vendor = field(body, 'Vendor');
     let model = field(body, 'Exact model name') || field(body, 'Model');
@@ -143,6 +187,7 @@ async function main() {
     return {
       number: it.number,
       title: it.title,
+      origin: sel.origin,
       url: it.url,
       author: it.author || null,
       created: it.createdAt,
@@ -222,7 +267,7 @@ async function main() {
     console.log('\nReady to implement (vendor, model and datasheet all present):');
     for (const q of ready) {
       console.log('  #' + q.number + '  ' + q.vendor + ' ' + q.model + '  [' + q.category + ']  ' +
-        q.ageDays + 'd old');
+        q.ageDays + 'd old' + labelNote(q));
       console.log('        ' + q.suggestedPath);
       console.log('        node scripts/request-queue.js --skeleton ' + q.number);
     }
@@ -233,7 +278,7 @@ async function main() {
     console.log('Blocked on a field the vendor does not publish (not a skeleton: the stub is a one-port box):');
     for (const q of blockedOnBuild) {
       console.log('  #' + q.number + '  ' + (q.vendor || '?') + ' ' + (q.model || q.title) +
-        '  [' + q.category + ']  ' + q.ageDays + 'd old');
+        '  [' + q.category + ']  ' + q.ageDays + 'd old' + labelNote(q));
       console.log('        ' + (q.blocker ||
         '(could not read the comments: ' + (q.blockerUnreadable || 'no reason given') + ')'));
       console.log('        ' + q.url);
@@ -243,14 +288,14 @@ async function main() {
   if (blocked.length) {
     console.log('\nWaiting on the requester:');
     for (const q of blocked) {
-      console.log('  #' + q.number + '  ' + q.title.replace(/^\[Device\]:\s*/, '') +
-        '  — missing ' + q.missing.join(', ') + '  (' + q.ageDays + 'd old)');
+      console.log('  #' + q.number + '  ' + q.title.replace(/^\[(device|hardware)\]:\s*/i, '') +
+        '  — missing ' + q.missing.join(', ') + '  (' + q.ageDays + 'd old)' + labelNote(q));
     }
   }
 
   if (dupes.length) {
     console.log('\nAlready in the catalog (can be closed):');
-    for (const q of dupes) console.log('  #' + q.number + '  ' + q.vendor + ' ' + q.model);
+    for (const q of dupes) console.log('  #' + q.number + '  ' + q.vendor + ' ' + q.model + labelNote(q));
   }
 
   if (!queue.length) {
@@ -264,6 +309,10 @@ module.exports = {
   blockerLine: blockerLine,
   BLOCKED_LABEL: BLOCKED_LABEL,
   CATEGORY_MAP: CATEGORY_MAP,
+  REQUEST_LABEL: REQUEST_LABEL,
+  requestOrigin: requestOrigin,
+  selectRequests: selectRequests,
+  labelNote: labelNote,
   parseIssue: null
 };
 

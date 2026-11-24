@@ -3,7 +3,8 @@
 // device, and the maintainer loop reads that queue. If the parsing is wrong, a
 // complete request looks empty and a well-formed one gets told it is missing
 // fields - so the parsing itself is tested.
-const { field, slug, CATEGORY_MAP, blockerLine, BLOCKED_LABEL } = require('../scripts/request-queue');
+const { field, slug, CATEGORY_MAP, blockerLine, BLOCKED_LABEL,
+  requestOrigin, selectRequests, labelNote, REQUEST_LABEL } = require('../scripts/request-queue');
 
 let passed = 0, failed = 0;
 function ok(cond, msg) {
@@ -106,6 +107,54 @@ console.log('\nA blocked request quotes the thread, it does not summarise it:');
 
   ok(blockerLine([{ body: 'x'.repeat(500) }]).length === 220,
     'a long comment is capped, so one paragraph cannot flood the queue');
+}
+
+console.log('\nA request is its label OR its title, and the queue says which one matched:');
+{
+  ok(REQUEST_LABEL === 'device-request', 'the label name is the one the workflow applies');
+  ok(requestOrigin(null) === null, 'a missing issue is not a request');
+  ok(requestOrigin({}) === null, 'an issue with no title and no labels is not a request');
+
+  ok(requestOrigin({ title: '[Device]: Acme PHANTOM-9000', labels: [] }) === 'title',
+    '#2521: a real request whose label never landed is still a request');
+  ok(requestOrigin({ title: 'Please add the Acme PHANTOM-9000',
+    labels: ['device', 'device-request'] }) === 'label', 'the label alone is enough');
+  ok(requestOrigin({ title: 'Please add the Acme PHANTOM-9000',
+    labels: [{ name: 'device-request' }] }) === 'label',
+    'a free-form title is a request when it carries the label (the tracker sends objects)');
+  ok(requestOrigin({ title: '[Hardware]: Acme PHANTOM-9000', labels: [] }) === 'title',
+    '[Hardware]: is the same request shape');
+  ok(requestOrigin({ title: '  [device]: Acme PHANTOM-9000', labels: [] }) === 'title',
+    'leading space and case do not hide a request');
+  ok(requestOrigin({ title: 'bug: the [Device]: template is broken', labels: [] }) === null,
+    'a bug report that mentions [Device]: is not a request');
+  ok(requestOrigin({ title: 'Add the Acme PHANTOM-9000', labels: ['blocked-on-build'] }) === null,
+    'carrying only blocked-on-build does not make something a request');
+  ok(requestOrigin({ title: '[Device]: Acme X', labels: ['DEVICE-REQUEST'] }) === 'label',
+    'label matching is case-insensitive');
+}
+
+console.log('\nSelection keeps every request and invents none:');
+{
+  const picked = selectRequests([
+    { number: 1, title: '[Device]: Acme A', labels: ['device-request'] },
+    { number: 2, title: '[Device]: Acme B', labels: ['device'] },
+    { number: 3, title: 'server crashed on start', labels: ['bug'] },
+    { number: 4, title: 'Please add Acme C', labels: ['device-request'] }
+  ]);
+  ok(picked.length === 3, 'three tracker rows are three requests, one of them title-only');
+  ok(picked.map(function (p) { return p.issue.number; }).join(',') === '1,2,4', 'tracker order is kept');
+  ok(picked[1].origin === 'title', 'the unlabelled one is marked as title-only');
+  ok(picked[2].origin === 'label', 'the free-form one is marked as labelled');
+  ok(selectRequests(null).length === 0, 'a missing list is empty, not a throw');
+}
+
+console.log('\nThe queue line asks for the missing label:');
+{
+  ok(labelNote({ origin: 'label' }) === '', 'a labelled request gets no note');
+  ok(labelNote({ origin: 'title' }) === '  [no ' + REQUEST_LABEL + ' label]',
+    'a title-only request says which label to apply');
+  ok(labelNote({}) === '', 'an entry with no origin is not mislabelled');
 }
 
 console.log('\n' + passed + ' passed, ' + failed + ' failed');

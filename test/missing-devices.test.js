@@ -236,6 +236,23 @@ console.log('\nOpen requests join the report, and a missing gh is not a failure:
   ok(parsed[1].vendor === null && parsed[1].model === 'Synology DS923+',
     'a hand-filed issue falls back to its title');
 
+  // #2524: this report and scripts/request-queue.js must agree on what a request is. One
+  // predicate, selected on label OR title, so a request whose label never landed still counts
+  // and a bug that only mentions the template does not.
+  const labelOnly = parseIssueRequests([
+    { number: 11, url: 'https://example/11', title: 'Please add Acme PHANTOM-9002',
+      labels: ['device-request'],
+      body: '### Vendor\n\nAcme\n\n### Exact model name\n\nPHANTOM-9002\n' }
+  ]);
+  ok(labelOnly.length === 1, 'a labelled request with a free-form title is still a request');
+  ok(labelOnly[0].model === 'PHANTOM-9002', 'its form fields are read');
+
+  const mentions = parseIssueRequests([
+    { number: 12, url: 'https://example/12', title: 'bug: the [Device]: template renders wrong',
+      labels: ['bug'], body: '### Model\n\nphantom-9003\n' }
+  ]);
+  ok(mentions.length === 0, 'a bug that mentions [Device]: is not counted as a request');
+
   const have = new Set(['acme|exists-24']);
   ok(diffIssueRequests(parsed, have, new Set(['acme|phantom-9000'])).length === 0,
     'a request a lab already reported is not counted twice');
