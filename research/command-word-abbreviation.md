@@ -96,6 +96,9 @@ later refusal names: `sh port-c 1` answers `% show port-c does not take "1"`, no
   word there cannot be told from an ambiguous one. `show ip int br` is still refused, and the test asserts it -
   that is a decision, not an omission. Guessing in those positions would accept lines a box refuses for reasons
   this console does not model (see research/parse-error-caret.md for the same reasoning about the caret).
+  `research/show-tail-abbreviation.md` (later) keeps that decision for the `show ip` position and applies the rule
+  at four slots where the vendor's syntax leaves no rival - `show vlan br`, `sh lldp nei`, `show ether summ`, and
+  `show ip interface br`.
 * **The refusal is the console's sentence, not IOS's.** A real box prints `% Ambiguous command:  "show con"`;
   this console has printed `% Ambiguous command "c": configure | converge (type more characters)` since #1661, and
   that spelling is kept rather than adding a second style for the same fact. IOS's own wording (and whether the

@@ -414,6 +414,26 @@ function resolveCommandWord(typed, table) {
   }) };
 }
 
+// A shortened keyword is still a keyword. The vendor's rule is written for "commands and keywords", with no mode
+// and no position in it - "You need to enter only enough characters for the switch to recognize the command as
+// unique" (Catalyst 2960 12.2(46)SE Software Configuration Guide, Using the Command-Line Interface; the 15.2(2)E
+// routing guide repeats it under "Understanding Abbreviated Commands") - and operators write `sh vlan br`,
+// `sh ether summ`, `sh lldp nei` and `sh ip int br` in every pasted session log (research/show-tail-abbreviation.md
+// carries the captures). This console resolved the *first* word only, so all four answered the typo sentence.
+//
+// The rule is applied one word at a time, and only at a slot where the vendor's own syntax lists nothing else
+// starting with the same letters - `brief` after `show ip interface` and after `show vlan`, `summary` among
+// `show etherchannel`'s six views, `neighbors` after `show lldp`. It is deliberately NOT applied where the image
+// may hold a rival the console does not model: `show mac add` is accepted on a 3750 and answered
+// `% Ambiguous command` on an image that also has `show mac address`, and `show ip i` is `interface` on one box and
+// `interface | inspect` on another. Those positions keep their existing refusal, so the console never claims an
+// answer an image would call ambiguous.
+function shortenedKeyword(typed, word) {
+  const w = String(typed === undefined || typed === null ? '' : typed).trim().toLowerCase();
+  if (!w || w.length >= word.length) return null;
+  return word.indexOf(w) === 0 ? word : null;
+}
+
 // `show ip interface brief` is one table with six columns, and its header is the table's first row - padded
 // from the same widths, so the two cannot drift apart. They had drifted: the header put `OK?` in four columns
 // while every row put `YES  ` in five, so `Method` sat one column right of the word `Method` above it and every
@@ -6736,6 +6756,18 @@ class CliSession {
       if (viewWord.word === 'etherchannel') this._showAliasFrom = 'show ' + typedView;
       tokens = [viewWord.word].concat(tokens.slice(1));
     }
+    // `show ip interface br` is `show ip interface brief`, and it has to be resolved *here*: the redirect one line
+    // down rewrites the bare alias `interface` to `interfaces`, after which the tail is read as a port name and
+    // `show ip interface br` answers `% No interface br on ...` - a socket the operator never named. The slot holds
+    // one keyword in the vendor's own grammar, `show ip interface [type number] [brief]` (Consolidated Platform
+    // Command Reference, 15.2(7)E, "show ip interface"), so a shortening there cannot be ambiguous on any image,
+    // which is the condition shortenedKeyword() asks before it accepts one. A tail that is not a prefix of `brief`
+    // still falls through to the port form, unchanged (research/show-tail-abbreviation.md).
+    if (tokens.length > 2 && String(tokens[0] || '').toLowerCase() === 'ip' &&
+        String(tokens[1] || '').toLowerCase() === 'interface') {
+      const shortBrief = shortenedKeyword(tokens[2], 'brief');
+      if (shortBrief) tokens[2] = shortBrief;
+    }
     // A `show ip <view>` spelling is answered by the door that has the view (#1447), before any other branch sees it.
     const redirect = this._showIpRedirect(tokens);
     if (redirect && redirect.rewrite) tokens = redirect.rewrite;
@@ -7111,6 +7143,13 @@ class CliSession {
     } else if (what === 'power' && (tokens[1] || '').toLowerCase() === 'inline') {
       out.push.apply(out, this._showPowerInline(tokens.slice(2)));
     } else if (what === 'lldp') {
+      // `sh lldp nei` is `show lldp neighbors` - the spelling in a Learning Network transcript - and `n` is the
+      // only initial `show lldp` has among its views (entry, errors, interface, neighbors, traffic), so a
+      // shortening of it is unambiguous on every image. The British spelling keeps its own completion, so
+      // `show lldp neighbou` still reaches `neighbours` rather than being sent to the American one.
+      const shortLldp = tokens.length > 1
+        ? (shortenedKeyword(tokens[1], 'neighbors') || shortenedKeyword(tokens[1], 'neighbours')) : null;
+      if (shortLldp) { tokens = tokens.slice(0, 1).concat([shortLldp], tokens.slice(2)); kw[1] = shortLldp; }
       const lldpSub = String(tokens[1] || '').toLowerCase();
       if (tokens.length === 1) {
         // `show lldp` is the protocol's status view, not its neighbour table. Both answers are one word away from
@@ -7291,6 +7330,12 @@ class CliSession {
       }
       out.push.apply(out, this._showVrrp());
     } else if (what === 'vlan') {
+      // `show vlan br` is `show vlan brief`, and `b`/`br`/`bri`... cannot mean another word here: the vendor's
+      // syntax is `show vlan {brief | id vlan-id | name vlan-name | mtu vlan-id}`, and none of the others starts
+      // with a `b` (research/show-tail-abbreviation.md; captures of `sh vlan br` across 3548, 3560, 3750-class
+      // boxes print the brief table).
+      const shortVlan = tokens.length > 1 ? shortenedKeyword(tokens[1], 'brief') : null;
+      if (shortVlan) { tokens = tokens.slice(0, 1).concat([shortVlan], tokens.slice(2)); kw[1] = shortVlan; }
       if (tokens.length > 1 && String(tokens[1]).toLowerCase() !== 'brief') {
         return showNoTail('show vlan', tokens.slice(1), 'every VLAN is listed',
           'the Id column is the VLAN number');
@@ -7571,6 +7616,19 @@ class CliSession {
         groupFilter = String(Number(rest[0]));
         rest = rest.slice(1);
       }
+      // A shortened view word is a view word: `sh ether summ`, `sh ether sum` and `sh etherc summ` are how the
+      // table is asked for in the field (Cisco Community transcripts on a 3560, a 3650, a 4500 and a 6500 all
+      // print the summary from one). Each token is completed against the vendor's six views, so `s` is `summary`
+      // and `b` is `brief`, while `p` - which could be `port`, `port-channel` or `protocol` - is left as typed and
+      // draws the sentence it always drew (research/show-tail-abbreviation.md records the ambiguity it cannot
+      // resolve). A group number is not a word and is untouched.
+      const ETHER_VIEW_WORDS = ['detail', 'port', 'port-channel', 'protocol', 'summary', 'brief'];
+      rest = rest.map(function (t) {
+        const w = String(t).toLowerCase();
+        if (!w || ETHER_VIEW_WORDS.indexOf(w) !== -1) return t;
+        const hits = ETHER_VIEW_WORDS.filter(function (v) { return v.indexOf(w) === 0; });
+        return hits.length === 1 ? hits[0] : t;
+      });
       {
         // One of the six views is here, the other five are refused by name (ETHERCHANNEL_VIEW_KEYWORDS).
         // A word is checked against the view list before the typo list, because `detail` is not a typo: it is

@@ -88,6 +88,10 @@ a DHCP pool block the **first word and the word after `no`**.
 | `dns 8.8.8.8`, `rang 10.0.0.100 10.0.0.110` | `dns-server 8.8.8.8`, `range 10.0.0.100 10.0.0.110` |
 | `lea inf`, `ho 10.0.0.5 aa:bb:cc:00:00:05` | `lease infinite`, `host 10.0.0.5 aa:bb:cc:00:00:05` |
 | `no lea`, `no po`, `exi` | `no lease`, `no pool`, `exit` |
+| `sh vlan br` | `show vlan brief` |
+| `sh lldp nei` | `show lldp neighbors` |
+| `sh ether summ` | `show etherchannel summary` |
+| `sh ip interface br` | `show ip interface brief` |
 
 A shortening two words share is refused, and the refusal names the words it could have been - the same sentence
 `configure` has answered with since it learned to abbreviate:
@@ -125,9 +129,13 @@ r1(dhcp-config)#e
 ```
 
 The rule stops where this console has no complete list of the words that could appear. The words after `show ip`
-are not shortened - type `show ip interface brief` in full; `sh ip int br` is refused as an unknown view - and a
-keyword such as `brief` is not shortened either, nor is a value such as a port name: `sh int Fa` names no port
-rather than guessing one. The **second** word of a config line is at that boundary too: `ip ro 10.0.0.0 255.0.0.0
+are not shortened - type `show ip interface brief` in full; `sh ip int br` is refused as an unknown view - nor is a
+value such as a port name: `sh int Fa` names no port rather than guessing one. A *tail* keyword is shortened where
+the vendor's own syntax for that slot lists nothing else beginning with the same letters - `show vlan br`,
+`show lldp nei`, `show etherchannel summ` and `show ip interface br` print, line for line, what the whole spelling
+prints - while the positions where an image may hold a rival keep their refusal: a shortened `mac` tail (`mac add`)
+is accepted on one image and `% Ambiguous command` on another, and the word after `show ip` is `interface` on a
+switch but `interface | inspect` on a router. `research/show-tail-abbreviation.md` has the captures, the four slots and the boundary. The **second** word of a config line is at that boundary too: `ip ro 10.0.0.0 255.0.0.0
 10.0.0.1` is still refused, because this console cannot enumerate the words after `ip`. An interface block's
 keyword positions are the exception, because their sets are closed: the word after `ip`, `ipv6`, `switchport`,
 `encapsulation`, `clock` and `no`, the value of `switchport mode` (`access|trunk`), and the eight words a DHCP pool

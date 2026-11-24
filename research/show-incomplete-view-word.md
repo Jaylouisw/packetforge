@@ -62,7 +62,9 @@ the same two words invalid.
   address-table` transcript is the nearest printed instance of the same rule.
 * IOS would abbreviate the second word too (`show mac addr`), since `address-table` is a keyword like any other.
   **This console still refuses that** (`% Invalid show command: mac addr`) — it is a different question (tail
-  abbreviation) and was left alone.
+  abbreviation) and was left alone — see `research/show-tail-abbreviation.md`, which settles the class of that
+  answer (a box accepts a shortened keyword or calls it ambiguous, never invalid) and names the four slots where
+  this console now accepts one.
 * The word after `show` was matched case-insensitively by this console's resolver while the tail was compared
   with `===` (`tokens[1] === 'address-table'`), so `show mac Address-Table` was refused. **That half is settled:**
   a box matches a keyword in any case, and the tail is now compared through the same lowercased copy as the rest
