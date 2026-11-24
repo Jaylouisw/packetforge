@@ -859,8 +859,7 @@ which takes no prefix length - and refuses the mix-up in its own words:
 ```
 R1(config-if)# ipv6 address fe80::1/64
 % Link local requires link-local keyword
-  This console derives the link-local from the port's MAC (Gi0/0 is fe80::ff:fe00:0);
-  it has no manual form.
+  This console derives the link-local from the port's MAC (Gi0/0 is fe80::ff:fe00:0); it has no manual form.
 R1(config-if)# ipv6 address 2001:db8::1 link-local
 % Invalid link-local address
 ```
@@ -1166,8 +1165,7 @@ subinterface and bundle ports and nothing else. Asking this console for the sock
 
 ```
 Catalyst 2811# show interfaces Console
-% Console is the console line, not an interface: it carries a terminal at a baud rate, not frames, and a box
-  keeps its settings under `line con 0`
+% Console is the console line, not an interface: it carries a terminal at a baud rate, not frames, and a box keeps its settings under `line con 0`
 ```
 
 `interface Console` is refused with the same words and leaves the cursor where it was, because opening it let
@@ -4241,8 +4239,7 @@ sw1(config-if)#spanning-tree cost 19
 
 ```
 sw1(config-if)#spanning-tree portfast
-% spanning-tree portfast is not modelled: this device runs one spanning tree, and its only tunable is
-  `spanning-tree priority <0-61440 in 4096 steps>`
+% spanning-tree portfast is not modelled: this device runs one spanning tree, and its only tunable is `spanning-tree priority <0-61440 in 4096 steps>`
 sw1(config-if)#spanning-tree portfst
 % Unknown spanning-tree sub-command "portfst": the only form is `spanning-tree priority <0-61440 in 4096 steps>`
 ```
@@ -4505,8 +4502,7 @@ The word is now read, and the two forms answer alike — portfast, cost, bpdugua
 
 ```
 sw1(config)#no spanning-tree portfast
-% spanning-tree portfast is not modelled, so there is nothing to remove: this device runs one
-  spanning tree, and its only tunable is `spanning-tree priority <0-61440 in 4096 steps>`
+% spanning-tree portfast is not modelled, so there is nothing to remove: this device runs one spanning tree, and its only tunable is `spanning-tree priority <0-61440 in 4096 steps>`
 ```
 
 ### `help` promised a spelling the parser refuses
