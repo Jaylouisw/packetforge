@@ -400,6 +400,16 @@ Two traps: exclusion only works when **both** halves carry `comboWith`, and a
 device with combo ports has *more interfaces than physical ports* — that is
 correct, not a miscount.
 
+This is a storage convention, not a vendor name. The second half's key is printed
+verbatim by the console, so a Cisco `C1000-8P-2G-L` answers `show ip interface brief`
+and `show running-config` with `Gi1/0/9-sfp` - an interface no IOS box has, since the
+vendor's own model is *one interface with dual front ends* and one `media-type` knob.
+The console also lets the two halves hold different VLANs, and with a cable in the SFP
+half it reports `show interfaces GigabitEthernet1/0/9` as down while `Gi1/0/9-sfp` is up.
+[research/combo-port-cli-name.md](../research/combo-port-cli-name.md) records the vendor
+sentence, the measured defect on the 39 specs that declare a combo, and the three ways
+to close it.
+
 ### 4.6 An antenna port is not cablable
 
 `CAGE_MATE.antenna` is `['antenna']`, and `canMate` short-circuits first: if
