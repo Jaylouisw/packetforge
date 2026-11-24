@@ -1729,9 +1729,24 @@ jobs:
           set -eu
           timeout --signal=TERM --kill-after=10 300 npm ci --ignore-scripts --no-audit --no-fund
           echo "typescript $(./node_modules/.bin/tsc --version) on $(node --version)"
-      # Two checks, two steps, so a red log names which one it was: the compiler's own
-      # verdict, and the scan for the escape hatch (`scripts/check-no-any.ts` - `tsc` has no
-      # flag that bans `any`, and a linter would be a second devDependency).
+      # Three checks, three steps, so a red log names which one it was: the compiler's own
+      # verdict, the scan for the escape hatch (`scripts/check-no-any.ts` - `tsc` has no
+      # flag that bans `any`, and a linter would be a second devDependency), and the
+      # resolver (`scripts/check-module-paths.ts`).
+      #
+      # The resolver belongs here rather than in a test leg because it asks a question about
+      # one tree, exactly as `tsc` does: whether every `require()` in every `.js` and `.ts`
+      # file resolves the way CommonJS will. Its answer cannot differ between Node 22 and
+      # Node 24, so a second copy in the matrix would print one verdict twice; the test legs
+      # run the suite, and this job runs the three questions about the source that a green
+      # suite cannot answer. It also has to run where a `.ts` file can be *read* as one -
+      # this job's pinned 22.23.5, which the step above asserts with `check-node-floor.js`,
+      # not the Node 20 runner image that parses `.ts` as JavaScript.
+      #
+      # It exits 0 with one note printed - `engine/segment.ts:118 require('./lag')`, correct
+      # today and fatal the day `lag.js` is converted - so what this step asserts is *0
+      # unresolvable specifiers*, with the note in the log of every pull request instead of
+      # only on the machine of whoever ran `scripts/premerge-check.js` by hand.
       - name: Typecheck (tsc --noEmit)
         run: |
           set +e
@@ -1748,6 +1763,15 @@ jobs:
           rc=$?
           if [ "$rc" -eq 124 ] || [ "$rc" -eq 137 ]; then
             echo "::error title=No any::the scan was still running after 120 s and was stopped"
+          fi
+          exit "$rc"
+      - name: Every require() resolves (check-module-paths)
+        run: |
+          set +e
+          timeout --signal=TERM --kill-after=10 120 node scripts/check-module-paths.ts
+          rc=$?
+          if [ "$rc" -eq 124 ] || [ "$rc" -eq 137 ]; then
+            echo "::error title=Module paths::the scan was still running after 120 s and was stopped"
           fi
           exit "$rc"
 

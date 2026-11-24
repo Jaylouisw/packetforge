@@ -74,6 +74,31 @@ t('The guard can fail');
 }
 
 // ---------------------------------------------------------------------------
+t('The guard reads a .ts file, not only a .js one');
+
+{
+  // This is the half that used to be missing. `node` strips the types and runs the rest, so a
+  // `.ts` file reaches the same runtime API surface - but the guard's extension set was `.js`,
+  // `.mjs`, `.cjs`, and every file the repository converted left it silently. The probe lives
+  // under `tmp/` (gitignored) because `tsconfig.json` includes `scripts/**/*.ts`: a file that
+  // exists for one test must not be something `npm run typecheck` can read in the same minute.
+  const dir = path.join(ROOT, 'tmp');
+  const probe = path.join(dir, 'node-surface-probe.ts');
+  const banned = 'to' + 'Sorted';
+  const call = '.' + banned + '(';
+  fs.mkdirSync(dir, { recursive: true });
+  fs.writeFileSync(probe, 'const a: number[] = [3, 1, 2]' + call + ');\nvoid a;\n');
+  try {
+    const dirty = run();
+    ok(dirty.code !== 0, 'a post-18 API inside a .ts file fails the guard');
+    ok(dirty.out.indexOf('node-surface-probe.ts') !== -1, 'and the message names the .ts file');
+    ok(dirty.out.indexOf(banned) !== -1, 'and names the API');
+  } finally {
+    fs.rmSync(probe, { force: true });
+  }
+}
+
+// ---------------------------------------------------------------------------
 t('The floor is documented where a contributor will look');
 
 const listed = run(['--list']);

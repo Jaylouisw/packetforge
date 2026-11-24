@@ -38,7 +38,7 @@ Four verification checks on a code change, all of which must be green before a m
 |---|---|
 | `Test (Node 22)` | Syntax or API that only works on newer Node. The floor is 22.18 and this is the leg that holds it — the oldest runtime that can run a `.ts` file with no build step (`docs/TYPESCRIPT.md`) |
 | `Test (Node 24)` | Behaviour that regressed on the newest runtime in the window |
-| `Typecheck` | A type error, and any `any` (`tsc --noEmit`, then `scripts/check-no-any.ts`). One answer about one tree, so one job — not a copy per Node version |
+| `Typecheck` | A type error, an `any`, or a `require()` CommonJS cannot resolve (`tsc --noEmit`, then `scripts/check-no-any.ts`, then `scripts/check-module-paths.ts`). One answer about one tree, so one job — not a copy per Node version |
 | `Server smoke and Docker build` | A server that boots but cannot serve (every API route, the catalogue, WebSocket upgrade) **or** a `Dockerfile` that does not build. One status, two checks: the smoke client runs beside the image build in the same job, and the failure titles still separate them. Runs on a pinned Node it downloads and then asserts against the 22.18 floor (`scripts/check-node-floor.js`) - the runner image ships 20, which cannot load `engine/segment.ts` (#2488). Present as a build-syntax proxy, not a full image test |
 
 The test job runs more than the suite (`ci.yml`, the `test` job):
@@ -46,17 +46,22 @@ The test job runs more than the suite (`ci.yml`, the `test` job):
 - `npm test` — `audit:ports`, then `audit:devices`, then `check:bytes`, then every
   `test/*.test.js` **and** `test/*.test.ts` that `scripts/run-tests.js` discovers;
 - `scripts/syntax-check.js`, started beside the suite and waited on at the end of the same step;
-- `scripts/check-node-surface.js` — no API newer than Node 18 (stricter than the declared 22.18 floor, on purpose);
+- `scripts/check-node-surface.js` — no API newer than Node 18 (stricter than the declared 22.18 floor, on purpose), in every `.js`, `.mjs`, `.cjs` and `.ts` file, because `node` runs all four;
 - `scripts/check-canonical-urls.js` — every project URL points at Forgejo;
 - `scripts/check-ci-disk-hygiene.js` — every job that builds an image bounds what it writes;
 - `examples/build-examples.js`, then `scripts/missing-devices.js examples --no-issues`, which
   cross-checks every model the built labs name.
 
-The `typecheck` job is separate and adds the two things nothing else can check: `tsc --noEmit`
-over the TypeScript the repository has written, and `scripts/check-no-any.ts` over the same files.
-It is the only job in this workflow that installs anything — `typescript` is the repository's only
-devDependency. What that toolchain is, and why there is no build step, is
-[`TYPESCRIPT.md`](TYPESCRIPT.md); it is the page to read before writing a line of it.
+The `typecheck` job is separate and adds the three things nothing else can check: `tsc --noEmit`
+over the TypeScript the repository has written, `scripts/check-no-any.ts` over the same files, and
+`scripts/check-module-paths.ts` over every `require()` in the tree. All three are properties of one
+tree, so they are one job and one answer, not a copy per Node version; the resolver is there rather
+than in a test leg for the same reason `tsc` is. It prints one note every run —
+`engine/segment.ts:118 require('./lag')`, which resolves today and breaks the day `lag.js` becomes
+`.ts` — and exits 0 on it, so what the step asserts is *0 unresolvable specifiers* while the latent
+one stays visible on every pull request. It is the only job in this workflow that installs anything
+— `typescript` is the repository's only devDependency. What that toolchain is, and why there is no
+build step, is [`TYPESCRIPT.md`](TYPESCRIPT.md); it is the page to read before writing a line of it.
 
 This paragraph used to name only the suite, `audit:ports`/`check:bytes`, the syntax check and the
 canonical-URL check, and it omitted `audit:devices` — a script `CHANGELOG.md` has advertised since
@@ -71,6 +76,7 @@ npm test                                # audit:ports, audit:devices, check:byte
 npm run syntax                          # syntax-check across every JS and TS file
 npm run typecheck                       # tsc --noEmit, then the scan that bans `any`
 npm run check:no-any                    # just the `any` scan
+npm run check:module-paths              # every require() resolves the way CommonJS will
 node scripts/check-node-surface.js      # no API newer than the Node 18 floor
 node scripts/check-canonical-urls.js    # every project URL points at Forgejo
 npm run check:ci-disk                   # every image-building job bounds what it writes

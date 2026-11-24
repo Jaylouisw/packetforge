@@ -11,6 +11,11 @@
  * This is a static check on purpose: it needs no second Node install, so it runs on every push
  * including the ones that only ever see one interpreter.
  *
+ * It reads the files that *run* - `.js`, `.mjs`, `.cjs` and `.ts`/`.mts`/`.cts`, which `node`
+ * executes after stripping the types. That last part is not decoration: the repository converts
+ * `.js` to `.ts` on touch, so a gate that only read `.js` would lose sight of every file it
+ * converted, and the loss would look exactly like a clean run.
+ *
  * Usage:
  *   node scripts/check-node-surface.js            # check, exit 1 on findings
  *   node scripts/check-node-surface.js --list     # also print what is allowed and why
@@ -22,7 +27,15 @@ const path = require('path');
 
 const ROOT = path.join(__dirname, '..');
 const SKIP_DIRS = new Set(['node_modules', '.git', 'research', 'examples', 'dist', 'coverage']);
-const EXTS = new Set(['.js', '.mjs', '.cjs']);
+// `.ts` is here because a `.ts` file *runs*: `node` strips the types and executes the rest, so it
+// reaches exactly the runtime API surface a `.js` file does - and the files this repository has
+// been converting are the ones nobody was checking (`docs/TYPESCRIPT.md`). `.mts` and `.cts` are
+// the same two module kinds under the extensions TypeScript gives them; nothing uses them yet,
+// they cost one Set entry, and the alternative is discovering the hole the day one lands.
+const EXTS = new Set(['.js', '.mjs', '.cjs', '.ts', '.mts', '.cts']);
+// Not this gate's business: a declaration file is not executed, so a post-18 API named in one is a
+// type *about* a runtime rather than a use of it. `.d.ts` reaches this test through `.ts`.
+const DECLARATION = /\.d\.(ts|mts|cts)$/;
 
 // Anything added after Node 18. Each entry: needle, the version it appeared, and the shape to
 // suggest instead. Keep the suggestions concrete - the point is to tell a contributor what to type.
@@ -57,6 +70,7 @@ function walk(dir, out) {
       if (SKIP_DIRS.has(e.name)) continue;
       walk(full, out);
     } else if (EXTS.has(path.extname(e.name))) {
+      if (DECLARATION.test(e.name)) continue;
       out.push(full);
     }
   }
