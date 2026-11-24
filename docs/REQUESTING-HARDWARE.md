@@ -23,12 +23,18 @@ If you already have the JSON, skip the form and open a PR — see
 
 ## What happens next
 
-1. **Automatic acknowledgement.** A workflow labels the issue `device-request` and
-   comments with what is present and what is missing. Nothing waits on a human to
-   tell you the datasheet link is blank.
-   If the workflow misses the label, the title still counts: `scripts/request-queue.js` selects on
-   a `[Device]:` title as well as on `device-request`, so a request cannot go unread because a
-   label was not applied.
+1. **The form is the first check, and no comment announces it.** The request is a YAML issue
+   form, `.github/ISSUE_TEMPLATE/device_request.yml`, and every field the entry is built from -
+   vendor, exact model, category, ports and the datasheet URL - is `required`, so a request
+   cannot be filed with a blank datasheet. Nothing waits on a human to point that out later, and
+   nothing says it either: no workflow in `.forgejo/workflows/` triggers on an opened issue, and
+   no script comments at filing time. The form's own `title:` and `labels:` lines are what put
+   `[Device]: ` in front of the title and `device-request` on the issue, and neither is
+   load-bearing on its own: `scripts/request-queue.js` selects on a `[Device]:` or `[Hardware]:`
+   title as well as on the label, so a request cannot go unread because a label was not applied.
+   The first automated comment arrives with the push-to-main device sweep, and only when the
+   catalogue already has the model - it names the spec file and closes the request
+   ([DEVICE_REQUEST_SWEEP.md](DEVICE_REQUEST_SWEEP.md)).
 2. **Triage.** `node scripts/request-queue.js` lists every open request, checks
    each against the catalog (so duplicates are caught), and separates "ready to
    implement" from "waiting on the requester" and from "blocked on a field the
