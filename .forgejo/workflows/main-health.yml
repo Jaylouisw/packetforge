@@ -51,6 +51,10 @@ on:
         description: 'true = print what it would do, open and close nothing'
         required: false
         default: 'true'
+      window:
+        description: 'Minutes of push runs on main to sweep for a red whose commit is no longer the head'
+        required: false
+        default: '20'
 
 permissions:
   contents: read
@@ -76,6 +80,7 @@ jobs:
           TOKEN: ${{ secrets.FORGEJO_TOKEN || secrets.GITHUB_TOKEN || github.token }}
           INPUT_SHA: ${{ github.event.inputs.sha }}
           DRY_RUN: ${{ github.event.inputs.dry_run || 'false' }}
+          INPUT_WINDOW: ${{ github.event.inputs.window }}
         run: |
           set -u
           api="${GITHUB_API_URL:-http://10.0.10.20:3000/api/v1}"
@@ -234,6 +239,145 @@ jobs:
               "$api/repos/$repo/issues" || true
             say "opened '${title}' for ${short}"
             exit 0
+          fi
+
+          # A red push run on `main` is only visible for as long as its commit is the head.
+          #
+          # This tick runs every 15 minutes; pushes to `main` land every 1-3 minutes (20 in the
+          # 69 minutes to 2026-11-24T04:38Z). So the head this job reads is usually a commit
+          # that arrived *after* the one that went red, and a red superseded before the tick
+          # fires is a red nothing reports - the failure this file exists for, one push earlier.
+          #
+          # Measured on 2026-11-24: `Test (Node 22)` failed on the push run for ea5ad1a1
+          # (run 10337, task created 03:09:55Z, failed 03:11:05Z) while its Node 24 sibling ran
+          # the same commit green. The next push to `main` (run 10341) started at 03:11:07Z -
+          # two seconds later - so by the 03:15:03Z tick the head was a different, green commit
+          # and no issue was opened: the issue list has nothing between #2521 (03:58:31Z) and
+          # #2524 (04:26:17Z). A red on `main` was invisible 122 seconds after it happened.
+          #
+          # So the green path, and only the green path, also sweeps the `ci.yml` push runs on
+          # `main` that started inside the window and finished red. Nothing about the head
+          # verdict changes - a red head still opens and updates the one tracking issue exactly
+          # as before, and a green head with an empty window still closes it - this only adds a
+          # record for the reds the head could never show. The window is 20 minutes against a
+          # 15-minute tick, so a red is seen by two consecutive ticks at most; the second one
+          # finds its record by title and says nothing.
+          #
+          # The list is paged and answers at most 50 rows a page whatever `limit` says (measured:
+          # `limit=100` returns 50), and a page is about 23 minutes of this repository's traffic
+          # (150-200 tasks in 69 minutes, measured above). So the page count is derived from the
+          # window - one page for the default 20 minutes, capped at eight - and the rows are
+          # deduplicated by run: a task list that shifts between two reads repeats a run rather
+          # than losing one.
+          window="${INPUT_WINDOW:-}"
+          case "${window:-}" in ''|*[!0-9]*) window=20 ;; esac
+          pages=$(( (window + 22) / 23 ))
+          [ "$pages" -lt 1 ] && pages=1
+          [ "$pages" -gt 8 ] && pages=8
+          sweep=""
+          for page in $(seq 1 "$pages"); do
+            tasks=$(http "${auth[@]}" "$api/repos/$repo/actions/tasks?limit=100&page=${page}" 2>/dev/null) || tasks=""
+            if [ -z "$tasks" ]; then
+              # An unreadable run list is not "no reds": say so rather than reporting a clean
+              # sweep, for the reason every other read in this job gives.
+              warn "the run list page ${page} could not be read, so a red push run on main older than ${short} was not looked for"
+              break
+            fi
+            sweep="${sweep}$(printf '%s' "$tasks" | PW_SHA="$sha" PW_WINDOW="$window" node -e '
+              let d = "";
+              process.stdin.on("data", (c) => { d += c; });
+              process.stdin.on("end", () => {
+                let j; try { j = JSON.parse(d); } catch (e) { return; }
+                const runs = (j && j.workflow_runs) || [];
+                const head = process.env.PW_SHA || "";
+                const win = Number(process.env.PW_WINDOW || 20);
+                const cutoff = Date.now() - win * 60000;
+                const byRun = new Map();
+                for (const t of runs) {
+                  if (t.workflow_id !== "ci.yml") continue;
+                  if (t.head_branch !== "main") continue;
+                  if (!t.head_sha || t.head_sha === head) continue;
+                  const at = Date.parse(t.created_at || "");
+                  if (!Number.isFinite(at) || at < cutoff) continue;
+                  const key = String(t.run_number);
+                  if (!byRun.has(key)) byRun.set(key, { sha: t.head_sha, at: t.created_at, bad: [], failed: false });
+                  const r = byRun.get(key);
+                  if (t.status === "failure") r.failed = true;
+                  if (t.status === "failure" || t.status === "error") r.bad.push(t.name || "?");
+                }
+                for (const [run, r] of byRun) {
+                  if (!r.failed) continue;
+                  console.log(r.sha + " " + run + " " + r.at + " " + r.bad.join(", "));
+                }
+              });' 2>/dev/null || true)"
+          done
+          sweep=$(printf '%s' "$sweep" | sort -u)
+
+          if [ -n "${sweep:-}" ]; then
+            say "sweeping the last ${window} minutes of push runs on main for a red the head cannot show:"
+            printf '%s\n' "$sweep" | while read -r rsha run at jobs; do
+              [ -n "${rsha:-}" ] || continue
+              rshort=$(printf '%s' "$rsha" | cut -c1-10)
+              rtitle="main was red at ${rshort}"
+              say "  ${rshort} run ${run} (${at}) failed: ${jobs:-a job with no name}"
+              # A record is one issue per red commit, found by its exact title in open and
+              # closed issues both: the 20-minute window overlaps the next tick, and a second
+              # record for the same commit is noise. One listing call, no search token.
+              listed=$(http "${auth[@]}" "$api/repos/$repo/issues?state=all&type=issues&limit=50&sort=recentupdate" 2>/dev/null) || listed=""
+              if [ -z "$listed" ]; then
+                warn "${rshort}: the issue list could not be read, so run ${run} was not recorded"
+                continue
+              fi
+              known=$(printf '%s' "$listed" | PW_TITLE="$rtitle" node -e '
+                let d = "";
+                process.stdin.on("data", (c) => { d += c; });
+                process.stdin.on("end", () => {
+                  let a = []; try { a = JSON.parse(d); } catch (e) { a = []; }
+                  const hit = a.find((i) => i && i.title === process.env.PW_TITLE && !i.pull_request);
+                  process.stdout.write(hit ? String(hit.number) : "");
+                });' 2>/dev/null || true)
+              if [ -n "${known:-}" ]; then
+                say "  ${rshort} is already recorded in #${known} - nothing to add"
+                continue
+              fi
+              rbody=$(cat <<TXT
+          The push run for ${rshort} on main finished red: **${jobs:-a job with no name}** (run ${run}, ${at}).
+
+          A later push made this commit stop being the head of main before the 15-minute Main health tick could look at it, so no issue was opened at the time - the red X sat on a run nobody opens, which is exactly the failure this workflow exists to report.
+
+          This issue is opened already closed: it is the record, not a request. Nothing has to be fixed if the tree that followed it is green; if the failure was real, its run is the only place it survived. Opened by the Main health workflow when main was green at ${short}.
+
+          <!-- superseded-red:${rsha} -->
+          TXT
+          )
+              if [ "$dry" = "true" ]; then
+                say "  would open (and close) an issue titled '${rtitle}':"
+                printf '%s\n' "$rbody"
+                continue
+              fi
+              opened=$(http -o /dev/null -w '%{http_code}' -X POST "${auth[@]}" "${json[@]}" \
+                -d "$(PW_TITLE="$rtitle" PW_BODY="$rbody" node -e 'process.stdout.write(JSON.stringify({title: process.env.PW_TITLE, body: process.env.PW_BODY}))')" \
+                "$api/repos/$repo/issues" 2>/dev/null) || opened="000"
+              case "$opened" in
+                200|201) say "  opened '${rtitle}' for run ${run}" ;;
+                *) warn "${rshort}: the record for run ${run} could not be opened (HTTP ${opened})"; continue ;;
+              esac
+              num=$(http "${auth[@]}" "$api/repos/$repo/issues?state=open&type=issues&limit=50&sort=recentupdate" 2>/dev/null | PW_TITLE="$rtitle" node -e '
+                let d = "";
+                process.stdin.on("data", (c) => { d += c; });
+                process.stdin.on("end", () => {
+                  let a = []; try { a = JSON.parse(d); } catch (e) { a = []; }
+                  const hit = a.find((i) => i && i.title === process.env.PW_TITLE && !i.pull_request);
+                  process.stdout.write(hit ? String(hit.number) : "");
+                });' 2>/dev/null || true)
+              case "${num:-}" in
+                ''|*[!0-9]*) warn "${rshort}: the record for run ${run} was opened but its number could not be read, so it is left open" ;;
+                *)
+                  http -o /dev/null -w 'close: %{http_code}\n' -X PATCH "${auth[@]}" "${json[@]}" \
+                    -d '{"state":"closed"}' "$api/repos/$repo/issues/${num}" 2>/dev/null || true
+                  say "  closed #${num}: the record is the point, and the tree has moved on" ;;
+              esac
+            done
           fi
 
           # Green: nothing failing on this head.
