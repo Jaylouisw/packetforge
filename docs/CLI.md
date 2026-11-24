@@ -3196,8 +3196,16 @@ Each rule carries how many packets it has matched, counted at the one place ever
 permits are counted as well as denies. A rule that has matched nothing prints **no count at all** — saying
 "0 matches" on every line of a twenty-line list is noise, and the absence of a number is the same statement.
 
-`(implicit deny all: N matches)` appears once the implicit deny has actually dropped something. It is a real
-rule even though nobody wrote it, and it is what throws away the traffic that matched nothing.
+Traffic that matches nothing is thrown away by the list's unwritten final `deny any`, and **that drop gets
+no line here**, because a box gives it no counter. Cisco puts the rule in one sentence - "Only packets denied by
+explicit deny statements are counted, which is why the explicit deny statement will yield more complete data for
+you" ([IP Access List Overview, IOS XE 16](https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/sec_data_acl/configuration/xe-16/sec-data-acl-xe-16-book/sec-access-list-ov.html);
+same paragraph in the 16.9, 3S and 2960-XR 15.2(7)E ACL books) - and two machine-recorded sessions print
+counts on the entries that have them with no implicit entry anywhere, one of them a list whose whole body is
+empty ([ntc-templates](https://github.com/networktocode/ntc-templates/tree/master/tests/cisco_ios/show_access-list);
+research/acl-implicit-deny-counter.md). This table used to invent `  (implicit deny all: 2 matches)`; the
+packets are still accounted for, by `show interfaces` (`2 drops ("ACL 101 denied (in)" x2)`) and by the lost
+echoes `ping` reports.
 
 Counters are keyed by the rule's own text, so rewriting a list does not re-attribute old traffic to a new
 rule that happens to sit at the same position. `no access-list <id>` deletes the counters with the list.

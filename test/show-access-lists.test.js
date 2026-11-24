@@ -115,21 +115,33 @@ console.log('A permitted flow names the rule that permitted it:');
 }
 
 console.log('');
-console.log('The implicit deny is a real rule and is reported when it fires:');
+console.log('The implicit deny drops the traffic and carries no counter, because a box counts only written lines:');
 {
-  // Only ICMP is permitted; a ping to an address that is not on the wire still matches it, so use TCP-ish
-  // traffic: an HTTP get to a port with no server. Simpler and more direct - permit only a host that is not
-  // involved, so the ping matches nothing in the list.
+  // Permit only a host that is not involved, so the ping matches nothing in the list and falls off the end.
   const env = lab(['access-list 101 permit icmp host 10.0.0.77 any']);
   const r = env.sim.ping('pc', '10.0.0.1', { count: 2 });
   ok(r.replies.every(function (x) { return !x.success; }), 'the pings are dropped',
     r.replies.map(function (x) { return x.success; }).join(','));
+
+  // What the box prints is the heading, the rule and its binding line, and nothing else. Cisco states the
+  // rule for the counter itself: "Only packets denied by explicit deny statements are counted" (IP Access
+  // List Overview, IOS XE 16) - an unwritten rule has no line in the table to hang a count on
+  // (research/acl-implicit-deny-counter.md). This table used to add `  (implicit deny all: 2 matches)`.
   const lines = table(env);
-  ok(/\(implicit deny all: 2 matches\)/.test(lines.join('\n')),
-    'and the implicit deny is reported with its own count, not folded into a rule that did not match',
+  ok(!/implicit/i.test(lines.join('\n')),
+    'so the table carries no implicit-deny line at all', lines.join(' | '));
+  ok(/^Extended IP access list 101$/.test(lines[0].trim()),
+    'and it reads as the heading over the one written rule, which is what a capture shows',
     lines.join(' | '));
   ok(countOf(lines, 'permit icmp host 10.0.0.77 any') === null,
-    'while the rule that matched nothing stays uncounted', lines.join(' | '));
+    'while the rule that matched nothing stays uncounted too', lines.join(' | '));
+
+  // The packets that vanished are still accounted for, one command over: the drop summary names both the
+  // list and the direction, so removing the invented count loses no answer.
+  const iface = ((new CliSession(env.r, env.t, env.sim).run('show interfaces ' + env.port).output) || [])
+    .map(String).join('\n');
+  ok(/2 drops \("?ACL 101 denied \(in\)"? x2\)/.test(iface),
+    'and show interfaces still attributes both drops to the list and the direction', iface);
 }
 
 console.log('');

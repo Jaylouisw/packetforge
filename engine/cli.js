@@ -7201,12 +7201,20 @@ class CliSession {
           out.push('    ' + slot.seq + ' ' + ruleText +
             (count ? ' (' + count + (count === 1 ? ' match' : ' matches') + ')' : ''));
         }
-        if (tally && tally.implicit) {
-          // The implicit deny exists whether or not anyone wrote it, and it is what drops the traffic that
-          // matched nothing. Real gear prints it once it has fired.
-          out.push('  (implicit deny all: ' + tally.implicit +
-            (tally.implicit === 1 ? ' match' : ' matches') + ')');
-        }
+        // The implicit deny has no line here, because it has no counter on a box. This table printed
+        // `  (implicit deny all: 2 matches)` once anything fell off the end of the list, on the reading that
+        // "real gear prints it once it has fired" - and that reading was wrong. Three of Cisco's own ACL
+        // books say the opposite in one sentence: "Only packets denied by explicit deny statements are
+        // counted, which is why the explicit deny statement will yield more complete data for you"
+        // (IP Access List Overview, IOS XE 16; the same paragraph is in the 16.9 and 3S books and in the
+        // 2960-XR 15.2(7)E ACL overview), under "you can display the count of packets denied by issuing the
+        // show access-list command". Two machine-recorded sessions agree: ntc-templates' captures print
+        // counts on the entries that have them and no implicit line anywhere, including a list with a
+        // header and no entries at all
+        // (https://github.com/networktocode/ntc-templates/tree/master/tests/cisco_ios/show_access-list).
+        // research/acl-implicit-deny-counter.md holds the sources. The count is still tallied in
+        // engine/simulator.js - the rule really does drop the frames - and `show interfaces`/`ping` still
+        // attribute those drops to `ACL 101 denied (in)`, which is where an operator reads them.
         if (!tally) {
           // "Nothing matched" and "nothing has looked" are different answers (#1252) - and "no run" is
           // different again from "a run, but no packet came through here".
