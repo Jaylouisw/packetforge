@@ -60,7 +60,9 @@ election.
   index. Printing `128.<n>` would be right on a Catalyst and invented everywhere else. Evidence that would
   settle it: a capture from a box whose ports are numbered non-sequentially (a stack, or a switch with a
   down module) plus the vendor's definition of the port number - or a decision to model only names that
-  are `Type slot/port`.
+  are `Type slot/port`. `research/stp-port-table-prio-nbr-column.md` takes the
+  mechanism further - the number is `base(module) + port` with bases 0, 1, 7, 24 and 129 measured on
+  real chassis - and confirms that no rule derived from the name can reproduce it.
 * **`Type`.** `P2p`, `Shr`, `P2p Edge` and `-` are the documented values; `Edge` is portfast, `Shr`/`P2p`
   is a duplex decision about the link. This model has duplex on a link and no portfast, so a `Type` cell
   would be a guess on half the rows. Evidence that would settle it: a capture of a *shut* or *unplugged*
