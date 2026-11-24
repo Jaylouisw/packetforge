@@ -62,5 +62,58 @@ console.log('\nThe citation that was reported every run is accepted, against the
   ok(v && v.sym === 'mkPath', 'because the cited line calls mkPath()', String(v && v.sym));
 }
 
+console.log('\nThe plan document\'s engine coordinates land on the code they name:');
+{
+  // docs/BGP-POLICY.md's anchor table names a file:line for each piece of the console it means to change.
+  // Code grows above those lines, so the numbers rot silently - three of the nine rows had drifted far
+  // enough to land in a *different* command's block, which is worse than no pointer (#2542). Each row is
+  // checked against the line it now cites: the cited line has to hold the thing the row describes.
+  const doc = fs.readFileSync(path.join(__dirname, '..', 'docs', 'BGP-POLICY.md'), 'utf8').split('\n');
+  const engine = fs.readFileSync(path.join(__dirname, '..', 'engine', 'cli.js'), 'utf8').split('\n');
+  function row(describes) {
+    return doc.filter(function (l) { return l.indexOf(describes) !== -1 && l.indexOf('cli.js:') !== -1; })[0] || '';
+  }
+  function cite(line) {
+    const m = /cli\.js:(\d+)(?:-(\d+))?/.exec(line);
+    return m ? { a: Number(m[1]), b: Number(m[2] || m[1]) } : null;
+  }
+  const cases = [
+    ['config-mode BGP dispatch', "head === 'router' && tokens[1] === 'bgp'"],
+    ['_bgp(tokens)', '_bgp(tokens) {'],
+    ['this._dnsZone', 'this._dnsZone = z.name'],
+    ['_help()', '_help() {']
+  ];
+  for (const c of cases) {
+    const line = row(c[0]);
+    ok(!!line, 'the table still has a row for ' + c[0], line);
+    const cited = cite(line);
+    ok(!!cited, 'and that row cites engine/cli.js', line);
+    if (!cited) continue;
+    ok((engine[cited.a - 1] || '').indexOf(c[1]) !== -1,
+      'the line it cites (' + cited.a + ') holds ' + c[1], String(engine[cited.a - 1]));
+  }
+  // A range row must bracket the block it describes, not stop in the middle of it.
+  const dispatch = cite(row('config-mode BGP dispatch'));
+  ok(!!dispatch && (engine[dispatch.a - 1] || '').indexOf("head === 'router'") !== -1,
+    'the dispatch range starts at the router bgp branch', JSON.stringify(dispatch));
+  ok(!!dispatch && (engine[dispatch.b - 1] || '').indexOf('this._bgp(tokens.slice(1))') !== -1,
+    'and ends on the bgp branch that dispatches to _bgp()', dispatch && String(engine[dispatch.b - 1]));
+}
+
+console.log('\nA citation the code moved away from is a suspect, and these two pages hold none:');
+{
+  const read = function (p) { return fs.readFileSync(p, 'utf8'); };
+  const suspects = [];
+  for (const name of ['BGP-POLICY.md', 'CLI.md']) {
+    const lines = fs.readFileSync(path.join(__dirname, '..', 'docs', name), 'utf8').split('\n');
+    lines.forEach(function (l, i) {
+      const v = citations.judgeLine(l, read);
+      if (v && v.ok === false) suspects.push(name + ':' + (i + 1) + ' ' + JSON.stringify(v));
+    });
+  }
+  ok(suspects.length === 0, 'every judged citation in the two pages resolves', suspects.join(' | '));
+}
+
+
 console.log('\n' + passed + ' passed, ' + failed + ' failed');
 process.exit(failed ? 1 : 0);
