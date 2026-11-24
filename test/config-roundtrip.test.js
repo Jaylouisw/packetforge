@@ -307,7 +307,7 @@ console.log('The config prints what a port references before the port that refer
 {
   // An interface block is allowed to name an object defined elsewhere - `switchport access vlan 10`,
   // `ip access-group 101 in` - and both parsers refuse a name that does not exist yet:
-  // `% Access VLAN does not exist.` and `% Access list 101 does not exist`. The printer used to write the
+  // `% Access VLAN does not exist. Creating vlan 10` and `% Access list 101 does not exist`. The printer used to write the
   // interface blocks first and the VLAN and ACL tables afterwards, so a saved config did not replay: the
   // ACL binding was rejected outright and the restored port filtered nothing, silently. Replayability of
   // the printed text is the property; here it is the reference that decides where the tables go.

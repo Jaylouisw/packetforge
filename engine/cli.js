@@ -3908,12 +3908,16 @@ class CliSession {
       const chk = vlanLib.validatePortConfig({ accessVlan: id });
       if (!chk.ok) return [this._vlanRefusal(chk, 'access VLAN')];
       const note = modeNote(this, iface, 'access');
-      // Assigning a port to a VLAN that does not exist CREATES that VLAN. A Cisco switch says so in two
-      // lines - `% Access VLAN does not exist.` then `Creating vlan 22` - applies the assignment anyway, and
-      // `show vlan` lists the VLAN afterwards. That transcript is in the Catalyst 3750 software configuration
-      // guide 12.2(52)SE ("Configuring IEEE 802.1Q and Layer 2 Protocol Tunneling": `interface
-      // gigabitethernet1/0/7` -> `switchport access vlan 22` -> the two lines) and is still word for word the
-      // same in the Catalyst 9300 Layer 2 guide from IOS XE Everest 16.9.x to 26.x.
+      // Assigning a port to a VLAN that does not exist CREATES that VLAN, and the box says so in ONE line -
+      // `% Access VLAN does not exist. Creating vlan 22` - applies the assignment anyway, and `show vlan`
+      // lists the VLAN afterwards. That transcript is Cisco's own, in the Catalyst 9300 Layer 2 guide (IOS XE
+      // 17.14, "Example: Configuring an IEEE 802.1Q Tunneling Port": `interface gigabitethernet1/0/7` ->
+      // `switchport access vlan 22` -> the line above) and in the Catalyst 9500 17.12 chapter of the same
+      // name. This console printed it as two lines - `% Access VLAN does not exist.` then `Creating vlan 22` -
+      // because that is how those same two documents come back from a search snippet: the snippet wraps the
+      // sentence after "exist.", while the document's own text layer and HTML code block keep it on one line.
+      // The two-line form was this console transcribing a wrap as if it were the box's newline
+      // (research/vlan-autocreate-notice-line.md).
       //
       // This console only moved the port. `show vlan` grew a row because it builds the table from the port
       // list too, so the port and its table agreed while `show running-config` printed no `vlan 22` - the gap
@@ -3922,7 +3926,7 @@ class CliSession {
       const created = this._createVlanForPort(id);
       iface.vlan = vlanLib.normalizePortConfig(Object.assign({}, iface.vlan, { accessVlan: id }));
       this.device.flushMacsOnPort(iface.name);
-      const said = created ? ['% Access VLAN does not exist.', 'Creating vlan ' + id] : [];
+      const said = created ? ['% Access VLAN does not exist. Creating vlan ' + id] : [];
       said.push('Access VLAN ' + id + ' on ' + iface.name + note);
       return said;
     }

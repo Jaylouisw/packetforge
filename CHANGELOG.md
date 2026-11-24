@@ -9,6 +9,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **The auto-create notice was printed on two lines, and the second one does not exist: `switchport access
+  vlan 22` on a switch with no VLAN 22 answered `% Access VLAN does not exist.` then `Creating vlan 22`.** A
+  box prints that as **one** sentence — `% Access VLAN does not exist. Creating vlan 22` — as Cisco's own
+  transcripts show (Layer 2 Configuration Guide, IOS XE 17.14.x, Catalyst 9300, "Example: Configuring an IEEE
+  802.1Q Tunneling Port"; the Catalyst 9500 17.12 chapter of the same name, in the PDF's text layer). The pair
+  was a transcription of a *rendered* page: search snippets wrap the sentence after `exist.`, the document
+  itself does not, and the break lands at that word whatever the prompt length in front of it, which no
+  80-column console would do. The console now prints the one line and then its own receipt, and
+  [`research/vlan-autocreate-notice-line.md`](research/vlan-autocreate-notice-line.md) records the two
+  renderings of the same URL and what a raw session log would still settle. `test/vlan-auto-create.test.js`
+  asserts the whole sentence as the first line (15 checks); the replay filters in `test/switchport-mode.test.js`
+  (32), `test/switchport-negation.test.js` (46) and `test/config-roundtrip.test.js` (47) match the one-line form.
 - **The maintainer's own queue could not see a device request that was missing its label: #2521 sat
   open carrying only `device`.** `scripts/request-queue.js` asked the tracker for
   `labels=device-request`, so a request filed before the triage workflow labelled it was answered as

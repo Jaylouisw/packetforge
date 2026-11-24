@@ -1,15 +1,16 @@
 'use strict';
 // A port assigned to a VLAN that does not exist makes that VLAN (#1535).
 //
-// On a Cisco switch `switchport access vlan 22`, when VLAN 22 has never been created, answers with two lines
+// On a Cisco switch `switchport access vlan 22`, when VLAN 22 has never been created, answers with one line
 // and applies the assignment anyway:
 //
 //     Switch(config-if)# switchport access vlan 22
-//     % Access VLAN does not exist.
-//     Creating vlan 22
+//     % Access VLAN does not exist. Creating vlan 22
 //
-// (Catalyst 3750 software configuration guide 12.2(52)SE, "Configuring IEEE 802.1Q and Layer 2 Protocol
-// Tunneling"; the same transcript is in the Layer 2 Configuration Guide, Cisco IOS XE 16.8.x, Catalyst 3850.)
+// (Layer 2 Configuration Guide, Cisco IOS XE 17.14.x, Catalyst 9300, "Example: Configuring an IEEE 802.1Q
+// Tunneling Port"; the Catalyst 9500 17.12 chapter of the same name prints the identical line. It is one
+// sentence - a `%` error and the notice it carries - and research/vlan-autocreate-notice-line.md records
+// why this console used to print it as two.)
 // `show vlan` lists VLAN 22 afterwards, and `show running-config` has a `vlan 22` line, because the VLAN really
 // is in the VLAN database - not only in the port's configuration.
 //
@@ -56,10 +57,9 @@ console.log('A VLAN that does not exist is created, and the console says so:');
 {
   const env = lab();
   const out = env.run(['interface ' + env.p, 'switchport access vlan 44']);
-  // Exactly the two lines the vendor prints, in that order, before anything else.
-  ok(out.length >= 2 && out[0] === '% Access VLAN does not exist.',
-    'the first line is the vendor sentence', JSON.stringify(out));
-  ok(out[1] === 'Creating vlan 44', 'the second names the VLAN it made', JSON.stringify(out));
+  // Exactly the line the vendor prints, before anything else, and no second line about the same VLAN.
+  ok(out.length >= 1 && out[0] === '% Access VLAN does not exist. Creating vlan 44',
+    'the first line is the vendor sentence, whole, naming the VLAN it made', JSON.stringify(out));
   ok(env.vlan().accessVlan === 44, 'and the assignment is applied anyway', JSON.stringify(env.vlan()));
   ok(env.d.config.vlans && env.d.config.vlans[44] && env.d.config.vlans[44].name === 'VLAN0044',
     'the VLAN is in the VLAN database, under the name `vlan 44` would have given it',
@@ -92,7 +92,8 @@ console.log('The three views agree about it:');
   // A real switch prints the same notice here: `show running-config` writes the interface stanzas before the
   // `vlan` lines, so the paste assigns the port before the VLAN is declared. The only line the paste may
   // complain about is that notice - anything else is a config the printer cannot read back.
-  const complaints = back.filter(function (l) { return /^%/.test(l) && l !== '% Access VLAN does not exist.'; });
+  const AUTO = /^% Access VLAN does not exist\. Creating vlan \d+$/;
+  const complaints = back.filter(function (l) { return /^%/.test(l) && !AUTO.test(l); });
   ok(!complaints.length, 'the printed config reads back, with only the auto-create notice the paste earns',
     JSON.stringify(complaints));
   ok(d2.config.vlans && d2.config.vlans[44], 'and VLAN 44 is there after the paste',

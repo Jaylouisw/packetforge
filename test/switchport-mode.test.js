@@ -144,19 +144,19 @@ console.log('Nothing stored is left out of the backup, in either mode:');
   // Replayed into a fresh device, it produces the same config, byte for byte.
   // The printer writes interface stanzas before the VLAN table, so a replay assigns the port to a VLAN
   // the fresh device has not been told about yet - which is exactly what a real switch is handed when
-  // the two halves of a config are pasted in that order, and it says so:
-  //     % Access VLAN does not exist.
-  //     Creating vlan 30
-  // and applies the assignment anyway (Catalyst 3750 12.2(52)SE guide, "Configuring IEEE 802.1Q...";
-  // IOS XE 17.17 Catalyst 9300 Layer 2 guide). That notice is information, not a rejection: nothing was
-  // refused, and the replayed config is byte-identical below. Every other `%` line still counts (#1535).
-  const AUTO_CREATE = '% Access VLAN does not exist.';
+  // the two halves of a config are pasted in that order, and it says so in one line:
+  //     % Access VLAN does not exist. Creating vlan 30
+  // and applies the assignment anyway (IOS XE 17.14 Catalyst 9300 Layer 2 guide, "Example: Configuring an
+  // IEEE 802.1Q Tunneling Port"; the 9500 17.12 chapter prints the same line). That notice is information,
+  // not a rejection: nothing was refused, and the replayed config is byte-identical below. Every other `%`
+  // line still counts (#1535).
+  const AUTO_CREATE = /^% Access VLAN does not exist\. Creating vlan \d+$/;
   const fresh = lab();
   const errs = [];
   for (const line of cfg) {
     for (const l of (fresh.s.run(line).output || [])) {
       const said = String(l);
-      if (/^%/.test(said) && said !== AUTO_CREATE) errs.push(line + ' -> ' + said);
+      if (/^%/.test(said) && !AUTO_CREATE.test(said)) errs.push(line + ' -> ' + said);
     }
   }
   ok(errs.length === 0, 'and the backup replays with nothing rejected', JSON.stringify(errs));

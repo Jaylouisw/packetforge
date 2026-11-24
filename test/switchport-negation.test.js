@@ -158,10 +158,10 @@ console.log('Removing what is not there refuses, and names what is there:');
 console.log('');
 // The printer writes interface stanzas before the VLAN table, so replaying `switchport access vlan 30`
 // into a fresh device assigns the port before anything has created VLAN 30. A real switch answers that
-// with the two-line notice and applies the assignment anyway (Catalyst 3750 12.2(52)SE guide,
-// "Configuring IEEE 802.1Q..."; IOS XE 17.17 Catalyst 9300 Layer 2 guide), so it is information rather
-// than a rejection - the replayed config is byte-identical below. Every other `%` line still counts (#1535).
-const AUTO_CREATE = '% Access VLAN does not exist.';
+// with the one-line notice and applies the assignment anyway (IOS XE 17.14 Catalyst 9300 Layer 2 guide,
+// "Example: Configuring an IEEE 802.1Q Tunneling Port"), so it is information rather than a rejection - the
+// replayed config is byte-identical below. Every other `%` line still counts (#1535).
+const AUTO_CREATE = /^% Access VLAN does not exist\. Creating vlan \d+$/;
 
 console.log('Nothing reachable leaves a config the console cannot read back:');
 {
@@ -194,7 +194,7 @@ console.log('Nothing reachable leaves a config the console cannot read back:');
     for (const line of cfg) {
       for (const l of (fresh.s.run(line).output || [])) {
         const said = String(l);
-        if (/^%/.test(said) && said !== AUTO_CREATE) {
+        if (/^%/.test(said) && !AUTO_CREATE.test(said)) {
           unreplayable.push(history.join(' / ') + ' -> ' + line + ' :: ' + said);
         }
       }
