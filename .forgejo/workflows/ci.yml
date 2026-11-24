@@ -672,6 +672,182 @@ jobs:
           fi
           echo "HTTP smoke passed (all checks clean)"
 
+  # The typecheck. `tsc --noEmit` is the only thing that ever reads the annotations: there
+  # is no build step to fail (docs/TYPESCRIPT.md), so this job is where a type error is
+  # found rather than at somebody's first run.
+  #
+  # `node --check` cannot stand in for it. The syntax sweep above parses `.js` as `.js`;
+  # handed a `.ts` file it rejects the first annotation (`SyntaxError: Missing initializer
+  # in const declaration`), which is the same wall Node 18 and 20 hit. A `.ts` file is
+  # checked by something that knows what a type is, and that is this job.
+  #
+  # It is a job of its own rather than a step of the legs because a type error is not a
+  # difference between two Node versions: it is one answer about one tree, and three copies
+  # would be three checkouts and three installs to learn the same thing. It is ordered
+  # before `test` for the reason `docker` is: this runner takes four jobs at once and
+  # dispatches them in the order they appear here, and this is the shortest job in the
+  # file - 16-18 s against 52-63 s for a leg - so a first-wave slot costs the run nothing.
+  # Dispatched last, as it used to be, its task was created a median 19 s AFTER its own
+  # run's legs across the 37 runs to 2026-11-24 (p90 50 s, worst 56 s), and in 9 of those
+  # it was the last check in the run to report, up to 18 s past the legs. `arm` lists it
+  # in `needs`, so the merge gate could not be created until that status existed either:
+  # 100 s after the last leg reported on run 10187.
+  #
+  # `npm ci` is the only install anywhere in this workflow, and this is the only job that
+  # needs one: `typescript` and `@types/node` are dev-only type packages, and every other job
+  # runs the app as the zero-dependency program it is. `--ignore-scripts` because an install
+  # has no business executing package code in CI.
+  #
+  # No liveness stand-down and no `if: always()`: nothing above it can make this job
+  # skipped, and 40 s on a pull request somebody already closed is cheaper than the forty
+  # lines the stand-down costs. Its status is in the set `arm` reads like any other check,
+  # and a red typecheck is a pull request that does not merge.
+  typecheck:
+    name: Typecheck
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out this commit, from git
+        env:
+          TOKEN: ${{ secrets.FORGEJO_TOKEN || secrets.GITHUB_TOKEN || github.token }}
+        run: |
+          set -eu
+          # The runner's working directory is the repository root. Derive the git URL from
+          # the instance URL the runner itself is configured with, never a hardcoded host.
+          server="${GITHUB_SERVER_URL:-}"
+          if [ -z "$server" ]; then
+            api="${GITHUB_API_URL:-http://10.0.10.20:3000/api/v1}"
+            server="${api%/api/v1}"
+          fi
+          url="${server}/${GITHUB_REPOSITORY}.git"
+          sha="${{ github.sha }}"
+          git init -q .
+          git remote add origin "$url"
+          # One commit, three attempts. The fetch is the only step in this job that talks to a
+          # network, and the network answers this runner with aborts that say nothing about
+          # the commit: task 13960 (run 5540, Test (Node 22), push 52cff888) died 34 s in
+          # with `Operation too slow. Less than 1000 bytes/sec transferred the last 30
+          # seconds` while its Node 18 and Node 20 siblings ran the same commit green in
+          # 54 s and 53 s, and the smoke and Docker jobs of that run went on to pass - a
+          # red X on a tree with nothing wrong with it, and a pull request that cannot
+          # merge until somebody re-runs it by hand. That is the one failure a retry is
+          # honest for: a second attempt asks the same server for the same commit, and if
+          # every attempt fails the job still fails, with the same status and the same
+          # message. Nothing is hidden - a commit that does not exist, a token that is not
+          # accepted and a repository that is gone all fail every attempt.
+          # Three, not more: 3 x 90 s plus 10 s of backoff is a 280 s ceiling, which is
+          # below the 300 s a single attempt used to get, so a dead server costs this job
+          # less than it did before while a blip no longer costs a whole run. 90 s is also
+          # 25x the 3.5 s checkout measured here (run 5719, task 14549), so a slow but
+          # working server still passes.
+          attempt=1
+          rc=1
+          while [ "$attempt" -le 3 ]; do
+            if [ -n "${TOKEN:-}" ]; then
+              timeout 90 git -c "http.extraheader=Authorization: token ${TOKEN}" -c http.lowSpeedLimit=1000 -c http.lowSpeedTime=30 fetch -q --depth=1 origin "$sha" && rc=0 || rc=$?
+            else
+              timeout 90 git -c http.lowSpeedLimit=1000 -c http.lowSpeedTime=30 fetch -q --depth=1 origin "$sha" && rc=0 || rc=$?
+            fi
+            if [ "$rc" -eq 0 ]; then
+              break
+            fi
+            if [ "$attempt" -lt 3 ]; then
+              echo "fetch of ${sha} failed on attempt ${attempt} of 3 (rc ${rc}) - retrying in 5 s; a transport abort is not a verdict about the commit"
+              sleep 5
+              attempt=$((attempt + 1))
+            else
+              break
+            fi
+          done
+          if [ "$rc" -ne 0 ]; then
+            echo "::error title=Checkout::${sha} could not be fetched after ${attempt} attempt(s) (rc ${rc}) - no tree means nothing in this job could be tested, so it fails rather than passing on an empty directory"
+            exit "$rc"
+          fi
+          git checkout -q -f --detach FETCH_HEAD
+          # The action emptied the directory before it checked out; this is the same
+          # guarantee, applied to whatever the runner left in the workspace: after this
+          # line the tree is the commit's own files and nothing else.
+          git clean -qfdx
+          echo "checked out $(git rev-parse HEAD) of ${url} with git - no action cache involved"
+      # `npm ci`, not `npm install`: the lockfile is the whole point, and a job that resolves
+      # its own dependency tree is a job that tests a tree nobody reviewed. The bound is 300 s
+      # on the same argument every other step in this workflow uses - a step that gives up on
+      # its own keeps its log, a runner kill does not.
+      # The runner image is Node 20, and this job is the one place that cannot use it: the
+      # floor is 22.18 because that is where type stripping is on by default, so a typecheck
+      # under 20 does not check the language the repo writes - it parses `.ts` as JavaScript
+      # and dies with `Missing initializer in const declaration` (run 10054, 11 s in, on the
+      # first pull request that added a `.ts` file). Same pinned tarball and same symlink-over
+      # as the test legs, so the runtime under test is the floor, not whatever the image ships.
+      - name: Provide the runtime the typecheck runs on
+        run: |
+          set -eu
+          DIST=v22.23.5
+          dest="/opt/node-${DIST}"
+          url="https://nodejs.org/dist/${DIST}/node-${DIST}-linux-x64.tar.gz"
+          rm -rf "$dest" "$dest.tar.gz"
+          mkdir -p "$dest"
+          curl -fsSL --retry 3 --retry-delay 2 --retry-connrefused --connect-timeout 10 --max-time 180 -o "${dest}.tar.gz" "$url" ||
+            { echo "first fetch of ${url} failed - retrying once in 5 s"; sleep 5; curl -fsSL --retry 3 --connect-timeout 10 --max-time 180 -o "${dest}.tar.gz" "$url"; }
+          tar -xzf "${dest}.tar.gz" -C "$dest" --strip-components=1
+          [ -x "${dest}/bin/node" ]
+          for b in node npm npx; do ln -sf "${dest}/bin/${b}" "/usr/local/bin/${b}"; done
+          echo "typecheck runtime: $(command -v node) $(node --version) / npm $(npm --version)"
+          # Same comparison as the smoke job, and for the same reason: a `v22.*` glob accepted
+          # 22.0.0-22.17.9, which is below the floor and parses `.ts` as JavaScript (#2488).
+          node scripts/check-node-floor.js --title Typecheck
+
+      - name: Install the one devDependency
+        run: |
+          set -eu
+          timeout --signal=TERM --kill-after=10 300 npm ci --ignore-scripts --no-audit --no-fund
+          echo "typescript $(./node_modules/.bin/tsc --version) on $(node --version)"
+      # Three checks, three steps, so a red log names which one it was: the compiler's own
+      # verdict, the scan for the escape hatch (`scripts/check-no-any.ts` - `tsc` has no
+      # flag that bans `any`, and a linter would be a second devDependency), and the
+      # resolver (`scripts/check-module-paths.ts`).
+      #
+      # The resolver belongs here rather than in a test leg because it asks a question about
+      # one tree, exactly as `tsc` does: whether every `require()` in every `.js` and `.ts`
+      # file resolves the way CommonJS will. Its answer cannot differ between Node 22 and
+      # Node 24, so a second copy in the matrix would print one verdict twice; the test legs
+      # run the suite, and this job runs the three questions about the source that a green
+      # suite cannot answer. It also has to run where a `.ts` file can be *read* as one -
+      # this job's pinned 22.23.5, which the step above asserts with `check-node-floor.js`,
+      # not the Node 20 runner image that parses `.ts` as JavaScript.
+      #
+      # It exits 0 with one note printed - `engine/segment.ts:118 require('./lag')`, correct
+      # today and fatal the day `lag.js` is converted - so what this step asserts is *0
+      # unresolvable specifiers*, with the note in the log of every pull request instead of
+      # only on the machine of whoever ran `scripts/premerge-check.js` by hand.
+      - name: Typecheck (tsc --noEmit)
+        run: |
+          set +e
+          timeout --signal=TERM --kill-after=10 300 ./node_modules/.bin/tsc --noEmit
+          rc=$?
+          if [ "$rc" -eq 124 ] || [ "$rc" -eq 137 ]; then
+            echo "::error title=Typecheck::tsc --noEmit was still running after 300 s and was stopped"
+          fi
+          exit "$rc"
+      - name: No `any` anywhere
+        run: |
+          set +e
+          timeout --signal=TERM --kill-after=10 120 node scripts/check-no-any.ts
+          rc=$?
+          if [ "$rc" -eq 124 ] || [ "$rc" -eq 137 ]; then
+            echo "::error title=No any::the scan was still running after 120 s and was stopped"
+          fi
+          exit "$rc"
+      - name: Every require() resolves (check-module-paths)
+        run: |
+          set +e
+          timeout --signal=TERM --kill-after=10 120 node scripts/check-module-paths.ts
+          rc=$?
+          if [ "$rc" -eq 124 ] || [ "$rc" -eq 137 ]; then
+            echo "::error title=Module paths::the scan was still running after 120 s and was stopped"
+          fi
+          exit "$rc"
+
   # The one place that knows the checks are green, because it runs after them.
   #
   # Every merge gate in this repository used to be an arm, and an arm is not a gate.
@@ -1602,176 +1778,6 @@ jobs:
           rc=$?
           if [ "$rc" -eq 124 ] || [ "$rc" -eq 137 ]; then
             echo "::error title=Lab models::the catalogue check was still running after 120 s and was stopped"
-          fi
-          exit "$rc"
-
-  # The typecheck. `tsc --noEmit` is the only thing that ever reads the annotations: there
-  # is no build step to fail (docs/TYPESCRIPT.md), so this job is where a type error is
-  # found rather than at somebody's first run.
-  #
-  # `node --check` cannot stand in for it. The syntax sweep above parses `.js` as `.js`;
-  # handed a `.ts` file it rejects the first annotation (`SyntaxError: Missing initializer
-  # in const declaration`), which is the same wall Node 18 and 20 hit. A `.ts` file is
-  # checked by something that knows what a type is, and that is this job.
-  #
-  # It is a job of its own rather than a step of the legs because a type error is not a
-  # difference between two Node versions: it is one answer about one tree, and three copies
-  # would be three checkouts and three installs to learn the same thing. It is dispatched
-  # last and that is safe now - the matrix is two legs, so `docker`, both legs and this job
-  # are exactly the four jobs this runner runs at once and no leg queues behind this one.
-  #
-  # `npm ci` is the only install anywhere in this workflow, and this is the only job that
-  # needs one: `typescript` and `@types/node` are dev-only type packages, and every other job
-  # runs the app as the zero-dependency program it is. `--ignore-scripts` because an install
-  # has no business executing package code in CI.
-  #
-  # No liveness stand-down and no `if: always()`: nothing above it can make this job
-  # skipped, and 40 s on a pull request somebody already closed is cheaper than the forty
-  # lines the stand-down costs. Its status is in the set `arm` reads like any other check,
-  # and a red typecheck is a pull request that does not merge.
-  typecheck:
-    name: Typecheck
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    steps:
-      - name: Check out this commit, from git
-        env:
-          TOKEN: ${{ secrets.FORGEJO_TOKEN || secrets.GITHUB_TOKEN || github.token }}
-        run: |
-          set -eu
-          # The runner's working directory is the repository root. Derive the git URL from
-          # the instance URL the runner itself is configured with, never a hardcoded host.
-          server="${GITHUB_SERVER_URL:-}"
-          if [ -z "$server" ]; then
-            api="${GITHUB_API_URL:-http://10.0.10.20:3000/api/v1}"
-            server="${api%/api/v1}"
-          fi
-          url="${server}/${GITHUB_REPOSITORY}.git"
-          sha="${{ github.sha }}"
-          git init -q .
-          git remote add origin "$url"
-          # One commit, three attempts. The fetch is the only step in this job that talks to a
-          # network, and the network answers this runner with aborts that say nothing about
-          # the commit: task 13960 (run 5540, Test (Node 22), push 52cff888) died 34 s in
-          # with `Operation too slow. Less than 1000 bytes/sec transferred the last 30
-          # seconds` while its Node 18 and Node 20 siblings ran the same commit green in
-          # 54 s and 53 s, and the smoke and Docker jobs of that run went on to pass - a
-          # red X on a tree with nothing wrong with it, and a pull request that cannot
-          # merge until somebody re-runs it by hand. That is the one failure a retry is
-          # honest for: a second attempt asks the same server for the same commit, and if
-          # every attempt fails the job still fails, with the same status and the same
-          # message. Nothing is hidden - a commit that does not exist, a token that is not
-          # accepted and a repository that is gone all fail every attempt.
-          # Three, not more: 3 x 90 s plus 10 s of backoff is a 280 s ceiling, which is
-          # below the 300 s a single attempt used to get, so a dead server costs this job
-          # less than it did before while a blip no longer costs a whole run. 90 s is also
-          # 25x the 3.5 s checkout measured here (run 5719, task 14549), so a slow but
-          # working server still passes.
-          attempt=1
-          rc=1
-          while [ "$attempt" -le 3 ]; do
-            if [ -n "${TOKEN:-}" ]; then
-              timeout 90 git -c "http.extraheader=Authorization: token ${TOKEN}" -c http.lowSpeedLimit=1000 -c http.lowSpeedTime=30 fetch -q --depth=1 origin "$sha" && rc=0 || rc=$?
-            else
-              timeout 90 git -c http.lowSpeedLimit=1000 -c http.lowSpeedTime=30 fetch -q --depth=1 origin "$sha" && rc=0 || rc=$?
-            fi
-            if [ "$rc" -eq 0 ]; then
-              break
-            fi
-            if [ "$attempt" -lt 3 ]; then
-              echo "fetch of ${sha} failed on attempt ${attempt} of 3 (rc ${rc}) - retrying in 5 s; a transport abort is not a verdict about the commit"
-              sleep 5
-              attempt=$((attempt + 1))
-            else
-              break
-            fi
-          done
-          if [ "$rc" -ne 0 ]; then
-            echo "::error title=Checkout::${sha} could not be fetched after ${attempt} attempt(s) (rc ${rc}) - no tree means nothing in this job could be tested, so it fails rather than passing on an empty directory"
-            exit "$rc"
-          fi
-          git checkout -q -f --detach FETCH_HEAD
-          # The action emptied the directory before it checked out; this is the same
-          # guarantee, applied to whatever the runner left in the workspace: after this
-          # line the tree is the commit's own files and nothing else.
-          git clean -qfdx
-          echo "checked out $(git rev-parse HEAD) of ${url} with git - no action cache involved"
-      # `npm ci`, not `npm install`: the lockfile is the whole point, and a job that resolves
-      # its own dependency tree is a job that tests a tree nobody reviewed. The bound is 300 s
-      # on the same argument every other step in this workflow uses - a step that gives up on
-      # its own keeps its log, a runner kill does not.
-      # The runner image is Node 20, and this job is the one place that cannot use it: the
-      # floor is 22.18 because that is where type stripping is on by default, so a typecheck
-      # under 20 does not check the language the repo writes - it parses `.ts` as JavaScript
-      # and dies with `Missing initializer in const declaration` (run 10054, 11 s in, on the
-      # first pull request that added a `.ts` file). Same pinned tarball and same symlink-over
-      # as the test legs, so the runtime under test is the floor, not whatever the image ships.
-      - name: Provide the runtime the typecheck runs on
-        run: |
-          set -eu
-          DIST=v22.23.5
-          dest="/opt/node-${DIST}"
-          url="https://nodejs.org/dist/${DIST}/node-${DIST}-linux-x64.tar.gz"
-          rm -rf "$dest" "$dest.tar.gz"
-          mkdir -p "$dest"
-          curl -fsSL --retry 3 --retry-delay 2 --retry-connrefused --connect-timeout 10 --max-time 180 -o "${dest}.tar.gz" "$url" ||
-            { echo "first fetch of ${url} failed - retrying once in 5 s"; sleep 5; curl -fsSL --retry 3 --connect-timeout 10 --max-time 180 -o "${dest}.tar.gz" "$url"; }
-          tar -xzf "${dest}.tar.gz" -C "$dest" --strip-components=1
-          [ -x "${dest}/bin/node" ]
-          for b in node npm npx; do ln -sf "${dest}/bin/${b}" "/usr/local/bin/${b}"; done
-          echo "typecheck runtime: $(command -v node) $(node --version) / npm $(npm --version)"
-          # Same comparison as the smoke job, and for the same reason: a `v22.*` glob accepted
-          # 22.0.0-22.17.9, which is below the floor and parses `.ts` as JavaScript (#2488).
-          node scripts/check-node-floor.js --title Typecheck
-
-      - name: Install the one devDependency
-        run: |
-          set -eu
-          timeout --signal=TERM --kill-after=10 300 npm ci --ignore-scripts --no-audit --no-fund
-          echo "typescript $(./node_modules/.bin/tsc --version) on $(node --version)"
-      # Three checks, three steps, so a red log names which one it was: the compiler's own
-      # verdict, the scan for the escape hatch (`scripts/check-no-any.ts` - `tsc` has no
-      # flag that bans `any`, and a linter would be a second devDependency), and the
-      # resolver (`scripts/check-module-paths.ts`).
-      #
-      # The resolver belongs here rather than in a test leg because it asks a question about
-      # one tree, exactly as `tsc` does: whether every `require()` in every `.js` and `.ts`
-      # file resolves the way CommonJS will. Its answer cannot differ between Node 22 and
-      # Node 24, so a second copy in the matrix would print one verdict twice; the test legs
-      # run the suite, and this job runs the three questions about the source that a green
-      # suite cannot answer. It also has to run where a `.ts` file can be *read* as one -
-      # this job's pinned 22.23.5, which the step above asserts with `check-node-floor.js`,
-      # not the Node 20 runner image that parses `.ts` as JavaScript.
-      #
-      # It exits 0 with one note printed - `engine/segment.ts:118 require('./lag')`, correct
-      # today and fatal the day `lag.js` is converted - so what this step asserts is *0
-      # unresolvable specifiers*, with the note in the log of every pull request instead of
-      # only on the machine of whoever ran `scripts/premerge-check.js` by hand.
-      - name: Typecheck (tsc --noEmit)
-        run: |
-          set +e
-          timeout --signal=TERM --kill-after=10 300 ./node_modules/.bin/tsc --noEmit
-          rc=$?
-          if [ "$rc" -eq 124 ] || [ "$rc" -eq 137 ]; then
-            echo "::error title=Typecheck::tsc --noEmit was still running after 300 s and was stopped"
-          fi
-          exit "$rc"
-      - name: No `any` anywhere
-        run: |
-          set +e
-          timeout --signal=TERM --kill-after=10 120 node scripts/check-no-any.ts
-          rc=$?
-          if [ "$rc" -eq 124 ] || [ "$rc" -eq 137 ]; then
-            echo "::error title=No any::the scan was still running after 120 s and was stopped"
-          fi
-          exit "$rc"
-      - name: Every require() resolves (check-module-paths)
-        run: |
-          set +e
-          timeout --signal=TERM --kill-after=10 120 node scripts/check-module-paths.ts
-          rc=$?
-          if [ "$rc" -eq 124 ] || [ "$rc" -eq 137 ]; then
-            echo "::error title=Module paths::the scan was still running after 120 s and was stopped"
           fi
           exit "$rc"
 
