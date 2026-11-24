@@ -107,7 +107,10 @@ mismatch a technician actually meets.
   It cannot be decided from the cage alone in this model, because a 1000BASE-T module in the same cage *does*
   support duplex at 10/100 (Catalyst 2960 hardware guide: "The 1000BASE-T SFP modules operate at 10, 100, or
   1000 Mb/s in full-duplex mode or at 10 or 100 Mb/s in half-duplex mode"). The rule has to ask what is in the
-  cage, so it belongs with the media model, not with the console.
+  cage, so it belongs with the media model, not with the console. That half is now measured:
+  `research/1000base-x-cage-duplex-and-speed.md` records the `% Invalid input detected at '^' marker.`
+  transcripts, the census showing 7,848 of 8,840 optical cages accept a copper module, and why no predicate
+  the engine already holds can refuse the two words.
 * **A link built through the API.** `connect()` accepts a `duplex` option and `server/index.js` passes a request
   body's `duplex` straight into it, so a saved topology could still describe a 1 Gb/s half-duplex link without
   going through the console. What a reload should do with one is a separate decision.
