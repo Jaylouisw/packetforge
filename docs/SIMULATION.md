@@ -427,7 +427,7 @@ Three OSPF defects were found here — [#42, #43, #44](#10-fixed-defects-kept-vi
 | **Approximate** | The FSM exists (`idle→connect→active→opensent→openconfirm→established`) but is never fed: hold/keepalive timers are validated and carried, never expire, and no session ever drops. | `engine/bgp.js:14-21`, `engine/bgp.js:220-266` |
 | **Approximate** | Next hop is rewritten to the advertising router's address on every advertisement, which is right for eBGP and wrong for an iBGP relay — see defect #41. | `engine/simulator.js:2009` |
 | **Absent** | Route reflectors, confederations, peer groups/templates, AFI/SAFI negotiation, IPv6 unicast, communities, route-maps, prefix-lists, `next-hop-self`, dampening, graceful restart. | — |
-| **Absent in the CLI** | `router bgp`, `neighbor … remote-as`, `router-id` only. | `engine/cli.js:2009-2010` (`router bgp`), `engine/cli.js:3361` (`_bgp()`), `engine/cli.js:3394-3405` (`neighbor ... remote-as`) |
+| **Absent in the CLI** | `router bgp`, `neighbor … remote-as`, `router-id` only. | `engine/cli.js:2052` (`router bgp`), `engine/cli.js:3404` (`_bgp()`), `engine/cli.js:3438-3448` (`neighbor ... remote-as`) |
 
 All three pointers in that last row were re-read off this tree (#2399, #2406). The row cited
 `engine/cli.js:1901-1902`, `:3168` and `:3202-3211`, which is where they sat when `eb5159fd` measured them; #2399
@@ -435,9 +435,12 @@ inserted 36 lines above the `router bgp` door and #2406 a further 35 above `_bgp
 `no dns zone` handler and `3168`/`3202` inside `_ipv6Nd()`'s prefix parser - a reader following either learned how a
 zone is deleted, or how a router-advertisement lifetime is validated, not what BGP commands this console has.
 They were read a third time on this tree (`89c0c818`), where they sat at 1944, 3246 and 3279 — 7, 7 and 6
-lines below the numbers the first re-read recorded — and a fourth time once the console had grown again: they
-now sit at 2009, 3361 and 3394, which is 65, 115 and 115 lines below the third reading, and is why the row above
-carries these figures. The same pass re-read the two `engine/simulator.js` pointers in the rows above, which had
+lines below the numbers the first re-read recorded — and a fourth time once the console had grown again, at 2009,
+3361 and 3394, which was 65, 115 and 115 lines below the third reading. A fifth reading was needed after #2532 and
+#2537 grew the console again: they now sit at 2052, 3404 and 3438, which is 43, 43 and 44 lines below the fourth,
+and is why the row above carries these figures. The fourth reading had rotted into the same three places: `2009`
+falls inside the `no dns zone` handler, `3361` inside `_ipv6Nd()`'s lifetime parser and `3394` inside
+`_ipv6Route()`. That fourth pass had also re-read the two `engine/simulator.js` pointers in the rows above, which had
 fallen inside `ping()`'s own convergence preamble: the next-hop rewrite is at 2009 and the eBGP/iBGP distance at
 2016, with split horizon at 1998 and the advertisement rounds at 1989-2040.
 
