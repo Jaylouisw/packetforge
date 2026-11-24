@@ -3,7 +3,7 @@
   "model": "CCR2116-12G-4S+",
   "label": "CCR2116-12G-4S+",
   "category": "router",
-  "description": "1 RU cloud core router built on a 16-core 2 GHz ARM64 CPU with 16 GB RAM: twelve 1G RJ-45 ports and four 10G SFP+ cages, all wired through the Marvell Aldrin switch chip, plus an M.2 PCIe slot and a serial console. Targets 10G-era BGP and NAT edge roles at a fraction of the cost of a chassis router.",
+  "description": "1 RU cloud core router built on a 16-core 2 GHz ARM64 CPU with 16 GB RAM: thirteen 1G RJ-45 ports and four 10G SFP+ cages, plus an M.2 PCIe slot and a serial console. Twelve of the copper ports run through the Marvell Aldrin switch chip in four groups of four; the thirteenth is the MGMT/BOOT jack wired straight to the CPU. Targets 10G-era BGP and NAT edge roles at a fraction of the cost of a chassis router.",
   "capabilities": [
     "l2-forward",
     "l3-forward",
@@ -17,9 +17,15 @@
   "portTemplate": {
     "prefix": "eth",
     "start": 1,
-    "count": 12,
+    "count": 13,
     "type": "ethernet",
-    "speed": "1G"
+    "speed": "1G",
+    "connector": "rj45",
+    "speedCaps": [
+      10,
+      100,
+      1000
+    ]
   },
   "interfaces": [
     {
@@ -61,6 +67,6 @@
   ],
   "icon": "router",
   "color": "#14b8a6",
-  "notes": "MikroTik product page: \"four 10G SFP+ ports ... connected to the Marvell Aldrin family switch chip. Then we have Gigabit Ethernet ports. 12 of them are running through the Marvell chip.\" Port labels are eth1-eth12 and SFP+1 to SFP+4 on the panel (RouterOS calls them ether1-ether12 and sfp-sfpplus1-4). No PoE, no USB data ports (M.2 PCIe slot and 1x RJ-45 serial console only).",
+  "notes": "MikroTik specification table: section Ethernet prints \"10/100/1000 Ethernet ports: 13\", section Fiber prints \"SFP+ ports: 4\", section Peripherals prints \"Serial console port: RJ45\" and \"Number of M.2 slots: 1\". The manual's \"Extension slots and ports\" agrees: \"13x 10/100/1000 Ethernet ports. 4x 10G SFP+ ports.\" The product text says \"12 of them are running through the Marvell chip. And there is another Gigabit port connected directly to the CPU. For management purposes.\" This spec used to stop at twelve, which left the management jack uncabled: the thirteenth is eth13 here, and the manual labels its panel position MGMT/BOOT. Port labels are eth1-eth13 and SFP+1 to SFP+4 (RouterOS calls them ether1-ether13 and sfp-sfpplus1-4). No PoE in either direction, no USB data ports. Sources: https://mikrotik.com/product/ccr2116_12g_4splus and https://manual.mikrotik.com/hardware/ccr2116-12g-4s-plus/",
   "sourceUrl": "https://mikrotik.com/product/ccr2116_12g_4splus"
 }

@@ -18,25 +18,39 @@
     "start": 1,
     "count": 12,
     "type": "ethernet",
-    "speed": "10G"
+    "speed": "10G",
+    "connector": "sfp+",
+    "speedCaps": [
+      10000
+    ]
   },
   "interfaces": [
     {
       "name": "eth1",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "rj45",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
     },
     {
       "name": "SFP28-1",
       "type": "ethernet",
-      "speed": "25G"
+      "speed": "25G",
+      "connector": "sfp28"
     },
     {
       "name": "SFP28-2",
       "type": "ethernet",
-      "speed": "25G"
+      "speed": "25G",
+      "connector": "sfp28"
     }
   ],
   "icon": "router",
-  "color": "#14b8a6"
+  "color": "#14b8a6",
+  "sourceUrl": "https://mikrotik.com/product/ccr2004_1g_12s_2xs",
+  "notes": "MikroTik specification table: section Ethernet prints \"10/100/1000 Ethernet ports: 1\", section Fiber prints \"SFP+ ports: 12\" and \"Number of 25G SFP28 ports: 2\", section Peripherals prints \"Serial console port: RJ45\". The prose agrees: \"12 x 10G SFP+ and 2 x 25G SFP28 ports\". The single copper jack is a 10/100/1000BASE-T RJ45 socket and the twelve cages are SFP+, so both declare their connector; the two SFP28 cages are 25G cages and nothing in the vendor material states a slower module in them, so they declare no speedCaps rather than an invented fallback. No PoE in either direction. Sources: https://mikrotik.com/product/ccr2004_1g_12s_2xs and https://manual.mikrotik.com/hardware/ccr2004-1g-12s-plus-2xs/"
 }
