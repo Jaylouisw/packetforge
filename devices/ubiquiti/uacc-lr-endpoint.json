@@ -3,7 +3,7 @@
   "model": "UACC-LR-Endpoint",
   "label": "Ubiquiti UACC Long-Range Endpoint",
   "category": "powerline",
-  "description": "Long-range PoE endpoint for the LR Switch: two 100M ports, PoE+++ input with passthrough up to PoE++.",
+  "description": "Long-range PoE endpoint for the LR Switch: two 100M ports, PoE+++ (Type 4) input with passthrough up to PoE++ at the outlet - 60 W, the class ceiling Ubiquiti prints - and 2 W of its own consumption.",
   "capabilities": [
     "poe-pd",
     "poe-pse",
@@ -21,10 +21,15 @@
       "type": "ethernet",
       "connector": "rj45",
       "speed": "100M",
-      "poeOut": true,
+      "poeOut": 60,
       "poeOutClass": "PoE++"
     }
   ],
   "sourceUrl": "https://techspecs.ui.com/unifi/accessories/uacc-lr-endpoint",
-  "notes": "Vendor figures from the Ubiquiti tech specs page: Networking interface **(2) 100M/10M ports**, power method **PoE+++**, max PoE output **passthrough up to PoE++**, max power consumption 2 W, supported voltage 52-57V, surge protection 3kA/6kV. **Both data ports are 100M** - this is an extender for long PoE runs, not a data-path switch, and putting it in front of a gigabit camera halves that camera's link."
+  "notes": "Vendor figures from the Ubiquiti tech specs page: Networking interface **(2) 100M/10M ports**, power method **PoE+++**, max PoE output **passthrough up to PoE++**, max power consumption 2 W, supported voltage 52-57V, surge protection 3kA/6kV. **Both data ports are 100M** - this is an extender for long PoE runs, not a data-path switch, and putting it in front of a gigabit camera halves that camera's link. The inlet is PoE+++ (802.3bt Type 4) and is deliberately not given a `poeIn` figure: the field this catalogue uses for an inlet is the class ceiling, and Ubiquiti prints the class word without ever stating a PD wattage for this unit - the only power number on the page is 2 W of own consumption. The outlet's 60 W is the vendor's own PoE++ ceiling, recorded in `poe.note` with both pages it comes from.",
+  "poe": {
+    "budgetW": 60,
+    "sourceUrl": "https://techspecs.ui.com/unifi/accessories/uacc-lr-endpoint",
+    "note": "The outlet is PoE++, which is 60 W in Ubiquiti's own vocabulary - not the bare direction bit this file carried. Tech specs page (https://techspecs.ui.com/unifi/accessories/uacc-lr-endpoint, HTTP 200, 594,569 B, read 2026-11-23): 'Networking Interface (2) 100M/10M ports'; 'Output Current Max. output current: 1.9A'; 'Input Current 1.92A'; 'Power Method PoE+++'; 'Max. PoE Output Passthrough up to PoE++'; 'Max. Power Consumption 2W'; 'Supported Voltage Range 52–57V'. Ubiquiti prints no watt figure for the outlet, so the class word is what fixes it: the same site's Dream Wall table defines the class - 'Max. PoE Wattage per Port by PSE | PoE 15.4W | PoE+ 30W | PoE++ 60W' (https://techspecs.ui.com/unifi/cloud-gateways/udw, HTTP 200, 704,702 B, read 2026-11-23) - so PoE++ is 60 W and not the 90 W some other vendors' PoE++ means. The stated current does not bind before the class does: 1.9 A x 52 V, the low end of the supported range, is 98.8 W, above 60 W, so the amperes never become the limit. budgetW is 60 for the same reason there is no separate allocation row to read: a passthrough with one outlet has no budget apart from that outlet. Before this pass the outlet carried `poeOut: true`, which `Device.poeDraw()` (engine/device.js) sums as 1 W, so a 60 W PoE++ camera cabled behind the endpoint drew 1 W and `show power inline` had no budget to spend at all."
+  }
 }
