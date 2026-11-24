@@ -15,7 +15,13 @@
     "start": 1,
     "count": 48,
     "type": "ethernet",
-    "speed": "1G"
+    "speed": "1G",
+    "connector": "rj45",
+    "speedCaps": [
+      10,
+      100,
+      1000
+    ]
   },
   "interfaces": [
     {
@@ -34,6 +40,7 @@
       "speed": "10G",
       "connector": "sfp+",
       "speedCaps": [
+        1000,
         10000
       ]
     },
@@ -43,6 +50,7 @@
       "speed": "10G",
       "connector": "sfp+",
       "speedCaps": [
+        1000,
         10000
       ]
     },
@@ -52,10 +60,13 @@
       "speed": "10G",
       "connector": "sfp+",
       "speedCaps": [
+        1000,
         10000
       ]
     }
   ],
   "icon": "switch",
-  "color": "#f59e0b"
+  "color": "#f59e0b",
+  "sourceUrl": "https://www.hpe.com/us/en/collaterals/collateral.a00021859enw.html",
+  "notes": "HPE Aruba Networking CX 6100 Switch Series QuickSpecs, Technical Specifications, Description row for this model: \"48x ports 10/100/1000BASE-T Ports 4x 1G/10G SFP ports\". The template is therefore 48x 10/100/1000BASE-T RJ45 sockets and 4x SFP+ cages (1/1/49, 1/1/50, 1/1/51, 1/1/52), all of which HPE states as \"1G/10G SFP\", so every cage carries speedCaps 1000/10000 - before this they were asymmetric, with only the first uplink accepting a 1G optic. Not claimed here: PoE budget (the same row states 802.3af/802.3at and the power supply states the 370W or 139W Class 4 figure, but this spec declares no poe block). Source: https://www.hpe.com/us/en/collaterals/collateral.a00021859enw.html"
 }
