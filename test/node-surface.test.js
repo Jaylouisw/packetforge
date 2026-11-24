@@ -54,22 +54,31 @@ ok(/No API newer than Node 18/.test(clean.out), 'and says what it checked');
 t('The guard can fail');
 
 {
-  const probe = path.join(ROOT, 'scripts', 'probe-surface.test-tmp.js');
+  // A scratch directory outside the repository, scanned by pointing the guard at it. A fixture
+  // written *into* the tree would be a file CI's own copy of the guard can read while it runs
+  // beside the suite in the same leg - a red static check about a tree nobody edited - and it
+  // would be something `tsconfig.json` (`scripts/**/*.ts`) can hand to `tsc` too.
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'pf-node-surface-'));
   // The probe builds the banned token by concatenation. Writing it literally in this file would
   // trip the guard on the guard's own test - which is the guard working, and a good reason to keep
   // its input and its subject apart.
   const banned = 'to' + 'Sorted';
   const call = '.' + banned + '(';
+  const probe = path.join(dir, 'probe.test-tmp.js');
   // The written file must contain a real call, while this source must not contain the literal
   // needle - so the call is assembled at write time.
   fs.writeFileSync(probe, "'use strict';\nconst a = [3, 1, 2]" + call + ");\nconsole.log(a);\n");
   try {
-    const dirty = run();
+    const dirty = run([dir]);
     ok(dirty.code !== 0, 'a post-18 API fails the guard');
     ok(dirty.out.indexOf(banned) !== -1, 'and the message names the API');
     ok(/Node 18/.test(dirty.out), 'and names the floor it breaks');
+    // The new positional argument must not become a way to pass by scanning nothing: a typo in the
+    // directory has to be an error, not "0 source file(s)" and exit 0.
+    ok(run([path.join(dir, 'no-such-directory')]).code === 2,
+      'a path that is not a directory is an error, not an empty pass');
   } finally {
-    fs.unlinkSync(probe);
+    fs.rmSync(dir, { recursive: true, force: true });
   }
 }
 
@@ -78,23 +87,21 @@ t('The guard reads a .ts file, not only a .js one');
 
 {
   // This is the half that used to be missing. `node` strips the types and runs the rest, so a
-  // `.ts` file reaches the same runtime API surface - but the guard's extension set was `.js`,
-  // `.mjs`, `.cjs`, and every file the repository converted left it silently. The probe lives
-  // under `tmp/` (gitignored) because `tsconfig.json` includes `scripts/**/*.ts`: a file that
-  // exists for one test must not be something `npm run typecheck` can read in the same minute.
-  const dir = path.join(ROOT, 'tmp');
-  const probe = path.join(dir, 'node-surface-probe.ts');
+  // `.ts` file reaches the same runtime API surface a `.js` file does - but the guard's extension
+  // set was `.js`, `.mjs`, `.cjs`, so every file this repository converted left it silently, and
+  // a clean run looked exactly like a real one.
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'pf-node-surface-'));
+  const probe = path.join(dir, 'probe.test-tmp.ts');
   const banned = 'to' + 'Sorted';
   const call = '.' + banned + '(';
-  fs.mkdirSync(dir, { recursive: true });
   fs.writeFileSync(probe, 'const a: number[] = [3, 1, 2]' + call + ');\nvoid a;\n');
   try {
-    const dirty = run();
+    const dirty = run([dir]);
     ok(dirty.code !== 0, 'a post-18 API inside a .ts file fails the guard');
-    ok(dirty.out.indexOf('node-surface-probe.ts') !== -1, 'and the message names the .ts file');
+    ok(dirty.out.indexOf('probe.test-tmp.ts') !== -1, 'and the message names the .ts file');
     ok(dirty.out.indexOf(banned) !== -1, 'and names the API');
   } finally {
-    fs.rmSync(probe, { force: true });
+    fs.rmSync(dir, { recursive: true, force: true });
   }
 }
 

@@ -19,6 +19,7 @@
  * Usage:
  *   node scripts/check-node-surface.js            # check, exit 1 on findings
  *   node scripts/check-node-surface.js --list     # also print what is allowed and why
+ *   node scripts/check-node-surface.js <dir>      # scan <dir> instead of this repository
  */
 'use strict';
 
@@ -88,11 +89,28 @@ function stripComments(src) {
 
 function main() {
   const list = process.argv.indexOf('--list') !== -1;
-  const files = walk(ROOT, []).sort();
+  // An optional positional scans that directory instead of this repository. The suite uses it to
+  // point the guard at a fixture outside the tree, and that is not tidiness: CI runs this script
+  // *beside* `npm test` in every leg (`ci.yml`, "Full test suite, syntax check and static checks,
+  // together"), so a fixture written into the repository to prove the guard can fail is a fixture
+  // a concurrent copy of the guard can find - a red leg about a tree nobody edited. A path that is
+  // not a directory is an error, never an empty scan that passes.
+  const positional = process.argv.slice(2).filter((a) => !a.startsWith('-'));
+  let root = ROOT;
+  if (positional.length) {
+    root = path.resolve(positional[0]);
+    let stat;
+    try { stat = fs.statSync(root); } catch (e) { stat = null; }
+    if (!stat || !stat.isDirectory()) {
+      console.error('check-node-surface: not a directory: ' + positional[0]);
+      process.exit(2);
+    }
+  }
+  const files = walk(root, []).sort();
   const findings = [];
 
   for (const file of files) {
-    const rel = path.relative(ROOT, file).replace(/\\/g, '/');
+    const rel = path.relative(root, file).replace(/\\/g, '/');
     // This script names every banned API in its own tables, so it exempts itself.
     if (rel === 'scripts/check-node-surface.js') continue;
     let src;
