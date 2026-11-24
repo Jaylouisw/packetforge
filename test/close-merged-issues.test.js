@@ -582,7 +582,9 @@ const INDEX = buildDeviceIndex(SPECS);
     // is pinned is what the matcher does with whichever requests the queue names.
     const queueFile = path.join(__dirname, '..', 'research', 'open-device-requests.json');
     const queue = JSON.parse(fs.readFileSync(queueFile, 'utf8')).requests;
-    ok(Array.isArray(queue) && queue.length > 0, 'the open-request queue parses and is not empty');
+    // An empty queue is a legitimate state: it means every filed request is built, or still open
+    // with its blocker written down. Pin that it parses into a list, not that it is non-empty.
+    ok(Array.isArray(queue), 'the open-request queue parses into a list');
 
     let malformed = null;
     const numbers = {};

@@ -611,3 +611,31 @@ does not change the disposition: still blocked on a vendor artefact naming `UDW-
 
 **What did change here:** the same datasheet and tech-spec rows that make the Pro unmodellable *did* settle the
 base UDW's WAN side, which `devices/ubiquiti/udw.json` had never encoded - see the PR that carries this note.
+
+### Resolved 2026-11-24: the request was for the Dream Wall, and the Dream Wall is catalogued
+
+Issue #130 closed on 2026-11-24 00:49Z, and it closed the way `docs/RESOLUTIONS.md` allows a device
+request to close - the catalogue answers it and the comment names the file - not because a vendor
+surface finally produced a Pro. The evidence that settled it came from a page this file had already
+listed as a route and never read properly, because it is client-rendered: the store product page
+`https://store.ui.com/us/en/products/udw` has a **Technical** tab, and that tab carries the whole
+port table (read in a browser on 2026-11-23; the rows and their values are quoted in the closing
+comment on #130). Every row - 17 x 1 GbE RJ45 with the 4 PoE++ / 4 PoE+ / 4 PoE split, 1 x 2.5 GbE
+RJ45, 2 x 10G SFP+, a 420 W budget - is already in `devices/ubiquiti/udw.json`, and the same tables
+are in `https://techspecs.ui.com/unifi/cloud-gateways/udw` (200, 704,702 B) and
+`https://dl.ui.com/ds/udw_ds.pdf` (200, 544,909 B).
+
+The negative stands and is not weakened by the close: there is no `UDW-PRO` SKU. The store
+"Cloud Gateways" category enumerates nine products, none of them a Dream Wall Pro; every
+`/products/udw-pro` route 404s on every regional storefront; and the techspecs grid and the Wayback
+CDX hold no `udw-pro` row. What was wrong was the request, not the catalogue: a reseller listing had
+named a product the vendor never shipped, and the fields the issue asked for were the fields the
+Dream Wall already declares.
+
+**What moved with the close.** `research/open-device-requests.json` no longer lists #130, so
+`docs/DEVICE_REGISTRY.md` (regenerated) reports the queue as clear and
+`scripts/check-closed-issues.js` stops reporting a close that contradicts this project's own record.
+Two suites had been using #130 as their live control row - `test/closed-issues-audit.test.js`
+("the live mirror still yields a row to audit") and `test/close-merged-issues.test.js` ("the queue
+parses and is not empty") - and both now pin the behaviour with a synthetic row instead: whether a
+check can see a row is a property of the check, not of the backlog staying non-empty.

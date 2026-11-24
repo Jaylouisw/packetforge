@@ -114,9 +114,16 @@ try {
   const real = blockedRequestNumbers(JSON.parse(fs.readFileSync(file, 'utf8')));
   // #742 is no longer a live row: the E8000's HDD and NVMe specs were built from the Chinese
   // product technical white paper (research/oceanprotect-e8000-cn-whitepaper.md), so the ledger
-  // must have dropped it. #130 keeps proving the mirror still yields a row to compare against.
+  // must have dropped it. #130 left the mirror on 2026-11-24, when the request was answered by
+  // devices/ubiquiti/udw.json - the store's Technical tab describes the Dream Wall and no UDW-PRO
+  // SKU exists to model. With the ledger empty, the row the mirror has to yield is a synthetic one:
+  // pinning a real issue number here made the check's own control depend on the backlog staying
+  // non-empty, which is not a property of the check.
   ok(!real.has(742), '#742 left the live mirror once its spec landed', JSON.stringify(Array.from(real)));
-  ok(real.has(130), 'the live mirror still yields a row to audit', JSON.stringify(Array.from(real)));
+  ok(!real.has(130), '#130 left the live mirror once the UDW spec answered it', JSON.stringify(Array.from(real)));
+  const control = blockedRequestNumbers({ requests: [{ issue: 130, models: 'x' }] });
+  ok(control.has(130), 'a mirror with a row still yields it, so an empty one is not a blind check',
+    JSON.stringify(Array.from(control)));
 } catch (e) {
   ok(false, 'research/open-device-requests.json parses', e.message);
 }
@@ -170,24 +177,33 @@ try {
   }
   const ledger = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'research', 'open-device-requests.json'), 'utf8'));
   const requests = Array.isArray(ledger.requests) ? ledger.requests : [];
-  const stale = [];
-  for (const request of requests) {
-    const tokens = String(request.models || '')
-      .split(/[\/&,]| and /i)
-      .map(function (t) { return t.trim(); })
-      .filter(Boolean);
-    for (const token of tokens) {
-      const hit = byName.get(normName(token));
-      if (hit) stale.push('#' + request.issue + ' -> ' + hit);
+  function staleRows(list) {
+    const out = [];
+    for (const request of list) {
+      const tokens = String(request.models || '')
+        .split(/[\/&,]| and /i)
+        .map(function (t) { return t.trim(); })
+        .filter(Boolean);
+      for (const token of tokens) {
+        const hit = byName.get(normName(token));
+        if (hit) out.push('#' + request.issue + ' -> ' + hit);
+      }
     }
+    return out;
   }
+  const stale = staleRows(requests);
   ok(stale.length === 0, 'no open-request row names a model the catalogue holds', stale.join(', '));
   ok(!requests.some(function (r) { return Number(r.issue) === 743; }),
     '#743 is out of the ledger - #1902 answered it with the X8100/X9100 specs');
   ok(!requests.some(function (r) { return Number(r.issue) === 742; }),
     '#742 is out of the ledger - the E8000 HDD and NVMe specs answer it');
-  ok(requests.some(function (r) { return Number(r.issue) === 130; }),
-    'a live row remains (#130), which is what proves the check can see one');
+  ok(!requests.some(function (r) { return Number(r.issue) === 130; }),
+    '#130 is out of the ledger - the request was answered by devices/ubiquiti/udw.json');
+  // Positive control for the join, now that the ledger is legitimately empty: a row naming hardware
+  // the catalogue holds is still a stale row, and this must be able to see one.
+  ok(staleRows([{ issue: 4242, models: 'UDW' }]).length === 1,
+    'a row naming hardware the catalogue holds is caught',
+    staleRows([{ issue: 4242, models: 'UDW' }]).join(', '));
 } catch (e) {
   ok(false, 'the ledger and the catalogue can be compared', e.message);
 }
