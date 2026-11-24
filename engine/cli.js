@@ -7434,9 +7434,9 @@ class CliSession {
       // `show spanning-tree` table with a bundle row in it, so that position is recorded as inferred rather than
       // settled (research/show-spanning-tree-port-order.md).
       //
-      // What is left unsettled is the order *between* two kinds of port (`Fa0/1` before or after `Gi1/0/1`): a
-      // box uses the platform's interface index, which is hardware-dependent, so the type word still breaks the
-      // tie the way this table always did - research/show-spanning-tree-port-order.md.
+      // The order *between* two kinds of port is that index too: four captures of the 24-port Fa + 2 Gi shape
+      // put the uplinks at 25 and 26, so the Fa block is listed first; a box of the same name shape whose Fa
+      // block starts at index 3 shows the layout is per-platform. research/show-spanning-tree-port-order.md.
       const names = Object.keys(st.states || {}).sort(function (a, b) {
         return String(a).localeCompare(String(b), undefined, { numeric: true });
       });
