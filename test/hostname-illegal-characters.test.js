@@ -16,8 +16,8 @@
 // header, prompt, `show running-config` - carrying a name a real box would have complained about.
 //
 // The second half of this file pins the *boundary* rather than the rule: every other breach shape
-// (leading digit, underscore, trailing dot, interior space, a vendor model string, a name past 63
-// characters) stays silent, because the documents show no outcome for any of them - the `\99`
+// (leading digit, underscore, trailing dot, interior space, a vendor model string) stays silent,
+// because the documents show no outcome for any of them - the `\99`
 // sample prints the message but never shows the prompt that follows - and because half the
 // catalogue's default names are vendor model strings. Guessing would put a warning on every
 // replayed running-config. research/hostname-illegal-characters.md carries the open questions and

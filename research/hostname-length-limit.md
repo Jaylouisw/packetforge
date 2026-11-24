@@ -5,13 +5,16 @@ characters or fewer" - and none of them says what the CLI *does* with a name tha
 the name and keep the old one, take it and shorten what it displays, or take it whole - and does the same answer
 hold on the platforms this catalogue models?
 
-**Verdict: the answers disagree, so nothing was changed.** One capture, on a Catalyst 3560 running IOS
-12.2(55), refuses 64 characters with a specific sentence and leaves the prompt on the old name; the same thread
-reports an IOS XE virtual router (CSR1Kv) and an IOS 15 7200 taking a longer name with no complaint and only
-shortening the *prompt* to 20 characters, the running-config keeping the whole name. A third platform family in
-this catalogue documents a different ceiling again (Catalyst 1200/1300: 1-58 characters). A single rule would be
-right for one lineage and wrong for the others, and PacketForge's catalogue makes even the 63-character rule
-unimplementable without a separate decision (36 of 2,351 models are labelled longer than 63 characters, below).
+**Verdict: refused, in one fixed sentence, and the name the box had is the name it keeps.** One capture, on a
+Catalyst 3560 running IOS 12.2(55), refuses 64 characters with a specific sentence and leaves the prompt on the
+old name. A second reply in the same thread reports an IOS XE virtual router (CSR1Kv) and an IOS 15 7200 taking a
+longer name with no complaint and only shortening the *prompt*, the running-config keeping the whole name - and a
+third platform family in this catalogue documents a different ceiling again (Catalyst 1200/1300: 1-58
+characters). That disagreement is real and is left unmodelled: what this console enforces is 63, the ceiling the
+IOS/IOS XE hierarchy it models publishes and the one transcript of a box refusing a name for its length. The
+CSR1Kv "no limit" claim stays an open question below rather than a rule. The repository-side blocker the first
+version of this note named - the catalogue's own over-long default labels being replayed as `hostname` lines - is
+answered in the round-trip sweep's fixture, not by weakening the rule (see "What it cost").
 
 ## What the vendor publishes
 
@@ -54,52 +57,53 @@ Three facts follow, and only the first is a transcript of a box refusing:
    the running-config) and only the display is cut, to 20 characters on that author's boxes.
 3. **No single number**: 32 (NX-OS), 58 (Catalyst 1200/1300), 63 (IOS/IOS XE references and the 3560).
 
-## What PacketForge does today
+## What PacketForge does now
 
-No limit at all, and no prompt field: the name is stored, printed in the prompt at full length and written to the
-config. Measured on a `C2960X-24TS-L` at this tree (the prompt is 72 characters after the 63-character name,
-because `(config)#` is nine of them):
+The rule lives in the `hostname` branch (`engine/cli.js`, `HOSTNAME_MAX` and `hostnameLengthRefusal()` beside
+`hostnameIsAllNumeric()`), asked after the help-key refusal and before the all-numeric warning. 63 characters are
+taken whole on every surface; 64 are refused, and nothing is stored:
 
 ```
-sw1#configure terminal
 sw1(config)#hostname aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa(config)#
 sw1(config)#hostname aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa(config)#
+% Hostname must have more than 1 character and must not exceed the maximum 63 character length.
+  64 characters, so the name is still "sw1"
 ```
 
-Neither rename printed a line. `show running-config` then carries `hostname <64 a's>` (73 characters with the
-keyword), and a 97-character name is accepted the same way. The start prompt is `Catalyst 2960X-24TS-L-sw1>` -
-21 characters of catalogue label plus the lab id, 26 with the `>` - so the "30-character field" the IOS XE
-reference describes is not modelled either.
+Before this, neither rename printed a line. `show running-config` carried `hostname <64 a's>` (73 characters with
+the keyword) and a 97-character name was accepted the same way, so the box reported a name no device of this
+lineage will hold. The start prompt is still `Catalyst 2960X-24TS-L-sw1>` - 21 characters of catalogue label plus
+the lab id, 26 with the `>` - so the "30-character field" the IOS XE reference describes, the 20-character cut in
+that lab reply and the 12-character CAT6500 report are all still unmodelled; what is modelled is the refusal,
+because it is the one thing a transcript shows.
 
-## Why no engine change
+## What it cost, and what is still open
 
-A refusal is one `if` in the `hostname` branch (`engine/cli.js`, beside `hostnameIsAllNumeric()`), but it cannot
-land without answering a question about this repository's data rather than about a device:
+Enforcing the rule is one `if`, but it collides with a fact about this repository rather than about a device:
+`show running-config` prints `hostname <config.hostname || device.name>` (`engine/cli.js`), and **52 of the 2,358
+catalogue models** carry a default label longer than 63 characters once the lab suffix is counted (63 labels are
+longer than 63 characters raw; 52 of them also print a `hostname` line). Their own printing config therefore
+carries a line this console now refuses, and `test/config-roundtrip.test.js` - which replays every model's config
+through the CLI and fails on any `%` line - failed on every one of them.
 
-* **36 of the 2,351 catalogue models carry a label longer than 63 characters** (11 Huawei, 9 Aruba, 4 Opengear,
-  2 each Edgecore/Hikvision/Phoenix Contact, ...). The longest is 97: `Huawei NetEngine 8000 M14 DC (2x
-  CR5DE2NE4X14, 1x CR5D00E8XM25, 3x CR5D00LAXF91, 1x CR5D00EAGF95)`.
-* `show running-config` prints `hostname <dev.config.hostname || dev.name>` (`engine/cli.js:7630`), so those 36
-  models print their own over-long label as a `hostname` line, and `test/config-roundtrip.test.js` replays every
-  model's config through the CLI and fails on any `%` line. A blanket refusal would fail 36 models on a rule
-  about hardware that never had a 97-character name to begin with - the same trap
-  `research/hostname-illegal-characters.md` documents for the character rule, and the reason that note narrowed
-  its check to the all-numeric case.
+The three ways out, and the one taken:
 
-The three ways out, none of them one narrow increment:
-
-1. **Per-platform predicate** (a `hostnameLimit()` beside `routingDefault()`): refuse at 58 for Catalyst
-   1200/1300, 63 for IOS/IOS XE Catalyst and NX-OS, no ceiling for IOS XE virtual platforms. Needs the CSR1Kv
-   "no limit" claim to be more than one forum reply, and needs the catalogue's Cisco small-business specs to be
-   split from the IOS XE ones.
+1. **Per-platform predicate** (a `hostnameLimit()` beside `routingDefault()`): 58 for the Catalyst 1200/1300, 63
+   for IOS/IOS XE Catalyst and NX-OS, no ceiling for IOS XE virtual platforms. Needs the CSR1Kv "no limit" claim
+   to be more than one forum reply, and needs the catalogue's Cisco small-business specs split from the IOS XE
+   ones. Not taken - the open question is kept open below.
 2. **A legal default name per device** (a box's default is `Router`/`switch`, never a model string), keeping the
    label for display only. That is the principled fix and it moves the canvas label, the inspector header and
-   every suite that asserts a default name.
-3. **Treat the device's own current name as a no-op** (accept `hostname <the name it already has>` even past the
-   limit). It preserves the round-trip sweep, but the exemption is unreachable on hardware and would have to be
-   documented as a simulator accommodation, not as a device rule.
+   every suite that asserts a default name. Not taken, because it is a printer increment: the open question is
+   which line an *unrenamed* device should print at all, and it belongs to its own run (#2532, item 2).
+3. **A legal name seeded in the round-trip sweep** where the printed line would be refused. Taken: the fixture,
+   not the printer, was replaying a config a real box rejects, and a box never holds a name it refuses. The
+   sweep seeds `rt-sweep` on the 52 models whose default label is too long, with a comment saying why.
+
+What this deliberately does not do: exempt the device's own current name (the sandbox accommodation the first
+version of this note floated) - a rule with an unreachable exemption is worse than a fixture with a comment. The
+lower bound the vendor sentence also states ("more than 1 character") is not enforced either: no document shows a
+one-character name refused, so the sentence is printed and the acceptance left alone.
 
 ## What is known, inferred, unresolved
 
@@ -111,7 +115,8 @@ family (32/58/63) within one vendor.
 **Inferred.** That the 15.2E/17.x Catalyst switch lineage the catalogue models behaves like the 3560 rather than
 like the CSR1Kv - the 3560 is the only Catalyst capture, and IOS XE switches are not the same image as IOS XE
 virtual routers. Also inferred: that the length check runs before the all-numeric *warning*, so an over-long
-all-numeric name would draw only the refusal; no capture shows the two together.
+all-numeric name draws only the refusal; no capture shows the two together, and that ordering is a decision this
+console makes rather than something it saw (`test/hostname-length-limit.test.js` pins it).
 
 **Unresolved, and what would settle it.**
 
@@ -123,3 +128,8 @@ all-numeric name would draw only the refusal; no capture shows the two together.
    and whether the cut is per mode (`(config-if)#` needs more room than `#`). A capture of one long name in three
    modes settles the width and the truncation rule.
 4. **What a real box prints at 1 character**, the lower bound the refusal sentence names and no document states.
+   The sentence is printed here anyway, because it is the vendor's, so it names a bound this console does not
+   enforce.
+5. **Which line an unrenamed device should print.** `show running-config` writes `hostname <name>`, which for 52
+   catalogue models is a label longer than the ceiling. A box prints its default (`Router`, `switch`) or no
+   `hostname` line at all. The fix is in the printer and needs its own run (#2532).

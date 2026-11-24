@@ -1571,6 +1571,16 @@ class CliSession {
       // The same destructive silence, one keypress away: `hostname ?` renamed the box to "?" (#1685).
       const keyed = this._helpKeyRefusal(name, 'hostname <name>', 'the name is unchanged');
       if (keyed) return [keyed];
+      // A name past the ceiling. Every IOS and IOS XE `hostname` reference states the limit as a rule of the
+      // command - "Names must be 63 characters or fewer" - and a live session refuses the 64th character with
+      // one fixed sentence while the name and the prompt stay where they were. This door had no length rule at
+      // all, so `hostname <64+ characters>` renamed the device on every surface into a name no box will hold.
+      // Asked here, before the all-numeric warning: a 64-digit name breaches both rules, and the box answers the
+      // one that stops the command rather than warning about a name it is not going to take. A refusal stores
+      // nothing, so there is no partial rename to undo.
+      if (name.length > HOSTNAME_MAX) {
+        return hostnameLengthRefusal(name, this.device.config.hostname || this.device.name);
+      }
       // The name is all digits: a real box prints `% Hostname contains one or more illegal
       // characters.` and then takes the name anyway - "the name will be accepted after an error is
       // returned", and its own transcript's prompt reads `123(config)#`. This console renamed in
@@ -8540,10 +8550,30 @@ function runCommands(device, topology, simulator, commands) {
 //
 // Only that case is warned about here. The reference shows the same line for `hostname \99` but
 // never shows the prompt that follows, and says nothing at all about a leading digit, an underscore,
-// a trailing dot, a name past 63 characters or an interior space - and half the catalogue's own
+// a trailing dot or an interior space - and half the catalogue's own
 // default names (vendor model strings like "ZenWiFi ET8", "FRITZ!Box 7590") breach the rule, so
 // guessing at the rest would put a warning on every replayed running-config. research/
 // hostname-illegal-characters.md lists each of those open questions.
+//
+// The ceiling `hostname` documents as a rule of the command and not as advice: "Names must be 63
+// characters or fewer" (Cisco IOS Configuration Fundamentals Command Reference, F-K, `hostname`; the same
+// words on IOS XE 17.12.x), and Aruba AOS-CX refuses the same shape, so 63 is not one vendor's quirk. A
+// CAT6500 that reports names "truncated to 12 characters" is describing the prompt field, not the stored name.
+// research/hostname-length-limit.md carries the citations.
+const HOSTNAME_MAX = 63;
+
+// The refusal, in two lines: the vendor's sentence verbatim, then this console's - the count, so an operator
+// can trim without counting by eye, and the name that is still on the box, the way `hostname` with no argument
+// already answers (#1497). The lower bound the vendor sentence also states ("more than 1 character") is not
+// enforced here: no capture shows a one-character name refused, and research/hostname-length-limit.md says so.
+function hostnameLengthRefusal(name, current) {
+  return [
+    '% Hostname must have more than 1 character and must not exceed the maximum ' + HOSTNAME_MAX +
+      ' character length.',
+    '  ' + name.length + ' characters, so the name is still "' + current + '"'
+  ];
+}
+
 function hostnameIsAllNumeric(name) {
   return /^[0-9]+$/.test(name);
 }

@@ -9,6 +9,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **`hostname` took a name past the 63-character ceiling every IOS and IOS XE reference states as a rule
+  of the command (#2532).** `hostname <64 characters>` renamed the device everywhere — the config line,
+  `device.name`, the prompt, the canvas label — into a name no box of that lineage will hold. A 3560 on
+  IOS 12.2(55) refuses the 64th character with `% Hostname must have more than 1 character and must not
+  exceed the maximum 63 character length.` and leaves the old name in place, so the console now prints
+  that sentence and then this house's second line, the count and the name that survived:
+  `  64 characters, so the name is still "sw1"`. The check sits in the `hostname` branch after the
+  help-key refusal and **before** the all-numeric warning — a 64-digit name breaches both rules and a box
+  answers the one that stops the command — and a refusal stores nothing, so there is no partial rename to
+  undo. 63 characters are still taken whole. `test/hostname-length-limit.test.js` holds 34 checks: the
+  boundary taken, the 64th refused with every surface unchanged, the count on a 200-character name, spaces
+  counted at the boundary, the length refusal outranking the warning, and `no hostname` still working
+  afterwards. `test/config-roundtrip.test.js` seeds a legal name on the 52 models whose default label is
+  too long, because the sweep was replaying a `hostname` line a real box rejects (whether an unrenamed
+  device should print one at all is a printer question, left open in #2532).
 - **The maintainer's own queue could not see a device request that was missing its label: #2521 sat
   open carrying only `device`.** `scripts/request-queue.js` asked the tracker for
   `labels=device-request`, so a request filed before the triage workflow labelled it was answered as

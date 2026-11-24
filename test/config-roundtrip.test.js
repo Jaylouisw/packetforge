@@ -148,6 +148,12 @@ console.log('No model in the catalogue rejects its own running-config:');
     ports[0].mask = '255.255.255.0';
     ports[0].description = 'seeded by the round-trip test';
     dev.config = dev.config || {};
+    // The printer writes `hostname <config.hostname || device.name>`, and 52 models in the catalogue carry a
+    // default name longer than the 63 characters a `hostname` line will hold (#2532). A real box never holds a
+    // name it refuses, so the sweep seeds a legal one on those and replays a config the console can accept: the
+    // fixture, not the printer, was the impossible part. Whether an unrenamed device should print a `hostname`
+    // line at all is a printer question, left open in #2532.
+    if (!dev.config.hostname && String(dev.name || "").length > 63) dev.config.hostname = 'rt-sweep';
     // Only a box that forwards can hold a route. Seeding one on a media converter was asking this sweep to replay
     // configuration the console refuses (#1387): the fixture, not the printer, was the impossible part.
     if (typeof dev.hasCap === 'function' && dev.hasCap('l3-forward')) {

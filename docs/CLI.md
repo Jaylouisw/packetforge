@@ -263,7 +263,7 @@ takes back.
 
 | Section | Printed as |
 |---|---|
-| hostname | `hostname <name>` |
+| hostname | `hostname <name>`, 63 characters at most - a longer name is refused and the old one kept (below) |
 | interfaces | `interface <name>` block: description, `speed`, `duplex`, `clock rate <bps>` (a serial DCE), `encapsulation dot1q <vlan> [native]` (a subinterface), `ip address`, switchport VLAN/trunk, `channel-group`, `ip access-group`, `ip nat inside` / `ip nat outside`, `shutdown`, `vrrp <vrid> …`. A console or aux socket gets **no** block: a box writes its settings under `line con 0` / `line aux 0`, not as an interface |
 | VLAN table | `vlan <id> [name] <text>` |
 | DHCP pools | `ip dhcp pool <name>` block: network, range, default-router, dns-server, excluded-address, lease, `host <addr> <mac>` |
@@ -4385,6 +4385,47 @@ ambiguous (`show po`); and the completed views print as before. The hint after t
 [`research/show-incomplete-view-word.md`](../research/show-incomplete-view-word.md) records that choice and the two
 neighbouring questions left open (a shortened tail word, `addr`, and a tail typed in capitals, `Address-Table`).
 `test/show-incomplete-view-word.test.js`: 23 checks; with the old handler, 9 passed / 14 failed.
+
+## A name past 63 characters renamed the box into a name it will not hold
+
+Every IOS and IOS XE `hostname` reference states the ceiling as a rule of the command — "Names must be 63
+characters or fewer" — and a Catalyst 3560 on IOS 12.2(55) refuses the 64th character with one fixed sentence,
+leaving both the prompt and the running-config on the name the box already had. This console had no length rule
+at all, so `hostname <64 characters>` renamed the device on every surface — the config line, `device.name`, the
+prompt, the canvas label — into a name no box will hold.
+
+```
+sw1(config)#hostname aaaa…aaaa        <- 64 characters
+% Hostname must have more than 1 character and must not exceed the maximum 63 character length.
+  64 characters, so the name is still "sw1"
+```
+
+The first line is the vendor's, full stop included — printed unmarked apart from its `%`, because recognising
+the sentence is the point. The second line is this console's habit: the count, so an operator can trim without
+counting by eye, and the name that survived, the same shape `hostname` with no name uses (#1497). 63 characters
+is taken whole; the refusal is asked **before** the all-numeric warning, because a 64-digit name breaches both
+rules and a box answers the one that stops the command. Nothing is stored by a refusal — `config.hostname`,
+`device.name`, the prompt and `show running-config` are unchanged, so there is no partial rename to undo, and
+`no hostname` and the next rename work as before.
+
+What is still unmodelled, all in [`research/hostname-length-limit.md`](../research/hostname-length-limit.md):
+the lower bound the same vendor sentence names ("more than 1 character"), which no capture exercises; the prompt
+field, which truncates the displayed name on some builds (20 characters in one lab reply, "30 characters … on
+most systems" in the IOS XE reference, 12 in the CAT6500 report); and the per-platform ceilings — 58 on the
+Catalyst 1200/1300 CLI, 32 on NX-OS, and one reply claiming no limit on IOS XE virtual routers. 63 is the
+ceiling of the lineage this catalogue's IOS-inspired console models, and it is enforced for all of them.
+
+One question is left open on purpose: `show running-config` prints `hostname <config.hostname || device.name>`,
+and 52 catalogue models have a default label longer than 63 characters, so their own config carries a line this
+console now refuses. A real box's default name is `Router` or `switch`, never a model string — but changing what
+the printer writes for an unrenamed device moves the canvas label and every suite that asserts a default name,
+so it is a printer increment of its own (#2532). `test/config-roundtrip.test.js` seeds a legal name on those 52
+models rather than replaying a config a box would reject.
+
+`test/hostname-length-limit.test.js`: 34 checks, covering the 63-character name taken whole (config, `device.name`,
+prompt, config text), the 64th refused with both lines and every surface unchanged, the count on a 200-character
+name, spaces counted at the boundary, the length refusal outranking the all-numeric warning, and the door still
+open afterwards. With the old handler, 14 passed / 20 failed.
 
 ## Two things measured and left alone
 
