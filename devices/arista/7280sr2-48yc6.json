@@ -1,53 +1,106 @@
 {
   "vendor": "arista",
   "model": "7280SR2-48YC6",
-  "label": "7280SR2-48YC6",
+  "label": "Arista 7280SR2-48YC6 / 7280SR2A-48YC6 (48x 1/10/25G SFP, 6x 100G QSFP)",
   "category": "l3-switch",
-  "description": "Arista 7280SR2-48YC6 - 1RU deep-buffer router/switch (7280R2): 48x 1/10/25G SFP (Ethernet1-48) plus 6x 100G QSFP28 (Ethernet49-54).",
+  "description": "Arista 7280SR2-48YC6 - 1RU deep-buffer switch router (7280R2): 48x 1/10/25G SFP (Ethernet1-48, 25G or 10G/1G configurable in groups of 4) plus 6x 100G QSFP (Ethernet49-54) that also take 40G or break out to 25G/10G. 3.6 Tbps, 8 GB buffer.",
   "capabilities": [
     "l2-forward",
     "l3-forward",
     "cli"
+  ],
+  "aliases": [
+    "7280SR2A-48YC6"
   ],
   "portTemplate": {
     "prefix": "Ethernet",
     "start": 1,
     "count": 48,
     "type": "ethernet",
-    "speed": "25G"
+    "connector": "sfp28",
+    "speed": "25G",
+    "speedCaps": [
+      1000,
+      10000,
+      25000
+    ]
   },
   "interfaces": [
     {
       "name": "Ethernet49",
       "type": "ethernet",
-      "speed": "100G"
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        10000,
+        25000,
+        40000,
+        100000
+      ]
     },
     {
       "name": "Ethernet50",
       "type": "ethernet",
-      "speed": "100G"
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        10000,
+        25000,
+        40000,
+        100000
+      ]
     },
     {
       "name": "Ethernet51",
       "type": "ethernet",
-      "speed": "100G"
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        10000,
+        25000,
+        40000,
+        100000
+      ]
     },
     {
       "name": "Ethernet52",
       "type": "ethernet",
-      "speed": "100G"
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        10000,
+        25000,
+        40000,
+        100000
+      ]
     },
     {
       "name": "Ethernet53",
       "type": "ethernet",
-      "speed": "100G"
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        10000,
+        25000,
+        40000,
+        100000
+      ]
     },
     {
       "name": "Ethernet54",
       "type": "ethernet",
-      "speed": "100G"
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        10000,
+        25000,
+        40000,
+        100000
+      ]
     }
   ],
   "icon": "switch",
-  "color": "#0ea5e9"
+  "color": "#0ea5e9",
+  "sourceUrl": "https://www.arista.com/assets/data/pdf/Datasheets/7280R-DataSheet.pdf",
+  "notes": "Arista 7280R data sheet, 'Arista 7280SR2A-48YC6 and 7280SR2-48YC6' bullet: \"7280SR2A-48YC6 and 7280SR2-48YC6: 48 port 25GbE SFP and 6 ports 100GbE\" / \"Offers 48 wire speed 1/10/25G SFP ports with FC and RS FEC\" / \"SFP ports offer 25G or 10G/1G speeds configurable in groups of 4\" / \"Six 100G QSFP ports allow choice of 6 x 100GbE, 24x 25GbE, 6x 40GbE, or 24x 10GbE\" / \"3.6Tbps of wire speed performance with 8GB of buffer\". Hence SFP28 cages on Ethernet1-48 with 1/10/25G caps and QSFP28 on Ethernet49-54. The 4-port grouping the sheet mentions is a speed-step constraint, not an extra port or cage, so it is not modelled as separate interfaces. The AlgoMatch sibling 7280SR2A-48YC6 shares one bullet and one comparison column with this SKU - it differs in the policy engine, not in its ports - so it is an alias rather than a second spec. The comparison table flags both End of Sale (E)."
 }

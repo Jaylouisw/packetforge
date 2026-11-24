@@ -1,0 +1,106 @@
+{
+  "vendor": "arista",
+  "model": "7280SR-48C6",
+  "label": "Arista 7280SR-48C6 (48x 1/10G SFP+, 6x 100G QSFP)",
+  "category": "router",
+  "description": "Arista 7280SR-48C6 - 1RU deep-buffer switch router (7280R series): 48x 1/10G SFP+ (Ethernet1-48) plus 6x 100G QSFP (Ethernet49-54) that also take 40G or break out to 25G/10G. 2.16 Tbps, 4 GB buffer, 2 hot-swap PSUs.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli"
+  ],
+  "aliases": [
+    "7280SR",
+    "7280SRA-48C6"
+  ],
+  "portTemplate": {
+    "prefix": "Ethernet",
+    "start": 1,
+    "count": 48,
+    "type": "ethernet",
+    "connector": "sfp+",
+    "speed": "10G",
+    "speedCaps": [
+      1000,
+      10000
+    ]
+  },
+  "interfaces": [
+    {
+      "name": "Ethernet49",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        10000,
+        25000,
+        40000,
+        100000
+      ]
+    },
+    {
+      "name": "Ethernet50",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        10000,
+        25000,
+        40000,
+        100000
+      ]
+    },
+    {
+      "name": "Ethernet51",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        10000,
+        25000,
+        40000,
+        100000
+      ]
+    },
+    {
+      "name": "Ethernet52",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        10000,
+        25000,
+        40000,
+        100000
+      ]
+    },
+    {
+      "name": "Ethernet53",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        10000,
+        25000,
+        40000,
+        100000
+      ]
+    },
+    {
+      "name": "Ethernet54",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        10000,
+        25000,
+        40000,
+        100000
+      ]
+    }
+  ],
+  "icon": "router",
+  "color": "#f43f5e",
+  "sourceUrl": "https://www.arista.com/assets/data/pdf/Datasheets/7280R-DataSheet.pdf",
+  "notes": "Arista 7280R data sheet, 'Arista 7280SR-48C6' bullet: \"7280SR-48C6: 48 port SFP+ and 6 ports 100GbE\" / \"Offers 48 wire speed 1/10G SFP+ ports\" / \"Six 100G QSFP ports allow choice of 6 x 100GbE, 24x 25GbE, 6x 40GbE, or 24x 10GbE\" / \"2.16Tbps of wire speed performance with 4GB of buffer\". Hence SFP+ cages (10G maximum, so sfp+ and not sfp28) on Ethernet1-48 with 1/10G caps, and QSFP28 on Ethernet49-54 with the 10/25/40/100G envelope the breakout sentence lists. The sheet contradicts itself on the breakout count: its Model Comparison row prints \"Max 25GbE Ports 12 / Max 10GbE Ports 24\" while the bullet for the same six cages prints 24x 25GbE / 24x 10GbE, so the caps state the envelope and claim no breakout count. The same table flags this SKU End of Sale (E). This spec replaces devices/arista/7280sr.json, which modelled a device called \"7280SR\" - not a SKU anywhere in the sheet - as 8 x 100G with no sources. The real name and the AlgoMatch variant the sheet's feature row names beside it (7280SRA-48C6) are kept as aliases so old references still resolve."
+}

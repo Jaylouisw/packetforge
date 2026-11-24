@@ -1,0 +1,343 @@
+{
+  "vendor": "arista",
+  "model": "7280SR2K-48C6",
+  "label": "Arista 7280SR2K-48C6 (24x 1/10G SFP+, 24x 1/10/25G SFP, 6x 100G QSFP)",
+  "category": "l3-switch",
+  "description": "Arista 7280SR2K-48C6 - 1RU 48-cage switch router (7280R2K): 24x 1/10G SFP+ plus 24x 1/10/25G SFP, then 6x 100G QSFP that also take 40G or break out to 25G/10G. 2.88 Tbps, 4 GB buffer.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli"
+  ],
+  "portTemplate": {
+    "prefix": "Ethernet",
+    "start": 1,
+    "count": 24,
+    "type": "ethernet",
+    "connector": "sfp28",
+    "speed": "25G",
+    "speedCaps": [
+      1000,
+      10000,
+      25000
+    ]
+  },
+  "interfaces": [
+    {
+      "name": "Ethernet25",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "Ethernet26",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "Ethernet27",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "Ethernet28",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "Ethernet29",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "Ethernet30",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "Ethernet31",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "Ethernet32",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "Ethernet33",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "Ethernet34",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "Ethernet35",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "Ethernet36",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "Ethernet37",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "Ethernet38",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "Ethernet39",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "Ethernet40",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "Ethernet41",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "Ethernet42",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "Ethernet43",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "Ethernet44",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "Ethernet45",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "Ethernet46",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "Ethernet47",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "Ethernet48",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        1000,
+        10000
+      ]
+    },
+    {
+      "name": "Ethernet49",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        10000,
+        25000,
+        40000,
+        100000
+      ]
+    },
+    {
+      "name": "Ethernet50",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        10000,
+        25000,
+        40000,
+        100000
+      ]
+    },
+    {
+      "name": "Ethernet51",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        10000,
+        25000,
+        40000,
+        100000
+      ]
+    },
+    {
+      "name": "Ethernet52",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        10000,
+        25000,
+        40000,
+        100000
+      ]
+    },
+    {
+      "name": "Ethernet53",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        10000,
+        25000,
+        40000,
+        100000
+      ]
+    },
+    {
+      "name": "Ethernet54",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        10000,
+        25000,
+        40000,
+        100000
+      ]
+    }
+  ],
+  "icon": "switch",
+  "color": "#0ea5e9",
+  "sourceUrl": "https://www.arista.com/assets/data/pdf/Datasheets/7280R-DataSheet.pdf",
+  "notes": "Arista 7280R data sheet, 'Arista 7280SR2K-48C6' bullet: \"7280SR2K-48C6: 24 port SFP+, 24 port 25GbE SFP and 6 ports 100GbE\" / \"Offers 48 wire speed SFP ports with 24 1/10G and 24 1/10/25G with FC and RS FEC\" / \"25G SFP ports offer 25G or 10G/1G speeds configurable in groups of 4\" / \"Six 100G QSFP ports allow choice of 6 x 100GbE, 24x 25GbE, 6x 40GbE, or 24x 10GbE\" / \"2.88Tbps of wire speed performance with 4GB of buffer\". The Model Comparison cell in the same sheet prints the two SFP groups in one order, \"24 x SFP25, 24 x SFP+\". ASSUMPTION, stated so it can be corrected: neither table prints front-panel numbering, so Ethernet1-24 is modelled as the 25G (SFP28) group and Ethernet25-48 as the SFP+ group, following the vendor's own Ports-cell order. If a unit numbers them the other way round, the two groups swap and nothing else about the box changes. The comparison table flags this SKU End of Sale (E)."
+}
