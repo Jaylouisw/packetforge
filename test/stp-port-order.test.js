@@ -42,7 +42,7 @@ function star(ports) {
 
 function rows(session) {
   const out = session.run('show spanning-tree').output.map(String);
-  const head = out.indexOf('Interface           Role Sts Cost      Type');
+  const head = out.indexOf('Interface           Role Sts Cost      Prio.Nbr Type');
   // One line for the header, one for the rule under it, then the port rows.
   return head < 0 ? [] : out.slice(head + 2).filter(Boolean).map(function (l) { return l.split(/\s+/)[0]; });
 }

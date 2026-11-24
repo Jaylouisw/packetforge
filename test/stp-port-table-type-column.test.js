@@ -33,7 +33,7 @@ const FAST = spec('2530-48 (J9781A)');   // 48 x 100 Mb - the only speed at whic
 
 function view(t, sim, devId) {
   const lines = new CliSession(t.getDevice(devId), t, sim).run('show spanning-tree').output.map(String);
-  const at = lines.indexOf('Interface           Role Sts Cost      Type');
+  const at = lines.indexOf('Interface           Role Sts Cost      Prio.Nbr Type');
   return {
     lines: lines,
     at: at,
@@ -67,15 +67,15 @@ console.log('\nThe header, the rule and the column positions belong to the captu
   const sim = new Simulator(t);
   sim.computeStp();
   const v = view(t, sim, 's1');
-  ok(v.at !== -1, 'the table is headed `Interface           Role Sts Cost      Type`', JSON.stringify(v.lines));
-  ok(v.rule === '------------------- ---- --- --------- -------',
+  ok(v.at !== -1, 'the table is headed `Interface           Role Sts Cost      Prio.Nbr Type`', JSON.stringify(v.lines));
+  ok(v.rule === '------------------- ---- --- --------- -------- -------',
     'one rule line, each run a dash shorter than its field', v.rule);
   const row = v.rows[0] || '';
   ok(row.slice(0, 20).trim() === 'Fa0/1', 'the interface cell is 20 wide', JSON.stringify(row));
   ok(row.slice(20, 25).trim() === 'Desg', 'Role starts at column 21', JSON.stringify(row));
   ok(row.slice(25, 29).trim() === 'FWD', 'Sts starts at column 26', JSON.stringify(row));
   ok(row.slice(29, 39).trim() === '4', 'Cost starts at column 30, in a 10-wide field', JSON.stringify(row));
-  ok(row.slice(39).trim() === 'P2p', 'Type starts at column 40', JSON.stringify(row));
+  ok(row.slice(48).trim() === 'P2p', 'Type starts at column 49', JSON.stringify(row));
   ok(!/\s$/.test(row), 'and the last cell carries no trailing space');
 }
 
@@ -172,14 +172,14 @@ console.log('\nNothing is invented for a port the model has no answer for, and n
 
   const text = view(t, sim, 's1').lines.join('\n');
   ok(!/\bEdge\b/.test(text), 'no row claims `Edge`: `spanning-tree portfast` is not a command this box has');
-  ok(!/Prio\.Nbr/.test(text), 'and no `Prio.Nbr` column is invented (the port index is the platform\'s)');
+  ok(/Prio\.Nbr/.test(text), 'and the `Prio.Nbr` column is printed in its own 9-wide field');
 
   const cells = view(t, sim, 's1').rows.map(function (r) { return r.trim().split(/\s+/); });
   ok(cells.length === 2, 'the table has the two cabled rows', String(cells.length));
-  ok(cells.every(function (c) { return c.length === 5; }), 'every row is five cells: name, role, sts, cost, type',
+  ok(cells.every(function (c) { return c.length === 6; }), 'every row is six cells: name, role, sts, cost, port ID, type',
     JSON.stringify(cells));
-  ok(cells.every(function (c) { return ['P2p', 'Shr', '-'].indexOf(c[4]) !== -1; }),
-    'and the last cell is one of the three answers the model can defend', JSON.stringify(cells.map(function (c) { return c[4]; })));
+  ok(cells.every(function (c) { return ['P2p', 'Shr', '-'].indexOf(c[5]) !== -1; }),
+    'and the last cell is one of the three answers the model can defend', JSON.stringify(cells.map(function (c) { return c[5]; })));
   ok(cells.every(function (c) { return /^\d+$/.test(c[3]); }), 'the cost cell stays a bare number');
 }
 

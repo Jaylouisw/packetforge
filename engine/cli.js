@@ -593,16 +593,18 @@ const ETHERCHANNEL_COLUMNS = { group: 7, 'port-channel': 16, protocol: 10 };
 
 // The `show spanning-tree` port table's furniture, transcribed from a machine-recorded Catalyst session
 // (ntc-templates `cisco_ios_show_spanning_tree.raw`): `Interface` padded to 20, then `Role` 5, `Sts` 4,
-// `Cost` 10, `Prio.Nbr` 9, `Type`. Each rule run is one dash shorter than the field above it, the rule every
-// table in this console follows. This view prints the capture's fields in their order but skips the one it
-// cannot state - `Prio.Nbr` is the platform's interface index, which no name derivation here reproduces - so
-// `Type` follows `Cost` instead of standing where the capture puts it, and the rule stops after `Type`
-// instead of running the capture's 80 characters. `Type`'s own field is wider than its three-letter cells
+// `Cost` 10, `Prio.Nbr` 9, `Type` at column 48. Each rule run is one dash shorter than the field above it,
+// the rule every table in this console follows. All six fields are printed now: `Prio.Nbr` used to be
+// skipped because the number in it is the port's place in the chassis port table rather than a function of
+// its name, and `stpLib.portOrdinals()` now derives that place from the front-panel order - the derivation,
+// its four captures and the two shapes it declines to number (a bundle, whose port ID is the platform's own)
+// are in research/stp-port-table-prio-nbr-column.md. `Type`'s own field is wider than its three-letter cells
 // because the capture's is: a reduced table's width is this console's, the words in the cell are the
 // device's (research/stp-port-table-type-column.md).
-const STP_TABLE_WIDTHS = { iface: 20, role: 5, sts: 4, cost: 10, type: 8 };
+const STP_TABLE_WIDTHS = { iface: 20, role: 5, sts: 4, cost: 10, prio: 9, type: 8 };
 const STP_TABLE_HEADER = pad('Interface', STP_TABLE_WIDTHS.iface) + pad('Role', STP_TABLE_WIDTHS.role) +
-  pad('Sts', STP_TABLE_WIDTHS.sts) + pad('Cost', STP_TABLE_WIDTHS.cost) + 'Type';
+  pad('Sts', STP_TABLE_WIDTHS.sts) + pad('Cost', STP_TABLE_WIDTHS.cost) +
+  pad('Prio.Nbr', STP_TABLE_WIDTHS.prio) + 'Type';
 const STP_TABLE_RULE = Object.keys(STP_TABLE_WIDTHS).map(function (k) {
   return pad('-'.repeat(STP_TABLE_WIDTHS[k] - 1), STP_TABLE_WIDTHS[k]);
 }).join('').replace(/\s+$/, '');
@@ -7608,14 +7610,21 @@ class CliSession {
         // A cell that fills its field keeps the space the field would have added - `tableCell()`'s rule, shared
         // with `show power inline` - so a long port name pushes the row instead of running into the next cell.
         const cell = tableCell;
+        // `Prio.Nbr`: the port priority (128 by default, the only value this model has) and the port's place
+        // in the bridge's port table, which `portOrdinals()` counts off the front-panel order. A bundle row
+        // has no derivable place - its port ID is the platform's own (128.20, 128.65 and 128.3433 in three
+        // captures) - so it keeps the `-` this table draws for anything the model cannot state.
+        const ordinals = stpLib.portOrdinals(dev);
         for (const n of names) {
           const cost = (st.costs && st.costs[n] !== undefined && st.costs[n] !== null) ? st.costs[n] : null;
+          const ordinal = ordinals[n];
           // The `Type` cell is RSTP's link type, read off the row's port: `P2p` for full duplex, `Shr` for
           // half, `-` when the model has no answer (research/stp-port-table-type-column.md).
           out.push(cell(portLabel(n), STP_TABLE_WIDTHS.iface) +
             cell(stpLib.stpRoleCell((st.roles || {})[n] || '-'), STP_TABLE_WIDTHS.role) +
             cell(stpLib.stpStateCell(st.states[n]), STP_TABLE_WIDTHS.sts) +
             cell(cost === null ? '-' : String(cost), STP_TABLE_WIDTHS.cost) +
+            cell(ordinal === undefined ? '-' : '128.' + ordinal, STP_TABLE_WIDTHS.prio) +
             (stpLib.stpTypeCell(portDuplex(n)) || '-'));
         }
       }

@@ -38,7 +38,7 @@ const SWITCH = catalog.filter(function (s) { return s.model === 'generic-switch'
 
 // The Port column's rows, as the console printed them: name, role cell, state cell.
 function portRows(lines) {
-  const at = lines.indexOf('Interface           Role Sts Cost      Type');
+  const at = lines.indexOf('Interface           Role Sts Cost      Prio.Nbr Type');
   if (at === -1) return null;
   // The header, the rule under it, then the rows.
   return lines.slice(at + 2);

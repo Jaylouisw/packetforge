@@ -428,6 +428,47 @@ function stpTypeCell(duplex) {
   return null;
 }
 
+// `Prio.Nbr`'s second half: the port's ordinal in the bridge's own port table.
+//
+// The cell is `128.N`, where 128 is the port priority and `N` is the port's position in the chassis port
+// table - "Port ID that consists of the port priority and the port number" (Catalyst 9200 17.7 command
+// reference, Layer 2/3 commands, `show spanning-tree` field table). Four captures of a single-unit box put
+// the same number on the same port, and three of them are the 24-downlink + uplink shape this catalogue is
+// full of: a 2960 reads `Fa0/13 128.13`, `Gi0/1 128.25`, `Gi0/2 128.26` (Pearson, CCNA Portable Command
+// Guide, Appendix B); a 24-port + 4-SFP box reads `Gi1/0/24 128.24`, `Gi1/0/25 128.25`, `Gi1/0/26 128.26`,
+// `Gi1/0/27 128.27` (community.cisco.com/t5/switching/root-bridge-has-backup-port/td-p/4818830); another
+// reads `Gi0/25 128.25` to `Gi0/27 128.27` (community.cisco.com/t5/switching/
+// spanning-tree-between-4-connected-switches/td-p/2546434); and the machine-recorded ntc-templates session
+// reads `Gi0/2 128.3`, `Gi0/3 128.4` and `Gi1/0. 128.5` on a box whose first port is `0/0`. So `N` is 1 + the
+// number of ports the table places ahead of this one, and on a single-unit box - every model in this
+// catalogue - that is the port's ordinal in the front-panel list, not a function of its name: `Gi0/1` is
+// `128.1` on a Catalyst 1200 and `128.25` on a 24-port 2960.
+//
+// Two limits are stated rather than papered over. A combo uplink (`comboWith`/`comboRole`) is ONE physical
+// position with two front ends, so its two interface objects share one number instead of taking two; and a
+// port that is not an Ethernet front end - a console line, a radio, a DSL or PON WAN socket - is
+// not in the bridge's port table at all, so it takes no number and shifts nothing. A bundle is a port with
+// an index too, but that index is the platform's own (a 4500 prints `PO0 128.20`, a 2950 `Po1 128.65`, a
+// 9600 `Po1 128.3433`), and the console keeps drawing `-` there rather than invent one.
+//
+// research/stp-port-table-prio-nbr-column.md carries the sources, the affine rule this ordinal is a special
+// case of, and the half that is still open.
+function portOrdinals(dev) {
+  const out = {};
+  if (!dev || !dev.interfaces || typeof dev.interfaces.values !== 'function') return out;
+  let n = 0;
+  for (const p of dev.interfaces.values()) {
+    if (!p || String(p.type) !== 'ethernet') continue;
+    // The SFP half of a combo pair sits at the same position as the RJ45 half that declared it, whichever
+    // order the two are listed in: the pair is one socket with two front ends.
+    const partner = p.comboWith ? out[p.comboWith] : undefined;
+    if (partner !== undefined && p.comboRole === 'sfp') { out[p.name] = partner; continue; }
+    n += 1;
+    out[p.name] = n;
+  }
+  return out;
+}
+
 module.exports = {
   STP_DEFAULT_PRIORITY,
   DEFAULT_PORT_COST,
@@ -437,6 +478,7 @@ module.exports = {
   stpRoleCell,
   stpStateCell,
   stpTypeCell,
+  portOrdinals,
   stpPortText,
   comparePortIds,
   runStp
