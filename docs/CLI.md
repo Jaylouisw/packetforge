@@ -3679,9 +3679,9 @@ routing shape. On a box with `ip routing` on, the command is retained in `show r
 nothing: a router whose only default is `ip default-gateway 10.0.0.254` still prints `Gateway of last resort is
 not set`, and no `S*` row appears. On a box that does not route, the same command is answered by the
 host/redirect cache shape below instead of a table. Only a lease's router is a route: the row is read from
-`device.dhcpGateway` (`engine/device.js:1418`), which `Simulator.computeDhcp()` fills when the lease carries a
-gateway (`engine/simulator.js:1245`), while the typed `config.defaultGateway` is consulted only when
-`isL3()` is false (`engine/device.js:1161`, and again where the table's `S*` row is built, `:1435`). The
+`device.dhcpGateway` (`engine/device.js:1446`), which `Simulator.computeDhcp()` fills when the lease carries a
+gateway (`engine/simulator.js:1248`), while the typed `config.defaultGateway` is consulted only when
+`isL3()` is false (`engine/device.js:1166`, and again where the table's `S*` row is built, `:1440`). The
 scoping itself, with the vendor sources, is in
 [research/ip-default-gateway-when-routing.md](../research/ip-default-gateway-when-routing.md).
 
