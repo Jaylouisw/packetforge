@@ -1,8 +1,9 @@
 # Plan: a PoE budget is one number, and four boxes carry somebody else's
 
-Status: forward plan; steps 1 and 4 are **landed** (2026-11-24) - the audit is importable and carries a
-`passthrough` and a `misdeclared` cohort, pinned by `test/poe-budget-gate.test.js`. Steps 2, 3 and 5-7
-are open. Re-measured 2026-11-23 on `5415d70d`. Closes **no** open issue — the
+Status: forward plan; steps 1, 2 and 4 are **landed** (2026-11-24) - the audit is importable, carries a
+`passthrough` and a `misdeclared` cohort pinned by `test/poe-budget-gate.test.js`, and the two remaining
+silent PSEs now declare `passthrough`, so `--strict` exits 0 and step 3 is unblocked. Steps 3 and 5-7 are
+open. Re-measured 2026-11-24 on `8bc5fbe5`. Closes **no** open issue — the
 open queue is one build item (#2477), which carries its own PR. Scope:
 `scripts/audit-poe-budget.js`, `engine/device.js:217-223`, `engine/cli.js:6440`, `web/app.js:2081`,
 `package.json:11`, `docs/DEVICE_SCHEMA.md`, four device specs, one new suite. No allocation rule
@@ -60,7 +61,53 @@ Measured on the merged catalogue that day: 2,352 models, 408 sourcing, **silent 
 ubiquiti/F-POE-G2, ubiquiti/UACC-LR-Endpoint), unknown 26, passthrough 0, misdeclared 0.
 `--strict` therefore still **exits 1** - step 3 (the `package.json` gate) cannot land until step 2 has
 marked the three Ubiquiti boxes, because a gate that is red on arrival teaches people to ignore it.
-No spec sets the flag yet, which is why step 5's documentation can follow rather than block.
+No spec set the flag on the day that landed, which is why step 5's documentation could follow rather than
+block; the second increment below is what puts it in two files, and makes step 5 the next thing owed.
+
+## Landed 2026-11-24, second increment: both remaining boxes say where their watts come from
+
+`#2501` gave the audit the word; this spends it. The two silent PSEs that were left are now
+`poe.passthrough: true`, each decided against a page read the same day, and **silent is 0**:
+
+```
+Models: 2352, of which 408 source PoE on at least one port
+Silent: 0
+Inferred from the model name: 0
+Marked unknown on purpose: 26
+Passthrough: 2   ubiquiti/UDB-Pro (1 PSE), ubiquiti/F-POE-G2 (1 PSE)
+Contradictory passthrough declarations: 0
+Budget with no PSE port: 0
+```
+
+`node scripts/audit-poe-budget.js --strict` now **exits 0** on the real catalogue, which is exactly what
+step 3 was waiting for.
+
+**`ubiquiti/UDB-Pro`** (`devices/ubiquiti/udb-pro.json`). The passive output on `eth1` has no supply of
+its own: Ubiquiti's table reads `Power Method: PoE / PoE+ (Required for PoE output)` and
+`Management: (1) PoE in (PoE output not used) / (1) Passive PoE output`
+(https://techspecs.ui.com/unifi/wifi/udb-pro, HTTP 200, 628,754 B, read 2026-11-24). No wattage is printed
+for the output port - the page's two figures are the included `48V, 0.32A` adapter (15.4 W **into** the
+box) and `Max. Power Consumption: 9W` - so a `budgetW` would be a subtraction nobody published. This page
+does not use the word "passthrough"; the requirement that the output be powered from a PoE+ input is what
+makes it one, and that is the line quoted in the spec's `poe.note`.
+
+**`ubiquiti/F-POE-G2`** (`devices/ubiquiti/f-poe-g2.json`). Here the vendor does use the word:
+`Power Method: ... 4-pair (24V DC/50V DC input) passthrough / PoE RJ45 port ... PoE passthrough`
+(https://techspecs.ui.com/uisp/fiber/optical-data-transport-for-outdoor-poe-devices, HTTP 200, 587,458 B,
+read 2026-11-24). Its power figures are all inputs or its own draw - `Input DC voltage: 16-57V`,
+`Power Consumption: 1.5W (Typical)`, `DC Output: Terminal block, 24V DC/50V DC, 2-wire` - and none is a
+PSE ceiling. **The `sourceUrl` was also broken**: it ended at `...outdoor-poe-d`, which 307s to the
+techspecs home page with no product on it, so the file had been citing a page that describes nothing; the
+path with the slug intact is now what both `sourceUrl` and `poe.sourceUrl` carry.
+
+The other two boxes step 2 named had already left the cohort through their own sheets rather than the flag:
+`planet/POE-E201` by `budgetW: 26` (#2487) and `ubiquiti/UACC-LR-Endpoint` by `budgetW: 60` (#2495),
+because both vendors print a figure for the outlet. `passthrough` is the answer only where nobody does.
+
+What the flag does **not** do: the engine still serves 0 W on those ports - no allocation rule reads
+`passthrough` and `engine/device.js` is untouched - so a camera behind a UDB-Pro is still refused. The
+word buys an honest audit line and a gate that can go green; step 5's definition and the `misdeclared`
+cohort are what stop it becoming an escape hatch.
 
 ## What exists today
 
@@ -118,9 +165,9 @@ sample description. `CONTRIBUTING.md` says nothing either.
    `spec.poe.passthrough === true`, printed on its own line and **excluded from `silent` and from the
    `--strict` failure count**. Flags, existing cohorts and exit codes unchanged; the four current
    silent specs keep printing until step 2.
-2. **S — Mark the four, one PR per vendor.** Set `poe.passthrough: true` where the page says the watts
+2. **S — Mark the four, one PR per vendor.** **[LANDED 2026-11-24]** Set `poe.passthrough: true` where the page says the watts
    arrive from upstream (POE-E201, F-POE-G2, UACC-LR-Endpoint, UDB-Pro), citing the line in `notes`. Where a vendor does publish a figure for the port, that becomes `budgetW` instead — decided
-   per file. After this, `--strict` exits 0 on the real catalogue.
+   per file. After this, `--strict` exits 0 on the real catalogue: measured 0 silent / 2 passthrough.
 3. **S — Gate it.** `node scripts/audit-poe-budget.js --strict` into `package.json:11`, after
    `audit-devices`. The collision this plan used to warn about is gone: `audit-devices` landed in that
    line with #2301, so this is the only edit there.

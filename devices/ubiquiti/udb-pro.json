@@ -36,5 +36,10 @@
     }
   ],
   "sourceUrl": "https://techspecs.ui.com/unifi/wifi/udb-pro",
-  "notes": "Vendor figures from the Ubiquiti tech specs page: Networking Interface **(2) GbE RJ45 ports**, management **(1) PoE in (PoE output not used) plus (1) passive PoE output**, internal antennas, wind loading 69 N at 200 km/h, 431 g. **The second port powers something else on passive PoE** - useful for a camera at the far end of a bridge, but the power comes out of the PoE input budget, and passive means the device must accept raw voltage rather than negotiate."
+  "notes": "Vendor figures from the Ubiquiti tech specs page: Networking Interface **(2) GbE RJ45 ports**, management **(1) PoE in (PoE output not used) plus (1) passive PoE output**, internal antennas, wind loading 69 N at 200 km/h, 431 g. **The second port powers something else on passive PoE** - useful for a camera at the far end of a bridge, but the power comes out of the PoE input budget, and passive means the device must accept raw voltage rather than negotiate.",
+  "poe": {
+    "passthrough": true,
+    "sourceUrl": "https://techspecs.ui.com/unifi/wifi/udb-pro",
+    "note": "The passive PoE output on eth1 is fed by the PoE input, so the ceiling belongs to whatever powers the bridge, not to this box: Ubiquiti's own table makes the dependency explicit - 'Power Method: PoE / PoE+ (Required for PoE output)' and 'Management: (1) PoE in (PoE output not used) / (1) Passive PoE output' (https://techspecs.ui.com/unifi/wifi/udb-pro, HTTP 200, 628,754 B, read 2026-11-24). The vendor prints no wattage for the output port; the only watts on the page belong to the input ('Power Supply: 48V, 0.32A PoE adapter (Included)' - 15.4 W into the box, not out of it) and to the box ('Max. Power Consumption: 9W'). A budgetW here would be input minus consumption, a subtraction nobody published, so the file declares passthrough and serves no figure. Note Ubiquiti does not use the word 'passthrough' on this page; the requirement that the output be powered from a PoE+ input is what makes it one."
+  }
 }
