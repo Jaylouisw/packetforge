@@ -60,26 +60,27 @@ first.
   that takes its gateway from DHCP should pull the address something already answers
   for; both come before the announcements because a host with no address cannot be
   asked anything. `traceroute()` and `openFlow()` run the six without those two
-  (`engine/simulator.js:762-767`, `engine/simulator.js:4222-4227`).
-  `ping6()` runs five, without LLDP (`engine/simulator.js:2525-2530`).
+  (`engine/simulator.js:762-767`, `engine/simulator.js:4222-4228`).
+  `ping6()` runs five, without LLDP (`engine/simulator.js:2524-2531`).
   `pingScion()` runs PoE and the SCION paths alone
   (`engine/simulator.js:2862-2863`). The protocols are therefore converged before
   packet one, and do not reconverge during the run.
 - Layer decisions are gated by `hasCap()`, through the predicates that name each
-  token — `isL2()`, `isL3()`, `isHost()` (`engine/device.js:703-755`), with `isL3()`
+  token — `isL2()`, `isL3()`, `isHost()` (`engine/device.js:708-760`), with `isL3()`
   also requiring `ip routing` to be on — and the only capabilities the forwarding path
   actually consults are `l2-forward`, `l3-forward` and `host`
   (`engine/simulator.js:3575-3585`).
 
-The pointers above were read off this tree (`6d5c37c7`), because they had slid a third time: `_run()`'s loop
+The pointers above were read off this tree (`97da585c`), and they had slid before: `_run()`'s loop
 was cited at 3105-3112, then at 3158-3169, then at 3232-3241, and 3232-3241 is now the interface-counter comment
-and an `_enqueue()` call - a reader following it learned how a frame is queued, not where a run is bounded. The
-same pass found `openFlow()`'s six-step set 28 lines below its old citation (4222-4227, not 4194-4199), the
-forwarding gate 29 lines below (3575-3585, not 3546-3556), and `device.js`'s predicate block 22 lines below the
-range that named it (703-755, not 681-733); the traceroute, ping6 and pingScion ranges were off by two or three.
-`npm run check:citations` cannot catch this class: it judges a citation only when the sentence names exactly one
-function and one line, and a bare range or a bare number names no function to check it against. Each number above
-was read off the definition it belongs to; the rest of this page's citations were not re-measured in the same pass.
+and an `_enqueue()` call - a reader following it learned how a frame is queued, not where a run is bounded. A
+fourth pass re-measured every range in this section: `device.js`'s predicate block sits at 708-760 (quoted at
+703-755 for `6d5c37c7`, itself 22 lines below the 681-733 that named it before), the forwarding gate at
+3575-3585 (29 lines below 3546-3556), and the `openFlow()` and `ping6()` ranges had each stopped one line short
+of the `computeBgp()` that closes them (4222-4228 and 2524-2531). `npm run check:citations` cannot catch this
+class: it judges a citation only when the sentence names exactly one function and one line, and a bare range or
+a bare number names no function to check it against. Each number above was read off the definition it belongs
+to; the rest of this page's citations were not re-measured in the same pass.
 
 **Approximate**
 
