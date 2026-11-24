@@ -62,6 +62,10 @@ this tree already does, and the row says where, in the code rather than in a pro
 
 ## Contributing
 
-Pick any checkbox. The engine is pure JavaScript with no dependencies; the test
-suite is `node test/engine.test.js`. Keep the capability model — new protocol
-logic goes in `engine/simulator.js`, new hardware goes in `devices/*.json`.
+Pick any unchecked row or box. The engine has no runtime dependencies and no build step: new
+files are TypeScript, the legacy modules beside them are converted when they are touched, and
+Node runs both without a compile ([TYPESCRIPT.md](TYPESCRIPT.md)). The suite is `npm test`, which
+is `node scripts/run-tests.js` — it discovers every suite under `test/` and runs each in its own
+process, so `node test/engine.test.js` is one suite of it rather than a name for all of them.
+Keep the capability model — new protocol logic goes in `engine/simulator.js`, new hardware goes
+in `devices/<vendor>/<model>.json`, one file per model.
