@@ -99,6 +99,9 @@ test('no job asserts the floor with a major-version glob', function () {
   (function () {
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i];
+      // Skipping a comment is ordinary control flow, not an exemption: the scan is looking
+      // for the shell line that declares the runtime, and a comment is not a candidate for
+      // that rule. Nothing about a device or a hardware class is being decided here.
       if (/^\s*#/.test(line)) continue;
       if (/case\s+"\$\(node --version\)"/.test(line)) {
         throw new Error('the `case ... v22.*` assertion is back in ci.yml at line ' + (i + 1) +
