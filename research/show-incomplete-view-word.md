@@ -63,9 +63,11 @@ the same two words invalid.
 * IOS would abbreviate the second word too (`show mac addr`), since `address-table` is a keyword like any other.
   **This console still refuses that** (`% Invalid show command: mac addr`) — it is a different question (tail
   abbreviation) and was left alone.
-* The word after `show` is matched case-insensitively by this console's resolver but the tail is compared with
-  `===` (`tokens[1] === 'address-table'`), so `show mac Address-Table` is refused. Also left alone; the same
-  question asked of the *tail* rather than of the missing word.
+* The word after `show` was matched case-insensitively by this console's resolver while the tail was compared
+  with `===` (`tokens[1] === 'address-table'`), so `show mac Address-Table` was refused. **That half is settled:**
+  a box matches a keyword in any case, and the tail is now compared through the same lowercased copy as the rest
+  of the line, so `show mac Address-Table` and `show ip ROUTE` reach their views - `research/show-keyword-case.md`
+  has the sources. What is still refused is the *abbreviation* of the tail (`show mac addr`), the bullet above.
 
 ## What is unresolved
 

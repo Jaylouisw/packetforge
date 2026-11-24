@@ -141,6 +141,25 @@ two-letter prefix is also this simulator's answer rather than a claim about a pa
 against this console's shorter command set, so `sh s` reaches the spanning tree here where a box with `snmp`,
 `ssh` and `spanning-tree` would call it ambiguous.
 
+**Case is not part of a keyword.** A box matches the words of a command in any case - IOS says so in its own
+words ("You can enter commands in uppercase, lowercase, or mixed case. Only passwords are case sensitive", and
+"Cisco IOS commands are generally case-insensitive") - and this console did so for the first word of a line
+only. `show ip ARP` reached the arp view, because that word is compared lowercased, while `show ip ROUTE` was
+refused as an unknown view, and so were `show ip interface BRIEF`, `show ip DHCP binding`, `show ipv6 ND` and
+`show mac ADDRESS-TABLE` - the views whose word is compared against a literal:
+
+```
+r1# show ip ROUTE
+% Invalid show command: ip ROUTE
+```
+
+Every word after `show` is now compared through one lowercased copy of the line, so `show ip ROUTE` prints the
+same table as `show ip route` and `SHOW IP ROUTE` does too. The rule covers the words of the command, not its
+values: a MAC, a prefix and a description are passed through as typed, and a port name that reaches no port is
+quoted back in the spelling it was given (a name that *does* reach a port is resolved the way a box resolves it,
+and the block prints the panel's spelling). `research/show-keyword-case.md` has the sources and what a
+box does with an interface name.
+
 ## A command with words it cannot use refuses them
 
 Most of the commands above are the whole command. Some narrow to one object of their own: a port name

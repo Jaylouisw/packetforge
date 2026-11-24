@@ -9,6 +9,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **A keyword typed in capitals was refused as an unknown view: `show ip ROUTE`, `show ip interface BRIEF`,
+  `show mac ADDRESS-TABLE`.** A box matches the words of a command in any case - IOS says so itself ("You can
+  enter commands in uppercase, lowercase, or mixed case. Only passwords are case sensitive", and "Cisco IOS
+  commands are generally case-insensitive") - and this console folded the *first* word of a `show` line only.
+  So `show ip ARP` and `show POWER INLINE` reached their views (their words are compared lowercased) while the
+  six views dispatched by a literal comparison - `nat`, `interface brief`, `route`, `dns`, `dhcp`, `ospf`, `bgp`
+  - plus `show ipv6 nd` and `show mac address-table` answered `% Invalid show command: ip ROUTE` about views the
+  console has. Every word after `show` is now compared through one lowercased copy of the line; the *values* on
+  that line keep the case they were typed in, so `show ip route EXTRA` still quotes `EXTRA` back.
+  `test/show-keyword-case.test.js` (37 checks) pins eleven case variants to their lower-case twins byte for byte,
+  the real route and brief tables behind the capitalised spellings, and the refusals that must not move;
+  [`research/show-keyword-case.md`](research/show-keyword-case.md) records the sources and leaves the interface
+  *name* - as opposed to the keyword - open.
+
 - **A bare `show`, and `show mac` / `show power`, were refused as words the console does not know.** `show` on
   its own answered `% Invalid show command: (empty)`, and the two half-commands answered `% Invalid show command:
   mac` and `… power`, though both are doors whose word is the rest of the line (`show mac address-table`,

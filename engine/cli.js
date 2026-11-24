@@ -6686,6 +6686,17 @@ class CliSession {
     if (redirect && redirect.rewrite) tokens = redirect.rewrite;
     else if (redirect) return redirect.lines;
     const what = (tokens[0] || '').toLowerCase();
+    // A keyword is matched the way a box matches it, in any case. IOS states the rule twice: "You can enter
+    // commands in uppercase, lowercase, or mixed case. Only passwords are case sensitive" and "Cisco IOS commands
+    // are generally case-insensitive" (IOS 15.1S Configuration Fundamentals, Using the Cisco IOS Command-Line
+    // Interface; https://www.cisco.com/c/en/us/td/docs/ios/fundamentals/configuration/guide/TIPs_Conversion/cf_15_1s_book/cf_cli-basics.html),
+    // and "Commands are not case-sensitive" (5900 ESW 15.2(4)GC configuration guide, CLIintro). This console
+    // lowercased the first word only: `show ip ARP` reached the arp view (its word is compared lowercased), while
+    // the six views dispatched by a literal comparison below - nat, interface brief, route, dns, dhcp, ospf, bgp -
+    // refused `show ip ROUTE` as an unknown view, and so did `show ipv6 ND` and `show mac ADDRESS-TABLE`. Same
+    // console, same box, one rule: a *keyword* is compared case-insensitively, and a *value* is not touched here
+    // (the port name a view is given keeps its case, which is a question of its own - research/show-keyword-case.md).
+    const kw = tokens.map(function (t) { return String(t === undefined || t === null ? '' : t).toLowerCase(); });
     const dev = this.device;
     this._refreshControlPlane();
     const out = [];
@@ -6700,7 +6711,7 @@ class CliSession {
       out.push('Capabilities: ' + dev.capabilities.join(', '));
       out.push('Interfaces : ' + dev.interfaces.size);
       out.push('Simulator  : PacketForge 0.1.0');
-    } else if (what === 'ip' && tokens[1] === 'nat') {
+    } else if (what === 'ip' && kw[1] === 'nat') {
       // The other half of the reachability problem: a mechanism nobody can configure is invisible, and one
       // nobody can *inspect* is unverifiable. Both read the engine's own state - the rules it would apply and
       // the translations it has actually made in the traffic that crossed (#1366).
@@ -6790,7 +6801,7 @@ class CliSession {
       } else {
         out.push('% Usage: show ip nat (rules | translations | statistics)');
       }
-    } else if (what === 'ip' && tokens[1] === 'interface' && tokens[2] === 'brief') {
+    } else if (what === 'ip' && kw[1] === 'interface' && kw[2] === 'brief') {
       if (tokens.length > 3) {
         const want = tokens.slice(3).join(' ');
         // The pointer may only carry a port when the words name one this box has. It was built from whatever was
@@ -6858,7 +6869,7 @@ class CliSession {
         const state = live.length ? 'up' : 'down';
         out.push(briefLine([require('./lag.ts').portChannelIfaceName(id), 'unassigned', 'YES', 'unset', state, state]));
       }
-    } else if (what === 'ip' && tokens[1] === 'route') {
+    } else if (what === 'ip' && kw[1] === 'route') {
       // There is no `show ip route <prefix>` here, and the command used to answer as though there were: it printed
       // the whole table, so a prefix that is *not* installed came back looking installed (#1403).
       if (tokens.length > 2) {
@@ -7021,17 +7032,17 @@ class CliSession {
           (r.iface && r.iface !== '-' ? ', ' + (r.ifaceDisplay || r.iface) : '') +
           (r.note ? '  ' + r.note : '') + (r.shadow ? '  ' + r.shadow : ''));
       }
-    } else if (what === 'ip' && tokens[1] === 'dns') {
+    } else if (what === 'ip' && kw[1] === 'dns') {
       out.push.apply(out, this._showDns(tokens.slice(2)));
-    } else if (what === 'ip' && tokens[1] === 'dhcp') {
+    } else if (what === 'ip' && kw[1] === 'dhcp') {
       out.push.apply(out, this._showDhcp(tokens.slice(2)));
-    } else if (what === 'ip' && tokens[1] === 'ospf') {
+    } else if (what === 'ip' && kw[1] === 'ospf') {
       out.push.apply(out, this._showOspf(tokens.slice(2)));
-    } else if (what === 'ip' && tokens[1] === 'bgp') {
+    } else if (what === 'ip' && kw[1] === 'bgp') {
       out.push.apply(out, this._showBgp(tokens.slice(2)));
     } else if (what === 'ipv6' && (!tokens[1] || tokens[1] === '?')) {
       out.push.apply(out, showIpv6Usage());
-    } else if (what === 'ipv6' && tokens[1] === 'nd') {
+    } else if (what === 'ipv6' && kw[1] === 'nd') {
       // `show ipv6 nd <word>` printed the whole advertisement and dropped the word. The two words an operator is
       // most likely to type - `prefix` and `ra` - are commands they have already typed in config mode, so asking
       // "which prefixes am I advertising" with `show ipv6 nd prefix` looked like it had been answered by the
@@ -7742,7 +7753,7 @@ class CliSession {
         out.push('  this row shows the one that answered last; traffic to ' + r.ip +
           ' goes to whichever answers next');
       }
-    } else if (what === 'mac' && tokens[1] === 'address-table') {
+    } else if (what === 'mac' && kw[1] === 'address-table') {
       // Rows are the rows at the instant this session is asking about: a dynamic entry that has been silent for
       // longer than MAC_AGE_MS is gone, and the Age column says how long ago it was heard. Before this the table
       // never aged anything and the row carried a note explaining that it might be stale (#1395).
