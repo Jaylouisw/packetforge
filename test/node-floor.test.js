@@ -151,3 +151,26 @@ test('a floor this check cannot read is refused rather than assumed', function (
   assert.ok(text.indexOf('process.exit(1)') !== -1,
     'a refused floor has to be a failing exit, not a printed warning');
 });
+
+test('the roadmap names the legs the matrix actually runs', function () {
+  // docs/ROADMAP.md said the suite runs on "Node 18, 20 and 22" long after 18 and 20 left the
+  // matrix (#2548). It is the one sentence a reader trusts instead of opening the workflow, and
+  // a reader who trusts it installs 18 - which cannot even require engine/simulator.js, because
+  // line 116 pulls in engine/segment.ts. So the sentence is checked against the matrix here
+  // rather than by eye.
+  const workflow = fs.readFileSync(WORKFLOW, 'utf8');
+  const matrix = /^\s*node:\s*\[([^\]]*)\]/m.exec(workflow);
+  assert.ok(matrix, 'ci.yml no longer declares a `node: [...]` matrix for the test job');
+  const legs = matrix[1].split(',').map(function (s) { return s.trim(); }).filter(Boolean);
+  assert.ok(legs.length > 0, 'the matrix declares no legs: ' + JSON.stringify(matrix[0]));
+
+  const roadmap = fs.readFileSync(path.join(ROOT, 'docs', 'ROADMAP.md'), 'utf8');
+  const line = roadmap.split('\n').filter(function (l) { return /runs the suite on Node/.test(l); })[0];
+  assert.ok(line, 'docs/ROADMAP.md no longer has a CI row saying which Nodes the suite runs on');
+  const at = line.indexOf('Node ') + 'Node '.length;
+  // Up to the end of the version list: digits, spaces, commas and the word "and".
+  const named = (line.slice(at).match(/^[\d\s,and]+/) || [''])[0].match(/\d+/g) || [];
+  assert.deepStrictEqual(named, legs,
+    'docs/ROADMAP.md says the suite runs on Node ' + named.join(', ') +
+    '; .forgejo/workflows/ci.yml runs Node ' + legs.join(', ') + ' - the row has to name the same legs');
+});
