@@ -1,21 +1,162 @@
 'use strict';
-// lag.js -- LACP / LAG (link aggregation) model.
-//
-// Covers the three things a topology editor and the CLI need:
-//   1. normalising a LAG definition (mode, hash policy, members, min links)
-//   2. hashing a frame into [0,1) and picking a bundle member from it
-//   3. validating a bundle against the physical ports it claims
-//
-// Everything here is pure data + pure functions. No dependency on Device,
-// Topology or the simulator, so it is safe to require from the engine, the
-// server, the CLI or the tests. Hashes are deterministic (FNV-1a over the
-// selected tuple) -- never Math.random -- so a given frame always lands on the
-// same member, which is what makes flows stable across calls and across runs.
+/**
+ * lag.ts -- LACP / LAG (link aggregation) model.
+ *
+ * Covers the three things a topology editor and the CLI need:
+ *   1. normalising a LAG definition (mode, hash policy, members, min links)
+ *   2. hashing a frame into [0,1) and picking a bundle member from it
+ *   3. validating a bundle against the physical ports it claims
+ *
+ * Everything here is pure data + pure functions. No dependency on Device,
+ * Topology or the simulator, so it is safe to require from the engine, the
+ * server, the CLI or the tests. Hashes are deterministic (FNV-1a over the
+ * selected tuple) -- never Math.random -- so a given frame always lands on the
+ * same member, which is what makes flows stable across calls and across runs.
+ *
+ * TypeScript (docs/TYPESCRIPT.md), and the module the conversion order page names as row three: it is
+ * the one file a converted file already required (`engine/segment.ts` said `require('./lag')`, which
+ * worked only while this file was JavaScript). That require names `./lag.ts` now.
+ *
+ * Everything that crosses this module's boundary is either a value the caller passes in as data - a
+ * saved lab's LAG block, a frame to hash, a member list - or a value a still-JavaScript class hands
+ * over (a channel group from `Device.lagFor()`). The first kind is `unknown` and is narrowed by the
+ * guards that were already here (`normalizeLag()`, `memberList()`, `isObject()`); the second is
+ * narrowed by `groupMode()`. No `as`, and nothing is asserted into existence: a value this module
+ * cannot read is treated the way the function already treated it, not refused with a new error.
+ */
+
+// A `.ts` file with no top-level import is a *script* in the type system: its top-level names land
+// in one global scope shared with every other such file. This empty, type-only import is erased by
+// the strip-types runtime and is what marks the file as a module.
+import type {} from 'fs';
+
+/** The shape a LAG definition is normalised into, and what every function below is handed afterwards. */
+interface LagConfig {
+  readonly id: string;
+  readonly mode: string;
+  readonly hashPolicy: string;
+  readonly members: readonly string[];
+  readonly minLinks: number;
+}
+
+/** One finding: the code a caller matches on, and the sentence it prints. */
+interface LagProblem {
+  readonly code: string;
+  readonly message: string;
+}
+
+/** What `validateLag()` answers with. `ok` is `errors.length === 0`, stated rather than inferred. */
+interface LagVerdict {
+  readonly ok: boolean;
+  readonly errors: readonly LagProblem[];
+  readonly warnings: readonly LagProblem[];
+}
+
+/**
+ * One physical port as a *caller* describes it: `{ name, speedMbps, duplex, vlanCompatible, enabled }`.
+ * Every field but the name is optional and `unknown`, because this is a document shape - the API door,
+ * a saved lab and a test fixture all hand one in - and `validateLag()` is the function whose job is to
+ * say what is wrong with it, not a place that trusts it.
+ */
+interface MemberPort {
+  readonly name?: unknown;
+  readonly speedMbps?: unknown;
+  readonly duplex?: unknown;
+  readonly vlanCompatible?: unknown;
+  readonly enabled?: unknown;
+}
+
+/** A member that has a port record, paired with the name it was listed under. */
+interface KnownMember {
+  readonly name: string;
+  readonly port: MemberPort;
+}
+
+/** The far end of a member's cable, exactly as `Interface.peer` records it. */
+interface PortPeer {
+  readonly deviceId: string;
+  readonly iface: string;
+}
+
+/** The port fields this module reads: its cable's far end, and whether it is administratively up. */
+interface MemberIface {
+  readonly peer?: PortPeer | null;
+  readonly enabled?: boolean;
+}
+
+/**
+ * The device surface `memberSuspension()` reads (engine/device.js `Device`). `lagFor` answers `unknown`
+ * on purpose: the class that implements it is still JavaScript, so what comes back is narrowed by
+ * `groupMode()` below rather than declared here as a shape nothing checks.
+ */
+interface LagDevice {
+  readonly interfaces?: { get(name: string): MemberIface | undefined } | null;
+  lagFor?(ifaceName: string): unknown;
+}
+
+/** The topology surface `memberSuspension()` reads (engine/topology.js `Topology`). */
+interface LagTopology {
+  getDevice(id: string): LagDevice | null;
+}
+
+/**
+ * Why a channel member is not in its bundle. `why` is a string here rather than `string | null`
+ * because `negotiationVerdict()` is a discriminated union: every path that produces a suspension has
+ * a sentence for it, and the type says so instead of leaving the caller to check.
+ */
+interface MemberSuspension {
+  readonly why: string;
+  readonly mode: string;
+  readonly peerMode: string | null;
+  readonly peer: PortPeer;
+}
+
+/**
+ * The answer to "do these two modes negotiate?", as a union rather than a boolean plus a maybe-string:
+ * a bundled pair has no reason to give, and a pair that does not bundle always has one.
+ */
+type NegotiationVerdict =
+  | { readonly bundled: true; readonly why: null }
+  | { readonly bundled: false; readonly why: string };
+
+/** What decides whether a member is operationally usable right now. */
+type CanCarry = (name: string) => boolean;
+
+/** The options `selectMember()` takes fourth. */
+interface SelectOptions {
+  readonly canCarry?: CanCarry | null;
+}
 
 // Port order, not string order: an active link is chosen by port number, and `Fa0/10` is not before `Fa0/2`.
-const ifaceName = require('./iface-name');
+const ifaceName: { comparePortNames(a: string, b: string): number } = require('./iface-name');
 
-const LAG_MODES = ['lacp-active', 'lacp-passive', 'static'];
+/**
+ * An object as a bag of `unknown`s: the guard that lets a document-shaped value be read without an
+ * assertion. Everything below narrows a field with `typeof` before using it.
+ */
+function isObject(v: unknown): v is Readonly<Record<string, unknown>> {
+  return typeof v === 'object' && v !== null;
+}
+
+/** A member list, or an empty one. The annotation is what stops `Array.isArray` widening it to anything. */
+function memberList(members: unknown): readonly unknown[] {
+  return Array.isArray(members) ? members : [];
+}
+
+/**
+ * The mode a channel group reports.
+ *
+ * `Device.lagFor()` is JavaScript, so the value is `unknown`; this reads its `mode` and stringifies it
+ * the way `canonicalMode()` always did, so a group with no mode behaves exactly as it did before
+ * (empty -> the default), instead of becoming a new refusal this module has no business inventing.
+ */
+function groupMode(group: unknown): string {
+  if (!isObject(group)) return '';
+  const mode: unknown = group.mode;
+  return (mode === null || mode === undefined) ? '' : String(mode);
+}
+
+const LAG_MODES: readonly string[] = ['lacp-active', 'lacp-passive', 'static'];
 
 // Two vocabularies for one fact. The console says `channel-group 1 mode active|passive|on`, the way IOS does;
 // the model says `lacp-active|lacp-passive|static`, the way the rest of the engine reads it. They were never
@@ -27,7 +168,7 @@ const LAG_MODES = ['lacp-active', 'lacp-passive', 'static'];
 //
 // - a warning on every correct command, and the mode left as a string nothing downstream recognised.
 // One table, both directions, so the two cannot drift apart again.
-const MODE_ALIASES = {
+const MODE_ALIASES: Readonly<Record<string, string>> = {
   active: 'lacp-active',
   'lacp-active': 'lacp-active',
   passive: 'lacp-passive',
@@ -37,14 +178,14 @@ const MODE_ALIASES = {
 };
 
 // What the operator typed (or a saved lab holds) -> what the model stores.
-function canonicalMode(mode) {
+function canonicalMode(mode: unknown): string {
   const raw = String(mode == null ? '' : mode).trim().toLowerCase();
   if (!raw) return DEFAULT_MODE;
   return MODE_ALIASES[raw] || raw;    // unknown words survive, so validation can name them
 }
 
 // What the model stores -> what the console prints.
-function cliMode(mode) {
+function cliMode(mode: unknown): string {
   const canonical = canonicalMode(mode);
   if (canonical === 'lacp-active') return 'active';
   if (canonical === 'lacp-passive') return 'passive';
@@ -55,14 +196,14 @@ function cliMode(mode) {
 // The name a box prints for a bundle, in every view that names one: `Po1` in the Port-channel cell of
 // `show etherchannel summary` and in the `Ports` column of `show mac address-table`. One function, so a table
 // and a summary cannot call the same bundle two different things.
-function portChannelName(id) {
+function portChannelName(id: string | number): string {
   return 'Po' + id;
 }
 
 // The same bundle spelled out, for the views where the interface name is the subject of the row rather than a
 // cell in a table - `show ip interface brief` prints `Port-channel1` where the MAC table prints `Po1`. Both name
 // one object, and one library names it, so the long and the short form cannot disagree about which bundle it is.
-function portChannelIfaceName(id) {
+function portChannelIfaceName(id: string | number): string {
   return 'Port-channel' + id;
 }
 
@@ -74,7 +215,7 @@ function portChannelIfaceName(id) {
 // So the sentence is not `portChannelIfaceName()` with a prefix in front of it, and it is built here rather
 // than in the console, so the one place that knows how a bundle is named also knows the one sentence whose
 // spacing disagrees with it (research/channel-group-creating-receipt.md).
-function createReceipt(id) {
+function createReceipt(id: string | number): string {
   return 'Creating a port-channel interface Port-channel ' + id;
 }
 
@@ -84,19 +225,19 @@ function createReceipt(id) {
 // form its own tables print (`Po1`) - so the console has to recognise them before it can decide whether it
 // has anything to say about one. Returns null for anything that is not a bundle name, so a caller can tell
 // "not a bundle" from bundle 1.
-function bundleIdFromName(typed) {
+function bundleIdFromName(typed: unknown): number | null {
   const m = /^(?:po|port-?channel)\s*(\d+)$/i.exec(String(typed == null ? '' : typed).trim());
   if (!m) return null;
   const id = Number(m[1]);
   return Number.isInteger(id) && id > 0 ? id : null;
 }
 
-const HASH_POLICIES = ['l2', 'l3', 'l3l4'];
+const HASH_POLICIES: readonly string[] = ['l2', 'l3', 'l3l4'];
 
-const DEFAULT_LAG_ID = 'lag1';
-const DEFAULT_MODE = 'lacp-active';
-const DEFAULT_HASH_POLICY = 'l3l4';
-const DEFAULT_MIN_LINKS = 2;
+const DEFAULT_LAG_ID: string = 'lag1';
+const DEFAULT_MODE: string = 'lacp-active';
+const DEFAULT_HASH_POLICY: string = 'l3l4';
+const DEFAULT_MIN_LINKS: number = 2;
 
 // How many links one bundle can carry, and how many members a group can hold.
 //
@@ -110,13 +251,13 @@ const DEFAULT_MIN_LINKS = 2;
 // `(P)`, and the data plane hashed frames across all of them, so a ten-member "bundle" carried ten links'
 // worth of traffic - a switch no vendor sells. The `H - Hot-standby (LACP only)` line in the key above
 // `show etherchannel summary` was unreachable for the same reason (research/etherchannel-member-limit.md).
-const MAX_ACTIVE_LINKS = 8;
-const MAX_MEMBERS_LACP = 16;
-const MAX_MEMBERS_STATIC = 8;
+const MAX_ACTIVE_LINKS: number = 8;
+const MAX_MEMBERS_LACP: number = 16;
+const MAX_MEMBERS_STATIC: number = 8;
 
 // The member cap depends on whether the bundle negotiates: LACP may hold 16 members because 8 of them can sit
 // in hot-standby; a non-negotiating (`on`) group has nowhere to park a ninth, so it takes eight.
-function maxMembers(mode) {
+function maxMembers(mode: unknown): number {
   const canonical = canonicalMode(mode);
   return canonical.indexOf('lacp') === 0 ? MAX_MEMBERS_LACP : MAX_MEMBERS_STATIC;
 }
@@ -131,29 +272,31 @@ function maxMembers(mode) {
 // value, so validateLag() can report E_LAG_BAD_MODE instead of silently
 // "fixing" a typo. `members` keeps duplicates on purpose for the same reason;
 // de-duplication is a validation error, not a normalisation step.
-function normalizeLag(cfg) {
-  const c = (cfg && typeof cfg === 'object') ? cfg : {};
+function normalizeLag(cfg: unknown): LagConfig {
+  const c: Readonly<Record<string, unknown>> = isObject(cfg) ? cfg : {};
 
-  const id = (typeof c.id === 'string' && c.id.trim()) ? c.id.trim() : DEFAULT_LAG_ID;
+  const rawId: unknown = c.id;
+  const id: string = (typeof rawId === 'string' && rawId.trim()) ? rawId.trim() : DEFAULT_LAG_ID;
 
   // Canonicalised on the way in, so a lab saved by an older build (holding "active") normalises to the same
   // state as one configured today.
-  const mode = canonicalMode(c.mode);
+  const mode: string = canonicalMode(c.mode);
 
-  const hashPolicy = (typeof c.hashPolicy === 'string' && c.hashPolicy.trim())
-    ? c.hashPolicy.trim().toLowerCase()
+  const rawPolicy: unknown = c.hashPolicy;
+  const hashPolicy: string = (typeof rawPolicy === 'string' && rawPolicy.trim())
+    ? rawPolicy.trim().toLowerCase()
     : DEFAULT_HASH_POLICY;
 
-  const members = [];
-  const rawMembers = Array.isArray(c.members) ? c.members : [];
+  const members: string[] = [];
+  const rawMembers: readonly unknown[] = memberList(c.members);
   for (const m of rawMembers) {
-    let name = '';
+    let name: string = '';
     if (typeof m === 'string') name = m.trim();
-    else if (m && typeof m.name === 'string') name = m.name.trim();
+    else if (isObject(m) && typeof m.name === 'string') name = m.name.trim();
     if (name) members.push(name);
   }
 
-  let minLinks = Number(c.minLinks);
+  let minLinks: number = Number(c.minLinks);
   if (!Number.isFinite(minLinks) || minLinks < 1) minLinks = DEFAULT_MIN_LINKS;
   minLinks = Math.floor(minLinks);
 
@@ -166,20 +309,20 @@ function normalizeLag(cfg) {
 
 // MAC -> lowercase hex only (aa:bb:cc:dd:ee:ff, aabb.ccdd.eeff and
 // AABBCCDDEEFF all collapse to the same string).
-function normalizeMac(v) {
+function normalizeMac(v: unknown): string {
   if (v === null || v === undefined) return '';
   return String(v).toLowerCase().replace(/[^0-9a-f]/g, '');
 }
 
 // IP -> lowercase hex digits only. This keeps every digit of an IPv4 address
 // and, additionally, the hex letters of an IPv6 address.
-function normalizeIp(v) {
+function normalizeIp(v: unknown): string {
   if (v === null || v === undefined) return '';
   return String(v).toLowerCase().replace(/[^0-9a-f]/g, '');
 }
 
 // L4 port -> canonical decimal string (so 80, '80' and ' 080 ' agree).
-function normalizePort(v) {
+function normalizePort(v: unknown): string {
   if (v === null || v === undefined || v === '') return '';
   const m = String(v).match(/[0-9]+/);
   if (m) return String(parseInt(m[0], 10));
@@ -191,7 +334,7 @@ function normalizePort(v) {
 // ---------------------------------------------------------------------------
 
 // FNV-1a, 32 bit, over the UTF-16 code units of the tuple string.
-function fnv1a(str) {
+function fnv1a(str: string): number {
   let h = 0x811c9dc5;
   for (let i = 0; i < str.length; i++) {
     h ^= str.charCodeAt(i) & 0xff;
@@ -206,8 +349,8 @@ function fnv1a(str) {
 //   l3l4  -> srcIp  + dstIp + srcPort + dstPort
 // Missing fields hash as the empty string, which is deliberate: a frame with
 // no L3 header still has to land somewhere.
-function hashTuple(frame, policy) {
-  const f = (frame && typeof frame === 'object') ? frame : {};
+function hashTuple(frame: unknown, policy: string): string {
+  const f: Readonly<Record<string, unknown>> = isObject(frame) ? frame : {};
   switch (policy) {
     case 'l2':
       return ['l2', normalizeMac(f.srcMac), normalizeMac(f.dstMac)].join('\u0001');
@@ -226,8 +369,8 @@ function hashTuple(frame, policy) {
 }
 
 // Hash a frame to a float in [0, 1). Deterministic for a given frame+policy.
-function hashFrame(frame, policy) {
-  let p = (typeof policy === 'string' && policy.trim()) ? policy.trim().toLowerCase() : DEFAULT_HASH_POLICY;
+function hashFrame(frame: unknown, policy: unknown): number {
+  let p: string = (typeof policy === 'string' && policy.trim()) ? policy.trim().toLowerCase() : DEFAULT_HASH_POLICY;
   if (HASH_POLICIES.indexOf(p) === -1) p = DEFAULT_HASH_POLICY;
   const h = fnv1a(hashTuple(frame, p));
   // 2^32 = 4294967296; h <= 4294967295 so the result is strictly < 1.
@@ -239,14 +382,14 @@ function hashFrame(frame, policy) {
 // ---------------------------------------------------------------------------
 
 // A member may be a bare name or a { name, enabled } record.
-function memberName(m) {
+function memberName(m: unknown): string {
   if (typeof m === 'string') return m.trim();
-  if (m && typeof m.name === 'string') return m.name.trim();
+  if (isObject(m) && typeof m.name === 'string') return m.name.trim();
   return '';
 }
 
-function memberEnabled(m) {
-  if (m && typeof m === 'object' && m.enabled === false) return false;
+function memberEnabled(m: unknown): boolean {
+  if (isObject(m) && m.enabled === false) return false;
   return true;
 }
 
@@ -261,9 +404,9 @@ function memberEnabled(m) {
 // already knows how to answer, and every caller must get the same answer. Without it a bundle whose member
 // had been unplugged still hashed a share of the traffic onto that dead member and dropped it, while a
 // perfectly good member sat idle (#1263).
-function selectMember(members, frame, policy, opts) {
-  const o = opts || {};
-  const canCarry = (typeof o.canCarry === 'function') ? o.canCarry : null;
+function selectMember(members: unknown, frame: unknown, policy: unknown, opts?: SelectOptions | null): string | null {
+  const o: SelectOptions = opts || {};
+  const canCarry: CanCarry | null = (typeof o.canCarry === 'function') ? o.canCarry : null;
   const eligible = eligibleMembers(members, canCarry);
   if (eligible.length === 0) return null;
 
@@ -281,10 +424,10 @@ function selectMember(members, frame, policy, opts) {
 // decides which of the hot-standby ports to make active based on the LACP priority ... The hot-standby ports
 // that have lower port numbers become active in the channel first" (Cisco, Configuring EtherChannels). With
 // one system priority and the default port priority on every port, that reduces to port number.
-function carryingMembers(members, canCarry) {
-  const list = Array.isArray(members) ? members : [];
-  const out = [];
-  const seen = new Set();
+function carryingMembers(members: unknown, canCarry?: CanCarry | null): string[] {
+  const list: readonly unknown[] = memberList(members);
+  const out: string[] = [];
+  const seen = new Set<string>();
   for (const m of list) {
     if (!memberEnabled(m)) continue;
     const name = memberName(m);
@@ -297,12 +440,12 @@ function carryingMembers(members, canCarry) {
 }
 
 // The members that are IN the channel: at most eight, the lowest-numbered ones that can carry.
-function activeMembers(members, canCarry) {
+function activeMembers(members: unknown, canCarry?: CanCarry | null): string[] {
   return carryingMembers(members, canCarry).slice(0, MAX_ACTIVE_LINKS);
 }
 
 // The members that can carry but are not in the channel because eight already are - LACP's hot-standby list.
-function standbyMembers(members, canCarry) {
+function standbyMembers(members: unknown, canCarry?: CanCarry | null): string[] {
   return carryingMembers(members, canCarry).slice(MAX_ACTIVE_LINKS);
 }
 
@@ -311,11 +454,11 @@ function standbyMembers(members, canCarry) {
 //
 // The order here is the hash's, not the panel's (it sorts by name, so it is stable whatever order the config
 // listed the members in); the SET is the active eight, so a frame can never be hashed onto a hot-standby link.
-function eligibleMembers(members, canCarry) {
-  const list = Array.isArray(members) ? members : [];
-  const active = new Set(activeMembers(list, canCarry));
-  const out = [];
-  const seen = new Set();
+function eligibleMembers(members: unknown, canCarry?: CanCarry | null): string[] {
+  const list: readonly unknown[] = memberList(members);
+  const active = new Set<string>(activeMembers(list, canCarry));
+  const out: string[] = [];
+  const seen = new Set<string>();
   for (const m of list) {
     if (!memberEnabled(m)) continue;
     const name = memberName(m);
@@ -342,7 +485,7 @@ function eligibleMembers(members, canCarry) {
 // `on` against a negotiating end is deliberately NOT decided here: the real pair is asymmetric - the `on` side
 // shows a bundle while the LACP side suspends, and the two ends disagree about the same cable - and this model
 // has one opinion per member, not one per end. research/lacp-passive-both-ends.md names that as unresolved.
-function negotiationVerdict(myMode, peerMode) {
+function negotiationVerdict(myMode: unknown, peerMode: unknown): NegotiationVerdict {
   const mine = canonicalMode(myMode);
   const theirs = canonicalMode(peerMode);
   if (mine === 'lacp-passive' && theirs === 'lacp-passive') {
@@ -375,43 +518,51 @@ function negotiationVerdict(myMode, peerMode) {
 // `on` is deliberately NOT covered: it negotiates nothing, so there is no response to wait for and the vendor
 // says the switch *forces* the bundle up (`show etherchannel summary` on that side really does read SU/P) while
 // the far end treats its port as a plain access port - the asymmetry research/lacp-passive-both-ends.md names.
-function memberSuspension(dev, ifaceName, topo) {
+function memberSuspension(
+  dev: LagDevice | null | undefined,
+  ifaceName: string,
+  topo: LagTopology | null | undefined
+): MemberSuspension | null {
   if (!dev || !topo || typeof dev.lagFor !== 'function') return null;
-  const iface = dev.interfaces ? dev.interfaces.get(ifaceName) : null;
+  const iface: MemberIface | null | undefined = dev.interfaces ? dev.interfaces.get(ifaceName) : null;
   if (!iface || !iface.peer) return null;
-  const mine = dev.lagFor(ifaceName);
+  const mine: unknown = dev.lagFor(ifaceName);
   if (!mine) return null;
-  const peerDev = typeof topo.getDevice === 'function' ? topo.getDevice(iface.peer.deviceId) : null;
-  const theirs = (peerDev && typeof peerDev.lagFor === 'function') ? peerDev.lagFor(iface.peer.iface) : null;
+  const peerDev: LagDevice | null = typeof topo.getDevice === 'function' ? topo.getDevice(iface.peer.deviceId) : null;
+  const theirs: unknown = (peerDev && typeof peerDev.lagFor === 'function') ? peerDev.lagFor(iface.peer.iface) : null;
+  // The mode of each end, read off a value this module cannot type (a `Device` is still JavaScript). A group
+  // with no mode reads as empty, which is what `canonicalMode()` already made of it: the default, not a refusal.
+  const mineMode: string = groupMode(mine);
   if (!theirs) {
     // No channel group on the far port: nothing over there speaks LACP, whatever this end says. A static
     // (`on`) member is left alone - it never asked a question, so it cannot go unanswered.
-    const canonical = canonicalMode(mine.mode);
+    const canonical = canonicalMode(mineMode);
     if (canonical !== 'lacp-active' && canonical !== 'lacp-passive') return null;
     return { why: 'the far end is in no channel group: nothing there answers LACP',
-      mode: mine.mode, peerMode: null, peer: iface.peer };
+      mode: mineMode, peerMode: null, peer: iface.peer };
   }
-  const verdict = negotiationVerdict(mine.mode, theirs.mode);
+  const peerMode: string = groupMode(theirs);
+  const verdict = negotiationVerdict(mineMode, peerMode);
   if (verdict.bundled) return null;
-  return { why: verdict.why, mode: mine.mode, peerMode: theirs.mode, peer: iface.peer };
+  return { why: verdict.why, mode: mineMode, peerMode: peerMode, peer: iface.peer };
 }
 
 // ---------------------------------------------------------------------------
 // validation
 // ---------------------------------------------------------------------------
 
-function splitMemberPorts(memberPorts) {
-  const byName = new Map();
-  const list = Array.isArray(memberPorts) ? memberPorts : [];
+function splitMemberPorts(memberPorts: unknown): Map<string, MemberPort> {
+  const byName = new Map<string, MemberPort>();
+  const list: readonly unknown[] = memberList(memberPorts);
   for (const p of list) {
-    if (p && typeof p.name === 'string' && p.name.trim()) byName.set(p.name.trim(), p);
+    if (isObject(p) && typeof p.name === 'string' && p.name.trim()) byName.set(p.name.trim(), p);
   }
   return byName;
 }
 
-function uniqueMembers(members) {
-  const out = [];
-  const seen = new Set();
+function uniqueMembers(members: readonly string[]): string[] {
+  const out: string[] = [];
+  const seen = new Set<string>();
   for (const m of members) {
     if (seen.has(m)) continue;
     seen.add(m);
@@ -423,14 +574,14 @@ function uniqueMembers(members) {
 // Validate a LAG definition against the physical ports it bundles.
 //   memberPorts = [{ name, speedMbps, duplex, vlanCompatible, enabled }]
 // Returns { ok, errors: [{code,message}], warnings: [{code,message}] }.
-function validateLag(lag, memberPorts) {
-  const cfg = normalizeLag(lag);
-  const ports = splitMemberPorts(memberPorts);
-  const errors = [];
-  const warnings = [];
+function validateLag(lag: unknown, memberPorts: unknown): LagVerdict {
+  const cfg: LagConfig = normalizeLag(lag);
+  const ports: Map<string, MemberPort> = splitMemberPorts(memberPorts);
+  const errors: LagProblem[] = [];
+  const warnings: LagProblem[] = [];
 
-  function err(code, message) { errors.push({ code: code, message: message }); }
-  function warn(code, message) { warnings.push({ code: code, message: message }); }
+  function err(code: string, message: string): void { errors.push({ code: code, message: message }); }
+  function warn(code: string, message: string): void { warnings.push({ code: code, message: message }); }
 
   // --- mode ---------------------------------------------------------------
   if (LAG_MODES.indexOf(cfg.mode) === -1) {
@@ -446,8 +597,8 @@ function validateLag(lag, memberPorts) {
   }
 
   // --- duplicates ---------------------------------------------------------
-  const seen = new Set();
-  const dupes = [];
+  const seen = new Set<string>();
+  const dupes: string[] = [];
   for (const m of cfg.members) {
     if (seen.has(m)) {
       if (dupes.indexOf(m) === -1) dupes.push(m);
@@ -460,14 +611,14 @@ function validateLag(lag, memberPorts) {
   }
 
   // --- per-port properties (only for members we have a port record for) ----
-  const names = uniqueMembers(cfg.members);
-  const known = [];
+  const names: string[] = uniqueMembers(cfg.members);
+  const known: KnownMember[] = [];
   for (const name of names) {
-    const p = ports.get(name);
+    const p: MemberPort | undefined = ports.get(name);
     if (p) known.push({ name: name, port: p });
   }
 
-  const speeds = [];
+  const speeds: number[] = [];
   for (const k of known) {
     const s = Number(k.port.speedMbps);
     if (Number.isFinite(s) && s > 0 && speeds.indexOf(s) === -1) speeds.push(s);
@@ -479,7 +630,7 @@ function validateLag(lag, memberPorts) {
       'all members must run at the same link speed.');
   }
 
-  const duplexes = [];
+  const duplexes: string[] = [];
   for (const k of known) {
     const d = k.port.duplex;
     if (typeof d === 'string' && d.trim() && duplexes.indexOf(d.trim().toLowerCase()) === -1) {
@@ -495,7 +646,7 @@ function validateLag(lag, memberPorts) {
       'all members must agree on duplex.');
   }
 
-  const vlanBad = [];
+  const vlanBad: string[] = [];
   for (const k of known) {
     if (k.port.vlanCompatible === false) vlanBad.push(k.name);
   }
@@ -514,6 +665,23 @@ function validateLag(lag, memberPorts) {
 
   return { ok: errors.length === 0, errors: errors, warnings: warnings };
 }
+
+// The shapes, as types a converted caller can annotate its `require()` with rather than restating them. A
+// type-only export is erased by the strip-types runtime, so nothing is added to `module.exports` below - the
+// value this module has is still that one object, exactly as it was when the file was JavaScript.
+export type {
+  LagConfig,
+  LagProblem,
+  LagVerdict,
+  MemberPort,
+  PortPeer,
+  LagDevice,
+  LagTopology,
+  MemberSuspension,
+  NegotiationVerdict,
+  CanCarry,
+  SelectOptions
+};
 
 module.exports = {
   MAX_ACTIVE_LINKS,

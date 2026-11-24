@@ -15,7 +15,7 @@ const path = require('path');
 const { Topology, Simulator, runCommands } = require('../engine');
 const { CliSession } = require('../engine/cli');
 const { loadCatalog } = require('../devices/registry');
-const lagLib = require('../engine/lag');
+const lagLib = require('../engine/lag.ts');
 
 let passed = 0, failed = 0;
 function ok(cond, msg, detail) {

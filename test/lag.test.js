@@ -1,6 +1,6 @@
 'use strict';
 // lag.test.js -- LACP/LAG hashing, member selection and validation.
-const lag = require('../engine/lag');
+const lag = require('../engine/lag.ts');
 
 const LAG_MODES = lag.LAG_MODES;
 const HASH_POLICIES = lag.HASH_POLICIES;

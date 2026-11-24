@@ -4092,7 +4092,7 @@ class CliSession {
   }
 
   _channelGroup(tokens, iface) {
-    const lagLib = require('./lag');
+    const lagLib = require('./lag.ts');
     const dev = this.device;
     const t = tokens.map(function (x) { return String(x).toLowerCase(); });
     if (!dev.config.lags) dev.config.lags = {};
@@ -6136,7 +6136,7 @@ class CliSession {
   // out when it is not, or `(s)` suspended, which the key reserves for a port that is *not* carrying
   // (research/lacp-one-sided-group.md).
   _lagMemberStates(dev, l) {
-    const lagLib = require('./lag');
+    const lagLib = require('./lag.ts');
     const raw = Array.isArray(l && l.members) ? l.members : [];
     const why = {};
     const suspended = {};
@@ -6794,7 +6794,7 @@ class CliSession {
       for (const id of Object.keys(lagCfg).sort(function (a, b) { return Number(a) - Number(b); })) {
         const live = this._lagMemberStates(dev, lagCfg[id]).live;
         const state = live.length ? 'up' : 'down';
-        out.push(briefLine([require('./lag').portChannelIfaceName(id), 'unassigned', 'YES', 'unset', state, state]));
+        out.push(briefLine([require('./lag.ts').portChannelIfaceName(id), 'unassigned', 'YES', 'unset', state, state]));
       }
     } else if (what === 'ip' && tokens[1] === 'route') {
       // There is no `show ip route <prefix>` here, and the command used to answer as though there were: it printed
@@ -7239,7 +7239,7 @@ class CliSession {
         // A member that never negotiated is not in the bundle: it forwards as an ordinary single link, so it
         // stays a port of its own, which is the rule the MAC table already applies to the same state. The
         // bundle names are appended after the physical ports, the order the `show vlan-switch` sample shows.
-        const lagLib = require('./lag');
+        const lagLib = require('./lag.ts');
         const bundles = [];
         for (const i of (bridgePorts ? dev.interfaces.values() : [])) {
           // A trunk port is in no row: it carries the VLAN, it is not a member of it, and the vendor's
@@ -7360,7 +7360,7 @@ class CliSession {
         // `lagLib.portChannelName()` is the one function that names a bundle in a cell - the MAC table and
         // `show etherchannel summary` already take their `Po1` from it - so this view cannot learn a third
         // spelling. research/stp-port-channel-name.md has the captures and the half still open.
-        const lagLib = require('./lag');
+        const lagLib = require('./lag.ts');
         const portLabel = function (name) {
           const m = /^lag-(\d+)$/.exec(String(name));
           return m ? lagLib.portChannelName(m[1]) : String(name);
@@ -7466,7 +7466,7 @@ class CliSession {
       const shownIds = groupFilter === null ? ids
         : ids.filter(function (id) { return String(Number(id)) === groupFilter; });
       {
-        const lagLib = require('./lag');
+        const lagLib = require('./lag.ts');
         // The key comes before the table, and the two counts after it, because a summary without them is a
         // table of numbers with no legend and no total (#1620).
         for (const line of ETHERCHANNEL_FLAGS) out.push(line);
@@ -7809,9 +7809,9 @@ class CliSession {
           // `Port-channel1` row of `show ip interface brief`, and both got the sentence a typo gets, so the
           // reader went looking for a spelling mistake in a name the session had just printed. Say what the
           // thing is, and name the view that does print it.
-          const bundleId = require('./lag').bundleIdFromName(typed);
+          const bundleId = require('./lag.ts').bundleIdFromName(typed);
           if (bundleId !== null && dev.config && dev.config.lags && dev.config.lags[String(bundleId)]) {
-            return ['% ' + require('./lag').portChannelIfaceName(bundleId) + ' is an EtherChannel bundle: ' +
+            return ['% ' + require('./lag.ts').portChannelIfaceName(bundleId) + ' is an EtherChannel bundle: ' +
               'this console has no block for one. `show etherchannel summary` lists the bundle and the ports ' +
               'that carry it.'];
           }
@@ -8129,7 +8129,7 @@ class CliSession {
         }
         const lag = dev.lagFor ? dev.lagFor(i.name) : null;
         // Printed in the console's vocabulary, which is the only spelling the parser takes back.
-        if (lag) out.push(IN_SUBMODE + 'channel-group ' + lag.id + ' mode ' + require('./lag').cliMode(lag.mode));
+        if (lag) out.push(IN_SUBMODE + 'channel-group ' + lag.id + ' mode ' + require('./lag.ts').cliMode(lag.mode));
         // Which side of the translation this port is on. A port declared inside or outside is a fact the config
         // parser accepts, so it belongs in the block that reads it back (#1391).
         if (i.natRole === 'inside' || i.natRole === 'outside') out.push(IN_SUBMODE + 'ip nat ' + i.natRole);

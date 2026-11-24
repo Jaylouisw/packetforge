@@ -6,7 +6,7 @@
 // spanning-tree blocking), and L3 (ARP, IPv4 longest-prefix routing, ICMP).
 const net = require('./net');
 const vlanLib = require('./vlan');
-const lagLib = require('./lag');
+const lagLib = require('./lag.ts');
 const stpLib = require('./stp');
 const aclLib = require('./acl');
 const ospfLib = require('./ospf');

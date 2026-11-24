@@ -30,8 +30,10 @@
 
 // A `.ts` file with no top-level import is a *script* in the type system: its top-level names land
 // in one global scope shared with every other such file. This empty, type-only import is erased by
-// the strip-types runtime and is what marks the file as a module.
+// the strip-types runtime and is what marks the file as a module. The second import is a real one now
+// that `engine/lag.ts` is TypeScript: the shape of a suspension is that module's to declare.
 import type {} from 'fs';
+import type { MemberSuspension } from './lag';
 
 /**
  * The 802.1Q block every `Interface` carries (engine/device.js). `mode` is 'access' or 'trunk' as
@@ -104,18 +106,13 @@ interface SegmentEndpoint {
   readonly via: string;
 }
 
-/**
- * Why a channel member is not in its bundle, or null when it is (engine/lag.js
- * `memberSuspension`). That module is still JavaScript, so the shape this file reads is written
- * here rather than inferred from it - the return value is only ever tested for truthiness.
- */
-interface MemberSuspension {
-  readonly why: string;
-}
-
+// Why a channel member is not in its bundle, or null when it is (engine/lag.ts `memberSuspension`). The
+// shape is the module's own now - `engine/lag.ts` is TypeScript, so `MemberSuspension` is imported rather
+// than restated here, and there is no second copy to drift from the function that returns it. This file
+// only ever tests the result for truthiness.
 const lag: {
   memberSuspension(dev: SegmentDevice, ifaceName: string, topo: SegmentTopology | null): MemberSuspension | null;
-} = require('./lag');
+} = require('./lag.ts');
 
 // The VLAN a frame leaving this port would be tagged with, as one comparable key.
 function vlanKey(iface: VlanPort | null | undefined): string {

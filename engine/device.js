@@ -786,7 +786,7 @@ class Device {
   // explaining why that port cannot be the way to it.
   macRows(topo, nowMs) {
     const vlanLib = require('./vlan');
-    const lagLib = require('./lag');
+    const lagLib = require('./lag.ts');
     // The rows are the rows at the instant asked. No instant means no ageing, which is what every caller got
     // before the table had timestamps (#1395).
     if (Number.isFinite(nowMs)) this.ageMacs(nowMs);

@@ -42,15 +42,17 @@ Line counts are `wc -l` on the converted file, so they include the annotations.
 |---|---|---|
 | `engine/segment.ts` | 236 | `53bee0cf` (#2483) |
 | `engine/link.ts` | 243 | `628fc3f5` (#2494) |
+| `engine/lag.ts` | 710 | `0eb0ad3e` (#2504) |
 
 The SHA is the commit in the converting branch; the pull request number is the handle that survives
 the squash merge onto `main`, so cite the number when the commit id has moved on.
 
 The first row is also the template: `engine/segment.js` went from 130 lines to 236, and the net 106
 lines are the interfaces describing the shapes the walk reads. Nothing was left untyped; the
-two places a type is written by hand rather than inferred are `engine/lag.js`'s
-`memberSuspension()`, which is still JavaScript, and `VlanConfig.mode`, which is `string` because
-the untyped `Interface` constructor cannot prove the union `'access' | 'trunk'`.
+two places a type is written by hand rather than inferred are `engine/lag.ts`'s
+`memberSuspension()` - JavaScript when this row was written, and the module row three converts -
+and `VlanConfig.mode`, which is `string` because the untyped `Interface` constructor cannot prove
+the union `'access' | 'trunk'`.
 
 Row two is the shapes rather than the walk: `engine/link.js` went from 139 lines to 243, and the net
 104 are `LinkOptions` (what a saved document is allowed to hand the constructor), `SerializedLink`
@@ -59,6 +61,27 @@ they mean something) and the two `unknown`s — a cable `label` and a `stateSinc
 values on that boundary a document can put anything into. Both are narrowed by the guards that were
 already there (`labelProblem()`, and `Number()` + `isFinite()`), so the annotations describe the
 rules #1513 and #1323 put in place rather than restating them more weakly.
+
+Row three is the module the two above were already reaching for. `engine/segment.ts` required `./lag`
+without an extension because `lag.js` was still JavaScript, so converting this file would have broken
+that one, in a file no conversion edited, for a reason nobody would connect to the diff -
+`engine/lag.js` went from 542 lines to 710, and the net 168 are the shapes its three jobs share:
+`LagConfig` (what `normalizeLag()` returns and what everything downstream is handed), `MemberPort` and
+`KnownMember` (what `validateLag()` is asked to check, every field of it `unknown` because a saved lab
+supplies it), `LagProblem` and `LagVerdict` (its answer), `MemberSuspension`, and a `NegotiationVerdict`
+that is a discriminated union rather than a boolean beside a maybe-string: a pair that bundles has no
+reason to give, and a pair that does not always has one.
+
+Two values on that boundary are genuinely unknown and are narrowed rather than asserted. One is the
+frame a hash is taken from - a document's own frame record, read through `isObject()` and stringified
+field by field. The other is the channel group `Device.lagFor()` answers with: `engine/device.js` is
+still JavaScript, so `groupMode()` reads its `mode` and stringifies it exactly the way `canonicalMode()`
+always did, instead of turning a group into a refusal this module has no business inventing. There is
+no `as` in the file. The conversion also retires the latent require rather than inheriting it:
+`engine/segment.ts` now says `require('./lag.ts')` and imports `MemberSuspension` from the module
+instead of restating it, so `node scripts/check-module-paths.ts` no longer names that line. What it
+names now is `engine/lag.ts` requiring its own still-JavaScript sibling `./iface-name`, which resolves
+today and is the same debt one link further out.
 
 ## What is installed
 
