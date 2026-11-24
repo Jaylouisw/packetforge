@@ -187,6 +187,59 @@ jobs:
           # line the tree is the commit's own files and nothing else.
           git clean -qfdx
           echo "checked out $(git rev-parse HEAD) of ${url} with git - no action cache involved"
+          # The floor runtime the smoke client needs is a 57 MB tarball from nodejs.org, and
+          # until now it sat on the serial path: the `Provide the runtime the smoke client
+          # needs` step below started the fetch, waited for it, then unpacked it, and only
+          # then could the smoke test start. Measured on this host against the exact file
+          # that step downloads (v22.23.5, 56,856,114 bytes): 2.35 s of download plus 1.43 s
+          # of unpack, 3.78 s in the middle of a job whose median was 48 s on 2026-11-24
+          # (task 26842, run 10300) - and 3.78 s that nothing overlapped, in the same job
+          # that already overlaps its Docker CLI fetch and its smoke test with other work.
+          #
+          # This step spends ~5 s fetching the commit and another few seconds classifying
+          # the diff, and neither needs the tarball's bytes, so the download and the unpack
+          # start here instead - after the git fetch, so the two never compete for the same
+          # link - and the step that needs the runtime waits on a marker file rather than
+          # starting the download. Same tarball, same URL, same `/opt/node-<release>`
+          # destination, same assertion afterwards.
+          #
+          # A prefetch that is missing, late, killed or half-written changes nothing: the
+          # unpack lands in a staging directory and is moved into place only when it is
+          # complete, and the step below falls through to the same bounded curl, the same
+          # single retry and the same `[ -x ... ]` assertion it has always had. The only
+          # thing this can move is the clock. The legs run the same trick in their
+          # `still_open` step and the Docker CLI fetch above is its third use here.
+          node_dir="${RUNNER_TEMP:-/tmp}/node-prefetch"
+          node_dist=v22.23.5
+          node_dest="/opt/node-${node_dist}"
+          rm -rf "$node_dir"
+          mkdir -p "$node_dir"
+          if [ ! -x "${node_dest}/bin/node" ]; then
+            echo "downloading the ${node_dist} runtime beside the rest of this step"
+            url="https://nodejs.org/dist/${node_dist}/node-${node_dist}-linux-x64.tar.gz"
+            inner="curl -fsSL --retry 2 --retry-delay 2 --retry-connrefused --connect-timeout 10 --max-time 180 -o '$node_dir/$node_dist.tgz' '$url'"
+            inner="$inner && rm -rf '$node_dir/unpack' && mkdir -p '$node_dir/unpack'"
+            inner="$inner && tar -xzf '$node_dir/$node_dist.tgz' -C '$node_dir/unpack' --strip-components=1"
+            inner="$inner && rm -rf '$node_dest' && mv '$node_dir/unpack' '$node_dest'"
+            inner="$inner && touch '$node_dir/ok' || touch '$node_dir/failed'"
+            nohup sh -c "$inner" > "$node_dir/prefetch.log" 2>&1 &
+            echo $! > "$node_dir/pid"
+          fi
+          # A pass that turns out not to need the runtime must not leave 57 MB of download
+          # running behind it - the same rule the Docker CLI fetch above follows. Killing
+          # the `sh -c` is what matters: its `&&` chain ends with the move into
+          # `/opt/node-<release>`, so a dead shell can no longer put a tree there while the
+          # step below is fetching its own.
+          stop_prefetch() {
+            if [ -f "${node_dir:-/nonexistent}/pid" ]; then
+              pid=$(cat "$node_dir/pid" 2>/dev/null || true)
+              if [ -n "${pid:-}" ]; then
+                kill "$pid" 2>/dev/null || true
+                pkill -TERM -P "$pid" 2>/dev/null || true
+              fi
+              touch "$node_dir/failed" 2>/dev/null || true
+            fi
+          }
           if [ "${{ github.event_name }}" != "pull_request" ]; then
             exit 0
           fi
@@ -198,11 +251,13 @@ jobs:
           if printf '%s' "${json:-}" | grep -q '"merged":true'; then
             echo "skip=true" >> "${GITHUB_OUTPUT:-/dev/null}"
             echo "pull #${number} is already merged - this job cannot gate anything, so its steps stand down"
+            stop_prefetch
             exit 0
           fi
           if printf '%s' "${json:-}" | grep -q '"state":"closed"'; then
             echo "skip=true" >> "${GITHUB_OUTPUT:-/dev/null}"
             echo "pull #${number} is closed - this job cannot gate anything, so its steps stand down"
+            stop_prefetch
             exit 0
           fi
           if [ -z "${json:-}" ]; then
@@ -261,6 +316,10 @@ jobs:
             kill "$cli_pid" 2>/dev/null || true
             echo "this diff is data-only - the docker CLI fetch started above is not needed, so it was stopped"
           fi
+          if [ "${data_only:-}" = "true" ]; then
+            stop_prefetch
+            echo "this diff is data-only - the ${node_dist} runtime fetch started above is not needed either, so it was stopped"
+          fi
       # No setup-node here: this job already runs on Node 20, and downloading Node 20
       # onto Node 20 was most of a 48 s job. Measured through the actions API on
       # 2026-11-16 over the 22 successful smoke jobs between 06:37 and 08:17 (tasks
@@ -291,6 +350,36 @@ jobs:
           DIST=v22.23.5
           dest="/opt/node-${DIST}"
           url="https://nodejs.org/dist/${DIST}/node-${DIST}-linux-x64.tar.gz"
+          # The checkout started this download and its unpack; wait for it, bounded, and use
+          # the tree it produced. Anything other than a complete, executable
+          # /opt/node-<release> falls through to the same two attempts this step has always
+          # made, so the only thing the prefetch can change is the clock. 60 s is the bound
+          # the legs use for the same wait: the fetch itself is capped at 180 s, so a
+          # prefetch that is still going after a minute is one that stopped moving, and the
+          # step below is a better place to spend the remaining time than a sleep.
+          pdir="${RUNNER_TEMP:-/tmp}/node-prefetch"
+          if [ -e "$pdir/pid" ] && [ ! -e "$pdir/ok" ] && [ ! -e "$pdir/failed" ]; then
+            echo "waiting for the ${DIST} download started during the checkout"
+            for _ in $(seq 1 60); do
+              if [ -e "$pdir/ok" ] || [ -e "$pdir/failed" ]; then break; fi
+              sleep 1
+            done
+            # Still nothing: the detached attempt is wedged or died with its step. Stop the
+            # shell so its `&&` chain cannot later move a tree over the one this step is
+            # about to unpack, then take the fallback.
+            if [ ! -e "$pdir/ok" ] && [ ! -e "$pdir/failed" ]; then
+              prefetch_pid=$(cat "$pdir/pid" 2>/dev/null || true)
+              if [ -n "${prefetch_pid:-}" ]; then
+                kill "$prefetch_pid" 2>/dev/null || true
+                pkill -TERM -P "$prefetch_pid" 2>/dev/null || true
+              fi
+              touch "$pdir/failed"
+              echo "the prefetch had not finished after 60 s - fetching here instead"
+            fi
+            if [ -e "$pdir/ok" ]; then
+              echo "unpacked ${DIST} from the download that overlapped the checkout"
+            fi
+          fi
           if [ ! -x "${dest}/bin/node" ]; then
             rm -rf "$dest" "$dest.tar.gz"
             mkdir -p "$dest"
