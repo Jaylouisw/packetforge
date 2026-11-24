@@ -15,25 +15,37 @@
     "start": 1,
     "count": 24,
     "type": "ethernet",
-    "speed": "10G"
+    "speed": "10G",
+    "connector": "sfp+"
   },
   "interfaces": [
     {
       "name": "eth1",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "connector": "rj45"
     },
     {
       "name": "QSFP+1",
       "type": "ethernet",
-      "speed": "40G"
+      "speed": "40G",
+      "connector": "qsfp+",
+      "speedCaps": [
+        40000
+      ]
     },
     {
       "name": "QSFP+2",
       "type": "ethernet",
-      "speed": "40G"
+      "speed": "40G",
+      "connector": "qsfp+",
+      "speedCaps": [
+        40000
+      ]
     }
   ],
   "icon": "switch",
-  "color": "#14b8a6"
+  "color": "#14b8a6",
+  "sourceUrl": "https://mikrotik.com/product/crs326_24s_2q_rm",
+  "notes": "MikroTik spec table, rows Fiber 'SFP+ ports: 24' and 'Number of 40G QSFP+ ports: 2'; the product text states \"two 40 Gbps QSFP+ ports and twenty four 10 Gbps SFP+ ports\". Every front-panel data port is a cage, so the 24-port template declares connector sfp+ and the two 40G ports declare qsfp+. eth1 is the 100M management port, an RJ45 socket. No speedCaps are declared on the SFP+ group: this page does not state a 1G rate for those cages (unlike the CRS326-24G pages, which name 1.25G explicitly), so the cages are left at their stated 10G rather than widened on inference. Source: https://mikrotik.com/product/crs326_24s_2q_rm"
 }

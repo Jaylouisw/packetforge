@@ -14,7 +14,13 @@
     "start": 1,
     "count": 24,
     "type": "ethernet",
-    "speed": "1G"
+    "speed": "1G",
+    "connector": "rj45",
+    "speedCaps": [
+      10,
+      100,
+      1000
+    ]
   },
   "interfaces": [
     {
@@ -39,5 +45,7 @@
     }
   ],
   "icon": "switch",
-  "color": "#14b8a6"
+  "color": "#14b8a6",
+  "sourceUrl": "https://mikrotik.com/product/crs326_24g_2s_in",
+  "notes": "MikroTik spec table, row Ethernet '10/100/1000 Ethernet ports: 24' and row Fiber 'SFP+ ports: 2'; the product text adds \"SFP cage supports both 1.25 Gb SFP and 10 Gb SFP+ modules\", so the two cages carry speedCaps 1000/10000. Copper ports are 10/100/1000BASE-T RJ45 sockets, which is what the template now declares. Desktop case, passive PoE-in on the DC jack, not PoE-out on any port. Source: https://mikrotik.com/product/crs326_24g_2s_in"
 }
