@@ -462,7 +462,7 @@ being put into a VLAN, the refusal stands.
 | `ip route <dest> <mask> <gw> [iface] [<distance 1-255>]` | add static route, at that administrative distance (default 1). The vendor's fully specified order puts the interface first - `ip route <dest> <mask> <iface> <gw> [<distance>]` - and is accepted too (`research/ip-route-fully-specified.md`) |
 | `no ip route <dest> <mask> [gw|iface] [gw] [<distance>]` | remove static route, in the words that made it (`no ip route <dest> <mask> <iface> <gw> <distance>` for a fully specified one) - with a distance, only that one |
 | `ip default-gateway <gw>` | set default gateway (hosts) |
-| `no vlan <id>` | remove a VLAN (refused while a trunk carries it, or a port holds a trunk parameter or a voice VLAN naming it) |
+| `no vlan <id>` | remove a VLAN. A trunk that carries it does not refuse the line: the switchport configuration is left exactly as typed and the trunk simply stops carrying it, and the receipt names those ports (`ge1 stops carrying VLAN 22: the switchport configuration is unchanged (vlan 22 brings it back)`), marking a native VLAN `(native)`. It is refused while a port only **stores** a trunk parameter naming it (a port not in trunk mode yet) or holds it as its voice VLAN - `% VLAN 22 is still referenced by 1 port(s): ge1 (trunk allowed, stored) - clear that first` |
 | `no ip dhcp pool <name>` | remove a DHCP pool |
 | `no dns zone <name>` | remove a DNS zone and its records |
 | `do show …` | run a `show` from config mode |
