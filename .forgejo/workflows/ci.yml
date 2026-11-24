@@ -1633,15 +1633,30 @@ jobs:
           # a stale number here would silently drop back to the default. Measured on this
           # tree at 3387122b, one leg at a time on an idle host, 430 suites / 14367
           # assertions green in every run: 10 workers 28.5 s, 11 workers 27.0 s, 12 workers
-          # 24.9 s. So the floor gets 12 and the other keeps the 10 that was measured best
-          # for it - 22 workers of the 40 cores this host has, against the 39 that made
-          # every leg 3.2 s slower in run 8271. Coverage is unchanged: same suites, same
-          # assertions, same runtime in every leg; only how many of that leg's suites run
-          # at once changes, and the isolated re-run below still decides any suite that
-          # loses a race at the new width.
-          if [ "${{ matrix.node }}" = "22" ]; then
-            export PF_TEST_CONCURRENCY=12
-          fi
+          # 24.9 s. Coverage is unchanged either way: same suites, same assertions, same
+          # runtime in every leg; only how many of that leg's suites run at once changes,
+          # and the isolated re-run below still decides any suite that loses a race at the
+          # new width.
+          #
+          # That rule gave 12 to the floor major and 10 to the other, on the premise that
+          # the floor is the leg still running when its sibling has reported. On the
+          # [22, 24] matrix the premise is the other way round. Measured over the 172
+          # paired runs in the 24 h to 2026-11-24T10:36Z (/actions/tasks, both legs of one
+          # run): Node 22 mean 57.5 s / median 57.0, Node 24 mean 61.5 s / median 62.0,
+          # and Node 24 was the leg that ended last in 143 of the 172 (83%) - runs 10629
+          # (70 s against 76 s) and 10631 (63 against 73) are the shape of it. So the
+          # 10-worker leg, not the 12-worker one, is a pull request's wall clock, and the
+          # extra 4 s is the runtime's own per-process cost over ~400 suites, which is
+          # exactly what a wider pool overlaps: the same 10 -> 12 curve above applies to
+          # it, and #2355's reason for widening the leg that finishes last now names 24.
+          # Both legs therefore get 12 - 24 workers of the 40 cores this host has, still
+          # under the 39 that made every leg 3.2 s slower in run 8271 and under the
+          # 5-6-leg, 50-60-process band that the width of 16 was taken back out for.
+          # A major that is in the matrix but not listed here keeps the 10 above, which is
+          # the conservative measurement for a leg nobody has timed.
+          case "${{ matrix.node }}" in
+            22|24) export PF_TEST_CONCURRENCY=12 ;;
+          esac
           echo "suite width: ${PF_TEST_CONCURRENCY} workers on Node ${{ matrix.node }}"
           # Outside the working tree: a log file in the repo root is one more thing a
           # later step might trip over, and nothing here needs to read it back.
