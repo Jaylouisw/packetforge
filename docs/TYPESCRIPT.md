@@ -40,19 +40,20 @@ Line counts are `wc -l` on the converted file, so they include the annotations.
 
 | File | Lines | Converted by |
 |---|---|---|
-| `engine/segment.ts` | 236 | `53bee0cf` (#2483) |
+| `engine/segment.ts` | 233 | `53bee0cf` (#2483) |
 | `engine/link.ts` | 243 | `628fc3f5` (#2494) |
 | `engine/lag.ts` | 710 | `0eb0ad3e` (#2504) |
 
 The SHA is the commit in the converting branch; the pull request number is the handle that survives
 the squash merge onto `main`, so cite the number when the commit id has moved on.
 
-The first row is also the template: `engine/segment.js` went from 130 lines to 236, and the net 106
-lines are the interfaces describing the shapes the walk reads. Nothing was left untyped; the
-two places a type is written by hand rather than inferred are `engine/lag.ts`'s
-`memberSuspension()` - JavaScript when this row was written, and the module row three converts -
-and `VlanConfig.mode`, which is `string` because the untyped `Interface` constructor cannot prove
-the union `'access' | 'trunk'`.
+The first row is also the template: `engine/segment.js` went from 130 lines to 236 in that commit, and
+the net 106 lines it added are the interfaces describing the shapes the walk reads. `#2504` later took
+the file's own copy of `MemberSuspension` out of it — the shape `engine/lag.ts` now declares — which is
+the 233 the row reads today. Nothing was left untyped; the two places a type is written by hand rather
+than inferred are `engine/lag.ts`'s `memberSuspension()` — JavaScript when this row was written, and
+the module row three converts — and `VlanConfig.mode`, which is `string` because the untyped
+`Interface` constructor cannot prove the union `'access' | 'trunk'`.
 
 Row two is the shapes rather than the walk: `engine/link.js` went from 139 lines to 243, and the net
 104 are `LinkOptions` (what a saved document is allowed to hand the constructor), `SerializedLink`
