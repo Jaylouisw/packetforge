@@ -1830,6 +1830,17 @@ class CliSession {
       if (!vi) return ['% Interface not found: ' + (typed || '')];
       if (!vi.parent) return ['% ' + typed + ' is a physical interface and cannot be removed'];
       this.device.interfaces.delete(name);
+      // A native subinterface takes its claim on the parent's untagged VLAN with it, because the parent's PVID
+      // was that VLAN only while the subinterface was there: removing it leaves no explicitly defined native
+      // VLAN, whose value the vendor states is VLAN 1. A native VLAN somebody set by hand on the parent with
+      // `switchport trunk native vlan` is left alone - that line is the operator's, not the subinterface's.
+      if (vi.encapNative) {
+        const parent = this.device.interfaces.get(vi.parent);
+        if (parent && Number(parent.vlan.nativeVlan) === Number(vi.encapVid)) {
+          const vlanLib = require('./vlan');
+          parent.vlan = vlanLib.normalizePortConfig(Object.assign({}, parent.vlan, { nativeVlan: 1, pvid: 1 }));
+        }
+      }
       out.push('Subinterface ' + name + ' removed');
     } else if (head === 'access-list') {
       out.push.apply(out, this._accessList(tokens.slice(1)));
@@ -2993,6 +3004,16 @@ class CliSession {
   }
 
   // ---------- 802.1Q encapsulation on a router subinterface ----------
+  // The vendor's syntax is `encapsulation dot1q vlan-id [native]` - one optional word, and it is not decoration.
+  // "native: To make a subinterface the default handler of untagged packets coming to the port, use this
+  // keyword", and the same page's restrictions block warns "Do not configure encapsulation on the native VLAN
+  // of an IEEE 802.1Q trunk without the native keyword" (Catalyst 9600 17.15 VLAN Configuration Guide,
+  // Configuring Layer 3 Subinterfaces; the 9300 17.9 and 9400 17.15/26.x pages are word for word the same).
+  // This handler read `t[1]` and dropped the rest, so `encapsulation dot1q 10 native` changed nothing on the
+  // wire while the receipt read as if it had, and `encapsulation dot1q 10 flurbish` was accepted as the plain
+  // form - the silent-discard class #2004 closed for `ip name-server` and #1483 for `clock rate`. The word is
+  // read here, the one legal word is applied, and anything else is refused with the state unchanged.
+  // research/encapsulation-dot1q-native.md carries the sources and the decisions.
   _encap(tokens, iface) {
     const t = tokens.map(function (x) { return String(x).toLowerCase(); });
     if (t[0] !== 'dot1q') return ['% Unsupported encapsulation: ' + (t[0] || '')];
@@ -3001,13 +3022,53 @@ class CliSession {
     }
     const vid = parseInt(t[1], 10);
     if (!(vid >= 1 && vid <= 4094)) return ['% VLAN out of range: ' + (t[1] || '')];
-    iface.encapVid = vid;
-    const parent = this.device.interfaces.get(iface.parent);
-    if (parent) {
-      const vlanLib = require('./vlan');
-      parent.vlan = vlanLib.normalizePortConfig(Object.assign({}, parent.vlan, { mode: 'trunk' }));
+    const tail = t.slice(2);
+    // `native` is the whole optional tail. A second word after it, or any other word, is a word this command
+    // cannot use: the same rule `speed 100 full` and `duplex full flurbish` are refused by, so nothing here is
+    // written and no receipt is printed.
+    if (tail.length && tail[0] !== 'native') {
+      return ['% encapsulation dot1q ' + vid + ' takes the VLAN id and, optionally, the word "native": "' +
+        tail.join(' ') + '" is not that word, and the encapsulation is unchanged'];
     }
-    return ['Subinterface ' + iface.name + ' encapsulation dot1q ' + vid];
+    if (tail.length > 1) {
+      return ['% encapsulation dot1q ' + vid + ' native takes nothing after it: "' + tail.slice(1).join(' ') +
+        '" was not used, and the encapsulation is unchanged'];
+    }
+    const wantNative = tail.length === 1;
+    const parent = this.device.interfaces.get(iface.parent);
+    const vlanLib = require('./vlan');
+    // One native VLAN per trunk, so one native subinterface per parent: "Each 802.1Q trunk has one native
+    // VLAN" (Cisco Press, *VLAN Routing with Router 802.1Q Trunks*). A second one is refused rather than
+    // silently moving the first, because moving it would change a subinterface the operator did not name.
+    if (wantNative && parent) {
+      const siblings = (typeof this.device.subinterfacesOf === 'function')
+        ? (this.device.subinterfacesOf(iface.parent) || []) : [];
+      const other = siblings.filter(function (s) { return s !== iface && s.encapNative; })[0];
+      if (other) {
+        const undo = (Number(other.encapVid) >= 1 && Number(other.encapVid) <= 4094)
+          ? '`encapsulation dot1q ' + Number(other.encapVid) + '` on ' + other.name + ' makes it tagged'
+          : 'clear ' + other.name + ' first';
+        return ['% ' + other.name + ' is already the native subinterface on ' + iface.parent +
+          ': a trunk has one native VLAN, and this line was not applied (' + undo + ')'];
+      }
+    }
+    const wasNative = !!iface.encapNative;
+    const oldVid = Number(iface.encapVid);
+    iface.encapVid = vid;
+    iface.encapNative = wantNative;
+    if (parent) {
+      // A native subinterface is the parent's untagged handler, so the parent's PVID is that VLAN: the ingress
+      // side asks `portPvid()` and the egress side asks `classifyEgress()`, and both read the parent port, which
+      // is where a box keeps its one native VLAN. Typing the line without `native` - or a different VLAN on the
+      // same subinterface - gives the untagged handling back, and with no explicitly defined native VLAN "the
+      // default VLAN 1 becomes the native VLAN 1" (Cisco IOS *Configuring Routing Between VLANs with IEEE 802.1Q
+      // Encapsulation*).
+      const next = { mode: 'trunk' };
+      if (wantNative) { next.nativeVlan = vid; next.pvid = vid; }
+      else if (wasNative && Number(parent.vlan.nativeVlan) === oldVid) { next.nativeVlan = 1; next.pvid = 1; }
+      parent.vlan = vlanLib.normalizePortConfig(Object.assign({}, parent.vlan, next));
+    }
+    return ['Subinterface ' + iface.name + ' encapsulation dot1q ' + vid + (wantNative ? ' native' : '')];
   }
 
   // ---------- IPv6 ----------
@@ -7984,7 +8045,13 @@ class CliSession {
         // Only a subinterface that terminates a VLAN has an encapsulation line. A port named `.5000`
         // carries no tag until one is typed, and `encapsulation dot1q null` is a line no box prints
         // (research/subinterface-number.md).
-        if (i.parent && i.encapVid) out.push(IN_SUBMODE + 'encapsulation dot1q ' + i.encapVid);
+        // ...and the one optional word, when the subinterface is the parent's untagged handler. The vendor prints
+        // the line it was given: `encapsulation dot1q 10 native` is the only way a router subinterface can say
+        // that frames for this VLAN leave untagged, and a backup without the word restores a tagged subinterface
+        // that routes nothing over a native trunk (research/encapsulation-dot1q-native.md).
+        if (i.parent && i.encapVid) {
+          out.push(IN_SUBMODE + 'encapsulation dot1q ' + i.encapVid + (i.encapNative ? ' native' : ''));
+        }
         // The method is printed, not the outcome. A host that has a lease holds both the `dhcp` flag and the
         // address the lease gave it, and printing the address baked a leased value into the backup: restored
         // on another network, the host claimed a stale address and never asked for a new one. A backup has to
@@ -8024,8 +8091,17 @@ class CliSession {
           // `switchport trunk encapsulation dot1q` / `switchport trunk native vlan 4` / `switchport mode
           // trunk`. Where the allowed-vlan line sits between those is the one placement no sample showed,
           // so it keeps the position it already had, among the parameters.
+          // A native VLAN that a subinterface claimed is the subinterface's line, not the parent's: the box
+          // prints it on `interface Gi0/0.10` as `encapsulation dot1q 10 native` and prints nothing about it
+          // here, so copying it onto the parent would produce a config no router writes and a second place to
+          // edit the same fact (research/encapsulation-dot1q-native.md).
+          const nativeFromSub = (typeof dev.subinterfacesOf === 'function')
+            ? (dev.subinterfacesOf(i.name) || []).some(function (sub) {
+              return sub.encapNative && Number(sub.encapVid) === spNative;
+            })
+            : false;
           if (spAccess !== 1) out.push(IN_SUBMODE + 'switchport access vlan ' + spAccess);
-          if (spNative !== 1) out.push(IN_SUBMODE + 'switchport trunk native vlan ' + spNative);
+          if (spNative !== 1 && !nativeFromSub) out.push(IN_SUBMODE + 'switchport trunk native vlan ' + spNative);
           if (spAllowedText !== null) out.push(IN_SUBMODE + 'switchport trunk allowed vlan ' + spAllowedText);
           if (spMode === 'trunk' || spAccess !== 1) out.push(IN_SUBMODE + 'switchport mode ' + spMode);
           if (spVoice !== null) out.push(IN_SUBMODE + 'switchport voice vlan ' + spVoice);

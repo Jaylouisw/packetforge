@@ -344,6 +344,11 @@ class Device {
       this.interfaces.size,
       {}
     );
+    // Whether this subinterface is the parent's untagged handler (`encapsulation dot1q <vid> native`). The
+    // parent's native VLAN is the value the data plane reads; this flag says which line set it, so the
+    // running-config can print the word on the subinterface instead of inventing a `switchport` line on a router
+    // port (research/encapsulation-dot1q-native.md).
+    iface.encapNative = false;
     iface.mac = parent.mac;          // subinterfaces borrow the physical MAC
     iface.hardware = parent.hardware; // and its media capabilities
     // A subinterface is administratively up unless somebody shuts it: `interface Gi0/0.10` has no
@@ -1681,6 +1686,9 @@ class Device {
           parent: i.parent || null,
           encapVid: i.encapVid || null
         };
+        // The native word, written only when it is set: a board should not grow `encapNative: false` on every
+        // physical port, and a subinterface saved without it must come back tagged.
+        if (i.encapNative) doc.encapNative = true;
         // A combo port shares one cage with its sibling: cabling either half occupies it. Without these the pair
         // came back as two independent ports and the "only one half" rule stopped applying (#1321).
         // `ip nat inside` / `ip nat outside`: which side of the translation this port is on. Written only when
@@ -1821,6 +1829,9 @@ class Device {
           iface.dhcp = !!is.dhcp;
           iface.autoconfig = !!is.autoconfig;
           iface.description = is.description || '';
+          // Only when the document says so: a physical port must not come back owning a field no fresh
+          // port has, or every catalogue sweep sees one extra key on every port.
+          if (is.encapNative) iface.encapNative = true;
           if (is.duplex) iface.duplex = is.duplex;
           // The address the document states, which no loader ever read (#1521). Only a unicast address a port can
           // actually have is adopted - `Topology._assignMacs` gives the port a free one otherwise, and `fromJSON`

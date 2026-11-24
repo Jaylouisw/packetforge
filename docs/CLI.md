@@ -231,7 +231,7 @@ takes back.
 | Section | Printed as |
 |---|---|
 | hostname | `hostname <name>` |
-| interfaces | `interface <name>` block: description, `speed`, `duplex`, `clock rate <bps>` (a serial DCE), `encapsulation dot1q <vlan>` (a subinterface), `ip address`, switchport VLAN/trunk, `channel-group`, `ip access-group`, `ip nat inside` / `ip nat outside`, `shutdown`, `vrrp <vrid> …`. A console or aux socket gets **no** block: a box writes its settings under `line con 0` / `line aux 0`, not as an interface |
+| interfaces | `interface <name>` block: description, `speed`, `duplex`, `clock rate <bps>` (a serial DCE), `encapsulation dot1q <vlan> [native]` (a subinterface), `ip address`, switchport VLAN/trunk, `channel-group`, `ip access-group`, `ip nat inside` / `ip nat outside`, `shutdown`, `vrrp <vrid> …`. A console or aux socket gets **no** block: a box writes its settings under `line con 0` / `line aux 0`, not as an interface |
 | VLAN table | `vlan <id> [name] <text>` |
 | DHCP pools | `ip dhcp pool <name>` block: network, range, default-router, dns-server, excluded-address, lease, `host <addr> <mac>` |
 | DNS zones | `dns zone <apex>` followed by `dns add <name> <type> <value>` |
@@ -688,7 +688,7 @@ cannot honour, so `secondary` is refused by name and every other word is refused
 | `clock rate <bps>` | (serial only) make this end the DCE and clock the line, e.g. `clock rate 64000`. Refused on a non-serial port. The rates are the vendor's menu plus the port's own; a value in the parser's 300-top range that is not on the menu is rounded and reported as `%Clockrate rounded to nearest value that your hardware can support.`, and one below 300 or above the port is refused with the range quoted (`research/serial-clock-menu.md`) |
 | `no clock rate` | drop the clock, leaving this end as DTE |
 | `ip address dhcp` | make the port a DHCP client; the address it ends up with is the outcome of the exchange, not part of the configuration |
-| `encapsulation dot1q <vlan>` | subinterface only: tag the subinterface's frames with `<vlan>`, and make the parent port a trunk. Refused on a physical port, for a VLAN outside 1-4094, and for any other encapsulation |
+| `encapsulation dot1q <vlan> [native]` | subinterface only: tag the subinterface's frames with `<vlan>`, and make the parent port a trunk. `native` makes this subinterface the parent's handler for untagged frames, so the parent's native VLAN becomes `<vlan>` and the frames it routes out leave untagged; one subinterface per parent may hold it. Refused on a physical port, for a VLAN outside 1-4094, for any other encapsulation, and for any other word after the id |
 | `shutdown` / `no shutdown` | administratively disable / enable |
 | `description <text>` | set a description |
 | `exit` | back to config mode |
@@ -702,8 +702,21 @@ prints that. A number above 4094 is only a name - `interface Gi0/0.5000` opens, 
 and carries no tag until one is typed. The command is refused on a physical port
 (`% encapsulation dot1q is only valid on a subinterface (e.g. Gi0/0.10)`) and for a VLAN outside 1-4094, anything
 but `dot1q` is refused as an unsupported encapsulation, and the parent port is made a trunk - which is the
-router-on-a-stick pairing a saved config has to carry. A number outside 1-4294967293 is refused as a number
+router-on-a-stick pairing a saved config has to carry.
+
+A number outside 1-4294967293 is refused as a number
 (`% Subinterface number out of range: 0`), which is the parser's answer and not a VLAN error.
+
+The one optional word is `native`, and it is the only word the vendor's syntax puts there. It makes the
+subinterface the port's default handler for untagged frames: the parent's native VLAN becomes the
+subinterface's VLAN, frames the subinterface routes out leave untagged, and `show running-config` prints
+`encapsulation dot1q <vlan> native` on the subinterface rather than a `switchport trunk native vlan` line on
+the parent - the two places a router can express the one fact, and the vendor presents them as alternatives.
+One subinterface per parent may be native (a trunk has one native VLAN); a second is refused, naming the first.
+Typing the line again without the word, or removing the subinterface, gives the untagged handling back, and
+with no explicit native VLAN that is VLAN 1. Any other word after the id - a second VLAN id included - is
+refused with the word quoted and the encapsulation unchanged, which is the class of silent discard
+`ip name-server` and `clock rate` were fixed for (`research/encapsulation-dot1q-native.md`).
 
 **A port has one method.** `ip address dhcp` displaces a static address and says which one it removed;
 `ip address <ip> <mask>` displaces the DHCP client and says so. One port holding both was three lies at once —
