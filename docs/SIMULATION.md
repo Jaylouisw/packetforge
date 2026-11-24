@@ -91,12 +91,23 @@ to; the rest of this page's citations were not re-measured in the same pass.
   (`ARP_AGE_MS`). The rest do not: no ND reachable-time, no DHCP lease expiry by
   wall clock. An entry that nothing dated — written by a fixture — never ages.
   See §3.2 and [CLI.md](CLI.md#what-the-mac-table-remembers-and-for-how-long).
-- The capability list at `engine/device.js:151-162` advertises more than the
-  forwarding path consumes: `poe-pse`, `poe-pd`, `firewall`, `wireless`,
-  `dhcp-server`, `dhcp-client` are never read there. VLANs, LAGs and STP apply to
-  any `l2-forward` device whether or not it claims them, which is why `vlan`,
-  `lacp` and `stp` are no longer in the vocabulary at all (#1526) — the datasheet
-  fact stays in the spec, but nothing advertises it as behaviour. See
+- The capability list at `engine/device.js:151-160` advertises more than the
+  layer predicates consume: `isL2()`, `isL3()` and `isHost()` read `l2-forward`,
+  `l3-forward` and `host` and nothing else. Three of its tokens have no reader
+  anywhere under `engine/` today — `dhcp-client`, `firewall` and `wireless` — the
+  pending list `test/capability-vocabulary.test.js` holds to exactly three, and
+  the same three [`DEVICE_SCHEMA.md`](DEVICE_SCHEMA.md#capabilities) names. This
+  bullet used to call six of them unread: the fourth pass re-measured the ranges
+  on this page and took the vocabulary on trust, so the writers that landed since
+  left it stale. `poe-pse` and `poe-pd` are read by the PoE predicates in
+  `engine/media.js:1159` and `engine/media.js:1177`, and `dhcp-server` by the data
+  path's listener table (`engine/flow.js:84` - a `dhcp-server` terminates UDP/67)
+  and by the DHCP-server gate in `engine/cli.js:2006`. A token nothing reads is
+  still what the guard forbids, so the three are pending decisions rather than
+  behaviour. VLANs, LAGs and STP apply to any `l2-forward` device whether or not it
+  claims them, which is why `vlan`, `lacp` and `stp` are no longer in the
+  vocabulary at all (#1526) — the datasheet fact stays in the spec, but nothing
+  advertises it as behaviour. See
   [DEVICE_SCHEMA.md](DEVICE_SCHEMA.md#capabilities), [§2](#2-ethernet-and-l2) and
   [§5.1](#51-dhcp--in-the-data-path-since-1051).
 
