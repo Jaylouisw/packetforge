@@ -204,6 +204,44 @@ device-level fact that holds whatever was typed. `show access-lists` on a device
 no port name can change that. Nor is `% No interface X on <device>` a refusal of the words — it is the answer to
 them.
 
+### A `|` is an output modifier, not a word of the name
+
+The one place where the rest of the line is **not** the object being asked about is the pipe. A box's grammar is
+`command | {begin | include | exclude} regular-expression`, where the pipe "follows" the show command and the
+expression is "case sensitive" (Command Reference, IOS XE 17.12.x, Catalyst 9500, *Searching and Filtering Output
+of show and more Commands*, and the same section in the 2960-X 15.2(7)E and Catalyst 1000 books). So
+`show interfaces Fa0/1` followed by a pipe and `include packets` asks about port `Fa0/1` and filters that
+port's block; the port name ends at the pipe.
+
+This console read the whole rest of the line as a name, so the same command answered:
+
+```
+sw1#show interfaces Port 1 | include packets
+% No interface Port 1 | include packets on Cambium cnMatrix EX2010-P-sw1
+```
+
+A socket that is in the answer a run without the pipe prints was reported missing, and the pipe — the one part of
+the line the console had not understood — was never mentioned. The pipe is now answered before any view opens, so
+every `show` door parses it the same way, and there are four answers:
+
+```
+sw1#show interfaces Port 1 | include packets
+% `| include packets` is an output modifier, and this console has no output filter: a box would print only the lines of the answer that match the expression - `show interfaces Port 1` on its own prints every line
+
+r1#show ip route | flurbish 10.
+% `| flurbish 10.` is not an output modifier: after the pipe a box takes `begin`, `include` or `exclude` and an expression, and `show ip route` prints its whole answer here
+
+r1#show ip route |
+% Incomplete command: a pipe takes `begin`, `include` or `exclude` and then an expression, and this console models none of them - `show ip route` on its own prints the whole answer
+```
+
+A `|` with no command before it is refused the same way, asking for the view. The filter word itself is a keyword
+and is matched in any case (`| INCLUDE` is a filter, not a bad word), as any *keyword* is; the expression after it
+keeps its case, which is the rule the vendor states in the same paragraph. No filter is modelled: printing the
+unfiltered block as though it had been filtered would be worse than refusing, because a reader would trust lines a
+box had already discarded. `test/show-output-filter.test.js` pins the four answers, the missing-command case, and
+that the port block itself is unchanged.
+
 ## `show running-config` is a config you can paste back
 
 The output is a restorable backup, and that is a tested invariant rather than an aspiration

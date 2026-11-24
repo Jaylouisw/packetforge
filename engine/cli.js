@@ -812,6 +812,43 @@ function showNoTail(cmd, tail, whole, instead) {
     (instead ? ' - ' + instead : '')];
 }
 
+// A pipe after a show command starts an *output modifier*; it is not a word of the name being asked about.
+//
+// The vendor grammar is `command | {begin | include | exclude} regular-expression`, where the pipe follows the show
+// command and the expression is "case sensitive" (Command Reference, IOS XE 17.12.x, Catalyst 9500, "Searching and
+// Filtering Output of show and more Commands";
+// http://www.cisco.com/c/en/us/td/docs/switches/lan/catalyst9500/software/release/17-12/command_reference/b_1712_9500_cr/using_the_command_line_interface.html).
+// So `show interfaces Fa0/1 | include packets` asks about port `Fa0/1` and filters the answer - the port is named
+// on the left of the pipe and nowhere else. This console read the whole rest of the line as a port name and answered
+// `% No interface Fa0/1 | include packets on ...`, telling an operator that a socket they can see in
+// `show interfaces` does not exist, which is the one lesson the answer must not teach.
+//
+// No filter is modelled, and printing the unfiltered block as though it were filtered would be worse than refusing:
+// a reader would trust lines the box had already discarded. So the refusal names the pipe, keeps the left-hand
+// command intact, and says that the command without the pipe prints the whole answer.
+const SHOW_FILTER_WORDS = ['begin', 'include', 'exclude'];
+
+function showFilterRefusal(filter, cmd) {
+  const typed = '|' + (filter.length ? ' ' + filter.join(' ') : '');
+  const word = String(filter[0] || '').toLowerCase();
+  const words = '`begin`, `include` or `exclude`';
+  const whole = cmd ? ' - `' + cmd + '` on its own prints the whole answer' : '';
+  if (!filter.length || word === '?' || word === 'help') {
+    return '% Incomplete command: a pipe takes ' + words + ' and then an expression, and this console models none' +
+      ' of them' + whole;
+  }
+  if (SHOW_FILTER_WORDS.indexOf(word) === -1) {
+    return '% `' + typed + '` is not an output modifier: after the pipe a box takes ' + words +
+      ' and an expression' + (cmd ? ', and `' + cmd + '` prints its whole answer here' : '');
+  }
+  if (!cmd) {
+    return '% `' + typed + '` is an output modifier, and this console has no output filter:' +
+      ' name a view before the pipe - there is no answer to filter until there is a command';
+  }
+  return '% `' + typed + '` is an output modifier, and this console has no output filter: a box would print' +
+    ' only the lines of the answer that match the expression - `' + cmd + '` on its own prints every line';
+}
+
 // Is this string an IPv4 address, or merely the shape of one? `net.isIp()` is the shape check - three dots and
 // one to three digits - so `10.0.0.999` passes it and the engine throws on the first packet. Every command that
 // takes an address asks this question, so it is asked in one place: `net.ipToInt()` rejects an octet out of range.
@@ -6649,6 +6686,14 @@ class CliSession {
     //    sequitur.
     //  * an ambiguous prefix is refused before any door opens, because there is no door to open.
     this._showAliasFrom = null;
+    // A pipe is an output modifier, not part of the name on its left (see showFilterRefusal). It is answered here,
+    // before any door opens, so every view is parsed the same way: the words before the pipe are the command, and the
+    // words after it are a filter this console does not have.
+    const pipeAt = tokens.findIndex(function (t) { return String(t) === '|'; });
+    if (pipeAt !== -1) {
+      const left = tokens.slice(0, pipeAt);
+      return [showFilterRefusal(tokens.slice(pipeAt + 1), left.length ? 'show ' + left.join(' ') : '')];
+    }
     const typedView = String(tokens[0] || '').trim().toLowerCase();
     // `show` on its own is a command **missing its word**, not a word the console does not know. It answered
     // `% Invalid show command: (empty)`, which tells an operator the command is not recognised - the one thing that
