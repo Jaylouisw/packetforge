@@ -3793,6 +3793,25 @@ class CliSession {
     const vlanLib = require('./vlan');
     const t = tokens.map(function (x) { return String(x).toLowerCase(); });
 
+    // The bare form, which is a real command and not a typo of one. `switchport` with no keywords is the
+    // inverse of `no switchport`: "To put an interface that is in Layer 3 mode into Layer 2 mode for Layer 2
+    // configuration, use the switchport command in interface configuration mode. To put an interface in Layer 3
+    // mode, use the no form of this command." (Catalyst 9300 command reference, IOS XE 16.5.x, Layer 2/3
+    // Commands, `switchport`; the same entry in the 9200 16.12 and 9300 17.12 books, and in the 2960-S/2960-C
+    // 15.2(4)E book, which words it as "put an interface that is in Layer 3 mode into Layer 2 mode for Layer 2
+    // configuration").
+    //
+    // This console never has a port in Layer 3 mode: `no switchport` erases the port's Layer 2 configuration
+    // and leaves it switching, because a routed port is a mode the engine does not model. So the bare line has
+    // nothing to undo, and it used to say so with `% Unrecognized switchport command: ` - a message with
+    // nothing after the colon, which reads as a console that does not know a command the vendor documents in
+    // five command references. The line now names the state it found and what the command is for, and changes
+    // nothing (research/bare-switchport-command.md).
+    if (!t.length) {
+      return ['% ' + iface.name + ' is already a Layer 2 switchport: `switchport` returns a routed port to ' +
+        'Layer 2 mode, and this console has no routed port - nothing changed'];
+    }
+
     if (t[0] === 'reset') {
       iface.vlan = vlanLib.normalizePortConfig({});
       this.device.flushMacsOnPort(iface.name);

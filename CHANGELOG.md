@@ -9,6 +9,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **`switchport` with no keywords — the documented inverse of `no switchport` — was answered with a sentence
+  that had nothing after its colon: `% Unrecognized switchport command: `.** The operator's word was the command
+  itself, so the handler's `t.join(' ')` tail was empty, and the console refused a line five vendor references
+  document: "To put an interface that is in Layer 3 mode into Layer 2 mode for Layer 2 configuration, use the
+  switchport command in interface configuration mode. To put an interface in Layer 3 mode, use the no form of
+  this command" (Catalyst 9300 command reference, IOS XE 16.5.x, Layer 2/3 Commands, `switchport`; the same
+  entry in the 9200 16.12, 3850 16.3, 2960-S/2960-C 15.2(4)E and IOS interface command references). This console
+  has no routed port for the line to return to Layer 2 — `no switchport` clears a port's Layer 2 configuration
+  and leaves it switching — so the bare form now names the port, says what the command is for on a box, and says
+  nothing changed. It is still not a reset: a trunk, its native VLAN, its allowed list and its description all
+  survive it byte for byte, and `no switchport` is still the only command that wipes the port.
+  `test/bare-switchport.test.js` (23 checks) pins the answer on a 2960 and a 3560, the unchanged
+  `show interfaces` / `show running-config`, the unknown-keyword refusal, the `no switchport` reset, and the
+  router's `l2-forward` refusal; [`research/bare-switchport-command.md`](research/bare-switchport-command.md)
+  records the LAN Base half of the question — Cisco's own notes say the command pair "is not supported" on that
+  feature set, and one real LAN Base 3750X answers `Command rejected: not allowed on this interface.`, but what a
+  2960 prints is not settled, so `no switchport` is still accepted on every box that switches.
 - **The auto-create notice was printed on two lines, and the second one does not exist: `switchport access
   vlan 22` on a switch with no VLAN 22 answered `% Access VLAN does not exist.` then `Creating vlan 22`.** A
   box prints that as **one** sentence — `% Access VLAN does not exist. Creating vlan 22` — as Cisco's own

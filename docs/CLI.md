@@ -408,7 +408,7 @@ unapplied in`), and the bare `no ip access-group`, which clears both directions 
 actually cleared: in the session above - 102 inside, nothing outside - it answers `Interface Gi0/0/1:
 access list unapplied in`, and `access list unapplied in and out` only when both directions were bound.
 Reading a direction word as the number is the code's to fix
-(`_accessGroup()`, `const want = rest[0] != null ? parseInt(rest[0], 10) : null` at `engine/cli.js:4432` - the
+(`_accessGroup()`, `const want = rest[0] != null ? parseInt(rest[0], 10) : null` at `engine/cli.js:4471` - the
 guard asks whether a word arrived, not whether it is a number, so `in` still parses to `NaN`); until it is,
 this page does not advertise the direction on its own.
 
@@ -2797,7 +2797,7 @@ group number does not rescue a view: `show etherchannel 1 detail` is refused as 
 is the view without the filter. `show port-channel detail` refuses under that spelling. `protocol` is pointed at
 the column that already carries its fact — the `Protocol` cell of the summary — rather than given a second page of
 its own, and `load-balance` points nowhere, because no console verb reads or sets the policy - not because there is none
-to read. The group carries `hashPolicy` (`'l2'` written when `channel-group` creates the bundle, `engine/cli.js:4309`;
+to read. The group carries `hashPolicy` (`'l2'` written when `channel-group` creates the bundle, `engine/cli.js:4348`;
 `lag.ts`'s own default is `l3l4`, `engine/lag.ts:239`) and the data path hashes every frame onto one member with it
 (`engine/simulator.js:3739`, `selectMember()` at `engine/lag.ts:407`), so the refusal's second clause - `nothing here
 hashes a frame across members` - overstates: what is missing is the view and the verb, not the hash.
@@ -3544,6 +3544,25 @@ defaults". The reset also left an empty allowed list behind, which printed as a 
 
 Trunk ports carry their allowed VLANs, so their entries are not marked; a moved host re-learns on the next
 frame it sends.
+
+### `switchport` with no keywords is the inverse, and here it changes nothing
+
+A box uses the bare positive form for one job: "To put an interface that is in Layer 3 mode into Layer 2 mode
+for Layer 2 configuration" (Catalyst 9300 command reference, IOS XE 16.5.x, Layer 2/3 Commands, `switchport`).
+This console has no routed port for it to undo - `no switchport` clears the port's Layer 2 configuration but
+leaves the port switching - so the line is answered and changes nothing:
+
+```
+sw1(config-if)#switchport
+% Fa0/1 is already a Layer 2 switchport: `switchport` returns a routed port to Layer 2 mode, and this console has no routed port - nothing changed
+```
+
+It used to fall through the handler's last line, `% Unrecognized switchport command: `, with no word after the
+colon - a refusal of a command five vendor references document, in a sentence that named nothing. The bare form
+is still not a reset: only `no switchport` wipes a port, so `switchport mode trunk`, a native VLAN, an allowed
+list and a description all survive it byte for byte (`test/bare-switchport.test.js`, 23 checks). The LAN Base half
+of the question - Cisco says the pair "is not supported" on that feature set, and this console still accepts
+`no switchport` on every box that switches - is recorded in [`research/bare-switchport-command.md`](../research/bare-switchport-command.md).
 
 ### Static routes: a next hop, or an interface, never a port name in the address field
 
