@@ -153,13 +153,13 @@ ports" ([research/voice-vlan-port-mode.md](../research/voice-vlan-port-mode.md))
 
 | Verdict | Behaviour | Where |
 |---|---|---|
-| **Modelled** | A LAG is one logical port: frames are hashed onto exactly one member, the event log records which. | `engine/simulator.js:3704-3717` (`selectMember()` and the `lag` event), `engine/lag.js:264` (`selectMember()`) |
-| **Modelled** | Hash policies `l2`, `l3`, `l3l4`, deterministic FNV-1a — the same frame always lands on the same member. | `engine/lag.js:94` (`HASH_POLICIES`), `engine/lag.js:194` (`fnv1a()`), `engine/lag.js:229` (`hashFrame()`) |
-| **Modelled** | Spanning tree sees one edge per bundle, so it does not block members against each other. | `engine/simulator.js:907-919` (`computeStp()` groups members under `_logicalPortName()`) |
-| **Modelled** | A frame that arrived on a member never leaves by the same group (no hairpin). | `engine/simulator.js:3758-3763` (`_egressRefusal()` answers `bundle`) |
-| **Approximate** | `mode` (`lacp-active`, `lacp-passive`, `static`) is validated and stored and now decides two things — whether the two ends would negotiate at all, and how wide the group may be (16 members for LACP, 8 for `on`) — but no LACPDU crosses the wire: a passive/passive pair and a one-ended group are answered by rule, not by a protocol. | `engine/lag.js:345` (`negotiationVerdict()`), `engine/lag.js:378` (`memberSuspension()`), `engine/lag.js:119` (`maxMembers()`) |
-| **Approximate** | `minLinks` is normalised and validated but never read at runtime: a bundle keeps forwarding at one member, it never shuts down. | `engine/lag.js:154-160` (`minLinks` normalisation) |
-| **Modelled** | A bundle carries **eight active links**; the rest of a LACP group (up to 16 members) are **hot-standby** — chosen in port order, shown `(H)` in `show etherchannel summary`, never hashed onto, and promoted when an active link goes away. A non-negotiating (`mode on`) group holds eight members and refuses a ninth. | `engine/lag.js:113` (`MAX_ACTIVE_LINKS`), `engine/lag.js:284` (`carryingMembers()`), `:300` (`activeMembers()`), `:305` (`standbyMembers()`) |
+| **Modelled** | A LAG is one logical port: frames are hashed onto exactly one member, the event log records which. | `engine/simulator.js:3739-3752` (`selectMember()` and the `lag` event), `engine/lag.ts:407` (`selectMember()`) |
+| **Modelled** | Hash policies `l2`, `l3`, `l3l4`, deterministic FNV-1a — the same frame always lands on the same member. | `engine/lag.ts:235` (`HASH_POLICIES`), `engine/lag.ts:337` (`fnv1a()`), `engine/lag.ts:372` (`hashFrame()`) |
+| **Modelled** | Spanning tree sees one edge per bundle, so it does not block members against each other. | `engine/simulator.js:922-925` (`computeStp()` groups members under `_logicalPortName()`) |
+| **Modelled** | A frame that arrived on a member never leaves by the same group (no hairpin). | `engine/simulator.js:3795` (`_egressRefusal()` answers `bundle`) |
+| **Approximate** | `mode` (`lacp-active`, `lacp-passive`, `static`) is validated and stored and now decides two things — whether the two ends would negotiate at all, and how wide the group may be (16 members for LACP, 8 for `on`) — but no LACPDU crosses the wire: a passive/passive pair and a one-ended group are answered by rule, not by a protocol. | `engine/lag.ts:488` (`negotiationVerdict()`), `engine/lag.ts:521` (`memberSuspension()`), `engine/lag.ts:260` (`maxMembers()`) |
+| **Approximate** | `minLinks` is normalised and validated but never read at runtime: a bundle keeps forwarding at one member, it never shuts down. | `engine/lag.ts:299-301` (`minLinks` normalisation) |
+| **Modelled** | A bundle carries **eight active links**; the rest of a LACP group (up to 16 members) are **hot-standby** — chosen in port order, shown `(H)` in `show etherchannel summary`, never hashed onto, and promoted when an active link goes away. A non-negotiating (`mode on`) group holds eight members and refuses a ninth. | `engine/lag.ts:254` (`MAX_ACTIVE_LINKS`), `engine/lag.ts:427` (`carryingMembers()`), `:443` (`activeMembers()`), `:448` (`standbyMembers()`) |
 | **Absent** | LACPDUs, negotiation, per-member failure detection beyond `iface.enabled`, load-based member selection, L3/L4 hash entropy from anything but the fields present. | — |
 
 ### 2.4 Spanning tree (802.1D)
@@ -623,7 +623,7 @@ actually true.
 And a short list of things that exist on the model but are **never read** —
 i.e. configuring them is decoration:
 
-- `minLinks` on a LAG (`engine/lag.js:90`) — normalised and stored, and no verdict consults
+- `minLinks` on a LAG (`engine/lag.ts:39`) — normalised and stored, and no verdict consults
   it: a bundle's health is the members that can carry, not this threshold.
 - Capabilities `firewall`, `wireless` and `dhcp-client` (`engine/device.js:127`). Everything
   else in that vocabulary has a reader: `nat`, `dhcp-server`, `l3-forward` and `l2-forward`

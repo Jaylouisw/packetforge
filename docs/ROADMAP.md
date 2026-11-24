@@ -16,7 +16,7 @@ this tree already does, and the row says where, in the code rather than in a pro
 | Modelled | DHCP (the DORA exchange, before the first packet) | `engine/dhcp.js`, §5.1 |
 | Modelled | DNS: zones and records, and a resolver that listens on 53 | `engine/dns.js`, §5.7 |
 | Modelled | VLANs / 802.1Q, with per-VLAN MAC tables | `engine/vlan.js`, §2.2 |
-| Modelled | LAG: one logical port, a deterministic hash onto one member. `mode` is validated and stored, not negotiated | `engine/lag.js`, §2.3 |
+| Modelled | LAG: one logical port, a deterministic hash onto one member. `mode` is validated and stored, not negotiated | `engine/lag.ts`, §2.3 |
 | Modelled | Spanning tree: root election, roles, blocked ports. One tree, not one per VLAN | `engine/stp.js`, §2.4 |
 | Modelled | OSPF: adjacency and SPF, encoded as real octets | `engine/ospf.js`, §5.5 |
 | Modelled | BGP: the decision-order subset, not policy | `engine/bgp.js`, §5.6 |

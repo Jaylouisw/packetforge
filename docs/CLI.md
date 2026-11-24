@@ -1051,7 +1051,7 @@ Port-channel20         unassigned      YES unset  down                  down
 The name is spelled out **here** and shortened to `Po1` in `show etherchannel summary` and the MAC table's
 `Ports` column, which is what a box does: a table cell abbreviates the type word, a row whose subject *is* the
 interface does not (`Port-channel4 ... up up` beside `4 Po4(SU) LACP Gi4/31(P)` in one capture; both names come
-from `engine/lag.js`, so they cannot disagree about which bundle they mean). The state is the bundle's own: a
+from `engine/lag.ts`, so they cannot disagree about which bundle they mean). The state is the bundle's own: a
 bundle no member joined is `down down` even while each member is `up up`, carrying traffic as a single link —
 `show etherchannel summary` shows that as `Po1(SD)` with the members `(I)`, and both views read the same
 predicate. `research/port-channel-in-interface-brief.md` carries the captures and what is still open.
@@ -2721,7 +2721,7 @@ prints the frame-distribution policy.
 
 This console answered all six with the summary table. For the five it cannot answer that is a wrong answer rather
 than a narrow one — the engine keeps no admin/oper keys, no port-state word, no aggregator MAC and no age timers,
-and the hash policy it does keep (`hashPolicy` on the group, `engine/lag.js:94`, `l2`/`l3`/`l3l4`) has no console
+and the hash policy it does keep (`hashPolicy` on the group, `engine/lag.ts:235`, `l2`/`l3`/`l3l4`) has no console
 verb behind it — so each is refused in one line, naming the word the reader typed:
 
 ```
@@ -2734,9 +2734,9 @@ group number does not rescue a view: `show etherchannel 1 detail` is refused as 
 is the view without the filter. `show port-channel detail` refuses under that spelling. `protocol` is pointed at
 the column that already carries its fact — the `Protocol` cell of the summary — rather than given a second page of
 its own, and `load-balance` points nowhere, because no console verb reads or sets the policy - not because there is none
-to read. The group carries `hashPolicy` (`'l2'` written when `channel-group` creates the bundle, `engine/cli.js:4140`;
-`lag.js`'s own default is `l3l4`, `engine/lag.js:98`) and the data path hashes every frame onto one member with it
-(`engine/simulator.js:3710`, `selectMember()` at `engine/lag.js:264`), so the refusal's second clause - `nothing here
+to read. The group carries `hashPolicy` (`'l2'` written when `channel-group` creates the bundle, `engine/cli.js:4262`;
+`lag.ts`'s own default is `l3l4`, `engine/lag.ts:239`) and the data path hashes every frame onto one member with it
+(`engine/simulator.js:3739`, `selectMember()` at `engine/lag.ts:407`), so the refusal's second clause - `nothing here
 hashes a frame across members` - overstates: what is missing is the view and the verb, not the hash.
 `research/etherchannel-summary-layout.md` has the syntax table, the `protocol` sample and what is still open.
 
@@ -2821,7 +2821,7 @@ Interface Fa0/1 added to channel group 1 (mode active)
 
 That was the console and the model speaking different languages with no translation between them. The console
 speaks IOS (`active|passive|on`); the model speaks `lacp-active|lacp-passive|static`; the table in
-`engine/lag.js` translates once in each direction, so a lab saved by an older build holding `active` normalises
+`engine/lag.ts` translates once in each direction, so a lab saved by an older build holding `active` normalises
 to the same state as one configured today.
 
 Two consequences of the missing translation are worth knowing:

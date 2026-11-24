@@ -352,7 +352,7 @@ cause-driven, not time-driven.
 |---|---|---|
 | `primary` | first *eligible* candidate wins; every other is standby | a router with two default routes and one path |
 | `failover` | as `primary`, plus a `wan-failover` event naming the reason and the dead candidate | dual-homing, failover and return |
-| `ecmp` | among candidates **equal** on prefix/AD/metric, bucket by `lag.hashFrame()` (`lag.js:128`) | load sharing, and that a flow keeps its path |
+| `ecmp` | among candidates **equal** on prefix/AD/metric, bucket by `lag.hashFrame()` (`lag.ts:372`) | load sharing, and that a flow keeps its path |
 
 `ecmp` hashes the flow tuple, never the packet: `(srcIp, dstIp, proto, srcPort,
 dstPort)`, or `(icmp.id, icmp.seq)` for echo. `hashFrame` is already order-
@@ -473,7 +473,7 @@ this.config = {
   wans: [],                  // [{ iface, id, provider, preference, distance,
                              //    session, track:{type,target,failAfter} }]
   multipath: 'primary',      // 'primary' | 'failover' | 'ecmp'
-  ecmpHash: 'l3l4'           // 'l2' | 'l3' | 'l3l4'  (reuses lag.js policies)
+  ecmpHash: 'l3l4'           // 'l2' | 'l3' | 'l3l4'  (reuses lag.ts policies)
 };
 this.config.routes[i] = { dest, mask, gw, iface, distance, metric };
 ```

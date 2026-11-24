@@ -150,7 +150,7 @@ test would fail on it, which is how that was caught.
 ## What a state means for traffic
 
 A port that cannot carry a frame is not a candidate for anything: it is not flooded to, it is not a BGP or
-OSPF egress, its bundle membership is decided by `engine/lag.js`, and the tables that print learned state say
+OSPF egress, its bundle membership is decided by `engine/lag.ts`, and the tables that print learned state say
 why it cannot be used rather than presenting the entry as current. `Device.ifaceStatus(iface, topo)` is the
 one rule, and every caller shares it:
 

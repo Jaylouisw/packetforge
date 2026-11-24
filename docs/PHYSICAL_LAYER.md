@@ -250,7 +250,7 @@ VLANs 1–4094 are valid; 1002–1005 are reserved and rejected.
 
 ## 6. Link aggregation (LACP) — enforced in the data path
 
-`engine/lag.js` — modes `lacp-active`, `lacp-passive`, `static`; hash policies
+`engine/lag.ts` — modes `lacp-active`, `lacp-passive`, `static`; hash policies
 `l2`, `l3`, `l3l4`. `hashFrame` is a deterministic hash and `selectMember` maps a
 frame onto a member (order-independent, skips disabled members).
 

@@ -57,9 +57,10 @@ over the TypeScript the repository has written, `scripts/check-no-any.ts` over t
 `scripts/check-module-paths.ts` over every `require()` in the tree. All three are properties of one
 tree, so they are one job and one answer, not a copy per Node version; the resolver is there rather
 than in a test leg for the same reason `tsc` is. It prints one note every run —
-`engine/segment.ts:118 require('./lag')`, which resolves today and breaks the day `lag.js` becomes
-`.ts` — and exits 0 on it, so what the step asserts is *0 unresolvable specifiers* while the latent
-one stays visible on every pull request. It is the only job in this workflow that installs anything
+`engine/lag.ts:131 require('./iface-name')`, which resolves today and breaks the day
+`iface-name.js` becomes `.ts` — and exits 0 on it, so the step asserts *0 unresolvable
+specifiers* and leaves the latent one visible on every pull request. It is the only job in this
+workflow that installs anything
 — `typescript` is the repository's only devDependency. What that toolchain is, and why there is no
 build step, is [`TYPESCRIPT.md`](TYPESCRIPT.md); it is the page to read before writing a line of it.
 
