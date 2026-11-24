@@ -14,20 +14,38 @@
     "start": 1,
     "count": 16,
     "type": "ethernet",
-    "speed": "25G"
+    "speed": "25G",
+    "connector": "sfp28",
+    "speedCaps": [
+      1000,
+      10000,
+      25000
+    ]
   },
   "interfaces": [
     {
       "name": "1/1/17",
       "type": "ethernet",
-      "speed": "100G"
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        40000,
+        100000
+      ]
     },
     {
       "name": "1/1/18",
       "type": "ethernet",
-      "speed": "100G"
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        40000,
+        100000
+      ]
     }
   ],
   "icon": "switch",
-  "color": "#f59e0b"
+  "color": "#f59e0b",
+  "sourceUrl": "https://www.hpe.com/us/en/collaterals/collateral.a50004274enw.html",
+  "notes": "HPE Aruba Networking CX 8360 v2 family. I/O census from the QuickSpecs Technical Specifications table, row I/O ports and slots (https://www.hpe.com/us/en/collaterals/collateral.a50004274enw.html, version 23, 15 June 2026), cross-read against the family datasheet a50002121enw Product capabilities list (https://www.hpe.com/psnow/downloadDoc/HPE%20Networking%20CX8360%20Switch%20Series-a50002121enw.pdf?id=a50002121enw). AOS-CX numbers the front panel sequentially from 1/1/1, so QSFP+/QSFP28 cages continue the SFP group. All QSFP ports except those on the 48XT4C support optional 4x10G/4x25G breakout cables - a transceiver mode on the cage, not extra front-panel ports, so no extra interfaces are modelled. 50G is supported on the 16Y2C, 32Y4C and 48Y6C (QuickSpecs Key Features) but is not modelled: the catalogue port shapes stop at each cage native speed. This model: \"16 ports of 1GbE/10GbE/25GbE (SFP/SFP+/SFP28) / 2 ports of 40GbE/100GbE (QSFP+/QSFP28)\"; the capability bullet reads \"16 ports of 1GbE/10GbE/25GbE or 8 ports of 50GbE (SFP/SFP+/SFP28) + 2 ports of 40GbE/100GbE (QSFP+/QSFP28)\". Switching capacity 1.6 Tbps, 2 PSUs, 3 fans. SKUs: JL702C front-to-back, JL703C back-to-front, base switch JL718C."
 }

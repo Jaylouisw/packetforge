@@ -1,0 +1,50 @@
+{
+  "vendor": "aruba",
+  "model": "CX 8360-24XF2C",
+  "label": "HPE Aruba Networking CX 8360-24XF2C v2 (JL710C)",
+  "category": "l3-switch",
+  "description": "HPE Aruba Networking CX 8360-24XF2C v2 - 1RU L3 aggregation/leaf: 24x 1G/10G SFP+ (1/1/1-1/1/24) plus 2x 40/100G QSFP28 uplinks (1/1/25-1/1/26). The SFP+ group takes 1GBASE-T and 10GBASE-T transceivers; the uplinks take 4x10G/4x25G breakout cables. 880 Gbps switching capacity, 2 field-replaceable PSUs, 3 fans.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli"
+  ],
+  "portTemplate": {
+    "prefix": "1/1/",
+    "start": 1,
+    "count": 24,
+    "type": "ethernet",
+    "connector": "sfp+",
+    "speed": "10G",
+    "speedCaps": [
+      1000,
+      10000
+    ]
+  },
+  "interfaces": [
+    {
+      "name": "1/1/25",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        40000,
+        100000
+      ]
+    },
+    {
+      "name": "1/1/26",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G",
+      "speedCaps": [
+        40000,
+        100000
+      ]
+    }
+  ],
+  "icon": "switch",
+  "color": "#f59e0b",
+  "sourceUrl": "https://www.hpe.com/us/en/collaterals/collateral.a50004274enw.html",
+  "notes": "HPE Aruba Networking CX 8360 v2 family. I/O census from the QuickSpecs Technical Specifications table, row 'I/O ports and slots' (https://www.hpe.com/us/en/collaterals/collateral.a50004274enw.html, version 23, 15 June 2026), cross-read against the family datasheet a50002121enw Product capabilities list (https://www.hpe.com/psnow/downloadDoc/HPE%20Networking%20CX8360%20Switch%20Series-a50002121enw.pdf?id=a50002121enw). This model: \"24 ports of 1GbE/10GbE (SFP/SFP+) / 2 ports of 40GbE/100GbE (QSFP+/QSFP28) (optional 1GBASE-T SFP and 10GBASE-T SFP+ transceivers and 4x10G/25G breakout cables supported)\", switching capacity 880 Gbps, 2 PSUs, 3 fans. AOS-CX numbers the front panel from 1/1/1, so the cages continue the SFP group at 1/1/25-26. SKUs: JL710C front-to-back bundle, JL711C back-to-front bundle, base switch JL722C. Breakout is a transceiver mode on the cage, not extra front-panel ports, so no extra interfaces are modelled. This was the one member of the six-model 8360 v2 line the catalogue did not have."
+}

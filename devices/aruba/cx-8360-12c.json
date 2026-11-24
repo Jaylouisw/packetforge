@@ -3,7 +3,7 @@
   "model": "CX 8360-12C",
   "label": "Aruba CX 8360-12C",
   "category": "l3-switch",
-  "description": "Aruba CX 8360-12C - 12x 40/100G QSFP28 ports. High-density 100G aggregation/core switch.",
+  "description": "HPE Aruba Networking CX 8360-12C v2 - 12x 40/50/100G QSFP28 cages (1/1/1-1/1/12), no copper ports. 1RU 100G aggregation/leaf with 2.4 Tbps switching capacity.",
   "capabilities": [
     "l2-forward",
     "l3-forward",
@@ -14,8 +14,16 @@
     "start": 1,
     "count": 12,
     "type": "ethernet",
-    "speed": "100G"
+    "speed": "100G",
+    "connector": "qsfp28",
+    "speedCaps": [
+      40000,
+      50000,
+      100000
+    ]
   },
   "icon": "switch",
-  "color": "#f59e0b"
+  "color": "#f59e0b",
+  "sourceUrl": "https://www.hpe.com/us/en/collaterals/collateral.a50004274enw.html",
+  "notes": "HPE Aruba Networking CX 8360 v2 family. I/O census from the QuickSpecs Technical Specifications table, row I/O ports and slots (https://www.hpe.com/us/en/collaterals/collateral.a50004274enw.html, version 23, 15 June 2026), cross-read against the family datasheet a50002121enw Product capabilities list (https://www.hpe.com/psnow/downloadDoc/HPE%20Networking%20CX8360%20Switch%20Series-a50002121enw.pdf?id=a50002121enw). AOS-CX numbers the front panel sequentially from 1/1/1, so QSFP+/QSFP28 cages continue the SFP group. All QSFP ports except those on the 48XT4C support optional 4x10G/4x25G breakout cables - a transceiver mode on the cage, not extra front-panel ports, so no extra interfaces are modelled. 50G is supported on the 16Y2C, 32Y4C and 48Y6C (QuickSpecs Key Features) but is not modelled: the catalogue port shapes stop at each cage native speed. This model: \"12 ports of 40GbE/100GbE (QSFP+/QSFP28) (optional 4x10G/25G breakout cables supported)\"; the datasheet capability bullet widens it to \"12 ports of 40GbE/50GbE/100GbE (QSFP+/QSFP28)\", which is why the cages carry 40/50/100G. Every front-panel port is a cage, so the old \"12x 40/100G\" description was the only shape the catalogue had. Switching capacity 2.4 Tbps (12 x 100G full duplex), 2 PSUs, 3 fans. SKUs: JL708C front-to-back, JL709C back-to-front, base switch JL721C. A QuickSpecs footnote marks one transceiver as not supported on the 12C (JL708C/JL709C)."
 }

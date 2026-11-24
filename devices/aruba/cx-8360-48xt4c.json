@@ -3,7 +3,7 @@
   "model": "CX 8360-48XT4C",
   "label": "Aruba CX 8360-48XT4C",
   "category": "l3-switch",
-  "description": "Aruba CX 8360-48XT4C - 48x 1/10G 10GBASE-T RJ45 plus 4x 100G QSFP28 uplinks. L3 switch for 10G copper access.",
+  "description": "HPE Aruba Networking CX 8360-48XT4C v2 - 48x 100M/1G/2.5G/5G/10GBASE-T RJ45 (1/1/1-1/1/48) plus 4x 40/100G QSFP28 uplinks (1/1/49-1/1/52). 1RU 10G-copper aggregation with 1.76 Tbps switching capacity.",
   "capabilities": [
     "l2-forward",
     "l3-forward",
@@ -14,30 +14,60 @@
     "start": 1,
     "count": 48,
     "type": "ethernet",
-    "speed": "10G"
+    "speed": "10G",
+    "connector": "rj45",
+    "speedCaps": [
+      100,
+      1000,
+      2500,
+      5000,
+      10000
+    ]
   },
   "interfaces": [
     {
       "name": "1/1/49",
       "type": "ethernet",
-      "speed": "100G"
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        40000,
+        100000
+      ]
     },
     {
       "name": "1/1/50",
       "type": "ethernet",
-      "speed": "100G"
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        40000,
+        100000
+      ]
     },
     {
       "name": "1/1/51",
       "type": "ethernet",
-      "speed": "100G"
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        40000,
+        100000
+      ]
     },
     {
       "name": "1/1/52",
       "type": "ethernet",
-      "speed": "100G"
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [
+        40000,
+        100000
+      ]
     }
   ],
   "icon": "switch",
-  "color": "#f59e0b"
+  "color": "#f59e0b",
+  "sourceUrl": "https://www.hpe.com/us/en/collaterals/collateral.a50004274enw.html",
+  "notes": "HPE Aruba Networking CX 8360 v2 family. I/O census from the QuickSpecs Technical Specifications table, row I/O ports and slots (https://www.hpe.com/us/en/collaterals/collateral.a50004274enw.html, version 23, 15 June 2026), cross-read against the family datasheet a50002121enw Product capabilities list (https://www.hpe.com/psnow/downloadDoc/HPE%20Networking%20CX8360%20Switch%20Series-a50002121enw.pdf?id=a50002121enw). AOS-CX numbers the front panel sequentially from 1/1/1, so QSFP+/QSFP28 cages continue the SFP group. All QSFP ports except those on the 48XT4C support optional 4x10G/4x25G breakout cables - a transceiver mode on the cage, not extra front-panel ports, so no extra interfaces are modelled. 50G is supported on the 16Y2C, 32Y4C and 48Y6C (QuickSpecs Key Features) but is not modelled: the catalogue port shapes stop at each cage native speed. This model: \"48 ports of 100M/1GbE/10GBASE-T / 4 ports of 40GbE/100GbE (QSFP+/QSFP28)\", and the capability bullet adds \"Support Smart Rate (1/2.5/5/10G)\" - so the copper group is 10GBASE-T with NBase-T fallback, not a plain 10G port: 100M through 10G in speedCaps. Switching capacity 1.76 Tbps, 2 PSUs, 3 fans. SKUs: JL706C front-to-back, JL707C back-to-front, base switch JL720C. Its QSFP cages are the only ones in the family with no breakout support."
 }
