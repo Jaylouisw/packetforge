@@ -15,42 +15,54 @@
     {
       "name": "1",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": 30,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "2",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": 30,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "3",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": 30,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "4",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": 30,
+      "poeOutClass": "PoE+"
     },
     {
       "name": "5",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": 0
     },
     {
       "name": "6",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": 0
     },
     {
       "name": "7",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": 0
     },
     {
       "name": "8",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": 0
     }
   ],
   "icon": "switch",
@@ -58,7 +70,10 @@
   "sourceUrl": "https://www.also.com/ec/cms5/media/img/2900/microsites_9/hpe_8/aruba_3/aruba_instant_on_1/product_datasheet/ds_aio_1830switchseries.pdf",
   "poe": {
     "budgetW": 65,
+    "standard": "802.3at",
+    "perPortW": 30,
     "sourceUrl": "https://www.also.com/ec/cms5/media/img/2900/microsites_9/hpe_8/aruba_3/aruba_instant_on_1/product_datasheet/ds_aio_1830switchseries.pdf",
     "note": "JL811A: 65 W Class 4 PoE across ports 1-4."
-  }
+  },
+  "notes": "Datasheet (https://www.also.com/ec/cms5/media/img/2900/microsites_9/hpe_8/aruba_3/aruba_instant_on_1/product_datasheet/ds_aio_1830switchseries.pdf): \"8 RJ-45 autosensing 10/100/1000 ports IEEE 802.3at Class 4 PoE (ports 1-4)\" for the JL811A, \"(ports 1-12)\" for the JL813A and \"(ports 1-24)\" for the JL815A. The Installation and Getting Started guide prints the same split as a table - \"PoE Port Count: Ports 1 - 4\" (JL811A), \"Ports 1 - 12\" (JL813A), \"Ports 1-24\" (JL815A), with a 65/195/370 W maximum - and the regulatory sheet prints \"30W per port, 4 ports, total max. output power 65W\" (https://arubanetworking.hpe.com/techdocs/hardware/switches/1830/1830_IGSG.pdf, https://arubanetworking.hpe.com/techdocs/hardware/switches/1830/1830_SH_EN.pdf). WHAT WAS WRONG - the spec named the PoE subset only in the free-text poe note and left every copper port silent, so the engine inferred an 802.3af 15.4 W PSE on all 8/24/48 of them: the data-only sockets powered powered devices, the PoE sockets advertised 15.4 W instead of the Class 4 30 W the sheet prints, and show power inline listed sockets that cannot source a watt. The ports now carry the vendor split: 30 W PoE+ on the PoE ports, an explicit 0 on the data-only ports (0 is the spec's way of saying \"this port sources nothing\"; a null would be read as silence and re-inferred)."
 }
