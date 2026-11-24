@@ -29,7 +29,7 @@ what `package.json`, `tsconfig.json` and the `Typecheck` job already do.
 | Declaration merging, `enum`, `namespace`, parameter properties | Not used. The runtime erases annotations and refuses to transform (see [the traps](#the-five-traps)) |
 | `.d.ts` | Allowed, and only in `types/`. It is how the Node surface is declared |
 
-There is no exception for "a quick script". `scripts/check-control-bytes.ts` is 75 lines of
+There is no exception for "a quick script". `scripts/check-control-bytes.ts` is 110 lines of
 throwaway-shaped guard code and it is typed; that is the point of it being the first one.
 
 ## Migrated so far
@@ -62,10 +62,10 @@ rules #1513 and #1323 put in place rather than restating them more weakly.
 
 ## What is installed
 
-Exactly one package, and it is not a runtime dependency:
+Two packages, and neither is a runtime dependency:
 
 ```json
-"devDependencies": { "typescript": "7.0.2" }
+"devDependencies": { "@types/node": "^26.6.6", "typescript": "7.0.2" }
 ```
 
 - `dependencies` stays empty. The app is zero-dependency, the image has no `node_modules` in it,
@@ -75,13 +75,13 @@ Exactly one package, and it is not a runtime dependency:
   declaring the Node surface the converted files used — which went stale the first time another
   branch imported `node:child_process`. A declaration that has to be kept in step with reality by
   hand is a doc, not a type.
-- No linter. `typescript` plus one 144-line scan (`scripts/check-no-any.ts`) is the whole
+- No linter. `typescript` plus one 507-line scan (`scripts/check-no-any.ts`) is the whole
   toolchain; ESLint would be a dependency, a config file and a plugin tree to enforce one word.
 
 A fresh clone needs one install, once:
 
 ```bash
-npm ci            # or `npm install`; either one only fetches `typescript`
+npm ci            # or `npm install`; either one fetches only the two dev packages
 ```
 
 Nothing else in the repository needs it. `node server/index.js`, `npm test` and every script run
