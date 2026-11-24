@@ -3,7 +3,7 @@
   "model": "720XP-48Y6",
   "label": "720XP-48Y6",
   "category": "switch",
-  "description": "Arista CCS-720XP-48Y6 - 1RU Cognitive Campus leaf: 48x 10M/100M/1G RJ45 PoE+ (Ethernet1-48) plus 6x 1/10/25G SFP (Ethernet49-54).",
+  "description": "Arista CCS-720XP-48Y6 - 1RU Cognitive Campus leaf: 48x 1G RJ45 PoE+ (10M-1G, Ethernet1-48) plus 6x 25G SFP28 (Ethernet49-54). 982 W of PoE with the single 1050 W supply it ships with.",
   "capabilities": [
     "l2-forward",
     "l3-forward",
@@ -17,39 +17,81 @@
     "start": 1,
     "count": 48,
     "type": "ethernet",
+    "connector": "rj45",
     "speed": "1G",
+    "speedCaps": [
+      10,
+      100,
+      1000
+    ],
     "poeOut": 30
   },
   "interfaces": [
     {
       "name": "Ethernet49",
       "type": "ethernet",
-      "speed": "25G"
+      "connector": "sfp28",
+      "speed": "25G",
+      "speedCaps": [
+        1000,
+        10000,
+        25000
+      ]
     },
     {
       "name": "Ethernet50",
       "type": "ethernet",
-      "speed": "25G"
+      "connector": "sfp28",
+      "speed": "25G",
+      "speedCaps": [
+        1000,
+        10000,
+        25000
+      ]
     },
     {
       "name": "Ethernet51",
       "type": "ethernet",
-      "speed": "25G"
+      "connector": "sfp28",
+      "speed": "25G",
+      "speedCaps": [
+        1000,
+        10000,
+        25000
+      ]
     },
     {
       "name": "Ethernet52",
       "type": "ethernet",
-      "speed": "25G"
+      "connector": "sfp28",
+      "speed": "25G",
+      "speedCaps": [
+        1000,
+        10000,
+        25000
+      ]
     },
     {
       "name": "Ethernet53",
       "type": "ethernet",
-      "speed": "25G"
+      "connector": "sfp28",
+      "speed": "25G",
+      "speedCaps": [
+        1000,
+        10000,
+        25000
+      ]
     },
     {
       "name": "Ethernet54",
       "type": "ethernet",
-      "speed": "25G"
+      "connector": "sfp28",
+      "speed": "25G",
+      "speedCaps": [
+        1000,
+        10000,
+        25000
+      ]
     }
   ],
   "icon": "switch",
@@ -59,5 +101,5 @@
     "sourceUrl": "https://www.arista.com/en/qsg-720xp-series-1ru/720xp-series-1ru-overview",
     "note": "Arista's own row for CCS-720XP-48Y6: \"PoE Power Budget Single / Dual PSU 982 W / 1850 W\" (supported supply PWR-1021-AC, 68 W / 93 W typical / maximum excluding PoE). The switch ships with one 1050 W supply, so 982 W is the figure recorded here and the 1850 W two-supply ceiling is noted rather than used. Per port the datasheet caps the copper group at 30 W (802.3af/at), which is what the 48 template ports declare."
   },
-  "notes": "Vendor rows read 2026-11-20. Arista CCS-720XP data sheet \"https://www.arista.com/assets/data/pdf/Datasheets/CCS-720XP-Datasheet.pdf\": \"720XP-48Y6 - 48 x 10M-1GbE RJ45 @ 30W - Uplinks: 6x 25G\", with the series described as \"Managed 802.3af/at/bt power services ... up to 90W per RJ45 port\" (90 W is the 48TXH-2C-S mGig port, not this one). Ordering information names \"CCS-720XP-48Y6-F ... 48 x 10/100M-1G PoE, 6 x 25G SFP switch, front to rear air, 1 x 1050W AC\". Arista 720XP/722XPM 1RU quick start guide \"https://www.arista.com/en/qsg-720xp-series-1ru/720xp-series-1ru-overview\" prints the budget row quoted in `poe.note`. The six uplinks are SFP28 cages (25G SFP in the vendor's table), so they source no power; only Ethernet1-48 are PSE ports. This spec used to describe PoE+ in prose while declaring no `poe-pse` capability and no budget, so the box powered nothing and `show power inline` answered that no port on it could supply power."
+  "notes": "Vendor rows read 2026-11-20. Arista CCS-720XP data sheet \"https://www.arista.com/assets/data/pdf/Datasheets/CCS-720XP-Datasheet.pdf\": \"720XP-48Y6 - 48 x 10M-1GbE RJ45 @ 30W - Uplinks: 6x 25G\", with the series described as \"Managed 802.3af/at/bt power services ... up to 90W per RJ45 port\" (90 W is the 48TXH-2C-S mGig port, not this one). Ordering information names \"CCS-720XP-48Y6-F ... 48 x 10/100M-1G PoE, 6 x 25G SFP switch, front to rear air, 1 x 1050W AC\". Arista 720XP/722XPM 1RU quick start guide \"https://www.arista.com/en/qsg-720xp-series-1ru/720xp-series-1ru-overview\" prints the budget row quoted in `poe.note`. The six uplinks are SFP28 cages (25G SFP in the vendor's table), so they source no power; only Ethernet1-48 are PSE ports. This spec used to describe PoE+ in prose while declaring no `poe-pse` capability and no budget, so the box powered nothing and `show power inline` answered that no port on it could supply power. Connectors and rates added 2026-11-24 from the same sheet: the 1G Platforms specification table gives \"10M-1G UTP (30W 802.3af/at)\" = 48 and \"1G or 10G or 25G SFP\" = 6, which is where the rj45 cage on the copper ports and the SFP28 cage with speedCaps [1000,10000,25000] on Ethernet49-54 come from. Before this, the six uplinks were declared as 25G copper ethernet with no cage at all, so a 25G \"RJ45\" was offered to the cabled model, and the 48 template ports named no connector or rate list. The PoE figures were already right (982 W from the \"1Default Available PoE Power (Typ/Min) 982 W / 957 W\" row) and are unchanged."
 }

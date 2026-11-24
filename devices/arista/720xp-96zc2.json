@@ -1,0 +1,320 @@
+{
+  "vendor": "arista",
+  "model": "720XP-96ZC2",
+  "label": "Arista 720XP-96ZC2",
+  "category": "switch",
+  "description": "Arista CCS-720XP-96ZC2 - 2RU Cognitive Campus PoE leaf: 80x 2.5G RJ45 @ 60W (Ethernet1-80), 16x 5G RJ45 @ 60W (Ethernet81-96), 4x 25G SFP28 (Ethernet97-100) and 2x 100G QSFP28 (Ethernet101-102). 1,727 W of PoE with the two 1050 W supplies it ships with.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli",
+    "poe-pse",
+    "802.3af",
+    "802.3at",
+    "802.3bt"
+  ],
+  "portTemplate": {
+    "prefix": "Ethernet",
+    "start": 1,
+    "count": 80,
+    "type": "ethernet",
+    "connector": "rj45",
+    "speed": "2.5G",
+    "speedCaps": [
+      100,
+      1000,
+      2500
+    ],
+    "poeOut": 60
+  },
+  "interfaces": [
+    {
+      "name": "Ethernet81",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "5G",
+      "speedCaps": [
+        100,
+        1000,
+        2500,
+        5000
+      ],
+      "poeOut": 60,
+      "poeOutClass": "PoE++"
+    },
+    {
+      "name": "Ethernet82",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "5G",
+      "speedCaps": [
+        100,
+        1000,
+        2500,
+        5000
+      ],
+      "poeOut": 60,
+      "poeOutClass": "PoE++"
+    },
+    {
+      "name": "Ethernet83",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "5G",
+      "speedCaps": [
+        100,
+        1000,
+        2500,
+        5000
+      ],
+      "poeOut": 60,
+      "poeOutClass": "PoE++"
+    },
+    {
+      "name": "Ethernet84",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "5G",
+      "speedCaps": [
+        100,
+        1000,
+        2500,
+        5000
+      ],
+      "poeOut": 60,
+      "poeOutClass": "PoE++"
+    },
+    {
+      "name": "Ethernet85",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "5G",
+      "speedCaps": [
+        100,
+        1000,
+        2500,
+        5000
+      ],
+      "poeOut": 60,
+      "poeOutClass": "PoE++"
+    },
+    {
+      "name": "Ethernet86",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "5G",
+      "speedCaps": [
+        100,
+        1000,
+        2500,
+        5000
+      ],
+      "poeOut": 60,
+      "poeOutClass": "PoE++"
+    },
+    {
+      "name": "Ethernet87",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "5G",
+      "speedCaps": [
+        100,
+        1000,
+        2500,
+        5000
+      ],
+      "poeOut": 60,
+      "poeOutClass": "PoE++"
+    },
+    {
+      "name": "Ethernet88",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "5G",
+      "speedCaps": [
+        100,
+        1000,
+        2500,
+        5000
+      ],
+      "poeOut": 60,
+      "poeOutClass": "PoE++"
+    },
+    {
+      "name": "Ethernet89",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "5G",
+      "speedCaps": [
+        100,
+        1000,
+        2500,
+        5000
+      ],
+      "poeOut": 60,
+      "poeOutClass": "PoE++"
+    },
+    {
+      "name": "Ethernet90",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "5G",
+      "speedCaps": [
+        100,
+        1000,
+        2500,
+        5000
+      ],
+      "poeOut": 60,
+      "poeOutClass": "PoE++"
+    },
+    {
+      "name": "Ethernet91",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "5G",
+      "speedCaps": [
+        100,
+        1000,
+        2500,
+        5000
+      ],
+      "poeOut": 60,
+      "poeOutClass": "PoE++"
+    },
+    {
+      "name": "Ethernet92",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "5G",
+      "speedCaps": [
+        100,
+        1000,
+        2500,
+        5000
+      ],
+      "poeOut": 60,
+      "poeOutClass": "PoE++"
+    },
+    {
+      "name": "Ethernet93",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "5G",
+      "speedCaps": [
+        100,
+        1000,
+        2500,
+        5000
+      ],
+      "poeOut": 60,
+      "poeOutClass": "PoE++"
+    },
+    {
+      "name": "Ethernet94",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "5G",
+      "speedCaps": [
+        100,
+        1000,
+        2500,
+        5000
+      ],
+      "poeOut": 60,
+      "poeOutClass": "PoE++"
+    },
+    {
+      "name": "Ethernet95",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "5G",
+      "speedCaps": [
+        100,
+        1000,
+        2500,
+        5000
+      ],
+      "poeOut": 60,
+      "poeOutClass": "PoE++"
+    },
+    {
+      "name": "Ethernet96",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "5G",
+      "speedCaps": [
+        100,
+        1000,
+        2500,
+        5000
+      ],
+      "poeOut": 60,
+      "poeOutClass": "PoE++"
+    },
+    {
+      "name": "Ethernet97",
+      "type": "ethernet",
+      "connector": "sfp28",
+      "speed": "25G",
+      "speedCaps": [
+        1000,
+        10000,
+        25000
+      ]
+    },
+    {
+      "name": "Ethernet98",
+      "type": "ethernet",
+      "connector": "sfp28",
+      "speed": "25G",
+      "speedCaps": [
+        1000,
+        10000,
+        25000
+      ]
+    },
+    {
+      "name": "Ethernet99",
+      "type": "ethernet",
+      "connector": "sfp28",
+      "speed": "25G",
+      "speedCaps": [
+        1000,
+        10000,
+        25000
+      ]
+    },
+    {
+      "name": "Ethernet100",
+      "type": "ethernet",
+      "connector": "sfp28",
+      "speed": "25G",
+      "speedCaps": [
+        1000,
+        10000,
+        25000
+      ]
+    },
+    {
+      "name": "Ethernet101",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet102",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G"
+    }
+  ],
+  "icon": "switch",
+  "color": "#0ea5e9",
+  "poe": {
+    "budgetW": 1727,
+    "sourceUrl": "https://www.arista.com/assets/data/pdf/Datasheets/CCS-720XP-Datasheet.pdf",
+    "note": "Arista CCS-720XP data sheet, \"Power Supply Models (mGig Platforms)\" table, 720XP-96ZC2 column: \"Default Power Supply 2 x 1050 W\" and \"1Default Available PoE Power (Typ/Min) 1727 W / 1707 W\" (footnote 1: PoE power available under typical load / under maximum load). 1727 W is the figure recorded here, as the two supplies the -F and -2F SKUs ship with."
+  },
+  "notes": "Census from the Arista sheet, read 2026-11-24. Product Highlights: \"80 x mGig (100M - 2.5Gb) RJ45 @ 60W / 16 x mGig (100M - 5Gb) RJ45 @ 60W / Uplinks: 4x 25G, 2x 100G\". The Ports row agrees: \"96 RJ45 / 4 25G SFP / 2 100G QSFP\", and the port-class rows give 80 x 100M-2.5G UTP (60W 802.3bt) and 16 x 100M-5G UTP (60W 802.3bt). Ordering information: \"CCS-720XP-96ZC2-2F Arista 720XP, 80x2.5G, 16x5G POE, 4x25G SFP/2x100G QSFP switch, front to rear air, AC (2)\". The 60 W ports are 802.3bt, which is why that token is declared. Cage names come from the series ordering line for the 48TXH-2C-S (\"4x25G SFP28, 2x100G QSFP\") and the overview (\"Modular SFP+, SFP28 and QSFP28 uplinks\"). Port NAMES are the catalogue numbering: the sheet states counts and rates, not Ethernet numbers, so numbering continues after the 96 copper ports as it does on the 48ZC2. The 100G QSFP28 ports carry no speedCaps list: the sheet states only \"100G QSFP\", and a 40G rate would be a claim the document does not make. The four 25G and two 100G ports are cages and source no power; only Ethernet1-96 are PSE ports. The sheet also lists a 720XP-96ZC2-M-S build, whose only difference is system memory (8 GB rather than 4 GB) on the same 96 RJ45 ports, four 25G and two 100G cages and the same power supplies: memory is not a field this catalogue models, so it is one spec rather than two."
+}

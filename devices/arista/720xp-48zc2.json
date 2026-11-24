@@ -3,284 +3,206 @@
   "model": "720XP-48ZC2",
   "label": "720XP-48ZC2",
   "category": "switch",
-  "description": "Arista CCS-720XP-48ZC2 - 1RU Cognitive Campus leaf: 40x 100M-2.5G mGig PoE+ (Ethernet1-40), 8x 100M-5G mGig PoE+ (Ethernet41-48), 4x 25G SFP (Ethernet49-52), 2x 100G QSFP (Ethernet53-54).",
+  "description": "Arista CCS-720XP-48ZC2 - 1RU Cognitive Campus leaf: 40x 2.5G RJ45 @ 30W (Ethernet1-40), 8x 5G RJ45 @ 60W (Ethernet41-48), 4x 25G SFP28 (Ethernet49-52), 2x 100G QSFP28 (Ethernet53-54). 909 W of PoE with the single 1050 W supply it ships with.",
   "capabilities": [
     "l2-forward",
     "l3-forward",
-    "cli"
+    "cli",
+    "poe-pse",
+    "802.3af",
+    "802.3at",
+    "802.3bt"
   ],
+  "portTemplate": {
+    "prefix": "Ethernet",
+    "start": 1,
+    "count": 40,
+    "type": "ethernet",
+    "connector": "rj45",
+    "speed": "2.5G",
+    "speedCaps": [
+      100,
+      1000,
+      2500
+    ],
+    "poeOut": 30
+  },
   "interfaces": [
-    {
-      "name": "Ethernet1",
-      "type": "ethernet",
-      "speed": "2.5G"
-    },
-    {
-      "name": "Ethernet2",
-      "type": "ethernet",
-      "speed": "2.5G"
-    },
-    {
-      "name": "Ethernet3",
-      "type": "ethernet",
-      "speed": "2.5G"
-    },
-    {
-      "name": "Ethernet4",
-      "type": "ethernet",
-      "speed": "2.5G"
-    },
-    {
-      "name": "Ethernet5",
-      "type": "ethernet",
-      "speed": "2.5G"
-    },
-    {
-      "name": "Ethernet6",
-      "type": "ethernet",
-      "speed": "2.5G"
-    },
-    {
-      "name": "Ethernet7",
-      "type": "ethernet",
-      "speed": "2.5G"
-    },
-    {
-      "name": "Ethernet8",
-      "type": "ethernet",
-      "speed": "2.5G"
-    },
-    {
-      "name": "Ethernet9",
-      "type": "ethernet",
-      "speed": "2.5G"
-    },
-    {
-      "name": "Ethernet10",
-      "type": "ethernet",
-      "speed": "2.5G"
-    },
-    {
-      "name": "Ethernet11",
-      "type": "ethernet",
-      "speed": "2.5G"
-    },
-    {
-      "name": "Ethernet12",
-      "type": "ethernet",
-      "speed": "2.5G"
-    },
-    {
-      "name": "Ethernet13",
-      "type": "ethernet",
-      "speed": "2.5G"
-    },
-    {
-      "name": "Ethernet14",
-      "type": "ethernet",
-      "speed": "2.5G"
-    },
-    {
-      "name": "Ethernet15",
-      "type": "ethernet",
-      "speed": "2.5G"
-    },
-    {
-      "name": "Ethernet16",
-      "type": "ethernet",
-      "speed": "2.5G"
-    },
-    {
-      "name": "Ethernet17",
-      "type": "ethernet",
-      "speed": "2.5G"
-    },
-    {
-      "name": "Ethernet18",
-      "type": "ethernet",
-      "speed": "2.5G"
-    },
-    {
-      "name": "Ethernet19",
-      "type": "ethernet",
-      "speed": "2.5G"
-    },
-    {
-      "name": "Ethernet20",
-      "type": "ethernet",
-      "speed": "2.5G"
-    },
-    {
-      "name": "Ethernet21",
-      "type": "ethernet",
-      "speed": "2.5G"
-    },
-    {
-      "name": "Ethernet22",
-      "type": "ethernet",
-      "speed": "2.5G"
-    },
-    {
-      "name": "Ethernet23",
-      "type": "ethernet",
-      "speed": "2.5G"
-    },
-    {
-      "name": "Ethernet24",
-      "type": "ethernet",
-      "speed": "2.5G"
-    },
-    {
-      "name": "Ethernet25",
-      "type": "ethernet",
-      "speed": "2.5G"
-    },
-    {
-      "name": "Ethernet26",
-      "type": "ethernet",
-      "speed": "2.5G"
-    },
-    {
-      "name": "Ethernet27",
-      "type": "ethernet",
-      "speed": "2.5G"
-    },
-    {
-      "name": "Ethernet28",
-      "type": "ethernet",
-      "speed": "2.5G"
-    },
-    {
-      "name": "Ethernet29",
-      "type": "ethernet",
-      "speed": "2.5G"
-    },
-    {
-      "name": "Ethernet30",
-      "type": "ethernet",
-      "speed": "2.5G"
-    },
-    {
-      "name": "Ethernet31",
-      "type": "ethernet",
-      "speed": "2.5G"
-    },
-    {
-      "name": "Ethernet32",
-      "type": "ethernet",
-      "speed": "2.5G"
-    },
-    {
-      "name": "Ethernet33",
-      "type": "ethernet",
-      "speed": "2.5G"
-    },
-    {
-      "name": "Ethernet34",
-      "type": "ethernet",
-      "speed": "2.5G"
-    },
-    {
-      "name": "Ethernet35",
-      "type": "ethernet",
-      "speed": "2.5G"
-    },
-    {
-      "name": "Ethernet36",
-      "type": "ethernet",
-      "speed": "2.5G"
-    },
-    {
-      "name": "Ethernet37",
-      "type": "ethernet",
-      "speed": "2.5G"
-    },
-    {
-      "name": "Ethernet38",
-      "type": "ethernet",
-      "speed": "2.5G"
-    },
-    {
-      "name": "Ethernet39",
-      "type": "ethernet",
-      "speed": "2.5G"
-    },
-    {
-      "name": "Ethernet40",
-      "type": "ethernet",
-      "speed": "2.5G"
-    },
     {
       "name": "Ethernet41",
       "type": "ethernet",
-      "speed": "5G"
+      "connector": "rj45",
+      "speed": "5G",
+      "speedCaps": [
+        100,
+        1000,
+        2500,
+        5000
+      ],
+      "poeOut": 60,
+      "poeOutClass": "PoE++"
     },
     {
       "name": "Ethernet42",
       "type": "ethernet",
-      "speed": "5G"
+      "connector": "rj45",
+      "speed": "5G",
+      "speedCaps": [
+        100,
+        1000,
+        2500,
+        5000
+      ],
+      "poeOut": 60,
+      "poeOutClass": "PoE++"
     },
     {
       "name": "Ethernet43",
       "type": "ethernet",
-      "speed": "5G"
+      "connector": "rj45",
+      "speed": "5G",
+      "speedCaps": [
+        100,
+        1000,
+        2500,
+        5000
+      ],
+      "poeOut": 60,
+      "poeOutClass": "PoE++"
     },
     {
       "name": "Ethernet44",
       "type": "ethernet",
-      "speed": "5G"
+      "connector": "rj45",
+      "speed": "5G",
+      "speedCaps": [
+        100,
+        1000,
+        2500,
+        5000
+      ],
+      "poeOut": 60,
+      "poeOutClass": "PoE++"
     },
     {
       "name": "Ethernet45",
       "type": "ethernet",
-      "speed": "5G"
+      "connector": "rj45",
+      "speed": "5G",
+      "speedCaps": [
+        100,
+        1000,
+        2500,
+        5000
+      ],
+      "poeOut": 60,
+      "poeOutClass": "PoE++"
     },
     {
       "name": "Ethernet46",
       "type": "ethernet",
-      "speed": "5G"
+      "connector": "rj45",
+      "speed": "5G",
+      "speedCaps": [
+        100,
+        1000,
+        2500,
+        5000
+      ],
+      "poeOut": 60,
+      "poeOutClass": "PoE++"
     },
     {
       "name": "Ethernet47",
       "type": "ethernet",
-      "speed": "5G"
+      "connector": "rj45",
+      "speed": "5G",
+      "speedCaps": [
+        100,
+        1000,
+        2500,
+        5000
+      ],
+      "poeOut": 60,
+      "poeOutClass": "PoE++"
     },
     {
       "name": "Ethernet48",
       "type": "ethernet",
-      "speed": "5G"
+      "connector": "rj45",
+      "speed": "5G",
+      "speedCaps": [
+        100,
+        1000,
+        2500,
+        5000
+      ],
+      "poeOut": 60,
+      "poeOutClass": "PoE++"
     },
     {
       "name": "Ethernet49",
       "type": "ethernet",
-      "speed": "25G"
+      "connector": "sfp28",
+      "speed": "25G",
+      "speedCaps": [
+        1000,
+        10000,
+        25000
+      ]
     },
     {
       "name": "Ethernet50",
       "type": "ethernet",
-      "speed": "25G"
+      "connector": "sfp28",
+      "speed": "25G",
+      "speedCaps": [
+        1000,
+        10000,
+        25000
+      ]
     },
     {
       "name": "Ethernet51",
       "type": "ethernet",
-      "speed": "25G"
+      "connector": "sfp28",
+      "speed": "25G",
+      "speedCaps": [
+        1000,
+        10000,
+        25000
+      ]
     },
     {
       "name": "Ethernet52",
       "type": "ethernet",
-      "speed": "25G"
+      "connector": "sfp28",
+      "speed": "25G",
+      "speedCaps": [
+        1000,
+        10000,
+        25000
+      ]
     },
     {
       "name": "Ethernet53",
       "type": "ethernet",
+      "connector": "qsfp28",
       "speed": "100G"
     },
     {
       "name": "Ethernet54",
       "type": "ethernet",
+      "connector": "qsfp28",
       "speed": "100G"
     }
   ],
   "icon": "switch",
-  "color": "#0ea5e9"
+  "color": "#0ea5e9",
+  "poe": {
+    "budgetW": 909,
+    "sourceUrl": "https://www.arista.com/assets/data/pdf/Datasheets/CCS-720XP-Datasheet.pdf",
+    "note": "Arista CCS-720XP data sheet, \"Power Supply Models (mGig Platforms)\" table, 720XP-48ZC2 column: \"Default Power Supply 1 x 1050 W\" and \"1Default Available PoE Power (Typ/Min) 909 W / 894 W\" (footnote 1: typical / maximum load). 909 W is the shipped single-supply figure; the dual-1050W row prints 1802/1787 and the dual-2000W row 3659/3644, neither of which is the default build. The 48Y6 sibling in this catalogue records 982 W from the same table on the same 1 x 1050 W supply."
+  },
+  "notes": "Census from the Arista sheet, read 2026-11-24. Product Highlights: \"40 x mGig (100M - 2.5Gb) RJ45 @ 30W / 8 x mGig (100M - 5Gb) RJ45 @ 60W / Uplinks: 4x 25G, 2x 100G\"; the Ports row gives \"48 RJ45 / 4 25G SFP / 2 100G QSFP\". Ordering information: \"CCS-720XP-48ZC2-F Arista 720XP, 40 x 100M-2.5G PoE, 8 x 100M-5G PoE, 4 x 25G SFP, 2 x 100G QSFP switch, front to rear air, 1 x 1050W AC\". The two power tiers are the sheet's own: the 40 2.5G ports are 30 W (802.3af/at) and the 8 5G ports are 60 W (802.3bt), which is why `802.3bt` is declared here and not on the 48Y6. This spec used to describe PoE+ on all 48 copper ports while declaring no `poe-pse`, no budget and no `poeOut` on any port, so the box powered nothing and `show power inline` said its ports could not supply power; the port classes now come from the vendor row rather than from the description. The SFP28/QSFP28 cage names come from the ordering line, and the two 100G QSFP28 ports carry no speedCaps list because the sheet states only \"100G QSFP\". The four 25G and two 100G uplinks are cages and source no power."
 }

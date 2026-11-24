@@ -1,0 +1,196 @@
+{
+  "vendor": "arista",
+  "model": "720XP-24ZY4",
+  "label": "Arista 720XP-24ZY4",
+  "category": "switch",
+  "description": "Arista CCS-720XP-24ZY4 - 1RU Cognitive Campus PoE leaf: 16x 2.5G RJ45 @ 30W (Ethernet1-16), 8x 5G RJ45 @ 60W (Ethernet17-24) and 4x 25G SFP28 uplinks (Ethernet25-28). 509 W of PoE with the single 650 W supply it ships with; no 100G QSFP ports on this model.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli",
+    "poe-pse",
+    "802.3af",
+    "802.3at",
+    "802.3bt"
+  ],
+  "portTemplate": {
+    "prefix": "Ethernet",
+    "start": 1,
+    "count": 16,
+    "type": "ethernet",
+    "connector": "rj45",
+    "speed": "2.5G",
+    "speedCaps": [
+      100,
+      1000,
+      2500
+    ],
+    "poeOut": 30
+  },
+  "interfaces": [
+    {
+      "name": "Ethernet17",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "5G",
+      "speedCaps": [
+        100,
+        1000,
+        2500,
+        5000
+      ],
+      "poeOut": 60,
+      "poeOutClass": "PoE++"
+    },
+    {
+      "name": "Ethernet18",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "5G",
+      "speedCaps": [
+        100,
+        1000,
+        2500,
+        5000
+      ],
+      "poeOut": 60,
+      "poeOutClass": "PoE++"
+    },
+    {
+      "name": "Ethernet19",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "5G",
+      "speedCaps": [
+        100,
+        1000,
+        2500,
+        5000
+      ],
+      "poeOut": 60,
+      "poeOutClass": "PoE++"
+    },
+    {
+      "name": "Ethernet20",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "5G",
+      "speedCaps": [
+        100,
+        1000,
+        2500,
+        5000
+      ],
+      "poeOut": 60,
+      "poeOutClass": "PoE++"
+    },
+    {
+      "name": "Ethernet21",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "5G",
+      "speedCaps": [
+        100,
+        1000,
+        2500,
+        5000
+      ],
+      "poeOut": 60,
+      "poeOutClass": "PoE++"
+    },
+    {
+      "name": "Ethernet22",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "5G",
+      "speedCaps": [
+        100,
+        1000,
+        2500,
+        5000
+      ],
+      "poeOut": 60,
+      "poeOutClass": "PoE++"
+    },
+    {
+      "name": "Ethernet23",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "5G",
+      "speedCaps": [
+        100,
+        1000,
+        2500,
+        5000
+      ],
+      "poeOut": 60,
+      "poeOutClass": "PoE++"
+    },
+    {
+      "name": "Ethernet24",
+      "type": "ethernet",
+      "connector": "rj45",
+      "speed": "5G",
+      "speedCaps": [
+        100,
+        1000,
+        2500,
+        5000
+      ],
+      "poeOut": 60,
+      "poeOutClass": "PoE++"
+    },
+    {
+      "name": "Ethernet25",
+      "type": "ethernet",
+      "connector": "sfp28",
+      "speed": "25G",
+      "speedCaps": [
+        1000,
+        10000,
+        25000
+      ]
+    },
+    {
+      "name": "Ethernet26",
+      "type": "ethernet",
+      "connector": "sfp28",
+      "speed": "25G",
+      "speedCaps": [
+        1000,
+        10000,
+        25000
+      ]
+    },
+    {
+      "name": "Ethernet27",
+      "type": "ethernet",
+      "connector": "sfp28",
+      "speed": "25G",
+      "speedCaps": [
+        1000,
+        10000,
+        25000
+      ]
+    },
+    {
+      "name": "Ethernet28",
+      "type": "ethernet",
+      "connector": "sfp28",
+      "speed": "25G",
+      "speedCaps": [
+        1000,
+        10000,
+        25000
+      ]
+    }
+  ],
+  "icon": "switch",
+  "color": "#0ea5e9",
+  "poe": {
+    "budgetW": 509,
+    "sourceUrl": "https://www.arista.com/assets/data/pdf/Datasheets/CCS-720XP-Datasheet.pdf",
+    "note": "Arista CCS-720XP data sheet, \"Power Supply Models (mGig Platforms)\" table, 720XP-24ZY4 column: \"Default Power Supply 1 x 650 W\" and \"1Default Available PoE Power (Typ/Min) 509 W / 494 W\". 509 W is the typical-load figure for the shipped single supply; the dual-650W row prints 1062/1047 and the dual-500W-DC row 809/794, neither of which is the default build."
+  },
+  "notes": "Census from the Arista sheet, read 2026-11-24. Product Highlights: \"16 x mGig (100M - 2.5Gb) RJ45 @ 30W / 8x mGig (100M - 5Gb) RJ45 @ 60W / Uplinks: 4x 25G\". The Ports row agrees (\"24 RJ45 / 4 25G SFP\", 100G QSFP row \"N/A\"), and the class rows give 16 x 100M-2.5G UTP (30W 802.3af/at) and 8 x 100M-5G UTP (60W 802.3bt). Ordering information: \"CCS-720XP-24ZY4-F Arista 720XP, 16 x 100M-2.5G PoE, 8 x 100M-5G PoE, 4 x 25G SFP switch, front to rear air, 1 x 650W AC\". Port names continue the catalogue numbering after the 24 copper ports; the four SFP28 cages source no power."
+}

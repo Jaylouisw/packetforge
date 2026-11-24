@@ -1,0 +1,97 @@
+{
+  "vendor": "arista",
+  "model": "720XP-48TXH-2C-S-5G",
+  "label": "Arista 720XP-48TXH-2C-S-5G",
+  "category": "switch",
+  "description": "Arista CCS-720XP-48TXH-2C-S-5G - 1RU high-power Cognitive Campus PoE leaf, 5G variant of the 48TXH-2C-S (100M-5G mGig): 48x 5G RJ45 @ 90W (Ethernet1-48), 4x 25G SFP28 (Ethernet49-52) and 2x 100G QSFP28 (Ethernet53-54). 1,775 W of PoE with the two 1050 W supplies it ships with.",
+  "capabilities": [
+    "l2-forward",
+    "l3-forward",
+    "cli",
+    "poe-pse",
+    "802.3af",
+    "802.3at",
+    "802.3bt"
+  ],
+  "portTemplate": {
+    "prefix": "Ethernet",
+    "start": 1,
+    "count": 48,
+    "type": "ethernet",
+    "connector": "rj45",
+    "speed": "5G",
+    "speedCaps": [
+      100,
+      1000,
+      2500,
+      5000
+    ],
+    "poeOut": 90
+  },
+  "interfaces": [
+    {
+      "name": "Ethernet49",
+      "type": "ethernet",
+      "connector": "sfp28",
+      "speed": "25G",
+      "speedCaps": [
+        1000,
+        10000,
+        25000
+      ]
+    },
+    {
+      "name": "Ethernet50",
+      "type": "ethernet",
+      "connector": "sfp28",
+      "speed": "25G",
+      "speedCaps": [
+        1000,
+        10000,
+        25000
+      ]
+    },
+    {
+      "name": "Ethernet51",
+      "type": "ethernet",
+      "connector": "sfp28",
+      "speed": "25G",
+      "speedCaps": [
+        1000,
+        10000,
+        25000
+      ]
+    },
+    {
+      "name": "Ethernet52",
+      "type": "ethernet",
+      "connector": "sfp28",
+      "speed": "25G",
+      "speedCaps": [
+        1000,
+        10000,
+        25000
+      ]
+    },
+    {
+      "name": "Ethernet53",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G"
+    },
+    {
+      "name": "Ethernet54",
+      "type": "ethernet",
+      "connector": "qsfp28",
+      "speed": "100G"
+    }
+  ],
+  "icon": "switch",
+  "color": "#0ea5e9",
+  "poe": {
+    "budgetW": 1775,
+    "sourceUrl": "https://www.arista.com/assets/data/pdf/Datasheets/CCS-720XP-Datasheet.pdf",
+    "note": "Arista CCS-720XP data sheet, \"Power Supply Models (mGig Platforms)\" table, 720XP-48TXH-2C-S column: \"Default Power Supply 2 x 1050 W\" and \"1Default Available PoE Power (Typ/Min) 1775 W / 1744 W\"."
+  },
+  "notes": "Census from the Arista sheet, read 2026-11-24. Product Highlights family line: \"48x mGig (100M - 10G) RJ45 @ 90W / Uplinks: 2x 100G, 4x 25G\". The mGig specification table gives Ports \"48 RJ45 / 4 25G SFP / 2 100G QSFP\" and the class rows 48 x 100M-10G UTP (90W 802.3bt) for the -S and 0 for the -S-5G, whose copper ports are the 100M-5G (90W) row. Ordering information names both: \"CCS-720XP-48TXH-2C-S-2F ... 48 x 100M - 10G, 90W POE, 4x25G SFP28, 2x100G QSFP switch\" and \"CCS-720XP-48TXH-2C-S-5G-2F ... 48 x 100M - 5G, 90W POE, 4x25G SFP28, 2x100G QSFP switch\". The SFP28/QSFP28 cage names come from those lines. This is the 90 W member of the family; the 48Y6 and 48ZC2 copper ports are 30 W and 60 W."
+}
