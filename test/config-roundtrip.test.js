@@ -148,6 +148,14 @@ console.log('No model in the catalogue rejects its own running-config:');
     ports[0].mask = '255.255.255.0';
     ports[0].description = 'seeded by the round-trip test';
     dev.config = dev.config || {};
+    // A catalogue model string can be longer than a hostname may be, and the printer writes the device's name
+    // as the `hostname` line when nobody has renamed it - so for the four models in that state the sweep was
+    // asking the console to replay a name a box refuses (`% Hostname must have more than 1 character and must
+    // not exceed the maximum 63 character length.`, research/hostname-length-limit.md). The fixture, not the
+    // rule, is the impossible part: a real box's default hostname is short ("Switch"), never a 100-character
+    // model description. Seed a legal one so the rest of the config is still exercised, and leave the printer
+    // question (should an unrenamed device print a `hostname` line at all?) to its own run.
+    if (dev.name.length > 63) dev.config.hostname = 'rt-' + dev.id;
     // Only a box that forwards can hold a route. Seeding one on a media converter was asking this sweep to replay
     // configuration the console refuses (#1387): the fixture, not the printer, was the impossible part.
     if (typeof dev.hasCap === 'function' && dev.hasCap('l3-forward')) {

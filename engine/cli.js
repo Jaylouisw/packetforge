@@ -1571,6 +1571,12 @@ class CliSession {
       // The same destructive silence, one keypress away: `hostname ?` renamed the box to "?" (#1685).
       const keyed = this._helpKeyRefusal(name, 'hostname <name>', 'the name is unchanged');
       if (keyed) return [keyed];
+      // A name past 63 characters is refused by the box, in the box's own sentence, and the name it keeps is
+      // the one it had (research/hostname-length-limit.md). Asked before the numeric warning: a 64-digit name
+      // breaches both rules, and the box answers the one that stops the command rather than the one that
+      // merely comments on it.
+      const tooLong = hostnameLengthRefusal(name, this.device.config.hostname || this.device.name);
+      if (tooLong) return tooLong;
       // The name is all digits: a real box prints `% Hostname contains one or more illegal
       // characters.` and then takes the name anyway - "the name will be accepted after an error is
       // returned", and its own transcript's prompt reads `123(config)#`. This console renamed in
@@ -8546,6 +8552,39 @@ function runCommands(device, topology, simulator, commands) {
 // hostname-illegal-characters.md lists each of those open questions.
 function hostnameIsAllNumeric(name) {
   return /^[0-9]+$/.test(name);
+}
+
+// The 63-character ceiling, and the box's own sentence for breaking it.
+//
+// Every IOS and IOS XE `hostname` reference states the limit as a rule of the command - "Names must be 63
+// characters or fewer" (Cisco IOS Configuration Fundamentals Command Reference, F through K, `hostname`) -
+// and, unlike the character rules around it, the outcome of breaking this one is recorded: a Cisco Learning
+// Network thread that walks the boundary (`hostname` length) shows a 63-character name taken, a 64-character
+// name refused, and the prompt after the refusal unchanged:
+//
+//     a2345678901234567890(config)#hostname a234...90123        <- 64 characters
+//     % Hostname must have more than 1 character and must not exceed the maximum 63 character length.
+//     a2345678901234567890(config)#
+//
+// So it is a refusal, not a truncation, and the sentence is fixed - it names both bounds in one line. Only the
+// upper one is enforced here: no capture shows a one-character name refused, and the limit the vendor
+// publishes is the 63, so the lower half of the sentence stays unmodelled rather than guessed
+// (research/hostname-length-limit.md records the split and what would settle it).
+//
+// The alternative - storing whatever was typed - is what the console did, and the catalogue makes it
+// reachable without anyone typing: a device's default name here is its model string, and four of them are
+// past the ceiling (three Huawei NetEngine 8000 M14 variants at 100 characters, one Aruba Instant On 1830 at
+// 71). That is why `test/config-roundtrip.test.js` seeds a legal name for those four - the printed config
+// carries `hostname <default name>`, so the sweep was replaying a name a box refuses.
+const HOSTNAME_MAX = 63;
+
+// The refusal for a name past the ceiling, or null when the name fits. `current` is the name the box keeps -
+// a refusal leaves it alone, and the second line says so, because a rename that failed silently is the fault
+// this console's missing-argument rule was written against (#1497).
+function hostnameLengthRefusal(name, current) {
+  if (name.length <= HOSTNAME_MAX) return null;
+  return ['% Hostname must have more than 1 character and must not exceed the maximum 63 character length.',
+    '  ' + name.length + ' characters, so the name is still "' + current + '"'];
 }
 
 // How a box writes a mask that is a legal dotted quad but not a run of ones. The mask has no prefix length,

@@ -60,9 +60,11 @@ honest one anyway, and the wider question is open below.
 1. **Is any non-numeric breach also accepted after the warning?** `hostname r1_r2`, `hostname 9r1`,
    `hostname r1.` - the console is silent. One console capture of the prompt (or a `show
    running-config`) after `hostname \99` on any IOS 12.4/15.x/17.x box would settle the class.
-2. **What happens past 63 characters?** The limit is published; the outcome is not (truncate? a
-   different message? silent accept?). The console does not check length: "illegal characters" is a
-   claim about characters, and inventing a message for size is exactly the invention this loop forbids.
+2. **What happens past 63 characters?** *Answered after this note was written*: a transcript of the
+   boundary shows the 64-character name **refused**, in the sentence `% Hostname must have more than 1
+   character and must not exceed the maximum 63 character length.`, with the old name still in the prompt.
+   The console now refuses at that ceiling - `research/hostname-length-limit.md` carries the sources, the
+   change and the half of that sentence (the lower bound) that no capture settles.
 3. **What a real box does with a multi-word name** (`hostname core switch 1`). Not documented anywhere
    found. The console keeps every word (#19/#21) and stays silent; nothing here changes that.
 4. **Whether the warning repeats on re-typing the same name.** The console warns every time, because the

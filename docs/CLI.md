@@ -4640,14 +4640,49 @@ carries it, `device.name` carries it, and `show running-config` prints `hostname
 the line is skipped. It is the vendor's sentence verbatim, full stop included, rather than this
 console's `% Warning:` prefix, because recognising the line is the reason to print it.
 
-**Only the numeric case is modelled, and that is deliberate.** The same reference prints the line for
+**Only the numeric case is warned about, and that is deliberate.** The same reference prints the line for
 `hostname \99` and then stops — it never shows the prompt that follows — and says nothing at all about
-a leading digit, an underscore, a trailing dot, a name past 63 characters or an interior space. Half
-the catalogue's own default names are vendor model strings (`ZenWiFi ET8`, `FRITZ!Box 7590`) that
-breach the rule, so extending the check to the whole rule would put a warning on every replayed
-running-config — a warning storm, which is how a warning stops being read. Those shapes stay silent
-and stay open; [research/hostname-illegal-characters.md](../research/hostname-illegal-characters.md)
-lists each one and the capture that would settle it.
+a leading digit, an underscore, a trailing dot or an interior space. Half the catalogue's own default
+names are vendor model strings (`ZenWiFi ET8`, `FRITZ!Box 7590`) that breach the rule, so extending the
+warning to the whole rule would put a line on every replayed running-config — a warning storm, which is
+how a warning stops being read. Those shapes stay silent and stay open;
+[research/hostname-illegal-characters.md](../research/hostname-illegal-characters.md) lists each one and
+the capture that would settle it. The length ceiling is not one of them: it is a **refusal**, below.
+
+## A name past 63 characters is refused — the ceiling is a rule, not a recommendation
+
+Every IOS and IOS XE `hostname` reference states the ceiling as part of the command ("Names must be 63
+characters or fewer"), and — unlike the character rules around it — a recorded session shows the outcome of
+breaking it: the 63-character name taken, the 64-character name refused, the prompt still reading the old name.
+
+```
+sw1(config)#hostname aaaaaaaa…aaaaaaaa        <- 64 characters
+% Hostname must have more than 1 character and must not exceed the maximum 63 character length.
+  64 characters, so the name is still "sw1"
+sw1(config)#
+```
+
+The first line is the box's, verbatim, `%` included — it names both bounds in one sentence, which is why it is
+worth recognising on a console. The second is this console's: the count so the operator can trim without
+counting by eye, and the name that survived, because a rename that failed in silence is the fault the
+missing-argument refusal was written against (#1497).
+
+The ceiling was absent, so `hostname <64 characters>` renamed the device everywhere — the config line,
+`device.name`, the prompt, the canvas label — into a name no box will hold. It is asked **before** the
+all-numeric warning, because a 64-digit name breaches both rules and a box answers the one that stops the
+command rather than the one that merely comments on it.
+
+**The lower half of that sentence is not modelled.** "must have more than 1 character" says a one-character
+name is refused too, and no capture in hand shows it: the transcript's author tested 63 and 64. A one-character
+name is still taken here. [research/hostname-length-limit.md](../research/hostname-length-limit.md) records
+that gap, the CAT6500 report of a 12-character *prompt* field that is a different fact, and the printer
+question the ceiling exposed (an unrenamed device prints its model-string name as the `hostname` line, which is
+why four catalogue models needed a legal name seeded in `test/config-roundtrip.test.js`).
+
+`test/hostname-length-limit.test.js` pins 25 checks: the 63-character name taken whole, 64 refused with both
+lines and every piece of state unchanged, a 200-character name refused with its own count, a 64-digit name
+answered by the length rule alone, spaces counted at the boundary in a multi-word name, and `no hostname`
+still working after a refusal.
 
 `test/hostname-illegal-characters.test.js` pins 45 checks: the exact line and the resulting
 `123(config)#` prompt, the name reaching `show running-config`, the line printed once and before the
