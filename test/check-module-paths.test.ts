@@ -295,6 +295,38 @@ function refusalIsLoud(root: string): void {
   ok(runChecker(root, ['no-such-directory']).status === 2, 'a path that does not exist exits 2');
 }
 
+// What "the whole tree" means, computed the way the checker computes it: the same five
+// directories, the same skipped names, the same two extensions. Written out here rather than
+// imported so the assertion fails if the checker's own walk stops agreeing with the tree -
+// importing its list would compare it with itself and could only ever pass.
+const SCANNED_DIRS: readonly string[] = ['scripts', 'engine', 'server', 'web', 'test'];
+const UNSCANNED_NAMES: ReadonlySet<string> =
+  new Set(['node_modules', '.git', 'dist', 'coverage', '.github-cache']);
+
+function sourceFilesOnDisk(root: string): string[] {
+  const found: string[] = [];
+  const walk = (directory: string): void => {
+    let entries: import('node:fs').Dirent[];
+    try {
+      entries = fs.readdirSync(directory, { withFileTypes: true });
+    } catch {
+      return;
+    }
+    for (const entry of entries) {
+      if (UNSCANNED_NAMES.has(entry.name)) continue;
+      const full = path.join(directory, entry.name);
+      if (entry.isDirectory()) {
+        walk(full);
+        continue;
+      }
+      if (!entry.isFile() || !/\.(js|ts)$/.test(entry.name)) continue;
+      found.push(path.relative(root, full).split(path.sep).join('/'));
+    }
+  };
+  for (const directory of SCANNED_DIRS) walk(path.join(root, directory));
+  return found.sort();
+}
+
 // The rule applies to the rule's implementation, and this is where the latent findings live.
 function thisRepositoryResolves(): void {
   console.log('\nThis repository resolves under its own guard:');
@@ -305,7 +337,17 @@ function thisRepositoryResolves(): void {
   ok(run.status === 0, 'the real tree has no unresolvable require()',
     rows.map(describe).join('; ') || 'exit ' + run.status);
   ok(rows.length === 0, 'and reports no finding', rows.map(describe).join('; '));
-  ok(listed.length > 400, 'it scanned the whole tree', listed.length + ' files');
+  // "The whole tree" is a number this test can compute, not a constant. It used to be `> 400`:
+  // a floor rather than a claim about this tree, and a floor is what a truncated listing slid
+  // under - two CI legs listed 268 and 354 files out of 566 and the only assertion that noticed
+  // said "more than 400 files", which named a threshold instead of the shortfall. Comparing
+  // against what the disk holds makes a partial scan say how many files it lost and which.
+  const onDisk = sourceFilesOnDisk(ROOT);
+  const missing = onDisk.filter((file) => listed.indexOf(file) === -1);
+  ok(listed.length === onDisk.length,
+    'it scanned the whole tree, every source file the disk holds',
+    listed.length + ' listed, ' + onDisk.length + ' on disk' +
+      (missing.length ? '; first missing: ' + missing.slice(0, 3).join(', ') : ''));
   ok(listed.indexOf('scripts/check-module-paths.ts') !== -1, 'the checker scans itself');
   ok(listed.indexOf('test/check-module-paths.test.ts') !== -1, 'and this test');
 

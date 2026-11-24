@@ -668,4 +668,11 @@ function main(argv: readonly string[]): number {
   return 1;
 }
 
-process.exit(main(process.argv.slice(2)));
+// The exit code, not `process.exit()`. On POSIX a pipe is written asynchronously, so exiting from
+// the statement that printed loses whatever is still queued behind the write: `--list` over this
+// tree is 566 lines, main() returns while the tail is still in the stream, and the listing arrived
+// truncated at 268 and at 354 lines in two CI legs - a green tree going red on "it scanned the
+// whole tree" because the checker's own output was cut in half. Setting the code and letting the
+// event loop drain writes every line and exits with exactly the same status. This is the same
+// failure `scripts/run-tests.js` documents in its own summary path.
+process.exitCode = main(process.argv.slice(2));
