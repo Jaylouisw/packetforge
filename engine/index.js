@@ -2,7 +2,7 @@
 // index.js — public engine API.
 const net = require('./net');
 const { Device, Interface, CAPABILITIES } = require('./device');
-const { Link } = require('./link');
+const { Link } = require('./link.ts');
 const { Topology, expandInterfaces, isPosition, positionProblem, WORLD_LIMIT,
   DOC_FORMAT, DOC_VERSION, documentStampProblem } = require('./topology');
 const { Simulator } = require('./simulator');

@@ -1,7 +1,7 @@
 'use strict';
 // topology.js -- a container of devices + links, with (de)serialization.
 const { Device } = require('./device');
-const { Link, labelProblem, normaliseLabel } = require('./link');
+const { Link, labelProblem, normaliseLabel } = require('./link.ts');
 const media = require('./media');
 const ifaceName = require('./iface-name');
 const net = require('./net');

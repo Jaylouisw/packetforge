@@ -41,6 +41,7 @@ Line counts are `wc -l` on the converted file, so they include the annotations.
 | File | Lines | Converted by |
 |---|---|---|
 | `engine/segment.ts` | 236 | `53bee0cf` (#2483) |
+| `engine/link.ts` | 243 | `628fc3f5` (#2494) |
 
 The SHA is the commit in the converting branch; the pull request number is the handle that survives
 the squash merge onto `main`, so cite the number when the commit id has moved on.
@@ -50,6 +51,14 @@ lines are the interfaces describing the shapes the walk reads. Nothing was left 
 two places a type is written by hand rather than inferred are `engine/lag.js`'s
 `memberSuspension()`, which is still JavaScript, and `VlanConfig.mode`, which is `string` because
 the untyped `Interface` constructor cannot prove the union `'access' | 'trunk'`.
+
+Row two is the shapes rather than the walk: `engine/link.js` went from 139 lines to 243, and the net
+104 are `LinkOptions` (what a saved document is allowed to hand the constructor), `SerializedLink`
+(what `serialize()` writes back, with `label?` and `stateSinceMs?` because both are written only when
+they mean something) and the two `unknown`s — a cable `label` and a `stateSinceMs`, the only two
+values on that boundary a document can put anything into. Both are narrowed by the guards that were
+already there (`labelProblem()`, and `Number()` + `isFinite()`), so the annotations describe the
+rules #1513 and #1323 put in place rather than restating them more weakly.
 
 ## What is installed
 
