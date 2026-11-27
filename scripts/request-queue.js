@@ -3,8 +3,8 @@
 // Hardware request queue.
 //
 // Lists open hardware requests from GitHub, checks each one against the catalog
-// and prints what is ready to implement. Zero dependencies: it shells out to the
-// `gh` CLI, which is already how this repo is maintained.
+// and prints what is ready to implement. Zero dependencies: it reads GitHub's
+// REST API through scripts/github-api.ts.
 //
 //   node scripts/request-queue.js              # the queue
 //   node scripts/request-queue.js --json       # machine-readable
@@ -24,11 +24,12 @@
 // missing field, and the queue quotes the thread rather than guessing.
 
 const path = require('path');
-const tracker = require('./forgejo-api');
+const tracker = require('./github-api.ts');
 const { loadCatalog } = require('../devices/registry');
 
-// The tracker is Forgejo. `gh` would either not exist or, worse, quietly answer about the GitHub
-// mirror - a backlog nobody is working on.
+// The tracker is GitHub, and the client above is the one place that knows it. It reads the REST
+// API directly rather than shelling out to `gh`, which on a machine that has it installed and
+// authenticated answers about whichever repository it thinks you mean.
 const REPO = tracker.OWNER + '/' + tracker.NAME;
 
 // The issue form renders each field as '### Label' followed by the value.

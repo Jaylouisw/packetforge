@@ -53,7 +53,10 @@ name: CI
 #   - The disk bound on the image build, and `docker system df` before and after, which
 #     `scripts/check-ci-disk-hygiene.js` enforces against every workflow file.
 #   - The merge gate: nothing merges until every other check on the head has reported
-#     green, and at least both test legs are among them.
+#     green, and at least both test legs are among them. A head that is merely behind the
+#     base is updated (`PUT .../update-branch`) and the new head is verified by a dispatch,
+#     because the run a bot's push starts is held for an approval nobody gives. A refusal
+#     exits non-zero - a gate that cannot gate must not report green (#1610).
 
 on:
   push:
@@ -601,14 +604,26 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     needs: [test, docker, typecheck]
-    if: always() && github.event_name == 'pull_request'
+    # A dispatch is how a branch updated by this job's own token gets verified: GitHub
+    # holds the run that the bot's push starts for an approval nobody is there to give
+    # (#1612: run 46044715475, `action_required`, zero jobs), and a dispatch is not held.
+    # The step resolves the pull request from the branch when the event carries none.
+    if: always() && (github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch')
     permissions:
-      contents: read
+      # A merge is a push to the base, and both `mergePullRequest` and
+      # `PUT .../update-branch` need write. With `contents: read` the merge is refused
+      # with `Resource not accessible by integration (mergePullRequest)` - observed on
+      # #1612 - which is why the old fallback below never actually merged anything (#1610).
+      contents: write
       # `enablePullRequestAutoMerge` and the comment this job posts when it cannot arm.
       pull-requests: write
       # `gh pr checks` reads check runs and legacy commit statuses.
       checks: read
       statuses: read
+      # #1610: a merge authored by the run's own token starts no `push` run, so the step
+      # dispatches ci.yml on the base branch to verify the commit it just landed. Without
+      # this permission that dispatch is a 403 and the notice says main went unverified.
+      actions: write
     env:
       # A merge performed with the run's own GITHUB_TOKEN does not start the `push` run on
       # `main`: GitHub does not start workflows for events authored by that token. A PAT
@@ -617,13 +632,31 @@ jobs:
       GH_TOKEN: ${{ secrets.PF_AUTOMERGE_TOKEN || github.token }}
       HAVE_PAT: ${{ secrets.PF_AUTOMERGE_TOKEN != '' }}
       NUMBER: ${{ github.event.pull_request.number }}
-      HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+      HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+      # Set by the behind-the-base path below, which dispatches this workflow on the head
+      # ref. The dispatched run must not update the branch again: that would be a second
+      # run to verify an update nobody verified the first time, and an unbounded loop.
+      DISPATCHED: ${{ github.event_name == 'workflow_dispatch' }}
     steps:
       - name: Merge once every check has reported green
         run: |
           set -u
           repo="$GITHUB_REPOSITORY"
+          base="${GITHUB_BASE_REF:-main}"
+          head_ref="${GITHUB_HEAD_REF:-${GITHUB_REF_NAME:-}}"
           note() { echo "::warning title=Auto-merge::${*}" >&2; echo "${*}" >&2; }
+          notice() { echo "::notice title=Auto-merge::${*}" >&2; echo "${*}" >&2; }
+
+          # A dispatch carries no pull request: find the one whose head this branch is. A
+          # dispatch on `main` has none, and that is a stand-down, not a failure.
+          if [ -z "${NUMBER:-}" ]; then
+            NUMBER=$(gh pr list --repo "${repo}" --head "$head_ref" --state open --json number --jq '.[0].number // ""' 2>/dev/null || true)
+            if [ -z "${NUMBER:-}" ]; then
+              echo "no open pull request has ${head_ref} as its head - this dispatch is a plain matrix run, so there is nothing to merge"
+              exit 0
+            fi
+            echo "this dispatch is for #${NUMBER} (${head_ref})"
+          fi
 
           state=$(gh api "repos/${repo}/pulls/${NUMBER}" --jq .state 2>/dev/null || true)
           case "${state:-}" in
@@ -639,6 +672,14 @@ jobs:
             note "#${NUMBER}: not merging - the head moved from ${HEAD_SHA} to ${head_now:-<unreadable>} while this run was in flight"
             exit 0
           fi
+
+          # `strict` is on, so a head that is behind `base` is BLOCKED however green it is,
+          # and no number of green checks makes it mergeable. Read that with the draft flag
+          # so it is a decision instead of a refusal met after the fact (#1610). Neither
+          # value can contain a comma, so `join(",")` is safe to split.
+          pr=$(gh api "repos/${repo}/pulls/${NUMBER}" --jq '[.draft, .mergeable_state] | join(",")' 2>/dev/null || true)
+          draft=$(printf '%s' "$pr" | cut -d, -f1)
+          merge_state=$(printf '%s' "$pr" | cut -d, -f2)
 
           checks=$(gh pr checks "$NUMBER" --repo "$repo" --json name,state,bucket 2>/dev/null || true)
           if [ -z "${checks:-}" ]; then
@@ -670,17 +711,17 @@ jobs:
 
           # The log is public on a public repository, but a refusal nobody reads is the same
           # as no refusal: the reason goes on the pull request as well, the way the archived
-          # copy posted it when the logs were behind a login. Nothing here can turn a green
-          # run red - a comment that cannot be posted is a warning.
+          # copy posted it when the logs were behind a login. A comment that cannot be
+          # posted is a warning; the exit status below is what carries the verdict.
           post_note() {
             [ -s "${RUNNER_TEMP:-/tmp}/arm-note.txt" ] || return 0
             gh pr comment "$NUMBER" --repo "$repo" --body-file "${RUNNER_TEMP:-/tmp}/arm-note.txt" 2>/dev/null \
               || echo "#${NUMBER}: could not post the reason as a comment"
           }
-          refuse() {   # $1 = "arm" or "merge", $2 = what the CLI said
+          refuse() {   # $1 = "arm", "merge" or "gate"; $2 = what the API or the CLI said
             note "#${NUMBER}: every check on ${HEAD_SHA} is green and the $1 was refused: $2"
             {
-              echo "**Arm auto-merge went green but could not $1 this pull request.**"
+              echo "**Arm auto-merge went green and this pull request was not merged.**"
               echo
               echo "Every check on \`${HEAD_SHA}\` is \`pass\`, so the gate approved the change; the $1 call was refused:"
               echo
@@ -691,29 +732,104 @@ jobs:
               echo "The branch is untouched. This comment exists because a refused $1 is a person's problem, and the job log is not where they will look."
             } >> "${RUNNER_TEMP:-/tmp}/arm-note.txt"
             post_note
-            exit 0
+            # #1610: this used to `exit 0`. A gate that cannot gate printed the same tick as
+            # one that merged, so a queue that merged nothing looked healthy for a migration.
+            # `Arm auto-merge` is not a required check, so a red here blocks nothing - it is
+            # the only signal that the queue has stopped.
+            exit 1
+          }
+          update_branch() {
+            if out=$(gh api -X PUT "repos/${repo}/pulls/${NUMBER}/update-branch" \
+                       -f expected_head_sha="$HEAD_SHA" 2>&1); then
+              return 0
+            fi
+            printf '%s\n' "$out" > "${RUNNER_TEMP:-/tmp}/update-branch.txt"
+            return 1
+          }
+          # The one refusal that is not a person's problem. `PUT .../update-branch` moves the
+          # base's commits under the head, GitHub fires a `synchronize`, and the run that
+          # starts on the new head merges this pull request itself - so the update is
+          # progress and this run stays green. `expected_head_sha` is what makes it safe to
+          # call after reading checks: a head that moved is a 422, never an update of a tree
+          # nobody judged.
+          settle_behind() {   # $1 = what the CLI said; returns 1 when that is not this refusal
+            case "$1" in
+              *"not up to date"*|*"behind the base"*|*"must be up to date"*|*"Update branch"*) ;;
+              *) return 1 ;;
+            esac
+            if update_branch; then
+              notice "#${NUMBER}: ${1} - updated the branch onto ${base}; the push that follows starts a run on the new head, which merges this pull request once its own checks are green"
+              exit 0
+            fi
+            refuse gate "the branch is behind ${base} and GitHub would not update it: $(cat "${RUNNER_TEMP:-/tmp}/update-branch.txt" 2>/dev/null || echo 'no answer')"
           }
 
+          if [ "$draft" = "true" ]; then
+            note "#${NUMBER}: not merging - the pull request is a draft"
+            exit 0
+          fi
+
+          # A green head that is behind: update it now rather than spending a merge call on
+          # a refusal this run already has the answer to.
+          if [ "$merge_state" = "behind" ]; then
+            if [ "$DISPATCHED" = "true" ]; then
+              refuse gate "the branch is behind ${base} again, one run after it was updated. Updating it a second time would need a third run to verify what the second one did, and there is nobody to approve the run a bot's push starts - set PF_AUTOMERGE_TOKEN, which merges on its own without a dispatch"
+            fi
+            if update_branch; then
+              notice "#${NUMBER}: every check on ${HEAD_SHA} is green and the branch is behind ${base} - updated it, and dispatched ci.yml on $head_ref to verify the new head (the run the bot's push starts is held for approval: #1612)"
+              if gh workflow run ci.yml --repo "$repo" --ref "$head_ref" >/dev/null 2>&1; then
+                exit 0
+              fi
+              refuse gate "the branch was updated onto ${base} but the run that would verify the new head could not be dispatched, and the run the update itself starts is held for a manual approval that nothing will give"
+            fi
+            refuse gate "the branch is behind ${base} and GitHub would not update it: $(cat "${RUNNER_TEMP:-/tmp}/update-branch.txt" 2>/dev/null || echo 'no answer')"
+          fi
           # `--auto` is the closest thing to `merge_when_checks_succeed`: it defers to
           # branch protection's required checks and reviews rather than merging into them.
-          # Everything here has already reported green, so it merges immediately when there
-          # is nothing else outstanding.
-          if out=$(gh pr merge "$NUMBER" --repo "$repo" --squash --auto 2>&1); then
-            echo "#${NUMBER}: armed for a squash merge of ${HEAD_SHA} - every check on it is green"
-          else
+          # It is tried only with a PAT, for one reason: an armed merge happens seconds
+          # later, after this step has exited, so a merge the token performs that way can
+          # never be followed by the dispatch below - and `main` would be left unverified,
+          # which is the third half of #1610. With the run's own token the merge is direct,
+          # which is synchronous, so the dispatch can happen in the same step.
+          merged=0
+          direct=1
+          if [ "${HAVE_PAT:-false}" = "true" ]; then
+            if out=$(gh pr merge "$NUMBER" --repo "$repo" --squash --auto 2>&1); then
+              echo "#${NUMBER}: armed for a squash merge of ${HEAD_SHA} - every check on it is green"
+              exit 0
+            fi
             case "$out" in
-              *"Auto-merge is not allowed"*|*"auto-merge is not enabled"*|*AutoMerge*)
-                echo "auto-merge is not enabled on this repository - merging now instead, because every check on ${HEAD_SHA} is green"
-                if out=$(gh pr merge "$NUMBER" --repo "$repo" --squash 2>&1); then
-                  echo "#${NUMBER}: merged ${HEAD_SHA} - every check on it was green"
-                else
-                  refuse merge "$out"
-                fi ;;
+              *"Auto-merge is not allowed"*|*"auto-merge is not enabled"*|*AutoMerge*| *"not accessible by integration"*|*"Resource not accessible"*)
+                echo "this identity cannot arm auto-merge - merging now instead, because every check on ${HEAD_SHA} is green" ;;
               *)
+                settle_behind "$out" || true
                 refuse arm "$out" ;;
             esac
           fi
 
-          if [ "${HAVE_PAT:-false}" != "true" ]; then
-            echo "::notice title=Auto-merge::this merge was made with the run's own token, so the push run on main does not start - set PF_AUTOMERGE_TOKEN or dispatch ci.yml by hand to verify main"
+          if [ "$direct" = "1" ]; then
+            if out=$(gh pr merge "$NUMBER" --repo "$repo" --squash 2>&1); then
+              echo "#${NUMBER}: merged ${HEAD_SHA} - every check on it was green"
+              merged=1
+            else
+              # `mergeable_state` is computed asynchronously and lags a push by a few
+              # seconds, so "clean" can still meet a base that moved. The refusal is read
+              # once before it is final.
+              settle_behind "$out" || true
+              refuse merge "$out"
+            fi
+          fi
+
+          # A merge performed with the run's own token starts no `push` run on `base`:
+          # GitHub does not start workflows for events authored by that token. The commit
+          # that landed is then the one commit nothing verified, which is what a PAT is
+          # for; the dispatch asks for the same matrix without one. `workflow_dispatch` is
+          # on this workflow for exactly this reason, and the concurrency group is per
+          # commit, so this run and that one cannot cancel each other.
+          if [ "$merged" = "1" ] && [ "${HAVE_PAT:-false}" != "true" ]; then
+            if gh workflow run ci.yml --repo "$repo" --ref "$base" >/dev/null 2>&1; then
+              echo "#${NUMBER}: merged with the run's token, so ci.yml was dispatched on ${base} to verify the merge commit"
+            else
+              note "#${NUMBER}: merged with the run's token and the ci.yml dispatch failed - ${base} is unverified until someone dispatches it; set PF_AUTOMERGE_TOKEN to remove the need"
+            fi
           fi
