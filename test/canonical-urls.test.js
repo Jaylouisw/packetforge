@@ -1,11 +1,16 @@
 #!/usr/bin/env node
 /**
- * The canonical-URL guard has to be able to fail.
+ * The canonical-URL guard has to be able to fail - in both directions.
  *
- * `scripts/check-canonical-urls.js` exists because the project moved to Forgejo and the links did
- * not follow: the README said to clone from GitHub, the hardware-request button opened a GitHub
- * issue form, and SECURITY.md sent vulnerability reports to a GitHub advisory page. Nothing failed
- * when that happened, because a stale URL is invisible to every other test.
+ * `scripts/check-canonical-urls.js` was written when the project moved off GitHub for a self-hosted
+ * Forgejo instance: the README said to clone from GitHub, the hardware-request button opened a
+ * GitHub issue form, and SECURITY.md sent vulnerability reports to a GitHub advisory page. Nothing
+ * failed when that happened, because a stale URL is invisible to every other test.
+ *
+ * On 2026-11-27 the move was reversed and the rule was inverted rather than deleted. So this suite
+ * proves the new direction twice over: a Forgejo URL planted in the tree is caught and named, and a
+ * GitHub URL planted the same way passes. An inverted rule that nobody has seen pass is as untested
+ * as a guard nobody has seen fail.
  *
  * A guard nobody has seen fail is a guard that might be checking nothing - this repo has been bitten
  * by exactly that (a cage invariant comparing a port to itself, which could never fail). So this
@@ -32,6 +37,13 @@ function ok(cond, name) {
 
 const ROOT = path.join(__dirname, '..');
 const rel = function (p) { return path.relative(ROOT, p).replace(/\\/g, '/'); };
+
+// The archive URL the guard must now catch, assembled from parts rather than written as a literal.
+// A literal here would be a real stale link inside the test that hunts stale links, and the checker
+// scans `.js` too - it would fail the tree it is testing, and the exception that would fix that is
+// the one exemption this file should never need. (The dead-badge probe below is built the same way,
+// for the same reason.)
+const ARCHIVE_REPO = 'https://' + 'git.jayw.uk' + '/jaylouisw/packetforge';
 
 // ===========================================================================================
 // Putting the README back - the half of this suite that used to be a hope
@@ -249,17 +261,28 @@ function problemsWithCode(code) {
 
 console.log('\nThe canonical home is defined in exactly one place');
 {
-  ok(/^https:\/\//.test(canonical.BASE), 'the base is an absolute URL');
+  ok(/^https:\/\/github\.com\//.test(canonical.BASE), 'the base is a GitHub URL');
   ok(canonical.BASE.indexOf(canonical.OWNER) !== -1, 'and names the owner');
   ok(canonical.BASE.indexOf(canonical.NAME) !== -1, 'and the repository');
   ok(canonical.FORBIDDEN.length > 0, 'the old location is recorded as forbidden');
   ok(canonical.clone() === canonical.BASE + '.git', 'clone() appends .git');
-  ok(canonical.source('docs/CLI.md') === canonical.BASE + '/src/branch/main/docs/CLI.md',
-    'source() uses the branch path form, not GitHub\'s /blob/');
+  ok(canonical.source('docs/CLI.md') === canonical.BASE + '/blob/main/docs/CLI.md',
+    "source() uses GitHub's /blob/<branch>/<path> form, not the archive's /src/branch/");
   ok(canonical.issue('device_request.yml') === canonical.BASE + '/issues/new?template=device_request.yml',
     'issue() builds a template URL');
-  ok(canonical.badge('ci.yml').indexOf('/badges/workflows/ci.yml/badge.svg') !== -1,
-    'badge() uses the workflow badge path');
+  ok(canonical.badge('ci.yml') === canonical.BASE + '/actions/workflows/ci.yml/badge.svg',
+    "badge() uses GitHub's /actions/workflows/<file>/badge.svg form");
+  ok(canonical.actions('ci.yml') === canonical.BASE + '/actions/workflows/ci.yml',
+    'actions() is where a reader watches that run');
+  // The rules have to be inverted, not merely changed: the archive is what is stale now.
+  ok(canonical.FORBIDDEN.some(function (re) { return re.test(ARCHIVE_REPO); }),
+    'the archive repository URL is forbidden');
+  ok(canonical.FORBIDDEN_IN_DOCS.some(function (re) { return re.test('http://odin:3000/api/v1'); }),
+    'and a document may not hand a reader the lab-network API address');
+  ok(!canonical.FORBIDDEN.some(function (re) { return re.test(canonical.clone()); }) &&
+     !canonical.FORBIDDEN.some(function (re) { return re.test(canonical.source('docs/CLI.md')); }) &&
+     !canonical.FORBIDDEN_IN_DOCS.some(function (re) { return re.test(canonical.badge('ci.yml')); }),
+    'and nothing canonical is forbidden - the rule points one way, at the archive');
 }
 
 console.log('\nThe repository is clean right now');
@@ -281,14 +304,14 @@ console.log('\nA stale URL outside the probe paths is reported once, and blames 
   // post-probe assertions fail and each named the wrong cause.
   const stray = path.join(ROOT, 'docs', '__stray_stale.md');
   try {
-    fs.writeFileSync(stray, 'Clone from https://github.com/Jaylouisw/packetforge.git instead.\n');
+    fs.writeFileSync(stray, 'Clone from ' + ARCHIVE_REPO + '.git instead.\n');
     const res = check();
     // Counted against the planted file, not the tree: this assertion must hold whether or not some
     // other file is also stale, for the same reason the probes' cleanup checks do.
     const mine = res.problems.filter(function (p) { return p.file === 'docs/__stray_stale.md'; });
     ok(mine.length === 1, 'one stale URL is one problem, not one per assertion that looks (' +
       mine.length + ')');
-    ok(mine.length === 1 && mine[0].code === 'E_STALE_REPO_URL' && mine[0].line === 1,
+    ok(mine.length === 1 && mine[0].code === 'E_STALE_FORGE_URL' && mine[0].line === 1,
       'and it is reported against the file and the line it is written on');
     ok(res.problems.every(function (p) {
       return p.file !== 'docs/__drift_probe.md' && p.file !== 'docs/__tooling_probe.md';
@@ -300,18 +323,24 @@ console.log('\nA stale URL outside the probe paths is reported once, and blames 
     'and the stray file leaves no trace in the report once it is removed');
 }
 
-console.log('\nIt catches a stale repository URL');
+console.log('\nIt catches a stale archive URL, and names the file and the URL');
 {
   const probe = path.join(ROOT, 'docs', '__drift_probe.md');
   try {
-    fs.writeFileSync(probe, 'Clone from https://github.com/Jaylouisw/packetforge.git and be happy.\n');
+    fs.writeFileSync(probe, 'Clone from ' + ARCHIVE_REPO + '.git and be happy.\n');
     const res = check();
-    ok(!res.ok, 'the check fails on a planted GitHub URL');
+    ok(!res.ok, 'the check fails on a planted Forgejo URL');
     const hit = res.problems.filter(function (p) {
-      return p.file === 'docs/__drift_probe.md' && p.code === 'E_STALE_REPO_URL';
+      return p.file === 'docs/__drift_probe.md' && p.code === 'E_STALE_FORGE_URL';
     });
     ok(hit.length === 1, 'and names the file and the code');
     ok(hit.length === 1 && hit[0].line === 1, 'with the line number');
+    // The failure has to say *what* about the line is wrong. "line 1" alone sends the reader off to
+    // find out, which is the moment they stop reading the report.
+    ok(hit.length === 1 && hit[0].detail.indexOf(ARCHIVE_REPO) !== -1,
+      'and quotes the offending URL in the message');
+    ok(hit.length === 1 && hit[0].detail.indexOf(canonical.BASE) !== -1,
+      'and says where the project actually lives');
   } finally {
     try { fs.unlinkSync(probe); } catch (e) { /* nothing to clean */ }
   }
@@ -320,19 +349,77 @@ console.log('\nIt catches a stale repository URL');
   ok(!fs.existsSync(probe), 'and the probe file is gone from disk');
 }
 
-console.log('\nIt catches GitHub-only tooling instructions');
+console.log('\nIt lets a canonical GitHub URL through - the rule points one way');
 {
-  const probe = path.join(ROOT, 'docs', '__tooling_probe.md');
+  // The half that makes this an inverted rule rather than a second blanket ban. A file with the
+  // clone URL, a /blob link, an issue link and the badge is a *correct* file, and the guard must say
+  // so: a checker that failed on both hosts would pass every test above and still be useless.
+  const probe = path.join(ROOT, 'docs', '__github_probe.md');
   try {
-    fs.writeFileSync(probe, 'If this fails: gh auth status\n');
+    fs.writeFileSync(probe, [
+      'Clone from ' + canonical.clone() + ' and be happy.',
+      'Read [' + 'docs/CLI.md](' + canonical.source('docs/CLI.md') + ').',
+      'File at ' + canonical.issue('device_request.yml') + '.',
+      '![CI](' + canonical.badge('ci.yml') + ')',
+      ''
+    ].join('\n'));
     const res = check();
-    ok(!res.ok, 'the check fails on a `gh` instruction');
-    const hit = res.problems.filter(function (p) {
-      return p.file === 'docs/__tooling_probe.md' && p.code === 'E_GITHUB_ONLY_TOOLING';
-    });
-    ok(hit.length === 1, 'naming the GitHub-only tooling');
+    ok(problemsFor('docs/__github_probe.md').length === 0,
+      'no problem is filed against a file that points at ' + canonical.BASE);
+    ok(res.ok, 'so the tree is still called clean (' + res.problems.length + ' problems)');
   } finally {
     try { fs.unlinkSync(probe); } catch (e) { /* nothing to clean */ }
+  }
+  ok(!fs.existsSync(probe), 'and the probe file is gone from disk');
+}
+
+console.log('\nIt catches prose that calls the archive the workshop');
+{
+  // A URL check cannot see the difference between "moved back on 2026-11-27" and "we develop over
+  // there", and the second sentence is worse than a dead link: it is a working link to the wrong
+  // workshop. The rule that catches it has to fire on the claim and stay quiet on the history.
+  const probe = path.join(ROOT, 'docs', '__tooling_probe.md');
+  try {
+    fs.writeFileSync(probe, 'Development, CI and releases run on ' + 'Forge' + 'jo; that is where work happens.\n');
+    const res = check();
+    ok(!res.ok, 'the check fails on prose that makes the archive the workshop');
+    const hit = res.problems.filter(function (p) {
+      return p.file === 'docs/__tooling_probe.md' && p.code === 'E_FORGE_AS_HOME';
+    });
+    ok(hit.length === 1, 'naming E_FORGE_AS_HOME');
+    // The other half: the same page is allowed to say the archive exists, in the past tense. If it
+    // were not, the migration note could not be written at all.
+    fs.writeFileSync(probe,
+      'Between 2026-11-08 and 2026-11-27 the repository was hosted on ' + 'Forge' + 'jo, which is\n' +
+      'now a read-only archive. Development, CI and releases run on GitHub.\n');
+    const dated = check();
+    ok(problemsFor('docs/__tooling_probe.md').length === 0,
+      'and a dated, past-tense note about the archive passes');
+    ok(dated.ok, 'so the tree is not called dirty by its own history');
+  } finally {
+    try { fs.unlinkSync(probe); } catch (e) { /* nothing to clean */ }
+  }
+}
+
+console.log('\nA document may not hand a reader the lab-network address, but a script may use it');
+{
+  // `odin:3000` is a real hostname that resolves to one LAN and nothing else. In a document that a
+  // stranger is meant to follow it is a dead end, so the rule is scoped to `.md`; the tracker
+  // scripts still address that API and are not the reader's business.
+  const doc = path.join(ROOT, 'docs', '__api_probe.md');
+  const script = path.join(ROOT, 'scripts', '__api_probe.js');
+  try {
+    fs.writeFileSync(doc, 'Read the queue at http://' + 'odin' + ':3000/api/v1/repos/x/y/issues\n');
+    fs.writeFileSync(script, 'const API = "http://' + 'odin' + ':3000/api/v1";\n');
+    const res = check();
+    const hit = res.problems.filter(function (p) { return p.file === 'docs/__api_probe.md'; });
+    ok(hit.length === 1 && hit[0].code === 'E_STALE_FORGE_URL',
+      'a markdown page carrying the internal address is caught');
+    ok(res.problems.every(function (p) { return p.file !== 'scripts/__api_probe.js'; }),
+      'and a script that addresses it is not - it has to talk to something');
+  } finally {
+    try { fs.unlinkSync(doc); } catch (e) { /* nothing to clean */ }
+    try { fs.unlinkSync(script); } catch (e) { /* nothing to clean */ }
   }
 }
 
@@ -363,56 +450,91 @@ console.log('\nEvery exception says why');
       rel + ' has a reason a reader can judge');
     ok(fs.existsSync(path.join(ROOT, rel)), rel + ' exists');
   }
-  // README must never be allowed to advertise GitHub as the place to work: it is the file everyone
-  // follows, and it is where a stale clone instruction does the most damage.
+  // README must never be allowed to advertise the archive as the place to work: it is the file
+  // everyone follows, and it is where a stale clone instruction does the most damage.
   ok(!Object.prototype.hasOwnProperty.call(canonical.ALLOW, 'README.md'),
     'README is not exempt - it is the file everyone follows');
 
-  // CONTRIBUTING is different now, and the difference is deliberate rather than convenient:
-  // contributions arrive through the GitHub mirror, so this file has to be able to name it. What must
-  // stay true is that it still sends people to the forge to read and to clone, and that the exemption
-  // says why rather than being a silent skip.
-  ok(Object.prototype.hasOwnProperty.call(canonical.ALLOW, 'CONTRIBUTING.md'),
-    'CONTRIBUTING may name the mirror, and the exemption is reasoned');
-  ok(/github/i.test(canonical.ALLOW['CONTRIBUTING.md'] || ''),
-    'and the reason says GitHub means the shopfront, not the workshop');
+  // CONTRIBUTING used to be the reasoned exception, because contributions arrived through the GitHub
+  // mirror and it had to name it. There is no mirror now: the workshop and the shopfront are the
+  // same door, so the exemption is gone and the file is held to the same rule as every other page.
+  ok(!Object.prototype.hasOwnProperty.call(canonical.ALLOW, 'CONTRIBUTING.md'),
+    'CONTRIBUTING needs no exemption any more - GitHub is the only door');
   const contributing = fs.readFileSync(path.join(ROOT, 'CONTRIBUTING.md'), 'utf8');
   ok(contributing.indexOf(canonical.BASE) !== -1,
-    'CONTRIBUTING still points at the forge as the canonical home');
-  ok(/mirror/i.test(contributing),
-    'and calls GitHub what it is: the mirror, not a second source of truth');
+    'and it points at the canonical home');
+  ok(contributing.indexOf(canonical.clone()) !== -1,
+    'with the clone URL a contributor actually types');
+  ok(contributing.indexOf(canonical.ARCHIVE.base) === -1,
+    'and it does not send anyone to the archive');
+
+  // The remaining exemptions have to be about the archive, not about convenience: each names the
+  // archive on purpose, and the reason says which purpose.
+  ok(Object.prototype.hasOwnProperty.call(canonical.ALLOW, 'docs/MIRRORING.md'),
+    'the migration note may name the archive, and the exemption is reasoned');
+  ok(/archive/i.test(canonical.ALLOW['docs/MIRRORING.md'] || ''),
+    'and the reason says it is the archive being described, not a second home');
 }
 
-console.log('\nThe changelog keeps its history');
+console.log('\nThe changelog and the plans keep their history');
 {
-  // Rewriting a changelog to pretend the move never happened would be a worse lie than a stale
-  // link in a historical entry, so CHANGELOG.md is exempt - deliberately, and visibly.
+  // Rewriting a changelog to pretend a move never happened would be a worse lie than a stale link
+  // in a historical entry, so CHANGELOG.md is exempt - deliberately, and visibly.
   ok(canonical.EXEMPT_FILES.has('CHANGELOG.md'), 'CHANGELOG.md is exempt from the URL rule');
   const text = fs.readFileSync(path.join(ROOT, 'CHANGELOG.md'), 'utf8');
   ok(text.indexOf('github.com') !== -1 || text.indexOf('GitHub') !== -1,
     'and it still records what happened on GitHub');
+
+  // `docs/plans/` is the other half: the reasoning written while the project was on the archive is
+  // evidence about decisions, and re-pointing its links would edit the evidence.
+  ok(canonical.EXEMPT_PREFIXES.indexOf('docs/plans/') !== -1,
+    'docs/plans/ is exempt as a historical record, by prefix');
+  const wikiPlan = path.join(ROOT, 'docs', 'plans', 'wiki-publishing.md');
+  const planText = fs.existsSync(wikiPlan) ? fs.readFileSync(wikiPlan, 'utf8') : '';
+  ok(planText.indexOf(ARCHIVE_REPO + '.wiki.git') !== -1,
+    'and a plan really does still quote an archive URL, so the exemption is load-bearing');
+  ok(check().problems.every(function (p) { return p.file.indexOf('docs/plans/') !== 0; }),
+    'which the check does not report');
 }
 
-console.log('\nThe triage scripts do not depend on the GitHub CLI');
+console.log('\nThe tracker doc names the client an agent has to use');
 {
-  for (const rel of ['scripts/request-queue.js', 'scripts/missing-devices.js']) {
-    const src = fs.readFileSync(path.join(ROOT, rel), 'utf8');
-    ok(!/execFileSync\(\s*['"]gh['"]/.test(src), rel + ' does not shell out to gh');
-    ok(src.indexOf("require('./forgejo-api')") !== -1, rel + ' uses the Forgejo client');
+  // This guard used to fail a `gh` instruction, because the tracker was Forgejo's. Now the absence
+  // of `gh` is the defect: the token file and the curl recipes that replaced it reach an archive
+  // nobody merges into. Both halves - the doc passing, and a doc without `gh` failing - are here.
+  const tracker = fs.readFileSync(path.join(ROOT, 'docs', 'agents', 'issue-tracker.md'), 'utf8');
+  ok(tracker.indexOf(canonical.BASE) !== -1, 'issue-tracker.md names ' + canonical.BASE);
+  ok(/\bgh\s+(issue|pr|auth)\b/.test(tracker), 'and tells an agent to use the gh CLI');
+  ok(tracker.indexOf('secrets') === -1 && tracker.indexOf('.token') === -1,
+    'and no longer sends it looking for a token file');
+  ok(/Fixes #N/.test(tracker), 'it keeps the convention: a PR body that closes an issue opens with Fixes #N');
+  ok(/request surface: off/i.test(tracker), 'and PRs are still not a request surface');
+
+  // The failure direction, planted in a throwaway directory under tmp/ (gitignored), so a probe
+  // cannot be captured into a commit while the suite runs.
+  const os = require('os');
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'pf-tracker-'));
+  try {
+    fs.mkdirSync(path.join(dir, 'docs', 'agents'), { recursive: true });
+    fs.writeFileSync(path.join(dir, 'docs', 'agents', 'issue-tracker.md'),
+      '# Issue tracker\n\nRead the queue with curl from the API.\n');
+    const res = check(dir);
+    ok(res.problems.some(function (p) { return p.code === 'E_TRACKER_NO_GH'; }),
+      'a tracker doc that never mentions gh is caught, with E_TRACKER_NO_GH');
+    ok(res.problems.some(function (p) { return p.code === 'E_TRACKER_NOT_CANONICAL'; }),
+      'and one that does not name the canonical repository is caught too');
+  } finally {
+    fs.rmSync(dir, { recursive: true, force: true });
   }
-  const api = fs.readFileSync(path.join(ROOT, 'scripts/forgejo-api.js'), 'utf8');
-  ok(/type', 'issues'/.test(api) || /params.set\('type', 'issues'\)/.test(api),
-    'the client excludes pull requests from the issue queue (they share a number space)');
-  ok(api.indexOf('token ' + "' + token" + "'") !== -1 || api.indexOf('Authorization') !== -1,
-    'and authenticates');
 }
 
 console.log('\nA badge for a workflow that does not exist is caught');
 {
-  // Forgejo draws a workflow badge it cannot find as `failure` in crimson, forever. The README
-  // carried one for codeql.yml - a workflow deleted with the move off GitHub - so the front page
-  // told every visitor the build was broken while the build was green. A link to a file that is not
-  // there is the same defect this checker exists for, so the checker has to be able to catch it.
+  // A badge is a link that renders its own verdict, and a badge for a workflow that no longer exists
+  // renders the wrong one: GitHub shows nothing, or a red run, while the README claims CI is
+  // watched. The README carried one for codeql.yml - a workflow deleted with the move off GitHub -
+  // so the front page told every visitor the build was broken while the build was green. A link to
+  // a file that is not there is the same defect this checker exists for.
   const original = ORIGINAL.toString('utf8');
   // Built by concatenation on purpose: a contiguous literal here would be a real dead badge link
   // inside this test file, and the checker scans .js too - it would fail the tree it is testing.
@@ -431,9 +553,11 @@ console.log('\nA badge for a workflow that does not exist is caught');
   const residue = problemsWithCode('E_BADGE_NO_WORKFLOW');
   ok(residue.length === 0, 'and no E_BADGE_NO_WORKFLOW problem remains');
   ok(fs.readFileSync(README).equals(ORIGINAL), 'and the README is restored byte for byte');
-  ok(!fs.existsSync(path.join(ROOT, '.forgejo', 'workflows', 'codeql.yml')),
+  ok(!fs.existsSync(path.join(ROOT, '.forgejo', 'workflows', 'codeql.yml')) &&
+     !fs.existsSync(path.join(ROOT, '.github', 'workflows', 'codeql.yml')),
     'this repository genuinely has no codeql.yml, so the badge pointed at nothing');
-  ok(fs.existsSync(path.join(ROOT, '.forgejo', 'workflows', 'ci.yml')),
+  ok(fs.existsSync(path.join(ROOT, '.github', 'workflows', 'ci.yml')) ||
+     fs.existsSync(path.join(ROOT, '.forgejo', 'workflows', 'ci.yml')),
     'and it does have the ci.yml workflow the remaining badge names');
 }
 

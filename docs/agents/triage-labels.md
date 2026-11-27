@@ -36,7 +36,10 @@ match the `[Device]:` / `[hardware]` prefix - and since #2524 `scripts/request-q
 ## Applying
 
 ```sh
-curl -sS -X POST -H "Authorization: token $TOK" -H 'Content-Type: application/json' \
-  -d '{"labels":["device-request","blocked-on-build"]}' \
-  http://odin:3000/api/v1/repos/jaylouisw/packetforge/issues/<N>/labels
+gh issue edit <N> --add-label device-request --add-label blocked-on-build
+gh issue list --label device-request --state open     # what is in the queue
 ```
+
+The labels live in the repository — `.github/labels.yml` is the definition, and `gh label list`
+shows what the tracker actually has. A label added in the web UI and not in that file is the drift
+this section exists to prevent.

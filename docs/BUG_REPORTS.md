@@ -28,10 +28,12 @@ is what this tracker's configuration allows, and the reasoning is worth keeping 
 either side silently breaks the delivery:
 
 - `.github/ISSUE_TEMPLATE/config.yml` sets `blank_issues_enabled: false` and the repository ships
-  YAML issue forms. With those two together, Forgejo answers `GET /issues/new?title=…&body=…` with
-  a redirect to `/issues/new/choose` — the template chooser — and the chooser rebuilds its buttons
-  from the template list, so the title and the body are both dropped before you see a form
-  (`routers/web/repo/issue.go`, and `templates/repo/issue/choose.tmpl` in Forgejo v11).
+  YAML issue forms. With those two together, the tracker answers `GET /issues/new?title=…&body=…`
+  with a redirect to `/issues/new/choose` — the template chooser — and the chooser rebuilds its
+  buttons from the template list, so the title and the body are both dropped before you see a form.
+  (The behaviour was measured on Forgejo v11, `routers/web/repo/issue.go` and
+  `templates/repo/issue/choose.tmpl`, which is where the project's tracker ran until 2026-11-27;
+  GitHub's template chooser has the same shape, which is why the app has not changed.)
 - Adding `?template=bug_report.yml` skips that redirect and renders the form, whose title it
   pre-fills from the query (`new_form.tmpl` reads `.TitleQuery`). It has no consumer for a body: a
   YAML form's text comes from its own fields, so a `body=` parameter is discarded without a word.
