@@ -2177,8 +2177,48 @@ class CliSession {
         }
       }
     } else if (head === 'no' && tokens[1] === 'ip' && tokens[2] === 'name-server') {
-      this.device.config.dnsServers = [];
-      out.push('Name servers cleared');
+      // The no-form names the addresses it removes. The command reference writes it as
+      // `no ip name-server [vrf vrf-name] server-address1 [server-address2...server-address6]` and says so in
+      // words - "To remove the addresses specified, use the no form of this command"
+      // (https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/ipaddr/command/ipaddr-cr-book/ipaddr-i3.html) - and a
+      // switch guide says it in the singular: "To remove a name server address, use the `no ip name-server`
+      // server-address global configuration command" (Catalyst 3750-X/3560-X Software Configuration Guide,
+      // 15.0(2)SE, Administering the Switch). An Oracle Exadata procedure on a 4948 removes three configured
+      // servers with three one-address lines and notes "Each current DNS IP address to be changed needs to be
+      // erased" (https://docs.oracle.com/en/engineered-systems/exadata-database-machine/dbmmn/change-dns-server-address-cisco-4948-ethernet-switch.html).
+      //
+      // This branch read none of them: `no ip name-server 8.8.8.8` cleared the whole list, including servers the
+      // operator never named, and a word that was not an address did the same. docs/CLI.md recorded that hole and
+      // promised a per-address removal; research/no-ip-name-server-removal.md carries the sources and the one
+      // inference (the bare form).
+      const named = tokens.slice(3).filter(Boolean);
+      const list = Array.isArray(this.device.config.dnsServers) ? this.device.config.dnsServers : [];
+      const unique = [];
+      for (const ip of named) if (unique.indexOf(ip) === -1) unique.push(ip);
+      const bad = unique.filter(function (ip) { return !net.isIp(ip); });
+      const missing = unique.filter(function (ip) { return list.indexOf(ip) === -1; });
+      if (!unique.length) {
+        // No address named: the small-business guides spell the form `no ip name-server [server-address1...]`,
+        // and this console has always cleared the list here. That stays - but only when there is a list to
+        // clear, because a receipt for removing nothing is the same lie `no vlan 42` used to tell.
+        if (!list.length) {
+          out.push('% No name servers configured (use "ip name-server <address>" in config mode)');
+        } else {
+          this.device.config.dnsServers = [];
+          out.push('Name servers cleared');
+        }
+      } else if (bad.length) {
+        // The same sentence the positive form gives a word that is not an address, and nothing is removed.
+        out.push('% Invalid name server "' + bad[0] + '": not an IPv4 address');
+      } else if (missing.length) {
+        // Every named address has to be on the list, or nothing is removed: a half-applied `no` line would make
+        // the resulting config depend on which words the parser happened to reach, and no transcript says an
+        // IOS box removes what it can find and forgets the rest.
+        out.push('% Not a name server: ' + missing.join(', ') + ' - nothing was removed');
+      } else {
+        this.device.config.dnsServers = list.filter(function (ip) { return unique.indexOf(ip) === -1; });
+        for (const ip of unique) out.push('Name server ' + ip + ' removed');
+      }
     } else if (head === 'ospf') {
       out.push.apply(out, this._ospfConfig(tokens.slice(1)));
     } else if (head === 'no' && tokens[1] === 'ospf') {

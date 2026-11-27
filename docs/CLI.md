@@ -366,10 +366,13 @@ r1(config-if)#no ip access-group 103 in
 % Access list 102 is applied in on Gi0, not 103
 ```
 
-**One printed line's `no` form is wider than the line.** `no ip name-server <address>` is accepted, and it
-clears *every* resolver rather than the one named: the branch behind it never reads the address, so a name
-that was never configured — or is not an address at all — clears the list just the same, and the only line
-printed is `Name servers cleared`:
+**A `no` line names what it removes, even when the printed line is wider.** `ip name-server` prints up to six
+addresses on one line, and `no ip name-server <address>` removes exactly the addresses it names: the command
+reference documents the form as taking `server-address1 [server-address2...server-address6]` and says "To remove
+the addresses specified, use the no form of this command", and the 3560-X guide puts it in the singular — "To
+remove a name server address, use the `no ip name-server` *server-address* global configuration command". The
+branch here read none of the addresses: it cleared *every* resolver, so a name that was never configured — or a
+word that was not an address at all — wiped the list just the same:
 
 ```
 r1(config)#ip name-server 1.1.1.1
@@ -377,13 +380,14 @@ Name server 1.1.1.1
 r1(config)#ip name-server 8.8.8.8
 Name server 8.8.8.8
 r1(config)#no ip name-server 8.8.8.8
-Name servers cleared
+Name server 8.8.8.8 removed
 ```
 
-`show running-config` then prints no `ip name-server` line at all, where "add it, remove it" promises the
-`1.1.1.1` line back. The console's own `?` sentence for the form says `no ip name-server <address>` "removes a
-name server"; that sentence is the code's claim and is the thing that is wrong. A per-address removal is the
-fix, and until it lands this page records what the console does rather than what its index says.
+`show running-config` now prints the `1.1.1.1` line back, so "add it, remove it" holds across the whole line.
+A line that names an address the box does not hold refuses whole and changes nothing
+(`% Not a name server: 4.4.4.4 - nothing was removed`), and the bare `no ip name-server` still clears the list —
+but only when there is a list to clear. research/no-ip-name-server-removal.md carries the sources and the two
+sentences that are this console's own.
 
 Four commands used to be one-way doors — accepted, printed, and impossible to take back from the console —
 and `no vlan` printed "VLAN 42 removed" whether or not a VLAN 42 existed:
@@ -408,7 +412,7 @@ unapplied in`), and the bare `no ip access-group`, which clears both directions 
 actually cleared: in the session above - 102 inside, nothing outside - it answers `Interface Gi0/0/1:
 access list unapplied in`, and `access list unapplied in and out` only when both directions were bound.
 Reading a direction word as the number is the code's to fix
-(`_accessGroup()`, `const want = rest[0] != null ? parseInt(rest[0], 10) : null` at `engine/cli.js:4513` - the
+(`_accessGroup()`, `const want = rest[0] != null ? parseInt(rest[0], 10) : null` at `engine/cli.js:4587` - the
 guard asks whether a word arrived, not whether it is a number, so `in` still parses to `NaN`); until it is,
 this page does not advertise the direction on its own.
 
@@ -4104,8 +4108,8 @@ interface GigabitEthernet0/0
 ```
 
 **A `no` that names a setting removes the setting; a bare `no` removes the group.** The interface-mode
-handler (`_ifaceMode()`, `engine/cli.js:2599`) reads the vrid, and then the word after it; its `no vrrp`
-branch is at `:2684-2737`:
+handler (`_ifaceMode()`, `engine/cli.js:2670`) reads the vrid, and then the word after it; its `no vrrp`
+branch is at `:2724-2777`:
 
 ```
 R1(config-if)#no vrrp 10 preempt

@@ -18,6 +18,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **`no ip name-server 8.8.8.8` removed every resolver, not the one it named.** `ip name-server` prints up to
+  six addresses on one line, and the vendor's no-form carries the addresses to remove — the command reference
+  writes `no ip name-server … server-address1 [server-address2...server-address6]` and says "To remove the
+  addresses specified", the 3560-X guide says "To remove a name server address", and an Oracle procedure on two
+  Cisco switch families removes three configured servers with three separate one-address commands. The branch
+  here read none of the words: it cleared `config.dnsServers` and printed `Name servers cleared`, so a server
+  the operator did not name went too, and a word that was not an address did the same. It now removes exactly
+  the addresses named (one `Name server <address> removed` receipt each, survivors keep their order), refuses a
+  line that names an address the box does not hold with nothing removed, and keeps the bare `no ip name-server`
+  as a whole-list clear — but only when there is a list to clear.
+  `test/no-ip-name-server-removal.test.js` (24 assertions) and `research/no-ip-name-server-removal.md`.
+
 - **`show interfaces <port>` claimed `duplex: full` for a port with no link — a duplex nothing had
   negotiated.** A Catalyst reports the *setting* for a port that is not up (`Auto-duplex, Auto-speed,
   media type is 10/100/1000BaseTX` on a `notconnect` port, in the 2960-XR command reference's own sample of
