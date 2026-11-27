@@ -24,6 +24,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   with it, the printed line and its paste-back, and every refusal;
   [`research/vrrp-timers-advertise.md`](research/vrrp-timers-advertise.md) holds the five sources and what a
   capture of the invented line's rejection would still settle.
+- **A static route could name the router's own address as its next hop, and the table then printed a default
+  route pointing back at the box that typed it: `ip route 0.0.0.0 0.0.0.0 10.0.0.1` answered
+  `Route added: 0.0.0.0/0 via 10.0.0.1` on a router holding 10.0.0.1/24.** A next hop is the far end of a wire;
+  IOS refuses the line at config time, in a sentence that names no address and carries no space after the `%`:
+  `%Invalid next hop address (it's this router)` (three raw console pastes — a Learning Network thread, a Cisco
+  Community thread and a r/ccna session — with a teaching page printing the spaced variant). Nothing is stored
+  now, so the line never reaches `show ip route`, `show running-config`, the gateway-of-last-resort line or a
+  reopened lab. The check reads every interface, including a shut port and a subinterface, and runs after all
+  slots are parsed, so the vendor's interface-first order and a distance-bearing line are refused the same way.
+  A neighbour on the same segment is still accepted, and a refusal after a good route leaves it alone.
+  `test/static-route-own-next-hop.test.js` (14 checks) pins the sentence and the non-install;
+  [`research/static-route-own-next-hop.md`](research/static-route-own-next-hop.md) records the captures, the
+  spaced dissent, and what is still open — a multicast or broadcast next hop, and a route that predates the
+  address it now points at.
 - **`switchport` with no keywords — the documented inverse of `no switchport` — was answered with a sentence
   that had nothing after its colon: `% Unrecognized switchport command: `.** The operator's word was the command
   itself, so the handler's `t.join(' ')` tail was empty, and the console refused a line five vendor references

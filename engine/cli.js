@@ -2290,6 +2290,21 @@ class CliSession {
         }
         return ['% ' + dest + '/' + net.prefixOf(mask) + ': no interface called "' + tok + '"'];
       }
+      // A next hop must be another box. An address this router itself holds is not a next hop, and IOS
+      // refuses the line at config time instead of installing a route that can only point back at the box
+      // that typed it. Three raw console pastes show the sentence, all three with no space after the `%`, no
+      // address echoed and no trailing full stop (research/static-route-own-next-hop.md):
+      //
+      //     Router1(config)#ip route 10.8.1.0 255.255.255.0 172.20.100.97
+      //     %Invalid next hop address (it's this router)
+      //
+      // A teaching page prints the same words with a space (`% Invalid next hop address ...`), which is the
+      // one dissent; the raw session logs are the ones adopted. The check runs after every slot is parsed, so
+      // it fires for the vendor's fully specified order and for a line that also sets a distance, and nothing
+      // is stored when it does.
+      if (gw && this._addressIsLocal(gw)) {
+        return ["%Invalid next hop address (it's this router)"];
+      }
       // With neither a next hop nor an interface there is nothing to send a packet to and no segment to ARP on,
       // and the route was still installed and reported as "on-link" - a route the table then describes with
       // "no next hop: ARP for the destination on that segment", naming a segment the command never mentioned.
@@ -2563,6 +2578,22 @@ class CliSession {
       if (parent && parent.enabled === false) return false;
     }
     return true;
+  }
+
+  // Whether an address is configured on this device itself. Every interface counts, whatever its admin
+  // state: the address exists on a shut port too, and the static-route refusal that asks this question is
+  // about the box owning the address, not about the port being able to carry a frame (an inference; see
+  // research/static-route-own-next-hop.md for what a capture would settle). Subinterfaces are their own
+  // entries in `device.interfaces`, so a secondary-style address on `Gi0.10` is found the same way.
+  _addressIsLocal(addr) {
+    const net = require('./net');
+    const want = net.ipToInt(addr);
+    if (!Number.isFinite(want)) return false;
+    for (const other of this.device.interfaces.values()) {
+      if (!other.ip) continue;
+      if (net.ipToInt(other.ip) === want) return true;
+    }
+    return false;
   }
 
   _ipOverlapRefusal(iface, ip, dotted, opts) {

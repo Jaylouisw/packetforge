@@ -538,7 +538,7 @@ being put into a VLAN, the refusal stands.
 | `interface <name>` | enter interface config mode |
 | `interface <port>.<n>` | create a subinterface, or open an existing one, on that parent port - the prompt is `(config-subif)#`, as a box prints it (`research/subinterface-prompt.md`). `<n>` is the subinterface *number*, 1-4294967293, not a VLAN id (`research/subinterface-number.md`) |
 | `no interface <port>.<n>` | remove a subinterface and its block; a physical port is refused, because a port is not something the console created |
-| `ip route <dest> <mask> <gw> [iface] [<distance 1-255>]` | add static route, at that administrative distance (default 1). The vendor's fully specified order puts the interface first - `ip route <dest> <mask> <iface> <gw> [<distance>]` - and is accepted too (`research/ip-route-fully-specified.md`) |
+| `ip route <dest> <mask> <gw> [iface] [<distance 1-255>]` | add static route, at that administrative distance (default 1). The vendor's fully specified order puts the interface first - `ip route <dest> <mask> <iface> <gw> [<distance>]` - and is accepted too (`research/ip-route-fully-specified.md`); a next hop that is one of this box's own addresses is refused in the box's words, `%Invalid next hop address (it's this router)` (`research/static-route-own-next-hop.md`) |
 | `no ip route <dest> <mask> [gw|iface] [gw] [<distance>]` | remove static route, in the words that made it (`no ip route <dest> <mask> <iface> <gw> <distance>` for a fully specified one) - with a distance, only that one |
 | `ip default-gateway <gw>` | set default gateway (hosts) |
 | `no vlan <id>` | remove a VLAN. A trunk that carries it does not refuse the line: the switchport configuration is left exactly as typed and the trunk simply stops carrying it, and the receipt names those ports (`ge1 stops carrying VLAN 22: the switchport configuration is unchanged (vlan 22 brings it back)`), marking a native VLAN `(native)`. It is refused while a port only **stores** a trunk parameter naming it (a port not in trunk mode yet) or holds it as its voice VLAN - `% VLAN 22 is still referenced by 1 port(s): ge1 (trunk allowed, stored) - clear that first` |
@@ -1553,6 +1553,16 @@ Two neighbours of that rule live here too, because they are the same mistake in 
   destination on that segment"* - naming a segment the command never mentioned. It is now
   `% Incomplete command: ip route 192.0.2.0 255.255.255.0 needs a next hop or an interface`. The interface-only
   form is still legal and still says what it will take to work.
+* **A next hop on this router is not a next hop.** `ip route` stored any address in the gateway slot, so
+  `ip route 0.0.0.0 0.0.0.0 10.0.0.1` on a box whose own port *is* 10.0.0.1 installed a default route that
+  pointed back at the router that typed it. IOS refuses the line at config time and names neither the address
+  nor a prefix: `%Invalid next hop address (it's this router)` — unspaced, no full stop, matching the raw
+  console pastes; a teaching page prints the same words with a space after the `%`
+  ([research/static-route-own-next-hop.md](../research/static-route-own-next-hop.md)). Nothing is stored, so
+  the row never reaches `show ip route`, `show running-config` or the gateway-of-last-resort line. The check
+  is the box's own address on *any* interface — a shut port's included — and it runs after every slot is
+  parsed, so a distance or the vendor's interface-first order does not change the answer. A multicast or
+  broadcast next hop is still accepted; what a box says for those is unresolved.
 * **A number after the next hop is a distance, not a port.** The vendor's syntax ends
   `{ ip-address | interface-type interface-number [ip-address] } [dhcp] [global] [distance] [multicast]
   [name next-hop-name] [permanent | track number] [tag tag]`, with `distance` an administrative distance from

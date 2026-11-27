@@ -117,8 +117,8 @@ console.log('All three route shapes survive a save and a restore:');
   const env = build();
   apply(env, ['interface %P%', 'ip address 10.0.0.1 255.255.255.0']);
   apply(env, ['ip route 10.9.0.0 255.255.0.0 %P%',
-    'ip route 10.8.0.0 255.255.0.0 10.0.0.1 %P%',
-    'ip route 10.7.0.0 255.255.0.0 10.0.0.1']);
+    'ip route 10.8.0.0 255.255.0.0 10.0.0.2 %P%',
+    'ip route 10.7.0.0 255.255.0.0 10.0.0.2']);
   const printed = config(env);
   const lines = printed.split('\n').filter(function (l) { return /^ip route /.test(l); });
   ok(lines.length === 3, 'three routes are printed', JSON.stringify(lines));
