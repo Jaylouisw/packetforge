@@ -130,7 +130,7 @@ try {
   const env = Object.assign({}, process.env);
   delete env.FORGEJO_TOKEN; delete env.GITHUB_TOKEN; delete env.GH_TOKEN;
   const src = require('fs').readFileSync(path.join(__dirname, '..', 'scripts', 'sweep-device-requests.js'), 'utf8');
-  tokenError = /no token: this script needs a Forgejo token[\s\S]*FORGEJO_TOKEN[\s\S]*Report it: https:\/\/git\.jayw\.uk/.test(src);
+  tokenError = /no token: this script needs a GitHub token[\s\S]*GH_TOKEN[\s\S]*Report it: https:\/\/github\.com/.test(src);
 } catch (e) { tokenError = false; }
 ok(tokenError === true, 'the failure names the variable, the remote alternative and the bug-report link');
 
