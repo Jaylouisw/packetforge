@@ -746,22 +746,42 @@ jobs:
             printf '%s\n' "$out" > "${RUNNER_TEMP:-/tmp}/update-branch.txt"
             return 1
           }
-          # The one refusal that is not a person's problem. `PUT .../update-branch` moves the
-          # base's commits under the head, GitHub fires a `synchronize`, and the run that
-          # starts on the new head merges this pull request itself - so the update is
-          # progress and this run stays green. `expected_head_sha` is what makes it safe to
-          # call after reading checks: a head that moved is a 422, never an update of a tree
-          # nobody judged.
-          settle_behind() {   # $1 = what the CLI said; returns 1 when that is not this refusal
-            case "$1" in
-              *"not up to date"*|*"behind the base"*|*"must be up to date"*|*"Update branch"*) ;;
-              *) return 1 ;;
-            esac
+          # One update, one advertised dispatch. The branch is moved onto the base, and the
+          # head that results is verified by a dispatch rather than by the run the bot's own
+          # push starts: GitHub holds that one for an approval nobody gives (#1612: run
+          # 46044715475, `action_required`, zero jobs). The update call is also the
+          # confirmation that the branch really is behind - it names the head it read
+          # (`expected_head_sha`), so a head that moved, or one that is not behind after
+          # all, is a 422 and never an update of a tree nobody judged.
+          update_and_verify() {
+            # A dispatched run must not update the branch a second time: a second update
+            # needs a third run to verify what the second one did, and there is no bound.
+            if [ "${DISPATCHED:-false}" = "true" ]; then
+              refuse gate "the branch is behind ${base} again, one run after it was updated. Updating it a second time would need a third run to verify what the second one did, and there is nobody to approve the run a bot's push starts - set PF_AUTOMERGE_TOKEN, which merges on its own without a dispatch"
+            fi
             if update_branch; then
-              notice "#${NUMBER}: ${1} - updated the branch onto ${base}; the push that follows starts a run on the new head, which merges this pull request once its own checks are green"
-              exit 0
+              notice "#${NUMBER}: every check on ${HEAD_SHA} is green and the branch was behind ${base} - updated it, and dispatched ci.yml on ${head_ref} to verify the new head (the run the bot's push starts is held for approval: #1612)"
+              if gh workflow run ci.yml --repo "$repo" --ref "$head_ref" >/dev/null 2>&1; then
+                exit 0
+              fi
+              refuse gate "the branch was updated onto ${base} but the run that would verify the new head could not be dispatched, and the run the update itself starts is held for a manual approval that nothing will give"
             fi
             refuse gate "the branch is behind ${base} and GitHub would not update it: $(cat "${RUNNER_TEMP:-/tmp}/update-branch.txt" 2>/dev/null || echo 'no answer')"
+          }
+          # The refusal `mergePullRequest` really gives a behind head under `strict`:
+          # `GraphQL: 4 of 4 required status checks are expected.` - the required set is
+          # judged against an up-to-date tree, so it is *expected* and can never be met by
+          # checks that ran on a stale one. This string was not in the list below, so the
+          # race the `mergeable_state` fast path is meant to lose gracefully went red
+          # instead: #1613 (run 46048987950, job 140676032431) was green on every check,
+          # `main` moved at 18:24:22, the job read `clean` at 18:24:22, the merge was
+          # refused at 18:24:26, and the gate refused work that only needed its base.
+          settle_behind() {   # $1 = what the CLI said; returns 1 when that is not this refusal
+            case "$1" in
+              *"not up to date"*|*"behind the base"*|*"must be up to date"*|*"Update branch"*|*"required status checks are expected"*) ;;
+              *) return 1 ;;
+            esac
+            update_and_verify
           }
 
           if [ "$draft" = "true" ]; then
@@ -772,17 +792,7 @@ jobs:
           # A green head that is behind: update it now rather than spending a merge call on
           # a refusal this run already has the answer to.
           if [ "$merge_state" = "behind" ]; then
-            if [ "$DISPATCHED" = "true" ]; then
-              refuse gate "the branch is behind ${base} again, one run after it was updated. Updating it a second time would need a third run to verify what the second one did, and there is nobody to approve the run a bot's push starts - set PF_AUTOMERGE_TOKEN, which merges on its own without a dispatch"
-            fi
-            if update_branch; then
-              notice "#${NUMBER}: every check on ${HEAD_SHA} is green and the branch is behind ${base} - updated it, and dispatched ci.yml on $head_ref to verify the new head (the run the bot's push starts is held for approval: #1612)"
-              if gh workflow run ci.yml --repo "$repo" --ref "$head_ref" >/dev/null 2>&1; then
-                exit 0
-              fi
-              refuse gate "the branch was updated onto ${base} but the run that would verify the new head could not be dispatched, and the run the update itself starts is held for a manual approval that nothing will give"
-            fi
-            refuse gate "the branch is behind ${base} and GitHub would not update it: $(cat "${RUNNER_TEMP:-/tmp}/update-branch.txt" 2>/dev/null || echo 'no answer')"
+            update_and_verify
           fi
           # `--auto` is the closest thing to `merge_when_checks_succeed`: it defers to
           # branch protection's required checks and reviews rather than merging into them.
