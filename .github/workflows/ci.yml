@@ -54,8 +54,9 @@ name: CI
 #     `scripts/check-ci-disk-hygiene.js` enforces against every workflow file.
 #   - The merge gate: nothing merges until every other check on the head has reported
 #     green, and at least both test legs are among them. A head that is merely behind the
-#     base is updated (`PUT .../update-branch`) so the run on the new head can merge it,
-#     and a refusal exits non-zero - a gate that cannot gate must not report green (#1610).
+#     base is updated (`PUT .../update-branch`) and the new head is verified by a dispatch,
+#     because the run a bot's push starts is held for an approval nobody gives. A refusal
+#     exits non-zero - a gate that cannot gate must not report green (#1610).
 
 on:
   push:
@@ -783,36 +784,40 @@ jobs:
             fi
             refuse gate "the branch is behind ${base} and GitHub would not update it: $(cat "${RUNNER_TEMP:-/tmp}/update-branch.txt" 2>/dev/null || echo 'no answer')"
           fi
-          merged=0
           # `--auto` is the closest thing to `merge_when_checks_succeed`: it defers to
           # branch protection's required checks and reviews rather than merging into them.
-          # Everything here has already reported green, so it merges immediately when there
-          # is nothing else outstanding. Under the run's own GITHUB_TOKEN it is refused -
-          # that is a capability of the identity, not of the repository - and the merge is
-          # made directly instead, which is the path `strict` can block at the last step.
-          if out=$(gh pr merge "$NUMBER" --repo "$repo" --squash --auto 2>&1); then
-            echo "#${NUMBER}: armed for a squash merge of ${HEAD_SHA} - every check on it is green"
-          else
+          # It is tried only with a PAT, for one reason: an armed merge happens seconds
+          # later, after this step has exited, so a merge the token performs that way can
+          # never be followed by the dispatch below - and `main` would be left unverified,
+          # which is the third half of #1610. With the run's own token the merge is direct,
+          # which is synchronous, so the dispatch can happen in the same step.
+          merged=0
+          direct=1
+          if [ "${HAVE_PAT:-false}" = "true" ]; then
+            if out=$(gh pr merge "$NUMBER" --repo "$repo" --squash --auto 2>&1); then
+              echo "#${NUMBER}: armed for a squash merge of ${HEAD_SHA} - every check on it is green"
+              exit 0
+            fi
             case "$out" in
-              *"Auto-merge is not allowed"*|*"auto-merge is not enabled"*|*AutoMerge*|              *"not accessible by integration"*|*"Resource not accessible"*)
-                # Two different refusals reach here and mean the same thing: the identity
-                # cannot arm, so merge directly. The second is the shape it takes under
-                # this workflow's own token (#1612, 17:44:25Z).
-                echo "this run's identity cannot arm auto-merge - merging now instead, because every check on ${HEAD_SHA} is green"
-                if out=$(gh pr merge "$NUMBER" --repo "$repo" --squash 2>&1); then
-                  echo "#${NUMBER}: merged ${HEAD_SHA} - every check on it was green"
-                  merged=1
-                else
-                  # `mergeable_state` is computed asynchronously and lags a push by a few
-                  # seconds, so "clean" can still meet a base that moved. The refusal is
-                  # read once before it is final.
-                  settle_behind "$out" || true
-                  refuse merge "$out"
-                fi ;;
+              *"Auto-merge is not allowed"*|*"auto-merge is not enabled"*|*AutoMerge*| *"not accessible by integration"*|*"Resource not accessible"*)
+                echo "this identity cannot arm auto-merge - merging now instead, because every check on ${HEAD_SHA} is green" ;;
               *)
                 settle_behind "$out" || true
                 refuse arm "$out" ;;
             esac
+          fi
+
+          if [ "$direct" = "1" ]; then
+            if out=$(gh pr merge "$NUMBER" --repo "$repo" --squash 2>&1); then
+              echo "#${NUMBER}: merged ${HEAD_SHA} - every check on it was green"
+              merged=1
+            else
+              # `mergeable_state` is computed asynchronously and lags a push by a few
+              # seconds, so "clean" can still meet a base that moved. The refusal is read
+              # once before it is final.
+              settle_behind "$out" || true
+              refuse merge "$out"
+            fi
           fi
 
           # A merge performed with the run's own token starts no `push` run on `base`:
