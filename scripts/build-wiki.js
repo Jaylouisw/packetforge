@@ -49,8 +49,13 @@ is the one that is right.
 
 pages['Getting-Started.md'] = `# Getting started
 
-PacketForge has **no runtime dependencies**. Node 18 or newer and a browser is the whole
-list - no npm install, no Docker, no database.
+PacketForge has **no runtime dependencies**. **Node 22.18 or newer** and a browser is the
+whole list - no npm install, no Docker, no database.
+
+That version is a floor, not a preference: \`package.json\` declares \`engines.node: ">=22.18.0"\`,
+22.18 is the first release that runs a \`.ts\` file with no flag and no build step, and the server's
+own require graph loads one (\`engine/index.js\` requires \`./link.ts\`). On Node 18 or 20 the tree does
+not fail a test - it cannot load at all (\`SyntaxError: Missing initializer in const declaration\`).
 
 \`\`\`bash
 git clone https://git.jayw.uk/jaylouisw/packetforge.git
