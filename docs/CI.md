@@ -18,9 +18,9 @@ different failure from a red check: the last section of this page separates the 
 
 | File | Trigger | What it does |
 |---|---|---|
-| `.github/workflows/ci.yml` | pull request to `main`, push to `main`, manual dispatch | The matrix — the suite on Node 22 and 24 — a `Typecheck` job, a live server smoke test, a Docker build — and, on an open pull request, a final `Arm auto-merge` job that merges it once every other check has reported green (#1725) |
+| `.github/workflows/ci.yml` | pull request to `main`, push to `main`, manual dispatch | The matrix — the suite on Node 22 and 24 — a `Typecheck` job, a live server smoke test, a Docker build — and, on an open pull request, a final `Arm auto-merge` job that merges it once every other check has reported green — and, for a green head that is behind `main`, updates the branch and dispatches `ci.yml` on it so the new head is verified before it merges (#1725, #1612) |
 | `.forgejo/workflows/ci.yml` | *(archive)* | The same five checks, written for the self-hosted Forgejo runner. Kept for its comments; never named by a branch protection rule |
-| `.forgejo/workflows/auto-rebase.yml` | *(archive)* | Rebases open pull requests onto current `main` and re-arms auto-merge only for a head whose reported checks are all green (#1508, #2180). Not ported yet — open pull requests are rebased by hand until it is |
+| `.forgejo/workflows/auto-rebase.yml` | *(archive)* | Rebases open pull requests onto current `main` and re-arms auto-merge only for a head whose reported checks are all green (#1508, #2180). The green half now lives in `ci.yml`'s `Arm auto-merge`, which updates the branch and dispatches `ci.yml` on the new head (#1612); the half that touched a head whose checks were not green has not come over |
 | `.forgejo/workflows/pr-rebase.yml` | *(archive)* | The rebase that used to run on every push to a pull request. Not ported yet (`CONTRIBUTING.md` says what a contributor does instead) |
 | `.forgejo/workflows/closed-audit.yml` | *(archive)* | Matches recently closed requests against the catalogue; a report, never a red build. Not ported yet |
 | `.forgejo/workflows/close-merged-issues.yml` | *(archive)* | The issue sweep described under *What a merge closes*. Not ported yet: GitHub closes `Fixes #N` in a pull request body on its own, and the `[Device]:` sweep is the part still to bring over |
@@ -180,8 +180,16 @@ anything but `pass`, and both `Test (Node …)` legs are among them — a set th
 grown them is a run that has not started, not a run that passed. The job's own check is
 excluded, because it is `pending` while it runs. It re-reads `head.sha` before arming
 and stands down if the head moved, so a run against a commit that has since been
-rebased away cannot merge a tree this run never tested. Nothing in it can go red: every
-failure is a `::warning::` on a pull request left unmerged and untouched.
+rebased away cannot merge a tree this run never tested. A head that is green and
+*behind* `main` is not left for a person either: `mergeable_state` is `behind`, a state
+no number of green checks clears, so the job calls
+`PUT .../update-branch` — with `expected_head_sha`, so a head that moved is a 422
+rather than an update of a tree nobody judged — and then runs `ci.yml` on the head
+ref. A dispatch, because the run a bot's own push starts is held for an approval
+nobody gives (#1612). That run carries no pull request, resolves it from the branch,
+and merges; it does not update the branch a second time, since that would need a third
+run to verify what the second one did, so a branch that is behind again after one
+update goes red with the reason on the pull request.
 
 Arming is `gh pr merge --squash --auto`, which is the closest GitHub has to
 `merge_when_checks_succeed`: it defers to branch protection's required checks and
@@ -200,9 +208,10 @@ protection are set to exactly the five names above, the platform refuses to merg
 before they are green anyway — the job reads them first so that a repository without
 that protection is not merged through.
 
-A green check on a stale base still proves nothing: rebase first, let CI re-run
-against the current tree, then merge. #776 merged green off a stale base and took
-`main` red for hours.
+A green check on a stale base still proves nothing: let CI re-run against the current
+tree, then merge. That is what the gate does now rather than merging on the old run's
+verdict — the behind branch is updated and the updated head is verified by a dispatch
+(#1612). #776 merged green off a stale base and took `main` red for hours.
 
 ## What a merge closes
 
@@ -403,6 +412,7 @@ from.
 | A run on `main` says *cancelled* | Should not happen: `cancel-in-progress` is `true` only for `pull_request` (#1076) | Open an issue — this is the bug that fix exists to prevent |
 | A merge went in and there is no run on `main` for it | The merge was made with the run's own `GITHUB_TOKEN`, and GitHub does not start workflows for events authored by that token | Set `PF_AUTOMERGE_TOKEN`, or dispatch `ci.yml` on the merge commit (*Merging*, above) |
 | `Arm auto-merge` is green and the pull request is unmerged | It read the checks before the last of them reported, or the head moved; the log names which | Nothing to fix; the run for the new head arms it. A `::warning::` naming a check means that check is not green |
+| `Arm auto-merge` is red and the pull request is unmerged | The job refused: a check is not green, a test leg has not reported, the head moved, the branch could not be updated, or the merge itself was declined | The comment on the pull request names which; fix that and the next run decides. It is not a required check, so nothing is blocked — which is why a red here is the only signal that the queue has stopped |
 | A check fails only in CI | Node version, or a path that differs on Linux | Run `npm test` on Node 22; check case-sensitivity in file paths |
 | A job was killed at its `timeout-minutes` with no log | The hard job-level bound fired before any step's own bound did | Look for the last step that started; every long step carries its own `timeout` and an `::error title=` precisely so this cannot be the only evidence |
 
@@ -410,9 +420,10 @@ from.
 
 - **The Forgejo-only workflows do not run at all.** `auto-rebase`, `pr-rebase`,
   `closed-audit`, `close-merged-issues`, `main-health` and `wiki-sync` are archived in
-  `.forgejo/workflows/`; nothing rebases an open pull request, closes a `[Device]:`
-  request after a merge, tracks a red `main` in an issue, or mirrors the wiki until each
-  one is ported. Treat an open pull request as something a person rebases.
+  `.forgejo/workflows/`; nothing updates a head whose checks are *not* green, closes a
+  `[Device]:` request after a merge, tracks a red `main` in an issue, or mirrors the wiki
+  until each one is ported. A green head that is behind `main` is the one case covered,
+  by `Arm auto-merge` itself (#1612); the rest is still something a person does.
 - **`main` is verified only when the merge produces a `push` run.** A merge made with
   the run's own token does not start one (*Merging*, above). Set `PF_AUTOMERGE_TOKEN` or
   dispatch `ci.yml` by hand after a bot merge; the job prints a `::notice::` when this
@@ -449,10 +460,13 @@ tells you which bug you have.
 ## The automation token
 
 `ci.yml` needs nothing but the run's own token. It declares `contents: read` and
-`pull-requests: read` for the verification jobs, and `Arm auto-merge` raises its own to
-`pull-requests: write` — which is what `gh pr merge` needs and all it needs. There is no
-long-lived secret in the merge path, and a missing token cannot fail a build: an
-unreadable answer from the API means "run the job", never "stand it down".
+`pull-requests: read` for the verification jobs. `Arm auto-merge` raises three:
+`contents: write`, because a merge is a push to the base and `PUT .../update-branch` is
+a write as well; `pull-requests: write`, for `gh pr merge` and the comment it posts
+when it cannot; and `actions: write`, for the `ci.yml` dispatch that verifies a merge
+made with the run's own token. There is no long-lived secret in the merge path, and a
+missing token cannot fail a build: an unreadable answer from the API means "run the
+job", never "stand it down".
 
 There is one optional secret, **`PF_AUTOMERGE_TOKEN`** (*Settings → Secrets and
 variables → Actions*), and it changes exactly one thing: a merge made with the run's own
@@ -469,22 +483,28 @@ env:
 The archived `.forgejo/workflows/` files still read `FORGEJO_TOKEN` with the same
 fallback shape; they are not wired to anything, and the name means nothing on GitHub.
 
-### Why a maintenance job never fails a pull request
+### When a maintenance job goes red
 
 A red ✗ on a pull request means "this change is broken". The rebase job failing means "the
 automation could not do its housekeeping", which is not the contributor's problem and which they
 cannot act on. So every failure path in the archived `pr-rebase.yml` printed a `::warning::` and
-exited 0 — and `Arm auto-merge`, the only automation job left running, is written the same way:
+exited 0 — and `Arm auto-merge` copied that, which is the mistake #1610 names: a refusal printed
+the same tick as a merge, so a queue that merged nothing looked healthy for a migration. The
+outcomes are split now:
 
 | situation | what happens |
 |---|---|
-| no token available | warns, exits green, names the secret to set |
-| branch moved under the rebase | warns, exits green, branch untouched |
-| rebase conflicted | comments the conflicting files, exits green, branch untouched |
-| `mergeable` never settles | warns, exits green, not armed this time |
+| the head moved while the run was in flight | warns, exits green — the run for the new head decides |
+| the pull request was closed or merged meanwhile | exits green, nothing left to arm |
+| a check is not green, or a test leg has not reported | warns, exits green, unmerged |
+| the head is green and behind `main` | updates the branch, dispatches `ci.yml` on it, exits green |
+| the branch cannot be updated, or is behind again after one update | **red**, with the reason on the pull request |
+| an `arm` or `merge` the step cannot answer by merging directly is refused | **red**, with the API's answer on the pull request |
+| no `PF_AUTOMERGE_TOKEN` | merges with the run's own token, dispatches `ci.yml` on `main`, says so in a `::notice::` |
 
-The one thing that does go red is the job itself failing before it can report a reason, which is
-a defect worth seeing.
+The rule is the one the gate can defend: a green tick means the queue did what it set out to do.
+Anything that stopped it is red, and it says why in the log, in a `::warning title=Auto-merge::`,
+and as a comment on the pull request.
 
 ### Reading a failure when the logs are behind a login
 
