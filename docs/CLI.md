@@ -416,30 +416,43 @@ Reading a direction word as the number is the code's to fix
 guard asks whether a word arrived, not whether it is a number, so `in` still parses to `NaN`); until it is,
 this page does not advertise the direction on its own.
 
-**Three printed lines do not have one yet.** `show running-config` writes `bgp router-id <ip>` in the BGP
-block, `dns add <name> <type> <value>` under its zone, and `ipv6 nd ra lifetime <s>` at the top level. The
-first two are removed only by `no router bgp <as>` and `no dns zone <apex>`, which take the whole object with
-them - `no bgp router-id` and `no dns add www A 10.0.0.9` both answer `% Unrecognized config command`. The
-lifetime line has no spelling that removes it, and one that looks like it does the opposite:
+**Two printed lines do not have one yet.** `show running-config` writes `bgp router-id <ip>` in the BGP
+block and `dns add <name> <type> <value>` under its zone, and both are removed only by `no router bgp <as>`
+and `no dns zone <apex>`, which take the whole object with them - `no bgp router-id` and `no dns add www A 10.0.0.9`
+both answer `% Unrecognized config command`. The `no` forms those two lines lack are the code's to add; this
+page records what the console does.
+
+The third one, `ipv6 nd ra lifetime <s>`, had the same hole with a worse shape: the bare `no` answered
+`% Incomplete command`, and the *long* `no` - the one an operator types because the printed line is wider than
+the no form - was **accepted** and answered with the sentence the set form prints, writing the value again. A
+line that says `no` and does the opposite is the one kind of answer a console must never give. Cisco's IPv6
+command reference gives the no form as its own spelling and says what it is for - "`ipv6 nd ra lifetime seconds`,
+`no ipv6 nd ra lifetime` ... To restore the default lifetime, use the no form of this command", Command
+Default "The default lifetime value is 1800 seconds" (Cisco IOS IPv6 Command Reference, *ipv6 nd ra lifetime*),
+and the Catalyst 1200/1300 IPv6 command list repeats both the sentence and the bare spelling with no seconds
+in it:
 
 ```
 R1(config)#ipv6 nd ra lifetime 900
 IPv6 RA router lifetime 900s
 R1(config)#no ipv6 nd ra lifetime
-% Incomplete command: ipv6 nd ra lifetime <seconds>
+IPv6 RA router lifetime back to the default 1800s (it was 900s)
+R1(config)#no ipv6 nd ra lifetime
+% No router lifetime set on R1 (it is the default, 1800s)
+R1(config)#ipv6 nd ra lifetime 1200
+IPv6 RA router lifetime 1200s
 R1(config)#no ipv6 nd ra lifetime 900
-IPv6 RA router lifetime 900s
-R1(config)#no ipv6
-IPv6 routes cleared
+% No router lifetime 900s set on R1 (it is 1200s) - nothing was removed
 ```
 
-The bare `no` spelling asks for a value; the one with the value on it is **accepted** and answers with the
-sentence the set form prints, because `_ipv6Nd()` shifts a leading `no` into a `negated` flag and never reads
-it on the `lifetime` branch - so the value is written again rather than removed, on a box that never had one.
-`no ipv6` clears the gateway and the static routes and leaves the line exactly as it was. The only way back is
-to type the default, `ipv6 nd ra lifetime 1800`, which the printer omits because it is
-`ra.DEFAULTS.routerLifetime`. The `no` forms the first two lines lack are the code's to add; this page records
-what the console does.
+The bare form restores 1800 s and drops the line from `show running-config`, because the default is not a line
+the config owns; a removal with nothing to remove refuses and names the default that is in force; and a value
+on the no line has to name the value in force, which is the rule `no ip route <dest> <mask> <gw> [<distance>]`
+already follows - the alternative, reading any number as "remove whatever is there", removes a setting the
+line never named. `0` is a value, not "nothing": it is a configured "do not use me as a default router", so the
+no form removes it like any other, and the seconds field is refused in the set form's own words whichever
+direction the line is written in. research/ipv6-nd-ra-lifetime-no-form.md has the citations and the one
+question a second capture would settle.
 
 Two of those refusals are there for more than tidiness:
 
@@ -849,6 +862,7 @@ Config mode:
 | `ipv6 nd ra enable` / `ipv6 nd ra disable` | advertising is **on by default** on any interface that carries an IPv6 address (`l3-forward` only); `disable` stops it, `enable` starts it again |
 | `ipv6 nd ra managed` / `ipv6 nd ra other-config` | set the M / O flag (`no …` clears it) |
 | `ipv6 nd ra lifetime <s>` | router lifetime; `0` means "not a default router" |
+| `no ipv6 nd ra lifetime` | restore the default 1800 s - the vendor's own way back (the bare form; a value on the line has to name the value in force). A second removal, or a value that names something else, refuses and changes nothing (`research/ipv6-nd-ra-lifetime-no-form.md`) |
 | `ipv6 nd prefix <prefix>/<len> [valid <s>] [preferred <s>]` | override the lifetimes of a prefix that is already advertised, or add one; the `/64` of an interface address is advertised without this line |
 | `no ipv6 nd prefix <prefix>/<len>` | withdraw a prefix |
 | `ipv6 nd suppress-ra` | stop periodic advertisements, still answer solicitations (`no …` resumes) - the vendor's own off switch, and the one a real config carries |

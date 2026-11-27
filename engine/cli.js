@@ -3433,14 +3433,56 @@ class CliSession {
         return ['IPv6 RA ' + (sub === 'managed' ? 'M (managed)' : 'O (other-config)') +
           ' flag ' + (on ? 'set' : 'cleared')];
       }
+      // Seconds on this line are a value, not a keyword, so the one validator answers in both
+      // directions: the set form and the no form refuse the same words in the same sentence.
+      function seconds(word) {
+        if (!/^\d{1,5}$/.test(word)) return { line: '% Invalid router lifetime "' + word + '" (0..65535 seconds)' };
+        const n = parseInt(word, 10);
+        if (n > 65535) return { line: '% Router lifetime out of range: ' + word + ' (0..65535)' };
+        return { n: n };
+      }
       if (sub === 'lifetime') {
         const val = t[2];
+        const fallback = raLib.DEFAULTS.routerLifetime;
+        // `no ipv6 nd ra lifetime` is the vendor's way back to the default, not a second way to set
+        // the value: "To restore the default lifetime, use the no form of this command", with 1800
+        // seconds as the default (Cisco IOS IPv6 Command Reference, `ipv6 nd ra lifetime`; the
+        // Catalyst 1200/1300 IPv6 command list prints the same sentence and the same bare spelling,
+        // `no ipv6 nd ra lifetime`). This branch read the leading `no` into `negated` and never looked
+        // at it again, so the line answered with the set-receipt and wrote the value a second time -
+        // a `no` that did the opposite of what it said, on a box that never had one
+        // (research/ipv6-nd-ra-lifetime-no-form.md).
+        if (negated) {
+          if (val === undefined) {
+            if (c.routerLifetime === fallback) {
+              return ['% No router lifetime set on ' + dev.name +
+                ' (it is the default, ' + fallback + 's)'];
+            }
+            const was = c.routerLifetime;
+            c.routerLifetime = fallback;
+            return ['IPv6 RA router lifetime back to the default ' + fallback + 's (it was ' + was + 's)'];
+          }
+          // The documented no form carries no seconds. When one is typed anyway it has to name the
+          // value in force - the rule `no ip route <dest> <mask> <gw>` follows - because reading any
+          // number as "remove whatever is there" would remove a setting the line never named.
+          const s = seconds(val);
+          if (s.line) return [s.line];
+          if (s.n !== c.routerLifetime) {
+            return ['% No router lifetime ' + s.n + 's set on ' + dev.name + ' (it is ' +
+              c.routerLifetime + 's) - nothing was removed'];
+          }
+          if (c.routerLifetime === fallback) {
+            return ['% No router lifetime set on ' + dev.name +
+              ' (it is the default, ' + fallback + 's)'];
+          }
+          c.routerLifetime = fallback;
+          return ['IPv6 RA router lifetime back to the default ' + fallback + 's (it was ' + s.n + 's)'];
+        }
         if (val === undefined) return ['% Incomplete command: ipv6 nd ra lifetime <seconds>'];
-        if (!/^\d{1,5}$/.test(val)) return ['% Invalid router lifetime "' + val + '" (0..65535 seconds)'];
-        const n = parseInt(val, 10);
-        if (n > 65535) return ['% Router lifetime out of range: ' + val + ' (0..65535)'];
-        c.routerLifetime = n;
-        return ['IPv6 RA router lifetime ' + n + 's' + (n === 0 ? ' (not a default router)' : '')];
+        const s = seconds(val);
+        if (s.line) return [s.line];
+        c.routerLifetime = s.n;
+        return ['IPv6 RA router lifetime ' + s.n + 's' + (s.n === 0 ? ' (not a default router)' : '')];
       }
       return ['% Unknown IPv6 RA command: ipv6 nd ra ' + sub];
     }
@@ -8808,6 +8850,7 @@ class CliSession {
       '  ip default-gateway <gw>  shutdown / no shutdown',
       '  ipv6 address <addr>/<len> | autoconfig        (interface mode)',
       '  ipv6 nd ra enable|disable|managed|other-config|lifetime <s>',
+      '  no ipv6 nd ra lifetime                   back to the default 1800s',
       '  ipv6 nd prefix <prefix>/<len> [valid <s>] [preferred <s>]',
       '  ipv6 nd suppress-ra',
       '  show ipv6 nd                    what this device would advertise',
