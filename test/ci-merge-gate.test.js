@@ -201,21 +201,23 @@ test('a branch that cannot be updated goes red, with the reason on the pull requ
 
 test('a merge made with the run token asks for main to be verified', { skip: !HAVE_BASH }, () => {
   // GitHub starts no `push` run for a merge authored by GITHUB_TOKEN, so without a PAT the
-  // new commit on main is the one commit nothing tested. The step's notice told a human to
-  // dispatch the matrix by hand; it can dispatch it itself.
+  // new commit on main is the one commit nothing tested. An armed merge has the same
+  // problem twice over: it lands after this step exits, so nothing here can follow it. The
+  // merge is therefore made directly, and the step dispatches the matrix itself.
   const r = runStep({ FAKE_MERGE_STATE: 'clean', FAKE_SQUASH: 'ok' });
   assert.strictEqual(r.status, 0, r.out);
-  assert.strictEqual(calls(r, /--squash$/).length, 1, 'the merge happened\n' + r.out);
+  assert.strictEqual(calls(r, /--squash --auto$/).length, 0,
+    'nothing may arm a merge this step cannot see finish\n' + r.out);
+  assert.strictEqual(calls(r, /--squash$/).length, 1, 'the merge is made directly instead\n' + r.out);
   assert.strictEqual(calls(r, /workflow run ci\.yml/).length, 1,
     'and main is verified afterwards, without needing a secret\n' + r.out);
 });
 
-test('an identity that cannot arm still merges directly', { skip: !HAVE_BASH }, () => {
-  // What the job log of #1612 actually said under the run's own token:
-  // `GraphQL: Resource not accessible by integration (mergePullRequest)`. That is not the
-  // "auto-merge is not enabled" wording, and the old step did not recognise it - it
-  // refused, warned, and exited 0 without ever trying to merge.
-  const r = runStep({ FAKE_AUTO: 'denied', FAKE_MERGE_STATE: 'clean', FAKE_SQUASH: 'ok' });
+test('a PAT that cannot arm still merges directly', { skip: !HAVE_BASH }, () => {
+  // `GraphQL: Resource not accessible by integration (mergePullRequest)`: the wording the
+  // job log of #1612 actually carried. It is not "auto-merge is not enabled", and the old
+  // step did not recognise it - it refused, warned and exited 0 without ever trying.
+  const r = runStep({ HAVE_PAT: 'true', FAKE_AUTO: 'denied', FAKE_MERGE_STATE: 'clean', FAKE_SQUASH: 'ok' });
   assert.strictEqual(r.status, 0, r.out);
   assert.strictEqual(calls(r, /--squash$/).length, 1,
     'a refused arm must still reach the direct merge\n' + r.out + '\nCALLS:\n' + r.calls);
@@ -256,7 +258,9 @@ test('a dispatch on a pull request branch finds its pull request and merges it',
   const r = runStep({ NUMBER: '', DISPATCHED: 'true', FAKE_PR_LIST: NUMBER });
   assert.strictEqual(r.status, 0, r.out);
   assert.strictEqual(calls(r, /pr list/).length, 1, 'it must resolve the request by branch\n' + r.out);
-  assert.strictEqual(calls(r, /--squash$/).length, 1, 'and then merge it\n' + r.out);
+  assert.strictEqual(calls(r, /--squash --auto$/).length, 0,
+    'an armed merge happens after this step exits, so its own commit on main can never be dispatched\n' + r.out);
+  assert.strictEqual(calls(r, /--squash$/).length, 1, 'the merge is made directly instead\n' + r.out);
   assert.match(r.out, /this dispatch is for #1608/, r.out);
 });
 
