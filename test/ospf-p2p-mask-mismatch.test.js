@@ -103,6 +103,7 @@ console.log('The mask is what is ignored - the peer still has to be reachable th
   const rejected = t.getDevice('b1').ospfRejected || [];
   ok(rejected.length === 1 && rejected[0].reason === 'subnet', 'the refusal is recorded as a subnet mismatch',
     JSON.stringify(rejected));
+  ok(rejected[0].network === 'p2p', 'and says the point-to-point rule refused it', JSON.stringify(rejected[0]));
   ok(rejected[0].ownIp === '10.9.0.1' && rejected[0].ownMask === '255.255.255.252',
     'the record keeps this end address and mask', JSON.stringify(rejected[0]));
   ok(rejected[0].peerIp === '10.9.0.9' && rejected[0].peerMask === '255.255.255.0',
@@ -130,6 +131,7 @@ console.log('A broadcast segment keeps the check, and now says which field disag
   ok(t.getDevice('c1').ospfNeighbors.length === 0, 'a mask mismatch on Ethernet still stops the adjacency');
   const rejected = (t.getDevice('c1').ospfRejected || [])[0] || {};
   ok(rejected.reason === 'mask', 'recorded as a mask mismatch', JSON.stringify(rejected));
+  ok(rejected.network === 'broadcast', 'on a broadcast segment', JSON.stringify(rejected));
   ok(rejected.ownMask === '255.255.255.0' && rejected.peerMask === '255.255.255.128',
     'with both masks kept for the sentence', JSON.stringify(rejected));
   const said = show(t, sim, 'c1', 'show ip ospf neighbor Gi0/0/0');
@@ -138,6 +140,29 @@ console.log('A broadcast segment keeps the check, and now says which field disag
   ok(/RFC 2328 10\.5/.test(said), 'and the rule that drops the Hello', said);
   ok(!/nothing on the other end runs OSPF/.test(said),
     'it no longer claims the far end is not running OSPF', said);
+}
+
+console.log('');
+console.log('A broadcast segment refused for different networks does not quote the point-to-point exception');
+{
+  const t = new Topology();
+  t.addDevice(ROUTER, 'e1');
+  t.addDevice(ROUTER, 'e2');
+  configure(t, 'e1', ['interface Gi0/0/0', 'ip address 10.7.0.1 255.255.255.0', 'ospf router-id 1.1.1.1', 'end']);
+  configure(t, 'e2', ['interface Gi0/0/0', 'ip address 10.8.0.1 255.255.255.0', 'ospf router-id 2.2.2.2', 'end']);
+  t.connect('e1', 'Gi0/0/0', 'e2', 'Gi0/0/0', { mediaId: '1000base-t', speedMbps: 1000 });
+  const sim = recompute(t);
+  ok(t.getDevice('e1').ospfNeighbors.length === 0, 'equal masks in different networks form no adjacency');
+  const rejected = (t.getDevice('e1').ospfRejected || [])[0] || {};
+  ok(rejected.reason === 'subnet', 'recorded as a subnet refusal', JSON.stringify(rejected));
+  ok(rejected.network === 'broadcast', 'under the broadcast rule, not the point-to-point one', JSON.stringify(rejected));
+  const said = show(t, sim, 'e1', 'show ip ospf neighbor Gi0/0/0');
+  ok(/e2 addresses this link as 10\.8\.0\.1\/24 and this port as 10\.7\.0\.1\/24/.test(said),
+    'the refusal names both addresses and masks', said);
+  ok(/10\.8\.0\.1 is outside the network of this port \(10\.7\.0\.0\/24\)/.test(said),
+    'and the network the peer fell outside, which is the fact that decided it', said);
+  ok(!/point-to-point/.test(said),
+    'it does not quote the mask exception at a link that is not point-to-point', said);
 }
 
 console.log('');

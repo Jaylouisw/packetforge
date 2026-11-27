@@ -1506,10 +1506,15 @@ class Simulator {
         ip: ai.ip, mask: ai.mask, peerIp: bi.ip, peerMask: bi.mask };
       const endB = { dev: b.dev, iface: l.b.iface, peerIface: l.a.iface, peer: a.dev.id,
         ip: bi.ip, mask: bi.mask, peerIp: ai.ip, peerMask: ai.mask };
-      const refuseLink = function (reason, extra) {
+      // `network` is the network type whose comparison refused the link (`broadcast` or `p2p`), because a
+      // `subnet` refusal comes from two different rules - the broadcast subnet check and the point-to-point
+      // reachability check - and the console cannot word the refusal without knowing which one ran. It said
+      // "the mask itself is ignored on a point-to-point link" about an Ethernet segment because the record
+      // did not carry the type (#1652).
+      const refuseLink = function (reason, network, extra) {
         [endA, endB].forEach(function (end) {
-          const rec = { reason: reason, iface: end.iface, peerIface: end.peerIface, peer: end.peer,
-            peerAddress: end.peerIp, ownIp: end.ip, ownMask: end.mask,
+          const rec = { reason: reason, network: network, iface: end.iface, peerIface: end.peerIface,
+            peer: end.peer, peerAddress: end.peerIp, ownIp: end.ip, ownMask: end.mask,
             peerIp: end.peerIp, peerMask: end.peerMask };
           if (extra && extra.own) Object.assign(rec, extra.own);
           if (extra && extra.peer) Object.assign(rec, extra.peer);
@@ -1530,11 +1535,14 @@ class Simulator {
       // made per direction with each end's own mask, so a /24 wire whose far end is a /30 still resolves
       // both ways while two addresses on genuinely different subnets still do not form a neighbour.
       if (!p2p) {
-        if (String(ai.mask) !== String(bi.mask)) { refuseLink('mask'); continue; }
-        if (net.networkOf(ai.ip, ai.mask) !== net.networkOf(bi.ip, bi.mask)) { refuseLink('subnet'); continue; }
+        if (String(ai.mask) !== String(bi.mask)) { refuseLink('mask', 'broadcast'); continue; }
+        if (net.networkOf(ai.ip, ai.mask) !== net.networkOf(bi.ip, bi.mask)) {
+          refuseLink('subnet', 'broadcast');
+          continue;
+        }
       } else if (net.networkOf(bi.ip, ai.mask) !== net.networkOf(ai.ip, ai.mask) ||
                  net.networkOf(ai.ip, bi.mask) !== net.networkOf(bi.ip, bi.mask)) {
-        refuseLink('subnet');
+        refuseLink('subnet', 'p2p');
         continue;
       }
       // A Hello carries its sender's HelloInterval and RouterDeadInterval, and the receiving port checks
