@@ -4,29 +4,26 @@ Thanks for helping out. PacketForge is built to be easy to extend — adding a p
 of hardware is a single JSON file with **no code changes**. This guide covers the
 common paths.
 
-## Two doors, and which one is yours
+## One door
 
-The project is developed on its own forge at <https://git.jayw.uk/jaylouisw/packetforge>, which is
-public to read. Accounts there are not open to the public — the maintainer is the only account — so
-**contributors work through the GitHub mirror at <https://github.com/Jaylouisw/packetforge>**.
+PacketForge is developed in the open on **GitHub**, at
+<https://github.com/jaylouisw/packetforge>. Clone it, browse the history, open an issue, open a pull
+request — all of it happens there, and there is no second account to create anywhere.
 
-| You want to | Do it on |
+| You want to | Do it |
 |---|---|
-| Read the code, browse history, download a release | Either — both carry the same commits |
-| Open an issue or a device request | GitHub |
-| Send a fix or a new device | Fork and open a pull request on GitHub |
-| Review, run CI, merge | The forge (maintainer only) |
+| Read the code, browse history, download a release | <https://github.com/jaylouisw/packetforge> |
+| Open an issue or a device request | <https://github.com/jaylouisw/packetforge/issues> |
+| Send a fix or a new device | Fork and open a pull request |
+| Watch CI | <https://github.com/jaylouisw/packetforge/actions> |
 
-Pull requests opened on GitHub are carried across to the forge by
-`scripts/gh-bridge.js`, which a maintainer runs: the contributor's commits are pushed as a `gh/<number>`
-branch, verbatim and with authorship intact, and a pull request is opened there so CI and review happen
-in one place. Nothing schedules the script yet, so the crossing happens when someone checks, not within
-minutes of the PR being opened (`docs/MIRRORING.md` §2). A maintainer replies on your GitHub thread.
-You never need an account on the forge, and the forge never needs one of your keys.
+Until 2026-11-27 the project ran on its own Forgejo instance. That instance is kept as a **read-only
+archive**: it holds the commits, issues and pull requests from the months the project spent there,
+and nothing new is merged into it. If you find a link to it, it is an old link —
+`docs/MIRRORING.md` records the move and what the archive is still good for.
 
-The direction of travel is **forge → GitHub for code, GitHub → forge for contributions**. The mirror
-pushes automatically on every commit; the bridge pulls contributions in. Neither side is a fork of
-the other in spirit: the forge is the workshop, GitHub is the shopfront.
+Every contributor works the same way: fork, branch, pull request, CI, review, merge. A pull request
+that closes an issue opens its body with `Fixes #N`, and GitHub closes the issue when it merges.
 
 ## Ways to contribute
 
@@ -53,7 +50,7 @@ the other in spirit: the forge is the workshop, GitHub is the shopfront.
 There is no install step and no build step:
 
 ```bash
-git clone https://git.jayw.uk/jaylouisw/packetforge.git
+git clone https://github.com/jaylouisw/packetforge.git
 cd packetforge
 node server/index.js        # UI + JSON API on http://localhost:8000
 ```

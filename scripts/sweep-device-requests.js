@@ -66,11 +66,11 @@ function token() {
     '',
     'Fix it one of these ways:',
     '  1. export FORGEJO_TOKEN=<your token>        (also accepts GITHUB_TOKEN or GH_TOKEN)',
-    '  2. put a token in the git remote URL:       https://<user>:<token>@git.jayw.uk/jaylouisw/packetforge.git',
+    '  2. put a token in the git remote URL:       https://<user>:<token>@github.com/jaylouisw/packetforge.git',
     '',
     'A token with read access to issues is enough for a report run; closing requests',
     '(--close N) additionally needs write access.',
-    'Stuck? Report it: https://git.jayw.uk/jaylouisw/packetforge/issues/new?template=bug_report.yml'
+    'Stuck? Report it: https://github.com/jaylouisw/packetforge/issues/new?template=bug_report.yml'
   ].join('\n'));
 }
 

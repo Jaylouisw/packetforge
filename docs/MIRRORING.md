@@ -1,162 +1,114 @@
-# Forgejo and GitHub: one source of truth, two front doors
+# One workshop, one archive
 
-Development, CI and CD live on **Forgejo**. GitHub is kept as a mirror so that people who already
-have a GitHub account can read the code, clone it, and contribute without first creating an account
-somewhere unfamiliar. This document describes what can be synchronised, what cannot, and the rule
-that keeps the two from fighting.
+**GitHub is the workshop.** Development, CI, review, releases and the issue tracker are all at
+<https://github.com/jaylouisw/packetforge>. The self-hosted Forgejo instance at `git.jayw.uk` is a
+**retained read-only archive**: it still answers, it still holds the history of the months the
+project spent there, and nothing new is merged into it.
 
-The short version:
+**The move happened on 2026-11-27.** `origin` is `https://github.com/jaylouisw/packetforge.git` and
+`main` is the same commit on both hosts, so the archive is a faithful copy of the moment the move
+happened — not of anything after it. Any commit pushed to the archive from now on is work that
+GitHub will never see, which is exactly the class of mistake this page exists to prevent.
 
-| Thing | Syncable? | How |
+| Thing | Where it lives now | What the archive does |
 |---|---|---|
-| Commits, branches, tags | **Yes, fully, one way** | Forgejo → GitHub push mirror |
-| Pull requests | **No — bridge instead** | `scripts/gh-bridge.js --prs` pushes the head as `gh/<n>` and opens a Forgejo PR |
-| Issues and comments | **No — pick one tracker** | Forgejo is the tracker; GitHub issues point at it |
-| CI / CD | **Forgejo only, authoritative** | Nothing: the GitHub workflows were deleted in #1059 |
-| Wiki | Follows the code | Regenerate on Forgejo; mirrors with the repo |
+| Commits, branches, tags | **GitHub** | Frozen at the move; read-only |
+| Pull requests | **GitHub** | Read-only history of the PRs merged there |
+| Issues and comments | **GitHub** | Read-only history; do not file or comment |
+| CI / CD | **GitHub Actions** (`.github/workflows/`) | Its own `.forgejo/workflows/` are kept for provenance and are not a pipeline to trust |
+| Releases | **GitHub** | — |
+| Wiki | Regenerated from `docs/wiki/` and published from GitHub | — |
 
-## The rule: one writer, one reader
+## The rule: one writer
 
-Every failure mode in this area comes from symmetric sync. If both sides can write `main`, then two
-force-pushes race, the loser's history is orphaned, and neither platform can be trusted about what
-"the code" is. So:
+Every failure mode in this area comes from symmetric sync. If both hosts can write `main`, then two
+pushes race, the loser's history is orphaned, and neither host can be trusted about what "the code"
+is. So:
 
-- **Forgejo writes.** All merges, all tags, all releases.
-- **GitHub reads.** It receives every commit and serves it to the public.
-- **Contributions from GitHub flow in as branches that Forgejo merges.** They never arrive by
-  pushing to the mirror directly.
+- **GitHub writes.** All merges, all tags, all releases.
+- **The archive is read.** It is a remote you may fetch and diff against, and never push to.
+- **Nothing flows out of the archive.** A change made there is invisible to the project, so there is
+  no mechanism — and no plan for one — that carries it back.
 
-## 1. Git: Forgejo → GitHub push mirror
+The reverse arrangement is what this repository used to run: Forgejo held the pen, a push mirror
+copied every commit to GitHub, and `scripts/gh-bridge.js` carried GitHub pull requests back across.
+That machinery existed because the forward direction had to be one-way. With the workshop on GitHub
+the direction is the same as the tool everyone already has, so the bridge is not needed for the
+normal path: a pull request on GitHub is reviewable where it was opened.
 
-Forgejo repo → **Settings → Repository → Push mirrors → Add push mirror**:
+## 1. Git: one live remote, one dead one
 
-- Remote: `https://github.com/Jaylouisw/packetforge.git`
-- Auth: a **fine-grained GitHub token**, repository `Jaylouisw/packetforge`, permission
-  *Contents: read and write*. Nothing else. Store it in Forgejo's mirror config, not in the repo.
-- Sync on commit: **on**, plus the scheduled interval as a backstop.
-
-This copies every branch and tag. What it does *not* copy: issues, PRs, discussions, releases, wiki,
-labels, milestones. Those are not git.
-
-Verify:
-
-```bash
-git ls-remote https://github.com/Jaylouisw/packetforge refs/heads/main
-git ls-remote origin refs/heads/main        # same SHA, or the mirror is behind
+```sh
+git remote -v
+# origin   https://github.com/jaylouisw/packetforge.git (fetch/push)   <- the only writer
+# forgejo  ssh://forgejo/jaylouisw/packetforge.git     (read-only archive)
 ```
 
-**Never add the reverse direction.** A GitHub→Forgejo mirror plus a Forgejo→GitHub mirror is a loop;
-whichever syncs second wins, and on a force-push they can ping-pong indefinitely.
+The `forgejo` remote is kept on the maintainer's clone as an archive: useful for reading an old
+branch, a deleted PR's head, or a commit that predates the move. Treat it as a museum. If a `git
+push` ever offers you `forgejo` as a destination, it is offering you the wrong one — `origin` is the
+workshop and `push.default` is `simple`, so a bare `git push` cannot reach it by accident.
 
-## 2. Pull requests: bridged, not mirrored
+Verify the two agree about the move and nothing after it:
 
-Neither platform mirrors PRs, and there is no setting that makes it happen. `scripts/gh-bridge.js --prs`
-does it:
-
-1. Poll GitHub for open PRs (`GET /repos/:owner/:repo/pulls?state=open`).
-2. For each, fetch the head into a local branch called `gh/<n>`:
-   `git fetch https://github.com/... refs/pull/<n>/head:refs/heads/gh/<n>`. This works for fork PRs on a
-   public repo.
-3. Force-push `gh/<n>` to Forgejo and open a PR **with the GitHub title unchanged**. The body is the
-   original description, then a credit line — `Opened by **@<author>** on the GitHub mirror: <github url>` —
-   the head SHA, and `<!-- gh-pr: <n> -->`.
-4. **Forgejo CI runs and is the gate.** Review happens on the Forgejo PR.
-5. On merge, the push mirror updates GitHub, and `--report` comments once on the GitHub PR:
-   `Merged on the forge as <forgejo PR url> (commit <sha>).`
-
-The marker is the identity, not the head SHA: a later run finds `<!-- gh-pr: <n> -->` in the Forgejo PR
-bodies and skips that PR, so nothing is imported twice. What the script does **not** do is keep the two in
-step after the first push — it never updates an imported PR and never closes one. A force-push on GitHub
-therefore leaves the Forgejo PR on the old head, and closing the GitHub PR leaves the Forgejo one open;
-both are resolved on the forge, where the merge happens anyway.
-
-What the GitHub contributor sees: they open a PR the way they always do; once the bridge is run, their PR
-is answered with a link to where the discussion is, and their commits are already on the branch under
-review.
-
-What they cannot do: press "Merge" on GitHub. That button is meaningless on a mirror — the mirror is
-a copy, and merging there creates a commit that the next mirror sync will not contain.
-
-> **Status: written, not scheduled.** `scripts/gh-bridge.js` has been in the tree since #1074, with
-> `--issues`, `--prs`, `--report`, `--all`, `--dry-run` and `--limit`, and `CONTRIBUTING.md` already sends
-> contributors down this path. What is still missing is the job that runs it: nothing in
-> `.forgejo/workflows/` invokes the script, so a GitHub PR stays invisible until a maintainer runs
-> `node scripts/gh-bridge.js --all` from a clone (`PF_CLONE`) with `PF_FORGEJO_TOKEN`, `GH_TOKEN` and the
-> `PF_*` settings in the script's header.
-
-## 3. Issues: one tracker, not two
-
-Two-way issue sync needs a stateful bot holding an ID map, and it duplicates on every edit, delete
-and label change. It is not worth the machinery, and half-working it is worse than not doing it.
-
-**Forgejo is the tracker.** For GitHub:
-
-- Migrate the open issues once (title, body, labels, author, created date). The API can do this;
-  Forgejo's `POST /repos/:owner/:repo/issues` preserves the body and labels, and the original author
-  and date are recorded in a header line of the body, since neither platform will backdate.
-- Then a small GitHub Actions workflow on the mirror comments on each new issue:
-  *"This project tracks issues on Forgejo: <link>. Please reopen there — this one will be closed."*
-  and closes it. It must run **on GitHub**, because GitHub is where the issue is.
-
-An alternative that some projects choose: keep GitHub issues open as a **read-only archive** and
-disable new ones (Settings → Features → uncheck Issues). Blunter, but it cannot be misunderstood.
-
-## 4. CI and CD: Forgejo only
-
-The repository has no GitHub workflows. Six of them lived in `.github/workflows/` until
-2026-11-08, each carrying `if: github.server_url == 'https://github.com'` in the belief that the
-guard kept them off this host. It does not: a Forgejo runner reads `.github/` as readily as
-GitHub's, so they ran here as a second, competing CI and failed every time — CodeQL needs
-github.com, and the docker job ran a bare `docker build` in an image that had no docker binary.
-They were deleted in #1059, and `docs/CI.md` records the reasoning; `.forgejo/workflows/` is the
-only pipeline in the repository.
-
-- `.forgejo/workflows/` is the authoritative pipeline: tests, syntax, examples, server smoke, the
-  invariants.
-- If Actions is ever re-enabled on the mirror, keep at most a **courtesy subset** (`npm test` +
-  syntax) so a GitHub contributor sees red or green before the bridge picks their PR up. It must
-  never be a merge gate, and the README should say so.
-- Releases and images are built on Forgejo and pushed to a registry both sides can pull from. GitHub
-  Releases are not mirrored; the mirror's tags are enough.
-
-## 5. The public door
-
-None of this works while the canonical host is behind a login. `https://git.jayw.uk` currently
-redirects anonymous visitors to Cloudflare Access, so a contributor cannot read the repo, the
-issues, or a badge.
-
-Cloudflare Zero Trust → Access → Applications → the app covering `git.jayw.uk`:
-
-- Add a policy: **Bypass**, Include **Everyone**, scoped to path `jaylouisw/packetforge*`.
-- Leave **Allow** (your IdP rule) on everything else: `/admin`, `/api`, other repos.
-
-Check it from outside your own network — a phone on mobile data, not this machine:
-
-```bash
-curl -s -o /dev/null -w '%{http_code}\n' https://git.jayw.uk/jaylouisw/packetforge   # want 200
-curl -s -o /dev/null -w '%{http_code}\n' https://git.jayw.uk/jaylouisw/packetforge/badges/workflows/ci.yml/badge.svg
+```sh
+git ls-remote origin refs/heads/main
+git ls-remote forgejo refs/heads/main     # equal, or the archive is simply older
 ```
 
-302 to `cloudflareaccess.com` means the bypass is not matching. Also enable anonymous read on the
-repository if the instance default is private (Settings → Advanced → *This repository is private*).
+**Never add a GitHub → Forgejo mirror.** A second live copy is a second answer to "what is the
+code", and the one that syncs second wins. The archive has no mirror configuration and should not
+gain one.
 
-## 6. What this repo enforces
+## 2. Pull requests: opened, reviewed and merged on GitHub
+
+`gh pr create --base main --head <branch> --title "..." --body "Fixes #N"`, then review on the pull
+request itself. CI is `.github/workflows/ci.yml`, and a red check is a red merge button.
+
+The bridge (`scripts/gh-bridge.js`) is still in the tree because it was what carried contributions
+in while the workshop was elsewhere. It speaks to the archive's API and it is not part of the merge
+path any more: do not run it, and do not add a job that does.
+
+## 3. Issues: one tracker
+
+`gh issue list` is the queue; `gh issue view N --comments` is the record; `gh issue close N` is the
+close. Label application, the `Fixes #N` convention and the two domain labels are in
+`docs/agents/issue-tracker.md` and `docs/agents/triage-labels.md`.
+
+The archive's issue numbers are not GitHub's. A link like `#1635` in a document written before
+2026-11-27 means the archive's issue 1635, not the one that number now names on GitHub — which is
+why the pre-move plans in `docs/plans/` are kept as written rather than re-pointed.
+
+## 4. CI and CD: GitHub Actions only
+
+`.github/workflows/ci.yml` is the pipeline: tests, syntax, examples, server smoke, the invariants.
+Six workflows lived in `.github/workflows/` until 2026-11-08 and were deleted in #1059, when a
+Forgejo runner read `.github/` as readily as GitHub's and ran them as a second, competing CI that
+failed every time (CodeQL needs github.com; the docker job wanted a docker binary the image did not
+have). The `.forgejo/workflows/` that replaced them are retained for provenance only: they are not
+scheduled, and a red run there says nothing about this repository.
+
+`docs/CI.md` is the map of what each check does and what a red one means.
+
+## 5. What this repo enforces
 
 - `scripts/canonical.ts` — the single definition of where the project lives. Change it there. It is
   TypeScript and every `.js` caller requires it as `require('./canonical.ts')`, extension and all,
   because CommonJS resolves `.js`, `.json` and `.node` and never a bare `.ts`.
-- `scripts/check-canonical-urls.js` — fails the build if any tracked file points at the old GitHub
-  repository, or if the README's clone URL and CI badge do not match the canonical base. It found
-  three stale links plus two scripts still calling `gh` the first time it ran.
-- `scripts/forgejo-api.js` — the tracker client the triage scripts use instead of `gh`. A missing
-  token is reported as *"cannot look"* and exits 2, never as *"no open requests"*.
-- `test/canonical-urls.test.js` — proves the checker can fail, so it is not a test that passes
-  because it checks nothing.
+- `scripts/check-canonical-urls.js` — fails the build if any tracked file points at the archive's
+  repository, if a document hands a reader a lab-network address, if a page claims the archive is
+  where the work happens, or if the README's clone URL and CI badge do not match the canonical base.
+  The rule is inverted from what it used to be, not deleted: it caught GitHub URLs when GitHub was
+  the mirror, and it catches Forgejo URLs now.
+- `test/canonical-urls.test.js` — proves the checker can fail on a Forgejo URL *and* pass a GitHub
+  one, so it is not a test that passes because it checks nothing.
+- `scripts/forgejo-api.js` and the triage scripts — still speak to the archive when reading its old
+  issue history. A missing token is reported as *"cannot look"* and exits 2, never as *"no open
+  requests"*.
 
-## Order of operations
+## If you only remember one thing
 
-1. Publish Forgejo (§5) — without this nothing else reaches a stranger.
-2. Add the push mirror (§1) and confirm `main` matches on both.
-3. Set up the PR bridge (§2) and watch the first GitHub PR land.
-4. Migrate the issues, then close the GitHub tracker (§3).
-5. Reduce GitHub CI to the courtesy subset (§4).
+Clone from `https://github.com/jaylouisw/packetforge.git`, file at
+<https://github.com/jaylouisw/packetforge/issues>, and read CI at
+<https://github.com/jaylouisw/packetforge/actions>. `git.jayw.uk/jaylouisw/packetforge` is a
+snapshot: correct on the day of the move, and wrong from the day after.

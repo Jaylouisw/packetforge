@@ -21,23 +21,24 @@
   // pick, then what to write in it. The report is assembled from the half only
   // the running app knows - build, Node, browser, page, catalogue size, the
   // canvas, the errors it caught - and handed to the person filing it.
-  const ISSUE_NEW = 'https://git.jayw.uk/jaylouisw/packetforge/issues/new';
+  const ISSUE_NEW = 'https://github.com/jaylouisw/packetforge/issues/new';
 
   // Which template the link selects, and why the body cannot travel in the URL.
   //
-  // This repository is a Forgejo with four YAML issue forms and
+  // This repository has four YAML issue forms and
   // `blank_issues_enabled: false` in .github/ISSUE_TEMPLATE/config.yml, and those two
   // facts decide where a prefilled report can go:
   //
-  //   * `GET /issues/new?title=…&body=…` does not render a form here. Forgejo
-  //     (v11, routers/web/repo/issue.go) redirects to `/issues/new/choose` whenever
-  //     blank issues are disabled and templates exist - and the chooser
-  //     (templates/repo/issue/choose.tmpl) rebuilds its buttons from the template list,
-  //     so neither the title nor the body survives the hop;
+  //   * `GET /issues/new?title=…&body=…` does not render a form here. The tracker
+  //     redirects to `/issues/new/choose` whenever blank issues are disabled and
+  //     templates exist - and the chooser rebuilds its buttons from the template list,
+  //     so neither the title nor the body survives the hop (measured on Forgejo v11,
+  //     routers/web/repo/issue.go and templates/repo/issue/choose.tmpl, while this
+  //     project's tracker ran there; GitHub's chooser has the same shape);
   //   * `?template=bug_report.yml` skips that redirect and renders the form, which
-  //     pre-fills its title from the query (`new_form.tmpl` reads `.TitleQuery`) and
-  //     has no consumer at all for a body - a YAML form's text comes from its own
-  //     fields, so `body=` is discarded without a word.
+  //     pre-fills its title from the query and has no consumer at all for a body - a
+  //     YAML form's text comes from its own fields, so `body=` is discarded without a
+  //     word.
   //
   // So the URL carries the template and the title, and the report travels on the
   // clipboard into the field the form already has for it. A report that lands in

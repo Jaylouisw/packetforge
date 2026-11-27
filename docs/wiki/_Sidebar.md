@@ -8,5 +8,5 @@
 
 ---
 
-- [Repository](https://git.jayw.uk/jaylouisw/packetforge)
-- [Request a device](https://git.jayw.uk/jaylouisw/packetforge/issues/new?template=device_request.yml)
+- [Repository](https://github.com/jaylouisw/packetforge)
+- [Request a device](https://github.com/jaylouisw/packetforge/issues/new?template=device_request.yml)

@@ -1,6 +1,13 @@
 # When the forge stops answering
 
-PacketForge lives on one Forgejo instance (`git.jayw.uk`, `odin:3000` on the lab
+> **Since 2026-11-27 this page is about the archive instance, not about the project.** Development,
+> CI, issues and releases are on GitHub (<https://github.com/jaylouisw/packetforge>); nothing you do
+> here blocks a merge there. The page is kept because `git.jayw.uk` is still up as a read-only
+> archive and still wedges, and because the ladder below is the record of how it wedges. A runbook
+> that is deleted the day it stops being on the critical path is a runbook you rewrite from nothing
+> the next time you need it.
+
+PacketForge lived on one Forgejo instance (`git.jayw.uk`, `odin:3000` on the lab
 network). When it wedges, **every** normal repair path stops at once: no push, no
 pull request, no issue comment, no workflow dispatch. This page is the ladder to
 climb before assuming anything, because the failure looks different depending on

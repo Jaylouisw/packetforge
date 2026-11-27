@@ -3,7 +3,7 @@
 **An open-source, vendor-agnostic network simulator — a modern alternative to
 Cisco Packet Tracer.**
 
-[![CI](https://git.jayw.uk/jaylouisw/packetforge/badges/workflows/ci.yml/badge.svg)](https://git.jayw.uk/jaylouisw/packetforge/actions?workflow=ci.yml)
+[![CI](https://github.com/jaylouisw/packetforge/actions/workflows/ci.yml/badge.svg)](https://github.com/jaylouisw/packetforge/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 PacketForge lets you drag-and-drop routers, switches, hosts, firewalls, access
@@ -36,7 +36,7 @@ and they all run the same simulation engine and the same command set.
 ### From source
 
 ```bash
-git clone https://git.jayw.uk/jaylouisw/packetforge.git
+git clone https://github.com/jaylouisw/packetforge.git
 cd packetforge
 node server/index.js
 ```
@@ -179,13 +179,16 @@ Contributions are welcome — especially new hardware models. See
 
 ## Where this project lives
 
-Development, CI and releases run on **Forgejo**; GitHub is a read-only mirror. Where the two differ,
-Forgejo is right. [docs/MIRRORING.md](docs/MIRRORING.md) explains what stays in sync, what cannot,
-and how a contribution made on GitHub reaches review here.
+Development, CI, releases and the issue tracker are on **GitHub**, at
+<https://github.com/jaylouisw/packetforge>. Clone it from there, open issues and pull requests there,
+and read CI at [/actions](https://github.com/jaylouisw/packetforge/actions). The self-hosted Forgejo
+instance the project used until 2026-11-27 is a retained read-only archive — nothing new is merged
+into it, and no instruction here points at it. [docs/MIRRORING.md](docs/MIRRORING.md) records the
+move, what the archive still holds, and the one rule that keeps the two from fighting.
 
 ### Want a device added?
 
-[**Open a hardware request →**](https://git.jayw.uk/jaylouisw/packetforge/issues/new?template=device_request.yml)
+[**Open a hardware request →**](https://github.com/jaylouisw/packetforge/issues/new?template=device_request.yml)
 
 Every device is one JSON file, so a good request is mostly a good datasheet link.
 Anything internet-connected is in scope: routers, switches, firewalls, APs and
