@@ -162,29 +162,30 @@ section('PoE is untouched: GS728TPv3 still powers what it powers');
   ok(pd.poeUnpowered === false, 'and the device is not marked unpowered');
 }
 
-section('No other Netgear template is left guessing -- one documented exception');
+section('No other Netgear template is left guessing');
 {
-  // GS748T's own description claims two of its SFP slots are combo/shared with RJ45 ports 47-48.
-  // If that holds, those two cages are combo, not rj45, and declaring rj45 would refuse a
-  // transceiver. The cage has to be settled from a datasheet row first, so it is counted here
-  // rather than skipped: a new Netgear spec cannot join it silently.
-  const EXCEPTIONS = { 'GS748T': 'combo-or-copper on ports 47-48 is unconfirmed (research/netgear-copper-ports.md)' };
+  // GS748T was the documented exception in the earlier pass: its description claims two shared
+  // SFP slots (combo with RJ45 ports 47-48), so declaring the whole 48-port template rj45 would
+  // have refused a transceiver in a position that takes one. Issue #1398 closes it by splitting
+  // the template at 46 and declaring ports 47-48 as the combo cages they are.
   const dir = path.join(__dirname, '..', 'devices', 'netgear');
   const guessing = [];
   for (const file of fs.readdirSync(dir)) {
     if (!file.endsWith('.json')) continue;
     const raw = JSON.parse(fs.readFileSync(path.join(dir, file), 'utf8'));
     if (!raw.portTemplate) continue;
-    if (EXCEPTIONS[raw.model]) continue;
     if (!raw.portTemplate.connector || !Array.isArray(raw.portTemplate.speedCaps) || !raw.portTemplate.speedCaps.length) {
       guessing.push(raw.model);
     }
   }
   ok(guessing.length === 0, 'every Netgear portTemplate declares a connector and a ladder', guessing.join(','));
-  ok(Object.keys(EXCEPTIONS).length === 1, 'and exactly one spec is held back, for a stated reason',
-    Object.keys(EXCEPTIONS).join(','));
-  const held = spec('GS748T').portTemplate;
-  ok(!!held && !held.connector, 'GS748T is still the undeclared one, not silently declared', JSON.stringify(held));
+  const tpl = spec('GS748T').portTemplate;
+  ok(tpl.count === 46, 'GS748T: the template is the 46 plain copper jacks', String(tpl.count));
+  ok(tpl.connector === 'rj45', 'declared copper', String(tpl.connector));
+  const c47 = spec('GS748T').interfaces.filter(function (p) { return p.name === 'port47'; })[0];
+  const c48 = spec('GS748T').interfaces.filter(function (p) { return p.name === 'port48'; })[0];
+  ok(!!c47 && c47.connector === 'combo', 'port47 is the combo position the description names', JSON.stringify(c47));
+  ok(!!c48 && c48.connector === 'combo', 'port48 is the other one', JSON.stringify(c48));
 }
 
 console.log('\n' + passed + ' passed, ' + failed + ' failed');

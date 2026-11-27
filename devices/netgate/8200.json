@@ -18,7 +18,8 @@
     "start": 1,
     "count": 4,
     "type": "ethernet",
-    "speed": "2.5G"
+    "speed": "2.5G",
+    "connector": "rj45"
   },
   "interfaces": [
     {

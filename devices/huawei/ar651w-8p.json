@@ -15,11 +15,60 @@
   "portTemplate": {
     "prefix": "GigabitEthernet0/0/",
     "start": 1,
-    "count": 10,
+    "count": 2,
     "type": "ethernet",
-    "speed": "1G"
+    "speed": "1G",
+    "connector": "combo"
   },
   "interfaces": [
+    {
+      "name": "GigabitEthernet0/0/3",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "rj45"
+    },
+    {
+      "name": "GigabitEthernet0/0/4",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "rj45"
+    },
+    {
+      "name": "GigabitEthernet0/0/5",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "rj45"
+    },
+    {
+      "name": "GigabitEthernet0/0/6",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "rj45"
+    },
+    {
+      "name": "GigabitEthernet0/0/7",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "rj45"
+    },
+    {
+      "name": "GigabitEthernet0/0/8",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "rj45"
+    },
+    {
+      "name": "GigabitEthernet0/0/9",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "rj45"
+    },
+    {
+      "name": "GigabitEthernet0/0/10",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "rj45"
+    },
     {
       "name": "WLAN-2.4G",
       "type": "wireless",
