@@ -75,12 +75,16 @@ ok(!!pf, 'app.js loaded and exposed its test surface');
 ok(typeof pf.bugReportUrl === 'function', 'the report builder is exposed (bugReportUrl)');
 ok(typeof pf.bugReportBody === 'function', 'the report body builder is exposed (bugReportBody)');
 
-// --- the link goes to this project's tracker, not a mirror -----------------
+// --- the link goes to this project's tracker, not the archive --------------
+// The project moved to GitHub on 2026-11-27 and the Forgejo instance became a
+// read-only archive, so the two assertions below say exactly what they said
+// before with the two hosts exchanged: the report must land on the tracker
+// somebody reads. Pointing at the archive would file it where nothing runs.
 console.log('\nThe report goes to the tracker that reads it:');
-ok(/^https:\/\/git\.jayw\.uk\//.test(pf.issueUrl || ''),
-  'issue base URL points at the Forgejo instance', pf.issueUrl);
-ok(!/github\.com/.test(pf.issueUrl || ''),
-  'issue base URL is not the retired GitHub mirror');
+ok(/^https:\/\/github\.com\/Jaylouisw\/packetforge\//i.test(pf.issueUrl || ''),
+  'issue base URL points at the GitHub repository', pf.issueUrl);
+ok(!/git\.jayw\.uk/.test(pf.issueUrl || ''),
+  'issue base URL is not the retired Forgejo archive');
 ok(/\/issues\/new$/.test(pf.issueUrl || ''), 'issue base URL ends at the new-issue form');
 
 // --- what a filled-in report contains -------------------------------------
@@ -166,7 +170,7 @@ ok(appjs.indexOf("$('#btn-bug')") !== -1, 'app.js binds a click handler to it');
 console.log('\nReporting still works when the script does not:');
 const href = (btnTag.match(/href="([^"]+)"/) || [])[1] || '';
 ok(href.length > 0, 'the control is an anchor with a static href, not a script-only button');
-ok(/^https:\/\/git\.jayw\.uk\/jaylouisw\/packetforge\/issues\/new\?template=bug_report\.yml/.test(href),
+ok(/^https:\/\/github\.com\/Jaylouisw\/packetforge\/issues\/new\?template=bug_report\.yml/i.test(href),
   'the static href opens the bug form itself, past the chooser that would drop the title');
 ok(/&title=/.test(href), 'with the title already set');
 ok(href.indexOf('body=') === -1, 'and without a body parameter the form would discard');

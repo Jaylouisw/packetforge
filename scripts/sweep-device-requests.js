@@ -62,10 +62,10 @@ function token() {
     }
   }
   throw new Error([
-    'no token: this script needs a Forgejo token to read the issue tracker.',
+    'no token: this script needs a GitHub token to read the issue tracker.',
     '',
     'Fix it one of these ways:',
-    '  1. export FORGEJO_TOKEN=<your token>        (also accepts GITHUB_TOKEN or GH_TOKEN)',
+    '  1. export GH_TOKEN=<your token>             (also accepts GITHUB_TOKEN, or FORGEJO_TOKEN for the archive)',
     '  2. put a token in the git remote URL:       https://<user>:<token>@github.com/jaylouisw/packetforge.git',
     '',
     'A token with read access to issues is enough for a report run; closing requests',
