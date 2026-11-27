@@ -77,14 +77,19 @@ it was truncating.
    family (small-business switches) from the IOS routers modelled here, so PacketForge keeps IOS's
    accumulate behaviour; the contradiction is recorded rather than hidden.
 3. **How `show running-config` groups the list.** One line with up to six addresses (IOS XE DNS guide) or
-   one line per address (fundamentals guide's startup-config sample)? Vendor examples disagree, so this
-   increment does not touch the printer: it still prints one line per address, which replays correctly into
-   the console because a one-address line is always valid. A single documented `show running-config`
-   transcript from a router with three configured servers would settle it.
-4. **Whether `no ip name-server <address>` removes one address or clears the list.** The command reference's
-   no-form takes `server-address1 [server-address2...server-address6]`, which reads as selective removal;
-   PacketForge still clears the whole list. Not changed here — one question per increment, and the evidence
-   for the exact removal semantics is thinner than for the six-address line.
+   one line per address (fundamentals guide's startup-config sample)? An Oracle Exadata procedure on a Cisco
+   9300 prints three configured servers on one line — `ip name-server 192.0.2.2 198.51.100.4 203.0.113.2` —
+   which is the strongest evidence found so far for the one-line grouping
+   (https://docs.oracle.com/en/engineered-systems/exadata-database-machine/dbmmn/change-dns-server-address-cisco-93xx-switch.html),
+   but this increment does not touch the printer: it still prints one line per address, which replays correctly
+   into the console because a one-address line is always valid.
+
+**One question from an earlier list is settled since this note was written:** whether `no ip name-server
+<address>` removes one address or clears the list. The no-form names the addresses it removes — the command
+reference's `server-address1 [server-address2...server-address6]` plus "To remove the addresses specified", the
+3560-X and IE 3010 guides' singular sentence, and an Oracle procedure on two Cisco switch families that removes
+three servers with three separate one-address commands. PacketForge used to clear the whole list; it now removes
+exactly the addresses named. `research/no-ip-name-server-removal.md` carries the sources and the implementation.
 
 ## What would settle it
 
