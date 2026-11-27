@@ -293,6 +293,30 @@ function checkTemplatePort(spec, decl, iface) {
         'Nothing here can be checked against a datasheet, and a wrong connector or a wrong line rate can never be caught'
     });
   }
+  // A template whose rate ladder reaches 10 Gbit/s and which still never says what the
+  // cage is (#1069). At 1G the inference is safe because RJ45 is what a 1G Ethernet port
+  // almost always is; at 10G it is not, because 10GBASE-T and SFP+ are both ordinary and
+  // the rate alone cannot choose. inferCage() then reads the port NAME, so the cage is a
+  // guess about hardware rather than a transcription of it - and the 288 ports #1074 fixed
+  // were exactly that: fibre boxes presenting as racks of RJ45 with nothing to contradict.
+  // The catalogue now declares all of them, so this is gated: a new 10G+ template that
+  // forgets its connector fails the audit instead of becoming another silent guess.
+  if (!declaresConnector(decl)) {
+    const caps = (iface && iface.hardware && Array.isArray(iface.hardware.speedCaps)) ? iface.hardware.speedCaps : [];
+    const fastest = caps.reduce(function (m, v) { return Math.max(m, Number(v) || 0); }, 0) ||
+      (knownSpeedMbps(decl, tpl) || 0);
+    if (fastest >= 10000) {
+      hits.push({
+        rule: 'template-implicit-connector-at-10g',
+        severity: 'high',
+        note: 'the portTemplate never declares a connector, yet its rate ladder reaches ' +
+          (fastest >= 1000 ? (fastest / 1000) + ' Gbit/s' : fastest + ' Mbit/s') + ', so the ' +
+          String(iface && iface.hardware && iface.hardware.cage) + ' cage it presents as is inferred from the port name. ' +
+          'At 10 Gbit/s and above that guess has to choose between copper (10GBASE-T) and an optical cage, and nothing ' +
+          'in the spec can contradict it: declare connector "rj45", "sfp+", "sfp28", "qsfp+" or "qsfp28"'
+      });
+    }
+  }
   return hits;
 }
 

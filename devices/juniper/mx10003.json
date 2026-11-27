@@ -14,7 +14,8 @@
     "start": 0,
     "count": 12,
     "type": "ethernet",
-    "speed": "100G"
+    "speed": "100G",
+    "connector": "qsfp28"
   },
   "interfaces": [
     {

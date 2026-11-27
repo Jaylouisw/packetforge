@@ -178,7 +178,15 @@ console.log('\nA silent template is reported by the port-type audit:');
     portTemplate: { prefix: 'Et', count: 4, type: 'ethernet', speed: '25G' }
   };
   const resRated = audit.auditSpec(rated);
-  ok(resRated.offenders.length === 0, 'a readable rate alone produces no offender');
+  // A readable rate alone stopped being enough at 10G (#1069): the rate cannot choose
+  // between 10GBASE-T copper and an optical cage, so a 25G template that names no
+  // connector now trips the gated rule instead of passing quietly - the cage it presents
+  // as is still a guess from the port name.
+  const ratedFlagged = resRated.offenders.filter(function (o) {
+    return o.rules.indexOf('template-implicit-connector-at-10g') !== -1;
+  });
+  ok(ratedFlagged.length === 4,
+    'a readable 25G rate with no connector is flagged as an implicit cage (got ' + ratedFlagged.length + ')');
   ok(resRated.undeclaredPorts.length === 4,
     'but its 4 ports are counted as having no declared connector (got ' + resRated.undeclaredPorts.length + ')');
 
@@ -191,13 +199,90 @@ console.log('\nA silent template is reported by the port-type audit:');
     interfaces: [{ name: 'Et3', type: 'ethernet', speed: '25G' }]
   };
   const resCollide = audit.auditSpec(collide);
-  ok(resCollide.offenders.length === 1 &&
-    resCollide.offenders[0].rules.indexOf('port-name-declared-twice') !== -1,
+  // The collision is reported on its own before any cage rule runs, so it is the only
+  // finding for that port even though the 25G template also owes a connector.
+  const collided = resCollide.offenders.filter(function (o) {
+    return o.rules.indexOf('port-name-declared-twice') !== -1;
+  });
+  ok(collided.length === 1 && collided[0].port === 'Et3',
     'a name declared by both the template and an explicit port is reported');
   ok(new Topology().addDevice(collide).interfaces.size === 4,
     'and the engine really does keep only 4 of the 5 declared ports');
 }
 
+console.log('\nA template at 10G or faster must declare its cage (#1069):');
+{
+  // At 1 Gbit/s RJ45 is what a 1G Ethernet port almost always is, so the inference there is
+  // safe and stays allowed. At 10G and above both 10GBASE-T and SFP+ are ordinary, and
+  // inferCage() has to read the port NAME to choose - a guess about hardware rather than a
+  // transcription of it. The 288 ports #1074 fixed were fibre boxes presenting as racks of
+  // RJ45 for exactly this reason, with nothing in the spec to contradict them.
+  const tenG = {
+    vendor: 'fixture', model: 'implicit-10g', category: 'switch',
+    portTemplate: { prefix: 'Gi1/0/', start: 1, count: 4, type: 'ethernet', speed: '10G' }
+  };
+  const resTen = audit.auditSpec(tenG);
+  const implicit = resTen.offenders.filter(function (o) {
+    return o.rules.indexOf('template-implicit-connector-at-10g') !== -1;
+  });
+  ok(implicit.length === 4, 'all 4 ports of an undeclared 10G template are flagged (got ' + implicit.length + ')');
+  ok(implicit.length > 0 && implicit[0].severity === 'high', 'the finding is gated, not report-only');
+  ok(implicit.length > 0 && implicit[0].origin === 'template', 'and it says the port came from the template');
+  ok(implicit.length > 0 && implicit[0].note.indexOf('reaches 10 Gbit/s') !== -1,
+    'the note states the rate ladder that makes the guess unsafe');
+  ok(implicit.length > 0 && implicit[0].note.indexOf('declare connector') !== -1,
+    'and names the fix rather than only the fault');
+
+  // Declaring the cage - either spelling - is the whole fix, and declaring it does not
+  // invent a rate ladder the port did not already present.
+  const declaredRj45 = Object.assign({}, tenG, {
+    portTemplate: Object.assign({}, tenG.portTemplate, { connector: 'rj45' })
+  });
+  ok(audit.auditSpec(declaredRj45).offenders.length === 0, 'declaring connector rj45 silences the finding');
+  const declaredCage = Object.assign({}, tenG, {
+    portTemplate: Object.assign({}, tenG.portTemplate, { cage: 'sfp+' })
+  });
+  ok(audit.auditSpec(declaredCage).offenders.length === 0, 'so does the alias cage sfp+');
+
+  // 1G is not affected: a template that tops out at 1G is left to the inference, because
+  // there the inference is right by default.
+  const oneG = {
+    vendor: 'fixture', model: 'implicit-1g',
+    portTemplate: { prefix: 'Gi1/0/', start: 1, count: 4, type: 'ethernet', speed: '1G' }
+  };
+  ok(audit.auditSpec(oneG).offenders.length === 0, 'a 1G template with no connector is not flagged');
+
+  // And the catalogue is clean: every template whose ladder reaches 10G now says what its
+  // cage is, so a new one cannot re-introduce the guess.
+  const stillImplicit = [];
+  for (const spec of catalog) {
+    const r = audit.auditSpec(spec);
+    if (r.offenders.some(function (o) { return o.rules.indexOf('template-implicit-connector-at-10g') !== -1; })) {
+      stillImplicit.push(spec.vendor + '/' + spec.model);
+    }
+  }
+  ok(stillImplicit.length === 0, 'no spec in the catalogue leaves a 10G+ template connector implicit' +
+    (stillImplicit.length ? ' (' + stillImplicit.slice(0, 3).join(', ') + ')' : ''));
+
+  // The declaration is not a new claim: each of these presents the cage its own description
+  // names, which is the cage the inference had been producing anyway.
+  const declaredCages = [
+    ['cisco', 'N9K-C93180YC-FX', 'sfp28'],
+    ['juniper', 'MX480', 'sfp+'],
+    ['juniper', 'QFX10002-36Q', 'qsfp+'],
+    ['cisco', 'C9300-24UX', 'rj45'],
+    ['paloalto', 'PA-5220', 'rj45']
+  ];
+  for (const row of declaredCages) {
+    const spec = specOf(row[0], row[1]);
+    const dev = spec ? new Topology().addDevice(spec) : null;
+    const firstIface = dev ? dev.interfaces.get(dev.spec.interfaces[0].name) : null;
+    ok(!!spec && !!spec.portTemplate && spec.portTemplate.connector === row[2] &&
+      !!firstIface && firstIface.hardware.cage === row[2],
+      row[0] + '/' + row[1] + ' declares and presents ' + row[2] +
+      (firstIface ? ' (got ' + firstIface.hardware.cage + ')' : ' (spec missing)'));
+  }
+}
 console.log('\nReal templates expand to the documented port count:');
 {
   // Sampled by hand against each spec's own description. Three of the four agree.

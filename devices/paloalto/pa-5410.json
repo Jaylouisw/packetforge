@@ -16,7 +16,8 @@
     "start": 1,
     "count": 8,
     "type": "ethernet",
-    "speed": "10G"
+    "speed": "10G",
+    "connector": "rj45"
   },
   "interfaces": [
     {
