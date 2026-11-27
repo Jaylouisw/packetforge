@@ -222,7 +222,7 @@ and `npm test` runs it as the third command of its chain, unchanged apart from t
 
 1. **Rename it**: `git mv scripts/thing.js scripts/thing.ts`. Keep the name otherwise identical —
    every reference is by path, and `git mv` keeps the history one file.
-2. **Update every reference**: `package.json` scripts, `.forgejo/workflows/ci.yml` (steps, log
+2. **Update every reference**: `package.json` scripts, `.github/workflows/ci.yml` (steps, log
    names, and the expected-chain strings that name the command), docs, and any `require()` of it.
    `grep -rn 'thing.js' --include='*.js' --include='*.ts' --include='*.yml' --include='*.md' .`
 3. **Type it as you go, not after**: annotate every function you touch, every parameter, every
