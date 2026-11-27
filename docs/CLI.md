@@ -318,7 +318,7 @@ takes back.
 | routing | `ip route <dest> <mask> <gateway> [iface] [<distance>]` - or the vendor's fully specified order, `ip route <dest> <mask> <iface> <gateway> [<distance>]` - `ip default-gateway <addr>`, and `ip routing` when the box is not in its platform's default state |
 | NAT | `ip nat pool <name> <start> <end> netmask <mask>`, and one `ip nat inside source …` line per rule, printed as the command that creates it (`static <local> <global> [<protocol> <port>]`, or `list <local> pool <name>` or `list <local> interface <if>`, with `overload` on a PAT rule) |
 | spanning tree | `spanning-tree priority <n>` whenever a bridge priority has been set - a typed `32768`, the value the box already assumes, is printed too, because the config records that an operator set one |
-| name servers | `ip name-server <addr>` - a command line takes up to six addresses, space separated, and the printer writes one line for each; the `no` form accepts an address but clears every resolver, not just that one (below) |
+| name servers | `ip name-server <addr>` - a command line takes up to six addresses, space separated, and the printer writes one line for each, but the box holds six in all: a line that would make a seventh is refused whole, and an address already on the list is not a second server; the `no` form names the addresses it removes, one receipt per address, and only a bare `no ip name-server` clears the list (below) |
 | SCION | `scion <isd-as>` |
 | OSPF | `ospf router-id <ip>`, `ospf area <id>`, and per interface `ip ospf cost <n>`, `ip ospf area <id>`, `ip ospf priority <0-255>`, `ip ospf passive` |
 | BGP | `router bgp <as>`, `bgp router-id <ip>`, `neighbor <ip> remote-as <as>` |
