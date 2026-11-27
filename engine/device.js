@@ -112,6 +112,13 @@ class Interface {
     };
     this.lagId = null;        // LAG (link aggregation) group this port belongs to
     this.duplex = 'full';
+    // The *administrative* duplex, which is a different fact from the resolved one above. A box's default
+    // is `auto` (Catalyst 2960-X `duplex`, Command Default: "The default is auto for Fast Ethernet and
+    // Gigabit Ethernet ports"), and the setting is what it prints for a port with no link - `Auto-duplex`
+    // - not the full duplex the link would come up at. `duplex` stays the value the data plane, the LAG
+    // member check and the mismatch rule read, so nothing about forwarding changes when this is set.
+    // Evidence: research/interface-duplex-when-link-down.md.
+    this.duplexMode = 'auto';
     // A rate forced by configuration (`speed 100`), in Mbps, or null for auto-negotiation. The validator
     // has modelled a duplex mismatch since the beginning and nothing could ever set duplex, so the rule
     // was unreachable; both live here now and both are read by validateLink (#1259).
@@ -1658,6 +1665,10 @@ class Device {
           // so a document that says nothing about it reads back as the empty slot it describes.
           mediaDeclared: i.hardware.mediaDeclared === true ? true : undefined,
           duplex: i.duplex,
+          // Written only when it differs from the default, for the same optional-field reason as the
+          // hardware keys above: a fresh port must not grow a key, and a saved `duplex half` must come
+          // back half (research/interface-duplex-when-link-down.md).
+          duplexMode: (i.duplexMode && i.duplexMode !== 'auto') ? i.duplexMode : undefined,
           vlan: (function () {
             // The voice VLAN is written only when it is set, for the same reason the optional hardware fields
             // above are: a board should not grow a `voiceVlan: null` line on every port in the catalogue. It is
@@ -1833,6 +1844,7 @@ class Device {
           // port has, or every catalogue sweep sees one extra key on every port.
           if (is.encapNative) iface.encapNative = true;
           if (is.duplex) iface.duplex = is.duplex;
+          if (is.duplexMode) iface.duplexMode = is.duplexMode;
           // The address the document states, which no loader ever read (#1521). Only a unicast address a port can
           // actually have is adopted - `Topology._assignMacs` gives the port a free one otherwise, and `fromJSON`
           // reports what the document said.
