@@ -55,7 +55,7 @@ this tree already does, and the row says where, in the code rather than in a pro
 
 - [ ] More device models + a community device-pack format.
 - [ ] Unit tests for the simulator's edge cases (loops, ARP retries, TTL).
-- [x] CI - `.forgejo/workflows/ci.yml` runs the suite on Node 22 and 24 - the 22.18 floor
+- [x] CI - `.github/workflows/ci.yml` runs the suite on Node 22 and 24 - the 22.18 floor
       (`engines.node` in `package.json`: the oldest runtime that strips the types in `engine/*.ts`
       with no build step) and the newest - with the live-server smoke test beside the image build;
       [CI.md](CI.md) is the page that says what each job proves.
