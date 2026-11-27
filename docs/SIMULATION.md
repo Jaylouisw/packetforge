@@ -515,22 +515,22 @@ layer exists in `engine/bgp.js` today.
 
 | Verdict | Behaviour | Where |
 |---|---|---|
-| **Modelled** | Wired links run at the highest **common** rate, then clamped to what the chosen medium can carry. | `engine/media.js:736-741`, `engine/validation.js:610-619` |
-| **Modelled** | A 10G SFP+ cabled to a 1G SFP negotiates 1000BASE-X at 1 Gbps — correct, because the cage accepts a 1G optic. | `engine/media.js:211-219` |
-| **Modelled** | `W_SPEED_DOWNGRADE` warns when the link runs below **either** port's maximum — both ends (two 10G cages with a 1G module), or one end against a slower peer (10G RJ45 into 1G RJ45 negotiates 1000). A link running at an installed module's own rate is exempt, because the part was chosen. | `engine/validation.js:855-899` |
-| **Modelled** | `E_NO_COMMON_SPEED` blocks a pair with no shared rate. | `engine/validation.js:126` |
-| **Approximate** | A radio association deliberately does **not** require an exact match: the client takes the best rate both sides and the band can sustain. | `engine/media.js:709-734` |
-| **Modelled** | A port's rate and duplex are pinnable from the console — `speed auto\|<mbps>` (`speed 100`, `speed 1G`; a rate the catalogue ladder has not got is refused, naming what the port does support) and `duplex auto\|full\|half` — and the write goes back through the same mating rule, so a forced rate no peer shares takes the link down instead of being ignored. `W_DUPLEX_MISMATCH` becomes reachable once one end is forced to half. | `engine/cli.js:2678-2702` (the dispatch branches), `engine/cli.js:3267` `_speed()`, `engine/cli.js:3367` `_duplex()` |
-| **Absent** | Autonegotiation as a process (no FLP bursts, no parallel detection), half-duplex collisions, duplex mismatch as anything but a warning. | `engine/validation.js:743-749` |
+| **Modelled** | Wired links run at the highest **common** rate, then clamped to what the chosen medium can carry. | `engine/media.js:1332-1338` `negotiateSpeed()`, `engine/validation.js:732-740` |
+| **Modelled** | A 10G SFP+ cabled to a 1G SFP negotiates 1000BASE-X at 1 Gbps — correct, because the cage accepts a 1G optic. | `engine/media.js:589-593` (the SFP+ medium list), `engine/media.js:739` (its rate ladder) |
+| **Modelled** | `W_SPEED_DOWNGRADE` warns when the link runs below **either** port's maximum — both ends (two 10G cages with a 1G module), or one end against a slower peer (10G RJ45 into 1G RJ45 negotiates 1000). A link running at an installed module's own rate is exempt, because the part was chosen. | `engine/validation.js:904-949` |
+| **Modelled** | `E_NO_COMMON_SPEED` blocks a pair with no shared rate. | `engine/media.js:1511-1516` `canMate()` |
+| **Approximate** | A radio association deliberately does **not** require an exact match: the client takes the best rate both sides and the band can sustain. | `engine/media.js:1315-1331` `negotiateSpeed()` |
+| **Modelled** | A port's rate and duplex are pinnable from the console — `speed auto\|<mbps>` (`speed 100`, `speed 1G`; a rate the catalogue ladder has not got is refused, naming what the port does support) and `duplex auto\|full\|half` — and the write goes back through the same mating rule, so a forced rate no peer shares takes the link down instead of being ignored. `W_DUPLEX_MISMATCH` becomes reachable once one end is forced to half. | `engine/cli.js:3084-3109` (the dispatch branches), `engine/cli.js:3801` `_speed()`, `engine/cli.js:3901` `_duplex()`; the link is re-judged by `engine/topology.js:420-448` `renegotiate()` |
+| **Absent** | Autonegotiation as a process (no FLP bursts, no parallel detection), half-duplex collisions, duplex mismatch as anything but a warning. | `engine/validation.js:891-902` |
 
 ### 6.3 PoE
 
 | Verdict | Behaviour | Where |
 |---|---|---|
 | **Modelled** | Per-port PSE/PD wattage, derived from the spec or inferred (802.3af 15.4 W out / 12.95 W in defaults). The inference reads the port's own name first, then the device's model and label - and a label that denies PoE ("... no PoE") is a denial, not a claim: the three EnGenius non-PoE rows (ECS1528, ECS2512, ECS5512) source nothing, as the vendor's model-comparison table prints "PoE Capable Ports: -" and "Total PoE Budget: -" for each ([EnGenius model comparison](https://www.engeniustech.com/eu/products/network-switches/ecs2512fp/)). | `engine/media.js:1139-1172` `isPoePse()` |
-| **Modelled** | Device-level budget, read from the spec or parsed out of the model string (`"… PoE+ 370W"`). | `engine/media.js:806-812` |
-| **Modelled** | Budget is allocated before the run; a port that cannot be funded marks its peer `poeUnpowered`, and that device then neither transmits nor receives (`poe-deny` events both ways). | `engine/simulator.js:1211-1259`, `engine/simulator.js:1534-1540`, `engine/simulator.js:1783-1789` |
-| **Modelled** | Cable-time check: `E_POE_BUDGET` refuses a link that would over-subscribe the PSE; `W_POE_DRAW` warns about a powered device on a port that cannot supply power. | `engine/validation.js:668-690`, `engine/validation.js:763-777` |
+| **Modelled** | Device-level budget, read from the spec or parsed out of the model string (`"… PoE+ 370W"`). | `engine/device.js:218-230` (spec, research, unknown, then the name), `engine/media.js:1579-1585` `parsePoeBudget()` |
+| **Modelled** | Budget is allocated before the run; a port that cannot be funded marks its peer `poeUnpowered`, and that device then neither transmits nor receives (`poe-deny` events both ways). | `engine/simulator.js:2663-2726` `computePoe()`, `engine/simulator.js:4244-4249` |
+| **Modelled** | Cable-time check: `E_POE_BUDGET` refuses a link that would over-subscribe the PSE; `W_POE_DRAW` warns about a powered device on a port that cannot supply power. | `engine/validation.js:823-841`, `engine/validation.js:973-987` |
 | **Modelled** | Allocation order is **port order** - numeric, not string order - so the ports left dark are the highest-numbered ones. That is the one ordering Cisco states (power is granted "in ascending order of the port numbers" and denied "in descending order of the port numbers", [research/poe-allocation-order.md](../research/poe-allocation-order.md)). Budgets are accounted in milliwatts, so a budget exactly equal to the draw of N ports funds all N. | `engine/simulator.js` `computePoe()`, `engine/iface-name.js` `comparePortNames()` |
 | **Absent** | PoE class negotiation and classification, 802.3bt Type 3/4 class levels, power priority/critical ports, per-port current limits, power budgeting over time, inrush. | — |
 
@@ -581,7 +581,7 @@ that it covers **cages and speeds**, not "this cable will carry traffic".
 | **Modelled** | Five radio media: 2.4 GHz, 5 GHz, 6 GHz (Wi-Fi 6E), 6 GHz (Wi-Fi 7), 60 GHz (802.11ad). | `engine/media.js:145-149` |
 | **Modelled** | A radio's band set follows its **generation**, which follows its rate (n/ac/ax/be), unless the spec states bands explicitly. A Wi-Fi 5 radio is 2.4+5. | `engine/media.js:532-560` |
 | **Modelled** | 60 GHz is a different radio, not a faster one: it is selected from the model text (`60 GHz`, `802.11ad`, `WiGig`), never from a high rate. | `engine/media.js:551-554` |
-| **Modelled** | Association = the best shared band caps the rate, so a 2.5 Gbps phone on a 574 Mbps 2.4 GHz radio associates at 574 instead of refusing. | `engine/media.js:709-734` |
+| **Modelled** | Association = the best shared band caps the rate, so a 2.5 Gbps phone on a 574 Mbps 2.4 GHz radio associates at 574 instead of refusing. | `engine/media.js:1315-1331` `negotiateSpeed()` |
 | **Modelled** | A radio can never be cabled to a wired port (`E_WIRELESS_TO_WIRED`), and an antenna port is not a cable at all. | `engine/media.js:748-752` |
 | **Approximate** | "Wireless" is a link type with an antenna cage. There is no shared medium: two clients on one AP do not contend, do not share airtime, and cannot hear each other. | — |
 | **Absent** | SSID, BSSID, beacons, association/auth frames, WPA/PSK/802.1X, channels and width, interference, RSSI, rate adaptation, retries, roaming, mesh, band steering, hidden SSID, MU-MIMO/OFDMA. `grep -i "ssid\|channel\|interfer" engine/*.js` finds nothing in the forwarder. | — |
