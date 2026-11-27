@@ -13,20 +13,39 @@
     "start": 1,
     "count": 8,
     "type": "ethernet",
-    "speed": "1G"
+    "speed": "1G",
+    "connector": "rj45",
+    "speedCaps": [
+      10,
+      100,
+      1000
+    ],
+    "poeOut": 30
   },
   "interfaces": [
     {
       "name": "SFP1",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
     },
     {
       "name": "SFP2",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
     }
   ],
+  "poe": {
+    "budgetW": 150,
+    "note": "Vendor spec rows: \"PoE+ Ports: 8 Ports\", \"PoE Power Budget: 150 W\", \"up to 30 W on each port\" (802.3af/at). The budget is the supply, not 8 x 30 W; it limits a full row of PoE+ loads, which is why the ports declare 30 W and the chassis declares 150 W."
+  },
   "icon": "switch",
   "color": "#22c55e"
 }
