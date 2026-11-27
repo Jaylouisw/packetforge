@@ -390,7 +390,13 @@ function cachePort(cache, iface, dev) {
 
 // Total PoE draw of the powered ports of one PSE, or null when the device has
 // no budget to police (budget 0 / absent == unlimited or no PoE at all).
-function pseDraw(cache, dev, connecting) {
+//
+// `ownIface` is THIS PSE's end of the cable being validated. It used to be an
+// array holding both ends, and the second loop charged the far end's PSE port to
+// this device's budget: a PoE passthrough PD (EAP225-Wall and friends) was then
+// refused at cabling time against its own output budget, naming the other
+// device's port (#1621). One budget, one side.
+function pseDraw(cache, dev, ownIface) {
   if (!dev) return null;
   const budget = numOrNull(dev.poeBudget);
   if (budget === null || !(budget > 0)) return null;
@@ -403,16 +409,15 @@ function pseDraw(cache, dev, connecting) {
     seen.add(iface);
     const hw = cachePort(cache, iface, dev);
     if (!hw || !(hw.poeOut > 0)) continue;
-    const inPlay = !!iface.peer || connecting.indexOf(iface) !== -1;
+    const inPlay = !!iface.peer || iface === ownIface;
     if (!inPlay) continue;
     total += hw.poeOut;
     ports.push(hw.name);
   }
 
   // A caller may hand us a port object that is not (yet) in device.interfaces.
-  for (const iface of connecting) {
-    if (!iface || seen.has(iface)) continue;
-    const hw = cachePort(cache, iface, dev);
+  if (ownIface && !seen.has(ownIface)) {
+    const hw = cachePort(cache, ownIface, dev);
     if (hw && hw.poeOut > 0) {
       total += hw.poeOut;
       ports.push(hw.name);
@@ -816,16 +821,14 @@ function validateConnection(input) {
   }
 
   // -- E_POE_BUDGET ---------------------------------------------------------
-  const connecting = [];
-  if (ifaceA) connecting.push(ifaceA);
-  if (ifaceB) connecting.push(ifaceB);
-
+  // Each side is billed for its own PSE ports only. Handing both ends to one
+  // budget let a passthrough PD be refused for the far end's port (#1621).
   const sides = [
-    { dev: devA, other: 'B' },
-    { dev: devB, other: 'A' }
+    { dev: devA, own: ifaceA },
+    { dev: devB, own: ifaceB }
   ];
   for (const side of sides) {
-    const draw = pseDraw(cache, side.dev, connecting);
+    const draw = pseDraw(cache, side.dev, side.own);
     if (draw && draw.total > draw.budget) {
       errors.push({
         code: 'E_POE_BUDGET',
