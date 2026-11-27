@@ -196,9 +196,9 @@ ports" ([research/voice-vlan-port-mode.md](../research/voice-vlan-port-mode.md))
 
 | Verdict | Behaviour | Where |
 |---|---|---|
-| **Modelled** | A **passive tap** (`category: tap` with no capabilities, or `passive: true`) passes frames between its network ports unchanged and duplicates them to monitor ports. A frame arriving on a monitor port is refused (`tap-inject-refused`) — a tap is not a hub. | `engine/simulator.js:1798-1821`, `engine/device.js:323` |
-| **Modelled** | A **passive splitter** (`category: splitter`) replicates to every other leg, unchanged, in both directions. No learning, no lookup, no VLAN rewrite. | `engine/simulator.js:1824-1834`, `engine/device.js:317` |
-| **Modelled** | Neither can learn: the MAC-learning step explicitly skips them, so a tap cannot be credited with a table it could not hold. | `engine/simulator.js:3413` (`!isSplitter() && !isPassiveTap()`) |
+| **Modelled** | A **passive tap** (`category: tap` with no capabilities, or `passive: true`) passes frames between its network ports unchanged and duplicates them to monitor ports - a port counts as a monitor when its name begins `mon`/`monitor`, there is no monitor flag in the spec. A frame arriving on a monitor port is refused (`tap-inject-refused`, `simulator.js:3547`) — a tap is not a hub. | `engine/simulator.js:3536-3561`, `engine/device.js:726-731` |
+| **Modelled** | A **passive splitter** (`category: splitter`) replicates to every other leg, unchanged, in both directions. No learning, no lookup, no VLAN rewrite. | `engine/simulator.js:3563-3573`, `engine/device.js:721` |
+| **Modelled** | Neither can learn: the MAC-learning step explicitly skips them, so a tap cannot be credited with a table it could not hold. | `engine/simulator.js:3442` (`!isSplitter() && !isPassiveTap()`) |
 | **Approximate** | SFP-based taps (the active/aggregating kind) are treated as passive if the spec says so; there is no aggregation port, no timestamping, no oversubscription. | — |
 
 ### 2.6 Bridge groups

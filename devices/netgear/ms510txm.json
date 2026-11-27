@@ -15,28 +15,66 @@
     "start": 1,
     "count": 4,
     "type": "ethernet",
-    "speed": "2.5G"
+    "speed": "2.5G",
+    "connector": "rj45",
+    "speedCaps": [
+      100,
+      1000,
+      2500
+    ]
   },
   "interfaces": [
     {
       "name": "port5",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "rj45",
+      "speedCaps": [
+        100,
+        1000,
+        2500,
+        5000,
+        10000
+      ]
     },
     {
       "name": "port6",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "rj45",
+      "speedCaps": [
+        100,
+        1000,
+        2500,
+        5000,
+        10000
+      ]
     },
     {
       "name": "port7",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "rj45",
+      "speedCaps": [
+        100,
+        1000,
+        2500,
+        5000,
+        10000
+      ]
     },
     {
       "name": "port8",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "rj45",
+      "speedCaps": [
+        100,
+        1000,
+        2500,
+        5000,
+        10000
+      ]
     },
     {
       "name": "sfp+1",
