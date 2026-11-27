@@ -3842,8 +3842,11 @@ class CliSession {
           ', and half duplex exists only at 10 and 100 Mb/s: force `speed 100` first, or use `duplex full`'];
       }
     }
-    // `auto` means "let the link decide", and what a link decides in this engine is full duplex.
+    // `auto` means "let the link decide", and what a link decides in this engine is full duplex. The setting
+    // is recorded beside the resolved value: a box prints the *setting* for a port that has no link to
+    // negotiate one (`Auto-duplex`), and only the resolved value for a port that is up.
     iface.duplex = (want === 'auto') ? 'full' : want;
+    iface.duplexMode = want;
     this._renegotiate(iface);
     return ['Duplex ' + (want === 'auto' ? 'auto (full)' : want) + ' on ' + iface.name];
   }
@@ -6378,8 +6381,25 @@ class CliSession {
     // rated speed is what the hardware could do, and the cable's rate is what the DCE is clocking. Without this an
     // operator had to remember which end they configured, and `link runs at 0Mb/s` was the only hint (#1483).
     if (iface.clockRateBps) text += ', DCE, clock rate ' + iface.clockRateBps;
-    text += ', duplex: ' + (iface.duplex || 'full');
+    text += ', duplex: ' + this._reportedDuplex(iface);
     return text;
+  }
+
+  // The duplex a box prints, which is not one value but two depending on the link.
+  //
+  // A Catalyst reports the *setting* for a port that has nothing to negotiate with - a `notconnect` port reads
+  // `Auto-duplex, Auto-speed, media type is 10/100/1000BaseTX` in the 2960-XR command reference's own `show
+  // interfaces` sample - and the resolved duplex once the link is up (`Full-duplex, 1000Mb/s`). This line
+  // printed `full` for every port, so a socket with no cable claimed a duplex no link had agreed to, one space
+  // after a rate already marked `(auto)`: the same line disagreeing with itself about what had been negotiated.
+  // The setting travels on `iface.duplexMode`; `iface.duplex` is still the resolved value the data plane and
+  // the mismatch rule read. Evidence: research/interface-duplex-when-link-down.md.
+  _reportedDuplex(iface) {
+    const up = (this.device && typeof this.device.ifaceStatus === 'function')
+      ? this.device.ifaceStatus(iface, this.topo).status === 'up'
+      : true;
+    if (up) return iface.duplex || 'full';
+    return iface.duplexMode || 'auto';
   }
 
   // Where each member of one bundle stands, in one place: `show etherchannel summary` prints its letters from
@@ -8382,7 +8402,10 @@ class CliSession {
         // Only when forced: a config that emits `speed auto` on every port is noise, and the round trip
         // already asserts that nothing configured is left out (#1259).
         if (i.speedMbps) out.push(IN_SUBMODE + 'speed ' + i.speedMbps);
-        if (i.duplex && i.duplex !== 'full') out.push(IN_SUBMODE + 'duplex ' + i.duplex);
+        // The *setting*, so a `duplex full` an operator typed is in the config (it was invisible: the line was
+        // keyed on the resolved value, which is `full` whether the setting is full or auto), and `duplex auto`
+        // - the default - is not.
+        if (i.duplexMode && i.duplexMode !== 'auto') out.push(IN_SUBMODE + 'duplex ' + i.duplexMode);
         // A serial line's DCE claim, in the config where an operator looks for it. `clock rate` was a command that
         // took effect and left no trace in running-config, so a backup of a WAN lab did not say which end clocks the
         // line - and restoring it gave an unclocked link the validation refuses (#1483).

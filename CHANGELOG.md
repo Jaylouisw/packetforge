@@ -18,6 +18,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **`show interfaces <port>` claimed `duplex: full` for a port with no link — a duplex nothing had
+  negotiated.** A Catalyst reports the *setting* for a port that is not up (`Auto-duplex, Auto-speed,
+  media type is 10/100/1000BaseTX` on a `notconnect` port, in the 2960-XR command reference's own sample of
+  the command) and the resolved value once the link is up. The block printed the model's resolved `full`
+  either way, one space after a rate already marked `(auto)`. The setting now travels beside it
+  (`iface.duplexMode`, `auto` by default), so a dead port reads `duplex: auto`, a hard-set one reads what was
+  set, and an up port reads what was negotiated — the data plane, the LAG member check and
+  `W_DUPLEX_MISMATCH` still read `iface.duplex` and are unchanged. `show running-config` writes the setting,
+  so an explicit `duplex full` is no longer invisible (it was keyed on the resolved value, which is `full`
+  for both `full` and `auto`) while the default writes nothing. `test/interface-duplex-when-link-down.test.js`
+  (23 checks) and `research/interface-duplex-when-link-down.md`.
 - **The hardware-request queue and the missing-devices report could not read the tracker: both asked
   `github.com/api/v1/…`, which GitHub answers `410 Gone`.** The two tools were built on
   `scripts/forgejo-api.js`, and its base was derived from `canonical.WEB` — the *web* host with the
