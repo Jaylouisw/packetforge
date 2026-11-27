@@ -603,7 +603,11 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     needs: [test, docker, typecheck]
-    if: always() && github.event_name == 'pull_request'
+    # A dispatch is how a branch updated by this job's own token gets verified: GitHub
+    # holds the run that the bot's push starts for an approval nobody is there to give
+    # (#1612: run 46044715475, `action_required`, zero jobs), and a dispatch is not held.
+    # The step resolves the pull request from the branch when the event carries none.
+    if: always() && (github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch')
     permissions:
       # A merge is a push to the base, and both `mergePullRequest` and
       # `PUT .../update-branch` need write. With `contents: read` the merge is refused
@@ -627,15 +631,31 @@ jobs:
       GH_TOKEN: ${{ secrets.PF_AUTOMERGE_TOKEN || github.token }}
       HAVE_PAT: ${{ secrets.PF_AUTOMERGE_TOKEN != '' }}
       NUMBER: ${{ github.event.pull_request.number }}
-      HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+      HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+      # Set by the behind-the-base path below, which dispatches this workflow on the head
+      # ref. The dispatched run must not update the branch again: that would be a second
+      # run to verify an update nobody verified the first time, and an unbounded loop.
+      DISPATCHED: ${{ github.event_name == 'workflow_dispatch' }}
     steps:
       - name: Merge once every check has reported green
         run: |
           set -u
           repo="$GITHUB_REPOSITORY"
           base="${GITHUB_BASE_REF:-main}"
+          head_ref="${GITHUB_HEAD_REF:-${GITHUB_REF_NAME:-}}"
           note() { echo "::warning title=Auto-merge::${*}" >&2; echo "${*}" >&2; }
           notice() { echo "::notice title=Auto-merge::${*}" >&2; echo "${*}" >&2; }
+
+          # A dispatch carries no pull request: find the one whose head this branch is. A
+          # dispatch on `main` has none, and that is a stand-down, not a failure.
+          if [ -z "${NUMBER:-}" ]; then
+            NUMBER=$(gh pr list --repo "${repo}" --head "$head_ref" --state open --json number --jq '.[0].number // ""' 2>/dev/null || true)
+            if [ -z "${NUMBER:-}" ]; then
+              echo "no open pull request has ${head_ref} as its head - this dispatch is a plain matrix run, so there is nothing to merge"
+              exit 0
+            fi
+            echo "this dispatch is for #${NUMBER} (${head_ref})"
+          fi
 
           state=$(gh api "repos/${repo}/pulls/${NUMBER}" --jq .state 2>/dev/null || true)
           case "${state:-}" in
@@ -751,9 +771,15 @@ jobs:
           # A green head that is behind: update it now rather than spending a merge call on
           # a refusal this run already has the answer to.
           if [ "$merge_state" = "behind" ]; then
+            if [ "$DISPATCHED" = "true" ]; then
+              refuse gate "the branch is behind ${base} again, one run after it was updated. Updating it a second time would need a third run to verify what the second one did, and there is nobody to approve the run a bot's push starts - set PF_AUTOMERGE_TOKEN, which merges on its own without a dispatch"
+            fi
             if update_branch; then
-              notice "#${NUMBER}: every check on ${HEAD_SHA} is green and the branch is behind ${base} - updated the branch; the push that follows starts a run on the new head, which merges this pull request"
-              exit 0
+              notice "#${NUMBER}: every check on ${HEAD_SHA} is green and the branch is behind ${base} - updated it, and dispatched ci.yml on $head_ref to verify the new head (the run the bot's push starts is held for approval: #1612)"
+              if gh workflow run ci.yml --repo "$repo" --ref "$head_ref" >/dev/null 2>&1; then
+                exit 0
+              fi
+              refuse gate "the branch was updated onto ${base} but the run that would verify the new head could not be dispatched, and the run the update itself starts is held for a manual approval that nothing will give"
             fi
             refuse gate "the branch is behind ${base} and GitHub would not update it: $(cat "${RUNNER_TEMP:-/tmp}/update-branch.txt" 2>/dev/null || echo 'no answer')"
           fi

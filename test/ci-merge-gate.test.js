@@ -81,6 +81,7 @@ const STUB = [
   '  *update-branch*)',
   '    if [ "${FAKE_UPDATE:-ok}" = "ok" ]; then echo "{\\"message\\":\\"Updating pull request branch.\\"}"; exit 0; fi',
   '    echo "X Pull request #${NUMBER} cannot be updated: merge conflict" >&2; exit 1 ;;',
+  '  *"pr list"*) printf "%s" "${FAKE_PR_LIST:-}"; exit 0 ;;',
   '  *"pr comment"*) exit 0 ;;',
   '  *"pr checks"*) printf "%s" "$FAKE_CHECKS"; exit 0 ;;',
   '  *"pr merge"*)',
@@ -140,6 +141,8 @@ function runStep(env) {
       FAKE_CHECKS: GREEN,
       FAKE_AUTO: 'refused',
       FAKE_SQUASH: 'ok',
+      GITHUB_HEAD_REF: 'fix/1127-1732',
+      DISPATCHED: 'false',
       GH_TOKEN: 'stub'
     }, env)
   });
@@ -163,7 +166,12 @@ test('a green pull request that is behind its base is updated, not left for a hu
     'the step must ask GitHub to update the branch when it is behind\n' + r.out);
   assert.strictEqual(calls(r, /pr merge/).length, 0,
     'a merge attempted before the update is the refusal this path exists to avoid\n' + r.out);
-  assert.match(r.out, /updated the branch/i, 'the log has to say what happened: ' + r.out);
+  assert.match(r.out, /updated it/i, 'the log has to say what happened: ' + r.out);
+  // The push the update is made with is GITHUB_TOKEN's, and GitHub holds the run it starts
+  // for an approval nobody gives (#1612: 46044715475, action_required, zero jobs). So the
+  // new head is verified by a dispatch instead, and that run merges.
+  assert.strictEqual(calls(r, /workflow run ci\.yml --repo \S+ --ref fix\/1127-1732/).length, 1,
+    'the new head needs a run that is not held for approval\n' + r.out);
 });
 
 test('a refusal is not a green tick', { skip: !HAVE_BASH }, () => {
@@ -239,4 +247,32 @@ test('a merged or closed pull request is stood down', { skip: !HAVE_BASH }, () =
   const r = runStep({ FAKE_STATE: 'closed' });
   assert.strictEqual(r.status, 0, r.out);
   assert.strictEqual(calls(r, /pr merge/).length, 0, r.out);
+});
+
+test('a dispatch on a pull request branch finds its pull request and merges it', { skip: !HAVE_BASH }, () => {
+  // The run the behind path dispatches carries no pull request of its own; it is the same
+  // matrix on the same head, so the arm step has to find the PR by branch or the update it
+  // just made would be verified by a run that refuses to act on the result.
+  const r = runStep({ NUMBER: '', DISPATCHED: 'true', FAKE_PR_LIST: NUMBER });
+  assert.strictEqual(r.status, 0, r.out);
+  assert.strictEqual(calls(r, /pr list/).length, 1, 'it must resolve the request by branch\n' + r.out);
+  assert.strictEqual(calls(r, /--squash$/).length, 1, 'and then merge it\n' + r.out);
+  assert.match(r.out, /this dispatch is for #1608/, r.out);
+});
+
+test('a dispatch on main has no pull request and stands down', { skip: !HAVE_BASH }, () => {
+  const r = runStep({ NUMBER: '', DISPATCHED: 'true', FAKE_PR_LIST: '' });
+  assert.strictEqual(r.status, 0, r.out);
+  assert.strictEqual(calls(r, /pr merge/).length, 0, r.out);
+  assert.match(r.out, /nothing to merge/, r.out);
+});
+
+test('a dispatched run does not update the branch a second time', { skip: !HAVE_BASH }, () => {
+  // One update, one advertised dispatch. A dispatch that finds the branch behind again
+  // must say so and stop: the alternative is a run that updates and a run that verifies,
+  // forever, with nobody approving either.
+  const r = runStep({ NUMBER: '', DISPATCHED: 'true', FAKE_PR_LIST: NUMBER, FAKE_MERGE_STATE: 'behind' });
+  assert.notStrictEqual(r.status, 0, 'the second update is a person\'s decision\n' + r.out);
+  assert.strictEqual(calls(r, /update-branch/).length, 0, r.out);
+  assert.match(r.out, /PF_AUTOMERGE_TOKEN/, 'the refusal has to name the way out: ' + r.out);
 });
