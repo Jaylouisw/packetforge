@@ -27,7 +27,7 @@ If you already have the JSON, skip the form and open a PR — see
    form, `.github/ISSUE_TEMPLATE/device_request.yml`, and every field the entry is built from -
    vendor, exact model, category, ports and the datasheet URL - is `required`, so a request
    cannot be filed with a blank datasheet. Nothing waits on a human to point that out later, and
-   nothing says it either: no workflow in `.forgejo/workflows/` triggers on an opened issue, and
+   nothing says it either: no workflow in `.github/workflows/` triggers on an opened issue, and
    no script comments at filing time. The form's own `title:` and `labels:` lines are what put
    `[Device]: ` in front of the title and `device-request` on the issue, and neither is
    load-bearing on its own: `scripts/request-queue.js` selects on a `[Device]:` or `[Hardware]:`
@@ -90,6 +90,11 @@ node scripts/request-queue.js                  # the queue, grouped by readiness
 node scripts/request-queue.js --json           # machine-readable
 node scripts/request-queue.js --skeleton 12    # JSON stub for request #12
 ```
+
+The tracker client these share is still being ported from the archive's API to GitHub's
+([MIRRORING.md](MIRRORING.md) §5), so until that lands they stop with `tracker returned HTTP 410`
+rather than printing a queue. `gh issue list --label device-request` is the queue in the meantime —
+and an empty answer from a broken client is never evidence that nothing was asked for.
 
 The skeleton command prints a stub with the vendor, model, category and source
 URL already filled from the issue, plus the path it should be written to. Paste in
@@ -168,6 +173,6 @@ automated agent: **write JSON, do not import.** A human or CI applies it.
 ### Known gaps are tracked, not hidden
 
 Some devices carry hardware facts that need a datasheet read to settle. Those live
-in `test/known-issues.json` against a Forgejo issue. The invariant fails on any new
+in `test/known-issues.json` against a GitHub issue. The invariant fails on any new
 offender *and* fails if a listed device is fixed but not removed, so the list can
 only shrink.

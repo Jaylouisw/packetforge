@@ -2,18 +2,24 @@
 /**
  * Sweep the hardware-request backlog for devices the catalogue already has.
  *
- * The repository has ~830 open issues and most of them are device requests. A good fraction ask for
- * hardware that is already modelled, and those requests sit open for months because nobody reads all
- * of them. This script answers one question, mechanically: *is this request already satisfied?* - and
- * it never invents an answer. A match is an exact normalised model name (or a vendor + model name),
- * and the comment it posts names the file that satisfies it so the reporter can check.
+ * Most open issues are device requests. A good fraction ask for hardware that is already modelled,
+ * and those requests sit open for months because nobody reads all of them. This script answers one
+ * question, mechanically: *is this request already satisfied?* - and it never invents an answer. A
+ * match is an exact normalised model name (or a vendor + model name), and the comment it posts
+ * names the file that satisfies it so the reporter can check.
+ *
+ * It reads the **GitHub** tracker, which is the only tracker this project has. Before the move back
+ * on 2026-11-27 it read the Forgejo instance, where roughly 830 requests had accumulated; that
+ * backlog is part of the read-only archive now, so the figure describes the archive's queue rather
+ * than today's.
  *
  * Usage:
  *   node scripts/sweep-device-requests.js                 # report only
  *   node scripts/sweep-device-requests.js --limit 300     # scan more pages
  *   node scripts/sweep-device-requests.js --close 10      # comment and close the first 10 matches
  *
- * Credentials come from the origin remote, the same way the other scripts here get them.
+ * Credentials come from the environment, or from the origin remote, the same way the other scripts
+ * here get them.
  */
 'use strict';
 
@@ -23,7 +29,10 @@ const { execFileSync } = require('child_process');
 
 const ROOT = path.join(__dirname, '..');
 const OWNER = 'jaylouisw', REPO = 'packetforge';
-const API = 'http://10.0.10.20:3000/api/v1';
+// GitHub's REST host, not the archive's. `GITHUB_API_URL` is set for every GitHub Actions run
+// (and points at the right host on an enterprise install), so a job can call this without
+// hard-coding anything; the default is github.com.
+const API = process.env.GITHUB_API_URL || 'https://api.github.com';
 
 function arg(name, dflt) {
   const i = process.argv.indexOf('--' + name);
@@ -37,10 +46,12 @@ const MAX_ISSUES = Number(arg('limit', 200));
 const CLOSE_BUDGET = Number(arg('close', 0));
 
 function token() {
-  // An environment token first, so this can run in CI where there is no remote URL
-  // with credentials embedded in it. The workflow provides GITHUB_TOKEN; FORGEJO_TOKEN
-  // is accepted so a local run does not have to pretend to be GitHub.
-  for (const name of ['FORGEJO_TOKEN', 'GITHUB_TOKEN', 'GH_TOKEN']) {
+  // An environment token first, so this can run in CI where there is no remote URL with
+  // credentials embedded in it. The workflow provides GITHUB_TOKEN. FORGEJO_TOKEN is
+  // deliberately not accepted: it is a token for the archive, GitHub answers it with 401, and
+  // a stale export from the months the project lived there would read as "no access" rather
+  // than "wrong token".
+  for (const name of ['GITHUB_TOKEN', 'GH_TOKEN']) {
     const value = process.env[name];
     if (value && value.trim()) return value.trim();
   }
@@ -65,7 +76,7 @@ function token() {
     'no token: this script needs a GitHub token to read the issue tracker.',
     '',
     'Fix it one of these ways:',
-    '  1. export GH_TOKEN=<your token>             (also accepts GITHUB_TOKEN, or FORGEJO_TOKEN for the archive)',
+    '  1. export GH_TOKEN=<your token>             (also accepts GITHUB_TOKEN)',
     '  2. put a token in the git remote URL:       https://<user>:<token>@github.com/jaylouisw/packetforge.git',
     '',
     'A token with read access to issues is enough for a report run; closing requests',
@@ -382,7 +393,7 @@ function main() {
   (async function () {
     const issues = [];
     for (let page = 1; issues.length < MAX_ISSUES; page++) {
-      const batch = await api(tok, '/issues?state=open&type=issues&limit=' + LIMIT_PER_PAGE + '&page=' + page);
+      const batch = await api(tok, '/issues?state=open&per_page=' + LIMIT_PER_PAGE + '&page=' + page);
       if (!Array.isArray(batch) || !batch.length) break;
       for (const it of batch) {
         if (it.pull_request) continue;
