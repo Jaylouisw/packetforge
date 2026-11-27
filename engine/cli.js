@@ -8040,11 +8040,26 @@ class CliSession {
       // and inert (#1401), so either it filters or it is refused - never ignored.
       const tail = tokens.slice(2);
       let only = null;
+      // `dynamic` is a filter, and its whole job is to leave the static block out. The 2960-X 15.2(7)E command
+      // reference prints the form with two `DYNAMIC` rows and `Total Mac Addresses for this criterion: 2`, and
+      // no `All ... STATIC ... CPU` row anywhere in the sample; the 2960 15.0(2)SE reference and the 15.2(4)E
+      // consolidated guide print the same shape. So the CPU block is suppressed here for the same reason a port
+      // filter suppresses it: the criterion excludes it, and the total is the rows the criterion printed.
+      // research/mac-table-dynamic-view.md.
+      // A keyword is matched by an unambiguous prefix, as a box matches one, and `d` names only `dynamic` among
+      // this command's words (address, aging-time, count, dynamic, interface, multicast, notification, static,
+      // vlan): `d`, `dyn` and `dynamic` are the one filter.
+      let dynamicOnly = false;
+      const word0 = tail.length ? String(tail[0]).toLowerCase() : '';
+      if (word0 && word0.length <= 'dynamic'.length && 'dynamic'.startsWith(word0)) {
+        dynamicOnly = true;
+        tail.shift();
+      }
       if (tail.length) {
         const word = String(tail[0]).toLowerCase();
         if (word !== 'interface' && word !== 'int') {
           return ['% show mac address-table does not take "' + tail.join(' ') +
-            '": use `show mac address-table interface <port>` for one port'];
+            '": this console filters by `dynamic` or `interface <port>`'];
         }
         const typed = tail.slice(1).join(' ');
         if (!typed) return ['% interface needs a port: show mac address-table interface <port>'];
@@ -8073,7 +8088,7 @@ class CliSession {
       // frame ever taught the box those addresses and nothing here can forget them. It is a property of being a
       // switch, which is why a PC answering this command (this console answers every command everywhere) still
       // gets an empty table, and why a filtered view gets none of them - they are on the CPU, not on a port.
-      const reserved = (only || !(dev.category === 'switch' || dev.category === 'l3-switch'))
+      const reserved = (only || dynamicOnly || !(dev.category === 'switch' || dev.category === 'l3-switch'))
         ? [] : RESERVED_MAC_TABLE_ROWS;
       for (const mac of reserved) {
         out.push(macVlanCell('All') + pad(mac, 20) + pad('STATIC', 12) + pad('-', 8) + 'CPU');

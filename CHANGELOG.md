@@ -29,6 +29,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   so an explicit `duplex full` is no longer invisible (it was keyed on the resolved value, which is `full`
   for both `full` and `auto`) while the default writes nothing. `test/interface-duplex-when-link-down.test.js`
   (23 checks) and `research/interface-duplex-when-link-down.md`.
+- **`show mac address-table dynamic` was refused, though it is a form of a table this console already prints.**
+  The word was answered `% show mac address-table does not take "dynamic"`, with a pointer to `interface <port>`
+  as though it were the only form of the command. Cisco's 2960-X command reference prints the sample in three
+  releases (15.2(7)E, 15.2(4)E, 15.0(2)SE) and a live lab paste shows the same shape: the title, the rule, the
+  headings and the closing `Total Mac Addresses for this criterion: N`, with `DYNAMIC` rows only — none of the twenty
+  `All … STATIC … CPU` rows the unfiltered view prints, because those are the type the criterion excludes. The
+  filter now prints exactly that, closes at the rows it printed (`…: 0` on a switch that has learned nothing,
+  where the unfiltered view reads 20), takes `d`, `dyn` or `dynamic` as one word, and narrows with `interface <port>`.
+  A trailing word with no view is still refused, and the sentence now names both filters instead of one.
+  `test/mac-table-dynamic-view.test.js` (20 checks) pins the empty and populated tables, the short form and the
+  port filter; [`research/mac-table-dynamic-view.md`](research/mac-table-dynamic-view.md) holds the samples and
+  what is still unbuilt (`dynamic vlan`, `dynamic address`, `static`, `vlan`, `count`, `aging-time`).
 - **The hardware-request queue and the missing-devices report could not read the tracker: both asked
   `github.com/api/v1/…`, which GitHub answers `410 Gone`.** The two tools were built on
   `scripts/forgejo-api.js`, and its base was derived from `canonical.WEB` — the *web* host with the
