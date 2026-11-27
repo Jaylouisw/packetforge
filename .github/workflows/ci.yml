@@ -605,7 +605,11 @@ jobs:
     needs: [test, docker, typecheck]
     if: always() && github.event_name == 'pull_request'
     permissions:
-      contents: read
+      # A merge is a push to the base, and both `mergePullRequest` and
+      # `PUT .../update-branch` need write. With `contents: read` the merge is refused
+      # with `Resource not accessible by integration (mergePullRequest)` - observed on
+      # #1612 - which is why the old fallback below never actually merged anything (#1610).
+      contents: write
       # `enablePullRequestAutoMerge` and the comment this job posts when it cannot arm.
       pull-requests: write
       # `gh pr checks` reads check runs and legacy commit statuses.
@@ -764,8 +768,11 @@ jobs:
             echo "#${NUMBER}: armed for a squash merge of ${HEAD_SHA} - every check on it is green"
           else
             case "$out" in
-              *"Auto-merge is not allowed"*|*"auto-merge is not enabled"*|*AutoMerge*)
-                echo "auto-merge is not enabled for this run's identity - merging now instead, because every check on ${HEAD_SHA} is green"
+              *"Auto-merge is not allowed"*|*"auto-merge is not enabled"*|*AutoMerge*|              *"not accessible by integration"*|*"Resource not accessible"*)
+                # Two different refusals reach here and mean the same thing: the identity
+                # cannot arm, so merge directly. The second is the shape it takes under
+                # this workflow's own token (#1612, 17:44:25Z).
+                echo "this run's identity cannot arm auto-merge - merging now instead, because every check on ${HEAD_SHA} is green"
                 if out=$(gh pr merge "$NUMBER" --repo "$repo" --squash 2>&1); then
                   echo "#${NUMBER}: merged ${HEAD_SHA} - every check on it was green"
                   merged=1

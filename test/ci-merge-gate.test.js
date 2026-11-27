@@ -86,8 +86,11 @@ const STUB = [
   '  *"pr merge"*)',
   '    case "$cmd" in',
   '      *--auto*)',
-  '        if [ "${FAKE_AUTO:-refused}" = "allowed" ]; then echo squashed; exit 0; fi',
-  '        echo "X Pull request #${NUMBER} is not mergeable: Auto-merge is not allowed" >&2; exit 1 ;;',
+  '        case "${FAKE_AUTO:-refused}" in',
+  '          allowed) echo squashed; exit 0 ;;',
+  '          denied) echo "GraphQL: Resource not accessible by integration (mergePullRequest)" >&2; exit 1 ;;',
+  '          *) echo "X Pull request #${NUMBER} is not mergeable: Auto-merge is not allowed" >&2; exit 1 ;;',
+  '        esac ;;',
   '      *)',
   '        case "${FAKE_SQUASH:-ok}" in',
   '          ok) echo squashed; exit 0 ;;',
@@ -197,6 +200,18 @@ test('a merge made with the run token asks for main to be verified', { skip: !HA
   assert.strictEqual(calls(r, /--squash$/).length, 1, 'the merge happened\n' + r.out);
   assert.strictEqual(calls(r, /workflow run ci\.yml/).length, 1,
     'and main is verified afterwards, without needing a secret\n' + r.out);
+});
+
+test('an identity that cannot arm still merges directly', { skip: !HAVE_BASH }, () => {
+  // What the job log of #1612 actually said under the run's own token:
+  // `GraphQL: Resource not accessible by integration (mergePullRequest)`. That is not the
+  // "auto-merge is not enabled" wording, and the old step did not recognise it - it
+  // refused, warned, and exited 0 without ever trying to merge.
+  const r = runStep({ FAKE_AUTO: 'denied', FAKE_MERGE_STATE: 'clean', FAKE_SQUASH: 'ok' });
+  assert.strictEqual(r.status, 0, r.out);
+  assert.strictEqual(calls(r, /--squash$/).length, 1,
+    'a refused arm must still reach the direct merge\n' + r.out + '\nCALLS:\n' + r.calls);
+  assert.match(r.out, /merged 6d6a0ec4/, r.out);
 });
 
 test('with a PAT the merge is armed and the matrix is not dispatched twice', { skip: !HAVE_BASH }, () => {
