@@ -2355,6 +2355,41 @@ class CliSession {
       // Only when it was typed: an unset distance is the vendor's default of 1, and writing a 1 into every
       // static route would make the saved file differ from the one an operator typed.
       if (distance !== null) route.distance = distance;
+      // Typing the same route again is a statement, not a second route: the box keeps one line in the
+      // configuration and one entry in the table. This console pushed a second copy of the object, so
+      // `show running-config` printed the line twice - and a paste of a printed config onto a box that
+      // already carries it (test/config-roundtrip.test.js) added one row per `ip route` line on every
+      // paste - while `show ip route` printed a second row annotated "(not installed: the S route for this
+      // prefix has distance 1)", one route losing to itself. Nothing could say why, because the field that
+      // "won" is the same field. The row is compared on every slot the command sets - the network (host
+      // bits are not part of a prefix: `ip route 10.9.5.0 255.255.0.0` is 10.9.0.0/16), the mask, the next
+      // hop, the interface and the administrative distance - so the two shapes that must stay two rows are
+      // still stored twice: another next hop to the same prefix (the model has no ECMP and both lines are
+      // real config, docs/SIMULATION.md) and the floating static, same hop at another distance
+      // (docs/CLI.md, "floating static").
+      const wantedDistance = (route.distance === undefined) ? 1 : route.distance;
+      const sameRoute = this.device.config.routes.some(function (r) {
+        const rowDistance = (Number.isFinite(Number(r.distance)) && Number(r.distance) >= 1)
+          ? Number(r.distance) : 1;
+        if (rowDistance !== wantedDistance) return false;
+        if ((r.gw || null) !== route.gw || (r.iface || null) !== route.iface) return false;
+        if (String(r.mask) !== String(route.mask)) return false;
+        try {
+          return net.networkOf(r.dest, r.mask) === net.networkOf(route.dest, route.mask);
+        } catch (err) {
+          return String(r.dest) === String(route.dest);
+        }
+      });
+      if (sameRoute) {
+        // The prefix as the table spells it, not as it was typed: the line that hit an existing row may
+        // carry host bits (`ip route 10.9.5.0 255.255.0.0`), and the answer has to name the route it found.
+        let shown = String(dest);
+        try { shown = net.intToIp(net.networkOf(dest, mask)); } catch (err) { /* keep the typed text */ }
+        return ['Route ' + shown + '/' + net.prefixOf(mask) +
+          (gw ? ' via ' + gw + (iface ? ' ' + iface : '') : (iface ? ' out ' + iface : ' on-link')) +
+          (distance !== null ? ' (distance ' + distance + ')' : '') +
+          ' is already configured: nothing was added'];
+      }
       this.device.config.routes.push(route);
       out.push('Route added: ' + dest + '/' + net.prefixOf(mask) +
         (gw ? ' via ' + gw + (iface ? ' ' + iface : '') : (iface ? ' out ' + iface : ' on-link')) +
@@ -3571,6 +3606,18 @@ class CliSession {
     if (!v6.validateAddress6(nh).ok) return ['% Invalid IPv6 next hop "' + (nh || '') + '"'];
     if (!this.device.config.routes6) this.device.config.routes6 = [];
     const net = v6.networkAddress6(dest);
+    // The same idempotence the IPv4 form has (see `ip route`): a route typed again is the route that is
+    // already there, not a second copy of it. The push built a duplicate row that `show running-config`
+    // printed twice, so replaying a backup onto the box it came from grew the file by one `ipv6 route`
+    // line per paste. The prefix is stored as its network address above, so the three fields the command
+    // sets are compared directly; another next hop for the same prefix is still a second row.
+    const already = this.device.config.routes6.some(function (r) {
+      return !!r && r.dest === net && Number(r.prefix) === p.prefixLen && r.nextHop === nh;
+    });
+    if (already) {
+      return ['IPv6 route ' + net + '/' + p.prefixLen + ' via ' + nh +
+        ' is already configured: nothing was added'];
+    }
     this.device.config.routes6.push({ dest: net, prefix: p.prefixLen, nextHop: nh });
     return ['IPv6 route ' + net + '/' + p.prefixLen + ' via ' + nh];
   }

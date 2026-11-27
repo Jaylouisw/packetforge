@@ -1611,6 +1611,28 @@ Two neighbours of that rule live here too, because they are the same mistake in 
   vendor's meaning - *"routes with a distance value of 255 are not installed in the routing table"* - so the row
   is printed and marked, and no packet is ever sent by it. What is still not read from that syntax: `name`, `tag`,
   `permanent`, `track` and `vrf` (`research/static-route-distance.md`).
+* **A route typed twice is the route that is already there.** The set form pushed a second copy of the row, so
+  `show running-config` printed the same `ip route` line twice and `show ip route` printed a second row marked
+  `(not installed: the S route for this prefix has distance 1)` - one route losing to itself, a sentence no box
+  prints and none of the shadowing rules means. It also made a backup grow: pasting a printed config onto a box
+  that already carried it added one row per `ip route` / `ipv6 route` line, every time
+  (`test/config-roundtrip.test.js` is the property that a printed config replays). A line that names a route
+  already in the configuration now adds nothing and says so, and the comparison covers every slot the command
+  sets - the network (host bits are not part of a prefix: `ip route 10.9.5.0 255.255.0.0` is 10.9.0.0/16), the
+  mask, the next hop, the interface and the distance:
+  ```
+  r1(config)#ip route 10.9.0.0 255.255.0.0 10.0.0.254
+  Route added: 10.9.0.0/16 via 10.0.0.254
+  r1(config)#ip route 10.9.0.0 255.255.0.0 10.0.0.254
+  Route 10.9.0.0/16 via 10.0.0.254 is already configured: nothing was added
+  r1(config)#ipv6 route 2001:db8:9::/64 2001:db8::1
+  IPv6 route 2001:db8:9::/64 via 2001:db8::1
+  r1(config)#ipv6 route 2001:db8:9::/64 2001:db8::1
+  IPv6 route 2001:db8:9::/64 via 2001:db8::1 is already configured: nothing was added
+  ```
+  Two shapes stay two rows, because they are two routes: another next hop for the same prefix (the model has
+  no ECMP, and both lines are real config - [SIMULATION.md](SIMULATION.md)) and the floating static, the same
+  next hop at another distance.
 
 ### A VLAN id is a number
 

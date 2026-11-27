@@ -18,6 +18,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **A static route typed twice was stored twice, so the config it printed grew on every paste and the table
+  showed the route losing to itself.** `ip route` and `ipv6 route` pushed a new row every time the command ran,
+  so `show running-config` printed the same line twice and `show ip route` printed a second `S` row annotated
+  `(not installed: the S route for this prefix has distance 1)` - the shadowing note, applied to the same route.
+  The set form is now idempotent: a line naming a route already configured adds nothing and answers
+  `Route 10.9.0.0/16 via 10.0.0.254 is already configured: nothing was added`. The comparison covers every slot
+  the command sets (network, mask, next hop, interface, distance), so a different next hop for the same prefix
+  and the floating static (same next hop, other distance) are still stored as two rows.
+
 - **A broadcast segment refused for a subnet mismatch explained itself with the point-to-point mask
   exception.** `computeOspf()` recorded `reason: 'subnet'` from two different comparisons - the broadcast
   check (equal masks, networks differ) and the point-to-point reachability check - so `show ip ospf
