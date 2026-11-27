@@ -4,20 +4,14 @@ name: CI
 #
 # `.forgejo/workflows/ci.yml` is kept untouched beside this file as the archive it is:
 # that copy is where the measurements in these comments came from, and it is what the
-# self-hosted runner used to execute. Five of these checks have to keep their names,
-# because those names are what a branch protection rule reads:
+# self-hosted runner used to execute. This file has to produce the same five checks with
+# the same names, because those names are what a branch protection rule reads:
 #
 #   Test (Node 22)                  the floor leg
 #   Test (Node 24)                  the newest runtime in the window
 #   Typecheck                       tsc --noEmit, then no-any, then module-paths
 #   Server smoke and Docker build   the HTTP surface beside the image build
 #   Arm auto-merge                  the merge decision, on pull requests only
-#
-# The sixth, `Syntax check (all JS)`, has no counterpart in the archive. There the sweep
-# of `node --check` over every JavaScript file overlapped `run-tests.js` on the same
-# runner, which is free on that 40-core host and costs the suite a third of its speed
-# on a 4-core GitHub runner (run 46063039819, measured below). It is a job of its own
-# here, and `Arm auto-merge` waits on it like every other check.
 #
 # What is deliberately NOT here, because it was a fact about one self-hosted runner
 # rather than about this repository:
@@ -369,7 +363,7 @@ jobs:
           # declares 22.18, which is where node strips types with no flag.
           node scripts/check-node-floor.js --title "Test (Node ${want})"
 
-      - name: Full test suite and static checks, together
+      - name: Full test suite, syntax check and static checks, together
         if: steps.still_open.outputs.closed != 'true'
         env:
           # 4 is the standard GitHub runner's core count. The Forgejo copy ran 12 because
@@ -383,9 +377,30 @@ jobs:
           set -u
           echo "suite width: ${PF_TEST_CONCURRENCY} workers on Node ${{ matrix.node }}"
           dir="${RUNNER_TEMP:-/tmp}"
-          # The `node --check` sweep used to start here, on this leg, and be waited on at
-          # the end. It is its own job now (`syntax`): 8 parser processes beside 4 suite
-          # workers is 12 runnable threads on a 4-core runner, and the suite paid for it.
+          out="${dir}/syntax-check.log"
+          syntax_rc=0
+          syntax_pid=""
+          # Every JavaScript file, parsed by the Node 22 parser, on the leg that is the
+          # floor. Started here so it overlaps the suite and waited on at the end.
+          #
+          # Overlapping it is cheap, and that is a measurement rather than an assumption:
+          # on one 4-core runner, the same tree, the same Node 22 (run 46065441339), the
+          # suite alone took 68 s and then 72 s, the sweep alone took 7 s, and the suite
+          # with the sweep beside it took 71 s - about 3 s, not the 30 s a `Test (Node 22)`
+          # versus `Test (Node 24)` gap suggested. That gap is runner speed: this suite
+          # takes 60 s to 105 s here depending on the box. Giving the sweep its own job
+          # (PR #1634) bought no wall clock and cost a second VM per run, so it is back
+          # here, and a leg-versus-leg gap is not evidence of contention without an A/B.
+          if [ "${{ matrix.node }}" = "22" ]; then
+            timeout --signal=TERM --kill-after=15 120 bash -o pipefail -c '
+              set -u
+              list="$1"
+              find engine server devices web scripts examples test -type f -name "*.js" -print0 > "$list"
+              echo "syntax-check: $(tr -cd "\000" < "$list" | wc -c | tr -d " ") JavaScript files, node --check 8 at a time, on $(node --version)"
+              xargs -0 -r -P 8 -n 1 node --check < "$list"
+            ' bash "$dir/syntax-check.list" > "$out" 2>&1 &
+            syntax_pid=$!
+          fi
           timeout --signal=TERM --kill-after=10 60 node scripts/check-node-surface.js > "$dir/check-node-surface.log" 2>&1 &
           node_surface_pid=$!
           timeout --signal=TERM --kill-after=10 60 node scripts/check-canonical-urls.js > "$dir/check-canonical-urls.log" 2>&1 &
@@ -419,6 +434,10 @@ jobs:
             audit_devices_rc=$?
             wait "$control_pid"
             control_rc=$?
+          fi
+          if [ -n "${syntax_pid}" ]; then
+            wait "$syntax_pid"
+            syntax_rc=$?
           fi
           wait "$node_surface_pid"
           node_surface_rc=$?
@@ -460,6 +479,10 @@ jobs:
               fi
             fi
           fi
+          if [ -f "$out" ]; then
+            echo "--- node --check, every JavaScript file, on the Node 22 parser ---"
+            cat "$out"
+          fi
           for log in check-node-surface check-canonical-urls check-ci-disk-hygiene; do
             echo "--- node scripts/${log}.js ---"
             cat "$dir/${log}.log"
@@ -469,6 +492,11 @@ jobs:
             echo "--- node scripts/${log}.js ---"
             cat "$dir/${log}.log"
           done
+          if [ "$syntax_rc" -eq 124 ] || [ "$syntax_rc" -eq 137 ]; then
+            echo "::error title=Syntax check (all JS)::the sweep was still running after 120 s and was stopped - 485 files 8 at a time take 2.8 s here, so this is a sweep that stopped moving, not a slow one"
+          elif [ "$syntax_rc" -ne 0 ]; then
+            echo "::error title=Syntax check (all JS)::node --check rejected at least one file (exit ${syntax_rc}) - the files and their errors are printed above"
+          fi
           if [ "$test_rc" -eq 124 ] || [ "$test_rc" -eq 137 ]; then
             echo "::error title=Full test suite::the suite was still running after 300 s and was stopped - a green leg takes 46-69 s here, so this is a hung suite, not a slow one; the suites that had already reported are above"
           elif [ "$test_rc" -ne 0 ]; then
@@ -487,7 +515,7 @@ jobs:
           report_static audit-port-types.js "$audit_rc" "Port types declared in every device spec"
           report_static audit-devices.js "$audit_devices_rc" "Device specs are cabled and described plausibly"
           report_static check-control-bytes.ts "$control_rc" "No control bytes in source"
-          [ "$test_rc" -eq 0 ] &&
+          [ "$test_rc" -eq 0 ] && [ "$syntax_rc" -eq 0 ] &&
             [ "$node_surface_rc" -eq 0 ] && [ "$canonical_urls_rc" -eq 0 ] &&
             [ "$disk_hygiene_rc" -eq 0 ] && [ "$audit_rc" -eq 0 ] &&
             [ "$audit_devices_rc" -eq 0 ] && [ "$control_rc" -eq 0 ]
@@ -508,84 +536,6 @@ jobs:
           rc=$?
           if [ "$rc" -eq 124 ] || [ "$rc" -eq 137 ]; then
             echo "::error title=Lab models::the catalogue check was still running after 120 s and was stopped"
-          fi
-          exit "$rc"
-
-  # `node --check` over every JavaScript file, on the Node 22 parser - the floor, whose
-  # parser is the one that has to accept this tree. Its own job for the reason measured
-  # in run 46063039819: the same 505 suites at the same 4 workers took 97.1 s on the leg
-  # that swept syntax beside them (acl-data 1486 ms) and 62.8 s on the leg that did not
-  # (acl-data 622 ms). The sweep itself is unchanged - same 577 files, same parser, same
-  # 120 s bound - it just no longer competes with the suite for four cores.
-  syntax:
-    name: Syntax check (all JS)
-    runs-on: ubuntu-latest
-    # The bound inside the step is what names the failure; this is the backstop for a
-    # step that never returns at all.
-    timeout-minutes: 10
-    if: always()
-    steps:
-      - name: Check out this commit
-        uses: actions/checkout@v4
-        with:
-          persist-credentials: false
-
-      # Same stand-down as the other three jobs, so "closed" means no work anywhere.
-      - name: Is this pull request still open
-        id: still_open
-        env:
-          GH_TOKEN: ${{ github.token }}
-          NUMBER: ${{ github.event.pull_request.number }}
-        run: |
-          set -eu
-          if [ "${{ github.event_name }}" != "pull_request" ]; then
-            exit 0
-          fi
-          state=$(gh api "repos/${GITHUB_REPOSITORY}/pulls/${NUMBER}" --jq .state 2>/dev/null || true)
-          case "${state:-}" in
-            closed)
-              echo "closed=true" >> "$GITHUB_OUTPUT"
-              echo "pull #${NUMBER} is closed or merged - this job cannot gate anything, so it stands down" ;;
-            "")
-              echo "could not ask whether pull #${NUMBER} is still open - no reply from the API - running the sweep" ;;
-            *)
-              echo "pull #${NUMBER} is ${state} - running the sweep" ;;
-          esac
-
-      - name: Provide the runtime the sweep parses with
-        if: steps.still_open.outputs.closed != 'true'
-        uses: actions/setup-node@v4
-        with:
-          # The major, not a pinned patch: `22` resolves to the newest 22.x, which is the
-          # parser this sweep is about. The floor is asserted below rather than trusted.
-          node-version: 22
-
-      - name: The runtime the sweep parses with, above the floor
-        if: steps.still_open.outputs.closed != 'true'
-        run: |
-          set -eu
-          node --version
-          # Every job that runs source holds the floor (`package.json` says 22.18).
-          node scripts/check-node-floor.js --title "Syntax check (all JS)"
-
-      - name: node --check, every JavaScript file, on the Node 22 parser
-        if: steps.still_open.outputs.closed != 'true'
-        run: |
-          set +e
-          set -u
-          dir="${RUNNER_TEMP:-/tmp}"
-          list="$dir/syntax-check.list"
-          find engine server devices web scripts examples test -type f -name "*.js" -print0 > "$list"
-          count=$(tr -cd "\000" < "$list" | wc -c | tr -d " ")
-          echo "syntax-check: ${count} JavaScript file(s), node --check 8 at a time, on $(node --version)"
-          # 8 at a time is this job's own box; the bound is what stops a sweep that has
-          # wedged, and the `::error` below says which check it was.
-          timeout --signal=TERM --kill-after=15 120 xargs -0 -r -P 8 -n 1 node --check < "$list"
-          rc=$?
-          if [ "$rc" -eq 124 ] || [ "$rc" -eq 137 ]; then
-            echo "::error title=Syntax check (all JS)::the sweep was still running after 120 s and was stopped - ${count} files 8 at a time take about 30 s alone on this runner, so this is a sweep that stopped moving, not a slow one"
-          elif [ "$rc" -ne 0 ]; then
-            echo "::error title=Syntax check (all JS)::node --check rejected at least one file (exit ${rc}) - the files and their errors are printed above"
           fi
           exit "$rc"
 
@@ -662,7 +612,7 @@ jobs:
     name: Arm auto-merge
     runs-on: ubuntu-latest
     timeout-minutes: 5
-    needs: [test, docker, typecheck, syntax]
+    needs: [test, docker, typecheck]
     # A dispatch is how a branch updated by this job's own token gets verified: GitHub
     # holds the run that the bot's push starts for an approval nobody is there to give
     # (#1612: run 46044715475, `action_required`, zero jobs), and a dispatch is not held.
