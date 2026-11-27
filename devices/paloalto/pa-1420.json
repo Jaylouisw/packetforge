@@ -18,63 +18,151 @@
     "start": 1,
     "count": 4,
     "type": "ethernet",
-    "speed": "1G"
+    "speed": "1G",
+    "connector": "rj45",
+    "speedCaps": [
+      10,
+      100,
+      1000
+    ]
   },
   "interfaces": [
     {
       "name": "ethernet1/5",
       "type": "ethernet",
-      "speed": "5G"
+      "speed": "5G",
+      "connector": "rj45",
+      "speedCaps": [
+        10,
+        100,
+        1000,
+        2500,
+        5000
+      ]
     },
     {
       "name": "ethernet1/6",
       "type": "ethernet",
-      "speed": "5G"
+      "speed": "5G",
+      "connector": "rj45",
+      "speedCaps": [
+        10,
+        100,
+        1000,
+        2500,
+        5000
+      ]
     },
     {
       "name": "ethernet1/7",
       "type": "ethernet",
-      "speed": "5G"
+      "speed": "5G",
+      "connector": "rj45",
+      "speedCaps": [
+        10,
+        100,
+        1000,
+        2500,
+        5000
+      ]
     },
     {
       "name": "ethernet1/8",
       "type": "ethernet",
-      "speed": "5G"
+      "speed": "5G",
+      "connector": "rj45",
+      "speedCaps": [
+        10,
+        100,
+        1000,
+        2500,
+        5000
+      ]
     },
     {
       "name": "ethernet1/9",
       "type": "ethernet",
-      "speed": "5G"
+      "speed": "5G",
+      "connector": "rj45",
+      "speedCaps": [
+        10,
+        100,
+        1000,
+        2500,
+        5000
+      ]
     },
     {
       "name": "ethernet1/10",
       "type": "ethernet",
-      "speed": "5G"
+      "speed": "5G",
+      "connector": "rj45",
+      "speedCaps": [
+        10,
+        100,
+        1000,
+        2500,
+        5000
+      ]
     },
     {
       "name": "ethernet1/11",
       "type": "ethernet",
-      "speed": "5G"
+      "speed": "5G",
+      "connector": "rj45",
+      "speedCaps": [
+        10,
+        100,
+        1000,
+        2500,
+        5000
+      ]
     },
     {
       "name": "ethernet1/12",
       "type": "ethernet",
-      "speed": "5G"
+      "speed": "5G",
+      "connector": "rj45",
+      "speedCaps": [
+        10,
+        100,
+        1000,
+        2500,
+        5000
+      ]
     },
     {
       "name": "ha1-a",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "rj45",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
     },
     {
       "name": "ha1-b",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "rj45",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
     },
     {
       "name": "management",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "rj45",
+      "speedCaps": [
+        10,
+        100,
+        1000
+      ]
     },
     {
       "name": "ethernet1/13",
@@ -82,7 +170,6 @@
       "speed": "1G",
       "connector": "sfp",
       "speedCaps": [
-        100,
         1000
       ]
     },
@@ -92,7 +179,6 @@
       "speed": "1G",
       "connector": "sfp",
       "speedCaps": [
-        100,
         1000
       ]
     },
@@ -179,7 +265,12 @@
     {
       "name": "hsci",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
     }
   ],
   "icon": "firewall",
