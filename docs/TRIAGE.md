@@ -1,9 +1,13 @@
 # Triage: hardware requests
 
-Most of this repository's open issues are device requests — around 800 at the time of writing — and
-a steady fraction of them ask for hardware that is already modelled. Each one costs a human reading
-it. `scripts/sweep-device-requests.js` answers, mechanically, the only question that matters before
-anyone reads the body: **is this already in the catalogue?**
+Most of this repository's open issues are device requests. On the archive the backlog had reached
+around 800 by the time of the 2026-11-27 move, and a steady fraction of them asked for hardware that
+is already modelled. Each one costs a human reading it. `scripts/sweep-device-requests.js` answers,
+mechanically, the only question that matters before anyone reads the body: **is this already in the
+catalogue?**
+
+The script reads whichever tracker it is pointed at — the GitHub tracker today — so the archive's
+figure is a fact about the backlog that prompted it, not a count of what it will find now.
 
 ```
 node scripts/sweep-device-requests.js                  # report only

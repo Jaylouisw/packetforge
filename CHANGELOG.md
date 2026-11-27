@@ -7,8 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+### Removed
+
+- **`scripts/gh-bridge.js` is deleted, and nothing replaces it.** It carried GitHub issues and pull
+  requests *to* the Forgejo instance, which has been a read-only archive since 2026-11-27 — and its
+  pull-request path replied to incoming GitHub pull requests with "Mirrored to Forgejo (canonical
+  repo): please direct review/merge there", which is the opposite of where the work happens. Nothing
+  in the tree required it and no suite covered it; `docs/MIRRORING.md`, `docs/REQUESTING-HARDWARE.md`
+  and `docs/TRIAGE.md` now describe the arrangement that exists, and keep the bridge only as history.
+
 ### Fixed
 
+- **The hardware-request sweeper read the archive instead of the tracker.** `scripts/sweep-device-requests.js`
+  held the archive's internal API address as a literal (`http://10.0.10.20:3000/api/v1`), so a plain run
+  swept a backlog nobody can add to and `--close N` aimed its comments and closes at a repository that
+  takes no new work. It now takes the host from `GITHUB_API_URL` (set on every Actions run) and
+  defaults to `api.github.com`; it also stops accepting `FORGEJO_TOKEN`, because GitHub answers an
+  archive token with 401 and that reads like "no access" rather than "wrong token".
 - **The VRRP advertisement interval was set with a word no box has — `vrrp <vrid> advertise <seconds>` — and
   the spelling every box uses, `vrrp <vrid> timers advertise <seconds>`, was answered `% Unrecognized vrrp
   command`.** Cisco's syntax is `vrrp group timers advertise [msec] interval`, "use the vrrp timers advertise

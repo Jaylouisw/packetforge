@@ -67,6 +67,7 @@
       "speed": "10G",
       "connector": "sfp+",
       "speedCaps": [
+        1000,
         10000
       ]
     }
