@@ -3,9 +3,99 @@
   "model": "generic-cloud",
   "label": "Cloud / Internet",
   "category": "cloud",
-  "description": "Simulated Internet gateway / cloud service.",
-  "capabilities": ["host", "l3-forward", "cli"],
-  "interfaces": [{ "name": "eth0", "type": "ethernet", "speed": "10G" }],
+  "description": "Simulated Internet / WAN service edge. A multi-port upstream: four RJ45 subscriber hand-offs from 1G to 10G, 10G/25G/100G optical hand-offs, plus GPON, XGS-PON, DOCSIS 3.1 and VDSL2 line ports, so multihoming and fibre/coax/DSL access can be modelled against the same object.",
+  "capabilities": [
+    "host",
+    "l3-forward",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "eth0",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "rj45",
+      "speedCaps": [10, 100, 1000, 2500, 5000, 10000]
+    },
+    {
+      "name": "wan1",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "rj45",
+      "speedCaps": [10, 100, 1000]
+    },
+    {
+      "name": "wan2",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "rj45",
+      "speedCaps": [10, 100, 1000]
+    },
+    {
+      "name": "wan3",
+      "type": "ethernet",
+      "speed": "2.5G",
+      "connector": "rj45",
+      "speedCaps": [10, 100, 1000, 2500]
+    },
+    {
+      "name": "sfp1",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [1000, 10000]
+    },
+    {
+      "name": "sfp2",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [1000, 10000]
+    },
+    {
+      "name": "sfp28-1",
+      "type": "ethernet",
+      "speed": "25G",
+      "connector": "sfp28",
+      "speedCaps": [10000, 25000]
+    },
+    {
+      "name": "qsfp28-1",
+      "type": "ethernet",
+      "speed": "100G",
+      "connector": "qsfp28",
+      "speedCaps": [40000, 100000]
+    },
+    {
+      "name": "pon1",
+      "type": "pon",
+      "speed": "2.5G",
+      "connector": "sc-apc",
+      "speedCaps": [2488]
+    },
+    {
+      "name": "pon2",
+      "type": "pon",
+      "speed": "10G",
+      "connector": "sc-apc",
+      "speedCaps": [2488, 9953]
+    },
+    {
+      "name": "coax1",
+      "type": "coax",
+      "speed": "10G",
+      "connector": "f",
+      "speedCaps": [1000, 10000]
+    },
+    {
+      "name": "dsl1",
+      "type": "dsl",
+      "speed": "300M",
+      "connector": "rj11",
+      "speedCaps": [24, 100, 300]
+    }
+  ],
   "icon": "cloud",
-  "color": "#94a3b8"
+  "color": "#94a3b8",
+  "notes": "Synthetic object: the network has no vendor datasheet, so these ports are not a hardware census. They exist because a one-port cloud made every lab terminate on copper and made a second WAN, a PON ONT, a cable modem or a DSL router impossible to place upstream (issue #30). Each port's connector and rate are the ones the engine already models for that service family: rj45 for ethernet, sfp+/sfp28/qsfp28 for optical hand-offs, sc-apc for GPON/XGS-PON, f for DOCSIS 3.1 and rj11 for VDSL2 35b. eth0 is retained unchanged (10G RJ45) because every shipped example and any saved lab cables the cloud to eth0; the new ports sit alongside it rather than replacing it."
 }
