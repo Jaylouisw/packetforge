@@ -3357,15 +3357,18 @@ so that entry is dropped at once rather than read as a missing value and default
 
 ```
 R1#show arp
-Protocol  Address          Age (min)  Hardware Addr     Type    Interface
-Internet  10.0.0.1         -          0200.0000.0100    ARPA    GigabitEthernet0
-Internet  10.0.0.9         20         0200.0000.0200    ARPA    GigabitEthernet0
-Internet  10.0.0.10        -          0200.0000.0300    ARPA    GigabitEthernet0 (down: link down)
+Protocol  Address          Age (min)  Hardware Addr   Type   Interface
+Internet  10.0.0.1                -   0200.0000.0001  ARPA   GigabitEthernet0/0/0
+Internet  10.0.0.9               20   0200.0000.0100  ARPA   GigabitEthernet0/0/0
+Internet  10.0.1.1                -   0200.0000.0003  ARPA   GigabitEthernet0/0/1
+Internet  10.0.1.10              17   0200.0000.0200  ARPA   GigabitEthernet0/0/1 (administratively down)
 ```
 
-The first row is the router's own address on `Gi0`: a real box lists its own interface addresses in this table,
-and Cisco's field list for the command gives the marker - *"Age, in minutes, of the cache entry; a hyphen (-)
-means the address is local"*. The other two rows are neighbours, one aged and one whose port has gone down.
+The two rows with a hyphen in the Age column are the router's own addresses, one per configured interface -
+`Gi0/0/0` and `Gi0/0/1` here: a real box lists its own interface addresses in this table, and Cisco's field list
+for the command gives the marker - *"Age, in minutes, of the cache entry; a hyphen (-) means the address is
+local"*. The other two rows are neighbours, one heard twenty minutes ago and one whose port has since been
+shut down.
 
 A hardware address prints the way an IOS-family device prints one: three dotted quartets, `0200.0000.0300`,
 not the colon-separated form the engine stores, compares and hashes them in. The same rule covers the
