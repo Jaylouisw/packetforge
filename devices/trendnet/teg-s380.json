@@ -12,7 +12,13 @@
     "start": 1,
     "count": 8,
     "type": "ethernet",
-    "speed": "2.5G"
+    "speed": "2.5G",
+    "connector": "rj45",
+    "speedCaps": [
+      100,
+      1000,
+      2500
+    ]
   },
   "icon": "switch",
   "color": "#f97316",

@@ -13,7 +13,13 @@
     "start": 1,
     "count": 8,
     "type": "ethernet",
-    "speed": "2.5G"
+    "speed": "2.5G",
+    "connector": "rj45",
+    "speedCaps": [
+      100,
+      1000,
+      2500
+    ]
   },
   "interfaces": [
     {
@@ -21,7 +27,15 @@
       "type": "ethernet",
       "speed": "10G",
       "comboWith": "9-sfp",
-      "comboRole": "rj45"
+      "comboRole": "rj45",
+      "connector": "rj45",
+      "speedCaps": [
+        100,
+        1000,
+        2500,
+        5000,
+        10000
+      ]
     },
     {
       "name": "9-sfp",
@@ -40,7 +54,15 @@
       "type": "ethernet",
       "speed": "10G",
       "comboWith": "10-sfp",
-      "comboRole": "rj45"
+      "comboRole": "rj45",
+      "connector": "rj45",
+      "speedCaps": [
+        100,
+        1000,
+        2500,
+        5000,
+        10000
+      ]
     },
     {
       "name": "10-sfp",
