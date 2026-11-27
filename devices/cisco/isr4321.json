@@ -5,7 +5,7 @@
   "category": "router",
   "description": "Cisco ISR 4321 — 2x GE WAN, 1x GE LAN.",
   "capabilities": ["l3-forward", "cli", "dhcp-server", "nat"],
-  "portTemplate": { "prefix": "Gi0/0/", "start": 0, "count": 3, "type": "ethernet", "speed": "1G" },
+  "portTemplate": { "prefix": "Gi0/0/", "start": 0, "count": 3, "type": "ethernet", "speed": "1G" , "connector": "rj45" },
   "icon": "router",
   "color": "#f43f5e"
 }

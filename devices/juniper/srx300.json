@@ -16,7 +16,8 @@
     "start": 0,
     "count": 6,
     "type": "ethernet",
-    "speed": "1G"
+    "speed": "1G",
+    "connector": "rj45"
   },
   "icon": "firewall",
   "color": "#84cc16",
