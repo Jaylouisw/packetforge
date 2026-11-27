@@ -18,7 +18,8 @@
     "start": 2,
     "count": 7,
     "type": "ethernet",
-    "speed": "1G"
+    "speed": "1G",
+    "connector": "rj45"
   },
   "interfaces": [
     {
