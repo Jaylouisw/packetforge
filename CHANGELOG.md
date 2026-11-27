@@ -18,6 +18,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **`no ipv6 nd ra lifetime` wrote the value again instead of restoring the default.** Cisco's IPv6 command
+  reference gives the no form as its own spelling - `ipv6 nd ra lifetime seconds` / `no ipv6 nd ra lifetime`,
+  "To restore the default lifetime, use the no form of this command", default 1800 seconds - and the Catalyst
+  1200/1300 and CBS 250/350 command lists repeat it. The branch here shifted the leading `no` into a `negated`
+  flag and never read it again on the lifetime path: the bare form answered `% Incomplete command`, and the
+  long form (`no ipv6 nd ra lifetime 900`) was accepted, answered with the set-receipt and stored the value a
+  second time - a `no` that did the opposite of what it said. The bare form now restores 1800 s and drops the
+  line from `show running-config`; a removal with nothing to remove refuses and names the default in force
+  (`% No router lifetime set on R1 (it is the default, 1800s)`); a value on the no line has to name the value
+  in force, so `no ipv6 nd ra lifetime 900` against a configured 1200 refuses and names 1200; `0` is treated
+  as a configured value, not as nothing; and the seconds field is refused in the set form's own words in both
+  directions. `test/ipv6-nd-ra-lifetime-no-form.test.js` (34 assertions) and
+  `research/ipv6-nd-ra-lifetime-no-form.md`.
+
 - **`no ip name-server 8.8.8.8` removed every resolver, not the one it named.** `ip name-server` prints up to
   six addresses on one line, and the vendor's no-form carries the addresses to remove — the command reference
   writes `no ip name-server … server-address1 [server-address2...server-address6]` and says "To remove the
