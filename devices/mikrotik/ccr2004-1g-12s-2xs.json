@@ -21,6 +21,7 @@
     "speed": "10G",
     "connector": "sfp+",
     "speedCaps": [
+      1000,
       10000
     ]
   },
@@ -52,5 +53,5 @@
   "icon": "router",
   "color": "#14b8a6",
   "sourceUrl": "https://mikrotik.com/product/ccr2004_1g_12s_2xs",
-  "notes": "MikroTik specification table: section Ethernet prints \"10/100/1000 Ethernet ports: 1\", section Fiber prints \"SFP+ ports: 12\" and \"Number of 25G SFP28 ports: 2\", section Peripherals prints \"Serial console port: RJ45\". The prose agrees: \"12 x 10G SFP+ and 2 x 25G SFP28 ports\". The single copper jack is a 10/100/1000BASE-T RJ45 socket and the twelve cages are SFP+, so both declare their connector; the two SFP28 cages are 25G cages and nothing in the vendor material states a slower module in them, so they declare no speedCaps rather than an invented fallback. No PoE in either direction. Sources: https://mikrotik.com/product/ccr2004_1g_12s_2xs and https://manual.mikrotik.com/hardware/ccr2004-1g-12s-plus-2xs/"
+  "notes": "MikroTik specification table: section Ethernet prints \"10/100/1000 Ethernet ports: 1\", section Fiber prints \"SFP+ ports: 12\" and \"Number of 25G SFP28 ports: 2\", section Peripherals prints \"Serial console port: RJ45\". The prose agrees: \"12 x 10G SFP+ and 2 x 25G SFP28 ports\". The single copper jack is a 10/100/1000BASE-T RJ45 socket and the twelve cages are SFP+, so all three kinds declare their connector. The SFP+ cages are not 10G-only: MikroTik's wired interface compatibility page, section \"Devices which SFP+ ports support 1G links\", lists \"CCR2004-1G-12S+2XS - All SFP+ interfaces can be used in 1G mode if required\", so the twelve cages declare speedCaps [1000, 10000] and a 1G SFP uplink terminates on them. The same page, section \"Devices which support 2.5G links in SFP/SFP+/SFP28 ports\", adds \"CCR2004-1G-12S+2XS - All SFP+ and SFP28 interfaces can be used in 2.5G mode if required\"; 2.5G is NOT declared here because the cage ladders in engine/media.js carry no 2.5G optical rate (and no 2500BASE-X medium exists in the catalogue), so a 2.5G speedCap would be a number the connector table cannot honour. The two SFP28 cages keep the sfp28 defaults [1000, 10000, 25000]. No PoE in either direction. Sources: https://mikrotik.com/product/ccr2004_1g_12s_2xs , https://manual.mikrotik.com/hardware/ccr2004-1g-12s-plus-2xs/ and https://manual.mikrotik.com/docs/7.25/wired-connections/mikrotik-wired-interface-compatibility/"
 }
