@@ -15,7 +15,14 @@
     "count": 24,
     "type": "ethernet",
     "speed": "10G",
-    "connector": "rj45"
+    "connector": "rj45",
+    "speedCaps": [
+      100,
+      1000,
+      2500,
+      5000,
+      10000
+    ]
   },
   "interfaces": [
     {

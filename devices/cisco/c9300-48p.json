@@ -19,7 +19,13 @@
     "type": "ethernet",
     "speed": "1G",
     "poeOut": true,
-    "poeOutClass": "PoE+"
+    "poeOutClass": "PoE+",
+    "connector": "rj45",
+    "speedCaps": [
+      10,
+      100,
+      1000
+    ]
   },
   "interfaces": [
     {
