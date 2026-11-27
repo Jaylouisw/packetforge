@@ -178,8 +178,11 @@ ok(rowsOf(summ).length === 0, 'and no route row is printed under it');
 const pre = show('show ip route 172.16.0.0/16');
 ok((/^% show ip route does not take "172\.16\.0\.0\/16"/).test(pre[0]),
   'the prefix form is still refused - a table printed for a prefix reads as "yes"', pre.join(' | '));
-ok((/name a protocol/).test(pre.join(String.fromCharCode(10))),
-  'and a second line names the argument that does narrow it', pre.join(' | '));
+ok((/naming a protocol: connected, static, ospf, bgp, rip/).test(pre[0]),
+  'and the same sentence names the argument that does narrow it', pre.join(' | '));
+// One line. The prefix refusal is the sentence every other refusal in the console is - a single line
+// (test/show-argument-refusal.test.js counts them) - so the protocol hint is a clause on it, not a line under it.
+ok(pre.length === 1, 'said in one line, like every other refusal', String(pre.length));
 const junk = show('show ip route flurbish');
 ok((/^% show ip route does not take "flurbish"/).test(junk[0]), 'a word that is neither is refused',
   junk.join(' | '));

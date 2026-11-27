@@ -178,8 +178,7 @@ command named**:
 
 ```
 r1#show ip route 192.0.2.0/24
-% show ip route does not take "192.0.2.0/24": the whole table is printed - run `show ip route` and read the row for the prefix
-  to narrow the table to one source, name a protocol: connected, static, ospf, bgp, rip
+% show ip route does not take "192.0.2.0/24": the whole table is printed - run `show ip route` and read the row for the prefix, or narrow it to one source by naming a protocol: connected, static, ospf, bgp, rip
 ```
 
 That refusal is the point, and it is worth stating why, because the alternative looked helpful. These commands used

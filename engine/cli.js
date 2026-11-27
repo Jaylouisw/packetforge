@@ -7301,14 +7301,14 @@ class CliSession {
           // The pointer used to say to read the row "in the table below" - and the refusal is one line, with no
           // table below it, so an operator who followed it looked past the answer for output that was never
           // printed. It names the command that does print the table instead.
-          const refusal = showNoTail('show ip route', tokens.slice(2), 'the whole table is printed',
-            'run `show ip route` and read the row for the prefix');
-          // A second line, not a longer first one: the sentence a prefix gets is the one it has always got, and
-          // the argument that does narrow the table is a list worth reading on its own line.
-          if (routesHere) {
-            refusal.push('  to narrow the table to one source, name a protocol: connected, static, ospf, bgp, rip');
-          }
-          return refusal;
+          //
+          // One line, always. The protocol hint was a second `refusal.push` line for one round, so the prefix
+          // refusal became a two-line answer while every other refusal in this console is one sentence
+          // (test/show-argument-refusal.test.js counts the lines); the hint is a clause on that sentence instead.
+          // A box that does not route gets no hint - there is no source to narrow a table it never had.
+          return showNoTail('show ip route', tokens.slice(2), 'the whole table is printed',
+            'run `show ip route` and read the row for the prefix' +
+            (routesHere ? ', or narrow it to one source by naming a protocol: connected, static, ospf, bgp, rip' : ''));
         }
       }
       // A box that does not route has no routing table, and IOS does not print one for it. `show ip route` on a
