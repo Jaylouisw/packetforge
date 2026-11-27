@@ -113,12 +113,15 @@ scheduled, and a red run there says nothing about this repository.
 - `scripts/check-closed-issues.js` and `scripts/close-merged-issues.js` still fall back to the
   archive's own API, which is correct: the pre-move issue history exists only there. A missing
   token is reported as *"cannot look"* and exits 2, never as *"no open requests"*.
-- `scripts/forgejo-api.js` is **not yet ported**, and `scripts/request-queue.js` and
-  `scripts/missing-devices.js` are built on it. Its base is derived from `canonical.WEB`, so the
-  flip to GitHub left it asking `github.com/api/v1/…` — GitHub answers HTTP 410, and the queue
-  therefore reports that it cannot read the tracker. It does not read the archive either. Porting
-  it to GitHub's REST API is open work; until then `request-queue.js` is not a reading of anything,
-  and no page should present it as the queue.
+- `scripts/github-api.ts` is the tracker client, and `scripts/request-queue.js` and
+  `scripts/missing-devices.js` are built on it. It used to be `scripts/forgejo-api.js`, whose base
+  was derived from `canonical.WEB`, so the flip to GitHub left it asking `github.com/api/v1/…` —
+  GitHub answers HTTP 410 and both tools reported that they could not read the tracker. It now
+  speaks GitHub's REST API at `api.github.com` (or `GITHUB_API_URL`), drops the pull requests that
+  endpoint returns, paginates on `per_page`, and needs a token only to write — `GH_TOKEN` or
+  `GITHUB_TOKEN`, the names its error message gives. `test/github-api-client.test.ts` pins the base
+  URL and the "a 410 is an error, not an empty queue" rule, offline, because a suite that never
+  touched the network is what let the break sit behind 491 green suites.
 
 ## If you only remember one thing
 
