@@ -30,11 +30,12 @@ is. So:
 - **Nothing flows out of the archive.** A change made there is invisible to the project, so there is
   no mechanism — and no plan for one — that carries it back.
 
-The reverse arrangement is what this repository used to run: Forgejo held the pen, a push mirror
-copied every commit to GitHub, and `scripts/gh-bridge.js` carried GitHub pull requests back across.
-That machinery existed because the forward direction had to be one-way. With the workshop on GitHub
-the direction is the same as the tool everyone already has, so the bridge is not needed for the
-normal path: a pull request on GitHub is reviewable where it was opened.
+The reverse arrangement is what this repository used to run: until 2026-11-27 Forgejo held the pen,
+a push mirror copied every commit to GitHub, and `scripts/gh-bridge.js` carried GitHub issues and
+pull requests back across. That machinery existed because the forward direction had to be one-way.
+It was deleted with the arrangement it served, so there is no bridge, no import job and no marker
+comment left to find: a pull request on GitHub is now reviewable where it was opened, by the same
+account that opened it.
 
 ## 1. Git: one live remote, one dead one
 
@@ -65,9 +66,12 @@ gain one.
 `gh pr create --base main --head <branch> --title "..." --body "Fixes #N"`, then review on the pull
 request itself. CI is `.github/workflows/ci.yml`, and a red check is a red merge button.
 
-The bridge (`scripts/gh-bridge.js`) is still in the tree because it was what carried contributions
-in while the workshop was elsewhere. It speaks to the archive's API and it is not part of the merge
-path any more: do not run it, and do not add a job that does.
+The bridge is gone. `scripts/gh-bridge.js` was what carried contributions in while the workshop was
+elsewhere; it spoke to the archive's API, and while it was in the tree its pull-request path closed
+incoming GitHub pull requests pointing at a repository that takes no new work. It was deleted rather
+than left dormant, because a script whose whole job is to route contributions at the archive is a
+script someone eventually runs. If you find a reference to it in `docs/plans/`, that is a plan
+describing the arrangement that used to exist, not an instruction.
 
 ## 3. Issues: one tracker
 
@@ -102,9 +106,19 @@ scheduled, and a red run there says nothing about this repository.
   the mirror, and it catches Forgejo URLs now.
 - `test/canonical-urls.test.js` — proves the checker can fail on a Forgejo URL *and* pass a GitHub
   one, so it is not a test that passes because it checks nothing.
-- `scripts/forgejo-api.js` and the triage scripts — still speak to the archive when reading its old
-  issue history. A missing token is reported as *"cannot look"* and exits 2, never as *"no open
-  requests"*.
+- `scripts/sweep-device-requests.js` reads the **GitHub** tracker: it used to carry the archive's
+  internal API address as a literal, which meant a `--close` run aimed its comments and closes at a
+  repository that takes no new work. It now takes the host from `GITHUB_API_URL` (set on every
+  Actions run) and defaults to `api.github.com`.
+- `scripts/check-closed-issues.js` and `scripts/close-merged-issues.js` still fall back to the
+  archive's own API, which is correct: the pre-move issue history exists only there. A missing
+  token is reported as *"cannot look"* and exits 2, never as *"no open requests"*.
+- `scripts/forgejo-api.js` is **not yet ported**, and `scripts/request-queue.js` and
+  `scripts/missing-devices.js` are built on it. Its base is derived from `canonical.WEB`, so the
+  flip to GitHub left it asking `github.com/api/v1/…` — GitHub answers HTTP 410, and the queue
+  therefore reports that it cannot read the tracker. It does not read the archive either. Porting
+  it to GitHub's REST API is open work; until then `request-queue.js` is not a reading of anything,
+  and no page should present it as the queue.
 
 ## If you only remember one thing
 
