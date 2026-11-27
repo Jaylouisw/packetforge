@@ -1333,6 +1333,19 @@ it. When the two ends cap the link lower than either port could run, the block a
 the port cannot do is refused, naming the port, the rate and what it *does* support — `Gi0 does not support
 10G - it supports 10M, 100M, 1G`.
 
+The **duplex** on that line is the one field whose answer depends on the link. A port with nothing to
+negotiate with reports its *setting*, which is `auto` until somebody types otherwise — the word a Catalyst
+prints for a `notconnect` port (`Auto-duplex, Auto-speed, media type is 10/100/1000BaseTX` in the 2960-XR
+command reference's own `show interfaces` sample) — and a port whose link is up reports what was negotiated
+(`duplex: full`). This block printed `full` for every port, so a socket with no cable claimed a duplex no
+link had agreed to, one space after a rate already marked `(auto)`. Both facts are kept: `iface.duplex` is the
+resolved value the data plane and the mismatch rule read, and `iface.duplexMode` is the setting the block
+prints while the port is down. `duplex full` on a dead port therefore reads `duplex: full` (the setting an
+operator made), `duplex auto` reads `duplex: auto`, and an up port reads the resolved duplex either way.
+`show running-config` prints the setting, so an explicit `duplex full` is in the config — it used to be
+invisible, because the line was keyed on the resolved value — while the default `auto` writes nothing.
+`research/interface-duplex-when-link-down.md` carries the captures.
+
 `duplex half` is why `W_DUPLEX_MISMATCH` exists: the validator has modelled the mismatch since the
 connector rules were written, but nothing could set duplex, so the warning was unreachable. Force one end to
 half against a full-duplex peer and it fires, naming both ends.
