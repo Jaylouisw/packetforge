@@ -6003,6 +6003,11 @@ class CliSession {
     // (`dev.ospfRejected`, filled by `computeOspf()`); without it the only thing this table could say about
     // such a port was "nothing on the other end runs OSPF", which is false - the far end is running it,
     // with a different Hello/Dead pair or in another area.
+    // A dotted mask as the slash form the ports are configured with, or the mask itself when it is not a
+    // contiguous run of ones (which the port validation refuses, so this is belt and braces).
+    const slashPref = function (mask) {
+      try { return '/' + net.prefixOf(mask); } catch (err) { return ' ' + String(mask); }
+    };
     const refusalWhy = function (r) {
       if (!r) return '';
       if (r.reason === 'timers') {
@@ -6014,6 +6019,25 @@ class CliSession {
       if (r.reason === 'area') {
         return r.peer + ' runs OSPF in area ' + r.peerArea + ' and this box in area ' + r.area +
           ': a Hello from another area is not accepted, so no adjacency forms';
+      }
+      // A mask that differs on a broadcast segment. The pair is the field the Hello carries and the
+      // receiver checks (RFC 2328 10.5) - and the classic `OSPF: Mismatched hello parameters` line an
+      // operator debugs for - so the sentence names both masks rather than saying the link was refused.
+      // The prefix is rendered from the mask the engine holds, so the sentence cannot disagree with the
+      // comparison that dropped the link.
+      if (r.reason === 'mask') {
+        return r.peer + ' runs OSPF with ' + slashPref(r.peerMask) + ' on its end of this link and this box with ' +
+          slashPref(r.ownMask) + ': a Hello carries the mask of the port that sent it, and on a broadcast' +
+          ' segment a Hello whose mask differs is dropped (RFC 2328 10.5), so no adjacency forms until the' +
+          ' two agree';
+      }
+      // The peer's address does not fall inside this port's own interface network. On a point-to-point link
+      // this is the only addressing check left, because the mask itself is ignored there.
+      if (r.reason === 'subnet') {
+        return r.peer + ' addresses this link as ' + r.peerIp + slashPref(r.peerMask) + ' and this port as ' +
+          r.ownIp + slashPref(r.ownMask) + ': the address of a neighbour has to fall inside the network of' +
+          ' this interface (the mask itself is ignored on a point-to-point link, RFC 2328 10.5), so no' +
+          ' adjacency forms';
       }
       if (r.reason === 'priority') {
         return 'both ends are at OSPF priority 0 (' + r.peer + ' and this box), so neither may become' +

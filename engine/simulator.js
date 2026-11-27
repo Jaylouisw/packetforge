@@ -1489,13 +1489,54 @@ class Simulator {
       if (!aIf || !bIf) continue;
       if (a.dev.ifaceStatus(aIf, this.topo).status !== 'up') continue;
       if (b.dev.ifaceStatus(bIf, this.topo).status !== 'up') continue;
-      // Both ends of a broadcast link must address the same subnet with the same
-      // mask. Without this the adjacency forms on the strength of a cable alone,
-      // and the route installed behind it points at a next hop that is on no
-      // connected subnet -- so it never resolves and the traffic is black-holed.
+      // The pair's network type is decided here rather than at the DR election below, because it decides
+      // which field of the Hello is checked at all: a serial line's OSPF network type is point-to-point,
+      // and RFC 2328 10.5 carves the mask check out for exactly that case - "Next, the values of the
+      // Network Mask, HelloInterval, and RouterDeadInterval fields in the received Hello packet must be
+      // checked ... However, there is one exception to the above rule: on point-to-point networks and on
+      // virtual links, the Network Mask in the received Hello Packet should be ignored." A Cisco box
+      // follows the RFC: two IOS routers with /24 on one end of a serial link and /30 on the other form
+      // a FULL adjacency (research/ospf-p2p-mask-ignore.md carries the capture and the vendor pages).
+      const p2p = isSerialPort(aIf) || isSerialPort(bIf);
+      // What each box records when the link is refused, so `show ip ospf neighbor <port>` can name the
+      // field that disagreed instead of blaming a router that is running OSPF perfectly well. Both ends
+      // keep the record - each box knows its own port and the same neighbour - and the two records are
+      // mirrored, so `own` is the box that is reading and `peer` is the far end.
+      const endA = { dev: a.dev, iface: l.a.iface, peerIface: l.b.iface, peer: b.dev.id,
+        ip: ai.ip, mask: ai.mask, peerIp: bi.ip, peerMask: bi.mask };
+      const endB = { dev: b.dev, iface: l.b.iface, peerIface: l.a.iface, peer: a.dev.id,
+        ip: bi.ip, mask: bi.mask, peerIp: ai.ip, peerMask: ai.mask };
+      const refuseLink = function (reason, extra) {
+        [endA, endB].forEach(function (end) {
+          const rec = { reason: reason, iface: end.iface, peerIface: end.peerIface, peer: end.peer,
+            peerAddress: end.peerIp, ownIp: end.ip, ownMask: end.mask,
+            peerIp: end.peerIp, peerMask: end.peerMask };
+          if (extra && extra.own) Object.assign(rec, extra.own);
+          if (extra && extra.peer) Object.assign(rec, extra.peer);
+          end.dev.ospfRejected.push(rec);
+        });
+      };
+      // Both ends of a **broadcast** link must address the same subnet with the same mask. Without this
+      // the adjacency forms on the strength of a cable alone, and the route installed behind it points at
+      // a next hop that is on no connected subnet -- so it never resolves and the traffic is black-holed.
       // A misconfigured router is exactly what the subnet check exists to catch (#240).
-      if (String(ai.mask) !== String(bi.mask)) continue;
-      if (net.networkOf(ai.ip, ai.mask) !== net.networkOf(bi.ip, bi.mask)) continue;
+      //
+      // On a **point-to-point** link the mask is not compared: the Hello's Network Mask is ignored there,
+      // so /24 against /30 is an adjacency on the hardware. What still has to hold is reachability - the
+      // peer's address must fall inside this port's own interface network, and this port's address inside
+      // the peer's ("the neighbors still have to be on a common subnet, i.e. from the viewpoint of one
+      // router, the second router's IP address must fall within the interface network of the first
+      // router" - Cisco Community, "OSPF & Point-to-Point links", Peter Paluch, 2012). The comparison is
+      // made per direction with each end's own mask, so a /24 wire whose far end is a /30 still resolves
+      // both ways while two addresses on genuinely different subnets still do not form a neighbour.
+      if (!p2p) {
+        if (String(ai.mask) !== String(bi.mask)) { refuseLink('mask'); continue; }
+        if (net.networkOf(ai.ip, ai.mask) !== net.networkOf(bi.ip, bi.mask)) { refuseLink('subnet'); continue; }
+      } else if (net.networkOf(bi.ip, ai.mask) !== net.networkOf(ai.ip, ai.mask) ||
+                 net.networkOf(ai.ip, bi.mask) !== net.networkOf(bi.ip, bi.mask)) {
+        refuseLink('subnet');
+        continue;
+      }
       // A Hello carries its sender's HelloInterval and RouterDeadInterval, and the receiving port checks
       // both against its own: "the values of the Network Mask, HelloInterval, and RouterDeadInterval
       // fields in the received Hello packet must be checked against the values configured for the
@@ -1547,8 +1588,7 @@ class Simulator {
       // therefore no BDR (RFC 2328 9.4 - the BDR election discards the router that just became DR,
       // and an empty list elects neither). A serial line's default OSPF network type is
       // point-to-point, where no election runs at all and the real box prints `FULL/ -`
-      // (research/show-ospf-neighbor-state.md).
-      const p2p = isSerialPort(aIf) || isSerialPort(bIf);
+      // (research/show-ospf-neighbor-state.md). `p2p` was decided above, with the Hello checks it governs.
       // Neither end may stand for election. RFC 2328 9.4 discards every priority-0 router before the
       // election, so with both ends at 0 no DR and no BDR exist on the segment; 7.3 and 10.4 then leave
       // two DROTHERs synchronising with the DR/BDR and not with each other, which is why a real pair

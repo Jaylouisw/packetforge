@@ -1,0 +1,45 @@
+{
+  "vendor": "generic",
+  "model": "generic-isp",
+  "label": "ISP / Service Provider",
+  "category": "cloud",
+  "description": "Simulated service-provider edge, one per ISP. Two subscriber hand-offs (1G and 10G RJ45), a 10G SFP+ hand-off and a GPON port, so a dual-homed lab can cable each WAN to a distinct cloud and read which provider each link belongs to.",
+  "capabilities": [
+    "host",
+    "l3-forward",
+    "cli"
+  ],
+  "interfaces": [
+    {
+      "name": "port1",
+      "type": "ethernet",
+      "speed": "1G",
+      "connector": "rj45",
+      "speedCaps": [10, 100, 1000]
+    },
+    {
+      "name": "port2",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "rj45",
+      "speedCaps": [100, 1000, 2500, 5000, 10000]
+    },
+    {
+      "name": "sfp1",
+      "type": "ethernet",
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [1000, 10000]
+    },
+    {
+      "name": "pon1",
+      "type": "pon",
+      "speed": "2.5G",
+      "connector": "sc-apc",
+      "speedCaps": [2488]
+    }
+  ],
+  "icon": "cloud",
+  "color": "#64748b",
+  "notes": "Synthetic object, not a vendor product: a second cloud object so two ISPs are two endpoints on the canvas instead of two cables into one shared cloud (issue #30). Connector families match what the engine models for each service: rj45 ethernet, sfp+ optical, sc-apc GPON."
+}
