@@ -83,12 +83,12 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://git.jayw.uk/jaylouisw/packetforge.git"
+    "url": "git+https://github.com/jaylouisw/packetforge.git"
   },
   "bugs": {
-    "url": "https://git.jayw.uk/jaylouisw/packetforge/issues"
+    "url": "https://github.com/jaylouisw/packetforge/issues"
   },
-  "homepage": "https://git.jayw.uk/jaylouisw/packetforge#readme",
+  "homepage": "https://github.com/jaylouisw/packetforge#readme",
   "license": "MIT",
   "engines": {
     "node": ">=22.18.0"

@@ -13,11 +13,14 @@ Only the latest release on `main` receives security updates.
 
 **Please do not report security vulnerabilities in public issues.**
 
-Report them privately. The project lives on Forgejo, which supports **confidential issues** — open
-one and it is visible only to the maintainers:
+Report them privately through **GitHub private vulnerability reporting**, which opens a draft
+advisory visible only to the maintainers:
 
 - Go to **Security → Advisories → Report a vulnerability**
-  (https://git.jayw.uk/jaylouisw/packetforge/security/advisories/new)
+  (https://github.com/jaylouisw/packetforge/security/advisories/new)
+
+If that page offers you nothing (private reporting can be switched off), say so in an email to the
+address on the maintainer's GitHub profile rather than opening a public issue.
 
 What to include:
 

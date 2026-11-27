@@ -25,10 +25,10 @@
            JavaScript that would have upgraded it is exactly what broke. app.js fills in the
            build, browser and page on click; without app.js the link below still opens a
            usable report form. The link selects the bug form itself, because the repository
-           has YAML issue forms and blank issues disabled - Forgejo would otherwise answer
+           has YAML issue forms and blank issues disabled - the tracker would otherwise answer
            with a template chooser that discards the title and any text in the URL. -->
       <a id="btn-bug" class="btn btn-quiet" target="_blank" rel="noopener"
-         href="https://git.jayw.uk/jaylouisw/packetforge/issues/new?template=bug_report.yml&title=%5BBug%5D%3A%20"
+         href="https://github.com/jaylouisw/packetforge/issues/new?template=bug_report.yml&title=%5BBug%5D%3A%20"
          title="Report a bug — opens the issue form; while the app is running your build, browser, the devices and links on the canvas, and any errors it caught are copied to your clipboard"
          aria-label="Report a bug">Report a bug</a>
     </div>

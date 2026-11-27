@@ -155,7 +155,7 @@ console.log('The click-without-JS path still works:');
   // gains a placeholder that only JS can fill, the bug button breaks exactly when it is needed.
   const m = html.match(/id="btn-bug"[\s\S]{0,600}?href="([^"]+)"/);
   ok(!!m, 'the report link has a static href');
-  ok(m && m[1].indexOf('git.jayw.uk/jaylouisw/packetforge/issues/new') !== -1, 'and it points at the Forge issue form', m && m[1].slice(0, 60));
+  ok(m && m[1].indexOf('github.com/jaylouisw/packetforge/issues/new') !== -1, 'and it points at the Forge issue form', m && m[1].slice(0, 60));
   ok(!/<button[^>]*btn-bug/.test(html), 'it is still an anchor, not a button');
 }
 

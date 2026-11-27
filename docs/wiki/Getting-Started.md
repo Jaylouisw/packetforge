@@ -9,7 +9,7 @@ own require graph loads one (`engine/index.js` requires `./link.ts`). On Node 18
 not fail a test - it cannot load at all (`SyntaxError: Missing initializer in const declaration`).
 
 ```bash
-git clone https://git.jayw.uk/jaylouisw/packetforge.git
+git clone https://github.com/jaylouisw/packetforge.git
 cd packetforge
 node server/index.js          # http://localhost:8000
 ```

@@ -2,11 +2,16 @@
 /**
  * GitHub -> Forgejo bridge for inbound contributions.
  *
- * The arrangement this serves:
+ * The arrangement this served, until 2026-11-27. It is kept for the history of how contributions
+ * arrived, and it is no longer part of the merge path (see docs/MIRRORING.md):
  *
- *   Forgejo is the workshop. Development, CI and merging happen here. Nobody else has an account.
- *   GitHub is the shopfront. Strangers can read the mirror and open an issue or a pull request there.
- *   This script carries those contributions across, so a contributor never needs an account on this box.
+ *   The forge was the workshop: development, CI and merging happened there, and nobody else had an
+ *   account. GitHub was the shopfront, where a stranger could read the copy and open an issue or a
+ *   pull request. This script carried those contributions across, so a contributor never needed an
+ *   account on that box.
+ *
+ * Running it now would import GitHub work into an archive that takes no new work. Do not run it, and
+ * do not wire it into a workflow.
  *
  * What it does, in both directions that matter:
  *

@@ -10,7 +10,7 @@
 // Kept free of side effects and of the rest of the server so it can be tested, and
 // so it cannot accidentally depend on the catalogue having loaded.
 
-const REPO = 'https://git.jayw.uk/jaylouisw/packetforge';
+const REPO = 'https://github.com/jaylouisw/packetforge';
 
 const REPORT_TITLE = '[Bug]: Server will not start';
 const REPORT_URL = REPO + '/issues/new?title=' + encodeURIComponent(REPORT_TITLE) +
