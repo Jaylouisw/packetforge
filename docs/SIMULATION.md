@@ -505,11 +505,11 @@ layer exists in `engine/bgp.js` today.
 | Verdict | Behaviour | Where |
 |---|---|---|
 | **Modelled** | 28 cages and 90 media across ten families (copper, `fiber`, `fibre-channel`, dac, coax, dsl, powerline, serial, console, wireless). Count them with `node -e "console.log(Object.keys(require('./engine/media').MEDIA).length)"`, and the same line with `CAGE_MEDIA` for the cages. | `engine/media.js:75`, `engine/media.js:549` |
-| **Modelled** | Port hardware is derived from a terse spec (`{name, type, speed}` → cage, media, speed caps, PoE in/out). | `engine/media.js:562-641` |
-| **Modelled** | An unrecognised cage is reported as unknown — no silent fallback to RJ45 and no fake media set. | `engine/media.js:574-586` |
-| **Modelled** | The three-test mating rule: cages mate → shared medium → common speed. | `engine/media.js:744-786` |
-| **Modelled** | Combo RJ45/SFP ports expose the union of both halves; QSFP-DD accepts QSFP28/QSFP+ modules and negotiates down. | `engine/media.js:208-219`, `engine/media.js:280` |
-| **Modelled** | Preferred medium when several are valid: fiber/DAC over copper SFP, then highest speed. | `engine/media.js:790-802` |
+| **Modelled** | Port hardware is derived from a terse spec (`{name, type, speed}` → cage, media, speed caps, PoE in/out). | `engine/media.js:958-1137` `derivePortHardware()` |
+| **Modelled** | An unrecognised cage is reported as unknown — no silent fallback to RJ45 and no fake media set. | `engine/media.js:1002-1013` (the `known` verdict in `derivePortHardware()`) |
+| **Modelled** | The three-test mating rule: cages mate → shared medium → common speed. | `engine/media.js:1397` `canMate()`, whose three gates are `cagesMate()` `engine/media.js:518`, `commonMedia()` `engine/media.js:1252` and `negotiateSpeed()` `engine/media.js:1306` |
+| **Modelled** | Combo RJ45/SFP ports expose the union of both halves; QSFP-DD accepts QSFP28/QSFP+ modules and negotiates down. | `engine/media.js:570-575` `CAGE_MEDIA.combo`, `engine/media.js:637-641` `CAGE_MEDIA.qsfpdd` |
+| **Modelled** | Preferred medium when several are valid: fiber/DAC over copper SFP, then highest speed. | `engine/media.js:1537-1575` `preferredMedia()` |
 
 ### 6.2 Speed negotiation and downshift
 
@@ -578,13 +578,13 @@ that it covers **cages and speeds**, not "this cable will carry traffic".
 
 | Verdict | Behaviour | Where |
 |---|---|---|
-| **Modelled** | Five radio media: 2.4 GHz, 5 GHz, 6 GHz (Wi-Fi 6E), 6 GHz (Wi-Fi 7), 60 GHz (802.11ad). | `engine/media.js:145-149` |
-| **Modelled** | A radio's band set follows its **generation**, which follows its rate (n/ac/ax/be), unless the spec states bands explicitly. A Wi-Fi 5 radio is 2.4+5. | `engine/media.js:532-560` |
-| **Modelled** | 60 GHz is a different radio, not a faster one: it is selected from the model text (`60 GHz`, `802.11ad`, `WiGig`), never from a high rate. | `engine/media.js:551-554` |
+| **Modelled** | Five radio media: 2.4 GHz, 5 GHz, 6 GHz (Wi-Fi 6E), 6 GHz (Wi-Fi 7), 60 GHz (802.11ad). | `engine/media.js:272-276` (the `MEDIA` wireless block: `wireless-2.4` through `wireless-60`) |
+| **Modelled** | A radio's band set follows its **generation**, which follows its rate (n/ac/ax/be), unless the spec states bands explicitly. A Wi-Fi 5 radio is 2.4+5. | `engine/media.js:921-925` (`WIRELESS_GENERATIONS`), `engine/media.js:938-943` (`generationBands()`), `engine/media.js:945-948` (`wirelessBands()` - an explicit `bands`/`band` wins first) |
+| **Modelled** | 60 GHz is a different radio, not a faster one: it is selected from the model text (`60 GHz`, `802.11ad`, `WiGig`), never from a high rate. | `engine/media.js:950-955` (`wirelessBands()`, the model-text test at `:953`) |
 | **Modelled** | Association = the best shared band caps the rate, so a 2.5 Gbps phone on a 574 Mbps 2.4 GHz radio associates at 574 instead of refusing. | `engine/media.js:1315-1331` `negotiateSpeed()` |
-| **Modelled** | A radio can never be cabled to a wired port (`E_WIRELESS_TO_WIRED`), and an antenna port is not a cable at all. | `engine/media.js:748-752` |
+| **Modelled** | A radio can never be cabled to a wired port (`E_WIRELESS_TO_WIRED`), and an antenna port is not a cable at all. | `engine/media.js:1397` (`canMate()`), `:1401-1404` (the antenna check), `engine/media.js:709` (`CAGE_MEDIA.antenna` - a radio carries bands, not a cable) |
 | **Approximate** | "Wireless" is a link type with an antenna cage. There is no shared medium: two clients on one AP do not contend, do not share airtime, and cannot hear each other. | — |
-| **Absent** | SSID, BSSID, beacons, association/auth frames, WPA/PSK/802.1X, channels and width, interference, RSSI, rate adaptation, retries, roaming, mesh, band steering, hidden SSID, MU-MIMO/OFDMA. `grep -i "ssid\|channel\|interfer" engine/*.js` finds nothing in the forwarder. | — |
+| **Absent** | SSID, BSSID, beacons, association/auth frames, WPA/PSK/802.1X, channels and width, interference, RSSI, rate adaptation, retries, roaming, mesh, band steering, hidden SSID, MU-MIMO/OFDMA. `grep -inE "ssid\|rssi\|interfer\|wpa" engine/*.js` returns nothing; a `channel` match is only `port-channel` and `Fibre Channel`. | — |
 
 A wireless "cable" in PacketForge is an Ethernet link with a different cage.
 That is enough to teach cabling and VLANs over a radio, and not enough to teach

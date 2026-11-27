@@ -56,7 +56,9 @@ name: CI
 #     green, and at least both test legs are among them. A head that is merely behind the
 #     base is updated (`PUT .../update-branch`) and the new head is verified by a dispatch,
 #     because the run a bot's push starts is held for an approval nobody gives. A refusal
-#     exits non-zero - a gate that cannot gate must not report green (#1610).
+#     exits non-zero - a gate that cannot gate must not report green (#1610). A read that
+#     answered nothing is not a refusal and not an answer either: it is asked again, and one
+#     that still answers nothing is red, because a gate that read nothing has decided nothing.
 
 on:
   push:
@@ -656,10 +658,67 @@ jobs:
           note() { echo "::warning title=Auto-merge::${*}" >&2; echo "${*}" >&2; }
           notice() { echo "::notice title=Auto-merge::${*}" >&2; echo "${*}" >&2; }
 
+          # A read that did not answer is asked again, and one that still does not answer is a
+          # refusal, not a stand-down.
+          #
+          # `gh api` answers nothing for a transient failure - a 502, a throttled token - and
+          # `2>/dev/null || true` made that indistinguishable from an answer, so the step
+          # stood down on its first hiccup and recorded `(no reply)` as if nothing had
+          # happened. #1648 is the record (run 46076093514, job 140764564671): at 22:23:12
+          # the `pulls/1648` read answered nothing, the gate warned "not merging - the pull
+          # request could not be read (no reply)" and exited 0, and that pull request merged
+          # only when an unrelated run repeated the same read five minutes later
+          # (46076676382). Four attempts three seconds apart cost at most nine seconds and
+          # cover it; the error text is kept so the log names what GitHub actually said.
+          READ=""
+          READ_ERROR=""
+          READ_ATTEMPTS="${READ_ATTEMPTS:-4}"
+          read_retry() {   # the rest of the arguments are the read; fills READ, else READ_ERROR
+            READ=""
+            READ_ERROR=""
+            local attempt=0
+            while [ "$attempt" -lt "$READ_ATTEMPTS" ]; do
+              attempt=$((attempt + 1))
+              if READ=$("$@" 2>"${RUNNER_TEMP:-/tmp}/read-error.txt") && [ -n "$READ" ]; then
+                return 0
+              fi
+              READ_ERROR=$(tr '\n' ' ' < "${RUNNER_TEMP:-/tmp}/read-error.txt" 2>/dev/null | cut -c1-240)
+              [ -n "$READ_ERROR" ] || READ_ERROR="the answer was empty"
+              if [ "$attempt" -lt "$READ_ATTEMPTS" ]; then sleep "${READ_RETRY_SECONDS:-3}"; fi
+            done
+            READ=""
+            return 1
+          }
+          # A read that fails here is not a verdict this gate is allowed to invent: it has
+          # read nothing, so it can decide nothing, and a green tick would say the queue was
+          # healthy while nothing merged (#1610). The `gh` exit status is kept, not
+          # discarded, because "no such pull request" and "the forge did not answer" are
+          # different facts.
+          give_up() {   # $1 = what could not be read
+            echo "::error title=Auto-merge::#${NUMBER}: ${1} could not be read after ${READ_ATTEMPTS} attempts, so this gate has nothing to decide - ${READ_ERROR}"
+            exit 1
+          }
+
           # A dispatch carries no pull request: find the one whose head this branch is. A
           # dispatch on `main` has none, and that is a stand-down, not a failure.
           if [ -z "${NUMBER:-}" ]; then
-            NUMBER=$(gh pr list --repo "${repo}" --head "$head_ref" --state open --json number --jq '.[0].number // ""' 2>/dev/null || true)
+            # Asking for the number is a read like any other, but an empty list is a real
+            # answer - a dispatch on a branch with no pull request - so only a failed call
+            # is retried here.
+            attempt=0
+            while :; do
+              attempt=$((attempt + 1))
+              if NUMBER=$(gh pr list --repo "${repo}" --head "$head_ref" --state open --json number --jq '.[0].number // ""' 2>"${RUNNER_TEMP:-/tmp}/read-error.txt"); then
+                break
+              fi
+              READ_ERROR=$(tr '\n' ' ' < "${RUNNER_TEMP:-/tmp}/read-error.txt" 2>/dev/null | cut -c1-240)
+              [ -n "$READ_ERROR" ] || READ_ERROR="the answer was empty"
+              if [ "$attempt" -ge "$READ_ATTEMPTS" ]; then
+                NUMBER=""
+                give_up "the list of open pull requests headed ${head_ref}"
+              fi
+              sleep "${READ_RETRY_SECONDS:-3}"
+            done
             if [ -z "${NUMBER:-}" ]; then
               echo "no open pull request has ${head_ref} as its head - this dispatch is a plain matrix run, so there is nothing to merge"
               exit 0
@@ -667,16 +726,18 @@ jobs:
             echo "this dispatch is for #${NUMBER} (${head_ref})"
           fi
 
-          state=$(gh api "repos/${repo}/pulls/${NUMBER}" --jq .state 2>/dev/null || true)
+          read_retry gh api "repos/${repo}/pulls/${NUMBER}" --jq .state || give_up "the pull request"
+          state="$READ"
           case "${state:-}" in
             closed) echo "#${NUMBER}: closed or merged - there is nothing left to arm"; exit 0 ;;
             open)   echo "#${NUMBER}: open - reading its checks" ;;
-            *)      note "#${NUMBER}: not merging - the pull request could not be read (${state:-no reply})"; exit 0 ;;
+            *)      echo "::error title=Auto-merge::#${NUMBER}: the pull request answered state=${state}, which is neither open nor closed, so this gate cannot decide"; exit 1 ;;
           esac
 
           # The arm names the commit it verified. A head that moved since this run started
           # is a tree this run never tested, and its own run will arm it.
-          head_now=$(gh api "repos/${repo}/pulls/${NUMBER}" --jq .head.sha 2>/dev/null || true)
+          read_retry gh api "repos/${repo}/pulls/${NUMBER}" --jq .head.sha || give_up "the head of the pull request"
+          head_now="$READ"
           if [ "${head_now:-}" != "$HEAD_SHA" ]; then
             note "#${NUMBER}: not merging - the head moved from ${HEAD_SHA} to ${head_now:-<unreadable>} while this run was in flight"
             exit 0
@@ -686,24 +747,35 @@ jobs:
           # and no number of green checks makes it mergeable. Read that with the draft flag
           # so it is a decision instead of a refusal met after the fact (#1610). Neither
           # value can contain a comma, so `join(",")` is safe to split.
-          pr=$(gh api "repos/${repo}/pulls/${NUMBER}" --jq '[.draft, .mergeable_state] | join(",")' 2>/dev/null || true)
+          read_retry gh api "repos/${repo}/pulls/${NUMBER}" --jq '[.draft, .mergeable_state] | join(",")' || give_up "the draft and mergeable state of the pull request"
+          pr="$READ"
           draft=$(printf '%s' "$pr" | cut -d, -f1)
           merge_state=$(printf '%s' "$pr" | cut -d, -f2)
 
           checks=$(gh pr checks "$NUMBER" --repo "$repo" --json name,state,bucket 2>/dev/null || true)
           if [ -z "${checks:-}" ]; then
-            note "#${NUMBER}: not merging - the checks for ${HEAD_SHA} could not be read"
-            exit 0
+            checks='[]'
           fi
-          verdict=$(printf '%s' "$checks" | node -e '
+          # The reader. The reader has its own check, `pending` while it runs, and that is on
+          # the change - it is this decision. Everything else on the head has to have
+          # reported, and reported green.
+          reader='
             let d = "";
             process.stdin.on("data", (c) => { d += c; });
             process.stdin.on("end", () => {
               let j; try { j = JSON.parse(d); } catch (e) { console.log("the checks reply was not JSON"); return; }
-              // The reader has its own check, `pending` while it runs, and that is on the
-              // change - it is this decision. Everything else on the head has to have
-              // reported, and reported green.
-              const others = (j || []).filter((x) => !/^Arm auto-merge$/.test(x.name || ""));
+              // A dispatched head has legs that are read from the commit instead, because
+              // GitHub links a check suite to a pull request only for a pull request event
+              // and the run an update starts is held (#1612) - see below. They are added
+              // here; a name the rollup already judged keeps the rollup verdict.
+              const extra = (function () {
+                try { return JSON.parse(process.env.HEAD_CHECKS || "[]") || []; } catch (e) { return []; }
+              })();
+              const all = (j || []).slice();
+              for (const x of extra) {
+                if (x && x.name && !all.some((y) => y.name === x.name)) all.push(x);
+              }
+              const others = all.filter((x) => !/^Arm auto-merge$/.test(x.name || ""));
               const legs = others.filter((x) => /^Test \(Node \d+\)$/.test(x.name || "")).length;
               const bad = others.filter((x) => x.bucket !== "pass");
               if (!others.length) { console.log("no check has reported yet"); return; }
@@ -711,7 +783,34 @@ jobs:
               if (legs < 2) { console.log("only " + legs + " of the two CI test legs have reported"); return; }
               console.log("");
             });
-          ')
+          '
+          judge() {   # $1 = the head check runs, when they are known; prints the verdict
+            printf '%s' "$checks" | HEAD_CHECKS="${1:-}" node -e "$reader"
+          }
+          verdict=$(judge "")
+          # A rollup that is short of the CI legs on a dispatched head is the state this gate
+          # used to stand down in, and it made a verified head unmergeable: measured on #1649
+          # (run 46078131722, job 140770955831), the two test legs concluded at 22:42:24 and
+          # 22:42:26, the arm read the rollup at 22:42:33, the rollup still carried only the
+          # one commit status, and the job warned "only 0 of the two CI test legs have
+          # reported" and exited 0. The head's own check runs are the answer there, and they
+          # are only asked for in that state: a pull request run already sees its own legs,
+          # and asking anyway would spend an API call and nine seconds of retries on the
+          # normal path.
+          if [ "${DISPATCHED:-false}" = "true" ]; then
+            case "$verdict" in
+              "no check has reported yet"|"only "[01]" of the two CI test legs have reported")
+                filter='[.check_runs[]] | sort_by(.id) | group_by(.name) | map(.[-1] | {name: .name, state: .status, bucket: (if .conclusion == "success" then "pass" elif .conclusion == null then "pending" elif .conclusion == "skipped" or .conclusion == "neutral" then "skipping" else "fail" end)})'
+                if read_retry gh api "repos/${repo}/commits/${HEAD_SHA}/check-runs?per_page=100" --jq "$filter"; then
+                  head_checks="$READ"
+                  echo "#${NUMBER}: the rollup is short of the test legs, so this head is judged on its own check runs as well - ${HEAD_SHA}"
+                  verdict=$(judge "$head_checks")
+                else
+                  note "#${NUMBER}: not merging - the rollup is short of the test legs and the head's own check runs could not be read (${READ_ERROR})"
+                fi
+                ;;
+            esac
+          fi
           if [ -n "$verdict" ]; then
             note "#${NUMBER}: not merging - ${verdict}"
             exit 0
