@@ -22,7 +22,12 @@
     {
       "name": "PortF1",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "sfp+",
+      "speedCaps": [
+        1000,
+        10000
+      ]
     },
     {
       "name": "PortF2",
@@ -37,32 +42,26 @@
     {
       "name": "PortF3",
       "type": "ethernet",
-      "speed": "10G",
-      "connector": "sfp+",
+      "speed": "1G",
+      "connector": "sfp",
       "speedCaps": [
-        1000,
-        10000
+        1000
       ]
     },
     {
       "name": "PortF4",
       "type": "ethernet",
-      "speed": "10G",
-      "connector": "sfp+",
+      "speed": "1G",
+      "connector": "sfp",
       "speedCaps": [
-        1000,
-        10000
+        1000
       ]
     },
     {
       "name": "MGMT",
       "type": "ethernet",
-      "speed": "10G",
-      "connector": "sfp+",
-      "speedCaps": [
-        1000,
-        10000
-      ]
+      "speed": "1G",
+      "connector": "rj45"
     }
   ],
   "icon": "firewall",
