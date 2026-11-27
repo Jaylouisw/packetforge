@@ -26,7 +26,7 @@ Modes and their prompts:
 | `show ip interface [<port>]` | the per-port detail block `show interfaces` prints, for one port when a port is named - the box's IP view (`show ip interface [type number] [brief]`) is this console's interface view, since no separate IP-characteristics block is modelled; `brief` keeps its own table (`research/show-ip-interface-port-form.md`) |
 | `show ip route` | routing table: connected, static, OSPF, BGP, and the default - or `Gateway of last resort is not set` when there is none; a box that does not route prints `Default gateway is ...` over the host/redirect cache instead |
 | `show arp` | ARP cache: the neighbours it has heard, with an age and the port each was heard on and whether that port can still carry a frame, plus a local row (age `-`) for every interface holding an IPv4 address |
-| `show mac address-table` | MAC table (switches), per VLAN, with an age per entry and stale entries marked, the box's twenty reserved `All … CPU` rows above the learned ones, titled and ruled as the device prints it and closed by `Total Mac Addresses for this criterion: N`; an address learned through a bundle is named on the port-channel (`Po1`), as the device names it (`research/mac-table-port-channel-name.md`) |
+| `show mac address-table` | MAC table (switches), per VLAN, with an age per entry and stale entries marked, the box's twenty reserved `All … CPU` rows above the learned ones, titled and ruled as the device prints it and closed by `Total Mac Addresses for this criterion: N`; `dynamic` (or `dyn`) narrows it to what was learned, leaving the CPU rows out, and `interface <port>` to one port; an address learned through a bundle is named on the port-channel (`Po1`), as the device names it (`research/mac-table-port-channel-name.md`) |
 | `show vlan` / `show vlan brief` | VLAN table: one row per VLAN in the VLAN database, with the **access** ports in it - a trunk port carries the VLAN and appears in no row - and the four reserved defaults (1002-1005) a switch has from boot. `show vlan` is the full view: it then prints the media table (`Type`, `SAID`, `MTU`, `Stp`, `Trans1/2`), the empty `Remote SPAN VLANs` section and the empty private-VLAN table; `brief` stops after the first table |
 | `show spanning-tree` | per-port STP role, state and path cost in the table's own cells (`Root`/`Desg`/`Altn`, `FWD`/`BLK`/`LTN`/`LRN`, the short-method `Cost`), the bridge priority and the elected root, or "not measured" when nothing has run; the detail view's `alternate blocking` sentence is the payload's tooltip wording, not a cell (`research/stp-port-table-role-and-sts.md`, `research/stp-port-table-cost-column.md`) |
 | `show etherchannel summary` | the device's own summary: the nine-line flag key, both counts, `Po<N>(SU)` per group, LAG members `(P)` bundled, `(I)` stand-alone or `(D)` unbundled, with the reason; a channel-group number in front of the keyword keeps that group's row only, and leaves both counts as the box's totals |
@@ -3513,9 +3513,32 @@ Total Mac Addresses for this criterion: 23
   ```
 
   A filter that matches nothing says so about that port (`(no entry learned on Port 9)`) rather than printing an
-  empty table, which reads as a claim about the whole box. Any other trailing words are **refused** rather than
-  ignored: `% show mac address-table does not take "vlan 1"`. The filter used to be accepted and dropped, so
+  empty table, which reads as a claim about the whole box. The filter used to be accepted and dropped, so
   `… interface Port 1` answered with every entry on the switch.
+* **`dynamic` shows what the box learned, and nothing it forwards for itself.** The word is a type filter, so
+  the twenty `All … STATIC … CPU` rows of the unfiltered view fail it and the table closes at the learned rows
+  alone — on an untouched switch that is `Total Mac Addresses for this criterion: 0`, where the unfiltered view
+  reads 20. `dyn` is the same word, and `dynamic interface <port>` narrows both at once. The vendor's samples
+  and the reasoning are in `research/mac-table-dynamic-view.md`.
+
+  ```
+  sw1#show mac address-table dynamic
+
+            Mac Address Table
+  -------------------------------------------
+
+  Vlan    Mac Address         Type        Age     Ports
+  ----    -----------         --------    ---     -----
+     1    0200.0000.0100      DYNAMIC     0s      Fa0/1
+  Total Mac Addresses for this criterion: 1
+  ```
+
+  Words this console has no view for are **refused** rather than ignored, and the refusal names the two it has:
+
+  ```
+  SW1#show mac address-table vlan 1
+  % show mac address-table does not take "vlan 1": this console filters by `dynamic` or `interface <port>`
+  ```
 * `(vlan mismatch)` means the port does not carry that VLAN at all — an entry that cannot be a forwarding
   decision, however healthy the port looks.
 * **A VLAN parameter is not a mode change.** `switchport trunk native vlan`, `switchport trunk allowed vlan`,
