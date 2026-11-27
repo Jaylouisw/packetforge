@@ -18,6 +18,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **A /24 against a /30 on a serial OSPF link formed no adjacency, and the console blamed the far end.**
+  RFC 2328 10.5 states the Hello's Network Mask check and then excepts it for exactly this case - "on
+  point-to-point networks and on virtual links, the Network Mask in the received Hello Packet should be
+  ignored" - and a Cisco box follows the RFC: a /24 on one end of a point-to-point link and a /30 on the other
+  form a `FULL/ -` adjacency and install the far prefix (ipSpace's capture; Cisco TAC doc 7112 separates the
+  mask check from the "neighbour must be inside this interface's network" check). `computeOspf()` compared the
+  two masks on every link and dropped the link with no record, so `show ip ospf neighbor` answered `nothing on
+  the other end of an OSPF interface is running OSPF` about a router that was running it. A point-to-point
+  pair now skips the mask comparison and checks reachability per direction instead (the peer's address must
+  fall inside this port's own interface network, and the reverse); a broadcast segment keeps the mask check;
+  and either refusal is recorded as `mask` or `subnet` with both ends' addresses and masks, so the console
+  names the field that disagreed (`b2 runs OSPF with /25 on its end of this link and this box with /24: ...`).
+  `test/ospf-p2p-mask-mismatch.test.js` (28 assertions) and `research/ospf-p2p-mask-ignore.md`.
+
 - **`no ipv6 nd ra lifetime` wrote the value again instead of restoring the default.** Cisco's IPv6 command
   reference gives the no form as its own spelling - `ipv6 nd ra lifetime seconds` / `no ipv6 nd ra lifetime`,
   "To restore the default lifetime, use the no form of this command", default 1800 seconds - and the Catalyst
