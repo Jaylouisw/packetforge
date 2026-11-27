@@ -14,7 +14,8 @@
     "start": 0,
     "count": 36,
     "type": "ethernet",
-    "speed": "40G"
+    "speed": "40G",
+    "connector": "qsfp+"
   },
   "icon": "switch",
   "color": "#84cc16"

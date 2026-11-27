@@ -14,7 +14,8 @@
     "start": 0,
     "count": 32,
     "type": "ethernet",
-    "speed": "100G"
+    "speed": "100G",
+    "connector": "qsfp28"
   },
   "icon": "switch",
   "color": "#84cc16"

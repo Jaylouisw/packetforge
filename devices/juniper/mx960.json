@@ -14,7 +14,8 @@
     "start": 0,
     "count": 16,
     "type": "ethernet",
-    "speed": "10G"
+    "speed": "10G",
+    "connector": "sfp+"
   },
   "interfaces": [
     {
