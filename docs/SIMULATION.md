@@ -126,12 +126,12 @@ to; the rest of this page's citations were not re-measured in the same pass.
 
 | Verdict | Behaviour | Where |
 |---|---|---|
-| **Modelled** | Source MAC is learned on ingress, into a table **scoped to the frame's VLAN**. | `engine/simulator.js:3442` (`learnMac()` on the way in), `engine/device.js:961` (`learnMac()`, one table per VLAN) |
-| **Modelled** | Known unicast → one egress port. Unknown unicast, broadcast and multicast → flood within the VLAN only. | `engine/simulator.js:3634-3668` (`_forwardL2()`) |
-| **Modelled** | A flood never returns out of the ingress port, and never out of the LAG it arrived on. | `engine/simulator.js:3640` (the ingress port is not a candidate), `engine/simulator.js:3790` (`_egressRefusal()` answers `bundle`) |
-| **Modelled** | A learned entry pointing back at the ingress port is dropped with `loop`, rather than forwarded. | `engine/simulator.js:3658-3660` |
-| **Approximate** | Learning happens before the ACL and the STP egress checks, so a frame that is then dropped still taught the switch a MAC. Real hardware does the same; worth knowing when reading a table after a denied flow. | `engine/simulator.js:3442` (learning) before `3449` (the inbound ACL) and `3686` (the egress filter, whose first refusal is the spanning tree's) |
-| **Approximate** | Multicast is treated as broadcast: no IGMP snooping, no per-group filtering. This is deliberate — IPv6 neighbour discovery would never arrive otherwise. | `engine/simulator.js:3480-3481` (`isMulticastMac()` folded into `flood`) |
+| **Modelled** | Source MAC is learned on ingress, into a table **scoped to the frame's VLAN**. | `engine/simulator.js:3490` (`learnMac()` on the way in), `engine/device.js:968` (`learnMac()`, one table per VLAN) |
+| **Modelled** | Known unicast → one egress port. Unknown unicast, broadcast and multicast → flood within the VLAN only. | `engine/simulator.js:3682-3824` (`_forwardL2()`) |
+| **Modelled** | A flood never returns out of the ingress port, and never out of the LAG it arrived on. | `engine/simulator.js:3688` (the ingress port is not a candidate), `engine/simulator.js:3843` (`_egressRefusal()` answers `bundle`) |
+| **Modelled** | A learned entry pointing back at the ingress port is dropped with `loop`, rather than forwarded. | `engine/simulator.js:3707` |
+| **Approximate** | Learning happens before the ACL and the STP egress checks, so a frame that is then dropped still taught the switch a MAC. Real hardware does the same; worth knowing when reading a table after a denied flow. | `engine/simulator.js:3490` (learning) before `3497` (the inbound ACL) and `3733` (the egress filter, whose first refusal is the spanning tree's) |
+| **Approximate** | Multicast is treated as broadcast: no IGMP snooping, no per-group filtering. This is deliberate — IPv6 neighbour discovery would never arrive otherwise. | `engine/simulator.js:3528-3529` (`isMulticastMac()` folded into `flood`) |
 | **Modelled** | A dynamically learned entry ages out after **300 s** of silence (`MAC_AGE_MS`), and the aged lookup is what the data path uses, not just what the report prints: an entry the table only remembers is not a port a frame may be sent to. The `Age` column in `show mac address-table` is that silence, refreshed by traffic, not a lifetime. | `engine/device.js:6` (`MAC_AGE_MS`), `macLookup()` and `ageMacs()` |
 | **Absent** | MAC move detection, per-port MAC limits, port security, storm control, error counters, CRC/FCS errors, collisions. | — |
 
@@ -148,6 +148,12 @@ They moved again after it: five commits to `engine/simulator.js` landed between 
 -> 3790, the `loop` drop 3629 -> 3658, the inbound ACL 3420 -> 3449, the egress filter 3657 -> 3686,
 and `isMulticastMac()` 3451 -> 3480, with `engine/device.js`'s `learnMac()` at 934 -> 961. The rows
 were re-read off this tree again; what each one names is unchanged.
+
+They moved once more, all by the same amount: the two OSPF adjacency changes (#1646, #1652) put 48 lines above the
+frame path, so `learnMac()` 3442 -> 3490 (and `engine/device.js`'s at 961 -> 968), `_forwardL2()` 3634 -> 3682, the
+ingress skip 3640 -> 3688, `_egressRefusal()`'s `bundle` answer 3790 -> 3843, the `loop` drop 3658 -> 3707, the
+inbound ACL 3449 -> 3497, the egress filter 3686 -> 3733, and `isMulticastMac()` 3480 -> 3528. The six rows are
+re-read off the tree at `d7cac843`; what each one names is unchanged.
 
 ### 2.2 VLANs (802.1Q)
 
