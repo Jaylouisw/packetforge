@@ -14,6 +14,12 @@
     "count": 48,
     "type": "ethernet",
     "speed": "1G",
+    "connector": "rj45",
+    "speedCaps": [
+      10,
+      100,
+      1000
+    ],
     "poeOut": true,
     "poeOutClass": "PoE+"
   },
