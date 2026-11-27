@@ -1041,7 +1041,7 @@ port shapes**, every one of which can be dragged onto a board.
 breadth — and takes about a second for the whole catalogue:
 
 ```
-(2359 models, 30180 sockets, 986 distinct port shapes)
+(2359 models, 30184 sockets, 986 distinct port shapes)
 ```
 
 Per model it requires: it renders without throwing, twice-gives-the-same-panel; every port the engine knows about
