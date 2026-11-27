@@ -91,10 +91,12 @@ node scripts/request-queue.js --json           # machine-readable
 node scripts/request-queue.js --skeleton 12    # JSON stub for request #12
 ```
 
-The tracker client these share is still being ported from the archive's API to GitHub's
-([MIRRORING.md](MIRRORING.md) §5), so until that lands they stop with `tracker returned HTTP 410`
-rather than printing a queue. `gh issue list --label device-request` is the queue in the meantime —
-and an empty answer from a broken client is never evidence that nothing was asked for.
+`request-queue.js` reads the GitHub tracker through `scripts/github-api.ts`
+([MIRRORING.md](MIRRORING.md) §5), and a read needs no token: GitHub answers anonymous requests
+at 60 an hour. A run that cannot read says so and exits 2 with the reason, so an empty queue is
+never a failed lookup wearing the same face. `request-queue.js` is the queue — `gh issue list
+--label device-request` is not, because it misses a request filed before its label was applied
+(the script reads the `[Device]:` / `[Hardware]:` title for exactly that reason).
 
 The skeleton command prints a stub with the vendor, model, category and source
 URL already filled from the issue, plus the path it should be written to. Paste in
