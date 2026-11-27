@@ -1159,6 +1159,75 @@ function noFormFor(words, mode) {
   return best;
 }
 
+// The protocol words `show ip route` takes, and the route codes each one selects.
+//
+// The vendor documents the argument, not just the bare command: `show ip route [ip-address [repair-paths |
+// next-hop-override [dhcp] | mask [longer-prefixes]] | protocol [process-id] | list [...] | ...]`, and the field
+// list spells out what *protocol* is - "The name of a routing protocol or the keyword connected, mobile, static,
+// or summary. If you specify a routing protocol, use one of the following keywords: bgp, eigrp, hello, isis, odr,
+// ospf, nhrp, or rip." (Cisco IOS IP Routing: Protocol-Independent Command Reference, `show ip route`,
+// https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/iproute_pi/command/iri-cr-book/iri-cr-s1.html; the same field
+// list in the IOS XE BGP command reference,
+// https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/iproute_bgp/command/iproute_bgp-xe-3se-3850-cr-book/iproute_bgp-xe-3se-3850-cr-book_chapter_0100.html).
+//
+// This console answered every one of those words with "does not take" - the whole routing table is printed, read
+// the row for the prefix. That sentence is right about a *prefix* (a table with prefixes in it reads as "yes"),
+// and wrong about a protocol word, which is the argument a box prints the same table narrowed by: the full codes
+// legend, the gateway-of-last-resort line, and only the rows of that source.
+// research/show-ip-route-protocol.md carries the captures.
+//
+// `codes` is the set of route codes the word keeps. `connected` keeps **both** C and L: a local host route is a
+// subtype of the connected route (Cisco, "Local Host Routes Installed in the Routing Table on Cisco IOS and Cisco
+// IOS-XR", doc 116264 - local routes are "a subtype of the connected route" - and a `show ip route connected`
+// capture in Cisco's EIGRP path-selection note prints the C row and the L row under it, interface by interface).
+// The words this model can never install (`hello`, `odr`) keep nothing and print the table with no rows, which is
+// what a box with no route from that source prints.
+const IP_ROUTE_PROTOCOL_WORDS = [
+  { word: 'connected', spellings: ['connected'], codes: ['C', 'L'] },
+  { word: 'static', spellings: ['static', 'statics'], codes: ['S'] },
+  { word: 'ospf', spellings: ['ospf'], codes: ['O'] },
+  { word: 'bgp', spellings: ['bgp'], codes: ['B'] },
+  { word: 'rip', spellings: ['rip'], codes: ['R'] },
+  { word: 'eigrp', spellings: ['eigrp'], codes: ['D', 'EX'] },
+  { word: 'isis', spellings: ['isis'], codes: ['i', 'ia', 'L1', 'L2'] },
+  { word: 'mobile', spellings: ['mobile'], codes: ['M'] },
+  { word: 'nhrp', spellings: ['nhrp'], codes: ['H'] },
+  { word: 'hello', spellings: ['hello'], codes: [] },
+  { word: 'odr', spellings: ['odr'], codes: [] },
+  { word: 'summary', spellings: ['summary'], codes: null }
+];
+
+// What the word after `show ip route` means, or a refusal in the console's own words.
+//
+// Returns `{ refusal: [lines] }` when the word cannot narrow the table, `{ word, codes }` when it can, and
+// `null` when it is not a protocol word at all - the caller keeps its existing prefix refusal for that case, so
+// `show ip route 192.0.2.0/24` still answers exactly what it answered before.
+function ipRouteProtocol(tail) {
+  const typed = String(tail[0] === undefined || tail[0] === null ? '' : tail[0]).toLowerCase();
+  const hit = resolveCommandWord(typed, IP_ROUTE_PROTOCOL_WORDS);
+  if (hit.rivals.length) {
+    return { refusal: ['% Ambiguous command "show ip route ' + typed + '": ' + hit.rivals.join(' | ') +
+      ' (type more characters)'] };
+  }
+  if (!hit.word) return null;
+  // `summary` sits in the same argument slot and is a different table: route sources with backup and deleted
+  // counts, and memory per protocol. This console keeps none of those counters, so it says so rather than print a
+  // routing table under a word that asked for a summary of one.
+  if (hit.word === 'summary') {
+    return { refusal: ['% show ip route summary is a different table: it counts routes per source with backup and ' +
+      'deleted paths, and prints memory per protocol - this console keeps none of those counters',
+      '  `show ip route` prints every route; `show ip route <protocol>` narrows the same table to one source'] };
+  }
+  // A process id (`show ip route ospf 1`) and `static download` are the two second words the vendor's syntax has.
+  // This console holds one set of routes per box, not one per process, and no downloaded statics.
+  if (tail.length > 1) {
+    return { refusal: ['% show ip route ' + hit.word + ' takes no second word here: this console keeps one set of ' +
+      hit.word + ' routes per box rather than one per process, and `show ip route ' + hit.word + '` prints them'] };
+  }
+  const entry = IP_ROUTE_PROTOCOL_WORDS.filter(function (w) { return w.word === hit.word; })[0];
+  return { word: hit.word, codes: entry.codes || [] };
+}
+
 // The clause a real IOS appends to a ping's success-rate line, and the rule for when it cannot be printed.
 //
 // `Success rate is 80 percent (4/5)` is a sentence IOS never finishes there: when at least one echo comes back the
@@ -7228,12 +7297,32 @@ class CliSession {
     } else if (what === 'ip' && kw[1] === 'route') {
       // There is no `show ip route <prefix>` here, and the command used to answer as though there were: it printed
       // the whole table, so a prefix that is *not* installed came back looking installed (#1403).
+      // A word after the view means one of two things in the vendor's syntax - a prefix to look up, or a protocol
+      // to narrow the table by - and this console could answer neither, so it refused both in one sentence. The
+      // prefix half stays refused (#1403: a table printed for a prefix reads as "yes, it is in there"). The
+      // protocol half is answerable and was not answered: `ipRouteProtocol()` resolves the word, and the row set
+      // below is the same table filtered by code. research/show-ip-route-protocol.md.
+      let protoFilter = null;
       if (tokens.length > 2) {
-        // The pointer used to say to read the row "in the table below" - and the refusal is one line, with no
-        // table below it, so an operator who followed it looked past the answer for output that was never printed.
-        // It names the command that does print the table instead.
-        return showNoTail('show ip route', tokens.slice(2), 'the whole table is printed',
-          'run `show ip route` and read the row for the prefix');
+        protoFilter = ipRouteProtocol(tokens.slice(2));
+        if (protoFilter && protoFilter.refusal) return protoFilter.refusal;
+        // A box with no routing table has no protocol routes to narrow either: a Catalyst with `ip routing` off
+        // prints the default-gateway/host-cache shape whatever was typed, so the argument is refused rather than
+        // silently dropped from a table it never had.
+        const routesHere = typeof dev.isL3 === 'function' && dev.isL3();
+        if (!protoFilter || !routesHere) {
+          // The pointer used to say to read the row "in the table below" - and the refusal is one line, with no
+          // table below it, so an operator who followed it looked past the answer for output that was never
+          // printed. It names the command that does print the table instead.
+          //
+          // One line, always. The protocol hint was a second `refusal.push` line for one round, so the prefix
+          // refusal became a two-line answer while every other refusal in this console is one sentence
+          // (test/show-argument-refusal.test.js counts the lines); the hint is a clause on that sentence instead.
+          // A box that does not route gets no hint - there is no source to narrow a table it never had.
+          return showNoTail('show ip route', tokens.slice(2), 'the whole table is printed',
+            'run `show ip route` and read the row for the prefix' +
+            (routesHere ? ', or narrow it to one source by naming a protocol: connected, static, ospf, bgp, rip' : ''));
+        }
       }
       // A box that does not route has no routing table, and IOS does not print one for it. `show ip route` on a
       // Catalyst with `ip routing` off answers with the default gateway over the host/redirect cache - three
@@ -7325,7 +7414,15 @@ class CliSession {
         out.push('Gateway of last resort is not set');
       }
 
-      for (const r of rows) {
+      // The same rows, narrowed to one source when the operator named one. The gateway line above is read from
+      // the whole table: it names the default routeTo() would pick, not the default of the protocol asked about,
+      // and every capture of a narrowed table keeps the line (`show ip route static` prints "Gateway of last
+      // resort is ..." over a table holding only S rows).
+      const shown = protoFilter
+        ? rows.filter(function (r) { return protoFilter.codes.indexOf(String(r.code)) !== -1; })
+        : rows;
+
+      for (const r of shown) {
         const prefix = net.prefixOf(r.mask);
         // The destination is ONE field: `10.1.1.0/24`, not an address padded out to a column with the mask
         // hanging off it. Every IOS sample prints the pair joined - `C 10.44.192.0/24 is directly

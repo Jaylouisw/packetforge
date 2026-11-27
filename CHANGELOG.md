@@ -18,6 +18,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **`show ip route static` was refused, and `connected` would have hidden the box's own addresses.**
+  `show ip route` takes a protocol word - the vendor's field list reads "The name of a routing protocol or the
+  keyword connected, mobile, static, or summary ... bgp, eigrp, hello, isis, odr, ospf, nhrp, or rip" (Cisco IOS
+  IP Routing: Protocol-Independent Command Reference, `show ip route`) - and every capture prints the whole
+  codes legend, the `Gateway of last resort` line and only the rows of that source. This console answered all of
+  them with the prefix refusal ("does not take \"static\" ... read the row for the prefix"), which is right about
+  a prefix (#1403) and wrong about a protocol. `show ip route <protocol>` now narrows the same table by route
+  code, resolving the word through the same abbreviation table every other keyword slot uses (`c` is
+  `connected`, `s` is ambiguous between `static` and `summary`), and keeps the legend, the per-row annotations
+  and the gateway line untouched. `connected` keeps **both** the `C` and the `L` rows - a local host route is "a
+  subtype of the connected route" (Cisco doc 116264) and a `show ip route connected` capture prints the pair for
+  every interface (Cisco doc 221548) - so the narrowed view still shows the addresses the box owns. A protocol
+  with no rows prints the legend and the gateway line and nothing else, `summary` is refused as the different
+  table it is, a second word (`show ip route ospf 1`) as a process id this console does not keep, and a box that
+  does not route refuses the word instead of printing a router's table. The prefix refusal keeps its own
+  sentence, and the protocol hint is a clause on that sentence rather than a second line under it, because
+  every refusal in this console is one sentence.
+  `test/show-ip-route-protocol.test.js` (34 assertions) and `research/show-ip-route-protocol.md`.
 - **A broadcast segment refused for a subnet mismatch explained itself with the point-to-point mask
   exception.** `computeOspf()` recorded `reason: 'subnet'` from two different comparisons - the broadcast
   check (equal masks, networks differ) and the point-to-point reachability check - so `show ip ospf
