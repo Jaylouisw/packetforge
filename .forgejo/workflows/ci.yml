@@ -1863,6 +1863,30 @@ jobs:
           # line the tree is the commit's own files and nothing else.
           git clean -qfdx
           echo "checked out $(git rev-parse HEAD) of ${url} with git - no action cache involved"
+          # `npm ci` is the one install in this workflow, and it is the next thing this job
+          # does - so it starts here, beside the commit, instead of after the step below has
+          # finished waiting for the ${PFDIST} download. The two are independent: the install
+          # reads package.json and package-lock.json (both in the tree the line above just
+          # wrote), talks to the registry and writes node_modules; the step below downloads a
+          # tarball into /opt and never touches the tree. Measured on this job's own runs
+          # (/actions/tasks, `Typecheck`, 2026-11-27): 1m07s (run 11230, task 29664) and
+          # 1m03s (run 11232) on pull requests, of which the runtime wait is 10-20 s and the
+          # install 20-40 s, back to back.
+          #
+          # It is the same shape as the runtime prefetch above and the Docker CLI prefetch in
+          # the smoke job: detached, every outcome a marker file, and the install step below
+          # falls back to running `npm ci` itself if this one did not finish cleanly - the
+          # same command, the same 300 s bound, the same exit status. A prefetch that dies
+          # therefore costs the old serial install, not the job. `npm` here is the runner
+          # image's, which is fine: the lockfile decides the tree, and every JS file in it is
+          # run by the pinned runtime the next step symlinks over this one.
+          dir="${RUNNER_TEMP:-/tmp}"
+          rm -f "$dir/npm-ci.rc" "$dir/npm-ci.pid"
+          if [ -f package.json ] && [ -f package-lock.json ]; then
+            echo "starting npm ci here, so the runtime download below runs over it"
+            nohup sh -c 'cd "$1" && timeout --signal=TERM --kill-after=10 300 npm ci --ignore-scripts --no-audit --no-fund > "$2/npm-ci.log" 2>&1; echo $? > "$2/npm-ci.rc"' sh "$PWD" "$dir" > /dev/null 2>&1 &
+            echo $! > "$dir/npm-ci.pid"
+          fi
       # `npm ci`, not `npm install`: the lockfile is the whole point, and a job that resolves
       # its own dependency tree is a job that tests a tree nobody reviewed. The bound is 300 s
       # on the same argument every other step in this workflow uses - a step that gives up on
@@ -1923,7 +1947,32 @@ jobs:
       - name: Install the one devDependency
         run: |
           set -eu
-          timeout --signal=TERM --kill-after=10 300 npm ci --ignore-scripts --no-audit --no-fund
+          dir="${RUNNER_TEMP:-/tmp}"
+          # The install this step used to pay for serially may already be running, or done:
+          # the checkout above started it before the runtime download. Wait for its marker,
+          # bounded - the install has its own 300 s bound and this waits 320 s for it - and
+          # use the tree it produced. Anything other than a `0` in that marker falls through
+          # to the same bounded `npm ci` this step has always run, so the only thing the
+          # prefetch can change is the clock.
+          rc=""
+          if [ -s "$dir/npm-ci.pid" ]; then
+            echo "waiting for the npm ci started during the checkout"
+            for _ in $(seq 1 320); do
+              if [ -s "$dir/npm-ci.rc" ]; then break; fi
+              sleep 1
+            done
+            if [ -s "$dir/npm-ci.rc" ]; then
+              rc=$(tr -d '[:space:]' < "$dir/npm-ci.rc")
+            fi
+          fi
+          if [ "${rc:-}" = "0" ]; then
+            echo "the npm ci started beside the checkout finished cleanly"
+            tail -n 5 "$dir/npm-ci.log" 2>/dev/null || true
+          else
+            echo "the prefetched npm ci did not finish cleanly (rc ${rc:-<none>}) - running it here, as before"
+            tail -n 30 "$dir/npm-ci.log" 2>/dev/null || true
+            timeout --signal=TERM --kill-after=10 300 npm ci --ignore-scripts --no-audit --no-fund
+          fi
           echo "typescript $(./node_modules/.bin/tsc --version) on $(node --version)"
       # Three checks, three steps, so a red log names which one it was: the compiler's own
       # verdict, the scan for the escape hatch (`scripts/check-no-any.ts` - `tsc` has no
