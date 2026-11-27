@@ -12,7 +12,7 @@ numbers are from runs against the live tracker, and the titles are verbatim.
 # report only - the default, always safe
 node scripts/sweep-device-requests.js --limit 700
 
-# comment and close up to N matches (needs FORGEJO_TOKEN or a token in the git remote)
+# comment and close up to N matches (needs GITHUB_TOKEN or GH_TOKEN)
 node scripts/sweep-device-requests.js --limit 700 --close 20
 ```
 
@@ -109,8 +109,10 @@ explicit enough to trust.
   backlog of 400 will report matches you cannot then close. This bit once: a `--close 20` run
   closed 0 of 0 while the report showed 14.
 - **`--close` posts a comment first**, naming the catalogue file, then closes. Never silently.
-- **A token is required** for `--close`: `FORGEJO_TOKEN` (or `GITHUB_TOKEN`), which the script
-  prefers over parsing the git remote.
+- **A token is required** for `--close`: `GITHUB_TOKEN` or `GH_TOKEN`, which the script prefers
+  over parsing the git remote (`github`, then `origin`). `FORGEJO_TOKEN` is deliberately not read:
+  it is a token for the archive, GitHub answers it with 401, and a stale export from the months
+  the project lived there would read as "no access" rather than "wrong token".
 - **`already in the catalogue: 0` is the healthy end state** after a closing pass. If it is not
   0, either the fix has not landed or a new naming convention showed up.
 

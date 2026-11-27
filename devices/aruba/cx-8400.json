@@ -14,7 +14,8 @@
     "start": 1,
     "count": 32,
     "type": "ethernet",
-    "speed": "25G"
+    "speed": "25G",
+    "connector": "sfp28"
   },
   "interfaces": [
     {

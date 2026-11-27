@@ -25,11 +25,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   headings and the closing `Total Mac Addresses for this criterion: N`, with `DYNAMIC` rows only — none of the twenty
   `All … STATIC … CPU` rows the unfiltered view prints, because those are the type the criterion excludes. The
   filter now prints exactly that, closes at the rows it printed (`…: 0` on a switch that has learned nothing,
-  where the unfiltered view reads 20), takes `dyn` as the same word, and narrows with `interface <port>`.
+  where the unfiltered view reads 20), takes `d`, `dyn` or `dynamic` as one word, and narrows with `interface <port>`.
   A trailing word with no view is still refused, and the sentence now names both filters instead of one.
-  `test/mac-table-dynamic-view.test.js` (19 checks) pins the empty and populated tables, the short form and the
+  `test/mac-table-dynamic-view.test.js` (20 checks) pins the empty and populated tables, the short form and the
   port filter; [`research/mac-table-dynamic-view.md`](research/mac-table-dynamic-view.md) holds the samples and
   what is still unbuilt (`dynamic vlan`, `dynamic address`, `static`, `vlan`, `count`, `aging-time`).
+- **The hardware-request queue and the missing-devices report could not read the tracker: both asked
+  `github.com/api/v1/…`, which GitHub answers `410 Gone`.** The two tools were built on
+  `scripts/forgejo-api.js`, and its base was derived from `canonical.WEB` — the *web* host with the
+  archive's path hung off it — so the move to GitHub left it asking a URL that answers an HTML
+  apology. `scripts/request-queue.js` printed "Could not read issues", and nothing caught it because
+  no suite ever read the tracker: 491 green suites and two dead tools. The client is now
+  `scripts/github-api.ts`, speaking GitHub's REST API at `api.github.com` (or `GITHUB_API_URL`) in
+  TypeScript with no build step, and the two `.js` callers require it as `require('./github-api.ts')`
+  the way they already require `canonical.ts`. Everything they rely on is preserved: pagination,
+  label matching by name, `state`, an ISO `createdAt` for the age column, the comment order the
+  blocker line reads, and a failure reported as *"could not look"* with a reason rather than as an
+  empty queue. What GitHub genuinely shapes differently is translated: its issues endpoint returns
+  **pull requests too**, so those are dropped *after* the page size is counted (filtering first would
+  make a page of 50 holding 20 pull requests look like a short last page and silently stop the
+  scan); it paginates on `per_page`, not the archive's `limit`; and `state_reason` replaces the
+  archive's close reason, surfaced as `stateReason`. A read needs no token — GitHub allows anonymous
+  reads at 60 an hour, so `availability()` no longer refuses to look without one — while a write
+  fails with a message that names `GH_TOKEN`; `FORGEJO_TOKEN` is deliberately not accepted, for the
+  reason the sweeper gives. Proved live: `node scripts/request-queue.js` reads the 8 open issues in
+  `jaylouisw/packetforge` and finds the queue empty (it *is* empty — none of the 8 is a request),
+  `node scripts/missing-devices.js` reports 0 open requests, and the old base replayed against the
+  real host answers `HTTP 410 Gone` as an error with the fix in the sentence. The check that would
+  have caught it is `test/github-api-client.test.ts` — offline, stubbed transport, asserting the
+  base is `api.github.com` and that a 410 is an error rather than an empty list.
 - **The hardware-request sweeper read the archive instead of the tracker.** `scripts/sweep-device-requests.js`
   held the archive's internal API address as a literal (`http://10.0.10.20:3000/api/v1`), so a plain run
   swept a backlog nobody can add to and `--close N` aimed its comments and closes at a repository that

@@ -16,7 +16,8 @@
     "start": 0,
     "count": 8,
     "type": "ethernet",
-    "speed": "10G"
+    "speed": "10G",
+    "connector": "sfp+"
   },
   "icon": "firewall",
   "color": "#84cc16"
