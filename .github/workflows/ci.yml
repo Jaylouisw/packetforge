@@ -53,7 +53,9 @@ name: CI
 #   - The disk bound on the image build, and `docker system df` before and after, which
 #     `scripts/check-ci-disk-hygiene.js` enforces against every workflow file.
 #   - The merge gate: nothing merges until every other check on the head has reported
-#     green, and at least both test legs are among them.
+#     green, and at least both test legs are among them. A head that is merely behind the
+#     base is updated (`PUT .../update-branch`) so the run on the new head can merge it,
+#     and a refusal exits non-zero - a gate that cannot gate must not report green (#1610).
 
 on:
   push:
@@ -609,6 +611,10 @@ jobs:
       # `gh pr checks` reads check runs and legacy commit statuses.
       checks: read
       statuses: read
+      # #1610: a merge authored by the run's own token starts no `push` run, so the step
+      # dispatches ci.yml on the base branch to verify the commit it just landed. Without
+      # this permission that dispatch is a 403 and the notice says main went unverified.
+      actions: write
     env:
       # A merge performed with the run's own GITHUB_TOKEN does not start the `push` run on
       # `main`: GitHub does not start workflows for events authored by that token. A PAT
@@ -623,7 +629,9 @@ jobs:
         run: |
           set -u
           repo="$GITHUB_REPOSITORY"
+          base="${GITHUB_BASE_REF:-main}"
           note() { echo "::warning title=Auto-merge::${*}" >&2; echo "${*}" >&2; }
+          notice() { echo "::notice title=Auto-merge::${*}" >&2; echo "${*}" >&2; }
 
           state=$(gh api "repos/${repo}/pulls/${NUMBER}" --jq .state 2>/dev/null || true)
           case "${state:-}" in
@@ -639,6 +647,14 @@ jobs:
             note "#${NUMBER}: not merging - the head moved from ${HEAD_SHA} to ${head_now:-<unreadable>} while this run was in flight"
             exit 0
           fi
+
+          # `strict` is on, so a head that is behind `base` is BLOCKED however green it is,
+          # and no number of green checks makes it mergeable. Read that with the draft flag
+          # so it is a decision instead of a refusal met after the fact (#1610). Neither
+          # value can contain a comma, so `join(",")` is safe to split.
+          pr=$(gh api "repos/${repo}/pulls/${NUMBER}" --jq '[.draft, .mergeable_state] | join(",")' 2>/dev/null || true)
+          draft=$(printf '%s' "$pr" | cut -d, -f1)
+          merge_state=$(printf '%s' "$pr" | cut -d, -f2)
 
           checks=$(gh pr checks "$NUMBER" --repo "$repo" --json name,state,bucket 2>/dev/null || true)
           if [ -z "${checks:-}" ]; then
@@ -670,17 +686,17 @@ jobs:
 
           # The log is public on a public repository, but a refusal nobody reads is the same
           # as no refusal: the reason goes on the pull request as well, the way the archived
-          # copy posted it when the logs were behind a login. Nothing here can turn a green
-          # run red - a comment that cannot be posted is a warning.
+          # copy posted it when the logs were behind a login. A comment that cannot be
+          # posted is a warning; the exit status below is what carries the verdict.
           post_note() {
             [ -s "${RUNNER_TEMP:-/tmp}/arm-note.txt" ] || return 0
             gh pr comment "$NUMBER" --repo "$repo" --body-file "${RUNNER_TEMP:-/tmp}/arm-note.txt" 2>/dev/null \
               || echo "#${NUMBER}: could not post the reason as a comment"
           }
-          refuse() {   # $1 = "arm" or "merge", $2 = what the CLI said
+          refuse() {   # $1 = "arm", "merge" or "gate"; $2 = what the API or the CLI said
             note "#${NUMBER}: every check on ${HEAD_SHA} is green and the $1 was refused: $2"
             {
-              echo "**Arm auto-merge went green but could not $1 this pull request.**"
+              echo "**Arm auto-merge went green and this pull request was not merged.**"
               echo
               echo "Every check on \`${HEAD_SHA}\` is \`pass\`, so the gate approved the change; the $1 call was refused:"
               echo
@@ -691,29 +707,91 @@ jobs:
               echo "The branch is untouched. This comment exists because a refused $1 is a person's problem, and the job log is not where they will look."
             } >> "${RUNNER_TEMP:-/tmp}/arm-note.txt"
             post_note
-            exit 0
+            # #1610: this used to `exit 0`. A gate that cannot gate printed the same tick as
+            # one that merged, so a queue that merged nothing looked healthy for a migration.
+            # `Arm auto-merge` is not a required check, so a red here blocks nothing - it is
+            # the only signal that the queue has stopped.
+            exit 1
+          }
+          update_branch() {
+            if out=$(gh api -X PUT "repos/${repo}/pulls/${NUMBER}/update-branch" \
+                       -f expected_head_sha="$HEAD_SHA" 2>&1); then
+              return 0
+            fi
+            printf '%s\n' "$out" > "${RUNNER_TEMP:-/tmp}/update-branch.txt"
+            return 1
+          }
+          # The one refusal that is not a person's problem. `PUT .../update-branch` moves the
+          # base's commits under the head, GitHub fires a `synchronize`, and the run that
+          # starts on the new head merges this pull request itself - so the update is
+          # progress and this run stays green. `expected_head_sha` is what makes it safe to
+          # call after reading checks: a head that moved is a 422, never an update of a tree
+          # nobody judged.
+          settle_behind() {   # $1 = what the CLI said; returns 1 when that is not this refusal
+            case "$1" in
+              *"not up to date"*|*"behind the base"*|*"must be up to date"*|*"Update branch"*) ;;
+              *) return 1 ;;
+            esac
+            if update_branch; then
+              notice "#${NUMBER}: ${1} - updated the branch onto ${base}; the push that follows starts a run on the new head, which merges this pull request once its own checks are green"
+              exit 0
+            fi
+            refuse gate "the branch is behind ${base} and GitHub would not update it: $(cat "${RUNNER_TEMP:-/tmp}/update-branch.txt" 2>/dev/null || echo 'no answer')"
           }
 
+          if [ "$draft" = "true" ]; then
+            note "#${NUMBER}: not merging - the pull request is a draft"
+            exit 0
+          fi
+
+          # A green head that is behind: update it now rather than spending a merge call on
+          # a refusal this run already has the answer to.
+          if [ "$merge_state" = "behind" ]; then
+            if update_branch; then
+              notice "#${NUMBER}: every check on ${HEAD_SHA} is green and the branch is behind ${base} - updated the branch; the push that follows starts a run on the new head, which merges this pull request"
+              exit 0
+            fi
+            refuse gate "the branch is behind ${base} and GitHub would not update it: $(cat "${RUNNER_TEMP:-/tmp}/update-branch.txt" 2>/dev/null || echo 'no answer')"
+          fi
+          merged=0
           # `--auto` is the closest thing to `merge_when_checks_succeed`: it defers to
           # branch protection's required checks and reviews rather than merging into them.
           # Everything here has already reported green, so it merges immediately when there
-          # is nothing else outstanding.
+          # is nothing else outstanding. Under the run's own GITHUB_TOKEN it is refused -
+          # that is a capability of the identity, not of the repository - and the merge is
+          # made directly instead, which is the path `strict` can block at the last step.
           if out=$(gh pr merge "$NUMBER" --repo "$repo" --squash --auto 2>&1); then
             echo "#${NUMBER}: armed for a squash merge of ${HEAD_SHA} - every check on it is green"
           else
             case "$out" in
               *"Auto-merge is not allowed"*|*"auto-merge is not enabled"*|*AutoMerge*)
-                echo "auto-merge is not enabled on this repository - merging now instead, because every check on ${HEAD_SHA} is green"
+                echo "auto-merge is not enabled for this run's identity - merging now instead, because every check on ${HEAD_SHA} is green"
                 if out=$(gh pr merge "$NUMBER" --repo "$repo" --squash 2>&1); then
                   echo "#${NUMBER}: merged ${HEAD_SHA} - every check on it was green"
+                  merged=1
                 else
+                  # `mergeable_state` is computed asynchronously and lags a push by a few
+                  # seconds, so "clean" can still meet a base that moved. The refusal is
+                  # read once before it is final.
+                  settle_behind "$out" || true
                   refuse merge "$out"
                 fi ;;
               *)
+                settle_behind "$out" || true
                 refuse arm "$out" ;;
             esac
           fi
 
-          if [ "${HAVE_PAT:-false}" != "true" ]; then
-            echo "::notice title=Auto-merge::this merge was made with the run's own token, so the push run on main does not start - set PF_AUTOMERGE_TOKEN or dispatch ci.yml by hand to verify main"
+          # A merge performed with the run's own token starts no `push` run on `base`:
+          # GitHub does not start workflows for events authored by that token. The commit
+          # that landed is then the one commit nothing verified, which is what a PAT is
+          # for; the dispatch asks for the same matrix without one. `workflow_dispatch` is
+          # on this workflow for exactly this reason, and the concurrency group is per
+          # commit, so this run and that one cannot cancel each other.
+          if [ "$merged" = "1" ] && [ "${HAVE_PAT:-false}" != "true" ]; then
+            if gh workflow run ci.yml --repo "$repo" --ref "$base" >/dev/null 2>&1; then
+              echo "#${NUMBER}: merged with the run's token, so ci.yml was dispatched on ${base} to verify the merge commit"
+            else
+              note "#${NUMBER}: merged with the run's token and the ci.yml dispatch failed - ${base} is unverified until someone dispatches it; set PF_AUTOMERGE_TOKEN to remove the need"
+            fi
           fi
