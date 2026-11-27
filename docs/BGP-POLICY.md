@@ -728,7 +728,7 @@ Refusals are config-time CLI errors, not silent drops:
 | `match community <c>` | true if the route's community set **contains** `c` (subset semantics, RFC 1997 gives no ordering) |
 | `match community <c> [<c> ...]` | true if **any** listed community is present |
 | `match community <c> exact` | true only if the route's set is exactly the listed set |
-| `match community` with no operand | CLI error: `% Incomplete command` (matches existing style, `cli.js:2017`, `:2196`) |
+| `match community` with no operand | CLI error: `% Incomplete command` (matches existing style, `cli.js:2039`, `:2218`) |
 
 Prefix-list / as-path-list / `match ip address` are out of scope for this
 layer. `match ip address <acl>` is the obvious next addition because
@@ -761,7 +761,7 @@ exactly — no new prompt mode, no new tokenizer, no change to `prompt()`.
 ```
 
 `neighbor ...` never reaches these branches: `head === 'neighbor'` is already
-routed to `_bgp(tokens.slice(1))` at `cli.js:2100`, so
+routed to `_bgp(tokens.slice(1))` at `cli.js:2122`, so
 `neighbor <ip> route-map <name> in` is parsed inside `_bgp`, exactly like
 `neighbor <ip> remote-as <as>`.
 
