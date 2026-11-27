@@ -14,7 +14,13 @@
     "start": 1,
     "count": 48,
     "type": "ethernet",
-    "speed": "1G"
+    "speed": "1G",
+    "connector": "rj45",
+    "speedCaps": [
+      10,
+      100,
+      1000
+    ]
   },
   "interfaces": [
     {
@@ -23,6 +29,7 @@
       "speed": "10G",
       "connector": "sfp+",
       "speedCaps": [
+        1000,
         10000
       ]
     },
@@ -32,6 +39,7 @@
       "speed": "10G",
       "connector": "sfp+",
       "speedCaps": [
+        1000,
         10000
       ]
     },
@@ -41,6 +49,7 @@
       "speed": "10G",
       "connector": "sfp+",
       "speedCaps": [
+        1000,
         10000
       ]
     },
@@ -50,6 +59,7 @@
       "speed": "10G",
       "connector": "sfp+",
       "speedCaps": [
+        1000,
         10000
       ]
     }
