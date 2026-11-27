@@ -2165,6 +2165,21 @@ other. A serial line's default OSPF network type is point-to-point, where no ele
 and the box prints `FULL/ -`; `ip ospf priority` is accepted and stored there (IOS accepts it too)
 and changes nothing. The cell used to say `Full` - one word where the hardware prints a state and a
 role, which described a segment where nobody had stood for election.
+A **point-to-point link does not compare masks**. RFC 2328 10.5 states the Hello check and then excepts the
+field for exactly this network type - "on point-to-point networks and on virtual links, the Network Mask in the
+received Hello Packet should be ignored" - and a Cisco box follows it: a /24 on one end of a serial link and a
+/30 on the other form a `FULL/ -` adjacency and install the far prefix. This engine compared the two masks on
+every link, so a mask typo on a serial port cost an adjacency the hardware would have formed, and the console
+blamed the far end for it (`% no adjacencies: nothing on the other end of an OSPF interface is running OSPF`)
+because the refusal was never recorded. A broadcast segment keeps the check - there the Hello's mask is the
+field that decides - and both refusals now name the field: `b2 runs OSPF with /25 on its end of this link and
+this box with /24: ... a Hello whose mask differs is dropped (RFC 2328 10.5)`. What a point-to-point link
+still requires is reachability, checked per direction with each end's own mask: the neighbour's address must
+fall inside this port's interface network, and this port's address inside the neighbour's. Two addresses on
+genuinely different subnets therefore still form no neighbour, and say so.
+`research/ospf-p2p-mask-ignore.md` has the RFC paragraph, the captures and the half still open
+(`ip ospf network point-to-point` on an Ethernet port, which this console does not model).
+
 `research/show-ospf-neighbor-state.md` has the sources and what is still unmodelled (`ip ospf
 network`, a third speaker on one segment); `research/ospf-neighbor-table-layout.md`
 has the column order, the measured widths and what the countdown cell still cannot show. The heading
