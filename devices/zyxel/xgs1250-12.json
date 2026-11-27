@@ -13,23 +13,53 @@
     "start": 1,
     "count": 8,
     "type": "ethernet",
-    "speed": "1G"
+    "speed": "1G",
+    "connector": "rj45",
+    "speedCaps": [
+      10,
+      100,
+      1000
+    ]
   },
   "interfaces": [
     {
       "name": "port9",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "rj45",
+      "speedCaps": [
+        100,
+        1000,
+        2500,
+        5000,
+        10000
+      ]
     },
     {
       "name": "port10",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "rj45",
+      "speedCaps": [
+        100,
+        1000,
+        2500,
+        5000,
+        10000
+      ]
     },
     {
       "name": "port11",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "connector": "rj45",
+      "speedCaps": [
+        100,
+        1000,
+        2500,
+        5000,
+        10000
+      ]
     },
     {
       "name": "sfp+1",
