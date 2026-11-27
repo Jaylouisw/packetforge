@@ -408,7 +408,7 @@ unapplied in`), and the bare `no ip access-group`, which clears both directions 
 actually cleared: in the session above - 102 inside, nothing outside - it answers `Interface Gi0/0/1:
 access list unapplied in`, and `access list unapplied in and out` only when both directions were bound.
 Reading a direction word as the number is the code's to fix
-(`_accessGroup()`, `const want = rest[0] != null ? parseInt(rest[0], 10) : null` at `engine/cli.js:4503` - the
+(`_accessGroup()`, `const want = rest[0] != null ? parseInt(rest[0], 10) : null` at `engine/cli.js:4505` - the
 guard asks whether a word arrived, not whether it is a number, so `in` still parses to `NaN`); until it is,
 this page does not advertise the direction on its own.
 
@@ -2801,7 +2801,7 @@ group number does not rescue a view: `show etherchannel 1 detail` is refused as 
 is the view without the filter. `show port-channel detail` refuses under that spelling. `protocol` is pointed at
 the column that already carries its fact — the `Protocol` cell of the summary — rather than given a second page of
 its own, and `load-balance` points nowhere, because no console verb reads or sets the policy - not because there is none
-to read. The group carries `hashPolicy` (`'l2'` written when `channel-group` creates the bundle, `engine/cli.js:4380`;
+to read. The group carries `hashPolicy` (`'l2'` written when `channel-group` creates the bundle, `engine/cli.js:4382`;
 `lag.ts`'s own default is `l3l4`, `engine/lag.ts:239`) and the data path hashes every frame onto one member with it
 (`engine/simulator.js:3739`, `selectMember()` at `engine/lag.ts:407`), so the refusal's second clause - `nothing here
 hashes a frame across members` - overstates: what is missing is the view and the verb, not the hash.
@@ -4058,8 +4058,8 @@ interface GigabitEthernet0/0
 ```
 
 **A `no` that names a setting removes the setting; a bare `no` removes the group.** The interface-mode
-handler (`_ifaceMode()`, `engine/cli.js:2597`) reads the vrid, and then the word after it; its `no vrrp`
-branch is at `:2682-2727`:
+handler (`_ifaceMode()`, `engine/cli.js:2599`) reads the vrid, and then the word after it; its `no vrrp`
+branch is at `:2684-2729`:
 
 ```
 R1(config-if)#no vrrp 10 preempt
