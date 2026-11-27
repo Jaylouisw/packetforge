@@ -243,7 +243,7 @@ entry it returns is either a device with at least one named port or an error tha
 
 ## What is in the catalogue
 
-**2,359 models across 258 vendors**, and it grows every time somebody's hardware is
+**2,360 models across 258 vendors**, and it grows every time somebody's hardware is
 added. The largest vendors and categories by model count, in descending order:
 
 | vendor | models | | category | models |
