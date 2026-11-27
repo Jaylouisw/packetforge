@@ -16,32 +16,49 @@
     "start": 1,
     "count": 12,
     "type": "ethernet",
-    "speed": "1G"
+    "speed": "1G",
+    "connector": "rj45",
+    "speedCaps": [
+      10,
+      100,
+      1000
+    ]
   },
   "interfaces": [
     {
       "name": "ethernet1/13",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
     },
     {
       "name": "ethernet1/14",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
     },
     {
       "name": "ethernet1/15",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "connector": "sfp",
+      "speedCaps": [
+        1000
+      ]
     },
     {
       "name": "ethernet1/16",
       "type": "ethernet",
-      "speed": "10G",
-      "connector": "sfp+",
+      "speed": "1G",
+      "connector": "sfp",
       "speedCaps": [
-        1000,
-        10000
+        1000
       ]
     },
     {
@@ -87,31 +104,34 @@
     {
       "name": "mgmt",
       "type": "ethernet",
-      "speed": "10G",
-      "connector": "sfp+",
+      "speed": "1G",
+      "connector": "rj45",
       "speedCaps": [
-        1000,
-        10000
+        10,
+        100,
+        1000
       ]
     },
     {
       "name": "ha1-a",
       "type": "ethernet",
-      "speed": "10G",
-      "connector": "sfp+",
+      "speed": "1G",
+      "connector": "rj45",
       "speedCaps": [
-        1000,
-        10000
+        10,
+        100,
+        1000
       ]
     },
     {
       "name": "ha1-b",
       "type": "ethernet",
-      "speed": "10G",
-      "connector": "sfp+",
+      "speed": "1G",
+      "connector": "rj45",
       "speedCaps": [
-        1000,
-        10000
+        10,
+        100,
+        1000
       ]
     },
     {

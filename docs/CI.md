@@ -37,7 +37,7 @@ daemon the Docker job needs.
 
 ## What a pull request goes through
 
-Four verification checks on a code change, all of which must be green before a merge. A **data-only** diff is gated on the two test legs and the typecheck only — `Server smoke and Docker build` reports success without building anything. The last of the four is one job, not two (#2219): the smoke client runs beside the image build in the same slot, and the job's `::error` titles still name which of the two checks went red. One more job status sits alongside them and is not a check on the diff: `Arm auto-merge`, which is the merge decision itself (*Merging*, below). There is no classifier job: the data-only question is asked inside the job that spends its answer, the first step of `Server smoke and Docker build`, and the test legs run for every diff (`What runs, and why a device PR runs less of it`, below, says why):
+Five verification checks on a code change, all of which must be green before a merge. A **data-only** diff is gated on the two test legs, the typecheck and the syntax sweep — `Server smoke and Docker build` reports success without building anything, while `Syntax check (all JS)` reads every JavaScript file whether the diff touched data or code. The fourth of the five is one job, not two (#2219): the smoke client runs beside the image build in the same slot, and the job's `::error` titles still name which of the two checks went red. One more job status sits alongside them and is not a check on the diff: `Arm auto-merge`, which is the merge decision itself (*Merging*, below). There is no classifier job: the data-only question is asked inside the job that spends its answer, the first step of `Server smoke and Docker build`, and the test legs run for every diff (`What runs, and why a device PR runs less of it`, below, says why):
 
 | Check | Catches |
 |---|---|
@@ -45,17 +45,28 @@ Four verification checks on a code change, all of which must be green before a m
 | `Test (Node 24)` | Behaviour that regressed on the newest runtime in the window |
 | `Typecheck` | A type error, an `any`, or a `require()` CommonJS cannot resolve (`tsc --noEmit`, then `scripts/check-no-any.ts`, then `scripts/check-module-paths.ts`). One answer about one tree, so one job — not a copy per Node version |
 | `Server smoke and Docker build` | A server that boots but cannot serve (every API route, the catalogue, WebSocket upgrade) **or** a `Dockerfile` that does not build. One status, two checks: the smoke client runs beside the image build in the same job, and the failure titles still separate them. Runs on the Node 22 line `actions/setup-node` provides and asserts the 22.18 floor against it (`scripts/check-node-floor.js`) — a runtime below that line cannot load `engine/segment.ts` (#2488). Present as a build-syntax proxy, not a full image test |
+| `Syntax check (all JS)` | A file the oldest parser in the window cannot read. `node --check` over every `*.js` file under `engine`, `server`, `devices`, `web`, `scripts`, `examples` and `test` — 577 of them, eight at a time — with the 22.18 floor asserted first (`scripts/check-node-floor.js`). A job of its own rather than a step of a test leg: overlapping the Node 22 suite it cost that leg a third of its speed (#1634) |
 
 The test job runs more than the suite (`ci.yml`, the `test` job):
 
 - `npm test` — `audit:ports`, then `audit:devices`, then `check:bytes`, then every
   `test/*.test.js` **and** `test/*.test.ts` that `scripts/run-tests.js` discovers;
-- `scripts/syntax-check.js` is the local superset; in CI the same idea runs as a `node --check` sweep over every `*.js` file, started beside the suite and waited on at the end of the same step (Node 22 leg only, so the files are parsed by the oldest parser that has to accept them);
 - `scripts/check-node-surface.js` — no API newer than Node 18 (stricter than the declared 22.18 floor, on purpose), in every `.js`, `.mjs`, `.cjs` and `.ts` file, because `node` runs all four;
 - `scripts/check-canonical-urls.js` — every project URL points at the project's canonical home;
 - `scripts/check-ci-disk-hygiene.js` — every job that builds an image bounds what it writes;
 - `examples/build-examples.js`, then `scripts/missing-devices.js examples --no-issues`, which
   cross-checks every model the built labs name.
+
+The syntax sweep has a job of its own. `scripts/syntax-check.js` is the local superset; in CI the
+same idea runs as a `node --check` over every `*.js` file, on the **Node 22 parser** — the oldest
+parser that has to accept this tree. Until #1634 it started inside the Node 22 test leg and
+overlapped `run-tests.js` on the same four-core runner: eight parser processes beside four suite
+workers, and the suite paid for it — run 46063039819 ran the same 505 suites at the same four
+workers in 97.1 s on the leg that swept syntax beside them and 62.8 s on the leg that did not,
+with individual suites 2-3x slower (`acl-data` 1486 ms against 622 ms) and the I/O-bound ones
+unchanged. It is `Syntax check (all JS)` now, its own runner: same 577 files, same `node --check`,
+same 120 s bound with its `::error` title. It stands down for a closed pull request like its
+siblings, and `Arm auto-merge` names it in `needs:` so the gate still waits for it.
 
 The `typecheck` job is separate and adds the three things nothing else can check: `tsc --noEmit`
 over the TypeScript the repository has written, `scripts/check-no-any.ts` over the same files, and
@@ -138,8 +149,9 @@ meant that a burst of merges cancelled its own verification and `main` went
 untested. See #1076.
 
 Every job also carries a `timeout-minutes` bound — 5 on `arm`, 10 on `test`,
-`Typecheck` and `Server smoke and Docker build`. On GitHub-hosted runners that bound
-is enforced: a job that runs past it is killed and shows up as `cancelled`. That is
+`Typecheck`, `Server smoke and Docker build` and `Syntax check (all JS)`. On GitHub-hosted
+runners that bound is enforced: a job that runs past it is killed and shows up as
+`cancelled`. That is
 still not the bound the checks rely on, for two reasons. A hard kill takes the log
 with it, so the job-level number buys the cost of an unexplained red rather than a
 diagnosis; and on the self-hosted Forgejo runner this replaced, the same key was a
@@ -152,7 +164,7 @@ So the bound that names the failure is in the step, and there is one on the thin
 can wait. The test leg's suite gets `timeout 300`, the Docker build `timeout 180`, the
 smoke client `timeout 180` (it is 11 s median and 30 s at its slowest green run, so a
 slow-but-working run still passes and a hung one stops holding the job), the
-`node --check` sweep `timeout 120` and each static scan `timeout 60`. Each of those
+`node --check` sweep `timeout 120` in its own job, and each static scan `timeout 60`. Each of those
 bounds carries its own `::error title=…`, so a stalled step says which check died
 instead of leaving a killed job with no log. A stalled server costs three minutes, not
 an afternoon.
@@ -174,7 +186,7 @@ at the moment of the merge. #1719 armed at 19:59:43, merged at 19:59:54, and its
 first test leg did not finish until 20:00:46 — 52 s after the commit it was testing was
 on `main`. That is why an arm is never the thing that decides.
 
-`Arm auto-merge` takes `needs: [test, docker, typecheck]` for ordering but reads
+`Arm auto-merge` takes `needs: [test, docker, typecheck, syntax]` for ordering but reads
 `gh pr checks` for the verdict: at least one check has reported, nothing in the set is
 anything but `pass`, and both `Test (Node …)` legs are among them — a set that has not
 grown them is a run that has not started, not a run that passed. The job's own check is
@@ -204,9 +216,10 @@ not create workflow runs for events authored by that token. Set the repository s
 `PF_AUTOMERGE_TOKEN` (a PAT) to have the arm merge as a person, which does start it;
 without it the job merges and prints a `::notice::` saying that `main` has to be
 verified by dispatching `ci.yml` on the merge commit. If the required checks in branch
-protection are set to exactly the five names above, the platform refuses to merge
-before they are green anyway — the job reads them first so that a repository without
-that protection is not merged through.
+protection are set to exactly the five names `ci.yml`'s header lists — `Test (Node 22)`,
+`Test (Node 24)`, `Typecheck`, `Server smoke and Docker build` and `Arm auto-merge` — the
+platform refuses to merge before they are green anyway; the job reads them first so that a
+repository without that protection is not merged through.
 
 A green check on a stale base still proves nothing: let CI re-run against the current
 tree, then merge. That is what the gate does now rather than merging on the old run's
@@ -333,7 +346,7 @@ instance other than the default address.
 
 `runs-on: ubuntu-latest`, one fresh VM per job, and no queue to manage: GitHub starts
 each job on its own host and discards it afterwards. Nothing is shared between jobs,
-which is why four checks now run in parallel without the second slot's contention
+which is why five checks now run in parallel without the second slot's contention
 penalty, and why no step in `ci.yml` has to ask what else is running on the host.
 
 The self-hosted runner this replaced was a container on the forge host with
@@ -428,10 +441,12 @@ from.
   the run's own token does not start one (*Merging*, above). Set `PF_AUTOMERGE_TOKEN` or
   dispatch `ci.yml` by hand after a bot merge; the job prints a `::notice::` when this
   applies.
-- **Nothing enforces the required checks yet.** The five names above are stable so that
-  a branch protection rule can name them, but a rule has to be created for that to mean
-  anything; until then the merge decision is `Arm auto-merge` alone, which is why it
-  reads the checks itself rather than trusting the platform to.
+- **Nothing enforces the required checks yet.** The five names `ci.yml`'s header lists are
+  stable so that a branch protection rule can name them — `Syntax check (all JS)` is the
+  sixth job and not one of them; `Arm auto-merge` names it in `needs:` instead — but a rule
+  has to be created for that to mean anything; until then the merge decision is
+  `Arm auto-merge` alone, which is why it reads the checks itself rather than trusting the
+  platform to.
 - **A stale pull request costs more than a fresh one.** Its head carries the workflow
   files of the day it was pushed, so a run against it tests an older `ci.yml`. Rebase
   before trusting a red or a green on a branch that has been open a while.
@@ -523,13 +538,14 @@ this diff change runtime behaviour? It diffs the pull request against its base w
 is no separate classifier job — there used to be, and it cost a runner slot on every run
 to publish one API call's worth of answers that every consumer now asks for itself.
 
-| the diff touches | `Test (Node 22/24)` and `Typecheck` | `Server smoke and Docker build` |
-|---|---|---|
-| only `devices/**/*.json`, `docs/*.md`, `research/*.json`, top-level `*.md` | two legs, one typecheck | skipped |
-| anything else (scripts, tests, workflows, server, engine, web, config) | two legs, one typecheck | yes |
+| the diff touches | `Test (Node 22/24)` and `Typecheck` | `Syntax check (all JS)` | `Server smoke and Docker build` |
+|---|---|---|---|
+| only `devices/**/*.json`, `docs/*.md`, `research/*.json`, top-level `*.md` | two legs, one typecheck | the sweep | skipped |
+| anything else (scripts, tests, workflows, server, engine, web, config) | two legs, one typecheck | the sweep | yes |
 
-Only the last column differs, and that is deliberate: there is no such thing as a data-only
-test leg.
+Only the `Server smoke and Docker build` column differs, and that is deliberate: there is no such
+thing as a data-only test leg, and a `*.js` the Node 22 parser rejects is rejected whatever the
+diff touched.
 
 `npm test` still runs for a data-only change, and on **both** Node versions: the diff
 teaches the suite nothing, so cutting the matrix would buy speed with coverage the leg never had.
