@@ -405,9 +405,9 @@ REST (`server/index.js`, next to `/validate-link` at line 350):
 CLI (`engine/cli.js`):
 
 - `ip route DEST MASK GW [IFACE] [DISTANCE]` — one optional numeric token after
-  the interface (`cli.js:267-272`). `% Invalid distance` outside 1..255.
+  the interface (`cli.js:299-304`). `% Invalid distance` outside 1..255.
 - `show ip route` gains `[AD/Metric]` and a trailing `WAN` column
-  (`cli.js:899-902`, `device.routesTable()` at `device.js:1073`).
+  (`cli.js:931-934`, `device.routesTable()` at `device.js:1073`).
 - `show wan summary` — the table a human actually wants:
 
 ```
@@ -488,7 +488,7 @@ commit as the config key, and let `test/topology-roundtrip.test.js` prove it.
 ### 5.5 CLI grammar additions
 
 ```
-ip route DEST MASK GW [IFACE] [DISTANCE]        cli.js:267
+ip route DEST MASK GW [IFACE] [DISTANCE]        cli.js:299
 ip wan <iface> provider <name>                  new  (sets config.wans entry)
 ip wan <iface> distance <1-255>
 ip wan <iface> session <static|dhcp|pppoe|ipoe>
@@ -608,8 +608,8 @@ deviation from this design: the cage is `wwan` and it mates with nothing. See ro
 | 29 | `simulator.js:3445 pathMtu()`, `:2029 _pickDestIp()`, `:2159 openFlow()` | single route | use `routeTo()` (unchanged) — they want *a* path, not the preferred one |
 | 30 | `simulator.js:104 _emit` / `reset()` | 40-odd event types | 4 new types; `trackState` map in `reset()` |
 | 31 | `server/index.js:319` POST `/links`, `:350` `/validate-link` | 5 fields | `service`; new `/upstreams`, `/failover-test` |
-| 32 | `cli.js:267 ip route` | `[iface]` only | `[distance]` |
-| 33 | `cli.js:899 show ip route` | `code dest/len via gw iface` | AD/metric/WAN columns; new `show wan` |
+| 32 | `cli.js:299 ip route` | `[iface]` only | `[distance]` |
+| 33 | `cli.js:931 show ip route` | `code dest/len via gw iface` | AD/metric/WAN columns; new `show wan` |
 | 34 | `web/app.js:351` picker, `:892-925` inspector, `:921` State | no service UI | Service block, WAN panel, failover button |
 | 35 | `devices/registry.js:7`, `web/app.js:49,54,60` | 10 categories | add `upstream` |
 

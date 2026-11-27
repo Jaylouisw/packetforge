@@ -522,6 +522,38 @@ function vlanRows(cells) {
   return lines;
 }
 
+// The six columns of `show ip arp`, and the widths captures give them:
+//
+//   Protocol  Address          Age (min)  Hardware Addr   Type   Interface
+//   Internet  10.10.20.28             7   0050.56bf.490f  ARPA   GigabitEthernet1
+//
+// Two byte-exact pastes in unrelated repositories print this 70-character heading with `Hardware Addr` in
+// column 38, `Type` in 54 and `Interface` in 61 (ZainE-net/network-code-samples README; ktbyers/netmiko#3386),
+// so the fixed fields are 10, 17, 11, 16 and 7 wide. Typeset documents cannot settle this - a PDF or an HTML
+// page reflows the gaps, and the samples recovered from Cisco's own PDFs disagree by up to four columns for
+// that reason alone. This table printed 18 and 8 for the last two, putting `Type` two columns and `Interface`
+// three columns right of the words above them.
+const ARP_COLUMNS = [
+  { head: 'Protocol', width: 10 },
+  { head: 'Address', width: 17 },
+  { head: 'Age (min)', width: 11 },
+  { head: 'Hardware Addr', width: 16 },
+  { head: 'Type', width: 7 },
+  { head: 'Interface', width: 0 }
+];
+
+// The age is the one cell written right-aligned: `-`, `7` and `52` all end in the same column - the eighth of
+// the field, three short of the hardware address - so the digits line up under the heading whatever their count.
+function arpLine(cells, heading) {
+  return cells.map(function (c, i) {
+    const col = ARP_COLUMNS[i];
+    const text = String(c === null || c === undefined ? '' : c);
+    if (!col || !col.width) return text;
+    if (i === 2 && !heading) return ' '.repeat(Math.max(0, 8 - text.length)) + text + '   ';
+    return text.length >= col.width ? text + ' ' : pad(text, col.width);
+  }).join('');
+}
+
 // What surrounds `show etherchannel summary`: a fixed legend, two counts, and a four-column table.
 //
 // None of it was printed. The table started at a three-column header this console invented
@@ -7806,8 +7838,7 @@ class CliSession {
       // ARPA is the only value this model can honestly print: SNAP and SAP are 802.3/RFC 1042 encapsulation on
       // non-Ethernet media (Token Ring, FDDI), and the catalogue carries no such port - the ARP here is IPv4
       // over 802.3 Ethernet, which is what ARPA names (research/show-arp-type-column.md).
-      out.push(pad('Protocol', 10) + pad('Address', 17) + pad('Age (min)', 11) +
-        pad('Hardware Addr', 18) + pad('Type', 8) + 'Interface');
+      out.push(arpLine(ARP_COLUMNS.map(function (c) { return c.head; }), true));
       // Rows are the rows at the instant this session is asking about: a neighbour silent for longer than
       // ARP_AGE_MS is gone, and the Age column counts the minutes since it was heard. Until this the column was a
       // header over a hard-coded '-' on every row, on the grounds that the simulator had steps and not minutes -
@@ -7885,8 +7916,7 @@ class CliSession {
       rows.sort(function (a, b) { return String(a[0]).localeCompare(String(b[0]), undefined, { numeric: true }); });
       for (const r of rows) {
         // Type sits between the hardware address and the interface, as the vendor table orders them.
-        out.push(pad('Internet', 10) + pad(r[0], 17) + pad(r[2], 11) + pad(r[1], 18) +
-          pad('ARPA', 8) + r[3]);
+        out.push(arpLine(['Internet', r[0], r[2], r[1], 'ARPA', r[3]], false));
       }
       // An address two boxes answer for is the one row this table must not print like all the others: the binding
       // shown is simply the reply that arrived last, so traffic to it goes wherever that reply pointed - which is
