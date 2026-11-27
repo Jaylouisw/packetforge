@@ -39,7 +39,7 @@ const REPO = process.env.PF_REPO || 'Jaylouisw/packetforge';
 // The canonical host, from the one file that defines it. A hardware request link that points
 // somewhere other than where development happens is a dead end for the person following it.
 const canonical = require('./canonical.ts');
-const tracker = require('./forgejo-api');
+const tracker = require('./github-api.ts');
 const TEMPLATE_URL = canonical.issue('device_request.yml');
 
 // The vocabulary scripts/import-devices.js will accept. A skeleton outside this
@@ -203,9 +203,9 @@ function parseIssueRequests(issues) {
 // Open requests are a wish list, not a broken lab, so they are reported in their
 // own section and only gate CI under --strict.
 async function scanIssues() {
-  // Forgejo, through its API. The old version shelled out to `gh`, which on a machine that has it
-  // installed and authenticated answers about the GitHub mirror instead - a backlog nobody works
-  // on, reported as fact.
+  // GitHub, through its REST API (scripts/github-api.ts). The old version shelled out to `gh`,
+  // which on a machine that has it installed and authenticated answers about whichever repository
+  // it thinks you mean - reported as fact.
   // Select by the same predicate the queue uses (#2524): a "[Device]:" title without the
   // device-request label is still a request, and asking the tracker to filter by label here
   // made this report and the closing sweep disagree about the same issue.
