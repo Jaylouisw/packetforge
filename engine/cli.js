@@ -6100,13 +6100,26 @@ class CliSession {
           ' segment a Hello whose mask differs is dropped (RFC 2328 10.5), so no adjacency forms until the' +
           ' two agree';
       }
-      // The peer's address does not fall inside this port's own interface network. On a point-to-point link
-      // this is the only addressing check left, because the mask itself is ignored there.
+      // The peer's address does not fall inside this port's own interface network, but the rule that
+      // refused the link decides the sentence: on a point-to-point link the mask is ignored and this
+      // reachability check is the only addressing check left, while on a broadcast segment the two masks
+      // agree (a differing mask is recorded as `mask`) and the two addresses simply sit in different
+      // networks. Quoting the point-to-point exception at an Ethernet segment sent the operator looking
+      // for a link type that was never in play, so the record carries the type it was refused under (#1652).
       if (r.reason === 'subnet') {
+        if (r.network === 'p2p') {
+          return r.peer + ' addresses this link as ' + r.peerIp + slashPref(r.peerMask) + ' and this port as ' +
+            r.ownIp + slashPref(r.ownMask) + ': the address of a neighbour has to fall inside the network of' +
+            ' this interface (the mask itself is ignored on a point-to-point link, RFC 2328 10.5), so no' +
+            ' adjacency forms';
+        }
+        const ownNetwork = function () {
+          try { return net.intToIp(net.networkOf(r.ownIp, r.ownMask)) + slashPref(r.ownMask); }
+          catch (err) { return slashPref(r.ownMask); }
+        };
         return r.peer + ' addresses this link as ' + r.peerIp + slashPref(r.peerMask) + ' and this port as ' +
-          r.ownIp + slashPref(r.ownMask) + ': the address of a neighbour has to fall inside the network of' +
-          ' this interface (the mask itself is ignored on a point-to-point link, RFC 2328 10.5), so no' +
-          ' adjacency forms';
+          r.ownIp + slashPref(r.ownMask) + ': both ends carry the same mask on this broadcast segment, and ' +
+          r.peerIp + ' is outside the network of this port (' + ownNetwork() + '), so no adjacency forms';
       }
       if (r.reason === 'priority') {
         return 'both ends are at OSPF priority 0 (' + r.peer + ' and this box), so neither may become' +
