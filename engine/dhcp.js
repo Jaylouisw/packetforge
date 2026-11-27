@@ -33,7 +33,34 @@ const net = require('./net');
 const DHCP_MESSAGE_TYPES = { DISCOVER: 1, OFFER: 2, REQUEST: 3, ACK: 5, NAK: 6 };
 
 const DEFAULT_POOL_NAME = 'lan';
+// A pool whose `network` names no mask takes the **natural** mask of the address's class, not /24: the
+// vendor's own default sentence for the command is "The natural mask is used." and its usage guideline
+// spells the rule out - "If the mask or prefix length is not specified, the class A, B, or C natural mask
+// is used." (Cisco IOS IP Addressing Services Command Reference, `network` (DHCP), IOS XE 3SE:
+// https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/ipaddr/command/ipaddr-xe-3se-3850-cr-book/ipaddr-xe-3se-3850-cr-book_chapter_00.html
+// - the same sentence in the 15S/17.x books and in research/dhcp-pool-natural-mask.md). This module
+// answered every bare `network` with /24, which is the natural mask only for a class C address: a pool on
+// 10.20.30.0 got 254 addresses where the box hands out 16,777,214, and a pool on 172.16.4.9 was a /24
+// where the box serves the whole /16.
+//
+// DEFAULT_MASK survives as the fallback for an address whose class has no natural mask at all - the
+// class D/E range (224.0.0.0 and up), which no DHCP server pool can be built on, and a string that is not
+// an IPv4 address, which validatePool() names in its own error rather than guessing at a subnet.
 const DEFAULT_MASK = '255.255.255.0';
+
+// The class A, B or C natural mask for an address, as a dotted mask, or DEFAULT_MASK when the address has
+// no natural mask (class D/E) or cannot be parsed. The class is the top octet: 0-127 A (/8), 128-191 B
+// (/16), 192-223 C (/24). 127 is class A by the same table even though it is reserved for loopback;
+// validatePool() is where an unusable pool address is refused, not here.
+function naturalMaskFor(addr) {
+  const n = parseIp(addr);
+  if (n === null) return DEFAULT_MASK;
+  const top = (n >>> 24) & 0xff;
+  if (top < 128) return '255.0.0.0';
+  if (top < 192) return '255.255.0.0';
+  if (top < 224) return '255.255.255.0';
+  return DEFAULT_MASK;
+}
 const DEFAULT_LEASE_SEC = 86400;
 const STEP_SECONDS = 1;
 // `lease infinite` is the vendor's own spelling for an unlimited lease (Cisco IOS IP Addressing Services Command
@@ -159,7 +186,9 @@ function normalizePool(spec) {
   const name = trimStr(s.name) || DEFAULT_POOL_NAME;
 
   const maskInt = parseMask(
-    (s.mask === undefined || s.mask === null || s.mask === '') ? DEFAULT_MASK : s.mask
+    (s.mask === undefined || s.mask === null || s.mask === '')
+      ? naturalMaskFor(trimStr(s.network))
+      : s.mask
   );
   const mask = (maskInt === null) ? trimStr(s.mask) : net.intToIp(maskInt);
 
@@ -975,6 +1004,7 @@ module.exports = {
   leaseSeconds,
   validatePool,
   normalizePool,
+  naturalMaskFor,
   ipInPool,
   nextFreeIp,
   createLeaseState,

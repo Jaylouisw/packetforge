@@ -85,9 +85,24 @@ eq(dhcp.DHCP_MESSAGE_TYPES.NAK, 6, 'NAK is 6');
 
 section('2. pool normalisation');
 
+// A pool that names no mask takes the natural mask of the address's class: "Command Default: The natural
+// mask is used", and "If the mask or prefix length is not specified, the class A, B, or C natural mask is
+// used" (Cisco IOS IP Addressing Services Command Reference, `network` (DHCP) -
+// https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/ipaddr/command/ipaddr-xe-3se-3850-cr-book/ipaddr-xe-3se-3850-cr-book_chapter_00.html).
+// The class A case is the one that bites: 10.0.0.99 is a /8, not the /24 this module used to answer.
 const bare = dhcp.normalizePool({ network: '10.0.0.99' });
-eq(bare.mask, '255.255.255.0', 'omitted mask defaults to /24');
+eq(bare.mask, '255.0.0.0', 'an omitted mask on a class A address is the /8 natural mask');
 eq(bare.network, '10.0.0.0', 'a host address normalises to its network address');
+eq(dhcp.normalizePool({ network: '172.16.4.9' }).mask, '255.255.0.0',
+  'an omitted mask on a class B address is the /16 natural mask');
+eq(dhcp.normalizePool({ network: '172.16.4.9' }).network, '172.16.0.0',
+  'and the class B network masks the host bits off');
+eq(dhcp.normalizePool({ network: '192.168.10.7' }).mask, '255.255.255.0',
+  'an omitted mask on a class C address is the /24 natural mask');
+eq(dhcp.normalizePool({ network: '224.0.0.5' }).mask, '255.255.255.0',
+  'class D has no natural mask, so the /24 fallback stands (the pool address itself is a separate question)');
+eq(dhcp.normalizePool({ network: '10.1.2.3', mask: '255.255.255.0' }).mask, '255.255.255.0',
+  'an explicit mask always wins over the natural one');
 eq(bare.name, 'lan', 'omitted name defaults to lan');
 eq(bare.leaseSec, 86400, 'omitted leaseSec defaults to one day');
 ok(Array.isArray(bare.dns) && bare.dns.length === 0, 'omitted dns becomes an empty array');

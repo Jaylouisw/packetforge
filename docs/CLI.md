@@ -4021,6 +4021,16 @@ for a pool that never named a range
 see [research/dhcp-range-is-optional.md](../research/dhcp-range-is-optional.md). The gateway is never
 offered to a client, whether it falls inside a configured range or inside the derived one.
 
+`network` may be written with no mask at all, and the mask it then takes is the **natural** mask of the
+address's class - `/8` for 0-127, `/16` for 128-191, `/24` for 192-223 - not a fixed `/24`. That is the
+command's own stated default: "Command Default: The natural mask is used" and "If the mask or prefix length
+is not specified, the class A, B, or C natural mask is used"
+([Cisco IOS IP Addressing Services Command Reference, `network` (DHCP)](https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/ipaddr/command/ipaddr-xe-3se-3850-cr-book/ipaddr-xe-3se-3850-cr-book_chapter_00.html)).
+This console answered every bare `network` with `/24`, so `network 172.16.4.9` built a 254-address pool where
+the box builds a 65,534-address one. Re-entering `network` without a mask replaces the subnet, mask included.
+See [research/dhcp-pool-natural-mask.md](../research/dhcp-pool-natural-mask.md) for the captures and the two
+questions still open (class D/E, and what the running-config prints for a host address inside its own subnet).
+
 The pool is validated once, when the sub-mode is left — `network` before `range` is the second
 keystroke, not an error. The verdict is phrased as a statement about the **pool**, not about the
 command just typed, so a pool that cannot serve says why; the library's error code rides at the end in

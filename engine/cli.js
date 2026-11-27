@@ -4779,7 +4779,12 @@ class CliSession {
         pool.network = networkPart;
         pool.mask = mask;
       } else {
+        // The line *is* the pool's subnet, so it replaces what stood there: `network 10.5.0.0` after
+        // `network 10.5.0.0 255.255.255.0` leaves the pool with the natural mask of 10.0.0.0/8, not with
+        // the /24 the previous line named. Keeping the old mask made the second line a no-op on the half
+        // of itself it did not spell, which is a merge no box performs on a single config line.
         pool.network = tokens[1];
+        delete pool.mask;
         if (tokens[2]) pool.mask = tokens[2];
       }
     } else if (head === 'default-router') {
