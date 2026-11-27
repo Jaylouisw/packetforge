@@ -2718,14 +2718,22 @@ class CliSession {
         group.priority = vrrpLib.VRRP_DEFAULT_PRIORITY;
         return ['VRRP group ' + vrid + ' priority reset to ' + vrrpLib.VRRP_DEFAULT_PRIORITY];
       }
-      if (undo === 'advertise' || undo === 'advertisement') {
+      // The interval is unset under the box's own keyword, `timers advertise` (`no vrrp group timers
+      // advertise` in the vendor's syntax). research/vrrp-timers-advertise.md.
+      if (undo === 'timers' && ['advertise', 'advertisement'].indexOf(String(tokens[4] || '').toLowerCase()) !== -1) {
         group.advertSec = vrrpLib.VRRP_DEFAULT_ADVERT_SEC;
         return ['VRRP group ' + vrid + ' advertises every ' + vrrpLib.VRRP_DEFAULT_ADVERT_SEC + ' s'];
+      }
+      if (undo === 'advertise' || undo === 'advertisement') {
+        // The bare spelling this console used to document is not the box's, and a `no` is where a guess is
+        // most expensive: point at the form rather than resetting a timer the operator did not name.
+        return ['% `no vrrp ' + vrid + ' ' + undo + '` is not a command: the whole-second form is `no vrrp ' +
+          vrid + ' timers advertise`'];
       }
       // Anything else is a word this console cannot unset, and it is refused rather than read as the bare form:
       // the guess that costs the most is the one that answers a `no` about one setting by deleting the group.
       return ['% Unrecognized vrrp command: ' + tokens.join(' ') +
-        ' (this console can unset: priority, preempt, advertise - `no vrrp ' + vrid + '` removes the group)'];
+        ' (this console can unset: priority, preempt, timers advertise - `no vrrp ' + vrid + '` removes the group)'];
     }
     if (head === 'ip' && tokens[1] && String(tokens[1]).toLowerCase() === 'nat') {
       // `ip nat inside` / `ip nat outside` - which side of the translation this port is on. The model translated
@@ -4617,12 +4625,50 @@ class CliSession {
       if (!group) return ['% No VRRP group ' + vrid + ' on ' + this.iface];
       group.preempt = !(tokens[0] === 'no');
       out.push('VRRP group ' + vrid + ' preempt ' + (group.preempt ? 'enabled' : 'disabled'));
-    } else if (what === 'advertise' || what === 'advertisement') {
+    } else if (what === 'timers') {
+      // The interval is a *timer*, and the keyword that says so is the box's own: the vendor's syntax is
+      // `vrrp group timers advertise [msec] interval` (Cisco IOS First Hop Redundancy Protocols Command
+      // Reference, `vrrp timers advertise`,
+      // https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/ipapp_fhrp/command/fhp-cr-book/fhp-v1.html),
+      // and every configuration-guide example spells it that way: `vrrp 1 timers advertise 3`,
+      // `vrrp 5 timers advertise 30`
+      // (https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/ipapp_fhrp/configuration/xe-16-12/fhp-xe-16-12-book/fhp-vrrp.html,
+      // and `vrrp 10 timers advertise 110` in the 12.2SY guide). This console took the word `advertise` on
+      // its own and refused `timers`, so the one spelling every box accepts was an unrecognised command while
+      // a spelling no box has was the documented form (research/vrrp-timers-advertise.md).
+      const timerVerb = String(tokens[3] || '').toLowerCase();
+      if (!timerVerb) return ['% Incomplete command: vrrp <vrid> timers advertise <seconds>'];
+      if (timerVerb === 'learn') {
+        // A real keyword (`vrrp group timers learn`), and one this model cannot honour: the engine has no
+        // advertisement to learn an interval from - it derives the group's timers from its own config.
+        return ['% `vrrp ' + vrid + ' timers learn` is not modelled: this console has no advertisement to ' +
+          'learn from. Set the interval with `vrrp ' + vrid + ' timers advertise <seconds>`'];
+      }
+      if (timerVerb !== 'advertise' && timerVerb !== 'advertisement') {
+        return ['% Unrecognized vrrp command: vrrp ' + vrid + ' timers ' + timerVerb +
+          ' (this console has: vrrp <vrid> timers advertise <seconds>)'];
+      }
       if (!group) return ['% No VRRP group ' + vrid + ' on ' + this.iface];
-      const a = Number(tokens[3]);
-      if (!Number.isFinite(a) || a <= 0) return ['% Invalid advertisement interval: ' + (tokens[3] || '(none)')];
+      // `msec` is a real word of the syntax and a different one: a sub-second interval. The model holds
+      // centiseconds (`advertCs`, the RFC 5798 25 cs floor), but the console has no way to write that form,
+      // and one is not invented here - the word is refused where it was typed instead.
+      if (String(tokens[4] || '').toLowerCase() === 'msec') {
+        return ['% `vrrp ' + vrid + ' timers advertise msec <interval>` is not modelled: this console sets ' +
+          'a whole-second interval (`vrrp ' + vrid + ' timers advertise <seconds>`)'];
+      }
+      // A line that stopped early is short, not wrong: the console says the form it wanted instead of
+      // reporting `(none)` as a bad interval (docs/CLI.md, "A short line is not a wrong value").
+      if (tokens[4] === undefined) return ['% Incomplete command: vrrp <vrid> timers advertise <seconds>'];
+      const a = Number(tokens[4]);
+      if (!Number.isFinite(a) || a <= 0) return ['% Invalid advertisement interval: ' + tokens[4]];
       group.advertSec = a;
       out.push('VRRP group ' + vrid + ' advertises every ' + a + ' s');
+    } else if (what === 'advertise' || what === 'advertisement') {
+      // No box takes the interval straight after the group number. Refusing it with the device's form in the
+      // sentence is the shortest route between the two spellings, and the group is left exactly as it was.
+      return ['% `vrrp ' + vrid + ' ' + what + (tokens[3] === undefined ? '' : ' ' + tokens[3]) +
+        '` is not a command: the advertisement interval is `vrrp ' + vrid +
+        ' timers advertise <seconds>`'];
     } else if (what === 'authentication') {
       if (!group) return ['% No VRRP group ' + vrid + ' on ' + this.iface];
       group.authText = tokens.slice(3).join(' ').slice(0, 8);
@@ -8417,7 +8463,10 @@ class CliSession {
           }
           if (g.preempt === false) out.push(IN_SUBMODE + 'no vrrp ' + g.vrid + ' preempt');
           if (g.advertSec !== undefined && g.advertSec !== null && Number(g.advertSec) !== 1) {
-            out.push(IN_SUBMODE + 'vrrp ' + g.vrid + ' advertise ' + g.advertSec);
+            // The box's own line, keyword and all: `vrrp 1 timers advertise 3`, as the configuration
+            // guides print it (research/vrrp-timers-advertise.md). This used to write
+            // `vrrp 1 advertise 3`, a line no box prints and none would read back.
+            out.push(IN_SUBMODE + 'vrrp ' + g.vrid + ' timers advertise ' + g.advertSec);
           }
           if (g.authText) out.push(IN_SUBMODE + 'vrrp ' + g.vrid + ' authentication ' + g.authText);
         }

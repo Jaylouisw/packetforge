@@ -8,7 +8,7 @@ for a group whose preemption is off, so the console was writing a config line it
 deletion.
 
 **Verdict: the sub-keyword is an attribute, and only the bare form removes the group.** `no vrrp <vrid>
-preempt` turns preemption off, `no vrrp <vrid> priority` restores 100, `no vrrp <vrid> advertise`
+preempt` turns preemption off, `no vrrp <vrid> priority` restores 100, `no vrrp <vrid> timers advertise`
 restores 1 second, and `no vrrp <vrid>` alone removes the group. Adopted for those three words; a word
 outside them is refused rather than guessed at.
 
@@ -40,9 +40,11 @@ was unreachable from the only call site. Two consequences, one of them silent:
 
 * `engine/cli.js`, `_ifaceMode()`: the bare `no vrrp <vrid>` still removes; `no vrrp <vrid> preempt`
   answers `VRRP group <vrid> preempt disabled`, `... priority` answers `... priority reset to 100`,
-  `... advertise` answers `... advertises every 1 s`; any other word is refused by name,
-  `% Unrecognized vrrp command: ... (this console can unset: priority, preempt, advertise - no vrrp <vrid>
-  removes the group)`, so a guess never deletes a group.
+  `... timers advertise` answers `... advertises every 1 s`; any other word is refused by name,
+  `% Unrecognized vrrp command: ... (this console can unset: priority, preempt, timers advertise - no vrrp <vrid>
+  removes the group)`, so a guess never deletes a group. (This note first landed with the interval under a
+  bare `advertise`, which is not a word any box has; `research/vrrp-timers-advertise.md` corrected the
+  keyword on all three doors - set, `no`, and the printed config.)
 * `test/vrrp-no-form.test.js` (new, 27 assertions): the receipts, the survival of the group and its
   untouched neighbours, the paste-back, the refusal, the bare removal.
 * `test/config-roundtrip.test.js`: a fixture that configures `preempt: false` with `priority 120` from

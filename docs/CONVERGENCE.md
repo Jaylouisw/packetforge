@@ -59,7 +59,7 @@ than in a special "simulation" state:
 ## The timers
 
 Each has its standard default. Only **one** of the seven can be changed from the console today:
-`vrrp <vrid> advertise <seconds>` (interface mode) writes the advertisement interval, and `converge`
+`vrrp <vrid> timers advertise <seconds>` (interface mode) writes the advertisement interval, and `converge`
 then reports `3 x advertise 4 s + skew` - 12609.375 ms at the default skew, where the same box at 1 s
 reports 3609.375 ms. The rest are read from configuration keys - `stpForwardDelaySec` and
 `stpMaxAgeSec` on the device config, `ospf.helloSec`, `ospf.exchangeSec` and `ospf.spfDelaySec` under

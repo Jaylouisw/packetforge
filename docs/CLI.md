@@ -334,7 +334,7 @@ already required.
 
 Two fields are deliberately **not** printed because no command can express them: a DNS zone's
 `defaultTtl` (records inherit it) and a per-record `ttl`. A default value that the device already
-assumes — VRRP `preempt` on, `advertise 1`, switchport `allowed vlan all` — is printed only when it
+assumes — VRRP `preempt` on, `timers advertise 1`, switchport `allowed vlan all` — is printed only when it
 differs, which is the same rule the rest of the config follows — with the bridge priority as the stated
 exception, because "nobody set one" and "somebody set 32768" are different facts about a box.
 
@@ -4050,23 +4050,23 @@ interface GigabitEthernet0/0
  ip address 10.0.0.1 255.255.255.0
  vrrp <vrid> ip <virtual-address>
  vrrp <vrid> priority <1-254>        # 100 default; 255 is only ever the address owner's
- vrrp <vrid> advertise <seconds>
+ vrrp <vrid> timers advertise <seconds>   # the box's keyword; `vrrp <vrid> advertise` is not a command
  vrrp <vrid> preempt                 # on by default; `no vrrp <vrid> preempt` turns it off
  vrrp <vrid> authentication <text>   # stored, and never used by the election
  no vrrp <vrid>                      # remove the group
- no vrrp <vrid> priority|preempt|advertise   # put one setting back to its default
+ no vrrp <vrid> priority|preempt|timers advertise   # put one setting back to its default
 ```
 
 **A `no` that names a setting removes the setting; a bare `no` removes the group.** The interface-mode
 handler (`_ifaceMode()`, `engine/cli.js:2599`) reads the vrid, and then the word after it; its `no vrrp`
-branch is at `:2684-2729`:
+branch is at `:2684-2737`:
 
 ```
 R1(config-if)#no vrrp 10 preempt
 VRRP group 10 preempt disabled
 R1(config-if)#no vrrp 10 priority
 VRRP group 10 priority reset to 100
-R1(config-if)#no vrrp 10 advertise
+R1(config-if)#no vrrp 10 timers advertise
 VRRP group 10 advertises every 1 s
 R1(config-if)#no vrrp 10
 VRRP group 10 removed from Gi0/0
@@ -4087,8 +4087,23 @@ read as that bare form:
 
 ```
 R1(config-if)#no vrrp 10 wibble
-% Unrecognized vrrp command: no vrrp 10 wibble (this console can unset: priority, preempt, advertise - `no vrrp 10` removes the group)
+% Unrecognized vrrp command: no vrrp 10 wibble (this console can unset: priority, preempt, timers advertise - `no vrrp 10` removes the group)
 ```
+
+**The interval is a timer, and the box spells it that way.** The vendor's syntax is
+`vrrp group timers advertise [msec] interval` — "use the vrrp timers advertise command in interface
+configuration mode", with `Router(config-if)# vrrp 1 timers advertise 4` as its own sample
+([Cisco IOS First Hop Redundancy Protocols Command Reference, `vrrp timers advertise`](https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/ipapp_fhrp/command/fhp-cr-book/fhp-v1.html)) —
+and every configuration-guide example follows it (`vrrp 1 timers advertise 3`, `vrrp 5 timers advertise 30`).
+This console took the word `advertise` on its own and refused `timers`, so the spelling every box accepts
+was an unrecognised command while a spelling no box has was the documented one — and, worse, the printer
+wrote `vrrp <vrid> advertise <seconds>` into `show running-config`, so a config saved from the device
+carried a line no device would take back. `vrrp <vrid> timers advertise <seconds>` is now the form on all
+three doors (set, `no`, printed config); `vrrp <vrid> advertise <seconds>` is refused with the right form
+in the sentence and changes nothing; and the two real keywords this model does not hold say so by name —
+`timers advertise msec <interval>` (a sub-second interval; the model holds centiseconds, the console has no
+way to write them) and `timers learn` (there is no advertisement here to learn one from)
+([research/vrrp-timers-advertise.md](../research/vrrp-timers-advertise.md)).
 
 Two things this does not yet do, so nobody reads more into the receipt than is there. **Nothing reads
 `preempt` during an election**: `computeVrrp()` re-elects the group from scratch on every pass, and the

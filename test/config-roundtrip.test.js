@@ -220,7 +220,7 @@ console.log('Nothing configurable is left out of the config (#1232):');
     'ip address 10.1.2.3 255.255.255.0',
     'vrrp 42 ip 10.1.2.1',
     'vrrp 42 priority 120',
-    'vrrp 42 advertise 3',
+    'vrrp 42 timers advertise 3',
     'exit',
     'end'
   ]);
@@ -242,7 +242,7 @@ console.log('Nothing configurable is left out of the config (#1232):');
     ['its MX record', 'dns add @ MX mail.omitcheck.test'],
     ['the VRRP address', 'vrrp 42 ip 10.1.2.1'],
     ['the VRRP priority', 'vrrp 42 priority 120'],
-    ['the VRRP advert interval', 'vrrp 42 advertise 3']
+    ['the VRRP advert interval', 'vrrp 42 timers advertise 3']
   ]) {
     ok(text.indexOf(needle) !== -1, what + ' is printed', needle);
   }

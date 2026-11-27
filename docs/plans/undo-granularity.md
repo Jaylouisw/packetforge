@@ -95,7 +95,7 @@ the config column and one short in the total.
 
 1. **S** - `docs/CLI.md:2870`: 32/15/9/8 -> 33/16/9/8. No code, no behaviour.
 2. **S** - **landed 2026-11-18.** `no vrrp <vrid> priority` resets the priority to 100 and keeps the group; `no vrrp <vrid> preempt`
-   restores preempt; `no vrrp <vrid> advertise` likewise; bare `no vrrp <vrid>` still removes. Receipts in the
+   restores preempt; `no vrrp <vrid> timers advertise` likewise; bare `no vrrp <vrid>` still removes. Receipts in the
    OSPF words. Add a `config-roundtrip` fixture that carries `preempt: false, priority: 120` and asserts the
    group survives the paste - this is the PR that closes the defect found above.
 3. **S** - `no dns add <name> [<type> [<value>]]` removes one record and says which; `no dns zone` unchanged.

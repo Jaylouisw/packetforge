@@ -47,7 +47,7 @@ function session() {
     return lines;
   };
   run(['enable', 'configure terminal', 'interface ' + PORT, 'ip address 10.0.0.1 255.255.255.0',
-    'vrrp 42 ip 10.0.0.254', 'vrrp 42 priority 150', 'vrrp 42 advertise 3']);
+    'vrrp 42 ip 10.0.0.254', 'vrrp 42 priority 150', 'vrrp 42 timers advertise 3']);
   return { dev: dev, cli: cli, run: run };
 }
 
@@ -74,9 +74,9 @@ console.log('A `no` line that names a setting removes the setting, and leaves th
   ok(groups(s.dev).length === 1, 'and does not remove the group', JSON.stringify(groups(s.dev)));
   ok(group(s.dev).preempt === false, 'preempt is now off on the group', String(group(s.dev).preempt));
 
-  const advertise = s.run(['no vrrp 42 advertise']);
+  const advertise = s.run(['no vrrp 42 timers advertise']);
   ok(advertise[0] === 'VRRP group 42 advertises every 1 s',
-    'no vrrp 42 advertise returns the 1 s default', advertise[0]);
+    'no vrrp 42 timers advertise returns the 1 s default', advertise[0]);
   ok(groups(s.dev).length === 1, 'and the group survives that too', JSON.stringify(groups(s.dev)));
   ok(group(s.dev).advertSec === 1, 'with the default interval stored', String(group(s.dev).advertSec));
 
@@ -117,7 +117,7 @@ console.log('\nThe bare form still removes the group, and a word it cannot unset
   const s = session();
   const bad = s.run(['no vrrp 42 wibble']);
   ok(/^% Unrecognized vrrp command: no vrrp 42 wibble/.test(bad[0]), 'no vrrp 42 wibble is refused', bad[0]);
-  ok(/priority, preempt, advertise/.test(bad[0]), 'and names the settings it can unset', bad[0]);
+  ok(/priority, preempt, timers advertise/.test(bad[0]), 'and names the settings it can unset', bad[0]);
   ok(groups(s.dev).length === 1, 'the group is left exactly as it was', JSON.stringify(groups(s.dev)));
   ok(group(s.dev).priority === 150 && group(s.dev).preempt === true,
     'with its priority and its preemption untouched',

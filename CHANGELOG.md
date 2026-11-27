@@ -9,6 +9,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **The VRRP advertisement interval was set with a word no box has — `vrrp <vrid> advertise <seconds>` — and
+  the spelling every box uses, `vrrp <vrid> timers advertise <seconds>`, was answered `% Unrecognized vrrp
+  command`.** Cisco's syntax is `vrrp group timers advertise [msec] interval`, "use the vrrp timers advertise
+  command in interface configuration mode", with `Router(config-if)# vrrp 1 timers advertise 4` as its own
+  sample (Cisco IOS First Hop Redundancy Protocols Command Reference); every configuration-guide example
+  spells it that way (`vrrp 1 timers advertise 3`, `vrrp 5 timers advertise 30`, `vrrp 10 timers advertise
+  110`). The expensive half was the printer: `show running-config` wrote ` vrrp <vrid> advertise <seconds>`,
+  so a config saved from the device carried a line no device would take back. The set form, the `no` form and
+  the printed line now all name the timer; the old spelling is refused where it is typed with the box's form
+  in the sentence and changes nothing, and the two real keywords this model does not hold — `timers advertise
+  msec <interval>` (a sub-second interval) and `timers learn` — are refused by name rather than approximated.
+  `test/vrrp-timers-advertise.test.js` (31 checks) pins the accepted form, the master-down interval moving
+  with it, the printed line and its paste-back, and every refusal;
+  [`research/vrrp-timers-advertise.md`](research/vrrp-timers-advertise.md) holds the five sources and what a
+  capture of the invented line's rejection would still settle.
 - **`switchport` with no keywords — the documented inverse of `no switchport` — was answered with a sentence
   that had nothing after its colon: `% Unrecognized switchport command: `.** The operator's word was the command
   itself, so the handler's `t.join(' ')` tail was empty, and the console refused a line five vendor references
