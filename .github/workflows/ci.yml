@@ -1,0 +1,719 @@
+name: CI
+
+# The pipeline Forgejo Actions used to run, on GitHub Actions.
+#
+# `.forgejo/workflows/ci.yml` is kept untouched beside this file as the archive it is:
+# that copy is where the measurements in these comments came from, and it is what the
+# self-hosted runner used to execute. This file has to produce the same five checks with
+# the same names, because those names are what a branch protection rule reads:
+#
+#   Test (Node 22)                  the floor leg
+#   Test (Node 24)                  the newest runtime in the window
+#   Typecheck                       tsc --noEmit, then no-any, then module-paths
+#   Server smoke and Docker build   the HTTP surface beside the image build
+#   Arm auto-merge                  the merge decision, on pull requests only
+#
+# What is deliberately NOT here, because it was a fact about one self-hosted runner
+# rather than about this repository:
+#
+#   - The hand-rolled checkout (`git init` + a three-attempt `git fetch <sha>` ladder
+#     with a 90 s bound and a low-speed abort). It existed because the runner's action
+#     cache went stale and its clone raced. `actions/checkout@v4` is the platform's own
+#     contract, and the commit it checks out is `github.sha` by construction.
+#   - The pinned static Docker CLI tarball, the `apt-get install docker.io` fallback and
+#     the "no daemon here, so report success" stand-down. `ubuntu-latest` ships a CLI and
+#     a running daemon, so the daemon's absence is now a platform change worth a red
+#     check, not the normal case this job has to tiptoe around.
+#   - The "started during the checkout, collected by the next step" prefetches: a 57 MB
+#     Node tarball, the Docker CLI, `npm ci`. They bought wall clock on a four-slot
+#     runner by overlapping downloads with a clone. `actions/setup-node@v4` is that work,
+#     done by the runner, with a cache.
+#   - The `actions/tasks?status=running` read that counted concurrent Docker builds
+#     before pruning. Every GitHub-hosted job gets its own VM and its own daemon, so
+#     "is anybody else building against this daemon" has a single answer.
+#
+# What is kept, because it is a correctness gate and not a workaround:
+#
+#   - The Node floor. `package.json` declares `engines.node: >=22.18.0`, and 22.18 is
+#     where the runtime strips types off a `.ts` file with no flag and no build step.
+#     `engine/segment.ts` is on the server's require graph, so a runtime below that line
+#     does not fail a test - it cannot load the tree at all (#2488). Every job that runs
+#     source asserts the floor with `scripts/check-node-floor.js`, which compares three
+#     version numbers; `case "$(node --version)" in v22.*)` was a major-number test
+#     wearing the floor's name, and it accepted 22.0.0 through 22.17.9.
+#   - The step-level `timeout` bounds and their `::error` titles. `timeout-minutes` is a
+#     hard kill that takes the log with it; the inner bound is what says *which* check
+#     died and why. The bounds stay for that reason even though GitHub enforces the
+#     job-level one.
+#   - The data-only classification (`scripts/classify-change.js`), asked inside the job
+#     that spends the answer, with "anything unreadable is a code change" as its
+#     failure direction.
+#   - The liveness stand-down: a pull request positively reported `closed` gets no work.
+#     An absent answer means "run", never "skip".
+#   - The disk bound on the image build, and `docker system df` before and after, which
+#     `scripts/check-ci-disk-hygiene.js` enforces against every workflow file.
+#   - The merge gate: nothing merges until every other check on the head has reported
+#     green, and at least both test legs are among them.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  # Merging through the API does not always reach the runner as a push event, so `main`
+  # can be the branch nothing verifies. This keeps that a choice rather than a gap: the
+  # same matrix can be run against any branch on demand.
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  # Read by the two liveness steps (`gh api .../pulls/<n>`). Nothing in the verification
+  # jobs writes.
+  pull-requests: read
+
+# Group by pull request, not by branch. Two runs of the same PR are the same question
+# asked twice - the newer wins, so the older is cancelled. Two runs on `main` are
+# different questions: each verifies a different commit, and a cancelled one is a commit
+# nobody ever tested. `github.event.pull_request.number || github.sha` does both;
+# `github.ref` would be `refs/heads/main` for every push and let post-merge runs cancel
+# each other.
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.sha }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  # Ordered before `test` on purpose. GitHub-hosted runners take several jobs at once,
+  # so this is a preference rather than the queue fix it was on the shared runner, but
+  # the smoke test and the image build are the long pole of a code change and there is no
+  # reason for them to start behind a suite that does not gate them.
+  docker:
+    name: Server smoke and Docker build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    # A step that dies must run the gate, not skip it. An absent or unreadable answer
+    # therefore means "run", and the only value that stands the steps down is the `true`
+    # written after reading a diff this job could actually see.
+    if: always()
+    steps:
+      - name: Check out this commit
+        uses: actions/checkout@v4
+        with:
+          # The base commit is read to classify the diff, and a depth-1 clone does not
+          # contain it. This is the one job that needs history; the legs do not.
+          fetch-depth: 0
+          persist-credentials: false
+
+      # The two questions this job used to wait for another job to answer. Both are asked
+      # here because this step already has the tree: the liveness call stands a merged or
+      # closed pull request down, and `classify-change.js` is the same script with the same
+      # arguments, so `data_only` means exactly what it meant there. Every failure path
+      # below answers "run".
+      - name: Is this pull request still open, and is the diff data-only
+        id: gate
+        env:
+          GH_TOKEN: ${{ github.token }}
+          NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          set -eu
+          echo "skip=false" >> "$GITHUB_OUTPUT"
+          echo "data_only=false" >> "$GITHUB_OUTPUT"
+
+          if [ -n "${NUMBER:-}" ]; then
+            state=$(gh api "repos/${GITHUB_REPOSITORY}/pulls/${NUMBER}" --jq .state 2>/dev/null || true)
+            case "${state:-}" in
+              closed)
+                echo "skip=true" >> "$GITHUB_OUTPUT"
+                echo "pull #${NUMBER} is closed or merged - this job cannot gate anything, so its steps stand down"
+                exit 0 ;;
+              open)
+                echo "pull #${NUMBER} is open - building unless the diff is data-only" ;;
+              *)
+                echo "could not ask whether pull #${NUMBER} is still open (${state:-no reply}) - building anyway" ;;
+            esac
+          fi
+
+          base="${{ github.event.pull_request.base.sha }}"
+          if [ -z "${base:-}" ]; then
+            echo "no base sha (this is not a pull request) - treating this as a code change and building"
+            exit 0
+          fi
+
+          # The script writes `data_only=` and `code=` to $GITHUB_OUTPUT itself. It answers
+          # "code change" for an empty diff, an unknown base and a diff it cannot read, so
+          # the failure direction is the full build. The `false` written above stands if it
+          # never gets that far.
+          set +e
+          timeout --signal=TERM --kill-after=10 120 node scripts/classify-change.js --base "$base" --head HEAD
+          classify_rc=$?
+          set -e
+          if [ "$classify_rc" -eq 124 ] || [ "$classify_rc" -eq 137 ]; then
+            echo "the diff could not be classified within 120 s - treating this as a code change and building"
+          elif [ "$classify_rc" -ne 0 ]; then
+            echo "the classifier exited ${classify_rc} - treating this as a code change and building"
+          fi
+          data_only=$(sed -n 's/^data_only=//p' "$GITHUB_OUTPUT" | tail -1)
+          case "${data_only:-false}" in
+            true) echo "this diff is data-only - the smoke test and the image build cannot be changed by it" ;;
+            *)    echo "this diff can change runtime behaviour - the smoke test and the image build both run" ;;
+          esac
+
+      - name: Provide the runtime the smoke client needs
+        if: steps.gate.outputs.skip != 'true' && steps.gate.outputs.data_only != 'true'
+        uses: actions/setup-node@v4
+        with:
+          # The major, not a pinned patch: `22` resolves to the newest 22.x, which is at or
+          # above the 22.18 floor, and the step below asserts that rather than trusting it.
+          node-version: 22
+
+      - name: Which runtime is running this
+        if: steps.gate.outputs.skip != 'true' && steps.gate.outputs.data_only != 'true'
+        run: |
+          set -eu
+          node --version && npm --version
+          # The runtime this job needs is a fact about the source, not a preference.
+          # `engine/segment.ts` is on the server's require graph, and a `.ts` module there
+          # cannot be loaded below 22.18: run 10054 went red with `simulator.js:116:20` in
+          # the crash stack and a green image build beside it (#2488). Same assertion as
+          # the Typecheck job, from the same script, so all three jobs test the floor the
+          # repo declares.
+          node scripts/check-node-floor.js --title "Server smoke and Docker build"
+
+      - name: Drive the API end to end, beside the image build
+        if: steps.gate.outputs.skip != 'true' && steps.gate.outputs.data_only != 'true'
+        run: |
+          set -eu
+          dir="${RUNNER_TEMP:-/tmp}"
+          rm -f "$dir/smoke-http.rc" "$dir/smoke-http.pid"
+          mkdir -p "$dir"
+          echo "starting node scripts/smoke-http.js here, so the image build below runs over it"
+          nohup sh -c 'timeout --signal=TERM --kill-after=15 180 node scripts/smoke-http.js > "$1/smoke-http.log" 2>&1; echo $? > "$1/smoke-http.rc"' sh "$dir" > "$dir/smoke-http.nohup" 2>&1 &
+          echo $! > "$dir/smoke-http.pid"
+
+      - name: Dockerfile static checks
+        if: steps.gate.outputs.skip != 'true' && steps.gate.outputs.data_only != 'true'
+        run: timeout --signal=TERM --kill-after=10 60 node scripts/check-dockerfile.js
+
+      - name: What the host's disk looks like before this job
+        if: steps.gate.outputs.skip != 'true' && steps.gate.outputs.data_only != 'true'
+        run: |
+          timeout --signal=TERM --kill-after=5 30 df -h / || true
+          timeout --signal=TERM --kill-after=5 30 docker system df 2>/dev/null || true
+
+      - name: Build image
+        if: steps.gate.outputs.skip != 'true' && steps.gate.outputs.data_only != 'true'
+        run: |
+          set +e
+          # On the self-hosted runner there was no daemon and this step said so and passed,
+          # because there was nothing else it could do. Here `ubuntu-latest` ships a running
+          # daemon, so its absence means the image build has stopped being a gate at all -
+          # that is a red check, not a warning on a green one.
+          if ! command -v docker >/dev/null 2>&1 || ! docker info >/dev/null 2>&1; then
+            echo "::error title=Docker build::no docker daemon in this job - ubuntu-latest provides one, so its absence means the image build is not being verified; the Dockerfile static checks above still passed"
+            exit 1
+          fi
+          echo "docker daemon found - building the image for real"
+          log="${RUNNER_TEMP:-/tmp}/docker-build.log"
+          : > "$log"
+          timeout --signal=TERM --kill-after=20 180 docker build -t "packetforge:ci-run-${GITHUB_RUN_ID}" . 2>&1 | tee "$log"
+          rc=${PIPESTATUS[0]}
+          if [ "$rc" -eq 124 ] || [ "$rc" -eq 137 ]; then
+            echo "::error title=Docker build::docker build was still running after 180 s and was stopped - a green build here takes 10-20 s, so this is a build that stopped moving, not a slow one"
+          elif [ "$rc" -ne 0 ]; then
+            echo "::error title=Docker build::docker build exited ${rc}"
+          fi
+          exit "$rc"
+
+      - name: Bound what the build left behind
+        if: always()
+        env:
+          GATE_SKIP: ${{ steps.gate.outputs.skip }}
+          GATE_DATA_ONLY: ${{ steps.gate.outputs.data_only }}
+        run: |
+          if [ "${GATE_SKIP:-}" = "true" ] || [ "${GATE_DATA_ONLY:-}" = "true" ]; then
+            echo "this job built nothing (skip=${GATE_SKIP:-false} data_only=${GATE_DATA_ONLY:-false}) - nothing was written to the host, so there is nothing to reclaim"
+            exit 0
+          fi
+          if ! command -v docker >/dev/null 2>&1 || ! docker info >/dev/null 2>&1; then
+            echo "No docker daemon here - nothing was written to the host, so nothing to reclaim."
+            exit 0
+          fi
+          # The cleanup runs even when the build died half way, which is the case that leaves
+          # the most behind. On a dedicated VM there is no second build sharing the daemon,
+          # so the "is anybody else building" question the Forgejo copy had to ask before
+          # dropping the cache does not apply here.
+          timeout --signal=TERM --kill-after=10 60 docker image rm -f "packetforge:ci-run-${GITHUB_RUN_ID}" >/dev/null 2>&1 || true
+          timeout --signal=TERM --kill-after=10 60 docker image rm -f packetforge:ci >/dev/null 2>&1 || true
+          timeout --signal=TERM --kill-after=15 120 docker builder prune -f --keep-storage 2GB >/dev/null 2>&1 \
+            || timeout --signal=TERM --kill-after=15 120 docker builder prune -f >/dev/null 2>&1 \
+            || true
+          echo "--- what this job left on the host ---"
+          docker system df || true
+          df -h / || true
+
+      - name: Report the server smoke test
+        if: always() && steps.gate.outputs.skip != 'true' && steps.gate.outputs.data_only != 'true'
+        run: |
+          set +e
+          dir="${RUNNER_TEMP:-/tmp}"
+          rcf="$dir/smoke-http.rc"
+          if [ ! -s "$rcf" ] && [ ! -s "$dir/smoke-http.pid" ]; then
+            echo "::error title=Server smoke test::the smoke test was never started - the step that launches it did not get that far, so the HTTP surface was not driven"
+            exit 1
+          fi
+          for _ in $(seq 1 200); do
+            if [ -s "$rcf" ]; then break; fi
+            sleep 1
+          done
+          echo "--- node scripts/smoke-http.js ---"
+          cat "$dir/smoke-http.log" 2>/dev/null || true
+          if [ ! -s "$rcf" ]; then
+            echo "::error title=Server smoke test::scripts/smoke-http.js had not exited after 200 s - a green run takes ~11 s here, so this is a request that never answered"
+            exit 1
+          fi
+          rc=$(tr -d '[:space:]' < "$rcf")
+          [ -n "$rc" ] || rc=1
+          if [ "$rc" -eq 124 ] || [ "$rc" -eq 137 ]; then
+            echo "::error title=Server smoke test::scripts/smoke-http.js was still running after 180 s and was stopped - a green job takes ~11 s here and the slowest green job in the last 24 h took 30 s, so this is a request that never answered, not a slow server"
+            exit 1
+          fi
+          if [ "$rc" -ne 0 ]; then
+            echo "::error title=Server smoke test::scripts/smoke-http.js exited ${rc}"
+            exit 1
+          fi
+          echo "HTTP smoke passed (all checks clean)"
+
+  test:
+    name: Test (Node ${{ matrix.node }})
+    runs-on: ubuntu-latest
+    # 10 min is a hard kill and a hard kill takes the log with it, so what this number buys
+    # is the cost of an unexplained red rather than a safety margin: 10 min is more than
+    # eight times the slowest green leg measured (69 s) and above the two inner bounds that
+    # can legitimately run long (a 300 s suite plus its shutdown).
+    timeout-minutes: 10
+    # `always()` simply says "never let a previous job's colour decide whether this one
+    # reports". A skipped test leg is not a failure - it is a run that reports nothing.
+    if: always()
+    # Both versions, always. The only saving a data-only diff gets is the job where the
+    # slots were actually going: `Server smoke and Docker build` stands itself down. A
+    # data-only `if:` that read `matrix.node` died ~2 s into every leg (runs 1398, 1401,
+    # 1402) because a job condition is evaluated before the matrix exists, and a matrix
+    # built from an expression collapses to one unnamed leg that reports coverage it never
+    # had. There is no such thing as a data-only test leg.
+    strategy:
+      fail-fast: false
+      # 18 and 20 are gone on purpose rather than by accident: the repository writes
+      # TypeScript and runs it with no build step, which needs 22.18, and a leg on 18 or 20
+      # cannot execute a single converted script - it fails on the first annotation with
+      # `SyntaxError: Missing initializer in const declaration`.
+      matrix:
+        node: [22, 24]
+    steps:
+      - name: Check out this commit
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      # Stood down only for a pull request the API positively reports as closed or merged:
+      # the job cannot change an outcome there. An absent answer, a timed-out API call or a
+      # body that does not parse runs the leg exactly as before.
+      - name: Is this pull request still open
+        id: still_open
+        env:
+          GH_TOKEN: ${{ github.token }}
+          NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          set -eu
+          if [ "${{ github.event_name }}" != "pull_request" ]; then
+            exit 0
+          fi
+          state=$(gh api "repos/${GITHUB_REPOSITORY}/pulls/${NUMBER}" --jq .state 2>/dev/null || true)
+          case "${state:-}" in
+            closed)
+              echo "closed=true" >> "$GITHUB_OUTPUT"
+              echo "pull #${NUMBER} is closed or merged - this leg cannot gate anything, so it stands down" ;;
+            "")
+              echo "could not ask whether pull #${NUMBER} is still open - no reply from the API - running the leg" ;;
+            *)
+              echo "pull #${NUMBER} is ${state} - running the leg" ;;
+          esac
+
+      - name: Provide the runtime this leg is named for
+        if: steps.still_open.outputs.closed != 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+
+      - name: The runtime this leg is named for, above the floor
+        if: steps.still_open.outputs.closed != 'true'
+        run: |
+          set -eu
+          want="${{ matrix.node }}"
+          got="$(node --version)"
+          echo "wanted Node ${want}, running ${got} ($(npm --version))"
+          # The leg has to be the version it is named for: a leg that silently ran some
+          # other runtime would report coverage it never had.
+          case "$got" in
+            "v${want}."*) ;;
+            *) echo "::error title=Test (Node ${want})::this leg is running ${got} - it would report coverage for a runtime it never tested"; exit 1 ;;
+          esac
+          # ...and every leg holds the floor, not just the oldest one. `package.json`
+          # declares 22.18, which is where node strips types with no flag.
+          node scripts/check-node-floor.js --title "Test (Node ${want})"
+
+      - name: Full test suite, syntax check and static checks, together
+        if: steps.still_open.outputs.closed != 'true'
+        env:
+          # 4 is the standard GitHub runner's core count. The Forgejo copy ran 12 because
+          # its host had 40 cores, and it chose that number by measuring three legs at
+          # once; re-measure before raising this one, because two suites in this tree
+          # assert wall-clock tripwires of their own and a leg that starves them reports a
+          # flake as a failure.
+          PF_TEST_CONCURRENCY: 4
+        run: |
+          set +e
+          set -u
+          echo "suite width: ${PF_TEST_CONCURRENCY} workers on Node ${{ matrix.node }}"
+          dir="${RUNNER_TEMP:-/tmp}"
+          out="${dir}/syntax-check.log"
+          syntax_rc=0
+          syntax_pid=""
+          # Every JavaScript file, parsed by the Node 22 parser, on the leg that is the
+          # floor. Started here so it overlaps the suite and waited on at the end.
+          if [ "${{ matrix.node }}" = "22" ]; then
+            timeout --signal=TERM --kill-after=15 120 bash -o pipefail -c '
+              set -u
+              list="$1"
+              find engine server devices web scripts examples test -type f -name "*.js" -print0 > "$list"
+              echo "syntax-check: $(tr -cd "\000" < "$list" | wc -c | tr -d " ") JavaScript files, node --check 8 at a time, on $(node --version)"
+              xargs -0 -r -P 8 -n 1 node --check < "$list"
+            ' bash "$dir/syntax-check.list" > "$out" 2>&1 &
+            syntax_pid=$!
+          fi
+          timeout --signal=TERM --kill-after=10 60 node scripts/check-node-surface.js > "$dir/check-node-surface.log" 2>&1 &
+          node_surface_pid=$!
+          timeout --signal=TERM --kill-after=10 60 node scripts/check-canonical-urls.js > "$dir/check-canonical-urls.log" 2>&1 &
+          canonical_urls_pid=$!
+          timeout --signal=TERM --kill-after=10 60 node scripts/check-ci-disk-hygiene.js > "$dir/check-ci-disk-hygiene.log" 2>&1 &
+          disk_hygiene_pid=$!
+          # The four commands this step overlaps, in the order `npm test` runs them. If
+          # package.json drifts from that chain the legs fall back to `npm test`, which is
+          # slower and serial, and say so - the gate is the chain, not this optimisation.
+          want="node scripts/audit-port-types.js && node scripts/audit-devices.js && node scripts/check-control-bytes.ts && node scripts/run-tests.js"
+          have=$(node -e 'process.stdout.write((require("./package.json").scripts || {}).test || "")' 2>/dev/null || echo "")
+          if [ "$have" != "$want" ]; then
+            echo "::warning title=CI overlap drift::package.json scripts.test is not the four-command chain this step overlaps (${have:-<missing>}) - every leg is paying the scans in front of the suite again; update the chain in this step"
+            timeout --signal=TERM --kill-after=15 300 npm test
+            test_rc=$?
+            audit_rc=0
+            audit_devices_rc=0
+            control_rc=0
+          else
+            timeout --signal=TERM --kill-after=10 60 node scripts/audit-port-types.js > "$dir/audit-port-types.log" 2>&1 &
+            audit_pid=$!
+            timeout --signal=TERM --kill-after=10 60 node scripts/audit-devices.js > "$dir/audit-devices.log" 2>&1 &
+            audit_devices_pid=$!
+            timeout --signal=TERM --kill-after=10 60 node scripts/check-control-bytes.ts > "$dir/check-control-bytes.log" 2>&1 &
+            control_pid=$!
+            timeout --signal=TERM --kill-after=15 300 node scripts/run-tests.js 2>&1 | tee "$dir/suite.log"
+            test_rc=${PIPESTATUS[0]}
+            wait "$audit_pid"
+            audit_rc=$?
+            wait "$audit_devices_pid"
+            audit_devices_rc=$?
+            wait "$control_pid"
+            control_rc=$?
+          fi
+          if [ -n "${syntax_pid}" ]; then
+            wait "$syntax_pid"
+            syntax_rc=$?
+          fi
+          wait "$node_surface_pid"
+          node_surface_rc=$?
+          wait "$canonical_urls_pid"
+          canonical_urls_rc=$?
+          wait "$disk_hygiene_pid"
+          disk_hygiene_rc=$?
+          # A suite that lost a race is not a broken tree, and a broken tree is not a flake.
+          # Only a small, named set of suites that passes on its own inside the same leg is
+          # called a flake, and it is reported as a warning. A harness that cannot name its
+          # failure, or six suites failing together, stays red.
+          if [ "$test_rc" -ne 0 ] && [ "$test_rc" -ne 124 ] && [ "$test_rc" -ne 137 ] && [ -f "$dir/suite.log" ]; then
+            flaked=$(grep -oE 'test/[A-Za-z0-9._/-]+\.test\.js$' "$dir/suite.log" 2>/dev/null | sort -u | tr '\n' ' ' | sed 's/ *$//')
+            count=$(printf '%s' "$flaked" | wc -w | tr -d ' ')
+            if [ "$count" -eq 0 ]; then
+              echo "the suite exited ${test_rc} and named no suite file - a harness that cannot say what failed is not a flake, so nothing is re-run and the leg stays red"
+            elif [ "$count" -gt 6 ]; then
+              echo "${count} suites failed together (${flaked})- that is a broken tree, not one suite losing a race, so nothing is re-run and the leg stays red"
+            else
+              alone_failed=""
+              for f in $flaked; do
+                if [ ! -f "$f" ]; then
+                  echo "the suite named ${f} but it is not in this tree - the leg stays red"
+                  alone_failed="${alone_failed} ${f}"
+                  continue
+                fi
+                echo "--- re-running ${f} on its own: it failed at ${PF_TEST_CONCURRENCY}-way concurrency, this is the same tree and the same runtime ---"
+                if timeout --signal=TERM --kill-after=10 90 node "$f"; then
+                  echo "${f} passes when it is the only suite running"
+                else
+                  rc=$?
+                  echo "${f} fails on its own too (exit ${rc}) - that is the commit, not the host"
+                  alone_failed="${alone_failed} ${f}"
+                fi
+              done
+              if [ -z "$alone_failed" ]; then
+                echo "::warning title=Suite flake (re-verified)::${count} suite(s) failed at ${PF_TEST_CONCURRENCY}-way concurrency and each one passes on its own on the same tree: ${flaked}. Every suite ran in this leg; these ran a second time in isolation and passed."
+                test_rc=0
+              fi
+            fi
+          fi
+          if [ -f "$out" ]; then
+            echo "--- node --check, every JavaScript file, on the Node 22 parser ---"
+            cat "$out"
+          fi
+          for log in check-node-surface check-canonical-urls check-ci-disk-hygiene; do
+            echo "--- node scripts/${log}.js ---"
+            cat "$dir/${log}.log"
+          done
+          for log in audit-port-types audit-devices check-control-bytes; do
+            [ -f "$dir/${log}.log" ] || continue
+            echo "--- node scripts/${log}.js ---"
+            cat "$dir/${log}.log"
+          done
+          if [ "$syntax_rc" -eq 124 ] || [ "$syntax_rc" -eq 137 ]; then
+            echo "::error title=Syntax check (all JS)::the sweep was still running after 120 s and was stopped - 485 files 8 at a time take 2.8 s here, so this is a sweep that stopped moving, not a slow one"
+          elif [ "$syntax_rc" -ne 0 ]; then
+            echo "::error title=Syntax check (all JS)::node --check rejected at least one file (exit ${syntax_rc}) - the files and their errors are printed above"
+          fi
+          if [ "$test_rc" -eq 124 ] || [ "$test_rc" -eq 137 ]; then
+            echo "::error title=Full test suite::the suite was still running after 300 s and was stopped - a green leg takes 46-69 s here, so this is a hung suite, not a slow one; the suites that had already reported are above"
+          elif [ "$test_rc" -ne 0 ]; then
+            echo "::error title=Full test suite::npm test exited ${test_rc}"
+          fi
+          report_static() {   # $1 = script name, $2 = exit status, $3 = check title
+            if [ "$2" -eq 124 ] || [ "$2" -eq 137 ]; then
+              echo "::error title=${3}::node scripts/$1 was still running after 60 s and was stopped - a green run takes about a second"
+            elif [ "$2" -ne 0 ]; then
+              echo "::error title=${3}::node scripts/$1 exited ${2}"
+            fi
+          }
+          report_static check-node-surface.js "$node_surface_rc" "No API newer than the Node 18 floor"
+          report_static check-canonical-urls.js "$canonical_urls_rc" "Every project URL points at the project's home"
+          report_static check-ci-disk-hygiene.js "$disk_hygiene_rc" "Every job that builds an image bounds what it writes"
+          report_static audit-port-types.js "$audit_rc" "Port types declared in every device spec"
+          report_static audit-devices.js "$audit_devices_rc" "Device specs are cabled and described plausibly"
+          report_static check-control-bytes.ts "$control_rc" "No control bytes in source"
+          [ "$test_rc" -eq 0 ] && [ "$syntax_rc" -eq 0 ] &&
+            [ "$node_surface_rc" -eq 0 ] && [ "$canonical_urls_rc" -eq 0 ] &&
+            [ "$disk_hygiene_rc" -eq 0 ] && [ "$audit_rc" -eq 0 ] &&
+            [ "$audit_devices_rc" -eq 0 ] && [ "$control_rc" -eq 0 ]
+
+      - name: Build & verify example labs
+        if: steps.still_open.outputs.closed != 'true'
+        run: |
+          set +e
+          timeout --signal=TERM --kill-after=10 120 node examples/build-examples.js
+          build_rc=$?
+          if [ "$build_rc" -ne 0 ]; then
+            if [ "$build_rc" -eq 124 ] || [ "$build_rc" -eq 137 ]; then
+              echo "::error title=Example labs::the example build was still running after 120 s and was stopped"
+            fi
+            exit "$build_rc"
+          fi
+          timeout --signal=TERM --kill-after=10 120 node scripts/missing-devices.js examples --no-issues
+          rc=$?
+          if [ "$rc" -eq 124 ] || [ "$rc" -eq 137 ]; then
+            echo "::error title=Lab models::the catalogue check was still running after 120 s and was stopped"
+          fi
+          exit "$rc"
+
+  typecheck:
+    name: Typecheck
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out this commit
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Provide the runtime the typecheck runs on
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: The runtime the typecheck runs on
+        run: |
+          set -eu
+          node --version && npm --version
+          # One tree, one answer about its types, on the runtime the floor names - not a
+          # copy per Node version.
+          node scripts/check-node-floor.js --title Typecheck
+
+      - name: Install the one devDependency
+        run: |
+          set -eu
+          timeout --signal=TERM --kill-after=10 300 npm ci --ignore-scripts --no-audit --no-fund
+          echo "typescript $(./node_modules/.bin/tsc --version) on $(node --version)"
+
+      - name: Typecheck (tsc --noEmit)
+        run: |
+          set +e
+          timeout --signal=TERM --kill-after=10 300 ./node_modules/.bin/tsc --noEmit
+          rc=$?
+          if [ "$rc" -eq 124 ] || [ "$rc" -eq 137 ]; then
+            echo "::error title=Typecheck::tsc --noEmit was still running after 300 s and was stopped"
+          fi
+          exit "$rc"
+
+      - name: No `any` anywhere
+        run: |
+          set +e
+          timeout --signal=TERM --kill-after=10 120 node scripts/check-no-any.ts
+          rc=$?
+          if [ "$rc" -eq 124 ] || [ "$rc" -eq 137 ]; then
+            echo "::error title=No any::the scan was still running after 120 s and was stopped"
+          fi
+          exit "$rc"
+
+      - name: Every require() resolves (check-module-paths)
+        run: |
+          set +e
+          timeout --signal=TERM --kill-after=10 120 node scripts/check-module-paths.ts
+          rc=$?
+          if [ "$rc" -eq 124 ] || [ "$rc" -eq 137 ]; then
+            echo "::error title=Module paths::the scan was still running after 120 s and was stopped"
+          fi
+          exit "$rc"
+
+  # The merge decision, and the one job that runs after the checks it reads.
+  #
+  # Until #1725 every gate in this repository was an *arm* fired straight after a
+  # force-push, and the forge evaluates "merge when checks succeed" against the checks that
+  # exist at the moment of the call. For a head pushed seconds earlier that set is empty,
+  # and "all checks succeeded" over nothing is true: measured over the 25 most recently
+  # merged pull requests, all 25 merged before any of their seven checks reported. So this
+  # job reads the checks first and arms second, and a set that has not grown the test legs
+  # is a run that has not started rather than a run that passed.
+  arm:
+    name: Arm auto-merge
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    needs: [test, docker, typecheck]
+    if: always() && github.event_name == 'pull_request'
+    permissions:
+      contents: read
+      # `enablePullRequestAutoMerge` and the comment this job posts when it cannot arm.
+      pull-requests: write
+      # `gh pr checks` reads check runs and legacy commit statuses.
+      checks: read
+      statuses: read
+    env:
+      # A merge performed with the run's own GITHUB_TOKEN does not start the `push` run on
+      # `main`: GitHub does not start workflows for events authored by that token. A PAT
+      # here is what makes post-merge verification happen; without it the merge still
+      # happens and the notice below says the push run has to be dispatched by hand.
+      GH_TOKEN: ${{ secrets.PF_AUTOMERGE_TOKEN || github.token }}
+      HAVE_PAT: ${{ secrets.PF_AUTOMERGE_TOKEN != '' }}
+      NUMBER: ${{ github.event.pull_request.number }}
+      HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+    steps:
+      - name: Merge once every check has reported green
+        run: |
+          set -u
+          repo="$GITHUB_REPOSITORY"
+          note() { echo "::warning title=Auto-merge::${*}" >&2; echo "${*}" >&2; }
+
+          state=$(gh api "repos/${repo}/pulls/${NUMBER}" --jq .state 2>/dev/null || true)
+          case "${state:-}" in
+            closed) echo "#${NUMBER}: closed or merged - there is nothing left to arm"; exit 0 ;;
+            open)   echo "#${NUMBER}: open - reading its checks" ;;
+            *)      note "#${NUMBER}: not merging - the pull request could not be read (${state:-no reply})"; exit 0 ;;
+          esac
+
+          # The arm names the commit it verified. A head that moved since this run started
+          # is a tree this run never tested, and its own run will arm it.
+          head_now=$(gh api "repos/${repo}/pulls/${NUMBER}" --jq .head.sha 2>/dev/null || true)
+          if [ "${head_now:-}" != "$HEAD_SHA" ]; then
+            note "#${NUMBER}: not merging - the head moved from ${HEAD_SHA} to ${head_now:-<unreadable>} while this run was in flight"
+            exit 0
+          fi
+
+          checks=$(gh pr checks "$NUMBER" --repo "$repo" --json name,state,bucket 2>/dev/null || true)
+          if [ -z "${checks:-}" ]; then
+            note "#${NUMBER}: not merging - the checks for ${HEAD_SHA} could not be read"
+            exit 0
+          fi
+          verdict=$(printf '%s' "$checks" | node -e '
+            let d = "";
+            process.stdin.on("data", (c) => { d += c; });
+            process.stdin.on("end", () => {
+              let j; try { j = JSON.parse(d); } catch (e) { console.log("the checks reply was not JSON"); return; }
+              // The reader has its own check, `pending` while it runs, and that is on the
+              // change - it is this decision. Everything else on the head has to have
+              // reported, and reported green.
+              const others = (j || []).filter((x) => !/^Arm auto-merge$/.test(x.name || ""));
+              const legs = others.filter((x) => /^Test \(Node \d+\)$/.test(x.name || "")).length;
+              const bad = others.filter((x) => x.bucket !== "pass");
+              if (!others.length) { console.log("no check has reported yet"); return; }
+              if (bad.length) { console.log("not successful: " + bad.map((x) => (x.name || "?") + "=" + (x.bucket || x.state)).join(", ")); return; }
+              if (legs < 2) { console.log("only " + legs + " of the two CI test legs have reported"); return; }
+              console.log("");
+            });
+          ')
+          if [ -n "$verdict" ]; then
+            note "#${NUMBER}: not merging - ${verdict}"
+            exit 0
+          fi
+          echo "#${NUMBER}: every check on ${HEAD_SHA} is green - arming the merge"
+
+          # The log is public on a public repository, but a refusal nobody reads is the same
+          # as no refusal: the reason goes on the pull request as well, the way the archived
+          # copy posted it when the logs were behind a login. Nothing here can turn a green
+          # run red - a comment that cannot be posted is a warning.
+          post_note() {
+            [ -s "${RUNNER_TEMP:-/tmp}/arm-note.txt" ] || return 0
+            gh pr comment "$NUMBER" --repo "$repo" --body-file "${RUNNER_TEMP:-/tmp}/arm-note.txt" 2>/dev/null \
+              || echo "#${NUMBER}: could not post the reason as a comment"
+          }
+          refuse() {   # $1 = "arm" or "merge", $2 = what the CLI said
+            note "#${NUMBER}: every check on ${HEAD_SHA} is green and the $1 was refused: $2"
+            {
+              echo "**Arm auto-merge went green but could not $1 this pull request.**"
+              echo
+              echo "Every check on \`${HEAD_SHA}\` is \`pass\`, so the gate approved the change; the $1 call was refused:"
+              echo
+              echo '```'
+              echo "$2"
+              echo '```'
+              echo
+              echo "The branch is untouched. This comment exists because a refused $1 is a person's problem, and the job log is not where they will look."
+            } >> "${RUNNER_TEMP:-/tmp}/arm-note.txt"
+            post_note
+            exit 0
+          }
+
+          # `--auto` is the closest thing to `merge_when_checks_succeed`: it defers to
+          # branch protection's required checks and reviews rather than merging into them.
+          # Everything here has already reported green, so it merges immediately when there
+          # is nothing else outstanding.
+          if out=$(gh pr merge "$NUMBER" --repo "$repo" --squash --auto 2>&1); then
+            echo "#${NUMBER}: armed for a squash merge of ${HEAD_SHA} - every check on it is green"
+          else
+            case "$out" in
+              *"Auto-merge is not allowed"*|*"auto-merge is not enabled"*|*AutoMerge*)
+                echo "auto-merge is not enabled on this repository - merging now instead, because every check on ${HEAD_SHA} is green"
+                if out=$(gh pr merge "$NUMBER" --repo "$repo" --squash 2>&1); then
+                  echo "#${NUMBER}: merged ${HEAD_SHA} - every check on it was green"
+                else
+                  refuse merge "$out"
+                fi ;;
+              *)
+                refuse arm "$out" ;;
+            esac
+          fi
+
+          if [ "${HAVE_PAT:-false}" != "true" ]; then
+            echo "::notice title=Auto-merge::this merge was made with the run's own token, so the push run on main does not start - set PF_AUTOMERGE_TOKEN or dispatch ci.yml by hand to verify main"
+          fi
