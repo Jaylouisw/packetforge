@@ -18,6 +18,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **A broadcast segment refused for a subnet mismatch explained itself with the point-to-point mask
+  exception.** `computeOspf()` recorded `reason: 'subnet'` from two different comparisons - the broadcast
+  check (equal masks, networks differ) and the point-to-point reachability check - so `show ip ospf
+  neighbor` printed "the mask itself is ignored on a point-to-point link, RFC 2328 10.5" at an Ethernet
+  segment whose masks were already identical, and never stated the fact that decided it: the peer address
+  was outside this port's network. The record now carries the network type it was refused under
+  (`network: 'broadcast' | 'p2p'`); a broadcast refusal names the network the peer fell outside
+  (`10.8.0.1 is outside the network of this port (10.7.0.0/24)`), and the point-to-point sentence is
+  unchanged (#1652).
+
 - **A /24 against a /30 on a serial OSPF link formed no adjacency, and the console blamed the far end.**
   RFC 2328 10.5 states the Hello's Network Mask check and then excepts it for exactly this case - "on
   point-to-point networks and on virtual links, the Network Mask in the received Hello Packet should be
