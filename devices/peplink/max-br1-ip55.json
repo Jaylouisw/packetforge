@@ -20,19 +20,22 @@
       "name": "wan1",
       "type": "ethernet",
       "connector": "rj45",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": 18
     },
     {
       "name": "lan1",
       "type": "ethernet",
       "connector": "rj45",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": false
     },
     {
       "name": "lan2",
       "type": "ethernet",
       "connector": "rj45",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": false
     },
     {
       "name": "wwan0",
@@ -46,7 +49,7 @@
     }
   ],
   "sourceUrl": "https://www.peplink.com/compare/tech-specs/br1-ip55.pdf",
-  "notes": "Vendor figures from the Peplink tech-spec sheet: Ethernet WAN port 1 (GE), Number of Ethernet LAN port 2 (GE), Router Throughput **100 Mbps**, Wi-Fi AP Yes, PoE Input Yes. **Gigabit ports, 100 Mbps router** - the copper speed suggests ten times the throughput the box can actually forward, which is the single most misleading pairing in this whole vendor's range.",
+  "notes": "Vendor figures from the Peplink tech-spec sheet: Ethernet WAN port 1 (GE), Number of Ethernet LAN port 2 (GE), Router Throughput **100 Mbps**, Wi-Fi AP Yes, PoE Input Yes. **Gigabit ports, 100 Mbps router** - the copper speed suggests ten times the throughput the box can actually forward, which is the single most misleading pairing in this whole vendor's range. **PoE: the WAN port is the inlet.** The tech-spec sheet prints `PoE Input PoE: DC 48-56V` / `Yes [2]` with `[2] 802.3at PoE+ or 56V Peplink Passive PoE` and `Maximum Power Consumption 18W (w/o PoE)`, which gives the class and the draw but not the socket; the product datasheet's panel does - `1x 10/100/1000M Ethernet WAN (PoE Input)` next to `2x 10/100/1000M Ethernet LAN (LAN1 - 802.3at PoE Output)`. So `wan1` declares `poeIn: 18` (the sheet maximum, what a PSE has to fund) and LAN 1 / LAN 2 declare `poeIn: false` - neither is an inlet. LAN 1 is the reverse direction: an optional 802.3at PoE+ **output** that needs the separately sold PoE injector (ACW-107) and, for the full 25.5 W, a 56 V input; it is documented here and deliberately not modelled as a PSE, because this row is a correction of the PD side only. Sources: https://www.peplink.com/compare/tech-specs/br1-ip55.pdf and https://download.peplink.com/resources/pepwave_max_br_ip55_datasheet.pdf.",
   "role": [
     "sd-wan"
   ]
