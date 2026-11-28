@@ -3,7 +3,7 @@
   "model": "CRS210-8G-2S+IN",
   "label": "CRS210-8G-2S+IN",
   "category": "switch",
-  "description": "MikroTik CRS210-8G-2S+IN (CRS210-8G-2S+IN) — 8x 1G RJ45, 2x 10G SFP+. 1-core QCA8519.",
+  "description": "MikroTik CRS210-8G-2S+IN (CRS210-8G-2S+IN) — 8x 1G RJ45, 2x 10G SFP+. Powered by the DC jack or by passive/802.3af/at PoE-in on eth1 only (10-57 V). 1-core QCA8519.",
   "capabilities": [
     "l2-forward",
     "l3-forward",
@@ -11,48 +11,57 @@
     "http-server",
     "passive-poe",
     "poe-pd",
+    "802.3at",
     "802.3af"
   ],
   "interfaces": [
     {
       "name": "eth1",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": 13
     },
     {
       "name": "eth2",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": false
     },
     {
       "name": "eth3",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": false
     },
     {
       "name": "eth4",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": false
     },
     {
       "name": "eth5",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": false
     },
     {
       "name": "eth6",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": false
     },
     {
       "name": "eth7",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": false
     },
     {
       "name": "eth8",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": false
     },
     {
       "name": "SFP+1",
@@ -77,5 +86,6 @@
   ],
   "icon": "switch",
   "color": "#14b8a6",
-  "sourceUrl": "https://mikrotik.com/product/CRS210-8G-2SplusIN"
+  "sourceUrl": "https://mikrotik.com/product/CRS210-8G-2SplusIN",
+  "notes": "Vendor rows read 2026-11-28 from https://mikrotik.com/product/CRS210-8G-2SplusIN: **Number of DC inputs 2 (DC jack, PoE-IN)**, **PoE in Passive PoE**, **PoE in input Voltage 10-57 V**, **802.3af support Yes**, **Max power consumption 13 W** and **Max power consumption without attachments 13W**. The datasheet names the socket: \"Power options: 10-57V, 24V 0.8A PSU included, PoE in: 10-57V on Ether1 (802.3af/at or passive PoE)\" (https://cdn.mikrotik.com/web-assets/product_files/CRS210-8G-2SplusIN-141211150201_141201.pdf). So eth1 is the inlet and draws the board ceiling of 13 W - 0.05 W above 802.3af class 3's 12.95 W PD allowance, which is why the sheet also prints 802.3at, and why the passive 10-57 V injector it ships with is the honest way to power it. eth2-eth8 declare poeIn: false: the CRS210 sources no PoE at all, so nothing beside the inlet can be fed. The seven silent sockets had been inheriting the 12.95 W guess from the poe-pd capability, 90.65 W from a 13 W switch. Also from the same datasheet: SFP+1 takes 1.25G and 10G modules, SFP+2 takes 10G modules only."
 }
