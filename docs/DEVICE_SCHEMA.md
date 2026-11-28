@@ -217,14 +217,17 @@ the engine learns to read is better kept than lost at import time.
 copies the value through untouched (`engine/media.js:1098`), and the device-wide guess fires only on a
 socket whose `poeIn` is still `null` (`:1122-1124`) — so a mains-supplied box that `isPoePd()`
 matches on its model (`:1174`) keeps its sockets empty instead of claiming 12.95 W on each. The
-allocation loop skips such a socket for the same reason (`engine/simulator.js:2743`). 45 specs spell
-604 sockets this way, counted at `f3d9e4c3` — the fourteen PoE-less UniFi switches
-(`devices/ubiquiti/ecs-48s.json` alone spells 49, the five 48-port sheets 48 apiece, the eight 24- and
-16-port ones 185 between them), the Peplink routers whose one PoE inlet is a named WAN port
-(`devices/peplink/max-br1-ip55.json`) — and `test/ubiquiti-usw-ac-nonpoe.test.js` pins the older
-family socket by socket, `test/ubiquiti-nonpoe-gen1-campus-xg.test.js` the seven sheets #1721 took
-12.95 W off (242 sockets that had been drawing 3,133.9 W). What `false` does
-not survive is normalisation: `completeHardware()` passes it through `numOrNull()`
+allocation loop skips such a socket for the same reason (`engine/simulator.js:2758`). 62 specs spell
+711 sockets this way, counted at `0d757112` — the sixteen PoE-less UniFi switches
+(`devices/ubiquiti/ecs-48s.json` alone spells 49, the five 48-port sheets 48 apiece, the nine 24- and
+16-port ones 209 between them, `devices/ubiquiti/usw-industrial-din-8.json` 8), the Peplink routers
+whose `false` sockets are the LAN ports beside the one PoE inlet they do have
+(`devices/peplink/max-br1-ip55.json` draws its 18 W on `wan1` and declares `lan1`/`lan2` unpowered) —
+and `test/ubiquiti-usw-ac-nonpoe.test.js` pins the older family socket by socket,
+`test/ubiquiti-nonpoe-gen1-campus-xg.test.js` the seven sheets #1721 took 12.95 W off (242 sockets that
+had been drawing 3,133.9 W), and `test/ubiquiti-standard24-industrial-nonpoe.test.js` the 32 sockets
+#1730 took 414.4 W off, USW-24's 24 and the industrial DIN 8's 8. What `false` does not survive
+is normalisation: `completeHardware()` passes it through `numOrNull()`
 (`engine/validation.js:363`, `:213`), which answers `0` for any boolean, so the connection validator
 sees a socket that draws nothing but no longer sees that the socket was declared. `poeInDeclared` —
 step 1 of [plans/poe-pd-inference.md](plans/poe-pd-inference.md) — is not in the engine yet:
