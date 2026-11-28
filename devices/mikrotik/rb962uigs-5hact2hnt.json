@@ -21,29 +21,33 @@
       "name": "eth1",
       "type": "ethernet",
       "speed": "1G",
-      "poeIn": true
+      "poeIn": 17
     },
     {
       "name": "eth2",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": false
     },
     {
       "name": "eth3",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": false
     },
     {
       "name": "eth4",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": false
     },
     {
       "name": "eth5",
       "type": "ethernet",
       "speed": "1G",
       "poeOut": true,
-      "poeOutClass": "passive"
+      "poeOutClass": "passive",
+      "poeIn": false
     },
     {
       "name": "SFP1",
@@ -71,5 +75,5 @@
   "poe": {
     "budgetUnknown": true
   },
-  "notes": "Power method from the mikrotik.com spec table: **PoE in: Passive PoE** (11-57 V) on `eth1`; **PoE out on `eth5`** - it powers the device above it on the mast or the AP on the wall, and the port is the vendor's own, not a convention. Input is recorded on the first Ethernet port because the table states the method and voltage but does not name the port, and every MikroTik with a PoE-IN DC input takes it there. Max power consumption 17 W."
+  "notes": "Inlet is eth1, outlet eth5. https://manual.mikrotik.com/hardware/hap-ac/ (read 2026-11-28): \"The board accepts power from the power jack or from the first Ethernet port (Passive PoE) ... First Ethernet port accepts passive Power over Ethernet accepts 11-57 V DC ... The Ether 5 port supports PoE output ... up to 0.7 A\". https://mikrotik.com/product/RB962UiGS-5HacT2HnT: PoE in Passive PoE, PoE in input Voltage 11-57 V, PoE-out ports Ether5, PoE-Out current limit 700 mA, Max power consumption 17 W. The sheet publishes no without-attachments row, so 17 W is the published ceiling - the own draw of the board plus whatever it passes on. eth2-eth4 are poeIn: false; eth5 sources."
 }

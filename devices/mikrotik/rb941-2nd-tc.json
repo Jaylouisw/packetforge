@@ -18,22 +18,26 @@
     {
       "name": "eth1",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "poeIn": false
     },
     {
       "name": "eth2",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "poeIn": false
     },
     {
       "name": "eth3",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "poeIn": false
     },
     {
       "name": "eth4",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "poeIn": false
     },
     {
       "name": "radio0",
@@ -43,5 +47,6 @@
   ],
   "icon": "ap",
   "color": "#14b8a6",
-  "sourceUrl": "https://mikrotik.com/product/RB941-2nD-TC"
+  "sourceUrl": "https://mikrotik.com/product/RB941-2nD-TC",
+  "notes": "No PoE on any socket - the TC is the same board as RB941-2nD in a tower case. https://manual.mikrotik.com/hardware/hap-lite-tc/ (read 2026-11-28): \"The device accepts powering from the microUSB port\", 3.5 W under maximum load, and no PoE line. https://mikrotik.com/product/RB941-2nD-TC: Number of DC inputs 1 (MicroUSB), Max power consumption 3.5 W, no PoE in/out row. All four copper sockets are poeIn: false."
 }
