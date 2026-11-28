@@ -9,7 +9,11 @@ name: CI
 #
 #   Test (Node 22)                  the floor leg
 #   Test (Node 24)                  the newest runtime in the window
-#   Typecheck                       tsc --noEmit, then no-any, then module-paths
+#   Typecheck                       tsc --noEmit, no-any, module-paths, and the
+#                                   `node --check` sweep plus the three tree-wide
+#                                   static checks (on the suite's cores they cost
+#                                   `Test (Node 22)` about ten seconds, so they run
+#                                   here, on the same Node 22 runtime)
 #   Server smoke and Docker build   the HTTP surface beside the image build
 #   Arm auto-merge                  the merge decision, on pull requests only
 #
@@ -375,7 +379,7 @@ jobs:
           # declares 22.18, which is where node strips types with no flag.
           node scripts/check-node-floor.js --title "Test (Node ${want})"
 
-      - name: Full test suite, syntax check and static checks, together
+      - name: Full test suite, and the audits that run beside it
         if: steps.still_open.outputs.closed != 'true'
         env:
           # 4 is the standard GitHub runner's core count. The Forgejo copy ran 12 because
@@ -389,36 +393,13 @@ jobs:
           set -u
           echo "suite width: ${PF_TEST_CONCURRENCY} workers on Node ${{ matrix.node }}"
           dir="${RUNNER_TEMP:-/tmp}"
-          out="${dir}/syntax-check.log"
-          syntax_rc=0
-          syntax_pid=""
-          # Every JavaScript file, parsed by the Node 22 parser, on the leg that is the
-          # floor. Started here so it overlaps the suite and waited on at the end.
-          #
-          # Overlapping it is cheap, and that is a measurement rather than an assumption:
-          # on one 4-core runner, the same tree, the same Node 22 (run 46065441339), the
-          # suite alone took 68 s and then 72 s, the sweep alone took 7 s, and the suite
-          # with the sweep beside it took 71 s - about 3 s, not the 30 s a `Test (Node 22)`
-          # versus `Test (Node 24)` gap suggested. That gap is runner speed: this suite
-          # takes 60 s to 105 s here depending on the box. Giving the sweep its own job
-          # (PR #1634) bought no wall clock and cost a second VM per run, so it is back
-          # here, and a leg-versus-leg gap is not evidence of contention without an A/B.
-          if [ "${{ matrix.node }}" = "22" ]; then
-            timeout --signal=TERM --kill-after=15 120 bash -o pipefail -c '
-              set -u
-              list="$1"
-              find engine server devices web scripts examples test -type f -name "*.js" -print0 > "$list"
-              echo "syntax-check: $(tr -cd "\000" < "$list" | wc -c | tr -d " ") JavaScript files, node --check 8 at a time, on $(node --version)"
-              xargs -0 -r -P 8 -n 1 node --check < "$list"
-            ' bash "$dir/syntax-check.list" > "$out" 2>&1 &
-            syntax_pid=$!
-          fi
-          timeout --signal=TERM --kill-after=10 60 node scripts/check-node-surface.js > "$dir/check-node-surface.log" 2>&1 &
-          node_surface_pid=$!
-          timeout --signal=TERM --kill-after=10 60 node scripts/check-canonical-urls.js > "$dir/check-canonical-urls.log" 2>&1 &
-          canonical_urls_pid=$!
-          timeout --signal=TERM --kill-after=10 60 node scripts/check-ci-disk-hygiene.js > "$dir/check-ci-disk-hygiene.log" 2>&1 &
-          disk_hygiene_pid=$!
+          # The JavaScript sweep and the three tree-wide static checks do not run here any
+          # more. Measured on run 46116368231, the same 524 suites took 73.7 s on this leg
+          # and 63.4 s on `Test (Node 24)`, which carries neither: the sweep starts eight
+          # `node --check` processes on the four cores the suite is already using. Both
+          # moved to `Typecheck` - the same Node 22 runtime, the same tree, and a job that
+          # finishes in seconds - so the parse check left the long pole, not the floor
+          # runtime. This leg is the suite and its three cheap audits now.
           # The four commands this step overlaps, in the order `npm test` runs them. If
           # package.json drifts from that chain the legs fall back to `npm test`, which is
           # slower and serial, and say so - the gate is the chain, not this optimisation.
@@ -447,16 +428,6 @@ jobs:
             wait "$control_pid"
             control_rc=$?
           fi
-          if [ -n "${syntax_pid}" ]; then
-            wait "$syntax_pid"
-            syntax_rc=$?
-          fi
-          wait "$node_surface_pid"
-          node_surface_rc=$?
-          wait "$canonical_urls_pid"
-          canonical_urls_rc=$?
-          wait "$disk_hygiene_pid"
-          disk_hygiene_rc=$?
           # A suite that lost a race is not a broken tree, and a broken tree is not a flake.
           # Only a small, named set of suites that passes on its own inside the same leg is
           # called a flake, and it is reported as a warning. A harness that cannot name its
@@ -491,24 +462,11 @@ jobs:
               fi
             fi
           fi
-          if [ -f "$out" ]; then
-            echo "--- node --check, every JavaScript file, on the Node 22 parser ---"
-            cat "$out"
-          fi
-          for log in check-node-surface check-canonical-urls check-ci-disk-hygiene; do
-            echo "--- node scripts/${log}.js ---"
-            cat "$dir/${log}.log"
-          done
           for log in audit-port-types audit-devices check-control-bytes; do
             [ -f "$dir/${log}.log" ] || continue
             echo "--- node scripts/${log}.js ---"
             cat "$dir/${log}.log"
           done
-          if [ "$syntax_rc" -eq 124 ] || [ "$syntax_rc" -eq 137 ]; then
-            echo "::error title=Syntax check (all JS)::the sweep was still running after 120 s and was stopped - 485 files 8 at a time take 2.8 s here, so this is a sweep that stopped moving, not a slow one"
-          elif [ "$syntax_rc" -ne 0 ]; then
-            echo "::error title=Syntax check (all JS)::node --check rejected at least one file (exit ${syntax_rc}) - the files and their errors are printed above"
-          fi
           if [ "$test_rc" -eq 124 ] || [ "$test_rc" -eq 137 ]; then
             echo "::error title=Full test suite::the suite was still running after 300 s and was stopped - a green leg takes 46-69 s here, so this is a hung suite, not a slow one; the suites that had already reported are above"
           elif [ "$test_rc" -ne 0 ]; then
@@ -521,15 +479,10 @@ jobs:
               echo "::error title=${3}::node scripts/$1 exited ${2}"
             fi
           }
-          report_static check-node-surface.js "$node_surface_rc" "No API newer than the Node 18 floor"
-          report_static check-canonical-urls.js "$canonical_urls_rc" "Every project URL points at the project's home"
-          report_static check-ci-disk-hygiene.js "$disk_hygiene_rc" "Every job that builds an image bounds what it writes"
           report_static audit-port-types.js "$audit_rc" "Port types declared in every device spec"
           report_static audit-devices.js "$audit_devices_rc" "Device specs are cabled and described plausibly"
           report_static check-control-bytes.ts "$control_rc" "No control bytes in source"
-          [ "$test_rc" -eq 0 ] && [ "$syntax_rc" -eq 0 ] &&
-            [ "$node_surface_rc" -eq 0 ] && [ "$canonical_urls_rc" -eq 0 ] &&
-            [ "$disk_hygiene_rc" -eq 0 ] && [ "$audit_rc" -eq 0 ] &&
+          [ "$test_rc" -eq 0 ] && [ "$audit_rc" -eq 0 ] &&
             [ "$audit_devices_rc" -eq 0 ] && [ "$control_rc" -eq 0 ]
 
       - name: Build & verify example labs
@@ -574,6 +527,58 @@ jobs:
           # One tree, one answer about its types, on the runtime the floor names - not a
           # copy per Node version.
           node scripts/check-node-floor.js --title Typecheck
+
+      # The JavaScript sweep and the three tree-wide static checks live here rather than
+      # overlapping the suite on `Test (Node 22)`, and that is a measurement: on run
+      # 46116368231 the same 524 suites took 73.7 s on the leg carrying them and 63.4 s on
+      # `Test (Node 24)`, which carried neither - the sweep starts eight `node --check`
+      # processes on the four cores the suite is already using. This job finishes in
+      # seconds, parses with the same Node 22 runtime the floor names, and is a required
+      # check, so none of this can stand down without leaving a gap in the gate.
+      - name: Every JavaScript file parses on the Node 22 parser, and the tree's static checks
+        run: |
+          set +e
+          set -u
+          dir="${RUNNER_TEMP:-/tmp}"
+          rc=0
+          out="$dir/syntax-check.log"
+          timeout --signal=TERM --kill-after=15 120 bash -o pipefail -c '
+            set -u
+            list="$1"
+            find engine server devices web scripts examples test -type f -name "*.js" -print0 > "$list"
+            echo "syntax-check: $(tr -cd "\000" < "$list" | wc -c | tr -d " ") JavaScript files, node --check 8 at a time, on $(node --version)"
+            xargs -0 -r -P 8 -n 1 node --check < "$list"
+          ' bash "$dir/syntax-check.list" > "$out" 2>&1
+          syntax_rc=$?
+          echo "--- node --check, every JavaScript file, on the $(node --version) parser ---"
+          cat "$out" 2>/dev/null || true
+          if [ "$syntax_rc" -eq 124 ] || [ "$syntax_rc" -eq 137 ]; then
+            echo "::error title=Syntax check (all JS)::the sweep was still running after 120 s and was stopped - 485 files 8 at a time take 2.8 s here, so this is a sweep that stopped moving, not a slow one"
+            rc=1
+          elif [ "$syntax_rc" -ne 0 ]; then
+            echo "::error title=Syntax check (all JS)::node --check rejected at least one file (exit ${syntax_rc}) - the files and their errors are printed above"
+            rc=1
+          fi
+          for spec in \
+            "check-node-surface.js|No API newer than the Node 18 floor" \
+            "check-canonical-urls.js|Every project URL points at the project's home" \
+            "check-ci-disk-hygiene.js|Every job that builds an image bounds what it writes"; do
+            script="${spec%%|*}"
+            title="${spec#*|}"
+            log="$dir/${script%.js}.log"
+            timeout --signal=TERM --kill-after=10 60 node "scripts/${script}" > "$log" 2>&1
+            static_rc=$?
+            echo "--- node scripts/${script} ---"
+            cat "$log" 2>/dev/null || true
+            if [ "$static_rc" -eq 124 ] || [ "$static_rc" -eq 137 ]; then
+              echo "::error title=${title}::node scripts/${script} was still running after 60 s and was stopped - a green run takes about a second"
+              rc=1
+            elif [ "$static_rc" -ne 0 ]; then
+              echo "::error title=${title}::node scripts/${script} exited ${static_rc}"
+              rc=1
+            fi
+          done
+          exit "$rc"
 
       - name: Install the one devDependency
         run: |
