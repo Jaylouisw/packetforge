@@ -21,29 +21,33 @@
       "name": "eth1",
       "type": "ethernet",
       "speed": "100M",
-      "poeIn": true
+      "poeIn": 7
     },
     {
       "name": "eth2",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "poeIn": false
     },
     {
       "name": "eth3",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "poeIn": false
     },
     {
       "name": "eth4",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "poeIn": false
     },
     {
       "name": "eth5",
       "type": "ethernet",
       "speed": "100M",
       "poeOut": true,
-      "poeOutClass": "passive"
+      "poeOutClass": "passive",
+      "poeIn": false
     },
     {
       "name": "radio0",
@@ -57,5 +61,5 @@
   "poe": {
     "budgetUnknown": true
   },
-  "notes": "Power method from the mikrotik.com spec table: **PoE in: Passive PoE** (8-30 V) on `eth1`; **PoE out on `eth5`** - it powers the device above it on the mast or the AP on the wall, and the port is the vendor's own, not a convention. Input is recorded on the first Ethernet port because the table states the method and voltage but does not name the port, and every MikroTik with a PoE-IN DC input takes it there. Max power consumption 24 W."
+  "notes": "Inlet is eth1, outlet eth5. https://mikrotik.com/product/RB951Ui-2HnD (read 2026-11-28): Number of DC inputs 2 (DC jack, PoE-IN), DC jack 8-30 V, Max power consumption 24 W, Max power consumption without attachments 7 W, PoE in Passive PoE 8-30 V, PoE-out ports Ether5, PoE out Passive PoE, Low voltage PoE-Out current limit 500 mA, Max total out 500 mA. https://manual.mikrotik.com/hardware/rb951-series/: \"The device accepts power from the power jack or from the first Ethernet port (Passive PoE). The power consumption for RB951G-2HnD under maximum load can reach 7 W, RB951Ui-2HnD 24 W.\" The 24 W ceiling includes the USB load and whatever eth5 passes through, so the inlet asks for the 7 W the board itself draws; eth2-eth4 are poeIn: false; eth5 sources power it did not generate, so its budget stays unknown."
 }
