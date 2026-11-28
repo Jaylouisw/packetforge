@@ -316,21 +316,29 @@ console.log('\nReal templates expand to the documented port count:');
       s.vendor + '/' + s.model + ' expansion equals template count + explicit interfaces');
   }
 
-  // arista/7050SX3 is the one sampled spec that does NOT add up, and it is the shape
-  // #71 is about: it declares 12 ports, its own label and description say 48, and the
-  // 36 missing ports cannot be seen by any check. Pinned deliberately - if someone
-  // fills the spec in (or deletes it as a duplicate of 7050SX3-48YC8), this line has
-  // to be updated rather than silently passing.
-  const thin = specOf('arista', '7050SX3');
-  ok(!!thin, 'arista/7050SX3 is still in the catalogue');
-  if (thin) {
-    const ports = effectiveInterfaces(thin);
-    const doc = documentedPorts(thin.description, [/(\d+)x 25G/]);
-    ok(ports.length === 12 && thin.portTemplate.count === 12,
-      'arista/7050SX3 expands to the 12 ports its template declares (got ' + ports.length + ')');
-    ok(doc === 48,
-      'KNOWN GAP #71: arista/7050SX3 models 12 of the ' + doc + ' ports its description documents ' +
-      '(36 missing; its label is the same box as 7050SX3-48YC8)');
+  // arista/7050SX3 used to be a seed stub labelled "7050SX3-48YC8 (L3)" whose template declared
+  // 12 ports of 25G, beside the researched 7050SX3-48YC8 spec - the same 56-port box twice, with 44
+  // ports missing from the copy a lab might pick. It was deleted as a duplicate (#1194/#70 precedent:
+  // one product, one file) and the family name kept as an alias, so this now asserts the merge held
+  // rather than pinning the gap: the bare model is gone and the box is described once, in full.
+  const family = specOf('arista', '7050SX3');
+  ok(family === undefined,
+    'arista/7050SX3 (the 12-port stub) is gone, not kept beside the box it duplicated' +
+    (family ? ' (still present with ' + effectiveInterfaces(family).length + ' ports)' : ''));
+  // The DMF sibling (7050SX3-48YC8 running DANZ Monitoring Fabric) is the same cage count and a
+  // different software load, so it is a spec of its own and stays; what must not come back is a bare
+  // family stub standing in for the hardware.
+  const only = catalog.filter(function (s) { return s.vendor === 'arista' && /^7050SX3/.test(s.model) && !/DMF/.test(s.model); });
+  ok(only.length === 1 && only[0].model === '7050SX3-48YC8',
+    'one 7050SX3 hardware spec is left and it is the 48YC8' + (only.length !== 1 ? ' (found ' + only.map(function (s) { return s.model; }).join(', ') + ')' : ''));
+  if (only.length === 1) {
+    const ports = effectiveInterfaces(only[0]);
+    const doc = documentedPorts(only[0].description, [/(\d+)x 25G SFP28/, /(\d+)x 100G QSFP28/]);
+    ok(doc === 56 && ports.length === 56,
+      'and it models all 56 of the ports the datasheet prints (48x SFP25 + 8x QSFP100), not 12 ' +
+      '(documented ' + doc + ', modelled ' + ports.length + ')');
+    ok((only[0].aliases || []).indexOf('7050SX3') !== -1,
+      'the family name is still findable as an alias of that spec');
   }
 }
 
