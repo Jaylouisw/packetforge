@@ -23,17 +23,22 @@
     {
       "name": "eth1",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "poeIn": 6
     },
     {
       "name": "eth2",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "poeIn": false
     },
     {
       "name": "eth3",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "poeIn": false,
+      "poeOut": true,
+      "poeOutClass": "passive"
     },
     {
       "name": "radio0",
@@ -48,5 +53,9 @@
   ],
   "icon": "ap",
   "color": "#14b8a6",
-  "sourceUrl": "https://mikrotik.com/product/wsap_ac_lite"
+  "sourceUrl": "https://mikrotik.com/product/wsap_ac_lite",
+  "poe": {
+    "budgetUnknown": true
+  },
+  "notes": "The wall socket is eth1 (E1) and eth3 (E3) sources. https://manual.mikrotik.com/hardware/wsap-ac-lite/ (read 2026-11-28): \"The device only accepts powering at the E1 port with PoE, so you must either a passive PoE injector (not included), or make sure your switch supports passive or 802.3af/at PoE output\" and \"The E3 port is capable of powering another RouterBOARD device with passive and 802.3af/at PoE. The maximum output current is 500 mA when using less than 30 V\". https://mikrotik.com/product/wsap_ac_lite: Number of DC inputs 1 (PoE-IN), PoE in 802.3af/at, PoE in input Voltage 18-57 V, PoE-out ports Ether3, Max power consumption 20 W, Max power consumption without attachments 6 W. The inlet asks for 6 W, not the 12.95 W the class guess put on all three sockets; eth2 is poeIn: false."
 }

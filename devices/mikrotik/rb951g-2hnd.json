@@ -20,27 +20,31 @@
       "name": "eth1",
       "type": "ethernet",
       "speed": "1G",
-      "poeIn": true
+      "poeIn": 7
     },
     {
       "name": "eth2",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": false
     },
     {
       "name": "eth3",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": false
     },
     {
       "name": "eth4",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": false
     },
     {
       "name": "eth5",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": false
     },
     {
       "name": "radio0",
@@ -51,5 +55,5 @@
   "icon": "ap",
   "color": "#14b8a6",
   "sourceUrl": "https://mikrotik.com/product/RB951G-2HnD",
-  "notes": "Power method from the mikrotik.com spec table: **PoE in: Passive PoE** (8-30 V) on `eth1`. Input is recorded on the first Ethernet port because the table states the method and voltage but does not name the port, and every MikroTik with a PoE-IN DC input takes it there. Max power consumption 7 W."
+  "notes": "Inlet is eth1. https://manual.mikrotik.com/hardware/rb951-series/ (read 2026-11-28): \"The first Ethernet port accepts passive Power over Ethernet accepts 8-30 V DC. The power consumption for RB951G-2HnD under maximum load can reach 7 W\" - and the Ether5 PoE output is named for the RB951Ui model only, so this board sources nothing. https://mikrotik.com/product/RB951G-2HnD: Number of DC inputs 2 (DC jack, PoE-IN), PoE in Passive PoE, PoE in input Voltage 8-30 V, Max power consumption 7 W, no PoE-out row. eth1 draws 7 W; eth2-eth5 are poeIn: false."
 }
