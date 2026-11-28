@@ -13,122 +13,146 @@
     {
       "name": "port1",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": false
     },
     {
       "name": "port2",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": false
     },
     {
       "name": "port3",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": false
     },
     {
       "name": "port4",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": false
     },
     {
       "name": "port5",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": false
     },
     {
       "name": "port6",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": false
     },
     {
       "name": "port7",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": false
     },
     {
       "name": "port8",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": false
     },
     {
       "name": "port9",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": false
     },
     {
       "name": "port10",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": false
     },
     {
       "name": "port11",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": false
     },
     {
       "name": "port12",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": false
     },
     {
       "name": "port13",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": false
     },
     {
       "name": "port14",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": false
     },
     {
       "name": "port15",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": false
     },
     {
       "name": "port16",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": false
     },
     {
       "name": "port17",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": false
     },
     {
       "name": "port18",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": false
     },
     {
       "name": "port19",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": false
     },
     {
       "name": "port20",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": false
     },
     {
       "name": "port21",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": false
     },
     {
       "name": "port22",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": false
     },
     {
       "name": "port23",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": false
     },
     {
       "name": "port24",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": false
     },
     {
       "name": "sfp1",
@@ -142,5 +166,7 @@
     }
   ],
   "icon": "switch",
-  "color": "#3b82f6"
+  "color": "#3b82f6",
+  "sourceUrl": "https://techspecs.ui.com/unifi/switching/usw-24",
+  "notes": "PoE, read 2026-11-28. Two sources, same answer. `https://dl.ui.com/ds/usw-24_ds.pdf` (HTTP 200, `application/pdf`, 18,017,992 B, text layer) prints **Networking Interfaces = (24) 10/100/1000 Mbps Ethernet RJ45 Ports / (2) 1 Gbps SFP Ports**, **Max. Power Consumption = 25W**, **Power Method = Universal AC Input: 100-240VAC, 50/60 Hz** and **Power Supply = AC/DC, Internal, 36W**. `https://techspecs.ui.com/unifi/switching/usw-24` (HTTP 200, 636,982 B, server-rendered table) prints the same rows on the current page - **Port Layout 1 GbE RJ45 24 (1G/100M/10M), 1G SFP 2 (1G)**, **Max. Power Consumption 25W**, **Power Method: Universal input, 100-240V AC, 50/60 Hz**, **Power Input Method: AC input**, **Power Supply: AC/DC, internal, 36W**, **Supported Voltage Range 100-240V AC** - and no PoE section at all. Neither sheet prints a PoE port, a class, a per-port wattage or a budget, so the box neither sources nor sinks power: the 24 copper ports carry `poeIn: false`. This is the Standard-line row #1721 missed - it covered `US-24` (24 sockets) and `USW-48`, but the 24-port model whose own name is `USW-24` kept a silent field. `isPoePd()` in `engine/media.js` matches `unifi` against `model + ' ' + label` (\"UniFi Switch 24\") and inferred a 12.95 W 802.3af draw on every socket - **310.8 W** asked of whatever PSE the lab cabled it to, on a switch whose own supply is 36 W and whose maximum draw is 25 W."
 }
