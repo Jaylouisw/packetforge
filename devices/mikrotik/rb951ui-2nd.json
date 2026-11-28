@@ -21,29 +21,33 @@
       "name": "eth1",
       "type": "ethernet",
       "speed": "100M",
-      "poeIn": true
+      "poeIn": 5
     },
     {
       "name": "eth2",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "poeIn": false
     },
     {
       "name": "eth3",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "poeIn": false
     },
     {
       "name": "eth4",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "poeIn": false
     },
     {
       "name": "eth5",
       "type": "ethernet",
       "speed": "100M",
       "poeOut": true,
-      "poeOutClass": "passive"
+      "poeOutClass": "passive",
+      "poeIn": false
     },
     {
       "name": "radio0",
@@ -57,5 +61,5 @@
   "poe": {
     "budgetUnknown": true
   },
-  "notes": "Power method from the mikrotik.com spec table: **PoE in: Passive PoE** (10-28 V) on `eth1`; **PoE out on `eth5`** - it powers the device above it on the mast or the AP on the wall, and the port is the vendor's own, not a convention. Input is recorded on the first Ethernet port because the table states the method and voltage but does not name the port, and every MikroTik with a PoE-IN DC input takes it there. Max power consumption 5 W."
+  "notes": "Inlet is eth1, outlet eth5. https://manual.mikrotik.com/hardware/hap/ (read 2026-11-28): \"The board accepts power from the power jack or the first Ethernet port (Passive PoE)\", \"The First Ethernet port accepts passive Power over Ethernet 10-28 V\", \"The power consumption under maximum load can reach 5 W\", \"The Ether5 port supports PoE output for powering other RouterBOARD devices ... supports up to 0.58 A\". https://mikrotik.com/product/RB951Ui-2nD: Max power consumption 5 W, PoE in Passive PoE 10-28 V, PoE-out ports Ether5, PoE out Passive PoE, Low voltage PoE-Out current limit 500 mA, Max total out 500 mA. The inlet asks for 5 W; eth2-eth4 are poeIn: false; eth5 sources power it did not generate, so the budget is the supply, not a figure MikroTik prints."
 }

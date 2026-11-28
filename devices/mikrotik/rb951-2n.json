@@ -20,27 +20,31 @@
       "name": "eth1",
       "type": "ethernet",
       "speed": "100M",
-      "poeIn": true
+      "poeIn": 3
     },
     {
       "name": "eth2",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "poeIn": false
     },
     {
       "name": "eth3",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "poeIn": false
     },
     {
       "name": "eth4",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "poeIn": false
     },
     {
       "name": "eth5",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "poeIn": false
     },
     {
       "name": "radio0",
@@ -51,5 +55,5 @@
   "icon": "ap",
   "color": "#14b8a6",
   "sourceUrl": "https://mikrotik.com/product/RB951-2n",
-  "notes": "Power method from the mikrotik.com spec table: **PoE in: Passive PoE** (voltage not stated) on `eth1`. Input is recorded on the first Ethernet port because the table states the method and voltage but does not name the port, and every MikroTik with a PoE-IN DC input takes it there. Max power consumption not stated."
+  "notes": "Inlet is eth1, and this board sources nothing. https://mikrotik.com/product/RB951-2n (read 2026-11-28): \"Number of DC inputs 1\", \"PoE in Passive PoE\", no PoE-out row. https://cdn.mikrotik.com/web-assets/product_files/rb951-2n_130506.pdf (product datasheet): \"PoE: 8-30V DC on Ether1 (Non 802.3af). Jack: 8-30V DC\", \"Power consumption Up to 3W\". The 2014 quick guide on the same CDN prints no consumption figure, and an older quick guide prints 7 W under maximum load, so the datasheet figure is recorded and the divergence is noted rather than averaged. eth1 draws 3 W; eth2-eth5 are poeIn: false."
 }
