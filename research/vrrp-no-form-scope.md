@@ -45,6 +45,10 @@ was unreachable from the only call site. Two consequences, one of them silent:
   removes the group)`, so a guess never deletes a group. (This note first landed with the interval under a
   bare `advertise`, which is not a word any box has; `research/vrrp-timers-advertise.md` corrected the
   keyword on all three doors - set, `no`, and the printed config.)
+  Those three sentences describe a value that *moved*. Over a default nothing moves, and the receipt used
+  to claim the reset anyway; #1685 made it read the value first and answer `VRRP group <vrid> priority is
+  already 100 (the default), nothing changed`, `... preemption is already disabled, nothing changed`,
+  `... already advertises every 1 s, nothing changed` (`test/vrrp-no-form-reports-state.test.js`).
 * `test/vrrp-no-form.test.js` (new, 27 assertions): the receipts, the survival of the group and its
   untouched neighbours, the paste-back, the refusal, the bare removal.
 * `test/config-roundtrip.test.js`: a fixture that configures `preempt: false` with `priority 120` from
