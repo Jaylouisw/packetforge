@@ -18,7 +18,7 @@ different failure from a red check: the last section of this page separates the 
 
 | File | Trigger | What it does |
 |---|---|---|
-| `.github/workflows/ci.yml` | pull request to `main`, push to `main`, manual dispatch | The matrix — the suite on Node 22 and 24 — a `Typecheck` job, a live server smoke test, a Docker build — and, on an open pull request, a final `Arm auto-merge` job that merges it once every other check has reported green — and, for a green head that is behind `main`, updates the branch and gets the new head verified — by approving the run its own push starts, or by dispatching `ci.yml` when that run cannot be approved — before it merges (#1725, #1612, #1679, #1650) |
+| `.github/workflows/ci.yml` | pull request to `main`, push to `main`, manual dispatch | The matrix — the suite on Node 22 and 24, each leg split across two runners and gated by a job of the leg's own name — a `Typecheck` job, a live server smoke test, a Docker build — and, on an open pull request, a final `Arm auto-merge` job that merges it once every other check has reported green — and, for a green head that is behind `main`, updates the branch and gets the new head verified — by approving the run its own push starts, or by dispatching `ci.yml` when that run cannot be approved — before it merges (#1725, #1612, #1679, #1650) |
 | `.forgejo/workflows/ci.yml` | *(archive)* | The same five checks, written for the self-hosted Forgejo runner. Kept for its comments; never named by a branch protection rule |
 | `.forgejo/workflows/auto-rebase.yml` | *(archive)* | Rebases open pull requests onto current `main` and re-arms auto-merge only for a head whose reported checks are all green (#1508, #2180). The green half now lives in `ci.yml`'s `Arm auto-merge`, which updates the branch and approves the held run its push starts, dispatching `ci.yml` on the new head only when that approval is refused (#1612, #1679); the half that touched a head whose checks were not green has not come over |
 | `.forgejo/workflows/pr-rebase.yml` | *(archive)* | The rebase that used to run on every push to a pull request. Not ported yet (`CONTRIBUTING.md` says what a contributor does instead) |
@@ -46,13 +46,41 @@ Four verification checks on a code change, all of which must be green before a m
 | `Typecheck` | A `.js` file the Node 22 parser rejects, an API newer than the Node 18 surface, a non-canonical project URL, an image-building job that does not bound its disk, a type error, an `any`, or a `require()` CommonJS cannot resolve (`tsc --noEmit`, `scripts/check-no-any.ts`, `scripts/check-module-paths.ts`, and the parse sweep plus the three static scans that used to ride beside the suite, #1716). One answer about one tree, so one job — not a copy per Node version |
 | `Server smoke and Docker build` | A server that boots but cannot serve (every API route, the catalogue, WebSocket upgrade) **or** a `Dockerfile` that does not build. One status, two checks: the smoke client runs beside the image build in the same job, and the failure titles still separate them. Runs on the Node 22 line `actions/setup-node` provides and asserts the 22.18 floor against it (`scripts/check-node-floor.js`) — a runtime below that line cannot load `engine/segment.ts` (#2488). Present as a build-syntax proxy, not a full image test |
 
-The test job runs the suite, the three audits in front of it, and the example labs
-(`ci.yml`, the `test` job):
+Each `Test (Node …)` check is a **gate job**, not the leg itself (#1736). The leg is two
+jobs — `Test (Node 22) shard 1/2` and `Test (Node 22) shard 2/2` — on two runners, and the
+job that carries the check's name (`test22-gate`, `test24-gate`) reports green only when both
+halves did: a leg that is half green is not green, and a leg whose second half was cancelled
+is not green either. The required check names did not change, because the gate job took the
+old job's name; it is the halves that are named `shard 1/2` and `shard 2/2`.
 
-- `npm test` — `audit:ports`, then `audit:devices`, then `check:bytes`, then every
-  `test/*.test.js` **and** `test/*.test.ts` that `scripts/run-tests.js` discovers. The three
-  audits start as the suite starts and are waited on at the end of the same step, so they cost
-  no wall clock;
+The halves are a partition of the suite by the **first character of the suite's file name**,
+which is the granularity `scripts/run-tests.js --filter=` offers — a substring match on the
+path, not a regex. Each bucket is weighted by how many suites it holds and goes to whichever
+half is lighter at run time, so new suites rebalance the split instead of drifting from a
+hand-written list. Each shard then compares the suites the runner reported against the number
+its own buckets are worth and fails on any difference, and every discovery path has to be a
+flat `test/<name>.test.js|.ts`, so a suite no bucket would claim fails the shard instead of
+going unrun. Half a leg cannot report a full leg's coverage.
+
+The second box is the only thing that shortened the leg. The suite is CPU-bound — one process
+per suite on the four cores a hosted runner has — and eight-way concurrency on the same four
+cores measured 90.5 s against 72.5 s at four-way, so there was no overlap left inside one box.
+On run 46125732014 `Test (Node 22)` spent 89.3 s in the suite against `Test (Node 24)`'s
+55.2 s on the same commit (per-suite sums 345 s and 209 s): each leg was one box doing all of
+the work, and that box was the pole.
+
+Each shard of a leg runs its half of the suite, the three audits in front of it, and the
+example labs (`ci.yml`, the `test22` and `test24` jobs):
+
+- the four commands of `npm test` — `audit:ports`, then `audit:devices`, then `check:bytes`,
+  then `scripts/run-tests.js` with `--filter=test/<bucket>`, once per bucket the shard was
+  assigned, instead of over the whole tree. That is how a shard runs its half, and between the
+  two shards it covers **every** `test/*.test.js` **and** `test/*.test.ts` that
+  `scripts/run-tests.js` discovers. The three audits start as the suite starts and are waited
+  on at the end of the same step, so they cost no wall clock. The step first checks that
+  `package.json`'s `scripts.test` is still that four-command chain; if that chain has drifted it
+  runs the three audits one after another rather than beside the suite, and says so in the log,
+  because the overlap is only sound while the chain it copies is the chain `npm test` runs;
 - `examples/build-examples.js`, then `scripts/missing-devices.js examples --no-issues`, which
   cross-checks every model the built labs name.
 
@@ -354,8 +382,9 @@ instance other than the default address.
 
 `runs-on: ubuntu-latest`, one fresh VM per job, and no queue to manage: GitHub starts
 each job on its own host and discards it afterwards. Nothing is shared between jobs,
-which is why four checks now run in parallel without the second slot's contention
-penalty, and why no step in `ci.yml` has to ask what else is running on the host.
+which is why the checks, and both shards of each test leg, run in parallel without the
+second slot's contention penalty, and why no step in `ci.yml` has to ask what else is
+running on the host.
 
 The self-hosted runner this replaced was a container on the forge host with
 `capacity: 2` — two jobs at a time, and that number was the throughput ceiling of the
@@ -554,7 +583,7 @@ test leg.
 
 `npm test` still runs for a data-only change, and on **both** Node versions: the diff
 teaches the suite nothing, so cutting the matrix would buy speed with coverage the leg never had.
-The `test` job carries that history in its own comment — a data-only `if:` that read
+The `test22`/`test24` jobs carry that history in their own comment — a data-only `if:` that read
 `matrix.node` was evaluated before the matrix existed, so every leg died about two seconds in (runs
 1398, 1401, 1402), and a matrix built from an expression collapses to a single unnamed leg that
 runs the suite once and reports it three times. Two versions, always. What the classifier still
