@@ -1749,6 +1749,16 @@ class Simulator {
       if (!bySegment[r]) bySegment[r] = [];
       bySegment[r].push(key);
     }
+    // Who held the two roles at the previous election, per router port. The election below is not a
+    // fresh vote every time: see the block comment under it.
+    const heldBefore = (this.topo && this.topo.ospfRoles) || null;
+    const heldBy = function (k) {
+      if (!heldBefore) return null;
+      const r = heldBefore.get(k);
+      return (r === 'DR' || r === 'BDR') ? r : null;
+    };
+    const after = Object.create(null);
+
     for (const root of Object.keys(bySegment)) {
       const members = bySegment[root];
       // Priority 0 is "ineligible", so those routers are discarded before the sort rather than
@@ -1760,9 +1770,65 @@ class Simulator {
         if (nx !== ny) return ny - nx;
         return String(devOf[x]) < String(devOf[y]) ? -1 : 1;
       });
+      // ------------------------------------------------------------------
+      // The election does not preempt
+      //
+      // "OSPF DR and BDR elections are not pre-emptive. If a new router with a higher priority is
+      // added to the network after the DR election, the newly added router does not take over the DR
+      // or the BDR role because those roles have already been assigned" (Cisco, Scaling Networks
+      // v6.0, ch. 10, "DR/BDR Election Process"). The router that is already DR keeps declaring
+      // itself DR in its Hellos, and RFC 2328 9.4 runs the election over exactly those declarations:
+      // "If one or more of the routers have declared themselves Designated Router ... the one having
+      // highest Router Priority is declared to be Designated Router". A newcomer has declared
+      // nothing, so it accepts what it hears whatever its own priority.
+      //
+      // The previous pass's answer stands in for those declarations - this model has no Hellos to
+      // carry them - and the two seats are read back as incumbents. Two consequences the same slide
+      // states, and one this block has to get right:
+      //   * "If the DR fails, the BDR is automatically promoted to DR even if another DROTHER with a
+      //     higher priority or router ID is added to the network after the initial DR/BDR election" -
+      //     so the incumbent BDR is the *first* candidate for a vacant DR seat, ahead of the ranking;
+      //   * "after a BDR is promoted to DR, a new BDR election occurs and the DROTHER with the higher
+      //     priority or router ID is elected as the new BDR" - so the seniority applies to the seat,
+      //     not to the router: a promoted BDR leaves its own seat open to the ranking;
+      //   * and a router that has withdrawn - its priority is now 0, or its port has left the segment
+      //     - is no incumbent at all. "When you change the existing DR priority to zero then that
+      //     router withdraws as DR and the current BDR immediately (and automatically) becomes the new
+      //     DR" (Cisco Community, "Reselection of DR (OSPF)", td-p/4803100). That is why the test is
+      //     membership of `eligible` and not a memory of the role alone.
+      //
+      // So the vote is only held where a seat is actually vacant: the ranking fills an empty DR seat
+      // when no incumbent DR is standing, and an empty BDR seat when no incumbent BDR is standing.
+      // A brand-new segment has no incumbents and is elected exactly as before - highest Router
+      // Priority, then highest Router ID - which is what every capture of a first election shows.
+      // `eligible` is in rank order, so when two segments that each had a DR are joined into one (a
+      // cable between two switches) the higher-priority of the two incumbents keeps the seat and the
+      // other drops to DROTHER - which is what two DRs hearing each other do.
+      const incumbent = function (role) {
+        for (const k of eligible) {
+          if (heldBy(k) === role) return k;
+        }
+        return null;
+      };
+      const wasDr = incumbent('DR');
+      const wasBdr = incumbent('BDR');
+      const dr = wasDr || wasBdr || eligible[0] || null;
+      const bdr = (wasBdr && wasBdr !== dr) ? wasBdr
+        : (eligible.filter(function (k) { return k !== dr; })[0] || null);
       for (const k of members) roleOf[k] = 'DROTHER';
-      if (eligible.length) roleOf[eligible[0]] = 'DR';
-      if (eligible.length > 1) roleOf[eligible[1]] = 'BDR';
+      if (dr) roleOf[dr] = 'DR';
+      if (bdr) roleOf[bdr] = 'BDR';
+    }
+    // Note the two roles this pass handed out, so the next pass has an incumbent to respect. Only the
+    // two seats are kept: a DROTHER has no seniority, and rebuilding the map from this pass is what
+    // drops a router whose port has left the segment.
+    for (const k of Object.keys(roleOf)) {
+      if (roleOf[k] === 'DR' || roleOf[k] === 'BDR') after[k] = roleOf[k];
+    }
+    if (this.topo) {
+      if (!this.topo.ospfRoles) this.topo.ospfRoles = new Map();
+      this.topo.ospfRoles.clear();
+      for (const k of Object.keys(after)) this.topo.ospfRoles.set(k, after[k]);
     }
 
     for (const acc of accepted) {

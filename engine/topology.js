@@ -203,6 +203,13 @@ class Topology {
     this.flowState = flowLib.createFlowState();
     // The DHCP lease tables likewise (#1429).
     this.dhcpStates = new Map();
+    // Who held the DR and BDR roles at the last OSPF election, per router port (`<deviceId>/<port>`).
+    // An OSPF election does not preempt: a router that already holds a role keeps it while it is still
+    // standing on that segment and still eligible, so the answer of one election is an input to the
+    // next. That makes it a fact about the lab, like a lease - it has to outlive the request that
+    // elected it, or a router given a higher priority afterwards would take the role instantly, which
+    // no box does. research/ospf-dr-election-is-not-preemptive.md.
+    this.ospfRoles = new Map();
   }
 
   // Record that something changed at an instant, so every later question can say whether the

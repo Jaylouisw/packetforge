@@ -1429,6 +1429,10 @@ async function handleApi(req, res, urlPath) {
       // is the contradiction this started with: a client holding 10.90.0.10 while its server has no binding. An address
       // that was typed in is configuration and stays; an address that was handed out is runtime and goes.
       if (topo.dhcpStates) topo.dhcpStates.clear();
+      // The DR and BDR seats go with them: a role is runtime state, and a reset re-elects. This is the
+      // model's `clear ip ospf process` for the segment - the only way an incumbent gives a seat up
+      // voluntarily, since the election itself does not preempt.
+      if (topo.ospfRoles) topo.ospfRoles.clear();
       for (const d of topo.devices.values()) {
         for (const iface of d.interfaces.values()) {
           if (iface.dhcp === true) { iface.ip = null; iface.mask = null; }
