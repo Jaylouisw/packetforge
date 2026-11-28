@@ -592,8 +592,8 @@ layer exists in `engine/bgp.js` today.
 | Verdict | Behaviour | Where |
 |---|---|---|
 | **Modelled** | Length is a property of the lead (`Link.lengthM`), not a maximum reach; null means "not stated". | `engine/link.ts:137`, `engine/link.ts:169` |
-| **Modelled** | `W_DISTANCE` fires only when a length **and** a medium reach are both known. An unstated length produces no warning rather than an invented one. | `engine/validation.js:717-726` |
-| **Modelled** | `W_COPPER_LONGRUN` at 90 m for the horizontal-run limit. | `engine/validation.js:157`, `engine/validation.js:728-736` |
+| **Modelled** | `W_DISTANCE` fires only when a length **and** a medium reach are both known. An unstated length produces no warning rather than an invented one. | `engine/validation.js:870-879` (the check), `engine/validation.js:157` (its code entry) |
+| **Modelled** | `W_COPPER_LONGRUN` at 90 m for the horizontal-run limit. | `engine/validation.js:881-889` (the check), `engine/validation.js:207` (`COPPER_RUN_LIMIT_M = 90`), `engine/validation.js:173` (its code entry) |
 | **Approximate** | Length affects **latency only** ([§8](#8-time-what-rtt-means-and-what-it-does-not)). An over-length cable still passes every packet perfectly — the warning is the entire model of the failure. | — |
 | **Absent** | Attenuation, link-loss budgets for copper, bend radius, cable damage, intermittent faults. | — |
 
