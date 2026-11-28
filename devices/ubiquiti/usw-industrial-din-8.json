@@ -14,49 +14,57 @@
       "name": "eth0",
       "type": "ethernet",
       "connector": "rj45",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": false
     },
     {
       "name": "eth1",
       "type": "ethernet",
       "connector": "rj45",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": false
     },
     {
       "name": "eth2",
       "type": "ethernet",
       "connector": "rj45",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": false
     },
     {
       "name": "eth3",
       "type": "ethernet",
       "connector": "rj45",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": false
     },
     {
       "name": "eth4",
       "type": "ethernet",
       "connector": "rj45",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": false
     },
     {
       "name": "eth5",
       "type": "ethernet",
       "connector": "rj45",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": false
     },
     {
       "name": "eth6",
       "type": "ethernet",
       "connector": "rj45",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": false
     },
     {
       "name": "eth7",
       "type": "ethernet",
       "connector": "rj45",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": false
     },
     {
       "name": "sfp1",
@@ -73,5 +81,6 @@
   ],
   "icon": "switch",
   "color": "#14b8a6",
-  "sourceUrl": "https://techspecs.ui.com/unifi/switching/usw-industrial-din-8"
+  "sourceUrl": "https://techspecs.ui.com/unifi/switching/usw-industrial-din-8",
+  "notes": "PoE, read 2026-11-28. `https://techspecs.ui.com/unifi/switching/usw-industrial-din-8` (HTTP 200, 640,296 B, server-rendered table) prints **Port Layout: 1 GbE RJ45 8 (1G/100M/10M), 1G SFP 2, Console 1**, **Redundancy: (2) DC inputs**, **Max. Power Consumption 12W**, **Power Method: (2) 2-pin DC inputs with terminal block**, **Power Input Method: DC input** and **Supported Voltage Range 12-60V DC**. The Hardware block has no PoE row and the Overview has no PoE section. The vendor does print one when the hardware has it: the sibling row `https://techspecs.ui.com/unifi/switching/usw-industrial-din-8-poe` (HTTP 200, 646,721 B) carries **Port Layout 8 (All PoE++)**, **PoE Ports: PoE++**, **Max. PoE Wattage per Port by PSE: PoE++**, **Max. PoE Output: Up to PoE++**, **Total PoE Availability** and **Max. Power Consumption 12W (Excluding PoE Output) / 492W (Including PoE Output)** - a different SKU with its own budget. So the plain DIN 8's silence is a product decision, not a blank field: its 8 copper ports carry `poeIn: false`. Without it `isPoePd()` matched `unifi` in the label (\"UniFi Industrial DIN 8\") and inferred 12.95 W on each - **103.6 W** drawn from a PSE by an industrial switch fed from a 12-60V DC terminal block whose total draw is 12 W."
 }
