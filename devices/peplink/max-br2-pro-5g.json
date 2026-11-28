@@ -20,37 +20,43 @@
       "name": "wan1",
       "type": "ethernet",
       "connector": "rj45",
-      "speed": "2.5G"
+      "speed": "2.5G",
+      "poeIn": false
     },
     {
       "name": "wan2",
       "type": "ethernet",
       "connector": "rj45",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": 25
     },
     {
       "name": "lan1",
       "type": "ethernet",
       "connector": "rj45",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": false
     },
     {
       "name": "lan2",
       "type": "ethernet",
       "connector": "rj45",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": false
     },
     {
       "name": "lan3",
       "type": "ethernet",
       "connector": "rj45",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": false
     },
     {
       "name": "lan4",
       "type": "ethernet",
       "connector": "rj45",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": false
     },
     {
       "name": "wwan0",
@@ -64,7 +70,7 @@
     }
   ],
   "sourceUrl": "https://www.peplink.com/compare/tech-specs/br2-pro.pdf",
-  "notes": "Vendor figures from the Peplink tech-spec sheet: Ethernet WAN port **2 / 1 (2.5G)**, LAN port **4 / 5 (GE)**, Router Throughput 1 Gbps, Wi-Fi AP Yes, **PoE Input Yes**. The slash matters: WAN port 1 can act as a LAN port, so the same box is either 2 WAN / 4 LAN or 1 WAN / 5 LAN. Modelled as the 2 WAN configuration with the first WAN at 2.5G, because that is the port people buy it for.",
+  "notes": "Vendor figures from the Peplink tech-spec sheet: Ethernet WAN port **2 / 1 (2.5G)**, LAN port **4 / 5 (GE)**, Router Throughput 1 Gbps, Wi-Fi AP Yes, **PoE Input Yes**. The slash matters: WAN port 1 can act as a LAN port, so the same box is either 2 WAN / 4 LAN or 1 WAN / 5 LAN. Modelled as the 2 WAN configuration with the first WAN at 2.5G, because that is the port people buy it for. **PoE: the GE WAN/LAN port is the inlet, at 25 W.** The tech-spec sheet prints `PoE Input Yes [15]` with `[15] 1x 802.3at PoE port provide a power supply of 25W. If you require 30W of power budget ... please empower the MAX BR2 Pro via the bundled power adapter (12V3A PSU, ACW-663), or the optional Passive PoE Injector Kit (ACW-111 + ACW-622)` and `Maximum Power Consumption 30W`; the hardware reference guide names the socket - `1x GE WAN/LAN Port with 802.3at PoE Input`, beside `4x GE LAN Ports` and `1x 2.5Gbps WAN Port`. That port is `wan2` in this file (the 1G WAN of the 2 WAN / 4 LAN configuration), so it declares `poeIn: 25`, the figure Peplink quotes for the PoE inlet rather than the 30 W the box can only reach on its own PSU. `wan1` and all four LAN ports declare `poeIn: false`. Sources: https://www.peplink.com/compare/tech-specs/br2-pro.pdf and https://download.peplink.com/manual/br2_pro_hardware_reference_guide.pdf.",
   "role": [
     "sd-wan"
   ]

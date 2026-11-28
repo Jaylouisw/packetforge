@@ -19,19 +19,22 @@
       "name": "wan1",
       "type": "ethernet",
       "connector": "rj45",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": 15
     },
     {
       "name": "lan1",
       "type": "ethernet",
       "connector": "rj45",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": false
     },
     {
       "name": "lan2",
       "type": "ethernet",
       "connector": "rj45",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": false
     },
     {
       "name": "wwan0",
@@ -45,7 +48,7 @@
     }
   ],
   "sourceUrl": "https://www.peplink.com/compare/tech-specs/hd2-mini.pdf",
-  "notes": "Vendor figures from the Peplink tech-spec sheet: Ethernet WAN port 1 (GE), Number of Ethernet LAN port 2 (GE), Router Throughput 300 Mbps, **Wi-Fi AP No**, PoE Input Yes. Two modems and three copper ports with no radio: the Mini trades the HD2's Wi-Fi and port count for size, and a vehicle install that assumes Wi-Fi needs a separate AP.",
+  "notes": "Vendor figures from the Peplink tech-spec sheet: Ethernet WAN port 1 (GE), Number of Ethernet LAN port 2 (GE), Router Throughput 300 Mbps, **Wi-Fi AP No**, PoE Input Yes. Two modems and three copper ports with no radio: the Mini trades the HD2's Wi-Fi and port count for size, and a vehicle install that assumes Wi-Fi needs a separate AP. **PoE: the WAN/LAN port is the inlet; the two LAN ports are outputs.** The tech-spec sheet prints `PoE Input Yes [10]` / `[10] 1x 802.3at PoE` and `Maximum Power Consumption 15W (w/o PoE)`, and its own panel row names the socket where the datasheet does: `1x 100/1000M Ethernet WAN/LAN with 802.3at PoE Input` against `2x 100/1000M Ethernet LAN with 802.3at PoE #`. So `wan1` declares `poeIn: 15` and LAN 1 / LAN 2 declare `poeIn: false`. The 802.3at PoE+ **outputs** on those LAN ports are the other direction and need the PoE Activation Kit (ACW-609 / ACW-622, licence and 56V PSU) - documented, not modelled as PSE ports on a row whose job here is the inlet. The same datasheet also prints `Power Input 802.3at PoE+` for the whole box, which is how this row got the `poe-pd` capability in the first place. Sources: https://www.peplink.com/compare/tech-specs/hd2-mini.pdf and https://download.peplink.com/resources/pepwave_max_hd2_mini_datasheet.pdf.",
   "role": [
     "sd-wan"
   ]
