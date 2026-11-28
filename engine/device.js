@@ -258,6 +258,13 @@ class Device {
     // it comes from: nothing typed it, so nothing serializes it.
     this.dhcpGateway = null;
 
+    // When this box was powered on, in milliseconds since the lab's clock started. Runtime only, like the MAC
+    // table and the ARP readings above: it describes one run, not the saved lab, so `serialize()` does not write
+    // it and a reopened lab has every box on at 0. A bridge runs its own spanning-tree timers until it accepts
+    // the root's first configuration BPDU, and this is the one end of that window the model can date (#1731);
+    // `stpAdoption()` in engine/convergence.js reads it.
+    this.bootedAtMs = 0;
+
     // STP state, populated by Simulator.computeStp(). `costs` is the path cost each row of
     // `show spanning-tree` charges - the number the election itself uses, so the table cannot print a
     // cost the tree did not charge.

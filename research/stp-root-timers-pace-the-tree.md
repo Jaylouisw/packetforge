@@ -57,6 +57,11 @@ Now:
 - `buildSchedule()` takes the election as `opts.stp` and uses the timers in force, with the basis string
   naming the root when they are adopted (`listening + learning (4 s forward-delay each, the root SW1's)`).
   `stpPortStateAt()` takes the timers as a fourth argument for the same reason.
+- `stpAdoption(topo, stp, dev, opts)` dates the window: the instant the box starts running the timers in force,
+  which is `max(dev.bootedAtMs, root.bootedAtMs)` when it is its own root or came up with/before the root, and
+  one configured hello after its own boot when it powers on into a tree already running. `buildSchedule()` adds
+  that offset to `readyAtMs` and puts `adoptedAtMs` on the entry; `stpPortStateAt()` answers the seconds before
+  it from the device's *own* `stpTimers(dev)`, because until the BPDU arrives the box believes it is the root.
 - `Simulator.getConvergence()` passes `this.stpResult`, and `computeStp()` paces its transitional states the
   same way. With no election in hand the schedule reads each device's own configuration - the same fallback the
   header block makes when it has no root to quote.
@@ -65,22 +70,30 @@ Now:
   are one number. A link between two boxes that run no bridge keeps the old +30 s, because there is no STP step
   to wait for.
 
-`test/stp-root-timers-pace-the-tree.test.js` (26 assertions) pins: a 4 s root paces a 15 s non-root to 8 s; a
+`test/stp-root-timers-pace-the-tree.test.js` (43 assertions) pins: a 4 s root paces a 15 s non-root to 8 s; a
 20 s non-root is still paced to 8 s while its Bridge ID line prints 20; a 4 s *non-root* under a default root
 does not speed the tree up; a lone switch uses its own; a partitioned bridge falls back to its own and the
-schedule says so; and the reconvergence reply equals the schedule's STP entry.
+schedule says so; and the reconvergence reply equals the schedule's STP entry. `test/stp-adoption-window.test.js` (35 assertions) pins the window:
+the same-instant pair costs nothing, a root up at 5 s is heard at 5 s, a non-root up at 5 s under a root up at 0
+waits one hello (15 s, not 8), the hello counted is the root's, a cable moving elsewhere is not charged another
+one, and a box powered on after the change owes no Max Age.
 
 ## What remains unresolved
 
-- **When the adoption happens is not modelled.** A real bridge uses the root's timers from the first
-  configuration BPDU it accepts, so a non-root that boots before the root, or during a root change, runs its
-  own numbers for the interval before that. This model is a converged-graph calculation with a schedule on
-  top: no BPDUs and no message age, so the adoption applies from t=0. The other end of the same window is
-  settled: a box that loses the root *indirectly* now holds the old root's BPDU for `Max Age` before it
+- **When the adoption happens is a bound, not a measurement.** A real bridge uses the root's timers from the
+  first configuration BPDU it accepts, so a non-root that boots before the root runs its own numbers for the
+  interval before that. `stpAdoption()` dates it: the root's own boot when the two come up together (a port
+  transmits a configuration BPDU the moment it becomes designated, so there is nothing to wait for), and one
+  configured hello when the box powers on into a tree already running - the worst case for the root's next
+  BPDU. What is still absent is a BPDU *arriving*: no per-port queue, no message age, so the instant is
+  derived from two boot fields and one timer rather than observed, and a capture of
+  `debug spanning-tree events` on both sides of a power-on would replace the constant. The other end of the
+  window is settled: a box that loses the root *indirectly* holds the old root's BPDU for `Max Age` before it
   claims the root role - see [stp-max-age-hold.md](stp-max-age-hold.md).
-- **The max-age and hello halves of the adoption were inert.** Max Age now has one effect, the wait at the end
-  of an indirect failure ([stp-max-age-hold.md](stp-max-age-hold.md)); hello intervals are still never counted,
-  so the only number the *adoption* changes on a steady board is still the forward delay.
+- **The hello is counted once.** It prices the wait of a bridge that powers on into a running tree, and nothing
+  else: hellos are not sent per port, so the interval between a change and the root's next BPDU is not modelled.
+  A box that already holds a BPDU pays nothing for a change, which is the right answer reached the short way -
+  it never lost what it was holding.
 - **MSTP / RSTP are out of scope.** Both still take the timers from the root, but RSTP's proposal/agreement
   handshake replaces the listening/learning wait on point-to-point links, and this console refuses the
   per-instance commands by name. If RSTP is ever modelled, the two-forward-delay figure here becomes the
@@ -102,6 +115,10 @@ from it (Blocking during the hold, then Listening, Learning, Forwarding at `read
 records the change before it rebuilds the tree, because the rebuild is the thing that asks the schedule what it
 is recovering from.
 
-Still not modelled: the instant the *first* BPDU is accepted, which is what starts the adoption on a real
-bridge (the first bullet under "What remains unresolved"). This section only makes the model honest about the
-window it does have - the change and the Max Age wait.
+The instant the *first* BPDU is accepted is now modelled too - `stpAdoption()`, the first bullet under "What
+remains unresolved" - and it is the other half of the same story: the state a port is in is counted from the
+instant its box starts running the timers that pace it, whether that instant is a cable moving (an entry's
+`startedAtMs`) or a bridge hearing the root for the first time (`adoptedAtMs`). Still outside the model: no
+per-port BPDU and no message age, so the adoption instant is derived rather than observed; and the global re-base
+at the end of `buildSchedule()` is unchanged - one cable anywhere still re-starts every bridge's clock, including
+the bridges whose own ports did not move.
