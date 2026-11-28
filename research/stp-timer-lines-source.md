@@ -70,13 +70,10 @@ not move it.
 
 ## Unresolved
 
-- **The model's convergence still uses each device's own timers, not the root's.** `stpTimers(dev)` is called per
-  device in `convergence.js`, so a non-root with a 15 s forward delay forwards at 30 s even if the root advertises
-  4 s — whereas the hardware adopts the root's. The header is now faithful (it prints the root's numbers on the
-  Root ID line), which makes the divergence visible rather than hidden: a lab whose root is configured fast and
-  whose non-root is left at defaults will print the fast tree and converge slowly. Fixing that means making every
-  port transition read the elected root's timers, which changes convergence timing for existing fixtures and
-  deserves its own plan — filed as #1722 rather than smuggled in here.
+- **The model's convergence follows the root's timers now** (#1722): see
+  [stp-root-timers-pace-the-tree.md](stp-root-timers-pace-the-tree.md), which carries the evidence for the other
+  half of this rule, the code that applies it, and the window (before the first BPDU, after one ages out) that is
+  still not modelled.
 - **Whether a box prints the *propagated* timers or the root's local ones when the root's own config was changed
   without the change reaching a neighbour yet** — the captures all show steady state. The model has no BPDU
   propagation delay for timers, so it prints the root's configuration immediately.
