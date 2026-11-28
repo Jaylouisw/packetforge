@@ -63,8 +63,12 @@ first.
   (`engine/simulator.js:762-767`, `engine/simulator.js:4222-4228`).
   `ping6()` runs five, without LLDP (`engine/simulator.js:2524-2531`).
   `pingScion()` runs PoE and the SCION paths alone
-  (`engine/simulator.js:2862-2863`). The protocols are therefore converged before
-  packet one, and do not reconverge during the run.
+  (`engine/simulator.js:2862-2863`). That recompute is the *converged* answer, and it is no longer the only
+  one: `Simulator.setRunTime(ms)` (`engine/simulator.js:446`) asks the same question at an instant, so at
+  0 ms a port that will forward is still Listening and an OSPF route is still withheld — the timers in
+  `engine/convergence.js` decide when each process is done. `Infinity` (the default) is the old
+  "everything has finished" answer, and a cable change re-bases the schedule at the instant it moved, so a
+  run does reconverge. See [CONVERGENCE.md](CONVERGENCE.md) and [LINK-STATE.md](LINK-STATE.md).
 - Layer decisions are gated by `hasCap()`, through the predicates that name each
   token — `isL2()`, `isL3()`, `isHost()` (`engine/device.js:708-760`), with `isL3()`
   also requiring `ip routing` to be on — and the only capabilities the forwarding path
@@ -115,8 +119,10 @@ to; the rest of this page's citations were not re-measured in the same pass.
 
 - Concurrency. Two flows, two pings and an OSPF reconvergence never interleave;
   each run owns the simulator until it finishes.
-- Any notion of a device CPU. Control-plane work is instantaneous and free, so
-  an OSPF flood cannot cause a CPU spike and a BGP flap cannot drop packets.
+- Any notion of a device CPU. Control-plane work takes the seconds its own timers name — STP’s two
+  forward delays, OSPF’s hello plus SPF hold, the DHCP exchange ([CONVERGENCE.md](CONVERGENCE.md)) — but
+  nothing ever *competes*: one process cannot starve another, so an OSPF flood cannot cause a CPU spike and
+  a BGP flap cannot drop packets.
 
 ---
 
@@ -213,11 +219,11 @@ this section were not re-measured in this pass either.
 
 | Verdict | Behaviour | Where |
 |---|---|---|
-| **Modelled** | Root election (lowest bridge ID), root path cost, root/designated/alternate roles, forwarding/blocking states, blocked-port list. | `engine/stp.js:191`, `engine/simulator.js:905` |
+| **Modelled** | Root election (lowest bridge ID), root path cost, root/designated/alternate roles, forwarding/blocking states, blocked-port list. | `engine/stp.js:191`, `engine/simulator.js:951` |
 | **Modelled** | Blocked ports drop **both** ingress and egress traffic (`stp-block` events). This is what turns a physical loop into a working topology instead of a storm. | `engine/simulator.js:3429-3432` (ingress gate), `engine/simulator.js:3736-3738` (the `stp-block` event) |
-| **Modelled** | Path cost derived from the negotiated link rate by the vendor's **short** path-cost table (10 Mb 100, 100 Mb 19, 1 Gb 4, 10 Gb 2, faster 1), and divided by member count for an aggregate. A rate with no row of its own takes the next slower row's cost, so cost never rises with speed. | `engine/stp.js:47`, `engine/simulator.js:942` |
-| **Approximate** | Only the **converged result** is computed: no BPDUs, no hello/max-age/forward-delay timers, no listening or learning states, no topology-change notifications. The tree is correct, the convergence is instantaneous and free. | `engine/stp.js:1-17` |
-| **Approximate** | It runs for **every** `l2-forward` device regardless of whether the spec claims `stp`, and there is no way to disable it — `show spanning-tree` reports the tree, and `no spanning-tree` clears the bridge priority back to the default 32768 rather than turning the tree off. | `engine/simulator.js:905` (`computeStp()`), `engine/cli.js:1115` (the `no spanning-tree` undo row) |
+| **Modelled** | Path cost derived from the negotiated link rate by the vendor's **short** path-cost table (10 Mb 100, 100 Mb 19, 1 Gb 4, 10 Gb 2, faster 1), and divided by member count for an aggregate. A rate with no row of its own takes the next slower row's cost, so cost never rises with speed. | `engine/stp.js:47` (`costForSpeedMbps()`), `engine/simulator.js:979-988` |
+| **Approximate** | The **election** is the converged result and is computed from the graph: no BPDU is put on the wire, and the hello time is printed rather than counted. The walk to Forwarding *is* timed — a port that will forward spends one forward-delay in Listening and the next in Learning (30 s at the 802.1D defaults), and a bridge that kept its own cable but lost its root pays the old root’s Max Age first (50 s); `show spanning-tree` prints the state it is in (`LTN`, `LRN`, `FWD`), so a lab asked at 5 s answers that the cable is up and nothing passes. A topology change flushes every bridge’s MAC table, but no TCN frame is sent. | `engine/stp.js:1-17` (the election only), `engine/convergence.js:54` (`stpTimers()`), `engine/convergence.js:129` (`stpMaxAgeHold()`), `engine/convergence.js:334` (`stpPortStateAt()`), `engine/simulator.js:1048-1068` |
+| **Approximate** | It runs for **every** `l2-forward` device regardless of whether the spec claims `stp`, and there is no way to disable it — `show spanning-tree` reports the tree, and `no spanning-tree` clears the bridge priority back to the default 32768 rather than turning the tree off. | `engine/simulator.js:951` (`computeStp()`), `engine/cli.js:1115` (the `no spanning-tree` undo row) |
 | **Absent** | RSTP/MSTP/PVST/PVRST, PortFast, BPDU guard/filter, root guard, loop guard, per-VLAN trees. | — |
 
 Both `stp-block` anchors in this table pointed somewhere else: `3381-3384` is the link-down guard in
@@ -226,6 +232,14 @@ though the claim about blocked ports dropping in both directions is true. The in
 (`_processFrame()` refuses before anything is learned), and the egress event is `3736-3738`, the branch that fires
 when `_egressRefusal()` answers `stp` - and it still answers that first, at `3839`, ahead of `bundle`. Re-read off
 the tree at `afc27808`.
+
+Two more anchors in this table had slid, and so had one claim. Both `computeStp()` pointers read `905`,
+which is the discard ranking inside `_traceProbe()`, and the cost row read `942`, which is
+`_logicalPortName()`: the election is built at `951` and a port’s cost is charged at `979-988`. The row
+that called the convergence "instantaneous and free" was written before `engine/convergence.js` existed
+(#1397): the tree is still a pure graph problem, but the seconds between the cable going green and the first
+frame crossing are modelled, and #1731 put the old root’s Max Age in front of them for an indirect
+failure. Re-read off the tree at `ed4fb5b2`.
 
 ### 2.5 Passive devices: taps and splitters
 
@@ -459,7 +473,7 @@ HSRP and GLBP do not exist.
 | **Modelled** | Adjacency graph from live links, Dijkstra SPF, code `O` routes installed at AD 110, next hop resolved to a directly connected neighbour. | `engine/simulator.js:397-493`, `engine/ospf.js:467` |
 | **Modelled** | Areas: one area per link, an interface area overrides the router area (the ABR pattern), and a link is only usable when both ends agree on the area. | `engine/ospf.js:10-21`, `engine/ospf.js:363` |
 | **Modelled** | Per-interface cost overrides, and interface cost otherwise derived from link rate against a 100 Mbps reference. | `engine/simulator.js:352`, `engine/simulator.js:380` |
-| **Approximate** | No protocol state at all: no hellos, no dead timer, no LSAs, no adjacency FSM. The role beside a neighbour in `show ip ospf neighbour` is derived rather than elected, but it is derived for the **segment**: every OSPF speaker reachable through the L2 fabric takes part (`segmentOf()`, the walk DHCP uses), so three routers on one access switch elect one DR and one BDR (highest configured priority, then highest router ID, RFC 2328 9.4), the routers that are neither read `FULL/DR` and `FULL/BDR` beside their neighbours and `2WAY/DROTHER` beside each other, and a serial port — point-to-point, where nobody stands — reads `FULL/ -`. `ip ospf priority <0-255>` is modelled and printed in both views; a port at 0 is ineligible and the other end takes the DR alone, and with both ends at 0 there is no DR — a real pair stops at `2WAY/DROTHER`, so the link is refused rather than printed as FULL. The election has no stickiness — a new higher-priority router takes the DR immediately, where a box keeps the incumbent until it goes away — and there is no wait timer. The SPT is recomputed from scratch before each run, so "convergence" is instantaneous and cannot be observed, only its result. | `engine/ospf.js:1-9`, `engine/simulator.js` `computeOspf()` |
+| **Approximate** | No protocol state at all: no hellos, no dead timer, no LSAs, no adjacency FSM. The role beside a neighbour in `show ip ospf neighbour` is derived rather than elected, but it is derived for the **segment**: every OSPF speaker reachable through the L2 fabric takes part (`segmentOf()`, the walk DHCP uses), so three routers on one access switch elect one DR and one BDR (highest configured priority, then highest router ID, RFC 2328 9.4), the routers that are neither read `FULL/DR` and `FULL/BDR` beside their neighbours and `2WAY/DROTHER` beside each other, and a serial port — point-to-point, where nobody stands — reads `FULL/ -`. `ip ospf priority <0-255>` is modelled and printed in both views; a port at 0 is ineligible and the other end takes the DR alone, and with both ends at 0 there is no DR — a real pair stops at `2WAY/DROTHER`, so the link is refused rather than printed as FULL. The election has no stickiness — a new higher-priority router takes the DR immediately, where a box keeps the incumbent until it goes away — and there is no wait timer. The SPT is recomputed from scratch at the instant the question is asked at, and what it computes is not in the table until the timers have run: hello (10 s) plus the DBD/LSDB exchange plus the SPF hold is 16 s on the defaults, and until then `show ip ospf` reads `routes withheld: still converging` and a ping to a route it would have installed answers `Still converging: ospf on … (ready at 16000 ms)` instead of counting five lost echoes. The countdown beside a neighbour is recomputed from the instant asked about, not run: no hello is ever lost and no dead interval ever expires. | `engine/ospf.js:1-9`, `engine/simulator.js` `computeOspf()` |
 | **Approximate** | Link metric is a fixed 10 in the simulator's link list; per-interface costs enter through the graph builder. | `engine/simulator.js:441` |
 | **Absent** | Area types (stub/NSSA), virtual links, ABR/ASBR route leaking, authentication, graceful restart, OSPFv3, redistribution. | — |
 
@@ -676,7 +690,7 @@ actually true.
 | "Multicast is routed." | Multicast floods like broadcast inside a VLAN and is never routed between subnets. No IGMP, no PIM. | `engine/simulator.js:1842` |
 | "QoS exists." | No marking, no queues, no shaping, no policing, no CoS/DSCP anywhere. | — |
 | "Counters show errors." | `show interfaces` counters are bytes/packets in and out. No CRC, no runts, no giants, no collisions, no drops-by-reason beyond the event log. | `engine/flow.js:354-360` |
-| "A device can be overwhelmed." | Control-plane work is instantaneous: OSPF/BGP reconverge for free, LLDP/RAs cost nothing, and 8 000 steps is a loop guard rather than a capacity limit. | `engine/simulator.js:110` |
+| "A device can be overwhelmed." | There is nothing to overwhelm. Control-plane work now takes the seconds its own timers name — STP 30 s (50 s after an indirect failure), OSPF 16 s to its first route, the DHCP exchange 1 s — but nothing ever competes for a resource: one process cannot starve another, LLDP and RAs cost no steps, BGP’s one advertisement round is still untimed, and 8 000 steps is a loop guard rather than a capacity limit. | `engine/convergence.js:230` (`buildSchedule()`), `engine/simulator.js:210` |
 | "A hop is a time." | A step is a frame handed to a port. Latency is computed separately. | `engine/simulator.js:276` |
 | "Config is validated." | Each module validates its own config when asked to; the engine will happily run an inconsistent topology and show you whatever the graph produces. | `engine/validation.js:1-24` |
 
@@ -825,5 +839,7 @@ failed ping reports `converging` with the process and its ready time instead of 
 was lost.
 
 What is not modelled: real-time interleaving (a question is answered *as of* an instant, computed
-from the timers — nothing runs a clock during a run), hello loss and dead-interval expiry, and
-re-convergence after a topology change. See [CONVERGENCE.md](CONVERGENCE.md).
+from the timers — nothing runs a clock during a run) and hello loss, so no dead interval ever expires.
+Re-convergence after a topology change *is* modelled: the schedule is re-based at the instant of the
+change, and a bridge that lost the root without losing a port of its own pays the old root’s Max Age
+before its ports walk. See [CONVERGENCE.md](CONVERGENCE.md) and [LINK-STATE.md](LINK-STATE.md).
