@@ -262,20 +262,20 @@ transitively is how a typecheck starts passing on types that do not exist at run
 When a converted file needs a Node API, it is already typed — use it:
 
 ```ts
-declare module 'os' {
-  function tmpdir(): string;
-}
+const os = require('os');
+console.log(os.tmpdir());
 ```
 
-and, if it is a module, add the typed `require` overload:
+No `declare module` and no typed `require` overload is needed, because `@types/node` declares every
+built-in module and the global `require` already. Writing either one is not harmless redundancy: the
+overload is a red `Typecheck`, since it declares a second `require` over the one
+`node_modules/@types/node/module.d.ts` already provides (`error TS2300: Duplicate identifier
+'require'`). The declarations this page used to print here were the hand-written `types/node.d.ts`
+surface, and `@types/node` replaced it — no file in `engine/`, `scripts/` or `test/` declares a
+module today.
 
-```ts
-declare function require(id: 'os'): typeof import('os');
-```
-
-That is a two-line cost per API and it keeps the repository at one devDependency. The thing not
-to do is `const x = require('os') as any` — `scripts/check-no-any.ts` fails on it, which is the
-point of the scan existing.
+The thing not to do is `const x = require('os') as any` — `scripts/check-no-any.ts` fails on it,
+which is the point of the scan existing.
 
 ## The five traps
 
