@@ -20,70 +20,84 @@
     {
       "name": "eth1",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": false
     },
     {
       "name": "eth2",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": false
     },
     {
       "name": "eth3",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": false
     },
     {
       "name": "eth4",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": false
     },
     {
       "name": "eth5",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": false
     },
     {
       "name": "eth6",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": false
     },
     {
       "name": "eth7",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": false
     },
     {
       "name": "eth8",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": false
     },
     {
       "name": "eth9",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": false
     },
     {
       "name": "eth10",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": false
     },
     {
       "name": "eth11",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": false
     },
     {
       "name": "eth12",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": false
     },
     {
       "name": "eth13",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": 25.5
     }
   ],
   "icon": "router",
   "color": "#14b8a6",
-  "sourceUrl": "https://mikrotik.com/product/RB1100Dx4"
+  "sourceUrl": "https://mikrotik.com/product/RB1100Dx4",
+  "notes": "Power method from two MikroTik sources, read 2026-11-28, and they name the port. `https://mikrotik.com/product/RB1100Dx4` (HTTP 200, product spec table) prints **Number of AC inputs 2**, **Number of DC inputs 2 (PoE-IN, 2-pin terminal)**, **2-pin terminal input Voltage -48, 20-57 V**, **PoE in 802.3af/at**, **PoE in input Voltage 20-57 V**, **Max power consumption 33 W**, **Max power consumption without attachments 25 W**. `https://help.mikrotik.com/docs/spaces/UM/pages/19136539/RB1100-series` (HTTP 200, the RB1100-series hardware manual) is the one that names the socket: \"The device accepts powering from the dual/failover IEC power connectors on the back of the case ... The device also accepts 12-57V passive or 802.3af/at PoE on Ethernet port 13\", and under *Extension slots and ports*: \"ETH13 port accepts PoE power, and can be used to boot the device from the network\". So exactly one of the thirteen copper ports is an inlet - `eth13`, at the 802.3at Type 2 ceiling of 25.5 W - and the other twelve are `poeIn: false`. Every MikroTik row in this catalogue whose sheet states a method but not a port records the inlet on `eth1`; this one is not that case, so the manual's port number is used. `isPoePd()` matched the device-wide `poe-pd` capability and put 12.95 W on all thirteen sockets - **168.35 W** of demand on a box whose own maximum draw is 33 W, and twelve cables asked to power a router that only ever hears about power down the thirteenth."
 }
