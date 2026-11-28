@@ -73,8 +73,8 @@ each is the durable half, because the console grows and they move:
 | `simulator.js:1989-2040` advertisement loop | `if (e.from === adj.peer.dev.id) continue;` (line 1998), prepend at 2004, the next hop at 2009, and the iBGP→iBGP suppression at 2003 (landed with #41, §6.3) | call `advertise()`/`applyRouteMap()` instead of re-deriving AS path and next hop; keep the iBGP→iBGP suppression |
 | `cli.js:2193-2209` config-mode BGP dispatch | `router bgp` / `no router bgp` / `neighbor` / `bgp` | add `route-map`, `match`, `set` branches |
 | `cli.js:3732` `_bgp(tokens)` | `as`, `router-id`, `<ip> remote-as` | add `always-compare-med`, `default local-preference`, `<ip> route-map`, `<ip> next-hop-self` |
-| `cli.js:3801` `this._dnsZone` | sticky "current zone" context, no new prompt mode | same pattern for the current route-map (§9.2) |
-| `cli.js:9077` `_help()` | command list | add the new lines |
+| `cli.js:3830` `this._dnsZone` | sticky "current zone" context, no new prompt mode | same pattern for the current route-map (§9.2) |
+| `cli.js:9106` `_help()` | command list | add the new lines |
 
 Design invariants that must survive the change, because every existing test
 relies on them:
@@ -779,9 +779,18 @@ Bare `match`/`set` with no context is an error:
 
 ### 9.3 Command reference
 
+**One process, one AS.** A router runs a single BGP process and its local AS is fixed when that
+process is created: `router bgp <other-as>` on a box already running BGP is refused with the
+box's own unprefixed line, `BGP is already running; AS is <running>`, and the running AS,
+neighbours and saved config are untouched. Six IOS / IOS XE captures carry that sentence word for
+word and none of them shows a `%`; research/bgp-second-router-as.md records them. Retyping the
+same AS creates nothing either — a box says nothing there and re-enters `(config-router)#`, which
+this console does not have, so it answers with its own "already running as <as>, so there was
+nothing to enable" receipt. Moving a router to another AS takes `no router bgp` first.
+
 | Mode | Command | Success output | Error output |
 |---|---|---|---|
-| config | `router bgp <as>` | `BGP enabled, local AS <as>` | `% Invalid AS number "<x>"` |
+| config | `router bgp <as>` | `BGP enabled, local AS <as>` on a box with no process; `BGP is already running as <as>, so there was nothing to enable` typed again on the same AS | `% Invalid AS number "<x>"`, `BGP is already running; AS is <running>` for a different AS — no `%`, no full stop, nothing changed |
 | config | `no router bgp` | `BGP disabled` | — |
 | config | `bgp router-id <ip>` | `BGP router-id <ip>` | `% Invalid router-id "<x>"`, `% BGP is not enabled (use "router bgp <as>")` |
 | config | `bgp always-compare-med` | `BGP always-compare-med enabled` | `% BGP is not enabled (use "router bgp <as>")` |
@@ -1075,6 +1084,8 @@ and `test:bgp-policy` scripts.
 | ID | Command | Assertion |
 |---|---|---|
 | CLI-A1 | `router bgp 65001` | output `BGP enabled, local AS 65001`, `config.bgp.as === 65001` |
+| CLI-A1b | `router bgp 65001` again on the same box | output `BGP is already running as 65001, so there was nothing to enable`, `config.bgp.as === 65001` |
+| CLI-A1c | `router bgp 65002` on a box running 65001 | output `BGP is already running; AS is 65001` (no leading `%`, no full stop), `config.bgp.as` still `65001`, neighbour list unchanged |
 | CLI-A2 | `bgp router-id 1.1.1.1` | `config.bgp.routerId === '1.1.1.1'` |
 | CLI-A3 | `neighbor 10.0.12.2 remote-as 65002` twice with a different AS | one neighbour, updated not duplicated |
 | CLI-A4 | `neighbor 10.0.12.2 next-hop-self` | `neighbors[0].nextHopSelf === true` |
