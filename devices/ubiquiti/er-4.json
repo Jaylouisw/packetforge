@@ -2,8 +2,11 @@
   "vendor": "ubiquiti",
   "model": "ER-4",
   "label": "EdgeRouter 4",
+  "aliases": [
+    "EdgeRouter-4"
+  ],
   "category": "router",
-  "description": "EdgeRouter 4 (ER-4) - 3x 1G RJ45 + 1x 1G SFP. 13 W max.",
+  "description": "EdgeRouter 4 (ER-4) - 3x 10/100/1000 RJ45 + 1x 1G SFP (eth3 in EdgeOS). AC-powered, no PoE. 13 W max.",
   "capabilities": [
     "l3-forward",
     "cli",
@@ -21,8 +24,10 @@
       "speed": "1G",
       "speedCaps": [
         "1G",
-        "100M"
-      ]
+        "100M",
+        "10M"
+      ],
+      "poeIn": false
     },
     {
       "name": "eth1",
@@ -31,8 +36,10 @@
       "speed": "1G",
       "speedCaps": [
         "1G",
-        "100M"
-      ]
+        "100M",
+        "10M"
+      ],
+      "poeIn": false
     },
     {
       "name": "eth2",
@@ -41,17 +48,23 @@
       "speed": "1G",
       "speedCaps": [
         "1G",
-        "100M"
-      ]
+        "100M",
+        "10M"
+      ],
+      "poeIn": false
     },
     {
       "name": "sfp1",
       "type": "ethernet",
       "connector": "sfp",
-      "speed": "1G"
+      "speed": "1G",
+      "speedCaps": [
+        "1G"
+      ]
     }
   ],
   "icon": "router",
   "color": "#14b8a6",
-  "sourceUrl": "https://techspecs.ui.com/uisp/wired/er-4"
+  "sourceUrl": "https://techspecs.ui.com/uisp/wired/er-4",
+  "notes": "Ubiquiti sources read 2026-11-19: tech-spec page https://techspecs.ui.com/uisp/wired/er-4 (200, 575,010 B) and store page https://store.ui.com/us/en/products/er-4 (200, 323,081 B), which print the same table. **Networking interface (3) 10/100/1000 RJ45 ports, (1) 1 Gbps SFP port; Management interface (1) RJ45 serial port (4) Ethernet ports; Power method Universal AC power cord (C13), 30W; Power supply Internal AC/DC power adapter; Supported voltage range 100-240V AC; Max. power consumption 13W.** No PoE anywhere: the page has no PoE row at all, so the three copper ports are declared `poeIn: false` rather than left to the engine's PD guess - an AC only router cannot be powered down a cable. No datasheet: dl.ui.com/datasheets/edgemax/EdgeRouter_4_DS.pdf answers 200 with the 609,911-byte tech-specs front page, so every figure above is tech-spec-only. The store page corroborates; its `PoE` rows are absent, not empty. Merged 2026-11-27: devices/ubiquiti/edgerouter4.json was a second spec of this same box (model \"EdgeRouter-4\", same tech-spec page, same four interfaces), so the palette listed \"EdgeRouter 4\" twice under two model strings that the duplicate check cannot see (ubiquiti|er4 vs ubiquiti|edgerouter4). The surviving file is this one because every other EdgeRouter spec in the catalogue is filed under the vendor SKU (er-6p, er-10x, er-12, ER-X, ER-X-SFP) and both Ubiquiti URLs end in /er-4; the retired string \"EdgeRouter-4\" is kept as an alias so it still finds the hardware. What the merge brought over: the `poeIn: false` declarations on eth0-eth2 (the tech-spec page lists the power method as \"Universal AC power cord (C13)\" and has no PoE row at all, so a reader is told the copper ports cannot power the box), the 10M floor in their speedCaps (\"(3) 10/100/1000 RJ45 ports\"), and the capability rows http-server/firewall/dhcp-client that only the retired copy declared. Port names follow the catalogue convention for this vendor - copper eth0..eth2, cages sfpN - so the SFP is `sfp1` here even though EdgeOS exposes it as eth3; the cage, its 1G-only rate and the fact that it is not shared with a copper port come from the same row, \"(1) 1 Gbps SFP port\"."
 }

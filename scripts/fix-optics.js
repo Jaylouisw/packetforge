@@ -70,7 +70,9 @@ function copperClaims(desc) {
 }
 
 // Map "vendor|model" to the real file on disk. Deriving a filename from the
-// model is unsafe: devices/ubiquiti/er-4.json holds model "EdgeRouter-4".
+// model is unsafe: devices/aruba/2530-48.json holds model "2530-48 (J9781A)".
+// (It used to cite devices/ubiquiti/er-4.json holding model "EdgeRouter-4" - that
+// twin spec was merged into er-4.json on 2026-11-27, which is the same trap.)
 function indexFiles() {
   const map = Object.create(null);
   for (const vendor of fs.readdirSync(DEVICES)) {

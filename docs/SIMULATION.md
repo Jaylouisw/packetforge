@@ -160,12 +160,12 @@ re-read off the tree at `d7cac843`; what each one names is unchanged.
 | Verdict | Behaviour | Where |
 |---|---|---|
 | **Modelled** | Per-port config: `mode: access\|trunk`, `accessVlan`, `nativeVlan`, `allowedVlans`. | `engine/vlan.js:8-14` |
-| **Modelled** | **Access**: egress untagged on `accessVlan`; ingress accepts untagged, drops tagged. | `engine/vlan.js:483-514` (`classifyEgress()`), `engine/vlan.js:518-559` (`classifyIngress()`) |
-| **Modelled** | **Trunk**: egress untagged for `nativeVlan`, tagged for every other allowed VLAN; ingress maps untagged → native VLAN, tagged → VID if allowed, else drops. | `engine/vlan.js:483-514` (`classifyEgress()`), `engine/vlan.js:518-559` (`classifyIngress()`) |
-| **Modelled** | Frames are really tagged on the wire: `_emitFrame` sets `wireTagged`/`wireVid` from `classifyEgress`, so the event log distinguishes a tagged trunk frame from an untagged access frame. | `engine/simulator.js:3156-3216` (`_emitFrame()`) |
+| **Modelled** | **Access**: egress untagged on `accessVlan`; ingress accepts untagged, drops tagged. | `engine/vlan.js:502-533` (`classifyEgress()`), `engine/vlan.js:537-578` (`classifyIngress()`) |
+| **Modelled** | **Trunk**: egress untagged for `nativeVlan`, tagged for every other allowed VLAN; ingress maps untagged → native VLAN, tagged → VID if allowed, else drops. | `engine/vlan.js:502-533` (`classifyEgress()`), `engine/vlan.js:537-578` (`classifyIngress()`) |
+| **Modelled** | Frames are really tagged on the wire: `_emitFrame` sets `wireTagged`/`wireVid` from `classifyEgress`, so the event log distinguishes a tagged trunk frame from an untagged access frame. | `engine/simulator.js:3210-3286` (`_emitFrame()`) |
 | **Modelled** | MAC tables are per VLAN; VLAN 1 keeps the flat legacy table. Flooding is scoped to the VLAN. A dynamically learned entry ages out after `MAC_AGE_MS` (300 s) of silence, and the same aged lookup decides forwarding: an entry the table only remembers is not a port a frame may be sent to. | `engine/device.js` `learnMac()`, `macLookup()`, `macRows()`; `engine/simulator.js` |
 | **Modelled** | VLANs 1–4094; 1002–1005 are rejected as reserved. | `engine/vlan.js:24-25`, `engine/vlan.js:28-33` (`RESERVED_VLANS`) |
-| **Approximate** | Router-on-a-stick via subinterfaces works (`Gi0/0.10` creates a tagged logical interface), and `portPvid()` gives an untagged frame the VLAN its port carries untagged - the trunk's `nativeVlan`, or the access VLAN. | `engine/simulator.js:167-174` (`portPvid()`), `engine/device.js:330-360` (`addSubinterface()`), `engine/cli.js:1754` (the `interface <parent>.<n>` door) |
+| **Approximate** | Router-on-a-stick via subinterfaces works (`Gi0/0.10` creates a tagged logical interface), and `portPvid()` gives an untagged frame the VLAN its port carries untagged - the trunk's `nativeVlan`, or the access VLAN. | `engine/simulator.js:167-173` (`portPvid()`), `engine/device.js:338-373` (`addSubinterface()`), `engine/cli.js:2075-2089` (the `interface <parent>.<n>` door) |
 | **Modelled** | The voice VLAN. On an access port `switchport voice vlan <id>` is live: `classifyEgress` sends that
 VLAN tagged while the access VLAN goes untagged, `classifyIngress` accepts a tagged frame in it and still refuses
 every other tag, and `show vlan` lists the port under both VLANs. On a trunk the parameter is stored and not
@@ -173,6 +173,19 @@ consulted - the allowed list is the whole answer - because Cisco's voice VLAN "i
 ports" ([research/voice-vlan-port-mode.md](../research/voice-vlan-port-mode.md)).
 `switchportSentence()`, the panel and `show running-config` all agree, and a save restores it. | `engine/vlan.js:classifyEgress`, `classifyIngress` |
 | **Absent** | QinQ / 802.1ad, private VLANs, VTP, VLAN pruning negotiation. | — |
+
+The `Where` cells here are the ones the passes above left alone, and most of them had been stale for longer than
+the OSPF shift: `classifyEgress()` is defined at `502` and ends at `533`, but the cell cited `483-514` - a range that
+opens inside `switchportSentence()` (from `455`) at its staged-trunk sentence and stops nineteen lines into
+`classifyEgress()`. `classifyIngress()` is `537-578`, not `518-559`, which closes the egress access branch and stops
+nineteen lines into the ingress classifier. `_emitFrame()` is `3210-3286`: `3156` is the ARP-cache branch of
+`_sendL3` and `3216` the PoE refusal string already inside the function, and the range is not a pure shift - the
+function grew, because the inactive-VLAN gate (#1568) and the subinterface outbound ACL (#1517) both sit inside it,
+so its tail moved sixteen lines further down than its head. The router-on-a-stick row was wrong in all three cells:
+`portPvid()` is `167-173` (the old range took the blank line after it), `addSubinterface()` is `338-373` (`330-360`
+is the comment above it and stops inside the body), and the `interface Gi0/0.10` door is `engine/cli.js:2075-2089`,
+where `internalConfig` calls `addSubinterface()` - `1754` is a device-name assignment. Re-read off the tree at
+`afc27808`; the behaviour each row describes is unchanged.
 
 ### 2.3 Link aggregation (LAG)
 
@@ -201,11 +214,18 @@ this section were not re-measured in this pass either.
 | Verdict | Behaviour | Where |
 |---|---|---|
 | **Modelled** | Root election (lowest bridge ID), root path cost, root/designated/alternate roles, forwarding/blocking states, blocked-port list. | `engine/stp.js:191`, `engine/simulator.js:905` |
-| **Modelled** | Blocked ports drop **both** ingress and egress traffic (`stp-block` events). This is what turns a physical loop into a working topology instead of a storm. | `engine/simulator.js:3381-3384`, `engine/simulator.js:3686-3692` |
+| **Modelled** | Blocked ports drop **both** ingress and egress traffic (`stp-block` events). This is what turns a physical loop into a working topology instead of a storm. | `engine/simulator.js:3429-3432` (ingress gate), `engine/simulator.js:3736-3738` (the `stp-block` event) |
 | **Modelled** | Path cost derived from the negotiated link rate by the vendor's **short** path-cost table (10 Mb 100, 100 Mb 19, 1 Gb 4, 10 Gb 2, faster 1), and divided by member count for an aggregate. A rate with no row of its own takes the next slower row's cost, so cost never rises with speed. | `engine/stp.js:47`, `engine/simulator.js:942` |
 | **Approximate** | Only the **converged result** is computed: no BPDUs, no hello/max-age/forward-delay timers, no listening or learning states, no topology-change notifications. The tree is correct, the convergence is instantaneous and free. | `engine/stp.js:1-17` |
 | **Approximate** | It runs for **every** `l2-forward` device regardless of whether the spec claims `stp`, and there is no way to disable it — `show spanning-tree` reports the tree, and `no spanning-tree` clears the bridge priority back to the default 32768 rather than turning the tree off. | `engine/simulator.js:905` (`computeStp()`), `engine/cli.js:1115` (the `no spanning-tree` undo row) |
 | **Absent** | RSTP/MSTP/PVST/PVRST, PortFast, BPDU guard/filter, root guard, loop guard, per-VLAN trees. | — |
+
+Both `stp-block` anchors in this table pointed somewhere else: `3381-3384` is the link-down guard in
+`_deliver()` and `3686-3692` is the flood-candidate loop in `_forwardL2()`, so neither named a blocked port even
+though the claim about blocked ports dropping in both directions is true. The ingress gate is `3429-3432`
+(`_processFrame()` refuses before anything is learned), and the egress event is `3736-3738`, the branch that fires
+when `_egressRefusal()` answers `stp` - and it still answers that first, at `3839`, ahead of `bundle`. Re-read off
+the tree at `afc27808`.
 
 ### 2.5 Passive devices: taps and splitters
 
@@ -572,8 +592,8 @@ layer exists in `engine/bgp.js` today.
 | Verdict | Behaviour | Where |
 |---|---|---|
 | **Modelled** | Length is a property of the lead (`Link.lengthM`), not a maximum reach; null means "not stated". | `engine/link.ts:137`, `engine/link.ts:169` |
-| **Modelled** | `W_DISTANCE` fires only when a length **and** a medium reach are both known. An unstated length produces no warning rather than an invented one. | `engine/validation.js:717-726` |
-| **Modelled** | `W_COPPER_LONGRUN` at 90 m for the horizontal-run limit. | `engine/validation.js:157`, `engine/validation.js:728-736` |
+| **Modelled** | `W_DISTANCE` fires only when a length **and** a medium reach are both known. An unstated length produces no warning rather than an invented one. | `engine/validation.js:870-879` (the check), `engine/validation.js:157` (its code entry) |
+| **Modelled** | `W_COPPER_LONGRUN` at 90 m for the horizontal-run limit. | `engine/validation.js:881-889` (the check), `engine/validation.js:207` (`COPPER_RUN_LIMIT_M = 90`), `engine/validation.js:173` (its code entry) |
 | **Approximate** | Length affects **latency only** ([§8](#8-time-what-rtt-means-and-what-it-does-not)). An over-length cable still passes every packet perfectly — the warning is the entire model of the failure. | — |
 | **Absent** | Attenuation, link-loss budgets for copper, bend radius, cable damage, intermittent faults. | — |
 
