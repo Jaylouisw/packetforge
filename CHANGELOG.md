@@ -35,7 +35,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   The set form is now idempotent: a line naming a route already configured adds nothing and answers
   `Route 10.9.0.0/16 via 10.0.0.254 is already configured: nothing was added`. The comparison covers every slot
   the command sets (network, mask, next hop, interface, distance), so a different next hop for the same prefix
-  and the floating static (same next hop, other distance) are still stored as two rows.
+  and the floating static (same next hop, other distance) are still stored as two rows. The vendor evidence for
+  the rule - and the one thing it does not settle, because a box prints nothing for a repeated line - is in
+  `research/duplicate-static-route.md` (#1657).
 
 - **`show ip route static` was refused, and `connected` would have hidden the box's own addresses.**
   `show ip route` takes a protocol word - the vendor's field list reads "The name of a routing protocol or the
