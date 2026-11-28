@@ -3,7 +3,7 @@
   "model": "RB2011UiAS-2HnD-IN",
   "label": "RB2011UiAS-2HnD-IN",
   "category": "wireless",
-  "description": "MikroTik RB2011UiAS-2HnD-IN (RB2011UiAS-2HnD-IN) — 5x 100M RJ45, 5x 1G RJ45, 1x SFP, Wi-Fi 2.4 GHz. MIPSBE 1-core AR9344.",
+  "description": "MikroTik RB2011UiAS-2HnD-IN (RB2011UiAS-2HnD-IN) - 5x 100M and 5x 1G RJ45, 1x SFP, Wi-Fi 2.4 GHz. Powered by the DC jack or by passive PoE-in on eth1 only (8-30 V, not 802.3af); passive PoE-out on eth10.",
   "capabilities": [
     "l3-forward",
     "nat",
@@ -21,52 +21,61 @@
       "name": "eth1",
       "type": "ethernet",
       "speed": "100M",
-      "poeIn": true
+      "poeIn": 11
     },
     {
       "name": "eth2",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "poeIn": false
     },
     {
       "name": "eth3",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "poeIn": false
     },
     {
       "name": "eth4",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "poeIn": false
     },
     {
       "name": "eth5",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "poeIn": false
     },
     {
       "name": "eth6",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": false
     },
     {
       "name": "eth7",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": false
     },
     {
       "name": "eth8",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": false
     },
     {
       "name": "eth9",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": false
     },
     {
       "name": "eth10",
       "type": "ethernet",
       "speed": "1G",
+      "poeIn": false,
       "poeOut": true,
       "poeOutClass": "passive"
     },
@@ -91,5 +100,5 @@
   "poe": {
     "budgetUnknown": true
   },
-  "notes": "Power method from the mikrotik.com spec table: **PoE in: Passive PoE** (8-30 V) on `eth1`; **PoE out on `eth10`** - it powers the device above it on the mast or the AP on the wall, and the port is the vendor's own, not a convention. Input is recorded on the first Ethernet port because the table states the method and voltage but does not name the port, and every MikroTik with a PoE-IN DC input takes it there. Max power consumption 11 W."
+  "notes": "Vendor rows read 2026-11-28 from https://mikrotik.com/product/RB2011UiAS-2HnD-IN: **PoE in Passive PoE**, **PoE in input Voltage 8-30 V**, **Max power consumption 11 W**, **PoE-out ports Ether10**, **PoE out Passive PoE**. The user manual, https://help.mikrotik.com/docs/spaces/UM/pages/16351574/RB2011UiAS-2HnD-IN (read 2026-11-28), names the socket and the standard: \"The device accepts powering from either the power jack or from the LAN1 Ethernet port ... Eth1 port accepts 8-30 V DC input ... from non-standard (passive) Power over Ethernet injectors. The board does not work with IEEE802.3af compliant 48 V power injectors.\" So `eth1` draws the 11 W board ceiling; `eth2`-`eth9` declare poeIn: false; `eth10` is passive PoE-out only. The eight sockets beside the inlet had been inheriting the 12.95 W 802.3af guess from `category: wireless` - on a board whose own manual says it will not run from an 802.3af injector."
 }

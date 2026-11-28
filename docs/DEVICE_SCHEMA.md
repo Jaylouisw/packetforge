@@ -217,17 +217,24 @@ the engine learns to read is better kept than lost at import time.
 copies the value through untouched (`engine/media.js:1098`), and the device-wide guess fires only on
 a socket whose `poeIn` is still `null` (`:1122-1124`) — so a mains-supplied box that `isPoePd()`
 matches on its model (`:1174`) keeps its sockets empty instead of claiming 12.95 W on each. The
-allocation loop skips such a socket for the same reason (`engine/simulator.js:2908`). 65 specs spell
-740 sockets this way, counted at `4a20b7ed`. 41 Ubiquiti sheets hold 636: seventeen switches that
-switch but do not accept power (`devices/ubiquiti/ecs-48s.json` alone spells 49, the five 48-port
+allocation loop skips such a socket for the same reason (`engine/simulator.js:2908`). 70 specs spell
+778 sockets this way, counted at `17b1df4b` with the five MikroTik inlet rows below. 41 Ubiquiti
+sheets hold 636: seventeen switches that switch but do not accept power
+(`devices/ubiquiti/ecs-48s.json` alone spells 49, the five 48-port
 sheets 48 apiece, `ecs-24s` 25 and the seven 24-port sheets 168, the Pro Max 16 its 16, the
 EdgeSwitch 18X 15, the industrial DIN 8 its 8 — 521 in all) and 107 on the UDM/UCG/UDR/UX/UXG
 gateways and the EdgeRouters — the EdgeRouter 12's nine copper sockets among them, since #1737 moved
 its inlet to `eth0` (20 W) and left `eth1`–`eth9` `false` — and eight on the Flex 2.5G's 2.5G bank,
-whose one inlet is the 14 W PoE+ on its 10G uplink (#1740). Sixteen MikroTik sheets hold 87: the
+whose one inlet is the 14 W PoE+ on its 10G uplink (#1740). Twenty-one MikroTik sheets hold 125: the
 twelve copper sockets of `devices/mikrotik/rb1100dx4.json` beside the one inlet its manual names
-(`eth13`, 25.5 W), and five apiece on fifteen Chateau/d53g/s53ug sheets that declare no inlet on any
-port. Seven Peplink routers
+(`eth13`, 25.5 W), five apiece on fifteen Chateau/d53g/s53ug sheets that declare no inlet on any
+port, and 38 on the five single-inlet boards - every socket beside the inlet, five of them the
+passive PoE-out ports (`eth10`, `eth8` on the L009, `eth5` on the RB450) that cannot be fed
+either. Those five had been drawing 12.95 W on every copper socket: `rb4011igs-5hacq2hnd-in.json`
+asked for 103.6 W on a 23 W board, `rb2011uias-2hnd.json` and `-in.json` for 103.6 W apiece on 6 W
+and 11 W boards, `l009uigs-2haxd-in.json` for 77.7 W on 14 W, and `rb450gx4.json` for 64.75 W on
+5 W - 453.25 W between them, now 59 W, and two of the five print `PoE in Passive PoE` and will
+not run from the 802.3af injector the guess assumed. Seven Peplink routers
 hold 16, the LAN ports beside the one PoE inlet they do have (`devices/peplink/max-br1-ip55.json`
 draws its 18 W on `wan1` and declares `lan1`/`lan2` unpowered), and
 `devices/radwin/radwin-5000-jet.json` the last one. `test/ubiquiti-usw-ac-nonpoe.test.js` pins the
@@ -238,7 +245,9 @@ took 12.95 W off (242 sockets that had been drawing 3,133.9 W),
 beside its `eth13` inlet, and `test/ubiquiti-er-12-poe-in.test.js` the ER-12's 20 W inlet against
 the nine sockets it leaves cold (the device used to ask for 129.5 W), and
 `test/ubiquiti-usw-flex-2-5g-8-poe-in.test.js` the Flex 2.5G's 14 W uplink inlet beside the eight
-sockets it leaves cold (the device used to ask for 116.55 W). What `false` does not survive
+sockets it leaves cold (the device used to ask for 116.55 W), and
+`test/mikrotik-one-inlet-routers.test.js` the five single-inlet MikroTik boards above, socket by
+socket, against a real PSE. What `false` does not survive
 is normalisation: `completeHardware()` passes it through `numOrNull()` (`engine/validation.js:363`,
 `:213`), which answers `0` for any
 boolean, so the connection validator sees a socket that draws nothing but no longer sees that the

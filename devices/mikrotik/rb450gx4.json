@@ -3,7 +3,7 @@
   "model": "RB450Gx4",
   "label": "RB450Gx4",
   "category": "router",
-  "description": "MikroTik RB450Gx4 (RB450Gx4) — 5x 1G RJ45. ARM 32bit 4-core IPQ-4019.",
+  "description": "MikroTik RB450Gx4 (RB450Gx4) - 5x 1G RJ45. Powered by the DC jack or by 802.3af/at PoE-in on eth1 only (12-57 V); passive PoE-out on eth5. ARM 32bit 4-core IPQ-4019.",
   "capabilities": [
     "l3-forward",
     "nat",
@@ -22,30 +22,41 @@
     {
       "name": "eth1",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": 5
     },
     {
       "name": "eth2",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": false
     },
     {
       "name": "eth3",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": false
     },
     {
       "name": "eth4",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": false
     },
     {
       "name": "eth5",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": false,
+      "poeOut": true,
+      "poeOutClass": "passive"
     }
   ],
   "icon": "router",
   "color": "#14b8a6",
-  "sourceUrl": "https://mikrotik.com/product/rb450gx4"
+  "sourceUrl": "https://mikrotik.com/product/rb450gx4",
+  "notes": "Vendor rows read 2026-11-28 from https://mikrotik.com/product/rb450gx4: **PoE-in 802.3af/at, 12-57 V**, **PoE-out Ether5, passive PoE, up to 500 mA**, **Number of DC inputs 3 (DC jack, PoE-in)**, **Max power consumption without attachments 4 W**. The manual, https://manual.mikrotik.com/hardware/rb450gx4/ (read 2026-11-28), names the socket and the draw: \"Ether1 Ethernet port accepts 12-57 V DC input ... from 802.3af/at or passive Power over Ethernet sources. Max total power consumption with all interfaces loaded is 5 W.\" and \"The other four Ethernet ports do not support PoE input.\" So `eth1` draws 5 W; `eth2`-`eth5` declare poeIn: false. `eth5` is the passive PoE-out port (\"The Ether5 port is capable of powering another RouterBOARD device with passive PoE (up to 57 V). The maximum output current is 500 mA.\") - it sources power and is not an inlet. No total PoE-out budget is printed for the board (only the 500 mA port limit), so the row marks the budget unknown rather than guessed. All five copper sockets had been inheriting the 12.95 W 802.3af guess from the `poe-pd` capability, 64.75 W from a 5 W board.",
+  "poe": {
+    "budgetUnknown": true
+  }
 }

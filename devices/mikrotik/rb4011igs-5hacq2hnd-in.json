@@ -3,7 +3,7 @@
   "model": "RB4011iGS+5HacQ2HnD-IN",
   "label": "RB4011iGS+5HacQ2HnD-IN",
   "category": "wireless",
-  "description": "MikroTik RB4011iGS+5HacQ2HnD-IN (RB4011iGS+5HacQ2HnD-IN) — 10x 1G RJ45, 1x 10G SFP+, Wi-Fi 2.4 GHz + 5 GHz. ARM 32bit 4-core AL21400.",
+  "description": "MikroTik RB4011iGS+5HacQ2HnD-IN (RB4011iGS+5HacQ2HnD-IN) - 10x 1G RJ45, 1x 10G SFP+, Wi-Fi 2.4/5 GHz. Powered by the DC jack or by passive PoE-in on eth1 only (18-57 V); passive PoE-out on eth10. ARM 32bit 4-core AL21400.",
   "capabilities": [
     "l3-forward",
     "nat",
@@ -21,52 +21,61 @@
       "name": "eth1",
       "type": "ethernet",
       "speed": "1G",
-      "poeIn": true
+      "poeIn": 23
     },
     {
       "name": "eth2",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": false
     },
     {
       "name": "eth3",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": false
     },
     {
       "name": "eth4",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": false
     },
     {
       "name": "eth5",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": false
     },
     {
       "name": "eth6",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": false
     },
     {
       "name": "eth7",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": false
     },
     {
       "name": "eth8",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": false
     },
     {
       "name": "eth9",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": false
     },
     {
       "name": "eth10",
       "type": "ethernet",
       "speed": "1G",
+      "poeIn": false,
       "poeOut": true,
       "poeOutClass": "passive"
     },
@@ -97,5 +106,5 @@
   "poe": {
     "budgetUnknown": true
   },
-  "notes": "Power method from the mikrotik.com spec table: **PoE in: Passive PoE** (18-57 V) on `eth1`; **PoE out on `eth10`** - it powers the device above it on the mast or the AP on the wall, and the port is the vendor's own, not a convention. Input is recorded on the first Ethernet port because the table states the method and voltage but does not name the port, and every MikroTik with a PoE-IN DC input takes it there. Max power consumption 44 W."
+  "notes": "Vendor rows read 2026-11-28 from https://mikrotik.com/product/rb4011igs_5hacq2hnd_in: **Number of DC inputs 2 (DC jack, PoE-IN)**, **PoE in Passive PoE**, **PoE in input Voltage 18-57 V**, **PoE-out ports Ether10**, **PoE out Passive PoE**, **Max power consumption 44 W**, **Max power consumption without attachments 23 W**. Which socket the inlet is, https://manual.mikrotik.com/hardware/rb4011igs-plus-5hacq2hnd-in/ (read 2026-11-28): \"The device accepts power from the power jack or from the first Ethernet port: ... First Ethernet port accepts Power over Ethernet 18-57 V DC.\" So `eth1` is the one inlet and it draws the board's 23 W ceiling; `eth2`-`eth9` declare poeIn: false, and `eth10` is PoE-out only - a PSE port cannot be fed. The row used to spell `eth1` as `poeIn: true`, a shape the schema does not allow as a wattage, and the eight sockets beside it were inheriting the 12.95 W 802.3af guess from `category: wireless` - 103.6 W of demand from a router whose PoE-in is passive 18-57 V."
 }
