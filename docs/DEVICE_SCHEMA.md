@@ -205,13 +205,27 @@ generating a template from observed names, `addDevice()`, an audit — went thro
 | `speed` | `8M` `24M` `50M` `100M` `200M` `300M` `1G` `2.5G` `5G` `8G` `10G` `16G` `25G` `32G` `40G` `64G` `100G` `200G` `400G`. Wireless speeds are the same vocabulary plus the `600M`-style form. |
 | `connector` | free-form and preserved: `rj45`, `sfp`, `sfp+`, `qsfp+`, `qsfp28`, `qsfp56`, `qsfpdd`, `lc`, `sc`, `usb`, … |
 | `speedCaps` | the rates the cage actually accepts, as Mbps. A `sfp+` that also takes 1G is `[1000, 10000]`. |
-| `poeIn` | watts this port draws, as a **number**. `true` is wrong — 12.95 and 25.5 are different devices. |
+| `poeIn` | watts this port draws, as a **number** — 12.95 and 25.5 are different devices, so `true` is wrong — or `false` for a socket that is **not** a powered device (see below). |
 | `poeOut` | `true` when this port sources power. |
 | `poeOutClass` | the class this port sources, in the vendor's words: `PoE` (802.3af), `PoE+` (802.3at), `PoE++` (802.3bt Type 3), `PoE+++` (Type 4) or `passive` - a fixed-voltage vendor class (24/27/54 V), not an IEEE standard. Kept verbatim; nothing in the engine reads it (see below). |
 | `cage`, `comboWith`, `comboRole`, `dualRole` | preserved verbatim; they describe shared cages and switchable ports. |
 
 Anything unrecognised on an interface is **preserved**, not dropped: a field a later version of
 the engine learns to read is better kept than lost at import time.
+
+`poeIn: false` is a claim, not a silence, and the engine reads it as one. `derivePortHardware()`
+copies the value through untouched (`engine/media.js:1098`), and the device-wide guess fires only on a
+socket whose `poeIn` is still `null` (`:1122-1124`) — so a mains-supplied box that `isPoePd()`
+matches on its model (`:1174`) keeps its sockets empty instead of claiming 12.95 W on each. The
+allocation loop skips such a socket for the same reason (`engine/simulator.js:2743`). 35 specs spell
+274 sockets this way — the three non-PoE UniFi switches (`devices/ubiquiti/usw-pro-48.json`),
+the Peplink routers whose one PoE inlet is a named WAN port (`devices/peplink/max-br1-ip55.json`) —
+and `test/ubiquiti-usw-ac-nonpoe.test.js` pins the first family socket by socket. What `false` does
+not survive is normalisation: `completeHardware()` passes it through `numOrNull()`
+(`engine/validation.js:363`, `:213`), which answers `0` for any boolean, so the connection validator
+sees a socket that draws nothing but no longer sees that the socket was declared. `poeInDeclared` —
+step 1 of [plans/poe-pd-inference.md](plans/poe-pd-inference.md) — is not in the engine yet:
+`grep -rn poeInDeclared engine/` finds nothing.
 
 The class is a record, not a rule. `derivePortHardware()` (`engine/media.js`) builds a port's `hardware`
 from `poeOut`, `poeIn`, the cage and the speed caps and **drops** `poeOutClass`, so the string never
