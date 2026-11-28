@@ -135,6 +135,34 @@ console.log('\nThe RADWIN 5000 JET merge corrected the ports, not just the name:
   ok(alias.indexOf('5000 JET') !== -1, 'the retired model string is an alias of the survivor');
 }
 
+console.log('The two CloudKey+ SKUs are two products, each under its own name:');
+{
+  // Measured against a shared label, the pair looked like one product under two slugs and was
+  // waived as such. It is not one product: the SSD unit draws 9.6 W and ships a 1 TB SSD, the
+  // HDD unit draws 12.95 W (the whole 802.3af PD allocation) and ships a 1 TB HDD in a tray.
+  // Ubiquiti titles them 'CloudKey+ SSD' and 'CloudKey+ HDD' on its own store, so the label
+  // carries the drive type - what was wrong was the name, not the pair.
+  const ssd = catalog.find(function (s) { return s.vendor === 'ubiquiti' && s.model === 'UCK-G2-SSD'; });
+  const hdd = catalog.find(function (s) { return s.vendor === 'ubiquiti' && s.model === 'UCK-G2-PLUS'; });
+  ok(!!ssd && !!hdd, 'both CloudKey+ SKUs are in the catalogue');
+  ok(!!ssd && !!hdd && String(ssd.label) !== String(hdd.label),
+    'and neither repeats the other name (' + (ssd && ssd.label) + ' / ' + (hdd && hdd.label) + ')');
+  for (const pair of [[ssd, 9.6], [hdd, 12.95]]) {
+    const spec = pair[0], draw = pair[1];
+    const ifaces = (spec && spec.interfaces) || [];
+    const copper = ifaces.filter(function (i) { return i.connector === 'rj45'; });
+    ok(copper.length === 1 && copper[0].speed === '1G',
+      (spec && spec.model) + ' has the one GbE RJ45 the tech-spec row prints (' + copper.length + ')');
+    ok(copper.length === 1 && copper[0].poeIn === draw,
+      (spec && spec.model) + ' declares its ' + draw + ' W draw on that jack, not a bare true (' +
+        (copper[0] && copper[0].poeIn) + ')');
+    ok(ifaces.filter(function (i) { return i.connector === 'sfp' || i.connector === 'sfp+'; }).length === 0,
+      (spec && spec.model) + ' has no cage');
+    ok(((spec && spec.capabilities) || []).indexOf('802.3af') !== -1 && draw <= 15.4,
+      (spec && spec.model) + ' draws inside the 802.3af budget it declares');
+  }
+}
+
 // The importer's gate, exercised on throwaway trees via PF_DEVICES / PF_INCOMING.
 function runImporter(args, env) {
   const r = spawnSync(process.execPath, [path.join(ROOT, 'scripts', 'import-devices.js')].concat(args), {
