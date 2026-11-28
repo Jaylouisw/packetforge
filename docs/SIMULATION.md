@@ -635,7 +635,7 @@ that it covers **cages and speeds**, not "this cable will carry traffic".
 | **Modelled** | Association = the best shared band caps the rate, so a 2.5 Gbps phone on a 574 Mbps 2.4 GHz radio associates at 574 instead of refusing. | `engine/media.js:1315-1331` `negotiateSpeed()` |
 | **Modelled** | A radio can never be cabled to a wired port (`E_WIRELESS_TO_WIRED`), and an antenna port is not a cable at all. | `engine/media.js:1397` (`canMate()`), `:1401-1404` (the antenna check), `engine/media.js:709` (`CAGE_MEDIA.antenna` - a radio carries bands, not a cable) |
 | **Approximate** | "Wireless" is a link type with an antenna cage. There is no shared medium: two clients on one AP do not contend, do not share airtime, and cannot hear each other. | — |
-| **Absent** | SSID, BSSID, beacons, association/auth frames, WPA/PSK/802.1X, channels and width, interference, RSSI, rate adaptation, retries, roaming, mesh, band steering, hidden SSID, MU-MIMO/OFDMA. `grep -inE "ssid\|rssi\|interfer\|wpa" engine/*.js` returns nothing; a `channel` match is only `port-channel` and `Fibre Channel`. | — |
+| **Absent** | SSID, BSSID, beacons, association/auth frames, WPA/PSK/802.1X, channels and width, interference, RSSI, rate adaptation, retries, roaming, mesh, band steering, hidden SSID, MU-MIMO/OFDMA. `grep -rin "ssid\|rssi\|interference\|wpa-" engine/` returns nothing; every `channel` match is LAG vocabulary (`channel-group`, `etherchannel`, `port-channel`) or `Fibre Channel`. | — |
 
 A wireless "cable" in PacketForge is an Ethernet link with a different cage.
 That is enough to teach cabling and VLANs over a radio, and not enough to teach
@@ -677,23 +677,23 @@ actually true.
 
 | Assumption | Reality | Where |
 |---|---|---|
-| "It's a TCP/IP stack." | There is a tiny TCP model — three-way handshake, MSS from path MTU, cumulative ACKs, four-way close — and nothing else: no congestion window, no retransmission timer, no SACK, no TIME_WAIT, no window scaling, no ICMP port-unreachable for stray UDP. | `engine/flow.js:19-24`, `engine/simulator.js:2249` |
-| "Traffic starts connections." | Only an explicit API call does. `openFlow()` is invoked by the server on `POST /flows`; no packet ever triggers a connection on its own. | `engine/simulator.js:4172` |
-| "Services respond." | A capability only registers **listeners** — `http-server` means "ports 80 and 443 answer SYN" (`engine/flow.js:77-85`). There is no HTTP request, no TLS handshake, no SSH banner, no FTP, no SMTP. A closed port answers RST, which is the whole application layer. | `engine/simulator.js:2546-2560` |
+| "It's a TCP/IP stack." | There is a tiny TCP model — three-way handshake, MSS from path MTU, cumulative ACKs, four-way close — and nothing else: no congestion window, no retransmission timer, no SACK, no TIME_WAIT, no window scaling, no ICMP port-unreachable for stray UDP. | `engine/flow.js:19-24`, `engine/simulator.js:4531` (`openFlow()`) |
+| "Traffic starts connections." | Only an explicit API call does. `openFlow()` is invoked by the server on `POST /flows`; no packet ever triggers a connection on its own. | `engine/simulator.js:4531` (`openFlow()`), `server/index.js:1311` |
+| "Services respond." | A capability only registers **listeners** — `http-server` means "ports 80 and 443 answer SYN" (`engine/flow.js:77-85`). There is no HTTP request, no TLS handshake, no SSH banner, no FTP, no SMTP. A closed port answers RST, which is the whole application layer. | `engine/simulator.js:4846-4857` (`listensOn()` decides, `resetPacket()` answers) |
 | "Congestion happens." | Nothing is ever dropped because of load. There are no queues, no buffers, no contention, no tail drop, no AQM. A link at 100 % of its rate behaves exactly like an idle one. | — |
 | "Loss happens." | Nothing is lost except by an explicit rule: VLAN, ACL, STP, PoE, TTL, no route, NAT failure. A cable 10× over its reach still delivers every packet. | — |
 | "There are real timers." | Nothing sleeps, nothing interleaves, no thread runs against another — but simulated time is real to the model. A MAC entry ages out after 300 s and an ARP entry after 4 h, measured against the instant a question asks (`MAC_AGE_MS`, `ARP_AGE_MS`); STP, OSPF, the DHCP exchange and the VRRP election finish on a schedule rather than at t=0. See [§8](#8-time-what-rtt-means-and-what-it-does-not) and the convergence section at the end. | `engine/device.js:6`, `engine/device.js:12`, `engine/convergence.js:265` (`buildSchedule()`) |
-| "It's a stateful firewall." | ACLs are per-packet, stateless, IPv4-only. The `firewall` capability is inert. | `engine/simulator.js:2894-2913`, `engine/acl.js:407-415` |
-| "Routes redistribute." | They do not. Connected → OSPF and connected → BGP only; no OSPF→BGP, no BGP→OSPF, no static→anything. | `engine/simulator.js:577-588`, `engine/simulator.js:406-419` |
-| "MPLS / VXLAN / GRE / IPsec / LISP / SRv6." | None of them. `grep -ri "mpls\|vxlan" engine/` returns nothing. | — |
+| "It's a stateful firewall." | ACLs are per-packet, stateless, IPv4-only. The `firewall` capability is inert. | `engine/simulator.js:3295-3309` (every frame through `evaluate()`, and an IPv6 frame returns `permit` before a list is read), `engine/acl.js:455` (`evaluate()`), `test/capability-vocabulary.test.js:45` |
+| "Routes redistribute." | They do not. Connected → OSPF and connected → BGP only; no OSPF→BGP, no BGP→OSPF, no static→anything. | `engine/simulator.js:1968-1985` (OSPF installs nothing the connected route already covers), `engine/simulator.js:2287` (BGP originates every connected prefix) |
+| "MPLS / VXLAN / GRE / IPsec / LISP / SRv6." | None of them. `grep -rni "mpls\|vxlan" engine/` finds three comment lines in `engine/cli.js:6539-6544` (BGP research notes) and no code. | — |
 | "DAI, DHCP snooping, IP Source Guard, RA guard." | None. ARP and ND are trusted completely. | — |
-| "IPv6 is first-class." | ND and SLAAC are good; ACLs, NAT, routing protocols and first-hop redundancy are IPv4-only or absent. | `engine/simulator.js:1477`, `engine/device.js:484` |
+| "IPv6 is first-class." | ND and SLAAC are good; ACLs, NAT, routing protocols and first-hop redundancy are IPv4-only or absent. | `engine/device.js:1231` (`route6To()`: on-link, static, default, and no protocol), `engine/simulator.js:3295` (an ACL is not consulted for an IPv6 frame) |
 | "HA exists." | VRRP is in the data path (#1052), so a virtual gateway fails over. Still absent: HSRP/GLBP, BFD, LACP failure detection, graceful restart, and detection of a master that goes quiet rather than down. | `engine/simulator.js` `computeVrrp()` |
-| "Multicast is routed." | Multicast floods like broadcast inside a VLAN and is never routed between subnets. No IGMP, no PIM. | `engine/simulator.js:1842` |
+| "Multicast is routed." | Multicast floods like broadcast inside a VLAN and is never routed between subnets. No IGMP, no PIM. | `engine/simulator.js:3803-3805` (`isMulticastMac()` folded into `flood`) |
 | "QoS exists." | No marking, no queues, no shaping, no policing, no CoS/DSCP anywhere. | — |
 | "Counters show errors." | `show interfaces` counters are bytes/packets in and out. No CRC, no runts, no giants, no collisions, no drops-by-reason beyond the event log. | `engine/flow.js:354-360` |
 | "A device can be overwhelmed." | There is nothing to overwhelm. Control-plane work now takes the seconds its own timers name — STP 30 s (50 s after an indirect failure), OSPF 16 s to its first route, the DHCP exchange 1 s — but nothing ever competes for a resource: one process cannot starve another, LLDP and RAs cost no steps, BGP’s one advertisement round is still untimed, and 8 000 steps is a loop guard rather than a capacity limit. | `engine/convergence.js:265` (`buildSchedule()`), `engine/simulator.js:210` |
-| "A hop is a time." | A step is a frame handed to a port. Latency is computed separately. | `engine/simulator.js:276` |
+| "A hop is a time." | A step is a frame handed to a port. Latency is computed separately. | `engine/simulator.js:3568-3578` (`_run()`: one queued frame per step), `engine/latency.js` |
 | "Config is validated." | Each module validates its own config when asked to; the engine will happily run an inconsistent topology and show you whatever the graph produces. | `engine/validation.js:1-24` |
 
 And a short list of things that exist on the model but are **never read** —
@@ -701,7 +701,7 @@ i.e. configuring them is decoration:
 
 - `minLinks` on a LAG (`engine/lag.ts:39`) — normalised and stored, and no verdict consults
   it: a bundle's health is the members that can carry, not this threshold.
-- Capabilities `firewall`, `wireless` and `dhcp-client` (`engine/device.js:127`). Everything
+- Capabilities `firewall`, `wireless` and `dhcp-client` (`engine/device.js:158-168`). Everything
   else in that vocabulary has a reader: `nat`, `dhcp-server`, `l3-forward` and `l2-forward`
   through `_capabilityRefusal()`, `http-server` through the listener table in
   `engine/flow.js`. The tokens `vlan`/`lacp`/`stp` used to be listed here and are no longer
@@ -712,11 +712,11 @@ changed what a lab does, which is why the pointer is here rather than in a chang
 
 | Field | What reads it now |
 |---|---|
-| `Link.state` | a frame crossing a down cable is dropped with `reason: 'link down'` and the link id (`engine/simulator.js:3337`), and the switch logic in `engine/segment.ts` will not carry a frame over one ([LINK-STATE.md](LINK-STATE.md)) |
+| `Link.state` | a frame crossing a down cable is dropped with `reason: 'link down'` and the link id (`engine/simulator.js:3661`), and the switch logic in `engine/segment.ts` will not carry a frame over one ([LINK-STATE.md](LINK-STATE.md)) |
 | LAG `mode` | `negotiationVerdict()` through `memberSuspension()`: two `passive` ends never form a bundle, and neither does a far end in no channel group at all (`test/lacp-passive-both-ends.test.js` + `test/lacp-one-sided-group.test.js`, 54 assertions) |
 | `voiceVlan` | `classifyEgress()` and `classifyIngress()` carry it on an access port as one tagged VLAN beside the untagged access VLAN, and ignore it on a trunk (`engine/vlan.js`, #1368) |
-| `iface.dhcp` | `Simulator.computeDhcp()` collects every port carrying the flag as a client and applies the lease it is given (`engine/simulator.js:1172`) |
-| RA valid/preferred lifetimes | written into the prefix information option the router advertises (`engine/ra.js:210`), and read back out of it on arrival |
+| `iface.dhcp` | `Simulator.computeDhcp()` collects every port carrying the flag as a client and applies the lease it is given (`engine/simulator.js:1274`) |
+| RA valid/preferred lifetimes | written into the prefix information option the router advertises (`engine/ra.js:283-284`), and read back out of it on arrival |
 
 ---
 
