@@ -1,6 +1,14 @@
 # Plan: the window in which a bridge adopts the root's timers
 
-Status: forward plan, no code. Measured on `ba7ae217`, 2026-11-28. Closes **#1731**. Scope:
+Status: steps 1-2 landed (#1753), step 3 landed earlier as the Max Age hold (#1746), step 4 with them.
+Measured on `ba7ae217`, 2026-11-28. Closes **#1731**.
+
+**One step-2 number changed on the way in.** The plan charged every bridging non-root one hello at
+`max(boots) + hello`, which moved a same-instant pair from 8000 to 10000. A port transmits a configuration BPDU
+the moment it becomes designated, so at power-on the root's first one leaves at the root's own boot and a box that
+came up with it pays nothing; the hello is owed only by a box that powers on into a tree already running. That is
+what landed, which is why no existing convergence number moved and `test/stp-adoption-window.test.js` pins the
+window with staggered boots instead. Scope:
 `engine/device.js` (one runtime field), `engine/convergence.js`, `engine/simulator.js`, `docs/CLI.md`,
 `research/stp-root-timers-pace-the-tree.md`, and the suites named under Test strategy. The
 `show spanning-tree` header is **not** touched: it prints the running timers and already reads the root's

@@ -130,6 +130,11 @@ function stpMaxAgeHold(topo, dev, opts) {
   const before = opts && opts.stpBefore;
   const after = opts && opts.stp;
   if (!before || !after || !before.bridges || !before.root || !after.root) return 0;
+  // A box that was not powered at the change was holding nothing to age out: it has no stored BPDU, so its
+  // own clocks start when it comes up and the hold would otherwise be charged to a memory it never had
+  // (#1731).
+  const changeAt = Number(opts.fromMs);
+  if (Number.isFinite(changeAt) && bootedAt(dev) > changeAt) return 0;
   if (before.root.key === undefined || before.root.key === null) return 0;
   // It was the root: there is no stored BPDU from anyone else to age out.
   if (before.root.key === dev.id) return 0;
@@ -145,6 +150,54 @@ function stpMaxAgeHold(topo, dev, opts) {
   const oldRoot = (topo && typeof topo.getDevice === 'function') ? topo.getDevice(before.root.key) : null;
   const ms = stpTimersInForce(dev, oldRoot).maxAgeMs;
   return Number.isFinite(ms) && ms > 0 ? ms : 0;
+}
+
+// ---------------------------------------------------------------------------
+// When the adoption happens
+//
+// `stpTimersInForce()` above says *whose* numbers a non-root runs. It used to imply that they had been running
+// since the lab's t=0, whatever instant the box first heard the root - so a bridge that powered on before the
+// root spent the interval in between being paced by a forward delay nobody was advertising to it, and `hello`
+// (carried on every adopted timer set since #1722) was never counted by anything (#1731).
+//
+// A bridge transmits a configuration BPDU from a port the moment that port becomes designated, which at power-on
+// is immediately: it has no better information and believes itself root. So the root's first BPDU leaves at the
+// root's own boot, not one hello after it, and a bridge powered on with the root (or before it) accepts it at
+// that instant. A bridge powered on into a tree that is already running is the other case: it waits out the
+// remainder of the root's hello timer, so one hello interval is the worst case - and the only number in the
+// adopted set that a real timer prices.
+//
+// What this deliberately does not do is charge a hello to every re-convergence. A box that was already hearing
+// the root holds its BPDU, so a cable moving elsewhere in the lab does not restart the adoption clock; only a
+// box that was not powered at the change, or that boots later, pays it.
+
+function bootedAt(dev) {
+  const n = Number(dev && dev.bootedAtMs);
+  return Number.isFinite(n) && n >= 0 ? n : 0;
+}
+
+/**
+ * stpAdoption(topo, stp, dev, opts) -> { rootDev, adopts, helloMs, adoptedAtMs }
+ *
+ * The instant this bridge's spanning tree starts running the timers it is paced by: its own boot when it is
+ * (or has to be) its own root, and the instant it accepts the root's first configuration BPDU when it is not.
+ * `opts.fromMs` is the schedule's re-base, and nothing is dated before it - a change at 60 s cannot be
+ * answered from an instant at 0.
+ */
+function stpAdoption(topo, stp, dev, opts) {
+  const fromMs = Number.isFinite(Number(opts && opts.fromMs)) ? Number(opts.fromMs) : 0;
+  const rootDev = stpRootOf(topo, stp, dev);
+  const devAt = bootedAt(dev);
+  const ownAt = Math.max(fromMs, devAt);
+  if (!rootDev || rootDev === dev) {
+    // Its own root: nothing is advertising, so its clocks start when it does.
+    return { rootDev: rootDev, adopts: false, helloMs: 0, adoptedAtMs: ownAt };
+  }
+  const rootAt = Math.max(fromMs, bootedAt(rootDev));
+  const helloMs = stpTimers(rootDev).helloSec * 1000;
+  // Powered on after the root was already running: the root's next hello, at most one interval away.
+  const adoptedAtMs = devAt > rootAt ? ownAt + helloMs : Math.max(ownAt, rootAt);
+  return { rootDev: rootDev, adopts: true, helloMs: helloMs, adoptedAtMs: adoptedAtMs };
 }
 
 function ospfTimers(dev) {
@@ -241,19 +294,29 @@ function buildSchedule(topo, opts) {
       // The root's timers, not this box's own: a non-root adopts what the root advertises (#1722). `opts.stp`
       // is the election's answer, which is the only thing that can say who the root is; without one the
       // schedule falls back to the device's own config, the same way the report falls back to its own line.
-      const rootDev = stpRootOf(topo, opts.stp, dev);
+      const adopt = stpAdoption(topo, opts.stp, dev, { fromMs: fromMs });
+      const rootDev = adopt.rootDev;
       const t = stpTimersInForce(dev, rootDev);
-      const adopted = !!(rootDev && rootDev !== dev);
+      const adopted = adopt.adopts;
       // An indirect failure puts the old root's Max Age in front of the transition (#1731).
       const holdMs = stpMaxAgeHold(topo, dev, opts);
+      // The window before the box is pacing anything at all: its own boot, or hearing the root's first BPDU.
+      // Kept as an instant on the entry so a port asked about these seconds is answered from them, not from
+      // t=0 (#1731).
+      const bootWindowMs = Math.max(0, adopt.adoptedAtMs - fromMs);
+      const rootName = rootDev ? (rootDev.name || rootDev.id) : null;
       entries.push({
         deviceId: dev.id, device: dev, process: 'stp',
-        readyAtMs: holdMs + t.forwardAtMs,
+        readyAtMs: bootWindowMs + holdMs + t.forwardAtMs,
         forwardDelaySec: t.forwardDelaySec,
+        adoptedAtMs: adopt.adoptedAtMs,
         maxAgeHoldMs: holdMs,
-        basis: (holdMs ? "the old root's BPDU aged out (" + (holdMs / 1000) + " s Max Age), then " : "") +
+        basis: (adopted && bootWindowMs
+            ? 'heard the root ' + rootName + ' at ' + adopt.adoptedAtMs + ' ms, then ' : '') +
+          (!adopted && bootWindowMs ? 'powered on at ' + adopt.adoptedAtMs + ' ms, then ' : '') +
+          (holdMs ? "the old root's BPDU aged out (" + (holdMs / 1000) + ' s Max Age), then ' : '') +
           'listening + learning (' + t.forwardDelaySec + ' s forward-delay each' +
-          (adopted ? ', the root ' + (rootDev.name || rootDev.id) + "'s" : '') + ')'
+          (adopted ? ', the root ' + rootName + "'s" : '') + ')'
       });
     }
     if (runsOspf(dev)) {
@@ -354,6 +417,20 @@ function stpPortStateAt(dev, willForward, atMs, timers, entry) {
     const fd = Number.isFinite(Number(entry.forwardDelaySec)) ? Number(entry.forwardDelaySec) : t.forwardDelaySec;
     // Asked about an instant before the change: nothing is transitioning yet, so answer the steady state.
     if (atMs < start) return 'forwarding';
+    // The window before this box runs the timers it is about to be paced by (#1731). It is not hidden: until it
+    // accepts the root's first configuration BPDU a non-root believes it is the root and runs its *own* numbers,
+    // so its port can be Listening on a 15 s forward delay while the tree it is joining is paced by the root's
+    // 4 s. A box that has not been powered on yet drops everything, which is what a dark port does.
+    const adoptedAt = Number(entry.adoptedAtMs);
+    if (Number.isFinite(adoptedAt) && atMs < adoptedAt) {
+      const powerAt = Math.max(start, bootedAt(dev));
+      if (atMs < powerAt) return 'blocking';
+      const own = stpTimers(dev);
+      const running = atMs - powerAt;
+      if (running >= own.forwardAtMs) return 'forwarding';
+      if (running >= own.listenEndMs) return 'learning';
+      return 'listening';
+    }
     if (atMs >= finish) return 'forwarding';
     if (atMs >= finish - fd * 1000) return 'learning';
     if (atMs >= finish - fd * 2000) return 'listening';
@@ -377,6 +454,7 @@ module.exports = {
   stpTimersInForce: stpTimersInForce,
   stpRootOf: stpRootOf,
   stpMaxAgeHold: stpMaxAgeHold,
+  stpAdoption: stpAdoption,
   ospfTimers: ospfTimers,
   vrrpTimers: vrrpTimers,
   dhcpTimers: dhcpTimers,
