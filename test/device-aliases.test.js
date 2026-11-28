@@ -88,6 +88,13 @@ console.log('Against the real catalogue:');
   const e6616 = filterDevices('E6616', specs, {});
   ok(e6616.length >= 1 && /OptiXtrans E6616/.test(e6616[0].model), 'E6616 finds the shelf first', e6616[0] && e6616[0].model);
 
+  // Arista/7050SX3: the seed stub that carried this name was deleted as a duplicate of the
+  // 7050SX3-48YC8 (it modelled 12 of the box's 56 ports). The family name survives as an alias, so a
+  // search for the old name still lands on the hardware rather than on nothing.
+  const sx3 = filterDevices('7050SX3', specs, {});
+  ok(sx3.length >= 1 && sx3[0].model === '7050SX3-48YC8',
+    '7050SX3 finds the 48YC8 that replaced the stub', sx3[0] && sx3[0].model);
+
   const m1d = filterDevices('M1D-B', specs, { vendor: 'huawei' });
   ok(m1d[0] && /M1D-B/.test(m1d[0].model), 'M1D-B finds the NetEngine', m1d[0] && m1d[0].model);
 
