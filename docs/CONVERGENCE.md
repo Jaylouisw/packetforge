@@ -99,10 +99,45 @@ Honestly, and by design:
   from the newer instant: every port waits its two forward delays from the last change, and the
   earlier deadline is gone rather than interleaved with it.
 - **STP port roles changing over time.** Roles come from the steady-state computation; only the
-  transitional Listening/Learning state is timed.
+  transitional Listening/Learning state is timed, and the adoption instant below.
+- **A staggered power-on is not a console action.** `Device.bootedAtMs` is a runtime field an embedder
+  (or a test) can set; nothing in `engine/cli.js` writes it, so every lab typed at a console powers its whole
+  board at 0. A `power on at <ms>` verb would be new surface and is not proposed here.
 
 Each of those is a real gap and each is a candidate for its own issue. What exists is the part a
 technician meets first: the honest *duration* of coming up.
+
+## Power-on order: when the adoption starts
+
+A bridge does not run its own timers until it has heard the root, and this model used to pretend otherwise: the
+root's forward delay paced a non-root's ports from the lab's `t = 0`, so a switch powered on seconds *before* its
+root converged on numbers nobody was advertising to it yet. The schedule now dates the window.
+
+A port transmits a configuration BPDU the moment it becomes designated, which at power-on is at once - the box has
+no better information and believes itself root. So the root's first BPDU leaves at the root's own boot, and a
+bridge powered on together with the root (or before it) accepts it at that instant. A bridge powered on into a
+tree that is already running is the other case: it waits out the remainder of the root's hello timer, so one hello
+interval is the worst case - and the one number in the adopted set that a real timer prices.
+
+```
+SW2#converge
+Process   Device                 Ready     Basis
+stp       SW1                    8000 ms   listening + learning (4 s forward-delay each)
+stp       SW2                    15000 ms  heard the root SW1 at 7000 ms, then listening + learning (4 s forward-delay each, the root SW1's)
+```
+
+`SW2` came up at 5 s, heard `SW1`'s next hello at 7 s, and walked the root's two 4 s delays from there - 15 s, not
+the 8 s this schedule used to report for a tree that was still being advertised, and not the 30 s its own default
+would take. Until 7 s its ports are paced by its own configuration, so `stpPortStateAt()` answers those seconds from
+`stpTimers(dev)`: a port can be Listening on a 15 s forward delay while the tree it is joining runs a 4 s one. A box
+that has not been powered on yet blocks, which is what a dark port does.
+
+Two simplifications, stated rather than hidden: a port that is already Listening keeps the value it loaded, and this
+model reloads it at adoption, so the transition restarts at the instant the root is heard; and the credit is one
+hello, not a measurement - a capture of `debug spanning-tree events` on both sides of a power-on would replace the
+constant, and the console has no such debug view to take one from. A re-convergence is not charged a hello: a box
+that was already hearing the root holds its BPDU, so a cable moving elsewhere in the lab does not restart the
+adoption clock, and a box powered on after the change has nothing stored, so it owes no Max Age either.
 
 ## Re-convergence: a cable is pulled
 

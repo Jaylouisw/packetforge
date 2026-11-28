@@ -39,6 +39,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   beside `readyAtMs`, `stpPortStateAt()` takes the entry and counts the state back from the instant the box
   finishes (Blocking through a Max Age hold, then Listening, Learning, Forwarding), and the change is recorded
   before the rebuild. `test/stp-root-timers-pace-the-tree.test.js` (43 assertions), `docs/CONVERGENCE.md` (#1731).
+- **A non-root ran the root's timers from t=0, whatever instant it heard the root.** #1722 settled *whose*
+  forward delay paces a non-root's ports and #1746 the Max Age a bridge sits out after it loses the root;
+  neither said when the adoption *starts*. `stpTimersInForce()` applied the root's numbers from the lab's
+  t=0, so a switch powered on before its root walked the root's two 4 s delays from a BPDU that did not exist
+  yet - 8 s on a board still advertising nothing - and `hello`, carried in every adopted timer set since
+  #1722, was counted by nothing. A bridge now carries `bootedAtMs` (runtime only, never serialised) and
+  `stpAdoption()` returns the instant the root's first configuration BPDU is accepted: the root's own boot
+  when the two come up together or the root first, because a port transmits a configuration BPDU the moment
+  it becomes designated; one hello later when the box powers on into a tree already running, which is the
+  worst case for the root's next one. The schedule dates the two forward delays from that instant,
+  `stpPortStateAt()` answers the window before it from the bridge's *own* timers (a box not yet powered
+  blocks), and the `Basis` column reads `heard the root SW1 at 7000 ms, then ...` or `powered on at 5000 ms,
+  then ...`. A re-convergence pays no hello - a box that was already hearing the root holds its BPDU, so a
+  cable moving elsewhere does not restart the clock - and a box powered on after the change holds nothing, so
+  it owes no Max Age. `test/stp-adoption-window.test.js` (35 assertions),
+  `research/stp-root-timers-pace-the-tree.md`, `docs/CONVERGENCE.md` (#1731).
 - **An OSPF router given a higher priority took the DR seat on the spot, which no box does.** The
   DR/BDR election was held from scratch on every `computeOspf()` pass, so `ip ospf priority 200` typed on
   a DROTHER made it the DR by the next `show ip ospf neighbor`, and a router whose cable came back took

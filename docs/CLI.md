@@ -2749,10 +2749,14 @@ configured ones on the Bridge ID line, so a non-root whose root was given `max-a
 above and `Max Age 20 sec` below, while only the top line describes how fast the tree actually converges. This
 console reads the same two sets: the root's config for the Root ID line, this device's own for the Bridge ID
 line, both through `stpTimers()`, so a root prints one line twice and a non-root can print two different ones. A
-console with no election behind it has no root to quote and prints its own configuration on both. One divergence
-remains and is tracked rather than hidden: the convergence schedule still times each device by its own
-configuration, so a lab whose root advertises a fast tree and whose non-root was left at defaults prints the fast
-numbers and takes the slow path (`research/stp-timer-lines-source.md`, #1722).
+console with no election behind it has no root to quote and prints its own configuration on both. The schedule
+behind these numbers paces a non-root's ports by the root's forward delay as well (#1722), so the fast line above
+is not a promise the tree fails to keep. The one window where the two still disagree is the seconds before a
+bridge accepts the root's first configuration BPDU: until it does, it believes it is the root and runs its own
+numbers, and it is a bridge that powered on into a tree already running that pays for it - at most one hello
+interval. `converge` dates that instant in its `Basis` column (`heard the root SW1 at 7000 ms, then ...`), which
+is the honest place to read it: this block prints the timers the box will run, not a claim about the first
+seconds of its life (`research/stp-timer-lines-source.md`, #1731).
 
 The root is named the way a box names it — by its **bridge address**, the lowest MAC on the root, which is the
 one identity this block has a field for. A hostname is not printed here, and neither is the catalogue's model
@@ -3933,7 +3937,7 @@ not set`, and no `S*` row appears. On a box that does not route, the same comman
 host/redirect cache shape below instead of a table. Only a lease's router is a route: the row is read from
 `device.dhcpGateway` (`engine/device.js:1446`), which `Simulator.computeDhcp()` fills when the lease carries a
 gateway (`engine/simulator.js:1248`), while the typed `config.defaultGateway` is consulted only when
-`isL3()` is false (`engine/device.js:1178`, and again where the table's `S*` row is built, `:1440`). The
+`isL3()` is false (`engine/device.js:1185`, and again where the table's `S*` row is built, `:1440`). The
 scoping itself, with the vendor sources, is in
 [research/ip-default-gateway-when-routing.md](../research/ip-default-gateway-when-routing.md).
 
@@ -4160,6 +4164,14 @@ both, and a word that is neither an instant nor `at` is refused by name: `conver
 `% Unrecognized "wibble" (converge [<ms> | at <ms>])`, and `converge at`, `converge wibble`,
 `converge -5` are each `% Invalid instant: …`. A refusal changes nothing, so the answer you then ask
 for is the one you get.
+
+The `Basis` column says what produced each instant, and since #1731 it can also say where the window started.
+`listening + learning (4 s forward-delay each, the root SW1's)` is a tree paced by the root's timers;
+`heard the root SW1 at 7000 ms, then ...` is a bridge that powered on into a tree already running and ran its
+own numbers until the root's next configuration BPDU reached it; `powered on at 5000 ms, then ...` is a box
+whose own boot is the first thing that happened to it, the root of the lab included; and
+`the old root's BPDU aged out (20 s Max Age), then ...` is a bridge that lost the root without losing a port
+of its own.
 
 ## DHCP server
 
