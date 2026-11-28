@@ -24,7 +24,7 @@ Modes and their prompts:
 | `show version` | vendor, model, category, capabilities |
 | `show ip interface brief` | interface IP / status table (status = whether the port can carry a frame), one row per **data** port, one per subinterface directly under the port it rides on (`GigabitEthernet0/0/0`, then `GigabitEthernet0/0/0.10`, before the next socket - `research/interface-brief-subinterface-order.md`), and one per EtherChannel bundle (`Port-channel1`, `unassigned YES unset`, `up` only when a member is in it); a console or aux socket is a line, not an interface, and has no row (`research/console-is-a-line-not-an-interface.md`) |
 | `show ip interface [<port>]` | the per-port detail block `show interfaces` prints, for one port when a port is named - the box's IP view (`show ip interface [type number] [brief]`) is this console's interface view, since no separate IP-characteristics block is modelled; `brief` keeps its own table (`research/show-ip-interface-port-form.md`) |
-| `show ip route` | routing table: connected, static, OSPF, BGP, and the default - or `Gateway of last resort is not set` when there is none; a box that does not route prints `Default gateway is ...` over the host/redirect cache instead |
+| `show ip route` | routing table: connected, static, OSPF, BGP, and the default - or `Gateway of last resort is not set` when there is none; a protocol name after it (`show ip route static`) prints the same table narrowed to one source; a box that does not route prints `Default gateway is ...` over the host/redirect cache instead |
 | `show arp` | ARP cache: the neighbours it has heard, with an age and the port each was heard on and whether that port can still carry a frame, plus a local row (age `-`) for every interface holding an IPv4 address |
 | `show mac address-table` | MAC table (switches), per VLAN, with an age per entry and stale entries marked, the box's twenty reserved `All … CPU` rows above the learned ones, titled and ruled as the device prints it and closed by `Total Mac Addresses for this criterion: N`; `dynamic` (or `dyn`) narrows it to what was learned, leaving the CPU rows out, and `interface <port>` to one port; an address learned through a bundle is named on the port-channel (`Po1`), as the device names it (`research/mac-table-port-channel-name.md`) |
 | `show vlan` / `show vlan brief` | VLAN table: one row per VLAN in the VLAN database, with the **access** ports in it - a trunk port carries the VLAN and appears in no row - and the four reserved defaults (1002-1005) a switch has from boot. `show vlan` is the full view: it then prints the media table (`Type`, `SAID`, `MTU`, `Stp`, `Trans1/2`), the empty `Remote SPAN VLANs` section and the empty private-VLAN table; `brief` stops after the first table |
@@ -178,7 +178,7 @@ command named**:
 
 ```
 r1#show ip route 192.0.2.0/24
-% show ip route does not take "192.0.2.0/24": the whole table is printed - run `show ip route` and read the row for the prefix
+% show ip route does not take "192.0.2.0/24": the whole table is printed - run `show ip route` and read the row for the prefix, or narrow it to one source by naming a protocol: connected, static, ospf, bgp, rip
 ```
 
 That refusal is the point, and it is worth stating why, because the alternative looked helpful. These commands used
@@ -192,6 +192,18 @@ C   10.0.0.0/24 is directly connected, GigabitEthernet0
 
 A different prefix, printed as the answer to a question about this one. An operator checking whether a prefix is
 installed is checking exactly the thing a silent drop fabricates: the table came back looking like a yes.
+
+One word after `show ip route` is **not** refused, because the command takes it: a **protocol** name, which is the
+same table narrowed to one source - `show ip route static`, `show ip route connected`, `show ip route ospf`. The
+vendor's field list defines it ("The name of a routing protocol or the keyword connected, mobile, static, or
+summary", with `bgp`, `eigrp`, `hello`, `isis`, `odr`, `ospf`, `nhrp` and `rip` as the protocols - Cisco IOS IP
+Routing: Protocol-Independent Command Reference, [`show ip route`](https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/iproute_pi/command/iri-cr-book/iri-cr-s1.html)),
+and every capture prints the whole codes legend, the `Gateway of last resort` line and only the rows of that
+source. Two rules are worth knowing: **`connected` keeps the `L` rows as well as the `C` ones** (a local host
+route is a subtype of the connected route - Cisco doc 116264), and a protocol with no rows is still an answer,
+so `show ip route bgp` on a box running no BGP prints the legend and the gateway line and nothing else.
+`summary` shares the slot and is a different table, so it is refused as one. `research/show-ip-route-protocol.md`
+carries the captures.
 
 The same for `show arp <address>`, `show vlan <id>`, `show spanning-tree <port>`, `show lldp neighbors <port>`,
 `show ip interface brief <port>`, `show running-config interface <port>`, `show access-lists <n>`,
@@ -412,7 +424,7 @@ unapplied in`), and the bare `no ip access-group`, which clears both directions 
 actually cleared: in the session above - 102 inside, nothing outside - it answers `Interface Gi0/0/1:
 access list unapplied in`, and `access list unapplied in and out` only when both directions were bound.
 Reading a direction word as the number is the code's to fix
-(`_accessGroup()`, `const want = rest[0] != null ? parseInt(rest[0], 10) : null` at `engine/cli.js:4669` - the
+(`_accessGroup()`, `const want = rest[0] != null ? parseInt(rest[0], 10) : null` at `engine/cli.js:4745` - the
 guard asks whether a word arrived, not whether it is a number, so `in` still parses to `NaN`); until it is,
 this page does not advertise the direction on its own.
 
@@ -4159,7 +4171,7 @@ interface GigabitEthernet0/0
 ```
 
 **A `no` that names a setting removes the setting; a bare `no` removes the group.** The interface-mode
-handler (`_ifaceMode()`, `engine/cli.js:2670`) reads the vrid, and then the word after it; its `no vrrp`
+handler (`_ifaceMode()`, `engine/cli.js:2739`) reads the vrid, and then the word after it; its `no vrrp`
 branch is at `:2724-2777`:
 
 ```
