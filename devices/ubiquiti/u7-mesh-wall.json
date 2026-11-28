@@ -1,0 +1,30 @@
+{
+  "vendor": "ubiquiti",
+  "model": "U7-Mesh-Wall",
+  "label": "UniFi U7 Mesh Wall",
+  "category": "wireless",
+  "description": "Wall-plug Wi-Fi 7 mesh AP with no Ethernet port at all: 2x2 5 GHz (4.3 Gbps, BW240) and 2x2 2.4 GHz (688 Mbps, BW40), four spatial streams, AC powered from the wall socket it mounts over. It reaches the network only through a wireless mesh uplink.",
+  "capabilities": [
+    "wireless",
+    "l2-forward",
+    "dhcp-client",
+    "cli",
+    "http-server"
+  ],
+  "interfaces": [
+    {
+      "name": "radio0",
+      "type": "wireless",
+      "speed": "688M"
+    },
+    {
+      "name": "radio1",
+      "type": "wireless",
+      "speed": "4.3G"
+    }
+  ],
+  "icon": "ap",
+  "color": "#14b8a6",
+  "sourceUrl": "https://techspecs.ui.com/unifi/wifi/u7-mesh-wall-us",
+  "notes": "Read 2026-11-28 from https://techspecs.ui.com/unifi/wifi/u7-mesh-wall-us (HTTP 200, 698,810 B), the US SKU page (U7-Mesh-Wall-US). Vendor rows, verbatim: \"Power Method: AC input, 100–120V AC, 0.4A Max., 50/60 Hz\", \"Max. Power Consumption: 13W\", \"Power Supply: 100–120V AC, 50/60 Hz\", \"Mounting: Wall (Wall Power Socket Included)\", \"Spatial Streams: 4\", \"Max. Data Rate: 5 GHz 4.3 Gbps (BW240) / 2.4 GHz 688 Mbps (BW40)\", \"MIMO: 5 GHz 2 x 2 (DL/UL MU-MIMO) / 2.4 GHz 2 x 2 (DL/UL MU-MIMO)\", \"Weight: 290 g\", \"Ambient Operating Temperature: -10 to 40° C\".\n\nThere is no Networking Interface row on that page and the strings \"Ethernet\", \"RJ45\", \"GbE\" and \"PoE\" do not occur anywhere in it (checked over the page's rendered text): this unit has no copper port and no PoE, so it is modelled with two radios and nothing to cable. Anything that needs a wired port has to go through another AP. In a lab it can only be reached over the mesh uplink it forms.\n\nThe 13 W is stated but not attached to a port: the only power path is the AC input, and the interface model has no AC inlet type, so there is no poeIn and no PSE anywhere can bill this box against a budget. It also carries no poe-pd / 802.3af capability — adding one would let a lab believe an injector can power it.\n\nThe Worldwide variant is the same radio hardware on \"200–240V AC\" (the page's other region tab); the catalogue keeps one entry per model and this one cites the US SKU, as u7-pro-outdoor does. https://dl.ui.com/ds/u7-mesh-wall-us_ds.pdf and https://dl.ui.com/ds/u7-mesh-wall_ds.pdf both answer 302 to techspecs.ui.com, so the techspecs table above is the whole published material."
+}
