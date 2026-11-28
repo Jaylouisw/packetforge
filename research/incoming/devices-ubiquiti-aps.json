@@ -10,8 +10,7 @@
       "l2-forward",
       "dhcp-client",
       "cli",
-      "http-server",
-      "802.3af"
+      "http-server"
     ],
     "interfaces": [
       {
@@ -26,7 +25,7 @@
       }
     ],
     "sourceUrl": "https://techspecs.ui.com/unifi/wifi/u6-extender",
-    "notes": "Vendor figures: no networking interface listed - the U6 Extender is a wall-plug mesh unit with no Ethernet port; max data rate 4.8 Gbps on 5 GHz (4x4, BW160) and 573.5 Mbps on 2.4 GHz (2x2, BW40); universal AC input 100-240V. Mesh uplink only: in a lab it can join a wireless mesh but cannot be cabled, which is a real constraint of the hardware."
+    "notes": "Vendor figures: no networking interface listed - the U6 Extender is a wall-plug mesh unit with no Ethernet port; max data rate 4.8 Gbps on 5 GHz (4x4, BW160) and 573.5 Mbps on 2.4 GHz (2x2, BW40); universal AC input 100-240V AC, 0.3 A max, 11 W max consumption, wall power socket included. Mesh uplink only: in a lab it can join a wireless mesh but cannot be cabled, which is a real constraint of the hardware. No PoE capability is declared (neither poe-pd nor 802.3af): the box has no PD port to negotiate a class on, so an injector cannot power it and a PoE switch has nothing to bill."
   },
   {
     "vendor": "ubiquiti",
