@@ -2193,6 +2193,22 @@ class CliSession {
     } else if (head === 'router' && tokens[1] === 'bgp') {
       out.push.apply(out, this._bgp(['as', tokens[2]]));
     } else if (head === 'no' && tokens[1] === 'router' && tokens[2] === 'bgp') {
+      // `no router bgp <as>`: the AS is part of the command, not decoration. This branch read the three
+      // words and deleted the process, so `no router bgp` alone answered `BGP disabled` and took the
+      // running process, its neighbours and its `router bgp` stanza with it before an AS had been named
+      // (#1704). A line missing a required value is `% Incomplete command.` on the box and runs nothing;
+      // a word that is not an AS is the create path's `% Invalid AS number "<x>"`. Both are answered
+      // before anything is deleted, so the process outlives a mistyped line. The `no`-form catalogue
+      // (NO_FORMS, `no router bgp <as>`) already printed the argument this branch never asked for.
+      const runningAs = this.device.config.bgp ? this.device.config.bgp.as : null;
+      const asWord = tokens[3];
+      if (asWord === undefined) {
+        return ['% Incomplete command: no router bgp ' +
+          (runningAs !== null && runningAs !== undefined ? runningAs : '<as>')];
+      }
+      if (this._bgpAs(asWord) === null) {
+        return ['% Invalid AS number "' + asWord + '"'];
+      }
       this.device.config.bgp = null;
       this.device.bgpRoutes = [];
       out.push('BGP disabled');
@@ -3729,6 +3745,14 @@ class CliSession {
   }
 
   // ---------- BGP ----------
+  //
+  // What an AS number is, in one place: `router bgp <as>` and `no router bgp <as>` must refuse the same
+  // word with the same sentence (#1704), and the create path's range check was the only copy of the rule.
+  _bgpAs(raw) {
+    const asn = parseInt(raw, 10);
+    return (asn >= 1 && asn <= 4294967295) ? asn : null;
+  }
+
   _bgp(tokens) {
     const dev = this.device;
     const t = tokens.map(function (x) { return String(x); });
@@ -3767,8 +3791,8 @@ class CliSession {
     // answers with the receipt the rest of this console uses for a line that changed nothing - the same
     // shape as `vlan 20` on an existing VLAN.
     if (t[0] === 'as') {
-      const asn = parseInt(t[1], 10);
-      if (!(asn >= 1 && asn <= 4294967295)) return ['% Invalid AS number "' + (t[1] || '') + '"'];
+      const asn = this._bgpAs(t[1]);
+      if (asn === null) return ['% Invalid AS number "' + (t[1] || '') + '"'];
       const running = dev.config.bgp ? dev.config.bgp.as : null;
       if (running !== null && running !== undefined) {
         if (Number(running) !== asn) return ['BGP is already running; AS is ' + running];

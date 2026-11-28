@@ -4617,6 +4617,36 @@ Same shape as `ip route flurbish` in #1495 — the *empty string* was validated 
 
 A genuinely bad value is still quoted back (`Invalid name server "flurbish"`), so the two problems now read differently.
 
+### A command with a missing argument ran anyway
+
+The same fault one step further out: the missing part was not a value but the *command's own argument*, and
+the branch did not ask for it. `no router bgp` is `no router bgp autonomous-system-number`; the branch read
+the three words and deleted the process, so a bare line answered `BGP disabled` and took the running
+process, its neighbours and its `router bgp` stanza with it before an AS had been named
+([research/no-router-bgp-argument.md](../research/no-router-bgp-argument.md)).
+
+| typed | used to answer | now |
+|---|---|---|
+| `no router bgp` | `BGP disabled` - the live process deleted | `% Incomplete command: no router bgp 65001` - the AS the box is running, and nothing changed |
+| `no router bgp eigrp` | `BGP disabled` - the live process deleted | `% Invalid AS number "eigrp"` - the create path's sentence, and nothing changed |
+
+```
+r1(config)#router bgp 65001
+BGP enabled, local AS 65001
+r1(config)#neighbor 10.0.12.2 remote-as 65002
+BGP neighbor 10.0.12.2 remote-as 65002
+r1(config)#no router bgp
+% Incomplete command: no router bgp 65001
+r1(config)#no router bgp eigrp
+% Invalid AS number "eigrp"
+r1(config)#no router bgp 65001
+BGP disabled
+```
+
+On a box with no process the same bare line prints the syntax instead of an AS, because there is none to
+name: `% Incomplete command: no router bgp <as>`. The range rule lives in one place (`_bgpAs()`), so the
+create and delete lines refuse the same word with the same sentence.
+
 ### `show` on its own called the command invalid
 
 The same shape one level up, where the missing part is a *word* rather than a value. A bare `show`, and the two
