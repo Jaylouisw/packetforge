@@ -22,27 +22,40 @@
     {
       "name": "eth1",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": 18
     },
     {
       "name": "eth2",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+",
+      "poeIn": false
     },
     {
       "name": "eth3",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+",
+      "poeIn": false
     },
     {
       "name": "eth4",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+",
+      "poeIn": false
     },
     {
       "name": "eth5",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeOut": true,
+      "poeOutClass": "PoE+",
+      "poeIn": false
     },
     {
       "name": "radio0",
@@ -52,5 +65,10 @@
   ],
   "icon": "ptp",
   "color": "#14b8a6",
-  "sourceUrl": "https://mikrotik.com/product/rbomnitikpg_5hacd"
+  "sourceUrl": "https://mikrotik.com/product/rbomnitikpg_5hacd",
+  "poe": {
+    "budgetUnknown": true,
+    "note": "MikroTik prints current limits and an input-voltage range, never a watt ceiling for these four ports: PoE-out Ether2-Ether5, 1 A per port and 2 A total, at the voltage applied to the unit (11-30 V on the 100M model, 12-57 V on the ac model). Multiplying amperes by a nominal voltage would invent a figure the vendor does not publish."
+  },
+  "notes": "Inlet is `eth1` at 18 W; `eth2`-`eth5` source 802.3af/at and cannot be fed. https://mikrotik.com/product/rbomnitikpg_5hacd (read 2026-11-28): \"Number of DC inputs 1 (PoE-IN)\", \"PoE in Passive PoE\", \"PoE in input Voltage 12-57 V\", \"Max power consumption 66 W\", \"Max power consumption without attachments 18 W\"; \"PoE-out ports Ether2-Ether5\", \"PoE out 802.3af/at\", \"Low voltage PoE-Out current limit 1 A\", \"High voltage PoE-Out current limit 450 mA\", \"Max total out (A) 2 A\". https://manual.mikrotik.com/hardware/omnitik-series/ notes the 802.3af/at input is limited to 30 W and the unit consumes up to 15 W by itself; https://cdn.mikrotik.com/web-assets/product_files/OmniTIK_5_ac_171051.pdf prints \"PoE out - Yes, Ether2 - Ether5\", \"1 A (if input < 30 V) / 0.5 A (if input > 30 V)\", \"Consumption 18 W\". The budget is current x applied voltage, so it is marked unknown. Before: five silent sockets guessed at 12.95 W apiece (64.75 W) and no port declared as the PSE the datasheet says it is."
 }
