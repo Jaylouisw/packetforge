@@ -3742,9 +3742,38 @@ class CliSession {
     }
 
     // router bgp <as>
+    //
+    // A router runs ONE BGP process, and the local AS is fixed when that process is created: typing
+    // `router bgp <other-as>` on a box already running BGP does not move it. The line was read as a
+    // redefinition, so the console silently renumbered a live process - neighbours kept their remote-AS,
+    // `show ip bgp summary` started reporting a different local AS, and `show running-config` printed a
+    // process the operator never created; the box, meanwhile, prints one warning and changes nothing:
+    //
+    //   R4(config)#router bgp 35
+    //   BGP is already running; AS is 34
+    //
+    // Six independent captures carry that sentence word for word - a lab walk-through
+    // (https://www.networkengineerpro.com/tutorials/cisco/ccnp-enarsi-300-410/bgp/ibgp-and-ebgp-peerings/),
+    // two Cisco Community threads (https://community.cisco.com/t5/routing/two-bgp/td-p/1046091,
+    // https://community.cisco.com/t5/routing/how-do-i-find-out-the-as-number-my-ebgp-neighbour-is-using-to/td-p/1078712),
+    // a Cisco Community answer on an ASR (https://community.cisco.com/t5/routing/multiple-bgp-instance-in-one-router/m-p/4189864),
+    // an IOS XE paste (https://networkengineering.stackexchange.com/questions/50672/edit-bgp-on-ios-xe3)
+    // and a blog post (http://ithitman.blogspot.com/2012/06/configuring-bgp-local-as-one-router.html) -
+    // and none of them shows a leading `%`, so the line is printed as the box prints it rather than run
+    // through this console's refusal prefix. research/bgp-second-router-as.md records that gap.
+    //
+    // Retyping the SAME AS creates nothing either. A box says nothing there and simply re-enters the mode
+    // it is already in; this console has no router sub-mode to enter (docs/BGP-POLICY.md section 9.2), so it
+    // answers with the receipt the rest of this console uses for a line that changed nothing - the same
+    // shape as `vlan 20` on an existing VLAN.
     if (t[0] === 'as') {
       const asn = parseInt(t[1], 10);
       if (!(asn >= 1 && asn <= 4294967295)) return ['% Invalid AS number "' + (t[1] || '') + '"'];
+      const running = dev.config.bgp ? dev.config.bgp.as : null;
+      if (running !== null && running !== undefined) {
+        if (Number(running) !== asn) return ['BGP is already running; AS is ' + running];
+        return ['BGP is already running as ' + asn + ', so there was nothing to enable'];
+      }
       ensure(asn);
       return ['BGP enabled, local AS ' + asn];
     }
