@@ -20,27 +20,32 @@
     {
       "name": "eth1",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": false
     },
     {
       "name": "eth2",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": false
     },
     {
       "name": "eth3",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": false
     },
     {
       "name": "eth4",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": false
     },
     {
       "name": "eth5",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": false
     },
     {
       "name": "radio0",
@@ -55,5 +60,6 @@
   ],
   "icon": "ap",
   "color": "#14b8a6",
-  "sourceUrl": "https://mikrotik.com/product/chateau_pro_ax"
+  "sourceUrl": "https://mikrotik.com/product/chateau_pro_ax",
+  "notes": "PoE in: none. Powering lists 'Number of DC inputs: 1 (DC jack)' (18-57 V) and no PoE-in row. The same section's PoE-out block names Ether5 (passive PoE up to 57 V, 600 mA, 22.8 W total out), so Ether5 sources power but no port accepts it."
 }

@@ -20,31 +20,36 @@
       "name": "eth1",
       "type": "ethernet",
       "connector": "rj45",
-      "speed": "2.5G"
+      "speed": "2.5G",
+      "poeIn": false
     },
     {
       "name": "eth2",
       "type": "ethernet",
       "connector": "rj45",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": false
     },
     {
       "name": "eth3",
       "type": "ethernet",
       "connector": "rj45",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": false
     },
     {
       "name": "eth4",
       "type": "ethernet",
       "connector": "rj45",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": false
     },
     {
       "name": "eth5",
       "type": "ethernet",
       "connector": "rj45",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": false
     },
     {
       "name": "wlan0",
@@ -63,5 +68,5 @@
     }
   ],
   "sourceUrl": "https://mikrotik.com/product/chateaulte18_ax",
-  "notes": "Vendor figures from the MikroTik product page: 'we kept four Gigabit Ethernet ports and added a 2.5 Gigabit Ethernet' port, plus an LTE modem and Wi-Fi 6. The 2.5G port is modelled at 2.5G rather than 1G because that is the whole point of the model - rounding it down would hide the only fast port on the device."
+  "notes": "Vendor figures from the MikroTik product page: 'we kept four Gigabit Ethernet ports and added a 2.5 Gigabit Ethernet' port, plus an LTE modem and Wi-Fi 6. The 2.5G port is modelled at 2.5G rather than 1G because that is the whole point of the model - rounding it down would hide the only fast port on the device. PoE in: none. The product page's Powering section lists 'Number of DC inputs: 1 (DC jack)' and no PoE-in row, so all five RJ45 ports are mains-powered; the Wi-Fi category is why the engine used to infer 12.95 W on each."
 }
