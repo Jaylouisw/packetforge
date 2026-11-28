@@ -18,27 +18,32 @@
     {
       "name": "eth1",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": false
     },
     {
       "name": "eth2",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": false
     },
     {
       "name": "eth3",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": false
     },
     {
       "name": "eth4",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": false
     },
     {
       "name": "eth5",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": false
     },
     {
       "name": "radio0",
@@ -58,5 +63,6 @@
   ],
   "icon": "ap",
   "color": "#14b8a6",
-  "sourceUrl": "https://mikrotik.com/product/chateau_lte6"
+  "sourceUrl": "https://mikrotik.com/product/chateau_lte6",
+  "notes": "PoE in: none. The product page's Powering section lists 'Number of DC inputs: 1 (DC jack)' and no PoE-in row, so all five RJ45 ports are mains-powered; the Wi-Fi category is why the engine used to infer 12.95 W on each."
 }
