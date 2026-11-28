@@ -424,7 +424,7 @@ unapplied in`), and the bare `no ip access-group`, which clears both directions 
 actually cleared: in the session above - 102 inside, nothing outside - it answers `Interface Gi0/0/1:
 access list unapplied in`, and `access list unapplied in and out` only when both directions were bound.
 Reading a direction word as the number is the code's to fix
-(`_accessGroup()`, `const want = rest[0] != null ? parseInt(rest[0], 10) : null` at `engine/cli.js:4745` - the
+(`_accessGroup()`, `const want = rest[0] != null ? parseInt(rest[0], 10) : null` at `engine/cli.js:4764` - the
 guard asks whether a word arrived, not whether it is a number, so `in` still parses to `NaN`); until it is,
 this page does not advertise the direction on its own.
 
@@ -4191,9 +4191,13 @@ interface GigabitEthernet0/0
 
 **A `no` that names a setting removes the setting; a bare `no` removes the group.** The interface-mode
 handler (`_ifaceMode()`, `engine/cli.js:2792`) reads the vrid, and then the word after it; its `no vrrp`
-branch is at `:2877-2926`:
+branch is at `:2877-2948`:
 
 ```
+R1(config-if)#vrrp 10 priority 150
+VRRP group 10 priority 150
+R1(config-if)#vrrp 10 timers advertise 3
+VRRP group 10 advertises every 3 s
 R1(config-if)#no vrrp 10 preempt
 VRRP group 10 preempt disabled
 R1(config-if)#no vrrp 10 priority
@@ -4202,6 +4206,20 @@ R1(config-if)#no vrrp 10 timers advertise
 VRRP group 10 advertises every 1 s
 R1(config-if)#no vrrp 10
 VRRP group 10 removed from Gi0/0
+```
+
+A `no` only claims the reset when the value actually moved. Typed over a default — a fresh group already
+holds priority 100, advertises every 1 s and preempts — it answers with the state instead:
+
+```
+R1(config-if)#no vrrp 10 priority
+VRRP group 10 priority is already 100 (the default), nothing changed
+R1(config-if)#no vrrp 10 preempt
+VRRP group 10 preempt disabled
+R1(config-if)#no vrrp 10 preempt
+VRRP group 10 preemption is already disabled, nothing changed
+R1(config-if)#no vrrp 10 timers advertise
+VRRP group 10 already advertises every 1 s, nothing changed
 ```
 
 Each of those three words undoes exactly one line of the group, with the default the vendor's reference
