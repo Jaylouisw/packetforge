@@ -119,16 +119,12 @@ neighbours; pulling the cable removes the adjacency; and a direct cable still re
 
 ## What remains unresolved
 
-* **DR stickiness.** RFC 2328 §7.3: "when a router's interface to a network first becomes
-  functional, it checks to see whether there is currently a Designated Router for the network. If
-  there is, it accepts that Designated Router, regardless of its Router Priority. (This makes it
-  harder to predict the identity of the Designated Router, but ensures that the Designated Router
-  changes less often.)" This model elects from scratch on every computation, so a router with a
-  higher priority added to a running segment takes the DR immediately - which a box does not do until
-  the old DR goes away. Modelling that needs a notion of "there is already a DR here", i.e. state
-  across runs, which the graph calculation does not have. **What would settle it:** a transcript of
-  `ip ospf priority 200` applied to a DROTHER on a live segment, showing the DR unchanged until
-  `clear ip ospf process`.
+* **DR stickiness - settled separately.** The election used to run from scratch on every
+  computation, so a router with a higher priority added to a running segment took the DR immediately.
+  That is now modelled: the seats are incumbents, elected the way RFC 2328 §9.4 describes, and the
+  transcript this bullet asked for was found (NetworkLessons' three-router capture, `ip ospf priority
+  200` with the DR unchanged until `clear ip ospf process`). See
+  `research/ospf-dr-election-is-not-preemptive.md`.
 * **Network types other than broadcast and point-to-point.** NBMA, point-to-multipoint and virtual
   links have their own adjacency rules and their own `show` output; none is modelled, and this change
   does not touch them.

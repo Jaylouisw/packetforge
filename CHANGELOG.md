@@ -18,7 +18,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- **Three OSPF routers on one access switch were not neighbours at all.** `computeOspf()` walked
+- **An OSPF router given a higher priority took the DR seat on the spot, which no box does.** The
+  DR/BDR election was held from scratch on every `computeOspf()` pass, so `ip ospf priority 200` typed on
+  a DROTHER made it the DR by the next `show ip ospf neighbor`, and a router whose cable came back took
+  the seat back from whoever had been holding it. Both are the one thing a real segment will not do:
+  "OSPF DR and BDR elections are not pre-emptive ... the newly added router does not take over the DR or
+  the BDR role because those roles have already been assigned" (Cisco, *Scaling Networks v6.0*, ch. 10),
+  and NetworkLessons' three-router capture shows `ip ospf priority 200` leaving `FULL/DR` on the old DR
+  until `clear ip ospf process`. The election now runs the way RFC 2328 §9.4 describes it - over what
+  each router last declared, not over the ranking alone: an incumbent DR still standing and still
+  eligible keeps the seat, an incumbent BDR is promoted ahead of any higher-priority newcomer when the
+  DR seat frees, and the ranking fills only the seat left empty (and is still the whole vote on a fresh
+  segment, so every first-election capture is unchanged). The two seats live on the topology
+  (`topo.ospfRoles`, beside the DHCP leases, so a later request sees the answer an earlier one reached)
+  and `/reset` clears them, which is this model's `clear ip ospf process`.
+  `test/ospf-dr-election-is-not-preemptive.test.js` (28 assertions) and
+  `research/ospf-dr-election-is-not-preemptive.md`.
+ `computeOspf()` walked
   `topo.links`, so an adjacency needed a cable between the two devices: two routers cabled into the same
   switch - the commonest OSPF lab there is, and the one the DR/BDR pair is taught on - answered
   `% no adjacencies: nothing on the other end of an OSPF interface is running OSPF` on every box, and

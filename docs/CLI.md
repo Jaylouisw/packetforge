@@ -2204,6 +2204,12 @@ other. A serial line's default OSPF network type is point-to-point, where no ele
 and the box prints `FULL/ -`; `ip ospf priority` is accepted and stored there (IOS accepts it too)
 and changes nothing. The cell used to say `Full` - one word where the hardware prints a state and a
 role, which described a segment where nobody had stood for election.
+The election does not preempt, and that shows in this cell: a router given a higher priority while
+the segment is up keeps its DROTHER row - `2WAY/DROTHER` against the other DROTHERs - and the DR stays
+where it was, because a box runs the election over the roles each router last declared in its Hellos
+and the incumbent keeps declaring. A seat frees only when its holder fails, leaves the segment or is
+set to priority 0, and then the BDR takes it ahead of any higher-priority newcomer
+(`research/ospf-dr-election-is-not-preemptive.md`).
 A **point-to-point link does not compare masks**. RFC 2328 10.5 states the Hello check and then excepts the
 field for exactly this network type - "on point-to-point networks and on virtual links, the Network Mask in the
 received Hello Packet should be ignored" - and a Cisco box follows it: a /24 on one end of a serial link and a
