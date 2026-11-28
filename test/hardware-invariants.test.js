@@ -293,6 +293,31 @@ console.log('\nPoE claims are internally consistent:');
     return x.dev.poeBudget < 0 || x.dev.poeBudget > 8000;
   });
   ok(daft.length === 0, 'every PoE budget is a plausible wattage');
+
+  // A device with no copper and no fibre has no port that can negotiate a PD class.
+  // devices/ubiquiti/u6-extender.json declared 802.3af while every one of its
+  // interfaces was a radio: an AC wall-plug mesh extender, powered from the socket
+  // it mounts over. The claim is not cosmetic - a lab cabling it to a PoE switch
+  // expects a powered port, and `show power inline` has nothing to bill it to.
+  // uap-beaconhd and u7-mesh-wall, the other two wall-plug APs, declare none.
+  const phantomPd = [];
+  for (const x of all) {
+    const wired = x.ifaces.filter(function (i) {
+      return i.hardware.cage !== 'antenna' && i.hardware.cage !== 'wwan';
+    });
+    if (wired.length) continue;
+    const caps = (x.spec.capabilities || []).map(function (c) { return String(c).toLowerCase(); });
+    const pd = caps.filter(function (c) {
+      return ['802.3af', '802.3at', '802.3bt', 'poe-pd'].indexOf(c) !== -1;
+    });
+    const recv = x.ifaces.filter(function (i) { return i.hardware.poeIn; });
+    if (pd.length || recv.length) {
+      phantomPd.push(x.spec.model + ' (' + (pd.join('/') || 'no class') +
+        ', ' + recv.length + ' PD ports)');
+    }
+  }
+  ok(phantomPd.length === 0, 'no cableless device claims a PoE class it has no port to negotiate' +
+    (phantomPd.length ? ' (' + phantomPd.slice(0, 3).join(', ') + ')' : ''));
 }
 
 console.log('\nEvery device can be plugged into a copy of itself:');
