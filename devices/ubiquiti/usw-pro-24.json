@@ -19,7 +19,8 @@
       "speedCaps": [
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth1",
@@ -29,7 +30,8 @@
       "speedCaps": [
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth2",
@@ -39,7 +41,8 @@
       "speedCaps": [
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth3",
@@ -49,7 +52,8 @@
       "speedCaps": [
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth4",
@@ -59,7 +63,8 @@
       "speedCaps": [
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth5",
@@ -69,7 +74,8 @@
       "speedCaps": [
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth6",
@@ -79,7 +85,8 @@
       "speedCaps": [
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth7",
@@ -89,7 +96,8 @@
       "speedCaps": [
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth8",
@@ -99,7 +107,8 @@
       "speedCaps": [
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth9",
@@ -109,7 +118,8 @@
       "speedCaps": [
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth10",
@@ -119,7 +129,8 @@
       "speedCaps": [
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth11",
@@ -129,7 +140,8 @@
       "speedCaps": [
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth12",
@@ -139,7 +151,8 @@
       "speedCaps": [
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth13",
@@ -149,7 +162,8 @@
       "speedCaps": [
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth14",
@@ -159,7 +173,8 @@
       "speedCaps": [
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth15",
@@ -169,7 +184,8 @@
       "speedCaps": [
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth16",
@@ -179,7 +195,8 @@
       "speedCaps": [
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth17",
@@ -189,7 +206,8 @@
       "speedCaps": [
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth18",
@@ -199,7 +217,8 @@
       "speedCaps": [
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth19",
@@ -209,7 +228,8 @@
       "speedCaps": [
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth20",
@@ -219,7 +239,8 @@
       "speedCaps": [
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth21",
@@ -229,7 +250,8 @@
       "speedCaps": [
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth22",
@@ -239,7 +261,8 @@
       "speedCaps": [
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth23",
@@ -249,7 +272,8 @@
       "speedCaps": [
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "sfp1",
@@ -274,5 +298,6 @@
   ],
   "icon": "switch",
   "color": "#14b8a6",
-  "sourceUrl": "https://techspecs.ui.com/unifi/switching/usw-pro-24"
+  "sourceUrl": "https://techspecs.ui.com/unifi/switching/usw-pro-24",
+  "notes": "PoE, read 2026-11-28. `https://dl.ui.com/ds/usw-pro-24_ds.pdf` (HTTP 200, `application/pdf`, 415,079 B, text layer) prints **Networking interface = (24) GbE RJ45 ports / (2) 1/10G SFP+ ports**, **Power method = Universal input, 100-240V AC, 50/60 Hz; USP RPS DC input 11.5V DC, 2.61A**, **Power supply = AC/DC, internal, 36W** and **Max. power consumption = 30W**. No PoE line, no budget, no class: the non-PoE Switch Pro 24 is mains-powered, with the RPS DC bus as backup. Its 24 copper ports carry `poeIn: false` for the reason recorded in `usw-pro-48.json` - `isPoePd()` reads `unifi` out of the label and otherwise infers 12.95 W on each, 310.8 W of draw from a 30 W box."
 }
