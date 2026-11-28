@@ -893,12 +893,17 @@ jobs:
           # the run's answer and not a decision here: the run the approval starts still
           # has to report all four checks green before anything merges, and a refusal
           # leaves exactly the state this path has always produced.
-          approve_held_run() {   # $1 = the head the update produced; 0 = approved
-            local sha="$1" attempt=0 id=""
+          approve_held_run() {   # 0 = the run is approved
+            local attempt=0 id=""
+            # Asked by branch, not by the head the update produced: the update answers with
+            # a message and the pull request read lags its push, so a head-sha lookup
+            # missed the run entirely on #1679 (run 46099410842 read the old head twice
+            # and reported "no held run"), while the branch filter answers with the run the
+            # push has already made.
             while [ "$attempt" -lt 3 ]; do
               attempt=$((attempt + 1))
-              if ! id=$(gh api "repos/${repo}/actions/runs?head_sha=${sha}&event=pull_request&per_page=20"                            --jq '[.workflow_runs[] | select(.conclusion == "action_required")] | (.[0].id // "none") | tostring' 2>/dev/null); then
-                echo "the runs for ${sha} could not be read, so the held run stays for a person"
+              if ! id=$(gh api "repos/${repo}/actions/runs?branch=${head_ref}&event=pull_request&per_page=20"                            --jq '[.workflow_runs[] | select(.conclusion == "action_required")] | (.[0].id // "none") | tostring' 2>/dev/null); then
+                echo "the runs of ${head_ref} could not be read, so the held run stays for a person"
                 return 1
               fi
               case "$id" in
@@ -906,12 +911,12 @@ jobs:
                 *) break ;;
               esac
             done
-            case "$id" in none|'') echo "no held run for ${sha} was listed within six seconds"; return 1 ;; esac
+            case "$id" in none|'') echo "no held run of ${head_ref} was listed within six seconds"; return 1 ;; esac
             if gh api -X POST "repos/${repo}/actions/runs/${id}/approve" >/dev/null 2>&1; then
-              echo "approved the held run ${id} on ${sha}: its own pull request checks report there, which is the set branch protection reads"
+              echo "approved the held run ${id} of ${head_ref}: its own pull request checks report there, which is the set branch protection reads"
               return 0
             fi
-            echo "the held run ${id} on ${sha} could not be approved by this token; it stays for a person"
+            echo "the held run ${id} of ${head_ref} could not be approved by this token; it stays for a person"
             return 1
           }
           update_and_verify() {
@@ -946,15 +951,9 @@ jobs:
               next=$((prior + 1))
             fi
             if update_branch; then
-              new_head=""
-              if read_retry gh api "repos/${repo}/pulls/${NUMBER}" --jq .head.sha; then
-                new_head="$READ"
-              fi
               approved=0
-              if [ -n "$new_head" ]; then
-                if approve_held_run "$new_head"; then approved=1; fi
-              fi
-              notice "#${NUMBER}: every check on ${HEAD_SHA} is green and the branch was behind ${base} - updated it (update ${next} of ${MAX_UPDATES:-2}) onto ${new_head:-the new head}, asked for the approval its own run is held behind (${approved}), and dispatched ci.yml on ${head_ref} as well"
+              if approve_held_run; then approved=1; fi
+              notice "#${NUMBER}: every check on ${HEAD_SHA} is green and the branch was behind ${base} - updated it (update ${next} of ${MAX_UPDATES:-2}), asked for the approval the run its own push started is held behind (approved=${approved}), and dispatched ci.yml on ${head_ref} as well"
               if gh workflow run ci.yml --repo "$repo" --ref "$head_ref" -f updates="$next" >/dev/null 2>&1; then
                 exit 0
               fi
