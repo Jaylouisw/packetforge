@@ -1809,9 +1809,39 @@ class CliSession {
         return ['% VLAN name "' + text + '" is ' + text.length + ' characters: a VLAN name is 1-' + limit +
           ' characters, so nothing was changed'];
       }
+      // Typing `vlan 20` on a switch that already has VLAN 20 selects it. It does not make it again, and it
+      // does not touch the name. The vendor states the rule twice, in two chapters of the same family:
+      // *"When you enter the VLAN ID of an existing VLAN, you do not create a new VLAN, but you can modify VLAN
+      // parameters for that VLAN"* (Consolidated Platform Command Reference, Cisco IOS Release 15.2(7)E,
+      // Catalyst 2960-X, `vlan`), and the same fact seen from the exit door: *"the VLAN is added if it did not
+      // already exist; otherwise, this command does nothing"* (VLAN Command Reference, Cisco IOS XE Release 3SE,
+      // Catalyst 3850). The only slot this command sets is the name, and it sets it through the `name` keyword
+      // alone - #1493 taught the parser to read that keyword; this reads the record.
+      //
+      // The door wrote a fresh `{ name }` object on every run, so a bare `vlan 20` after `vlan 20 name sales`
+      // replaced "sales" with the generated `VLAN0020` and announced a creation that had not happened (#1666).
+      // "enter VLAN 20" is a step in every switching worksheet and the most-typed line in the lab, and it
+      // silently ate the operator's name; the receipt then said `created`, so the only clue was the table
+      // afterwards. A real box prints nothing in either case - there is no receipt for a no-op - so the
+      // sentences below are this console's, in the shape the `ip route` door already answers a repeated
+      // statement with (#1659): the record is left alone and the answer says so, a change of name is reported
+      // as a rename (with the name it replaced), and `created` is kept for the one case where something was
+      // in fact created.
       const name = text || ('VLAN' + String(id).padStart(4, '0'));
-      this.device.config.vlans[id] = { name: name };
-      out.push('VLAN ' + id + ' created (name: ' + name + ')');
+      const existing = this.device.config.vlans[id];
+      const held = (existing && existing.name) || ('VLAN' + String(id).padStart(4, '0'));
+      if (!existing) {
+        this.device.config.vlans[id] = { name: name };
+        out.push('VLAN ' + id + ' created (name: ' + name + ')');
+      } else if (!text || text === held) {
+        // Renaming a VLAN to the name it already has is the same statement twice, not a change: the record is
+        // not rewritten (a hand-edited entry keeps whatever else it carries) and nothing is announced as new.
+        out.push('VLAN ' + id + ' already exists (name: ' + held + '): nothing was changed');
+      } else {
+        // Mutated, not replaced: a VLAN record outlives the command, and anything else stored on it stays.
+        existing.name = text;
+        out.push('VLAN ' + id + ' renamed (name: ' + held + ' -> ' + text + ')');
+      }
     } else if (head === 'no' && tokens[1] === 'ip' && tokens[2] && tokens[2].toLowerCase() === 'nat' &&
                tokens[3] && /^(inside|outside)$/i.test(String(tokens[3])) && tokens[4] === undefined &&
                this.mode === MODE_IFACE) {

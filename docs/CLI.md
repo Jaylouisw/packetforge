@@ -4171,8 +4171,8 @@ interface GigabitEthernet0/0
 ```
 
 **A `no` that names a setting removes the setting; a bare `no` removes the group.** The interface-mode
-handler (`_ifaceMode()`, `engine/cli.js:2739`) reads the vrid, and then the word after it; its `no vrrp`
-branch is at `:2724-2777`:
+handler (`_ifaceMode()`, `engine/cli.js:2804`) reads the vrid, and then the word after it; its `no vrrp`
+branch is at `:2889-2942`:
 
 ```
 R1(config-if)#no vrrp 10 preempt
@@ -4423,11 +4423,51 @@ Now the keyword is read as a keyword, so `vlan 20 name lab`, `vlan 20 lab` and `
 There is no vlan sub-mode in this model, so IOS's two-line form meets a hint instead of a bare refusal:
 
 ```
-sw1(config)#vlan 20
-VLAN 20 created (name: VLAN0020)
+sw1(config)#vlan 30
+VLAN 30 created (name: VLAN0030)
 sw1(config)#name lab
-% There is no vlan sub-mode here: name the VLAN on its own line, `vlan <id> name <text>` (e.g. `vlan 20 name lab`)
+% There is no vlan sub-mode here: name the VLAN on its own line, `vlan <id> name <text>` (e.g. `vlan 30 name lab`)
 ```
+
+### `vlan 20` on a VLAN that already existed replaced its name and said `created`
+
+The door wrote a fresh `{ name }` record on every run, so re-entering an id the switch already had replaced
+whatever an operator had named it with the generated `VLAN0020` - and the receipt for that destruction was
+the word `created`:
+
+```
+sw1(config)#vlan 20 name sales
+VLAN 20 created (name: sales)
+sw1(config)#vlan 20
+VLAN 20 created (name: VLAN0020)      <- "sales" is gone
+```
+
+A real box changes a VLAN's name through the `name` keyword only, and the vendor states the rule from both
+ends of the same edit: "When you enter the VLAN ID of an existing VLAN, you do not create a new VLAN, but you
+can modify VLAN parameters for that VLAN" (Consolidated Platform Command Reference, Cisco IOS Release
+15.2(7)E, Catalyst 2960-X, `vlan`), and "the VLAN is added if it did not already exist; otherwise, this
+command does nothing" (VLAN Command Reference, Cisco IOS XE Release 3SE, Catalyst 3850 - the sentence is
+about `exit` in VLAN configuration mode, which is the same fact from the other end: the record is committed
+on the way out, and nothing is committed when there was nothing to add). A box prints nothing for a no-op,
+so the sentences below are this console's, in the shape the `ip route` door already answers a repeated
+statement with:
+
+```
+sw1(config)#vlan 20
+VLAN 20 already exists (name: sales): nothing was changed
+sw1(config)#vlan 20 name sales
+VLAN 20 already exists (name: sales): nothing was changed
+sw1(config)#vlan 20 name ops
+VLAN 20 renamed (name: sales -> ops)
+sw1(config)#vlan 41
+VLAN 41 created (name: VLAN0041)
+```
+
+`created` now means created: it is kept for a VLAN that was not in the database, whether this door made it or
+a port did - `switchport access vlan 44` announces its own creation and the record exists afterwards, so
+`vlan 44` answers `already exists`. A replay of `show running-config`, which prints `vlan 20 sales` for a
+named VLAN and the id alone for one nothing named, changes no name and creates nothing
+(`test/vlan-existing-record.test.js`).
 
 ### `do show vlan` rejected the command it was given
 

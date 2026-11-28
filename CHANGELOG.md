@@ -18,6 +18,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **`vlan 20` on a switch that already had VLAN 20 replaced its name and claimed to have created it.**
+  The console door wrote a fresh `{ name }` record on every run, so a bare re-entry - the "enter VLAN 20"
+  step of every switching worksheet - silently replaced `vlan 20 name sales` with the generated `VLAN0020`,
+  and the receipt for that destruction was the word `created`. The vendor states the rule from both ends of
+  the same edit: "When you enter the VLAN ID of an existing VLAN, you do not create a new VLAN, but you can
+  modify VLAN parameters for that VLAN" (Consolidated Platform Command Reference, Cisco IOS Release 15.2(7)E,
+  Catalyst 2960-X) and "the VLAN is added if it did not already exist; otherwise, this command does nothing"
+  (VLAN Command Reference, Cisco IOS XE Release 3SE, Catalyst 3850). Re-entry now leaves the record alone and
+  answers `VLAN 20 already exists (name: sales): nothing was changed`; a different name is a rename and says
+  so (`VLAN 20 renamed (name: sales -> ops)`); and `created` is kept for a VLAN that really was not there
+  (`test/vlan-existing-record.test.js`).
+
 - **A static route typed twice was stored twice, so the config it printed grew on every paste and the table
   showed the route losing to itself.** `ip route` and `ipv6 route` pushed a new row every time the command ran,
   so `show running-config` printed the same line twice and `show ip route` printed a second `S` row annotated
