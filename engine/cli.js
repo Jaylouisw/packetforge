@@ -2903,17 +2903,36 @@ class CliSession {
       }
       const vrrpLib = require('./vrrp');
       const group = mine[0];
+      // Each of these three `no` forms restores a default, and each one wrote its receipt before it looked
+      // at the value it was about to restore. A group that has just been given its address holds priority
+      // 100, advertises every 1 s and preempts, so the *first* `no vrrp 42 priority` - the keystroke an
+      // operator types to find out whether a setting came from a template - answered "priority reset to
+      // 100" over a priority that was already 100, and a second `no vrrp 42 preempt` answered "preempt
+      // disabled" over a flag that was already off (#1687). The receipt now reads the value first and, when
+      // the value is the default, says so instead of naming a change that did not happen. A `no` that really
+      // does restore a non-default value keeps the sentence it has always had.
       if (undo === 'preempt') {
+        if (group.preempt === false) {
+          return ['VRRP group ' + vrid + ' preemption is already disabled, nothing changed'];
+        }
         group.preempt = false;
         return ['VRRP group ' + vrid + ' preempt disabled'];
       }
       if (undo === 'priority') {
+        if (group.priority === vrrpLib.VRRP_DEFAULT_PRIORITY) {
+          return ['VRRP group ' + vrid + ' priority is already ' + vrrpLib.VRRP_DEFAULT_PRIORITY +
+            ' (the default), nothing changed'];
+        }
         group.priority = vrrpLib.VRRP_DEFAULT_PRIORITY;
         return ['VRRP group ' + vrid + ' priority reset to ' + vrrpLib.VRRP_DEFAULT_PRIORITY];
       }
       // The interval is unset under the box's own keyword, `timers advertise` (`no vrrp group timers
       // advertise` in the vendor's syntax). research/vrrp-timers-advertise.md.
       if (undo === 'timers' && ['advertise', 'advertisement'].indexOf(String(tokens[4] || '').toLowerCase()) !== -1) {
+        if (group.advertSec === vrrpLib.VRRP_DEFAULT_ADVERT_SEC) {
+          return ['VRRP group ' + vrid + ' already advertises every ' + vrrpLib.VRRP_DEFAULT_ADVERT_SEC +
+            ' s, nothing changed'];
+        }
         group.advertSec = vrrpLib.VRRP_DEFAULT_ADVERT_SEC;
         return ['VRRP group ' + vrid + ' advertises every ' + vrrpLib.VRRP_DEFAULT_ADVERT_SEC + ' s'];
       }
