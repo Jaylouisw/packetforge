@@ -569,8 +569,10 @@ class Simulator {
         dev.macTables.forEach(function (m) { if (m && typeof m.clear === 'function') m.clear(); });
       }
     }
-    this._stpDirty = true;
-    this.recomputeStp();
+    // The change is recorded *before* the tree is rebuilt, not after. The rebuild asks the schedule what
+    // instant it is recovering from, and the schedule reads both `topo.lastChangeAtMs` and this record:
+    // written afterwards, the ports were re-stated against the *previous* change (or t=0), so a port that
+    // had just come out of Blocking read Forwarding at the instant the cable moved (#1731).
     this._lastLinkChange = {
       atMs: atMs,
       linkId: linkId,
@@ -582,6 +584,8 @@ class Simulator {
     link.stateSinceMs = atMs;
     // The network remembers: a later Simulator on this topology still knows when the cable moved.
     if (typeof this.topo.markChange === 'function') this.topo.markChange(atMs);
+    this._stpDirty = true;
+    this.recomputeStp();
 
     // How long until this change has finished being absorbed: the schedule's own answer, not the factory's.
     // A tree whose root runs a 4 s forward delay is forwarding again 8 s after the cable moved, and a reply of
@@ -1046,16 +1050,23 @@ class Simulator {
     // Listening and Learning, and it drops traffic in both. This is the whole point of asking a
     // question at an instant - the cable is green, the switch is up, and nothing passes.
     if (this.runAtMs !== Infinity) {
+      // One schedule for the whole loop: it is where the *instant* each box finishes lives, and a port's
+      // state cannot be counted without it (#1731).
+      const sched = this.getConvergence();
       for (const dev of this.topo.devices.values()) {
         if (!dev.isL2() || !dev.stp) continue;
-        if (this._converged('stp', dev)) continue;
+        const entry = sched.entries.filter(function (e) {
+          return e.process === 'stp' && e.deviceId === dev.id;
+        })[0] || null;
+        if (!entry || entry.readyAtMs <= this.runAtMs) continue;
         for (const logicalName of Object.keys(dev.stp.states || {})) {
           const steady = dev.stp.states[logicalName];
           if (steady === 'blocking') continue;
-          // Paced by the timers in force, which on a non-root are the root's (#1722). The steady-state
-          // answer above came from the same election, so the two halves of this loop cannot disagree.
+          // Paced by the timers in force, which on a non-root are the root's (#1722), from the instant the
+          // schedule was re-based - the change, plus any Max Age this box waited out first (#1731). The
+          // steady-state answer above came from the same election, so the two halves cannot disagree.
           const now = convergenceLib.stpPortStateAt(dev, true, this.runAtMs,
-            convergenceLib.stpTimersInForce(dev, convergenceLib.stpRootOf(this.topo, res, dev)));
+            convergenceLib.stpTimersInForce(dev, convergenceLib.stpRootOf(this.topo, res, dev)), entry);
           dev.stp.states[logicalName] = now;
           if (!convergenceLib.stpForwardsIn(now)) {
             for (const iface of dev.interfaces.values()) {
