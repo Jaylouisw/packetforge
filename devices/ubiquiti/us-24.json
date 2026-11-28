@@ -19,7 +19,8 @@
         "1G",
         "100M",
         "10M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth1",
@@ -30,7 +31,8 @@
         "1G",
         "100M",
         "10M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth2",
@@ -41,7 +43,8 @@
         "1G",
         "100M",
         "10M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth3",
@@ -52,7 +55,8 @@
         "1G",
         "100M",
         "10M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth4",
@@ -63,7 +67,8 @@
         "1G",
         "100M",
         "10M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth5",
@@ -74,7 +79,8 @@
         "1G",
         "100M",
         "10M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth6",
@@ -85,7 +91,8 @@
         "1G",
         "100M",
         "10M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth7",
@@ -96,7 +103,8 @@
         "1G",
         "100M",
         "10M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth8",
@@ -107,7 +115,8 @@
         "1G",
         "100M",
         "10M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth9",
@@ -118,7 +127,8 @@
         "1G",
         "100M",
         "10M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth10",
@@ -129,7 +139,8 @@
         "1G",
         "100M",
         "10M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth11",
@@ -140,7 +151,8 @@
         "1G",
         "100M",
         "10M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth12",
@@ -151,7 +163,8 @@
         "1G",
         "100M",
         "10M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth13",
@@ -162,7 +175,8 @@
         "1G",
         "100M",
         "10M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth14",
@@ -173,7 +187,8 @@
         "1G",
         "100M",
         "10M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth15",
@@ -184,7 +199,8 @@
         "1G",
         "100M",
         "10M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth16",
@@ -195,7 +211,8 @@
         "1G",
         "100M",
         "10M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth17",
@@ -206,7 +223,8 @@
         "1G",
         "100M",
         "10M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth18",
@@ -217,7 +235,8 @@
         "1G",
         "100M",
         "10M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth19",
@@ -228,7 +247,8 @@
         "1G",
         "100M",
         "10M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth20",
@@ -239,7 +259,8 @@
         "1G",
         "100M",
         "10M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth21",
@@ -250,7 +271,8 @@
         "1G",
         "100M",
         "10M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth22",
@@ -261,7 +283,8 @@
         "1G",
         "100M",
         "10M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth23",
@@ -272,7 +295,8 @@
         "1G",
         "100M",
         "10M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "sfp1",
@@ -289,5 +313,6 @@
   ],
   "icon": "switch",
   "color": "#14b8a6",
-  "sourceUrl": "https://techspecs.ui.com/unifi/switching/us-24"
+  "sourceUrl": "https://techspecs.ui.com/unifi/switching/us-24",
+  "notes": "The Gen1 Standard 24 spec table prints no PoE row at all: Port Layout \"1 GbE RJ45 24 (1G/100M/10M), 1G SFP 2 (1G)\", Power Method \"Universal input, 100-240V AC, 50/60 Hz\" - no per-port wattage, no budget, no PoE standard. The powered members of the family are separate models with their own budgets (us-24-250w.json 250 W, us-24-500w.json 500 W), so the silence is the product decision. Without `poeIn: false` on its 24 copper sockets `isPoePd()` matched `unifi` in the label and inferred 12.95 W each - **310.8 W**."
 }

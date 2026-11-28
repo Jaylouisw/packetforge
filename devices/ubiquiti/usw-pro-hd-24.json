@@ -20,7 +20,8 @@
         "2.5G",
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth1",
@@ -31,7 +32,8 @@
         "2.5G",
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth2",
@@ -42,7 +44,8 @@
         "2.5G",
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth3",
@@ -53,7 +56,8 @@
         "2.5G",
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth4",
@@ -64,7 +68,8 @@
         "2.5G",
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth5",
@@ -75,7 +80,8 @@
         "2.5G",
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth6",
@@ -86,7 +92,8 @@
         "2.5G",
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth7",
@@ -97,7 +104,8 @@
         "2.5G",
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth8",
@@ -108,7 +116,8 @@
         "2.5G",
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth9",
@@ -119,7 +128,8 @@
         "2.5G",
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth10",
@@ -130,7 +140,8 @@
         "2.5G",
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth11",
@@ -141,7 +152,8 @@
         "2.5G",
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth12",
@@ -152,7 +164,8 @@
         "2.5G",
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth13",
@@ -163,7 +176,8 @@
         "2.5G",
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth14",
@@ -174,7 +188,8 @@
         "2.5G",
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth15",
@@ -185,7 +200,8 @@
         "2.5G",
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth16",
@@ -196,7 +212,8 @@
         "2.5G",
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth17",
@@ -207,7 +224,8 @@
         "2.5G",
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth18",
@@ -218,7 +236,8 @@
         "2.5G",
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth19",
@@ -229,7 +248,8 @@
         "2.5G",
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth20",
@@ -240,7 +260,8 @@
         "2.5G",
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth21",
@@ -251,7 +272,8 @@
         "2.5G",
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth22",
@@ -264,7 +286,8 @@
         "2.5G",
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth23",
@@ -277,7 +300,8 @@
         "2.5G",
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "sfp1",
@@ -322,5 +346,6 @@
   ],
   "icon": "switch",
   "color": "#14b8a6",
-  "sourceUrl": "https://techspecs.ui.com/unifi/switching/usw-pro-hd-24"
+  "sourceUrl": "https://techspecs.ui.com/unifi/switching/usw-pro-hd-24",
+  "notes": "The Pro HD 24 spec table prints no PoE row: Port Layout \"2.5 GbE RJ45 22 (2.5G/1G/100M/10M), 10 GbE RJ45 2 (10G/5G/2.5G/1G/100M), 10G SFP+ 4 (10G/1G)\", Max. Power Consumption 60W, Power Method \"(1) Universal input, 100-240V AC, 50/60 Hz (1) USP RPS DC input\", internal 60W supply - no per-port wattage and no budget. The PoE member is a separate model with its own budget (usw-pro-hd-24-poe.json), so the absence is a product decision. Without `poeIn: false` its 24 copper sockets each asked for 12.95 W - **310.8 W** of fiction on a box whose whole supply is 60 W."
 }
