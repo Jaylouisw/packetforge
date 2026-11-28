@@ -3,7 +3,7 @@
   "model": "US-48",
   "label": "UniFi Standard 48 (Gen1)",
   "category": "switch",
-  "description": "UniFi Standard 48 (Gen1) (US-48) - 48x 1G RJ45 + 2x 1G SFP.",
+  "description": "UniFi Standard 48 (Gen1) (US-48) - 48x 1G RJ45 + 2x 1G SFP + 2x 10G SFP+ (10G/1G).",
   "capabilities": [
     "l2-forward",
     "cli",
@@ -19,7 +19,8 @@
         "1G",
         "100M",
         "10M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth1",
@@ -30,7 +31,8 @@
         "1G",
         "100M",
         "10M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth2",
@@ -41,7 +43,8 @@
         "1G",
         "100M",
         "10M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth3",
@@ -52,7 +55,8 @@
         "1G",
         "100M",
         "10M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth4",
@@ -63,7 +67,8 @@
         "1G",
         "100M",
         "10M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth5",
@@ -74,7 +79,8 @@
         "1G",
         "100M",
         "10M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth6",
@@ -85,7 +91,8 @@
         "1G",
         "100M",
         "10M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth7",
@@ -96,7 +103,8 @@
         "1G",
         "100M",
         "10M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth8",
@@ -107,7 +115,8 @@
         "1G",
         "100M",
         "10M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth9",
@@ -118,7 +127,8 @@
         "1G",
         "100M",
         "10M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth10",
@@ -129,7 +139,8 @@
         "1G",
         "100M",
         "10M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth11",
@@ -140,7 +151,8 @@
         "1G",
         "100M",
         "10M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth12",
@@ -151,7 +163,8 @@
         "1G",
         "100M",
         "10M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth13",
@@ -162,7 +175,8 @@
         "1G",
         "100M",
         "10M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth14",
@@ -173,7 +187,8 @@
         "1G",
         "100M",
         "10M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth15",
@@ -184,7 +199,8 @@
         "1G",
         "100M",
         "10M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth16",
@@ -195,7 +211,8 @@
         "1G",
         "100M",
         "10M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth17",
@@ -206,7 +223,8 @@
         "1G",
         "100M",
         "10M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth18",
@@ -217,7 +235,8 @@
         "1G",
         "100M",
         "10M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth19",
@@ -228,7 +247,8 @@
         "1G",
         "100M",
         "10M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth20",
@@ -239,7 +259,8 @@
         "1G",
         "100M",
         "10M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth21",
@@ -250,7 +271,8 @@
         "1G",
         "100M",
         "10M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth22",
@@ -261,7 +283,8 @@
         "1G",
         "100M",
         "10M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth23",
@@ -272,7 +295,8 @@
         "1G",
         "100M",
         "10M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth24",
@@ -283,7 +307,8 @@
         "1G",
         "100M",
         "10M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth25",
@@ -294,7 +319,8 @@
         "1G",
         "100M",
         "10M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth26",
@@ -305,7 +331,8 @@
         "1G",
         "100M",
         "10M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth27",
@@ -316,7 +343,8 @@
         "1G",
         "100M",
         "10M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth28",
@@ -327,7 +355,8 @@
         "1G",
         "100M",
         "10M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth29",
@@ -338,7 +367,8 @@
         "1G",
         "100M",
         "10M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth30",
@@ -349,7 +379,8 @@
         "1G",
         "100M",
         "10M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth31",
@@ -360,7 +391,8 @@
         "1G",
         "100M",
         "10M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth32",
@@ -371,7 +403,8 @@
         "1G",
         "100M",
         "10M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth33",
@@ -382,7 +415,8 @@
         "1G",
         "100M",
         "10M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth34",
@@ -393,7 +427,8 @@
         "1G",
         "100M",
         "10M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth35",
@@ -404,7 +439,8 @@
         "1G",
         "100M",
         "10M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth36",
@@ -415,7 +451,8 @@
         "1G",
         "100M",
         "10M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth37",
@@ -426,7 +463,8 @@
         "1G",
         "100M",
         "10M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth38",
@@ -437,7 +475,8 @@
         "1G",
         "100M",
         "10M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth39",
@@ -448,7 +487,8 @@
         "1G",
         "100M",
         "10M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth40",
@@ -459,7 +499,8 @@
         "1G",
         "100M",
         "10M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth41",
@@ -470,7 +511,8 @@
         "1G",
         "100M",
         "10M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth42",
@@ -481,7 +523,8 @@
         "1G",
         "100M",
         "10M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth43",
@@ -492,7 +535,8 @@
         "1G",
         "100M",
         "10M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth44",
@@ -503,7 +547,8 @@
         "1G",
         "100M",
         "10M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth45",
@@ -514,7 +559,8 @@
         "1G",
         "100M",
         "10M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth46",
@@ -525,7 +571,8 @@
         "1G",
         "100M",
         "10M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth47",
@@ -536,7 +583,8 @@
         "1G",
         "100M",
         "10M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "sfp1",
@@ -549,9 +597,30 @@
       "type": "ethernet",
       "connector": "sfp",
       "speed": "1G"
+    },
+    {
+      "name": "sfp3",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        "10G",
+        "1G"
+      ]
+    },
+    {
+      "name": "sfp4",
+      "type": "ethernet",
+      "connector": "sfp+",
+      "speed": "10G",
+      "speedCaps": [
+        "10G",
+        "1G"
+      ]
     }
   ],
   "icon": "switch",
   "color": "#14b8a6",
-  "sourceUrl": "https://techspecs.ui.com/unifi/switching/us-48"
+  "sourceUrl": "https://techspecs.ui.com/unifi/switching/us-48",
+  "notes": "The Gen1 Standard 48 spec table prints no PoE row at all: Port Layout \"1 GbE RJ45 48 (1G/100M/10M), 1G SFP 2 (1G), 10G SFP+ 2 (10G/1G)\", Power Method \"Universal input, 100-240V AC, 50/60 Hz\" - no per-port wattage, no budget, no PoE standard. The PoE members of the Gen1 family are separate models carrying their own budgets (us-48-500w.json 500 W, us-48-750w.json 750 W), so the silence is the product decision, not a blank field. Without `poeIn: false` on its 48 copper sockets `isPoePd()` in `engine/media.js` matched `unifi` in the label and inferred a 12.95 W 802.3af draw on every one - **621.6 W** asked of whatever PSE the lab cabled it to. Same correction as the non-PoE Switch Pro and Pro Max rows (PR #1712, PR #1715)."
 }

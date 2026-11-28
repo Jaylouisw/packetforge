@@ -19,7 +19,8 @@
       "speedCaps": [
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth1",
@@ -30,7 +31,8 @@
         "2.5G",
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth2",
@@ -41,7 +43,8 @@
         "2.5G",
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth3",
@@ -52,7 +55,8 @@
         "2.5G",
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth4",
@@ -63,7 +67,8 @@
         "2.5G",
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth5",
@@ -74,7 +79,8 @@
         "2.5G",
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth6",
@@ -85,7 +91,8 @@
         "2.5G",
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth7",
@@ -96,7 +103,8 @@
         "2.5G",
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth8",
@@ -107,7 +115,8 @@
         "2.5G",
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth9",
@@ -118,7 +127,8 @@
         "2.5G",
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth10",
@@ -129,7 +139,8 @@
         "2.5G",
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth11",
@@ -140,7 +151,8 @@
         "2.5G",
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth12",
@@ -151,7 +163,8 @@
         "2.5G",
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth13",
@@ -162,7 +175,8 @@
         "2.5G",
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth14",
@@ -173,7 +187,8 @@
         "2.5G",
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth15",
@@ -184,7 +199,8 @@
         "2.5G",
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth16",
@@ -195,7 +211,8 @@
         "2.5G",
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth17",
@@ -206,7 +223,8 @@
         "2.5G",
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth18",
@@ -217,7 +235,8 @@
         "2.5G",
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth19",
@@ -228,7 +247,8 @@
         "2.5G",
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth20",
@@ -239,7 +259,8 @@
         "2.5G",
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth21",
@@ -250,7 +271,8 @@
         "2.5G",
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth22",
@@ -261,7 +283,8 @@
         "2.5G",
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth23",
@@ -272,7 +295,8 @@
         "2.5G",
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth24",
@@ -283,7 +307,8 @@
         "2.5G",
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth25",
@@ -294,7 +319,8 @@
         "2.5G",
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth26",
@@ -305,7 +331,8 @@
         "2.5G",
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth27",
@@ -316,7 +343,8 @@
         "2.5G",
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth28",
@@ -327,7 +355,8 @@
         "2.5G",
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth29",
@@ -338,7 +367,8 @@
         "2.5G",
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth30",
@@ -349,7 +379,8 @@
         "2.5G",
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth31",
@@ -360,7 +391,8 @@
         "2.5G",
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth32",
@@ -371,7 +403,8 @@
         "2.5G",
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth33",
@@ -384,7 +417,8 @@
         "2.5G",
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth34",
@@ -397,7 +431,8 @@
         "2.5G",
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth35",
@@ -410,7 +445,8 @@
         "2.5G",
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth36",
@@ -423,7 +459,8 @@
         "2.5G",
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth37",
@@ -436,7 +473,8 @@
         "2.5G",
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth38",
@@ -449,7 +487,8 @@
         "2.5G",
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth39",
@@ -462,7 +501,8 @@
         "2.5G",
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth40",
@@ -475,7 +515,8 @@
         "2.5G",
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth41",
@@ -488,7 +529,8 @@
         "2.5G",
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth42",
@@ -501,7 +543,8 @@
         "2.5G",
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth43",
@@ -514,7 +557,8 @@
         "2.5G",
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth44",
@@ -527,7 +571,8 @@
         "2.5G",
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth45",
@@ -540,7 +585,8 @@
         "2.5G",
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth46",
@@ -553,7 +599,8 @@
         "2.5G",
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth47",
@@ -566,7 +613,8 @@
         "2.5G",
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth48",
@@ -579,7 +627,8 @@
         "2.5G",
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "sfp1",
@@ -640,5 +689,6 @@
   ],
   "icon": "switch",
   "color": "#14b8a6",
-  "sourceUrl": "https://techspecs.ui.com/unifi/switching/ecs-48s"
+  "sourceUrl": "https://techspecs.ui.com/unifi/switching/ecs-48s",
+  "notes": "The Enterprise Campus 48S spec table prints no PoE row: Port Layout \"1 GbE RJ45 1 (1G/100M/10M), 2.5 GbE RJ45 32 (2.5G/1G/100M/10M), 10 GbE RJ45 16 (10G/5G/2.5G/1G/100M/10M), 25G SFP28 4 (25G/10G/1G), 100G QSFP28 2 (100G), Console 1\", Max. Power Consumption 250W, Power Supply \"(2) Hot-swappable AC/DC 550W power modules\" - no per-port wattage, no budget. The PoE member of the Campus family is a separate model (ecs-48s-poe.json) with its own budget, so the absence is the product decision. Without `poeIn: false` all 49 copper sockets (the 1G row is the OOB management port, still copper) each asked for 12.95 W - **634.6 W**; this was the largest single inferred draw in the catalogue after the Gen1 48-port."
 }
