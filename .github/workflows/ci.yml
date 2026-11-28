@@ -8,9 +8,9 @@ name: CI
 # the same names, because those names are what a branch protection rule reads:
 #
 #   Test (Node 22)                  the floor leg, over all of its suite - carried by a
-#                                   gate job, because each leg now runs its half of the
-#                                   suite on two boxes (`Test (Node 22) shard 1/2` and
-#                                   `2/2`); the gate is green only when both are
+#                                   gate job, because each leg now runs a third of the
+#                                   suite on three boxes (`Test (Node 22) shard 1/3`,
+#                                   `2/3`, `3/3`); the gate is green only when all three are
 #   Test (Node 24)                  the newest runtime in the window, split the same way
 #   Typecheck                       tsc --noEmit, no-any, module-paths, and the
 #                                   `node --check` sweep plus the three tree-wide
@@ -304,45 +304,54 @@ jobs:
           fi
           echo "HTTP smoke passed (all checks clean)"
 
-  # Each leg runs *half* the suite, on two runners, and a gate job carries the leg's name.
+  # Each leg runs *a third* of the suite, on three boxes, and a gate job carries the leg's
+  # name.
   #
-  # The measurement that bought this: the suite is CPU-bound - 531 processes on the four
-  # cores a hosted runner has. Eight-way concurrency on the same four cores was 90.5 s
-  # against 72.5 s at four-way, so more overlap inside one box is not available. Run
+  # The measurement that bought the first extra box: the suite is CPU-bound - one process
+  # per suite on the four cores a hosted runner has. Eight-way concurrency on the same four
+  # cores was 90.5 s against 72.5 s at four-way, so no overlap was left inside one box. Run
   # 46125732014: `Test (Node 22)` spent 89.3 s in the suite and `Test (Node 24)` 55.2 s on
-  # the same commit, with per-suite sums of 345 s and 209 s - each leg is one box doing all
-  # of the work, and the box is the pole. A second box is the only thing that shortens it.
+  # the same commit, with per-suite sums of 345 s and 209 s - each leg was one box doing all
+  # of the work, and the box was the pole.
   #
-  # The halves are a partition by the *first character of the suite's file name*, because
+  # The measurement that bought the third: with two boxes the shard was still the pole, and
+  # the arithmetic one box had hidden was readable. `Test (Node 22) shard 2/2` on run
+  # 46133472040 reported 268 suites whose own timings sum to 194.7 s - 48.7 s at four-way,
+  # 55 s on the clock. That 6 s gap is the bucket boundaries (11 buckets, each ramping four
+  # workers up and draining them again), not spare cores, so another box is again the only
+  # thing that shortens it. The longest single suite in the tree is 6.7 s, so a third of the
+  # suite has no long tail to wait on, and 538 suites land 180/179/179.
+  #
+  # The shards are a partition by the *first character of the suite's file name*, because
   # that is the granularity `scripts/run-tests.js --filter=` offers: it is a substring match
   # on the path, not a regex. Bucket weights are read from the tree at run time and each
-  # bucket goes to the lighter half, so new suites rebalance the split instead of needing a
-  # hand-maintained list; `main`'s 531 suites currently split 266/265.
+  # bucket goes to whichever shard is lightest, so new suites rebalance the split instead of
+  # needing a hand-maintained list.
   #
-  # What keeps the halves honest (a shard that quietly ran less is the one failure this
+  # What keeps the shards honest (a shard that quietly ran less is the one failure this
   # change could introduce): each shard compares the suites the runner reported against the
   # suites its buckets are worth and fails on any difference; every discovery path has to be
   # a flat `test/<name>.test.js|.ts`, so a suite in a subdirectory (which no bucket would
   # claim) fails the shard instead of going unrun; and the required check is a gate job that
-  # requires both halves of its leg to succeed.
+  # requires every shard of its leg to succeed.
   test22:
-    name: Test (Node ${{ matrix.node }}) shard ${{ matrix.shard }}/2
+    name: Test (Node ${{ matrix.node }}) shard ${{ matrix.shard }}/3
     runs-on: ubuntu-latest
-    # 10 min is a hard kill and a hard kill takes the log with it. Half the suite costs
-    # about half of what the whole one did; the bound stays where it was so a shard that
-    # hangs is still cheap to read.
+    # 10 min is a hard kill and a hard kill takes the log with it. A third of the suite
+    # costs about a third of what the whole one did; the bound stays where it was so a
+    # shard that hangs is still cheap to read.
     timeout-minutes: 10
     # `always()` simply says "never let a previous job's colour decide whether this one
     # reports". A skipped test leg is not a failure - it is a run that reports nothing.
     if: always()
-    # Both versions, always, and each of them twice. The only saving a data-only diff gets
-    # is the job where the slots were actually going: `Server smoke and Docker build`
+    # Both versions, always, and each of them three times. The only saving a data-only diff
+    # gets is the job where the slots were actually going: `Server smoke and Docker build`
     # stands itself down. A data-only `if:` that read `matrix.node` died ~2 s into every
     # leg (runs 1398, 1401, 1402) because a job condition is evaluated before the matrix
     # exists, and a matrix built from an expression collapses to one unnamed leg that
     # reports coverage it never had. There is no such thing as a data-only test leg, and
-    # half of a leg is still half of a leg on a closed pull request - the liveness read
-    # below is what stands a shard down, once, for both of them.
+    # a third of a leg is still a third of a leg on a closed pull request - the liveness
+    # read below is what stands each shard down, once, for all three of them.
     strategy:
       fail-fast: false
       # 18 and 20 are gone on purpose rather than by accident: the repository writes
@@ -351,7 +360,7 @@ jobs:
       # `SyntaxError: Missing initializer in const declaration`.
       matrix:
         node: [22]
-        shard: [1, 2]
+        shard: [1, 2, 3]
     steps: &test_steps
       - name: Check out this commit
         uses: actions/checkout@v4
@@ -405,11 +414,16 @@ jobs:
           # declares 22.18, which is where node strips types with no flag.
           node scripts/check-node-floor.js --title "Test (Node ${want})"
 
-      - name: Which half of the suites this shard runs
+      - name: Which third of the suites this shard runs
         id: half
         if: steps.still_open.outputs.closed != 'true'
         env:
           SHARD: ${{ matrix.shard }}
+          # How many shards this leg is cut into. It is the matrix's length above;
+          # the split assigns every bucket to exactly one of `SHARDS` shards, so a
+          # count that disagreed with the matrix would leave a shard worth nothing,
+          # which the check below fails on, rather than a quiet gap.
+          SHARDS: 3
         run: |
           set -eu
           dir="${RUNNER_TEMP:-/tmp}"
@@ -426,29 +440,35 @@ jobs:
             exit 1
           fi
           if [ "$listed" -eq 0 ]; then
-            echo "::error title=Shard partition::--list named no suites at all - half of nothing is not a test run"
+            echo "::error title=Shard partition::--list named no suites at all - a third of nothing is not a test run"
             exit 1
           fi
           # Weight each bucket by how many suites it holds, heaviest first, and give each
-          # one to whichever half is currently lighter. Deterministic for a given tree, and
-          # it rebalances itself when suites are added rather than drifting against a list
-          # written by hand.
+          # one to whichever shard is currently lightest. Every shard runs this over the
+          # same inputs, so the assignment is deterministic for a given tree, and it
+          # rebalances itself when suites are added rather than drifting against a list
+          # written by hand. Ties go to the lowest-numbered shard, as they did when this was
+          # a two-way split.
           awk '{ n=$0; sub(/^test\//, "", n); print substr(n, 1, 1) }' "$all" \
             | sort | uniq -c | sort -k1,1nr -k2,2 > "$dir/buckets.txt"
-          awk -v want="${SHARD}" '
-            { w=$1; k=$2; if (a <= b) { t=1; a+=w } else { t=2; b+=w } if (t == want) print k }
+          awk -v want="${SHARD}" -v n="${SHARDS}" '
+            { w = $1; k = $2
+              pick = 1
+              for (i = 2; i <= n; i++) if (s[i] < s[pick]) pick = i
+              s[pick] += w
+              if (pick == want) print k }
           ' "$dir/buckets.txt" > "$mine"
           expected=$(awk 'NR==FNR { c[$2]=$1; next } { s+=c[$1] } END { print s+0 }' "$dir/buckets.txt" "$mine")
           buckets=$(wc -l < "$mine" | tr -d ' ')
           if [ "$expected" -eq 0 ]; then
-            echo "::error title=Shard partition::shard ${SHARD} of 2 was assigned no suites out of ${listed} - the split would report a green leg that ran nothing"
+            echo "::error title=Shard partition::shard ${SHARD} of ${SHARDS} was assigned no suites out of ${listed} - the split would report a green leg that ran nothing"
             exit 1
           fi
           echo "this shard: ${expected} of ${listed} suites in ${buckets} bucket(s): $(tr '\n' ' ' < "$mine")"
           echo "expected=${expected}" >> "$GITHUB_OUTPUT"
           echo "listed=${listed}" >> "$GITHUB_OUTPUT"
 
-      - name: Full test suite, this half of it, and the audits that run beside it
+      - name: Full test suite, this third of it, and the audits that run beside it
         if: steps.still_open.outputs.closed != 'true'
         env:
           # 4 is the standard GitHub runner's core count. The Forgejo copy ran 12 because
@@ -522,14 +542,14 @@ jobs:
             wait "$audit_devices_pid"; audit_devices_rc=$?
             wait "$control_pid"; control_rc=$?
           fi
-          # Half a leg that ran less than its half is the failure this split could invent,
-          # so it is the one this step checks: same tree, same discovery, the buckets
+          # A shard that ran less than its share is the failure this split could invent, so
+          # it is the one this step checks: same tree, same discovery, the buckets
           # re-counted against what the runner actually reported.
           if [ "$ran" -ne "${EXPECTED}" ]; then
-            echo "::error title=Shard coverage::this shard is worth ${EXPECTED} of ${LISTED} suites and the runner reported ${ran} - the halves no longer add up to the whole, so this leg has a gap"
+            echo "::error title=Shard coverage::this shard is worth ${EXPECTED} of ${LISTED} suites and the runner reported ${ran} - the shards no longer add up to the whole, so this leg has a gap"
             exit 1
           fi
-          echo "this shard ran ${ran} of ${LISTED} suites; the other shard is worth $((LISTED - EXPECTED))"
+          echo "this shard ran ${ran} of ${LISTED} suites; the other shards are worth $((LISTED - EXPECTED))"
           # A suite that lost a race is not a broken tree, and a broken tree is not a flake.
           # Only a small, named set of suites that passes on its own inside the same leg is
           # called a flake, and it is reported as a warning. A harness that cannot name its
@@ -570,7 +590,7 @@ jobs:
             cat "$dir/${log}.log"
           done
           if [ "$test_rc" -eq 124 ] || [ "$test_rc" -eq 137 ]; then
-            echo "::error title=Full test suite::a bucket was still running after 300 s and was stopped - half a leg takes about half of 46-69 s here, so this is a hung suite, not a slow one; the suites that had already reported are above"
+            echo "::error title=Full test suite::a bucket was still running after 300 s and was stopped - a third of a leg takes about 15-25 s here, so this is a hung suite, not a slow one; the suites that had already reported are above"
           elif [ "$test_rc" -ne 0 ]; then
             echo "::error title=Full test suite::a bucket exited ${test_rc} - the suites it named are above"
           fi
@@ -607,7 +627,7 @@ jobs:
           exit "$rc"
 
   test24:
-    name: Test (Node ${{ matrix.node }}) shard ${{ matrix.shard }}/2
+    name: Test (Node ${{ matrix.node }}) shard ${{ matrix.shard }}/3
     runs-on: ubuntu-latest
     timeout-minutes: 10
     if: always()
@@ -615,13 +635,14 @@ jobs:
       fail-fast: false
       matrix:
         node: [24]
-        shard: [1, 2]
+        shard: [1, 2, 3]
     steps: *test_steps
 
-  # The name the branch protection rule reads, and nothing else. The two halves of a leg
-  # are separate jobs because they are separate boxes; a leg that is half green is not
-  # green, and a leg whose second half was cancelled is not green either, so this job
-  # exists to say that once, in the place the gate is looking.
+  # The name the branch protection rule reads, and nothing else. The shards of a leg are
+  # separate jobs because they are separate boxes; a leg that is two thirds green is not
+  # green, and a leg whose last shard was cancelled is not green either, so this job exists
+  # to say that once, in the place the gate is looking. `needs.<job>.result` aggregates the
+  # whole matrix, so `success` here already means every shard of the leg succeeded.
   test22-gate:
     name: Test (Node 22)
     runs-on: ubuntu-latest
@@ -629,15 +650,15 @@ jobs:
     needs: [test22]
     if: always()
     steps:
-      - name: Both halves of this leg reported success
+      - name: Every shard of this leg reported success
         env:
           RESULT: ${{ needs.test22.result }}
         run: |
           set -eu
           case "${RESULT:-}" in
-            success) echo "both halves of Test (Node 22) reported success - every suite ran on the floor runtime" ;;
+            success) echo "every shard of Test (Node 22) reported success - every suite ran on the floor runtime" ;;
             *)
-              echo "::error title=Test (Node 22)::the halves of this leg did not both report success (${RESULT:-<no answer>}) - half a leg that passed is still a leg with a gap"
+              echo "::error title=Test (Node 22)::not every shard of this leg reported success (${RESULT:-<no answer>}) - a leg whose third shard never ran is still a leg with a gap"
               exit 1 ;;
           esac
 
@@ -648,15 +669,15 @@ jobs:
     needs: [test24]
     if: always()
     steps:
-      - name: Both halves of this leg reported success
+      - name: Every shard of this leg reported success
         env:
           RESULT: ${{ needs.test24.result }}
         run: |
           set -eu
           case "${RESULT:-}" in
-            success) echo "both halves of Test (Node 24) reported success - every suite ran on the newest runtime in the window" ;;
+            success) echo "every shard of Test (Node 24) reported success - every suite ran on the newest runtime in the window" ;;
             *)
-              echo "::error title=Test (Node 24)::the halves of this leg did not both report success (${RESULT:-<no answer>}) - half a leg that passed is still a leg with a gap"
+              echo "::error title=Test (Node 24)::not every shard of this leg reported success (${RESULT:-<no answer>}) - a leg whose third shard never ran is still a leg with a gap"
               exit 1 ;;
           esac
 
