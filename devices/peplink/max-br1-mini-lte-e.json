@@ -20,19 +20,22 @@
       "name": "lan1",
       "type": "ethernet",
       "connector": "rj45",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": 18
     },
     {
       "name": "lan2",
       "type": "ethernet",
       "connector": "rj45",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": false
     },
     {
       "name": "lan3",
       "type": "ethernet",
       "connector": "rj45",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": false
     },
     {
       "name": "wwan0",
@@ -46,7 +49,7 @@
     }
   ],
   "sourceUrl": "https://www.peplink.com/compare/tech-specs/br1-mini.pdf",
-  "notes": "Vendor figures from the Peplink tech-spec sheet: Ethernet WAN port **0 / 1 (GE)**, Number of Ethernet LAN port **3 / 2 (GE)**, Router Throughput 300 Mbps, Wi-Fi AP Yes, PoE Input Yes, SFP LAN/WAN No. The paired numbers are a licensing effect: with a PrimeCare subscription one LAN port can be turned into a WAN port, giving 1 WAN / 2 LAN instead of 0 WAN / 3 LAN. The base configuration is modelled; **a BR1 Mini with PrimeCare enabled has a different port split from this file.** The **-LTE-E** suffix is the EMEA LTE band set; the ports are identical to the LTEA SKUs, so only the band coverage differs.",
+  "notes": "Vendor figures from the Peplink tech-spec sheet: Ethernet WAN port **0 / 1 (GE)**, Number of Ethernet LAN port **3 / 2 (GE)**, Router Throughput 300 Mbps, Wi-Fi AP Yes, PoE Input Yes, SFP LAN/WAN No. The paired numbers are a licensing effect: with a PrimeCare subscription one LAN port can be turned into a WAN port, giving 1 WAN / 2 LAN instead of 0 WAN / 3 LAN. The base configuration is modelled; **a BR1 Mini with PrimeCare enabled has a different port split from this file.** The **-LTE-E** suffix is the EMEA LTE band set; the ports are identical to the LTEA SKUs, so only the band coverage differs. **PoE: LAN 1 only.** The tech-spec sheet prints \"PoE Input Yes [11]\" with the footnote \"[11] 1x 802.3at PoE\" over a three-port LAN row, so it says how many inlets there are but not which socket; the vendor's own hardware reference guide does - the back-panel drawing labels the ports \"LAN 1 | 2 | 3 / WAN\" and prints **802.3at PoE IN** under LAN 1, with the parts list reading \"1x GE LAN Port with 802.3at PoE Input\". LAN 1 therefore declares `poeIn: 18` (the datasheet's \"Maximum Power Consumption ... 18W\", which is what the port has to fund) and LAN 2 / LAN 3 declare `poeIn: false`, because they are not inlets. Sources: https://www.peplink.com/compare/tech-specs/br1-mini.pdf (tech-spec sheet: PoE class, \"1x 802.3at PoE\", and \"Nominal Power Consumption 13W\" / \"Maximum Power Consumption 18W\") and https://download.peplink.com/manual/br1_mini_hw3_hardware_reference_guide.pdf (panel drawing and parts list, LAN 1).",
   "role": [
     "sd-wan"
   ]
