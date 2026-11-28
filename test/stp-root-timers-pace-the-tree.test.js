@@ -218,7 +218,9 @@ console.log('The Max Age a partitioned bridge waits out is Blocking, not Listeni
 {
   // A box that loses the root without losing a port sits on the old root's BPDU until it ages out
   // (#1746 put that wait in the schedule). During the wait the port is not transitioning yet - it is
-  // still dropping, and saying Listening would move every state 10 s earlier than the answer.
+  // still dropping, and saying Listening would move every state earlier than the answer. The wait is not
+  // the whole Max Age: SW3 is two bridges from the root, so it holds a message age 1 BPDU and ages it out
+  // after 10 - 1 = 9 s (Cisco doc 19120; research/stp-message-age.md).
   const t = new Topology();
   ['sw1', 'sw2', 'sw3'].forEach(function (n) { t.addDevice(SW, n).name = n.toUpperCase(); });
   t.getDevice('sw1').config.stpPriority = 4096;
@@ -230,14 +232,14 @@ console.log('The Max Age a partitioned bridge waits out is Blocking, not Listeni
   sim.recomputeStp();
   eq(sim.getConvergence().byProcess.stp, 8000, 'the tree is on the root 4 s before the cut');
   const res = sim.setLinkState(near.id, 'down', { atMs: 10000 });
-  eq(res.reconvergeAtMs, 50000, 'SW3 needs the 10 s Max Age and its own 30 s');
-  eq(stateAt(sim, t, 'sw3', 'Fa0/1', 19999), 'blocking',
-    'at 19.999 s SW3 is still waiting for the old root BPDU to age out, so the port is Blocking');
-  eq(stateAt(sim, t, 'sw3', 'Fa0/1', 20000), 'listening', 'Listening once it has aged out, at 20 s');
-  eq(stateAt(sim, t, 'sw3', 'Fa0/1', 34999), 'listening', 'still Listening just before 35 s');
-  eq(stateAt(sim, t, 'sw3', 'Fa0/1', 35000), 'learning', 'Learning at 35 s');
-  eq(stateAt(sim, t, 'sw3', 'Fa0/1', 49999), 'learning', 'and Forwarding at 50 s, where the reply pointed');
-  eq(stateAt(sim, t, 'sw3', 'Fa0/1', 50000), 'forwarding', 'exactly then');
+  eq(res.reconvergeAtMs, 49000, 'SW3 needs 9 s of the 10 s Max Age and its own 30 s');
+  eq(stateAt(sim, t, 'sw3', 'Fa0/1', 18999), 'blocking',
+    'at 18.999 s SW3 is still waiting for the old root BPDU to age out, so the port is Blocking');
+  eq(stateAt(sim, t, 'sw3', 'Fa0/1', 19000), 'listening', 'Listening once it has aged out, at 19 s');
+  eq(stateAt(sim, t, 'sw3', 'Fa0/1', 33999), 'listening', 'still Listening just before 34 s');
+  eq(stateAt(sim, t, 'sw3', 'Fa0/1', 34000), 'learning', 'Learning at 34 s');
+  eq(stateAt(sim, t, 'sw3', 'Fa0/1', 48999), 'learning', 'and Forwarding at 49 s, where the reply pointed');
+  eq(stateAt(sim, t, 'sw3', 'Fa0/1', 49000), 'forwarding', 'exactly then');
 }
 
 console.log('');

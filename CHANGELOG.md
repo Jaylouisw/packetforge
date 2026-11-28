@@ -18,6 +18,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **A partitioned bridge aged out the whole Max Age, so a bridge two hops from the root waited one second too
+  long.** #1746 put the wait in the schedule but used the Max Age as written; the age timer does not start
+  there, it starts at the Message Age carried in the cached configuration BPDU, which the root sends as 0 and
+  every bridge increments by 1 before forwarding (Cisco doc 19120 works the first three rungs out: 20, 19 and
+  18 s; Huawei's STP timer chapter states the same increment and the discard at Max Age). The election now
+  reports `hops` per bridge - counted along the root port chain, one per bridge rather than one per unit of path
+  cost - and `stpMaxAgeHoldInfo()` subtracts `hops - 1`, clamps at zero when a BPDU would already be at Max Age,
+  and puts both numbers in the `Basis` (`19 s = 20 s Max Age less message age 1`). Unknown hops (a zero-cost port
+  the election cannot place) fall back to the whole Max Age rather than a guess. `test/stp-message-age.test.js`
+  (25 assertions), `research/stp-message-age.md` (#1751).
 - **A port that had just come out of Blocking was Forwarding at the instant of the change.** #1722 settled
   *whose* timers pace a non-root's ports; #1731 settled that a bridge which only stops hearing the root owes the
   old root's Max Age. Neither said *from when* the two forward delays run, and the port state did not ask: the
