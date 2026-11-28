@@ -3699,6 +3699,22 @@ r1#show ip route
 S   192.168.9.0/24 is directly connected, GigabitEthernet0  (no next hop: ARP for the destination on that segment)
 ```
 
+A route is one entry however many times its line is typed, because the statement is the key: prefix, mask, next
+hop or interface, and distance. The second typing changes nothing, and the console says so instead of printing a
+receipt for a route it did not add (`research/duplicate-static-route.md`):
+
+```
+r1(config)#ip route 10.9.0.0 255.255.0.0 10.0.0.1
+Route added: 10.9.0.0/16 via 10.0.0.1
+r1(config)#ip route 10.9.0.0 255.255.0.0 10.0.0.1
+Route unchanged: 10.9.0.0/16 via 10.0.0.1 - the configuration already holds this route
+```
+
+Three shapes stay three routes because they are three statements: another next hop for the same prefix, the
+floating static (the same next hop at another distance), and the fully specified form, whose interface is part
+of the statement. `ipv6 route` follows the same rule on prefix and next hop, so a `show running-config` pasted
+onto a box that already carries it does not grow.
+
 Anything that is neither an address nor a port is refused, naming it and the route:
 
 ```

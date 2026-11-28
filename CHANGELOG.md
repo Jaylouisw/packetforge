@@ -18,6 +18,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **A static route typed twice was stored twice, and the second row said it lost to itself.** `config.routes`
+  gained a row per typing, so `ip route 10.9.0.0 255.255.0.0 10.0.0.254` entered twice printed the line twice
+  in `show running-config` - a file meant to be pasted back, which grew by one line per paste - and put two
+  identical rows in `show ip route`, the second annotated `(not installed: the S route for this prefix has
+  distance 1)`: a route that lost to a copy of itself. A route is keyed on its whole statement (prefix, mask,
+  next hop or interface, distance), so a second typing is now answered `Route unchanged: ... - the
+  configuration already holds this route` and stores nothing, and `ipv6 route` follows the same rule on prefix
+  and next hop. Distinct statements stay distinct entries: another next hop, the floating static at another
+  distance, and the fully specified form. `test/static-route-duplicate.test.js` (32 assertions) and
+  `research/duplicate-static-route.md` (#1657).
 - **`show ip route static` was refused, and `connected` would have hidden the box's own addresses.**
   `show ip route` takes a protocol word - the vendor's field list reads "The name of a routing protocol or the
   keyword connected, mobile, static, or summary ... bgp, eigrp, hello, isis, odr, ospf, nhrp, or rip" (Cisco IOS

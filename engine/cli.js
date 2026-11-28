@@ -2424,16 +2424,43 @@ class CliSession {
       // Only when it was typed: an unset distance is the vendor's default of 1, and writing a 1 into every
       // static route would make the saved file differ from the one an operator typed.
       if (distance !== null) route.distance = distance;
-      this.device.config.routes.push(route);
-      out.push('Route added: ' + dest + '/' + net.prefixOf(mask) +
-        (gw ? ' via ' + gw + (iface ? ' ' + iface : '') : (iface ? ' out ' + iface : ' on-link')) +
-        (distance !== null ? ' (distance ' + distance + ')' : ''));
-      if (!gw && iface) {
-        // Legal, and often not what the operator wanted on a segment that is not point-to-point: with no
-        // next hop the box ARPs for the *destination* on that wire, and only answers if the router in
-        // between proxies ARP for it. Saying so at the moment of configuration is cheaper than letting it
-        // look installed and carry nothing.
-        out.push('  no next hop: this resolves by ARP on that segment, which needs proxy ARP on the far side');
+      // A route is a statement, not a stack (#1657). `config.routes` gained a row per typing, so the line
+      //   r1(config)# ip route 10.9.0.0 255.255.0.0 10.0.0.254
+      //   r1(config)# ip route 10.9.0.0 255.255.0.0 10.0.0.254
+      // printed the `ip route` line twice in `show running-config` and put two identical rows in
+      // `show ip route`, the second carrying "(not installed: the S route for this prefix has distance 1)" -
+      // a route that lost to itself. A box holds one entry per distinct (prefix, next hop, interface,
+      // distance): retyping a line that is already configured changes nothing, and the console says so
+      // instead of printing a second receipt for a route it did not add.
+      //
+      // Three shapes stay three routes, because they are three statements: another next hop for the same
+      // prefix (the model has no ECMP, docs/SIMULATION.md), the floating static - the same next hop at
+      // another administrative distance (docs/CLI.md, "A number after the next hop is a distance, not a
+      // port") - and the fully specified form, whose interface is part of the statement.
+      // research/duplicate-static-route.md
+      const effectiveDistance = distance === null ? 1 : distance;
+      const duplicate = this.device.config.routes.some(function (r) {
+        const rowDistance = (Number.isFinite(Number(r.distance)) && Number(r.distance) >= 1)
+          ? Number(r.distance) : 1;
+        return r.dest === dest && r.mask === mask &&
+          (r.gw || null) === (route.gw || null) && (r.iface || null) === (route.iface || null) &&
+          rowDistance === effectiveDistance;
+      });
+      const where = (gw ? ' via ' + gw + (iface ? ' ' + iface : '') : (iface ? ' out ' + iface : ' on-link')) +
+        (distance !== null ? ' (distance ' + distance + ')' : '');
+      if (duplicate) {
+        out.push('Route unchanged: ' + dest + '/' + net.prefixOf(mask) + where +
+          ' - the configuration already holds this route');
+      } else {
+        this.device.config.routes.push(route);
+        out.push('Route added: ' + dest + '/' + net.prefixOf(mask) + where);
+        if (!gw && iface) {
+          // Legal, and often not what the operator wanted on a segment that is not point-to-point: with no
+          // next hop the box ARPs for the *destination* on that wire, and only answers if the router in
+          // between proxies ARP for it. Saying so at the moment of configuration is cheaper than letting it
+          // look installed and carry nothing.
+          out.push('  no next hop: this resolves by ARP on that segment, which needs proxy ARP on the far side');
+        }
       }
     } else if (head === 'no' && tokens[1] === 'ip' && tokens[2] === 'route') {
       // The words after the prefix repeat the positive form, so the distance may be named here too:
@@ -3640,6 +3667,15 @@ class CliSession {
     if (!v6.validateAddress6(nh).ok) return ['% Invalid IPv6 next hop "' + (nh || '') + '"'];
     if (!this.device.config.routes6) this.device.config.routes6 = [];
     const net = v6.networkAddress6(dest);
+    // The same rule in the other address family: one entry per distinct (prefix, next hop), so a backup
+    // pasted twice does not grow the file (#1657, research/duplicate-static-route.md).
+    const dup6 = this.device.config.routes6.some(function (r) {
+      return r.dest === net && Number(r.prefix) === p.prefixLen && r.nextHop === nh;
+    });
+    if (dup6) {
+      return ['IPv6 route unchanged: ' + net + '/' + p.prefixLen + ' via ' + nh +
+        ' - the configuration already holds this route'];
+    }
     this.device.config.routes6.push({ dest: net, prefix: p.prefixLen, nextHop: nh });
     return ['IPv6 route ' + net + '/' + p.prefixLen + ' via ' + nh];
   }

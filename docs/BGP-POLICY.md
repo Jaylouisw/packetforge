@@ -72,9 +72,9 @@ each is the durable half, because the console grows and they move:
 | `bgp.js:310-319` `pathIsLoopFree` | correct already (AS_SET members included) | keep, no change |
 | `simulator.js:1989-2040` advertisement loop | `if (e.from === adj.peer.dev.id) continue;` (line 1998), prepend at 2004, the next hop at 2009, and the iBGP→iBGP suppression at 2003 (landed with #41, §6.3) | call `advertise()`/`applyRouteMap()` instead of re-deriving AS path and next hop; keep the iBGP→iBGP suppression |
 | `cli.js:2175-2191` config-mode BGP dispatch | `router bgp` / `no router bgp` / `neighbor` / `bgp` | add `route-map`, `match`, `set` branches |
-| `cli.js:3648` `_bgp(tokens)` | `as`, `router-id`, `<ip> remote-as` | add `always-compare-med`, `default local-preference`, `<ip> route-map`, `<ip> next-hop-self` |
-| `cli.js:3717` `this._dnsZone` | sticky "current zone" context, no new prompt mode | same pattern for the current route-map (§9.2) |
-| `cli.js:8974` `_help()` | command list | add the new lines |
+| `cli.js:3684` `_bgp(tokens)` | `as`, `router-id`, `<ip> remote-as` | add `always-compare-med`, `default local-preference`, `<ip> route-map`, `<ip> next-hop-self` |
+| `cli.js:3753` `this._dnsZone` | sticky "current zone" context, no new prompt mode | same pattern for the current route-map (§9.2) |
+| `cli.js:9010` `_help()` | command list | add the new lines |
 
 Design invariants that must survive the change, because every existing test
 relies on them:
