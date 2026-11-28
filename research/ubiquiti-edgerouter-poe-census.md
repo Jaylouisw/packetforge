@@ -123,3 +123,10 @@ page. The pair is waived in `test/known-issues.json` (`duplicateLabels`), whose 
 shrink, so collapsing it is a catalogue-identity decision (which model string labs keep) and
 belongs in its own increment. This pass corrected the `EdgeRouter-4` row only, and the two
 rows still agree on PoE (neither can sink or source).
+
+**Resolved 2026-11-27** (catalogue-identity increment, 7050SX3 precedent): the pair is now one
+file. `ER-4` survives in `devices/ubiquiti/er-4.json` because every other EdgeRouter row in the
+catalogue is filed under the vendor SKU (`er-6p`, `er-10x`, `er-12`, `ER-X`, `ER-X-SFP`) and both
+cited Ubiquiti URLs end in `/er-4`; `edgerouter4.json` is gone and `"EdgeRouter-4"` is an alias of
+the survivor. The researched PoE verdict and the 10M floor moved across with it, so the row here
+still reads: three copper ports that can neither sink nor source, one 1G SFP cage.
