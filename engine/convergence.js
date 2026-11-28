@@ -57,6 +57,13 @@ function stpTimers(dev) {
   // A port's path to Forwarding is Listening then Learning: two forward delays.
   return {
     forwardDelaySec: fd,
+    // The two numbers `show spanning-tree` prints beside the forward delay. They are returned here rather than
+    // written into the report as literals because a box prints the timers it is *running*: a capture of
+    // `spanning-tree vlan 1 max-age 10` shows `Max Age 10 sec` in both blocks, and this model's schedule already
+    // waits out whatever `stpMaxAgeSec`/`stpHelloSec` say, so a report with the factory numbers in it would
+    // contradict the box's own convergence (research/stp-timer-lines-source.md).
+    helloSec: num(cfg.stpHelloSec, C.stpHelloSec),
+    maxAgeSec: num(cfg.stpMaxAgeSec, C.stpMaxAgeSec),
     listenEndMs: fd * 1000,
     learnEndMs: fd * 2000,
     forwardAtMs: fd * 2000,
