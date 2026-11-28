@@ -219,6 +219,10 @@ class Simulator {
     this._ipId = 0x4000;      // IPv4 identification for transport packets
     this._stpDirty = true;
     this.stpResult = null;
+    // The election the last cable change is measured against (#1731). Kept beside the change it belongs
+    // to: a bridge that merely *lost the path* to the root keeps the old root's BPDU for Max Age, and only
+    // the election from before the change can say whose BPDU that was.
+    this._lastLinkChange = null;
     // Lease state per server device, held on the **topology**, not on this run (#1429).
     //
     // It used to be rebuilt for every run, on the reasoning that a lease is a property of a run. Two things were wrong
@@ -459,9 +463,18 @@ class Simulator {
     // The election goes with it: a non-root's ports are paced by the root's timers (#1722), and only the
     // election can say which box that is. When no election has run there is no root to quote, so the schedule
     // reads each device's own configuration - the same fallback `show spanning-tree` makes for its header.
+    const fromMs = this.topo.lastChangeAtMs || 0;
+    // The election from *before* the change, when this schedule is the one that change produced. A bridge
+    // whose own cable stayed up and whose path to the root did not (`stpMaxAgeHold`) holds the old root's
+    // BPDU for Max Age; measuring that against the post-change election would credit it to a root it has
+    // not heard yet. Any other instant has no such history, and the schedule is built without it.
+    const lc = this._lastLinkChange;
+    const sameChange = !!(lc && Number(lc.atMs) === Number(fromMs));
     return convergenceLib.buildSchedule(this.topo, {
-      fromMs: this.topo.lastChangeAtMs || 0,
-      stp: this.stpResult
+      fromMs: fromMs,
+      stp: this.stpResult,
+      stpBefore: sameChange ? lc.stpBefore : null,
+      touched: sameChange ? lc.touched : null
     });
   }
 
@@ -498,6 +511,10 @@ class Simulator {
     this.topo.markChange(Number.isFinite(t) && t >= 0 ? t : 0);
     this._stpDirty = true;
     this.stpResult = null;
+    // `shutdown` on a local port is a direct failure at the box that typed it: its stored BPDU is discarded
+    // on the spot, so there is no Max Age wait to carry over. Clearing the record keeps a cable change at
+    // the same instant from being read as the reason for it (#1731).
+    this._lastLinkChange = null;
     return this.topo.lastChangeAtMs;
   }
 
@@ -528,10 +545,19 @@ class Simulator {
       atMs = asked;
     }
     const before = link.state;
-    link.state = state;
     if (o.force !== true && before === state) {
       return { ok: true, linkId: linkId, changed: false, state: state, atMs: atMs };
     }
+    // The election as it stands *before* the cable moves (#1731). A non-root that loses its path to the
+    // root without losing a port of its own keeps running the old root's timers until that root's BPDU
+    // ages out, and only the pre-change election can name that root and its Max Age.
+    let stpBefore = this.stpResult;
+    if (!stpBefore) {
+      // Nothing has asked for the tree yet. Build it against the links as they still are; a lab that
+      // cannot span (a half-built board) simply has no history to measure.
+      try { this.computeStp(); stpBefore = this.stpResult; } catch (e) { stpBefore = null; }
+    }
+    link.state = state;
 
     // Topology change: MAC tables age out instantly in the model, and the tree is rebuilt.
     for (const dev of this.topo.devices.values()) {
@@ -545,6 +571,14 @@ class Simulator {
     }
     this._stpDirty = true;
     this.recomputeStp();
+    this._lastLinkChange = {
+      atMs: atMs,
+      linkId: linkId,
+      // Both ends of the cable that moved. Those two boxes had a port go down, which is the direct
+      // failure the model already got right; every other box lost the root, if it did, indirectly.
+      touched: [link.a.deviceId, link.b.deviceId],
+      stpBefore: stpBefore
+    };
     link.stateSinceMs = atMs;
     // The network remembers: a later Simulator on this topology still knows when the cable moved.
     if (typeof this.topo.markChange === 'function') this.topo.markChange(atMs);
