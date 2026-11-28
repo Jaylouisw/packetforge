@@ -2,6 +2,9 @@
   "vendor": "arista",
   "model": "7050SX3-48YC8",
   "label": "Arista 7050SX3-48YC8",
+  "aliases": [
+    "7050SX3"
+  ],
   "category": "l3-switch",
   "description": "Arista 7050X3 series 1RU leaf: 48x 25G SFP28 (1/10/25G) server ports plus 8x 100G QSFP28 uplinks, 4 Tbps non-blocking. Each QSFP28 uplink also runs 40G or breaks out to 4x 25G/10G or 2x 50G.",
   "capabilities": [
@@ -105,5 +108,6 @@
       ]
     }
   ],
+  "notes": "The only 7050SX3 spec in the catalogue. Until 2026-11-27 there was a second file, devices/arista/7050sx3.json, a seed stub whose label read \"7050SX3-48YC8 (L3)\" and whose template declared 12 ports of 25G - the same box as this one, with 44 of its 56 ports missing, so a lab that picked it from the palette could not cable ports 13-48 or any uplink. It was removed rather than filled in, because filling it would have left the catalogue offering one product twice under two model strings that the duplicate check cannot see (arista|7050sx3 vs arista|7050sx348yc8); the precedent is #1194/#70, 'one product, one file'. The family name it was filed under is kept as an alias so typing \"7050SX3\" in the palette still finds this box. The 7050X3 datasheet (https://www.arista.com/assets/data/pdf/Datasheets/7050X3-Datasheet.pdf, read 2026-11-27, HTTP 200, 40,278 chars of text layer) prints '7050SX3-48YC8 and 7050SX3-48YC8C: 48x SFP25 & 8x QSFP100' and, in the same paragraph, the other members of the series: 7050SX3-48YC12 (48x SFP25 & 12x QSFP100), 7050SX3-96YC8 (96x SFP25 & 8x QSFP100, 2U), 7050SX3-24YC4C (24x SFP25 & 4x QSFP100), 7050SX3-48C8/48C8C (48x SFP+ & 8x QSFP100) and the CX3/TX3 siblings - none of them is modelled here, and this spec does not claim to be them.",
   "sourceUrl": "https://www.arista.com/assets/data/pdf/Datasheets/7050X3-Datasheet.pdf"
 }
