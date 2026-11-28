@@ -4180,7 +4180,7 @@ A group belongs to an interface, so the commands live inside `interface`:
 ```
 interface GigabitEthernet0/0
  ip address 10.0.0.1 255.255.255.0
- vrrp <vrid> ip <virtual-address>
+ vrrp <vrid> ip <virtual-address> [secondary]   # a second address; the marker itself is not kept
  vrrp <vrid> priority <1-254>        # 100 default; 255 is only ever the address owner's
  vrrp <vrid> timers advertise <seconds>   # the box's keyword; `vrrp <vrid> advertise` is not a command
  vrrp <vrid> preempt                 # on by default; `no vrrp <vrid> preempt` turns it off
@@ -4188,6 +4188,16 @@ interface GigabitEthernet0/0
  no vrrp <vrid>                      # remove the group
  no vrrp <vrid> priority|preempt|timers advertise   # put one setting back to its default
 ```
+
+**A second `ip` line adds an address, and that is a decision rather than a measurement.**
+`vrrp 10 ip A` then `vrrp 10 ip B` leaves the group holding both, and a line typed with `secondary` is
+stored the same way - the keyword is accepted and not written back, so the printed config cannot say
+which address was the primary. Cisco separates the two forms (`vrrp group ip ip-address [secondary]`,
+"The first IP address specified in the VRRP configuration is used as the primary address for the
+virtual router") and writes no sentence for a second bare line, so what a box does with one is
+unresolved here: [research/vrrp-second-virtual-address.md](../research/vrrp-second-virtual-address.md)
+records the evidence, the three findings from this console's own output, and the capture that would
+settle it.
 
 **A `no` that names a setting removes the setting; a bare `no` removes the group.** The interface-mode
 handler (`_ifaceMode()`, `engine/cli.js:2792`) reads the vrid, and then the word after it; its `no vrrp`
