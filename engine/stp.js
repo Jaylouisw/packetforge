@@ -361,7 +361,26 @@ function runStp(input) {
       mac: (root.macRaw === null) ? root.mac : root.macRaw
     },
     ports: portsOut,
-    blocked: blocked
+    blocked: blocked,
+    // One entry per bridge, so a report can print the box's own half of the election - its bridge ID, the cost
+    // it pays to reach the root, and the port it pays it on - without re-deriving any of it from the port list.
+    // Every field here is already computed above: the address is the one the bridge-ID comparison used (the raw
+    // string the caller handed in, so the report can format it), `cost` is the Dijkstra distance from the root
+    // (0 for the root itself, Infinity when no path exists), and `rootPort` is the port step 3 chose
+    // (#1713).
+    bridges: (function () {
+      const out = {};
+      for (const key of order) {
+        const b = byKey.get(key);
+        out[key] = {
+          priority: b.priority,
+          mac: (b.macRaw === null) ? b.mac : b.macRaw,
+          cost: dist.get(key),
+          rootPort: rootPortOf.get(key) || null
+        };
+      }
+      return out;
+    })()
   };
 }
 

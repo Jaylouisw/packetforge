@@ -162,14 +162,22 @@ console.log('The report explains the tree it prints:');
   const env = triangle();
   run(env, 's1', ['enable', 'configure terminal', 'spanning-tree priority 4096']);
   election(env);
+  // The report is a Catalyst's two header blocks (#1713), so the priority is read where a box prints it: the
+  // extended value in the Root ID block, and the number the operator typed in the Bridge ID block beside the
+  // `sys-id-ext` half that produced the 4097. The root is identified the only way a box identifies it - by its
+  // bridge address - and a non-root prints what it pays to reach it.
   const shown = run(env, 's1', ['enable', 'show spanning-tree']);
-  ok(/Bridge priority 4096/.test(shown), 'show spanning-tree prints the priority in force', shown.split('\n')[0]);
-  ok(/this bridge is the root/.test(shown), 'and says when this bridge is the root');
-  ok(/root bridge s1 priority 4096/.test(shown), 'naming the device by its lab name, not its model', shown.split('\n')[0]);
+  ok(/Root ID    Priority    4097/.test(shown), 'show spanning-tree prints the extended priority in the Root ID block');
+  ok(/Bridge ID  Priority    4097  [(]priority 4096 sys-id-ext 1[)]/.test(shown),
+    'and the Bridge ID block spells out the 4096 that produced it');
+  ok(/This bridge is the root/.test(shown), 'and says when this bridge is the root');
+  ok(/Address     0200[.]0000[.]0003/.test(shown), 'the root is identified by its bridge address, as a box prints it');
   const other = run(env, 's2', ['enable', 'show spanning-tree']);
-  ok(/Bridge priority 32768/.test(other), 'a switch that kept the default says 32768', other.split('\n')[0]);
-  ok(!/this bridge is the root/.test(other), 'and does not claim to be the root');
-  ok(/root bridge s1 priority 4096/.test(other), 'while still naming who is');
+  ok(/[(]priority 32768 sys-id-ext 1[)]/.test(other), 'a switch that kept the default says 32768');
+  ok(!/This bridge is the root/.test(other), 'and does not claim to be the root');
+  ok(/Address     0200[.]0000[.]0003/.test(other), 'while still naming the root, by its address');
+  ok(/Cost        4/.test(other), 'the non-root prints the cost it pays to reach the root');
+  ok(/Port        1 [(]1[/]1[/]1[)]/.test(other), 'and the port it pays it on, with the port number a box prints');
 
   // No simulator: the command must not invent an election result.
   const bare = new CliSession(env.t.getDevice('s2'), env.t, null);

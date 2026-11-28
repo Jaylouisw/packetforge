@@ -22,6 +22,7 @@ const { Topology } = require('../engine/topology');
 const { Simulator } = require('../engine/simulator');
 const { loadCatalog } = require('../devices/registry');
 const stpLib = require('../engine/stp');
+const netLib = require('../engine/net');
 
 let passed = 0, failed = 0;
 function ok(cond, msg, detail) {
@@ -114,8 +115,10 @@ console.log('A lone bridge is the root of its own tree');
   // A lone bridge *is* its own tree, and the election answers that: one bridge, one root, itself. The sentence the
   // console reserves for "nothing has been measured" therefore does not belong here - it belongs to a lab in which
   // no bridge exists at all, which is the router case above.
-  ok(/this bridge is the root/.test(out), 'a lone bridge is named as the root of its own tree', out);
-  ok(/root bridge sw1 priority/.test(out), 'and the root is named, not merely described', out.split('\n')[1]);
+  ok(/This bridge is the root/.test(out), 'a lone bridge is named as the root of its own tree', out);
+  ok(/Root ID    Priority    32769/.test(out), 'in a Root ID block carrying its extended priority', out);
+  ok(/Bridge ID  Priority    32769  [(]priority 32768 sys-id-ext 1[)]/.test(out),
+    'and a Bridge ID block spelling out the two numbers it is made of', out);
   ok(!/undefined/.test(out), 'with nothing undefined in it', out);
 }
 
@@ -135,14 +138,19 @@ console.log('A root is named by something a person can act on');
   ok(!!rootKey, 'the election picked a root with a key', JSON.stringify(sim.stpResult.root));
 
   const out = (new CliSession(t.getDevice(rootKey), t, sim).run('show spanning-tree').output || []).join('\n');
-  ok(/this bridge is the root/.test(out), 'the root knows it is the root', out.split('\n')[1]);
-  ok(new RegExp('root bridge ' + rootKey).test(out), 'and names itself by its lab id', out.split('\n')[1]);
-
-  // A hostname, when set, is what an operator typed and is what the report must use.
+  ok(/This bridge is the root/.test(out), 'the root knows it is the root');
+  // The root is identified by its bridge address - the only identity a box prints in this block - so the address
+  // has to be the exact one the election used for that box: a report that printed another switch's MAC would be
+  // naming a different root.
   const rootDev = t.getDevice(rootKey);
+  const rootAddr = netLib.formatMac(rootDev.lowestInterfaceMac());
+  ok(out.indexOf('Address     ' + rootAddr) !== -1, 'and its own bridge address is the one in both blocks', rootAddr);
+
+  // A hostname is not a field of this block on any box, so naming the lab's switch does not displace the address
+  // a box actually prints.
   rootDev.config.hostname = 'core-a';
   const named = (new CliSession(rootDev, t, sim).run('show spanning-tree').output || []).join('\n');
-  ok(/root bridge core-a/.test(named), 'a configured hostname beats the id', named.split('\n')[1]);
+  ok(named.indexOf('Address     ' + rootAddr) !== -1, 'a hostname does not displace the bridge address', named);
 
   // The switch that actually lost a port to the tree, so the report is read where it matters.
   const blockedOn = Array.from(t.devices.keys()).filter(function (id) {
@@ -151,9 +159,10 @@ console.log('A root is named by something a person can act on');
   })[0];
   ok(!!blockedOn, 'the tree blocked a port somewhere in the triangle', String(blockedOn));
   const otherOut = (new CliSession(t.getDevice(blockedOn), t, sim).run('show spanning-tree').output || []).join('\n');
-  ok(/this bridge is the root/.test(otherOut) === false, 'a non-root does not claim to be one', otherOut.split('\n')[1]);
-  ok(/root bridge core-a priority/.test(otherOut), 'and names the root by its hostname, with its priority',
-    otherOut.split('\n')[1]);
+  ok(/This bridge is the root/.test(otherOut) === false, 'a non-root does not claim to be one', otherOut);
+  ok(otherOut.indexOf('Address     ' + rootAddr) !== -1, 'and names the root by its bridge address', otherOut);
+  ok(/Cost        [0-9]+/.test(otherOut), 'printing the cost it pays to reach the root', otherOut);
+  ok(/Port        [0-9]+ [(]/.test(otherOut), 'and the port it pays it on', otherOut);
   ok(/\bAltn\s+BLK\b/.test(otherOut), 'and the blocked port carries the cells a box prints: Altn BLK', otherOut);
 }
 

@@ -2669,12 +2669,22 @@ pools first, so a restored lab translates the same packets it did before.
 ### Reading `show spanning-tree`
 
 ```
-Spanning tree enabled protocol ieee
-  Bridge priority 4096 (this bridge is the root), root bridge core-sw1 priority 4096
-Interface           Role Sts Cost      Type
-------------------- ---- --- --------- -------
-Fa0/1               Desg FWD 4         P2p
-Fa0/2               Altn BLK 4         P2p
+VLAN0001
+  Spanning tree enabled protocol ieee
+  Root ID    Priority    4097
+             Address     0200.0000.0000
+             This bridge is the root
+             Hello Time   2 sec  Max Age 20 sec  Forward Delay 15 sec
+
+  Bridge ID  Priority    4097  (priority 4096 sys-id-ext 1)
+             Address     0200.0000.0000
+             Hello Time   2 sec  Max Age 20 sec  Forward Delay 15 sec
+             Aging Time  300 sec
+
+Interface           Role Sts Cost      Prio.Nbr Type
+------------------- ---- --- --------- -------- -------
+Fa0/1               Desg FWD 4         128.1    P2p
+Fa0/2               Altn BLK 4         128.2    P2p
 ```
 
 The `Role` and `Sts` cells are the device's table cells, not its detail view: a box prints `Root`, `Desg`,
@@ -2709,17 +2719,34 @@ not list as a front-panel position - keep the `-` this table uses for anything t
 The detail sentence is still what the runtime payload and the port tooltip say, because there a sentence is the
 right shape; the table uses the words a table uses (`research/stp-port-table-role-and-sts.md`).
 
-The header names the **bridge priority** and the **root bridge the election chose**. Without it the report
-described a tree but not why it had that shape: priority decides the election before MAC address does, so two
-switches with the same ports and the same cables can produce different trees and the output gave no clue which
-one you were looking at. The priority in force is this device's; the root is named by hostname, else by the id
-the lab uses — not by the model label, which is the same string on every switch of one kind.
+The header is a Catalyst's, not this console's invention: the `VLAN0001` line, the protocol line, a **Root ID**
+block and a **Bridge ID** block, transcribed from a machine-recorded capture and from the 6500 12.1E command
+reference, which print the very numbers this model prints when a priority is set
+(`research/show-spanning-tree-header-block.md`). The Root ID block carries the **extended** bridge priority — the priority
+plus the `sys-id-ext` the VLAN number supplies, so 4096 reads `4097` — the root's bridge address, and then either
+`This bridge is the root` or the `Cost` and `Port` a non-root pays to reach it. The Bridge ID block repeats the
+extended priority with its two halves spelled out (`priority 4096 sys-id-ext 1`), this box's own address, the
+three BPDU timers, and the forwarding-database ageing — `Aging Time  300 sec`, the same 300 s `show mac
+address-table` ages an entry by, read from the model rather than written down twice
+(`research/show-spanning-tree-aging-time.md`). Without the block the report described a tree but not why it had
+that shape: priority decides the election before MAC address does, so two switches with the same ports and the
+same cables can produce different trees and the output gave no clue which one you were looking at.
 
-There are three states, and the header says which one you are in:
+The root is named the way a box names it — by its **bridge address**, the lowest MAC on the root, which is the
+one identity this block has a field for. A hostname is not printed here, and neither is the catalogue's model
+label, which is the same string on every switch of one kind. Before #1713 this view said
+`Bridge priority 4096 (this bridge is the root), root bridge core-sw1 priority 4096` — a label no box prints,
+carrying no address, no cost and no timers.
 
-* **a bridge in a tree** — `root bridge core-sw1 priority 4096`, with `(this bridge is the root)` after the
-  priority when you are reading the root itself;
+There are four states, and the header says which one you are in:
+
+* **a bridge in a tree** — the Root ID block names the root by its address; a non-root adds the `Cost` and
+  `Port` it pays to reach it, and a root prints `This bridge is the root` in place of those two lines;
 * **a lone bridge** — the election still runs, and answers with the only candidate: itself;
+* **a console with no election behind it** — no simulator has run, so the Root ID block prints `-` where the
+  numbers belong and the line `root bridge not measured (no election has run)`. The Bridge ID block is still
+  printed: this box's own priority and address do not depend on an election, and the console already owns the
+  lowest-MAC rule that decides them;
 * **a box that is not a bridge** — a router. It prints the box's own one-line answer, `No spanning tree instance
   exists.`, because a router never joins an election and a report that describes one in terms of roots and bridge
   priorities implies it did. The words are IOS/IOS XE's, not this model's: `research/stp-no-instance-wording.md`
@@ -3884,7 +3911,7 @@ not set`, and no `S*` row appears. On a box that does not route, the same comman
 host/redirect cache shape below instead of a table. Only a lease's router is a route: the row is read from
 `device.dhcpGateway` (`engine/device.js:1446`), which `Simulator.computeDhcp()` fills when the lease carries a
 gateway (`engine/simulator.js:1248`), while the typed `config.defaultGateway` is consulted only when
-`isL3()` is false (`engine/device.js:1166`, and again where the table's `S*` row is built, `:1440`). The
+`isL3()` is false (`engine/device.js:1178`, and again where the table's `S*` row is built, `:1440`). The
 scoping itself, with the vendor sources, is in
 [research/ip-default-gateway-when-routing.md](../research/ip-default-gateway-when-routing.md).
 

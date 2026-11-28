@@ -86,7 +86,8 @@ console.log('A switch that has a tree still prints the tree');
   sim.setRunTime(0);
   const out = (new CliSession(t.getDevice('s1'), t, sim).run('show spanning-tree').output || []).join('\n');
   ok(/Spanning tree enabled protocol ieee/.test(out), 'a cabled bridge still reports a tree', out);
-  ok(/Bridge priority \d+/.test(out), 'with its bridge priority', out);
+  ok(/Bridge ID  Priority    32769  [(]priority 32768 sys-id-ext 1[)]/.test(out),
+    'with the bridge ID block a box prints, extended priority and all', out);
   ok(out.indexOf(BOX_SENTENCE) === -1, 'and never the no-instance sentence', out);
 }
 
