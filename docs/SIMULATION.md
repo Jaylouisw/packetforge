@@ -126,12 +126,12 @@ to; the rest of this page's citations were not re-measured in the same pass.
 
 | Verdict | Behaviour | Where |
 |---|---|---|
-| **Modelled** | Source MAC is learned on ingress, into a table **scoped to the frame's VLAN**. | `engine/simulator.js:3442` (`learnMac()` on the way in), `engine/device.js:961` (`learnMac()`, one table per VLAN) |
-| **Modelled** | Known unicast → one egress port. Unknown unicast, broadcast and multicast → flood within the VLAN only. | `engine/simulator.js:3634-3668` (`_forwardL2()`) |
-| **Modelled** | A flood never returns out of the ingress port, and never out of the LAG it arrived on. | `engine/simulator.js:3640` (the ingress port is not a candidate), `engine/simulator.js:3790` (`_egressRefusal()` answers `bundle`) |
-| **Modelled** | A learned entry pointing back at the ingress port is dropped with `loop`, rather than forwarded. | `engine/simulator.js:3658-3660` |
-| **Approximate** | Learning happens before the ACL and the STP egress checks, so a frame that is then dropped still taught the switch a MAC. Real hardware does the same; worth knowing when reading a table after a denied flow. | `engine/simulator.js:3442` (learning) before `3449` (the inbound ACL) and `3686` (the egress filter, whose first refusal is the spanning tree's) |
-| **Approximate** | Multicast is treated as broadcast: no IGMP snooping, no per-group filtering. This is deliberate — IPv6 neighbour discovery would never arrive otherwise. | `engine/simulator.js:3480-3481` (`isMulticastMac()` folded into `flood`) |
+| **Modelled** | Source MAC is learned on ingress, into a table **scoped to the frame's VLAN**. | `engine/simulator.js:3490` (`learnMac()` on the way in), `engine/device.js:968` (`learnMac()`, one table per VLAN) |
+| **Modelled** | Known unicast → one egress port. Unknown unicast, broadcast and multicast → flood within the VLAN only. | `engine/simulator.js:3682-3824` (`_forwardL2()`) |
+| **Modelled** | A flood never returns out of the ingress port, and never out of the LAG it arrived on. | `engine/simulator.js:3688` (the ingress port is not a candidate), `engine/simulator.js:3843` (`_egressRefusal()` answers `bundle`) |
+| **Modelled** | A learned entry pointing back at the ingress port is dropped with `loop`, rather than forwarded. | `engine/simulator.js:3707` |
+| **Approximate** | Learning happens before the ACL and the STP egress checks, so a frame that is then dropped still taught the switch a MAC. Real hardware does the same; worth knowing when reading a table after a denied flow. | `engine/simulator.js:3490` (learning) before `3497` (the inbound ACL) and `3733` (the egress filter, whose first refusal is the spanning tree's) |
+| **Approximate** | Multicast is treated as broadcast: no IGMP snooping, no per-group filtering. This is deliberate — IPv6 neighbour discovery would never arrive otherwise. | `engine/simulator.js:3528-3529` (`isMulticastMac()` folded into `flood`) |
 | **Modelled** | A dynamically learned entry ages out after **300 s** of silence (`MAC_AGE_MS`), and the aged lookup is what the data path uses, not just what the report prints: an entry the table only remembers is not a port a frame may be sent to. The `Age` column in `show mac address-table` is that silence, refreshed by traffic, not a lifetime. | `engine/device.js:6` (`MAC_AGE_MS`), `macLookup()` and `ageMacs()` |
 | **Absent** | MAC move detection, per-port MAC limits, port security, storm control, error counters, CRC/FCS errors, collisions. | — |
 
@@ -148,6 +148,12 @@ They moved again after it: five commits to `engine/simulator.js` landed between 
 -> 3790, the `loop` drop 3629 -> 3658, the inbound ACL 3420 -> 3449, the egress filter 3657 -> 3686,
 and `isMulticastMac()` 3451 -> 3480, with `engine/device.js`'s `learnMac()` at 934 -> 961. The rows
 were re-read off this tree again; what each one names is unchanged.
+
+They moved once more, all by the same amount: the two OSPF adjacency changes (#1646, #1652) put 48 lines above the
+frame path, so `learnMac()` 3442 -> 3490 (and `engine/device.js`'s at 961 -> 968), `_forwardL2()` 3634 -> 3682, the
+ingress skip 3640 -> 3688, `_egressRefusal()`'s `bundle` answer 3790 -> 3843, the `loop` drop 3658 -> 3707, the
+inbound ACL 3449 -> 3497, the egress filter 3686 -> 3733, and `isMulticastMac()` 3480 -> 3528. The six rows are
+re-read off the tree at `d7cac843`; what each one names is unchanged.
 
 ### 2.2 VLANs (802.1Q)
 
@@ -172,14 +178,23 @@ ports" ([research/voice-vlan-port-mode.md](../research/voice-vlan-port-mode.md))
 
 | Verdict | Behaviour | Where |
 |---|---|---|
-| **Modelled** | A LAG is one logical port: frames are hashed onto exactly one member, the event log records which. | `engine/simulator.js:3739-3752` (`selectMember()` and the `lag` event), `engine/lag.ts:407` (`selectMember()`) |
+| **Modelled** | A LAG is one logical port: frames are hashed onto exactly one member, the event log records which. | `engine/simulator.js:3787-3800` (`selectMember()` and the `lag` event), `engine/lag.ts:407` (`selectMember()`) |
 | **Modelled** | Hash policies `l2`, `l3`, `l3l4`, deterministic FNV-1a — the same frame always lands on the same member. | `engine/lag.ts:235` (`HASH_POLICIES`), `engine/lag.ts:337` (`fnv1a()`), `engine/lag.ts:372` (`hashFrame()`) |
 | **Modelled** | Spanning tree sees one edge per bundle, so it does not block members against each other. | `engine/simulator.js:922-925` (`computeStp()` groups members under `_logicalPortName()`) |
-| **Modelled** | A frame that arrived on a member never leaves by the same group (no hairpin). | `engine/simulator.js:3795` (`_egressRefusal()` answers `bundle`) |
+| **Modelled** | A frame that arrived on a member never leaves by the same group (no hairpin). | `engine/simulator.js:3843` (`_egressRefusal()` answers `bundle`) |
 | **Approximate** | `mode` (`lacp-active`, `lacp-passive`, `static`) is validated and stored and now decides two things — whether the two ends would negotiate at all, and how wide the group may be (16 members for LACP, 8 for `on`) — but no LACPDU crosses the wire: a passive/passive pair and a one-ended group are answered by rule, not by a protocol. | `engine/lag.ts:488` (`negotiationVerdict()`), `engine/lag.ts:521` (`memberSuspension()`), `engine/lag.ts:260` (`maxMembers()`) |
 | **Approximate** | `minLinks` is normalised and validated but never read at runtime: a bundle keeps forwarding at one member, it never shuts down. | `engine/lag.ts:299-301` (`minLinks` normalisation) |
 | **Modelled** | A bundle carries **eight active links**; the rest of a LACP group (up to 16 members) are **hot-standby** — chosen in port order, shown `(H)` in `show etherchannel summary`, never hashed onto, and promoted when an active link goes away. A non-negotiating (`mode on`) group holds eight members and refuses a ninth. | `engine/lag.ts:254` (`MAX_ACTIVE_LINKS`), `engine/lag.ts:427` (`carryingMembers()`), `:443` (`activeMembers()`), `:448` (`standbyMembers()`) |
 | **Absent** | LACPDUs, negotiation, per-member failure detection beyond `iface.enabled`, load-based member selection, L3/L4 hash entropy from anything but the fields present. | — |
+
+Two rows in this table were still carrying the numbers from before the OSPF work, because the §2.1 pass
+re-measured its own six cells and left the tables below them alone: `3739-3752`, cited for `selectMember()`
+and the `lag` event, is now the refused-port list and the `Collapse LAG members` comment, and `3795`, cited
+for `_egressRefusal()`'s `bundle` answer, is the `degraded:` comment inside the `lag` event. It is the same
++48 lines the two OSPF adjacency changes (#1646, #1652) put above the frame path: the call and its event are
+at `3787-3800`, and `_egressRefusal()` answers `stp` before `bundle` at `3843`. The four rows citing
+`engine/lag.ts` needed nothing - that file has not moved. Re-read off the tree at `bd2c1896`; the rows below
+this section were not re-measured in this pass either.
 
 ### 2.4 Spanning tree (802.1D)
 
