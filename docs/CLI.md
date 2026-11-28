@@ -2991,6 +2991,25 @@ Two consequences of the missing translation are worth knowing:
   legitimately short between typing the first member and the second. The standing view of the group is the
   right place for a fact about the group.
 
+Retyping the line on a port the group already holds is not a join, and the console no longer calls it one. On a
+bundle holding `Gi1/0/1` and `Gi1/0/2`, both in `mode active`:
+
+```
+sw1(config-if)#channel-group 1 mode active
+Interface Gi1/0/2 is already in channel group 1 (mode active), so nothing was added
+sw1(config-if)#channel-group 1 mode on
+Channel group 1 mode changed from active to on for every member: Gi1/0/1
+Interface Gi1/0/2 stays in channel group 1 (mode on), it was already a member
+```
+
+The join sentence was printed at the end of every line that got past the refusals, so three different outcomes
+shared it: a port that had just joined, a port that had been in the group all along, and a port that stayed put
+while the group's mode changed. Three outcomes, and the word "added" was true of one - on the line an operator
+repeats after pasting a port's configuration, and the one they read to confirm which bundle the port ended up
+in. The no-op is answered rather than met with silence (silence is what the console says for an accepted line
+with no news, so it could not be told apart from a line that was not read), and the answer names the port, the
+group and the mode it is in, which is the question the retype was asking.
+
 `(P)` means bundled **and able to carry a frame**; `(D)` means the member cannot, and the line below it says
 why in the same sentence `show interfaces` and `show arp` use — `administratively down`, `down: no cable`,
 `down: link down`, `down: peer shut down`, or `(STP blocking)`.
