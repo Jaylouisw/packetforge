@@ -125,6 +125,14 @@ root role and runs its own two forward delays: 20 s + 30 s with the defaults, so
 settles at 60 s, not 40 s. `converge` says which arithmetic produced the instant, in the `Basis`
 column; [LINK-STATE.md](LINK-STATE.md) has both rows.
 
+A port's own state is counted from the same instant, not from the absolute clock. Each schedule entry carries
+`startedAtMs` (the change) beside `readyAtMs` (the change, plus any Max Age the box waited out, plus two forward
+delays), and `stpPortStateAt()` reads the entry: Listening at `startedAtMs`, Learning one forward delay later,
+Forwarding at `readyAtMs`. A port the new tree has just unblocked is therefore Listening at the instant the cable
+moved - it used to read Forwarding there, 8 s before the reply above said the tree would be whole - and a
+partitioned bridge's ports are Blocking for as long as it is still sitting out the old root's Max Age, because
+the transition has not begun. The steady-state role still comes from the election; only the seconds are timed.
+
 With no `at`, the change happens at the instant the console is standing at — `link down l5` typed in a session at
 60000 ms records the pull at 60000 and reconverges at 90000. It used to be stamped t=0 regardless, so the console
 answered "Network converges again at 30000 ms" half a minute *before* the moment it was asked about, while the same
