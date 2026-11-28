@@ -264,5 +264,92 @@ t('The CLI can ask the question, and says "converging" rather than "timed out"')
   ok(bad.some(function (l) { return /Invalid instant/.test(l); }), 'a negative instant is refused');
 }
 
+// ---------------------------------------------------------------------------
+t("A non-root's ports transition on the root's timers, not their own (#1722)");
+
+{
+  // The captures behind research/stp-timer-lines-source.md are one switch given a faster tree than the boxes
+  // behind it: a root at `forward-time 4` over a non-root still at the 15 s default. 802.1D has the non-root
+  // adopt the root's values from the configuration BPDU (its own are remembered but unused), so the port
+  // behind the root comes up in 8 s - the number the non-root's own Root ID line prints. This model timed each
+  // port by its own device, which meant 30 s of "converging" under a report that said 4.
+  const topo = new Topology();
+  const sw1 = topo.addDevice(spec('generic', 'generic-switch'));
+  const sw2 = topo.addDevice(spec('generic', 'generic-switch'));
+  const pc = topo.addDevice(spec('generic', 'generic-pc'));
+  sw1.name = 'SW1'; sw2.name = 'SW2'; pc.name = 'PC1';
+  topo.connect(sw1.id, 'Fa0/1', sw2.id, 'Fa0/1');
+  const trunk = topo.connect(pc.id, 'eth0', sw2.id, 'Fa0/5');
+  sw1.config.stpPriority = 4096;
+  sw1.config.stpForwardDelaySec = 4;
+
+  eq(conv.stpRoot(topo).device.id, sw1.id, 'the elected root is the switch with the lowest bridge ID');
+  const tree = conv.stpTreeTimers(topo);
+  eq(tree.timers.forwardDelaySec, 4, "and the tree's timers are the root's");
+  eq(conv.stpTimers(sw2).forwardDelaySec, 15,
+    "while the non-root's own configuration is still 15 s, which is what its Bridge ID line prints");
+
+  const sched = conv.buildSchedule(topo);
+  const entry = function (dev) {
+    return sched.entries.filter(function (e) { return e.process === 'stp' && e.device === dev; })[0];
+  };
+  eq(entry(sw2).readyAtMs, 8000, 'the non-root is ready at 8 s, not the 30 s its own 15 s delay would take');
+  ok(/the root's/.test(entry(sw2).basis), 'and the schedule names whose forward delay that was', entry(sw2).basis);
+  eq(entry(sw1).readyAtMs, 8000, 'the root is ready at 8 s too');
+  ok(!/the root's/.test(entry(sw1).basis), 'with no borrowed timer to explain', entry(sw1).basis);
+  eq(sched.byProcess.stp, 8000, 'so the tree as a whole is done at 8 s');
+
+  // The data plane, not just the arithmetic: at 10 s the port behind the root is Forwarding. A port still
+  // Listening there is exactly the bug this pins.
+  const sim = new Simulator(topo);
+  sim.computeStp();
+  eq(sim.stpResult.root.key, sw1.id, 'the election still names SW1 root');
+  eq(sim.getConvergence().byProcess.stp, 8000, 'and the simulator schedules the same 8 s');
+  sim.setRunTime(10000);
+  sim.computeStp();
+  eq(sw2.stp.states['Fa0/1'], 'forwarding', 'at 10 s the non-root port is Forwarding');
+  eq(sw1.stp.states['Fa0/1'], 'forwarding', 'as is the root port');
+  sim.setRunTime(3999);
+  sim.computeStp();
+  eq(sw2.stp.states['Fa0/1'], 'listening', 'and at 3999 ms it is still Listening, one delay into the 4 s tree');
+  sim.setRunTime(4000);
+  sim.computeStp();
+  eq(sw2.stp.states['Fa0/1'], 'learning', 'Learning at 4 s, exactly one forward delay, as the standard says');
+
+  // The report and the schedule are one answer: the Root ID line prints 4 s per delay, and the schedule waits
+  // exactly two of them. The same box's Bridge ID line still prints its own 15 s.
+  const shown = runCommands(sw2, topo, sim, ['enable', 'show spanning-tree']).lines;
+  ok(shown.some(function (l) { return /Forward Delay 4 sec/.test(l); }), 'the Root ID line prints the root 4 s');
+  ok(shown.some(function (l) { return /Forward Delay 15 sec/.test(l); }),
+    'over the Bridge ID line printing this box 15 s');
+  eq(sched.byProcess.stp, 2 * 4 * 1000, 'and the schedule waits two of the four, not two of the fifteen');
+
+  const convOut = runCommands(pc, topo, sim, ['enable', 'converge']).lines;
+  ok(convOut.some(function (l) { return /^stp[ ]+SW2[ ]+8000 ms/.test(l); }),
+    'converge lists the non-root at 8 s', convOut.filter(function (l) { return /SW2/.test(l); }).join(' | '));
+  ok(convOut.some(function (l) { return /Fully converged at 8000 ms/.test(l); }), 'and the lab total at 8 s');
+
+  // A cable pulled re-converges on the same number, so `link down` cannot promise a different instant from
+  // the schedule it is re-basing.
+  const cut = sim.setLinkState(trunk.id || trunk, 'down', { atMs: 1000 });
+  eq(cut.reconvergeAtMs, 9000, "a cable pull reconverges on the root's 4 s delay, not on a 15 s default");
+}
+
+{
+  // The other direction, so the fix cannot be "read the smallest forward delay on the board": a non-root
+  // configured *faster* than the root does not come up early, because the box holding the faster values is
+  // not the one advertising the tree.
+  const topo = new Topology();
+  const sw1 = topo.addDevice(spec('generic', 'generic-switch'));
+  const sw2 = topo.addDevice(spec('generic', 'generic-switch'));
+  sw1.name = 'SW1'; sw2.name = 'SW2';
+  topo.connect(sw1.id, 'Fa0/1', sw2.id, 'Fa0/1');
+  sw1.config.stpPriority = 4096;
+  sw2.config.stpForwardDelaySec = 4;
+  eq(conv.stpTreeTimers(topo).timers.forwardDelaySec, 15, "the root's default is what the tree runs on");
+  eq(conv.stpPortStateAt(sw2, true, 10000, conv.stpTreeTimers(topo).timers), 'listening',
+    "so the non-root's own 4 s does not bring its port up at 10 s");
+}
+
 console.log('\n' + passed + ' passed, ' + failed + ' failed');
 process.exit(failed ? 1 : 0);

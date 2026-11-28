@@ -500,5 +500,7 @@ module.exports = {
   portOrdinals,
   stpPortText,
   comparePortIds,
+  compareBridgeIds,
+  normalizeMacKey,
   runStp
 };

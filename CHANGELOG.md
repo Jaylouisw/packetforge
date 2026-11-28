@@ -18,6 +18,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **A non-root's ports transition on the root's timers, and the schedule now says so.** 802.1D has a non-root
+  adopt the root's hello / max-age / forward-delay from the configuration BPDU - its own values are remembered but
+  unused while a root is advertising ("only a timer that is configured on the root bridge of the STP is
+  important", Cisco doc 19120) - which is why a switch behind a root at `forward-time 4` prints `Forward Delay 4
+  sec` on its Root ID line over a Bridge ID line reading `15`, and comes up in 8 s. `engine/convergence.js` asked
+  `stpTimers(dev)` per device, so that same lab converged at 30 s on the switch behind the root while its own
+  report, the root's BPDU and the data plane all said 8: three surfaces disagreeing about one number. The root is
+  now resolved once per schedule - lowest bridge ID, with the election's own comparison over the same two fields
+  `computeStp()` hands it - and its timers time every port transition; `stpPortStateAt()` takes the tree's timers,
+  a cable pull reports the tree's forward delay rather than a hard-coded default, and the `converge` table adds
+  ", the root's" to a basis whose seconds were borrowed. `stpTimers(dev)` still answers for one device, because
+  that is what the Bridge ID line prints and what a box that is its own root runs. #1722
 - **The timer line in `show spanning-tree` was a literal, and the two blocks print different sets.** Both blocks
   said `Hello Time 2 sec  Max Age 20 sec  Forward Delay 15 sec` no matter what the box was running, while
   `stpForwardDelaySec` / `stpMaxAgeSec` on the device's config already drove the convergence schedule - so a

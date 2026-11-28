@@ -72,6 +72,14 @@ timer was overridable, which no reader could reproduce at a console; the schedul
 prefers configuration over the default (`engine/convergence.js`), so the missing half is the
 commands, not the model.
 
+Whose number the STP row waits on is the **root's**, not the asking device's. A non-root adopts the root's
+hello, max age and forward delay from the configuration BPDU and its own values are remembered but unused, so a
+lab whose root was given `stpForwardDelaySec: 4` comes up in 8 s on every switch behind it, and a non-root's own
+15 s changes nothing but the `Forward Delay` its Bridge ID line prints. `converge` says so: the basis reads
+`listening + learning (4 s forward-delay each, the root's)` on a box that borrowed the number, and plain
+`(15 s forward-delay each)` on the root that owns it. A box that is its own root - the common single-switch lab -
+runs its own timers, which is why the example at the top of this page still reads 30000 ms.
+
 | Process | Default | Source |
 |---|---|---|
 | STP forward delay | 15 s | 802.1D §17.14 — a forwarding port waits 2× this |

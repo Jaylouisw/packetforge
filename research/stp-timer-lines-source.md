@@ -68,15 +68,35 @@ Aging Time is deliberately not part of this: it stays the forwarding-database ag
 age on the line above (`research/show-spanning-tree-aging-time.md`), and a test pins that moving the max age does
 not move it.
 
+## The schedule follows the root too (#1722)
+
+The bullet that used to open *Unresolved* - "the model's convergence still uses each device's own timers" - is
+closed. `engine/convergence.js` resolved `stpTimers(dev)` per device, so a non-root with the 15 s default walked
+Listening and Learning for 30 s while its own Root ID line (and the root's BPDU) said 4 s and 8 s: the report was
+faithful and the schedule was not, which is the worse of the two, because the report is what a reader trusts.
+
+What the schedule does now:
+
+- **One root per schedule, and per run.** `stpRoot(topo)` picks the bridge with the lowest bridge ID, using
+  `compareBridgeIds()` - the election's own comparison - over the same two fields `Simulator.computeStp()` hands
+  `runStp()`: the configured priority (0 allowed) and the box's lowest interface MAC. No port, cost or cable can
+  change who is root, so nothing is re-derived that the election could disagree with.
+- **The root's timers time every transition.** `stpTreeTimers(topo)` returns `{ root, timers }`; `buildSchedule()`
+  waits `timers.forwardAtMs` for every bridge's STP entry, and `stpPortStateAt(dev, willForward, atMs, timers)`
+  walks the same numbers. A `converge` basis whose seconds came from the root says ", the root's" so the borrowed
+  number can be traced to the box it came from.
+- **A cable pull reports the same delay.** `setLinkState()` used to answer `atMs + stpTimers({}).forwardAtMs` - the
+  factory 15 s for every lab on earth. It now uses the tree's timers, which keeps the instant `link down` prints
+  equal to `getConvergence().convergedAtMs` for a lab whose timers are not the defaults.
+- **The local values are still what the Bridge ID line prints**, and `stpTimers(dev)` still answers for one
+  device: it is the number a box prints about itself, and the number it runs when it is its own root.
+
+Still open, and separate: the election runs over one graph, so a bridge with no path to the elected root is paced
+by the root's timers here where the hardware would have it elect itself. That is the election's shape rather than
+this rule's, and no fixture has needed it yet.
+
 ## Unresolved
 
-- **The model's convergence still uses each device's own timers, not the root's.** `stpTimers(dev)` is called per
-  device in `convergence.js`, so a non-root with a 15 s forward delay forwards at 30 s even if the root advertises
-  4 s — whereas the hardware adopts the root's. The header is now faithful (it prints the root's numbers on the
-  Root ID line), which makes the divergence visible rather than hidden: a lab whose root is configured fast and
-  whose non-root is left at defaults will print the fast tree and converge slowly. Fixing that means making every
-  port transition read the elected root's timers, which changes convergence timing for existing fixtures and
-  deserves its own plan — filed as #1722 rather than smuggled in here.
 - **Whether a box prints the *propagated* timers or the root's local ones when the root's own config was changed
   without the change reaching a neighbour yet** — the captures all show steady state. The model has no BPDU
   propagation delay for timers, so it prints the root's configuration immediately.

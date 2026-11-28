@@ -543,7 +543,10 @@ class Simulator {
     // The network remembers: a later Simulator on this topology still knows when the cable moved.
     if (typeof this.topo.markChange === 'function') this.topo.markChange(atMs);
 
-    const stp = convergenceLib.stpTimers({});
+    // How long this change takes to be absorbed is the tree's forward delay, not a default: a root that
+    // was given `forward-time 4` brings the network back in 8 s, and the answer the console prints has to
+    // be the instant the schedule will finish at (#1722).
+    const stp = convergenceLib.stpTreeTimers(this.topo).timers;
     return {
       ok: true, linkId: linkId, changed: true, state: state, atMs: atMs,
       // How long until this change has finished being absorbed.
@@ -1000,13 +1003,18 @@ class Simulator {
     // Listening and Learning, and it drops traffic in both. This is the whole point of asking a
     // question at an instant - the cable is green, the switch is up, and nothing passes.
     if (this.runAtMs !== Infinity) {
+      // The tree's timers, resolved once for this run. A non-root's ports walk Listening and Learning on
+      // the root's forward delay - the one it received in the configuration BPDU and prints on its Root ID
+      // line - so every transition here is timed by the same device's configuration, and a lab whose root
+      // was told `forward-time 4` comes up in 8 s on the switches behind it too (#1722).
+      const tree = convergenceLib.stpTreeTimers(this.topo);
       for (const dev of this.topo.devices.values()) {
         if (!dev.isL2() || !dev.stp) continue;
         if (this._converged('stp', dev)) continue;
         for (const logicalName of Object.keys(dev.stp.states || {})) {
           const steady = dev.stp.states[logicalName];
           if (steady === 'blocking') continue;
-          const now = convergenceLib.stpPortStateAt(dev, true, this.runAtMs);
+          const now = convergenceLib.stpPortStateAt(dev, true, this.runAtMs, tree.timers);
           dev.stp.states[logicalName] = now;
           if (!convergenceLib.stpForwardsIn(now)) {
             for (const iface of dev.interfaces.values()) {

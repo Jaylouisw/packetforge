@@ -25,6 +25,8 @@
  * clock during a run. A query is answered as of one instant, computed from the timers.
  */
 
+const stpLib = require('./stp');
+
 const C = {
   // 802.1D defaults (§17.14): forward delay 15 s, max age 20 s, hello 2 s.
   stpForwardDelaySec: 15,
@@ -69,6 +71,57 @@ function stpTimers(dev) {
     forwardAtMs: fd * 2000,
     maxAgeMs: num(cfg.stpMaxAgeSec, C.stpMaxAgeSec) * 1000
   };
+}
+
+// ---------------------------------------------------------------------------
+// Whose forward delay paces the tree.
+//
+// 802.1D: a non-root adopts the root's hello, max age and forward delay from the configuration BPDU,
+// and its own values are remembered but unused while a root is advertising — "only a timer that is
+// configured on the root bridge of the STP is important" (Cisco doc 19120). So the numbers that time a
+// port's Listening and Learning belong to the root, not to the box whose ports those are. This model
+// timed every port by its own box, which let a lab converge in 30 s on a non-root while every report
+// — and the root's own BPDU — said 8 (#1722).
+
+// A bridge ID as the election sees it: priority, then the box's lowest MAC. Nothing about a device's
+// ports can change who wins the root election, so the root is read from these two fields with the
+// election's own comparison rather than by running the tree a second time.
+function bridgeIdOf(dev) {
+  const cfg = (dev && dev.config) || {};
+  // Not `|| default`: 0 is a legal bridge priority and the best one there is (#1364).
+  const p = (cfg.stpPriority === null || cfg.stpPriority === undefined)
+    ? stpLib.STP_DEFAULT_PRIORITY : Number(cfg.stpPriority);
+  const mac = (dev && typeof dev.lowestInterfaceMac === 'function') ? dev.lowestInterfaceMac() : null;
+  return {
+    key: (dev && dev.id !== undefined) ? dev.id : null,
+    priority: Number.isFinite(p) ? p : stpLib.STP_DEFAULT_PRIORITY,
+    mac: stpLib.normalizeMacKey(mac)
+  };
+}
+
+function devicesOf(topo) {
+  return (topo && topo.devices) ? Array.from(topo.devices.values()) : [];
+}
+
+// The elected root, or null when the topology holds no bridge at all.
+function stpRoot(topo) {
+  let root = null;
+  for (const dev of devicesOf(topo)) {
+    if (!runsStp(dev)) continue;
+    const id = bridgeIdOf(dev);
+    if (!root || stpLib.compareBridgeIds(id, root.id) < 0) root = { id: id, device: dev };
+  }
+  return root;
+}
+
+// The timers every port transition in this topology runs on, resolved once per schedule or per run.
+//
+// `stpTimers()` still answers for one device: it is what the Bridge ID line prints, and what a box that
+// is its own root runs. Nothing that times a transition asks a non-root for its own configuration any
+// more.
+function stpTreeTimers(topo) {
+  const root = stpRoot(topo);
+  return { root: root ? root.device : null, timers: stpTimers(root ? root.device : null) };
 }
 
 function ospfTimers(dev) {
@@ -158,15 +211,22 @@ function buildSchedule(topo, opts) {
   // again from there, which is the only honest way to say "the network is converging".
   const fromMs = Number.isFinite(Number(opts.fromMs)) ? Number(opts.fromMs) : 0;
   const entries = [];
-  const devices = topo && topo.devices ? Array.from(topo.devices.values()) : [];
+  const devices = devicesOf(topo);
+  // The tree's timers, asked once rather than per device: a non-root's ports come up on the root's
+  // forward delay, the number its Root ID line prints. Wherever the two disagree — the case this
+  // schedule used to get wrong — the basis says whose number it is, so a reader can trace the
+  // seconds in the table back to the box they came from (#1722).
+  const tree = stpTreeTimers(topo);
 
   for (const dev of devices) {
     if (runsStp(dev)) {
-      const t = stpTimers(dev);
+      const t = tree.timers;
+      const inherited = t.forwardDelaySec !== stpTimers(dev).forwardDelaySec;
       entries.push({
         deviceId: dev.id, device: dev, process: 'stp',
         readyAtMs: t.forwardAtMs,
-        basis: 'listening + learning (' + t.forwardDelaySec + ' s forward-delay each)'
+        basis: 'listening + learning (' + t.forwardDelaySec + ' s forward-delay each' +
+          (inherited ? ", the root's" : '') + ')'
       });
     }
     if (runsOspf(dev)) {
@@ -244,8 +304,11 @@ function at(schedule, atMs) {
 // The STP state a port is in at an instant: 'forwarding', 'learning', 'listening' or 'blocking'.
 // `willForward` is the steady state from the spanning tree computation (a port that is destined to
 // forward is only in a transitional state; a port that is destined to block was never forwarding).
-function stpPortStateAt(dev, willForward, atMs) {
-  const t = stpTimers(dev);
+// `timers` is the tree's, from `stpTreeTimers()`: a non-root walks Listening and Learning on the root's
+// forward delay, not its own. Omitted, it falls back to this device's own configuration, which is what a
+// box that is its own root runs.
+function stpPortStateAt(dev, willForward, atMs, timers) {
+  const t = timers || stpTimers(dev);
   if (!willForward) return 'blocking';
   if (atMs >= t.forwardAtMs) return 'forwarding';
   if (atMs >= t.learnEndMs - t.forwardDelaySec * 1000) return 'learning';
@@ -261,6 +324,8 @@ function stpForwardsIn(state) {
 module.exports = {
   DEFAULTS: C,
   stpTimers: stpTimers,
+  stpRoot: stpRoot,
+  stpTreeTimers: stpTreeTimers,
   ospfTimers: ospfTimers,
   vrrpTimers: vrrpTimers,
   dhcpTimers: dhcpTimers,
