@@ -122,29 +122,64 @@ function stpRootOf(topo, stp, dev) {
 //
 // Two details the model keeps: the wait is measured against the BPDU that was *in force*, i.e. the old
 // root's Max Age rather than this box's own; and the transition after it runs on this box's own forward
-// delay, because by then it is the root. Cisco Learning Network puts the arithmetic as
-// "(Max age)-(message age) + listening + learning ... slightly under 50 seconds"; the message-age
-// subtraction is not modelled - there are no per-hop message ages here - so the answer is the full Max Age.
-// research/stp-max-age-hold.md.
-function stpMaxAgeHold(topo, dev, opts) {
+// delay, because by then it is the root. The third is the subtraction: the age timer does not start at Max
+// Age, it starts at the Message Age carried in the BPDU that was last stored, so a bridge h hops from the
+// root ages its BPDU out after Max Age - (h - 1) seconds. Cisco doc 19120 states the rule and the first three
+// rungs of it: "The age timer starts at the message age that is received in that configuration BPDU ...
+// Switches B and C receive a configuration BPDU from switch A with a message age of 0. On the port that goes
+// to A, the information ages out in (max age - 0) seconds. This time is 20 seconds by default. Switches D and
+// E receive the BPDU from switch B with a message age of 1 ... (max age - 1) seconds. This time is 19 seconds
+// by default. Switch F receives the BPDU from switch E with a message age of 2 ... 18 seconds." Cisco
+// Learning Network's operator shorthand is the same arithmetic: "(Max age)-(message age) + listening +
+// learning ... slightly under 50 seconds". research/stp-message-age.md.
+//
+// `hops` comes from the election (engine/stp.js), where it is counted along the root port chain - one per
+// bridge, not one per unit of path cost. Null means the election could not resolve this box's parent (a
+// zero-cost port, say), and then the subtraction is skipped rather than guessed at 0 hops.
+//
+// The Message Age a bridge holds: the field in the configuration BPDU stored on its root port. The root
+// sends 0 and stores nothing; a bridge h bridges away receives h - 1, because every bridge adds 1 before it
+// forwards the message on (Cisco doc 19120: "all subsequent switches add 1 to this value"; Huawei's STP
+// timer chapter words the same rule "incremented by 1 each time the configuration BPDU passes through a
+// bridge"). Null when the election could not place the box, which a caller must read as unknown, not as a
+// fresh BPDU.
+function stpMessageAgeOf(record) {
+  if (!record) return null;
+  const h = record.hops;
+  if (typeof h !== 'number' || !Number.isFinite(h) || h < 1) return null;
+  return h - 1;
+}
+
+function stpMaxAgeHoldInfo(topo, dev, opts) {
+  const none = { ms: 0, maxAgeSec: null, messageAgeSec: null };
   const before = opts && opts.stpBefore;
   const after = opts && opts.stp;
-  if (!before || !after || !before.bridges || !before.root || !after.root) return 0;
-  if (before.root.key === undefined || before.root.key === null) return 0;
+  if (!before || !after || !before.bridges || !before.root || !after.root) return none;
+  if (before.root.key === undefined || before.root.key === null) return none;
   // It was the root: there is no stored BPDU from anyone else to age out.
-  if (before.root.key === dev.id) return 0;
+  if (before.root.key === dev.id) return none;
   const was = before.bridges[dev.id];
   // No path to a root before the change means no BPDU was being stored, so nothing to wait for.
-  if (!was || was.cost === Infinity) return 0;
+  if (!was || was.cost === Infinity) return none;
   // This box's own port is one end of the cable that moved: a direct failure, aged out on the spot.
-  if (opts.touched && opts.touched.indexOf(dev.id) !== -1) return 0;
+  if (opts.touched && opts.touched.indexOf(dev.id) !== -1) return none;
   const now = after.bridges ? after.bridges[dev.id] : null;
   // Still hearing the same root, or hearing it still: a valid superior BPDU supersedes, so nothing ages.
-  if (after.root.key === before.root.key && now && now.cost !== Infinity) return 0;
+  if (after.root.key === before.root.key && now && now.cost !== Infinity) return none;
   // Whose max age was in force before the change is the old root's, if this box was adopting one.
   const oldRoot = (topo && typeof topo.getDevice === 'function') ? topo.getDevice(before.root.key) : null;
-  const ms = stpTimersInForce(dev, oldRoot).maxAgeMs;
-  return Number.isFinite(ms) && ms > 0 ? ms : 0;
+  const timers = stpTimersInForce(dev, oldRoot);
+  const maxAgeSec = timers.maxAgeSec;
+  if (!Number.isFinite(maxAgeSec) || maxAgeSec <= 0) return none;
+  const msgAgeSec = stpMessageAgeOf(was);
+  const heldSec = (msgAgeSec === null) ? maxAgeSec : Math.max(0, maxAgeSec - msgAgeSec);
+  return { ms: heldSec * 1000, maxAgeSec: maxAgeSec, messageAgeSec: msgAgeSec };
+}
+
+// What is left of the old root's Max Age, in ms - the second half of the arithmetic above, kept as a number
+// because that is all most callers want.
+function stpMaxAgeHold(topo, dev, opts) {
+  return stpMaxAgeHoldInfo(topo, dev, opts).ms;
 }
 
 function ospfTimers(dev) {
@@ -244,14 +279,20 @@ function buildSchedule(topo, opts) {
       const rootDev = stpRootOf(topo, opts.stp, dev);
       const t = stpTimersInForce(dev, rootDev);
       const adopted = !!(rootDev && rootDev !== dev);
-      // An indirect failure puts the old root's Max Age in front of the transition (#1731).
-      const holdMs = stpMaxAgeHold(topo, dev, opts);
+      // An indirect failure puts what is left of the old root's Max Age in front of the transition (#1731),
+      // which is Max Age less the Message Age this box had stored (#1751).
+      const hold = stpMaxAgeHoldInfo(topo, dev, opts);
+      const holdMs = hold.ms;
+      const holdText = holdMs ? ("the old root's BPDU aged out (" + (holdMs / 1000) + " s = " + hold.maxAgeSec +
+        " s Max Age" + (hold.messageAgeSec === null ? "" : " less message age " + hold.messageAgeSec) + "), then ")
+        : "";
       entries.push({
         deviceId: dev.id, device: dev, process: 'stp',
         readyAtMs: holdMs + t.forwardAtMs,
         forwardDelaySec: t.forwardDelaySec,
         maxAgeHoldMs: holdMs,
-        basis: (holdMs ? "the old root's BPDU aged out (" + (holdMs / 1000) + " s Max Age), then " : "") +
+        messageAgeSec: hold.messageAgeSec,
+        basis: holdText +
           'listening + learning (' + t.forwardDelaySec + ' s forward-delay each' +
           (adopted ? ', the root ' + (rootDev.name || rootDev.id) + "'s" : '') + ')'
       });
@@ -377,6 +418,8 @@ module.exports = {
   stpTimersInForce: stpTimersInForce,
   stpRootOf: stpRootOf,
   stpMaxAgeHold: stpMaxAgeHold,
+  stpMaxAgeHoldInfo: stpMaxAgeHoldInfo,
+  stpMessageAgeOf: stpMessageAgeOf,
   ospfTimers: ospfTimers,
   vrrpTimers: vrrpTimers,
   dhcpTimers: dhcpTimers,

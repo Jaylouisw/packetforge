@@ -368,15 +368,43 @@ function runStp(input) {
     // string the caller handed in, so the report can format it), `cost` is the Dijkstra distance from the root
     // (0 for the root itself, Infinity when no path exists), and `rootPort` is the port step 3 chose
     // (#1713).
+    //
+    // `hops` is the same tree in the other currency: how many bridges the root's own configuration BPDU has
+    // crossed to be stored here. It is not `cost` divided by anything - a hop over a 100 Mb link costs 19 and a
+    // hop over a 10 Gb link costs 2, and both add the same 1 s to the age of the BPDU they relay. 802.1D counts
+    // bridges here, not bandwidth: "the root bridge sends all its BPDUs with a message age value of 0, and all
+    // subsequent switches add 1 to this value ... Switches D and E receive the BPDU from switch B with a message
+    // age of 1" (Cisco, doc 19120). The root port chain is walked in order of increasing root path cost, which is
+    // the order the parent has to be resolved in; a bridge whose root port cannot be resolved (a zero-cost port
+    // making the parent no cheaper than the child) gets null, and callers must read that as "unknown", not as 0.
     bridges: (function () {
       const out = {};
+      const hops = new Map();
+      const byDistance = order.slice().sort(function (x, y) {
+        const dx = dist.get(x);
+        const dy = dist.get(y);
+        if (dx !== dy) return (dx < dy) ? -1 : 1;
+        return x < y ? -1 : 1;
+      });
+      for (const key of byDistance) {
+        if (key === root.key) { hops.set(key, 0); continue; }
+        const box = byKey.get(key);
+        const rpName = rootPortOf.get(key);
+        let parent = null;
+        if (rpName) {
+          const rp = box.ports.filter(function (p) { return p.name === rpName; })[0];
+          if (rp && rp.to && hops.has(rp.to.bridge)) parent = hops.get(rp.to.bridge);
+        }
+        hops.set(key, (typeof parent === 'number' && Number.isFinite(parent)) ? parent + 1 : null);
+      }
       for (const key of order) {
         const b = byKey.get(key);
         out[key] = {
           priority: b.priority,
           mac: (b.macRaw === null) ? b.mac : b.macRaw,
           cost: dist.get(key),
-          rootPort: rootPortOf.get(key) || null
+          rootPort: rootPortOf.get(key) || null,
+          hops: hops.get(key)
         };
       }
       return out;

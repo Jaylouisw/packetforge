@@ -22,6 +22,10 @@
 // What the model used to do: stpRootOf() saw cost === Infinity and handed the partitioned box its own
 // timers from the instant of the change, so an indirect failure converged in 30 s - the direct-failure
 // number, for the failure that is 20 s slower.
+//
+// The wait is not the whole Max Age either: the age timer starts at the Message Age the cached BPDU carries,
+// so a bridge two bridges from the root (SW3 here, whose root port faces SW2) ages 10 - 1 = 9 s. The numbers
+// below were one second higher until that subtraction was modelled; research/stp-message-age.md.
 const path = require('path');
 const { loadCatalog } = require('../devices/registry');
 const { Topology } = require('../engine/topology');
@@ -75,13 +79,14 @@ console.log('An indirect failure pays the old root Max Age before the transition
   const res = env.sim.setLinkState(env.near, 'down', { atMs: 10000 });
   const sched = env.sim.getConvergence();
   eq(env.sim.stpResult.bridges.sw3.cost, Infinity, 'SW3 has no path to the root any more');
-  eq(stpEntry(sched, 'sw3').maxAgeHoldMs, 10000, 'SW3 waits the Max Age that was in force, 10 s');
-  eq(stpEntry(sched, 'sw3').readyAtMs, 50000, '10 s Max Age + 2 x 15 s own forward delay = 50 s after the change');
+  eq(stpEntry(sched, 'sw3').maxAgeHoldMs, 9000,
+    'SW3 waits what is left of the Max Age that was in force: 10 s less the 1 s message age it stored');
+  eq(stpEntry(sched, 'sw3').readyAtMs, 49000, '9 s of Max Age left + 2 x 15 s own forward delay = 49 s after the change');
   eq(stpEntry(sched, 'sw3').forwardDelaySec, 15, 'the transition runs on SW3 own 15 s, because by then it is root');
   ok(/Max Age/.test(stpEntry(sched, 'sw3').basis),
     'the schedule says why it is waiting, not just how long', stpEntry(sched, 'sw3').basis);
   eq(res.reconvergeAtMs, sched.byProcess.stp, 'the reply to the cable change is the schedule own answer');
-  eq(res.reconvergeAtMs, 50000, 'so the console can promise 50 s, not 30');
+  eq(res.reconvergeAtMs, 49000, 'so the console can promise 49 s, not 30');
   ok(res.affects.indexOf('sw3') === -1, 'SW3 is not one end of the cable that moved');
 }
 
@@ -94,9 +99,9 @@ console.log('The wait is the old root number, the transition is the box own');
   const env = line({ maxAgeSec: 10 }, { maxAgeSec: 40, forwardDelaySec: 4 });
   const res = env.sim.setLinkState(env.near, 'down', { atMs: 0 });
   const e = stpEntry(env.sim.getConvergence(), 'sw3');
-  eq(e.maxAgeHoldMs, 10000, 'SW3 own 40 s Max Age does not stretch the wait');
+  eq(e.maxAgeHoldMs, 9000, 'SW3 own 40 s Max Age does not stretch the wait, and the stored 1 s message age shortens it');
   eq(e.forwardDelaySec, 4, 'and its own 4 s forward delay is the one that paces the transition');
-  eq(e.readyAtMs, 18000, '10 s + 2 x 4 s');
+  eq(e.readyAtMs, 17000, '9 s + 2 x 4 s');
   eq(stpEntry(env.sim.getConvergence(), 'sw2').readyAtMs, 30000, 'SW2, whose own port went down, is the slower box at 30 s');
   eq(res.reconvergeAtMs, 30000, 'so the island as a whole is announced at 30 s, while SW3 itself forwards at 18 s');
 }
@@ -150,7 +155,7 @@ console.log('Each change is measured against the election it interrupted');
 {
   const env = line({ maxAgeSec: 10 });
   env.sim.setLinkState(env.near, 'down', { atMs: 10000 });
-  eq(stpEntry(env.sim.getConvergence(), 'sw3').maxAgeHoldMs, 10000, 'the indirect cut carries the wait');
+  eq(stpEntry(env.sim.getConvergence(), 'sw3').maxAgeHoldMs, 9000, 'the indirect cut carries the wait, less one hop of message age');
   // A second change later, this time on SW3 own cable: that is a direct failure, and the record of the
   // first change must not be reused for it.
   const second = env.sim.setLinkState(env.far, 'down', { atMs: 20000 });
@@ -166,8 +171,8 @@ console.log('The console says the same number');
   const cli = new CliSession(env.t.getDevice('sw1'), env.t, env.sim);
   env.sim.setRunTime(10000);
   const out = ((cli.run('link down ' + env.near) || {}).output || []).join(String.fromCharCode(10));
-  ok(/converges again at 50000 ms/.test(out), 'the tree is whole again 50 s after the cut', out.slice(0, 160));
-  ok(!/converges again at 40000 ms/.test(out), 'not the 30 s a direct failure would take');
+  ok(/converges again at 49000 ms/.test(out), 'the tree is whole again 49 s after the cut', out.slice(0, 160));
+  ok(!/converges again at 39000 ms/.test(out), 'not the 30 s a direct failure would take');
 }
 
 console.log('');
