@@ -43,38 +43,51 @@ Four verification checks on a code change, all of which must be green before a m
 |---|---|
 | `Test (Node 22)` | Syntax or API that only works on newer Node. The floor is 22.18 and this is the leg that holds it — the oldest runtime that can run a `.ts` file with no build step (`docs/TYPESCRIPT.md`) |
 | `Test (Node 24)` | Behaviour that regressed on the newest runtime in the window |
-| `Typecheck` | A type error, an `any`, or a `require()` CommonJS cannot resolve (`tsc --noEmit`, then `scripts/check-no-any.ts`, then `scripts/check-module-paths.ts`). One answer about one tree, so one job — not a copy per Node version |
+| `Typecheck` | A `.js` file the Node 22 parser rejects, an API newer than the Node 18 surface, a non-canonical project URL, an image-building job that does not bound its disk, a type error, an `any`, or a `require()` CommonJS cannot resolve (`tsc --noEmit`, `scripts/check-no-any.ts`, `scripts/check-module-paths.ts`, and the parse sweep plus the three static scans that used to ride beside the suite, #1716). One answer about one tree, so one job — not a copy per Node version |
 | `Server smoke and Docker build` | A server that boots but cannot serve (every API route, the catalogue, WebSocket upgrade) **or** a `Dockerfile` that does not build. One status, two checks: the smoke client runs beside the image build in the same job, and the failure titles still separate them. Runs on the Node 22 line `actions/setup-node` provides and asserts the 22.18 floor against it (`scripts/check-node-floor.js`) — a runtime below that line cannot load `engine/segment.ts` (#2488). Present as a build-syntax proxy, not a full image test |
 
-The test job runs more than the suite (`ci.yml`, the `test` job):
+The test job runs the suite, the three audits in front of it, and the example labs
+(`ci.yml`, the `test` job):
 
 - `npm test` — `audit:ports`, then `audit:devices`, then `check:bytes`, then every
-  `test/*.test.js` **and** `test/*.test.ts` that `scripts/run-tests.js` discovers;
-- `scripts/syntax-check.js` is the local superset; in CI the same idea runs as a `node --check` sweep over every `*.js` file, started beside the suite and waited on at the end of the same step (Node 22 leg only, so the files are parsed by the oldest parser that has to accept them). A job of its own (#1634) was tried and reverted (#1636), because the A/B put the cost at about 3 s: on one four-core runner, the same tree and the same Node 22 (run 46065441339), the suite alone took 68 s and then 72 s, the sweep alone 7 s, and the suite with the sweep beside it 71 s — so a second VM bought no wall clock, and a `Test (Node 22)` versus `Test (Node 24)` gap is runner speed until an A/B says otherwise;
-- `scripts/check-node-surface.js` — no API newer than Node 18 (stricter than the declared 22.18 floor, on purpose), in every `.js`, `.mjs`, `.cjs` and `.ts` file, because `node` runs all four;
-- `scripts/check-canonical-urls.js` — every project URL points at the project's canonical home;
-- `scripts/check-ci-disk-hygiene.js` — every job that builds an image bounds what it writes;
+  `test/*.test.js` **and** `test/*.test.ts` that `scripts/run-tests.js` discovers. The three
+  audits start as the suite starts and are waited on at the end of the same step, so they cost
+  no wall clock;
 - `examples/build-examples.js`, then `scripts/missing-devices.js examples --no-issues`, which
   cross-checks every model the built labs name.
 
-The `typecheck` job is separate and adds the three things nothing else can check: `tsc --noEmit`
-over the TypeScript the repository has written, `scripts/check-no-any.ts` over the same files, and
-`scripts/check-module-paths.ts` over every `require()` in the tree. All three are properties of one
-tree, so they are one job and one answer, not a copy per Node version; the resolver is there rather
-than in a test leg for the same reason `tsc` is. It prints one note every run —
-`engine/lag.ts:131 require('./iface-name')`, which resolves today and breaks the day
-`iface-name.js` becomes `.ts` — and exits 0 on it, so the step asserts *0 unresolvable
-specifiers* and leaves the latent one visible on every pull request. It is the only job in this
-workflow that installs anything
-— `typescript` and `@types/node` are the repository's only devDependencies, and `dependencies` is
-empty, so none of it reaches the running program. What that toolchain is, and why there is no
-build step, is [`TYPESCRIPT.md`](TYPESCRIPT.md); it is the page to read before writing a line of it.
+Four checks that used to ride beside the suite now run in `Typecheck` (#1716), on the Node 22
+runtime the floor names: the `node --check` sweep over every
+`*.js` file (`scripts/syntax-check.js` is the local superset, which parses the `.ts` files too),
+`scripts/check-node-surface.js` — no API newer than Node 18, stricter than the declared 22.18
+floor on purpose, in every `.js`, `.mjs`, `.cjs` and `.ts` file because `node` runs all four —
+`scripts/check-canonical-urls.js` — every project URL points at the project's canonical home —
+and `scripts/check-ci-disk-hygiene.js` — every job that builds an image bounds what it writes.
+The sweep used to start beside the suite on `Test (Node 22)`; on run 46116368231 the same 524
+suites took 73.7 s on that leg and 63.4 s on `Test (Node 24)`, which carried neither, because the
+sweep starts eight `node --check` processes on the four cores the suite is already using. A job
+of its own (#1634) had been tried and reverted (#1636) when an earlier A/B put the cost at about
+3 s (run 46065441339: suite alone 68 s and 72 s, sweep alone 7 s, both 71 s); `Typecheck` is not
+a new VM, it is the job that already parses the tree on Node 22 and finishes in seconds.
+
+The `typecheck` job also runs `tsc --noEmit` over the TypeScript the repository has written,
+`scripts/check-no-any.ts` over the same files, and `scripts/check-module-paths.ts` over every
+`require()` in the tree. All of them are properties of one tree, so they are one job and one
+answer, not a copy per Node version; the resolver is there rather than in a test leg for the same
+reason `tsc` is. The resolver prints one note every run — `engine/lag.ts:131 require('./iface-name')`, which
+resolves today and breaks the day `iface-name.js` becomes `.ts` — and exits 0 on it, so the step
+asserts *0 unresolvable specifiers* and leaves the latent one visible on every pull request.
+`Typecheck` is the only job in this workflow that installs anything — `typescript` and
+`@types/node` are the repository's only devDependencies, and `dependencies` is empty, so none of
+it reaches the running program. What that toolchain is, and why there is no build step, is
+[`TYPESCRIPT.md`](TYPESCRIPT.md); it is the page to read before writing a line of it.
 
 This paragraph used to name only the suite, `audit:ports`/`check:bytes`, the syntax check and the
 canonical-URL check, and it omitted `audit:devices` — a script `CHANGELOG.md` has advertised since
 it was written but that no job ran (`docs/plans/catalogue-audit-agreement.md`). It left out the Node-surface, disk-hygiene, example-lab and catalogue steps, and
-its silence on the disk-hygiene check contradicted the shared-disk section below, which calls that
-script "a step in the test job".
+its silence on the disk-hygiene check contradicted the shared-disk section below, which named that
+script "a step in the test job". Since #1716 the sweep and the three static scans run in
+`Typecheck`, for the measurement above.
 
 ### Running the same checks locally
 
@@ -109,9 +122,9 @@ surrounding suites.
 
 If `npm test` is green locally and CI is red, check the Node version: CI runs 22 and 24, and
 a newer-than-22 API — `Promise.try`, `RegExp.escape`, `Error.isError` — is the usual culprit.
-`scripts/check-node-surface.js` runs in every leg, ahead of the suite, precisely so that failure
-is named instead of mysterious. It still bans everything newer than **Node 18**, which is now
-stricter than the declared floor rather than equal to it: the floor moved to 22.18 for type
+`scripts/check-node-surface.js` runs in `Typecheck` (#1716), which is a required check, so that
+failure is named once rather than once per leg and still stops the merge. It bans everything newer
+than **Node 18**, which is now stricter than the declared floor rather than equal to it: the floor moved to 22.18 for type
 stripping, and the surface guard was deliberately not loosened with it, because a gate that
 widens whenever a number changes is not a gate.
 
@@ -153,7 +166,7 @@ So the bound that names the failure is in the step, and there is one on the thin
 can wait. The test leg's suite gets `timeout 300`, the Docker build `timeout 180`, the
 smoke client `timeout 180` (it is 11 s median and 30 s at its slowest green run, so a
 slow-but-working run still passes and a hung one stops holding the job), the
-`node --check` sweep `timeout 120` and each static scan `timeout 60`. Each of those
+`node --check` sweep in `Typecheck` `timeout 120` and each static scan `timeout 60`. Each of those
 bounds carries its own `::error title=…`, so a stalled step says which check died
 instead of leaving a killed job with no log. A stalled server costs three minutes, not
 an afternoon.
@@ -187,13 +200,13 @@ no number of green checks clears, so the job calls
 `PUT .../update-branch` — with `expected_head_sha`, so a head that moved is a 422
 rather than an update of a tree nobody judged. The run that push starts is held for
 an approval nobody gives (#1612), so the step waits for it — up to 90 s, polled every
-6 s — and approves it (`approve_held_run`, `ci.yml:911`): that run's checks are the pull
+6 s — and approves it (`approve_held_run`, `ci.yml:916`): that run's checks are the pull
 request's, which is the set branch protection reads, and no dispatch is spent. A
 dispatch of `ci.yml` on the head ref is the fallback for a run that never appears or
 cannot be approved; the dispatched run carries no pull request, resolves one from the
 branch, and merges. Since #1650 it may update the branch a second time, because the
 base can move during the ~100 s it takes to verify the new head: the count travels with
-the dispatch as `-f updates=<n>` and the cap is `MAX_UPDATES: "2"` (`ci.yml:663`). A
+the dispatch as `-f updates=<n>` and the cap is `MAX_UPDATES: "2"` (`ci.yml:668`). A
 dispatch that arrives without a count keeps the old one-update refusal (a manual
 dispatch gains nothing), and a branch still behind at the cap goes red with the reason
 on the pull request.
@@ -397,8 +410,8 @@ discovered by a failed push. The cleanup step carries `if: always()`, because th
 case — a build that dies half way — is the one that leaves the most behind, and a cleanup
 written without it would be skipped exactly then.
 
-`scripts/check-ci-disk-hygiene.js` (also `npm run check:ci-disk`, and a step in the
-test job) enforces the rule against every workflow file it can find —
+`scripts/check-ci-disk-hygiene.js` (also `npm run check:ci-disk`, and a step in
+`Typecheck`) enforces the rule against every workflow file it can find —
 `.github/workflows/` and `.forgejo/workflows/` both: a step that runs
 `docker build` obliges the same job to prune, in a step that carries `if: always()`,
 and to report `docker system df`. Prose in a comment does not count — the checker strips
