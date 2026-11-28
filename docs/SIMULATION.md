@@ -47,9 +47,11 @@ first.
 - A frame is a plain object (`{dstMac, srcMac, etherType, ip, icmp, arp, l4, flow}`),
   built by `ethFrame()` at `engine/simulator.js:142`.
 - Transmissions go on a FIFO array and `_run()` drains it synchronously, one
-  `step++` per delivery (`engine/simulator.js:3244-3253`). There is no timer, no
-  coroutine and no scheduling: a run is a single-threaded loop that ends when the
-  queue is empty.
+  `step++` per delivery (`engine/simulator.js:3244-3253`). The loop waits on nothing —
+  no wall-clock timer, no coroutine, no concurrency: a run is a single-threaded drain
+  that ends when the queue is empty. Simulated time is a separate axis, and this page
+  uses it: the schedule below, the port states in §2.4, and the ageing in the
+  *Approximate* list.
 - Guard rails are loop detectors, not physics: `maxSteps = 8000`
   (`engine/simulator.js:210`) and a 100 000-iteration runaway guard
   (`engine/simulator.js:3249`). Exceeding either emits a `limit` event.
@@ -222,7 +224,7 @@ this section were not re-measured in this pass either.
 | **Modelled** | Root election (lowest bridge ID), root path cost, root/designated/alternate roles, forwarding/blocking states, blocked-port list. | `engine/stp.js:191`, `engine/simulator.js:951` |
 | **Modelled** | Blocked ports drop **both** ingress and egress traffic (`stp-block` events). This is what turns a physical loop into a working topology instead of a storm. | `engine/simulator.js:3429-3432` (ingress gate), `engine/simulator.js:3736-3738` (the `stp-block` event) |
 | **Modelled** | Path cost derived from the negotiated link rate by the vendor's **short** path-cost table (10 Mb 100, 100 Mb 19, 1 Gb 4, 10 Gb 2, faster 1), and divided by member count for an aggregate. A rate with no row of its own takes the next slower row's cost, so cost never rises with speed. | `engine/stp.js:47` (`costForSpeedMbps()`), `engine/simulator.js:979-988` |
-| **Approximate** | The **election** is the converged result and is computed from the graph: no BPDU is put on the wire, and the hello time is printed rather than counted. The walk to Forwarding *is* timed — a port that will forward spends one forward-delay in Listening and the next in Learning (30 s at the 802.1D defaults), and a bridge that kept its own cable but lost its root pays the old root’s Max Age first (50 s); `show spanning-tree` prints the state it is in (`LTN`, `LRN`, `FWD`), so a lab asked at 5 s answers that the cable is up and nothing passes. A topology change flushes every bridge’s MAC table, but no TCN frame is sent. | `engine/stp.js:1-17` (the election only), `engine/convergence.js:54` (`stpTimers()`), `engine/convergence.js:129` (`stpMaxAgeHold()`), `engine/convergence.js:334` (`stpPortStateAt()`), `engine/simulator.js:1048-1068` |
+| **Approximate** | The **election** is the converged result and is computed from the graph: no BPDU is put on the wire, and the hello time is printed rather than counted. The walk to Forwarding *is* timed — a port that will forward spends one forward-delay in Listening and the next in Learning (30 s at the 802.1D defaults), and a bridge that kept its own cable but lost its root pays the old root’s Max Age first (50 s); `show spanning-tree` prints the state it is in (`LTN`, `LRN`, `FWD`), so a lab asked at 5 s answers that the cable is up and nothing passes. A topology change flushes every bridge’s MAC table, but no TCN frame is sent. | `engine/stp.js:1-17` (the election only), `engine/convergence.js:54` (`stpTimers()`), `engine/convergence.js:181` (`stpMaxAgeHold()`), `engine/convergence.js:379` (`stpPortStateAt()`), `engine/simulator.js:1048-1068` |
 | **Approximate** | It runs for **every** `l2-forward` device regardless of whether the spec claims `stp`, and there is no way to disable it — `show spanning-tree` reports the tree, and `no spanning-tree` clears the bridge priority back to the default 32768 rather than turning the tree off. | `engine/simulator.js:951` (`computeStp()`), `engine/cli.js:1115` (the `no spanning-tree` undo row) |
 | **Absent** | RSTP/MSTP/PVST/PVRST, PortFast, BPDU guard/filter, root guard, loop guard, per-VLAN trees. | — |
 
@@ -655,7 +657,7 @@ anything about 802.11.
 
 Three consequences a lab author needs:
 
-1. **There are no timers anywhere in the engine.** `grep -n "setTimeout\|setInterval\|Date.now" engine/*.js` finds only comments. The delay is a
+1. **There are no wall-clock timers anywhere in the engine.** `grep -n "setTimeout\|setInterval\|Date.now" engine/*.js` finds only comments. The delay is a
    number computed at the end of a run that already happened
    (`engine/latency.js:32-34`). Nothing sleeps, nothing interleaves, and a run
    takes the same wall-clock time whether the path is 1 m or 40 km.
@@ -680,7 +682,7 @@ actually true.
 | "Services respond." | A capability only registers **listeners** — `http-server` means "ports 80 and 443 answer SYN" (`engine/flow.js:77-85`). There is no HTTP request, no TLS handshake, no SSH banner, no FTP, no SMTP. A closed port answers RST, which is the whole application layer. | `engine/simulator.js:2546-2560` |
 | "Congestion happens." | Nothing is ever dropped because of load. There are no queues, no buffers, no contention, no tail drop, no AQM. A link at 100 % of its rate behaves exactly like an idle one. | — |
 | "Loss happens." | Nothing is lost except by an explicit rule: VLAN, ACL, STP, PoE, TTL, no route, NAT failure. A cable 10× over its reach still delivers every packet. | — |
-| "There are real timers." | None. No scheduling, no concurrency, no ageing, no expiry. See [§8](#8-time-what-rtt-means-and-what-it-does-not). | `engine/latency.js:32` |
+| "There are real timers." | Nothing sleeps, nothing interleaves, no thread runs against another — but simulated time is real to the model. A MAC entry ages out after 300 s and an ARP entry after 4 h, measured against the instant a question asks (`MAC_AGE_MS`, `ARP_AGE_MS`); STP, OSPF, the DHCP exchange and the VRRP election finish on a schedule rather than at t=0. See [§8](#8-time-what-rtt-means-and-what-it-does-not) and the convergence section at the end. | `engine/device.js:6`, `engine/device.js:12`, `engine/convergence.js:265` (`buildSchedule()`) |
 | "It's a stateful firewall." | ACLs are per-packet, stateless, IPv4-only. The `firewall` capability is inert. | `engine/simulator.js:2894-2913`, `engine/acl.js:407-415` |
 | "Routes redistribute." | They do not. Connected → OSPF and connected → BGP only; no OSPF→BGP, no BGP→OSPF, no static→anything. | `engine/simulator.js:577-588`, `engine/simulator.js:406-419` |
 | "MPLS / VXLAN / GRE / IPsec / LISP / SRv6." | None of them. `grep -ri "mpls\|vxlan" engine/` returns nothing. | — |
@@ -690,7 +692,7 @@ actually true.
 | "Multicast is routed." | Multicast floods like broadcast inside a VLAN and is never routed between subnets. No IGMP, no PIM. | `engine/simulator.js:1842` |
 | "QoS exists." | No marking, no queues, no shaping, no policing, no CoS/DSCP anywhere. | — |
 | "Counters show errors." | `show interfaces` counters are bytes/packets in and out. No CRC, no runts, no giants, no collisions, no drops-by-reason beyond the event log. | `engine/flow.js:354-360` |
-| "A device can be overwhelmed." | There is nothing to overwhelm. Control-plane work now takes the seconds its own timers name — STP 30 s (50 s after an indirect failure), OSPF 16 s to its first route, the DHCP exchange 1 s — but nothing ever competes for a resource: one process cannot starve another, LLDP and RAs cost no steps, BGP’s one advertisement round is still untimed, and 8 000 steps is a loop guard rather than a capacity limit. | `engine/convergence.js:230` (`buildSchedule()`), `engine/simulator.js:210` |
+| "A device can be overwhelmed." | There is nothing to overwhelm. Control-plane work now takes the seconds its own timers name — STP 30 s (50 s after an indirect failure), OSPF 16 s to its first route, the DHCP exchange 1 s — but nothing ever competes for a resource: one process cannot starve another, LLDP and RAs cost no steps, BGP’s one advertisement round is still untimed, and 8 000 steps is a loop guard rather than a capacity limit. | `engine/convergence.js:265` (`buildSchedule()`), `engine/simulator.js:210` |
 | "A hop is a time." | A step is a frame handed to a port. Latency is computed separately. | `engine/simulator.js:276` |
 | "Config is validated." | Each module validates its own config when asked to; the engine will happily run an inconsistent topology and show you whatever the graph produces. | `engine/validation.js:1-24` |
 
@@ -825,7 +827,7 @@ node -e "const m=require('./engine/media'); console.log(Object.keys(m.MEDIA).len
 node -e "const {Simulator,Topology}=require('./engine'); /* build a two-host lab, ping, inspect replies[0].delay */"
 grep -n "computeDhcp()" engine/simulator.js   # DHCP is in the data path (#1051)
 grep -n "computeVrrp()" engine/simulator.js   # so is VRRP (#1052)
-grep -rn "setTimeout\|setInterval\|Date.now" engine/*.js   # comments only: there are no timers
+grep -rn "setTimeout\|setInterval\|Date.now" engine/*.js   # comments only: nothing sleeps on the wall clock
 npm test                                 # the suites that pin the behaviour above
 ```
 
