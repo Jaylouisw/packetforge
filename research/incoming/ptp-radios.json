@@ -650,7 +650,7 @@
     "model": "RADWIN 5000 JET",
     "label": "RADWIN 5000 JET",
     "category": "ptp",
-    "description": "RADWIN 5000 JET - 5 GHz PtP/PtMP base station radio with smart beamforming, 250 Mbps per link (750 Mbps with dual carriers); 2x 1G RJ45, optional 1G SFP.",
+    "description": "RADWIN 5000 JET - sub-6 GHz PtMP beamforming base station (HBS), up to 750 Mbps per sector (QAM256), up to 40 km; multiband 4.9-5.8 GHz or 3.3-3.8/3.65 GHz; 2x 10/100/1000BaseT RJ45 (data with PoE-in, plus management), HBS < 25 W.",
     "capabilities": [
       "l2-forward",
       "wireless",
@@ -675,7 +675,8 @@
       }
     ],
     "icon": "ptp",
-    "color": "#3b82f6"
+    "color": "#3b82f6",
+    "sourceUrl": "https://www.winncom.com/pdf/Radwin_RW_5BG5_X650/RW_5000_JET_EN.pdf"
   },
   {
     "vendor": "radwin",

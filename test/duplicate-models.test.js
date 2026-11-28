@@ -65,7 +65,13 @@ console.log('\nThe three that were merged stay merged:');
     // (model EdgeRouter-4) were the same router off the same tech-spec page, and the pair sat
     // in test/known-issues.json as an accepted duplicate name. The waiver is gone, so this
     // group keeps the retired string from coming back as a second spec.
-    { vendor: 'ubiquiti', model: 'ER-4', compact: 'EdgeRouter-4', key: 'ubiquiti|er4' }
+    { vendor: 'ubiquiti', model: 'ER-4', compact: 'EdgeRouter-4', key: 'ubiquiti|er4' },
+    // RADWIN 5000 JET, merged 2026-11-28: 5000-jet.json (model "5000 JET") and
+    // radwin-5000-jet.json (model "RADWIN 5000 JET") were one sector base station, two
+    // spellings, and an accepted duplicate label in test/known-issues.json. The vendor name
+    // survives because RADWIN prints it on every brochure page and the sibling 2000 C row is
+    // filed the same way; the bare string stays searchable as an alias.
+    { vendor: 'radwin', model: 'RADWIN 5000 JET', compact: '5000 JET', key: 'radwin|radwin5000jet' }
   ];
   const missing = [], reverted = [], wrongKey = [];
   for (const g of groups) {
@@ -102,6 +108,31 @@ console.log('\nThe EdgeRouter 4 merge kept the hardware, not just the name:');
     'the AC-only copper ports are declared unable to power the box, not left to the engine guess');
   const alias = (er4 && er4.aliases) || [];
   ok(alias.indexOf('EdgeRouter-4') !== -1, 'the retired model string is an alias of the survivor');
+}
+
+console.log('\nThe RADWIN 5000 JET merge corrected the ports, not just the name:');
+{
+  // Both copies of this radio claimed one RJ45 plus one SFP cage. The vendor's HBS interfaces
+  // row says two 10/100/1000BaseT ports and nothing else, so the merge had to retire the
+  // phantom cage as well as the duplicate - a PtMP base station with an SFP this platform
+  // never had is the kind of port a lab only discovers by ordering the wrong transceiver.
+  const jet = catalog.find(function (s) { return s.vendor === 'radwin' && s.model === 'RADWIN 5000 JET'; });
+  ok(!!jet, 'radwin/RADWIN 5000 JET is in the catalogue');
+  const ifaces = (jet && jet.interfaces) || [];
+  const copper = ifaces.filter(function (i) { return i.connector === 'rj45'; });
+  const cages = ifaces.filter(function (i) { return i.connector === 'sfp' || i.connector === 'sfp+'; });
+  ok(copper.length === 2, 'two 10/100/1000BaseT ports, as the Interfaces row counts them (' + copper.length + ')');
+  ok(cages.length === 0, 'no SFP cage - that port belongs to the later JET PRO/DUO/AIR generation (' + cages.length + ')');
+  ok(copper.every(function (i) { return JSON.stringify(i.speedCaps) === '[10,100,1000]'; }),
+    'both copper ports admit 10M, 100M and 1G');
+  const powered = copper.filter(function (i) { return i.poeIn === 25; });
+  ok(powered.length === 1 && powered[0].name === 'eth0',
+    'exactly one port sinks the HBS draw (< 25 W), and it is the data port');
+  const mgmt = copper.filter(function (i) { return i.name === 'eth1'; })[0];
+  ok(!!mgmt && mgmt.poeIn === false, 'the management port is declared unable to sink power');
+  ok(ifaces.filter(function (i) { return i.type === 'wireless'; }).length === 1, 'one radio interface');
+  const alias = (jet && jet.aliases) || [];
+  ok(alias.indexOf('5000 JET') !== -1, 'the retired model string is an alias of the survivor');
 }
 
 // The importer's gate, exercised on throwaway trees via PF_DEVICES / PF_INCOMING.
