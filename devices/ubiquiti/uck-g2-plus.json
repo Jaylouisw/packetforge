@@ -1,9 +1,9 @@
 {
   "vendor": "ubiquiti",
   "model": "UCK-G2-PLUS",
-  "label": "UniFi CloudKey+",
+  "label": "UniFi CloudKey+ HDD (UCK-G2-PLUS)",
   "category": "host",
-  "description": "UniFi CloudKey+ (UCK-G2-PLUS) - 1x 1G RJ45. 802.3af PoE-in; 12.95 W max.",
+  "description": "UniFi CloudKey+ HDD (UCK-G2-PLUS) - compact UniFi console with a pre-installed 1 TB 2.5\" SATA HDD in a removable tray (user-upgradeable). 1x 1G RJ45, powered by 802.3af PoE-in (12.95 W max) or an optional USB-C adapter.",
   "capabilities": [
     "l2-forward",
     "http-server",
@@ -16,10 +16,12 @@
       "name": "eth0",
       "type": "ethernet",
       "connector": "rj45",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": 12.95
     }
   ],
   "icon": "host",
   "color": "#14b8a6",
+  "notes": "Ubiquiti datasheet https://dl.ui.com/datasheets/unifi/UniFi_Cloud_Key_G2_Plus_DS.pdf and quick start guide https://dl.ui.com/qsg/UCK-G2-PLUS/UCK-G2-PLUS_EN.html (read 2026-11-28): **Networking Interface (1) 10/100/1000 Ethernet Port**, **Hard Drive Capacity 1 TB 2.5\" SATA HDD (user-upgradeable)**, **Power Method Standard 802.3af PoE; Quick Charge 2.0/3.0 power adapter (9VDC, 2A)**, **Max. Power Consumption 12.95W (PoE)**; 131.16 x 27.10 x 134.20 mm, 582 g, anodised aluminium, 3 GB RAM and 32 GB eMMC. The tray only takes 5 V 2.5\" drives - the datasheet footnote excludes drives that need extra power. 12.95 W is the entire 802.3af PD allocation, so the unit wants the whole class 0/3 budget on its uplink; a PoE+ port is the safe host. Ubiquiti's store now titles this SKU **CloudKey+ HDD** and the SSD variant **CloudKey+ SSD** (UCK-G2-SSD, devices/ubiquiti/uck-g2-ssd.json), which is the suffix both labels carry: one chassis family, two genuinely different products, 12.95 W against 9.6 W. One copper jack only: no SFP, no second port, no PoE out.",
   "sourceUrl": "https://techspecs.ui.com/unifi/physical-security/uck-g2-plus"
 }

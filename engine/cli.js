@@ -4660,14 +4660,33 @@ class CliSession {
     if (g.members.indexOf(iface.name) === -1) g.members.push(iface.name);
     dev.config.lags[id] = g;
 
-    out.push(movedFrom.length
-      ? 'Interface ' + iface.name + ' moved from channel group ' + movedFrom.join(', ') + ' to ' + id +
-        ' (mode ' + lagLib.cliMode(mode) + ')'
-      : 'Interface ' + iface.name + ' added to channel group ' + id + ' (mode ' + lagLib.cliMode(mode) + ')');
-    // Above eight members the ninth is not in the channel: LACP parks it as hot-standby, and saying "added"
+    if (movedFrom.length) {
+      out.push('Interface ' + iface.name + ' moved from channel group ' + movedFrom.join(', ') + ' to ' + id +
+        ' (mode ' + lagLib.cliMode(mode) + ')');
+    } else if (alreadyIn) {
+      // A member was "added" to the group every time the line was retyped. `channel-group 1 mode active` on a
+      // port that is already in group 1, mode active, changes nothing at all - it is the line an operator
+      // repeats after pasting a port's configuration, and the receipt they read to confirm which bundle the
+      // port ended up in said "added" whether the port had moved, joined, or been there all along. Three
+      // different outcomes, one sentence, and the sentence named the one that did not happen. Now: a port that
+      // was already in the group and only changed the group's mode is still in it (the line above says what
+      // did change), and a port whose group and mode were both already what the line asked for was not added
+      // to anything.
+      out.push(retuning
+        ? 'Interface ' + iface.name + ' stays in channel group ' + id + ' (mode ' + lagLib.cliMode(mode) +
+          '), it was already a member'
+        : 'Interface ' + iface.name + ' is already in channel group ' + id + ' (mode ' + lagLib.cliMode(mode) +
+          '), so nothing was added');
+    } else {
+      out.push('Interface ' + iface.name + ' added to channel group ' + id + ' (mode ' + lagLib.cliMode(mode) + ')');
+    }
+    // Above eight members the ninth is not in the channel: LACP parks it as hot-standby, and a join receipt
     // with no more than that would read as a ninth active link. The set is chosen the way the hardware chooses
-    // it - lowest port numbers first - so the answer is known here and not guessed.
-    if (g.mode !== 'static') {
+    // it - lowest port numbers first - so the answer is known here and not guessed. A line that changed nothing
+    // is the one case with no join to annotate: the port's place in the set was settled when it joined, and the
+    // standing answer is `show etherchannel summary` (where the `(H)` flag lives), not a repeat of the news.
+    const joinsOrRemodes = !alreadyIn || retuning;
+    if (g.mode !== 'static' && joinsOrRemodes) {
       const standby = lagLib.standbyMembers(g.members, null);
       if (standby.indexOf(iface.name) !== -1) {
         out.push('  ' + iface.name + ' is hot-standby: the bundle already has ' + lagLib.MAX_ACTIVE_LINKS +
