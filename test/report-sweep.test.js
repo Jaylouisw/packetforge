@@ -114,8 +114,19 @@ console.log('A lone bridge is the root of its own tree');
   // A lone bridge *is* its own tree, and the election answers that: one bridge, one root, itself. The sentence the
   // console reserves for "nothing has been measured" therefore does not belong here - it belongs to a lab in which
   // no bridge exists at all, which is the router case above.
-  ok(/this bridge is the root/.test(out), 'a lone bridge is named as the root of its own tree', out);
-  ok(/root bridge sw1 priority/.test(out), 'and the root is named, not merely described', out.split('\n')[1]);
+  ok(/This bridge is the root/.test(out), 'a lone bridge is named as the root of its own tree', out);
+  // The vendor block names the root by bridge MAC, and a box is root exactly when the two addresses it prints -
+  // the Root ID one and its own Bridge ID one - are the same. No hostname on that line: a Catalyst prints none
+  // (research/show-spanning-tree-header-block.md).
+  const lines = out.split(String.fromCharCode(10));
+  const addrAfter = function (heading) {
+    const at = lines.findIndex(function (l) { return l.trim().indexOf(heading) === 0; });
+    if (at === -1) return null;
+    const next = lines.slice(at + 1).filter(function (l) { return l.trim().indexOf('Address') === 0; })[0];
+    return next ? next.trim().split(/ +/)[1] : null;
+  };
+  ok(!!addrAfter('Root ID') && addrAfter('Root ID') === addrAfter('Bridge ID'),
+    'and the root it names is itself, by bridge MAC', String(addrAfter('Root ID')));
   ok(!/undefined/.test(out), 'with nothing undefined in it', out);
 }
 
@@ -134,15 +145,19 @@ console.log('A root is named by something a person can act on');
   const rootKey = sim.stpResult.root.key;
   ok(!!rootKey, 'the election picked a root with a key', JSON.stringify(sim.stpResult.root));
 
-  const out = (new CliSession(t.getDevice(rootKey), t, sim).run('show spanning-tree').output || []).join('\n');
-  ok(/this bridge is the root/.test(out), 'the root knows it is the root', out.split('\n')[1]);
-  ok(new RegExp('root bridge ' + rootKey).test(out), 'and names itself by its lab id', out.split('\n')[1]);
+  const outLines = (new CliSession(t.getDevice(rootKey), t, sim).run('show spanning-tree').output || []);
+  const out = outLines.join(String.fromCharCode(10));
+  ok(/This bridge is the root/.test(out), 'the root knows it is the root', outLines.slice(4, 7).join(' / '));
+  ok(/  Root ID    Priority    32769/.test(out), 'and its Root ID block carries its extended bridge priority',
+    outLines[4]);
 
-  // A hostname, when set, is what an operator typed and is what the report must use.
+  // A hostname is deliberately *not* in this block: a Catalyst prints the bridge MAC on the Address line and no
+  // name at all, and this view prints the vendor's lines rather than a friendlier one beside them.
   const rootDev = t.getDevice(rootKey);
   rootDev.config.hostname = 'core-a';
-  const named = (new CliSession(rootDev, t, sim).run('show spanning-tree').output || []).join('\n');
-  ok(/root bridge core-a/.test(named), 'a configured hostname beats the id', named.split('\n')[1]);
+  const namedLines = (new CliSession(rootDev, t, sim).run('show spanning-tree').output || []);
+  const named = namedLines.join(String.fromCharCode(10));
+  ok(!/core-a/.test(named), 'and no hostname is printed where the vendor prints an address', namedLines[4]);
 
   // The switch that actually lost a port to the tree, so the report is read where it matters.
   const blockedOn = Array.from(t.devices.keys()).filter(function (id) {
@@ -150,10 +165,13 @@ console.log('A root is named by something a person can act on');
     return d.stp && d.stp.blocked && d.stp.blocked.size > 0;
   })[0];
   ok(!!blockedOn, 'the tree blocked a port somewhere in the triangle', String(blockedOn));
-  const otherOut = (new CliSession(t.getDevice(blockedOn), t, sim).run('show spanning-tree').output || []).join('\n');
-  ok(/this bridge is the root/.test(otherOut) === false, 'a non-root does not claim to be one', otherOut.split('\n')[1]);
-  ok(/root bridge core-a priority/.test(otherOut), 'and names the root by its hostname, with its priority',
-    otherOut.split('\n')[1]);
+  const otherLines = (new CliSession(t.getDevice(blockedOn), t, sim).run('show spanning-tree').output || []);
+  const otherOut = otherLines.join(String.fromCharCode(10));
+  ok(/This bridge is the root/.test(otherOut) === false, 'a non-root does not claim to be one', otherLines[4]);
+  ok(/             Cost        [0-9]+/.test(otherOut), 'and pays a cost to reach the root, printed in the Root ID block',
+    otherLines[4]);
+  ok(/             Port        [0-9]+ [(][^)]+[)]/.test(otherOut), 'over a named port, as a box prints it',
+    otherLines[5]);
   ok(/\bAltn\s+BLK\b/.test(otherOut), 'and the blocked port carries the cells a box prints: Altn BLK', otherOut);
 }
 

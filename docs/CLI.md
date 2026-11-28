@@ -28,7 +28,7 @@ Modes and their prompts:
 | `show arp` | ARP cache: the neighbours it has heard, with an age and the port each was heard on and whether that port can still carry a frame, plus a local row (age `-`) for every interface holding an IPv4 address |
 | `show mac address-table` | MAC table (switches), per VLAN, with an age per entry and stale entries marked, the box's twenty reserved `All … CPU` rows above the learned ones, titled and ruled as the device prints it and closed by `Total Mac Addresses for this criterion: N`; `dynamic` (or `dyn`) narrows it to what was learned, leaving the CPU rows out, and `interface <port>` to one port; an address learned through a bundle is named on the port-channel (`Po1`), as the device names it (`research/mac-table-port-channel-name.md`) |
 | `show vlan` / `show vlan brief` | VLAN table: one row per VLAN in the VLAN database, with the **access** ports in it - a trunk port carries the VLAN and appears in no row - and the four reserved defaults (1002-1005) a switch has from boot. `show vlan` is the full view: it then prints the media table (`Type`, `SAID`, `MTU`, `Stp`, `Trans1/2`), the empty `Remote SPAN VLANs` section and the empty private-VLAN table; `brief` stops after the first table |
-| `show spanning-tree` | per-port STP role, state and path cost in the table's own cells (`Root`/`Desg`/`Altn`, `FWD`/`BLK`/`LTN`/`LRN`, the short-method `Cost`), the bridge priority and the elected root, or "not measured" when nothing has run; the detail view's `alternate blocking` sentence is the payload's tooltip wording, not a cell (`research/stp-port-table-role-and-sts.md`, `research/stp-port-table-cost-column.md`) |
+| `show spanning-tree` | per-port STP role, state and path cost in the table's own cells (`Root`/`Desg`/`Altn`, `FWD`/`BLK`/`LTN`/`LRN`, the short-method `Cost`), the `VLAN0001` heading with the vendor's Root ID and Bridge ID blocks (extended bridge ID, bridge MAC addresses, cost and port to the root, hello/max-age/forward-delay and the ageing time), or "not measured" when nothing has run; the detail view's `alternate blocking` sentence is the payload's tooltip wording, not a cell (`research/stp-port-table-role-and-sts.md`, `research/stp-port-table-cost-column.md`) |
 | `show etherchannel summary` | the device's own summary: the nine-line flag key, both counts, `Po<N>(SU)` per group, LAG members `(P)` bundled, `(I)` stand-alone or `(D)` unbundled, with the reason; a channel-group number in front of the keyword keeps that group's row only, and leaves both counts as the box's totals |
 | `show lldp` | the protocol's status block: `Global LLDP Information:` with `Status: ACTIVE`, the 30 s advertisement interval, the 120 s hold time it advertises and the 2 s reinitialisation delay - the four lines a Catalyst prints, so "running with nothing heard" is distinguishable from "off", which only `show lldp neighbors` used to look like |
 | `show lldp neighbors` | LLDP neighbours, with the local port marked when it can no longer carry, and each row listed only for as long as the hold time its neighbour advertised |
@@ -2669,13 +2669,50 @@ pools first, so a restored lab translates the same packets it did before.
 ### Reading `show spanning-tree`
 
 ```
-Spanning tree enabled protocol ieee
-  Bridge priority 4096 (this bridge is the root), root bridge core-sw1 priority 4096
-Interface           Role Sts Cost      Type
-------------------- ---- --- --------- -------
-Fa0/1               Desg FWD 4         P2p
-Fa0/2               Altn BLK 4         P2p
+
+VLAN0001
+  Spanning tree enabled protocol ieee
+  Root ID    Priority    4097
+             Address     0200.0000.0003
+             This bridge is the root
+             Hello Time   2 sec  Max Age 20 sec  Forward Delay 15 sec
+
+  Bridge ID  Priority    4097  (priority 4096 sys-id-ext 1)
+             Address     0200.0000.0003
+             Hello Time   2 sec  Max Age 20 sec  Forward Delay 15 sec
+             Aging Time  300 sec
+
+Interface           Role Sts Cost      Prio.Nbr Type
+------------------- ---- --- --------- -------- -------
+Fa0/1               Desg FWD 4         128.1    P2p
+Fa0/2               Altn BLK 4         128.2    P2p
 ```
+
+The block above the table is the vendor's, line for line: a `VLAN0001` heading, the protocol line two spaces
+under it, the **Root ID** block, a blank line, the **Bridge ID** block, a blank line, then the table. It is
+transcribed from a machine-recorded Catalyst session whose spacing survived (ntc-templates,
+`cisco_ios_show_spanning_tree.raw` — the same capture the table header came from), and every value in it is
+read from the election this model already ran (`research/show-spanning-tree-header-block.md`):
+
+* the priority on both `Priority` lines is the **extended** bridge ID — the configured base plus the VLAN
+  system-ID extension. A Catalyst with the default base puts `32769` there and explains it on the Bridge ID line
+  as `(priority 32768 sys-id-ext 1)`; this console prints both numbers for the same reason;
+* the two `Address` lines are bridge MACs in the vendor's dotted form — the root's on the Root ID line, this
+  device's on its own Bridge ID line (the lowest port MAC, which is the value the election compares);
+* a root prints `This bridge is the root`; anything else prints the **`Cost`** the election's own shortest-path
+  search charged it and the **`Port`** it pays it over, so a non-root's block and its table row cannot disagree
+  (`engine/stp.js` `runStp().costs`);
+* `Hello Time` / `Max Age` / `Forward Delay` are `stpTimers()`'s numbers, the same ones the convergence schedule
+  counts, and `Aging Time` is the forwarding-database ageing (300 s on a factory switch, the value this model
+  ages a learned MAC by) — not the max age the line above already prints
+  (`research/show-spanning-tree-aging-time.md`).
+
+The heading is `VLAN0001` because this console runs **one tree per device**, and that tree is every VLAN's:
+a real PVST+ switch prints one block per VLAN, the per-VLAN spelling is refused by design here (see *Setting
+the root*), so one block under the default VLAN's heading is the honest shape of one tree rather than a claim
+about twenty. What this view printed before was one sentence of its own invention — `Bridge priority 32768
+(this bridge is the root), root bridge core-sw1 priority 32768` — which named the root by a label no box
+prints and carried no address, no cost, no timers and no ageing.
 
 The `Role` and `Sts` cells are the device's table cells, not its detail view: a box prints `Root`, `Desg`,
 `Altn` and `FWD`, `BLK` (plus `LTN`/`LRN` while the tree is still converging), and keeps `designated forwarding`
@@ -2709,16 +2746,17 @@ not list as a front-panel position - keep the `-` this table uses for anything t
 The detail sentence is still what the runtime payload and the port tooltip say, because there a sentence is the
 right shape; the table uses the words a table uses (`research/stp-port-table-role-and-sts.md`).
 
-The header names the **bridge priority** and the **root bridge the election chose**. Without it the report
-described a tree but not why it had that shape: priority decides the election before MAC address does, so two
-switches with the same ports and the same cables can produce different trees and the output gave no clue which
-one you were looking at. The priority in force is this device's; the root is named by hostname, else by the id
-the lab uses — not by the model label, which is the same string on every switch of one kind.
+The header names the **bridge ID** and the **root the election chose**, which is why the report can explain
+its own shape: priority decides the election before MAC address does, so two switches with the same ports and
+the same cables can produce different trees, and the block is where the winner's identity is printed. A
+Catalyst prints no hostname there — the root is an address, and the `Port` line tells a non-root which of its
+own ports points at it. This console therefore prints no hostname either, even when one is configured: a name
+in a field that is a MAC would be a line no box prints.
 
 There are three states, and the header says which one you are in:
 
-* **a bridge in a tree** — `root bridge core-sw1 priority 4096`, with `(this bridge is the root)` after the
-  priority when you are reading the root itself;
+* **a bridge in a tree** — the Root ID block carrying the root's priority and address, and either `This bridge
+  is the root` or the `Cost`/`Port` pair;
 * **a lone bridge** — the election still runs, and answers with the only candidate: itself;
 * **a box that is not a bridge** — a router. It prints the box's own one-line answer, `No spanning tree instance
   exists.`, because a router never joins an election and a report that describes one in terms of roots and bridge

@@ -361,7 +361,20 @@ function runStp(input) {
       mac: (root.macRaw === null) ? root.mac : root.macRaw
     },
     ports: portsOut,
-    blocked: blocked
+    blocked: blocked,
+    // Each bridge's cost to the root, in the short path-cost method's own units - Dijkstra's answer, the number
+    // the election already used to pick root ports (step 2 above). `show spanning-tree` prints it in the Root ID
+    // block (`Cost        8`), and the block and the election must be one number: a console that re-derived it
+    // could print 4 for a bridge the tree charged 8. `null` means "no path to the root at all" (an unplugged or
+    // shut-only bridge), which is not zero and must not print as one.
+    costs: (function () {
+      const out = {};
+      for (const key of order) {
+        const d = dist.get(key);
+        out[key] = (d === undefined || d === null || !Number.isFinite(d)) ? null : d;
+      }
+      return out;
+    })()
   };
 }
 

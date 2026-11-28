@@ -55,12 +55,19 @@ function stpTimers(dev) {
   const cfg = (dev && dev.config) || {};
   const fd = num(cfg.stpForwardDelaySec, C.stpForwardDelaySec);
   // A port's path to Forwarding is Listening then Learning: two forward delays.
+  const maxAge = num(cfg.stpMaxAgeSec, C.stpMaxAgeSec);
   return {
     forwardDelaySec: fd,
     listenEndMs: fd * 1000,
     learnEndMs: fd * 2000,
     forwardAtMs: fd * 2000,
-    maxAgeMs: num(cfg.stpMaxAgeSec, C.stpMaxAgeSec) * 1000
+    maxAgeMs: maxAge * 1000,
+    // The hello and max-age timers in seconds as well as milliseconds. `show spanning-tree` prints both of them
+    // (`Hello Time   2 sec  Max Age 20 sec  Forward Delay 15 sec`), and it has to print the same numbers the
+    // convergence schedule counts, or the header block and the seconds a port spends listening would describe
+    // two different switches.
+    helloSec: num(cfg.stpHelloSec, C.stpHelloSec),
+    maxAgeSec: maxAge
   };
 }
 

@@ -18,6 +18,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **`show spanning-tree` printed a sentence of its own instead of the block a Catalyst prints.** Above the
+  port table a switch prints `VLAN0001`, the protocol line two spaces under it, a **Root ID** block and a
+  **Bridge ID** block - extended bridge priority, the two bridge MAC addresses, the cost and port a non-root
+  pays to reach the root, hello/max-age/forward-delay and `Aging Time  300 sec`. This console printed
+  `Bridge priority 32768 (this bridge is the root), root bridge sw1 priority 32768` instead: it named the root
+  by a label no box prints, and carried no address, no cost, no timers and no ageing, so the one part of the
+  report that explains why the election went the way it did was missing. The block is now transcribed from a
+  machine-recorded session whose spacing survived (ntc-templates `cisco_ios_show_spanning_tree.raw`, the
+  capture the table header already came from) with every field read from the election: `runStp()` exposes the
+  root path cost it already computed (`costs`), `computeStp()` keeps each bridge's MAC and that cost,
+  `stpTimers()` returns the hello and max-age in seconds beside the milliseconds it counted, and the priority
+  is printed extended by the VLAN 1 sys-id-ext with the base repeated in brackets. A root prints `This bridge
+  is the root`; a non-root prints its `Cost` and `Port`. The one claim the model cannot make - a cost or a port
+  number it cannot derive (a bridge with no path to the root, a bundle's platform port id) - is the `-` the
+  table already uses, never a zero. The heading is `VLAN0001` because this console runs one tree per device and
+  that tree is every VLAN's; per-VLAN blocks stay refused by design, and
+  `research/show-spanning-tree-header-block.md` records the captures plus what is still open (whether any
+  platform prints the block with no heading, and MST).
+
 - **`no router bgp` with the AS still untyped deleted the process.** `no router bgp` is
   `no router bgp autonomous-system-number` in both the IOS and the IOS XE command reference, with the number
   outside any brackets (IOS XR brackets it, `no router bgp [as-number]`, which is how the family shows that

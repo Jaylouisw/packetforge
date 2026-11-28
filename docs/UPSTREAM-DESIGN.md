@@ -68,7 +68,7 @@ Four scenarios, one change each, same lab (probe `E_failover_matrix`):
 | `iface.enabled = false` on wan1 | *nothing* | `drop: no usable egress interface`, while a valid second default sits in `config.routes` |
 | ISP A unplugged (no IP) | `wan1` | silence: ARP is never answered, no switch to wan2 |
 
-`_deliver()` (`simulator.js:3304`) checks `iface.enabled`, `iface.peer` and whether the
+`_deliver()` (`simulator.js:3316`) checks `iface.enabled`, `iface.peer` and whether the
 cable itself is up — `Link.state` was decoration when this section was measured, and it has
 been read since #1058, so the down-link row above is a dead end the lab can see rather than an
 invisible one (`drop: link down`, in a `drop` event; there is no `link-down` event type). The

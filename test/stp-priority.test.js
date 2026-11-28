@@ -162,14 +162,36 @@ console.log('The report explains the tree it prints:');
   const env = triangle();
   run(env, 's1', ['enable', 'configure terminal', 'spanning-tree priority 4096']);
   election(env);
-  const shown = run(env, 's1', ['enable', 'show spanning-tree']);
-  ok(/Bridge priority 4096/.test(shown), 'show spanning-tree prints the priority in force', shown.split('\n')[0]);
-  ok(/this bridge is the root/.test(shown), 'and says when this bridge is the root');
-  ok(/root bridge s1 priority 4096/.test(shown), 'naming the device by its lab name, not its model', shown.split('\n')[0]);
-  const other = run(env, 's2', ['enable', 'show spanning-tree']);
-  ok(/Bridge priority 32768/.test(other), 'a switch that kept the default says 32768', other.split('\n')[0]);
-  ok(!/this bridge is the root/.test(other), 'and does not claim to be the root');
-  ok(/root bridge s1 priority 4096/.test(other), 'while still naming who is');
+  // The block is line-oriented, so it is read as lines: `run()` joins an answer with spaces for its
+  // one-line assertions, which cannot tell a Root ID Address from a Bridge ID one.
+  const block = function (devId) {
+    const s = new CliSession(env.t.getDevice(devId), env.t, env.sim);
+    s.run('enable');
+    return ((s.run('show spanning-tree') || {}).output || []);
+  };
+  const addrAfter = function (ls, heading) {
+    const at = ls.findIndex(function (l) { return l.trim().indexOf(heading) === 0; });
+    if (at === -1) return null;
+    const next = ls.slice(at + 1).filter(function (l) { return l.trim().indexOf('Address') === 0; })[0];
+    return next ? next.trim().split(/ +/)[1] : null;
+  };
+  const shownLines = block('s1');
+  const shown = shownLines.join(String.fromCharCode(10));
+  ok(/  Bridge ID  Priority    4097  [(]priority 4096 sys-id-ext 1[)]/.test(shown),
+    'the Bridge ID line carries the priority in force, extended by the VLAN 1 sys-id-ext', shownLines.slice(0, 9).join(' / '));
+  ok(/This bridge is the root/.test(shown), 'and says when this bridge is the root');
+  ok(/  Root ID    Priority    4097/.test(shown), 'the Root ID block agrees: this box at 4096 is the root');
+  const otherLines = block('s2');
+  const other = otherLines.join(String.fromCharCode(10));
+  ok(/[(]priority 32768 sys-id-ext 1[)]/.test(other), 'a switch that kept the default says 32768');
+  ok(!/This bridge is the root/.test(other), 'and does not claim to be the root');
+  // The name a box puts in the Root ID block is the root's bridge MAC, and it has to be the very address the
+  // root prints as its own Bridge ID - that is the only way a reader can walk the tree back to a box.
+  const rootAddress = addrAfter(otherLines, 'Root ID');
+  const ownAddress = addrAfter(shownLines, 'Bridge ID');
+  ok(!!rootAddress && rootAddress === ownAddress,
+    'while naming the root by the bridge MAC the root prints as its own',
+    String(rootAddress) + ' vs ' + String(ownAddress));
 
   // No simulator: the command must not invent an election result.
   const bare = new CliSession(env.t.getDevice('s2'), env.t, null);

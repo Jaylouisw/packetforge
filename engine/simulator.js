@@ -904,6 +904,7 @@ class Simulator {
   // Build the STP graph and mark blocking ports on each device.
   computeStp() {
     const bridges = [];
+    const bridgeMacs = new Map();
     for (const dev of this.topo.devices.values()) {
       if (!dev.isL2()) continue;
 
@@ -953,6 +954,11 @@ class Simulator {
       for (const iface of dev.interfaces.values()) {
         if (iface.mac && (!mac || iface.mac < mac)) mac = iface.mac;
       }
+      // The bridge's own address, kept for the Root ID / Bridge ID block `show spanning-tree` prints: a real
+      // switch's bridge ID carries the chassis MAC, which is the lowest port MAC on the box, and that is exactly
+      // the value the election compares. Kept beside the ports so the report reads the address the tree used
+      // rather than hashing one again.
+      bridgeMacs.set(dev.id, mac || null);
 
       bridges.push({
         key: dev.id,
@@ -972,7 +978,13 @@ class Simulator {
     // Reset, then apply decisions back onto physical ports.
     for (const dev of this.topo.devices.values()) {
       if (!dev.isL2()) continue;
-      dev.stp = { blocked: new Set(), states: {}, roles: {}, costs: {} };
+      dev.stp = {
+        blocked: new Set(), states: {}, roles: {}, costs: {},
+        // The two facts the header block needs and the port table does not: the address this bridge puts in its
+        // own Bridge ID, and the cost the election charged it to reach the root (`null` when it has no path).
+        bridgeMac: bridgeMacs.get(dev.id) || null,
+        rootCost: (res.costs && res.costs[dev.id] !== undefined) ? res.costs[dev.id] : null
+      };
     }
     for (const bridgeKey of Object.keys(res.ports || {})) {
       const dev = this.topo.getDevice(bridgeKey);

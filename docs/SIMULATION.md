@@ -61,7 +61,7 @@ first.
   for; both come before the announcements because a host with no address cannot be
   asked anything. `traceroute()` and `openFlow()` run the six without those two
   (`engine/simulator.js:762-767`, `engine/simulator.js:4222-4228`).
-  `ping6()` runs five, without LLDP (`engine/simulator.js:2524-2531`).
+  `ping6()` runs five, without LLDP (`engine/simulator.js:2536-2543`).
   `pingScion()` runs PoE and the SCION paths alone
   (`engine/simulator.js:2862-2863`). The protocols are therefore converged before
   packet one, and do not reconverge during the run.
@@ -320,7 +320,7 @@ a `/25` connected route regardless of list order.
 
 - Route redistribution in any direction (connected ↔ OSPF ↔ BGP). Each protocol
   originates only its own source of truth: OSPF from configured OSPF
-  interfaces, BGP from connected prefixes (`computeBgp()`, `engine/simulator.js:1725-1738`).
+  interfaces, BGP from connected prefixes (`computeBgp()`, `engine/simulator.js:1737-1750`).
 - Route-maps, distribute-lists, offset-lists, policy routing, VRF, tunnels.
 - Fragmentation and reassembly, PMTUD, IP options, jumbo frames.
 
@@ -662,7 +662,7 @@ actually true.
 | Assumption | Reality | Where |
 |---|---|---|
 | "It's a TCP/IP stack." | There is a tiny TCP model — three-way handshake, MSS from path MTU, cumulative ACKs, four-way close — and nothing else: no congestion window, no retransmission timer, no SACK, no TIME_WAIT, no window scaling, no ICMP port-unreachable for stray UDP. | `engine/flow.js:19-24`, `engine/simulator.js:2249` |
-| "Traffic starts connections." | Only an explicit API call does. `openFlow()` is invoked by the server on `POST /flows`; no packet ever triggers a connection on its own. | `engine/simulator.js:4172` |
+| "Traffic starts connections." | Only an explicit API call does. `openFlow()` is invoked by the server on `POST /flows`; no packet ever triggers a connection on its own. | `engine/simulator.js:4184` |
 | "Services respond." | A capability only registers **listeners** — `http-server` means "ports 80 and 443 answer SYN" (`engine/flow.js:77-85`). There is no HTTP request, no TLS handshake, no SSH banner, no FTP, no SMTP. A closed port answers RST, which is the whole application layer. | `engine/simulator.js:2546-2560` |
 | "Congestion happens." | Nothing is ever dropped because of load. There are no queues, no buffers, no contention, no tail drop, no AQM. A link at 100 % of its rate behaves exactly like an idle one. | — |
 | "Loss happens." | Nothing is lost except by an explicit rule: VLAN, ACL, STP, PoE, TTL, no route, NAT failure. A cable 10× over its reach still delivers every packet. | — |

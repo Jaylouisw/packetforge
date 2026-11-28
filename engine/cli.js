@@ -8023,7 +8023,30 @@ class CliSession {
         out.push('No spanning tree instance exists.');
         return out;
       }
-      out.push('Spanning tree enabled protocol ieee');
+      // The block every Catalyst prints above the port table, at the vendor's own columns: a `VLAN0001`
+      // heading, `  Spanning tree enabled protocol ieee` two spaces under it, the Root ID block, a blank line,
+      // the Bridge ID block, a blank line, then the table. Transcribed from a machine-recorded session whose
+      // spacing survived (ntc-templates, tests/cisco_ios/show_spanning-tree/cisco_ios_show_spanning_tree.raw -
+      // the capture the table header below already came from; research/show-spanning-tree-header-block.md).
+      // What this console printed here was one sentence of its own invention, `Bridge priority 32768 (this
+      // bridge is the root), root bridge sw1 priority 32768`, which named the root by a label no box prints and
+      // carried no address, no cost, no timers and no ageing.
+      //
+      // The heading is `VLAN0001` because this console runs one tree per device and that tree is VLAN 1's: a
+      // real PVST+ switch prints one block per VLAN, and the per-VLAN spelling is refused by design here
+      // (docs/CLI.md, "Setting the root"), so one block under the default VLAN's heading is the honest shape of
+      // one tree. The priority printed is the *extended* one - a Catalyst puts `32769` on that line and explains
+      // it as `(priority 32768 sys-id-ext 1)`, sys-id-ext being the VLAN in PVST+ - so the block adds the VLAN
+      // id to the base this console configured and prints both numbers.
+      out.push('');
+      out.push('VLAN0001');
+      out.push('  Spanning tree enabled protocol ieee');
+      const convLib = require('./convergence');
+      const timers = convLib.stpTimers(dev);
+      const helloLine = '             Hello Time   ' + timers.helloSec + ' sec  Max Age ' + timers.maxAgeSec +
+        ' sec  Forward Delay ' + timers.forwardDelaySec + ' sec';
+      // The sys-id-ext, in one place: 1 is the VLAN this console's single tree is printed under.
+      const STP_SYS_ID_EXT = 1;
       // The bridge priority decides the election, so a tree report that omits it cannot explain itself.
       // A root with no identity is not a root: `runStp()` used to answer one for a topology with no bridges, and
       // `String(undefined)` is what came out (#1399). Two things are checked, so neither can print it again.
@@ -8031,13 +8054,42 @@ class CliSession {
         this.sim.stpResult.root.key !== undefined && this.sim.stpResult.root.key !== null)
         ? this.sim.stpResult.root : null;
       if (rootRes) {
-        const rootDev = this.topo ? this.topo.getDevice(rootRes.key) : null;
-        // A device's `name` is its catalogue label ("Aruba CX 6000 24G 4SFP+"), which names the model
-        // three switches share, so a root report built on it named nothing. Hostname, else the id the
-        // lab uses.
-        const rootName = rootDev ? (rootDev.config.hostname || rootDev.id) : String(rootRes.key);
-        out.push('  Bridge priority ' + mine + (rootRes.key === dev.id ? ' (this bridge is the root)' : '') +
-          ', root bridge ' + rootName + ' priority ' + rootRes.priority);
+        out.push('  Root ID    Priority    ' + (rootRes.priority + STP_SYS_ID_EXT));
+        out.push('             Address     ' + net.formatMac(rootRes.mac));
+        if (rootRes.key === dev.id) {
+          out.push('             This bridge is the root');
+        } else {
+          // The two lines a root does not print: what this bridge pays to reach the root, and the port it pays it
+          // over. The cost is the election's own Dijkstra answer (`runStp().costs`), so the header and the tree
+          // cannot disagree. A bridge with no path to the root has no number to print and gets the `-` this
+          // console's tables use for "the model cannot state it", never a 0.
+          const rootCost = st.rootCost;
+          out.push('             Cost        ' +
+            (rootCost === null || rootCost === undefined ? '-' : rootCost));
+          const rootPortNames = Object.keys(st.roles || {}).filter(function (n) { return st.roles[n] === 'root'; });
+          const rootPort = rootPortNames.length ? rootPortNames[0] : null;
+          let rootPortCell = '-';
+          if (rootPort !== null) {
+            const ords = stpLib.portOrdinals(dev);
+            const number = ords[rootPort] === undefined ? '-' : String(ords[rootPort]);
+            const lagMatch = /^lag-([0-9]+)$/.exec(rootPort);
+            const label = lagMatch ? require('./lag.ts').portChannelName(lagMatch[1]) : rootPort;
+            rootPortCell = number + ' (' + label + ')';
+          }
+          out.push('             Port        ' + rootPortCell);
+        }
+        out.push(helloLine);
+        out.push('');
+        out.push('  Bridge ID  Priority    ' + (mine + STP_SYS_ID_EXT) + '  (priority ' + mine +
+          ' sys-id-ext ' + STP_SYS_ID_EXT + ')');
+        out.push('             Address     ' + net.formatMac(st.bridgeMac));
+        out.push(helloLine);
+        // The ageing line is the forwarding-database ageing (300 s on a factory switch, the value this model ages
+        // a learned MAC by), not the max age the line above already prints; the unit is the one the same
+        // machine-recorded capture carries, against the older 12.1E form without it
+        // (research/show-spanning-tree-aging-time.md).
+        out.push('             Aging Time  ' + Math.round(require('./device').MAC_AGE_MS / 1000) + ' sec');
+        out.push('');
       } else {
         out.push('  Bridge priority ' + mine + ', root bridge not measured (no election has run)');
       }
