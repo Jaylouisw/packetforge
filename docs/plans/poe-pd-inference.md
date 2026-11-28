@@ -88,7 +88,7 @@ row as ground truth.
 | # | step | size | closes |
 |---|---|---|---|
 | 1 | `poeInDeclared` beside `poeOutDeclared`: set from the spec's interface field (`false` or a number counts as declared), `false` when inferred, carried through saved-port restore (`device.js:1433`, `:1658`). No behaviour change; assert in `test/poe-inference.test.js` that every inferred `poeIn` has the flag `false`. | S | 1 |
-| 2 | Sanction the word "no": **the doc half has landed** — `DEVICE_SCHEMA.md:208` now names `false` for a socket that is not a PD. Left is the code half: `numOrNull()` keeps `false` distinguishable from `null`, and a one-off check that all 35 `false` specs still read as non-PDs. | S | 3 |
+| 2 | Sanction the word "no": **the doc half has landed** — `DEVICE_SCHEMA.md:208` now names `false` for a socket that is not a PD. Left is the code half: `numOrNull()` keeps `false` distinguishable from `null`, and a one-off check that all 45 `false` specs still read as non-PDs. | S | 3 |
 | 3 | **Changes an answer** — an *inferred* PD claims at most one inlet: the lowest-numbered copper port whose name the class implies, never a port on a device that already declares `poeOut` there. Measured effect 1,410 → ≈448 inferred ports; 99 → 0 devices with ≥3. Declared ports are untouched. | S/M | 2 |
 | 4 | The 99, from their own datasheet, ten rows per PR: which socket is the inlet, its class (af 12.95 / at 25.5 / bt 60 / 90), or `false`. Batch by vendor so one reviewer sees one product family. | M | 2 |
 | 5 | Repair the suite step 3 and #2124 expose: `test/poe.test.js:21` swaps `UCG-Ultra` for a device whose own file declares `poeIn: 12.95` (`devices/ubiquiti/u6-pro.json`), keeping the L3-and-can-ping property the two-party budget test needs. | S | 1, 5 |
