@@ -60,7 +60,12 @@ console.log('\nThe three that were merged stay merged:');
   const groups = [
     { vendor: 'cisco', model: 'ASR 1001-X', compact: 'ASR1001-X', key: 'cisco|asr1001x' },
     { vendor: 'cisco', model: 'ISR 4331', compact: 'ISR4331', key: 'cisco|isr4331' },
-    { vendor: 'raspberrypi', model: 'Raspberry Pi 5', compact: 'RaspberryPi5', key: 'raspberrypi|raspberrypi5' }
+    { vendor: 'raspberrypi', model: 'Raspberry Pi 5', compact: 'RaspberryPi5', key: 'raspberrypi|raspberrypi5' },
+    // Ubiquiti EdgeRouter 4, merged 2026-11-27: er-4.json (model ER-4) and edgerouter4.json
+    // (model EdgeRouter-4) were the same router off the same tech-spec page, and the pair sat
+    // in test/known-issues.json as an accepted duplicate name. The waiver is gone, so this
+    // group keeps the retired string from coming back as a second spec.
+    { vendor: 'ubiquiti', model: 'ER-4', compact: 'EdgeRouter-4', key: 'ubiquiti|er4' }
   ];
   const missing = [], reverted = [], wrongKey = [];
   for (const g of groups) {
@@ -77,6 +82,26 @@ console.log('\nThe three that were merged stay merged:');
     (reverted.length ? ' (' + reverted.join(', ') + ')' : ''));
   ok(wrongKey.length === 0, 'each one squashes to the key it was merged under' +
     (wrongKey.length ? ' (' + wrongKey.join(', ') + ')' : ''));
+}
+
+console.log('\nThe EdgeRouter 4 merge kept the hardware, not just the name:');
+{
+  // Deleting the twin is only half the fix. The retired copy was the researched one, so the
+  // surviving ER-4 row has to carry the four interfaces and the PoE verdict the tech-spec page
+  // states, and the retired model string has to still find it - otherwise the merge traded a
+  // duplicate for a router nobody can search by the name they used yesterday.
+  const er4 = catalog.find(function (s) { return s.vendor === 'ubiquiti' && s.model === 'ER-4'; });
+  ok(!!er4, 'ubiquiti/ER-4 is in the catalogue');
+  const ifaces = (er4 && er4.interfaces) || [];
+  ok(ifaces.length === 4, 'four interfaces, as the tech-spec page counts them (' + ifaces.length + ')');
+  const copper = ifaces.filter(function (i) { return i.connector === 'rj45'; });
+  const cages = ifaces.filter(function (i) { return i.connector === 'sfp'; });
+  ok(copper.length === 3, '3x RJ45 (' + copper.length + ')');
+  ok(cages.length === 1 && cages[0].speed === '1G', '1x 1G SFP, not SFP+');
+  ok(copper.every(function (i) { return i.poeIn === false; }),
+    'the AC-only copper ports are declared unable to power the box, not left to the engine guess');
+  const alias = (er4 && er4.aliases) || [];
+  ok(alias.indexOf('EdgeRouter-4') !== -1, 'the retired model string is an alias of the survivor');
 }
 
 // The importer's gate, exercised on throwaway trees via PF_DEVICES / PF_INCOMING.
