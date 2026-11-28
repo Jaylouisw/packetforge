@@ -66,7 +66,8 @@ than in a test leg for the same reason `tsc` is. It prints one note every run �
 `iface-name.js` becomes `.ts` — and exits 0 on it, so the step asserts *0 unresolvable
 specifiers* and leaves the latent one visible on every pull request. It is the only job in this
 workflow that installs anything
-— `typescript` is the repository's only devDependency. What that toolchain is, and why there is no
+— `typescript` and `@types/node` are the repository's only devDependencies, and `dependencies` is
+empty, so none of it reaches the running program. What that toolchain is, and why there is no
 build step, is [`TYPESCRIPT.md`](TYPESCRIPT.md); it is the page to read before writing a line of it.
 
 This paragraph used to name only the suite, `audit:ports`/`check:bytes`, the syntax check and the
