@@ -2,8 +2,12 @@
   "vendor": "radwin",
   "model": "RADWIN 5000 JET",
   "label": "RADWIN 5000 JET",
+  "aliases": [
+    "5000 JET",
+    "RADWIN 5000 JET HBS"
+  ],
   "category": "ptp",
-  "description": "RADWIN 5000 JET - 5 GHz PtP/PtMP base station radio with smart beamforming, 250 Mbps per link (750 Mbps with dual carriers); 1x 1G RJ45 PoE-in (power and data) plus 1x 1G SFP data port.",
+  "description": "RADWIN 5000 JET - sub-6 GHz PtMP beamforming base station (HBS), up to 750 Mbps per sector (QAM256) and 3 Gbps per cell over four sectors, range up to 40 km; multiband 4.9-5.8 GHz or 3.3-3.8/3.65 GHz in the same unit; two 10/100/1000BaseT RJ45 ports (data with PoE-in, plus management), HBS draws under 25 W.",
   "capabilities": [
     "l2-forward",
     "wireless",
@@ -14,22 +18,26 @@
     {
       "name": "eth0",
       "type": "ethernet",
-      "speed": "1G",
       "connector": "rj45",
+      "speed": "1G",
       "speedCaps": [
         10,
         100,
         1000
-      ]
+      ],
+      "poeIn": 25
     },
     {
-      "name": "sfp1",
+      "name": "eth1",
       "type": "ethernet",
+      "connector": "rj45",
       "speed": "1G",
-      "connector": "sfp",
       "speedCaps": [
+        10,
+        100,
         1000
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "radio0",
@@ -38,5 +46,7 @@
     }
   ],
   "icon": "ptp",
-  "color": "#3b82f6"
+  "color": "#3b82f6",
+  "sourceUrl": "https://www.winncom.com/pdf/Radwin_RW_5BG5_X650/RW_5000_JET_EN.pdf",
+  "notes": "RADWIN product brochure, August 2016 edition, read 2026-11-28. Interfaces row: **HBS: Two ports for Data & management, 10/100/1000BaseT** (HSU: 10/100BaseT); Power row: **Power Feeding Provided over PoE interface; Power Consumption HBS < 25W, HSU < 12 W**; Radio row: multiband 4.9-5.8 GHz or 3.3-3.8/3.65 GHz, up to 40 km, max net aggregate capacity 750 Mbps at QAM256 on the 4.9-5.8 GHz HBS (250 Mbps in 3.3-3.8 GHz), cell capacity 3 Gbps over 4 sectors using 2 x 80 MHz channels. There is no SFP cage on this platform: the earlier (2015) edition of the same brochure at https://www.4gon.co.uk/documents/radwin_5000_jet_datasheet.pdf prints the same Interfaces row, and the only SFP is on the later JET PRO / JET DUO / JET AIR units, whose series table at https://www.radwin.com/web/content/3699 reads `Data interfaces 100/1000 Mbps RJ45 PoE, 1Gbps Full duplex SFP` - a different product generation, not this one. Which port takes the power is stated by the 5000 JET NLOS data sheet (https://www.skylinkstelecoms.ie/wp-content/uploads/2016/06/RADWIN-5000-JET-NLOS-EN.pdf): `Two ports, supporting 100/1000BaseT. 1st port: Data and PoE. 2nd port: Data (HSU), Management (HBS)`, so eth1 is declared unable to sink power rather than left to the engine's PD guess. RADWIN's RADWIN 5000 installation guide (https://tools.radwin.com/documentation/installation/, August 2023, section on input voltage) lists `RADWIN 5000 JET | 55VDC, 0.5A | IP67/Type 4 | -35C to +60C`, i.e. 27.5 W maximum input against the brochure's < 25 W consumption figure; the 25 W here is the vendor's stated HBS consumption. This row models the HBS (sector base station) only - the subscriber units (HSU 510/525/550) are separate hardware with a single 10/100BaseT port and are not covered by this spec."
 }
