@@ -174,7 +174,7 @@ jobs:
 
       - name: Provide the runtime the smoke client needs
         if: steps.gate.outputs.skip != 'true' && steps.gate.outputs.data_only != 'true'
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           # The major, not a pinned patch: `22` resolves to the newest 22.x, which is at or
           # above the 22.18 floor, and the step below asserts that rather than trusting it.
@@ -354,7 +354,7 @@ jobs:
 
       - name: Provide the runtime this leg is named for
         if: steps.still_open.outputs.closed != 'true'
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: ${{ matrix.node }}
 
@@ -562,7 +562,7 @@ jobs:
           persist-credentials: false
 
       - name: Provide the runtime the typecheck runs on
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: 22
           cache: npm
