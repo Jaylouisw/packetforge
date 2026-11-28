@@ -2187,13 +2187,18 @@ whole interval (00:00:40 over the default 10 s hello) and a run stopped 15 s in 
 **State** is two facts in one cell, the way IOS prints it: the adjacency's state, then the role the
 **neighbour** holds on that segment. A broadcast segment elects a designated router and a backup -
 highest interface priority first, then highest router ID (Cisco's `ip ospf priority` usage guidelines;
-RFC 2328 §9.4) - so with both ports at the default 1 across a cable the higher router ID is the DR,
-and reads `FULL/DR` from the other end, which is itself the BDR. A port configured at priority 0 is
-ineligible for either role: the other end takes the DR alone, there is no second candidate and so no
-BDR, and the priority-0 box still reaches `FULL/DR` because a DROTHER synchronises with the DR. With
-*both* ends at 0 no DR exists at all; a real pair stops at `2WAY/DROTHER` and carries no route, and
-this console - which has no two-way state - refuses the link and prints that reason rather than a
-`FULL` the hardware cannot produce. The cell travels with the neighbour and not with the box doing
+RFC 2328 §9.4) - and it elects them once, for the whole segment: the electorate is every OSPF speaker
+that can hear the Hellos, whether a cable or a switch joins them (`engine/segment.ts`'s `segmentOf()`,
+the walk the DHCP model already uses). So with both ports at the default 1 across a cable the higher
+router ID is the DR, and reads `FULL/DR` from the other end, which is itself the BDR. A port
+configured at priority 0 is ineligible for either role: the other end takes the DR alone, there is
+no second candidate and so no BDR, and the priority-0 box still reaches `FULL/DR` because a DROTHER
+synchronises with the DR. On a segment with three or more eligible routers the ones that are neither
+DR nor BDR are DROTHERs: they are FULL with the DR and the BDR and stop at `2WAY/DROTHER` with each
+other, because no LSA crosses that pair (RFC 2328 §7.3/§7.4) - the row is printed, and it is never a
+next hop. With *both* ends at 0 no DR exists at all; such a pair carries no route, and this console
+names the rule rather than printing a `FULL` the hardware cannot produce
+(`research/ospf-segment-adjacency.md`). The cell travels with the neighbour and not with the box doing
 the looking: a router in the middle of a chain reads `FULL/BDR` on one port and `FULL/DR` on the
 other. A serial line's default OSPF network type is point-to-point, where no election runs at all,
 and the box prints `FULL/ -`; `ip ospf priority` is accepted and stored there (IOS accepts it too)

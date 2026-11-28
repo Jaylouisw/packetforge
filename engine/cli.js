@@ -6383,7 +6383,15 @@ class CliSession {
           pad(deadCell, 12) + pad(n.address, 16) + require('./iface-name').displayName(n.iface));
       }
       out.push('');
-      out.push(rows.length + ' neighbour(s), all Fully adjacent' +
+      // The count is of the rows just printed; the adverb is about how many of them are FULL. A
+      // segment with three routers prints one `2WAY/DROTHER` row, and "all Fully adjacent" beside it
+      // would be the one sentence on the page a reader could check against a real box and lose
+      // (research/ospf-segment-adjacency.md).
+      const fullRows = rows.filter(function (n) { return n.full !== false; }).length;
+      out.push(rows.length + ' neighbour(s), ' +
+        (fullRows === rows.length
+          ? 'all Fully adjacent'
+          : fullRows + ' fully adjacent (' + (rows.length - fullRows) + ' in 2WAY/DROTHER)') +
         (dev.ospfConverged ? '' : ' (routes withheld: still converging)'));
       return out;
     }
