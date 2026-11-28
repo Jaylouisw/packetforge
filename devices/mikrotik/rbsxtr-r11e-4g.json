@@ -3,7 +3,7 @@
   "model": "RBSXTR&R11e-4G",
   "label": "SXT 4G kit",
   "category": "ptp",
-  "description": "MikroTik SXT 4G kit (RBSXTR&R11e-4G) \u2014 2x 100M RJ45, LTE radio. MIPSBE 1-core QCA9531.",
+  "description": "MikroTik SXT 4G kit (RBSXTR&R11e-4G) — 2x 100M RJ45, LTE radio. MIPSBE 1-core QCA9531.",
   "capabilities": [
     "l3-forward",
     "nat",
@@ -23,12 +23,15 @@
     {
       "name": "eth1",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "poeIn": 19
     },
     {
       "name": "eth2",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "poeOut": true,
+      "poeOutClass": "passive"
     },
     {
       "name": "lte1",
@@ -38,5 +41,9 @@
   ],
   "icon": "ptp",
   "color": "#14b8a6",
-  "sourceUrl": "https://mikrotik.com/product/sxt_4g_kit"
+  "sourceUrl": "https://mikrotik.com/product/sxt_4g_kit",
+  "poe": {
+    "budgetUnknown": true
+  },
+  "notes": "Port roles from MikroTik's own spec table: **PoE in 802.3af/at** (12-57 V) on `eth1` and **PoE-out ports: Ether2** (passive PoE up to 57 V). The table names only the PoE-out port; the prose says the *second* port carries PoE-out, which leaves the first port as the drop that powers the unit. `eth1` records the PD draw as the published **Max power consumption 19 W** (6 W without attachments). `eth2` is the PSE side: no wattage budget is published for it - the table gives current limits (600 mA low-voltage, 400 mA high-voltage) against whatever supply is plugged in - so `poe.budgetUnknown` is set rather than a number obtained by multiplying 600 mA by a voltage MikroTik never pairs it with."
 }

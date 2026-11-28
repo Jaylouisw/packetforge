@@ -24,7 +24,7 @@
       "name": "eth1",
       "type": "ethernet",
       "speed": "100M",
-      "poeIn": true
+      "poeIn": 22
     },
     {
       "name": "eth2",
@@ -45,5 +45,5 @@
   "poe": {
     "budgetUnknown": true
   },
-  "notes": "Power method from the mikrotik.com spec table: **PoE in: 802.3af/at** (12-57 V) on `eth1`; **PoE out on `eth2`** - it powers the device above it on the mast or the AP on the wall, and the port is the vendor's own, not a convention. Input is recorded on the first Ethernet port because the table states the method and voltage but does not name the port, and every MikroTik with a PoE-IN DC input takes it there. Max power consumption not stated."
+  "notes": "Port roles from MikroTik's own spec table: **PoE in 802.3af/at** (12-57 V) on `eth1` and **PoE-out ports: Ether2** (passive PoE up to 57 V). The product text names both ends - \"PoE-in on Ether1, PoE-out on Ether2\" - so neither assignment is a convention. `eth1` records the PD draw as the published **Max power consumption 22 W** (5 W without attachments). `eth2` is the PSE side: no wattage budget is published for it - the table gives current limits (600 mA low-voltage, 400 mA high-voltage) against whatever supply is plugged in - so `poe.budgetUnknown` is set rather than a number obtained by multiplying 600 mA by a voltage MikroTik never pairs it with."
 }
