@@ -21,6 +21,11 @@ When the app is running it adds the parts you cannot reasonably be asked to find
 | Catalogue size | the loaded catalogue | "no devices in the palette" means something different at 0 models than at 2,358 |
 | Devices and links on the canvas | the current topology | see below - "my link won't come up" is unanswerable without it |
 
+The catalogue size on that row is not typed by hand: `node scripts/regen-registry-doc.js` writes it
+from the directory the app loaded, and `test/doc-catalog-counts.test.js` fails when it drifts - this
+row said 2,358 while the tree held 2,357, because it was the one count no writer or test watched
+(#1690).
+
 ## Where the report goes, and why it is on your clipboard
 
 The app opens the bug form and puts the report on your clipboard. That is not a style choice; it
