@@ -158,6 +158,27 @@ for (const page of regen.PAGES) {
     'and repaired in place, without reflowing the paragraph');
 }
 
+// docs/BUG_REPORTS.md says what the app puts into a bug report, and its catalogue-size row states the
+// size of the tree so a reader can interpret "no devices in the palette" at 0 models. It sat outside
+// every writer and every test: when #1681 swept the current counts to 2,357 this row kept saying 2,358
+// (#1690). A page quoting a number is a promise that the number is checked.
+console.log('\nBUG_REPORTS states the catalogue size the report stamps:');
+const bugReports = fs.readFileSync(path.join(ROOT, 'docs', 'BUG_REPORTS.md'), 'utf8');
+const brRow = /(\| Catalogue size \|[^\n]*?at 0 models than at )([\d,]+)( \|)/.exec(bugReports);
+ok(!!brRow, 'the catalogue size row is still on the page');
+ok(brRow ? Number(brRow[2].replace(/,/g, '')) === real.length : false,
+  'the row matches the directory (' + real.length + ')', 'page says ' + (brRow ? brRow[2] : 'nothing'));
+{
+  // And the writer it is now in PAGES with can repair it, on that row and nowhere else.
+  const staleBug = bugReports.replace(/at 0 models than at ([\d,]+)/, 'at 0 models than at 2,358');
+  const fixedBug = regen.rewriteBugReports(staleBug, counts);
+  ok(fixedBug.changes.length === 1, 'a stale row is noticed (' + fixedBug.changes[0] + ')');
+  ok(fixedBug.doc.indexOf('at 0 models than at ' + counts.total.toLocaleString('en-US')) !== -1,
+    'and rewritten to the count printed from the catalogue');
+  ok(fixedBug.doc.split('\n').length === staleBug.split('\n').length,
+    'without adding or removing a line');
+}
+
   console.log('\n' + passed + ' passed, ' + failed + ' failed');
 if (failed) { console.error('\n' + failed + ' doc-catalog-counts check(s) failed'); process.exit(1); }
 console.log('\n' + passed + ' doc-catalog-counts checks passed.');

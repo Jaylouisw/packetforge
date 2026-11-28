@@ -11,6 +11,7 @@
  *                             output of `test/faceplate-catalogue.test.js` underneath it
  *   docs/wiki/Home.md         "**N device models from M vendors**"
  *   scripts/build-wiki.js     the template that page is built from, which carries the same sentence
+ *   docs/BUG_REPORTS.md       the catalogue-size row of the table saying what the bug report fills in
  *
  * The hand-typed copies went stale within hours of each other on 2026-11-16: the registry page was
  * regenerated to 2,214 models while README, CONNECTORS and the wiki still said 2,210 / 25,016 sockets
@@ -44,6 +45,10 @@ const WIKI_HOME = path.join(ROOT, 'docs', 'wiki', 'Home.md');
 // in a .js file. Both are rewritten: the template so the build keeps producing the right page, the page so
 // a publish that has not run yet is not quoting yesterday's catalogue.
 const WIKI_BUILDER = path.join(ROOT, 'scripts', 'build-wiki.js');
+// BUG_REPORTS.md lists what the app puts into a bug report, and its catalogue-size row states how big the
+// tree is so a reader knows what "no devices in the palette" means at zero. That row was written by hand
+// and drifted on its own: #1681 swept every current count to 2,357 and left this one at 2,358 (#1690).
+const BUG_REPORTS = path.join(ROOT, 'docs', 'BUG_REPORTS.md');
 // The registry page also states which hardware requests cannot be modelled yet and why. The issue
 // threads for those requests cite `docs/DEVICE_REGISTRY.md` section "What is left open, and why" as
 // the record - five separate threads did, and the section did not exist, because this page only ever
@@ -268,12 +273,26 @@ function rewriteWiki(doc, counts) {
   return { doc: out, changes: changes };
 }
 
+// BUG_REPORTS states the size inside a sentence in the third cell of a three-column table, so the row is
+// matched whole: the label picks the row, and the count is the one after "at 0 models than at".
+function rewriteBugReports(doc, counts) {
+  const changes = [];
+  const out = doc.replace(/(\| Catalogue size \|[^\n]*?at 0 models than at )([\d,]+)( \|)/,
+    function (m, lead, models, tail) {
+      const next = lead + fmt(counts.total) + tail;
+      if (m !== next) changes.push('catalogue size row: ' + models + ' -> ' + fmt(counts.total));
+      return next;
+    });
+  return { doc: out, changes: changes };
+}
+
 const PAGES = [
   { file: 'docs/DEVICE_REGISTRY.md', path: DOC, rewrite: rewrite },
   { file: 'README.md', path: README, rewrite: rewriteReadme },
   { file: 'docs/CONNECTORS.md', path: CONNECTORS, rewrite: rewriteConnectors },
   { file: 'docs/wiki/Home.md', path: WIKI_HOME, rewrite: rewriteWiki },
-  { file: 'scripts/build-wiki.js', path: WIKI_BUILDER, rewrite: rewriteWiki }
+  { file: 'scripts/build-wiki.js', path: WIKI_BUILDER, rewrite: rewriteWiki },
+  { file: 'docs/BUG_REPORTS.md', path: BUG_REPORTS, rewrite: rewriteBugReports }
 ];
 
 function fmt(n) {
@@ -316,5 +335,5 @@ if (require.main === module) process.exit(main(process.argv.slice(2)));
 
 module.exports = {
   keyForLabel, catalogueCounts, expectedCount, rewrite, rewriteHeadline, rewriteReadme,
-  rewriteConnectors, rewriteWiki, mdCell, renderOpenRequests, rewriteOpenRequests, PAGES, LABEL_ALIASES
+  rewriteConnectors, rewriteWiki, rewriteBugReports, mdCell, renderOpenRequests, rewriteOpenRequests, PAGES, LABEL_ALIASES
 };
