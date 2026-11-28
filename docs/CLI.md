@@ -4429,6 +4429,21 @@ sw1(config)#name lab
 % There is no vlan sub-mode here: name the VLAN on its own line, `vlan <id> name <text>` (e.g. `vlan 20 name lab`)
 ```
 
+Re-entering a VLAN that exists is neither a creation nor a rename:
+
+```
+sw1(config)#vlan 20 name sales
+VLAN 20 created (name: sales)
+sw1(config)#vlan 20
+VLAN 20 already exists (name: sales), so there was nothing to create
+sw1(config)#vlan 20 name ops
+VLAN 20 renamed (name: ops, was sales)
+```
+
+`vlan 20` used to write a fresh record, so the bare re-entry above replaced `sales` with `VLAN0020` and reported
+it as a creation - on the one line a worksheet types to select the VLAN. A name changes through the `name`
+keyword only, which is what the second and third lines say.
+
 ### `do show vlan` rejected the command it was given
 
 `do` passed `tokens.slice(1)` — still starting with `show` — into the `show` dispatcher, which expects the words *after* `show`:

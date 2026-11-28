@@ -18,6 +18,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **`vlan 20` on a VLAN that already existed wiped its name and reported it as created.** The door wrote a
+  fresh `{ name }` record on every line, so a bare re-entry on a VLAN named `sales` replaced the name with the
+  default `VLAN0020` - and the sentence hid it, announcing `VLAN 20 created (name: VLAN0020)`: a creation that
+  did not happen, printing a name the box had just thrown away. A switch changes a name through the `name`
+  keyword only, so a bare `vlan 20` now selects the VLAN and leaves the record alone
+  (`VLAN 20 already exists (name: sales), so there was nothing to create`), a different name is reported as the
+  rename it is (`VLAN 20 renamed (name: ops, was sales)`), and a VLAN that a port made answers the same way
+  instead of claiming to have created it. `vlan 20` on a VLAN that is not there still prints
+  `VLAN 20 created (name: VLAN0020)`.
+
 - **A static route typed twice was stored twice, so the config it printed grew on every paste and the table
   showed the route losing to itself.** `ip route` and `ipv6 route` pushed a new row every time the command ran,
   so `show running-config` printed the same line twice and `show ip route` printed a second `S` row annotated

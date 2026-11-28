@@ -1810,6 +1810,24 @@ class CliSession {
           ' characters, so nothing was changed'];
       }
       const name = text || ('VLAN' + String(id).padStart(4, '0'));
+      // A VLAN that already exists is not created a second time, and entering it again is not a rename. The
+      // record was written fresh on every line, so a bare `vlan 20` on a VLAN named sales replaced that name
+      // with the default VLAN0020 - and said so in the one sentence that hid it: "VLAN 20 created (name:
+      // VLAN0020)" announced a creation, and printed a name the box had just thrown away. Two lies in one line,
+      // on the line an operator types to select the VLAN. A switch changes a name through the `name` keyword
+      // only; `vlan 20` on a VLAN that exists selects it and leaves the name alone, and `vlan 20 name ops` on a
+      // VLAN called sales is a rename, not a creation. What the receipt says now follows what the line did.
+      const held = this.device.config.vlans[id];
+      if (held) {
+        const current = held.name || ('VLAN' + String(id).padStart(4, '0'));
+        if (!text || text === current) {
+          out.push('VLAN ' + id + ' already exists (name: ' + current + '), so there was nothing to create');
+          return out;
+        }
+        this.device.config.vlans[id] = { name: name };
+        out.push('VLAN ' + id + ' renamed (name: ' + name + ', was ' + current + ')');
+        return out;
+      }
       this.device.config.vlans[id] = { name: name };
       out.push('VLAN ' + id + ' created (name: ' + name + ')');
     } else if (head === 'no' && tokens[1] === 'ip' && tokens[2] && tokens[2].toLowerCase() === 'nat' &&
