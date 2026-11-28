@@ -16,7 +16,7 @@ const MODE_DHCP_POOL = 'dhcp-pool';
 const { PORT_NAME_RULES, portKey, resolvePortName, displayName, briefName } = require('./iface-name');
 // A console port is a line, not an interface. The predicate lives with the port model that owns `type`, so the
 // three views that list interfaces and the `interface` door all ask the same question (research note cited there).
-const { isConsoleLine } = require('./device');
+const { isConsoleLine, MAC_AGE_MS } = require('./device');
 const ifaceName = { resolvePortName, displayName, briefName };
 // Rates are spelled the way the catalogue spells them, by the parser the catalogue uses: `speed 1G` and
 // `speed 1000` must land on the same port rate, and a second parser here would be a second answer.
@@ -8023,24 +8023,73 @@ class CliSession {
         out.push('No spanning tree instance exists.');
         return out;
       }
-      out.push('Spanning tree enabled protocol ieee');
+      // -------------------------------------------------------------------------------------------
+      // The header block a Catalyst prints above its port table (#1713).
+      //
+      // A box asked for its tree opens with `VLAN0001`, the protocol line, a **Root ID** block - the extended
+      // bridge priority, the root's bridge address, and then either `This bridge is the root` or the `Cost` and
+      // `Port` a non-root pays to reach it - and a **Bridge ID** block: the extended priority with the two
+      // numbers it is made of spelled out (`priority 32768 sys-id-ext 1`), this box's own address, the three
+      // BPDU timers, and the forwarding-database ageing. This console printed one sentence of its own invention
+      // instead - `Bridge priority 4096 (this bridge is the root), root bridge core-sw1 priority 4096` - a
+      // label no box prints, with no address, no cost and no timers, so the part of the report that explains
+      // the election was missing. research/show-spanning-tree-header-block.md has the capture, the field table
+      // and the one number this model has to take from its own ageing timer rather than invent.
+      //
+      // The tree is VLAN 1's, because this device runs one spanning tree (`STP_ONE_TREE`) and the console
+      // refuses every per-VLAN form. The extended priority is therefore `priority + 1`: the `sys-id-ext` half
+      // of a bridge ID is the VLAN number, and the 6500 sample prints `Priority 4097` over
+      // `(priority 4096 sys-id-ext 1)` for exactly that reason.
+      const SYS_ID_EXT = 1;
+      const extended = function (p) { return String(Number(p) + SYS_ID_EXT); };
+      out.push('VLAN0001');
+      out.push('  Spanning tree enabled protocol ieee');
       // The bridge priority decides the election, so a tree report that omits it cannot explain itself.
-      // A root with no identity is not a root: `runStp()` used to answer one for a topology with no bridges, and
-      // `String(undefined)` is what came out (#1399). Two things are checked, so neither can print it again.
+      // A root with no identity is not a root: `runStp()` used to answer one for a topology with no bridges,
+      // and `String(undefined)` is what came out (#1399). Two things are checked, so neither can print it again.
       const rootRes = (this.sim && this.sim.stpResult && this.sim.stpResult.root &&
         this.sim.stpResult.root.key !== undefined && this.sim.stpResult.root.key !== null)
         ? this.sim.stpResult.root : null;
-      if (rootRes) {
-        const rootDev = this.topo ? this.topo.getDevice(rootRes.key) : null;
-        // A device's `name` is its catalogue label ("Aruba CX 6000 24G 4SFP+"), which names the model
-        // three switches share, so a root report built on it named nothing. Hostname, else the id the
-        // lab uses.
-        const rootName = rootDev ? (rootDev.config.hostname || rootDev.id) : String(rootRes.key);
-        out.push('  Bridge priority ' + mine + (rootRes.key === dev.id ? ' (this bridge is the root)' : '') +
-          ', root bridge ' + rootName + ' priority ' + rootRes.priority);
+      // This box's own slot in the election's answer: its bridge ID, the cost it pays to reach the root and the
+      // port it pays it on. Read from the election rather than derived again here, so the header and the table
+      // cannot disagree about which port the tree chose.
+      const stpIds = (this.sim && this.sim.stpResult && this.sim.stpResult.bridges) || {};
+      const ownBridge = stpIds[dev.id] || null;
+      // With no simulator behind it there is no election, but the box still has an address: the same lowest-MAC
+      // rule the election applies, asked of the device directly, so `Address` is not blank on a live console.
+      const ownMac = (ownBridge && ownBridge.mac) ? ownBridge.mac
+        : (typeof dev.lowestInterfaceMac === 'function' ? dev.lowestInterfaceMac() : null);
+      const address = function (mac) { return mac ? net.formatMac(mac) : '-'; };
+      // The port's number in the chassis port table, which is the same ordinal the table's `Prio.Nbr` cell
+      // prints. A bundle has no number this model can defend, so it reads `-` here as it does there.
+      const rootPortNo = function (name) {
+        const n = stpLib.portOrdinals(dev)[name];
+        return (n === undefined) ? '-' : String(n);
+      };
+      out.push('  Root ID    Priority    ' + (rootRes ? extended(rootRes.priority) : '-'));
+      out.push('             Address     ' + address(rootRes && rootRes.mac));
+      if (rootRes && rootRes.key === dev.id) {
+        out.push('             This bridge is the root');
+      } else if (rootRes && ownBridge && ownBridge.rootPort && Number.isFinite(ownBridge.cost)) {
+        out.push('             Cost        ' + ownBridge.cost);
+        out.push('             Port        ' + rootPortNo(ownBridge.rootPort) + ' (' +
+          displayName(ownBridge.rootPort) + ')');
+      } else if (rootRes) {
+        out.push('             root bridge not measured (no path to the root from this device)');
       } else {
-        out.push('  Bridge priority ' + mine + ', root bridge not measured (no election has run)');
+        out.push('             root bridge not measured (no election has run)');
       }
+      out.push('             Hello Time   2 sec  Max Age 20 sec  Forward Delay 15 sec');
+      out.push('');
+      out.push('  Bridge ID  Priority    ' + extended(mine) + '  (priority ' + mine +
+        ' sys-id-ext ' + SYS_ID_EXT + ')');
+      out.push('             Address     ' + address(ownMac));
+      out.push('             Hello Time   2 sec  Max Age 20 sec  Forward Delay 15 sec');
+      // The ageing line is the forwarding-database timer, not the max age - the same 300 s constant
+      // `show mac address-table` ages an entry by, read from the model rather than written down twice
+      // (research/show-spanning-tree-aging-time.md).
+      out.push('             Aging Time  ' + Math.round(MAC_AGE_MS / 1000) + ' sec');
+      out.push('');
       if (!names.length) {
         // With nothing having run, "no ports are bridging" is a claim the command cannot make - the same
         // distinction `show interfaces` makes for its counters (#1252). Both answers used to be the same

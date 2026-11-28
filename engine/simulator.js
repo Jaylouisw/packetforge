@@ -949,10 +949,10 @@ class Simulator {
         });
       }
 
-      let mac = null;
-      for (const iface of dev.interfaces.values()) {
-        if (iface.mac && (!mac || iface.mac < mac)) mac = iface.mac;
-      }
+      // The bridge ID's address is the lowest MAC on the box, which is a property of the device rather than of
+      // any one port. Device.lowestInterfaceMac() owns the rule so the header block can print the same address
+      // when no simulation has run (#1713).
+      const mac = dev.lowestInterfaceMac();
 
       bridges.push({
         key: dev.id,
