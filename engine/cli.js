@@ -2193,6 +2193,26 @@ class CliSession {
     } else if (head === 'router' && tokens[1] === 'bgp') {
       out.push.apply(out, this._bgp(['as', tokens[2]]));
     } else if (head === 'no' && tokens[1] === 'router' && tokens[2] === 'bgp') {
+      // The no-form carries the AS as a required argument - `no router bgp autonomous-system-number`, outside
+      // any brackets in both the IOS and the IOS XE command reference (IOS XR is the family's exception and
+      // brackets it: `no router bgp [as-number]`). This branch took the two words alone and cleared the
+      // process, so half a command deleted a live configuration: typing `no router bgp` and stopping to look up
+      // the number already answered `BGP disabled`. A box answers `% Incomplete command.` there - one of the
+      // documented CLI error messages, "You did not enter all the keywords or values required by this command" -
+      // because the parser runs out of line before a handler sees it. The wording below is this console's own
+      // incomplete-command sentence; the grammar is the vendor's. research/no-router-bgp-argument.md has the
+      // evidence, and records the two neighbours of this rule it does not settle.
+      const typedAs = tokens[3];
+      const runningAs = this.device.config.bgp ? this.device.config.bgp.as : null;
+      const asn = parseInt(typedAs, 10);
+      if (typedAs === undefined || typedAs === '') {
+        return ['% Incomplete command: no router bgp <as> (' + (runningAs === null
+          ? 'there is no BGP process to remove'
+          : 'BGP is still running as ' + runningAs) + ')'];
+      }
+      // The same value check the create path runs, so `no router bgp foo` and `router bgp foo` cannot
+      // disagree about what an AS number is.
+      if (!(asn >= 1 && asn <= 4294967295)) return ['% Invalid AS number "' + typedAs + '"'];
       this.device.config.bgp = null;
       this.device.bgpRoutes = [];
       out.push('BGP disabled');

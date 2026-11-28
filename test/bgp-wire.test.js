@@ -117,7 +117,7 @@ ok(!res.replies[0].success, 'ping fails once the session is gone');
 
 console.log('\nWithdrawing BGP entirely:');
 cli(r3, ['router bgp 65003', 'neighbor 10.0.23.2 remote-as 65002']);
-cli(r2, ['no router bgp']);
+cli(r2, ['no router bgp 65002']);
 sim = new Simulator(t);
 sim.computeBgp();
 ok(r2.config.bgp === null, 'R2 BGP config cleared');
