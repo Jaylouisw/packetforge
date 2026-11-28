@@ -9,14 +9,16 @@
     "l2-forward",
     "dhcp-client",
     "cli",
-    "http-server"
+    "http-server",
+    "poe-pd",
+    "802.3at"
   ],
   "interfaces": [
     {
       "name": "eth0",
       "type": "ethernet",
       "speed": "2.5G",
-      "poeIn": 25.5
+      "poeIn": 21
     },
     {
       "name": "radio0",
@@ -35,5 +37,5 @@
     }
   ],
   "sourceUrl": "https://techspecs.ui.com/unifi/wifi/u7-pro",
-  "notes": "PoE+ (802.3at), 21W max consumption. Single 2.5GbE port; 320 MHz channels and the 5.8 Gbps 6 GHz rate are far beyond a 2.5G uplink, so it is backhaul-limited."
+  "notes": "PoE+ (802.3at), 21W max consumption. Single 2.5GbE port; 320 MHz channels and the 5.8 Gbps 6 GHz rate are far beyond a 2.5G uplink, so it is backhaul-limited.\n\nThe 25.5 W this port used to carry is not Ubiquiti's figure: it is the 802.3at PD class ceiling, written as if the box drew all of it, and the note above has said \"21W max consumption\" all along. Read 2026-11-28 from https://techspecs.ui.com/unifi/wifi/u7-pro (HTTP 200, 658,469 B), the same page: \"Power Method: PoE+\" and \"Max. Power Consumption: 21W\". poeIn is now that 21 W, and the Power Method row also settles two capabilities the spec omitted - PoE+ is 802.3at, and a box powered from its uplink is a poe-pd. Nothing in the engine compares a PD draw with the class its PSE declared, so a 21 W AP on an 802.3af port is still accepted; what the figure changes is the budget arithmetic the PoE lab reports."
 }
