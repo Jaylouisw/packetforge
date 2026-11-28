@@ -75,7 +75,7 @@ commands, not the model.
 | Process | Default | Source |
 |---|---|---|
 | STP forward delay | 15 s | 802.1D §17.14 — a forwarding port waits 2× this |
-| STP max age | 20 s | 802.1D |
+| STP max age | 20 s | 802.1D — how long a bridge holds a root BPDU it can no longer hear before it re-roots |
 | OSPF hello | 10 s | RFC 2328 on a broadcast segment |
 | OSPF exchange | 1 s | modelled DBD/LSDB synchronisation |
 | OSPF SPF delay | 5 s | the hold before the first route lands |
@@ -116,7 +116,14 @@ Network converges again at 40000 ms.
 ```
 
 Ten seconds plus the two forward delays, because a switch that has to bring a new port into
-forwarding walks it through Listening and Learning just as it does at boot.
+forwarding walks it through Listening and Learning just as it does at boot. That 40 s is the
+**direct** failure: both boxes at the ends of `l5` watched their own port go down, so the stored BPDU
+on that port was invalidated on the spot and the two forward delays start at the change. A bridge
+elsewhere in the lab that merely *stopped hearing* the root - its own ports still up - is not told
+that early. It keeps the old root's configuration BPDU until Max Age runs out and only then claims the
+root role and runs its own two forward delays: 20 s + 30 s with the defaults, so a change at 10 s
+settles at 60 s, not 40 s. `converge` says which arithmetic produced the instant, in the `Basis`
+column; [LINK-STATE.md](LINK-STATE.md) has both rows.
 
 With no `at`, the change happens at the instant the console is standing at — `link down l5` typed in a session at
 60000 ms records the pull at 60000 and reconverges at 90000. It used to be stamped t=0 regardless, so the console
@@ -134,4 +141,5 @@ The change instant lives on the topology (`lastChangeAtMs`) rather than on a `Si
 reloaded from disk still knows when its cable was cut and still reports the correct window.
 
 Only 802.1D timers are modelled: RSTP's sub-second proposal/agreement is not, so a simulated
-re-convergence costs the same 30 s as a boot. See [LINK-STATE.md](LINK-STATE.md).
+re-convergence costs what 802.1D charges - 30 s when a box watched its own port go down, 50 s when it
+only stopped hearing the root and owes the old root's Max Age first. See [LINK-STATE.md](LINK-STATE.md).
