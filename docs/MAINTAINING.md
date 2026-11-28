@@ -140,7 +140,7 @@ to survive - is in [DEVICE_SCHEMA.md](DEVICE_SCHEMA.md).
 
 ## Line citations in the docs rot, and `npm run check:citations` finds the worst of them
 
-The docs cite the implementation constantly — "`_emitFrame` sets `wireTagged`/`wireVid` … `engine/simulator.js:3156-3216`".
+The docs cite the implementation constantly — "`_emitFrame` sets `wireTagged`/`wireVid` … `engine/simulator.js:3210-3286`".
 A citation is a claim a reader can check, and it rots silently: a feature lands above the function, everything moves
 down, and the number stays. The reader follows it into an unrelated subsystem and learns that the prose cannot be
 trusted either.
