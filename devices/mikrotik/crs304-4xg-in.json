@@ -3,7 +3,7 @@
   "model": "CRS304-4XG-IN",
   "label": "CRS304-4XG-IN",
   "category": "l3-switch",
-  "description": "MikroTik CRS304-4XG-IN (CRS304-4XG-IN) — 1x 1G RJ45, 4x 10G RJ45. ARM 64bit 2-core 98DX2528.",
+  "description": "MikroTik CRS304-4XG-IN (CRS304-4XG-IN) — 1x 1G RJ45, 4x 10G RJ45. Powered by two DC jacks, a 2-pin terminal, or 802.3af/at PoE-in on the eth5 MGMT/BOOT port (36-57 V). ARM 64bit 2-core 98DX2528.",
   "capabilities": [
     "l2-forward",
     "l3-forward",
@@ -17,30 +17,36 @@
     {
       "name": "eth1",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "poeIn": false
     },
     {
       "name": "eth2",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "poeIn": false
     },
     {
       "name": "eth3",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "poeIn": false
     },
     {
       "name": "eth4",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "poeIn": false
     },
     {
       "name": "eth5",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": 21
     }
   ],
   "icon": "switch",
   "color": "#14b8a6",
-  "sourceUrl": "https://mikrotik.com/product/crs304_4xg_in"
+  "sourceUrl": "https://mikrotik.com/product/crs304_4xg_in",
+  "notes": "Vendor rows read 2026-11-28 from https://mikrotik.com/product/crs304_4xg_in: **Number of DC inputs 4 (DC jack, PoE-IN, 2-pin terminal)**, **PoE in 802.3af/at**, **DC jack input Voltage 12-57 V / 12-57 V**, **2-pin terminal input Voltage 12-57 V**, **Max power consumption 21 W**, **Max power consumption without attachments 15 W**. https://manual.mikrotik.com/hardware/crs304-4xg-in/ names the socket and the voltage window: \"The device can be powered through two DC power jacks ... a 2-pin terminal, or the MGMT/BOOT Ethernet PoE-in port ... MGMT/BOOT Ethernet PoE-in port accepts passive or 802.3af/at Power over Ethernet in the range of DC 36-57 V\" and \"The power consumption of this device is 21 W at maximum load and 15 W at minimum\". The MGMT/BOOT port is the fifth interface: the manual's \"One Gigabit Ethernet port, suggested to be used for management\" sits beside \"Four 1G/2.5G/5G/10G Ethernet ports\", and RouterOS names it ether5 (bridge-port listings in MikroTik's own forum threads put ether1-ether4 on the 10G block and ether5 alone on the management port). So eth5 is the inlet at the 21 W full-load ceiling; eth1-eth4 declare poeIn: false, since the four 10G sockets carry data only and the board sources no PoE. The four silent 10G sockets had been inheriting the 12.95 W guess from the poe-pd capability (51.8 W from a 21 W switch); at 802.3af the 36-57 V window and 12.95 W PD allowance are both short of that ceiling, which is the 802.3at half of the vendor's \"802.3af/at\"."
 }
