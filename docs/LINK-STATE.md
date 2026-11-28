@@ -108,6 +108,24 @@ bridge, because both are in the tree the change rebuilt.
 A ping asked before the window closes fails with `reason: 'converging'` and names the processes that
 are not done — not "host unreachable", which would be a different and wrong diagnosis.
 
+### Whose cable moved
+
+The 40 s above is the **direct** failure: both boxes at the ends of the cable watched their own port go
+down, that port's stored BPDU was invalidated on the spot, and the two forward delays start at the
+change. A bridge whose own ports all stayed up and which merely *stopped hearing* the root was not told
+that early. It keeps the old root's configuration BPDU until Max Age runs out, and only then may it claim
+the root role and start Listening and Learning (#1731):
+
+| Failure | What the bridge waits | cable moved at 10 s → ready at |
+|---|---|---|
+| **direct** — its own port went down | 2 × forward delay | 40 s |
+| **indirect** — ports up, root no longer heard | Max Age, then 2 × forward delay | 60 s |
+
+The Max Age it waits is the one that was *in force*, i.e. the old root's, and the transition after it
+runs on the bridge's own forward delay, because by then it is the root. `converge` names the arithmetic
+in the `Basis` column rather than leaving the extra 20 s to be guessed: `the old root's BPDU aged out
+(20 s Max Age), then listening + learning (15 s forward-delay each)`.
+
 ## Persistence
 
 A lab saved with a cable down comes back with it down:
@@ -131,10 +149,14 @@ test would fail on it, which is how that was caught.
   renegotiation, no duplex mismatch, no error-disabled port waiting for `shutdown`/`no shutdown`.
 - **No interface-level failure distinct from the cable.** `shutdown` on an interface and pulling the
   cable are modelled differently and both work, but a port that fails its own self-test does not
-  exist.
+  exist. A `shutdown` also records no Max Age hold: a bridge downstream of a shut port is still
+  charged the 30 s of a direct failure where a cut cable would charge it 50 s, because only
+  `link down` records the election from before the change.
 - **STP only.** RSTP's fast convergence (sub-second proposal/agreement) is not modelled;
-  re-convergence costs the same 30 s as first convergence. This is the largest single inaccuracy in
-  this area, and it is deliberate: the timer model is 802.1D.
+  re-convergence is 802.1D's arithmetic rather than a flat 30 s — 30 s when a box watched its own
+  port go down, 50 s with the defaults when it only stopped hearing the root and owes the old root's
+  Max Age first (above). The timer model is 802.1D on purpose, and that is the largest single
+  inaccuracy in this area.
 - **One change at a time.** Two links down at the same instant share one change timestamp, which is
   usually what a lab means, but a sequence of failures at different times collapses to the last one.
 
