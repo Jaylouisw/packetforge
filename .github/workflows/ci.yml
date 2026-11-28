@@ -874,6 +874,51 @@ jobs:
           # confirmation that the branch really is behind - it names the head it read
           # (`expected_head_sha`), so a head that moved, or one that is not behind after
           # all, is a 422 and never an update of a tree nobody judged.
+          # The verification branch protection can read is the run the update itself
+          # starts, and that run is held: `action_required`, zero jobs, because the push
+          # was authored by the run's own token (#1612: run 46044715475). Everything the
+          # gate used to do about that - dispatch the same matrix and merge on its checks
+          # - cannot satisfy the protection rule: a `workflow_dispatch` run's check suites
+          # are attached to the commit but not to the pull request, and the rule reads the
+          # pull request's checks. Measured twelve times out of twelve: dispatched arms
+          # 46096549426 (#1674), 46097879599 (#1677), 46099011566 (#1678) and the nine
+          # before them each read "every check on <head> is green" and were then refused
+          # with `the base branch policy prohibits the merge`, while the same head's own
+          # pull request run merged it in seconds once approved. #1678 is that
+          # measurement: its held run 46099016577 was approved at 02:39:15 and the pull
+          # request merged at 02:40:54, 99 s later, with the duplicate dispatch still
+          # queued.
+          #
+          # So the update asks for that approval. Whether this token holds the write is
+          # the run's answer and not a decision here: the run the approval starts still
+          # has to report all four checks green before anything merges, and a refusal
+          # leaves exactly the state this path has always produced.
+          approve_held_run() {   # 0 = the run is approved
+            local attempt=0 id=""
+            # Asked by branch, not by the head the update produced: the update answers with
+            # a message and the pull request read lags its push, so a head-sha lookup
+            # missed the run entirely on #1679 (run 46099410842 read the old head twice
+            # and reported "no held run"), while the branch filter answers with the run the
+            # push has already made.
+            while [ "$attempt" -lt 3 ]; do
+              attempt=$((attempt + 1))
+              if ! id=$(gh api "repos/${repo}/actions/runs?branch=${head_ref}&event=pull_request&per_page=20"                            --jq '[.workflow_runs[] | select(.conclusion == "action_required")] | (.[0].id // "none") | tostring' 2>/dev/null); then
+                echo "the runs of ${head_ref} could not be read, so the held run stays for a person"
+                return 1
+              fi
+              case "$id" in
+                none|'') sleep 2 ;;
+                *) break ;;
+              esac
+            done
+            case "$id" in none|'') echo "no held run of ${head_ref} was listed within six seconds"; return 1 ;; esac
+            if gh api -X POST "repos/${repo}/actions/runs/${id}/approve" >/dev/null 2>&1; then
+              echo "approved the held run ${id} of ${head_ref}: its own pull request checks report there, which is the set branch protection reads"
+              return 0
+            fi
+            echo "the held run ${id} of ${head_ref} could not be approved by this token; it stays for a person"
+            return 1
+          }
           update_and_verify() {
             # One update, one advertised dispatch - and, since #1650, a counted second.
             #
@@ -906,7 +951,9 @@ jobs:
               next=$((prior + 1))
             fi
             if update_branch; then
-              notice "#${NUMBER}: every check on ${HEAD_SHA} is green and the branch was behind ${base} - updated it (update ${next} of ${MAX_UPDATES:-2}), and dispatched ci.yml on ${head_ref} to verify the new head (the run the bot's push starts is held for approval: #1612)"
+              approved=0
+              if approve_held_run; then approved=1; fi
+              notice "#${NUMBER}: every check on ${HEAD_SHA} is green and the branch was behind ${base} - updated it (update ${next} of ${MAX_UPDATES:-2}), asked for the approval the run its own push started is held behind (approved=${approved}), and dispatched ci.yml on ${head_ref} as well"
               if gh workflow run ci.yml --repo "$repo" --ref "$head_ref" -f updates="$next" >/dev/null 2>&1; then
                 exit 0
               fi
