@@ -893,27 +893,56 @@ jobs:
           # the run's answer and not a decision here: the run the approval starts still
           # has to report all four checks green before anything merges, and a refusal
           # leaves exactly the state this path has always produced.
+          # The run the update's push starts is created well after the update returns: 7 s on
+          # #1692 (head pushed 04:06:15, run 46105973206 created 04:06:22), but 57 s on #1687
+          # (updated 03:40:02, run 46104016566 created 03:40:59). The first cut gave it six
+          # seconds, and both of those updates reported "no held run ... was listed within six
+          # seconds" (#1687 run 46103493467 at 03:40:02; #1689 run 46104016566 at 03:42:40),
+          # so the approval was never asked for - and the dispatch it fell back to cannot
+          # satisfy the protection rule either. What this path needs is a wait, not a guess
+          # about how fast the run is made.
+          #
+          # The two kinds of "not yet" are kept apart: a read that answered nothing is not
+          # evidence of anything and gives up at once (which is also what keeps the
+          # extracted-step tests fast), while a read that answered "no held run" is the run
+          # still being made, and is asked again for up to HOLD_WAIT_SECONDS.
+          HOLD_WAIT_SECONDS=90
+          HOLD_POLL_SECONDS=6
           approve_held_run() {   # 0 = the run is approved
-            local attempt=0 id=""
-            # Asked by branch, not by the head the update produced: the update answers with
-            # a message and the pull request read lags its push, so a head-sha lookup
-            # missed the run entirely on #1679 (run 46099410842 read the old head twice
-            # and reported "no held run"), while the branch filter answers with the run the
-            # push has already made.
-            while [ "$attempt" -lt 3 ]; do
+            local attempt=0 id="" want="" filter="" waited=0
+            # Asked by branch, not by the head the update answered with: the update answers
+            # with a message and the pull request read lags its push, so a head-sha lookup
+            # missed the run entirely on #1679 (run 46099410842 read the old head twice and
+            # reported "no held run"), while the branch filter answers with the run the push
+            # has already made. The head is then read from the branch's own ref, so the run
+            # this approves is the tree the update just produced: a held run left over from
+            # the head it replaced is not approved in its place.
+            want=$(gh api "repos/${repo}/branches/${head_ref}" --jq .commit.sha 2>/dev/null || true)
+            case "${want:-}" in
+              ''|*[!0-9a-f]*)
+                echo "the head of ${head_ref} could not be read after the update, so a held run from the head it replaced could be approved in its place - approving nothing"
+                return 1 ;;
+            esac
+            filter='[.workflow_runs[] | select(.conclusion == "action_required" and .head_sha == "'"$want"'")] | (.[0].id // "none") | tostring'
+            while : ; do
               attempt=$((attempt + 1))
-              if ! id=$(gh api "repos/${repo}/actions/runs?branch=${head_ref}&event=pull_request&per_page=20"                            --jq '[.workflow_runs[] | select(.conclusion == "action_required")] | (.[0].id // "none") | tostring' 2>/dev/null); then
+              if ! id=$(gh api "repos/${repo}/actions/runs?branch=${head_ref}&event=pull_request&per_page=20" --jq "$filter" 2>/dev/null); then
                 echo "the runs of ${head_ref} could not be read, so the held run stays for a person"
                 return 1
               fi
               case "$id" in
-                none|'') sleep 2 ;;
+                none|'') ;;
                 *) break ;;
               esac
+              if [ "$waited" -ge "$HOLD_WAIT_SECONDS" ]; then
+                echo "no held run of ${head_ref} for ${want} was listed ${HOLD_WAIT_SECONDS} s after the update (${attempt} reads): the run was not made, or it is not this token's to approve"
+                return 1
+              fi
+              sleep "$HOLD_POLL_SECONDS"
+              waited=$((waited + HOLD_POLL_SECONDS))
             done
-            case "$id" in none|'') echo "no held run of ${head_ref} was listed within six seconds"; return 1 ;; esac
             if gh api -X POST "repos/${repo}/actions/runs/${id}/approve" >/dev/null 2>&1; then
-              echo "approved the held run ${id} of ${head_ref}: its own pull request checks report there, which is the set branch protection reads"
+              echo "approved the held run ${id} of ${head_ref} after ${waited} s: its own pull request checks report there, which is the set branch protection reads"
               return 0
             fi
             echo "the held run ${id} of ${head_ref} could not be approved by this token; it stays for a person"
@@ -953,7 +982,18 @@ jobs:
             if update_branch; then
               approved=0
               if approve_held_run; then approved=1; fi
-              notice "#${NUMBER}: every check on ${HEAD_SHA} is green and the branch was behind ${base} - updated it (update ${next} of ${MAX_UPDATES:-2}), asked for the approval the run its own push started is held behind (approved=${approved}), and dispatched ci.yml on ${head_ref} as well"
+              # An approved run is the one branch protection reads, so it is the one that
+              # verifies the new head and merges it. The dispatch is the fallback, spent only
+              # when nothing could be approved: it is the same matrix on the same head, and a
+              # dispatched run's check suites belong to the commit, not to the pull request,
+              # so it can verify but never gate (#1674, #1677, #1678 and the nine before them
+              # - 12 of 12 refused with `the base branch policy prohibits the merge`, while
+              # the same head's own pull request run merged 99 s after it was approved).
+              if [ "$approved" = "1" ]; then
+                notice "#${NUMBER}: every check on ${HEAD_SHA} is green and the branch was behind ${base} - updated it (update ${next} of ${MAX_UPDATES:-2}) and approved the run the update's own push started. That run reports the pull request checks branch protection reads, so it verifies the new head and merges it; no dispatch is spent"
+                exit 0
+              fi
+              notice "#${NUMBER}: every check on ${HEAD_SHA} is green and the branch was behind ${base} - updated it (update ${next} of ${MAX_UPDATES:-2}), no held run could be approved (approved=${approved}), so ci.yml was dispatched on ${head_ref} instead"
               if gh workflow run ci.yml --repo "$repo" --ref "$head_ref" -f updates="$next" >/dev/null 2>&1; then
                 exit 0
               fi
