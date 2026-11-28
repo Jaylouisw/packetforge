@@ -18,9 +18,9 @@ different failure from a red check: the last section of this page separates the 
 
 | File | Trigger | What it does |
 |---|---|---|
-| `.github/workflows/ci.yml` | pull request to `main`, push to `main`, manual dispatch | The matrix — the suite on Node 22 and 24 — a `Typecheck` job, a live server smoke test, a Docker build — and, on an open pull request, a final `Arm auto-merge` job that merges it once every other check has reported green — and, for a green head that is behind `main`, updates the branch and dispatches `ci.yml` on it so the new head is verified before it merges (#1725, #1612) |
+| `.github/workflows/ci.yml` | pull request to `main`, push to `main`, manual dispatch | The matrix — the suite on Node 22 and 24 — a `Typecheck` job, a live server smoke test, a Docker build — and, on an open pull request, a final `Arm auto-merge` job that merges it once every other check has reported green — and, for a green head that is behind `main`, updates the branch and gets the new head verified — by approving the run its own push starts, or by dispatching `ci.yml` when that run cannot be approved — before it merges (#1725, #1612, #1679, #1650) |
 | `.forgejo/workflows/ci.yml` | *(archive)* | The same five checks, written for the self-hosted Forgejo runner. Kept for its comments; never named by a branch protection rule |
-| `.forgejo/workflows/auto-rebase.yml` | *(archive)* | Rebases open pull requests onto current `main` and re-arms auto-merge only for a head whose reported checks are all green (#1508, #2180). The green half now lives in `ci.yml`'s `Arm auto-merge`, which updates the branch and dispatches `ci.yml` on the new head (#1612); the half that touched a head whose checks were not green has not come over |
+| `.forgejo/workflows/auto-rebase.yml` | *(archive)* | Rebases open pull requests onto current `main` and re-arms auto-merge only for a head whose reported checks are all green (#1508, #2180). The green half now lives in `ci.yml`'s `Arm auto-merge`, which updates the branch and approves the held run its push starts, dispatching `ci.yml` on the new head only when that approval is refused (#1612, #1679); the half that touched a head whose checks were not green has not come over |
 | `.forgejo/workflows/pr-rebase.yml` | *(archive)* | The rebase that used to run on every push to a pull request. Not ported yet (`CONTRIBUTING.md` says what a contributor does instead) |
 | `.forgejo/workflows/closed-audit.yml` | *(archive)* | Matches recently closed requests against the catalogue; a report, never a red build. Not ported yet |
 | `.forgejo/workflows/close-merged-issues.yml` | *(archive)* | The issue sweep described under *What a merge closes*. Not ported yet: GitHub closes `Fixes #N` in a pull request body on its own, and the `[Device]:` sweep is the part still to bring over |
@@ -185,12 +185,18 @@ rebased away cannot merge a tree this run never tested. A head that is green and
 *behind* `main` is not left for a person either: `mergeable_state` is `behind`, a state
 no number of green checks clears, so the job calls
 `PUT .../update-branch` — with `expected_head_sha`, so a head that moved is a 422
-rather than an update of a tree nobody judged — and then runs `ci.yml` on the head
-ref. A dispatch, because the run a bot's own push starts is held for an approval
-nobody gives (#1612). That run carries no pull request, resolves it from the branch,
-and merges; it does not update the branch a second time, since that would need a third
-run to verify what the second one did, so a branch that is behind again after one
-update goes red with the reason on the pull request.
+rather than an update of a tree nobody judged. The run that push starts is held for
+an approval nobody gives (#1612), so the step waits for it — up to 90 s, polled every
+6 s — and approves it (`approve_held_run`, `ci.yml:911`): that run's checks are the pull
+request's, which is the set branch protection reads, and no dispatch is spent. A
+dispatch of `ci.yml` on the head ref is the fallback for a run that never appears or
+cannot be approved; the dispatched run carries no pull request, resolves one from the
+branch, and merges. Since #1650 it may update the branch a second time, because the
+base can move during the ~100 s it takes to verify the new head: the count travels with
+the dispatch as `-f updates=<n>` and the cap is `MAX_UPDATES: "2"` (`ci.yml:663`). A
+dispatch that arrives without a count keeps the old one-update refusal (a manual
+dispatch gains nothing), and a branch still behind at the cap goes red with the reason
+on the pull request.
 
 Arming is `gh pr merge --squash --auto`, which is the closest GitHub has to
 `merge_when_checks_succeed`: it defers to branch protection's required checks and
@@ -211,8 +217,9 @@ that protection is not merged through.
 
 A green check on a stale base still proves nothing: let CI re-run against the current
 tree, then merge. That is what the gate does now rather than merging on the old run's
-verdict — the behind branch is updated and the updated head is verified by a dispatch
-(#1612). #776 merged green off a stale base and took `main` red for hours.
+verdict — the behind branch is updated and the updated head is verified by the run
+that update starts, which the gate approves (#1612, #1679). #776 merged green off a
+stale base and took `main` red for hours.
 
 ## What a merge closes
 
@@ -498,8 +505,8 @@ outcomes are split now:
 | the head moved while the run was in flight | warns, exits green — the run for the new head decides |
 | the pull request was closed or merged meanwhile | exits green, nothing left to arm |
 | a check is not green, or a test leg has not reported | warns, exits green, unmerged |
-| the head is green and behind `main` | updates the branch, dispatches `ci.yml` on it, exits green |
-| the branch cannot be updated, or is behind again after one update | **red**, with the reason on the pull request |
+| the head is green and behind `main` | updates the branch, approves the held run its push started (falling back to a `ci.yml` dispatch), exits green |
+| the branch cannot be updated, or is still behind after the update budget (two) | **red**, with the reason on the pull request |
 | an `arm` or `merge` the step cannot answer by merging directly is refused | **red**, with the API's answer on the pull request |
 | no `PF_AUTOMERGE_TOKEN` | merges with the run's own token, dispatches `ci.yml` on `main`, says so in a `::notice::` |
 
