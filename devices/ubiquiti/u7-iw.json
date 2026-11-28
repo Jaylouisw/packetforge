@@ -18,7 +18,8 @@
       "name": "eth0",
       "type": "ethernet",
       "connector": "rj45",
-      "speed": "2.5G"
+      "speed": "2.5G",
+      "poeIn": 13
     },
     {
       "name": "eth1",
@@ -45,5 +46,6 @@
   ],
   "icon": "ap",
   "color": "#14b8a6",
-  "sourceUrl": "https://techspecs.ui.com/unifi/wifi/u7-iw"
+  "sourceUrl": "https://techspecs.ui.com/unifi/wifi/u7-iw",
+  "notes": "PoE draw read 2026-11-28 from https://techspecs.ui.com/unifi/wifi/u7-iw (HTTP 200, 650,261 B): the specification table prints \"Power Method: PoE / PoE+ (Required for PoE output)\" and \"Max. Power Consumption: 13W\". 13 W is that figure and it sits on eth0, where the catalogue's other in-wall AP (u6-iw) also carries its input jack. Until this pass the port carried no poeIn at all, so engine/media.js fell back to its 12.95 W 802.3af class default and the model drew 12.95 W whatever the datasheet said. Nothing in the engine compares a PD's draw with the class its PSE declared, so cabling this AP to an 802.3af port is still accepted; the number changes the budget arithmetic, which is the one thing a PoE lab asks of it. The Built-In Switch row in the same table prints \"(1) PoE+ input and (1) PoE output\", so once fed 802.3at this box can pass power to a downstream device, and the 13 W is the vendor's own \"13W (Excluding PoE output)\". No port is marked poeOut here because the table names no index for either jack and the datasheet slug dl.ui.com/ds/u7-iw_ds.pdf answers 302: the only Ubiquiti surface that states the passthrough declines to say which of the three ports carries it, and an index guessed there cables the wrong jack."
 }

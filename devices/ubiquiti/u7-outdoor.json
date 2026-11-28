@@ -8,13 +8,16 @@
     "l2-forward",
     "wireless",
     "cli",
-    "http-server"
+    "http-server",
+    "poe-pd",
+    "802.3at"
   ],
   "interfaces": [
     {
       "name": "eth0",
       "type": "ethernet",
-      "speed": "2.5G"
+      "speed": "2.5G",
+      "poeIn": 19
     },
     {
       "name": "wlan0",
@@ -23,5 +26,7 @@
     }
   ],
   "icon": "ap",
-  "color": "#3b82f6"
+  "color": "#3b82f6",
+  "sourceUrl": "https://techspecs.ui.com/unifi/wifi/u7-outdoor",
+  "notes": "PoE draw read 2026-11-28 from https://techspecs.ui.com/unifi/wifi/u7-outdoor (HTTP 200, 661,328 B): the specification table prints \"Power Method: PoE+\" and \"Max. Power Consumption: 19W\". 19 W is that figure and it sits on eth0, the single RJ45 the same table's Networking Interface row names. Until this pass the port carried no poeIn at all, so engine/media.js fell back to its 12.95 W 802.3af class default and the model drew 12.95 W whatever the datasheet said. Nothing in the engine compares a PD's draw with the class its PSE declared, so cabling this AP to an 802.3af port is still accepted; the number changes the budget arithmetic, which is the one thing a PoE lab asks of it. The Power Method row also settles two capabilities the spec omitted: PoE+ is 802.3at, and a box that powers itself from the cable is a poe-pd."
 }

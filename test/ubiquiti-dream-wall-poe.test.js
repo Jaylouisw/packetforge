@@ -55,10 +55,10 @@ if (s) {
   ok(s.poe && s.poe.budgetW === 420, 'the published 420 W allocation is kept (' + (s.poe && s.poe.budgetW) + ')');
 }
 
-console.log('\nTwo 25.5 W APs on eth0/eth4: the budget spends 51 W, and the cabled ceilings are 90 W, not 2 W');
+console.log('\nTwo 21 W APs on eth0/eth4: the budget spends 42 W, and the cabled ceilings are 90 W, not 2 W');
 {
   const ap = spec('U7-Pro');
-  ok(!!ap, 'U7-Pro (25.5 W PoE+ PD) is in the catalogue');
+  ok(!!ap, 'U7-Pro (21 W PoE+ PD) is in the catalogue');
   if (s && ap) {
     const t = new Topology();
     const udw = t.addDevice(s, 'udw');
@@ -77,7 +77,7 @@ console.log('\nTwo 25.5 W APs on eth0/eth4: the budget spends 51 W, and the cabl
     const sim = new Simulator(t);
     sim.computePoe();
     const row = sim.poe.filter(function (r) { return r.dev === 'udw'; })[0];
-    ok(!!row && row.used === 51, 'show power inline spends 51 W of 420 (' + (row && row.used) + ')');
+    ok(!!row && row.used === 42, 'show power inline spends 42 W of 420 (' + (row && row.used) + ')');
     ok(!!row && row.ports.length === 2 && row.ports.every(function (p) { return p.powered; }),
       'both APs are powered (' + (row && row.ports.length) + ')');
   }
