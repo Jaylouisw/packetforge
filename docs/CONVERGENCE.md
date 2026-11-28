@@ -130,6 +130,26 @@ the alternate path is carrying traffic.
 `getConvergence()` reports `fromMs` — the instant the schedule is based at — and includes the change
 itself as an entry, so nothing in the schedule claims to be ready before the event that caused it.
 
+The ports are paced from that same instant, not from t=0. `stpPortStateAt()` compared the absolute clock with a
+timer that started at zero, so a port the new tree had just unblocked read `forwarding` the moment the cable
+moved — 8 s before the reply under it said the tree was whole. A port that was already forwarding is not
+interrupted by a change; every port the change puts into forwarding runs Listening then Learning from it.
+
+One wait is longer than the two forward delays. A bridge whose root port is **still up** but which hears no
+BPDU any more — a cut further upstream, or the port that carries them shut — has information to age out rather
+than to discard: 802.1D keeps the last configuration BPDU until Max Age expires, and only then may the box
+believe itself root. A switch two hops behind a root it can no longer reach is therefore reported as
+reconverging at change + 20 s + 30 s, and keeps forwarding for the first 20 s of that window. A bridge that
+loses the root *port* waits for nothing: the information leaves with the port.
+
+| The bridge lost… | Wait before its two forward delays |
+|---|---|
+| its root port (cable down, or the port shut) | nothing |
+| the root itself, root port still up | the max age in force (20 s by default) |
+
+Telling those apart needs the tree as it stood before the change, so the simulator pins it on the topology
+(`stpBeforeChange`) at the instant of the change, and a pin from an older change is ignored.
+
 The change instant lives on the topology (`lastChangeAtMs`) rather than on a `Simulator`, so a lab
 reloaded from disk still knows when its cable was cut and still reports the correct window.
 

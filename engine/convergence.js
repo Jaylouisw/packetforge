@@ -92,6 +92,109 @@ function stpTimersInForce(dev, rootDev) {
   return (rootDev && rootDev !== dev) ? stpTimers(rootDev) : stpTimers(dev);
 }
 
+// ---------------------------------------------------------------------------
+// The window: when the timers in force started running, not just which they are.
+//
+// #1722 settled *whose* numbers pace a non-root's ports. It did not settle *from when*, and a schedule with no
+// start instant is one that can only be read as if every timer began at t=0. Two consequences, both visible in
+// a lab after a cable moves at t=60 s:
+//
+//   - a port that was Blocking and is now forwarding was reported Forwarding at the instant of the change,
+//     because `atMs >= forwardAtMs` compared a 60 s clock with an 8 s timer;
+//   - a bridge that loses the root while its root port is still up - the BPDU stream stops rather than the port
+//     going down - claimed to be root the same instant. 802.1D keeps the last configuration BPDU until Max Age,
+//     and only then puts its ports through Listening and Learning.
+//
+// So the timers in force come with a start instant: the change, plus Max Age where the information has to age
+// out first. A port whose own link went down loses its information at once - 802.1D discards a port's
+// information when the port is disabled, there is nothing to age - which is why the Max Age wait is gated on
+// the *old root port still being up*, not on "no path to the root".
+// research/stp-root-timers-pace-the-tree.md.
+function logicalPortMembers(dev, logicalName) {
+  const out = [];
+  if (!dev || !dev.interfaces || typeof dev.interfaces.values !== 'function') return out;
+  for (const iface of dev.interfaces.values()) {
+    let name = iface.name;
+    if (typeof dev.lagFor === 'function') {
+      const lag = dev.lagFor(iface.name);
+      if (lag && lag.id !== undefined && lag.id !== null) name = 'lag-' + lag.id;
+    }
+    if (name === logicalName) out.push(iface);
+  }
+  return out;
+}
+
+// Is that logical port still plugged in and up? Shutting the port that carries the BPDUs stops them exactly as
+// a cut upstream does, but a shut port's information is discarded rather than aged, so it does not hold.
+function logicalPortUp(topo, dev, logicalName) {
+  if (!topo || !topo.links || typeof topo.links.values !== 'function') return false;
+  const members = logicalPortMembers(dev, logicalName);
+  if (!members.length) return false;
+  for (const link of topo.links.values()) {
+    if (typeof link.isUp === 'function' ? !link.isUp() : link.state !== 'up') continue;
+    for (const iface of members) {
+      if (!iface.enabled) continue;
+      const end = typeof link.endpoint === 'function' ? link.endpoint(dev.id, iface.name) : null;
+      if (!end) continue;
+      return true;
+    }
+  }
+  return false;
+}
+
+// When this bridge's current set of timers started running, and what it waits out first.
+//
+// `stpBefore` is the election as it stood the instant before the change (the Simulator pins it), or null when
+// there is no change to compare against. `fromMs` is the instant of the change.
+function stpTimersWindow(topo, stp, stpBefore, dev, fromMs) {
+  const from = Number.isFinite(Number(fromMs)) ? Number(fromMs) : 0;
+  const rootDev = stpRootOf(topo, stp, dev);
+  const timers = stpTimersInForce(dev, rootDev);
+  const known = !!(dev && dev.id !== undefined);
+  const now = (stp && stp.bridges && known) ? stp.bridges[dev.id] : null;
+  const before = (stpBefore && stpBefore.ports && known) ? stpBefore.ports[dev.id] : null;
+  const costBefore = (stpBefore && stpBefore.costs && known) ? stpBefore.costs[dev.id] : undefined;
+
+  let holdMs = 0;
+  let hold = null;
+  const isolatedNow = !!(now && now.cost === Infinity);
+  const heardBefore = costBefore !== undefined && costBefore !== Infinity &&
+    stpBefore.rootKey !== null && stpBefore.rootKey !== undefined && stpBefore.rootKey !== dev.id;
+  const rootPortBefore = before
+    ? Object.keys(before).filter(function (n) { return before[n] && before[n].role === 'root'; })[0]
+    : null;
+  if (isolatedNow && heardBefore && rootPortBefore && logicalPortUp(topo, dev, rootPortBefore)) {
+    // The max age in force is the one that was advertised: the old root's, not this box's own.
+    const oldRoot = (topo && typeof topo.getDevice === 'function') ? topo.getDevice(stpBefore.rootKey) : null;
+    const held = stpTimersInForce(dev, oldRoot);
+    holdMs = held.maxAgeMs;
+    hold = { rootPort: rootPortBefore, maxAgeSec: held.maxAgeSec, oldRoot: stpBefore.rootKey };
+  }
+
+  return {
+    rootDev: rootDev,
+    adopted: !!(rootDev && rootDev !== dev),
+    timers: timers,
+    holdMs: holdMs,
+    hold: hold,
+    // The instant the timers in force started counting, and the instant the last of them is done - absolute,
+    // and as an offset from the change, which is the form `buildSchedule` adds its own base to.
+    startedAtMs: from + holdMs,
+    forwardAtMs: from + holdMs + timers.forwardAtMs,
+    offsetMs: holdMs + timers.forwardAtMs
+  };
+}
+
+// The sentence the schedule prints as the reason.
+function stpWindowBasis(win) {
+  if (win.hold) {
+    return 'no BPDU for max-age ' + win.hold.maxAgeSec + ' s (root port ' + win.hold.rootPort +
+      ' still up), then listening + learning (' + win.timers.forwardDelaySec + ' s forward-delay each)';
+  }
+  return 'listening + learning (' + win.timers.forwardDelaySec + ' s forward-delay each' +
+    (win.adopted ? ', the root ' + (win.rootDev.name || win.rootDev.id) + "'s" : '') + ')';
+}
+
 // The device the election named root, as an object - or null when there is no election to read, when the
 // topology cannot answer for a device, or when this bridge has no path to the root at all. That last case is
 // the one that keeps its own timers honestly: nothing is advertising to it, so nothing replaces its config.
@@ -197,15 +300,14 @@ function buildSchedule(topo, opts) {
       // The root's timers, not this box's own: a non-root adopts what the root advertises (#1722). `opts.stp`
       // is the election's answer, which is the only thing that can say who the root is; without one the
       // schedule falls back to the device's own config, the same way the report falls back to its own line.
-      const rootDev = stpRootOf(topo, opts.stp, dev);
-      const t = stpTimersInForce(dev, rootDev);
-      const adopted = !!(rootDev && rootDev !== dev);
+      // And they start running at the change, not at t=0 - after Max Age where the old information has to age
+      // out first (`stpTimersWindow`).
+      const win = stpTimersWindow(topo, opts.stp, opts.stpBefore, dev, fromMs);
       entries.push({
         deviceId: dev.id, device: dev, process: 'stp',
-        readyAtMs: t.forwardAtMs,
-        forwardDelaySec: t.forwardDelaySec,
-        basis: 'listening + learning (' + t.forwardDelaySec + ' s forward-delay each' +
-          (adopted ? ', the root ' + (rootDev.name || rootDev.id) + "'s" : '') + ')'
+        readyAtMs: win.offsetMs,
+        forwardDelaySec: win.timers.forwardDelaySec,
+        basis: stpWindowBasis(win)
       });
     }
     if (runsOspf(dev)) {
@@ -283,14 +385,21 @@ function at(schedule, atMs) {
 // The STP state a port is in at an instant: 'forwarding', 'learning', 'listening' or 'blocking'.
 // `willForward` is the steady state from the spanning tree computation (a port that is destined to
 // forward is only in a transitional state; a port that is destined to block was never forwarding).
-function stpPortStateAt(dev, willForward, atMs, timers) {
+function stpPortStateAt(dev, willForward, atMs, timers, startedAtMs) {
   // `timers` is the set in force - on a non-root, the root's (`stpTimersInForce`). It defaults to the device's
   // own so a caller with no election in hand still gets an answer, but every caller that has one passes it,
   // or the port would be paced by a number the box is not running.
+  //
+  // `startedAtMs` is when those timers started counting. It defaults to 0 - power-on, which is what every
+  // caller meant before there was a change to re-base at - and a caller asking about a port after a change
+  // passes `stpTimersWindow().startedAtMs`, or the port is compared against a clock that began before the
+  // change and reads Forwarding the instant the change lands.
   const t = (timers && Number.isFinite(Number(timers.forwardDelaySec))) ? timers : stpTimers(dev);
   if (!willForward) return 'blocking';
-  if (atMs >= t.forwardAtMs) return 'forwarding';
-  if (atMs >= t.learnEndMs - t.forwardDelaySec * 1000) return 'learning';
+  const started = Number.isFinite(Number(startedAtMs)) ? Number(startedAtMs) : 0;
+  const elapsed = Number(atMs) - started;
+  if (elapsed >= t.forwardAtMs) return 'forwarding';
+  if (elapsed >= t.learnEndMs - t.forwardDelaySec * 1000) return 'learning';
   return 'listening';
 }
 
@@ -305,6 +414,9 @@ module.exports = {
   stpTimers: stpTimers,
   stpTimersInForce: stpTimersInForce,
   stpRootOf: stpRootOf,
+  stpTimersWindow: stpTimersWindow,
+  stpWindowBasis: stpWindowBasis,
+  logicalPortUp: logicalPortUp,
   ospfTimers: ospfTimers,
   vrrpTimers: vrrpTimers,
   dhcpTimers: dhcpTimers,

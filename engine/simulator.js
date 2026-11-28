@@ -459,9 +459,15 @@ class Simulator {
     // The election goes with it: a non-root's ports are paced by the root's timers (#1722), and only the
     // election can say which box that is. When no election has run there is no root to quote, so the schedule
     // reads each device's own configuration - the same fallback `show spanning-tree` makes for its header.
+    const fromMs = this.topo.lastChangeAtMs || 0;
     return convergenceLib.buildSchedule(this.topo, {
-      fromMs: this.topo.lastChangeAtMs || 0,
-      stp: this.stpResult
+      fromMs: fromMs,
+      stp: this.stpResult,
+      // The tree as it stood the instant before the change, pinned when the change happened. It is what says
+      // whether a bridge that is now cut off had the root's numbers to age out (Max Age) or lost them with the
+      // port, and `atMs` keeps an older snapshot from answering for a newer change.
+      stpBefore: (this.topo.stpBeforeChange && this.topo.stpBeforeChange.atMs === fromMs)
+        ? this.topo.stpBeforeChange : null
     });
   }
 
@@ -495,10 +501,40 @@ class Simulator {
     const t = (atMs === undefined || atMs === null)
       ? (Number.isFinite(this.runAtMs) ? this.runAtMs : 0)
       : Number(atMs);
+    // The tree as it is *now* is the tree before this change: pin it, because what happens next depends on
+    // whether a bridge that is about to lose the root had its numbers to age out (#1731).
+    const before = this._stpSnapshotBefore(t);
     this.topo.markChange(Number.isFinite(t) && t >= 0 ? t : 0);
+    if (before) this.topo.stpBeforeChange = before;
     this._stpDirty = true;
     this.stpResult = null;
     return this.topo.lastChangeAtMs;
+  }
+
+  // The election as it stands, stamped with the instant it is being read at - a copy, because `computeStp()`
+  // replaces `stpResult` outright on the next run and `dev.stp` is where the transitional states are written.
+  _stpSnapshotBefore(atMs) {
+    // A dirty tree is not a tree: `_stpDirty` means the last compute predates a configuration change, so the
+    // ports it would name are not the ones that were forwarding. No snapshot is better than a wrong one - the
+    // schedule then re-bases at the change with no max-age wait, which is the conservative answer.
+    const r = this._stpDirty ? null : this.stpResult;
+    if (!r || !r.ports) return null;
+    const ports = {};
+    for (const key of Object.keys(r.ports)) {
+      ports[key] = {};
+      for (const name of Object.keys(r.ports[key])) {
+        const info = r.ports[key][name] || {};
+        ports[key][name] = { role: info.role, state: info.state, cost: info.cost };
+      }
+    }
+    const costs = {};
+    for (const key of Object.keys(r.bridges || {})) costs[key] = r.bridges[key].cost;
+    return {
+      atMs: Number.isFinite(Number(atMs)) ? Number(atMs) : 0,
+      rootKey: (r.root && r.root.key !== undefined) ? r.root.key : null,
+      ports: ports,
+      costs: costs
+    };
   }
 
   setLinkState(linkId, state, opts) {
@@ -527,6 +563,9 @@ class Simulator {
       }
       atMs = asked;
     }
+    // The tree as it stands before the cable moves. Taken here, at the last instant the old tree is still the
+    // answer, because the schedule built after this change needs it to know what had to age out (#1731).
+    const stpBefore = this._stpSnapshotBefore(atMs);
     const before = link.state;
     link.state = state;
     if (o.force !== true && before === state) {
@@ -545,6 +584,7 @@ class Simulator {
     }
     this._stpDirty = true;
     this.recomputeStp();
+    if (stpBefore) this.topo.stpBeforeChange = stpBefore;
     link.stateSinceMs = atMs;
     // The network remembers: a later Simulator on this topology still knows when the cable moved.
     if (typeof this.topo.markChange === 'function') this.topo.markChange(atMs);
@@ -1012,16 +1052,32 @@ class Simulator {
     // Listening and Learning, and it drops traffic in both. This is the whole point of asking a
     // question at an instant - the cable is green, the switch is up, and nothing passes.
     if (this.runAtMs !== Infinity) {
+      // Pacing is measured from the change, not from t=0: at t=60 s a port that has just come out of Blocking
+      // is Listening, not Forwarding (#1731). `stpTimersWindow` owns that instant, including the Max Age a
+      // bridge waits out when it still has the root's numbers and nothing is advertising them.
+      const fromMs = this.topo.lastChangeAtMs || 0;
+      const stpBefore = (this.topo.stpBeforeChange && this.topo.stpBeforeChange.atMs === fromMs)
+        ? this.topo.stpBeforeChange : null;
       for (const dev of this.topo.devices.values()) {
         if (!dev.isL2() || !dev.stp) continue;
         if (this._converged('stp', dev)) continue;
+        const win = convergenceLib.stpTimersWindow(this.topo, res, stpBefore, dev, fromMs);
+        const prevPorts = (stpBefore && stpBefore.ports) ? stpBefore.ports[dev.id] : null;
         for (const logicalName of Object.keys(dev.stp.states || {})) {
           const steady = dev.stp.states[logicalName];
           if (steady === 'blocking') continue;
-          // Paced by the timers in force, which on a non-root are the root's (#1722). The steady-state
-          // answer above came from the same election, so the two halves of this loop cannot disagree.
+          // A port that was forwarding before the change was not interrupted by it: a topology change does
+          // not bounce the ports that keep their role, and re-blocking a whole lab because one cable moved
+          // would be a different lie. It does not survive the Max Age hold, though - once the box's own
+          // timers restart, even a forwarding port goes back through Listening and Learning.
+          const wasForwarding = !!(prevPorts && prevPorts[logicalName] &&
+            prevPorts[logicalName].state === 'forwarding');
+          if (wasForwarding && (win.holdMs === 0 || this.runAtMs < win.startedAtMs)) continue;
+          // Paced by the timers in force, which on a non-root are the root's (#1722), from the instant they
+          // started (#1731). The steady-state answer above came from the same election, so the two halves of
+          // this loop cannot disagree.
           const now = convergenceLib.stpPortStateAt(dev, true, this.runAtMs,
-            convergenceLib.stpTimersInForce(dev, convergenceLib.stpRootOf(this.topo, res, dev)));
+            win.timers, win.startedAtMs);
           dev.stp.states[logicalName] = now;
           if (!convergenceLib.stpForwardsIn(now)) {
             for (const iface of dev.interfaces.values()) {

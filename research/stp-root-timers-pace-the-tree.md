@@ -65,22 +65,40 @@ Now:
   are one number. A link between two boxes that run no bridge keeps the old +30 s, because there is no STP step
   to wait for.
 
-`test/stp-root-timers-pace-the-tree.test.js` (26 assertions) pins: a 4 s root paces a 15 s non-root to 8 s; a
+The window those timers run in came next (#1731). `stpTimersWindow()` returns the timers in force *and* the
+instant they started: the change, plus the max age where the old information has to age out first. A bridge
+that loses the root port itself carries no information to age - 802.1D discards a port's information when the
+port goes down - so it re-runs at once; a bridge whose root port is still up has heard nothing since the cut
+and waits the max age in force before it may believe itself root. `buildSchedule()` and `computeStp()` both read
+the window, so the reply to `link down` and the port the data plane is willing to use are one number again: a
+port the new tree has just unblocked is Listening at the instant of the change, not Forwarding, and a port that
+was already forwarding is not interrupted by someone else's cable.
+
+`test/stp-root-timers-pace-the-tree.test.js` (53 assertions) pins: a 4 s root paces a 15 s non-root to 8 s; a
 20 s non-root is still paced to 8 s while its Bridge ID line prints 20; a 4 s *non-root* under a default root
 does not speed the tree up; a lone switch uses its own; a partitioned bridge falls back to its own and the
-schedule says so; and the reconvergence reply equals the schedule's STP entry.
+schedule says so; the reconvergence reply equals the schedule's STP entry; a port the new tree has just
+unblocked is Listening, Learning and then Forwarding on the root's numbers from the change, while a port that was
+already forwarding is untouched; a bridge two hops behind a cut waits 20 s of max age before its own two delays,
+and only 0 s when it lost the root port itself; and the same wait applies when the port is administratively
+closed, where the far end keeps its socket and loses the BPDUs.
 
 ## What remains unresolved
 
-- **When the adoption happens is not modelled.** A real bridge uses the root's timers from the first
-  configuration BPDU it accepts, so a non-root that boots before the root (or during a root change) runs its
-  own numbers for the interval before that, and after the BPDU ages out it must wait `Max Age` before claiming
-  to be root. This model is a converged-graph calculation with a schedule on top: no BPDUs, no message age, no
-  ageing out, so the adoption applies from t=0 and a partition takes effect instantly. Timestamps from
-  `debug spanning-tree events` on both sides of a root change would settle the shape of that window.
-- **The max-age and hello halves of the adoption are inert.** Both are now carried by the timers in force, but
-  nothing in the engine ages a BPDU out or counts hello intervals, so the only number the adoption changes
-  today is the forward delay.
+- **The first BPDU is not modelled.** A real bridge uses the root's timers from the first configuration BPDU it
+  accepts, so a non-root that boots before the root runs its own numbers until that arrives. This model is a
+  converged-graph calculation with a schedule on top: there is no hello interval to wait out, so the adoption
+  still applies at t=0 at power-on. Timestamps from `debug spanning-tree events` on both sides of a
+  power-on would settle the shape of that window. (#1731 fixed the other half of the window: what happens when
+  the BPDUs *stop*.)
+- **The max age is counted, the hello is still inert.** Since #1731 a bridge that loses the root while its root
+  port is still up waits the max age in force before it may believe itself root (`stpTimersWindow()`), and its
+  ports stop forwarding when the wait expires. Nothing counts hello intervals, so a BPDU is never described as
+  late - only as gone.
+- **A fragment elects no root of its own.** When a cut splits the tree, this engine still names one global root
+  and every bridge outside its fragment has `cost === Infinity`. Each such bridge waits its own max age (correct)
+  and then, having nothing to hear, runs its *own* timers - while in reality it would adopt the timers of the root its own fragment elected.
+  The wait is right; who it adopts afterwards is not.
 - **MSTP / RSTP are out of scope.** Both still take the timers from the root, but RSTP's proposal/agreement
   handshake replaces the listening/learning wait on point-to-point links, and this console refuses the
   per-instance commands by name. If RSTP is ever modelled, the two-forward-delay figure here becomes the

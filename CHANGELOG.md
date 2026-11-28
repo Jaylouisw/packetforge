@@ -18,6 +18,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **A port that had just come out of Blocking forwarded at the instant of the change, and a bridge that lost the
+  root ignored its max age.** #1722 settled *whose* timers pace a non-root's ports but not *from when* they run.
+  `stpPortStateAt()` compared the absolute clock with `forwardAtMs` (8 s), so after a cable moved at t=60 s every
+  port the new tree had just unblocked read `forwarding` — while `link down` answered "Network converges again at
+  68000 ms". And a bridge whose root port stayed up but heard no BPDU any more (a cut further upstream, or the
+  port carrying them shut) claimed to be root the same instant, although 802.1D keeps the last configuration
+  BPDU until Max Age expires. `stpTimersWindow()` now carries a start instant — the change, plus the max age in
+  force where the old information has to age out — and `buildSchedule()` and `computeStp()` both pace from it; the
+  schedule entry's basis says `no BPDU for max-age 20 s (root port Fa0/1 still up)`. A bridge that loses the root
+  port itself still waits for nothing (the information goes with the port), and a port that was already
+  forwarding is not interrupted. `test/stp-root-timers-pace-the-tree.test.js` (53 assertions),
+  `docs/CONVERGENCE.md` (#1731).
 - **A non-root's ports were paced by its own forward delay, not the root's.** A bridge adopts the hello,
   forward delay and max age the root advertises in its configuration BPDU - "all switches in the Spanning Tree
   topology learn and use such Timers Values, ignoring local Timers Values" (Cisco Learning Network) - so a tree
