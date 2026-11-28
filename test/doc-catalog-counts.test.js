@@ -170,7 +170,10 @@ ok(brRow ? Number(brRow[2].replace(/,/g, '')) === real.length : false,
   'the row matches the directory (' + real.length + ')', 'page says ' + (brRow ? brRow[2] : 'nothing'));
 {
   // And the writer it is now in PAGES with can repair it, on that row and nowhere else.
-  const staleBug = bugReports.replace(/at 0 models than at ([\d,]+)/, 'at 0 models than at 2,358');
+  // A number derived from the catalogue, not typed: a stale-value probe written as a constant stops
+  // probing the day the catalogue reaches it (this one was 2,358 for a day).
+  const wrongBug = (counts.total + 1).toLocaleString('en-US');
+  const staleBug = bugReports.replace(/at 0 models than at ([\d,]+)/, 'at 0 models than at ' + wrongBug);
   const fixedBug = regen.rewriteBugReports(staleBug, counts);
   ok(fixedBug.changes.length === 1, 'a stale row is noticed (' + fixedBug.changes[0] + ')');
   ok(fixedBug.doc.indexOf('at 0 models than at ' + counts.total.toLocaleString('en-US')) !== -1,
