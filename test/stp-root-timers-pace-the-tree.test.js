@@ -175,6 +175,71 @@ console.log('A failure that isolates a bridge leaves it on its own timers, and t
   eq(res.reconvergeAtMs, 40000, 'so the answer is its own 30 s, not the root\'s 8 s');
 }
 
+// The port's state on a named device at an instant: recompute the tree there and read what the bridge holds.
+function stateAt(sim, topo, devId, port, atMs) {
+  sim.setRunTime(atMs);
+  sim.recomputeStp();
+  return topo.getDevice(devId).stp.states[port];
+}
+
+console.log('');
+console.log('A port that came out of Blocking listens at the instant of the change, not before it');
+{
+  // This is the "window" half of #1731. `link down` at 60 s answered "Network converges again at 68000 ms"
+  // - two of the root's 4 s forward delays, from the change - while every port the new tree had just
+  // unblocked read Forwarding the same instant, because stpPortStateAt() compared the absolute clock with a
+  // timer that started at t=0. The schedule knew when the transition began; the port state did not ask.
+  const t = new Topology();
+  t.addDevice(SW, 'sw1'); t.addDevice(SW, 'sw2');
+  t.getDevice('sw1').name = 'SW1'; t.getDevice('sw2').name = 'SW2';
+  t.getDevice('sw1').config.stpPriority = 4096;
+  t.getDevice('sw1').config.stpForwardDelaySec = 4;
+  const a = t.connect('sw1', 'Fa0/1', 'sw2', 'Fa0/1', { mediaId: '1000base-t', speedMbps: 1000 });
+  t.connect('sw1', 'Fa0/2', 'sw2', 'Fa0/2', { mediaId: '1000base-t', speedMbps: 1000 });
+  const sim = new Simulator(t);
+  sim.recomputeStp();
+  eq(sim.stpResult.ports.sw2['Fa0/2'].state, 'blocking',
+    'SW2 blocks its second cable while the first one works');
+  const res = sim.setLinkState(a.id, 'down', { atMs: 60000 });
+  eq(res.reconvergeAtMs, 68000, 'the change is answered with 8 s from the change, on the root 4 s');
+  const sched = sim.getConvergence();
+  eq(stpEntry(sched, 'sw2').startedAtMs, 60000, 'and the schedule says the timers started at the change');
+  eq(stpEntry(sched, 'sw2').readyAtMs, 68000, 'and finish 8 s later');
+  eq(stateAt(sim, t, 'sw2', 'Fa0/2', 60000), 'listening',
+    'the port the tree has just unblocked is Listening at the instant of the change, not Forwarding');
+  eq(stateAt(sim, t, 'sw2', 'Fa0/2', 63999), 'listening', 'still Listening just before 64 s');
+  eq(stateAt(sim, t, 'sw2', 'Fa0/2', 64000), 'learning', 'Learning at 64 s');
+  eq(stateAt(sim, t, 'sw2', 'Fa0/2', 67999), 'learning', 'still Learning just before 68 s');
+  eq(stateAt(sim, t, 'sw2', 'Fa0/2', 68000), 'forwarding', 'and Forwarding when the answer said it would be');
+}
+
+console.log('');
+console.log('The Max Age a partitioned bridge waits out is Blocking, not Listening');
+{
+  // A box that loses the root without losing a port sits on the old root's BPDU until it ages out
+  // (#1746 put that wait in the schedule). During the wait the port is not transitioning yet - it is
+  // still dropping, and saying Listening would move every state 10 s earlier than the answer.
+  const t = new Topology();
+  ['sw1', 'sw2', 'sw3'].forEach(function (n) { t.addDevice(SW, n).name = n.toUpperCase(); });
+  t.getDevice('sw1').config.stpPriority = 4096;
+  t.getDevice('sw1').config.stpForwardDelaySec = 4;
+  t.getDevice('sw1').config.stpMaxAgeSec = 10;
+  const near = t.connect('sw1', 'Fa0/1', 'sw2', 'Fa0/1', { mediaId: '1000base-t', speedMbps: 1000 });
+  t.connect('sw2', 'Fa0/2', 'sw3', 'Fa0/1', { mediaId: '1000base-t', speedMbps: 1000 });
+  const sim = new Simulator(t);
+  sim.recomputeStp();
+  eq(sim.getConvergence().byProcess.stp, 8000, 'the tree is on the root 4 s before the cut');
+  const res = sim.setLinkState(near.id, 'down', { atMs: 10000 });
+  eq(res.reconvergeAtMs, 50000, 'SW3 needs the 10 s Max Age and its own 30 s');
+  eq(stateAt(sim, t, 'sw3', 'Fa0/1', 19999), 'blocking',
+    'at 19.999 s SW3 is still waiting for the old root BPDU to age out, so the port is Blocking');
+  eq(stateAt(sim, t, 'sw3', 'Fa0/1', 20000), 'listening', 'Listening once it has aged out, at 20 s');
+  eq(stateAt(sim, t, 'sw3', 'Fa0/1', 34999), 'listening', 'still Listening just before 35 s');
+  eq(stateAt(sim, t, 'sw3', 'Fa0/1', 35000), 'learning', 'Learning at 35 s');
+  eq(stateAt(sim, t, 'sw3', 'Fa0/1', 49999), 'learning', 'and Forwarding at 50 s, where the reply pointed');
+  eq(stateAt(sim, t, 'sw3', 'Fa0/1', 50000), 'forwarding', 'exactly then');
+}
+
 console.log('');
 if (failed) { console.error(failed + ' failed, ' + passed + ' passed'); process.exit(1); }
 console.log(passed + ' passed, 0 failed');

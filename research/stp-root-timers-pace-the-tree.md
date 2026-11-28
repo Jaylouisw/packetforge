@@ -88,3 +88,20 @@ schedule says so; and the reconvergence reply equals the schedule's STP entry.
 - **A non-default forward delay is only reachable from a device's config today.** This console has no
   `spanning-tree forward-time` verb (it answers with the bridge-priority refusal), so the rule is exercised by
   fixtures rather than by an operator typing a command.
+
+## The state reads the window
+
+The duration and the window that gives it a start are two different facts, and only the first was modelled.
+`buildSchedule()` re-bases every entry at the instant of the change, but `stpPortStateAt()` compared the
+*absolute* clock with `forwardAtMs`, so the answer to "what state is this port in at 60 s" came from a
+transition that had begun at t=0. A cable moved at 60 s left every port the new tree had just unblocked
+reading Forwarding the same instant, while the same change answered "Network converges again at 68000 ms";
+with the Max Age hold in the schedule (#1746) the error went the other way and the port read Learning through
+the seconds it should have spent Blocking. The entry now carries `startedAtMs` and `stpPortStateAt()` counts
+from it (Blocking during the hold, then Listening, Learning, Forwarding at `readyAtMs`), and `setLinkState()`
+records the change before it rebuilds the tree, because the rebuild is the thing that asks the schedule what it
+is recovering from.
+
+Still not modelled: the instant the *first* BPDU is accepted, which is what starts the adoption on a real
+bridge (the first bullet under "What remains unresolved"). This section only makes the model honest about the
+window it does have - the change and the Max Age wait.
