@@ -4,7 +4,7 @@ Status: forward plan, no code. Measured on `0af1f392`, 2026-11-19. Closes **no**
 directly — it removes the family that produced #2121, #2118, #2111, #2105 (merged) and #2124
 (open, and red on a suite this plan repairs). Scope: `engine/media.js:1086-1116` and `:1147`,
 `engine/device.js:1433`/`:1651-1658`, `engine/simulator.js:2555-2612`, `web/faceplate.js:630`,
-`web/app.js:2202`, `docs/DEVICE_SCHEMA.md:204`, `test/poe.test.js:21`, `test/poe-inference.test.js`,
+`web/app.js:2202`, `docs/DEVICE_SCHEMA.md:208`, `test/poe.test.js:21`, `test/poe-inference.test.js`,
 one new suite, one new audit script. No engine rule that decides a link's state changes here except
 step 3, which is called out.
 
@@ -44,10 +44,13 @@ devices holding 3 or more PD ports purely from the guess: 99
 `E_POE: no PoE power available` (`:4106-4109`). A UCG-Ultra asking a 64.75 W PSE for 5 × 12.95 W
 is a device that three PRs say receives nothing.
 
-**The only way to say "no" is a value the schema forbids.** Six merged files carry
-`"poeIn": false` (`devices/ubiquiti/udm-pro-max.json`, `uxg-{enterprise,fiber,lite,max,pro}.json`)
-— the shape #2121 and #2118 chose to stop the guess — while `docs/DEVICE_SCHEMA.md:204` says
-`poeIn` is "watts this port draws, as a **number**. `true` is wrong". So `false`, `0` and `null`
+**The only way to say "no" is a value the schema did not document.** At the measurement, six
+merged files carried `"poeIn": false` (`devices/ubiquiti/udm-pro-max.json`,
+`uxg-{enterprise,fiber,lite,max,pro}.json`) — the shape #2121 and #2118 chose to stop the guess —
+while `docs/DEVICE_SCHEMA.md:204` read `poeIn` as "watts this port draws, as a **number**. `true` is
+wrong". The practice spread faster than the schema: **35 specs carry it on 274 sockets**
+(re-measured on `4f0deb81`, 2026-11-28 — the three non-PoE UniFi switches and the Peplink BR1 IP55,
+HD2 Mini and BR2 Pro inlet rows), and the row, now at `:208`, names it. So `false`, `0` and `null`
 are three spellings for two meanings ("explicitly not a PD" vs "not stated"), and `null` is the
 one the engine reads as "guess me". `numOrNull(false)` (`validation.js:213`) returns `0`, so a
 round-trip through validation silently loses the distinction.
@@ -85,7 +88,7 @@ row as ground truth.
 | # | step | size | closes |
 |---|---|---|---|
 | 1 | `poeInDeclared` beside `poeOutDeclared`: set from the spec's interface field (`false` or a number counts as declared), `false` when inferred, carried through saved-port restore (`device.js:1433`, `:1658`). No behaviour change; assert in `test/poe-inference.test.js` that every inferred `poeIn` has the flag `false`. | S | 1 |
-| 2 | Sanction the word "no": `DEVICE_SCHEMA.md:204` documents `poeIn` as a wattage **or** `false` for a socket that is not a PD, `numOrNull()` keeps `false` distinguishable from `null`, and a one-off check that all six existing `false` rows still read as non-PDs. | S | 3 |
+| 2 | Sanction the word "no": **the doc half has landed** — `DEVICE_SCHEMA.md:208` now names `false` for a socket that is not a PD. Left is the code half: `numOrNull()` keeps `false` distinguishable from `null`, and a one-off check that all 35 `false` specs still read as non-PDs. | S | 3 |
 | 3 | **Changes an answer** — an *inferred* PD claims at most one inlet: the lowest-numbered copper port whose name the class implies, never a port on a device that already declares `poeOut` there. Measured effect 1,410 → ≈448 inferred ports; 99 → 0 devices with ≥3. Declared ports are untouched. | S/M | 2 |
 | 4 | The 99, from their own datasheet, ten rows per PR: which socket is the inlet, its class (af 12.95 / at 25.5 / bt 60 / 90), or `false`. Batch by vendor so one reviewer sees one product family. | M | 2 |
 | 5 | Repair the suite step 3 and #2124 expose: `test/poe.test.js:21` swaps `UCG-Ultra` for a device whose own file declares `poeIn: 12.95` (`devices/ubiquiti/u6-pro.json`), keeping the L3-and-can-ping property the two-party budget test needs. | S | 1, 5 |
