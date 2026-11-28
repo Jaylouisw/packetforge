@@ -8066,6 +8066,25 @@ class CliSession {
         const n = stpLib.portOrdinals(dev)[name];
         return (n === undefined) ? '-' : String(n);
       };
+      // The three numbers on each timer line, and the fact that the two lines can differ. A box prints the timers
+      // it is *running*, and a non-root runs the root's: `show spanning-tree` on a switch whose root was given
+      // `hello-time 10 / max-age 40 / forward-time 30` prints those three on the Root ID line and its own
+      // 2/20/15 on the Bridge ID line (networkplayroom's lab capture; keithcla.wordpress.com's, where the Root
+      // ID line reads `Forward Delay 4` over a Bridge ID line reading `15`; a Cisco community thread asking why).
+      // The root's numbers arrive in its BPDU, which is why only a root's timers decide how fast the tree
+      // converges - research/stp-timer-lines-source.md has the three captures and the standard.
+      //
+      // So the Root ID line reads the *root's* configuration and the Bridge ID line this device's own; on the root
+      // they are the same line twice, as a box prints them. Both come from `stpTimers()`, the function the
+      // convergence schedule waits on, rather than from literals that could drift away from what ports do.
+      const stpTimerLine = function (t) {
+        return '             Hello Time   ' + t.helloSec + ' sec  Max Age ' + t.maxAgeSec +
+          ' sec  Forward Delay ' + t.forwardDelaySec + ' sec';
+      };
+      const ownTimerLine = stpTimerLine(require('./convergence').stpTimers(dev));
+      const rootDevForTimers = (rootRes && this.topo) ? this.topo.getDevice(rootRes.key) : null;
+      const rootTimerLine = rootDevForTimers
+        ? stpTimerLine(require('./convergence').stpTimers(rootDevForTimers)) : ownTimerLine;
       out.push('  Root ID    Priority    ' + (rootRes ? extended(rootRes.priority) : '-'));
       out.push('             Address     ' + address(rootRes && rootRes.mac));
       if (rootRes && rootRes.key === dev.id) {
@@ -8079,12 +8098,12 @@ class CliSession {
       } else {
         out.push('             root bridge not measured (no election has run)');
       }
-      out.push('             Hello Time   2 sec  Max Age 20 sec  Forward Delay 15 sec');
+      out.push(rootTimerLine);
       out.push('');
       out.push('  Bridge ID  Priority    ' + extended(mine) + '  (priority ' + mine +
         ' sys-id-ext ' + SYS_ID_EXT + ')');
       out.push('             Address     ' + address(ownMac));
-      out.push('             Hello Time   2 sec  Max Age 20 sec  Forward Delay 15 sec');
+      out.push(ownTimerLine);
       // The ageing line is the forwarding-database timer, not the max age - the same 300 s constant
       // `show mac address-table` ages an entry by, read from the model rather than written down twice
       // (research/show-spanning-tree-aging-time.md).
