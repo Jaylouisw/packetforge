@@ -4444,6 +4444,15 @@ VLAN 20 renamed (name: ops, was sales)
 it as a creation - on the one line a worksheet types to select the VLAN. A name changes through the `name`
 keyword only, which is what the second and third lines say.
 
+The rule behind those two lines is the vendor's, stated from both ends of the same edit: "When you enter the
+VLAN ID of an existing VLAN, you do not create a new VLAN, but you can modify VLAN parameters for that VLAN"
+(Consolidated Platform Command Reference, Cisco IOS Release 15.2(7)E, Catalyst 2960-X, `vlan`), and - the same
+fact seen from the exit door, where the edit is committed - "the VLAN is added if it did not already exist;
+otherwise, this command does nothing" (VLAN Command Reference, Cisco IOS XE Release 3SE, Catalyst 3850). What
+is *not* the vendor's is the wording: a box prints nothing for either case, because there is no receipt for a
+no-op, so `already exists` and `renamed` are this console's sentences, in the shape the static-route bullet
+above uses for a line typed twice.
+
 ### `do show vlan` rejected the command it was given
 
 `do` passed `tokens.slice(1)` — still starting with `show` — into the `show` dispatcher, which expects the words *after* `show`:
