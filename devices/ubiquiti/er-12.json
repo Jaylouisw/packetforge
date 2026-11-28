@@ -3,7 +3,7 @@
   "model": "ER-12",
   "label": "EdgeRouter 12",
   "category": "router",
-  "description": "EdgeRouter 12 (ER-12) - 10x 1G RJ45 + 2x 1G SFP. Passive PoE-in; 20 W max.",
+  "description": "EdgeRouter 12 (ER-12) - 10x 1G RJ45 + 2x 1G SFP. Powered by a 24V adapter, or by 24V passive PoE on eth0 (port 0) up to 20 W; eth9 (port 9) is an optional DC/PoE passthrough outlet, off by default.",
   "capabilities": [
     "l3-forward",
     "cli",
@@ -20,61 +20,71 @@
       "name": "eth0",
       "type": "ethernet",
       "connector": "rj45",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": 20
     },
     {
       "name": "eth1",
       "type": "ethernet",
       "connector": "rj45",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": false
     },
     {
       "name": "eth2",
       "type": "ethernet",
       "connector": "rj45",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": false
     },
     {
       "name": "eth3",
       "type": "ethernet",
       "connector": "rj45",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": false
     },
     {
       "name": "eth4",
       "type": "ethernet",
       "connector": "rj45",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": false
     },
     {
       "name": "eth5",
       "type": "ethernet",
       "connector": "rj45",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": false
     },
     {
       "name": "eth6",
       "type": "ethernet",
       "connector": "rj45",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": false
     },
     {
       "name": "eth7",
       "type": "ethernet",
       "connector": "rj45",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": false
     },
     {
       "name": "eth8",
       "type": "ethernet",
       "connector": "rj45",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": false
     },
     {
       "name": "eth9",
       "type": "ethernet",
       "connector": "rj45",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": false
     },
     {
       "name": "sfp1",
@@ -91,5 +101,6 @@
   ],
   "icon": "router",
   "color": "#14b8a6",
-  "sourceUrl": "https://techspecs.ui.com/uisp/wired/er-12"
+  "sourceUrl": "https://techspecs.ui.com/uisp/wired/er-12",
+  "notes": "Quick Start Guide, https://dl.ui.com/qsg/ER-12/ER-12_EN.html : \"Port 0 supports 24V Passive PoE In and port 9 supports optional Passive PoE Out (disabled by default)\"; the Interfaces table reads \"Port 0 Supports PoE IN; Port 9 Supports PoE Out\", and the PoE table gives \"PoE In: (1) 24V Passive PoE Port, 2-pair (4, 5+; 7, 8-)\", \"Passive PoE Max. Wattage Per Port 20W (24V, 0.83A)\", \"Max. Power Consumption 20W (Excludes PoE Output)\". The tech-spec page (https://techspecs.ui.com/uisp/wired/er-12) prints the same 20 W per-port ceiling under \"Passive PoE Voltage range Max. wattage per port: DC/PoE passthrough 20W (24V)\" and the same 20 W device draw. So eth0 is the one inlet and declares the router's own ceiling, 20 W, which is also the stated per-port maximum; the other nine copper sockets declare poeIn: false. Before this, the device-wide poe-pd capability put 12.95 W on all ten sockets - 129.5 W of demand on a 20 W router. eth9's PoE Out is not modelled as a PSE here: Ubiquiti prints \"DC/PoE Passthrough\" with no budget of its own (the output is the input supply), so a per-port budget would have to be invented; see the ER-X row for how that table is recorded when the vendor prints the input-source rows."
 }
