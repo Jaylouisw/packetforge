@@ -40,6 +40,14 @@ gh issue edit <N> --add-label device-request --add-label blocked-on-build
 gh issue list --label device-request --state open     # what is in the queue
 ```
 
-The labels live in the repository — `.github/labels.yml` is the definition, and `gh label list`
-shows what the tracker actually has. A label added in the web UI and not in that file is the drift
-this section exists to prevent.
+The labels live on the tracker, not in the repository. `.github/labels.yml` records the 13 labels the
+repository was born with — name, colour, description — but nothing reads it and nothing syncs it any
+more: its own header named `.github/workflows/labels.yml`, and that workflow went out on 2026-11-08 with
+the other GitHub-legacy workflows (`dd8b024a`, six files), so a name added to the file is created by
+nobody. The tracker carries 25 labels; the 12 the file does not list include four of the five triage
+roles above (`needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`) and
+`blocked-on-build`, which is the label this page leans on hardest. So `gh label list` is the definition
+of what exists and the file is a catalogue of what was intended — one that has fallen behind in the
+other direction too, since `from-github` still describes itself as *"Opened on the GitHub mirror"*,
+which the move on 2026-11-27 made untrue. `gh label create <name> --description "..." --color <hex>` is
+what makes a label exist, and `gh issue edit <N> --add-label` can only apply one that does.

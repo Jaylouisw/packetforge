@@ -1,11 +1,13 @@
 # PacketForge label catalogue.
 #
-# Single source of truth for issue/PR labels. Synced to the repository by
-# .github/workflows/labels.yml whenever this file changes. Colours are hex
+# The names, colours and descriptions of the labels this repository defines.
+# Nothing syncs this file: .github/workflows/labels.yml was deleted on 2026-11-08
+# (dd8b024a) with the other GitHub-legacy workflows, so a label the tracker lacks is
+# created with `gh label create`, never by editing this file. Colours are hex
 # without the leading '#'.
 #
-# The issue templates reference these by name (labels: [...]), so a label added
-# here must exist before the template is submitted -- the sync workflow creates it.
+# The issue templates reference these by name (labels: [...]), so a name used there
+# must already exist on the tracker -- nothing here creates it.
 
 - name: bug
   color: d73a4a
