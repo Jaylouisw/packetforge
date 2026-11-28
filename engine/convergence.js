@@ -325,6 +325,10 @@ function buildSchedule(topo, opts) {
   }
 
   for (const e of entries) {
+    // The instant the timers started running, kept beside the instant they finish: a port's state is counted
+    // from here, and one caller (stpPortStateAt through the simulator) cannot tell Listening from a port that
+    // has not begun to transition without it (#1731).
+    e.startedAtMs = fromMs;
     e.readyAtMs = fromMs + e.readyAtMs;
     e.basis = e.basis + (fromMs ? ' (after the change at ' + fromMs + ' ms)' : '');
   }
@@ -372,12 +376,31 @@ function at(schedule, atMs) {
 // The STP state a port is in at an instant: 'forwarding', 'learning', 'listening' or 'blocking'.
 // `willForward` is the steady state from the spanning tree computation (a port that is destined to
 // forward is only in a transitional state; a port that is destined to block was never forwarding).
-function stpPortStateAt(dev, willForward, atMs, timers) {
+function stpPortStateAt(dev, willForward, atMs, timers, entry) {
   // `timers` is the set in force - on a non-root, the root's (`stpTimersInForce`). It defaults to the device's
   // own so a caller with no election in hand still gets an answer, but every caller that has one passes it,
   // or the port would be paced by a number the box is not running.
   const t = (timers && Number.isFinite(Number(timers.forwardDelaySec))) ? timers : stpTimers(dev);
   if (!willForward) return 'blocking';
+  // `entry` is this box's STP line from the convergence schedule, when the caller has one. It is the only
+  // thing that knows *when* the transition began: `readyAtMs` is the change, plus any Max Age the box sat
+  // out first, plus two forward delays. Pacing from t=0 instead made a cable moved at 60 s leave every port
+  // the new tree had just unblocked reading Forwarding at the instant it was pulled - while the same change
+  // answered "Network converges again at 68000 ms" (#1731).
+  if (entry && Number.isFinite(Number(entry.readyAtMs))) {
+    const finish = Number(entry.readyAtMs);
+    const start = Number.isFinite(Number(entry.startedAtMs)) ? Number(entry.startedAtMs) : 0;
+    // The entry's own forward delay, not the caller's: `readyAtMs` was built from it, so counting back with a
+    // different number would put Listening somewhere the schedule does not agree with.
+    const fd = Number.isFinite(Number(entry.forwardDelaySec)) ? Number(entry.forwardDelaySec) : t.forwardDelaySec;
+    // Asked about an instant before the change: nothing is transitioning yet, so answer the steady state.
+    if (atMs < start) return 'forwarding';
+    if (atMs >= finish) return 'forwarding';
+    if (atMs >= finish - fd * 1000) return 'learning';
+    if (atMs >= finish - fd * 2000) return 'listening';
+    // Before Listening began: the old root's BPDU has not aged out yet, and the port is still Blocking.
+    return 'blocking';
+  }
   if (atMs >= t.forwardAtMs) return 'forwarding';
   if (atMs >= t.learnEndMs - t.forwardDelaySec * 1000) return 'learning';
   return 'listening';

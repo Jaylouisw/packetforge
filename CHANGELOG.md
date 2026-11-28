@@ -18,6 +18,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **A port that had just come out of Blocking was Forwarding at the instant of the change.** #1722 settled
+  *whose* timers pace a non-root's ports; #1731 settled that a bridge which only stops hearing the root owes the
+  old root's Max Age. Neither said *from when* the two forward delays run, and the port state did not ask: the
+  schedule counted from the change, `stpPortStateAt()` compared the absolute clock with `forwardAtMs` (8 s on a
+  4 s root), so after a cable moved at 60 s every port the new tree had just unblocked read `forwarding` - while
+  `link down` answered "Network converges again at 68000 ms" - and a partitioned bridge read `learning` through
+  the Max Age it should have spent blocking. `setLinkState()` also recorded the change *after* rebuilding the
+  tree, so the rebuild was paced from the previous change (or t=0). The schedule entry now carries `startedAtMs`
+  beside `readyAtMs`, `stpPortStateAt()` takes the entry and counts the state back from the instant the box
+  finishes (Blocking through a Max Age hold, then Listening, Learning, Forwarding), and the change is recorded
+  before the rebuild. `test/stp-root-timers-pace-the-tree.test.js` (43 assertions), `docs/CONVERGENCE.md` (#1731).
 - **An OSPF router given a higher priority took the DR seat on the spot, which no box does.** The
   DR/BDR election was held from scratch on every `computeOspf()` pass, so `ip ospf priority 200` typed on
   a DROTHER made it the DR by the next `show ip ospf neighbor`, and a router whose cable came back took
