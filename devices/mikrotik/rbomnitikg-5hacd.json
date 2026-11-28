@@ -20,27 +20,31 @@
       "name": "eth1",
       "type": "ethernet",
       "speed": "1G",
-      "poeIn": true
+      "poeIn": 14
     },
     {
       "name": "eth2",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": false
     },
     {
       "name": "eth3",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": false
     },
     {
       "name": "eth4",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": false
     },
     {
       "name": "eth5",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": false
     },
     {
       "name": "radio0",
@@ -51,5 +55,5 @@
   "icon": "ptp",
   "color": "#14b8a6",
   "sourceUrl": "https://mikrotik.com/product/rbomnitikg_5hacd",
-  "notes": "Power method from the mikrotik.com spec table: **PoE in: Passive PoE** (12-57 V) on `eth1`. Input is recorded on the first Ethernet port because the table states the method and voltage but does not name the port, and every MikroTik with a PoE-IN DC input takes it there. Max power consumption 14 W."
+  "notes": "Inlet is `eth1` at 14 W; the OmniTIK 5 ac has no PoE-out. https://mikrotik.com/product/rbomnitikg_5hacd (read 2026-11-28): \"Number of DC inputs 1 (PoE-IN)\", \"PoE in Passive PoE\", \"PoE in input Voltage 12-57 V\", \"Max power consumption 14 W\", no PoE-out section. The brochure https://cdn.mikrotik.com/web-assets/product_files/OmniTIK_5_ac_171051.pdf prints \"Consumption 14 W\" for this SKU (18 W for the PoE version) and puts \"PoE out - Yes, Ether2 - Ether5\" on the PoE version only. https://manual.mikrotik.com/hardware/omnitik-series/ names no port; eth1 is the one port of the five that the PoE-out list leaves, and the one the quick guides call the WAN/First Ethernet port. The row used to spell `poeIn: true` and leave eth2-eth5 silent: 64.75 W guessed at 12.95 W apiece on a 14 W board."
 }

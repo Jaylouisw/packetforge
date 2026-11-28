@@ -20,27 +20,40 @@
     {
       "name": "eth1",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "poeIn": 11
     },
     {
       "name": "eth2",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "poeOut": true,
+      "poeOutClass": "passive",
+      "poeIn": false
     },
     {
       "name": "eth3",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "poeOut": true,
+      "poeOutClass": "passive",
+      "poeIn": false
     },
     {
       "name": "eth4",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "poeOut": true,
+      "poeOutClass": "passive",
+      "poeIn": false
     },
     {
       "name": "eth5",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "poeOut": true,
+      "poeOutClass": "passive",
+      "poeIn": false
     },
     {
       "name": "radio0",
@@ -50,5 +63,10 @@
   ],
   "icon": "ptp",
   "color": "#14b8a6",
-  "sourceUrl": "https://mikrotik.com/product/RBOmniTikUPA-5HnDr2"
+  "sourceUrl": "https://mikrotik.com/product/RBOmniTikUPA-5HnDr2",
+  "poe": {
+    "budgetUnknown": true,
+    "note": "MikroTik prints current limits and an input-voltage range, never a watt ceiling for these four ports: PoE-out Ether2-Ether5, 1 A per port and 2 A total, at the voltage applied to the unit (11-30 V on the 100M model, 12-57 V on the ac model). Multiplying amperes by a nominal voltage would invent a figure the vendor does not publish."
+  },
+  "notes": "Inlet is `eth1` at 11 W; `eth2`-`eth5` source passive PoE and cannot be fed. https://mikrotik.com/product/RBOmniTikUPA-5HnDr2 (read 2026-11-28): \"Number of DC inputs 1 (PoE-IN)\", \"PoE in Passive PoE\", \"PoE in input Voltage 11-30 V\", \"Max power consumption 59 W\", \"Max power consumption without attachments 11 W\"; \"PoE-out ports Ether2-Ether5\", \"PoE out Passive PoE\", \"Low voltage PoE-Out current limit 1 A\", \"Max total out (A) 2 A\". https://manual.mikrotik.com/hardware/omnitik-series/ : the output voltage equals the input voltage, 1 A per port and 2 A total. The port is named by the RouterBOARD quick guide - \"OmniTik accepts 8-30V Passive PoE from a PoE injector ... The First Ethernet port accepts 8-30V DC powering\" (https://www.mikrotik-hrvatska.com/dokumentacija/OmniTik-UPA-5HnD-qg2.pdf). Watts follow the applied input voltage, so the budget is marked unknown rather than multiplied out. Before: five silent sockets, guessed at 12.95 W apiece (64.75 W) on a board that publishes 11 W without attachments."
 }

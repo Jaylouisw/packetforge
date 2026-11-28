@@ -156,9 +156,11 @@ forwarding walks it through Listening and Learning just as it does at boot. That
 on that port was invalidated on the spot and the two forward delays start at the change. A bridge
 elsewhere in the lab that merely *stopped hearing* the root - its own ports still up - is not told
 that early. It keeps the old root's configuration BPDU until Max Age runs out and only then claims the
-root role and runs its own two forward delays: 20 s + 30 s with the defaults, so a change at 10 s
-settles at 60 s, not 40 s. `converge` says which arithmetic produced the instant, in the `Basis`
-column; [LINK-STATE.md](LINK-STATE.md) has both rows.
+root role and runs its own two forward delays: 20 s + 30 s with the defaults for a bridge one hop out of
+the root, so a change at 10 s settles at 60 s, not 40 s. A bridge further out has less left to wait - the
+age timer starts at the Message Age in the cached BPDU, which grows by 1 s per bridge, so two hops out it is
+19 + 30 s and the `Basis` column reads `19 s = 20 s Max Age less message age 1`. `converge` says which
+arithmetic produced the instant there, not just how long; [LINK-STATE.md](LINK-STATE.md) has both rows.
 
 A port's own state is counted from the same instant, not from the absolute clock. Each schedule entry carries
 `startedAtMs` (the change) beside `readyAtMs` (the change, plus any Max Age the box waited out, plus two forward

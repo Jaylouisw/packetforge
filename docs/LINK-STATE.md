@@ -119,12 +119,15 @@ the root role and start Listening and Learning (#1731):
 | Failure | What the bridge waits | cable moved at 10 s → ready at |
 |---|---|---|
 | **direct** — its own port went down | 2 × forward delay | 40 s |
-| **indirect** — ports up, root no longer heard | Max Age, then 2 × forward delay | 60 s |
+| **indirect** — ports up, root no longer heard | what is left of Max Age, then 2 × forward delay | 49–60 s |
 
 The Max Age it waits is the one that was *in force*, i.e. the old root's, and the transition after it
-runs on the bridge's own forward delay, because by then it is the root. `converge` names the arithmetic
-in the `Basis` column rather than leaving the extra 20 s to be guessed: `the old root's BPDU aged out
-(20 s Max Age), then listening + learning (15 s forward-delay each)`.
+runs on the bridge's own forward delay, because by then it is the root. What is left of it is not all of
+it: the age timer starts at the Message Age in the cached BPDU, and every bridge adds 1 s before forwarding
+it, so a bridge one hop from the root ages out after 20 s and gets there at 60 s, one two hops out after 19 s
+and gets there at 59 s, one three hops out at 58 s (`research/stp-message-age.md`). `converge` names the
+arithmetic in the `Basis` column rather than leaving the extra seconds to be guessed: `the old root's BPDU
+aged out (19 s = 20 s Max Age less message age 1), then listening + learning (15 s forward-delay each)`.
 
 ## Persistence
 

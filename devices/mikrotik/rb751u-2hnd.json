@@ -20,27 +20,31 @@
       "name": "eth1",
       "type": "ethernet",
       "speed": "100M",
-      "poeIn": true
+      "poeIn": 7
     },
     {
       "name": "eth2",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "poeIn": false
     },
     {
       "name": "eth3",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "poeIn": false
     },
     {
       "name": "eth4",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "poeIn": false
     },
     {
       "name": "eth5",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "poeIn": false
     },
     {
       "name": "radio0",
@@ -51,5 +55,5 @@
   "icon": "ap",
   "color": "#14b8a6",
   "sourceUrl": "https://mikrotik.com/product/RB751U-2HnD",
-  "notes": "Power method from the mikrotik.com spec table: **PoE in: Passive PoE** (voltage not stated) on `eth1`. Input is recorded on the first Ethernet port because the table states the method and voltage but does not name the port, and every MikroTik with a PoE-IN DC input takes it there. Max power consumption not stated."
+  "notes": "Inlet is eth1, and this board sources nothing. https://mikrotik.com/product/RB751U-2HnD (read 2026-11-28): \"Number of DC inputs 1\", \"PoE in Passive PoE\", no max-power-consumption row and no PoE-out row. https://cdn.mikrotik.com/web-assets/product_files/rb751U-2HnD-ug_130539.pdf (RouterBOARD 751 series User’s Manual): \"Power over Ethernet Ether 1 requires 8-30V DC (non 802.3af)\", \"Power consumption Up to 7W\", and \"Under maximum load, the power consumption of this device is 7W\"; the manual lists Ether1-5 as plain RJ45 ports and gives no PoE output. eth1 draws 7 W; eth2-eth5 are poeIn: false."
 }

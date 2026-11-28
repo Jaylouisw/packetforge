@@ -20,27 +20,31 @@
       "name": "eth1",
       "type": "ethernet",
       "speed": "100M",
-      "poeIn": true
+      "poeIn": 11
     },
     {
       "name": "eth2",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "poeIn": false
     },
     {
       "name": "eth3",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "poeIn": false
     },
     {
       "name": "eth4",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "poeIn": false
     },
     {
       "name": "eth5",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "poeIn": false
     },
     {
       "name": "radio0",
@@ -51,5 +55,5 @@
   "icon": "ptp",
   "color": "#14b8a6",
   "sourceUrl": "https://mikrotik.com/product/RBOmniTikU-5HnDr2",
-  "notes": "Power method from the mikrotik.com spec table (MikroTik &middot; OmniTIK 5): **PoE in: Passive PoE** (11-30 V) on `eth1`. Input is recorded on the first Ethernet port because the table states the method and voltage but does not name the port. Max power consumption 11 W."
+  "notes": "Inlet is `eth1`, and it is the board's only power socket - the OmniTIK 5 has no PoE-out. https://mikrotik.com/product/RBOmniTikU-5HnDr2 (read 2026-11-28): \"Number of DC inputs 1 (PoE-IN)\", \"PoE in Passive PoE\", \"PoE in input Voltage 11-30 V\", \"Max power consumption 11 W\", and no PoE-out row. https://manual.mikrotik.com/hardware/omnitik-series/ adds \"Ethernet port accepts passive PoE 12-57 V DC. For Omnitik 5 models, 11-30 V\" but names no port; the RouterBOARD quick guide for this model does - \"OmniTik accepts 8-30V Passive PoE on WAN port (ether1)\" (https://download.discomp.cz/MikroTik/QG/OmniTik-U-5HnD-qg.pdf). https://cdn.mikrotik.com/web-assets/product_files/omnitik_201106.pdf prints \"Power input Passive 11-30V PoE in only\" and lists PoE output for the UPA only. 11 W is the published ceiling. The row used to spell the schema-illegal `poeIn: true` here and leave eth2-eth5 silent, so the engine guessed 12.95 W on each: 51.8 W asked of a PSE by an 11 W board."
 }
