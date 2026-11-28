@@ -18,6 +18,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **A non-root's ports were paced by its own forward delay, not the root's.** A bridge adopts the hello,
+  forward delay and max age the root advertises in its configuration BPDU - "all switches in the Spanning Tree
+  topology learn and use such Timers Values, ignoring local Timers Values" (Cisco Learning Network) - so a tree
+  whose root runs a 4 s forward delay forwards every port 8 s after power-on. `buildSchedule()` read
+  `stpTimers(dev)` per device, so the same tree converged at two speeds: 8 s on the root, 30 s on a non-root
+  left at the 15 s default, while that non-root's own report printed the root's 4 s on its Root ID line. The
+  schedule now takes the election as `opts.stp` and uses the timers in force (`stpTimersInForce()`), naming the
+  root in the entry's basis when they are adopted; a bridge with no path to the root hears no BPDU, keeps its
+  own config, and says so. `setLinkState()`'s `reconvergeAtMs` was a hardcoded +30 s and is now the schedule's
+  own STP completion. `test/stp-root-timers-pace-the-tree.test.js` (26 assertions) and
+  `research/stp-root-timers-pace-the-tree.md` (#1722).
 - **The timer line in `show spanning-tree` was a literal, and the two blocks print different sets.** Both blocks
   said `Hello Time 2 sec  Max Age 20 sec  Forward Delay 15 sec` no matter what the box was running, while
   `stpForwardDelaySec` / `stpMaxAgeSec` on the device's config already drove the convergence schedule - so a

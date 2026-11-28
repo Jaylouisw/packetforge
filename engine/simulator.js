@@ -456,7 +456,13 @@ class Simulator {
     // One truth, on the topology: `markChange()` is what records that the board changed and when. A second field
     // on the simulator used to shadow it (`reconvergeFromMs`), nothing ever set it, and having two answers for one
     // instant is how a schedule ends up built from the wrong one (#1331).
-    return convergenceLib.buildSchedule(this.topo, { fromMs: this.topo.lastChangeAtMs || 0 });
+    // The election goes with it: a non-root's ports are paced by the root's timers (#1722), and only the
+    // election can say which box that is. When no election has run there is no root to quote, so the schedule
+    // reads each device's own configuration - the same fallback `show spanning-tree` makes for its header.
+    return convergenceLib.buildSchedule(this.topo, {
+      fromMs: this.topo.lastChangeAtMs || 0,
+      stp: this.stpResult
+    });
   }
 
   // ---------------------------------------------------------------------
@@ -543,11 +549,17 @@ class Simulator {
     // The network remembers: a later Simulator on this topology still knows when the cable moved.
     if (typeof this.topo.markChange === 'function') this.topo.markChange(atMs);
 
-    const stp = convergenceLib.stpTimers({});
+    // How long until this change has finished being absorbed: the schedule's own answer, not the factory's.
+    // A tree whose root runs a 4 s forward delay is forwarding again 8 s after the cable moved, and a reply of
+    // +30 s here would contradict both the schedule and the header that prints the root's timers (#1722). A
+    // link between two boxes that run no bridge has no STP step to wait for, so the old default stands there.
+    const sched = this.getConvergence();
+    const stpAt = (sched.byProcess && sched.byProcess.stp !== undefined) ? sched.byProcess.stp
+      : atMs + convergenceLib.stpTimers({}).forwardAtMs;
     return {
       ok: true, linkId: linkId, changed: true, state: state, atMs: atMs,
       // How long until this change has finished being absorbed.
-      reconvergeAtMs: atMs + stp.forwardAtMs,
+      reconvergeAtMs: stpAt,
       affects: [link.a.deviceId, link.b.deviceId]
     };
   }
@@ -1006,7 +1018,10 @@ class Simulator {
         for (const logicalName of Object.keys(dev.stp.states || {})) {
           const steady = dev.stp.states[logicalName];
           if (steady === 'blocking') continue;
-          const now = convergenceLib.stpPortStateAt(dev, true, this.runAtMs);
+          // Paced by the timers in force, which on a non-root are the root's (#1722). The steady-state
+          // answer above came from the same election, so the two halves of this loop cannot disagree.
+          const now = convergenceLib.stpPortStateAt(dev, true, this.runAtMs,
+            convergenceLib.stpTimersInForce(dev, convergenceLib.stpRootOf(this.topo, res, dev)));
           dev.stp.states[logicalName] = now;
           if (!convergenceLib.stpForwardsIn(now)) {
             for (const iface of dev.interfaces.values()) {
