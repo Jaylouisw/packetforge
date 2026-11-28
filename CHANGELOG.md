@@ -18,6 +18,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **The timer line in `show spanning-tree` was a literal, and the two blocks print different sets.** Both blocks
+  said `Hello Time 2 sec  Max Age 20 sec  Forward Delay 15 sec` no matter what the box was running, while
+  `stpForwardDelaySec` / `stpMaxAgeSec` on the device's config already drove the convergence schedule - so a
+  fixture with a 4 s forward delay could forward ports at 8 s and still be told by its own report that the delay
+  was 15. A Catalyst prints the timers in force, and on a non-root the two lines disagree: the **Root ID** line
+  carries the root's timers (they arrive in the root's BPDU, and only those pace the tree), the **Bridge ID** line
+  this box's own configuration - a root prints one line twice. Both lines are now built from `stpTimers()`, the
+  root's device for the top line and the answering device for the bottom, with `helloSec`/`maxAgeSec` added to
+  what that function returns. Where a root and a non-root still differ, this model's convergence times each device
+  by its own configuration rather than the root's, a divergence recorded in `research/stp-timer-lines-source.md`
+  and tracked as #1722.
 - **`no router bgp` with the AS still untyped deleted the process.** `no router bgp` is
   `no router bgp autonomous-system-number` in both the IOS and the IOS XE command reference, with the number
   outside any brackets (IOS XR brackets it, `no router bgp [as-number]`, which is how the family shows that

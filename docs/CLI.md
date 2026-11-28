@@ -2732,6 +2732,17 @@ address-table` ages an entry by, read from the model rather than written down tw
 that shape: priority decides the election before MAC address does, so two switches with the same ports and the
 same cables can produce different trees and the output gave no clue which one you were looking at.
 
+The three timer numbers are the ones the box is *running*, and the two blocks do not always agree. A Catalyst
+prints the **root's** timers on the Root ID line - they arrive in the root's configuration BPDU - and its **own**
+configured ones on the Bridge ID line, so a non-root whose root was given `max-age 40` reads `Max Age 40 sec`
+above and `Max Age 20 sec` below, while only the top line describes how fast the tree actually converges. This
+console reads the same two sets: the root's config for the Root ID line, this device's own for the Bridge ID
+line, both through `stpTimers()`, so a root prints one line twice and a non-root can print two different ones. A
+console with no election behind it has no root to quote and prints its own configuration on both. One divergence
+remains and is tracked rather than hidden: the convergence schedule still times each device by its own
+configuration, so a lab whose root advertises a fast tree and whose non-root was left at defaults prints the fast
+numbers and takes the slow path (`research/stp-timer-lines-source.md`, #1722).
+
 The root is named the way a box names it — by its **bridge address**, the lowest MAC on the root, which is the
 one identity this block has a field for. A hostname is not printed here, and neither is the catalogue's model
 label, which is the same string on every switch of one kind. Before #1713 this view said
