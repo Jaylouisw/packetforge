@@ -18,6 +18,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **`no router bgp` with the AS still untyped deleted the process.** `no router bgp` is
+  `no router bgp autonomous-system-number` in both the IOS and the IOS XE command reference, with the number
+  outside any brackets (IOS XR brackets it, `no router bgp [as-number]`, which is how the family shows that
+  IOS requires it), and a line missing a required value is answered `% Incomplete command.` without running
+  the command. This branch read the three words and cleared the process, so an operator who typed
+  `no router bgp` and stopped to look the number up had already destroyed the configuration they were about
+  to name: the local AS, the neighbours and the `router bgp` stanza in `show running-config` were gone. It
+  now answers `% Incomplete command: no router bgp <as>` - naming the AS that is still running, or saying
+  there is no process to remove - and changes nothing; a third word that is not an AS in 1-4294967295 is
+  refused by the same `% Invalid AS number "<x>"` check the create path runs, before the delete; and
+  `no router bgp <as>` still answers `BGP disabled`. The two questions beside it stay open and are recorded:
+  a *mismatched* AS (this console still treats the number as a name for its one process) and a `no` with no
+  process to remove (it still answers `BGP disabled`). The evidence is in `research/no-router-bgp-argument.md`
+  (#1704).
+
 - **`vlan 20` on a VLAN that already existed wiped its name and reported it as created.** The door wrote a
   fresh `{ name }` record on every line, so a bare re-entry on a VLAN named `sales` replaced the name with the
   default `VLAN0020` - and the sentence hid it, announcing `VLAN 20 created (name: VLAN0020)`: a creation that
