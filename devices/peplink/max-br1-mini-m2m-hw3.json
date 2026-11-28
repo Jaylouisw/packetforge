@@ -20,13 +20,15 @@
       "name": "lan1",
       "type": "ethernet",
       "connector": "rj45",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": 18
     },
     {
       "name": "lan2",
       "type": "ethernet",
       "connector": "rj45",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": false
     },
     {
       "name": "wwan1",
@@ -39,8 +41,8 @@
       "speed": "300M"
     }
   ],
-  "sourceUrl": "https://download.peplink.com/resources/br1-mini-m2m.pdf",
-  "notes": "Vendor figures from the BR1 Mini M2M HW3 datasheet: Ethernet WAN port **0 / 1 (GE)**, LAN port **2 / 1 (GE)** under PrimeCare, Router Throughput 300 Mbps, Wi-Fi AP Yes, PoE Input Yes. **This HW3 M2M is gigabit**, unlike the older MAX BR1 Industrial M2M in this catalogue which has fast-Ethernet ports and a 100 Mbps ceiling - the same product name, a different hardware revision, and a ten-times throughput difference.",
+  "sourceUrl": "https://download.peplink.com/resources/br1_mini_m2m_datasheet.pdf",
+  "notes": "Vendor figures from the BR1 Mini M2M HW3 datasheet: Ethernet WAN port **0 / 1 (GE)**, LAN port **2 / 1 (GE)** under PrimeCare, Router Throughput 300 Mbps, Wi-Fi AP Yes, PoE Input Yes. **This HW3 M2M is gigabit**, unlike the older MAX BR1 Industrial M2M in this catalogue which has fast-Ethernet ports and a 100 Mbps ceiling - the same product name, a different hardware revision, and a ten-times throughput difference. **PoE: LAN 1 only.** The BR1 Mini M2M HW3 datasheet prints \"1x ... Ethernet with 802.3at PoE input\" over a two-port LAN row without naming the socket; the hardware reference guide's panel drawing labels the pair \"LAN 1 | 2 / WAN\" with **802.3at PoE IN** under LAN 1 and the parts list reads \"1x GE LAN Port with 802.3at PoE Input\". LAN 1 declares `poeIn: 18` (the datasheet's maximum consumption, \"13W (nominal), 18W (max.)\"), LAN 2 declares `poeIn: false`. Sources: https://download.peplink.com/resources/br1_mini_m2m_datasheet.pdf (datasheet) and https://download.peplink.com/manual/br1_mini_m2m_hardware_reference_guide.pdf (panel drawing and parts list).",
   "role": [
     "sd-wan"
   ]
