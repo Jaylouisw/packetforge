@@ -1,9 +1,9 @@
 {
   "vendor": "ubiquiti",
   "model": "UCK-G2-SSD",
-  "label": "UniFi CloudKey+",
+  "label": "UniFi CloudKey+ SSD (UCK-G2-SSD)",
   "category": "host",
-  "description": "UniFi CloudKey+ (UCK-G2-SSD) - 1x 1G RJ45. 802.3af PoE-in; 9.6 W max.",
+  "description": "UniFi CloudKey+ SSD (UCK-G2-SSD) - compact UniFi console with a pre-installed 1 TB 2.5\" SATA SSD (user-upgradeable). 1x 1G RJ45, powered by 802.3af PoE-in (9.6 W max) or an optional USB-C adapter.",
   "capabilities": [
     "l2-forward",
     "http-server",
@@ -16,10 +16,12 @@
       "name": "eth0",
       "type": "ethernet",
       "connector": "rj45",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": 9.6
     }
   ],
   "icon": "host",
   "color": "#14b8a6",
+  "notes": "Ubiquiti tech specs https://techspecs.ui.com/unifi/physical-security/uck-g2-ssd (read 2026-11-28): **Networking Interface (1) GbE RJ45**, **Hard Drive Capacity 1 TB 2.5\" SATA SSD (User-upgradeable)**, **Max. Power Consumption 9.6W**, **Power Method PoE / USB-C power with Quick charge 2.0/3.0 power adapter, 9V DC, 2A (Optional)**; 131.2 x 27.1 x 134.2 mm, 560 g, 1.42\" grey-scale OLED, Octa-core Cortex-A53 with 3 GB RAM and 32 GB eMMC, 24 HD / 14 2K / 8 4K managed cameras. Two SKUs are sold as a CloudKey+, and this is the SSD one: Ubiquiti's own store titles them **CloudKey+ SSD** (UCK-G2-SSD) and **CloudKey+ HDD** (UCK-G2-PLUS, devices/ubiquiti/uck-g2-plus.json) - same chassis, different drive, different power ceiling - so the label carries the drive type and both remain findable by typing CloudKey+. The tech-specs Power Method row prints PoE without a class; 802.3af is what Ubiquiti's sibling quick start guides name (the UCK-G2 and UCK-G2-PLUS guides both require an 802.3af switch), it is what resellers print for this SKU, and the 9.6 W draw sits inside the 802.3af PD envelope. One copper jack only: no SFP, no second port, no PoE out, so the box cannot pass power to anything downstream.",
   "sourceUrl": "https://techspecs.ui.com/unifi/physical-security/uck-g2-ssd"
 }
