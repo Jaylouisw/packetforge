@@ -18,17 +18,20 @@
     {
       "name": "eth1",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "poeIn": false
     },
     {
       "name": "eth2",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "poeIn": false
     },
     {
       "name": "eth3",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "poeIn": false
     },
     {
       "name": "radio0",
@@ -38,5 +41,6 @@
   ],
   "icon": "ap",
   "color": "#14b8a6",
-  "sourceUrl": "https://mikrotik.com/product/RB931-2nD"
+  "sourceUrl": "https://mikrotik.com/product/RB931-2nD",
+  "notes": "No PoE on any socket. https://manual.mikrotik.com/hardware/hap-mini/ (read 2026-11-28): \"The device accepts powering from the microUSB port. The port itself does not function as a standard microUSB port for data, it is only used for power.\" Power consumption 3.5 W under maximum load. https://mikrotik.com/product/RB931-2nD: Number of DC inputs 1 (MicroUSB), 3x 10/100 ports, no PoE in/out row. eth1-eth3 are poeIn: false."
 }

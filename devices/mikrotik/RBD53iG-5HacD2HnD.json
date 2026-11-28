@@ -11,33 +11,42 @@
     "cli",
     "nat",
     "dhcp-server",
-    "firewall"
+    "firewall",
+    "poe-pse",
+    "passive-poe"
   ],
   "interfaces": [
     {
       "name": "eth1",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": 12
     },
     {
       "name": "eth2",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": false
     },
     {
       "name": "eth3",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": false
     },
     {
       "name": "eth4",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": false
     },
     {
       "name": "eth5",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": false,
+      "poeOut": true,
+      "poeOutClass": "passive"
     },
     {
       "name": "wlan1",
@@ -46,5 +55,10 @@
     }
   ],
   "icon": "ap",
-  "color": "#14b8a6"
+  "color": "#14b8a6",
+  "sourceUrl": "https://mikrotik.com/product/hap_ac3",
+  "poe": {
+    "budgetUnknown": true
+  },
+  "notes": "Inlet is eth1, outlet eth5. https://manual.mikrotik.com/hardware/hap-ac3/ (read 2026-11-28): \"The device accepts powering from the adapter and PoE ... PoE in 18-28 V DC on ethernet 1. The power consumption under maximum load can reach 12 W, with attachments 30 W.\" https://mikrotik.com/product/hap_ac3: PoE in Passive PoE, PoE in input Voltage 18-28 V, PoE-out ports Ether5, PoE out Passive PoE, PoE-Out current limit 0.5 A, Max power consumption 30 W, Max power consumption without attachments 12 W. The inlet asks for 12 W; eth2-eth4 are poeIn: false; eth5 sources power it did not generate, so the budget is the supply, not a figure MikroTik prints."
 }

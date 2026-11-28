@@ -18,22 +18,26 @@
     {
       "name": "eth1",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "poeIn": false
     },
     {
       "name": "eth2",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "poeIn": false
     },
     {
       "name": "eth3",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "poeIn": false
     },
     {
       "name": "eth4",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "poeIn": false
     },
     {
       "name": "radio0",
@@ -43,5 +47,6 @@
   ],
   "icon": "ap",
   "color": "#14b8a6",
-  "sourceUrl": "https://mikrotik.com/product/RB941-2nD"
+  "sourceUrl": "https://mikrotik.com/product/RB941-2nD",
+  "notes": "No PoE on any socket. https://manual.mikrotik.com/hardware/hap-lite/ (read 2026-11-28): \"The device accepts power in the following ways: microUSB accepts 5 V DC. The power consumption under maximum load can reach 5 W.\" - one microUSB inlet and no PoE line anywhere in the guide (it gives 5 W under maximum load where the product page gives 3.5 W; neither figure is a PoE draw, so neither is a declared inlet). https://mikrotik.com/product/RB941-2nD: Number of DC inputs 1 (MicroUSB), Max power consumption 3.5 W, and no PoE in or PoE out row. Every copper socket is poeIn: false, which stops the wireless-class guess from claiming 12.95 W on each of the four Fast Ethernet ports of a 3.5 W USB-powered AP."
 }

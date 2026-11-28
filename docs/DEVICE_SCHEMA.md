@@ -217,15 +217,15 @@ the engine learns to read is better kept than lost at import time.
 copies the value through untouched (`engine/media.js:1098`), and the device-wide guess fires only on
 a socket whose `poeIn` is still `null` (`:1122-1124`) — so a mains-supplied box that `isPoePd()`
 matches on its model (`:1174`) keeps its sockets empty instead of claiming 12.95 W on each. The
-allocation loop skips such a socket for the same reason (`engine/simulator.js:2908`). 70 specs spell
-778 sockets this way, counted at `17b1df4b` with the five MikroTik inlet rows below. 41 Ubiquiti
+allocation loop skips such a socket for the same reason (`engine/simulator.js:2908`). 80 specs spell
+815 sockets this way, counted at `e7afba33` with the MikroTik inlet rows below. 41 Ubiquiti
 sheets hold 636: seventeen switches that switch but do not accept power
 (`devices/ubiquiti/ecs-48s.json` alone spells 49, the five 48-port
 sheets 48 apiece, `ecs-24s` 25 and the seven 24-port sheets 168, the Pro Max 16 its 16, the
 EdgeSwitch 18X 15, the industrial DIN 8 its 8 — 521 in all) and 107 on the UDM/UCG/UDR/UX/UXG
 gateways and the EdgeRouters — the EdgeRouter 12's nine copper sockets among them, since #1737 moved
 its inlet to `eth0` (20 W) and left `eth1`–`eth9` `false` — and eight on the Flex 2.5G's 2.5G bank,
-whose one inlet is the 14 W PoE+ on its 10G uplink (#1740). Twenty-one MikroTik sheets hold 125: the
+whose one inlet is the 14 W PoE+ on its 10G uplink (#1740). Thirty-one MikroTik sheets hold 162: the
 twelve copper sockets of `devices/mikrotik/rb1100dx4.json` beside the one inlet its manual names
 (`eth13`, 25.5 W), five apiece on fifteen Chateau/d53g/s53ug sheets that declare no inlet on any
 port, and 38 on the five single-inlet boards - every socket beside the inlet, five of them the
@@ -234,7 +234,13 @@ either. Those five had been drawing 12.95 W on every copper socket: `rb4011igs-5
 asked for 103.6 W on a 23 W board, `rb2011uias-2hnd.json` and `-in.json` for 103.6 W apiece on 6 W
 and 11 W boards, `l009uigs-2haxd-in.json` for 77.7 W on 14 W, and `rb450gx4.json` for 64.75 W on
 5 W - 453.25 W between them, now 59 W, and two of the five print `PoE in Passive PoE` and will
-not run from the 802.3af injector the guess assumed. Seven Peplink routers
+not run from the 802.3af injector the guess assumed. Ten more are the hAP and wsAP home boxes:
+`eth1` is the inlet each manual names and 37 sockets beside it are cold - the hAP lite, the hAP
+lite TC and the hAP mini have no PoE at all (microUSB power only, 3.5 W boards the guess had
+drawing power on 11 sockets), and the seven with an inlet ask 7, 8, 8, 17, 16, 12 and 6 W (74 W)
+where the seven inlet sockets spelled the schema-illegal `poeIn: true` and the 37 beside them
+were guessed at 12.95 W apiece (479.15 W).
+Seven Peplink routers
 hold 16, the LAN ports beside the one PoE inlet they do have (`devices/peplink/max-br1-ip55.json`
 draws its 18 W on `wan1` and declares `lan1`/`lan2` unpowered), and
 `devices/radwin/radwin-5000-jet.json` the last one. `test/ubiquiti-usw-ac-nonpoe.test.js` pins the

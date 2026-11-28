@@ -21,29 +21,33 @@
       "name": "eth1",
       "type": "ethernet",
       "speed": "100M",
-      "poeIn": true
+      "poeIn": 8
     },
     {
       "name": "eth2",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "poeIn": false
     },
     {
       "name": "eth3",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "poeIn": false
     },
     {
       "name": "eth4",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "poeIn": false
     },
     {
       "name": "eth5",
       "type": "ethernet",
       "speed": "100M",
       "poeOut": true,
-      "poeOutClass": "passive"
+      "poeOutClass": "passive",
+      "poeIn": false
     },
     {
       "name": "radio0",
@@ -62,5 +66,5 @@
   "poe": {
     "budgetUnknown": true
   },
-  "notes": "Power method from the mikrotik.com spec table: **PoE in: Passive PoE** (10-28 V) on `eth1`; **PoE out on `eth5`** - it powers the device above it on the mast or the AP on the wall, and the port is the vendor's own, not a convention. Input is recorded on the first Ethernet port because the table states the method and voltage but does not name the port, and every MikroTik with a PoE-IN DC input takes it there. Max power consumption 20 W."
+  "notes": "Inlet is eth1, outlet eth5 - same board as RB952Ui-5ac2nD in the TC case. https://manual.mikrotik.com/hardware/hap-ac-lite-tc/ (read 2026-11-28): \"First Ethernet port accepts passive Power over Ethernet accepts 12-30 V DC ... The Ether5 port supports PoE output\". https://mikrotik.com/product/RB952Ui-5ac2nD-TC: PoE in Passive PoE, PoE in input Voltage 10-28 V, PoE-out ports Ether5, PoE-Out current limit 500 mA, Max power consumption 20 W, Max power consumption without attachments 8 W. eth1 draws 8 W; eth2-eth4 are poeIn: false; eth5 sources."
 }

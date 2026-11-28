@@ -19,27 +19,32 @@
     {
       "name": "eth1",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": 16
     },
     {
       "name": "eth2",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": false
     },
     {
       "name": "eth3",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": false
     },
     {
       "name": "eth4",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": false
     },
     {
       "name": "eth5",
       "type": "ethernet",
-      "speed": "1G"
+      "speed": "1G",
+      "poeIn": false
     },
     {
       "name": "radio0",
@@ -54,5 +59,6 @@
   ],
   "icon": "ap",
   "color": "#14b8a6",
-  "sourceUrl": "https://mikrotik.com/product/hap_ac2"
+  "sourceUrl": "https://mikrotik.com/product/hap_ac2",
+  "notes": "Inlet is eth1, and there is no PoE-out. https://manual.mikrotik.com/hardware/hap-ac-2/ (read 2026-11-28): \"The device accepts power from the power jack or from the first Ethernet port (Passive PoE) ... first Ethernet port accepts passive Power over Ethernet accepts 18-28 V DC\". https://mikrotik.com/product/hap_ac2: Number of DC inputs 2 (DC jack, PoE-IN), PoE in Passive PoE, PoE in input Voltage 18-28 V, Max power consumption 21 W, Max power consumption without attachments 16 W, no PoE-out row. eth1 draws 16 W; eth2-eth5 are poeIn: false."
 }
