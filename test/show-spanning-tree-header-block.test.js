@@ -125,6 +125,54 @@ console.log('A non-root prints what it pays to reach the root');
 }
 
 console.log('');
+console.log('Each timer line reads the timers it belongs to, not a literal');
+{
+  // Both lines used to be one literal - `Hello Time   2 sec  Max Age 20 sec  Forward Delay 15 sec` typed in twice -
+  // while the forward delay and max age on the device config already paced the ports. A fixture with a 4 s forward
+  // delay forwarded its ports at 8 s and its own report told the reader 15 (#1724).
+  //
+  // A real box prints two *different* sets: the Root ID block carries the root's timers (they arrive in the root's
+  // configuration BPDU, and only those pace the tree), the Bridge ID block this box's own configuration. The
+  // fixture is the networkplayroom shape from research/stp-timer-lines-source.md - root 10/40/30 over a local
+  // 2/20/15 - which is the pair a capture shows on one screen.
+  const env = pair();
+  const conv = require('../engine/convergence');
+  const root = env.t.getDevice('sw1');
+  const local = env.t.getDevice('sw2');
+  root.config.stpPriority = 4096;
+  root.config.stpHelloSec = 10;
+  root.config.stpMaxAgeSec = 40;
+  root.config.stpForwardDelaySec = 30;
+  local.config.stpForwardDelaySec = 4;
+
+  const rootOut = show(env, 'sw1');
+  const rootLine = '             Hello Time  10 sec  Max Age 40 sec  Forward Delay 30 sec';
+  ok(rootOut[5] === rootLine, 'a root prints its own timers on the Root ID line', rootOut[5]);
+  ok(rootOut[9] === rootLine, 'and the same ones on the Bridge ID line, as a box does', rootOut[9]);
+
+  const out = show(env, 'sw2');
+  ok(out[6] === rootLine, "a non-root prints the root's timers on the Root ID line", out[6]);
+  ok(out[6].indexOf('Hello Time  10') === 13,
+    'a two-digit hello keeps the columns: two spaces after the label',
+    JSON.stringify(out[6]));
+  ok(out[10] === '             Hello Time   2 sec  Max Age 20 sec  Forward Delay 4 sec',
+    'and its own configuration on the Bridge ID line, forward delay and all', out[10]);
+  ok(out.slice(6, 11).indexOf(rootLine) !== -1 && out[10] !== rootLine,
+    'the two lines are read separately, not printed twice from one literal',
+    JSON.stringify([out[6], out[10]]));
+
+  // The number in the report is the number the ports converge on: one function, `stpTimers()`, feeds both. This
+  // is the assertion the literal failed - it called the delay 15 while the same device's table forwarded at 8 s.
+  const printed = Number(/Forward Delay (\d+) sec/.exec(out[10])[1]);
+  ok(printed === conv.stpTimers(local).forwardDelaySec,
+    'the printed forward delay is the one `stpTimers()` returns', String(printed));
+  ok(conv.stpPortStateAt(local, true, printed * 2000) === 'forwarding',
+    'and the instant the report implies is the instant the port forwards at', String(printed * 2000));
+  ok(conv.stpPortStateAt(local, true, printed * 2000 - 1) === 'learning',
+    'one millisecond earlier it is still learning', String(printed * 2000 - 1));
+}
+
+console.log('');
 console.log('A priority somebody set moves the extended half of the bridge ID');
 {
   const env = pair();
@@ -154,6 +202,10 @@ console.log('A console with no simulator behind it prints what it knows and says
     'the line says what is missing rather than guessing a root', out[4]);
   ok(/[(]priority 32768 sys-id-ext 1[)]/.test(out[7]), 'the bridge ID it does know is still printed', out[7]);
   ok(out[8].slice(25) === ownMac, "with the box's own address, from the device rather than from an election", out[8]);
+  // No root has spoken, so the Root ID line has no root's timers to carry and the box prints what it is configured
+  // with on both - its own numbers, not a second literal (#1724).
+  ok(out[5] === TIMERS && out[9] === TIMERS,
+    'with no election, both lines read the timers this box is configured with', JSON.stringify([out[5], out[9]]));
 }
 
 console.log('');

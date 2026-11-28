@@ -2687,6 +2687,14 @@ Fa0/1               Desg FWD 4         128.1    P2p
 Fa0/2               Altn BLK 4         128.2    P2p
 ```
 
+The two `Hello Time ... Max Age ... Forward Delay ...` lines are not one line printed twice. The upper one sits in
+the Root ID block and carries the **root's** timers - they arrive in the root's configuration BPDU and only those
+pace the tree - while the lower one carries this box's own configured timers. On a root the two are equal, which is
+why this sample shows the same numbers twice; a non-root whose root advertises a 4 s forward delay prints
+`Forward Delay 4` above `Forward Delay 15` (`research/stp-timer-lines-source.md`). Both lines are formatted from the
+timers the converge schedule uses (`stpTimers()`), so they show a fixture's configuration rather than the 802.1D
+defaults, and a clock that is present but empty (`null`) counts as unset.
+
 The `Role` and `Sts` cells are the device's table cells, not its detail view: a box prints `Root`, `Desg`,
 `Altn` and `FWD`, `BLK` (plus `LTN`/`LRN` while the tree is still converging), and keeps `designated forwarding`
 for a detail view this console does not model. The word is refused rather than answered, and the refusal points

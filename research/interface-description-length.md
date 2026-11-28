@@ -2,7 +2,7 @@
 
 **Question (one, narrow).** `description <text>` in interface configuration mode takes a free-text string, which
 this console stores whole (`engine/cli.js:2957`) and prints back in `show interfaces <port>` (`desc: ...`,
-`engine/cli.js:7931`) and in `show running-config` (`engine/cli.js:8123`). Is there a maximum length, what is it,
+`engine/cli.js:7931`) and in `show running-config` (`engine/cli.js:8851`). Is there a maximum length, what is it,
 and what does an IOS-like box do with a string longer than it - refuse it, truncate it, or store it anyway?
 
 **Verdict: half-settled, and still not implemented.** The first pass of this note said the number itself was
@@ -93,7 +93,7 @@ reference and not adopted as this console's help text.
 
 Nothing, and that is a choice rather than an oversight. `description <text>` stores the whole joined line
 (`engine/cli.js:2957`), `show interfaces <port>` prints it after `desc:` (`engine/cli.js:7931`), and
-`show running-config` prints it as `  description <text>` (`engine/cli.js:8123`). Measured on the generic switch
+`show running-config` prints it as `  description <text>` (`engine/cli.js:8851`). Measured on the generic switch
 in this catalogue: a 300-character description is stored as 300 characters, is echoed in full by the receipt and
 by both views, and makes a 314-column line in running-config. Nothing overflows a column, because the
 description is printed as a trailing free-text field and not inside a fixed-width cell - which is why the VLAN

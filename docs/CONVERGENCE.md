@@ -61,7 +61,7 @@ than in a special "simulation" state:
 Each has its standard default. Only **one** of the seven can be changed from the console today:
 `vrrp <vrid> timers advertise <seconds>` (interface mode) writes the advertisement interval, and `converge`
 then reports `3 x advertise 4 s + skew` - 12609.375 ms at the default skew, where the same box at 1 s
-reports 3609.375 ms. The rest are read from configuration keys - `stpForwardDelaySec` and
+reports 3609.375 ms. The rest are read from configuration keys - `stpHelloSec`, `stpForwardDelaySec` and
 `stpMaxAgeSec` on the device config, `ospf.helloSec`, `ospf.exchangeSec` and `ospf.spfDelaySec` under
 `config.ospf`, `dhcpExchangeSec` on the device config - that nothing in `engine/cli.js` writes. A
 fixture can set them; a technician cannot. STP is the plainest case: the console's only
@@ -74,6 +74,7 @@ commands, not the model.
 
 | Process | Default | Source |
 |---|---|---|
+| STP hello | 2 s | 802.1D §17.14 — the root's, relayed in its BPDU |
 | STP forward delay | 15 s | 802.1D §17.14 — a forwarding port waits 2× this |
 | STP max age | 20 s | 802.1D |
 | OSPF hello | 10 s | RFC 2328 on a broadcast segment |
@@ -81,6 +82,12 @@ commands, not the model.
 | OSPF SPF delay | 5 s | the hold before the first route lands |
 | VRRP advertisement | 1 s | RFC 5798 §6.1 |
 | DHCP exchange | 1 s | DISCOVER/OFFER/REQUEST/ACK |
+
+`show spanning-tree` prints these numbers rather than literals, and prints the **root's** hello / max age /
+forward delay in its Root ID block, because those are the ones a box is running on
+(`research/stp-timer-lines-source.md`). The converge schedule still times each device by its own configuration,
+which is a gap on file as #1722: a lab whose devices disagree about the timers reports the root's numbers and
+converges on its own.
 
 `engine/convergence.js` is pure: it reads configuration and returns times. No clock, no state, no
 side effects. The simulator decides what to do with the answer.

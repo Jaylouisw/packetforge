@@ -8059,6 +8059,24 @@ class CliSession {
       // rule the election applies, asked of the device directly, so `Address` is not blank on a live console.
       const ownMac = (ownBridge && ownBridge.mac) ? ownBridge.mac
         : (typeof dev.lowestInterfaceMac === 'function' ? dev.lowestInterfaceMac() : null);
+      // The device the Root ID block describes. A root's timers are the ones this box is actually running on: they
+      // arrive in the root's configuration BPDU and only they pace the tree, which is why a lab can print
+      // `Forward Delay 4` on one line and `15` on the next (research/stp-timer-lines-source.md, #1724). The
+      // election already names that device by key, so its configuration is one lookup, not a second election.
+      const rootDev = (rootRes && this.topo && typeof this.topo.getDevice === 'function')
+        ? this.topo.getDevice(rootRes.key) : null;
+      // Both timer lines are formatted from `convergence.stpTimers()`, the same function the converge schedule
+      // times the ports by, so the report cannot tell a fixture its forward delay is 15 while forwarding its
+      // ports at 8 s (#1724). The three numbers are the box's own on the Bridge ID line and the root's on the
+      // Root ID line; with no election there is no root to borrow them from and the box prints what it has.
+      const stpTimers = require('./convergence').stpTimers;
+      const timersLine = function (source) {
+        const t = stpTimers(source || dev);
+        // `Hello Time`'s value is right-aligned in the width a two-digit hello fills: the capture reads three
+        // spaces before `2` and two before `10`, and a fixture's hello is one number or the other.
+        return '             Hello Time' + String(t.helloSec).padStart(4) + ' sec  Max Age ' + t.maxAgeSec +
+          ' sec  Forward Delay ' + t.forwardDelaySec + ' sec';
+      };
       const address = function (mac) { return mac ? net.formatMac(mac) : '-'; };
       // The port's number in the chassis port table, which is the same ordinal the table's `Prio.Nbr` cell
       // prints. A bundle has no number this model can defend, so it reads `-` here as it does there.
@@ -8079,12 +8097,12 @@ class CliSession {
       } else {
         out.push('             root bridge not measured (no election has run)');
       }
-      out.push('             Hello Time   2 sec  Max Age 20 sec  Forward Delay 15 sec');
+      out.push(timersLine(rootDev));
       out.push('');
       out.push('  Bridge ID  Priority    ' + extended(mine) + '  (priority ' + mine +
         ' sys-id-ext ' + SYS_ID_EXT + ')');
       out.push('             Address     ' + address(ownMac));
-      out.push('             Hello Time   2 sec  Max Age 20 sec  Forward Delay 15 sec');
+      out.push(timersLine(dev));
       // The ageing line is the forwarding-database timer, not the max age - the same 300 s constant
       // `show mac address-table` ages an entry by, read from the model rather than written down twice
       // (research/show-spanning-tree-aging-time.md).

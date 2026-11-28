@@ -62,6 +62,21 @@ t('STP: a port is forwarding after Listening and Learning, not before');
 }
 
 {
+  // The three numbers a BPDU carries, not only the two the schedule consumes: `show spanning-tree` prints all
+  // three and refused to read them from here, so a fixture with a 4 s forward delay was told 15 (#1724).
+  const d = conv.stpTimers({});
+  eq(d.helloSec, 2, 'the hello time comes back as a number, at 2 s');
+  eq(d.maxAgeSec, 20, 'so does the max age, at 20 s');
+  eq(d.forwardDelaySec, 15, 'and the forward delay, at 15 s');
+  const set = conv.stpTimers({ config: { stpHelloSec: 10, stpMaxAgeSec: 40, stpForwardDelaySec: 30 } });
+  eq(set.helloSec, 10, 'a configured hello time is read from the device config');
+  eq(set.maxAgeSec, 40, 'a configured max age too');
+  eq(set.maxAgeMs, 40000, 'and the millisecond form of the max age follows it');
+  eq(conv.stpTimers({ config: { stpHelloSec: null } }).helloSec, 2,
+    'a null hello time falls back to the default rather than printing null');
+}
+
+{
   const d = conv.stpTimers({ config: { stpForwardDelaySec: 4 } });
   eq(d.forwardAtMs, 8000, 'a configured 4 s forward delay halves the wait to 8 s');
   eq(conv.stpPortStateAt({ config: { stpForwardDelaySec: 4 } }, true, 8000), 'forwarding',

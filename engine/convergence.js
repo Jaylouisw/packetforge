@@ -44,6 +44,10 @@ const C = {
 };
 
 function num(v, dflt) {
+  // A key that is present but empty is not a timer of 0 s. `null` and `""` both coerce to 0 through `Number()`,
+  // so a document that carried `"stpHelloSec": null` used to make this function answer a hello time of zero -
+  // and, on the forward delay, a port that forwards the instant it is cabled. Absent means the default (#1724).
+  if (v === null || v === undefined || v === '') return dflt;
   const n = Number(v);
   return Number.isFinite(n) && n >= 0 ? n : dflt;
 }
@@ -54,13 +58,21 @@ function num(v, dflt) {
 function stpTimers(dev) {
   const cfg = (dev && dev.config) || {};
   const fd = num(cfg.stpForwardDelaySec, C.stpForwardDelaySec);
+  const maxAge = num(cfg.stpMaxAgeSec, C.stpMaxAgeSec);
+  const hello = num(cfg.stpHelloSec, C.stpHelloSec);
+  // The three numbers a BPDU carries are returned as numbers, not only in the form the schedule
+  // consumes them: `show spanning-tree` prints `Hello Time <h> sec  Max Age <m> sec  Forward Delay
+  // <fd> sec`, and a report that formats its own copy of a timer can contradict the schedule the same
+  // device is converging on (#1724). One function, one set of numbers, two readers.
   // A port's path to Forwarding is Listening then Learning: two forward delays.
   return {
+    helloSec: hello,
+    maxAgeSec: maxAge,
     forwardDelaySec: fd,
     listenEndMs: fd * 1000,
     learnEndMs: fd * 2000,
     forwardAtMs: fd * 2000,
-    maxAgeMs: num(cfg.stpMaxAgeSec, C.stpMaxAgeSec) * 1000
+    maxAgeMs: maxAge * 1000
   };
 }
 
