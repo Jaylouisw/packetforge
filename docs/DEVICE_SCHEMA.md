@@ -217,13 +217,14 @@ the engine learns to read is better kept than lost at import time.
 copies the value through untouched (`engine/media.js:1098`), and the device-wide guess fires only on
 a socket whose `poeIn` is still `null` (`:1122-1124`) — so a mains-supplied box that `isPoePd()`
 matches on its model (`:1174`) keeps its sockets empty instead of claiming 12.95 W on each. The
-allocation loop skips such a socket for the same reason (`engine/simulator.js:2908`). 64 specs spell
-732 sockets this way, counted at `7156e501`. 40 Ubiquiti sheets hold 628: seventeen switches that
+allocation loop skips such a socket for the same reason (`engine/simulator.js:2908`). 65 specs spell
+740 sockets this way, counted at `4a20b7ed`. 41 Ubiquiti sheets hold 636: seventeen switches that
 switch but do not accept power (`devices/ubiquiti/ecs-48s.json` alone spells 49, the five 48-port
 sheets 48 apiece, `ecs-24s` 25 and the seven 24-port sheets 168, the Pro Max 16 its 16, the
 EdgeSwitch 18X 15, the industrial DIN 8 its 8 — 521 in all) and 107 on the UDM/UCG/UDR/UX/UXG
 gateways and the EdgeRouters — the EdgeRouter 12's nine copper sockets among them, since #1737 moved
-its inlet to `eth0` (20 W) and left `eth1`–`eth9` `false`. Sixteen MikroTik sheets hold 87: the
+its inlet to `eth0` (20 W) and left `eth1`–`eth9` `false` — and eight on the Flex 2.5G's 2.5G bank,
+whose one inlet is the 14 W PoE+ on its 10G uplink (#1740). Sixteen MikroTik sheets hold 87: the
 twelve copper sockets of `devices/mikrotik/rb1100dx4.json` beside the one inlet its manual names
 (`eth13`, 25.5 W), and five apiece on fifteen Chateau/d53g/s53ug sheets that declare no inlet on any
 port. Seven Peplink routers
@@ -235,7 +236,9 @@ took 12.95 W off (242 sockets that had been drawing 3,133.9 W),
 `test/ubiquiti-standard24-industrial-nonpoe.test.js` the 32 sockets #1730 took 414.4 W off, USW-24's
 24 and the industrial DIN 8's 8, `test/mikrotik-rb1100dx4-poe-in.test.js` the Dude's twelve
 beside its `eth13` inlet, and `test/ubiquiti-er-12-poe-in.test.js` the ER-12's 20 W inlet against
-the nine sockets it leaves cold (the device used to ask for 129.5 W). What `false` does not survive
+the nine sockets it leaves cold (the device used to ask for 129.5 W), and
+`test/ubiquiti-usw-flex-2-5g-8-poe-in.test.js` the Flex 2.5G's 14 W uplink inlet beside the eight
+sockets it leaves cold (the device used to ask for 116.55 W). What `false` does not survive
 is normalisation: `completeHardware()` passes it through `numOrNull()` (`engine/validation.js:363`,
 `:213`), which answers `0` for any
 boolean, so the connection validator sees a socket that draws nothing but no longer sees that the
