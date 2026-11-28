@@ -18,6 +18,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **Three OSPF routers on one access switch were not neighbours at all.** `computeOspf()` walked
+  `topo.links`, so an adjacency needed a cable between the two devices: two routers cabled into the same
+  switch - the commonest OSPF lab there is, and the one the DR/BDR pair is taught on - answered
+  `% no adjacencies: nothing on the other end of an OSPF interface is running OSPF` on every box, and
+  installed no route. A Hello is a multicast within a broadcast domain, which is the walk
+  `segmentOf()` already performs for DHCP (bridges, VLANs, link state and the spanning tree's blocked
+  ports), so the adjacency set is now the segment's - a cable is the degenerate case, a segment of two.
+  The election moved with it: elected pairwise, a segment of three routers produced *two* DRs. It is now
+  one DR and one BDR per segment (highest Router Priority, then highest Router ID), and the routers that
+  are neither print `2WAY/DROTHER` for each other, as a box does - a real neighbour that carries no LSA,
+  listed in `show ip ospf neighbor` and never used as a next hop. The closing sentence counts them
+  (`3 neighbour(s), 2 fully adjacent (1 in 2WAY/DROTHER)`) instead of claiming every row is FULL.
+  `test/ospf-segment-adjacency.test.js` (27 assertions) and `research/ospf-segment-adjacency.md`.
 - **A non-root's ports were paced by its own forward delay, not the root's.** A bridge adopts the hello,
   forward delay and max age the root advertises in its configuration BPDU - "all switches in the Spanning Tree
   topology learn and use such Timers Values, ignoring local Timers Values" (Cisco Learning Network) - so a tree

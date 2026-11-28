@@ -1419,6 +1419,46 @@ class Simulator {
     return ospfLib.costForSpeed(iface && iface.speed);
   }
 
+  // Every unordered pair of OSPF-speaking ports that can hear each other's Hellos.
+  //
+  // A Hello is a multicast that goes everywhere in its broadcast domain and stops at a router, which
+  // is exactly the walk `segmentOf()` performs for DHCP (`engine/segment.ts`): it crosses bridges,
+  // honours the VLAN a port is in, and passes nothing on a link that is down or a port the spanning
+  // tree is holding in a non-forwarding state. Asking it per OSPF interface therefore gives the real
+  // neighbour set of a *segment*, not of a cable - and a segment of two routers joined by one cable
+  // answers with the same single pair the old per-link walk did, so nothing about a two-router lab
+  // changed.
+  //
+  // The list is deduplicated by the pair, because a segment is walked once from each end: from r1
+  // the walk sees r2 and r3, and from r2 it sees r1 and r3, and r1/r2 must be offered to the checks
+  // once or the model would hold two adjacencies between one pair of ports.
+  _ospfSegmentPairs(byId) {
+    const pairs = [];
+    const seen = new Set();
+    for (const devId of Object.keys(byId)) {
+      const entry = byId[devId];
+      const dev = entry.dev;
+      for (const i of dev.interfaces.values()) {
+        if (!i.enabled || !i.ip || !i.mask) continue;
+        if (entry.entry.interfaces.every(function (x) { return x.name !== i.name; })) continue;
+        const ends = segmentLib.segmentOf(this.topo, dev, i.name);
+        for (const ep of ends) {
+          if (!ep || !ep.device || !ep.iface) continue;
+          const peerEntry = byId[ep.device.id];
+          if (!peerEntry || peerEntry.dev.id === dev.id) continue;
+          const pi = ep.iface;
+          if (pi.enabled === false || !pi.ip || !pi.mask) continue;
+          const a = dev.id + '/' + i.name, b = peerEntry.dev.id + '/' + pi.name;
+          const key = a < b ? a + '|' + b : b + '|' + a;
+          if (seen.has(key)) continue;
+          seen.add(key);
+          pairs.push({ aId: dev.id, aIface: i.name, bId: peerEntry.dev.id, bIface: pi.name });
+        }
+      }
+    }
+    return pairs;
+  }
+
   // Run OSPF over the live topology and install the resulting routes on each
   // router as dev.ospfRoutes, which Device.routeTo() consults.
   computeOspf() {
@@ -1485,22 +1525,34 @@ class Simulator {
 
     if (routers.length < 2) { this.ospfResult = null; return null; }
 
-    // Adjacencies: a link between two OSPF speakers that both address it.
+    // Adjacencies: one **segment** at a time, not one cable at a time.
+    //
+    // This loop used to walk `topo.links`, so two routers were neighbours only when a cable joined
+    // the two of them. A broadcast segment is not a cable: three routers on one access switch are on
+    // one wire as far as OSPF is concerned, and `segmentOf()` already knew it - it is the walk DHCP
+    // uses to find a server across a bridge, honouring VLANs and the spanning tree's blocked ports.
+    // So the pairs below are the OSPF-speaking ports that share a segment, whether a cable or a
+    // switch joins them. A lab whose routers sit behind a switch - the commonest OSPF lab there is -
+    // answered `nothing on the other end of an OSPF interface is running OSPF` about two boxes one
+    // broadcast domain apart, and `show ip ospf neighbor` was empty on both.
     const links = [];
-    for (const l of this.topo.links.values()) {
-      const a = byId[l.a.deviceId];
-      const b = byId[l.b.deviceId];
+    const accepted = [];
+    const twoWay = [];
+    const pairs = this._ospfSegmentPairs(byId);
+    for (const p of pairs) {
+      const a = byId[p.aId];
+      const b = byId[p.bId];
       if (!a || !b) continue;
-      const ai = a.entry.interfaces.filter(function (x) { return x.name === l.a.iface; })[0];
-      const bi = b.entry.interfaces.filter(function (x) { return x.name === l.b.iface; })[0];
+      const ai = a.entry.interfaces.filter(function (x) { return x.name === p.aIface; })[0];
+      const bi = b.entry.interfaces.filter(function (x) { return x.name === p.bIface; })[0];
       if (!ai || !bi) continue;
       if (ai.passive || bi.passive) continue;   // passive: no hello, no adjacency (#43)
       // Hellos cross a wire, so an adjacency needs a wire that can carry them: a pulled cable, a link that is
       // down, or a shut far port forms no neighbour. This asked `enabled` (via `ifaces` above) and nothing
       // else, so two routers went on being adjacent across an unplugged cable and `show ip route` went on
       // offering an `O` route whose next hop answered nothing (#1271). BGP had the same defect (#1269).
-      const aIf = a.dev.interfaces.get(l.a.iface);
-      const bIf = b.dev.interfaces.get(l.b.iface);
+      const aIf = a.dev.interfaces.get(p.aIface);
+      const bIf = b.dev.interfaces.get(p.bIface);
       if (!aIf || !bIf) continue;
       if (a.dev.ifaceStatus(aIf, this.topo).status !== 'up') continue;
       if (b.dev.ifaceStatus(bIf, this.topo).status !== 'up') continue;
@@ -1517,9 +1569,9 @@ class Simulator {
       // field that disagreed instead of blaming a router that is running OSPF perfectly well. Both ends
       // keep the record - each box knows its own port and the same neighbour - and the two records are
       // mirrored, so `own` is the box that is reading and `peer` is the far end.
-      const endA = { dev: a.dev, iface: l.a.iface, peerIface: l.b.iface, peer: b.dev.id,
+      const endA = { dev: a.dev, iface: p.aIface, peerIface: p.bIface, peer: b.dev.id,
         ip: ai.ip, mask: ai.mask, peerIp: bi.ip, peerMask: bi.mask };
-      const endB = { dev: b.dev, iface: l.b.iface, peerIface: l.a.iface, peer: a.dev.id,
+      const endB = { dev: b.dev, iface: p.bIface, peerIface: p.aIface, peer: a.dev.id,
         ip: bi.ip, mask: bi.mask, peerIp: ai.ip, peerMask: ai.mask };
       // `network` is the network type whose comparison refused the link (`broadcast` or `p2p`), because a
       // `subnet` refusal comes from two different rules - the broadcast subnet check and the point-to-point
@@ -1574,11 +1626,11 @@ class Simulator {
       const tB = convergenceLib.ospfTimers(b.dev);
       if (tA.helloSec !== tB.helloSec || tA.deadSec !== tB.deadSec) {
         a.dev.ospfRejected.push({
-          reason: 'timers', iface: l.a.iface, peerIface: l.b.iface, peer: b.dev.id, peerAddress: bi.ip,
+          reason: 'timers', iface: p.aIface, peerIface: p.bIface, peer: b.dev.id, peerAddress: bi.ip,
           helloSec: tA.helloSec, deadSec: tA.deadSec, peerHellSec: tB.helloSec, peerDeadSec: tB.deadSec
         });
         b.dev.ospfRejected.push({
-          reason: 'timers', iface: l.b.iface, peerIface: l.a.iface, peer: a.dev.id, peerAddress: ai.ip,
+          reason: 'timers', iface: p.bIface, peerIface: p.aIface, peer: a.dev.id, peerAddress: ai.ip,
           helloSec: tB.helloSec, deadSec: tB.deadSec, peerHellSec: tA.helloSec, peerDeadSec: tA.deadSec
         });
         continue;
@@ -1593,11 +1645,11 @@ class Simulator {
       // every dotted area as 0, the same string compare then made two *different* areas look identical.
       if (ospfLib.areaOf(ai.area) !== ospfLib.areaOf(bi.area)) {
         a.dev.ospfRejected.push({
-          reason: 'area', iface: l.a.iface, peerIface: l.b.iface, peer: b.dev.id, peerAddress: bi.ip,
+          reason: 'area', iface: p.aIface, peerIface: p.bIface, peer: b.dev.id, peerAddress: bi.ip,
           area: ai.area, peerArea: bi.area
         });
         b.dev.ospfRejected.push({
-          reason: 'area', iface: l.b.iface, peerIface: l.a.iface, peer: a.dev.id, peerAddress: ai.ip,
+          reason: 'area', iface: p.bIface, peerIface: p.aIface, peer: a.dev.id, peerAddress: ai.ip,
           area: bi.area, peerArea: ai.area
         });
         continue;
@@ -1620,42 +1672,112 @@ class Simulator {
       // names the reason rather than printing a `FULL` the hardware cannot produce.
       if (!p2p && ai.priority === 0 && bi.priority === 0) {
         a.dev.ospfRejected.push({
-          reason: 'priority', iface: l.a.iface, peerIface: l.b.iface, peer: b.dev.id, peerAddress: bi.ip,
+          reason: 'priority', iface: p.aIface, peerIface: p.bIface, peer: b.dev.id, peerAddress: bi.ip,
           priority: 0, peerPriority: 0
         });
         b.dev.ospfRejected.push({
-          reason: 'priority', iface: l.b.iface, peerIface: l.a.iface, peer: a.dev.id, peerAddress: ai.ip,
+          reason: 'priority', iface: p.bIface, peerIface: p.aIface, peer: a.dev.id, peerAddress: ai.ip,
           priority: 0, peerPriority: 0
         });
         continue;
       }
-      let aRole = '-', bRole = '-';
-      if (!p2p) {
-        const aEligible = ai.priority > 0;
-        const bEligible = bi.priority > 0;
-        if (!aEligible) {
-          aRole = 'DROTHER';
-          bRole = 'DR';
-        } else if (!bEligible) {
-          aRole = 'DR';
-          bRole = 'DROTHER';
-        } else if (ai.priority !== bi.priority) {
-          const aDr = ai.priority > bi.priority;
-          aRole = aDr ? 'DR' : 'BDR';
-          bRole = aDr ? 'BDR' : 'DR';
-        } else {
-          const aNum = net.ipToInt(a.entry.routerId);
-          const bNum = net.ipToInt(b.entry.routerId);
-          // Equal router IDs are a misconfiguration a real box never becomes adjacent over; this model
-          // has no such diagnosis, so the tie falls back to the device id and stays stable.
-          const aDr = aNum > bNum || (aNum === bNum && String(a.id) < String(b.id));
-          aRole = aDr ? 'DR' : 'BDR';
-          bRole = aDr ? 'BDR' : 'DR';
-        }
+      // The pair is adjacent, but the roles it prints are decided per *segment* once every pair on
+      // that segment has been checked - see the block under this loop.
+      accepted.push({
+        aId: p.aId, aIface: p.aIface, bId: p.bId, bIface: p.bIface,
+        aKey: p.aId + '/' + p.aIface, bKey: p.bId + '/' + p.bIface,
+        p2p: p2p
+      });
+    }
+
+    // ------------------------------------------------------------------
+    // Who is DR, and which pairs reach FULL
+    //
+    // RFC 2328 7.3 and 7.4, word for word: "The Designated Router becomes adjacent to all other
+    // routers on the network", and "The Backup Designated Router is also adjacent to all routers on
+    // the network". Every other pair on a broadcast segment is two DROTHERs, and those stop at
+    // 2-Way: "routers that are neither a DR nor a BDR - called DROTHERs by OSPF - never reach a full
+    // state because they do not do database exchange with each other. As a result, the show ip ospf
+    // neighbor command on these routers list some neighbors, permanently, in a state of 2-way"
+    // (Cisco Learning Network, "DROther routers stay in a 2-way state? Or no?", a transcript of
+    // three routers on a 2960: the BDR's table reads `2.2.2.2 1 FULL/DR` and `3.3.3.3 1
+    // FULL/DROTHER`, while a DROTHER lists the other DROTHER as `2WAY/DROTHER`).
+    //
+    // So the election belongs to the segment, not to a cable. Elected pairwise - which is what this
+    // model did while an adjacency was a cable - a segment of three routers produced *two* DRs: a
+    // table no box can print, and one that would have told an operator the DR/BDR pair was simply
+    // not modelled.
+    //
+    // The rule inside the election is unchanged, and stays stated where it was: highest Router
+    // Priority first, then highest Router ID (Cisco's `ip ospf priority` usage guidelines, "the one
+    // with the higher router priority takes precedence. If there is a tie, the router with the
+    // higher router ID takes precedence"; RFC 2328 9.4), with the device id as the stable last
+    // resort for two routers that carry the same ID.
+    const segRoot = Object.create(null);
+    const segFind = function (k) {
+      if (segRoot[k] === undefined) { segRoot[k] = k; return k; }
+      let r = k;
+      while (segRoot[r] !== r) r = segRoot[r];
+      while (segRoot[k] !== r) { const next = segRoot[k]; segRoot[k] = r; k = next; }
+      return r;
+    };
+    const roleOf = Object.create(null);
+    const prioOf = Object.create(null);
+    const ridOf = Object.create(null);
+    const devOf = Object.create(null);
+    for (const acc of accepted) {
+      if (acc.p2p) continue;             // a serial line is point-to-point: no election, role `-`
+      const ra = segFind(acc.aKey), rb = segFind(acc.bKey);
+      if (ra !== rb) segRoot[rb] = ra;
+    }
+    for (const acc of accepted) {
+      if (acc.p2p) continue;
+      const ends = [{ key: acc.aKey, id: acc.aId, iface: acc.aIface },
+                    { key: acc.bKey, id: acc.bId, iface: acc.bIface }];
+      for (const end of ends) {
+        if (devOf[end.key] !== undefined) continue;
+        const entry = byId[end.id];
+        const i = entry.entry.interfaces.filter(function (x) { return x.name === end.iface; })[0];
+        devOf[end.key] = end.id;
+        prioOf[end.key] = i ? i.priority : 1;
+        ridOf[end.key] = entry.entry.routerId;
+      }
+    }
+    const bySegment = Object.create(null);
+    for (const key of Object.keys(devOf)) {
+      const r = segFind(key);
+      if (!bySegment[r]) bySegment[r] = [];
+      bySegment[r].push(key);
+    }
+    for (const root of Object.keys(bySegment)) {
+      const members = bySegment[root];
+      // Priority 0 is "ineligible", so those routers are discarded before the sort rather than
+      // losing it on the last comparison.
+      const eligible = members.filter(function (k) { return prioOf[k] > 0; });
+      eligible.sort(function (x, y) {
+        if (prioOf[x] !== prioOf[y]) return prioOf[y] - prioOf[x];
+        const nx = net.ipToInt(ridOf[x]), ny = net.ipToInt(ridOf[y]);
+        if (nx !== ny) return ny - nx;
+        return String(devOf[x]) < String(devOf[y]) ? -1 : 1;
+      });
+      for (const k of members) roleOf[k] = 'DROTHER';
+      if (eligible.length) roleOf[eligible[0]] = 'DR';
+      if (eligible.length > 1) roleOf[eligible[1]] = 'BDR';
+    }
+
+    for (const acc of accepted) {
+      const aRole = acc.p2p ? '-' : roleOf[acc.aKey];
+      const bRole = acc.p2p ? '-' : roleOf[acc.bKey];
+      // Two DROTHERs hear each other and stop there. The adjacency is real and a box lists it -
+      // `2WAY/DROTHER` - but no LSA crosses it, so it is not an edge of the shortest-path tree and
+      // must not become one here.
+      if (!acc.p2p && aRole === 'DROTHER' && bRole === 'DROTHER') {
+        twoWay.push({ aId: acc.aId, aIface: acc.aIface, bId: acc.bId, bIface: acc.bIface });
+        continue;
       }
       links.push({
-        a: { router: l.a.deviceId, iface: l.a.iface },
-        b: { router: l.b.deviceId, iface: l.b.iface },
+        a: { router: acc.aId, iface: acc.aIface },
+        b: { router: acc.bId, iface: acc.bIface },
         cost: 10,
         aRole: aRole,
         bRole: bRole
@@ -1690,12 +1812,40 @@ class Simulator {
           // same number the election above compares - one source, so the `Pri` cell cannot disagree with
           // the `State` cell beside it.
           priority: nbr[peerId].priority,
+          // `full` is what the row claims and what the route table is allowed to use: a 2-Way row
+          // below is a real neighbour that carries no LSA.
+          full: true,
           state: 'FULL/' + (nbr[peerId].role === '-' ? ' -' : nbr[peerId].role)
         };
       });
+      // The other kind of neighbour a box lists: two DROTHERs on one segment. They hear each
+      // other's Hellos and never exchange a database, so the row reads `2WAY/DROTHER` and it is the
+      // *normal* state on a segment with three or more routers - not a fault (RFC 2328 7.3/7.4,
+      // research/ospf-segment-adjacency.md).
+      for (const tw of twoWay) {
+        let peerId = null, ownIface = null;
+        if (tw.aId === r.id) { peerId = tw.bId; ownIface = tw.aIface; }
+        else if (tw.bId === r.id) { peerId = tw.aId; ownIface = tw.bIface; }
+        if (!peerId || nbr[peerId]) continue;
+        const peerIfaceName = (tw.aId === r.id) ? tw.bIface : tw.aIface;
+        const peerIface = byId[peerId].entry.interfaces.filter(function (x) {
+          return x.name === peerIfaceName;
+        })[0];
+        if (!peerIface) continue;
+        nbList.push({
+          routerId: byId[peerId].entry.routerId,
+          address: peerIface.ip,
+          iface: ownIface,
+          priority: peerIface.priority,
+          full: false,
+          state: '2WAY/DROTHER'
+        });
+      }
       ospfDevR.ospfNeighbors = nbList;
       for (const row of (ospfDevR.ospfInterfaces || [])) {
-        row.adjacent = nbList.some(function (n) { return n.iface === row.name; });
+        // A 2-Way neighbour is not an adjacency: a box counts its adjacent neighbours, not its
+        // neighbours (`show ip ospf interface` says "Nbrs F/C", full/2-Way).
+        row.adjacent = nbList.some(function (n) { return n.iface === row.name && n.full !== false; });
       }
       ospfDevR.ospfConverged = this._converged('ospf', ospfDevR);
 
