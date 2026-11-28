@@ -539,6 +539,18 @@ class Device {
     return null;
   }
 
+  // The address a spanning-tree election uses as this box's bridge ID: a switch's bridge address is the lowest
+  // MAC it holds, not any one port's. Kept here so the election and the report that prints the bridge ID block
+  // ask one rule - `show spanning-tree` prints this address in its `Bridge ID` block, and a console with no
+  // simulator behind it still has one to print (#1713).
+  lowestInterfaceMac() {
+    let mac = null;
+    for (const iface of this.interfaces.values()) {
+      if (iface.mac && (!mac || iface.mac < mac)) mac = iface.mac;
+    }
+    return mac;
+  }
+
   interfaceWithIp(ip) {
     for (const iface of this.activeInterfaces()) {
       if (iface.ip === ip) return iface;

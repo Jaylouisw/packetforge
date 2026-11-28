@@ -62,7 +62,7 @@ test('no spanning-tree <other thing> leaves the bridge priority alone', () => {
 
     // The second door agrees with the first: a view, not the state object.
     const stp = run('show spanning-tree');
-    assert.match(stp, /Bridge priority 4096/, 'the priority must survive in `show spanning-tree`');
+    assert.match(stp, /[(]priority 4096 sys-id-ext 1[)]/, 'the priority must survive in `show spanning-tree`');
     const cfg = run('show running-config');
     assert.match(cfg, /spanning-tree priority 4096/, 'and in the config a backup would capture');
   }
