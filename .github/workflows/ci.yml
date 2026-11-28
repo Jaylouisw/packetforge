@@ -7,8 +7,11 @@ name: CI
 # self-hosted runner used to execute. This file has to produce the same five checks with
 # the same names, because those names are what a branch protection rule reads:
 #
-#   Test (Node 22)                  the floor leg
-#   Test (Node 24)                  the newest runtime in the window
+#   Test (Node 22)                  the floor leg, over all of its suite - carried by a
+#                                   gate job, because each leg now runs its half of the
+#                                   suite on two boxes (`Test (Node 22) shard 1/2` and
+#                                   `2/2`); the gate is green only when both are
+#   Test (Node 24)                  the newest runtime in the window, split the same way
 #   Typecheck                       tsc --noEmit, no-any, module-paths, and the
 #                                   `node --check` sweep plus the three tree-wide
 #                                   static checks (on the suite's cores they cost
@@ -301,23 +304,45 @@ jobs:
           fi
           echo "HTTP smoke passed (all checks clean)"
 
-  test:
-    name: Test (Node ${{ matrix.node }})
+  # Each leg runs *half* the suite, on two runners, and a gate job carries the leg's name.
+  #
+  # The measurement that bought this: the suite is CPU-bound - 531 processes on the four
+  # cores a hosted runner has. Eight-way concurrency on the same four cores was 90.5 s
+  # against 72.5 s at four-way, so more overlap inside one box is not available. Run
+  # 46125732014: `Test (Node 22)` spent 89.3 s in the suite and `Test (Node 24)` 55.2 s on
+  # the same commit, with per-suite sums of 345 s and 209 s - each leg is one box doing all
+  # of the work, and the box is the pole. A second box is the only thing that shortens it.
+  #
+  # The halves are a partition by the *first character of the suite's file name*, because
+  # that is the granularity `scripts/run-tests.js --filter=` offers: it is a substring match
+  # on the path, not a regex. Bucket weights are read from the tree at run time and each
+  # bucket goes to the lighter half, so new suites rebalance the split instead of needing a
+  # hand-maintained list; `main`'s 531 suites currently split 266/265.
+  #
+  # What keeps the halves honest (a shard that quietly ran less is the one failure this
+  # change could introduce): each shard compares the suites the runner reported against the
+  # suites its buckets are worth and fails on any difference; every discovery path has to be
+  # a flat `test/<name>.test.js|.ts`, so a suite in a subdirectory (which no bucket would
+  # claim) fails the shard instead of going unrun; and the required check is a gate job that
+  # requires both halves of its leg to succeed.
+  test22:
+    name: Test (Node ${{ matrix.node }}) shard ${{ matrix.shard }}/2
     runs-on: ubuntu-latest
-    # 10 min is a hard kill and a hard kill takes the log with it, so what this number buys
-    # is the cost of an unexplained red rather than a safety margin: 10 min is more than
-    # eight times the slowest green leg measured (69 s) and above the two inner bounds that
-    # can legitimately run long (a 300 s suite plus its shutdown).
+    # 10 min is a hard kill and a hard kill takes the log with it. Half the suite costs
+    # about half of what the whole one did; the bound stays where it was so a shard that
+    # hangs is still cheap to read.
     timeout-minutes: 10
     # `always()` simply says "never let a previous job's colour decide whether this one
     # reports". A skipped test leg is not a failure - it is a run that reports nothing.
     if: always()
-    # Both versions, always. The only saving a data-only diff gets is the job where the
-    # slots were actually going: `Server smoke and Docker build` stands itself down. A
-    # data-only `if:` that read `matrix.node` died ~2 s into every leg (runs 1398, 1401,
-    # 1402) because a job condition is evaluated before the matrix exists, and a matrix
-    # built from an expression collapses to one unnamed leg that reports coverage it never
-    # had. There is no such thing as a data-only test leg.
+    # Both versions, always, and each of them twice. The only saving a data-only diff gets
+    # is the job where the slots were actually going: `Server smoke and Docker build`
+    # stands itself down. A data-only `if:` that read `matrix.node` died ~2 s into every
+    # leg (runs 1398, 1401, 1402) because a job condition is evaluated before the matrix
+    # exists, and a matrix built from an expression collapses to one unnamed leg that
+    # reports coverage it never had. There is no such thing as a data-only test leg, and
+    # half of a leg is still half of a leg on a closed pull request - the liveness read
+    # below is what stands a shard down, once, for both of them.
     strategy:
       fail-fast: false
       # 18 and 20 are gone on purpose rather than by accident: the repository writes
@@ -325,8 +350,9 @@ jobs:
       # cannot execute a single converted script - it fails on the first annotation with
       # `SyntaxError: Missing initializer in const declaration`.
       matrix:
-        node: [22, 24]
-    steps:
+        node: [22]
+        shard: [1, 2]
+    steps: &test_steps
       - name: Check out this commit
         uses: actions/checkout@v4
         with:
@@ -379,7 +405,50 @@ jobs:
           # declares 22.18, which is where node strips types with no flag.
           node scripts/check-node-floor.js --title "Test (Node ${want})"
 
-      - name: Full test suite, and the audits that run beside it
+      - name: Which half of the suites this shard runs
+        id: half
+        if: steps.still_open.outputs.closed != 'true'
+        env:
+          SHARD: ${{ matrix.shard }}
+        run: |
+          set -eu
+          dir="${RUNNER_TEMP:-/tmp}"
+          all="$dir/suites-all.txt"
+          mine="$dir/suites-this-shard.txt"
+          node scripts/run-tests.js --list | grep -E '^test/' > "$all" || true
+          listed=$(wc -l < "$all" | tr -d ' ')
+          # The runner's discovery is flat (`readdirSync(test/)`); a bucket is a first
+          # character, so a suite one level down would be claimed by no bucket and never
+          # run. Say so instead of dividing what is left.
+          flat=$(grep -cE '^test/[A-Za-z0-9][A-Za-z0-9._-]*\.test\.(js|ts)$' "$all" || true)
+          if [ "$listed" -ne "$flat" ]; then
+            echo "::error title=Shard partition::--list named ${listed} suites and only ${flat} of them are flat, alphanumerically named test/*.test.js|ts files - a shard cannot account for the rest, so this leg would report coverage it did not have"
+            exit 1
+          fi
+          if [ "$listed" -eq 0 ]; then
+            echo "::error title=Shard partition::--list named no suites at all - half of nothing is not a test run"
+            exit 1
+          fi
+          # Weight each bucket by how many suites it holds, heaviest first, and give each
+          # one to whichever half is currently lighter. Deterministic for a given tree, and
+          # it rebalances itself when suites are added rather than drifting against a list
+          # written by hand.
+          awk '{ n=$0; sub(/^test\//, "", n); print substr(n, 1, 1) }' "$all" \
+            | sort | uniq -c | sort -k1,1nr -k2,2 > "$dir/buckets.txt"
+          awk -v want="${SHARD}" '
+            { w=$1; k=$2; if (a <= b) { t=1; a+=w } else { t=2; b+=w } if (t == want) print k }
+          ' "$dir/buckets.txt" > "$mine"
+          expected=$(awk 'NR==FNR { c[$2]=$1; next } { s+=c[$1] } END { print s+0 }' "$dir/buckets.txt" "$mine")
+          buckets=$(wc -l < "$mine" | tr -d ' ')
+          if [ "$expected" -eq 0 ]; then
+            echo "::error title=Shard partition::shard ${SHARD} of 2 was assigned no suites out of ${listed} - the split would report a green leg that ran nothing"
+            exit 1
+          fi
+          echo "this shard: ${expected} of ${listed} suites in ${buckets} bucket(s): $(tr '\n' ' ' < "$mine")"
+          echo "expected=${expected}" >> "$GITHUB_OUTPUT"
+          echo "listed=${listed}" >> "$GITHUB_OUTPUT"
+
+      - name: Full test suite, this half of it, and the audits that run beside it
         if: steps.still_open.outputs.closed != 'true'
         env:
           # 4 is the standard GitHub runner's core count. The Forgejo copy ran 12 because
@@ -388,11 +457,15 @@ jobs:
           # assert wall-clock tripwires of their own and a leg that starves them reports a
           # flake as a failure.
           PF_TEST_CONCURRENCY: 4
+          EXPECTED: ${{ steps.half.outputs.expected }}
+          LISTED: ${{ steps.half.outputs.listed }}
         run: |
           set +e
           set -u
-          echo "suite width: ${PF_TEST_CONCURRENCY} workers on Node ${{ matrix.node }}"
           dir="${RUNNER_TEMP:-/tmp}"
+          mine="$dir/suites-this-shard.txt"
+          : > "$dir/suite.log"
+          echo "suite width: ${PF_TEST_CONCURRENCY} workers on Node ${{ matrix.node }}, ${EXPECTED} of ${LISTED} suites"
           # The JavaScript sweep and the three tree-wide static checks do not run here any
           # more. Measured on run 46116368231, the same 524 suites took 73.7 s on this leg
           # and 63.4 s on `Test (Node 24)`, which carries neither: the sweep starts eight
@@ -405,13 +478,17 @@ jobs:
           # slower and serial, and say so - the gate is the chain, not this optimisation.
           want="node scripts/audit-port-types.js && node scripts/audit-devices.js && node scripts/check-control-bytes.ts && node scripts/run-tests.js"
           have=$(node -e 'process.stdout.write((require("./package.json").scripts || {}).test || "")' 2>/dev/null || echo "")
+          audit_rc=0
+          audit_devices_rc=0
+          control_rc=0
           if [ "$have" != "$want" ]; then
             echo "::warning title=CI overlap drift::package.json scripts.test is not the four-command chain this step overlaps (${have:-<missing>}) - every leg is paying the scans in front of the suite again; update the chain in this step"
-            timeout --signal=TERM --kill-after=15 300 npm test
-            test_rc=$?
-            audit_rc=0
-            audit_devices_rc=0
-            control_rc=0
+            timeout --signal=TERM --kill-after=10 60 node scripts/audit-port-types.js > "$dir/audit-port-types.log" 2>&1
+            audit_rc=$?
+            timeout --signal=TERM --kill-after=10 60 node scripts/audit-devices.js > "$dir/audit-devices.log" 2>&1
+            audit_devices_rc=$?
+            timeout --signal=TERM --kill-after=10 60 node scripts/check-control-bytes.ts > "$dir/check-control-bytes.log" 2>&1
+            control_rc=$?
           else
             timeout --signal=TERM --kill-after=10 60 node scripts/audit-port-types.js > "$dir/audit-port-types.log" 2>&1 &
             audit_pid=$!
@@ -419,15 +496,40 @@ jobs:
             audit_devices_pid=$!
             timeout --signal=TERM --kill-after=10 60 node scripts/check-control-bytes.ts > "$dir/check-control-bytes.log" 2>&1 &
             control_pid=$!
-            timeout --signal=TERM --kill-after=15 300 node scripts/run-tests.js 2>&1 | tee "$dir/suite.log"
-            test_rc=${PIPESTATUS[0]}
-            wait "$audit_pid"
-            audit_rc=$?
-            wait "$audit_devices_pid"
-            audit_devices_rc=$?
-            wait "$control_pid"
-            control_rc=$?
           fi
+          # One invocation per bucket: the runner is the thing that counts suites, names a
+          # failing one and re-runs it alone, and every bucket gets all of that. The buckets
+          # are summed afterwards, and the sum is checked against the count the split said
+          # this shard was worth.
+          test_rc=0
+          ran=0
+          while IFS= read -r bucket; do
+            [ -n "$bucket" ] || continue
+            blog="$dir/suite-${bucket}.log"
+            echo "--- suites in ${bucket}, ${PF_TEST_CONCURRENCY} at a time, on Node ${{ matrix.node }} ---"
+            PF_TEST_CONCURRENCY="${PF_TEST_CONCURRENCY}" timeout --signal=TERM --kill-after=15 300 node scripts/run-tests.js --filter="test/${bucket}" > "$blog" 2>&1
+            rc=$?
+            cat "$blog"
+            cat "$blog" >> "$dir/suite.log"
+            n=$(grep -oE '^[0-9]+ suite\(s\) in' "$blog" | tail -1 | awk '{print $1}')
+            ran=$((ran + ${n:-0}))
+            if [ "$rc" -ne 0 ] && [ "$test_rc" -eq 0 ]; then
+              test_rc=$rc
+            fi
+          done < "$mine"
+          if [ "$have" = "$want" ]; then
+            wait "$audit_pid"; audit_rc=$?
+            wait "$audit_devices_pid"; audit_devices_rc=$?
+            wait "$control_pid"; control_rc=$?
+          fi
+          # Half a leg that ran less than its half is the failure this split could invent,
+          # so it is the one this step checks: same tree, same discovery, the buckets
+          # re-counted against what the runner actually reported.
+          if [ "$ran" -ne "${EXPECTED}" ]; then
+            echo "::error title=Shard coverage::this shard is worth ${EXPECTED} of ${LISTED} suites and the runner reported ${ran} - the halves no longer add up to the whole, so this leg has a gap"
+            exit 1
+          fi
+          echo "this shard ran ${ran} of ${LISTED} suites; the other shard is worth $((LISTED - EXPECTED))"
           # A suite that lost a race is not a broken tree, and a broken tree is not a flake.
           # Only a small, named set of suites that passes on its own inside the same leg is
           # called a flake, and it is reported as a warning. A harness that cannot name its
@@ -457,7 +559,7 @@ jobs:
                 fi
               done
               if [ -z "$alone_failed" ]; then
-                echo "::warning title=Suite flake (re-verified)::${count} suite(s) failed at ${PF_TEST_CONCURRENCY}-way concurrency and each one passes on its own on the same tree: ${flaked}. Every suite ran in this leg; these ran a second time in isolation and passed."
+                echo "::warning title=Suite flake (re-verified)::${count} suite(s) failed at ${PF_TEST_CONCURRENCY}-way concurrency and each one passes on its own on the same tree: ${flaked}. Every suite in this shard ran; these ran a second time in isolation and passed."
                 test_rc=0
               fi
             fi
@@ -468,9 +570,9 @@ jobs:
             cat "$dir/${log}.log"
           done
           if [ "$test_rc" -eq 124 ] || [ "$test_rc" -eq 137 ]; then
-            echo "::error title=Full test suite::the suite was still running after 300 s and was stopped - a green leg takes 46-69 s here, so this is a hung suite, not a slow one; the suites that had already reported are above"
+            echo "::error title=Full test suite::a bucket was still running after 300 s and was stopped - half a leg takes about half of 46-69 s here, so this is a hung suite, not a slow one; the suites that had already reported are above"
           elif [ "$test_rc" -ne 0 ]; then
-            echo "::error title=Full test suite::npm test exited ${test_rc}"
+            echo "::error title=Full test suite::a bucket exited ${test_rc} - the suites it named are above"
           fi
           report_static() {   # $1 = script name, $2 = exit status, $3 = check title
             if [ "$2" -eq 124 ] || [ "$2" -eq 137 ]; then
@@ -503,6 +605,60 @@ jobs:
             echo "::error title=Lab models::the catalogue check was still running after 120 s and was stopped"
           fi
           exit "$rc"
+
+  test24:
+    name: Test (Node ${{ matrix.node }}) shard ${{ matrix.shard }}/2
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    if: always()
+    strategy:
+      fail-fast: false
+      matrix:
+        node: [24]
+        shard: [1, 2]
+    steps: *test_steps
+
+  # The name the branch protection rule reads, and nothing else. The two halves of a leg
+  # are separate jobs because they are separate boxes; a leg that is half green is not
+  # green, and a leg whose second half was cancelled is not green either, so this job
+  # exists to say that once, in the place the gate is looking.
+  test22-gate:
+    name: Test (Node 22)
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    needs: [test22]
+    if: always()
+    steps:
+      - name: Both halves of this leg reported success
+        env:
+          RESULT: ${{ needs.test22.result }}
+        run: |
+          set -eu
+          case "${RESULT:-}" in
+            success) echo "both halves of Test (Node 22) reported success - every suite ran on the floor runtime" ;;
+            *)
+              echo "::error title=Test (Node 22)::the halves of this leg did not both report success (${RESULT:-<no answer>}) - half a leg that passed is still a leg with a gap"
+              exit 1 ;;
+          esac
+
+  test24-gate:
+    name: Test (Node 24)
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    needs: [test24]
+    if: always()
+    steps:
+      - name: Both halves of this leg reported success
+        env:
+          RESULT: ${{ needs.test24.result }}
+        run: |
+          set -eu
+          case "${RESULT:-}" in
+            success) echo "both halves of Test (Node 24) reported success - every suite ran on the newest runtime in the window" ;;
+            *)
+              echo "::error title=Test (Node 24)::the halves of this leg did not both report success (${RESULT:-<no answer>}) - half a leg that passed is still a leg with a gap"
+              exit 1 ;;
+          esac
 
   typecheck:
     name: Typecheck
@@ -629,7 +785,7 @@ jobs:
     name: Arm auto-merge
     runs-on: ubuntu-latest
     timeout-minutes: 5
-    needs: [test, docker, typecheck]
+    needs: [test22-gate, test24-gate, docker, typecheck]
     # A dispatch is how a branch updated by this job's own token gets verified: GitHub
     # holds the run that the bot's push starts for an approval nobody is there to give
     # (#1612: run 46044715475, `action_required`, zero jobs), and a dispatch is not held.
