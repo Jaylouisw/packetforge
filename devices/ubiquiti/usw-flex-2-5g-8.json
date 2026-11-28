@@ -3,7 +3,7 @@
   "model": "USW-Flex-2.5G-8",
   "label": "UniFi Switch Flex 2.5G",
   "category": "switch",
-  "description": "Ubiquiti USW-Flex-2.5G-8 - 8x 2.5GbE RJ45, 1x 10GbE RJ45 (PoE+ input), 1x 10G SFP+; powered by PoE+ or USB-C, no PoE output.",
+  "description": "Ubiquiti USW-Flex-2.5G-8 - 8x 2.5GbE RJ45, 1x 10GbE RJ45 (the PoE+ power inlet), 1x 10G SFP+; powered by PoE+ on the 10G RJ45 or by a USB-C adapter, no PoE output.",
   "capabilities": [
     "l2-forward",
     "cli",
@@ -13,47 +13,56 @@
     {
       "name": "Port 1",
       "type": "ethernet",
-      "speed": "2.5G"
+      "speed": "2.5G",
+      "poeIn": false
     },
     {
       "name": "Port 2",
       "type": "ethernet",
-      "speed": "2.5G"
+      "speed": "2.5G",
+      "poeIn": false
     },
     {
       "name": "Port 3",
       "type": "ethernet",
-      "speed": "2.5G"
+      "speed": "2.5G",
+      "poeIn": false
     },
     {
       "name": "Port 4",
       "type": "ethernet",
-      "speed": "2.5G"
+      "speed": "2.5G",
+      "poeIn": false
     },
     {
       "name": "Port 5",
       "type": "ethernet",
-      "speed": "2.5G"
+      "speed": "2.5G",
+      "poeIn": false
     },
     {
       "name": "Port 6",
       "type": "ethernet",
-      "speed": "2.5G"
+      "speed": "2.5G",
+      "poeIn": false
     },
     {
       "name": "Port 7",
       "type": "ethernet",
-      "speed": "2.5G"
+      "speed": "2.5G",
+      "poeIn": false
     },
     {
       "name": "Port 8",
       "type": "ethernet",
-      "speed": "2.5G"
+      "speed": "2.5G",
+      "poeIn": false
     },
     {
       "name": "Port 9",
       "type": "ethernet",
-      "speed": "10G"
+      "speed": "10G",
+      "poeIn": 14
     },
     {
       "name": "SFP+ 1",
@@ -67,5 +76,7 @@
     }
   ],
   "icon": "switch",
-  "color": "#3b82f6"
+  "color": "#3b82f6",
+  "sourceUrl": "https://techspecs.ui.com/unifi/switching/usw-flex-2-5g-8",
+  "notes": "Vendor rows read 2026-11-28 from https://techspecs.ui.com/unifi/switching/usw-flex-2-5g-8 (server-rendered table): **Port Layout 2.5 GbE RJ45 8 (2.5G/1G/100M/10M) / 10 GbE RJ45 1 (10G/5G/2.5G/1G/100M) / 10G SFP+ 1 (10G/1G)**; **Max. Power Consumption 14W with PoE input, 14W with AC adapter input**; **Power Method (1) USB Type-C, 5V DC, 3A (1) PoE+**; **Power Input Method USB Input / PoE**; **Supported Voltage Range 4.8-5.2V DC/USB, 44V-57V PoE**. The sheet carries no PoE Ports, Max PoE Output or Total PoE Availability row at all - unlike its PoE sibling (devices/ubiquiti/usw-flex-2-5g-8-poe.json, which prints \"PoE Ports PoE++ 8\" and 196 W of availability). This model sources no power, so all eight 2.5G sockets are declared poeIn: false rather than inheriting the engine guess. Which socket is the inlet: https://store.ui.com/us/en/products/usw-flex-2-5g-8 (read 2026-11-28) - \"Flexible, 8-port 2.5 GbE switch with a 10 GbE RJ45/SFP+ combination uplink port that can be powered with a USB-C or PoE+ adapter.\" The PoE+ inlet is therefore the 10G RJ45 (Port 9 in this sheet), and it draws the vendor's 14 W ceiling; the 2.5G bank and the SFP+ cage carry no power either way."
 }
