@@ -73,14 +73,14 @@ schedule says so; and the reconvergence reply equals the schedule's STP entry.
 ## What remains unresolved
 
 - **When the adoption happens is not modelled.** A real bridge uses the root's timers from the first
-  configuration BPDU it accepts, so a non-root that boots before the root (or during a root change) runs its
-  own numbers for the interval before that, and after the BPDU ages out it must wait `Max Age` before claiming
-  to be root. This model is a converged-graph calculation with a schedule on top: no BPDUs, no message age, no
-  ageing out, so the adoption applies from t=0 and a partition takes effect instantly. Timestamps from
-  `debug spanning-tree events` on both sides of a root change would settle the shape of that window.
-- **The max-age and hello halves of the adoption are inert.** Both are now carried by the timers in force, but
-  nothing in the engine ages a BPDU out or counts hello intervals, so the only number the adoption changes
-  today is the forward delay.
+  configuration BPDU it accepts, so a non-root that boots before the root, or during a root change, runs its
+  own numbers for the interval before that. This model is a converged-graph calculation with a schedule on
+  top: no BPDUs and no message age, so the adoption applies from t=0. The other end of the same window is
+  settled: a box that loses the root *indirectly* now holds the old root's BPDU for `Max Age` before it
+  claims the root role - see [stp-max-age-hold.md](stp-max-age-hold.md).
+- **The max-age and hello halves of the adoption were inert.** Max Age now has one effect, the wait at the end
+  of an indirect failure ([stp-max-age-hold.md](stp-max-age-hold.md)); hello intervals are still never counted,
+  so the only number the *adoption* changes on a steady board is still the forward delay.
 - **MSTP / RSTP are out of scope.** Both still take the timers from the root, but RSTP's proposal/agreement
   handshake replaces the listening/learning wait on point-to-point links, and this console refuses the
   per-instance commands by name. If RSTP is ever modelled, the two-forward-delay figure here becomes the
