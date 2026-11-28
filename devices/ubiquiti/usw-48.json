@@ -18,7 +18,8 @@
       "speedCaps": [
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth1",
@@ -28,7 +29,8 @@
       "speedCaps": [
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth2",
@@ -38,7 +40,8 @@
       "speedCaps": [
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth3",
@@ -48,7 +51,8 @@
       "speedCaps": [
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth4",
@@ -58,7 +62,8 @@
       "speedCaps": [
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth5",
@@ -68,7 +73,8 @@
       "speedCaps": [
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth6",
@@ -78,7 +84,8 @@
       "speedCaps": [
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth7",
@@ -88,7 +95,8 @@
       "speedCaps": [
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth8",
@@ -98,7 +106,8 @@
       "speedCaps": [
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth9",
@@ -108,7 +117,8 @@
       "speedCaps": [
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth10",
@@ -118,7 +128,8 @@
       "speedCaps": [
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth11",
@@ -128,7 +139,8 @@
       "speedCaps": [
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth12",
@@ -138,7 +150,8 @@
       "speedCaps": [
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth13",
@@ -148,7 +161,8 @@
       "speedCaps": [
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth14",
@@ -158,7 +172,8 @@
       "speedCaps": [
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth15",
@@ -168,7 +183,8 @@
       "speedCaps": [
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth16",
@@ -178,7 +194,8 @@
       "speedCaps": [
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth17",
@@ -188,7 +205,8 @@
       "speedCaps": [
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth18",
@@ -198,7 +216,8 @@
       "speedCaps": [
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth19",
@@ -208,7 +227,8 @@
       "speedCaps": [
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth20",
@@ -218,7 +238,8 @@
       "speedCaps": [
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth21",
@@ -228,7 +249,8 @@
       "speedCaps": [
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth22",
@@ -238,7 +260,8 @@
       "speedCaps": [
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth23",
@@ -248,7 +271,8 @@
       "speedCaps": [
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth24",
@@ -258,7 +282,8 @@
       "speedCaps": [
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth25",
@@ -268,7 +293,8 @@
       "speedCaps": [
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth26",
@@ -278,7 +304,8 @@
       "speedCaps": [
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth27",
@@ -288,7 +315,8 @@
       "speedCaps": [
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth28",
@@ -298,7 +326,8 @@
       "speedCaps": [
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth29",
@@ -308,7 +337,8 @@
       "speedCaps": [
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth30",
@@ -318,7 +348,8 @@
       "speedCaps": [
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth31",
@@ -328,7 +359,8 @@
       "speedCaps": [
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth32",
@@ -338,7 +370,8 @@
       "speedCaps": [
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth33",
@@ -348,7 +381,8 @@
       "speedCaps": [
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth34",
@@ -358,7 +392,8 @@
       "speedCaps": [
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth35",
@@ -368,7 +403,8 @@
       "speedCaps": [
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth36",
@@ -378,7 +414,8 @@
       "speedCaps": [
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth37",
@@ -388,7 +425,8 @@
       "speedCaps": [
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth38",
@@ -398,7 +436,8 @@
       "speedCaps": [
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth39",
@@ -408,7 +447,8 @@
       "speedCaps": [
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth40",
@@ -418,7 +458,8 @@
       "speedCaps": [
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth41",
@@ -428,7 +469,8 @@
       "speedCaps": [
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth42",
@@ -438,7 +480,8 @@
       "speedCaps": [
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth43",
@@ -448,7 +491,8 @@
       "speedCaps": [
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth44",
@@ -458,7 +502,8 @@
       "speedCaps": [
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth45",
@@ -468,7 +513,8 @@
       "speedCaps": [
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth46",
@@ -478,7 +524,8 @@
       "speedCaps": [
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "eth47",
@@ -488,7 +535,8 @@
       "speedCaps": [
         "1G",
         "100M"
-      ]
+      ],
+      "poeIn": false
     },
     {
       "name": "sfp1",
@@ -517,5 +565,6 @@
   ],
   "icon": "switch",
   "color": "#14b8a6",
-  "sourceUrl": "https://techspecs.ui.com/unifi/switching/usw-48"
+  "sourceUrl": "https://techspecs.ui.com/unifi/switching/usw-48",
+  "notes": "PoE, read 2026-11-28. `https://dl.ui.com/ds/usw-48_ds.pdf` (HTTP 200, `application/pdf`, 2,599,051 B, text layer) prints **Networking Interfaces = (48) 10/100/1000 Mbps Ethernet RJ45 Ports / (4) 1 Gbps SFP Ports**, **Power Method = Universal AC Input: 100-240VAC, 50/60 Hz**, **Power Supply = AC/DC, Internal, 60W** and **Max. Power Consumption = 40W**. Nothing on the sheet sources or sinks PoE: this is the non-PoE UniFi Switch 48. Its 48 copper ports carry `poeIn: false` because `isPoePd()` matched `unifi` in the label (\\\"UniFi Switch 48\\\") and inferred 12.95 W on each - 621.6 W drawn from a PSE by a switch on an internal 60 W AC supply."
 }
