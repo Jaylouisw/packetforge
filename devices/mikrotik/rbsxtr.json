@@ -3,7 +3,7 @@
   "model": "RBSXTR",
   "label": "SXT R",
   "category": "ptp",
-  "description": "MikroTik SXT R (RBSXTR) \u2014 2x 100M RJ45. MIPSBE 1-core QCA9531.",
+  "description": "MikroTik SXT R (RBSXTR) — 2x 100M RJ45. MIPSBE 1-core QCA9531.",
   "capabilities": [
     "l3-forward",
     "nat",
@@ -27,10 +27,16 @@
     {
       "name": "eth2",
       "type": "ethernet",
-      "speed": "100M"
+      "speed": "100M",
+      "poeOut": true,
+      "poeOutClass": "passive"
     }
   ],
   "icon": "ptp",
   "color": "#14b8a6",
-  "sourceUrl": "https://mikrotik.com/product/sxt_r"
+  "sourceUrl": "https://mikrotik.com/product/sxt_r",
+  "poe": {
+    "budgetUnknown": true
+  },
+  "notes": "Port roles from MikroTik's own spec table: **PoE in 802.3af/at** (12-57 V) through the single DC input, and **PoE-out ports: Ether2** (passive PoE up to 57 V, 600 mA low-voltage / 400 mA high-voltage limit). The prose says the *second* port carries PoE-out, so `eth1` is the drop that powers the unit. `eth2` is now marked as the PSE side; the outgoing port has a current limit and no wattage budget, hence `poe.budgetUnknown`. **MikroTik publishes no max power consumption for RBSXTR** - neither the product spec table nor the SXT R document (#50019) prints one - so `eth1` records no PD draw rather than a class number dressed as a datasheet figure. `poeIn` was therefore left off, not guessed."
 }
