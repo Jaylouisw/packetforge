@@ -1,6 +1,6 @@
 # Plan: the window in which a bridge adopts the root's timers
 
-Status: steps 1-2 landed (#1753), step 3 landed earlier as the Max Age hold (#1746), step 4 with them.
+Status: steps 1-2 landed (#1757), step 3 landed earlier as the Max Age hold (#1746), step 4 with them.
 Measured on `ba7ae217`, 2026-11-28. Closes **#1731**.
 
 **One step-2 number changed on the way in.** The plan charged every bridging non-root one hello at
