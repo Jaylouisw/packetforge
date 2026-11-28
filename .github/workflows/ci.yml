@@ -68,7 +68,17 @@ on:
   # Merging through the API does not always reach the runner as a push event, so `main`
   # can be the branch nothing verifies. This keeps that a choice rather than a gap: the
   # same matrix can be run against any branch on demand.
+  #
+  # `updates` is the arm's own bookkeeping, not a knob for people: the behind-the-base
+  # path dispatches the head it just updated and carries how many updates that branch has
+  # already taken. It bounds the update/verify pair (see `update_and_verify`); a dispatch
+  # that does not carry it is treated as already at the cap, which is the old refusal.
   workflow_dispatch:
+    inputs:
+      updates:
+        description: "How many times the arm has already updated this head onto its base"
+        required: false
+        default: "0"
 
 permissions:
   contents: read
@@ -645,9 +655,12 @@ jobs:
       NUMBER: ${{ github.event.pull_request.number }}
       HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
       # Set by the behind-the-base path below, which dispatches this workflow on the head
-      # ref. The dispatched run must not update the branch again: that would be a second
-      # run to verify an update nobody verified the first time, and an unbounded loop.
+      # ref. A dispatched run may update the branch again, but only within the budget it
+      # was handed: a second update needs a third run to verify what the second one did,
+      # and unbounded that is a loop nobody ever approves.
       DISPATCHED: ${{ github.event_name == 'workflow_dispatch' }}
+      UPDATE_COUNT: ${{ github.event.inputs.updates }}
+      MAX_UPDATES: "2"
     steps:
       - name: Merge once every check has reported green
         run: |
@@ -862,14 +875,39 @@ jobs:
           # (`expected_head_sha`), so a head that moved, or one that is not behind after
           # all, is a 422 and never an update of a tree nobody judged.
           update_and_verify() {
-            # A dispatched run must not update the branch a second time: a second update
-            # needs a third run to verify what the second one did, and there is no bound.
+            # One update, one advertised dispatch - and, since #1650, a counted second.
+            #
+            # A dispatched run used to refuse outright when the branch was behind again,
+            # because a second update needs a third run to verify what the second one did
+            # and nothing bounded that chain. But the base moves during the 100 s it takes
+            # to verify the new head. Measured on #1650 (run 46079051844, job
+            # 140774044719): the arm updated the branch, the dispatch it asked for was
+            # created at 22:50:41, its own arm read the pull request at 22:52:30 - green,
+            # and behind `main` again, which had moved in those two minutes - and the
+            # guard fired. The job went red; the pull request merged at 22:56:19 only
+            # because an unrelated run repeated the whole thing. A green head that keeps
+            # losing that race is not a person's decision, it is a queue that stalls.
+            #
+            # So the budget travels with the dispatch (`-f updates=<n>`). A dispatch that
+            # arrives without one is treated as already at the cap: a manual or older
+            # dispatch keeps exactly the old refusal instead of gaining an update it never
+            # advertised and that nothing counted.
+            next=1
             if [ "${DISPATCHED:-false}" = "true" ]; then
-              refuse gate "the branch is behind ${base} again, one run after it was updated. Updating it a second time would need a third run to verify what the second one did, and there is nobody to approve the run a bot's push starts - set PF_AUTOMERGE_TOKEN, which merges on its own without a dispatch"
+              prior="${UPDATE_COUNT:-}"
+              cap="${MAX_UPDATES:-2}"
+              case "$prior" in
+                '') refuse gate "the branch is behind ${base} again, one run after it was updated. Updating it a second time would need a third run to verify what the second one did, and there is nobody to approve the run a bot's push starts - set PF_AUTOMERGE_TOKEN, which merges on its own without a dispatch" ;;
+                *[!0-9]*) refuse gate "the branch is behind ${base} again and the update count this dispatch carried (${prior}) is not a number, so this gate cannot tell how far along the chain it is - set PF_AUTOMERGE_TOKEN, which merges on its own without a dispatch" ;;
+              esac
+              if [ "$prior" -ge "$cap" ]; then
+                refuse gate "the branch is behind ${base} again after ${prior} updates (the cap is ${cap}), so the base is moving faster than that many update-and-verify rounds can follow. This one needs a person, or PF_AUTOMERGE_TOKEN, which merges on its own without a dispatch"
+              fi
+              next=$((prior + 1))
             fi
             if update_branch; then
-              notice "#${NUMBER}: every check on ${HEAD_SHA} is green and the branch was behind ${base} - updated it, and dispatched ci.yml on ${head_ref} to verify the new head (the run the bot's push starts is held for approval: #1612)"
-              if gh workflow run ci.yml --repo "$repo" --ref "$head_ref" >/dev/null 2>&1; then
+              notice "#${NUMBER}: every check on ${HEAD_SHA} is green and the branch was behind ${base} - updated it (update ${next} of ${MAX_UPDATES:-2}), and dispatched ci.yml on ${head_ref} to verify the new head (the run the bot's push starts is held for approval: #1612)"
+              if gh workflow run ci.yml --repo "$repo" --ref "$head_ref" -f updates="$next" >/dev/null 2>&1; then
                 exit 0
               fi
               refuse gate "the branch was updated onto ${base} but the run that would verify the new head could not be dispatched, and the run the update itself starts is held for a manual approval that nothing will give"
